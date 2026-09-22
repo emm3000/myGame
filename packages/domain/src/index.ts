@@ -6,7 +6,7 @@ export { deriveOccupiedPeasants } from './fief/deriveOccupiedPeasants'
 export { deriveResourceRates } from './fief/deriveResourceRates'
 export { deriveSuppliedPeasants } from './fief/deriveSuppliedPeasants'
 export { deriveWarehouseCapacity } from './fief/deriveWarehouseCapacity'
-export { Fief, type FiefFounding, type Stocks } from './fief/Fief'
+export { Fief, type FiefFounding, type Stocks, type StoredFief, type Upgrade } from './fief/Fief'
 export type { FiefBuildingLevels } from './fief/FiefBuildingLevels'
 export type { FiefId } from './fief/FiefId'
 export { FiefName } from './fief/FiefName'
@@ -32,6 +32,11 @@ export type { ResourceKind, Resources } from './resources/Resources'
 export { Resource } from './resources/Resources'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
+export {
+  type EnqueueBuildingCommand,
+  type EnqueueBuildingDependencies,
+  enqueueBuilding,
+} from './useCases/enqueueBuilding'
 export {
   type FoundFiefCommand,
   type FoundFiefDependencies,
