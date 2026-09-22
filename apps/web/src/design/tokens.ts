@@ -53,23 +53,57 @@ export function color(token: ColorToken): string {
   return `var(--${token})`
 }
 
-function declarations(theme: Theme): string {
-  return Object.entries(palette)
-    .map(([token, values]) => `--${token}:${values[theme]};`)
-    .join('')
-}
-
-export function paletteStyleSheet(): string {
-  return [
-    `:root{color-scheme:light dark;${declarations('light')}}`,
-    `@media (prefers-color-scheme: dark){:root{${declarations('dark')}}}`,
-  ].join('')
-}
-
 export type TypeFamily = 'display' | 'body' | 'utility'
 
 export const typeFamilies: Readonly<Record<TypeFamily, string>> = {
   display: "'Cormorant Garamond', 'Palatino Linotype', Georgia, serif",
   body: "Alegreya, Georgia, 'Times New Roman', serif",
   utility: "'Alegreya Sans', 'Gill Sans', 'Trebuchet MS', sans-serif",
+}
+
+export type SpaceStep = 1 | 2 | 3 | 4 | 6 | 8 | 12
+
+export const spacing: Readonly<Record<SpaceStep, string>> = {
+  1: '4px',
+  2: '8px',
+  3: '12px',
+  4: '16px',
+  6: '24px',
+  8: '32px',
+  12: '48px',
+}
+
+export type TypeStyle =
+  | 'display-xl'
+  | 'title'
+  | 'heading'
+  | 'body'
+  | 'caption'
+  | 'numeral-lg'
+  | 'numeral'
+  | 'label'
+  | 'button'
+
+export interface TypeStyleValues {
+  readonly fontSize: string
+  readonly lineHeight: string
+  readonly fontWeight: number
+  readonly letterSpacing?: string
+}
+
+export const typeScale: Readonly<Record<TypeStyle, TypeStyleValues>> = {
+  'display-xl': { fontSize: '40px', lineHeight: '44px', fontWeight: 600 },
+  title: { fontSize: '26px', lineHeight: '32px', fontWeight: 600 },
+  heading: { fontSize: '18px', lineHeight: '24px', fontWeight: 700 },
+  body: { fontSize: '16px', lineHeight: '24px', fontWeight: 400 },
+  caption: { fontSize: '13px', lineHeight: '18px', fontWeight: 400 },
+  'numeral-lg': { fontSize: '22px', lineHeight: '26px', fontWeight: 700 },
+  numeral: { fontSize: '16px', lineHeight: '20px', fontWeight: 600 },
+  label: {
+    fontSize: '12px',
+    lineHeight: '16px',
+    fontWeight: 600,
+    letterSpacing: '0.08em',
+  },
+  button: { fontSize: '15px', lineHeight: '20px', fontWeight: 600 },
 }
