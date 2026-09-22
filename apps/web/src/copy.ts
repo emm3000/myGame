@@ -1,3 +1,4 @@
+import type { BuildingKind, ResourceKind } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 
 const refusals: Readonly<Record<ApiRefusal, string>> = {
@@ -14,10 +15,40 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   Unexpected: 'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
 }
 
+const resources: Readonly<Record<ResourceKind, string>> = {
+  wood: 'madera',
+  stone: 'piedra',
+  iron: 'hierro',
+  gold: 'oro',
+  food: 'comida',
+}
+
+const buildings: Readonly<Record<BuildingKind, string>> = {
+  sawmill: 'Aserradero',
+  quarry: 'Cantera',
+  ironMine: 'Mina de hierro',
+  farm: 'Granja',
+  warehouse: 'Almacén',
+}
+
+const kingdoms: Readonly<Partial<Record<number, string>>> = {
+  1: 'Vadoalto',
+}
+
+const names = {
+  resources,
+  peasants: 'campesinos',
+  buildings,
+  kingdoms,
+  level: (level: number): string => `nivel ${level}`,
+  slot: 'la obra',
+  busySlot: 'una obra en marcha',
+  idleSlot: 'Tu feudo no tiene obra.',
+} as const
+
 export const copy = {
   shell: {
     title: 'myGame',
-    welcome: 'Tu feudo te espera. Pronto podrás levantarlo piedra a piedra.',
     signOut: 'Salir',
   },
   auth: {
@@ -38,6 +69,16 @@ export const copy = {
       switchPrompt: '¿Ya tienes cuenta?',
       switchLink: 'Entra',
     },
+  },
+  names,
+  fief: {
+    loading: 'Estamos leyendo tu feudo…',
+    buildings: 'Edificios',
+    full: 'lleno',
+    free: 'libres',
+    occupied: 'ocupados',
+    finished: 'Terminada',
+    justFinished: 'La obra ha terminado. Estamos poniendo al día tu feudo.',
   },
   refusals,
 } as const

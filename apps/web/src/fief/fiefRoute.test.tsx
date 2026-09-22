@@ -1,0 +1,104 @@
+import type { FiefOverview } from '@mygame/contracts'
+import { act, screen } from '@testing-library/react'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import type { ApiClient } from '../api/apiClient'
+import { renderAppAt } from '../auth/renderAppAt.testSupport'
+import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { copy } from '../copy'
+
+const readAt = new Date(knownFief.readAt)
+
+beforeEach(() => {
+  vi.useFakeTimers({ now: readAt })
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
+const passSeconds = async (seconds: number): Promise<void> => {
+  await act(() => vi.advanceTimersByTimeAsync(seconds * 1000))
+}
+
+const signedInClientServing = (fief: () => FiefOverview): ApiClient =>
+  stubApiClient({
+    currentPlayer: async () => knownPlayer,
+    fief: async () => ({ ok: true, value: fief() }),
+  })
+
+const showFief = async (apiClient: ApiClient): Promise<void> => {
+  renderAppAt('/', apiClient)
+  await passSeconds(0)
+}
+
+const woodCell = (): HTMLElement =>
+  screen.getByRole('listitem', { name: copy.names.resources.wood })
+
+it('advances the wood amount between reads from the server rate', async () => {
+  const woodAtOnePerSecond: FiefOverview = {
+    ...knownFief,
+    resources: {
+      ...knownFief.resources,
+      wood: { amount: 1000, ratePerHour: 3600, capacity: 20000 },
+    },
+  }
+  await showFief(signedInClientServing(() => woodAtOnePerSecond))
+
+  await passSeconds(10)
+
+  expect(woodCell().textContent).toContain('1 010')
+})
+
+it('stops the interpolated amount at the capacity', async () => {
+  const woodTenSecondsFromFull: FiefOverview = {
+    ...knownFief,
+    resources: {
+      ...knownFief.resources,
+      wood: { amount: 19990, ratePerHour: 3600, capacity: 20000 },
+    },
+  }
+  await showFief(signedInClientServing(() => woodTenSecondsFromFull))
+
+  await passSeconds(30)
+
+  expect(woodCell().textContent).toContain('20 000')
+  expect(woodCell().textContent).not.toContain('20 020')
+})
+
+it('re-reads the fief when the countdown reaches zero', async () => {
+  const sawmillFinishingInThirtySeconds: FiefOverview = {
+    ...knownFief,
+    slot: {
+      kind: 'busy',
+      building: 'sawmill',
+      targetLevel: 2,
+      finishesAt: '2026-09-22T12:00:30.000Z',
+    },
+  }
+  const fief = vi.fn(() => sawmillFinishingInThirtySeconds)
+  await showFief(signedInClientServing(fief))
+
+  await passSeconds(30)
+
+  expect(fief).toHaveBeenCalledTimes(2)
+})
+
+it('does not re-read more than once a minute while idle', async () => {
+  const fief = vi.fn(() => knownFief)
+  await showFief(signedInClientServing(fief))
+
+  await passSeconds(59)
+
+  expect(fief).toHaveBeenCalledTimes(1)
+})
+
+it('re-reads the fief when the window regains focus', async () => {
+  const fief = vi.fn(() => knownFief)
+  await showFief(signedInClientServing(fief))
+
+  await act(async () => {
+    window.dispatchEvent(new Event('focus'))
+  })
+
+  expect(fief).toHaveBeenCalledTimes(2)
+})

@@ -22,6 +22,7 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - `src/routes/_signedIn.tsx`, `src/routes/_guest.tsx` — pathless layouts with `ssr: false` whose `beforeLoad` asks `currentPlayer()`: a signed-out visitor is sent to `/sign-in`, a signed-in one to `/`. The `ApiClient` reaches routes through the router context (`createRootRouteWithContext`), so tests pass a stub client to `createAppRouter` instead of mocking a module.
 - `src/auth/` — the sign-in and sign-up screens (presentational) and `renderAppAt`, which renders the real route tree at a path over a memory history for tests.
 - `src/shell/` — the app shell.
+- `src/fief/` — the fief screen at `/_signedIn/`: `FiefScreen` (presentational), `liveFief` (interpolation from the last `FiefOverview` and its rates, capped at capacity) and `useLiveFief` (the re-read policy: on mount, on window focus, when the slot countdown reaches zero, and 60 seconds after the last read). Its route tests live here as `fiefRoute.test.tsx`, on fake timers.
 
 ## Gotchas
 
