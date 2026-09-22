@@ -1,9 +1,12 @@
 import { fileURLToPath } from 'node:url'
+import { Instant } from '@mygame/domain'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { DrizzleAccounts } from './DrizzleAccounts'
 import { fiefBuildings, fiefs, players, sessions } from './schema'
+import { sessionTokenDigest } from './sessionTokenDigest'
 
 const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.meta.url))
 
@@ -121,14 +124,29 @@ describe('the migrations', () => {
     })
   })
 
-  it('refuses two sessions with the same token', async () => {
+  it('refuses two sessions with the same token digest', async () => {
     await db.insert(players).values([ana, bruno])
     const expiresAt = new Date('2026-10-22T08:00:00Z')
-    await db.insert(sessions).values({ token: 'opaque-token', playerId: ana.id, expiresAt })
+    const tokenDigest = sessionTokenDigest('opaque-token')
+    await db.insert(sessions).values({ tokenDigest, playerId: ana.id, expiresAt })
 
     await expect(
-      db.insert(sessions).values({ token: 'opaque-token', playerId: bruno.id, expiresAt }),
+      db.insert(sessions).values({ tokenDigest, playerId: bruno.id, expiresAt }),
     ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'sessions_pkey' } })
+  })
+
+  it('refuses a session stored with a plain token', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(sessions).values({
+        tokenDigest: 'opaque-token',
+        playerId: ana.id,
+        expiresAt: new Date('2026-10-22T08:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'sessions_token_digest_hex' },
+    })
   })
 
   it('refuses a second level row for the same building on a fief', async () => {
@@ -274,5 +292,36 @@ describe('the busy slot start migration', () => {
     })
 
     expect(await slotStartOf(anasFief.id)).toBeNull()
+  })
+})
+
+describe('the session token digest migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps a session opened before the digest signed in', async () => {
+    const token = 'opened-before-the-digest'
+    await migratedFrom(client, 3, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await client.query(
+        `INSERT INTO sessions (token, player_id, expires_at) VALUES ($1, $2, '2026-10-22T08:00:00Z')`,
+        [token, ana.id],
+      )
+    })
+
+    const renewedFor = await new DrizzleAccounts(drizzle(client)).renewSession(
+      token,
+      Instant.fromEpochMilliseconds(Date.parse('2026-09-23T08:00:00Z')),
+      Instant.fromEpochMilliseconds(Date.parse('2026-10-23T08:00:00Z')),
+    )
+
+    expect(renewedFor).toBe(ana.id)
   })
 })

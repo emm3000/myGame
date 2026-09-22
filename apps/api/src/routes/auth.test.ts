@@ -3,6 +3,7 @@ import { ApiErrorSchema, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { sessionTokenDigest } from '../adapters/postgres/sessionTokenDigest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 
@@ -50,6 +51,17 @@ const playersWithEmail = async (email: string): Promise<number> => {
       email,
     ])
     return found.rowCount ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
+const storedSessionKeys = async (): Promise<ReadonlyArray<string>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ key: string }>('SELECT token_digest AS key FROM sessions')
+    return found.rows.map((row) => row.key)
   } finally {
     await client.end()
   }
@@ -198,6 +210,12 @@ describe('the auth routes', () => {
     const setCookie = response.headers.get('set-cookie') ?? ''
     expect(setCookie).toContain('HttpOnly')
     expect(setCookie).not.toContain('Secure')
+  })
+
+  it('stores the digest of the session token, never the token', async () => {
+    const [, token = ''] = sessionCookieOf(await signUpAna()).split('=')
+
+    expect(await storedSessionKeys()).toEqual([sessionTokenDigest(token)])
   })
 
   it('answers the signed-in player behind the session cookie', async () => {

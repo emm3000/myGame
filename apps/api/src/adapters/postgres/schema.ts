@@ -32,13 +32,17 @@ export const players = pgTable(
   (table) => [uniqueIndex('players_email_unique').on(sql`lower(${table.email})`)],
 )
 
-export const sessions = pgTable('sessions', {
-  token: text('token').primaryKey(),
-  playerId: uuid('player_id')
-    .notNull()
-    .references(() => players.id, { onDelete: 'cascade' }),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-})
+export const sessions = pgTable(
+  'sessions',
+  {
+    tokenDigest: text('token_digest').primaryKey(),
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [check('sessions_token_digest_hex', sql`${table.tokenDigest} ~ '^[0-9a-f]{64}$'`)],
+)
 
 export const fiefs = pgTable(
   'fiefs',
