@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm'
 import {
+  type AnyPgColumn,
+  check,
   doublePrecision,
   integer,
   pgEnum,
@@ -11,6 +13,9 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
+
+const wholeAmount = (name: string, amount: AnyPgColumn) =>
+  check(name, sql`${amount} >= 0 AND ${amount} = trunc(${amount})`)
 
 export const terrain = pgEnum('terrain', ['lowlands', 'uplands', 'ridges'])
 
@@ -57,7 +62,15 @@ export const fiefs = pgTable(
     slotLevel: integer('slot_level'),
     slotFinishesAt: timestamp('slot_finishes_at', { withTimezone: true }),
   },
-  (table) => [unique('fiefs_coordinates_unique').on(table.kingdom, table.province, table.plot)],
+  (table) => [
+    unique('fiefs_coordinates_unique').on(table.kingdom, table.province, table.plot),
+    uniqueIndex('fiefs_player_unique').on(table.playerId),
+    wholeAmount('fiefs_wood_whole', table.wood),
+    wholeAmount('fiefs_stone_whole', table.stone),
+    wholeAmount('fiefs_iron_whole', table.iron),
+    wholeAmount('fiefs_gold_whole', table.gold),
+    wholeAmount('fiefs_food_whole', table.food),
+  ],
 )
 
 export const fiefBuildings = pgTable(
