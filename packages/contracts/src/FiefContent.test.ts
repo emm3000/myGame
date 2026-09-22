@@ -7,21 +7,35 @@ const terrainBonus = {
   ridges: { resource: 'iron', ratePerHour: 10 },
 }
 
-const fiefContent = (bonus: unknown): unknown => ({
+const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   startingStocks: { wood: 500, stone: 300, iron: 200, gold: 0, food: 300 },
   startingCapacity: 1000,
   basePeasantSupply: 6,
-  terrainBonus: bonus,
+  plotsPerProvince: 15,
+  terrainBonus,
+  ...overrides,
 })
 
 describe('FiefContentSchema', () => {
   it('parses fief settings with a bonus for every terrain', () => {
-    expect(FiefContentSchema.parse(fiefContent(terrainBonus))).toEqual(fiefContent(terrainBonus))
+    expect(FiefContentSchema.parse(fiefContent({}))).toEqual(fiefContent({}))
   })
 
   it('rejects fief settings missing the bonus of a terrain', () => {
     const { ridges: _, ...twoTerrains } = terrainBonus
 
-    expect(FiefContentSchema.safeParse(fiefContent(twoTerrains)).success).toBe(false)
+    expect(FiefContentSchema.safeParse(fiefContent({ terrainBonus: twoTerrains })).success).toBe(
+      false,
+    )
+  })
+
+  it('reads how many plots a province holds', () => {
+    const parsed = FiefContentSchema.parse(fiefContent({ plotsPerProvince: 15 }))
+
+    expect(parsed.plotsPerProvince).toBe(15)
+  })
+
+  it('rejects a province without plots', () => {
+    expect(FiefContentSchema.safeParse(fiefContent({ plotsPerProvince: 0 })).success).toBe(false)
   })
 })
