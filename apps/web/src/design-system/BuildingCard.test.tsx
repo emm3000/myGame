@@ -20,9 +20,11 @@ function quarryShortOfStone(): BuildingCardProps {
 it('marks a building card as too expensive when the cost exceeds the amounts', () => {
   render(<BuildingCard {...quarryShortOfStone()} />)
 
-  expect(screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).hasAttribute('disabled')).toBe(
-    true,
-  )
+  expect(
+    screen
+      .getByRole('button', { name: 'Upgrade · 3 h 5 min. You lack 985 stone.' })
+      .hasAttribute('disabled'),
+  ).toBe(true)
   expect(screen.getByText('You lack 985 stone.')).toBeDefined()
 })
 

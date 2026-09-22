@@ -8,6 +8,11 @@ export type LiveFiefState =
   | { readonly kind: 'refused'; readonly refusal: ApiRefusal }
   | { readonly kind: 'live'; readonly fief: LiveFief; readonly slotTotalSeconds: number }
 
+export interface LiveFiefHandle {
+  readonly state: LiveFiefState
+  readonly adopt: (overview: FiefOverview) => void
+}
+
 interface LastRead {
   readonly overview: FiefOverview
   readonly receivedAtMs: number
@@ -81,7 +86,7 @@ function useSlotTotalSeconds(lastRead: LastRead | undefined): number {
   return firstSight.current.remainingSeconds
 }
 
-export function useLiveFief(apiClient: ApiClient): LiveFiefState {
+export function useLiveFief(apiClient: ApiClient): LiveFiefHandle {
   const [lastRead, setLastRead] = useState<LastRead>()
   const [refusal, setRefusal] = useState<ApiRefusal>()
   const isReading = useRef(false)
@@ -101,6 +106,11 @@ export function useLiveFief(apiClient: ApiClient): LiveFiefState {
     setRefusal(outcome.refusal)
   }, [apiClient])
 
+  const adopt = useCallback((overview: FiefOverview): void => {
+    setLastRead({ overview, receivedAtMs: Date.now() })
+    setRefusal(undefined)
+  }, [])
+
   useEffect(() => {
     void read()
   }, [read])
@@ -110,7 +120,11 @@ export function useLiveFief(apiClient: ApiClient): LiveFiefState {
 
   if (lastRead !== undefined) {
     const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, nowMs)
-    return { kind: 'live', fief: liveFiefAt(lastRead.overview, elapsedSeconds), slotTotalSeconds }
+    const fief = liveFiefAt(lastRead.overview, elapsedSeconds)
+    return { state: { kind: 'live', fief, slotTotalSeconds }, adopt }
   }
-  return refusal === undefined ? { kind: 'loading' } : { kind: 'refused', refusal }
+  return {
+    state: refusal === undefined ? { kind: 'loading' } : { kind: 'refused', refusal },
+    adopt,
+  }
 }

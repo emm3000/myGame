@@ -51,5 +51,6 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   signOut: async () => ({ ok: true, value: undefined }),
   currentPlayer: async () => undefined,
   fief: async () => ({ ok: true, value: knownFief }),
+  enqueueUpgrade: async () => ({ ok: true, value: knownFief }),
   ...overrides,
 })
