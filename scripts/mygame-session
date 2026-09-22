@@ -1,0 +1,22 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+if (( $# != 3 )); then
+  echo "usage: scripts/mygame-session <name> <model> <effort>" >&2
+  exit 64
+fi
+
+name="$1"
+model="$2"
+effort="$3"
+repo="${0:A:h:h}"
+worktree="${repo:h}/mygame-$name"
+
+if [[ ! -d "$worktree" ]]; then
+  git -C "$repo" fetch -q origin
+  git -C "$repo" worktree add --detach "$worktree" origin/trunk
+fi
+
+cd "$worktree"
+pnpm install --frozen-lockfile --silent
+exec claude -n "$name" --model "$model" --effort "$effort" --permission-mode bypassPermissions
