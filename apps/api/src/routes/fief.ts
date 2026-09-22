@@ -5,16 +5,15 @@ import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFief
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
 import { answerRefusal } from '../http/answerRefusal'
+import { bodyOf } from '../http/bodyOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 
 export type FiefDependencies = CurrentFiefDependencies &
   EnqueueUpgradeDependencies &
   RequirePlayerDependencies
 
-const bodyOf = (c: Context): Promise<unknown> => c.req.json().catch(() => undefined)
-
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
-  const answerOverview = (c: Context, fief: Result<Fief, DomainError>): Response => {
+  const answerFief = (c: Context, fief: Result<Fief, DomainError>): Response => {
     if (!fief.ok) {
       return answerRefusal(c, fief.error)
     }
@@ -28,14 +27,14 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
   const signedInPlayer = requirePlayer(dependencies)
   return new Hono()
     .get('/', signedInPlayer, async (c) =>
-      answerOverview(c, await currentFiefOf(c.var.playerId, dependencies)),
+      answerFief(c, await currentFiefOf(c.var.playerId, dependencies)),
     )
     .post('/upgrades', signedInPlayer, async (c) => {
       const request = EnqueueBuildingRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
-      return answerOverview(
+      return answerFief(
         c,
         await enqueueUpgradeOf(c.var.playerId, request.data.building, dependencies),
       )

@@ -4,7 +4,6 @@ import {
   type DomainError,
   type Fief,
   type FiefRepository,
-  type Instant,
   ok,
   type PlayerId,
   type Result,
@@ -12,6 +11,7 @@ import {
 } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { FiefReader } from './FiefReader'
+import { laterOf } from './laterOf'
 
 export type CurrentFiefDependencies = {
   readonly fiefs: FiefReader
@@ -26,9 +26,6 @@ const dryRunOver = (fiefs: FiefReader): FiefRepository => ({
   fiefOf: (playerId) => fiefs.fiefOf(playerId),
   save: async () => ok(undefined),
 })
-
-const laterOf = (left: Instant, right: Instant): Instant =>
-  left.epochMilliseconds >= right.epochMilliseconds ? left : right
 
 export const currentFiefOf = async (
   playerId: PlayerId,

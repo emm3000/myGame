@@ -324,6 +324,24 @@ describe('the fief route', () => {
       expect(stored.ok && stored.value?.slot.kind).toBe('busy')
     })
 
+    it('refuses by name an upgrade whose instant is earlier than the stored one', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const laggingClock = movableClock()
+      const laggingApp = createApp({ ...server, clock: laggingClock })
+      clock.advanceMinutes(5)
+      laggingClock.advanceMinutes(3)
+      await enqueue(ana.cookie, 'sawmill')
+
+      const response = await laggingApp.request('/fief/upgrades', {
+        method: 'POST',
+        headers: { cookie: ana.cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ building: 'quarry' }),
+      })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('SlotBusy')
+    })
+
     it('answers 400 to a building the wire does not name', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
