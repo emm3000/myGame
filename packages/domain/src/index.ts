@@ -1,0 +1,5 @@
+export type { DomainError } from './DomainError'
+export type { Clock } from './ports/Clock'
+export { err, ok, type Result } from './Result'
+export { Duration } from './time/Duration'
+export { Instant } from './time/Instant'

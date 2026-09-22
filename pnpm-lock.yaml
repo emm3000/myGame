@@ -43,6 +43,15 @@ importers:
         specifier: 'catalog:'
         version: 5.0.1(vite@8.3.0)
 
+  packages/domain:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.1(vite@8.3.0)
+
 packages:
 
   '@biomejs/biome@2.5.14':
