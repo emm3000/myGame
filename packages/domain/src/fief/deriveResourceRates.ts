@@ -7,16 +7,6 @@ import type { Terrain } from './Terrain'
 
 type RateBearingBuilding = 'sawmill' | 'quarry' | 'ironMine' | 'farm'
 
-const PRODUCERS: ReadonlyArray<{
-  readonly building: RateBearingBuilding
-  readonly resource: ResourceKind
-}> = [
-  { building: 'sawmill', resource: 'wood' },
-  { building: 'quarry', resource: 'stone' },
-  { building: 'ironMine', resource: 'iron' },
-  { building: 'farm', resource: 'food' },
-]
-
 const producerRate = (
   catalog: BuildingCatalog,
   building: RateBearingBuilding,
@@ -26,7 +16,7 @@ const producerRate = (
     return ok(0)
   }
   const found = catalog.levelOf(building, level)
-  if (found === undefined || found.building === 'warehouse') {
+  if (found === undefined || found.building !== building) {
     return err({ kind: 'UnknownBuildingLevel', building, level })
   }
   return ok(found.ratePerHour)
@@ -37,14 +27,29 @@ export const deriveResourceRates = (
   terrain: Terrain,
   catalog: BuildingCatalog,
 ): Result<Readonly<Record<ResourceKind, number>>, DomainError> => {
-  const rates: Record<ResourceKind, number> = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
+  const wood = producerRate(catalog, 'sawmill', buildingLevels.sawmill)
+  if (!wood.ok) {
+    return wood
+  }
+  const stone = producerRate(catalog, 'quarry', buildingLevels.quarry)
+  if (!stone.ok) {
+    return stone
+  }
+  const iron = producerRate(catalog, 'ironMine', buildingLevels.ironMine)
+  if (!iron.ok) {
+    return iron
+  }
+  const food = producerRate(catalog, 'farm', buildingLevels.farm)
+  if (!food.ok) {
+    return food
+  }
 
-  for (const producer of PRODUCERS) {
-    const rate = producerRate(catalog, producer.building, buildingLevels[producer.building])
-    if (!rate.ok) {
-      return rate
-    }
-    rates[producer.resource] = rate.value
+  const rates: Record<ResourceKind, number> = {
+    wood: wood.value,
+    stone: stone.value,
+    iron: iron.value,
+    gold: 0,
+    food: food.value,
   }
 
   const bonus = catalog.fiefSettings().terrainBonus[terrain]
