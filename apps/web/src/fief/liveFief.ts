@@ -25,7 +25,7 @@ export function slotRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: n
   return Math.max(0, atReadSeconds - elapsedSeconds)
 }
 
-export function slotTotalSecondsOf(overview: FiefOverview): number {
+function slotTotalSecondsOf(overview: FiefOverview): number {
   if (overview.slot.kind === 'idle') {
     return 0
   }
