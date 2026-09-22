@@ -26,7 +26,7 @@ packages/domain    -> nothing
 
 Every package defines `typecheck` and `test` scripts, because `pnpm -r` fails on a package that lacks the script it was asked to run. Versions shared by more than one package are written once in the `catalog` of `pnpm-workspace.yaml`, never repeated per package.
 
-None of the four packages exists yet; scaffolding each is a first-wave ticket.
+All four packages exist; each carries its own `CLAUDE.md`.
 
 ## Product
 

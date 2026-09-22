@@ -25,3 +25,5 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 |---|---|---|---|---|---|
 | #24 | #3 | 4 | opus:high | MERGE | |
 | #25 | #2 | 4 | opus:high | MERGE | |
+| #26 | #6 | 4 | opus:high | FIX FIRST | checklist |
+| #27 | #7 | 4 | opus:high | MERGE | |
