@@ -4,9 +4,12 @@ import { Fief } from '../fief/Fief'
 import { FiefName } from '../fief/FiefName'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
-import type { FiefRepository } from '../ports/FiefRepository'
 import type { IdGenerator } from '../ports/IdGenerator'
 import { err, ok } from '../Result'
+import {
+  type InMemoryFiefRepository,
+  inMemoryFiefRepository,
+} from '../testing/inMemoryFiefRepository'
 import { Instant } from '../time/Instant'
 import { foundFief } from './foundFief'
 
@@ -41,30 +44,12 @@ const sequentialIds = (): IdGenerator => {
   }
 }
 
-type InMemoryFiefRepository = FiefRepository & {
-  savedFiefs(): ReadonlyArray<Fief>
-}
-
-const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryFiefRepository => {
-  const fiefs = [...existing]
-  return {
-    savedFiefs: () => [...fiefs],
-    occupiedPlots: async () =>
-      fiefs.map(({ coordinates: { kingdom, province, plot } }) => ({ kingdom, province, plot })),
-    holdsFief: async (playerId) => fiefs.some((fief) => fief.playerId === playerId),
-    fiefOf: async (playerId) => fiefs.find((fief) => fief.playerId === playerId),
-    save: async (fief) => {
-      fiefs.push(fief)
-      return ok(undefined)
-    },
-  }
-}
-
 const raceLostFiefRepository = (): InMemoryFiefRepository => ({
   savedFiefs: () => [],
   occupiedPlots: async () => [],
   holdsFief: async () => false,
-  fiefOf: async () => undefined,
+  storedFiefOf: () => undefined,
+  fiefOf: async () => ok(undefined),
   save: async (fief) => err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates }),
 })
 
