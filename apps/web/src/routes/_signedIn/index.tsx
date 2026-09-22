@@ -9,7 +9,11 @@ import { useUpgrade } from '../../fief/useUpgrade'
 function FiefOverviewPage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { state, adopt } = useLiveFief(apiClient)
-  const upgrade = useUpgrade(apiClient, adopt)
+  const upgrade = useUpgrade(
+    apiClient,
+    adopt,
+    state.kind === 'live' ? state.fief.overview.readAt : undefined,
+  )
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.fief.loading}</p>

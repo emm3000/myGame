@@ -24,6 +24,7 @@ export interface BuildingCardProps {
   readonly actionLabel: string
   readonly durationSeconds: number
   readonly state: BuildingCardState
+  readonly titleElement: 'h3' | 'h4'
   readonly isWaiting?: boolean
   readonly onUpgrade?: (() => void) | undefined
 }
@@ -112,14 +113,15 @@ function Footer({
 
 export function BuildingCard(props: BuildingCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
+  const Title = props.titleElement
   return (
     <Panel element="article" toneClass={cardTone[props.state.kind]} spacingClass="gap-3 p-4">
       <header className="flex items-baseline justify-between gap-2">
-        <h3
+        <Title
           className={`m-0 font-display text-title ${isAtMaxLevel ? 'text-ink-muted' : 'text-ink'}`}
         >
           {props.name}
-        </h3>
+        </Title>
         <span
           className={`rounded-pill px-2 font-utility text-label tabular-nums ${isAtMaxLevel ? 'bg-moss text-on-moss' : 'bg-umber text-on-umber'}`}
         >
