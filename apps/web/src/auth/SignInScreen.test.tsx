@@ -1,8 +1,8 @@
 import { fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { copy } from '../copy'
-import { renderAppAt } from './renderAppAt'
-import { stubApiClient } from './stubApiClient'
+import { renderAppAt } from './renderAppAt.testSupport'
+import { stubApiClient } from './stubApiClient.testSupport'
 
 it('shows the Spanish message for a refused credential', async () => {
   renderAppAt(

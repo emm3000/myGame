@@ -11,6 +11,7 @@ function SignInRoute(): ReactElement {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const signIn = async (request: SignInRequest): Promise<void> => {
+    setRefusal(undefined)
     setIsSubmitting(true)
     const outcome = await apiClient.signIn(request)
     setIsSubmitting(false)

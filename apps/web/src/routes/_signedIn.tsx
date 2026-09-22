@@ -21,11 +21,9 @@ function SignedInLayout(): ReactElement {
 export const Route = createFileRoute('/_signedIn')({
   ssr: false,
   beforeLoad: async ({ context }) => {
-    const player = await context.apiClient.currentPlayer()
-    if (player === undefined) {
+    if ((await context.apiClient.currentPlayer()) === undefined) {
       throw redirect({ to: '/sign-in' })
     }
-    return { player }
   },
   component: SignedInLayout,
 })

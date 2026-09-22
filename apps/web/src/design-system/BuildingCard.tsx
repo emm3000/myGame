@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { formatDuration } from './formatDuration'
 import { formatQuantity } from './formatQuantity'
+import { Panel } from './Panel'
 import { resourceAccent } from './resourceAccent'
 
 export interface BuildingCost {
@@ -100,9 +101,7 @@ function Footer({ state, actionLabel, durationSeconds, onUpgrade }: FooterProps)
 export function BuildingCard(props: BuildingCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
-    <article
-      className={`flex flex-col gap-3 rounded-md border p-4 shadow-card ${cardTone[props.state.kind]}`}
-    >
+    <Panel element="article" toneClass={cardTone[props.state.kind]} spacingClass="gap-3 p-4">
       <header className="flex items-baseline justify-between gap-2">
         <h3
           className={`m-0 font-display text-title ${isAtMaxLevel ? 'text-ink-muted' : 'text-ink'}`}
@@ -123,6 +122,6 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
         durationSeconds={props.durationSeconds}
         onUpgrade={props.onUpgrade}
       />
-    </article>
+    </Panel>
   )
 }

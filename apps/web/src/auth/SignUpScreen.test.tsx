@@ -2,8 +2,8 @@ import type { SignUpRequest } from '@mygame/contracts'
 import { fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { copy } from '../copy'
-import { renderAppAt } from './renderAppAt'
-import { knownPlayer, stubApiClient } from './stubApiClient'
+import { renderAppAt } from './renderAppAt.testSupport'
+import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
 const fillSignUp = async (request: SignUpRequest): Promise<void> => {
   fireEvent.change(await screen.findByLabelText(copy.auth.email), {
