@@ -12,6 +12,16 @@ const resource = (amount: number): FiefOverview['resources']['wood'] => ({
   capacity: 20000,
 })
 
+const builtAt = (level: number): FiefOverview['buildings']['sawmill'] => ({
+  level,
+  nextLevel: {
+    level: level + 1,
+    cost: { wood: 90, stone: 23, iron: 0, gold: 0, food: 0 },
+    durationSeconds: 192,
+    peasants: 1,
+  },
+})
+
 export const knownFief: FiefOverview = {
   name: 'Fuenteclara',
   coordinates: { kingdom: 1, province: 3, plot: 12 },
@@ -23,7 +33,13 @@ export const knownFief: FiefOverview = {
     gold: resource(120),
     food: resource(600),
   },
-  buildings: { sawmill: 1, quarry: 1, ironMine: 0, farm: 1, warehouse: 0 },
+  buildings: {
+    sawmill: builtAt(1),
+    quarry: builtAt(1),
+    ironMine: builtAt(0),
+    farm: builtAt(1),
+    warehouse: builtAt(0),
+  },
   peasants: { supplied: 12, occupied: 4, free: 8 },
   slot: { kind: 'idle' },
   readAt: '2026-09-22T12:00:00.000Z',

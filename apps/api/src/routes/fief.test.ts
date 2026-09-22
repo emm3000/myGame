@@ -141,6 +141,54 @@ describe('the fief route', () => {
     }).toEqual({ wood: 10, stone: 10, iron: 5, gold: 2, food: 15 })
   })
 
+  const sawmillLevelOne = {
+    level: 1,
+    cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 0 },
+    durationSeconds: 120,
+    peasants: 1,
+  }
+
+  const buildSawmillAt = async (level: number): Promise<void> =>
+    runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+      SELECT id, 'sawmill'::building, ${level} FROM fiefs`)
+
+  it('answers each building with the cost, duration and peasants of its next level', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await fiefOf(ana.cookie)
+
+    const { buildings } = FiefOverviewSchema.parse(await response.json())
+    expect(buildings.sawmill).toEqual({ level: 0, nextLevel: sawmillLevelOne })
+    expect(Object.values(buildings).map((building) => building.nextLevel?.level)).toEqual([
+      1, 1, 1, 1, 1,
+    ])
+  })
+
+  it('answers no next level for a building at the top of its catalog', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await buildSawmillAt(10)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { buildings } = FiefOverviewSchema.parse(await response.json())
+    expect(buildings.sawmill).toEqual({ level: 10, nextLevel: null })
+  })
+
+  it('charges the peasants of the next level as the increase over the current occupancy', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await buildSawmillAt(1)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { buildings } = FiefOverviewSchema.parse(await response.json())
+    expect(buildings.sawmill.nextLevel).toEqual({
+      level: 2,
+      cost: { wood: 90, stone: 23, iron: 0, gold: 0, food: 0 },
+      durationSeconds: 192,
+      peasants: 1,
+    })
+  })
+
   it('refuses to answer another player fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     const bruno = await signUp('bruno@example.com', 'Robledal')
@@ -162,7 +210,7 @@ describe('the fief route', () => {
     const response = await fiefOf(ana.cookie)
 
     const overview = FiefOverviewSchema.parse(await response.json())
-    expect(overview.buildings.sawmill).toBe(1)
+    expect(overview.buildings.sawmill.level).toBe(1)
     expect(overview.resources.wood.ratePerHour).toBe(40)
     expect(overview.slot).toEqual({ kind: 'idle' })
     const stored = await server.fiefs.fiefOf(ana.playerId)
@@ -275,6 +323,15 @@ describe('the fief route', () => {
       expect(overview.readAt).toBe('2026-09-22T08:10:00.000Z')
     })
 
+    it('answers the next level of the built level while the upgrade runs', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await enqueue(ana.cookie, 'sawmill')
+
+      const { buildings } = FiefOverviewSchema.parse(await response.json())
+      expect(buildings.sawmill).toEqual({ level: 0, nextLevel: sawmillLevelOne })
+    })
+
     it('refuses a second upgrade while the slot is busy', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueue(ana.cookie, 'sawmill')
@@ -327,7 +384,7 @@ describe('the fief route', () => {
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
-      expect(overview.buildings.sawmill).toBe(1)
+      expect(overview.buildings.sawmill.level).toBe(1)
       expect(overview.slot).toEqual({
         kind: 'busy',
         building: 'quarry',

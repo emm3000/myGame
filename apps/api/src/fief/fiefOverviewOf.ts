@@ -1,6 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
 import {
   type BuildingCatalog,
+  type BuildingKind,
   type BuildSlot,
   type DomainError,
   deriveFreePeasants,
@@ -60,6 +61,70 @@ const peasantsOf = (
   return ok({ supplied: supplied.value, occupied: occupied.value, free: free.value })
 }
 
+type BuildingState = FiefOverview['buildings'][BuildingKind]
+
+const buildingStateOf = (
+  building: BuildingKind,
+  buildingLevels: FiefBuildingLevels,
+  occupied: number,
+  catalog: BuildingCatalog,
+): Result<BuildingState, DomainError> => {
+  const level = buildingLevels[building]
+  const next = catalog.levelOf(building, level + 1)
+  if (next === undefined) {
+    return ok({ level, nextLevel: null })
+  }
+  const occupiedAfter = deriveOccupiedPeasants(
+    { ...buildingLevels, [building]: next.level },
+    catalog,
+  )
+  if (!occupiedAfter.ok) {
+    return occupiedAfter
+  }
+  const { cost, durationSeconds } = next
+  const peasants = occupiedAfter.value - occupied
+  return ok({
+    level,
+    nextLevel: { level: next.level, cost: { ...cost }, durationSeconds, peasants },
+  })
+}
+
+const buildingsOf = (
+  buildingLevels: FiefBuildingLevels,
+  occupied: number,
+  catalog: BuildingCatalog,
+): Result<FiefOverview['buildings'], DomainError> => {
+  const stateOf = (building: BuildingKind): Result<BuildingState, DomainError> =>
+    buildingStateOf(building, buildingLevels, occupied, catalog)
+  const sawmill = stateOf('sawmill')
+  if (!sawmill.ok) {
+    return sawmill
+  }
+  const quarry = stateOf('quarry')
+  if (!quarry.ok) {
+    return quarry
+  }
+  const ironMine = stateOf('ironMine')
+  if (!ironMine.ok) {
+    return ironMine
+  }
+  const farm = stateOf('farm')
+  if (!farm.ok) {
+    return farm
+  }
+  const warehouse = stateOf('warehouse')
+  if (!warehouse.ok) {
+    return warehouse
+  }
+  return ok({
+    sawmill: sawmill.value,
+    quarry: quarry.value,
+    ironMine: ironMine.value,
+    farm: farm.value,
+    warehouse: warehouse.value,
+  })
+}
+
 export const fiefOverviewOf = (
   fief: Fief,
   catalog: BuildingCatalog,
@@ -76,13 +141,17 @@ export const fiefOverviewOf = (
   if (!peasants.ok) {
     return peasants
   }
+  const buildings = buildingsOf(fief.buildingLevels, peasants.value.occupied, catalog)
+  if (!buildings.ok) {
+    return buildings
+  }
   const { kingdom, province, plot } = fief.coordinates
   return ok({
     name: fief.name.value,
     coordinates: { kingdom, province, plot },
     terrain: fief.terrain,
     resources: resourcesOf(fief.stocks, rates.value, capacity.value),
-    buildings: { ...fief.buildingLevels },
+    buildings: buildings.value,
     peasants: peasants.value,
     slot: slotOf(fief.slot),
     readAt: isoOf(fief.storedAt),

@@ -93,7 +93,7 @@ export function FiefScreen({ fief, slotTotalSeconds }: FiefScreenProps): ReactEl
               <BuildingLevel
                 key={building}
                 building={building}
-                level={overview.buildings[building]}
+                level={overview.buildings[building].level}
               />
             ))}
           </ul>
