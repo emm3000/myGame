@@ -1,6 +1,6 @@
 # Art bible
 
-Status: stub. One style for every image the game shows, so assets generated months apart sit together. Read before generating any image. Every generated image is committed with the prompt that produced it (N7 in `docs/PRODUCT_REQUIREMENTS.md`).
+Status: stub. One style for every image the game shows, so assets generated months apart sit together. Read before generating any image. The images the game needs and their prompts are listed in `catalog.md`. Every generated image is committed with the prompt that produced it (N7 in `docs/PRODUCT_REQUIREMENTS.md`).
 
 ## Style
 
