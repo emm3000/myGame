@@ -1,6 +1,8 @@
 import {
   type ApiErrorKind,
   ApiErrorSchema,
+  type BuildingKind,
+  type EnqueueBuildingRequest,
   type FiefOverview,
   FiefOverviewSchema,
   type Player,
@@ -22,6 +24,7 @@ export interface ApiClient {
   signOut(): Promise<ApiOutcome<undefined>>
   currentPlayer(): Promise<Player | undefined>
   fief(): Promise<ApiOutcome<FiefOverview>>
+  enqueueUpgrade(building: BuildingKind): Promise<ApiOutcome<FiefOverview>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -78,6 +81,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     },
     fief: async () => {
       const response = await send('/fief', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    enqueueUpgrade: async (building) => {
+      const request: EnqueueBuildingRequest = { building }
+      const response = await postJson('/fief/upgrades', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
   }

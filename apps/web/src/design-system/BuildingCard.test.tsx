@@ -14,15 +14,18 @@ function quarryShortOfStone(): BuildingCardProps {
     actionLabel: 'Upgrade',
     durationSeconds: 11100,
     state: { kind: 'tooExpensive', reason: 'You lack 985 stone.' },
+    titleElement: 'h3',
   }
 }
 
 it('marks a building card as too expensive when the cost exceeds the amounts', () => {
   render(<BuildingCard {...quarryShortOfStone()} />)
 
-  expect(screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).hasAttribute('disabled')).toBe(
-    true,
-  )
+  expect(
+    screen
+      .getByRole('button', { name: 'Upgrade · 3 h 5 min. You lack 985 stone.' })
+      .hasAttribute('disabled'),
+  ).toBe(true)
   expect(screen.getByText('You lack 985 stone.')).toBeDefined()
 })
 
@@ -41,4 +44,18 @@ it('replaces the upgrade with the max level label at max level', () => {
 
   expect(screen.getByRole('button', { name: 'Max level' }).hasAttribute('disabled')).toBe(true)
   expect(screen.queryByRole('list')).toBeNull()
+})
+
+it('disables an affordable upgrade while another upgrade is being started', () => {
+  render(<BuildingCard {...quarryShortOfStone()} state={{ kind: 'affordable' }} isWaiting={true} />)
+
+  expect(screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).hasAttribute('disabled')).toBe(
+    true,
+  )
+})
+
+it('titles the card at the heading level it is given', () => {
+  render(<BuildingCard {...quarryShortOfStone()} titleElement="h4" />)
+
+  expect(screen.getByRole('heading', { level: 4, name: 'Quarry' })).toBeDefined()
 })

@@ -1,6 +1,6 @@
 # Art catalog
 
-Status: proposal, drafted 2026-09-22 for PRD S4. Every image the MVP shows, with the prompt that produces it. The rules come from `art-bible.md`; this page only applies them. When the two disagree, the bible wins and this page is edited.
+Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D animation the same day before any image was generated. Every image the MVP shows, with the prompt that produces it. The rules come from `art-bible.md`; this page only applies them. When the two disagree, the bible wins and this page is edited.
 
 ## How to run it
 
@@ -19,10 +19,11 @@ Kingdom terrain for every prompt is Vadoalto's: a wide river valley with pine hi
 Every building prompt is the bible's template with three slots filled: `<subject>` from the entry, `<resource accent>` from the family table, and the tier line from the tier table. Written out once here so the entries below stay short; the file `<term>-<tier>.prompt.txt` holds the full text.
 
 ```
-<subject>, early-medieval river valley with pine hills, painted illustration, visible brushwork,
-soft edges, muted earth palette with <resource accent> accent, overcast daylight,
-three-quarter elevated view, subject centered filling 70% of frame, neutral sky,
-ground shadow, no text, no watermark, no people, <tier line>
+<subject>, early-medieval river valley with pine hills, stylized 3D animated film look, soft cel shading,
+clean readable shapes, slightly exaggerated proportions, warm golden-hour light, gentle rim light,
+saturated but harmonious earth palette with <resource accent> as the brightest element,
+three-quarter elevated view, subject centered filling 70% of frame, soft sky, ground shadow,
+no photorealism, no outlines, no text, no watermark, no people, <tier line>
 ```
 
 ### Tier lines
@@ -105,9 +106,10 @@ ground shadow, no text, no watermark, no people, <tier line>
 5 images. Large resource art for the screen and the art bible's contact sheet, not the UI icons (those stay hand-drawn SVG). Framing follows the bible's resource rule: 1:1, a single object on plain parchment, thick silhouette readable at 48 px.
 
 ```
-<subject>, painted illustration, visible brushwork, soft edges, muted earth palette with <accent> accent,
+<subject>, stylized 3D animated film look, soft cel shading, clean readable shapes, slightly exaggerated proportions,
+warm studio light, gentle rim light, saturated but harmonious earth palette with <accent> as the brightest element,
 single object centered on a plain parchment background, thick readable silhouette, soft ground shadow,
-no text, no watermark, no people
+no photorealism, no outlines, no text, no watermark, no people
 ```
 
 | File | Subject | Accent |

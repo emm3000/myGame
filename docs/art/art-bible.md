@@ -1,19 +1,19 @@
 # Art bible
 
-Status: stub. One style for every image the game shows, so assets generated months apart sit together. Read before generating any image. The images the game needs and their prompts are listed in `catalog.md`. Every generated image is committed with the prompt that produced it (N7 in `docs/PRODUCT_REQUIREMENTS.md`).
+Status: stub. Style set to stylized 3D animation on 2026-09-22, before any image was generated, because a painted muted style read flat at card size. One style for every image the game shows, so assets generated months apart sit together. Read before generating any image. The images the game needs and their prompts are listed in `catalog.md`. Every generated image is committed with the prompt that produced it (N7 in `docs/PRODUCT_REQUIREMENTS.md`).
 
 ## Style
 
-- Painted, illustrative, early-medieval. Visible brushwork, soft edges, no photorealism, no 3D render look, no pixel art.
+- Stylized 3D animated film look, early-medieval. Soft cel shading, clean readable shapes, slightly exaggerated proportions (big roofs, big wheels, squat towers). No photorealism, no hard outlines, no pixel art, no painterly brushwork.
 - Grounded and low-magic: no glowing runes, no neon, no sci-fi materials.
-- Daylight, overcast or golden hour. No night scenes in the base set.
+- Warm golden-hour light with a gentle rim light, so a silhouette separates from its backdrop. No night scenes in the base set.
 - Human scale: a building is shown as a lord would see it from the road, three-quarter view, slightly elevated.
 
 ## Palette
 
 - Earth base: ochre, umber, slate grey, moss green, river blue.
 - One accent per resource, used consistently in UI and art: wood amber, stone pale grey, iron dark blue-grey, gold warm yellow, food wheat green.
-- Muted saturation; the accent is the brightest thing in a frame.
+- Saturated but harmonious; the accent is the brightest element in a frame and the first thing read at thumbnail size.
 
 ## Framing
 
@@ -25,10 +25,11 @@ Status: stub. One style for every image the game shows, so assets generated mont
 ## Base prompt template
 
 ```
-<subject>, early-medieval <kingdom terrain>, painted illustration, visible brushwork,
-soft edges, muted earth palette with <resource accent> accent, overcast daylight,
-three-quarter elevated view, subject centered filling 70% of frame, neutral sky,
-no text, no watermark, no people
+<subject>, early-medieval <kingdom terrain>, stylized 3D animated film look, soft cel shading,
+clean readable shapes, slightly exaggerated proportions, warm golden-hour light, gentle rim light,
+saturated but harmonious earth palette with <resource accent> as the brightest element,
+three-quarter elevated view, subject centered filling 70% of frame, soft sky, ground shadow,
+no photorealism, no outlines, no text, no watermark, no people
 ```
 
 Fill `<subject>` from `CONTEXT.md` and `docs/lore/`, `<kingdom terrain>` from the lore's land section, `<resource accent>` from the palette. Add a line for the art tier: `tier 1: wooden, small, unfinished` up to `tier 5: stone, walled, banners`. A building has ten levels and five tiers; tier = ceil(level / 2).
