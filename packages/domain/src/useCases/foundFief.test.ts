@@ -1,10 +1,12 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Coordinates } from '../fief/Coordinates'
 import { Fief } from '../fief/Fief'
+import { FiefName } from '../fief/FiefName'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import type { IdGenerator } from '../ports/IdGenerator'
+import { err, ok } from '../Result'
 import { Instant } from '../time/Instant'
 import { foundFief } from './foundFief'
 
@@ -39,19 +41,30 @@ const sequentialIds = (): IdGenerator => {
   }
 }
 
-type InMemoryFiefRepository = FiefRepository & { readonly saved: ReadonlyArray<Fief> }
+type InMemoryFiefRepository = FiefRepository & {
+  savedFiefs(): ReadonlyArray<Fief>
+}
 
 const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryFiefRepository => {
   const fiefs = [...existing]
   return {
-    saved: fiefs,
-    occupiedCoordinates: async () => fiefs.map((fief) => fief.coordinates),
+    savedFiefs: () => [...fiefs],
+    occupiedPlots: async () =>
+      fiefs.map(({ coordinates: { kingdom, province, plot } }) => ({ kingdom, province, plot })),
     holdsFief: async (playerId) => fiefs.some((fief) => fief.playerId === playerId),
     save: async (fief) => {
       fiefs.push(fief)
+      return ok(undefined)
     },
   }
 }
+
+const raceLostFiefRepository = (): InMemoryFiefRepository => ({
+  savedFiefs: () => [],
+  occupiedPlots: async () => [],
+  holdsFief: async () => false,
+  save: async (fief) => err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates }),
+})
 
 const coordinatesAt = (kingdom: number, province: number, plot: number): Coordinates => {
   const result = Coordinates.create(kingdom, province, plot)
@@ -60,16 +73,16 @@ const coordinatesAt = (kingdom: number, province: number, plot: number): Coordin
 }
 
 const neighbourFief = (playerId: string, coordinates: Coordinates): Fief => {
-  const result = Fief.found({
+  const name = FiefName.create('Neighbour')
+  assert(name.ok)
+  return Fief.found({
     id: `fief-of-${playerId}`,
     playerId,
-    name: 'Neighbour',
+    name: name.value,
     coordinates,
     startingStocks: fiefSettings(3).startingStocks,
     at: foundingInstant,
   })
-  assert(result.ok)
-  return result.value
 }
 
 describe('foundFief', () => {
@@ -146,7 +159,7 @@ describe('foundFief', () => {
     )
 
     assert(result.ok)
-    const [stored] = fiefs.saved
+    const [stored] = fiefs.savedFiefs()
     assert(stored !== undefined)
     expect(stored.stocks).toEqual({ wood: 40, stone: 30, iron: 20, gold: 5, food: 35 })
     expect(stored.storedAt).toBe(foundingInstant)
@@ -200,7 +213,7 @@ describe('foundFief', () => {
     )
 
     assert(result.ok)
-    expect(result.value.name).toBe('Vado Viejo')
+    expect(result.value.name.value).toBe('Vado Viejo')
     expect(result.value.id).toBe('fief-1')
     expect(result.value.playerId).toBe('newcomer')
   })
@@ -219,7 +232,7 @@ describe('foundFief', () => {
 
     expect(empty).toEqual({ ok: false, error: { kind: 'BlankFiefName' } })
     expect(blank).toEqual({ ok: false, error: { kind: 'BlankFiefName' } })
-    expect(fiefs.saved).toEqual([])
+    expect(fiefs.savedFiefs()).toEqual([])
   })
 
   it('refuses a second fief for the same player', async () => {
@@ -239,7 +252,40 @@ describe('foundFief', () => {
       ok: false,
       error: { kind: 'PlayerAlreadyHoldsFief', playerId: 'holder' },
     })
-    expect(fiefs.saved).toHaveLength(1)
+    expect(fiefs.savedFiefs()).toHaveLength(1)
+  })
+
+  it('refuses a blank name before consulting the fiefs', async () => {
+    const fiefs = inMemoryFiefRepository([neighbourFief('holder', coordinatesAt(1, 1, 1))])
+
+    const result = await foundFief(
+      { playerId: 'holder', name: '   ' },
+      {
+        fiefs,
+        catalog: inMemoryCatalog(fiefSettings(3)),
+        clock: frozenClock,
+        ids: sequentialIds(),
+      },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'BlankFiefName' } })
+  })
+
+  it('reports a plot another founding took first', async () => {
+    const result = await foundFief(
+      { playerId: 'newcomer', name: 'Vado Viejo' },
+      {
+        fiefs: raceLostFiefRepository(),
+        catalog: inMemoryCatalog(fiefSettings(3)),
+        clock: frozenClock,
+        ids: sequentialIds(),
+      },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'CoordinatesTaken', coordinates: coordinatesAt(1, 1, 1) },
+    })
   })
 
   it('refuses a province without plots instead of searching forever', async () => {
