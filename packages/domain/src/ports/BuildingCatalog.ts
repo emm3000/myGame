@@ -1,0 +1,52 @@
+import type { Terrain } from '../fief/Terrain'
+import type { ResourceKind } from '../resources/Resources'
+
+export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehouse'
+
+type BuildingLevelData = {
+  readonly level: number
+  readonly cost: Readonly<Record<ResourceKind, number>>
+  readonly durationSeconds: number
+  readonly peasantOccupancy: number
+}
+
+export type ProducerLevel = BuildingLevelData & {
+  readonly building: 'sawmill' | 'quarry' | 'ironMine'
+  readonly ratePerHour: number
+}
+
+export type FarmLevel = BuildingLevelData & {
+  readonly building: 'farm'
+  readonly ratePerHour: number
+  readonly peasantSupply: number
+}
+
+export type WarehouseLevel = BuildingLevelData & {
+  readonly building: 'warehouse'
+  readonly capacityUnits: number
+}
+
+export type BuildingLevel = ProducerLevel | FarmLevel | WarehouseLevel
+
+type BuildingLevelFor<B extends BuildingKind> = B extends 'warehouse'
+  ? WarehouseLevel
+  : B extends 'farm'
+    ? FarmLevel
+    : ProducerLevel
+
+export type TerrainBonus = {
+  readonly resource: ResourceKind
+  readonly ratePerHour: number
+}
+
+export type FiefSettings = {
+  readonly startingStocks: Readonly<Record<ResourceKind, number>>
+  readonly startingCapacity: number
+  readonly basePeasantSupply: number
+  readonly terrainBonus: Readonly<Record<Terrain, TerrainBonus>>
+}
+
+export interface BuildingCatalog {
+  levelOf<B extends BuildingKind>(building: B, level: number): BuildingLevelFor<B> | undefined
+  fiefSettings(): FiefSettings
+}
