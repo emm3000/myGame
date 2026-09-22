@@ -60,6 +60,47 @@ const shortfall = (stocks: Stocks, cost: Stocks): Stocks => ({
 
 const isShort = (missing: Stocks): boolean => Object.values(missing).some((amount) => amount > 0)
 
+const buildingKinds: ReadonlyArray<BuildingKind> = [
+  'sawmill',
+  'quarry',
+  'ironMine',
+  'farm',
+  'warehouse',
+]
+
+const isWholeLevel = (level: number): boolean => Number.isInteger(level) && level >= 0
+
+const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainError> => {
+  if (slot.kind === 'idle') {
+    return ok(undefined)
+  }
+  if (!Number.isInteger(slot.targetLevel) || slot.targetLevel < 1) {
+    return err({ kind: 'InvalidBuildingLevel', building: slot.building, level: slot.targetLevel })
+  }
+  if (slot.finishesAt.epochMilliseconds < storedAt.epochMilliseconds) {
+    return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: slot.finishesAt })
+  }
+  return ok(undefined)
+}
+
+const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
+  const negativeAmount = Object.values(stored.stocks).find((amount) => amount < 0)
+  if (negativeAmount !== undefined) {
+    return err({ kind: 'NegativeResourceAmount', amount: negativeAmount })
+  }
+  const invalidBuilding = buildingKinds.find(
+    (building) => !isWholeLevel(stored.buildingLevels[building]),
+  )
+  if (invalidBuilding !== undefined) {
+    return err({
+      kind: 'InvalidBuildingLevel',
+      building: invalidBuilding,
+      level: stored.buildingLevels[invalidBuilding],
+    })
+  }
+  return validateSlot(stored.slot, stored.storedAt)
+}
+
 const unbuiltLevels: FiefBuildingLevels = {
   sawmill: 0,
   quarry: 0,
@@ -98,9 +139,9 @@ export class Fief {
     if (!name.ok) {
       return name
     }
-    const negativeAmount = Object.values(stored.stocks).find((amount) => amount < 0)
-    if (negativeAmount !== undefined) {
-      return err({ kind: 'NegativeResourceAmount', amount: negativeAmount })
+    const storedState = validateStoredState(stored)
+    if (!storedState.ok) {
+      return storedState
     }
     const { kingdom, province, plot } = stored.address
     const coordinates = Coordinates.create(kingdom, province, plot)

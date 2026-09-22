@@ -36,6 +36,16 @@ export type DomainError =
       readonly freePeasants: number
     }
   | { readonly kind: 'SlotBusy'; readonly until: Instant }
+  | {
+      readonly kind: 'InvalidBuildingLevel'
+      readonly building: BuildingKind
+      readonly level: number
+    }
+  | {
+      readonly kind: 'SlotFinishesBeforeStored'
+      readonly storedAt: Instant
+      readonly finishesAt: Instant
+    }
   | { readonly kind: 'FiefNotFound'; readonly playerId: PlayerId }
   | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
   | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }
