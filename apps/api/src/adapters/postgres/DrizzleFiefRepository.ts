@@ -14,9 +14,9 @@ import {
   type StoredFief,
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
-import { DatabaseError } from 'pg'
 import type { PostgresSession } from './connectPostgres'
 import { type building, fiefBuildings, fiefs } from './schema'
+import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 type StoredBuilding = (typeof building.enumValues)[number]
 
@@ -42,8 +42,6 @@ const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
   farm: 'farm',
   warehouse: 'warehouse',
 }
-
-const uniqueViolation = '23505'
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
 
@@ -110,13 +108,6 @@ const fiefRowOf = (fief: Fief): FiefRow => ({
   storedAt: dateOf(fief.storedAt),
   ...slotColumnsOf(fief.slot),
 })
-
-const violatedUniqueConstraint = (failure: unknown): string | undefined =>
-  failure instanceof Error &&
-  failure.cause instanceof DatabaseError &&
-  failure.cause.code === uniqueViolation
-    ? failure.cause.constraint
-    : undefined
 
 export type FiefRead = 'lockedForUpdate' | 'lockFree'
 

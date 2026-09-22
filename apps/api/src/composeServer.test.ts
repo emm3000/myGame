@@ -197,7 +197,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<void> => {
   } finally {
     await client.end()
   }
-  await server.inFiefTransaction((fiefs) =>
+  await server.inTransaction(({ fiefs }) =>
     foundFief(
       { playerId: ana, name: 'Valdehierro' },
       { fiefs, catalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },
@@ -210,11 +210,14 @@ type Outcome = 'enqueued' | DomainError['kind']
 const outcomeOf = (enqueued: Result<unknown, DomainError>): Outcome =>
   enqueued.ok ? 'enqueued' : enqueued.error.kind
 
-const enqueueSawmill = (fiefs: FiefRepository, server: ComposedServer): Promise<Outcome> =>
+const enqueueSawmill = (
+  fiefs: FiefRepository,
+  server: ComposedServer,
+): Promise<Result<Fief, DomainError>> =>
   enqueueBuilding(
     { playerId: ana, building: 'sawmill' },
     { fiefs, catalog: server.buildingCatalog, clock: frozenClock },
-  ).then(outcomeOf)
+  )
 
 const withRead = (
   fiefs: FiefRepository,
@@ -272,7 +275,7 @@ const raceTwoEnqueues = async (server: ComposedServer): Promise<ReadonlyArray<Ou
   const firstHasRead = signal()
   const secondHasRead = signal()
   const secondIsBlockedOrHasRead = untilBlockedOrRead(secondHasRead.promise)
-  const first = server.inFiefTransaction((fiefs) =>
+  const first = server.inTransaction(({ fiefs }) =>
     enqueueSawmill(
       withRead(fiefs, async (playerId) => {
         const read = await fiefs.fiefOf(playerId)
@@ -284,7 +287,7 @@ const raceTwoEnqueues = async (server: ComposedServer): Promise<ReadonlyArray<Ou
     ),
   )
   await firstHasRead.promise
-  const second = server.inFiefTransaction((fiefs) =>
+  const second = server.inTransaction(({ fiefs }) =>
     enqueueSawmill(
       withRead(fiefs, async (playerId) => {
         const read = await fiefs.fiefOf(playerId)
@@ -294,7 +297,7 @@ const raceTwoEnqueues = async (server: ComposedServer): Promise<ReadonlyArray<Ou
       server,
     ),
   )
-  return Promise.all([first, second])
+  return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
 }
 
 describe('a fief transaction from the composed server', () => {
@@ -321,7 +324,7 @@ describe('a fief transaction from the composed server', () => {
 
     await raceTwoEnqueues(server)
 
-    const stored = await server.inFiefTransaction((fiefs) => fiefs.fiefOf(ana))
+    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(ana))
     expect(stored.ok && stored.value?.stocks).toEqual({
       wood: 440,
       stone: 485,

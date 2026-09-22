@@ -2,14 +2,16 @@ import type { BuildingCatalog, Clock, FiefRepository, IdGenerator } from '@mygam
 import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
+import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
+import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
+import { Argon2Passwords } from './adapters/system/Argon2Passwords'
 import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
+import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
-import { app } from './app'
+import { createApp } from './app'
 
 const highestPort = 65535
-
-export type FiefTransaction = <T>(work: (fiefs: FiefRepository) => Promise<T>) => Promise<T>
 
 export type ComposedServer = {
   readonly fetch: Hono['fetch']
@@ -18,7 +20,10 @@ export type ComposedServer = {
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly fiefs: FiefRepository
-  readonly inFiefTransaction: FiefTransaction
+  readonly accounts: DrizzleAccounts
+  readonly passwords: Argon2Passwords
+  readonly sessionTokens: CryptoSessionTokens
+  readonly inTransaction: Transaction
   readonly close: () => Promise<void>
 }
 
@@ -36,20 +41,21 @@ export function composeServer(
   if (!databaseUrl) {
     throw new Error('DATABASE_URL is not set')
   }
-  const buildingCatalog = JsonBuildingCatalog.fromDirectory(contentDirectory)
   const { database, close } = connectPostgres(databaseUrl)
-  const inFiefTransaction: FiefTransaction = (work) =>
-    database.transaction((transaction) =>
-      work(new DrizzleFiefRepository(transaction, 'lockedForUpdate')),
-    )
-  return {
-    fetch: app.fetch,
-    port,
-    buildingCatalog,
+  const dependencies = {
+    buildingCatalog: JsonBuildingCatalog.fromDirectory(contentDirectory),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
+    accounts: new DrizzleAccounts(database),
+    passwords: new Argon2Passwords(),
+    sessionTokens: new CryptoSessionTokens(),
+    inTransaction: postgresTransaction(database),
+  }
+  return {
+    ...dependencies,
+    fetch: createApp(dependencies).fetch,
+    port,
     fiefs: new DrizzleFiefRepository(database, 'lockFree'),
-    inFiefTransaction,
     close,
   }
 }
