@@ -16,11 +16,13 @@ export type SignedInPlayer = {
 export type RequirePlayerDependencies = {
   readonly accounts: Accounts
   readonly clock: Clock
+  readonly isSessionCookieSecure: boolean
 }
 
 export const requirePlayer = ({
   accounts,
   clock,
+  isSessionCookieSecure,
 }: RequirePlayerDependencies): MiddlewareHandler<SignedInPlayer> =>
   createMiddleware<SignedInPlayer>(async (c, next) => {
     const token = readSessionCookie(c)
@@ -33,7 +35,7 @@ export const requirePlayer = ({
     if (playerId === undefined) {
       return answerRefusal(c, { kind: 'SignedOut' })
     }
-    writeSessionCookie(c, { token, playerId, expiresAt })
+    writeSessionCookie(c, { token, playerId, expiresAt }, isSessionCookieSecure)
     c.set('playerId', playerId)
     c.set('sessionToken', token)
     await next()

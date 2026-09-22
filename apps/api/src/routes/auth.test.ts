@@ -190,6 +190,16 @@ describe('the auth routes', () => {
     expect(setCookie).toContain('SameSite=Lax')
   })
 
+  it('sets the session cookie without Secure when the server is composed for plain http', async () => {
+    const plainHttpApp = createApp({ ...server, clock, isSessionCookieSecure: false })
+
+    const response = await plainHttpApp.request('/auth/sign-up', post(anasSignUp))
+
+    const setCookie = response.headers.get('set-cookie') ?? ''
+    expect(setCookie).toContain('HttpOnly')
+    expect(setCookie).not.toContain('Secure')
+  })
+
   it('answers the signed-in player behind the session cookie', async () => {
     const cookie = sessionCookieOf(await signUpAna())
 

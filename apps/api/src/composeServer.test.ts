@@ -166,6 +166,35 @@ describe('composeServer', () => {
     expect(() => composeServer({ API_PORT: '3106' }, fixtureDirectory)).toThrow('DATABASE_URL')
   })
 
+  it('marks the session cookie Secure unless SESSION_COOKIE_SECURE is false', async () => {
+    const server = composeServer(
+      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
+      fixtureDirectory,
+    )
+
+    expect(server.isSessionCookieSecure).toBe(true)
+    await server.close()
+  })
+
+  it('drops the Secure flag when SESSION_COOKIE_SECURE is false', async () => {
+    const server = composeServer(
+      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl, SESSION_COOKIE_SECURE: 'false' },
+      fixtureDirectory,
+    )
+
+    expect(server.isSessionCookieSecure).toBe(false)
+    await server.close()
+  })
+
+  it('refuses to compose with a SESSION_COOKIE_SECURE other than true or false', () => {
+    expect(() =>
+      composeServer(
+        { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl, SESSION_COOKIE_SECURE: 'yes' },
+        fixtureDirectory,
+      ),
+    ).toThrow('SESSION_COOKIE_SECURE')
+  })
+
   it('refuses to compose with an API_PORT above 65535', () => {
     expect(() =>
       composeServer({ API_PORT: '65536', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
