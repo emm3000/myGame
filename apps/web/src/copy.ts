@@ -35,6 +35,8 @@ const kingdoms: Readonly<Partial<Record<number, string>>> = {
   1: 'Vadoalto',
 }
 
+const listFormat = new Intl.ListFormat('es', { type: 'conjunction' })
+
 const names = {
   resources,
   peasants: 'campesinos',
@@ -79,6 +81,16 @@ export const copy = {
     occupied: 'ocupados',
     finished: 'Terminada',
     justFinished: 'La obra ha terminado. Estamos poniendo al día tu feudo.',
+    upgrade: 'Mejorar',
+    maxLevel: 'Nivel máximo',
+    nextLevel: (level: number): string => `Sube a ${names.level(level)}.`,
+    atMaxLevel: 'Ya está en su nivel más alto.',
+    shortfall: (amount: string, resource: ResourceKind): string =>
+      `${amount} de ${resources[resource]}`,
+    tooExpensive: (shortfalls: ReadonlyArray<string>): string =>
+      `Te faltan ${listFormat.format(shortfalls)}.`,
+    notEnoughPeasants: (needed: number, free: number): string =>
+      `Necesitas ${needed} ${names.peasants} libres y tienes ${free}.`,
   },
   refusals,
 } as const

@@ -1,15 +1,19 @@
 import { type BuildingKind, BuildingKindSchema, ResourceKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
+import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { capitalize } from '../design-system/capitalize'
-import { Panel } from '../design-system/Panel'
+import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
+import { buildingCardOf } from './buildingCardOf'
 import type { LiveFief } from './liveFief'
+import type { Upgrade } from './useUpgrade'
 
 export interface FiefScreenProps {
   readonly fief: LiveFief
   readonly slotTotalSeconds: number
+  readonly upgrade: Upgrade
 }
 
 const { names } = copy
@@ -41,28 +45,29 @@ function slotStateOf(fief: LiveFief, slotTotalSeconds: number): BuildSlotState {
   }
 }
 
-function BuildingLevel({
+function BuildingItem({
   building,
-  level,
+  fief,
+  upgrade,
 }: {
   readonly building: BuildingKind
-  readonly level: number
+  readonly fief: LiveFief
+  readonly upgrade: Upgrade
 }): ReactElement {
+  const refusal = upgrade.refused?.building === building ? upgrade.refused.refusal : undefined
   return (
-    <li>
-      <Panel element="article" toneClass="border-line bg-surface-raised" spacingClass="gap-2 p-4">
-        <h4 className="m-0 font-display text-title text-ink">
-          {capitalize(names.buildings[building])}
-        </h4>
-        <span className="self-start rounded-pill bg-umber px-2 font-utility text-label text-on-umber tabular-nums">
-          {names.level(level)}
-        </span>
-      </Panel>
+    <li aria-label={names.buildings[building]} className="flex flex-col gap-2">
+      <BuildingCard
+        {...buildingCardOf(building, fief)}
+        isWaiting={upgrade.waitingFor !== undefined}
+        onUpgrade={() => upgrade.start(building)}
+      />
+      {refusal !== undefined && <FormAlert message={copy.refusals[refusal]} />}
     </li>
   )
 }
 
-export function FiefScreen({ fief, slotTotalSeconds }: FiefScreenProps): ReactElement {
+export function FiefScreen({ fief, slotTotalSeconds, upgrade }: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
     kind,
@@ -90,11 +95,7 @@ export function FiefScreen({ fief, slotTotalSeconds }: FiefScreenProps): ReactEl
           <h3 className="m-0 font-body text-heading text-ink">{copy.fief.buildings}</h3>
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
             {BuildingKindSchema.options.map((building) => (
-              <BuildingLevel
-                key={building}
-                building={building}
-                level={overview.buildings[building].level}
-              />
+              <BuildingItem key={building} building={building} fief={fief} upgrade={upgrade} />
             ))}
           </ul>
         </section>
