@@ -9,10 +9,23 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+  type DomainError,
+  enqueueBuilding,
+  type Fief,
+  type FiefRepository,
+  foundFief,
+  Instant,
+  type PlayerId,
+  type Result,
+} from '@mygame/domain'
+import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { composeServer } from './composeServer'
+import { type ComposedServer, composeServer } from './composeServer'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
+
+const unusedDatabaseUrl = 'postgres://composer@localhost:5432/unused'
 
 const oneLevel = (effect: object): object => ({
   level: 1,
@@ -77,13 +90,19 @@ describe('composeServer', () => {
   })
 
   it('listens on the port API_PORT names', () => {
-    const server = composeServer({ API_PORT: '3106' }, fixtureDirectory)
+    const server = composeServer(
+      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
+      fixtureDirectory,
+    )
 
     expect(server.port).toBe(3106)
   })
 
   it('builds a catalog from the content folder at start-up', () => {
-    const server = composeServer({ API_PORT: '3106' }, contentDirectory)
+    const server = composeServer(
+      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
+      contentDirectory,
+    )
 
     expect(server.buildingCatalog.levelOf('sawmill', 1)).toEqual({
       building: 'sawmill',
@@ -96,7 +115,10 @@ describe('composeServer', () => {
   })
 
   it('reads the new fief settings from the content folder at start-up', () => {
-    const server = composeServer({ API_PORT: '3106' }, contentDirectory)
+    const server = composeServer(
+      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
+      contentDirectory,
+    )
 
     expect(server.buildingCatalog.fiefSettings().startingStocks).toEqual({
       wood: 500,
@@ -111,25 +133,188 @@ describe('composeServer', () => {
     const malformedDirectory = contentCopyWithTruncatedSawmill()
 
     try {
-      expect(() => composeServer({ API_PORT: '3106' }, malformedDirectory)).toThrow('sawmill.json')
+      expect(() =>
+        composeServer({ API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl }, malformedDirectory),
+      ).toThrow('sawmill.json')
     } finally {
       removeDirectory(malformedDirectory)
     }
   })
 
   it('refuses to compose without API_PORT', () => {
-    expect(() => composeServer({}, fixtureDirectory)).toThrow('API_PORT')
+    expect(() => composeServer({ DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory)).toThrow(
+      'API_PORT',
+    )
   })
 
   it('refuses to compose with a non-integer API_PORT', () => {
-    expect(() => composeServer({ API_PORT: '31.5' }, fixtureDirectory)).toThrow('API_PORT')
+    expect(() =>
+      composeServer({ API_PORT: '31.5', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
+    ).toThrow('API_PORT')
   })
 
   it('refuses to compose with a non-positive API_PORT', () => {
-    expect(() => composeServer({ API_PORT: '0' }, fixtureDirectory)).toThrow('API_PORT')
+    expect(() =>
+      composeServer({ API_PORT: '0', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
+    ).toThrow('API_PORT')
+  })
+
+  it('refuses to compose without DATABASE_URL', () => {
+    expect(() => composeServer({ API_PORT: '3106' }, fixtureDirectory)).toThrow('DATABASE_URL')
   })
 
   it('refuses to compose with an API_PORT above 65535', () => {
-    expect(() => composeServer({ API_PORT: '65536' }, fixtureDirectory)).toThrow('API_PORT')
+    expect(() =>
+      composeServer({ API_PORT: '65536', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
+    ).toThrow('API_PORT')
+  })
+})
+
+function databaseUrl(): string {
+  const url = process.env.DATABASE_URL
+  if (!url) {
+    throw new Error('DATABASE_URL is not set')
+  }
+  return url
+}
+
+const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z'))
+const frozenClock = { now: (): Instant => foundedAt }
+const ana: PlayerId = '00000000-0000-4000-8000-000000000001'
+
+const foundAnasFief = async (server: ComposedServer): Promise<void> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    await client.query('TRUNCATE players, sessions, fiefs, fief_buildings')
+    await client.query(
+      "INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2)",
+      [ana, new Date('2026-09-22T08:00:00Z')],
+    )
+  } finally {
+    await client.end()
+  }
+  await server.inFiefTransaction((fiefs) =>
+    foundFief(
+      { playerId: ana, name: 'Valdehierro' },
+      { fiefs, catalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },
+    ),
+  )
+}
+
+type Outcome = 'enqueued' | DomainError['kind']
+
+const outcomeOf = (enqueued: Result<unknown, DomainError>): Outcome =>
+  enqueued.ok ? 'enqueued' : enqueued.error.kind
+
+const enqueueSawmill = (fiefs: FiefRepository, server: ComposedServer): Promise<Outcome> =>
+  enqueueBuilding(
+    { playerId: ana, building: 'sawmill' },
+    { fiefs, catalog: server.buildingCatalog, clock: frozenClock },
+  ).then(outcomeOf)
+
+const withRead = (
+  fiefs: FiefRepository,
+  read: (playerId: PlayerId) => Promise<Result<Fief | undefined, DomainError>>,
+): FiefRepository => ({
+  occupiedPlots: () => fiefs.occupiedPlots(),
+  holdsFief: (playerId) => fiefs.holdsFief(playerId),
+  fiefOf: read,
+  save: (fief) => fiefs.save(fief),
+})
+
+const isWaitingOnLock = async (observer: Client): Promise<boolean> => {
+  const waiting = await observer.query(
+    "SELECT 1 FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'",
+  )
+  return waiting.rowCount !== null && waiting.rowCount > 0
+}
+
+const untilBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
+  let hasRead = false
+  void secondRead.then(() => {
+    hasRead = true
+  })
+  const observer = new Client({ connectionString: databaseUrl() })
+  await observer.connect()
+  try {
+    let isBlocked = false
+    while (!hasRead && !isBlocked) {
+      isBlocked = await isWaitingOnLock(observer)
+    }
+  } finally {
+    await observer.end()
+  }
+}
+
+const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
+  let resolve = (): void => {}
+  const promise = new Promise<void>((settle) => {
+    resolve = settle
+  })
+  return { promise, resolve }
+}
+
+const raceTwoEnqueues = async (server: ComposedServer): Promise<ReadonlyArray<Outcome>> => {
+  const firstHasRead = signal()
+  const secondHasRead = signal()
+  const secondIsBlockedOrHasRead = untilBlockedOrRead(secondHasRead.promise)
+  const first = server.inFiefTransaction((fiefs) =>
+    enqueueSawmill(
+      withRead(fiefs, async (playerId) => {
+        const read = await fiefs.fiefOf(playerId)
+        firstHasRead.resolve()
+        await secondIsBlockedOrHasRead
+        return read
+      }),
+      server,
+    ),
+  )
+  await firstHasRead.promise
+  const second = server.inFiefTransaction((fiefs) =>
+    enqueueSawmill(
+      withRead(fiefs, async (playerId) => {
+        const read = await fiefs.fiefOf(playerId)
+        secondHasRead.resolve()
+        return read
+      }),
+      server,
+    ),
+  )
+  return Promise.all([first, second])
+}
+
+describe('a fief transaction from the composed server', () => {
+  let server: ComposedServer
+
+  beforeAll(() => {
+    server = composeServer({ API_PORT: '3190', DATABASE_URL: databaseUrl() }, contentDirectory)
+  })
+
+  afterAll(async () => {
+    await server.close()
+  })
+
+  it('serializes two concurrent mutations on one fief', async () => {
+    await foundAnasFief(server)
+
+    const outcomes = await raceTwoEnqueues(server)
+
+    expect(outcomes).toEqual(['enqueued', 'SlotBusy'])
+  })
+
+  it('debits the stocks once when two enqueues race', async () => {
+    await foundAnasFief(server)
+
+    await raceTwoEnqueues(server)
+
+    const stored = await server.inFiefTransaction((fiefs) => fiefs.fiefOf(ana))
+    expect(stored.ok && stored.value?.stocks).toEqual({
+      wood: 440,
+      stone: 485,
+      iron: 200,
+      gold: 50,
+      food: 300,
+    })
   })
 })
