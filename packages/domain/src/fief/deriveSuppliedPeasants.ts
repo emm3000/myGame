@@ -11,7 +11,7 @@ export const deriveSuppliedPeasants = (
     return ok(basePeasantSupply)
   }
   const found = catalog.levelOf('farm', farmLevel)
-  if (found === undefined) {
+  if (found === undefined || found.building !== 'farm') {
     return err({ kind: 'UnknownBuildingLevel', building: 'farm', level: farmLevel })
   }
   return ok(basePeasantSupply + found.peasantSupply)
