@@ -25,4 +25,12 @@ describe('BuildingContentSchema', () => {
       false,
     )
   })
+
+  it('rejects a duration that is not a whole number of seconds', () => {
+    const fractionalDurationLevel = { ...farmLevelOne, durationSeconds: 90.5 }
+
+    expect(BuildingContentSchema.safeParse(farmContent([fractionalDurationLevel])).success).toBe(
+      false,
+    )
+  })
 })
