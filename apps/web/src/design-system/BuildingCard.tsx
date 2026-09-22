@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react'
 import { formatDuration } from './formatDuration'
 import { formatQuantity } from './formatQuantity'
-import { type Accent, resourceAccent } from './resourceAccent'
+import { resourceAccent } from './resourceAccent'
 
 export interface BuildingCost {
-  readonly kind: Exclude<Accent, 'gold' | 'food'>
+  readonly kind: 'wood' | 'stone' | 'iron' | 'peasants'
   readonly amount: number
   readonly isShort: boolean
 }
@@ -75,15 +75,21 @@ function Action({
   )
 }
 
-function Footer({ props }: { readonly props: BuildingCardProps }): ReactElement {
-  const { state } = props
+interface FooterProps {
+  readonly state: BuildingCardState
+  readonly actionLabel: string
+  readonly durationSeconds: number
+  readonly onUpgrade: (() => void) | undefined
+}
+
+function Footer({ state, actionLabel, durationSeconds, onUpgrade }: FooterProps): ReactElement {
   if (state.kind === 'atMaxLevel') {
     return <Action label={state.label} isEnabled={false} />
   }
-  const label = `${props.actionLabel} · ${formatDuration(props.durationSeconds)}`
+  const label = `${actionLabel} · ${formatDuration(durationSeconds)}`
   return (
     <div className="flex flex-col gap-2">
-      <Action label={label} isEnabled={state.kind === 'affordable'} onUpgrade={props.onUpgrade} />
+      <Action label={label} isEnabled={state.kind === 'affordable'} onUpgrade={onUpgrade} />
       {state.kind !== 'affordable' && (
         <span className="font-body text-caption text-rust">{state.reason}</span>
       )}
@@ -104,14 +110,19 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
           {props.name}
         </h3>
         <span
-          className={`rounded-pill px-2 font-utility text-label tabular-nums ${isAtMaxLevel ? 'bg-moss' : 'bg-umber'} text-on-umber`}
+          className={`rounded-pill px-2 font-utility text-label tabular-nums ${isAtMaxLevel ? 'bg-moss text-on-moss' : 'bg-umber text-on-umber'}`}
         >
           {props.levelLabel}
         </span>
       </header>
       <p className="m-0 font-body text-caption text-ink-muted">{props.effect}</p>
       {!isAtMaxLevel && <CostList costs={props.costs} />}
-      <Footer props={props} />
+      <Footer
+        state={props.state}
+        actionLabel={props.actionLabel}
+        durationSeconds={props.durationSeconds}
+        onUpgrade={props.onUpgrade}
+      />
     </article>
   )
 }

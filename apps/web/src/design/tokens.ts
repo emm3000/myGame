@@ -12,6 +12,7 @@ export type ColorToken =
   | 'ochre'
   | 'umber'
   | 'on-umber'
+  | 'on-moss'
   | 'slate'
   | 'moss'
   | 'moss-soft'
@@ -27,6 +28,8 @@ export type ColorToken =
 
 const umber = { light: '#6b4a2b', dark: '#a8784f' }
 
+const onUmber = { light: '#f9f3e4', dark: '#1e1811' }
+
 export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>>>> = {
   surface: { light: '#f1e7d0', dark: '#1e1811' },
   'surface-raised': { light: '#f9f3e4', dark: '#2a2219' },
@@ -38,9 +41,10 @@ export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>
   'ink-faint': { light: '#9a8a6f', dark: '#7f7058' },
   ochre: { light: '#b8862a', dark: '#d9a848' },
   umber,
-  'on-umber': { light: '#f9f3e4', dark: '#1e1811' },
+  'on-umber': onUmber,
   slate: { light: '#5c6670', dark: '#98a3ad' },
   moss: { light: '#5b7a3a', dark: '#8fb05f' },
+  'on-moss': onUmber,
   'moss-soft': { light: '#dfe6c8', dark: '#2d3a1f' },
   river: { light: '#3f6f8c', dark: '#7aaac6' },
   rust: { light: '#a8442c', dark: '#e0765a' },

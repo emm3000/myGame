@@ -48,12 +48,14 @@ function ResourceItem({
       <span className={`${numeralClass} text-numeral-lg text-ink`}>
         {formatQuantity(cell.amount)}
       </span>
-      <span
-        className={`${numeralClass} text-caption font-semibold ${isFull ? 'text-rust' : 'text-ink-muted'}`}
-      >
+      <span className={`${numeralClass} text-numeral ${isFull ? 'text-rust' : 'text-ink-muted'}`}>
         {isFull ? fullLabel : `+${formatQuantity(cell.ratePerHour)} / h`}
       </span>
-      <Track fraction={cell.amount / cell.capacity} fillClass={isFull ? 'fill-rust' : fillClass} />
+      <Track
+        value={cell.amount}
+        total={cell.capacity}
+        fillClass={isFull ? 'fill-rust' : fillClass}
+      />
     </li>
   )
 }
@@ -80,11 +82,11 @@ function PeasantItem({
       </span>
       <span className={`${numeralClass} text-numeral-lg text-ink`}>
         {formatQuantity(cell.free)}{' '}
-        <span className="text-caption font-semibold text-ink-muted">
+        <span className="text-numeral text-ink-muted">
           / {formatQuantity(cell.supplied)} {labels.free}
         </span>
       </span>
-      <span className={`${numeralClass} text-caption font-semibold text-ink-muted`}>
+      <span className={`${numeralClass} text-numeral text-ink-muted`}>
         {formatQuantity(cell.occupied)} {labels.occupied}
       </span>
     </li>

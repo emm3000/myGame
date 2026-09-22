@@ -11,9 +11,6 @@ function tone(remainingSeconds: number): { readonly icon: string; readonly digit
   if (remainingSeconds <= 0) {
     return { icon: 'text-moss', digits: 'text-numeral text-moss' }
   }
-  if (remainingSeconds < 60) {
-    return { icon: 'text-ochre', digits: 'text-numeral-lg text-ochre' }
-  }
   return { icon: 'text-ink-muted', digits: 'text-numeral-lg text-ink' }
 }
 
