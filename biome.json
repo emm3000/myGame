@@ -12,7 +12,8 @@
       "!**/.output",
       "!**/coverage",
       "!pnpm-lock.yaml",
-      "!**/routeTree.gen.ts"
+      "!**/routeTree.gen.ts",
+      "!apps/api/migrations/meta"
     ]
   },
   "formatter": {
