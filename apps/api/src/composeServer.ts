@@ -1,4 +1,4 @@
-import type { BuildingCatalog, Clock, FiefRepository, IdGenerator } from '@mygame/domain'
+import type { BuildingCatalog, Clock, IdGenerator } from '@mygame/domain'
 import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
@@ -11,8 +11,19 @@ import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
+import type { FiefReader } from './fief/FiefReader'
 
 const highestPort = 65535
+
+const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
+  if (flag === undefined || flag === 'true') {
+    return true
+  }
+  if (flag === 'false') {
+    return false
+  }
+  throw new Error(`SESSION_COOKIE_SECURE must be true or false, got ${flag}`)
+}
 
 export type ComposedServer = {
   readonly fetch: Hono['fetch']
@@ -20,11 +31,12 @@ export type ComposedServer = {
   readonly buildingCatalog: BuildingCatalog
   readonly clock: Clock
   readonly ids: IdGenerator
-  readonly fiefs: FiefRepository
+  readonly fiefs: FiefReader
   readonly accounts: Accounts
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
   readonly inTransaction: Transaction
+  readonly isSessionCookieSecure: boolean
   readonly close: () => Promise<void>
 }
 
@@ -42,6 +54,7 @@ export function composeServer(
   if (!databaseUrl) {
     throw new Error('DATABASE_URL is not set')
   }
+  const isSessionCookieSecure = isSessionCookieSecureFrom(environment.SESSION_COOKIE_SECURE)
   const { database, close } = connectPostgres(databaseUrl)
   const dependencies = {
     buildingCatalog: JsonBuildingCatalog.fromDirectory(contentDirectory),
@@ -51,12 +64,13 @@ export function composeServer(
     passwords: new Argon2Passwords(),
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database),
+    fiefs: new DrizzleFiefRepository(database, 'lockFree'),
+    isSessionCookieSecure,
   }
   return {
     ...dependencies,
     fetch: createApp(dependencies).fetch,
     port,
-    fiefs: new DrizzleFiefRepository(database, 'lockFree'),
     close,
   }
 }

@@ -32,11 +32,12 @@ const answerSignedIn = (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
+  isSessionCookieSecure: boolean,
 ): Response => {
   if (!signedIn.ok) {
     return answerRefusal(c, signedIn.error)
   }
-  writeSessionCookie(c, signedIn.value.session)
+  writeSessionCookie(c, signedIn.value.session, isSessionCookieSecure)
   const body: Player = signedIn.value.player
   return c.json(body, status)
 }
@@ -51,18 +52,28 @@ export const authRoutes = (dependencies: AuthDependencies): Hono => {
       if (!request.ok) {
         return answerRefusal(c, request.error)
       }
-      return answerSignedIn(c, await signUp(request.value, dependencies), 201)
+      return answerSignedIn(
+        c,
+        await signUp(request.value, dependencies),
+        201,
+        dependencies.isSessionCookieSecure,
+      )
     })
     .post('/sign-in', async (c) => {
       const request = SignInRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'InvalidCredentials' })
       }
-      return answerSignedIn(c, await signIn(request.data, dependencies), 200)
+      return answerSignedIn(
+        c,
+        await signIn(request.data, dependencies),
+        200,
+        dependencies.isSessionCookieSecure,
+      )
     })
     .post('/sign-out', signedInPlayer, async (c) => {
       await dependencies.accounts.closeSession(c.var.sessionToken)
-      clearSessionCookie(c)
+      clearSessionCookie(c, dependencies.isSessionCookieSecure)
       return c.body(null, 204)
     })
     .get('/session', signedInPlayer, async (c) => {
