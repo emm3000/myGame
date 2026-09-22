@@ -8,6 +8,7 @@
   },
   "startingCapacity": 1000,
   "basePeasantSupply": 10,
+  "plotsPerProvince": 15,
   "terrainBonus": {
     "lowlands": {
       "resource": "food",

@@ -21,6 +21,7 @@ const plainFief: FiefContent = {
   startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
   startingCapacity: 1000,
   basePeasantSupply: 10,
+  plotsPerProvince: 15,
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 5 },
     uplands: { resource: 'stone', ratePerHour: 4 },
@@ -56,6 +57,10 @@ describe('JsonBuildingCatalog', () => {
       building: 'warehouse',
       capacityUnits: 1500,
     })
+  })
+
+  it('serves the plots per province of the fief content', () => {
+    expect(oneLevelCatalog().fiefSettings().plotsPerProvince).toBe(15)
   })
 
   it('serves the terrain bonus of the fief content', () => {
