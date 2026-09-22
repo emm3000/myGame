@@ -24,7 +24,7 @@ packages/domain    -> nothing
 - `apps/api` — Hono on Node: HTTP adapters, the persistence adapters that implement the domain ports, auth, the composition root.
 - `apps/web` — TanStack Start: routes, the design system, the game screens. Reads the api through `packages/contracts`, never a raw `fetch` with an ad-hoc shape.
 
-Every package defines `typecheck` and `test` scripts, because `pnpm -r` fails on a package that lacks the script it was asked to run. Versions shared by more than one package are written once in the `catalog` of `pnpm-workspace.yaml`, never repeated per package.
+Every package defines `typecheck` and `test` scripts, because `pnpm -r` fails on a package that lacks the script it was asked to run. Versions shared by more than one package are written once in the `catalog` of `pnpm-workspace.yaml`, never repeated per package. Every version, in a `package.json` or in the catalog, is exact: no caret, no tilde, no range; `.npmrc` sets `save-exact` so `pnpm add` writes it that way.
 
 All four packages exist; each carries its own `CLAUDE.md`.
 
