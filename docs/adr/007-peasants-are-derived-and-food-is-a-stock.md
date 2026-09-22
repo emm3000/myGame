@@ -16,9 +16,12 @@ accrual, with its own growth curve, its own negative rates and its own
 Peasants are not stored and never grow. A fief **supplies** a base number
 of peasants plus what each farm level adds; each building level
 **occupies** a number of peasants read from content. Free peasants are
-`supplied − occupied`, computed on read like everything else. An enqueue is
-refused with `NotEnoughPeasants` when the target level's occupancy exceeds
-the free peasants after the upgrade.
+`supplied − occupied`, computed on read like everything else. An upgrade is
+staffed by the delta: it releases the current level's occupancy and charges
+only the increase against the free peasants, so a level-2 upgrade of a
+building already at level 1 needs `occupancy(2) − occupancy(1)` free
+peasants, not `occupancy(2)`. An enqueue is refused with
+`NotEnoughPeasants` when that increase exceeds the free peasants.
 
 Food is a stored resource exactly like wood, stone, iron and gold: it
 accrues from farms at a rate per hour up to the warehouse capacity, and it is
