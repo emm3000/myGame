@@ -22,7 +22,9 @@ const parseSignUp = (body: unknown): Result<SignUpRequest, Refusal> => {
   if (parsed.success) {
     return ok(parsed.data)
   }
-  const isWeakPassword = parsed.error.issues.some((issue) => issue.path[0] === 'password')
+  const isWeakPassword = parsed.error.issues.some(
+    (issue) => issue.path[0] === 'password' && issue.code === 'too_small',
+  )
   return err(isWeakPassword ? { kind: 'WeakPassword' } : { kind: 'MalformedRequest' })
 }
 

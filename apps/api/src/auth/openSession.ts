@@ -1,10 +1,10 @@
 import type { Clock, PlayerId } from '@mygame/domain'
-import type { DrizzleAccounts, Session } from '../adapters/postgres/DrizzleAccounts'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
+import type { Accounts, Session } from './Accounts'
 import { sessionExpiryFrom } from './sessionExpiryFrom'
 
 export type OpenSessionDependencies = {
-  readonly accounts: DrizzleAccounts
+  readonly accounts: Accounts
   readonly clock: Clock
   readonly sessionTokens: CryptoSessionTokens
 }

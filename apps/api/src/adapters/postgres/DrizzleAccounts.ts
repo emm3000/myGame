@@ -1,36 +1,20 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt, sql } from 'drizzle-orm'
+import type {
+  Accounts,
+  NewPlayer,
+  PlayerAdded,
+  PlayerCredentials,
+  Session,
+  StoredPlayer,
+} from '../../auth/Accounts'
 import type { PostgresSession } from './connectPostgres'
 import { players, sessions } from './schema'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
-export type NewPlayer = {
-  readonly id: PlayerId
-  readonly email: string
-  readonly passwordHash: string
-  readonly createdAt: Instant
-}
-
-export type StoredPlayer = {
-  readonly id: PlayerId
-  readonly email: string
-}
-
-export type PlayerCredentials = StoredPlayer & {
-  readonly passwordHash: string
-}
-
-export type Session = {
-  readonly token: string
-  readonly playerId: PlayerId
-  readonly expiresAt: Instant
-}
-
-export type PlayerAdded = 'added' | 'emailTaken'
-
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
-export class DrizzleAccounts {
+export class DrizzleAccounts implements Accounts {
   constructor(private readonly database: PostgresSession) {}
 
   async addPlayer(player: NewPlayer): Promise<PlayerAdded> {

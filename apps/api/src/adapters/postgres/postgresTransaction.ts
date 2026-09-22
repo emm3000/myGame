@@ -1,12 +1,13 @@
 import type { FiefRepository, Result } from '@mygame/domain'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import type { Accounts } from '../../auth/Accounts'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 
 export type TransactionStores = {
   readonly fiefs: FiefRepository
-  readonly accounts: DrizzleAccounts
+  readonly accounts: Accounts
 }
 
 export type Transaction = <T, E>(

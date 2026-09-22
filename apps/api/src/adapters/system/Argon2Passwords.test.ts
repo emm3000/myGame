@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { Argon2Passwords } from './Argon2Passwords'
 
 describe('Argon2Passwords', () => {
-  it('hashes a password with Argon2id', async () => {
+  it('hashes a password with Argon2id at 19 MiB, two passes and one lane', async () => {
     const passwords = new Argon2Passwords()
 
-    expect(await passwords.hashOf('hierro-y-lana')).toMatch(/^\$argon2id\$/)
+    expect(await passwords.hashOf('hierro-y-lana')).toMatch(/^\$argon2id\$v=19\$m=19456,t=2,p=1\$/)
   })
 
   it('matches the password a hash was made from', async () => {

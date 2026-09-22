@@ -1,7 +1,7 @@
 import type { Clock, PlayerId } from '@mygame/domain'
 import { createMiddleware } from 'hono/factory'
 import type { MiddlewareHandler } from 'hono/types'
-import type { DrizzleAccounts } from '../adapters/postgres/DrizzleAccounts'
+import type { Accounts } from '../auth/Accounts'
 import { sessionExpiryFrom } from '../auth/sessionExpiryFrom'
 import { answerRefusal } from './answerRefusal'
 import { readSessionCookie, writeSessionCookie } from './sessionCookie'
@@ -14,7 +14,7 @@ export type SignedInPlayer = {
 }
 
 export type RequirePlayerDependencies = {
-  readonly accounts: DrizzleAccounts
+  readonly accounts: Accounts
   readonly clock: Clock
 }
 
