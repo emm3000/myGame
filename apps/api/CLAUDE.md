@@ -12,7 +12,7 @@ Hono on Node: the HTTP adapters, the persistence adapters that implement the dom
 ## Layout
 
 - `src/app.ts` exports the Hono `app` with every route. Tests call `app.request('/health')`; no socket.
-- `src/compositionRoot.ts` is the only module that constructs an adapter and wires it to a port. It reads `API_PORT` and refuses to compose without a positive integer.
+- `src/composeServer.ts` is the composition root: the only module that constructs an adapter and wires it to a port. It reads `API_PORT` and refuses to compose unless it is an integer from 1 to 65535.
 - `src/server.ts` is the listener: it hands the composed server to `@hono/node-server` and does nothing else.
 
 ## Gotchas
