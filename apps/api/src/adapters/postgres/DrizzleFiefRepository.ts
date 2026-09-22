@@ -61,13 +61,14 @@ const slotOf = (row: FiefRow): BuildSlot => {
   if (row.slotBuilding === null) {
     return { kind: 'idle' }
   }
-  if (row.slotLevel === null || row.slotFinishesAt === null) {
+  if (row.slotLevel === null || row.slotStartedAt === null || row.slotFinishesAt === null) {
     throw new Error(`Fief ${row.id} stores a half-written build slot`)
   }
   return {
     kind: 'busy',
     building: buildingKinds[row.slotBuilding],
     targetLevel: row.slotLevel,
+    startedAt: instantOf(row.slotStartedAt),
     finishesAt: instantOf(row.slotFinishesAt),
   }
 }
@@ -85,13 +86,14 @@ const storedFiefOf = (row: FiefRow, levelRows: ReadonlyArray<LevelRow>): StoredF
 
 const slotColumnsOf = (
   slot: BuildSlot,
-): Pick<FiefRow, 'slotBuilding' | 'slotLevel' | 'slotFinishesAt'> => {
+): Pick<FiefRow, 'slotBuilding' | 'slotLevel' | 'slotStartedAt' | 'slotFinishesAt'> => {
   if (slot.kind === 'idle') {
-    return { slotBuilding: null, slotLevel: null, slotFinishesAt: null }
+    return { slotBuilding: null, slotLevel: null, slotStartedAt: null, slotFinishesAt: null }
   }
   return {
     slotBuilding: storedBuildings[slot.building],
     slotLevel: slot.targetLevel,
+    slotStartedAt: dateOf(slot.startedAt),
     slotFinishesAt: dateOf(slot.finishesAt),
   }
 }

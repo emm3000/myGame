@@ -60,6 +60,7 @@ export const fiefs = pgTable(
     storedAt: timestamp('stored_at', { withTimezone: true }).notNull(),
     slotBuilding: building('slot_building'),
     slotLevel: integer('slot_level'),
+    slotStartedAt: timestamp('slot_started_at', { withTimezone: true }),
     slotFinishesAt: timestamp('slot_finishes_at', { withTimezone: true }),
   },
   (table) => [

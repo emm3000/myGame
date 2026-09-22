@@ -7,6 +7,7 @@ export type BuildSlot =
       readonly kind: 'busy'
       readonly building: BuildingKind
       readonly targetLevel: number
+      readonly startedAt: Instant
       readonly finishesAt: Instant
     }
 

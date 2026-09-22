@@ -46,6 +46,11 @@ export type DomainError =
       readonly storedAt: Instant
       readonly finishesAt: Instant
     }
+  | {
+      readonly kind: 'SlotStartsAfterFinish'
+      readonly startedAt: Instant
+      readonly finishesAt: Instant
+    }
   | { readonly kind: 'FiefNotFound'; readonly playerId: PlayerId }
   | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
   | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }

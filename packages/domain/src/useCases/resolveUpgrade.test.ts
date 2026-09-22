@@ -90,7 +90,13 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
 describe('resolveUpgrade', () => {
   it('applies the upgrade whose finish instant has passed', async () => {
     const sawmillBuildingFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
     })
     const fiefs = inMemoryFiefRepository([sawmillBuildingFief])
 
@@ -108,7 +114,13 @@ describe('resolveUpgrade', () => {
 
   it('resolves an upgrade whose finish instant is exactly now', async () => {
     const sawmillFinishingFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
     })
     const fiefs = inMemoryFiefRepository([sawmillFinishingFief])
 
@@ -125,7 +137,13 @@ describe('resolveUpgrade', () => {
   it('accrues at the old rate up to the finish and at the new rate after it', async () => {
     const sawmillUpgradingFief = storedFief({
       buildingLevels: { ...unbuiltLevels, sawmill: 1 },
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 2, finishesAt: hoursAfterStored(1) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 2,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
     })
     const fiefs = inMemoryFiefRepository([sawmillUpgradingFief])
     const now = hoursAfterStored(2)
@@ -149,7 +167,13 @@ describe('resolveUpgrade', () => {
 
   it('accrues every resource on a fief with no building', async () => {
     const firstSawmillFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
     })
     const fiefs = inMemoryFiefRepository([firstSawmillFief])
 
@@ -170,7 +194,13 @@ describe('resolveUpgrade', () => {
 
   it('leaves a slot still building untouched', async () => {
     const sawmillBuildingFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(2) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(2),
+      },
     })
     const fiefs = inMemoryFiefRepository([sawmillBuildingFief])
 
@@ -192,6 +222,7 @@ describe('resolveUpgrade', () => {
         kind: 'busy',
         building: 'warehouse',
         targetLevel: 1,
+        startedAt: storedInstant,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -231,7 +262,13 @@ describe('resolveUpgrade', () => {
 
   it('reports a finished level the catalog does not know', async () => {
     const unknownLevelFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 3, finishesAt: hoursAfterStored(1) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 3,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
     })
     const fiefs = inMemoryFiefRepository([unknownLevelFief])
 
@@ -249,7 +286,13 @@ describe('resolveUpgrade', () => {
 
   it('reports a save the repository refuses', async () => {
     const sawmillBuildingFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
     })
     const refusingFiefs: FiefRepository = {
       ...inMemoryFiefRepository([sawmillBuildingFief]),

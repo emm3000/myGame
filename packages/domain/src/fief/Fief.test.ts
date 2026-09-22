@@ -18,6 +18,7 @@ const storedBusyFief: StoredFief = {
     kind: 'busy',
     building: 'quarry',
     targetLevel: 2,
+    startedAt: foundingInstant,
     finishesAt: Instant.fromEpochMilliseconds(86_500_000),
   },
 }
@@ -89,7 +90,13 @@ describe('Fief', () => {
   it('refuses a stored busy slot whose target level is below one', () => {
     const restored = Fief.restore({
       ...storedBusyFief,
-      slot: { kind: 'busy', building: 'ironMine', targetLevel: 0, finishesAt: foundingInstant },
+      slot: {
+        kind: 'busy',
+        building: 'ironMine',
+        targetLevel: 0,
+        startedAt: foundingInstant,
+        finishesAt: foundingInstant,
+      },
     })
 
     expect(restored).toEqual({
@@ -102,12 +109,32 @@ describe('Fief', () => {
     const finishesAt = Instant.fromEpochMilliseconds(86_399_000)
     const restored = Fief.restore({
       ...storedBusyFief,
-      slot: { kind: 'busy', building: 'quarry', targetLevel: 2, finishesAt },
+      slot: {
+        kind: 'busy',
+        building: 'quarry',
+        targetLevel: 2,
+        startedAt: foundingInstant,
+        finishesAt,
+      },
     })
 
     expect(restored).toEqual({
       ok: false,
       error: { kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt },
+    })
+  })
+
+  it('refuses a stored busy slot that starts after it finishes', () => {
+    const startedAt = Instant.fromEpochMilliseconds(86_600_000)
+    const finishesAt = Instant.fromEpochMilliseconds(86_500_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      slot: { kind: 'busy', building: 'quarry', targetLevel: 2, startedAt, finishesAt },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotStartsAfterFinish', startedAt, finishesAt },
     })
   })
 })

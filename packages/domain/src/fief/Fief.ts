@@ -85,6 +85,13 @@ const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainEr
   if (slot.finishesAt.epochMilliseconds < storedAt.epochMilliseconds) {
     return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: slot.finishesAt })
   }
+  if (slot.startedAt.epochMilliseconds > slot.finishesAt.epochMilliseconds) {
+    return err({
+      kind: 'SlotStartsAfterFinish',
+      startedAt: slot.startedAt,
+      finishesAt: slot.finishesAt,
+    })
+  }
   return ok(undefined)
 }
 
@@ -177,7 +184,7 @@ export class Fief {
         debit(stocksAtNow, cost),
         now,
         this.buildingLevels,
-        { kind: 'busy', building, targetLevel, finishesAt },
+        { kind: 'busy', building, targetLevel, startedAt: now, finishesAt },
       ),
     )
   }

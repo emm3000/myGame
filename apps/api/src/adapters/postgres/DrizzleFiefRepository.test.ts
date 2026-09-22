@@ -126,6 +126,19 @@ describe('DrizzleFiefRepository reads', () => {
       { sawmill: 2, quarry: 0, ironMine: 1, farm: 0, warehouse: 0 },
     ])
   })
+
+  it('refuses to read a busy slot stored without its start instant', async () => {
+    await anasFiefWithTwoBuildings()
+    await pool.query(
+      `UPDATE fiefs SET slot_building = 'sawmill', slot_level = 3, slot_finishes_at = '2026-09-22T09:00:00Z'
+       WHERE id = $1`,
+      [valdehierro],
+    )
+
+    await expect(new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)).rejects.toThrow(
+      'half-written build slot',
+    )
+  })
 })
 
 const accepted = <T>(result: Result<T, DomainError>): T => {
