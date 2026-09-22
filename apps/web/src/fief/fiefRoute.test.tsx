@@ -1,5 +1,5 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -127,4 +127,19 @@ it('re-reads the fief a minute after the last read', async () => {
   await passSeconds(1)
 
   expect(fief).toHaveBeenCalledTimes(2)
+})
+
+it("shows the tier image on a built building's card", async () => {
+  const farmAtLevelThree: FiefOverview = {
+    ...knownFief,
+    buildings: {
+      ...knownFief.buildings,
+      farm: { ...knownFief.buildings.farm, level: 3 },
+    },
+  }
+  await showFief(signedInClientServing(() => farmAtLevelThree))
+
+  const farmCard = screen.getByRole('listitem', { name: copy.names.buildings.farm })
+
+  expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.png$/)
 })
