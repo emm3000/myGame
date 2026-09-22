@@ -129,6 +129,13 @@ describe('the auth routes', () => {
     expect(await playersWithEmail(anasSignUp.email)).toBe(0)
   })
 
+  it('refuses a blank fief name with a message the sign-up screen can show', async () => {
+    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, fiefName: ' \t ' }))
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
+  })
+
   it('answers the same refusal for an unknown email and a wrong password', async () => {
     await signUpAna()
 

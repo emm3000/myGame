@@ -18,6 +18,7 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   SlotBusy: 'Ya tienes una obra en marcha. Espera a que termine.',
   InsufficientResources: 'No tienes recursos suficientes para esa obra.',
   NotEnoughPeasants: 'No tienes campesinos libres suficientes para esa obra.',
+  BlankFiefName: 'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
 }
 
 const internalFailure: RefusalAnswer = { status: 500 }
@@ -33,7 +34,7 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   InsufficientResources: { status: 409, kind: 'InsufficientResources' },
   NotEnoughPeasants: { status: 409, kind: 'NotEnoughPeasants' },
   MalformedRequest: { status: 400 },
-  BlankFiefName: { status: 400 },
+  BlankFiefName: { status: 400, kind: 'BlankFiefName' },
   SignedOut: { status: 401 },
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },

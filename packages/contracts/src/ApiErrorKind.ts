@@ -10,6 +10,7 @@ export const ApiErrorKindSchema = z.enum([
   'SlotBusy',
   'InsufficientResources',
   'NotEnoughPeasants',
+  'BlankFiefName',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>
