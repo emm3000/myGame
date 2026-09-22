@@ -3,6 +3,8 @@ import {
   type ColorToken,
   color,
   palette,
+  radii,
+  shadows,
   spacing,
   type Theme,
   typeFamilies,
@@ -37,6 +39,8 @@ export default plugin(
     theme: {
       colors: Object.fromEntries(colorTokens.map((token) => [token, color(token)])),
       spacing,
+      borderRadius: radii,
+      boxShadow: shadows,
       fontFamily: typeFamilies,
       fontSize,
     },
