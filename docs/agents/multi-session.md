@@ -72,7 +72,7 @@ Every dispatch to a peer session must include:
 ## Isolation: ports and databases
 
 - Each peer that runs the api or the web locally picks a port from the dispatch (`API_PORT`, `WEB_PORT`), never the defaults, so two peers never collide. The orchestrator assigns them in the dispatch.
-- A database, when ADR 006 lands, is one schema or one container per peer, named after the session, never the owner's local database. The dispatch names it.
+- A database is one Docker container per peer, `mygame-<session>-pg` on its own host port, named in the dispatch; never the owner's local database. A peer never changes the owner's machine outside its worktree: no `brew services`, no LaunchAgent, no global install, no system-wide config. What a ticket needs runs in a container or inside the worktree.
 
 ## Review cycle
 
