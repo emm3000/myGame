@@ -43,6 +43,8 @@ export DATABASE_URL=postgres://postgres:mygame@localhost:5433/mygame_schema
 - `vitest.globalSetup.ts` applies `migrations/` to `DATABASE_URL` before the suite, so a fresh database (CI's service container) has the tables. The api test files share that database and truncate it, so `vitest.config.ts` sets `fileParallelism: false`.
 - The `fiefs.terrain` column is written from `Fief.terrain` and never read back: the domain derives terrain from the province.
 - The race test in `composeServer.test.ts` pauses the first transaction after its read. It resumes once the second transaction's `for update of "fiefs"` query shows up as waiting on a lock in `pg_stat_activity`, or once the second has read. The probe is bounded. With the lock removed the test fails every time.
+- `fiefs_player_unique` holds one fief per player; `save` maps its violation to `PlayerAlreadyHoldsFief`. Two foundings that race for one player also pick the same plot, and Postgres checks `fiefs_coordinates_unique` first, so the loser reports `CoordinatesTaken`.
+- The `fiefs_<resource>_whole` checks refuse a stored amount that is fractional or negative.
 - `players_email_unique` is a unique index on `lower(email)`: the email is stored as typed and compared case-insensitively.
 - `drizzle-orm`, `pg` and `drizzle-kit` have one consumer, so their versions live here, not in the catalog.
 - Import `@mygame/contracts` and `@mygame/domain` only from their entry; `rg -n "from '@mygame/(domain|contracts)/src" apps packages` stays empty.
