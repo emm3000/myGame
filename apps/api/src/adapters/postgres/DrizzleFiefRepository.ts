@@ -111,11 +111,12 @@ const fiefRowOf = (fief: Fief): FiefRow => ({
   ...slotColumnsOf(fief.slot),
 })
 
-const isCoordinatesTaken = (failure: unknown): boolean =>
+const violatedUniqueConstraint = (failure: unknown): string | undefined =>
   failure instanceof Error &&
   failure.cause instanceof DatabaseError &&
-  failure.cause.code === uniqueViolation &&
-  failure.cause.constraint === 'fiefs_coordinates_unique'
+  failure.cause.code === uniqueViolation
+    ? failure.cause.constraint
+    : undefined
 
 export type FiefRead = 'lockedForUpdate' | 'lockFree'
 
@@ -154,8 +155,7 @@ export class DrizzleFiefRepository implements FiefRepository {
     if (first === undefined) {
       return ok(undefined)
     }
-    const ownRows = rows.filter((row) => row.fief.id === first.fief.id)
-    return Fief.restore(storedFiefOf(first.fief, ownRows))
+    return Fief.restore(storedFiefOf(first.fief, rows))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
@@ -186,8 +186,12 @@ export class DrizzleFiefRepository implements FiefRepository {
       })
       return ok(undefined)
     } catch (failure) {
-      if (isCoordinatesTaken(failure)) {
+      const constraint = violatedUniqueConstraint(failure)
+      if (constraint === 'fiefs_coordinates_unique') {
         return err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates })
+      }
+      if (constraint === 'fiefs_player_unique') {
+        return err({ kind: 'PlayerAlreadyHoldsFief', playerId: fief.playerId })
       }
       throw failure
     }

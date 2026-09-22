@@ -9,6 +9,8 @@ const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.met
 
 const uniqueViolation = '23505'
 
+const checkViolation = '23514'
+
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
   if (!url) {
@@ -43,28 +45,44 @@ const ana = aPlayer('00000000-0000-4000-8000-000000000001', 'Ana@Example.com')
 const bruno = aPlayer('00000000-0000-4000-8000-000000000002', 'bruno@example.com')
 const anasFief = aFief('00000000-0000-4000-8000-00000000000a', ana.id)
 
-describe('the first migration', () => {
+const openEmptyDatabase = async (): Promise<Client> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  await client.query('BEGIN')
+  await client.query('DROP SCHEMA IF EXISTS drizzle CASCADE')
+  await client.query('DROP SCHEMA public CASCADE')
+  await client.query('CREATE SCHEMA public')
+  return client
+}
+
+const applyMigrations = async (
+  client: Client,
+  migrations: ReturnType<typeof readMigrationFiles>,
+): Promise<void> => {
+  for (const migration of migrations) {
+    for (const statement of migration.sql) {
+      await client.query(statement)
+    }
+  }
+}
+
+const closeWithoutChanges = async (client: Client): Promise<void> => {
+  await client.query('ROLLBACK')
+  await client.end()
+}
+
+describe('the migrations', () => {
   let client: Client
   let db: NodePgDatabase
 
   beforeEach(async () => {
-    client = new Client({ connectionString: databaseUrl() })
-    await client.connect()
-    await client.query('BEGIN')
-    await client.query('DROP SCHEMA IF EXISTS drizzle CASCADE')
-    await client.query('DROP SCHEMA public CASCADE')
-    await client.query('CREATE SCHEMA public')
-    for (const migration of readMigrationFiles({ migrationsFolder })) {
-      for (const statement of migration.sql) {
-        await client.query(statement)
-      }
-    }
+    client = await openEmptyDatabase()
+    await applyMigrations(client, readMigrationFiles({ migrationsFolder }))
     db = drizzle(client)
   })
 
   afterEach(async () => {
-    await client.query('ROLLBACK')
-    await client.end()
+    await closeWithoutChanges(client)
   })
 
   it('applies the migration to an empty database', async () => {
@@ -121,5 +139,60 @@ describe('the first migration', () => {
     await expect(
       db.insert(fiefBuildings).values({ fiefId: anasFief.id, building: 'sawmill', level: 2 }),
     ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'fief_buildings_pkey' } })
+  })
+
+  it('refuses a second fief for the same player', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db
+        .insert(fiefs)
+        .values({ ...aFief('00000000-0000-4000-8000-00000000000b', ana.id), plot: 8 }),
+    ).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'fiefs_player_unique' },
+    })
+  })
+
+  it('refuses a fractional stored amount', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(db.insert(fiefs).values({ ...anasFief, wood: 500.5 })).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fiefs_wood_whole' },
+    })
+  })
+
+  it('refuses a negative stored amount', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(db.insert(fiefs).values({ ...anasFief, food: -1 })).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fiefs_food_whole' },
+    })
+  })
+})
+
+describe('the one fief per player migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the fiefs stored by the previous version', async () => {
+    const migrations = readMigrationFiles({ migrationsFolder })
+    await applyMigrations(client, migrations.slice(0, 1))
+    const db = drizzle(client)
+    await db.insert(players).values([ana, bruno])
+    await db.insert(fiefs).values(anasFief)
+
+    await applyMigrations(client, migrations.slice(1))
+
+    expect(await db.select({ id: fiefs.id, playerId: fiefs.playerId }).from(fiefs)).toEqual([
+      { id: anasFief.id, playerId: ana.id },
+    ])
   })
 })

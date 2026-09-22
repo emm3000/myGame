@@ -141,6 +141,19 @@ export const fiefRepositoryContract = (
       })
     })
 
+    it('refuses a second fief for a player who holds one', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await fiefs.save(anasFief)
+
+      const saved = await fiefs.save(newFief('00000000-0000-4000-8000-00000000000c', ana, 8))
+
+      expect([saved, await fiefs.fiefOf(ana)]).toEqual([
+        { ok: false, error: { kind: 'PlayerAlreadyHoldsFief', playerId: ana } },
+        ok(anasFief),
+      ])
+    })
+
     it('keeps the first fief when a rival loses the plot', async () => {
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([ana, bruno])

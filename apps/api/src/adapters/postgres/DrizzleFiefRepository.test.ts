@@ -1,3 +1,4 @@
+import { Coordinates, type DomainError, Fief, FiefName, Instant, type Result } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -49,14 +50,20 @@ fiefRepositoryContract('DrizzleFiefRepository', async () => {
 })
 
 const ana = '00000000-0000-4000-8000-000000000001'
+const bruno = '00000000-0000-4000-8000-000000000002'
 const valdehierro = '00000000-0000-4000-8000-00000000000a'
 const robledal = '00000000-0000-4000-8000-00000000000b'
 
-const insertFief = async (id: string, plot: number, name: string): Promise<void> => {
+const insertFief = async (
+  id: string,
+  playerId: string,
+  plot: number,
+  name: string,
+): Promise<void> => {
   await pool.query(
     `INSERT INTO fiefs (id, player_id, kingdom, province, plot, terrain, name, wood, stone, iron, gold, food, stored_at)
      VALUES ($1, $2, 1, 4, $3, 'lowlands', $4, 500, 500, 200, 50, 300, '2026-09-22T08:00:00Z')`,
-    [id, ana, plot, name],
+    [id, playerId, plot, name],
   )
 }
 
@@ -70,8 +77,8 @@ const insertLevel = async (fiefId: string, building: string, level: number): Pro
 
 const anasFiefWithTwoBuildings = async (): Promise<void> => {
   await emptyDatabase()
-  await registerPlayers([ana])
-  await insertFief(valdehierro, 7, 'Valdehierro')
+  await registerPlayers([ana, bruno])
+  await insertFief(valdehierro, ana, 7, 'Valdehierro')
   await insertLevel(valdehierro, 'sawmill', 2)
   await insertLevel(valdehierro, 'iron_mine', 1)
 }
@@ -109,17 +116,58 @@ describe('DrizzleFiefRepository reads', () => {
 
   it('restores a fief with the levels of its own buildings only', async () => {
     await anasFiefWithTwoBuildings()
-    await insertFief(robledal, 8, 'Robledal')
+    await insertFief(robledal, bruno, 8, 'Robledal')
     await insertLevel(robledal, 'quarry', 3)
 
     const read = await new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)
 
-    const levelsById: Readonly<Record<string, object>> = {
-      [valdehierro]: { sawmill: 2, quarry: 0, ironMine: 1, farm: 0, warehouse: 0 },
-      [robledal]: { sawmill: 0, quarry: 3, ironMine: 0, farm: 0, warehouse: 0 },
-    }
-    const restored = read.ok ? read.value : undefined
-    expect(restored).toBeDefined()
-    expect(restored?.buildingLevels).toEqual(levelsById[restored?.id ?? ''])
+    expect(read.ok && [read.value?.id, read.value?.buildingLevels]).toEqual([
+      valdehierro,
+      { sawmill: 2, quarry: 0, ironMine: 1, farm: 0, warehouse: 0 },
+    ])
+  })
+})
+
+const accepted = <T>(result: Result<T, DomainError>): T => {
+  if (!result.ok) {
+    throw new Error(`Fixture refused: ${result.error.kind}`)
+  }
+  return result.value
+}
+
+const anasFoundingOn = (id: string, plot: number): Fief =>
+  Fief.found({
+    id,
+    playerId: ana,
+    name: accepted(FiefName.create('Valdehierro')),
+    coordinates: accepted(Coordinates.create(1, 4, plot)),
+    startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+    at: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
+  })
+
+const foundInItsOwnTransaction = (fief: Fief): Promise<string> =>
+  drizzle(pool).transaction(async (transaction) => {
+    const saved = await new DrizzleFiefRepository(transaction, 'lockedForUpdate').save(fief)
+    return saved.ok ? 'founded' : saved.error.kind
+  })
+
+describe('DrizzleFiefRepository writes', () => {
+  it('seats one fief when two foundings for one player race', async () => {
+    await emptyDatabase()
+    await registerPlayers([ana])
+
+    const outcomes = await Promise.all([
+      foundInItsOwnTransaction(anasFoundingOn(valdehierro, 7)),
+      foundInItsOwnTransaction(anasFoundingOn(robledal, 8)),
+    ])
+
+    const held = await pool.query<{ count: number }>(
+      'SELECT count(*)::int AS count FROM fiefs WHERE player_id = $1',
+      [ana],
+    )
+    expect([[...outcomes].sort(), held.rows[0]?.count]).toEqual([
+      ['PlayerAlreadyHoldsFief', 'founded'],
+      1,
+    ])
   })
 })

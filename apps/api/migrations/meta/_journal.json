@@ -8,6 +8,13 @@
       "when": 1790058919773,
       "tag": "0000_first_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790065110587,
+      "tag": "0001_one_fief_per_player",
+      "breakpoints": true
     }
   ]
 }
