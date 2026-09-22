@@ -32,8 +32,9 @@ Rows are ordered by blast radius: how much a mistake breaks and whether a gate c
 | 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | sonnet:medium | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
 | 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), `.github/`, a design-system default that changes N screens | opus:medium | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
 | 4 | Schema or migration, auth, the persistence adapters, cross-package architecture, a new package | opus:high | the contract test suite against every adapter; a migration test from the previous version |
+| 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | fable:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
 
-Reviews and other roles keep the playbook rules: a `pr-reviewer` on every PR, restyle/docs/rename reviews sonnet:medium, screen/logic/schema/auth/composition-root reviews opus:high, post-review fixes sonnet:low, `ticket-writer` opus:high, design and lore fable.
+Reviews and other roles keep the playbook rules: a `pr-reviewer` on every PR, restyle/docs/rename reviews sonnet:medium, screen/logic/schema/auth/composition-root reviews opus:high, post-review fixes sonnet:low, `ticket-writer` opus:high, lore fable. Design is row 5, a `/wave` peer like any other ticket.
 
 Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a row shows two or more first-review FIX FIRST verdicts for reasons the checklist did not cover, raise it one step and note why here.
 
@@ -46,7 +47,7 @@ Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a ro
 2. Classify each ticket with the table. The table binds: deviate only with a one-line reason stated in the plan, never silently. Tell the owner the plan in one line per ticket: `@<name> #<n> <model>:<effort>`, before booting anything.
 3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket.
 4. Poll `ListAgents` until every pane name is listed, at most 60 seconds.
-5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. Ask for `notify_when_idle`.
+5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
 6. Report to the owner in one or two lines: peers booted, tickets dispatched.
 
 ## Output Contract
