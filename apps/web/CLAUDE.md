@@ -5,7 +5,7 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 ## Commands
 
 - `WEB_PORT=<port> pnpm --filter @mygame/web dev` — dev server on `WEB_PORT`. The port has no default and `strictPort` is on: an unset or busy port fails instead of drifting.
-- `pnpm --filter @mygame/web test` — Vitest in jsdom, `src/**/*.test.tsx`.
+- `pnpm --filter @mygame/web test` — Vitest in jsdom, `src/**/*.test.{ts,tsx}`; `vitest.setup.ts` runs Testing Library cleanup after each test.
 - `pnpm --filter @mygame/web typecheck` — `tsc --noEmit`.
 - `pnpm --filter @mygame/web build` — production build into `dist/`.
 
