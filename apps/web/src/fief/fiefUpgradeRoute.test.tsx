@@ -44,6 +44,7 @@ const sawmillUpgradeUnderWay: FiefOverview = {
     kind: 'busy',
     building: 'sawmill',
     targetLevel: 2,
+    startedAt: '2026-09-22T12:00:00.000Z',
     finishesAt: '2026-09-22T12:03:12.000Z',
   },
 }
@@ -60,6 +61,17 @@ it('starts an upgrade and shows the slot busy', async () => {
   expect(screen.getByRole('timer').textContent).toContain('3:12')
   await passSeconds(2)
   expect(screen.getByRole('timer').textContent).toContain('3:10')
+})
+
+it('starts the track empty on the overview an enqueue answers', async () => {
+  const enqueueUpgrade = vi.fn(async () => ({ ok: true as const, value: sawmillUpgradeUnderWay }))
+  await showFief(signedInClient({ enqueueUpgrade }))
+
+  fireEvent.click(upgradeButtonOf('sawmill'))
+  await passSeconds(0)
+
+  const slot = screen.getByRole('timer').closest('section')
+  expect(slot && within(slot).getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0')
 })
 
 it('shows the Spanish reason when the slot is busy', async () => {

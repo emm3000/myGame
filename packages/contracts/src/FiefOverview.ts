@@ -36,6 +36,7 @@ const BusySlotSchema = z.object({
   kind: z.literal('busy'),
   building: BuildingKindSchema,
   targetLevel: BuildingLevelSchema,
+  startedAt: InstantSchema,
   finishesAt: InstantSchema,
 })
 

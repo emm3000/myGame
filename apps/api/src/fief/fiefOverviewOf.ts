@@ -28,6 +28,7 @@ const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
         kind: 'busy',
         building: slot.building,
         targetLevel: slot.targetLevel,
+        startedAt: isoOf(slot.startedAt),
         finishesAt: isoOf(slot.finishesAt),
       }
 

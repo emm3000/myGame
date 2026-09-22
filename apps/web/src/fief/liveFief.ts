@@ -6,6 +6,7 @@ export interface LiveFief {
   readonly overview: FiefOverview
   readonly amounts: LiveAmounts
   readonly slotRemainingSeconds: number
+  readonly slotTotalSeconds: number
 }
 
 const secondsPerHour = 3600
@@ -24,6 +25,13 @@ export function slotRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: n
   return Math.max(0, atReadSeconds - elapsedSeconds)
 }
 
+export function slotTotalSecondsOf(overview: FiefOverview): number {
+  if (overview.slot.kind === 'idle') {
+    return 0
+  }
+  return (Date.parse(overview.slot.finishesAt) - Date.parse(overview.slot.startedAt)) / 1000
+}
+
 export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): LiveFief {
   const { wood, stone, iron, gold, food } = overview.resources
   return {
@@ -36,5 +44,6 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
       food: amountAfter(food, elapsedSeconds),
     },
     slotRemainingSeconds: slotRemainingSecondsAt(overview, elapsedSeconds),
+    slotTotalSeconds: slotTotalSecondsOf(overview),
   }
 }

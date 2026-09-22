@@ -31,6 +31,7 @@ const busySlot = {
   kind: 'busy',
   building: 'sawmill',
   targetLevel: 3,
+  startedAt: '2026-09-22T13:50:00.000Z',
   finishesAt: '2026-09-22T14:30:00.000Z',
 }
 
@@ -74,6 +75,18 @@ describe('FiefOverviewSchema', () => {
     const { finishesAt: _, ...slotWithoutFinish } = busySlot
 
     expect(FiefOverviewSchema.safeParse(overviewWithSlot(slotWithoutFinish)).success).toBe(false)
+  })
+
+  it('rejects a busy slot without a start instant', () => {
+    const { startedAt: _, ...slotWithoutStart } = busySlot
+
+    expect(FiefOverviewSchema.safeParse(overviewWithSlot(slotWithoutStart)).success).toBe(false)
+  })
+
+  it('rejects a start instant that is not an ISO 8601 string', () => {
+    const malformedStartOverview = overviewWithSlot({ ...busySlot, startedAt: 'not-a-date' })
+
+    expect(FiefOverviewSchema.safeParse(malformedStartOverview).success).toBe(false)
   })
 
   it('rejects a fief overview missing one of the five buildings', () => {

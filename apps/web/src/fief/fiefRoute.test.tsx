@@ -72,6 +72,7 @@ it('re-reads the fief when the countdown reaches zero', async () => {
       kind: 'busy',
       building: 'sawmill',
       targetLevel: 2,
+      startedAt: '2026-09-22T11:58:30.000Z',
       finishesAt: '2026-09-22T12:00:30.000Z',
     },
   }
@@ -81,6 +82,39 @@ it('re-reads the fief when the countdown reaches zero', async () => {
   await passSeconds(30)
 
   expect(fief).toHaveBeenCalledTimes(2)
+})
+
+const sawmillStartedNinetySecondsAgo: FiefOverview = {
+  ...knownFief,
+  slot: {
+    kind: 'busy',
+    building: 'sawmill',
+    targetLevel: 2,
+    startedAt: '2026-09-22T11:58:30.000Z',
+    finishesAt: '2026-09-22T12:00:30.000Z',
+  },
+}
+
+const slotTrackFill = (): string | null => {
+  const slot = screen.getByRole('timer').closest('section')
+  if (slot === null) {
+    throw new Error('the busy slot is not a section')
+  }
+  return within(slot).getByRole('progressbar').getAttribute('aria-valuenow')
+}
+
+it('fills the track by the elapsed share of the upgrade on the first read', async () => {
+  await showFief(signedInClientServing(() => sawmillStartedNinetySecondsAgo))
+
+  expect(slotTrackFill()).toBe('75')
+})
+
+it('keeps filling the track between reads', async () => {
+  await showFief(signedInClientServing(() => sawmillStartedNinetySecondsAgo))
+
+  await passSeconds(15)
+
+  expect(slotTrackFill()).toBe('88')
 })
 
 it('does not re-read more than once a minute while idle', async () => {
