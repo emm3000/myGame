@@ -92,13 +92,39 @@ it('does not re-read more than once a minute while idle', async () => {
   expect(fief).toHaveBeenCalledTimes(1)
 })
 
-it('re-reads the fief when the window regains focus', async () => {
-  const fief = vi.fn(() => knownFief)
-  await showFief(signedInClientServing(fief))
-
+const regainFocus = async (): Promise<void> => {
   await act(async () => {
     window.dispatchEvent(new Event('focus'))
   })
+}
+
+it('re-reads the fief when the window regains focus', async () => {
+  const fief = vi.fn(() => knownFief)
+  await showFief(signedInClientServing(fief))
+  await passSeconds(2)
+
+  await regainFocus()
+
+  expect(fief).toHaveBeenCalledTimes(2)
+})
+
+it('ignores a focus that lands within a second of the last read', async () => {
+  const fief = vi.fn(() => knownFief)
+  await showFief(signedInClientServing(fief))
+
+  await regainFocus()
+  await regainFocus()
+
+  expect(fief).toHaveBeenCalledTimes(1)
+})
+
+it('re-reads the fief a minute after the last read', async () => {
+  const fief = vi.fn(() => knownFief)
+  await showFief(signedInClientServing(fief))
+  await passSeconds(59)
+  expect(fief).toHaveBeenCalledTimes(1)
+
+  await passSeconds(1)
 
   expect(fief).toHaveBeenCalledTimes(2)
 })

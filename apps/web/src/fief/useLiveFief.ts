@@ -15,15 +15,22 @@ interface LastRead {
 
 const rereadIntervalMs = 60_000
 const displayTickMs = 1000
+const focusFloorMs = 1000
 
 const elapsedSecondsSince = (receivedAtMs: number, nowMs: number): number =>
   Math.max(0, (nowMs - receivedAtMs) / 1000)
 
 function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void {
   useEffect(() => {
-    window.addEventListener('focus', read)
-    return () => window.removeEventListener('focus', read)
-  }, [read])
+    const readOnFocus = (): void => {
+      if (lastRead !== undefined && Date.now() - lastRead.receivedAtMs < focusFloorMs) {
+        return
+      }
+      read()
+    }
+    window.addEventListener('focus', readOnFocus)
+    return () => window.removeEventListener('focus', readOnFocus)
+  }, [lastRead, read])
 
   useEffect(() => {
     if (lastRead === undefined) {
