@@ -1,5 +1,7 @@
 export type { DomainError } from './DomainError'
 export type { Clock } from './ports/Clock'
 export { err, ok, type Result } from './Result'
+export { type MaterializedResources, materializeResources } from './resources/materializeResources'
+export type { ResourceKind, ResourceStock, Resources } from './resources/Resources'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
