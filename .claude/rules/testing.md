@@ -29,7 +29,7 @@ Vitest in every package. The gate runs `pnpm -r test`; a package without a `test
 
 ## Api tests
 
-- Hono routes are tested through `app.request()` over a server composed on the session's Postgres (`apps/api/CLAUDE.md`), with the in-memory adapters only for a port that has one. Assert status, body parsed by the contract schema, and the persisted change.
+- Hono routes are tested through `app.request()` over a server composed on the session's Postgres (`apps/api/CLAUDE.md`), with the real adapters; an in-memory adapter exists only to run a port's contract suite beside the Drizzle one. Assert status, body parsed by the contract schema, and the persisted change.
 
 ## Web tests
 
