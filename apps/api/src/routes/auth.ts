@@ -11,6 +11,7 @@ import type { SignedIn } from '../auth/SignedIn'
 import { type SignInDependencies, signIn } from '../auth/signIn'
 import { type SignUpDependencies, signUp } from '../auth/signUp'
 import { answerRefusal } from '../http/answerRefusal'
+import { bodyOf } from '../http/bodyOf'
 import type { Refusal } from '../http/Refusal'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { clearSessionCookie, writeSessionCookie } from '../http/sessionCookie'
@@ -41,8 +42,6 @@ const answerSignedIn = (
   const body: Player = signedIn.value.player
   return c.json(body, status)
 }
-
-const bodyOf = (c: Context): Promise<unknown> => c.req.json().catch(() => undefined)
 
 export const authRoutes = (dependencies: AuthDependencies): Hono => {
   const signedInPlayer = requirePlayer(dependencies)
