@@ -1,5 +1,10 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { BuildingCatalog, FiefSettings, ProducerLevel } from '../ports/BuildingCatalog'
+import type {
+  BuildingCatalog,
+  FarmLevel,
+  FiefSettings,
+  ProducerLevel,
+} from '../ports/BuildingCatalog'
 import { deriveResourceRates } from './deriveResourceRates'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
@@ -27,9 +32,19 @@ const producerLevel = (ratePerHour: number): ProducerLevel => ({
   ratePerHour,
 })
 
+const farmLevel = (peasantSupply: number): FarmLevel => ({
+  building: 'farm',
+  level: 1,
+  cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 90,
+  peasantOccupancy: 1,
+  ratePerHour: 20,
+  peasantSupply,
+})
+
 const inMemoryCatalog = (
   settings: FiefSettings,
-  levels: Partial<Record<string, ProducerLevel>>,
+  levels: Partial<Record<string, ProducerLevel | FarmLevel>>,
 ): BuildingCatalog => ({
   levelOf: (building, level) => levels[`${building}:${level}`],
   fiefSettings: () => settings,
@@ -78,6 +93,18 @@ describe('deriveResourceRates', () => {
     expect(result).toEqual({
       ok: false,
       error: { kind: 'UnknownBuildingLevel', building: 'sawmill', level: 5 },
+    })
+  })
+
+  it('refuses a catalog answer whose building does not match the one asked for', () => {
+    const catalog = inMemoryCatalog(fiefSettings('gold'), { 'sawmill:1': farmLevel(4) })
+    const levels: FiefBuildingLevels = { ...noLevels, sawmill: 1 }
+
+    const result = deriveResourceRates(levels, 'ridges', catalog)
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'UnknownBuildingLevel', building: 'sawmill', level: 1 },
     })
   })
 })
