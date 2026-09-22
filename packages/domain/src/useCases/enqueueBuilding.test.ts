@@ -10,7 +10,8 @@ import type {
 } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
-import { ok } from '../Result'
+import { err } from '../Result'
+import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { Instant } from '../time/Instant'
 import { enqueueBuilding } from './enqueueBuilding'
 
@@ -95,29 +96,6 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
   })
   assert(restored.ok)
   return restored.value
-}
-
-type InMemoryFiefRepository = FiefRepository & {
-  storedFiefOf(playerId: string): Fief | undefined
-}
-
-const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryFiefRepository => {
-  const fiefs = new Map(existing.map((fief) => [fief.playerId, fief]))
-  return {
-    storedFiefOf: (playerId) => fiefs.get(playerId),
-    occupiedPlots: async () =>
-      [...fiefs.values()].map(({ coordinates: { kingdom, province, plot } }) => ({
-        kingdom,
-        province,
-        plot,
-      })),
-    holdsFief: async (playerId) => fiefs.has(playerId),
-    fiefOf: async (playerId) => fiefs.get(playerId),
-    save: async (fief) => {
-      fiefs.set(fief.playerId, fief)
-      return ok(undefined)
-    },
-  }
 }
 
 describe('enqueueBuilding', () => {
@@ -251,5 +229,48 @@ describe('enqueueBuilding', () => {
     )
 
     expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+  })
+
+  it('reports a stored fief the repository cannot restore', async () => {
+    const corruptFiefs: FiefRepository = {
+      ...inMemoryFiefRepository([]),
+      fiefOf: async () => err({ kind: 'NegativeResourceAmount', amount: -1 }),
+    }
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs: corruptFiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -1 } })
+  })
+
+  it('replaces the stored fief instead of adding a second one', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+
+    await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(fiefs.savedFiefs()).toHaveLength(1)
+  })
+
+  it('releases the current level occupancy when staffing the upgrade', async () => {
+    const handHungryLevelTwoCatalog = inMemoryCatalog([
+      sawmillLevel(1, 1),
+      sawmillLevel(2, 3),
+      quarryLevelOne,
+    ])
+    const workingFief = storedFief({ buildingLevels: { ...unbuiltLevels, sawmill: 1, quarry: 1 } })
+    const fiefs = inMemoryFiefRepository([workingFief])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: handHungryLevelTwoCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(result.value.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 2 })
   })
 })

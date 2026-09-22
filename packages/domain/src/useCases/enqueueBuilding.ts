@@ -10,6 +10,7 @@ import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
 import { Duration } from '../time/Duration'
+import type { Instant } from '../time/Instant'
 
 export type EnqueueBuildingCommand = {
   readonly playerId: PlayerId
@@ -69,11 +70,41 @@ const staffUpgrade = (
   return ok(undefined)
 }
 
+const startUpgradeAt = (
+  fief: Fief,
+  target: BuildingLevel,
+  catalog: BuildingCatalog,
+  now: Instant,
+): Result<Fief, DomainError> => {
+  const duration = Duration.ofSeconds(target.durationSeconds)
+  if (!duration.ok) {
+    return duration
+  }
+  const stocksAtNow = materializeStocks(fief, catalog, now)
+  if (!stocksAtNow.ok) {
+    return stocksAtNow
+  }
+  return fief.startUpgrade(
+    {
+      building: target.building,
+      targetLevel: target.level,
+      cost: target.cost,
+      finishesAt: now.plus(duration.value),
+    },
+    stocksAtNow.value,
+    now,
+  )
+}
+
 export const enqueueBuilding = async (
   command: EnqueueBuildingCommand,
   { fiefs, catalog, clock }: EnqueueBuildingDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const fief = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.playerId)
+  if (!stored.ok) {
+    return stored
+  }
+  const fief = stored.value
   if (fief === undefined) {
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
@@ -82,37 +113,15 @@ export const enqueueBuilding = async (
   if (!target.ok) {
     return target
   }
-
   const staffed = staffUpgrade(fief.buildingLevels, target.value, catalog)
   if (!staffed.ok) {
     return staffed
   }
 
-  const duration = Duration.ofSeconds(target.value.durationSeconds)
-  if (!duration.ok) {
-    return duration
-  }
-
-  const now = clock.now()
-  const stocksAtNow = materializeStocks(fief, catalog, now)
-  if (!stocksAtNow.ok) {
-    return stocksAtNow
-  }
-
-  const upgraded = fief.startUpgrade(
-    {
-      building: command.building,
-      targetLevel: target.value.level,
-      cost: target.value.cost,
-      finishesAt: now.plus(duration.value),
-    },
-    stocksAtNow.value,
-    now,
-  )
+  const upgraded = startUpgradeAt(fief, target.value, catalog, clock.now())
   if (!upgraded.ok) {
     return upgraded
   }
-
   const saved = await fiefs.save(upgraded.value)
   if (!saved.ok) {
     return saved

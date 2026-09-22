@@ -7,6 +7,6 @@ import type { Result } from '../Result'
 export interface FiefRepository {
   occupiedPlots(): Promise<ReadonlyArray<PlotAddress>>
   holdsFief(playerId: PlayerId): Promise<boolean>
-  fiefOf(playerId: PlayerId): Promise<Fief | undefined>
+  fiefOf(playerId: PlayerId): Promise<Result<Fief | undefined, DomainError>>
   save(fief: Fief): Promise<Result<void, DomainError>>
 }
