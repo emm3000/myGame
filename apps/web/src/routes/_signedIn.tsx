@@ -1,0 +1,31 @@
+import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
+import type { ReactElement } from 'react'
+import { AppShell } from '../shell/AppShell'
+
+function SignedInLayout(): ReactElement {
+  const { apiClient } = Route.useRouteContext()
+  const navigate = useNavigate()
+
+  const signOut = async (): Promise<void> => {
+    await apiClient.signOut()
+    await navigate({ to: '/sign-in' })
+  }
+
+  return (
+    <AppShell onSignOut={signOut}>
+      <Outlet />
+    </AppShell>
+  )
+}
+
+export const Route = createFileRoute('/_signedIn')({
+  ssr: false,
+  beforeLoad: async ({ context }) => {
+    const player = await context.apiClient.currentPlayer()
+    if (player === undefined) {
+      throw redirect({ to: '/sign-in' })
+    }
+    return { player }
+  },
+  component: SignedInLayout,
+})
