@@ -8,6 +8,7 @@ import {
   type SignInRequest,
   type SignUpRequest,
 } from '@mygame/contracts'
+import type { ZodType } from 'zod'
 
 export type ApiRefusal = ApiErrorKind | 'Unexpected'
 
@@ -30,10 +31,7 @@ const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => {
   return parsed.success ? { ok: false, refusal: parsed.data.kind } : unexpected
 }
 
-const bodyOf = async <T>(
-  response: Response,
-  schema: { safeParse(body: unknown): { success: true; data: T } | { success: false } },
-): Promise<ApiOutcome<T>> => {
+const bodyOf = async <T>(response: Response, schema: ZodType<T>): Promise<ApiOutcome<T>> => {
   if (!response.ok) {
     return refusalOf(response)
   }

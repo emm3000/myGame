@@ -24,11 +24,11 @@ const resources: Readonly<Record<ResourceKind, string>> = {
 }
 
 const buildings: Readonly<Record<BuildingKind, string>> = {
-  sawmill: 'Aserradero',
-  quarry: 'Cantera',
-  ironMine: 'Mina de hierro',
-  farm: 'Granja',
-  warehouse: 'Almacén',
+  sawmill: 'aserradero',
+  quarry: 'cantera',
+  ironMine: 'mina de hierro',
+  farm: 'granja',
+  warehouse: 'almacén',
 }
 
 const kingdoms: Readonly<Partial<Record<number, string>>> = {

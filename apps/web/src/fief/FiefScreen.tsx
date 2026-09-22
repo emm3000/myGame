@@ -2,6 +2,7 @@ import { type BuildingKind, BuildingKindSchema, ResourceKindSchema } from '@myga
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
+import { capitalize } from '../design-system/capitalize'
 import { Panel } from '../design-system/Panel'
 import { ResourceBar } from '../design-system/ResourceBar'
 import type { LiveFief } from './liveFief'
@@ -24,7 +25,7 @@ function slotStateOf(fief: LiveFief, slotTotalSeconds: number): BuildSlotState {
     return { kind: 'idle', title: names.slot, invitation: names.idleSlot }
   }
   const building = {
-    buildingName: names.buildings[slot.building],
+    buildingName: capitalize(names.buildings[slot.building]),
     levelLabel: names.level(slot.targetLevel),
   }
   if (fief.slotRemainingSeconds <= 0) {
@@ -50,7 +51,9 @@ function BuildingLevel({
   return (
     <li>
       <Panel element="article" toneClass="border-line bg-surface-raised" spacingClass="gap-2 p-4">
-        <h4 className="m-0 font-display text-title text-ink">{names.buildings[building]}</h4>
+        <h4 className="m-0 font-display text-title text-ink">
+          {capitalize(names.buildings[building])}
+        </h4>
         <span className="self-start rounded-pill bg-umber px-2 font-utility text-label text-on-umber tabular-nums">
           {names.level(level)}
         </span>
