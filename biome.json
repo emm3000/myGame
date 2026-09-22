@@ -29,6 +29,11 @@
       "trailingCommas": "all"
     }
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -40,6 +45,9 @@
       "style": {
         "noNonNullAssertion": "error",
         "useConst": "error"
+      },
+      "nursery": {
+        "noTailwindArbitraryValue": "error"
       }
     }
   },
