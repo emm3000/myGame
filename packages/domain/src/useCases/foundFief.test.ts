@@ -52,6 +52,7 @@ const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryFiefRepo
     occupiedPlots: async () =>
       fiefs.map(({ coordinates: { kingdom, province, plot } }) => ({ kingdom, province, plot })),
     holdsFief: async (playerId) => fiefs.some((fief) => fief.playerId === playerId),
+    fiefOf: async (playerId) => fiefs.find((fief) => fief.playerId === playerId),
     save: async (fief) => {
       fiefs.push(fief)
       return ok(undefined)
@@ -63,6 +64,7 @@ const raceLostFiefRepository = (): InMemoryFiefRepository => ({
   savedFiefs: () => [],
   occupiedPlots: async () => [],
   holdsFief: async () => false,
+  fiefOf: async () => undefined,
   save: async (fief) => err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates }),
 })
 

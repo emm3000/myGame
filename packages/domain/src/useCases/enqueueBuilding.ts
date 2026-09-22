@@ -1,0 +1,121 @@
+import type { DomainError } from '../DomainError'
+import { deriveOccupiedPeasants } from '../fief/deriveOccupiedPeasants'
+import { deriveSuppliedPeasants } from '../fief/deriveSuppliedPeasants'
+import type { Fief } from '../fief/Fief'
+import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { materializeStocks } from '../fief/materializeStocks'
+import type { PlayerId } from '../player/PlayerId'
+import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/BuildingCatalog'
+import type { Clock } from '../ports/Clock'
+import type { FiefRepository } from '../ports/FiefRepository'
+import { err, ok, type Result } from '../Result'
+import { Duration } from '../time/Duration'
+
+export type EnqueueBuildingCommand = {
+  readonly playerId: PlayerId
+  readonly building: BuildingKind
+}
+
+export type EnqueueBuildingDependencies = {
+  readonly fiefs: FiefRepository
+  readonly catalog: BuildingCatalog
+  readonly clock: Clock
+}
+
+const isKnownLevel = (
+  found: BuildingLevel | undefined,
+  building: BuildingKind,
+): found is BuildingLevel => found !== undefined && found.building === building
+
+const nextLevelOf = (
+  buildingLevels: FiefBuildingLevels,
+  building: BuildingKind,
+  catalog: BuildingCatalog,
+): Result<BuildingLevel, DomainError> => {
+  const currentLevel = buildingLevels[building]
+  const next = catalog.levelOf(building, currentLevel + 1)
+  if (isKnownLevel(next, building)) {
+    return ok(next)
+  }
+  if (isKnownLevel(catalog.levelOf(building, 1), building)) {
+    return err({ kind: 'MaxLevelReached', building, level: currentLevel })
+  }
+  return err({ kind: 'UnknownBuilding', building })
+}
+
+const staffUpgrade = (
+  buildingLevels: FiefBuildingLevels,
+  target: BuildingLevel,
+  catalog: BuildingCatalog,
+): Result<void, DomainError> => {
+  const supplied = deriveSuppliedPeasants(buildingLevels.farm, catalog)
+  if (!supplied.ok) {
+    return supplied
+  }
+  const occupiedNow = deriveOccupiedPeasants(buildingLevels, catalog)
+  if (!occupiedNow.ok) {
+    return occupiedNow
+  }
+  const upgradedLevels = { ...buildingLevels, [target.building]: target.level }
+  const occupiedAfter = deriveOccupiedPeasants(upgradedLevels, catalog)
+  if (!occupiedAfter.ok) {
+    return occupiedAfter
+  }
+  const requiredPeasants = occupiedAfter.value - occupiedNow.value
+  const freePeasants = supplied.value - occupiedNow.value
+  if (requiredPeasants > freePeasants) {
+    return err({ kind: 'NotEnoughPeasants', requiredPeasants, freePeasants })
+  }
+  return ok(undefined)
+}
+
+export const enqueueBuilding = async (
+  command: EnqueueBuildingCommand,
+  { fiefs, catalog, clock }: EnqueueBuildingDependencies,
+): Promise<Result<Fief, DomainError>> => {
+  const fief = await fiefs.fiefOf(command.playerId)
+  if (fief === undefined) {
+    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  }
+
+  const target = nextLevelOf(fief.buildingLevels, command.building, catalog)
+  if (!target.ok) {
+    return target
+  }
+
+  const staffed = staffUpgrade(fief.buildingLevels, target.value, catalog)
+  if (!staffed.ok) {
+    return staffed
+  }
+
+  const duration = Duration.ofSeconds(target.value.durationSeconds)
+  if (!duration.ok) {
+    return duration
+  }
+
+  const now = clock.now()
+  const stocksAtNow = materializeStocks(fief, catalog, now)
+  if (!stocksAtNow.ok) {
+    return stocksAtNow
+  }
+
+  const upgraded = fief.startUpgrade(
+    {
+      building: command.building,
+      targetLevel: target.value.level,
+      cost: target.value.cost,
+      finishesAt: now.plus(duration.value),
+    },
+    stocksAtNow.value,
+    now,
+  )
+  if (!upgraded.ok) {
+    return upgraded
+  }
+
+  const saved = await fiefs.save(upgraded.value)
+  if (!saved.ok) {
+    return saved
+  }
+  return ok(upgraded.value)
+}

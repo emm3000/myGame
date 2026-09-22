@@ -1,10 +1,26 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
 import { Coordinates } from './Coordinates'
-import { Fief } from './Fief'
+import { Fief, type StoredFief } from './Fief'
 import { FiefName } from './FiefName'
 
 const foundingInstant = Instant.fromEpochMilliseconds(86_400_000)
+
+const storedBusyFief: StoredFief = {
+  id: 'fief-1',
+  playerId: 'founder',
+  name: 'Vado Viejo',
+  address: { kingdom: 1, province: 2, plot: 7 },
+  stocks: { wood: 120, stone: 80, iron: 20, gold: 5, food: 60 },
+  storedAt: foundingInstant,
+  buildingLevels: { sawmill: 2, quarry: 1, ironMine: 0, farm: 1, warehouse: 0 },
+  slot: {
+    kind: 'busy',
+    building: 'quarry',
+    targetLevel: 2,
+    finishesAt: Instant.fromEpochMilliseconds(86_500_000),
+  },
+}
 
 const fiefInProvince = (province: number): Fief => {
   const coordinates = Coordinates.create(1, province, 1)
@@ -25,5 +41,36 @@ describe('Fief', () => {
     const terrains = [1, 2, 3, 4, 5, 6].map((province) => fiefInProvince(province).terrain)
 
     expect(terrains).toEqual(['lowlands', 'uplands', 'ridges', 'lowlands', 'uplands', 'ridges'])
+  })
+
+  it('restores a stored fief with every stored value', () => {
+    const restored = Fief.restore(storedBusyFief)
+
+    assert(restored.ok)
+    const { id, playerId, name, coordinates, stocks, storedAt, buildingLevels, slot } =
+      restored.value
+    expect({
+      id,
+      playerId,
+      name: name.value,
+      address: {
+        kingdom: coordinates.kingdom,
+        province: coordinates.province,
+        plot: coordinates.plot,
+      },
+      stocks,
+      storedAt,
+      buildingLevels,
+      slot,
+    }).toEqual(storedBusyFief)
+  })
+
+  it('refuses a stored fief with a negative amount', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      stocks: { ...storedBusyFief.stocks, iron: -3 },
+    })
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -3 } })
   })
 })

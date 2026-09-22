@@ -1,4 +1,5 @@
 import type { Coordinates } from './fief/Coordinates'
+import type { Stocks } from './fief/Fief'
 import type { PlayerId } from './player/PlayerId'
 import type { BuildingKind } from './ports/BuildingCatalog'
 import type { Instant } from './time/Instant'
@@ -28,3 +29,13 @@ export type DomainError =
   | { readonly kind: 'CoordinatesTaken'; readonly coordinates: Coordinates }
   | { readonly kind: 'BlankFiefName' }
   | { readonly kind: 'PlayerAlreadyHoldsFief'; readonly playerId: PlayerId }
+  | { readonly kind: 'InsufficientResources'; readonly missing: Stocks }
+  | {
+      readonly kind: 'NotEnoughPeasants'
+      readonly requiredPeasants: number
+      readonly freePeasants: number
+    }
+  | { readonly kind: 'SlotBusy'; readonly until: Instant }
+  | { readonly kind: 'FiefNotFound'; readonly playerId: PlayerId }
+  | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
+  | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }
