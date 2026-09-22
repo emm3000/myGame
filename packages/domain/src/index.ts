@@ -42,3 +42,9 @@ export {
   type FoundFiefDependencies,
   foundFief,
 } from './useCases/foundFief'
+export {
+  type ResolvedFief,
+  type ResolveUpgradeCommand,
+  type ResolveUpgradeDependencies,
+  resolveUpgrade,
+} from './useCases/resolveUpgrade'

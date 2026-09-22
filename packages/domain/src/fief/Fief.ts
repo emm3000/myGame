@@ -60,13 +60,17 @@ const shortfall = (stocks: Stocks, cost: Stocks): Stocks => ({
 
 const isShort = (missing: Stocks): boolean => Object.values(missing).some((amount) => amount > 0)
 
-const buildingKinds: ReadonlyArray<BuildingKind> = [
-  'sawmill',
-  'quarry',
-  'ironMine',
-  'farm',
-  'warehouse',
-]
+const unbuiltLevels: FiefBuildingLevels = {
+  sawmill: 0,
+  quarry: 0,
+  ironMine: 0,
+  farm: 0,
+  warehouse: 0,
+}
+
+const isBuildingKind = (key: string): key is BuildingKind => key in unbuiltLevels
+
+const buildingKinds: ReadonlyArray<BuildingKind> = Object.keys(unbuiltLevels).filter(isBuildingKind)
 
 const isWholeLevel = (level: number): boolean => Number.isInteger(level) && level >= 0
 
@@ -99,14 +103,6 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
     })
   }
   return validateSlot(stored.slot, stored.storedAt)
-}
-
-const unbuiltLevels: FiefBuildingLevels = {
-  sawmill: 0,
-  quarry: 0,
-  ironMine: 0,
-  farm: 0,
-  warehouse: 0,
 }
 
 export class Fief {
@@ -182,6 +178,36 @@ export class Fief {
         this.buildingLevels,
         { kind: 'busy', building, targetLevel, finishesAt },
       ),
+    )
+  }
+
+  completeUpgrade(stocksAtFinish: Stocks): Fief {
+    if (this.slot.kind === 'idle') {
+      return this
+    }
+    const { building, targetLevel, finishesAt } = this.slot
+    return new Fief(
+      this.id,
+      this.playerId,
+      this.name,
+      this.coordinates,
+      stocksAtFinish,
+      finishesAt,
+      { ...this.buildingLevels, [building]: targetLevel },
+      { kind: 'idle' },
+    )
+  }
+
+  accruedTo(stocksAtNow: Stocks, now: Instant): Fief {
+    return new Fief(
+      this.id,
+      this.playerId,
+      this.name,
+      this.coordinates,
+      stocksAtNow,
+      now,
+      this.buildingLevels,
+      this.slot,
     )
   }
 
