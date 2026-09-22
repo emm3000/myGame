@@ -32,7 +32,7 @@ const oneLevelCatalog = (): JsonBuildingCatalog =>
   new JsonBuildingCatalog(oneLevelBuildings, plainFief)
 
 describe('JsonBuildingCatalog', () => {
-  it('reports an unknown building through the port', () => {
+  it('reports a level the building does not list as undefined', () => {
     expect(oneLevelCatalog().levelOf('sawmill', 2)).toBeUndefined()
   })
 
