@@ -26,8 +26,9 @@ it('shows the capacity after the amount', () => {
   render(<ResourceBar {...storeWithFullGranary()} />)
 
   const woodpile = screen.getByRole('listitem', { name: 'Wood' })
-  expect(within(woodpile).getByText('12 480')).toBeDefined()
-  expect(within(woodpile).getByText('/ 20 000')).toBeDefined()
+  const amount = within(woodpile).getByText('12 480')
+  const capacity = within(woodpile).getByText('/ 20 000')
+  expect(amount.compareDocumentPosition(capacity)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
 })
 
 it('keeps showing the capacity when the store is full', () => {
