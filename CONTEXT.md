@@ -1,12 +1,13 @@
 # CONTEXT.md
 
-Glossary of the game's domain. One line per term, the term as code and docs use it, and the OGame concept it replaces where one exists. Names a player sees come from `docs/lore/` first and enter here second. Decisions behind the terms: `docs/adr/`.
+Glossary of the game's domain. One line per term, the term as code and docs use it, and the OGame concept it replaces where one exists. Names a player sees come from `docs/lore/` first and enter here second; their Spanish labels are in `docs/lore/names.md`. Decisions behind the terms: `docs/adr/`.
 
 ## Holdings
 
 - **Player** — an account; owns one or more fiefs. Identified by `PlayerId`.
 - **Fief** — the holding a player develops: land, buildings, stores, peasants. Replaces *planet*. One per player in the MVP.
 - **Coordinates** — `kingdom:province:plot`, the fief's place on the map. A new fief takes the lowest free plot. Replaces *galaxy:system:position*.
+- **Kingdom** — the great region a fief lies in, a number in the data and a name on screen (Vadoalto is kingdom 1). Provinces and plots inside it are numbered. Replaces *galaxy*.
 - **Terrain** — what a province is made of: lowlands, uplands or ridges. It raises the starting rate of the resource it favours and forbids nothing.
 - **New land** — a second fief founded elsewhere. Replaces *colony*. Not in the MVP.
 

@@ -8,6 +8,7 @@ The world of the game, as a living document. Everything a player reads or sees i
 docs/lore/
   README.md      this file: how the lore is used
   world.md       the premise, the land, the houses, where resources come from
+  names.md       the Spanish labels a player reads and the named kingdoms
   <topic>.md     one file per topic as the world grows: houses, arts, seasons, places
 ```
 

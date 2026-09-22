@@ -8,7 +8,7 @@ The old crown fell a generation ago and no one has claimed it. What remains is a
 
 ## The land
 
-- **Kingdoms** are the great regions, named by their landmark. Provinces within them are numbered; plots within a province are numbered. A fief's address is `kingdom:province:plot`.
+- **Kingdoms** are the great regions, named by their landmark. Provinces within them are numbered; plots within a province are numbered. A fief's address is `kingdom:province:plot`; the first kingdom is Vadoalto (`names.md`).
 - **Lowlands** give food and wood. **Uplands** give stone. **Ridges** give iron. A plot's terrain tilts its starting rates; it never forbids a building.
 - Roads are old and slow. Distance on the map is time on the road.
 
