@@ -9,6 +9,24 @@ const resource = (amount: number): ResourceState => ({
   capacity: 1000,
 })
 
+const building = (level: number): FiefOverview['buildings']['sawmill'] => ({
+  level,
+  nextLevel: {
+    level: level + 1,
+    cost: { wood: 90, stone: 23, iron: 0, gold: 0, food: 0 },
+    durationSeconds: 192,
+    peasants: 1,
+  },
+})
+
+const fiveBuildings = {
+  sawmill: building(2),
+  quarry: building(1),
+  ironMine: building(0),
+  farm: building(1),
+  warehouse: { level: 10, nextLevel: null },
+}
+
 const busySlot = {
   kind: 'busy',
   building: 'sawmill',
@@ -27,7 +45,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
     gold: resource(50),
     food: resource(260),
   },
-  buildings: { sawmill: 2, quarry: 1, ironMine: 0, farm: 1, warehouse: 0 },
+  buildings: fiveBuildings,
   peasants: { supplied: 12, occupied: 7, free: 5 },
   slot,
   readAt: '2026-09-22T14:00:00.000Z',
@@ -59,15 +77,19 @@ describe('FiefOverviewSchema', () => {
   })
 
   it('rejects a fief overview missing one of the five buildings', () => {
-    const { warehouse: _, ...fourBuildings } = {
-      sawmill: 2,
-      quarry: 1,
-      ironMine: 0,
-      farm: 1,
-      warehouse: 0,
-    }
+    const { warehouse: _, ...fourBuildings } = fiveBuildings
     const incompleteOverview = { ...overviewWithSlot(busySlot), buildings: fourBuildings }
 
     expect(FiefOverviewSchema.safeParse(incompleteOverview).success).toBe(false)
+  })
+
+  it('rejects a building without its next level', () => {
+    const { nextLevel: _, ...levelOnly } = building(2)
+    const overviewWithoutNextLevel = {
+      ...overviewWithSlot(busySlot),
+      buildings: { ...fiveBuildings, sawmill: levelOnly },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutNextLevel).success).toBe(false)
   })
 })
