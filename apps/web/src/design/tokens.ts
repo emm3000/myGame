@@ -61,9 +61,10 @@ export const typeFamilies: Readonly<Record<TypeFamily, string>> = {
   utility: "'Alegreya Sans', 'Gill Sans', 'Trebuchet MS', sans-serif",
 }
 
-export type SpaceStep = 1 | 2 | 3 | 4 | 6 | 8 | 12
+export type SpaceStep = 0 | 1 | 2 | 3 | 4 | 6 | 8 | 12
 
 export const spacing: Readonly<Record<SpaceStep, string>> = {
+  0: '0px',
   1: '4px',
   2: '8px',
   3: '12px',
