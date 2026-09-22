@@ -1,6 +1,8 @@
 import {
   type ApiErrorKind,
   ApiErrorSchema,
+  type FiefOverview,
+  FiefOverviewSchema,
   type Player,
   PlayerSchema,
   type SignInRequest,
@@ -18,6 +20,7 @@ export interface ApiClient {
   signIn(request: SignInRequest): Promise<ApiOutcome<Player>>
   signOut(): Promise<ApiOutcome<undefined>>
   currentPlayer(): Promise<Player | undefined>
+  fief(): Promise<ApiOutcome<FiefOverview>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -27,13 +30,18 @@ const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => {
   return parsed.success ? { ok: false, refusal: parsed.data.kind } : unexpected
 }
 
-const playerOf = async (response: Response): Promise<ApiOutcome<Player>> => {
+const bodyOf = async <T>(
+  response: Response,
+  schema: { safeParse(body: unknown): { success: true; data: T } | { success: false } },
+): Promise<ApiOutcome<T>> => {
   if (!response.ok) {
     return refusalOf(response)
   }
-  const parsed = PlayerSchema.safeParse(await response.json().catch(() => undefined))
+  const parsed = schema.safeParse(await response.json().catch(() => undefined))
   return parsed.success ? { ok: true, value: parsed.data } : unexpected
 }
+
+const playerOf = (response: Response): Promise<ApiOutcome<Player>> => bodyOf(response, PlayerSchema)
 
 export const createApiClient = (baseUrl: string): ApiClient => {
   const send = (path: string, init: RequestInit): Promise<Response | undefined> =>
@@ -69,6 +77,10 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       }
       const outcome = await playerOf(response)
       return outcome.ok ? outcome.value : undefined
+    },
+    fief: async () => {
+      const response = await send('/fief', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
   }
 }

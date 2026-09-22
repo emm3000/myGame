@@ -3,7 +3,7 @@ import { fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { copy } from '../copy'
 import { renderAppAt } from './renderAppAt.testSupport'
-import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
+import { knownFief, knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
 const fillSignUp = async (request: SignUpRequest): Promise<void> => {
   fireEvent.change(await screen.findByLabelText(copy.auth.email), {
@@ -69,5 +69,5 @@ it('lands a new player on the fief once signed up', async () => {
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByText(copy.shell.welcome)).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 2, name: knownFief.name })).toBeDefined()
 })
