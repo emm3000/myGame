@@ -15,6 +15,13 @@
       "when": 1790065110587,
       "tag": "0001_one_fief_per_player",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790117454863,
+      "tag": "0002_busy_slot_start",
+      "breakpoints": true
     }
   ]
 }

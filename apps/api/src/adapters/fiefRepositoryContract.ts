@@ -25,6 +25,7 @@ const accepted = <T>(result: Result<T, DomainError>): T => {
 
 const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z'))
 const upgradedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:30:00Z'))
+const ironMineStartedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:45:00Z'))
 
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
@@ -55,6 +56,7 @@ const developedFief = accepted(
       kind: 'busy',
       building: 'ironMine',
       targetLevel: 2,
+      startedAt: ironMineStartedAt,
       finishesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:45:00Z')),
     },
   }),
@@ -92,6 +94,16 @@ export const fiefRepositoryContract = (
       await fiefs.save(developedFief)
 
       expect(await fiefs.fiefOf(bruno)).toEqual(ok(developedFief))
+    })
+
+    it('restores the instant a busy slot started', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.slot).toMatchObject({ startedAt: ironMineStartedAt })
     })
 
     it('stores the amounts with the instant they were materialized at', async () => {

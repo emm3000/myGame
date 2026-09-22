@@ -171,6 +171,47 @@ describe('the migrations', () => {
   })
 })
 
+const insertPlayersOfPreviousVersion = async (client: Client): Promise<void> => {
+  await client.query(
+    `INSERT INTO players (id, email, password_hash, created_at)
+     VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z'), ($3, $4, 'argon2id-hash', '2026-09-22T08:00:00Z')`,
+    [ana.id, ana.email, bruno.id, bruno.email],
+  )
+}
+
+type PreviousVersionSlot = {
+  readonly building: string
+  readonly level: number
+  readonly finishesAt: string
+}
+
+const insertFiefOfPreviousVersion = async (
+  client: Client,
+  id: string,
+  playerId: string,
+  plot: number,
+  slot: PreviousVersionSlot | null,
+): Promise<void> => {
+  await client.query(
+    `INSERT INTO fiefs (id, player_id, kingdom, province, plot, terrain, name, wood, stone, iron, gold, food,
+       stored_at, slot_building, slot_level, slot_finishes_at)
+     VALUES ($1, $2, 1, 4, $3, 'lowlands', 'Valdehierro', 500, 500, 0, 0, 200,
+       '2026-09-22T08:00:00Z', $4, $5, $6)`,
+    [id, playerId, plot, slot?.building ?? null, slot?.level ?? null, slot?.finishesAt ?? null],
+  )
+}
+
+const migratedFrom = async (
+  client: Client,
+  appliedCount: number,
+  seed: () => Promise<void>,
+): Promise<void> => {
+  const migrations = readMigrationFiles({ migrationsFolder })
+  await applyMigrations(client, migrations.slice(0, appliedCount))
+  await seed()
+  await applyMigrations(client, migrations.slice(appliedCount))
+}
+
 describe('the one fief per player migration', () => {
   let client: Client
 
@@ -183,16 +224,55 @@ describe('the one fief per player migration', () => {
   })
 
   it('keeps the fiefs stored by the previous version', async () => {
-    const migrations = readMigrationFiles({ migrationsFolder })
-    await applyMigrations(client, migrations.slice(0, 1))
-    const db = drizzle(client)
-    await db.insert(players).values([ana, bruno])
-    await db.insert(fiefs).values(anasFief)
+    await migratedFrom(client, 1, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
 
-    await applyMigrations(client, migrations.slice(1))
+    expect(
+      await drizzle(client).select({ id: fiefs.id, playerId: fiefs.playerId }).from(fiefs),
+    ).toEqual([{ id: anasFief.id, playerId: ana.id }])
+  })
+})
 
-    expect(await db.select({ id: fiefs.id, playerId: fiefs.playerId }).from(fiefs)).toEqual([
-      { id: anasFief.id, playerId: ana.id },
-    ])
+describe('the busy slot start migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  const slotStartOf = async (id: string): Promise<Date | null | undefined> => {
+    const read = await client.query<{ slotStartedAt: Date | null }>(
+      'SELECT slot_started_at AS "slotStartedAt" FROM fiefs WHERE id = $1',
+      [id],
+    )
+    return read.rows[0]?.slotStartedAt
+  }
+
+  it('backfills a running upgrade with the instant it was stored', async () => {
+    await migratedFrom(client, 2, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, {
+        building: 'sawmill',
+        level: 2,
+        finishesAt: '2026-09-22T09:00:00Z',
+      })
+    })
+
+    expect(await slotStartOf(anasFief.id)).toEqual(new Date('2026-09-22T08:00:00Z'))
+  })
+
+  it('leaves the start empty on an idle fief', async () => {
+    await migratedFrom(client, 2, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    expect(await slotStartOf(anasFief.id)).toBeNull()
   })
 })

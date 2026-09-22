@@ -113,6 +113,7 @@ describe('enqueueBuilding', () => {
       kind: 'busy',
       building: 'sawmill',
       targetLevel: 1,
+      startedAt: storedInstant,
       finishesAt: Instant.fromEpochMilliseconds(86_400_000 + 90_000),
     })
   })
@@ -132,10 +133,31 @@ describe('enqueueBuilding', () => {
     expect(stored?.storedAt).toBe(oneHourLater)
   })
 
+  it('stamps the busy slot with the instant the upgrade started', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+      kind: 'busy',
+      startedAt: oneHourLater,
+    })
+  })
+
   it('refuses a second upgrade while the slot is busy', async () => {
     const sawmillFinishing = Instant.fromEpochMilliseconds(86_400_000 + 90_000)
     const busyFief = storedFief({
-      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: sawmillFinishing },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: sawmillFinishing,
+      },
     })
     const fiefs = inMemoryFiefRepository([busyFief])
 
