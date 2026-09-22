@@ -101,6 +101,13 @@ describe('the auth routes', () => {
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('WeakPassword')
   })
 
+  it('refuses a password that is not text as a malformed request', async () => {
+    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, password: 12345678 }))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
   const signUpAna = async (): Promise<Response> => app.request('/auth/sign-up', post(anasSignUp))
 
   const sessionOf = async (cookie: string): Promise<Response> =>

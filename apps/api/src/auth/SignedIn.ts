@@ -1,4 +1,4 @@
-import type { Session, StoredPlayer } from '../adapters/postgres/DrizzleAccounts'
+import type { Session, StoredPlayer } from './Accounts'
 
 export type SignedIn = {
   readonly player: StoredPlayer

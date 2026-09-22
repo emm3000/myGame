@@ -10,6 +10,7 @@ import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
 import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
+import type { Accounts } from './auth/Accounts'
 
 const highestPort = 65535
 
@@ -20,7 +21,7 @@ export type ComposedServer = {
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly fiefs: FiefRepository
-  readonly accounts: DrizzleAccounts
+  readonly accounts: Accounts
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
   readonly inTransaction: Transaction
