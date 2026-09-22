@@ -5,7 +5,7 @@ Hono on Node: the HTTP adapters, the persistence adapters that implement the dom
 ## Commands
 
 - `API_PORT=3106 pnpm --filter @mygame/api dev` — `tsx watch src/server.ts`. Use the port the dispatch assigns, never a default. Add `SESSION_COOKIE_SECURE=false` when a browser reaches the api over plain `http://localhost`: Safari refuses a `Secure` cookie there.
-- `pnpm --filter @mygame/api test` — Vitest, `src/**/*.test.ts`.
+- `pnpm --filter @mygame/api test` — Vitest, `src/**/*.test.ts`. Route tests compose the real server on the session's Postgres, not in-memory adapters: only `FiefRepository` has one.
 - `pnpm --filter @mygame/api typecheck` — `tsc --noEmit` over `src`, the Vitest config and `drizzle.config.ts`.
 - `pnpm --filter @mygame/api db:generate --name <change>` — `drizzle-kit generate`: diffs `src/adapters/postgres/schema.ts` against `migrations/meta` and writes the next SQL migration. Commit the SQL and the `meta` files together.
 - `pnpm --filter @mygame/api db:migrate` — `drizzle-kit migrate`: applies pending migrations to `DATABASE_URL`.
