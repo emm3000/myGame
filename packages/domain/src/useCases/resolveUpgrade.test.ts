@@ -9,6 +9,8 @@ import type {
   WarehouseLevel,
 } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
+import type { FiefRepository } from '../ports/FiefRepository'
+import { err } from '../Result'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { Instant } from '../time/Instant'
 import { resolveUpgrade } from './resolveUpgrade'
@@ -103,6 +105,22 @@ describe('resolveUpgrade', () => {
     expect(stored?.slot).toEqual({ kind: 'idle' })
   })
 
+  it('resolves an upgrade whose finish instant is exactly now', async () => {
+    const sawmillFinishingFief = storedFief({
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+    })
+    const fiefs = inMemoryFiefRepository([sawmillFinishingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.buildingLevels.sawmill).toBe(1)
+    expect(result.value.fief.slot).toEqual({ kind: 'idle' })
+  })
+
   it('accrues at the old rate up to the finish and at the new rate after it', async () => {
     const sawmillUpgradingFief = storedFief({
       buildingLevels: { ...unbuiltLevels, sawmill: 1 },
@@ -187,5 +205,43 @@ describe('resolveUpgrade', () => {
     )
 
     expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+  })
+
+  it('reports a finished level the catalog does not know', async () => {
+    const unknownLevelFief = storedFief({
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 3, finishesAt: hoursAfterStored(1) },
+    })
+    const fiefs = inMemoryFiefRepository([unknownLevelFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'UnknownBuildingLevel', building: 'sawmill', level: 3 },
+    })
+    expect(fiefs.storedFiefOf('lord')).toBe(unknownLevelFief)
+  })
+
+  it('reports a save the repository refuses', async () => {
+    const sawmillBuildingFief = storedFief({
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+    })
+    const refusingFiefs: FiefRepository = {
+      ...inMemoryFiefRepository([sawmillBuildingFief]),
+      save: async (fief) => err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates }),
+    }
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs: refusingFiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'CoordinatesTaken', coordinates: sawmillBuildingFief.coordinates },
+    })
   })
 })

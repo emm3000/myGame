@@ -1,4 +1,5 @@
 import type { DomainError } from '../DomainError'
+import type { BusySlot } from '../fief/BuildSlot'
 import type { Fief } from '../fief/Fief'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { PlayerId } from '../player/PlayerId'
@@ -23,30 +24,25 @@ export type ResolvedFief = {
   readonly hasChanged: boolean
 }
 
-const finishedUpgradeOf = (fief: Fief, now: Instant): Instant | undefined => {
-  if (fief.slot.kind === 'idle') {
+const finishedUpgradeOf = (fief: Fief, now: Instant): BusySlot | undefined => {
+  const { slot } = fief
+  if (slot.kind === 'idle') {
     return undefined
   }
-  const { finishesAt } = fief.slot
-  return finishesAt.epochMilliseconds <= now.epochMilliseconds ? finishesAt : undefined
+  return slot.finishesAt.epochMilliseconds <= now.epochMilliseconds ? slot : undefined
 }
 
 const completeAt = (
   fief: Fief,
-  finishesAt: Instant,
+  finished: BusySlot,
   catalog: BuildingCatalog,
   now: Instant,
 ): Result<Fief, DomainError> => {
-  const stocksAtFinish = materializeStocks(fief, catalog, finishesAt)
+  const stocksAtFinish = materializeStocks(fief, catalog, finished.finishesAt)
   if (!stocksAtFinish.ok) {
     return stocksAtFinish
   }
-  const completed = fief.completeUpgrade(stocksAtFinish.value)
-  const stocksAtNow = materializeStocks(completed, catalog, now)
-  if (!stocksAtNow.ok) {
-    return stocksAtNow
-  }
-  return ok(completed.accruedTo(stocksAtNow.value, now))
+  return fief.completeUpgrade(finished, stocksAtFinish.value).accruedTo(catalog, now)
 }
 
 export const resolveUpgrade = async (
@@ -63,12 +59,12 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  const finishesAt = finishedUpgradeOf(fief, now)
-  if (finishesAt === undefined) {
+  const finished = finishedUpgradeOf(fief, now)
+  if (finished === undefined) {
     return ok({ fief, hasChanged: false })
   }
 
-  const resolved = completeAt(fief, finishesAt, catalog, now)
+  const resolved = completeAt(fief, finished, catalog, now)
   if (!resolved.ok) {
     return resolved
   }

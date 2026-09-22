@@ -1,14 +1,15 @@
 import type { DomainError } from '../DomainError'
 import type { PlayerId } from '../player/PlayerId'
-import type { BuildingKind } from '../ports/BuildingCatalog'
+import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import type { Instant } from '../time/Instant'
-import type { BuildSlot } from './BuildSlot'
+import type { BuildSlot, BusySlot } from './BuildSlot'
 import { Coordinates } from './Coordinates'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
+import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
@@ -181,11 +182,8 @@ export class Fief {
     )
   }
 
-  completeUpgrade(stocksAtFinish: Stocks): Fief {
-    if (this.slot.kind === 'idle') {
-      return this
-    }
-    const { building, targetLevel, finishesAt } = this.slot
+  completeUpgrade(finished: BusySlot, stocksAtFinish: Stocks): Fief {
+    const { building, targetLevel, finishesAt } = finished
     return new Fief(
       this.id,
       this.playerId,
@@ -198,16 +196,22 @@ export class Fief {
     )
   }
 
-  accruedTo(stocksAtNow: Stocks, now: Instant): Fief {
-    return new Fief(
-      this.id,
-      this.playerId,
-      this.name,
-      this.coordinates,
-      stocksAtNow,
-      now,
-      this.buildingLevels,
-      this.slot,
+  accruedTo(catalog: BuildingCatalog, now: Instant): Result<Fief, DomainError> {
+    const stocksAtNow = materializeStocks(this, catalog, now)
+    if (!stocksAtNow.ok) {
+      return stocksAtNow
+    }
+    return ok(
+      new Fief(
+        this.id,
+        this.playerId,
+        this.name,
+        this.coordinates,
+        stocksAtNow.value,
+        now,
+        this.buildingLevels,
+        this.slot,
+      ),
     )
   }
 

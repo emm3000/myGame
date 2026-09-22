@@ -9,3 +9,5 @@ export type BuildSlot =
       readonly targetLevel: number
       readonly finishesAt: Instant
     }
+
+export type BusySlot = Extract<BuildSlot, { readonly kind: 'busy' }>
