@@ -62,8 +62,7 @@ it('stops the interpolated amount at the capacity', async () => {
 
   await passSeconds(30)
 
-  expect(woodCell().textContent).toContain('20 000')
-  expect(woodCell().textContent).not.toContain('20 020')
+  expect(within(woodCell()).getByText('20 000')).toBeDefined()
 })
 
 const sawmillStartedNinetySecondsAgo: FiefOverview = {

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { ResourceBar, type ResourceBarProps } from './ResourceBar'
 
@@ -20,4 +20,20 @@ it('shows a resource bar at capacity', () => {
   expect(granary.textContent).toContain('full')
   expect(granary.textContent).not.toContain('+120 / h')
   expect(screen.getByRole('listitem', { name: 'Wood' }).textContent).toContain('+340 / h')
+})
+
+it('shows the capacity after the amount', () => {
+  render(<ResourceBar {...storeWithFullGranary()} />)
+
+  const woodpile = screen.getByRole('listitem', { name: 'Wood' })
+  expect(within(woodpile).getByText('12 480')).toBeDefined()
+  expect(within(woodpile).getByText('/ 20 000')).toBeDefined()
+})
+
+it('keeps showing the capacity when the store is full', () => {
+  render(<ResourceBar {...storeWithFullGranary()} />)
+
+  const granary = screen.getByRole('listitem', { name: 'Food' })
+  expect(within(granary).getByText('20 000')).toBeDefined()
+  expect(within(granary).getByText('/ 20 000')).toBeDefined()
 })
