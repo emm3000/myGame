@@ -9,6 +9,8 @@ export { deriveWarehouseCapacity } from './fief/deriveWarehouseCapacity'
 export { Fief, type FiefFounding, type Stocks } from './fief/Fief'
 export type { FiefBuildingLevels } from './fief/FiefBuildingLevels'
 export type { FiefId } from './fief/FiefId'
+export { FiefName } from './fief/FiefName'
+export type { PlotAddress } from './fief/PlotAddress'
 export type { Terrain } from './fief/Terrain'
 export type { PlayerId } from './player/PlayerId'
 export type {
