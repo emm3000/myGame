@@ -1,36 +1,39 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
-import type { ResourceStock, Resources } from './Resources'
+import type { Resource, Resources } from './Resources'
 
 export type MaterializedResources = {
   readonly resources: Resources
   readonly at: Instant
 }
 
-const accrueStock = (stock: ResourceStock, elapsedHours: number): ResourceStock => ({
-  ...stock,
-  amount: Math.floor(
-    Math.min(stock.capacityUnits, stock.amount + stock.ratePerHour * elapsedHours),
-  ),
-})
+const MILLISECONDS_PER_HOUR = 3_600_000
+
+const accrue = (resource: Resource, elapsedMilliseconds: number): Resource => {
+  const accruedAmount = Math.floor(
+    (resource.amount * MILLISECONDS_PER_HOUR + resource.ratePerHour * elapsedMilliseconds) /
+      MILLISECONDS_PER_HOUR,
+  )
+  return resource.withAccruedAmount(Math.min(resource.capacityUnits, accruedAmount))
+}
 
 export const materializeResources = (
   resources: Resources,
   storedAt: Instant,
   now: Instant,
 ): Result<MaterializedResources, DomainError> => {
-  const elapsedHours = now.secondsSince(storedAt) / 3600
-  if (elapsedHours < 0) {
+  const elapsedMilliseconds = now.epochMilliseconds - storedAt.epochMilliseconds
+  if (elapsedMilliseconds < 0) {
     return err({ kind: 'InstantBeforeStored', storedAt, now })
   }
 
   const resourcesAccrued: Resources = {
-    wood: accrueStock(resources.wood, elapsedHours),
-    stone: accrueStock(resources.stone, elapsedHours),
-    iron: accrueStock(resources.iron, elapsedHours),
-    gold: accrueStock(resources.gold, elapsedHours),
-    food: accrueStock(resources.food, elapsedHours),
+    wood: accrue(resources.wood, elapsedMilliseconds),
+    stone: accrue(resources.stone, elapsedMilliseconds),
+    iron: accrue(resources.iron, elapsedMilliseconds),
+    gold: accrue(resources.gold, elapsedMilliseconds),
+    food: accrue(resources.food, elapsedMilliseconds),
   }
 
   return ok({ resources: resourcesAccrued, at: now })

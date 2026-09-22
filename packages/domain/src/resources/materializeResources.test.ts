@@ -1,26 +1,28 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
 import { materializeResources } from './materializeResources'
-import type { Resources } from './Resources'
+import { Resource, type Resources } from './Resources'
 
 const storedAt = Instant.fromEpochMilliseconds(0)
 const oneHourLater = Instant.fromEpochMilliseconds(storedAt.epochMilliseconds + 3_600_000)
 
-const oneResource = (stock: {
-  amount: number
-  ratePerHour: number
-  capacityUnits: number
-}): Resources => ({
-  wood: stock,
-  stone: stock,
-  iron: stock,
-  gold: stock,
-  food: stock,
+const buildResource = (amount: number, ratePerHour: number, capacityUnits: number): Resource => {
+  const result = Resource.create(amount, ratePerHour, capacityUnits)
+  assert(result.ok)
+  return result.value
+}
+
+const uniformResources = (resource: Resource): Resources => ({
+  wood: resource,
+  stone: resource,
+  iron: resource,
+  gold: resource,
+  food: resource,
 })
 
 describe('materializeResources', () => {
   it('returns the stored amount when no time has passed', () => {
-    const resources = oneResource({ amount: 100, ratePerHour: 10, capacityUnits: 1000 })
+    const resources = uniformResources(buildResource(100, 10, 1000))
 
     const result = materializeResources(resources, storedAt, storedAt)
 
@@ -30,10 +32,9 @@ describe('materializeResources', () => {
   })
 
   it('caps the accrued amount at the capacity', () => {
-    const resources = oneResource({ amount: 990, ratePerHour: 100, capacityUnits: 1000 })
-    const now = oneHourLater
+    const resources = uniformResources(buildResource(990, 100, 1000))
 
-    const result = materializeResources(resources, storedAt, now)
+    const result = materializeResources(resources, storedAt, oneHourLater)
 
     assert(result.ok)
     expect(result.value.resources.wood.amount).toBe(1000)
@@ -41,15 +42,14 @@ describe('materializeResources', () => {
 
   it('accrues each resource at its own rate', () => {
     const resources: Resources = {
-      wood: { amount: 0, ratePerHour: 10, capacityUnits: 1000 },
-      stone: { amount: 0, ratePerHour: 20, capacityUnits: 1000 },
-      iron: { amount: 0, ratePerHour: 5, capacityUnits: 1000 },
-      gold: { amount: 0, ratePerHour: 1, capacityUnits: 1000 },
-      food: { amount: 0, ratePerHour: 30, capacityUnits: 1000 },
+      wood: buildResource(0, 10, 1000),
+      stone: buildResource(0, 20, 1000),
+      iron: buildResource(0, 5, 1000),
+      gold: buildResource(0, 1, 1000),
+      food: buildResource(0, 30, 1000),
     }
-    const now = oneHourLater
 
-    const result = materializeResources(resources, storedAt, now)
+    const result = materializeResources(resources, storedAt, oneHourLater)
 
     assert(result.ok)
     expect(result.value.resources.wood.amount).toBe(10)
@@ -60,17 +60,28 @@ describe('materializeResources', () => {
   })
 
   it('accrues nothing for a resource whose rate is zero', () => {
-    const resources = oneResource({ amount: 50, ratePerHour: 0, capacityUnits: 1000 })
-    const now = oneHourLater
+    const resources = uniformResources(buildResource(50, 0, 1000))
 
-    const result = materializeResources(resources, storedAt, now)
+    const result = materializeResources(resources, storedAt, oneHourLater)
 
     assert(result.ok)
     expect(result.value.resources.wood.amount).toBe(50)
   })
 
+  it('accrues a partial hour without losing a unit', () => {
+    const resources = uniformResources(buildResource(0, 15, 10_000))
+    const eightHoursTwelveMinutesLater = Instant.fromEpochMilliseconds(
+      storedAt.epochMilliseconds + (8 * 3600 + 12 * 60) * 1000,
+    )
+
+    const result = materializeResources(resources, storedAt, eightHoursTwelveMinutesLater)
+
+    assert(result.ok)
+    expect(result.value.resources.wood.amount).toBe(123)
+  })
+
   it('refuses an instant before the stored instant', () => {
-    const resources = oneResource({ amount: 50, ratePerHour: 10, capacityUnits: 1000 })
+    const resources = uniformResources(buildResource(50, 10, 1000))
     const before = Instant.fromEpochMilliseconds(storedAt.epochMilliseconds - 1000)
 
     const result = materializeResources(resources, storedAt, before)
