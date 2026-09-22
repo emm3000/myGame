@@ -12,8 +12,9 @@ import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
-  startingCapacity: 1000,
+  startingCapacity: 900,
   basePeasantSupply: 6,
+  plotsPerProvince: 15,
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 10 },
     uplands: { resource: 'stone', ratePerHour: 10 },
@@ -49,7 +50,7 @@ const warehouseLevelOne: WarehouseLevel = {
   cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
   durationSeconds: 60,
   peasantOccupancy: 2,
-  capacityUnits: 1000,
+  capacityUnits: 900,
 }
 
 const inMemoryCatalog = (levels: Partial<Record<string, BuildingLevel>>): BuildingCatalog => ({

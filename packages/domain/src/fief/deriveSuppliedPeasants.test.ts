@@ -4,8 +4,9 @@ import { deriveSuppliedPeasants } from './deriveSuppliedPeasants'
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
-  startingCapacity: 1000,
+  startingCapacity: 900,
   basePeasantSupply: 6,
+  plotsPerProvince: 15,
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 10 },
     uplands: { resource: 'stone', ratePerHour: 10 },
