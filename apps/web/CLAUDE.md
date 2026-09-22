@@ -26,5 +26,6 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - No Spanish outside `copy.ts`; identifiers stay English.
 - No snapshot tests. Components are tested through Testing Library queries by role and text; visual verification is a screenshot in the PR.
 - Tailwind's default colours and spacing multiplier are replaced by the tokens, so `bg-red-500` or `p-5` emit nothing; breakpoints stay Tailwind's defaults.
+- `src/design/tailwindTheme.ts` has a default export, the single exception to "named exports only": Tailwind's `@plugin` reads `module.default ?? module` and needs the plugin object there (ADR 009).
 - `tailwindcss()` is the first Vite plugin, before `tanstackStart()`.
 - pnpm refuses packages younger than its minimum release age. Pin the newest version old enough instead of adding a `minimumReleaseAgeExclude` entry.
