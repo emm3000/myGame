@@ -29,6 +29,7 @@ const fiefSettings: FiefSettings = {
   startingCapacity: 1000,
   basePeasantSupply: 4,
   plotsPerProvince: 15,
+  baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 10 },
     uplands: { resource: 'stone', ratePerHour: 10 },
@@ -136,14 +137,35 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value.fief.stocks).toEqual({
-      wood: 190,
-      stone: 100,
-      iron: 120,
-      gold: 100,
-      food: 100,
+      wood: 210,
+      stone: 120,
+      iron: 130,
+      gold: 104,
+      food: 120,
     })
     expect(result.value.fief.storedAt).toBe(now)
     expect(fiefs.storedFiefOf('lord')).toBe(result.value.fief)
+  })
+
+  it('accrues every resource on a fief with no building', async () => {
+    const firstSawmillFief = storedFief({
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+    })
+    const fiefs = inMemoryFiefRepository([firstSawmillFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks).toEqual({
+      wood: 110,
+      stone: 110,
+      iron: 115,
+      gold: 102,
+      food: 110,
+    })
   })
 
   it('leaves a slot still building untouched', async () => {

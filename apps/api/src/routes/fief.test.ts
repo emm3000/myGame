@@ -120,10 +120,25 @@ describe('the fief route', () => {
     expect(response.status).toBe(200)
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.name).toBe('Valdehierro')
-    expect(overview.resources.wood).toEqual({ amount: 500, ratePerHour: 0, capacity: 1000 })
+    expect(overview.resources.wood).toEqual({ amount: 500, ratePerHour: 10, capacity: 1000 })
     expect(overview.peasants).toEqual({ supplied: 10, occupied: 0, free: 10 })
     expect(overview.slot).toEqual({ kind: 'idle' })
     expect(overview.readAt).toBe('2026-09-22T08:00:00.000Z')
+  })
+
+  it('answers the base rate of every resource on a new lowlands fief', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await fiefOf(ana.cookie)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect({
+      wood: resources.wood.ratePerHour,
+      stone: resources.stone.ratePerHour,
+      iron: resources.iron.ratePerHour,
+      gold: resources.gold.ratePerHour,
+      food: resources.food.ratePerHour,
+    }).toEqual({ wood: 10, stone: 10, iron: 5, gold: 2, food: 15 })
   })
 
   it('refuses to answer another player fief', async () => {
@@ -148,7 +163,7 @@ describe('the fief route', () => {
 
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.buildings.sawmill).toBe(1)
-    expect(overview.resources.wood.ratePerHour).toBe(30)
+    expect(overview.resources.wood.ratePerHour).toBe(40)
     expect(overview.slot).toEqual({ kind: 'idle' })
     const stored = await server.fiefs.fiefOf(ana.playerId)
     expect(stored.ok && stored.value?.buildingLevels.sawmill).toBe(1)
@@ -162,8 +177,8 @@ describe('the fief route', () => {
     const response = await fiefOf(ana.cookie)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
-    expect(resources.food).toEqual({ amount: 307, ratePerHour: 5, capacity: 1000 })
-    expect(resources.wood).toEqual({ amount: 500, ratePerHour: 0, capacity: 1000 })
+    expect(resources.food).toEqual({ amount: 322, ratePerHour: 15, capacity: 1000 })
+    expect(resources.wood).toEqual({ amount: 515, ratePerHour: 10, capacity: 1000 })
   })
 
   it('answers a finished upgrade with the amounts accrued at the old rate then the new one', async () => {
@@ -174,7 +189,7 @@ describe('the fief route', () => {
     const response = await fiefOf(ana.cookie)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
-    expect(resources.wood.amount).toBe(484)
+    expect(resources.wood.amount).toBe(498)
   })
 
   it('answers the stored fief to a read whose instant is earlier than the stored one', async () => {
@@ -191,7 +206,7 @@ describe('the fief route', () => {
     expect(response.status).toBe(200)
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.readAt).toBe('2026-09-22T08:05:00.000Z')
-    expect(overview.resources.wood.amount).toBe(441)
+    expect(overview.resources.wood.amount).toBe(442)
   })
 
   it('answers 404 with FiefNotFound when the player holds no fief', async () => {
@@ -255,8 +270,8 @@ describe('the fief route', () => {
         targetLevel: 1,
         finishesAt: '2026-09-22T08:12:00.000Z',
       })
-      expect(overview.resources.wood.amount).toBe(440)
-      expect(overview.resources.stone.amount).toBe(485)
+      expect(overview.resources.wood.amount).toBe(441)
+      expect(overview.resources.stone.amount).toBe(486)
       expect(overview.readAt).toBe('2026-09-22T08:10:00.000Z')
     })
 

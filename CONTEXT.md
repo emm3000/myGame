@@ -15,10 +15,11 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 - **Resource** — one of wood, stone, iron, gold, food. Each has an amount, a rate per hour and a capacity on a fief.
 - **Wood / Stone / Iron** — the building materials, produced by the sawmill, the quarry and the iron mine. Replace *metal / crystal / deuterium*.
-- **Gold** — the scarce currency for upkeep and trade. Replaces the premium resource but is earned in play.
+- **Gold** — the scarce currency for upkeep and trade, accruing from the fief's tolls and tithes at its base rate; no building produces it. Replaces the premium resource but is earned in play.
 - **Food** — a stored resource like the others, produced by farms and spent on building costs. It is not eaten down over time in this phase.
 - **Peasants** — the workforce. The fief supplies a base number and each farm level adds more; each building level occupies some. Free peasants = supplied − occupied, a derived number that never grows on its own. An upgrade charges only the increase in occupancy against the free peasants, releasing the current level's occupancy. Replaces *energy*.
 - **Warehouse** — the building that sets a resource's capacity.
+- **Base rate** — the rate per hour every fief earns of each resource from founding, with no building; a producer's rate and the terrain bonus add on top of it.
 - **Accrual** — the amount a resource gains between two instants, computed on read (ADR 005).
 
 ## Buildings

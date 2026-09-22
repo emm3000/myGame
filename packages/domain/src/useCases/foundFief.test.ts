@@ -22,6 +22,7 @@ const fiefSettings = (plotsPerProvince: number): FiefSettings => ({
   startingCapacity: 900,
   basePeasantSupply: 6,
   plotsPerProvince,
+  baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 10 },
     uplands: { resource: 'stone', ratePerHour: 10 },

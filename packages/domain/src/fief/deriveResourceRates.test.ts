@@ -10,6 +10,8 @@ import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
 const noLevels: FiefBuildingLevels = { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0 }
 
+const tollBaseRates = { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 }
+
 const fiefSettings = (
   bonusResource: 'wood' | 'stone' | 'iron' | 'gold' | 'food',
 ): FiefSettings => ({
@@ -17,6 +19,7 @@ const fiefSettings = (
   startingCapacity: 900,
   basePeasantSupply: 6,
   plotsPerProvince: 15,
+  baseRates: tollBaseRates,
   terrainBonus: {
     lowlands: { resource: bonusResource, ratePerHour: 10 },
     uplands: { resource: bonusResource, ratePerHour: 10 },
@@ -61,7 +64,7 @@ describe('deriveResourceRates', () => {
     const result = deriveResourceRates(levels, 'ridges', catalog)
 
     assert(result.ok)
-    expect(result.value.wood).toBe(30)
+    expect(result.value.wood).toBe(40)
   })
 
   it('raises the rate the terrain favours by the fief settings bonus', () => {
@@ -73,16 +76,41 @@ describe('deriveResourceRates', () => {
     const result = deriveResourceRates(levels, 'lowlands', catalog)
 
     assert(result.ok)
-    expect(result.value.wood).toBe(30)
+    expect(result.value.wood).toBe(40)
   })
 
-  it('derives a zero gold rate with no gold producer', () => {
-    const catalog = inMemoryCatalog(fiefSettings('wood'), {})
+  it('adds the base rate under the producer rate and the terrain bonus', () => {
+    const catalog = inMemoryCatalog(
+      { ...fiefSettings('iron'), baseRates: { ...tollBaseRates, iron: 7 } },
+      { 'ironMine:1': { ...producerLevel(25), building: 'ironMine' } },
+    )
+    const levels: FiefBuildingLevels = { ...noLevels, ironMine: 1 }
+
+    const result = deriveResourceRates(levels, 'ridges', catalog)
+
+    assert(result.ok)
+    expect(result.value.iron).toBe(42)
+  })
+
+  it('derives the base rate of every resource on a fief with no building', () => {
+    const catalog = inMemoryCatalog(
+      {
+        ...fiefSettings('food'),
+        terrainBonus: {
+          lowlands: { resource: 'food', ratePerHour: 5 },
+          uplands: { resource: 'stone', ratePerHour: 4 },
+          ridges: { resource: 'iron', ratePerHour: 2 },
+        },
+      },
+      {},
+    )
 
     const result = deriveResourceRates(noLevels, 'lowlands', catalog)
 
-    assert(result.ok)
-    expect(result.value.gold).toBe(0)
+    expect(result).toEqual({
+      ok: true,
+      value: { wood: 10, stone: 10, iron: 5, gold: 2, food: 15 },
+    })
   })
 
   it('refuses a building level the catalog does not know', () => {

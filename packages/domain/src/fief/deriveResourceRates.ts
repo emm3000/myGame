@@ -44,15 +44,16 @@ export const deriveResourceRates = (
     return food
   }
 
+  const { baseRates, terrainBonus } = catalog.fiefSettings()
   const rates: Record<ResourceKind, number> = {
-    wood: wood.value,
-    stone: stone.value,
-    iron: iron.value,
-    gold: 0,
-    food: food.value,
+    wood: baseRates.wood + wood.value,
+    stone: baseRates.stone + stone.value,
+    iron: baseRates.iron + iron.value,
+    gold: baseRates.gold,
+    food: baseRates.food + food.value,
   }
 
-  const bonus = catalog.fiefSettings().terrainBonus[terrain]
+  const bonus = terrainBonus[terrain]
   rates[bonus.resource] += bonus.ratePerHour
 
   return ok(rates)
