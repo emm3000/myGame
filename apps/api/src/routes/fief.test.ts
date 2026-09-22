@@ -316,11 +316,27 @@ describe('the fief route', () => {
         kind: 'busy',
         building: 'sawmill',
         targetLevel: 1,
+        startedAt: '2026-09-22T08:10:00.000Z',
         finishesAt: '2026-09-22T08:12:00.000Z',
       })
       expect(overview.resources.wood.amount).toBe(441)
       expect(overview.resources.stone.amount).toBe(486)
       expect(overview.readAt).toBe('2026-09-22T08:10:00.000Z')
+    })
+
+    it('answers the instant the upgrade started on a later read', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      clock.advanceMinutes(10)
+      await enqueue(ana.cookie, 'sawmill')
+      clock.advanceMinutes(1)
+
+      const response = await app.request('/fief', { headers: { cookie: ana.cookie } })
+
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.readAt).toBe('2026-09-22T08:11:00.000Z')
+      expect(overview.slot.kind === 'busy' && overview.slot.startedAt).toBe(
+        '2026-09-22T08:10:00.000Z',
+      )
     })
 
     it('answers the next level of the built level while the upgrade runs', async () => {
@@ -389,6 +405,7 @@ describe('the fief route', () => {
         kind: 'busy',
         building: 'quarry',
         targetLevel: 1,
+        startedAt: '2026-09-22T08:03:00.000Z',
         finishesAt: '2026-09-22T08:05:30.000Z',
       })
       const stored = await server.fiefs.fiefOf(ana.playerId)

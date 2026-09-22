@@ -12,7 +12,6 @@ import type { Upgrade } from './useUpgrade'
 
 export interface FiefScreenProps {
   readonly fief: LiveFief
-  readonly slotTotalSeconds: number
   readonly upgrade: Upgrade
 }
 
@@ -23,7 +22,7 @@ function addressOf({ coordinates }: LiveFief['overview']): string {
   return `${kingdom} ${coordinates.province}:${coordinates.plot}`
 }
 
-function slotStateOf(fief: LiveFief, slotTotalSeconds: number): BuildSlotState {
+function slotStateOf(fief: LiveFief): BuildSlotState {
   const { slot } = fief.overview
   if (slot.kind === 'idle') {
     return { kind: 'idle', title: names.slot, invitation: names.idleSlot }
@@ -39,7 +38,7 @@ function slotStateOf(fief: LiveFief, slotTotalSeconds: number): BuildSlotState {
     kind: 'busy',
     title: names.busySlot,
     remainingSeconds: fief.slotRemainingSeconds,
-    totalSeconds: slotTotalSeconds,
+    totalSeconds: fief.slotTotalSeconds,
     finishedLabel: copy.fief.finished,
     ...building,
   }
@@ -68,7 +67,7 @@ function BuildingItem({
   )
 }
 
-export function FiefScreen({ fief, slotTotalSeconds, upgrade }: FiefScreenProps): ReactElement {
+export function FiefScreen({ fief, upgrade }: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
     kind,
@@ -91,7 +90,7 @@ export function FiefScreen({ fief, slotTotalSeconds, upgrade }: FiefScreenProps)
         labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
       />
       <div className="grid items-start gap-6 lg:grid-cols-3">
-        <BuildSlot state={slotStateOf(fief, slotTotalSeconds)} />
+        <BuildSlot state={slotStateOf(fief)} />
         <section className="flex flex-col gap-3 lg:col-span-2">
           <h3 className="m-0 font-body text-heading text-ink">{copy.fief.buildings}</h3>
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">

@@ -6,7 +6,7 @@ import { type LiveFief, liveFiefAt, slotRemainingSecondsAt } from './liveFief'
 export type LiveFiefState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'refused'; readonly refusal: ApiRefusal }
-  | { readonly kind: 'live'; readonly fief: LiveFief; readonly slotTotalSeconds: number }
+  | { readonly kind: 'live'; readonly fief: LiveFief }
 
 export interface LiveFiefHandle {
   readonly state: LiveFiefState
@@ -66,26 +66,6 @@ function useDisplayClock(isLive: boolean): number {
   return nowMs
 }
 
-interface FirstSightOfSlot {
-  readonly finishesAt: string
-  readonly remainingSeconds: number
-}
-
-function useSlotTotalSeconds(lastRead: LastRead | undefined): number {
-  const firstSight = useRef<FirstSightOfSlot>(undefined)
-  if (lastRead === undefined || lastRead.overview.slot.kind === 'idle') {
-    return 0
-  }
-  const { finishesAt } = lastRead.overview.slot
-  if (firstSight.current?.finishesAt !== finishesAt) {
-    firstSight.current = {
-      finishesAt,
-      remainingSeconds: slotRemainingSecondsAt(lastRead.overview, 0),
-    }
-  }
-  return firstSight.current.remainingSeconds
-}
-
 export function useLiveFief(apiClient: ApiClient): LiveFiefHandle {
   const [lastRead, setLastRead] = useState<LastRead>()
   const [refusal, setRefusal] = useState<ApiRefusal>()
@@ -116,12 +96,11 @@ export function useLiveFief(apiClient: ApiClient): LiveFiefHandle {
   }, [read])
   useRereadPolicy(lastRead, read)
   const nowMs = useDisplayClock(lastRead !== undefined)
-  const slotTotalSeconds = useSlotTotalSeconds(lastRead)
 
   if (lastRead !== undefined) {
     const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, nowMs)
     const fief = liveFiefAt(lastRead.overview, elapsedSeconds)
-    return { state: { kind: 'live', fief, slotTotalSeconds }, adopt }
+    return { state: { kind: 'live', fief }, adopt }
   }
   return {
     state: refusal === undefined ? { kind: 'loading' } : { kind: 'refused', refusal },

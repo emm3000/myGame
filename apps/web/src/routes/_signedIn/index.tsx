@@ -20,9 +20,7 @@ function FiefOverviewPage(): ReactElement {
     case 'refused':
       return <FormAlert message={copy.refusals[state.refusal]} />
     case 'live':
-      return (
-        <FiefScreen fief={state.fief} slotTotalSeconds={state.slotTotalSeconds} upgrade={upgrade} />
-      )
+      return <FiefScreen fief={state.fief} upgrade={upgrade} />
     default: {
       const unreachable: never = state
       return unreachable
