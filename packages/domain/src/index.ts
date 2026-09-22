@@ -1,5 +1,5 @@
 export type { DomainError } from './DomainError'
-export type { BuildSlot } from './fief/BuildSlot'
+export type { BuildSlot, BusySlot } from './fief/BuildSlot'
 export { Coordinates } from './fief/Coordinates'
 export { deriveFreePeasants } from './fief/deriveFreePeasants'
 export { deriveOccupiedPeasants } from './fief/deriveOccupiedPeasants'
