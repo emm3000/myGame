@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { BuildingCatalog, BuildingLevel, FiefSettings } from '../ports/BuildingCatalog'
+import type {
+  BuildingCatalog,
+  BuildingLevel,
+  FarmLevel,
+  FiefSettings,
+  ProducerLevel,
+  WarehouseLevel,
+} from '../ports/BuildingCatalog'
 import { deriveOccupiedPeasants } from './deriveOccupiedPeasants'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
@@ -14,8 +21,11 @@ const fiefSettings: FiefSettings = {
   },
 }
 
-const level = (peasantOccupancy: number): BuildingLevel => ({
-  building: 'sawmill',
+const producerLevel = (
+  building: ProducerLevel['building'],
+  peasantOccupancy: number,
+): ProducerLevel => ({
+  building,
   level: 1,
   cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
   durationSeconds: 60,
@@ -23,20 +33,38 @@ const level = (peasantOccupancy: number): BuildingLevel => ({
   ratePerHour: 10,
 })
 
+const farmLevelOne: FarmLevel = {
+  building: 'farm',
+  level: 1,
+  cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 90,
+  peasantOccupancy: 1,
+  ratePerHour: 20,
+  peasantSupply: 4,
+}
+
+const warehouseLevelOne: WarehouseLevel = {
+  building: 'warehouse',
+  level: 1,
+  cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 60,
+  peasantOccupancy: 2,
+  capacityUnits: 1000,
+}
+
 const inMemoryCatalog = (levels: Partial<Record<string, BuildingLevel>>): BuildingCatalog => ({
-  levelOf: ((building: string, buildingLevel: number) =>
-    levels[`${building}:${buildingLevel}`]) as BuildingCatalog['levelOf'],
+  levelOf: (building, buildingLevel) => levels[`${building}:${buildingLevel}`],
   fiefSettings: () => fiefSettings,
 })
 
 describe('deriveOccupiedPeasants', () => {
   it('counts the peasants every building level occupies', () => {
     const catalog = inMemoryCatalog({
-      'sawmill:1': level(1),
-      'quarry:1': level(2),
-      'ironMine:1': level(3),
-      'farm:1': level(1),
-      'warehouse:1': level(2),
+      'sawmill:1': producerLevel('sawmill', 1),
+      'quarry:1': producerLevel('quarry', 2),
+      'ironMine:1': producerLevel('ironMine', 3),
+      'farm:1': farmLevelOne,
+      'warehouse:1': warehouseLevelOne,
     })
     const levels: FiefBuildingLevels = {
       sawmill: 1,

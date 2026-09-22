@@ -11,3 +11,8 @@ export type DomainError =
       readonly building: BuildingKind
       readonly level: number
     }
+  | {
+      readonly kind: 'NegativeFreePeasants'
+      readonly suppliedPeasants: number
+      readonly occupiedPeasants: number
+    }

@@ -5,10 +5,10 @@ import type { ResourceKind } from '../resources/Resources'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { Terrain } from './Terrain'
 
-type ProducingBuilding = 'sawmill' | 'quarry' | 'ironMine' | 'farm'
+type RateBearingBuilding = 'sawmill' | 'quarry' | 'ironMine' | 'farm'
 
 const PRODUCERS: ReadonlyArray<{
-  readonly building: ProducingBuilding
+  readonly building: RateBearingBuilding
   readonly resource: ResourceKind
 }> = [
   { building: 'sawmill', resource: 'wood' },
@@ -19,14 +19,14 @@ const PRODUCERS: ReadonlyArray<{
 
 const producerRate = (
   catalog: BuildingCatalog,
-  building: ProducingBuilding,
+  building: RateBearingBuilding,
   level: number,
 ): Result<number, DomainError> => {
   if (level === 0) {
     return ok(0)
   }
   const found = catalog.levelOf(building, level)
-  if (found === undefined) {
+  if (found === undefined || found.building === 'warehouse') {
     return err({ kind: 'UnknownBuildingLevel', building, level })
   }
   return ok(found.ratePerHour)

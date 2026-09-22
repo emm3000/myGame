@@ -3,30 +3,39 @@ import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
-const ALL_BUILDINGS: ReadonlyArray<BuildingKind> = [
-  'sawmill',
-  'quarry',
-  'ironMine',
-  'farm',
-  'warehouse',
-]
+const occupancyOf = (
+  catalog: BuildingCatalog,
+  building: BuildingKind,
+  level: number,
+): Result<number, DomainError> => {
+  if (level === 0) {
+    return ok(0)
+  }
+  const found = catalog.levelOf(building, level)
+  if (found === undefined) {
+    return err({ kind: 'UnknownBuildingLevel', building, level })
+  }
+  return ok(found.peasantOccupancy)
+}
 
 export const deriveOccupiedPeasants = (
   buildingLevels: FiefBuildingLevels,
   catalog: BuildingCatalog,
 ): Result<number, DomainError> => {
-  let occupiedPeasants = 0
+  const occupancyByBuilding: Record<BuildingKind, Result<number, DomainError>> = {
+    sawmill: occupancyOf(catalog, 'sawmill', buildingLevels.sawmill),
+    quarry: occupancyOf(catalog, 'quarry', buildingLevels.quarry),
+    ironMine: occupancyOf(catalog, 'ironMine', buildingLevels.ironMine),
+    farm: occupancyOf(catalog, 'farm', buildingLevels.farm),
+    warehouse: occupancyOf(catalog, 'warehouse', buildingLevels.warehouse),
+  }
 
-  for (const building of ALL_BUILDINGS) {
-    const level = buildingLevels[building]
-    if (level === 0) {
-      continue
+  let occupiedPeasants = 0
+  for (const occupancy of Object.values(occupancyByBuilding)) {
+    if (!occupancy.ok) {
+      return occupancy
     }
-    const found = catalog.levelOf(building, level)
-    if (found === undefined) {
-      return err({ kind: 'UnknownBuildingLevel', building, level })
-    }
-    occupiedPeasants += found.peasantOccupancy
+    occupiedPeasants += occupancy.value
   }
 
   return ok(occupiedPeasants)

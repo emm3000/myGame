@@ -28,12 +28,6 @@ export type WarehouseLevel = BuildingLevelData & {
 
 export type BuildingLevel = ProducerLevel | FarmLevel | WarehouseLevel
 
-type BuildingLevelFor<B extends BuildingKind> = B extends 'warehouse'
-  ? WarehouseLevel
-  : B extends 'farm'
-    ? FarmLevel
-    : ProducerLevel
-
 export type TerrainBonus = {
   readonly resource: ResourceKind
   readonly ratePerHour: number
@@ -47,6 +41,6 @@ export type FiefSettings = {
 }
 
 export interface BuildingCatalog {
-  levelOf<B extends BuildingKind>(building: B, level: number): BuildingLevelFor<B> | undefined
+  levelOf(building: BuildingKind, level: number): BuildingLevel | undefined
   fiefSettings(): FiefSettings
 }

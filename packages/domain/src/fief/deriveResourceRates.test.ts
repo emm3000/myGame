@@ -31,8 +31,7 @@ const inMemoryCatalog = (
   settings: FiefSettings,
   levels: Partial<Record<string, ProducerLevel>>,
 ): BuildingCatalog => ({
-  levelOf: ((building: string, level: number) =>
-    levels[`${building}:${level}`]) as BuildingCatalog['levelOf'],
+  levelOf: (building, level) => levels[`${building}:${level}`],
   fiefSettings: () => settings,
 })
 

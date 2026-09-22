@@ -10,7 +10,7 @@ export const deriveWarehouseCapacity = (
     return ok(catalog.fiefSettings().startingCapacity)
   }
   const found = catalog.levelOf('warehouse', warehouseLevel)
-  if (found === undefined) {
+  if (found === undefined || found.building !== 'warehouse') {
     return err({ kind: 'UnknownBuildingLevel', building: 'warehouse', level: warehouseLevel })
   }
   return ok(found.capacityUnits)

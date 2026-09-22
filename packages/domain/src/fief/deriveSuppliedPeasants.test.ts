@@ -24,8 +24,7 @@ const farmLevelOne: FarmLevel = {
 }
 
 const inMemoryCatalog = (levels: Partial<Record<string, FarmLevel>>): BuildingCatalog => ({
-  levelOf: ((building: string, level: number) =>
-    levels[`${building}:${level}`]) as BuildingCatalog['levelOf'],
+  levelOf: (building, level) => levels[`${building}:${level}`],
   fiefSettings: () => fiefSettings,
 })
 
