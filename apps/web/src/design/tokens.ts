@@ -23,6 +23,9 @@ export type ColorToken =
   | 'iron'
   | 'gold'
   | 'food'
+  | 'peasants'
+
+const umber = { light: '#6b4a2b', dark: '#a8784f' }
 
 export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>>>> = {
   surface: { light: '#f1e7d0', dark: '#1e1811' },
@@ -34,7 +37,7 @@ export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>
   'ink-muted': { light: '#6b5b45', dark: '#b3a389' },
   'ink-faint': { light: '#9a8a6f', dark: '#7f7058' },
   ochre: { light: '#b8862a', dark: '#d9a848' },
-  umber: { light: '#6b4a2b', dark: '#a8784f' },
+  umber,
   'on-umber': { light: '#f9f3e4', dark: '#1e1811' },
   slate: { light: '#5c6670', dark: '#98a3ad' },
   moss: { light: '#5b7a3a', dark: '#8fb05f' },
@@ -47,6 +50,7 @@ export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>
   iron: { light: '#46586a', dark: '#8ea2b6' },
   gold: { light: '#c9a21e', dark: '#e9c53f' },
   food: { light: '#7f9a32', dark: '#a9c45a' },
+  peasants: umber,
 }
 
 export function color(token: ColorToken): string {
@@ -72,6 +76,20 @@ export const spacing: Readonly<Record<SpaceStep, string>> = {
   6: '24px',
   8: '32px',
   12: '48px',
+}
+
+export type Radius = 'sm' | 'md' | 'pill'
+
+export const radii: Readonly<Record<Radius, string>> = {
+  sm: '2px',
+  md: '4px',
+  pill: '999px',
+}
+
+export type Shadow = 'card'
+
+export const shadows: Readonly<Record<Shadow, string>> = {
+  card: `0 1px 0 ${color('line')}`,
 }
 
 export type TypeStyle =
