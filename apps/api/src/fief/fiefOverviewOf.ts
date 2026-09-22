@@ -1,4 +1,4 @@
-import type { FiefOverview } from '@mygame/contracts'
+import { BuildingKindSchema, type FiefOverview } from '@mygame/contracts'
 import {
   type BuildingCatalog,
   type BuildingKind,
@@ -6,6 +6,7 @@ import {
   type DomainError,
   deriveFreePeasants,
   deriveOccupiedPeasants,
+  derivePeasantsForUpgrade,
   deriveResourceRates,
   deriveSuppliedPeasants,
   deriveWarehouseCapacity,
@@ -63,66 +64,42 @@ const peasantsOf = (
 
 type BuildingState = FiefOverview['buildings'][BuildingKind]
 
-const buildingStateOf = (
+const nextLevelOf = (
   building: BuildingKind,
   buildingLevels: FiefBuildingLevels,
-  occupied: number,
   catalog: BuildingCatalog,
-): Result<BuildingState, DomainError> => {
-  const level = buildingLevels[building]
-  const next = catalog.levelOf(building, level + 1)
+): Result<BuildingState['nextLevel'], DomainError> => {
+  const next = catalog.levelOf(building, buildingLevels[building] + 1)
   if (next === undefined) {
-    return ok({ level, nextLevel: null })
+    return ok(null)
   }
-  const occupiedAfter = deriveOccupiedPeasants(
-    { ...buildingLevels, [building]: next.level },
-    catalog,
-  )
-  if (!occupiedAfter.ok) {
-    return occupiedAfter
+  const peasants = derivePeasantsForUpgrade(buildingLevels, building, next.level, catalog)
+  if (!peasants.ok) {
+    return peasants
   }
-  const { cost, durationSeconds } = next
-  const peasants = occupiedAfter.value - occupied
-  return ok({
-    level,
-    nextLevel: { level: next.level, cost: { ...cost }, durationSeconds, peasants },
-  })
+  const { level, cost, durationSeconds } = next
+  return ok({ level, cost: { ...cost }, durationSeconds, peasants: peasants.value })
 }
 
 const buildingsOf = (
   buildingLevels: FiefBuildingLevels,
-  occupied: number,
   catalog: BuildingCatalog,
 ): Result<FiefOverview['buildings'], DomainError> => {
-  const stateOf = (building: BuildingKind): Result<BuildingState, DomainError> =>
-    buildingStateOf(building, buildingLevels, occupied, catalog)
-  const sawmill = stateOf('sawmill')
-  if (!sawmill.ok) {
-    return sawmill
+  const buildings: Record<BuildingKind, BuildingState> = {
+    sawmill: { level: buildingLevels.sawmill, nextLevel: null },
+    quarry: { level: buildingLevels.quarry, nextLevel: null },
+    ironMine: { level: buildingLevels.ironMine, nextLevel: null },
+    farm: { level: buildingLevels.farm, nextLevel: null },
+    warehouse: { level: buildingLevels.warehouse, nextLevel: null },
   }
-  const quarry = stateOf('quarry')
-  if (!quarry.ok) {
-    return quarry
+  for (const building of BuildingKindSchema.options) {
+    const nextLevel = nextLevelOf(building, buildingLevels, catalog)
+    if (!nextLevel.ok) {
+      return nextLevel
+    }
+    buildings[building] = { ...buildings[building], nextLevel: nextLevel.value }
   }
-  const ironMine = stateOf('ironMine')
-  if (!ironMine.ok) {
-    return ironMine
-  }
-  const farm = stateOf('farm')
-  if (!farm.ok) {
-    return farm
-  }
-  const warehouse = stateOf('warehouse')
-  if (!warehouse.ok) {
-    return warehouse
-  }
-  return ok({
-    sawmill: sawmill.value,
-    quarry: quarry.value,
-    ironMine: ironMine.value,
-    farm: farm.value,
-    warehouse: warehouse.value,
-  })
+  return ok(buildings)
 }
 
 export const fiefOverviewOf = (
@@ -141,7 +118,7 @@ export const fiefOverviewOf = (
   if (!peasants.ok) {
     return peasants
   }
-  const buildings = buildingsOf(fief.buildingLevels, peasants.value.occupied, catalog)
+  const buildings = buildingsOf(fief.buildingLevels, catalog)
   if (!buildings.ok) {
     return buildings
   }
