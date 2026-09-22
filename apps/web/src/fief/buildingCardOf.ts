@@ -5,7 +5,10 @@ import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
 import type { LiveFief } from './liveFief'
 
-export type BuildingCardContent = Omit<BuildingCardProps, 'isWaiting' | 'onUpgrade'>
+export type BuildingCardContent = Omit<
+  BuildingCardProps,
+  'titleElement' | 'isWaiting' | 'onUpgrade'
+>
 
 const { names } = copy
 

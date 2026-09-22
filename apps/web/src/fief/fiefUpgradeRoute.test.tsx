@@ -104,44 +104,92 @@ it('disables a card the free peasants cannot staff', async () => {
   expect(upgradeButtonOf('sawmill').hasAttribute('disabled')).toBe(false)
 })
 
+interface Deferred<T> {
+  readonly promise: Promise<T>
+  readonly resolve: (value: T) => void
+}
+
+const deferred = <T,>(): Deferred<T> => {
+  let resolve: (value: T) => void = () => undefined
+  const promise = new Promise<T>((settle) => {
+    resolve = settle
+  })
+  return { promise, resolve }
+}
+
 it('starts at most one upgrade on a double click', async () => {
-  const enqueueUpgrade = vi.fn(
-    (): Promise<ApiOutcome<FiefOverview>> =>
-      new Promise((answer) => {
-        setTimeout(() => answer({ ok: true, value: sawmillUpgradeUnderWay }), 500)
-      }),
-  )
+  const answer = deferred<ApiOutcome<FiefOverview>>()
+  const enqueueUpgrade = vi.fn(() => answer.promise)
   await showFief(signedInClient({ enqueueUpgrade }))
 
   fireEvent.click(upgradeButtonOf('sawmill'))
   fireEvent.click(upgradeButtonOf('sawmill'))
-  await passSeconds(1)
+  answer.resolve({ ok: true, value: sawmillUpgradeUnderWay })
+  await passSeconds(0)
 
   expect(enqueueUpgrade).toHaveBeenCalledTimes(1)
 })
 
-it('disables a card the fief cannot afford and names each missing amount', async () => {
-  const shortOfStoneAndIron: FiefOverview = {
-    ...knownFief,
-    buildings: {
-      ...knownFief.buildings,
-      ironMine: {
-        level: 0,
-        nextLevel: {
-          level: 1,
-          cost: { wood: 60, stone: 815, iron: 340, gold: 0, food: 0 },
-          durationSeconds: 90,
-          peasants: 1,
-        },
+it('disables every card while an upgrade is being started', async () => {
+  const answer = deferred<ApiOutcome<FiefOverview>>()
+  await showFief(signedInClient({ enqueueUpgrade: () => answer.promise }))
+
+  fireEvent.click(upgradeButtonOf('sawmill'))
+  await passSeconds(0)
+
+  expect(upgradeButtonOf('quarry').hasAttribute('disabled')).toBe(true)
+})
+
+it('clears a refusal once a fresh read of the fief arrives', async () => {
+  const reads = [knownFief, { ...knownFief, readAt: '2026-09-22T12:01:00.000Z' }]
+  const fief = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: true,
+    value: reads.shift() ?? knownFief,
+  })
+  const enqueueUpgrade = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: false,
+    refusal: 'SlotBusy',
+  })
+  await showFief(signedInClient({ fief, enqueueUpgrade }))
+  fireEvent.click(upgradeButtonOf('quarry'))
+  await passSeconds(0)
+  expect(within(cardOf('quarry')).queryByRole('alert')).not.toBeNull()
+
+  await passSeconds(60)
+
+  expect(within(cardOf('quarry')).queryByRole('alert')).toBeNull()
+})
+
+const shortOfStoneAndIron: FiefOverview = {
+  ...knownFief,
+  buildings: {
+    ...knownFief.buildings,
+    ironMine: {
+      level: 0,
+      nextLevel: {
+        level: 1,
+        cost: { wood: 60, stone: 815, iron: 340, gold: 0, food: 0 },
+        durationSeconds: 90,
+        peasants: 1,
       },
     },
-  }
+  },
+}
+
+it('disables a card the fief cannot afford', async () => {
   await showFief(signedInClient({ fief: async () => ({ ok: true, value: shortOfStoneAndIron }) }))
 
-  const ironMineButton = within(cardOf('ironMine')).getByRole('button', {
-    name: 'Mejorar · 1:30. Te faltan 15 de piedra y 40 de hierro.',
-  })
-  expect(ironMineButton.hasAttribute('disabled')).toBe(true)
+  expect(upgradeButtonOf('ironMine').hasAttribute('disabled')).toBe(true)
+})
+
+it('names each missing amount on the button of a card the fief cannot afford', async () => {
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: shortOfStoneAndIron }) }))
+
+  expect(
+    within(cardOf('ironMine')).getByRole('button', {
+      name: 'Mejorar · 1:30. Te faltan 15 de piedra y 40 de hierro.',
+    }),
+  ).toBeDefined()
 })
 
 it('shows a building at its highest level as finished', async () => {

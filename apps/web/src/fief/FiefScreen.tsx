@@ -59,7 +59,8 @@ function BuildingItem({
     <li aria-label={names.buildings[building]} className="flex flex-col gap-2">
       <BuildingCard
         {...buildingCardOf(building, fief)}
-        isWaiting={upgrade.waitingFor !== undefined}
+        titleElement="h4"
+        isWaiting={upgrade.isWaiting}
         onUpgrade={() => upgrade.start(building)}
       />
       {refusal !== undefined && <FormAlert message={copy.refusals[refusal]} />}

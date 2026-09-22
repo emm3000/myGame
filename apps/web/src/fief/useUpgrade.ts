@@ -8,35 +8,47 @@ export interface UpgradeRefusal {
 }
 
 export interface Upgrade {
-  readonly waitingFor: BuildingKind | undefined
+  readonly isWaiting: boolean
   readonly refused: UpgradeRefusal | undefined
   readonly start: (building: BuildingKind) => void
 }
 
-export function useUpgrade(apiClient: ApiClient, adopt: (overview: FiefOverview) => void): Upgrade {
-  const [waitingFor, setWaitingFor] = useState<BuildingKind>()
-  const [refused, setRefused] = useState<UpgradeRefusal>()
-  const isWaiting = useRef(false)
+interface RefusalOfRead extends UpgradeRefusal {
+  readonly readAt: string | undefined
+}
+
+export function useUpgrade(
+  apiClient: ApiClient,
+  adopt: (overview: FiefOverview) => void,
+  readAt: string | undefined,
+): Upgrade {
+  const [isWaiting, setIsWaiting] = useState(false)
+  const [refused, setRefused] = useState<RefusalOfRead>()
+  const isInFlight = useRef(false)
 
   const start = useCallback(
     async (building: BuildingKind): Promise<void> => {
-      if (isWaiting.current) {
+      if (isInFlight.current) {
         return
       }
-      isWaiting.current = true
-      setWaitingFor(building)
+      isInFlight.current = true
+      setIsWaiting(true)
       setRefused(undefined)
       const outcome = await apiClient.enqueueUpgrade(building)
-      isWaiting.current = false
-      setWaitingFor(undefined)
+      isInFlight.current = false
+      setIsWaiting(false)
       if (outcome.ok) {
         adopt(outcome.value)
         return
       }
-      setRefused({ building, refusal: outcome.refusal })
+      setRefused({ building, refusal: outcome.refusal, readAt })
     },
-    [apiClient, adopt],
+    [apiClient, adopt, readAt],
   )
 
-  return { waitingFor, refused, start: (building) => void start(building) }
+  return {
+    isWaiting,
+    refused: refused?.readAt === readAt ? refused : undefined,
+    start: (building) => void start(building),
+  }
 }
