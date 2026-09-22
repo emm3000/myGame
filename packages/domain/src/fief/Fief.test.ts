@@ -73,4 +73,41 @@ describe('Fief', () => {
 
     expect(restored).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -3 } })
   })
+
+  it('refuses a stored fief with a negative building level', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      buildingLevels: { ...storedBusyFief.buildingLevels, farm: -1 },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidBuildingLevel', building: 'farm', level: -1 },
+    })
+  })
+
+  it('refuses a stored busy slot whose target level is below one', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      slot: { kind: 'busy', building: 'ironMine', targetLevel: 0, finishesAt: foundingInstant },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidBuildingLevel', building: 'ironMine', level: 0 },
+    })
+  })
+
+  it('refuses a stored busy slot that finishes before the stored instant', () => {
+    const finishesAt = Instant.fromEpochMilliseconds(86_399_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      slot: { kind: 'busy', building: 'quarry', targetLevel: 2, finishesAt },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt },
+    })
+  })
 })
