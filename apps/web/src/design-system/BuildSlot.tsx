@@ -74,7 +74,8 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
             finishedLabel={state.finishedLabel}
           />
           <Track
-            fraction={1 - state.remainingSeconds / state.totalSeconds}
+            value={state.totalSeconds - state.remainingSeconds}
+            total={state.totalSeconds}
             fillClass="fill-slate"
           />
         </section>
@@ -86,7 +87,7 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
           <Building
             name={state.buildingName}
             levelLabel={state.levelLabel}
-            badgeTone="bg-moss text-on-umber"
+            badgeTone="bg-moss text-on-moss"
           />
           <p className="m-0 font-body text-caption">{state.message}</p>
         </section>
