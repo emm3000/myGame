@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { BuildingCard, type BuildingCardProps } from './BuildingCard'
+import { buildingArtOf } from './buildingArtOf'
 
 function quarryShortOfStone(): BuildingCardProps {
   return {
@@ -15,6 +16,7 @@ function quarryShortOfStone(): BuildingCardProps {
     durationSeconds: 11100,
     state: { kind: 'tooExpensive', reason: 'You lack 985 stone.' },
     titleElement: 'h3',
+    artSrc: undefined,
   }
 }
 
@@ -58,4 +60,18 @@ it('titles the card at the heading level it is given', () => {
   render(<BuildingCard {...quarryShortOfStone()} titleElement="h4" />)
 
   expect(screen.getByRole('heading', { level: 4, name: 'Quarry' })).toBeDefined()
+})
+
+it('shows the building art on a card that has one', () => {
+  const quarryArt = buildingArtOf('quarry', 6)
+  render(<BuildingCard {...quarryShortOfStone()} artSrc={quarryArt} />)
+
+  expect(screen.getByRole('presentation').getAttribute('src')).toBe(quarryArt)
+})
+
+it('shows no image on a card without art', () => {
+  render(<BuildingCard {...quarryShortOfStone()} artSrc={undefined} />)
+
+  expect(screen.queryByRole('presentation')).toBeNull()
+  expect(screen.queryByRole('img')).toBeNull()
 })
