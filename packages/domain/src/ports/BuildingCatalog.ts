@@ -37,6 +37,7 @@ export type FiefSettings = {
   readonly startingStocks: Readonly<Record<ResourceKind, number>>
   readonly startingCapacity: number
   readonly basePeasantSupply: number
+  readonly plotsPerProvince: number
   readonly terrainBonus: Readonly<Record<Terrain, TerrainBonus>>
 }
 
