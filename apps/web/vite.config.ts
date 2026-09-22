@@ -7,6 +7,12 @@ export default defineConfig({
   server: {
     port: Number(process.env.WEB_PORT),
     strictPort: true,
+    proxy: {
+      '/api': {
+        target: `http://localhost:${process.env.API_PORT}`,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
   plugins: [tailwindcss(), tanstackStart(), react()],
 })

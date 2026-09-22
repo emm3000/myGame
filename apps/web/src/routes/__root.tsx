@@ -1,5 +1,6 @@
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
+import type { ApiClient } from '../api/apiClient'
 import { copy } from '../copy'
 import stylesheet from '../styles.css?url'
 
@@ -17,7 +18,11 @@ function RootDocument({ children }: { readonly children: ReactNode }): ReactElem
   )
 }
 
-export const Route = createRootRoute({
+export interface RouterContext {
+  readonly apiClient: ApiClient
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },

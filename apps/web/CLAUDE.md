@@ -4,7 +4,7 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 
 ## Commands
 
-- `WEB_PORT=<port> pnpm --filter @mygame/web dev` — dev server on `WEB_PORT`. The port has no default and `strictPort` is on: an unset or busy port fails instead of drifting.
+- `WEB_PORT=<port> API_PORT=<port> pnpm --filter @mygame/web dev` — dev server on `WEB_PORT`. The port has no default and `strictPort` is on: an unset or busy port fails instead of drifting. `/api/*` is proxied to the api on `API_PORT` with the `/api` prefix stripped, so the session cookie is same-origin.
 - `pnpm --filter @mygame/web test` — Vitest in jsdom, `src/**/*.test.{ts,tsx}`; `vitest.setup.ts` runs Testing Library cleanup after each test.
 - `pnpm --filter @mygame/web typecheck` — `tsc --noEmit`.
 - `pnpm --filter @mygame/web build` — production build into `dist/`.
@@ -16,7 +16,10 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - `src/router.tsx` — `getRouter`, the entry Start looks for.
 - `src/design/tokens.ts` — the palette of the Design System artifact (issue #4), every colour under the artifact's name with its light (Parchment) and dark (Ledger) value, the type families, the spacing scale and the type scale. The only file allowed to hold a hex colour.
 - `src/design/tailwindTheme.ts` — the Tailwind plugin built from `tokens.ts`: the `--<token>` variables per scheme and the theme (ADR 009). `src/styles.css` loads it with `@plugin`.
-- `src/copy.ts` — every Spanish string the player reads, addressed as tú (PRD N6).
+- `src/copy.ts` — every Spanish string the player reads, addressed as tú (PRD N6). `copy.refusals` is keyed by `ApiErrorKind` plus `Unexpected`; a screen shows a refusal by its kind, never by the api's `message`.
+- `src/api/apiClient.ts` — the `ApiClient` port and `createApiClient(baseUrl)`, the only file that calls `fetch`. It parses every body with a `@mygame/contracts` schema and turns an error body into its `ApiErrorKind`; anything else is `Unexpected`.
+- `src/routes/_signedIn.tsx`, `src/routes/_guest.tsx` — pathless layouts with `ssr: false` whose `beforeLoad` asks `currentPlayer()`: a signed-out visitor is sent to `/sign-in`, a signed-in one to `/`. The `ApiClient` reaches routes through the router context (`createRootRouteWithContext`), so tests pass a stub client to `createAppRouter` instead of mocking a module.
+- `src/auth/` — the sign-in and sign-up screens (presentational) and `renderAppAt`, which renders the real route tree at a path over a memory history for tests.
 - `src/shell/` — the app shell.
 
 ## Gotchas
@@ -24,6 +27,7 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - No raw `fetch` with an ad-hoc shape. A call to the api is typed by a schema from `@mygame/contracts`.
 - The design system is the only source of visual primitives: style with the Tailwind utilities the theme derives from `tokens.ts` (`bg-surface`, `p-4`, `text-body`), never a hex, a px literal or a `style` prop. Arbitrary values (`p-[13px]`) fail `biome check`. A missing value goes into `tokens.ts`. Check: `rg -n "#[0-9a-fA-F]{6}" apps/web/src --glob '!**/tokens*'` stays empty.
 - No Spanish outside `copy.ts`; identifiers stay English.
+- React 19 holds a commit until every head stylesheet fires `load`, which jsdom never does, so the root document rendered empty in tests. `vitest.setup.ts` dispatches `load` on each stylesheet or style preload link as it is inserted.
 - No snapshot tests. Components are tested through Testing Library queries by role and text; visual verification is a screenshot in the PR.
 - Tailwind's default colours and spacing multiplier are replaced by the tokens, so `bg-red-500` or `p-5` emit nothing; breakpoints stay Tailwind's defaults.
 - `src/design/tailwindTheme.ts` has a default export, the single exception to "named exports only": Tailwind's `@plugin` reads `module.default ?? module` and needs the plugin object there (ADR 009).

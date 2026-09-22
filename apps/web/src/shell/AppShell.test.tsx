@@ -3,7 +3,7 @@ import { expect, it } from 'vitest'
 import { AppShell } from './AppShell'
 
 it('renders the shell title', () => {
-  render(<AppShell />)
+  render(<AppShell onSignOut={() => undefined}>{null}</AppShell>)
 
   expect(screen.getByRole('heading', { level: 1, name: 'myGame' })).toBeDefined()
 })
