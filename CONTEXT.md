@@ -16,7 +16,7 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Wood / Stone / Iron** — the building materials, produced by the sawmill, the quarry and the iron mine. Replace *metal / crystal / deuterium*.
 - **Gold** — the scarce currency for upkeep and trade. Replaces the premium resource but is earned in play.
 - **Food** — a stored resource like the others, produced by farms and spent on building costs. It is not eaten down over time in this phase.
-- **Peasants** — the workforce. The fief supplies a base number and each farm level adds more; each building level occupies some. Free peasants = supplied − occupied, a derived number that never grows on its own. Replaces *energy*.
+- **Peasants** — the workforce. The fief supplies a base number and each farm level adds more; each building level occupies some. Free peasants = supplied − occupied, a derived number that never grows on its own. An upgrade charges only the increase in occupancy against the free peasants, releasing the current level's occupancy. Replaces *energy*.
 - **Warehouse** — the building that sets a resource's capacity.
 - **Accrual** — the amount a resource gains between two instants, computed on read (ADR 005).
 
