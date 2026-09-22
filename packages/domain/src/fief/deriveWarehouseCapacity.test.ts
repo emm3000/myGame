@@ -4,8 +4,9 @@ import { deriveWarehouseCapacity } from './deriveWarehouseCapacity'
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
-  startingCapacity: 1000,
+  startingCapacity: 900,
   basePeasantSupply: 6,
+  plotsPerProvince: 15,
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 10 },
     uplands: { resource: 'stone', ratePerHour: 10 },
@@ -19,7 +20,7 @@ const warehouseLevelTwo: WarehouseLevel = {
   cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
   durationSeconds: 120,
   peasantOccupancy: 2,
-  capacityUnits: 5000,
+  capacityUnits: 4000,
 }
 
 const inMemoryCatalog = (levels: Partial<Record<string, WarehouseLevel>>): BuildingCatalog => ({
@@ -33,7 +34,7 @@ describe('deriveWarehouseCapacity', () => {
 
     const result = deriveWarehouseCapacity(2, catalog)
 
-    expect(result).toEqual({ ok: true, value: 5000 })
+    expect(result).toEqual({ ok: true, value: 4000 })
   })
 
   it('uses the starting capacity when no warehouse is built', () => {
@@ -41,7 +42,7 @@ describe('deriveWarehouseCapacity', () => {
 
     const result = deriveWarehouseCapacity(0, catalog)
 
-    expect(result).toEqual({ ok: true, value: 1000 })
+    expect(result).toEqual({ ok: true, value: 900 })
   })
 
   it('refuses a warehouse level the catalog does not know', () => {
