@@ -1,0 +1,165 @@
+{
+  "building": "farm",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "wood": 70,
+        "stone": 20,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 120,
+      "peasantOccupancy": 1,
+      "effect": {
+        "ratePerHour": 25,
+        "peasantSupply": 5
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "wood": 105,
+        "stone": 30,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 192,
+      "peasantOccupancy": 2,
+      "effect": {
+        "ratePerHour": 55,
+        "peasantSupply": 10
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "wood": 158,
+        "stone": 45,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 307,
+      "peasantOccupancy": 3,
+      "effect": {
+        "ratePerHour": 91,
+        "peasantSupply": 15
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "wood": 236,
+        "stone": 68,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 492,
+      "peasantOccupancy": 4,
+      "effect": {
+        "ratePerHour": 133,
+        "peasantSupply": 20
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "wood": 354,
+        "stone": 101,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 786,
+      "peasantOccupancy": 5,
+      "effect": {
+        "ratePerHour": 183,
+        "peasantSupply": 25
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "wood": 532,
+        "stone": 152,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 1258,
+      "peasantOccupancy": 6,
+      "effect": {
+        "ratePerHour": 242,
+        "peasantSupply": 30
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "wood": 797,
+        "stone": 228,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 2013,
+      "peasantOccupancy": 7,
+      "effect": {
+        "ratePerHour": 310,
+        "peasantSupply": 35
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "wood": 1196,
+        "stone": 342,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 3221,
+      "peasantOccupancy": 8,
+      "effect": {
+        "ratePerHour": 390,
+        "peasantSupply": 40
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "wood": 1794,
+        "stone": 513,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 5154,
+      "peasantOccupancy": 9,
+      "effect": {
+        "ratePerHour": 482,
+        "peasantSupply": 45
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "wood": 2691,
+        "stone": 769,
+        "iron": 0,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 8246,
+      "peasantOccupancy": 10,
+      "effect": {
+        "ratePerHour": 589,
+        "peasantSupply": 50
+      }
+    }
+  ]
+}

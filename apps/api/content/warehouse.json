@@ -1,0 +1,155 @@
+{
+  "building": "warehouse",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "wood": 150,
+        "stone": 100,
+        "iron": 20,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 180,
+      "peasantOccupancy": 1,
+      "effect": {
+        "capacity": 1500
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "wood": 225,
+        "stone": 150,
+        "iron": 30,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 288,
+      "peasantOccupancy": 2,
+      "effect": {
+        "capacity": 2250
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "wood": 338,
+        "stone": 225,
+        "iron": 45,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 461,
+      "peasantOccupancy": 3,
+      "effect": {
+        "capacity": 3400
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "wood": 506,
+        "stone": 338,
+        "iron": 68,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 737,
+      "peasantOccupancy": 4,
+      "effect": {
+        "capacity": 5050
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "wood": 759,
+        "stone": 506,
+        "iron": 101,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 1180,
+      "peasantOccupancy": 5,
+      "effect": {
+        "capacity": 7600
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "wood": 1139,
+        "stone": 759,
+        "iron": 152,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 1887,
+      "peasantOccupancy": 6,
+      "effect": {
+        "capacity": 11400
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "wood": 1709,
+        "stone": 1139,
+        "iron": 228,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 3020,
+      "peasantOccupancy": 7,
+      "effect": {
+        "capacity": 17100
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "wood": 2563,
+        "stone": 1709,
+        "iron": 342,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 4832,
+      "peasantOccupancy": 8,
+      "effect": {
+        "capacity": 25650
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "wood": 3844,
+        "stone": 2563,
+        "iron": 513,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 7731,
+      "peasantOccupancy": 9,
+      "effect": {
+        "capacity": 38450
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "wood": 5767,
+        "stone": 3844,
+        "iron": 769,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 12370,
+      "peasantOccupancy": 10,
+      "effect": {
+        "capacity": 57650
+      }
+    }
+  ]
+}
