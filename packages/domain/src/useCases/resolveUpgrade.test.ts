@@ -1,0 +1,191 @@
+import { assert, describe, expect, it } from 'vitest'
+import { Fief, type StoredFief } from '../fief/Fief'
+import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import type {
+  BuildingCatalog,
+  BuildingLevel,
+  FiefSettings,
+  ProducerLevel,
+  WarehouseLevel,
+} from '../ports/BuildingCatalog'
+import type { Clock } from '../ports/Clock'
+import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { Instant } from '../time/Instant'
+import { resolveUpgrade } from './resolveUpgrade'
+
+const MILLISECONDS_PER_HOUR = 3_600_000
+
+const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
+
+const hoursAfterStored = (hours: number): Instant =>
+  Instant.fromEpochMilliseconds(storedInstant.epochMilliseconds + hours * MILLISECONDS_PER_HOUR)
+
+const frozenClock = (instant: Instant): Clock => ({ now: () => instant })
+
+const fiefSettings: FiefSettings = {
+  startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+  startingCapacity: 1000,
+  basePeasantSupply: 4,
+  plotsPerProvince: 15,
+  terrainBonus: {
+    lowlands: { resource: 'food', ratePerHour: 10 },
+    uplands: { resource: 'stone', ratePerHour: 10 },
+    ridges: { resource: 'iron', ratePerHour: 10 },
+  },
+}
+
+const sawmillLevel = (level: number, ratePerHour: number): ProducerLevel => ({
+  building: 'sawmill',
+  level,
+  cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 },
+  durationSeconds: 90,
+  peasantOccupancy: level,
+  ratePerHour,
+})
+
+const warehouseLevelOne: WarehouseLevel = {
+  building: 'warehouse',
+  level: 1,
+  cost: { wood: 100, stone: 50, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 300,
+  peasantOccupancy: 1,
+  capacityUnits: 2000,
+}
+
+const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog => ({
+  levelOf: (building, level) =>
+    levels.find((known) => known.building === building && known.level === level),
+  fiefSettings: () => fiefSettings,
+})
+
+const catalog = inMemoryCatalog([sawmillLevel(1, 30), sawmillLevel(2, 60), warehouseLevelOne])
+
+const unbuiltLevels: FiefBuildingLevels = {
+  sawmill: 0,
+  quarry: 0,
+  ironMine: 0,
+  farm: 0,
+  warehouse: 0,
+}
+
+const storedFief = (overrides: Partial<StoredFief>): Fief => {
+  const restored = Fief.restore({
+    id: 'fief-1',
+    playerId: 'lord',
+    name: 'Vado Viejo',
+    address: { kingdom: 1, province: 3, plot: 1 },
+    stocks: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+    storedAt: storedInstant,
+    buildingLevels: unbuiltLevels,
+    slot: { kind: 'idle' },
+    ...overrides,
+  })
+  assert(restored.ok)
+  return restored.value
+}
+
+describe('resolveUpgrade', () => {
+  it('applies the upgrade whose finish instant has passed', async () => {
+    const sawmillBuildingFief = storedFief({
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(1) },
+    })
+    const fiefs = inMemoryFiefRepository([sawmillBuildingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.buildingLevels).toEqual({ ...unbuiltLevels, sawmill: 1 })
+    expect(stored?.slot).toEqual({ kind: 'idle' })
+  })
+
+  it('accrues at the old rate up to the finish and at the new rate after it', async () => {
+    const sawmillUpgradingFief = storedFief({
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 2, finishesAt: hoursAfterStored(1) },
+    })
+    const fiefs = inMemoryFiefRepository([sawmillUpgradingFief])
+    const now = hoursAfterStored(2)
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(now) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks).toEqual({
+      wood: 190,
+      stone: 100,
+      iron: 120,
+      gold: 100,
+      food: 100,
+    })
+    expect(result.value.fief.storedAt).toBe(now)
+    expect(fiefs.storedFiefOf('lord')).toBe(result.value.fief)
+  })
+
+  it('leaves a slot still building untouched', async () => {
+    const sawmillBuildingFief = storedFief({
+      slot: { kind: 'busy', building: 'sawmill', targetLevel: 1, finishesAt: hoursAfterStored(2) },
+    })
+    const fiefs = inMemoryFiefRepository([sawmillBuildingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value).toEqual({ fief: sawmillBuildingFief, hasChanged: false })
+    expect(fiefs.storedFiefOf('lord')).toBe(sawmillBuildingFief)
+  })
+
+  it('caps the amounts at the capacity the new warehouse level sets', async () => {
+    const warehouseBuildingFief = storedFief({
+      stocks: { wood: 900, stone: 100, iron: 100, gold: 100, food: 100 },
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      slot: {
+        kind: 'busy',
+        building: 'warehouse',
+        targetLevel: 1,
+        finishesAt: hoursAfterStored(1),
+      },
+    })
+    const fiefs = inMemoryFiefRepository([warehouseBuildingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(100)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks.wood).toBe(2000)
+  })
+
+  it('reports no change to persist for an idle slot', async () => {
+    const idleFief = storedFief({})
+    const fiefs = inMemoryFiefRepository([idleFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(5)) },
+    )
+
+    assert(result.ok)
+    expect(result.value).toEqual({ fief: idleFief, hasChanged: false })
+    expect(fiefs.storedFiefOf('lord')).toBe(idleFief)
+  })
+
+  it('refuses a player who holds no fief', async () => {
+    const result = await resolveUpgrade(
+      { playerId: 'landless' },
+      { fiefs: inMemoryFiefRepository([]), catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+  })
+})

@@ -253,7 +253,7 @@ describe('enqueueBuilding', () => {
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
-    expect(fiefs.savedFiefs()).toHaveLength(1)
+    expect(fiefs.savedFiefs().map((saved) => saved.slot.kind)).toEqual(['busy'])
   })
 
   it('releases the current level occupancy when staffing the upgrade', async () => {
