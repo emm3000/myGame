@@ -16,10 +16,10 @@ English for every identifier, file, directory, branch, commit and doc. Spanish a
 | Use case | verb phrase | `enqueueBuilding`, `collectResources` |
 | Port | noun + role | `FiefRepository`, `Clock`, `IdGenerator` |
 | Adapter | technology + port | `DrizzleFiefRepository`, `SystemClock` |
-| Domain error member | past or present participle of the failure | `InsufficientResources`, `QueueBusy` |
+| Domain error member | past or present participle of the failure | `InsufficientResources`, `SlotBusy` |
 | Contract schema | wire noun + `Schema` | `FiefOverviewSchema`, `EnqueueBuildingRequestSchema` |
 | Contract type | the schema's noun | `FiefOverview`, `EnqueueBuildingRequest` |
-| Hono route module | resource | `fiefs.ts`, `queue.ts` |
+| Hono route module | resource | `fiefs.ts`, `slot.ts` |
 | Web route | TanStack file route | `routes/fief.$fiefId.tsx` |
 | Component | noun, PascalCase | `ResourceBar`, `BuildQueuePanel` |
 | Hook | `use` + noun | `useFiefOverview` |
