@@ -25,10 +25,10 @@ export DATABASE_URL=postgres://postgres:mygame@localhost:5433/mygame_schema
 ## Layout
 
 - `src/app.ts` exports the Hono `app` with every route. Tests call `app.request('/health')`; no socket.
-- `src/composeServer.ts` is the composition root: the only module that constructs an adapter and wires it to a port. It reads `API_PORT` and refuses to compose unless it is an integer from 1 to 65535, and refuses to compose without `DATABASE_URL`. It exposes `inFiefTransaction(work)`, which runs `work` inside one Drizzle transaction with a `DrizzleFiefRepository` bound to it; every fief mutation goes through it.
+- `src/composeServer.ts` is the composition root: the only module that constructs an adapter and wires it to a port. It reads `API_PORT` and refuses to compose unless it is an integer from 1 to 65535, and refuses to compose without `DATABASE_URL`. It exposes `fiefs`, a lock-free `DrizzleFiefRepository` for reads, and `inFiefTransaction(work)`, which runs `work` inside one Drizzle transaction with a locking `DrizzleFiefRepository` bound to it; every fief mutation goes through `inFiefTransaction`.
 - `src/server.ts` is the listener: it hands the composed server to `@hono/node-server` and does nothing else.
 - `src/adapters/postgres/schema.ts` holds the Drizzle tables: `players`, `sessions`, `fiefs` (the five amounts, one `stored_at`, the nullable `slot_*` columns of the build slot) and `fief_buildings`. No rate, capacity or peasant count is stored (ADR 005, ADR 007).
-- `src/adapters/postgres/DrizzleFiefRepository.ts` implements `FiefRepository`. `fiefOf` is one query, the fief row left-joined to its level rows and locked with `FOR UPDATE OF fiefs`. `save` upserts the fief row and its built level rows in one transaction, which is a savepoint inside `inFiefTransaction`. A building without a row is unbuilt.
+- `src/adapters/postgres/DrizzleFiefRepository.ts` implements `FiefRepository`. `fiefOf` is one query, the fief row left-joined to its level rows. With `'lockedForUpdate'` it takes `FOR UPDATE OF fiefs`; with `'lockFree'` it takes no lock, so a read never queues behind a mutation. `save` upserts the fief row and its built level rows in one transaction, which is a savepoint inside `inFiefTransaction`. A building without a row is unbuilt.
 - `src/adapters/memory/MemoryFiefRepository.ts` is the in-memory `FiefRepository`. `src/adapters/fiefRepositoryContract.ts` is the port's contract suite, and both adapters' tests run it.
 - `src/adapters/system/` holds `SystemClock`, the only file that calls `Date.now()`, and `CryptoIdGenerator`, which issues uuids.
 - `migrations/` holds the generated SQL and drizzle-kit's `meta` snapshots. A migration is never edited after it merges; a change is a new migration.
@@ -40,9 +40,9 @@ export DATABASE_URL=postgres://postgres:mygame@localhost:5433/mygame_schema
 - No Drizzle import outside an adapter.
 - Every mutation of a fief runs in one transaction that first locks the fief row with `SELECT ... FOR UPDATE`, then materializes, applies and writes (N4, ADR 006). Two concurrent mutations serialize on that lock.
 - The migration test applies every migration inside one transaction after dropping `public` and `drizzle`, and rolls back, so it sees an empty database and leaves the session's database as it found it.
-- The api test files share one database and truncate it, so `vitest.config.ts` sets `fileParallelism: false`.
+- `vitest.globalSetup.ts` applies `migrations/` to `DATABASE_URL` before the suite, so a fresh database (CI's service container) has the tables. The api test files share that database and truncate it, so `vitest.config.ts` sets `fileParallelism: false`.
 - The `fiefs.terrain` column is written from `Fief.terrain` and never read back: the domain derives terrain from the province.
-- The race test in `composeServer.test.ts` pauses the first transaction after its read. It resumes once the second transaction shows up as waiting on a lock in `pg_stat_activity`, or once the second has read. With the lock removed the test fails every time.
+- The race test in `composeServer.test.ts` pauses the first transaction after its read. It resumes once the second transaction's `for update of "fiefs"` query shows up as waiting on a lock in `pg_stat_activity`, or once the second has read. The probe is bounded. With the lock removed the test fails every time.
 - `players_email_unique` is a unique index on `lower(email)`: the email is stored as typed and compared case-insensitively.
 - `drizzle-orm`, `pg` and `drizzle-kit` have one consumer, so their versions live here, not in the catalog.
 - Import `@mygame/contracts` and `@mygame/domain` only from their entry; `rg -n "from '@mygame/(domain|contracts)/src" apps packages` stays empty.

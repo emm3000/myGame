@@ -117,8 +117,13 @@ const isCoordinatesTaken = (failure: unknown): boolean =>
   failure.cause.code === uniqueViolation &&
   failure.cause.constraint === 'fiefs_coordinates_unique'
 
+export type FiefRead = 'lockedForUpdate' | 'lockFree'
+
 export class DrizzleFiefRepository implements FiefRepository {
-  constructor(private readonly database: PostgresSession) {}
+  constructor(
+    private readonly database: PostgresSession,
+    private readonly read: FiefRead,
+  ) {}
 
   async occupiedPlots(): Promise<ReadonlyArray<PlotAddress>> {
     return this.database
@@ -136,17 +141,21 @@ export class DrizzleFiefRepository implements FiefRepository {
   }
 
   async fiefOf(playerId: PlayerId): Promise<Result<Fief | undefined, DomainError>> {
-    const rows = await this.database
+    const query = this.database
       .select({ fief: fiefs, building: fiefBuildings.building, level: fiefBuildings.level })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
       .where(eq(fiefs.playerId, playerId))
-      .for('update', { of: fiefs })
+      .$dynamic()
+    const rows = await (this.read === 'lockedForUpdate'
+      ? query.for('update', { of: fiefs })
+      : query)
     const [first] = rows
     if (first === undefined) {
       return ok(undefined)
     }
-    return Fief.restore(storedFiefOf(first.fief, rows))
+    const ownRows = rows.filter((row) => row.fief.id === first.fief.id)
+    return Fief.restore(storedFiefOf(first.fief, ownRows))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {

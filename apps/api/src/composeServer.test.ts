@@ -89,16 +89,17 @@ describe('composeServer', () => {
     removeDirectory(fixtureDirectory)
   })
 
-  it('listens on the port API_PORT names', () => {
+  it('listens on the port API_PORT names', async () => {
     const server = composeServer(
       { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
       fixtureDirectory,
     )
 
     expect(server.port).toBe(3106)
+    await server.close()
   })
 
-  it('builds a catalog from the content folder at start-up', () => {
+  it('builds a catalog from the content folder at start-up', async () => {
     const server = composeServer(
       { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
       contentDirectory,
@@ -112,9 +113,10 @@ describe('composeServer', () => {
       peasantOccupancy: 1,
       ratePerHour: 30,
     })
+    await server.close()
   })
 
-  it('reads the new fief settings from the content folder at start-up', () => {
+  it('reads the new fief settings from the content folder at start-up', async () => {
     const server = composeServer(
       { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
       contentDirectory,
@@ -127,6 +129,7 @@ describe('composeServer', () => {
       gold: 50,
       food: 300,
     })
+    await server.close()
   })
 
   it('fails start-up on a malformed content file', () => {
@@ -223,11 +226,19 @@ const withRead = (
   save: (fief) => fiefs.save(fief),
 })
 
-const isWaitingOnLock = async (observer: Client): Promise<boolean> => {
-  const waiting = await observer.query(
-    "SELECT 1 FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'",
+const probeLimit = 500
+
+const isLockedFiefReadWaiting = async (observer: Client): Promise<boolean> => {
+  const probe = await observer.query<{ waiting: boolean }>(
+    `SELECT pg_sleep(0.01), EXISTS (
+       SELECT 1 FROM pg_stat_activity
+       WHERE datname = current_database()
+         AND pid <> pg_backend_pid()
+         AND wait_event_type = 'Lock'
+         AND query ILIKE '%for update of "fiefs"%'
+     ) AS waiting`,
   )
-  return waiting.rowCount !== null && waiting.rowCount > 0
+  return probe.rows[0]?.waiting === true
 }
 
 const untilBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
@@ -238,10 +249,12 @@ const untilBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> =
   const observer = new Client({ connectionString: databaseUrl() })
   await observer.connect()
   try {
-    let isBlocked = false
-    while (!hasRead && !isBlocked) {
-      isBlocked = await isWaitingOnLock(observer)
+    for (let probes = 0; probes < probeLimit; probes += 1) {
+      if (hasRead || (await isLockedFiefReadWaiting(observer))) {
+        return
+      }
     }
+    throw new Error(`The second read neither waited on the fief lock nor finished`)
   } finally {
     await observer.end()
   }
