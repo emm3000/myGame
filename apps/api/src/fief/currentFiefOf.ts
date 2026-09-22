@@ -4,6 +4,7 @@ import {
   type DomainError,
   type Fief,
   type FiefRepository,
+  type Instant,
   ok,
   type PlayerId,
   type Result,
@@ -25,6 +26,9 @@ const dryRunOver = (fiefs: FiefReader): FiefRepository => ({
   fiefOf: (playerId) => fiefs.fiefOf(playerId),
   save: async () => ok(undefined),
 })
+
+const laterOf = (left: Instant, right: Instant): Instant =>
+  left.epochMilliseconds >= right.epochMilliseconds ? left : right
 
 export const currentFiefOf = async (
   playerId: PlayerId,
@@ -48,5 +52,6 @@ export const currentFiefOf = async (
   if (!resolved.ok) {
     return resolved
   }
-  return resolved.value.fief.accruedTo(buildingCatalog, now)
+  const { fief } = resolved.value
+  return fief.accruedTo(buildingCatalog, laterOf(now, fief.storedAt))
 }

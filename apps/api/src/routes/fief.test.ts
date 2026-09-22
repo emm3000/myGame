@@ -127,10 +127,12 @@ describe('the fief route', () => {
   })
 
   it('refuses to answer another player fief', async () => {
-    await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
     const bruno = await signUp('bruno@example.com', 'Robledal')
 
-    const response = await app.request('/fief?playerId=ana', { headers: { cookie: bruno.cookie } })
+    const response = await app.request(`/fief?playerId=${ana.playerId}`, {
+      headers: { cookie: bruno.cookie },
+    })
 
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.name).toBe('Robledal')
@@ -173,6 +175,23 @@ describe('the fief route', () => {
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
     expect(resources.wood.amount).toBe(484)
+  })
+
+  it('answers the stored fief to a read whose instant is earlier than the stored one', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await enqueueSawmill(ana.playerId)
+    const laggingClock = movableClock()
+    const laggingApp = createApp({ ...server, clock: laggingClock })
+    clock.advanceMinutes(5)
+    laggingClock.advanceMinutes(3)
+    await fiefOf(ana.cookie)
+
+    const response = await laggingApp.request('/fief', { headers: { cookie: ana.cookie } })
+
+    expect(response.status).toBe(200)
+    const overview = FiefOverviewSchema.parse(await response.json())
+    expect(overview.readAt).toBe('2026-09-22T08:05:00.000Z')
+    expect(overview.resources.wood.amount).toBe(441)
   })
 
   it('answers 404 with FiefNotFound when the player holds no fief', async () => {
