@@ -5,6 +5,7 @@ import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { slotTrackFill } from './slotTrackFill.testSupport'
 
 const readAt = new Date(knownFief.readAt)
 
@@ -65,25 +66,6 @@ it('stops the interpolated amount at the capacity', async () => {
   expect(woodCell().textContent).not.toContain('20 020')
 })
 
-it('re-reads the fief when the countdown reaches zero', async () => {
-  const sawmillFinishingInThirtySeconds: FiefOverview = {
-    ...knownFief,
-    slot: {
-      kind: 'busy',
-      building: 'sawmill',
-      targetLevel: 2,
-      startedAt: '2026-09-22T11:58:30.000Z',
-      finishesAt: '2026-09-22T12:00:30.000Z',
-    },
-  }
-  const fief = vi.fn(() => sawmillFinishingInThirtySeconds)
-  await showFief(signedInClientServing(fief))
-
-  await passSeconds(30)
-
-  expect(fief).toHaveBeenCalledTimes(2)
-})
-
 const sawmillStartedNinetySecondsAgo: FiefOverview = {
   ...knownFief,
   slot: {
@@ -95,13 +77,14 @@ const sawmillStartedNinetySecondsAgo: FiefOverview = {
   },
 }
 
-const slotTrackFill = (): string | null => {
-  const slot = screen.getByRole('timer').closest('section')
-  if (slot === null) {
-    throw new Error('the busy slot is not a section')
-  }
-  return within(slot).getByRole('progressbar').getAttribute('aria-valuenow')
-}
+it('re-reads the fief when the countdown reaches zero', async () => {
+  const fief = vi.fn(() => sawmillStartedNinetySecondsAgo)
+  await showFief(signedInClientServing(fief))
+
+  await passSeconds(30)
+
+  expect(fief).toHaveBeenCalledTimes(2)
+})
 
 it('fills the track by the elapsed share of the upgrade on the first read', async () => {
   await showFief(signedInClientServing(() => sawmillStartedNinetySecondsAgo))

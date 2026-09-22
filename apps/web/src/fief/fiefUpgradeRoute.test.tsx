@@ -5,6 +5,7 @@ import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { slotTrackFill } from './slotTrackFill.testSupport'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -70,8 +71,7 @@ it('starts the track empty on the overview an enqueue answers', async () => {
   fireEvent.click(upgradeButtonOf('sawmill'))
   await passSeconds(0)
 
-  const slot = screen.getByRole('timer').closest('section')
-  expect(slot && within(slot).getByRole('progressbar').getAttribute('aria-valuenow')).toBe('0')
+  expect(slotTrackFill()).toBe('0')
 })
 
 it('shows the Spanish reason when the slot is busy', async () => {
