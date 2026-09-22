@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { TerrainSchema } from './Terrain'
 import { QuantitySchema, WholeCountSchema } from './Wire'
 
 const TerrainBonusSchema = z.object({
@@ -12,11 +13,7 @@ export const FiefContentSchema = z.object({
   startingStocks: ResourceAmountsSchema,
   startingCapacity: WholeCountSchema,
   basePeasantSupply: WholeCountSchema,
-  terrainBonus: z.object({
-    lowlands: TerrainBonusSchema,
-    uplands: TerrainBonusSchema,
-    ridges: TerrainBonusSchema,
-  }),
+  terrainBonus: z.record(TerrainSchema, TerrainBonusSchema),
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>

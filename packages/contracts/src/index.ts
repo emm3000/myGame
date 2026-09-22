@@ -1,4 +1,5 @@
-export { type ApiError, type ApiErrorKind, ApiErrorKindSchema, ApiErrorSchema } from './ApiError'
+export { type ApiError, ApiErrorSchema } from './ApiError'
+export { type ApiErrorKind, ApiErrorKindSchema } from './ApiErrorKind'
 export { type BuildingContent, BuildingContentSchema } from './BuildingContent'
 export { type BuildingKind, BuildingKindSchema } from './BuildingKind'
 export { type EnqueueBuildingRequest, EnqueueBuildingRequestSchema } from './EnqueueBuildingRequest'

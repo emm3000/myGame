@@ -10,11 +10,11 @@ const ResourceStateSchema = z.object({
 })
 
 const IdleSlotSchema = z.object({
-  state: z.literal('idle'),
+  kind: z.literal('idle'),
 })
 
 const BusySlotSchema = z.object({
-  state: z.literal('busy'),
+  kind: z.literal('busy'),
   building: BuildingKindSchema,
   targetLevel: z.number().int().positive(),
   finishesAt: InstantSchema,
@@ -35,18 +35,13 @@ export const FiefOverviewSchema = z.object({
     gold: ResourceStateSchema,
     food: ResourceStateSchema,
   }),
-  buildings: z.array(
-    z.object({
-      building: BuildingKindSchema,
-      level: WholeCountSchema,
-    }),
-  ),
+  buildings: z.record(BuildingKindSchema, WholeCountSchema),
   peasants: z.object({
     supplied: WholeCountSchema,
     occupied: WholeCountSchema,
     free: WholeCountSchema,
   }),
-  slot: z.discriminatedUnion('state', [IdleSlotSchema, BusySlotSchema]),
+  slot: z.discriminatedUnion('kind', [IdleSlotSchema, BusySlotSchema]),
   readAt: InstantSchema,
 })
 
