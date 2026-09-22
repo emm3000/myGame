@@ -7,3 +7,5 @@ export const DurationSecondsSchema = z.number().int().nonnegative()
 export const QuantitySchema = z.number().nonnegative()
 
 export const WholeCountSchema = z.number().int().nonnegative()
+
+export const BuildingLevelSchema = z.number().int().positive()

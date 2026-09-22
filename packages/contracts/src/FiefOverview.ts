@@ -2,7 +2,13 @@ import { z } from 'zod'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { TerrainSchema } from './Terrain'
-import { DurationSecondsSchema, InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
+import {
+  BuildingLevelSchema,
+  DurationSecondsSchema,
+  InstantSchema,
+  QuantitySchema,
+  WholeCountSchema,
+} from './Wire'
 
 const ResourceStateSchema = z.object({
   amount: QuantitySchema,
@@ -11,7 +17,7 @@ const ResourceStateSchema = z.object({
 })
 
 const NextLevelSchema = z.object({
-  level: z.number().int().positive(),
+  level: BuildingLevelSchema,
   cost: ResourceAmountsSchema,
   durationSeconds: DurationSecondsSchema,
   peasants: WholeCountSchema,
@@ -29,7 +35,7 @@ const IdleSlotSchema = z.object({
 const BusySlotSchema = z.object({
   kind: z.literal('busy'),
   building: BuildingKindSchema,
-  targetLevel: z.number().int().positive(),
+  targetLevel: BuildingLevelSchema,
   finishesAt: InstantSchema,
 })
 

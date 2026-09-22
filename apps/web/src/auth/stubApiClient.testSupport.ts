@@ -12,7 +12,7 @@ const resource = (amount: number): FiefOverview['resources']['wood'] => ({
   capacity: 20000,
 })
 
-const builtAt = (level: number): FiefOverview['buildings']['sawmill'] => ({
+const buildingAtLevel = (level: number): FiefOverview['buildings']['sawmill'] => ({
   level,
   nextLevel: {
     level: level + 1,
@@ -34,11 +34,11 @@ export const knownFief: FiefOverview = {
     food: resource(600),
   },
   buildings: {
-    sawmill: builtAt(1),
-    quarry: builtAt(1),
-    ironMine: builtAt(0),
-    farm: builtAt(1),
-    warehouse: builtAt(0),
+    sawmill: buildingAtLevel(1),
+    quarry: buildingAtLevel(1),
+    ironMine: buildingAtLevel(0),
+    farm: buildingAtLevel(1),
+    warehouse: buildingAtLevel(0),
   },
   peasants: { supplied: 12, occupied: 4, free: 8 },
   slot: { kind: 'idle' },

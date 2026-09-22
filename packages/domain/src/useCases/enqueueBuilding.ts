@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import { deriveOccupiedPeasants } from '../fief/deriveOccupiedPeasants'
+import { derivePeasantsForUpgrade } from '../fief/derivePeasantsForUpgrade'
 import { deriveSuppliedPeasants } from '../fief/deriveSuppliedPeasants'
 import type { Fief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
@@ -57,12 +58,11 @@ const staffUpgrade = (
   if (!occupiedNow.ok) {
     return occupiedNow
   }
-  const upgradedLevels = { ...buildingLevels, [target.building]: target.level }
-  const occupiedAfter = deriveOccupiedPeasants(upgradedLevels, catalog)
-  if (!occupiedAfter.ok) {
-    return occupiedAfter
+  const required = derivePeasantsForUpgrade(buildingLevels, target.building, target.level, catalog)
+  if (!required.ok) {
+    return required
   }
-  const requiredPeasants = occupiedAfter.value - occupiedNow.value
+  const requiredPeasants = required.value
   const freePeasants = supplied.value - occupiedNow.value
   if (requiredPeasants > freePeasants) {
     return err({ kind: 'NotEnoughPeasants', requiredPeasants, freePeasants })
