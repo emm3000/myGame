@@ -232,4 +232,114 @@ describe('the fief route', () => {
 
     expect(response.status).toBe(401)
   })
+
+  describe('the enqueue route', () => {
+    const enqueue = async (cookie: string, building: string): Promise<Response> =>
+      app.request('/fief/upgrades', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ building }),
+      })
+
+    it('starts an upgrade and answers the fief with a busy slot', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      clock.advanceMinutes(10)
+
+      const response = await enqueue(ana.cookie, 'sawmill')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.slot).toEqual({
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        finishesAt: '2026-09-22T08:12:00.000Z',
+      })
+      expect(overview.resources.wood.amount).toBe(440)
+      expect(overview.resources.stone.amount).toBe(485)
+      expect(overview.readAt).toBe('2026-09-22T08:10:00.000Z')
+    })
+
+    it('refuses a second upgrade while the slot is busy', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      clock.advanceMinutes(1)
+
+      const response = await enqueue(ana.cookie, 'quarry')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'SlotBusy',
+        message: 'Ya tienes una obra en marcha. Espera a que termine.',
+      })
+    })
+
+    it('refuses an upgrade the free peasants cannot staff', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, building, level FROM fiefs,
+        (VALUES ('sawmill'::building, 4), ('quarry'::building, 3), ('iron_mine'::building, 3)) AS levels (building, level)`)
+
+      const response = await enqueue(ana.cookie, 'warehouse')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'NotEnoughPeasants',
+        message: 'No tienes campesinos libres suficientes para esa obra.',
+      })
+    })
+
+    it('leaves the stored fief unchanged when it refuses', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await runSql('UPDATE fiefs SET wood = 0')
+      const before = await server.fiefs.fiefOf(ana.playerId)
+      clock.advanceMinutes(3)
+
+      const response = await enqueue(ana.cookie, 'quarry')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
+      expect(await server.fiefs.fiefOf(ana.playerId)).toEqual(before)
+    })
+
+    it('completes a finished upgrade and starts the next one in the same call', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      clock.advanceMinutes(3)
+
+      const response = await enqueue(ana.cookie, 'quarry')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.buildings.sawmill).toBe(1)
+      expect(overview.slot).toEqual({
+        kind: 'busy',
+        building: 'quarry',
+        targetLevel: 1,
+        finishesAt: '2026-09-22T08:05:30.000Z',
+      })
+      const stored = await server.fiefs.fiefOf(ana.playerId)
+      expect(stored.ok && stored.value?.buildingLevels.sawmill).toBe(1)
+      expect(stored.ok && stored.value?.slot.kind).toBe('busy')
+    })
+
+    it('answers 400 to a building the wire does not name', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await enqueue(ana.cookie, 'castle')
+
+      expect(response.status).toBe(400)
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/upgrades', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ building: 'sawmill' }),
+      })
+
+      expect(response.status).toBe(401)
+    })
+  })
 })

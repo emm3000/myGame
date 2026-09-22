@@ -1,15 +1,20 @@
-import type { FiefOverview } from '@mygame/contracts'
-import { Hono } from 'hono'
+import { EnqueueBuildingRequestSchema, type FiefOverview } from '@mygame/contracts'
+import type { DomainError, Fief, Result } from '@mygame/domain'
+import { type Context, Hono } from 'hono'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
+import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
 import { answerRefusal } from '../http/answerRefusal'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 
-export type FiefDependencies = CurrentFiefDependencies & RequirePlayerDependencies
+export type FiefDependencies = CurrentFiefDependencies &
+  EnqueueUpgradeDependencies &
+  RequirePlayerDependencies
 
-export const fiefRoutes = (dependencies: FiefDependencies): Hono =>
-  new Hono().get('/', requirePlayer(dependencies), async (c) => {
-    const fief = await currentFiefOf(c.var.playerId, dependencies)
+const bodyOf = (c: Context): Promise<unknown> => c.req.json().catch(() => undefined)
+
+export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
+  const answerOverview = (c: Context, fief: Result<Fief, DomainError>): Response => {
     if (!fief.ok) {
       return answerRefusal(c, fief.error)
     }
@@ -19,4 +24,20 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono =>
     }
     const body: FiefOverview = overview.value
     return c.json(body)
-  })
+  }
+  const signedInPlayer = requirePlayer(dependencies)
+  return new Hono()
+    .get('/', signedInPlayer, async (c) =>
+      answerOverview(c, await currentFiefOf(c.var.playerId, dependencies)),
+    )
+    .post('/upgrades', signedInPlayer, async (c) => {
+      const request = EnqueueBuildingRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerOverview(
+        c,
+        await enqueueUpgradeOf(c.var.playerId, request.data.building, dependencies),
+      )
+    })
+}
