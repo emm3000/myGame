@@ -29,7 +29,7 @@ Rows are ordered by blast radius: how much a mistake breaks and whether a gate c
 | Row | Work | Model:effort | Extra instruction |
 |---|---|---|---|
 | 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low | none: the compiler and the criteria fail loudly |
-| 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | sonnet:medium | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
+| 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | opus:medium | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
 | 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), `.github/`, a design-system default that changes N screens | opus:medium | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
 | 4 | Schema or migration, auth, the persistence adapters, cross-package architecture, a new package | opus:high | the contract test suite against every adapter; a migration test from the previous version |
 | 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | fable:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
@@ -40,6 +40,7 @@ Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a ro
 
 - Inherited from JustChill's log, kept as a starting bet: a package-wide sweep that needs judgment per line (which comment survives, which duplicate is real) takes row 3, not row 2.
 - Inherited: a dispatch that names a reference file to model the work on inherits that file's debt, so name its known gaps in the same breath.
+- Raised 2026-09-22 after two first-review FIX FIRST judgment verdicts on row 2 (PR #32, #34): sonnet:medium shipped a value object without its invariant factory, float accrual that lost a unit, and a generic port method that forced casts on every implementer. The compiler catches none of that. Row 2 now runs opus:medium.
 
 ## Execution Steps
 

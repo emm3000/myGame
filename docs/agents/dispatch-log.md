@@ -31,3 +31,5 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #31 | #10 | 3 | opus:medium | FIX FIRST | checklist |
 | #32 | #9 | 2 | sonnet:medium | FIX FIRST | judgment |
 | #33 | #29 | 3 | opus:medium | MERGE | |
+| #35 | #12 | 3 | opus:medium | MERGE | |
+| #34 | #11 | 2 | sonnet:medium | FIX FIRST | judgment |
