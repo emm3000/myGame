@@ -25,6 +25,7 @@ export interface BuildingCardProps {
   readonly durationSeconds: number
   readonly state: BuildingCardState
   readonly titleElement: 'h3' | 'h4'
+  readonly artSrc: string | undefined
   readonly isWaiting?: boolean
   readonly onUpgrade?: (() => void) | undefined
 }
@@ -116,6 +117,17 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
   const Title = props.titleElement
   return (
     <Panel element="article" toneClass={cardTone[props.state.kind]} spacingClass="gap-3 p-4">
+      {props.artSrc !== undefined && (
+        <img
+          src={props.artSrc}
+          alt=""
+          width={1024}
+          height={1024}
+          loading="lazy"
+          decoding="async"
+          className="aspect-4/3 w-full rounded-md object-cover"
+        />
+      )}
       <header className="flex items-baseline justify-between gap-2">
         <Title
           className={`m-0 font-display text-title ${isAtMaxLevel ? 'text-ink-muted' : 'text-ink'}`}

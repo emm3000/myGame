@@ -122,7 +122,7 @@ no photorealism, no outlines, no text, no watermark, no people
 
 ## Where the screen reads them
 
-`apps/web` resolves a building image as `/art/buildings/<term>-<tier>.png` with tier = ceil(level / 2) and shows nothing at level 0; a resource image as `/art/resources/<term>-1.png`. The mapping lives in one design-system helper, never inline in a screen. Wiring is the S4 ticket's, not this page's.
+`buildingArtOf(building, level)` in `apps/web/src/design-system/buildingArtOf.ts` resolves a building image as `/art/buildings/<term>-<tier>.png` with tier = ceil(level / 2), and answers nothing at level 0, where the fief screen's building card shows no image. It is the only place a screen reads the building family from. The resource family (`/art/resources/<term>-1.png`) has no consumer yet: no MVP screen has a place for large resource art, and the resource bar, the build slot and the cost list keep their hand-drawn SVG icons.
 
 ## Open questions
 

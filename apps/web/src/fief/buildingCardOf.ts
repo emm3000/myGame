@@ -1,6 +1,7 @@
 import { type BuildingKind, ResourceKindSchema } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { BuildingCardProps, BuildingCost } from '../design-system/BuildingCard'
+import { buildingArtOf } from '../design-system/buildingArtOf'
 import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
 import type { LiveFief } from './liveFief'
@@ -56,6 +57,7 @@ export function buildingCardOf(building: BuildingKind, fief: LiveFief): Building
     name: capitalize(names.buildings[building]),
     levelLabel: names.level(level),
     actionLabel: copy.fief.upgrade,
+    artSrc: buildingArtOf(building, level),
   }
   if (nextLevel === null) {
     return {
