@@ -1,4 +1,4 @@
-import { createRouter, type RouterHistory } from '@tanstack/react-router'
+import { createRouter, type Router, type RouterHistory } from '@tanstack/react-router'
 import { type ApiClient, createApiClient } from './api/apiClient'
 import { routeTree } from './routeTree.gen'
 
@@ -7,19 +7,15 @@ export interface AppRouterOptions {
   readonly history?: RouterHistory
 }
 
-function buildRouter({ apiClient, history }: AppRouterOptions) {
+export type AppRouter = Router<typeof routeTree>
+
+export function createAppRouter({ apiClient, history }: AppRouterOptions): AppRouter {
   return createRouter({
     routeTree,
     context: { apiClient },
     scrollRestoration: true,
     ...(history === undefined ? {} : { history }),
   })
-}
-
-export type AppRouter = ReturnType<typeof buildRouter>
-
-export function createAppRouter(options: AppRouterOptions): AppRouter {
-  return buildRouter(options)
 }
 
 export function getRouter(): AppRouter {
