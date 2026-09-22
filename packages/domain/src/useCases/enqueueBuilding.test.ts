@@ -26,6 +26,7 @@ const fiefSettings: FiefSettings = {
   startingCapacity: 1000,
   basePeasantSupply: 4,
   plotsPerProvince: 15,
+  baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
   terrainBonus: {
     lowlands: { resource: 'food', ratePerHour: 10 },
     uplands: { resource: 'stone', ratePerHour: 10 },
@@ -127,7 +128,7 @@ describe('enqueueBuilding', () => {
 
     assert(result.ok)
     const stored = fiefs.storedFiefOf('lord')
-    expect(stored?.stocks).toEqual({ wood: 40, stone: 105, iron: 110, gold: 100, food: 90 })
+    expect(stored?.stocks).toEqual({ wood: 50, stone: 115, iron: 115, gold: 102, food: 100 })
     expect(stored?.storedAt).toBe(oneHourLater)
   })
 

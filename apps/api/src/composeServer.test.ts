@@ -46,6 +46,7 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
     startingCapacity: 1000,
     basePeasantSupply: 10,
     plotsPerProvince: 15,
+    baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
     terrainBonus: {
       lowlands: { resource: 'food', ratePerHour: 5 },
       uplands: { resource: 'stone', ratePerHour: 4 },

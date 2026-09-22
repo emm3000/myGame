@@ -14,6 +14,7 @@ export const FiefContentSchema = z.object({
   startingCapacity: WholeCountSchema,
   basePeasantSupply: WholeCountSchema,
   plotsPerProvince: WholeCountSchema.positive(),
+  baseRates: ResourceAmountsSchema,
   terrainBonus: z.record(TerrainSchema, TerrainBonusSchema),
 })
 
