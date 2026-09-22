@@ -45,29 +45,46 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
 
 fiefRepositoryContract('DrizzleFiefRepository', async () => {
   await emptyDatabase()
-  return { fiefs: new DrizzleFiefRepository(drizzle(pool)), registerPlayers }
+  return { fiefs: new DrizzleFiefRepository(drizzle(pool), 'lockFree'), registerPlayers }
 })
+
+const ana = '00000000-0000-4000-8000-000000000001'
+const valdehierro = '00000000-0000-4000-8000-00000000000a'
+const robledal = '00000000-0000-4000-8000-00000000000b'
+
+const insertFief = async (id: string, plot: number, name: string): Promise<void> => {
+  await pool.query(
+    `INSERT INTO fiefs (id, player_id, kingdom, province, plot, terrain, name, wood, stone, iron, gold, food, stored_at)
+     VALUES ($1, $2, 1, 4, $3, 'lowlands', $4, 500, 500, 200, 50, 300, '2026-09-22T08:00:00Z')`,
+    [id, ana, plot, name],
+  )
+}
+
+const insertLevel = async (fiefId: string, building: string, level: number): Promise<void> => {
+  await pool.query('INSERT INTO fief_buildings (fief_id, building, level) VALUES ($1, $2, $3)', [
+    fiefId,
+    building,
+    level,
+  ])
+}
+
+const anasFiefWithTwoBuildings = async (): Promise<void> => {
+  await emptyDatabase()
+  await registerPlayers([ana])
+  await insertFief(valdehierro, 7, 'Valdehierro')
+  await insertLevel(valdehierro, 'sawmill', 2)
+  await insertLevel(valdehierro, 'iron_mine', 1)
+}
 
 describe('DrizzleFiefRepository reads', () => {
   it('reads a fief in a single round trip', async () => {
-    await emptyDatabase()
-    const ana = '00000000-0000-4000-8000-000000000001'
-    await registerPlayers([ana])
-    await pool.query(
-      `INSERT INTO fiefs (id, player_id, kingdom, province, plot, terrain, name, wood, stone, iron, gold, food, stored_at)
-       VALUES ('00000000-0000-4000-8000-00000000000a', $1, 1, 4, 7, 'lowlands', 'Valdehierro', 500, 500, 200, 50, 300, '2026-09-22T08:00:00Z')`,
-      [ana],
-    )
-    await pool.query(
-      `INSERT INTO fief_buildings (fief_id, building, level)
-       VALUES ('00000000-0000-4000-8000-00000000000a', 'sawmill', 2), ('00000000-0000-4000-8000-00000000000a', 'iron_mine', 1)`,
-    )
+    await anasFiefWithTwoBuildings()
     const statements: Array<string> = []
     const countingDatabase = drizzle(pool, {
       logger: { logQuery: (statement) => statements.push(statement) },
     })
 
-    const read = await new DrizzleFiefRepository(countingDatabase).fiefOf(ana)
+    const read = await new DrizzleFiefRepository(countingDatabase, 'lockFree').fiefOf(ana)
 
     expect(read.ok && read.value?.buildingLevels).toEqual({
       sawmill: 2,
@@ -77,5 +94,32 @@ describe('DrizzleFiefRepository reads', () => {
       warehouse: 0,
     })
     expect(statements).toHaveLength(1)
+  })
+
+  it('reads a fief without waiting on the lock a mutation holds', async () => {
+    await anasFiefWithTwoBuildings()
+
+    const read = await drizzle(pool).transaction(async (transaction) => {
+      await new DrizzleFiefRepository(transaction, 'lockedForUpdate').fiefOf(ana)
+      return new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)
+    })
+
+    expect(read.ok && read.value?.id).toBe(valdehierro)
+  })
+
+  it('restores a fief with the levels of its own buildings only', async () => {
+    await anasFiefWithTwoBuildings()
+    await insertFief(robledal, 8, 'Robledal')
+    await insertLevel(robledal, 'quarry', 3)
+
+    const read = await new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)
+
+    const levelsById: Readonly<Record<string, object>> = {
+      [valdehierro]: { sawmill: 2, quarry: 0, ironMine: 1, farm: 0, warehouse: 0 },
+      [robledal]: { sawmill: 0, quarry: 3, ironMine: 0, farm: 0, warehouse: 0 },
+    }
+    const restored = read.ok ? read.value : undefined
+    expect(restored).toBeDefined()
+    expect(restored?.buildingLevels).toEqual(levelsById[restored?.id ?? ''])
   })
 })

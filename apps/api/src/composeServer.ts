@@ -17,6 +17,7 @@ export type ComposedServer = {
   readonly buildingCatalog: BuildingCatalog
   readonly clock: Clock
   readonly ids: IdGenerator
+  readonly fiefs: FiefRepository
   readonly inFiefTransaction: FiefTransaction
   readonly close: () => Promise<void>
 }
@@ -38,13 +39,16 @@ export function composeServer(
   const buildingCatalog = JsonBuildingCatalog.fromDirectory(contentDirectory)
   const { database, close } = connectPostgres(databaseUrl)
   const inFiefTransaction: FiefTransaction = (work) =>
-    database.transaction((transaction) => work(new DrizzleFiefRepository(transaction)))
+    database.transaction((transaction) =>
+      work(new DrizzleFiefRepository(transaction, 'lockedForUpdate')),
+    )
   return {
     fetch: app.fetch,
     port,
     buildingCatalog,
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
+    fiefs: new DrizzleFiefRepository(database, 'lockFree'),
     inFiefTransaction,
     close,
   }
