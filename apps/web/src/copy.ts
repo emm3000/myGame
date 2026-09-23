@@ -1,5 +1,11 @@
 import type { BuildingKind, ResourceKind } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
+import { formatQuantity } from './design-system/formatQuantity'
+
+export interface Shortfall {
+  readonly amount: number
+  readonly resource: ResourceKind
+}
 
 const refusals: Readonly<Record<ApiRefusal, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
@@ -36,6 +42,9 @@ const kingdoms: Readonly<Partial<Record<number, string>>> = {
 }
 
 const listFormat = new Intl.ListFormat('es', { type: 'conjunction' })
+
+const agreeing = (count: number, singular: string, plural: string): string =>
+  count === 1 ? singular : plural
 
 const names = {
   resources,
@@ -77,20 +86,24 @@ export const copy = {
     loading: 'Estamos leyendo tu feudo…',
     buildings: 'Edificios',
     full: 'lleno',
-    free: 'libres',
-    occupied: 'ocupados',
+    free: (supplied: number): string => agreeing(supplied, 'libre', 'libres'),
+    occupied: (occupied: number): string => agreeing(occupied, 'ocupado', 'ocupados'),
     finished: 'Terminada',
     justFinished: 'La obra ha terminado. Estamos poniendo al día tu feudo.',
     upgrade: 'Mejorar',
     maxLevel: 'Nivel máximo',
     nextLevel: (level: number): string => `Sube a ${names.level(level)}.`,
     atMaxLevel: 'Ya está en su nivel más alto.',
-    shortfall: (amount: string, resource: ResourceKind): string =>
-      `${amount} de ${resources[resource]}`,
-    tooExpensive: (shortfalls: ReadonlyArray<string>): string =>
-      `Te faltan ${listFormat.format(shortfalls)}.`,
+    tooExpensive: (shortfalls: ReadonlyArray<Shortfall>): string => {
+      const isSingleOne = shortfalls.length === 1 && shortfalls[0]?.amount === 1
+      const verb = isSingleOne ? 'falta' : 'faltan'
+      const missing = shortfalls.map(
+        ({ amount, resource }) => `${formatQuantity(amount)} de ${resources[resource]}`,
+      )
+      return `Te ${verb} ${listFormat.format(missing)}.`
+    },
     notEnoughPeasants: (needed: number, free: number): string =>
-      `Necesitas ${needed} ${names.peasants} libres y tienes ${free}.`,
+      `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
   },
   refusals,
 } as const

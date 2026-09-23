@@ -22,7 +22,11 @@ export interface PeasantCell {
 export interface ResourceBarProps {
   readonly resources: ReadonlyArray<ResourceCell>
   readonly peasants: PeasantCell
-  readonly labels: { readonly full: string; readonly free: string; readonly occupied: string }
+  readonly labels: {
+    readonly full: string
+    readonly free: (supplied: number) => string
+    readonly occupied: (occupied: number) => string
+  }
 }
 
 const numeralClass = 'font-utility tabular-nums'
@@ -85,11 +89,11 @@ function PeasantItem({
       <span className={`${numeralClass} text-numeral-lg text-ink`}>
         {formatQuantity(cell.free)}{' '}
         <span className="text-numeral text-ink-muted">
-          / {formatQuantity(cell.supplied)} {labels.free}
+          / {formatQuantity(cell.supplied)} {labels.free(cell.supplied)}
         </span>
       </span>
       <span className={`${numeralClass} text-numeral text-ink-muted`}>
-        {formatQuantity(cell.occupied)} {labels.occupied}
+        {formatQuantity(cell.occupied)} {labels.occupied(cell.occupied)}
       </span>
     </li>
   )

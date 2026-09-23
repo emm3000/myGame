@@ -3,7 +3,6 @@ import { copy } from '../copy'
 import type { BuildingCardProps, BuildingCost } from '../design-system/BuildingCard'
 import { buildingArtOf } from '../design-system/buildingArtOf'
 import { capitalize } from '../design-system/capitalize'
-import { formatQuantity } from '../design-system/formatQuantity'
 import type { LiveFief } from './liveFief'
 
 export type BuildingCardContent = Omit<
@@ -44,7 +43,7 @@ function stateOf(nextLevel: NextLevel, fief: LiveFief): BuildingCardProps['state
   const shortfalls = ResourceKindSchema.options
     .map((kind) => ({ kind, missing: shortfallOf(nextLevel.cost[kind], fief.amounts[kind]) }))
     .filter(({ missing }) => missing > 0)
-    .map(({ kind, missing }) => copy.fief.shortfall(formatQuantity(missing), kind))
+    .map(({ kind, missing }) => ({ amount: missing, resource: kind }))
   if (shortfalls.length > 0) {
     return { kind: 'tooExpensive', reason: copy.fief.tooExpensive(shortfalls) }
   }
