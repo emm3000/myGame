@@ -11,7 +11,7 @@ CI runs exactly `pnpm gate`, whose definition is the `gate` script in the root `
 ## `ci.yml`
 
 - Triggers: `pull_request` on any branch, `push` to `trunk`.
-- Steps: checkout, `pnpm/action-setup` (reads `packageManager` from `package.json`, so no version is repeated), `actions/setup-node` with `node-version-file: .node-version` and `cache: pnpm`, `pnpm install --frozen-lockfile`, `pnpm gate`, then the api build-and-probe: `pnpm -r build`, `node apps/api/dist/server.js` in the background on `API_PORT=3199`, and a retried `curl -fsS` of `/health` that fails the job unless the bundle answers.
+- Steps: checkout, `pnpm/action-setup` (reads `packageManager` from `package.json`, so no version is repeated), `actions/setup-node` with `node-version-file: .node-version` and `cache: pnpm`, `pnpm install --frozen-lockfile`, `pnpm gate`, then the api build-and-probe: `pnpm -r build`, `node apps/api/dist/server.js` in the background on `API_PORT=3199`, and a retried `curl -fsS` of `/health` that fails the job unless the bundle answers; an `EXIT` trap kills the server on success and on failure.
 - A database service container is added the day the first adapter test needs one, in the same job, never a second workflow.
 
 ## Pinning
