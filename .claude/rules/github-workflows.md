@@ -6,12 +6,12 @@ paths:
 
 ## The gate
 
-CI runs exactly `pnpm gate`, whose definition is the `gate` script in the root `package.json`. The workflow never lists the steps by hand; when the gate changes, `package.json` changes and CI follows. Local and CI run the same command on the same Node major (`.node-version`).
+CI runs exactly `pnpm gate`, whose definition is the `gate` script in the root `package.json`. The workflow never lists the gate's steps by hand; when the gate changes, `package.json` changes and CI follows. The one step outside the gate is the api build-and-probe, which needs a built bundle and a listening process, so it lives in the workflow. Local and CI run the same command on the same Node major (`.node-version`).
 
 ## `ci.yml`
 
 - Triggers: `pull_request` on any branch, `push` to `trunk`.
-- Steps: checkout, `pnpm/action-setup` (reads `packageManager` from `package.json`, so no version is repeated), `actions/setup-node` with `node-version-file: .node-version` and `cache: pnpm`, `pnpm install --frozen-lockfile`, `pnpm gate`.
+- Steps: checkout, `pnpm/action-setup` (reads `packageManager` from `package.json`, so no version is repeated), `actions/setup-node` with `node-version-file: .node-version` and `cache: pnpm`, `pnpm install --frozen-lockfile`, `pnpm gate`, then the api build-and-probe: `pnpm -r build`, `node apps/api/dist/server.js` in the background on `API_PORT=3199`, and a retried `curl -fsS` of `/health` that fails the job unless the bundle answers.
 - A database service container is added the day the first adapter test needs one, in the same job, never a second workflow.
 
 ## Pinning

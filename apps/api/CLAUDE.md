@@ -5,6 +5,8 @@ Hono on Node: the HTTP adapters, the persistence adapters that implement the dom
 ## Commands
 
 - `API_PORT=3106 pnpm --filter @mygame/api dev` — `tsx watch src/server.ts`. Use the port the dispatch assigns, never a default. Add `SESSION_COOKIE_SECURE=false` when a browser reaches the api over plain `http://localhost`: Safari refuses a `Secure` cookie there.
+- `pnpm --filter @mygame/api build` — esbuild bundles `src/server.ts` into one ESM file, `dist/server.js`: the workspace packages and `zod` are inlined, `hono`, `@hono/node-server`, `pg`, `drizzle-orm` and `@node-rs/argon2` stay external imports. A new runtime dependency gets its own `--external:` in the script.
+- `API_PORT=3106 DATABASE_URL=... pnpm --filter @mygame/api start` — `node dist/server.js`, the production entry. `/health` answers without a reachable database. CI builds and probes it after the gate.
 - `pnpm --filter @mygame/api test` — Vitest, `src/**/*.test.ts`. Route tests compose the real server on the session's Postgres, with the real adapters; an in-memory adapter exists only to run a port's contract suite beside the Drizzle one.
 - `pnpm --filter @mygame/api typecheck` — `tsc --noEmit` over `src`, the Vitest config and `drizzle.config.ts`.
 - `pnpm --filter @mygame/api db:generate --name <change>` — `drizzle-kit generate`: diffs `src/adapters/postgres/schema.ts` against `migrations/meta` and writes the next SQL migration. Commit the SQL and the `meta` files together.
@@ -61,6 +63,6 @@ export DATABASE_URL=postgres://postgres:mygame@localhost:5433/mygame_schema
 - `drizzle-kit generate` asks whether a new column renames an old one, and that prompt needs a TTY; a shell without one fails with "Interactive prompts require a TTY terminal". Run `db:generate --custom --name <change>` instead: it writes an empty SQL file, the journal entry and a snapshot copied unchanged from the previous one. Write the SQL by hand, edit the snapshot to match `schema.ts`, and confirm with `db:generate --name probe`, which must report no schema change and write no file.
 - `drizzle-orm`, `pg` and `drizzle-kit` have one consumer, so their versions live here, not in the catalog.
 - Import `@mygame/contracts` and `@mygame/domain` only from their entry; `rg -n "from '@mygame/(domain|contracts)/src" apps packages` stays empty.
-- The workspace packages export raw `.ts` with extensionless relative imports. Plain `node` cannot load `@mygame/domain` (`ERR_MODULE_NOT_FOUND`), so `dev` runs through `tsx`, which resolves both at runtime.
-- `hono`, `@hono/node-server` and `tsx` have one consumer, so their versions live here, not in the catalog; `typescript` and `vitest` come from `catalog:`.
-- `esbuild` (under `tsx`) is listed in `allowBuilds` in `pnpm-workspace.yaml`; pnpm 11 fails the install on an unreviewed build script.
+- The workspace packages export raw `.ts` with extensionless relative imports, which plain `node` cannot load (`ERR_MODULE_NOT_FOUND`). Production runs the esbuild bundle, which inlines them; `dev` runs through `tsx`, which resolves them at runtime. `server.ts` finds `../content/` from `import.meta.url`, and `dist/` sits beside `src/`, so the bundle resolves the same directory.
+- `hono`, `@hono/node-server`, `tsx` and `esbuild` have one consumer, so their versions live here, not in the catalog; `typescript` and `vitest` come from `catalog:`.
+- `esbuild` (a devDependency here, and under `tsx`) is listed in `allowBuilds` in `pnpm-workspace.yaml`; pnpm 11 fails the install on an unreviewed build script.

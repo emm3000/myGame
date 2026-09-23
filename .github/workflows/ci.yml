@@ -38,3 +38,5 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm gate
+      - name: build and probe the api
+        run: pnpm -r build && (API_PORT=3199 node apps/api/dist/server.js &) && curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://localhost:3199/health
