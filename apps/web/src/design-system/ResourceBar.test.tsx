@@ -60,6 +60,12 @@ it('labels zero occupied peasants in the plural', () => {
 
   const village = screen.getByRole('listitem', { name: 'Campesinos' })
   expect(within(village).getByText('0 ocupados')).toBeDefined()
+})
+
+it('labels several supplied peasants as libres', () => {
+  render(<ResourceBar {...villageWith(10, 0)} />)
+
+  const village = screen.getByRole('listitem', { name: 'Campesinos' })
   expect(within(village).getByText('/ 10 libres')).toBeDefined()
 })
 

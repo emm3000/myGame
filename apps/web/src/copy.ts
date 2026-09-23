@@ -2,7 +2,7 @@ import type { BuildingKind, ResourceKind } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { formatQuantity } from './design-system/formatQuantity'
 
-export interface Shortfall {
+interface Shortfall {
   readonly amount: number
   readonly resource: ResourceKind
 }
