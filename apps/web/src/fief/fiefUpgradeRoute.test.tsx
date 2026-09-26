@@ -40,7 +40,7 @@ const sawmillUpgradeUnderWay: FiefOverview = {
     wood: { ...knownFief.resources.wood, amount: 910 },
     stone: { ...knownFief.resources.stone, amount: 777 },
   },
-  peasants: { supplied: 12, occupied: 5, free: 7 },
+  peasants: { supplied: 12, occupied: 5, free: 7, projectedFree: 6 },
   slot: {
     kind: 'busy',
     building: 'sawmill',
@@ -74,10 +74,10 @@ it('starts the track empty on the overview an enqueue answers', async () => {
   expect(slotTrackFill()).toBe('0')
 })
 
-it('shows the Spanish reason when the slot is busy', async () => {
+it('shows the Spanish reason when the queue is full', async () => {
   const enqueueUpgrade = async (): Promise<ApiOutcome<FiefOverview>> => ({
     ok: false,
-    refusal: 'SlotBusy',
+    refusal: 'QueueFull',
   })
   await showFief(signedInClient({ enqueueUpgrade }))
 
@@ -85,7 +85,7 @@ it('shows the Spanish reason when the slot is busy', async () => {
   await passSeconds(0)
 
   expect(within(cardOf('quarry')).getByRole('alert').textContent).toBe(
-    'Ya tienes una obra en marcha. Espera a que termine.',
+    'Ya no caben más obras en espera. Espera a que avance alguna.',
   )
   expect(within(cardOf('sawmill')).queryByRole('alert')).toBeNull()
 })
@@ -93,7 +93,7 @@ it('shows the Spanish reason when the slot is busy', async () => {
 it('disables a card the free peasants cannot staff', async () => {
   const twoFreePeasants: FiefOverview = {
     ...knownFief,
-    peasants: { supplied: 12, occupied: 10, free: 2 },
+    peasants: { supplied: 12, occupied: 10, free: 2, projectedFree: 2 },
     buildings: {
       ...knownFief.buildings,
       farm: {
@@ -114,6 +114,31 @@ it('disables a card the free peasants cannot staff', async () => {
   })
   expect(farmButton.hasAttribute('disabled')).toBe(true)
   expect(upgradeButtonOf('sawmill').hasAttribute('disabled')).toBe(false)
+})
+
+it('checks a card against the free peasants left after the waiting upgrades', async () => {
+  const twoFreeAfterQueue: FiefOverview = {
+    ...knownFief,
+    peasants: { supplied: 12, occupied: 4, free: 8, projectedFree: 2 },
+    buildings: {
+      ...knownFief.buildings,
+      farm: {
+        level: 1,
+        nextLevel: {
+          level: 2,
+          cost: { wood: 50, stone: 30, iron: 0, gold: 0, food: 0 },
+          durationSeconds: 120,
+          peasants: 3,
+        },
+      },
+    },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: twoFreeAfterQueue }) }))
+
+  const farmButton = within(cardOf('farm')).getByRole('button', {
+    name: 'Mejorar · 2:00. Necesitas 3 campesinos libres y tienes 2.',
+  })
+  expect(farmButton.hasAttribute('disabled')).toBe(true)
 })
 
 interface Deferred<T> {
@@ -160,7 +185,7 @@ it('clears a refusal once a fresh read of the fief arrives', async () => {
   })
   const enqueueUpgrade = async (): Promise<ApiOutcome<FiefOverview>> => ({
     ok: false,
-    refusal: 'SlotBusy',
+    refusal: 'QueueFull',
   })
   await showFief(signedInClient({ fief, enqueueUpgrade }))
   fireEvent.click(upgradeButtonOf('quarry'))

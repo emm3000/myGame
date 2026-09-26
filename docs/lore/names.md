@@ -27,6 +27,7 @@ Status: accepted by the author on 2026-09-22. The Spanish labels below are the w
 
 - A **fief** is a *feudo*. The screen title is the name the player gave the fief when founding it, unchanged.
 - The **build slot** is *la obra*: a busy slot has *una obra en marcha*; a free slot *no tiene obra*.
+- The **build queue** is *las obras en espera*: the upgrades waiting behind *la obra en marcha*, listed in order. Proposal for the author, not yet accepted.
 - A **level** is *nivel*; a building at level 3 reads *nivel 3*.
 
 ## The first kingdom

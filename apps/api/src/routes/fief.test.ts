@@ -121,8 +121,9 @@ describe('the fief route', () => {
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.name).toBe('Valdehierro')
     expect(overview.resources.wood).toEqual({ amount: 500, ratePerHour: 10, capacity: 1000 })
-    expect(overview.peasants).toEqual({ supplied: 10, occupied: 0, free: 10 })
+    expect(overview.peasants).toEqual({ supplied: 10, occupied: 0, free: 10, projectedFree: 10 })
     expect(overview.slot).toEqual({ kind: 'idle' })
+    expect(overview.queue).toEqual([])
     expect(overview.readAt).toBe('2026-09-22T08:00:00.000Z')
   })
 
@@ -350,26 +351,63 @@ describe('the fief route', () => {
       )
     })
 
-    it('answers the next level of the built level while the upgrade runs', async () => {
-      const ana = await signUp('ana@example.com', 'Valdehierro')
-
-      const response = await enqueue(ana.cookie, 'sawmill')
-
-      const { buildings } = FiefOverviewSchema.parse(await response.json())
-      expect(buildings.sawmill).toEqual({ level: 0, nextLevel: sawmillLevelOne })
-    })
-
-    it('refuses a second upgrade while the slot is busy', async () => {
+    it('chains each waiting upgrade after the one before it', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueue(ana.cookie, 'sawmill')
-      clock.advanceMinutes(1)
+      await enqueue(ana.cookie, 'sawmill')
 
       const response = await enqueue(ana.cookie, 'quarry')
 
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.queue).toEqual([
+        {
+          building: 'sawmill',
+          targetLevel: 2,
+          startsAt: '2026-09-22T08:02:00.000Z',
+          finishesAt: '2026-09-22T08:05:12.000Z',
+        },
+        {
+          building: 'quarry',
+          targetLevel: 1,
+          startsAt: '2026-09-22T08:05:12.000Z',
+          finishesAt: '2026-09-22T08:07:42.000Z',
+        },
+      ])
+    })
+
+    it('answers the next level of a building after its waiting upgrades', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana.cookie, 'sawmill')
+
+      const response = await fiefOf(ana.cookie)
+
+      const { buildings, peasants } = FiefOverviewSchema.parse(await response.json())
+      expect(buildings.sawmill).toEqual({
+        level: 0,
+        nextLevel: {
+          level: 3,
+          cost: { wood: 135, stone: 34, iron: 0, gold: 0, food: 0 },
+          durationSeconds: 307,
+          peasants: 1,
+        },
+      })
+      expect(peasants).toEqual({ supplied: 10, occupied: 0, free: 10, projectedFree: 8 })
+    })
+
+    it('refuses an upgrade when the queue is full', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      for (const building of ['sawmill', 'sawmill', 'quarry', 'farm', 'ironMine']) {
+        expect((await enqueue(ana.cookie, building)).status).toBe(200)
+      }
+
+      const response = await enqueue(ana.cookie, 'warehouse')
+
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
-        kind: 'SlotBusy',
-        message: 'Ya tienes una obra en marcha. Espera a que termine.',
+        kind: 'QueueFull',
+        message: 'Ya no caben más obras en espera. Espera a que avance alguna.',
       })
     })
 
@@ -431,6 +469,7 @@ describe('the fief route', () => {
       clock.advanceMinutes(5)
       laggingClock.advanceMinutes(3)
       await enqueue(ana.cookie, 'sawmill')
+      await runSql('UPDATE fiefs SET wood = 0')
 
       const response = await laggingApp.request('/fief/upgrades', {
         method: 'POST',
@@ -439,7 +478,7 @@ describe('the fief route', () => {
       })
 
       expect(response.status).toBe(409)
-      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('SlotBusy')
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
     })
 
     it('answers 400 to a building the wire does not name', async () => {

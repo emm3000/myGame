@@ -6,6 +6,7 @@ import type { Instant } from './time/Instant'
 
 export type DomainError =
   | { readonly kind: 'NegativeDuration'; readonly seconds: number }
+  | { readonly kind: 'FractionalDuration'; readonly seconds: number }
   | { readonly kind: 'InstantBeforeStored'; readonly storedAt: Instant; readonly now: Instant }
   | { readonly kind: 'NegativeResourceAmount'; readonly amount: number }
   | { readonly kind: 'NegativeResourceRate'; readonly ratePerHour: number }
@@ -35,7 +36,7 @@ export type DomainError =
       readonly requiredPeasants: number
       readonly freePeasants: number
     }
-  | { readonly kind: 'SlotBusy'; readonly until: Instant }
+  | { readonly kind: 'QueueFull'; readonly cap: number }
   | { readonly kind: 'SlotIdle' }
   | {
       readonly kind: 'InvalidBuildingLevel'

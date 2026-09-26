@@ -27,17 +27,17 @@ function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<BuildingCo
   const peasantCost = {
     kind: 'peasants' as const,
     amount: nextLevel.peasants,
-    isShort: nextLevel.peasants > fief.overview.peasants.free,
+    isShort: nextLevel.peasants > fief.overview.peasants.projectedFree,
   }
   return nextLevel.peasants > 0 ? [...resourceCosts, peasantCost] : resourceCosts
 }
 
 function stateOf(nextLevel: NextLevel, fief: LiveFief): BuildingCardProps['state'] {
-  const { free } = fief.overview.peasants
-  if (nextLevel.peasants > free) {
+  const { projectedFree } = fief.overview.peasants
+  if (nextLevel.peasants > projectedFree) {
     return {
       kind: 'notEnoughPeasants',
-      reason: copy.fief.notEnoughPeasants(nextLevel.peasants, free),
+      reason: copy.fief.notEnoughPeasants(nextLevel.peasants, projectedFree),
     }
   }
   const shortfalls = ResourceKindSchema.options

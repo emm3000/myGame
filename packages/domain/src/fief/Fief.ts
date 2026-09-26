@@ -3,6 +3,7 @@ import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
+import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
 import type { BuildQueue, BuildQueueEntry } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
@@ -36,13 +37,6 @@ export type StoredFief = {
   readonly buildingLevels: FiefBuildingLevels
   readonly slot: BuildSlot
   readonly buildQueue: BuildQueue
-}
-
-export type Upgrade = {
-  readonly building: BuildingKind
-  readonly targetLevel: number
-  readonly cost: Stocks
-  readonly finishesAt: Instant
 }
 
 const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
@@ -101,6 +95,9 @@ const validateEntry = (entry: BuildQueueEntry): Result<void, DomainError> => {
   }
   if (entry.durationSeconds < 0) {
     return err({ kind: 'NegativeDuration', seconds: entry.durationSeconds })
+  }
+  if (!Number.isInteger(entry.durationSeconds)) {
+    return err({ kind: 'FractionalDuration', seconds: entry.durationSeconds })
   }
   return refuseNegativeAmount(entry.cost)
 }
@@ -213,15 +210,29 @@ export class Fief {
     )
   }
 
-  startUpgrade(upgrade: Upgrade, stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
-    if (this.slot.kind === 'busy') {
-      return err({ kind: 'SlotBusy', until: this.slot.finishesAt })
+  enqueueUpgrade(
+    upgrade: BuildQueueEntry,
+    stocksAtNow: Stocks,
+    now: Instant,
+    buildQueueCap: number,
+  ): Result<Fief, DomainError> {
+    const isSlotIdle = this.slot.kind === 'idle'
+    if (!isSlotIdle && this.buildQueue.length >= buildQueueCap) {
+      return err({ kind: 'QueueFull', cap: buildQueueCap })
     }
-    const { building, targetLevel, cost, finishesAt } = upgrade
-    const missing = shortfall(stocksAtNow, cost)
+    const validUpgrade = validateEntry(upgrade)
+    if (!validUpgrade.ok) {
+      return validUpgrade
+    }
+    const duration = Duration.ofSeconds(upgrade.durationSeconds)
+    if (!duration.ok) {
+      return duration
+    }
+    const missing = shortfall(stocksAtNow, upgrade.cost)
     if (isShort(missing)) {
       return err({ kind: 'InsufficientResources', missing })
     }
+    const { building, targetLevel, cost } = upgrade
     return ok(
       new Fief(
         this.id,
@@ -231,8 +242,17 @@ export class Fief {
         debit(stocksAtNow, cost),
         now,
         this.buildingLevels,
-        { kind: 'busy', building, targetLevel, startedAt: now, finishesAt, cost },
-        this.buildQueue,
+        isSlotIdle
+          ? {
+              kind: 'busy',
+              building,
+              targetLevel,
+              startedAt: now,
+              finishesAt: now.plus(duration.value),
+              cost,
+            }
+          : this.slot,
+        isSlotIdle ? this.buildQueue : [...this.buildQueue, upgrade],
       ),
     )
   }
@@ -290,6 +310,17 @@ export class Fief {
         this.buildQueue,
       ),
     )
+  }
+
+  get projectedBuildingLevels(): FiefBuildingLevels {
+    const projected = { ...this.buildingLevels }
+    if (this.slot.kind === 'busy') {
+      projected[this.slot.building] = this.slot.targetLevel
+    }
+    for (const { building, targetLevel } of this.buildQueue) {
+      projected[building] = targetLevel
+    }
+    return projected
   }
 
   get terrain(): Terrain {

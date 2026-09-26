@@ -16,7 +16,7 @@ English for every identifier, file, directory, branch, commit and doc. Spanish a
 | Use case | verb phrase | `enqueueBuilding`, `collectResources` |
 | Port | noun + role | `FiefRepository`, `Clock`, `IdGenerator` |
 | Adapter | technology + port | `DrizzleFiefRepository`, `SystemClock` |
-| Domain error member | past or present participle of the failure | `InsufficientResources`, `SlotBusy` |
+| Domain error member | past or present participle of the failure | `InsufficientResources`, `QueueFull` |
 | Contract schema | wire noun + `Schema` | `FiefOverviewSchema`, `EnqueueBuildingRequestSchema` |
 | Contract type | the schema's noun | `FiefOverview`, `EnqueueBuildingRequest` |
 | Hono route module | resource | `fiefs.ts`, `slot.ts` |

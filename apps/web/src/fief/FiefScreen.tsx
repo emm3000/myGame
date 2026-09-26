@@ -6,6 +6,7 @@ import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
+import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { buildingCardOf } from './buildingCardOf'
 import type { LiveFief } from './liveFief'
 import type { Cancel } from './useCancel'
@@ -45,6 +46,24 @@ function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
     cancel: { label: copy.fief.cancel, isWaiting: cancel.isWaiting, onCancel: cancel.start },
     ...building,
   }
+}
+
+function WaitingUpgradesOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
+  if (fief.waitingUpgrades.length === 0) {
+    return null
+  }
+  const upgrades = fief.waitingUpgrades.map(({ building, targetLevel, remainingSeconds }) => ({
+    buildingName: capitalize(names.buildings[building]),
+    levelLabel: names.level(targetLevel),
+    remainingSeconds,
+  }))
+  return (
+    <WaitingUpgrades
+      title={names.buildQueue}
+      upgrades={upgrades}
+      finishedLabel={copy.fief.finished}
+    />
+  )
 }
 
 function BuildingItem({
@@ -89,13 +108,19 @@ export function FiefScreen({ fief, upgrade, cancel }: FiefScreenProps): ReactEle
       </header>
       <ResourceBar
         resources={resources}
-        peasants={{ label: names.peasants, ...overview.peasants }}
+        peasants={{
+          label: names.peasants,
+          supplied: overview.peasants.supplied,
+          occupied: overview.peasants.occupied,
+          free: overview.peasants.free,
+        }}
         labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
       />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-2">
           <BuildSlot state={slotStateOf(fief, cancel)} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
+          <WaitingUpgradesOf fief={fief} />
         </div>
         <section className="flex flex-col gap-3 lg:col-span-2">
           <h3 className="m-0 font-body text-heading text-ink">{copy.fief.buildings}</h3>

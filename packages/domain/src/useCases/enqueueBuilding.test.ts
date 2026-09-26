@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { BuildQueueEntry } from '../fief/BuildQueue'
 import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type {
@@ -65,6 +66,22 @@ const farmLevelOne: FarmLevel = {
   peasantSupply: 5,
 }
 
+const ironMineLevelOne: ProducerLevel = {
+  building: 'ironMine',
+  level: 1,
+  cost: { wood: 40, stone: 40, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 150,
+  peasantOccupancy: 3,
+  ratePerHour: 15,
+}
+
+const quarryEntry: BuildQueueEntry = {
+  building: 'quarry',
+  targetLevel: 1,
+  cost: quarryLevelOne.cost,
+  durationSeconds: 100,
+}
+
 const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog => ({
   levelOf: (building, level) =>
     levels.find((known) => known.building === building && known.level === level),
@@ -102,6 +119,21 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
   assert(restored.ok)
   return restored.value
 }
+
+const sawmillFinishing = Instant.fromEpochMilliseconds(86_400_000 + 7_200_000)
+
+const busySawmillFief = (overrides: Partial<StoredFief>): Fief =>
+  storedFief({
+    slot: {
+      kind: 'busy',
+      building: 'sawmill',
+      targetLevel: 1,
+      startedAt: storedInstant,
+      finishesAt: sawmillFinishing,
+      cost: sawmillCost,
+    },
+    ...overrides,
+  })
 
 describe('enqueueBuilding', () => {
   it('starts the upgrade in a free slot', async () => {
@@ -170,26 +202,157 @@ describe('enqueueBuilding', () => {
     })
   })
 
-  it('refuses a second upgrade while the slot is busy', async () => {
-    const sawmillFinishing = Instant.fromEpochMilliseconds(86_400_000 + 90_000)
-    const busyFief = storedFief({
-      slot: {
-        kind: 'busy',
-        building: 'sawmill',
-        targetLevel: 1,
-        startedAt: storedInstant,
-        finishesAt: sawmillFinishing,
-        cost: sawmillCost,
-      },
-    })
-    const fiefs = inMemoryFiefRepository([busyFief])
+  it('queues an upgrade behind the busy slot', async () => {
+    const fiefs = inMemoryFiefRepository([busySawmillFief({})])
 
     const result = await enqueueBuilding(
       { playerId: 'lord', building: 'quarry' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
-    expect(result).toEqual({ ok: false, error: { kind: 'SlotBusy', until: sawmillFinishing } })
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 1 })
+    expect(
+      stored?.buildQueue.map(({ building, targetLevel }) => ({ building, targetLevel })),
+    ).toEqual([{ building: 'quarry', targetLevel: 1 }])
+  })
+
+  it('charges a queued upgrade at enqueue', async () => {
+    const fiefs = inMemoryFiefRepository([busySawmillFief({})])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'quarry' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.stocks).toEqual({ wood: 60, stone: 90, iron: 115, gold: 102, food: 110 })
+    expect(stored?.storedAt).toBe(oneHourLater)
+  })
+
+  it('fixes the cost and duration of a queued upgrade at enqueue', async () => {
+    const fiefs = inMemoryFiefRepository([busySawmillFief({})])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'quarry' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([
+      {
+        building: 'quarry',
+        targetLevel: 1,
+        cost: { wood: 50, stone: 20, iron: 0, gold: 0, food: 0 },
+        durationSeconds: 100,
+      },
+    ])
+  })
+
+  it('targets the level after the busy slot and every waiting entry', async () => {
+    const threeLevelCatalog = inMemoryCatalog([
+      sawmillLevel(1, 1),
+      sawmillLevel(2, 2),
+      sawmillLevel(3, 3),
+      quarryLevelOne,
+    ])
+    const sawmillEntry: BuildQueueEntry = {
+      building: 'sawmill',
+      targetLevel: 2,
+      cost: sawmillCost,
+      durationSeconds: 90,
+    }
+    const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: [sawmillEntry] })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: threeLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(
+      result.value.buildQueue.map(({ building, targetLevel }) => ({ building, targetLevel })),
+    ).toEqual([
+      { building: 'sawmill', targetLevel: 2 },
+      { building: 'sawmill', targetLevel: 3 },
+    ])
+  })
+
+  it('counts the peasants a queued farm supplies', async () => {
+    const handHungryCatalog = inMemoryCatalog([
+      sawmillLevel(1, 1),
+      sawmillLevel(2, 5),
+      quarryLevelOne,
+      farmLevelOne,
+    ])
+    const farmEntry: BuildQueueEntry = {
+      building: 'farm',
+      targetLevel: 1,
+      cost: farmLevelOne.cost,
+      durationSeconds: 120,
+    }
+    const farmWaitingFief = busySawmillFief({
+      buildingLevels: { ...unbuiltLevels, quarry: 1 },
+      buildQueue: [farmEntry],
+    })
+    const fiefs = inMemoryFiefRepository([farmWaitingFief])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: handHungryCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(result.value.buildQueue.at(-1)).toMatchObject({ building: 'sawmill', targetLevel: 2 })
+  })
+
+  it('charges the peasants a queued building occupies', async () => {
+    const minedCatalog = inMemoryCatalog([sawmillLevel(1, 1), quarryLevelOne, ironMineLevelOne])
+    const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: [quarryEntry] })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'ironMine' },
+      { fiefs, catalog: minedCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'NotEnoughPeasants', requiredPeasants: 3, freePeasants: 2 },
+    })
+  })
+
+  it('refuses a level beyond the catalog cap after the waiting entries', async () => {
+    const sawmillEntry: BuildQueueEntry = {
+      building: 'sawmill',
+      targetLevel: 2,
+      cost: sawmillCost,
+      durationSeconds: 90,
+    }
+    const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: [sawmillEntry] })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'MaxLevelReached', building: 'sawmill', level: 2 },
+    })
+  })
+
+  it('refuses an upgrade with the queue full', async () => {
+    const fullQueue = [quarryEntry, quarryEntry, quarryEntry, quarryEntry]
+    const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: fullQueue })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'farm' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'QueueFull', cap: 4 } })
   })
 
   it('refuses an upgrade the stocks cannot pay for', async () => {

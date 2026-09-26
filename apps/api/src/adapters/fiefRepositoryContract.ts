@@ -92,15 +92,16 @@ const developedFief = developedFiefWaiting(waitingEntries)
 
 const upgradedFief = (fief: Fief): Fief =>
   accepted(
-    fief.startUpgrade(
+    fief.enqueueUpgrade(
       {
         building: 'sawmill',
         targetLevel: 1,
         cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 0 },
-        finishesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:32:00Z')),
+        durationSeconds: 120,
       },
       { wood: 545, stone: 506, iron: 200, gold: 50, food: 337 },
       upgradedAt,
+      4,
     ),
   )
 

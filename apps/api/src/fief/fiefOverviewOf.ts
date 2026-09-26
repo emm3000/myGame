@@ -7,6 +7,7 @@ import {
   deriveFreePeasants,
   deriveOccupiedPeasants,
   derivePeasantsForUpgrade,
+  deriveProjectedFreePeasants,
   deriveResourceRates,
   deriveSuppliedPeasants,
   deriveWarehouseCapacity,
@@ -17,6 +18,7 @@ import {
   type ResourceKind,
   type Result,
   type Stocks,
+  scheduleBuildQueue,
 } from '@mygame/domain'
 
 const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
@@ -32,6 +34,21 @@ const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
         finishesAt: isoOf(slot.finishesAt),
       }
 
+const queueOf = (fief: Fief): Result<FiefOverview['queue'], DomainError> => {
+  const scheduled = scheduleBuildQueue(fief.slot, fief.buildQueue)
+  if (!scheduled.ok) {
+    return scheduled
+  }
+  return ok(
+    scheduled.value.map(({ building, targetLevel, startsAt, finishesAt }) => ({
+      building,
+      targetLevel,
+      startsAt: isoOf(startsAt),
+      finishesAt: isoOf(finishesAt),
+    })),
+  )
+}
+
 const resourcesOf = (
   stocks: Stocks,
   rates: Readonly<Record<ResourceKind, number>>,
@@ -45,9 +62,10 @@ const resourcesOf = (
 })
 
 const peasantsOf = (
-  buildingLevels: FiefBuildingLevels,
+  fief: Fief,
   catalog: BuildingCatalog,
 ): Result<FiefOverview['peasants'], DomainError> => {
+  const { buildingLevels } = fief
   const supplied = deriveSuppliedPeasants(buildingLevels.farm, catalog)
   if (!supplied.ok) {
     return supplied
@@ -60,7 +78,16 @@ const peasantsOf = (
   if (!free.ok) {
     return free
   }
-  return ok({ supplied: supplied.value, occupied: occupied.value, free: free.value })
+  const projectedFree = deriveProjectedFreePeasants(fief, catalog)
+  if (!projectedFree.ok) {
+    return projectedFree
+  }
+  return ok({
+    supplied: supplied.value,
+    occupied: occupied.value,
+    free: free.value,
+    projectedFree: projectedFree.value,
+  })
 }
 
 type BuildingState = FiefOverview['buildings'][BuildingKind]
@@ -83,9 +110,10 @@ const nextLevelOf = (
 }
 
 const buildingsOf = (
-  buildingLevels: FiefBuildingLevels,
+  fief: Fief,
   catalog: BuildingCatalog,
 ): Result<FiefOverview['buildings'], DomainError> => {
+  const { buildingLevels, projectedBuildingLevels } = fief
   const buildings: Record<BuildingKind, BuildingState> = {
     sawmill: { level: buildingLevels.sawmill, nextLevel: null },
     quarry: { level: buildingLevels.quarry, nextLevel: null },
@@ -94,7 +122,7 @@ const buildingsOf = (
     warehouse: { level: buildingLevels.warehouse, nextLevel: null },
   }
   for (const building of BuildingKindSchema.options) {
-    const nextLevel = nextLevelOf(building, buildingLevels, catalog)
+    const nextLevel = nextLevelOf(building, projectedBuildingLevels, catalog)
     if (!nextLevel.ok) {
       return nextLevel
     }
@@ -115,13 +143,17 @@ export const fiefOverviewOf = (
   if (!capacity.ok) {
     return capacity
   }
-  const peasants = peasantsOf(fief.buildingLevels, catalog)
+  const peasants = peasantsOf(fief, catalog)
   if (!peasants.ok) {
     return peasants
   }
-  const buildings = buildingsOf(fief.buildingLevels, catalog)
+  const buildings = buildingsOf(fief, catalog)
   if (!buildings.ok) {
     return buildings
+  }
+  const queue = queueOf(fief)
+  if (!queue.ok) {
+    return queue
   }
   const { kingdom, province, plot } = fief.coordinates
   return ok({
@@ -132,6 +164,7 @@ export const fiefOverviewOf = (
     buildings: buildings.value,
     peasants: peasants.value,
     slot: slotOf(fief.slot),
+    queue: queue.value,
     readAt: isoOf(fief.storedAt),
   })
 }

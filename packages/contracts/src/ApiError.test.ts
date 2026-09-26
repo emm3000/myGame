@@ -3,9 +3,9 @@ import { ApiErrorSchema } from './index'
 
 describe('ApiErrorSchema', () => {
   it('parses an error with a known kind', () => {
-    const slotBusyError = { kind: 'SlotBusy', message: 'La obra ya está en marcha.' }
+    const queueFullError = { kind: 'QueueFull', message: 'Tu cola de obras está llena.' }
 
-    expect(ApiErrorSchema.parse(slotBusyError)).toEqual(slotBusyError)
+    expect(ApiErrorSchema.parse(queueFullError)).toEqual(queueFullError)
   })
 
   it('parses the refusal of a blank fief name', () => {
