@@ -229,6 +229,17 @@ describe('the fief route', () => {
     expect(resources.wood).toEqual({ amount: 515, ratePerHour: 10, capacity: 1000 })
   })
 
+  it('answers a stock above the capacity unchanged after an hour', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql('UPDATE fiefs SET wood = 1200')
+    clock.advanceMinutes(60)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect(resources.wood).toEqual({ amount: 1200, ratePerHour: 10, capacity: 1000 })
+  })
+
   it('answers a finished upgrade with the amounts accrued at the old rate then the new one', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await enqueueSawmill(ana.playerId)

@@ -20,7 +20,7 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Peasants** — the workforce. The fief supplies a base number and each farm level adds more; each building level occupies some. Free peasants = supplied − occupied, a derived number that never grows on its own. An upgrade charges only the increase in occupancy against the free peasants, releasing the current level's occupancy. Replaces *energy*.
 - **Warehouse** — the building that sets a resource's capacity.
 - **Base rate** — the rate per hour every fief earns of each resource from founding, with no building; a producer's rate and the terrain bonus add on top of it.
-- **Accrual** — the amount a resource gains between two instants, computed on read (ADR 005).
+- **Accrual** — the amount a resource gains between two instants, computed on read as `max(amount, min(capacity, amount + rate × elapsed))`: a stock under the capacity fills up to it, a stock above it (after a refund) freezes, neither accruing nor clamped (ADR 005).
 
 ## Buildings
 

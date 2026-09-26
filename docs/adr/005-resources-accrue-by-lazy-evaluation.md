@@ -31,3 +31,13 @@ that fief, in order, and only for that fief. There is no cron, no
   party, or by a scheduled job justified by a measurement, never by default.
 - Every mutation on a fief runs in one transaction that reads, materializes
   and writes; two concurrent mutations serialize on the fief row.
+
+## Amendment (2026-09-25)
+
+Reading a fief now computes
+`max(amount, min(capacity, amount + ratePerHour * hours(at, now)))`. Cancelling
+an upgrade refunds its full cost (S6), and a refund may push a stock above the
+capacity; clamping on the next read would destroy it. A stock at or above the
+capacity reads back unchanged whatever the elapsed time, with no accrual and
+no clamp, until spending brings it under; a stock under the capacity accrues
+up to it as before.

@@ -237,6 +237,28 @@ describe('resolveUpgrade', () => {
     expect(result.value.fief.stocks.wood).toBe(2000)
   })
 
+  it('keeps a stock above the capacity through a finished upgrade', async () => {
+    const overfilledFief = storedFief({
+      stocks: { wood: 1200, stone: 100, iron: 100, gold: 100, food: 100 },
+      slot: {
+        kind: 'busy',
+        building: 'sawmill',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: hoursAfterStored(1),
+      },
+    })
+    const fiefs = inMemoryFiefRepository([overfilledFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks.wood).toBe(1200)
+  })
+
   it('reports no change to persist for an idle slot', async () => {
     const idleFief = storedFief({})
     const fiefs = inMemoryFiefRepository([idleFief])
