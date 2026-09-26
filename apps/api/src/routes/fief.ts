@@ -45,14 +45,11 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         await enqueueUpgradeOf(c.var.playerId, request.data.building, dependencies),
       )
     })
-    .delete('/upgrades/:position', signedInPlayer, async (c) => {
+    .delete('/upgrades/:building/:targetLevel', signedInPlayer, async (c) => {
       const request = CancelUpgradeRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
-      return answerFief(
-        c,
-        await cancelUpgradeOf(c.var.playerId, request.data.position, dependencies),
-      )
+      return answerFief(c, await cancelUpgradeOf(c.var.playerId, request.data, dependencies))
     })
 }

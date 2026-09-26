@@ -24,7 +24,12 @@ it('shows the busy slot with its countdown', () => {
         remainingSeconds: 5880,
         totalSeconds: 20000,
         finishedLabel: 'Done',
-        cancel: { label: 'Cancel', isWaiting: false, onCancel: () => undefined },
+        cancel: {
+          label: 'Cancel',
+          accessibleName: 'Cancel sawmill',
+          isWaiting: false,
+          onCancel: () => undefined,
+        },
       }}
     />,
   )

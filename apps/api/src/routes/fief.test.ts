@@ -537,15 +537,22 @@ describe('the fief route', () => {
   })
 
   describe('the cancel route', () => {
-    const cancel = async (cookie: string, position: string | number): Promise<Response> =>
-      app.request(`/fief/upgrades/${position}`, { method: 'DELETE', headers: { cookie } })
+    const cancel = async (
+      cookie: string,
+      building: string,
+      targetLevel: string | number,
+    ): Promise<Response> =>
+      app.request(`/fief/upgrades/${building}/${targetLevel}`, {
+        method: 'DELETE',
+        headers: { cookie },
+      })
 
     it('cancels the upgrade in progress and answers the fief with the slot idle', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueueSawmill(ana.playerId)
       clock.advanceMinutes(1)
 
-      const response = await cancel(ana.cookie, 0)
+      const response = await cancel(ana.cookie, 'sawmill', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -565,7 +572,7 @@ describe('the fief route', () => {
       await enqueue(ana.cookie, 'quarry')
       clock.advanceMinutes(1)
 
-      const response = await cancel(ana.cookie, 0)
+      const response = await cancel(ana.cookie, 'sawmill', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -585,7 +592,7 @@ describe('the fief route', () => {
       await enqueue(ana.cookie, 'quarry')
       await enqueue(ana.cookie, 'farm')
 
-      const response = await cancel(ana.cookie, 1)
+      const response = await cancel(ana.cookie, 'quarry', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -605,7 +612,8 @@ describe('the fief route', () => {
       await enqueue(ana.cookie, 'quarry')
       await enqueue(ana.cookie, 'sawmill')
       await enqueue(ana.cookie, 'sawmill')
-      const response = await cancel(ana.cookie, 1)
+
+      const response = await cancel(ana.cookie, 'sawmill', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -618,27 +626,14 @@ describe('the fief route', () => {
       expect(stored.ok && stored.value?.buildQueue).toEqual([])
     })
 
-    it('reads the position after applying the upgrades that finished before the cancel', async () => {
+    it('answers 409 with UpgradeNotFound to an upgrade that finished before the cancel', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueue(ana.cookie, 'sawmill')
       await enqueue(ana.cookie, 'quarry')
+      await enqueue(ana.cookie, 'farm')
       clock.advanceMinutes(3)
 
-      const response = await cancel(ana.cookie, 0)
-
-      expect(response.status).toBe(200)
-      const overview = FiefOverviewSchema.parse(await response.json())
-      expect(overview.buildings.sawmill.level).toBe(1)
-      expect(overview.buildings.quarry.level).toBe(0)
-      expect(overview.slot).toEqual({ kind: 'idle' })
-    })
-
-    it('answers 409 with UpgradeNotFound for a position that holds nothing after the resolve', async () => {
-      const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueueSawmill(ana.playerId)
-      clock.advanceMinutes(2)
-
-      const response = await cancel(ana.cookie, 0)
+      const response = await cancel(ana.cookie, 'sawmill', 1)
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
@@ -647,22 +642,48 @@ describe('the fief route', () => {
       })
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
       expect(overview.buildings.sawmill.level).toBe(1)
-      expect(overview.slot).toEqual({ kind: 'idle' })
+      expect(overview.slot).toMatchObject({ building: 'quarry', targetLevel: 1 })
+      expect(overview.queue).toMatchObject([{ building: 'farm', targetLevel: 1 }])
     })
 
-    it('answers 400 to a position the wire does not name', async () => {
+    it('cancels by name the upgrade that moved into the slot before the cancel', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana.cookie, 'quarry')
+      await enqueue(ana.cookie, 'farm')
+      clock.advanceMinutes(3)
+
+      const response = await cancel(ana.cookie, 'quarry', 1)
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.buildings.sawmill.level).toBe(1)
+      expect(overview.buildings.quarry.level).toBe(0)
+      expect(overview.slot).toEqual({
+        kind: 'busy',
+        building: 'farm',
+        targetLevel: 1,
+        startedAt: '2026-09-22T08:03:00.000Z',
+        finishesAt: '2026-09-22T08:05:00.000Z',
+      })
+      expect(overview.queue).toEqual([])
+    })
+
+    it('answers 400 to an entry the wire does not name', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueueSawmill(ana.playerId)
 
-      const responses = await Promise.all(
-        ['-1', '1.5', 'uno'].map((position) => cancel(ana.cookie, position)),
-      )
+      const responses = await Promise.all([
+        cancel(ana.cookie, 'castle', 1),
+        cancel(ana.cookie, 'sawmill', 0),
+        cancel(ana.cookie, 'sawmill', 'uno'),
+      ])
 
       expect(responses.map(({ status }) => status)).toEqual([400, 400, 400])
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/upgrades/0', { method: 'DELETE' })
+      const response = await app.request('/fief/upgrades/sawmill/1', { method: 'DELETE' })
 
       expect(response.status).toBe(401)
     })

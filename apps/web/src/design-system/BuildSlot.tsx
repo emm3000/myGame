@@ -85,6 +85,7 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
             type="button"
             tone="quiet"
             disabled={state.cancel.isWaiting}
+            accessibleName={state.cancel.accessibleName}
             onClick={state.cancel.onCancel}
           >
             {state.cancel.label}

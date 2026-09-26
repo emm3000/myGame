@@ -40,6 +40,7 @@ export function WaitingUpgrades({
               type="button"
               tone="quiet"
               disabled={cancel.isWaiting}
+              accessibleName={cancel.accessibleName}
               onClick={cancel.onCancel}
             >
               {cancel.label}

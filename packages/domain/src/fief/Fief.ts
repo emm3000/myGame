@@ -5,7 +5,7 @@ import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
-import type { BuildQueue, BuildQueueEntry } from './BuildQueue'
+import type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
 import { Coordinates } from './Coordinates'
 import { entryFitsProjection } from './entryFitsProjection'
@@ -241,23 +241,31 @@ type Cancellation = SlotAndQueue & {
   readonly refund: Stocks
 }
 
-const cancellationAt = (
+const isUpgradeOf = (target: UpgradeTarget, upgrade: UpgradeTarget): boolean =>
+  upgrade.building === target.building && upgrade.targetLevel === target.targetLevel
+
+const cancellationOf = (
   current: SlotAndQueue,
-  position: number,
+  target: UpgradeTarget,
   now: Instant,
 ): Result<Cancellation, DomainError> => {
   const { slot, buildQueue } = current
-  if (position === 0) {
-    if (slot.kind === 'idle' || isSlotFinishedBy(slot, now)) {
-      return err({ kind: 'UpgradeNotFound', position })
-    }
+  const notFound: Result<Cancellation, DomainError> = err({
+    kind: 'UpgradeNotFound',
+    building: target.building,
+    targetLevel: target.targetLevel,
+  })
+  if (slot.kind === 'busy' && isSlotFinishedBy(slot, now)) {
+    return notFound
+  }
+  if (slot.kind === 'busy' && isUpgradeOf(target, slot)) {
     return ok({ slot: { kind: 'idle' }, buildQueue, refund: slot.cost })
   }
-  const entry = buildQueue[position - 1]
+  const entry = buildQueue.find((waiting) => isUpgradeOf(target, waiting))
   if (entry === undefined) {
-    return err({ kind: 'UpgradeNotFound', position })
+    return notFound
   }
-  const remaining = buildQueue.filter((_, index) => index !== position - 1)
+  const remaining = buildQueue.filter((waiting) => waiting !== entry)
   return ok({ slot, buildQueue: remaining, refund: entry.cost })
 }
 
@@ -367,12 +375,12 @@ export class Fief {
   }
 
   cancelUpgrade(
-    position: number,
+    target: UpgradeTarget,
     stocksAtNow: Stocks,
     now: Instant,
     catalog: BuildingCatalog,
   ): Result<Fief, DomainError> {
-    const cancellation = cancellationAt(this, position, now)
+    const cancellation = cancellationOf(this, target, now)
     if (!cancellation.ok) {
       return cancellation
     }

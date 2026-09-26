@@ -2,14 +2,15 @@ import type { DomainError } from '../DomainError'
 import type { Fief } from '../fief/Fief'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { PlayerId } from '../player/PlayerId'
-import type { BuildingCatalog } from '../ports/BuildingCatalog'
+import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
 
 export type CancelUpgradeCommand = {
   readonly playerId: PlayerId
-  readonly position: number
+  readonly building: BuildingKind
+  readonly targetLevel: number
 }
 
 export type CancelUpgradeDependencies = {
@@ -36,7 +37,12 @@ export const cancelUpgrade = async (
   if (!stocksAtNow.ok) {
     return stocksAtNow
   }
-  const cancelled = fief.cancelUpgrade(command.position, stocksAtNow.value, now, catalog)
+  const cancelled = fief.cancelUpgrade(
+    { building: command.building, targetLevel: command.targetLevel },
+    stocksAtNow.value,
+    now,
+    catalog,
+  )
   if (!cancelled.ok) {
     return cancelled
   }

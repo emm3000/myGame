@@ -9,3 +9,5 @@ export type BuildQueueEntry = {
 }
 
 export type BuildQueue = ReadonlyArray<BuildQueueEntry>
+
+export type UpgradeTarget = Pick<BuildQueueEntry, 'building' | 'targetLevel'>
