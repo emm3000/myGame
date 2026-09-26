@@ -22,4 +22,5 @@ The game rules as pure TypeScript (ADR 004). Everything else depends on this pac
 - Time comes only from the `Clock` port. `Date.now()`, `new Date()`, `setTimeout` and `setInterval` never appear in `src`, tests included; a test builds a `frozenClock` beside itself.
 - `Instant` is stored as epoch milliseconds; `Duration` is whole or fractional seconds and never negative.
 - A busy `BuildSlot` carries `cost`, the stocks `startUpgrade` debited, taken from the same catalog line as the debit. Whatever needs what a running upgrade cost reads it there, never the catalog, which may have changed since the enqueue (N5).
+- `Fief` carries its `buildQueue`, the entries waiting behind the slot in order, each with the building, target level, debited cost and duration fixed at the enqueue (ADR 011). `Fief.restore` reads no catalog, so it cannot check the content cap `FiefSettings.buildQueueCap`.
 - Imports are extensionless (`'./Duration'`); the base tsconfig resolves as `Bundler` without `allowImportingTsExtensions`.

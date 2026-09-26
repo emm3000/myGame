@@ -10,7 +10,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | M2 | A new player receives one fief at free coordinates with starting stocks. |
 | M3 | The fief shows wood, stone, iron, gold and food with current amount, rate per hour and capacity, correct on any read whatever the time elapsed. |
 | M4 | Five buildings with levels: sawmill, quarry, iron mine, farm, warehouse. Each level has a cost, a duration and an effect read from content, not code. |
-| M5 | A fief has one build slot; the enqueue debits resources atomically and refuses with a named reason when the slot is busy, resources are short or free peasants are too few. |
+| M5 | A fief has one build slot and a build queue of at most the content cap behind it (ADR 011); the enqueue debits resources atomically, starts in the idle slot or appends to the queue, and refuses with a named reason when the queue is full, resources are short or free peasants are too few. |
 | M6 | A finished upgrade is applied on the next read of the fief, and the fief's rates, capacity and peasants change accordingly. |
 | M7 | Peasants are supplied by the fief and its farm and occupied by buildings (ADR 007); an upgrade is staffed by the delta, releasing the current level's occupancy and charging only the increase, and a fief cannot enqueue a level whose increase its free peasants cannot staff. |
 | M8 | The fief screen updates its countdown and amounts client-side between reads, from the server's last state and rates, never by polling faster than once a minute. |
