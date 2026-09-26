@@ -24,7 +24,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| #44 | #43 | 4 | opus:high | MERGE | |
 | #45 | #41 | 1 | sonnet:low | FIX FIRST | spec |
 | #46 | #17 | 2 | opus:medium | MERGE | |
 | #47 | #18 | 4 | opus:high | MERGE | |
@@ -45,3 +44,4 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #84 | #28 | 3 | opus:medium | MERGE | |
 | #85 | #81 | 2 | opus:medium | MERGE | |
 | #82 (artifact) | #82 | 5 | fable:high | MERGE | |
+| #93 | #86 | 2 | opus:medium | MERGE | |
