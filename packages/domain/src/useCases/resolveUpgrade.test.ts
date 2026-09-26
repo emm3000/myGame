@@ -474,6 +474,63 @@ describe('resolveUpgrade', () => {
     expect(stored?.stocks.wood).toBe(210)
   })
 
+  it('keeps a waiting level whose lower level also waits when the queue restarts', async () => {
+    const sawmillLevelTwo = waitingEntry('sawmill', 2, 1)
+    const stalledFief = storedFief({
+      buildQueue: [waitingEntry('sawmill', 1, 2), sawmillLevelTwo],
+    })
+    const fiefs = inMemoryFiefRepository([stalledFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toMatchObject({ building: 'sawmill', targetLevel: 1 })
+    expect(stored?.buildQueue).toEqual([sawmillLevelTwo])
+  })
+
+  it('keeps a waiting level whose lower level waits behind another building', async () => {
+    const quarryLevelOne: ProducerLevel = {
+      building: 'quarry',
+      level: 1,
+      cost: sawmillCost,
+      durationSeconds: 90,
+      peasantOccupancy: 1,
+      ratePerHour: 30,
+    }
+    const threeLevelCatalog = inMemoryCatalog([
+      sawmillLevel(1, 30),
+      sawmillLevel(2, 60),
+      sawmillLevel(3, 90),
+      quarryLevelOne,
+    ])
+    const quarryEntry: BuildQueueEntry = {
+      building: 'quarry',
+      targetLevel: 1,
+      cost: sawmillCost,
+      durationSeconds: SECONDS_PER_HOUR,
+    }
+    const sawmillLevelThree = waitingEntry('sawmill', 3, 1)
+    const stalledFief = storedFief({
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      buildQueue: [waitingEntry('sawmill', 2, 1), quarryEntry, sawmillLevelThree],
+    })
+    const fiefs = inMemoryFiefRepository([stalledFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: threeLevelCatalog, clock: frozenClock(hoursAfterStored(0.5)) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toMatchObject({ building: 'sawmill', targetLevel: 2 })
+    expect(stored?.buildQueue).toEqual([quarryEntry, sawmillLevelThree])
+  })
+
   it('resumes a waiting upgrade on a read whose instant is earlier than the stored one', async () => {
     const waitingFief = storedFief({ buildQueue: [waitingEntry('sawmill', 1, 2)] })
     const fiefs = inMemoryFiefRepository([waitingFief])
