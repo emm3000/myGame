@@ -171,7 +171,7 @@ const quarryStartedWhenSawmillFinished: FiefOverview = {
       finishesAt: '2026-09-22T12:10:49.000Z',
     },
   ],
-  readAt: '2026-09-22T12:03:12.000Z',
+  readAt: '2026-09-22T12:03:15.000Z',
 }
 
 it('shows the next waiting upgrade in progress after the slot finishes', async () => {
@@ -181,7 +181,7 @@ it('shows the next waiting upgrade in progress after the slot finishes', async (
   await passSeconds(192 + 15)
 
   expect(within(busySlot()).getByText('Cantera')).toBeDefined()
-  expect(slotTrackFill()).toBe('10')
+  expect(slotTrackFill()).toBe('12')
   expect(waitingUpgrades()).toHaveLength(1)
 })
 

@@ -112,6 +112,13 @@ describe('the fief route', () => {
   const fiefOf = async (cookie: string): Promise<Response> =>
     app.request('/fief', { headers: { cookie } })
 
+  const enqueue = async (cookie: string, building: string): Promise<Response> =>
+    app.request('/fief/upgrades', {
+      method: 'POST',
+      headers: { cookie, 'content-type': 'application/json' },
+      body: JSON.stringify({ building }),
+    })
+
   it('answers the fief of the signed-in player', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
@@ -309,13 +316,6 @@ describe('the fief route', () => {
   })
 
   describe('the enqueue route', () => {
-    const enqueue = async (cookie: string, building: string): Promise<Response> =>
-      app.request('/fief/upgrades', {
-        method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
-        body: JSON.stringify({ building }),
-      })
-
     it('starts an upgrade and answers the fief with a busy slot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       clock.advanceMinutes(10)
@@ -574,6 +574,35 @@ describe('the fief route', () => {
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
       expect(overview.buildings.sawmill.level).toBe(1)
       expect(overview.slot).toEqual({ kind: 'idle' })
+    })
+
+    it('builds the waiting upgrades an enqueue after a cancel joins', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana.cookie, 'quarry')
+      clock.advanceMinutes(1)
+      expect((await cancel(ana.cookie)).status).toBe(200)
+      clock.advanceMinutes(1)
+
+      const response = await enqueue(ana.cookie, 'farm')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.slot).toEqual({
+        kind: 'busy',
+        building: 'quarry',
+        targetLevel: 1,
+        startedAt: '2026-09-22T08:01:00.000Z',
+        finishesAt: '2026-09-22T08:03:30.000Z',
+      })
+      expect(overview.queue).toEqual([
+        {
+          building: 'farm',
+          targetLevel: 1,
+          startsAt: '2026-09-22T08:03:30.000Z',
+          finishesAt: '2026-09-22T08:05:30.000Z',
+        },
+      ])
     })
 
     it('answers 401 without a session', async () => {

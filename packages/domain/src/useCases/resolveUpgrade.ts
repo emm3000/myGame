@@ -78,11 +78,15 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  if (finishedUpgradeOf(fief, now) === undefined) {
+  if (!fief.isQueueStalled && finishedUpgradeOf(fief, now) === undefined) {
     return ok({ fief, hasChanged: false })
   }
 
-  const resolved = walkFinishedUpgrades(fief, catalog, now)
+  const resumed = fief.resumeBuildQueue()
+  if (!resumed.ok) {
+    return resumed
+  }
+  const resolved = walkFinishedUpgrades(resumed.value, catalog, now)
   if (!resolved.ok) {
     return resolved
   }
