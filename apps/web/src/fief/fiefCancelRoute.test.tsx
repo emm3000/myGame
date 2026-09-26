@@ -35,20 +35,23 @@ const sawmillUpgradeUnderWay: FiefOverview = {
 
 const sawmillWithTwoWaiting: FiefOverview = {
   ...sawmillUpgradeUnderWay,
-  queue: [
-    {
-      building: 'quarry',
-      targetLevel: 2,
-      startsAt: '2026-09-22T12:03:12.000Z',
-      finishesAt: '2026-09-22T12:06:24.000Z',
-    },
-    {
-      building: 'farm',
-      targetLevel: 2,
-      startsAt: '2026-09-22T12:06:24.000Z',
-      finishesAt: '2026-09-22T12:09:36.000Z',
-    },
-  ],
+  queue: {
+    entries: [
+      {
+        building: 'quarry',
+        targetLevel: 2,
+        startsAt: '2026-09-22T12:03:12.000Z',
+        finishesAt: '2026-09-22T12:06:24.000Z',
+      },
+      {
+        building: 'farm',
+        targetLevel: 2,
+        startsAt: '2026-09-22T12:06:24.000Z',
+        finishesAt: '2026-09-22T12:09:36.000Z',
+      },
+    ],
+    cap: 4,
+  },
 }
 
 const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
@@ -100,7 +103,10 @@ it('cancels the upgrade in progress from the slot', async () => {
 it('cancels a waiting upgrade from its row', async () => {
   const farmCancelled: FiefOverview = {
     ...sawmillWithTwoWaiting,
-    queue: sawmillWithTwoWaiting.queue.slice(0, 1),
+    queue: {
+      ...sawmillWithTwoWaiting.queue,
+      entries: sawmillWithTwoWaiting.queue.entries.slice(0, 1),
+    },
   }
   const cancelUpgrade = vi.fn(async () => ({ ok: true as const, value: farmCancelled }))
   await showFief({ fief: async () => ({ ok: true, value: sawmillWithTwoWaiting }), cancelUpgrade })

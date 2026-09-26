@@ -34,19 +34,23 @@ const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
         finishesAt: isoOf(slot.finishesAt),
       }
 
-const queueOf = (fief: Fief): Result<FiefOverview['queue'], DomainError> => {
+const queueOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+): Result<FiefOverview['queue'], DomainError> => {
   const scheduled = scheduleBuildQueue(fief.slot, fief.buildQueue)
   if (!scheduled.ok) {
     return scheduled
   }
-  return ok(
-    scheduled.value.map(({ building, targetLevel, startsAt, finishesAt }) => ({
+  return ok({
+    entries: scheduled.value.map(({ building, targetLevel, startsAt, finishesAt }) => ({
       building,
       targetLevel,
       startsAt: isoOf(startsAt),
       finishesAt: isoOf(finishesAt),
     })),
-  )
+    cap: catalog.fiefSettings().buildQueueCap,
+  })
 }
 
 const resourcesOf = (
@@ -151,7 +155,7 @@ export const fiefOverviewOf = (
   if (!buildings.ok) {
     return buildings
   }
-  const queue = queueOf(fief)
+  const queue = queueOf(fief, catalog)
   if (!queue.ok) {
     return queue
   }

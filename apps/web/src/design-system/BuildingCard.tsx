@@ -14,6 +14,7 @@ export type BuildingCardState =
   | { readonly kind: 'affordable' }
   | { readonly kind: 'tooExpensive'; readonly reason: string }
   | { readonly kind: 'notEnoughPeasants'; readonly reason: string }
+  | { readonly kind: 'queueFull'; readonly reason: string }
   | { readonly kind: 'atMaxLevel'; readonly label: string }
 
 export interface BuildingCardProps {
@@ -34,6 +35,7 @@ const cardTone: Readonly<Record<BuildingCardState['kind'], string>> = {
   affordable: 'border-moss bg-surface-raised',
   tooExpensive: 'border-line bg-surface-raised',
   notEnoughPeasants: 'border-line bg-surface-raised',
+  queueFull: 'border-line bg-surface-raised',
   atMaxLevel: 'border-line bg-surface-sunken',
 }
 

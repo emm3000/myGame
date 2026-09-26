@@ -100,20 +100,23 @@ const sawmillWithTwoWaiting: FiefOverview = {
     startedAt: '2026-09-22T12:00:00.000Z',
     finishesAt: '2026-09-22T12:03:12.000Z',
   },
-  queue: [
-    {
-      building: 'quarry',
-      targetLevel: 1,
-      startsAt: '2026-09-22T12:03:12.000Z',
-      finishesAt: '2026-09-22T12:05:42.000Z',
-    },
-    {
-      building: 'sawmill',
-      targetLevel: 3,
-      startsAt: '2026-09-22T12:05:42.000Z',
-      finishesAt: '2026-09-22T12:10:49.000Z',
-    },
-  ],
+  queue: {
+    entries: [
+      {
+        building: 'quarry',
+        targetLevel: 1,
+        startsAt: '2026-09-22T12:03:12.000Z',
+        finishesAt: '2026-09-22T12:05:42.000Z',
+      },
+      {
+        building: 'sawmill',
+        targetLevel: 3,
+        startsAt: '2026-09-22T12:05:42.000Z',
+        finishesAt: '2026-09-22T12:10:49.000Z',
+      },
+    ],
+    cap: 4,
+  },
 }
 
 const waitingUpgrades = (): ReadonlyArray<HTMLElement> =>
@@ -163,14 +166,17 @@ const quarryStartedWhenSawmillFinished: FiefOverview = {
     startedAt: '2026-09-22T12:03:12.000Z',
     finishesAt: '2026-09-22T12:05:42.000Z',
   },
-  queue: [
-    {
-      building: 'sawmill',
-      targetLevel: 3,
-      startsAt: '2026-09-22T12:05:42.000Z',
-      finishesAt: '2026-09-22T12:10:49.000Z',
-    },
-  ],
+  queue: {
+    entries: [
+      {
+        building: 'sawmill',
+        targetLevel: 3,
+        startsAt: '2026-09-22T12:05:42.000Z',
+        finishesAt: '2026-09-22T12:10:49.000Z',
+      },
+    ],
+    cap: 4,
+  },
   readAt: '2026-09-22T12:03:15.000Z',
 }
 
@@ -258,4 +264,15 @@ it("shows the tier image on a built building's card", async () => {
   const farmCard = screen.getByRole('listitem', { name: copy.names.buildings.farm })
 
   expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.png$/)
+})
+
+it('shows in the peasant cell the free peasants left after the waiting upgrades', async () => {
+  const twoFreeAfterQueue: FiefOverview = {
+    ...knownFief,
+    peasants: { supplied: 12, occupied: 4, free: 8, projectedFree: 2 },
+  }
+  await showFief(signedInClientServing(() => twoFreeAfterQueue))
+
+  const peasantCell = screen.getByRole('listitem', { name: copy.names.peasants })
+  expect(peasantCell.textContent).toMatch(/(?<!\d)2 \/ 12 libres/)
 })

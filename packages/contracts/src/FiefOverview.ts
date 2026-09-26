@@ -70,7 +70,10 @@ export const FiefOverviewSchema = z.object({
     projectedFree: WholeCountSchema,
   }),
   slot: z.discriminatedUnion('kind', [IdleSlotSchema, BusySlotSchema]),
-  queue: z.array(WaitingUpgradeSchema),
+  queue: z.object({
+    entries: z.array(WaitingUpgradeSchema),
+    cap: WholeCountSchema,
+  }),
   readAt: InstantSchema,
 })
 

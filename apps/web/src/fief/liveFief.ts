@@ -60,7 +60,7 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
     },
     slotRemainingSeconds: slotRemainingSecondsAt(overview, elapsedSeconds),
     slotTotalSeconds: slotTotalSecondsOf(overview),
-    waitingUpgrades: overview.queue.map(({ building, targetLevel, finishesAt }) => ({
+    waitingUpgrades: overview.queue.entries.map(({ building, targetLevel, finishesAt }) => ({
       building,
       targetLevel,
       remainingSeconds: remainingSecondsAt(finishesAt, overview, elapsedSeconds),

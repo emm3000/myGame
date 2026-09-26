@@ -130,7 +130,7 @@ describe('the fief route', () => {
     expect(overview.resources.wood).toEqual({ amount: 500, ratePerHour: 10, capacity: 1000 })
     expect(overview.peasants).toEqual({ supplied: 10, occupied: 0, free: 10, projectedFree: 10 })
     expect(overview.slot).toEqual({ kind: 'idle' })
-    expect(overview.queue).toEqual([])
+    expect(overview.queue).toEqual({ entries: [], cap: 4 })
     expect(overview.readAt).toBe('2026-09-22T08:00:00.000Z')
   })
 
@@ -360,7 +360,7 @@ describe('the fief route', () => {
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
-      expect(overview.queue).toEqual([
+      expect(overview.queue.entries).toEqual([
         {
           building: 'sawmill',
           targetLevel: 2,
@@ -439,7 +439,7 @@ describe('the fief route', () => {
       expect(overview.buildings.quarry.level).toBe(1)
       expect(overview.buildings.farm.level).toBe(1)
       expect(overview.slot).toEqual({ kind: 'idle' })
-      expect(overview.queue).toEqual([])
+      expect(overview.queue.entries).toEqual([])
       expect(
         Object.fromEntries(
           Object.entries(overview.resources).map(([resource, { amount }]) => [resource, amount]),
@@ -583,7 +583,7 @@ describe('the fief route', () => {
         startedAt: '2026-09-22T08:01:00.000Z',
         finishesAt: '2026-09-22T08:03:30.000Z',
       })
-      expect(overview.queue).toEqual([])
+      expect(overview.queue.entries).toEqual([])
     })
 
     it('cancels a waiting entry and answers the queue with the gap closed', async () => {
@@ -597,7 +597,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.slot).toMatchObject({ building: 'sawmill', targetLevel: 1 })
-      expect(overview.queue).toEqual([
+      expect(overview.queue.entries).toEqual([
         {
           building: 'farm',
           targetLevel: 1,
@@ -618,7 +618,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.slot).toMatchObject({ building: 'quarry', targetLevel: 1 })
-      expect(overview.queue).toEqual([])
+      expect(overview.queue.entries).toEqual([])
       expect(overview.buildings.sawmill.nextLevel?.level).toBe(1)
       expect(overview.resources.wood.amount).toBe(450)
       expect(overview.resources.stone.amount).toBe(475)
@@ -643,7 +643,7 @@ describe('the fief route', () => {
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
       expect(overview.buildings.sawmill.level).toBe(1)
       expect(overview.slot).toMatchObject({ building: 'quarry', targetLevel: 1 })
-      expect(overview.queue).toMatchObject([{ building: 'farm', targetLevel: 1 }])
+      expect(overview.queue.entries).toMatchObject([{ building: 'farm', targetLevel: 1 }])
     })
 
     it('cancels by name the upgrade that moved into the slot before the cancel', async () => {
@@ -666,7 +666,7 @@ describe('the fief route', () => {
         startedAt: '2026-09-22T08:03:00.000Z',
         finishesAt: '2026-09-22T08:05:00.000Z',
       })
-      expect(overview.queue).toEqual([])
+      expect(overview.queue.entries).toEqual([])
     })
 
     it('answers 400 to an entry the wire does not name', async () => {
