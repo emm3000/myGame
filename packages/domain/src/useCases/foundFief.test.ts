@@ -28,6 +28,7 @@ const fiefSettings = (plotsPerProvince: number): FiefSettings => ({
     uplands: { resource: 'stone', ratePerHour: 10 },
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
+  buildQueueCap: 4,
 })
 
 const inMemoryCatalog = (settings: FiefSettings): BuildingCatalog => ({

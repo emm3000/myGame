@@ -1,4 +1,5 @@
 import {
+  type BuildQueue,
   Coordinates,
   type DomainError,
   Fief,
@@ -28,6 +29,27 @@ const upgradedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:30:00
 const ironMineStartedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:45:00Z'))
 const ironMineCost = { wood: 240, stone: 180, iron: 60, gold: 15, food: 30 }
 
+const waitingEntries: BuildQueue = [
+  {
+    building: 'warehouse',
+    targetLevel: 2,
+    cost: { wood: 300, stone: 250, iron: 40, gold: 0, food: 0 },
+    durationSeconds: 1800,
+  },
+  {
+    building: 'ironMine',
+    targetLevel: 3,
+    cost: { wood: 360, stone: 270, iron: 90, gold: 20, food: 45 },
+    durationSeconds: 2700,
+  },
+  {
+    building: 'farm',
+    targetLevel: 3,
+    cost: { wood: 150, stone: 90, iron: 0, gold: 0, food: 30 },
+    durationSeconds: 900,
+  },
+]
+
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const stranger = '00000000-0000-4000-8000-0000000000ff'
@@ -44,25 +66,29 @@ const newFief = (id: string, playerId: PlayerId, plot: number): Fief =>
 
 const anasFief = newFief('00000000-0000-4000-8000-00000000000a', ana, 7)
 
-const developedFief = accepted(
-  Fief.restore({
-    id: '00000000-0000-4000-8000-00000000000b',
-    playerId: bruno,
-    name: 'Robledal',
-    address: { kingdom: 1, province: 5, plot: 2 },
-    stocks: { wood: 1200, stone: 830, iron: 415, gold: 90, food: 610 },
-    storedAt: foundedAt,
-    buildingLevels: { sawmill: 3, quarry: 2, ironMine: 1, farm: 2, warehouse: 1 },
-    slot: {
-      kind: 'busy',
-      building: 'ironMine',
-      targetLevel: 2,
-      startedAt: ironMineStartedAt,
-      finishesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:45:00Z')),
-      cost: ironMineCost,
-    },
-  }),
-)
+const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
+  accepted(
+    Fief.restore({
+      id: '00000000-0000-4000-8000-00000000000b',
+      playerId: bruno,
+      name: 'Robledal',
+      address: { kingdom: 1, province: 5, plot: 2 },
+      stocks: { wood: 1200, stone: 830, iron: 415, gold: 90, food: 610 },
+      storedAt: foundedAt,
+      buildingLevels: { sawmill: 3, quarry: 2, ironMine: 1, farm: 2, warehouse: 1 },
+      slot: {
+        kind: 'busy',
+        building: 'ironMine',
+        targetLevel: 2,
+        startedAt: ironMineStartedAt,
+        finishesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:45:00Z')),
+        cost: ironMineCost,
+      },
+      buildQueue,
+    }),
+  )
+
+const developedFief = developedFiefWaiting(waitingEntries)
 
 const upgradedFief = (fief: Fief): Fief =>
   accepted(
@@ -116,6 +142,27 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(bruno)
       expect(restored.ok && restored.value?.slot).toMatchObject({ cost: ironMineCost })
+    })
+
+    it('restores the build queue in order', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.buildQueue).toEqual(waitingEntries)
+    })
+
+    it('drops the entries a later save no longer holds', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(developedFief)
+      const shortened = developedFiefWaiting(waitingEntries.slice(0, 1))
+
+      await fiefs.save(shortened)
+
+      expect(await fiefs.fiefOf(bruno)).toEqual(ok(shortened))
     })
 
     it('stores the amounts with the instant they were materialized at', async () => {

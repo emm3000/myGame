@@ -32,6 +32,7 @@ const fiefSettings: FiefSettings = {
     uplands: { resource: 'stone', ratePerHour: 10 },
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
+  buildQueueCap: 4,
 }
 
 const sawmillCost: Stocks = { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 }
@@ -95,6 +96,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     slot: { kind: 'idle' },
+    buildQueue: [],
     ...overrides,
   })
   assert(restored.ok)

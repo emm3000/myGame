@@ -1,6 +1,9 @@
+import { fileURLToPath } from 'node:url'
 import type { BuildingContent, FiefContent } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
 import { JsonBuildingCatalog } from './JsonBuildingCatalog'
+
+const shippedContent = fileURLToPath(new URL('../../../content/', import.meta.url))
 
 const levelOne = {
   level: 1,
@@ -28,6 +31,7 @@ const plainFief: FiefContent = {
     uplands: { resource: 'stone', ratePerHour: 4 },
     ridges: { resource: 'iron', ratePerHour: 2 },
   },
+  buildQueueCap: 4,
 }
 
 const oneLevelCatalog = (): JsonBuildingCatalog =>
@@ -69,5 +73,13 @@ describe('JsonBuildingCatalog', () => {
       resource: 'stone',
       ratePerHour: 4,
     })
+  })
+
+  it('serves the build queue cap of the fief content', () => {
+    expect(oneLevelCatalog().fiefSettings().buildQueueCap).toBe(4)
+  })
+
+  it('serves a build queue cap of four from the shipped content', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().buildQueueCap).toBe(4)
   })
 })

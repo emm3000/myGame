@@ -29,5 +29,6 @@
       "resource": "iron",
       "ratePerHour": 2
     }
-  }
+  },
+  "buildQueueCap": 4
 }

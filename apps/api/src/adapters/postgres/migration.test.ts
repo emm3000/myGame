@@ -5,7 +5,7 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleAccounts } from './DrizzleAccounts'
-import { fiefBuildings, fiefs, players, sessions } from './schema'
+import { fiefBuildings, fiefQueueEntries, fiefs, players, sessions } from './schema'
 import { sessionTokenDigest } from './sessionTokenDigest'
 
 const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.meta.url))
@@ -95,6 +95,7 @@ describe('the migrations', () => {
 
     expect(tables.rows.map((row) => row.name)).toEqual([
       'fief_buildings',
+      'fief_queue_entries',
       'fiefs',
       'players',
       'sessions',
@@ -157,6 +158,30 @@ describe('the migrations', () => {
     await expect(
       db.insert(fiefBuildings).values({ fiefId: anasFief.id, building: 'sawmill', level: 2 }),
     ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'fief_buildings_pkey' } })
+  })
+
+  it('refuses two entries at the same position of one fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    const waitingSawmill: typeof fiefQueueEntries.$inferInsert = {
+      fiefId: anasFief.id,
+      position: 0,
+      building: 'sawmill',
+      targetLevel: 2,
+      costWood: 90,
+      costStone: 40,
+      costIron: 0,
+      costGold: 0,
+      costFood: 0,
+      durationSeconds: 240,
+    }
+    await db.insert(fiefQueueEntries).values(waitingSawmill)
+
+    await expect(
+      db.insert(fiefQueueEntries).values({ ...waitingSawmill, building: 'farm', targetLevel: 1 }),
+    ).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'fief_queue_entries_pkey' },
+    })
   })
 
   it('refuses a second fief for the same player', async () => {

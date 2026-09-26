@@ -31,7 +31,7 @@ const withSignedUpPlayers = async (playerIds: ReadonlyArray<PlayerId>): Promise<
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
-    await client.query('TRUNCATE players, sessions, fiefs, fief_buildings')
+    await client.query('TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries')
     for (const playerId of playerIds) {
       await client.query(
         'INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, $2, $3, $4)',

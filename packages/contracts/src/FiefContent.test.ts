@@ -16,10 +16,24 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   plotsPerProvince: 15,
   baseRates,
   terrainBonus,
+  buildQueueCap: 4,
   ...overrides,
 })
 
+const withoutQueueCap = (): unknown => {
+  const { buildQueueCap: _, ...content } = fiefContent({}) as Record<string, unknown>
+  return content
+}
+
 describe('FiefContentSchema', () => {
+  it('rejects fief content without a queue cap', () => {
+    expect(FiefContentSchema.safeParse(withoutQueueCap()).success).toBe(false)
+  })
+
+  it('reads how many entries may wait in the build queue', () => {
+    expect(FiefContentSchema.parse(fiefContent({ buildQueueCap: 4 })).buildQueueCap).toBe(4)
+  })
+
   it('parses fief settings with a bonus for every terrain', () => {
     expect(FiefContentSchema.parse(fiefContent({}))).toEqual(fiefContent({}))
   })

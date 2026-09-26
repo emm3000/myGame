@@ -84,7 +84,7 @@ describe('the fief route', () => {
   })
 
   beforeEach(async () => {
-    await runSql('TRUNCATE players, sessions, fiefs, fief_buildings')
+    await runSql('TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries')
     clock = movableClock()
     app = createApp({ ...server, clock })
   })
@@ -270,7 +270,7 @@ describe('the fief route', () => {
 
   it('answers 404 with FiefNotFound when the player holds no fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await runSql('TRUNCATE fiefs, fief_buildings')
+    await runSql('TRUNCATE fiefs, fief_buildings, fief_queue_entries')
 
     const response = await fiefOf(ana.cookie)
 

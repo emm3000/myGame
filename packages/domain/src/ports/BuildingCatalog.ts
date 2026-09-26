@@ -40,6 +40,7 @@ export type FiefSettings = {
   readonly plotsPerProvince: number
   readonly baseRates: Readonly<Record<ResourceKind, number>>
   readonly terrainBonus: Readonly<Record<Terrain, TerrainBonus>>
+  readonly buildQueueCap: number
 }
 
 export interface BuildingCatalog {

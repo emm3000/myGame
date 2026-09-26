@@ -16,6 +16,7 @@ export const FiefContentSchema = z.object({
   plotsPerProvince: WholeCountSchema.positive(),
   baseRates: ResourceAmountsSchema,
   terrainBonus: z.record(TerrainSchema, TerrainBonusSchema),
+  buildQueueCap: WholeCountSchema,
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>

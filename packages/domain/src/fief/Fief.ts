@@ -4,6 +4,7 @@ import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import type { Instant } from '../time/Instant'
+import type { BuildQueue, BuildQueueEntry } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
 import { Coordinates } from './Coordinates'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
@@ -34,6 +35,7 @@ export type StoredFief = {
   readonly storedAt: Instant
   readonly buildingLevels: FiefBuildingLevels
   readonly slot: BuildSlot
+  readonly buildQueue: BuildQueue
 }
 
 export type Upgrade = {
@@ -91,11 +93,33 @@ const refuseNegativeAmount = (stocks: Stocks): Result<void, DomainError> => {
   return ok(undefined)
 }
 
+const isTargetLevel = (level: number): boolean => Number.isInteger(level) && level >= 1
+
+const validateEntry = (entry: BuildQueueEntry): Result<void, DomainError> => {
+  if (!isTargetLevel(entry.targetLevel)) {
+    return err({ kind: 'InvalidBuildingLevel', building: entry.building, level: entry.targetLevel })
+  }
+  if (entry.durationSeconds < 0) {
+    return err({ kind: 'NegativeDuration', seconds: entry.durationSeconds })
+  }
+  return refuseNegativeAmount(entry.cost)
+}
+
+const validateBuildQueue = (buildQueue: BuildQueue): Result<void, DomainError> => {
+  for (const entry of buildQueue) {
+    const validEntry = validateEntry(entry)
+    if (!validEntry.ok) {
+      return validEntry
+    }
+  }
+  return ok(undefined)
+}
+
 const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainError> => {
   if (slot.kind === 'idle') {
     return ok(undefined)
   }
-  if (!Number.isInteger(slot.targetLevel) || slot.targetLevel < 1) {
+  if (!isTargetLevel(slot.targetLevel)) {
     return err({ kind: 'InvalidBuildingLevel', building: slot.building, level: slot.targetLevel })
   }
   if (slot.finishesAt.epochMilliseconds < storedAt.epochMilliseconds) {
@@ -126,7 +150,11 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
       level: stored.buildingLevels[invalidBuilding],
     })
   }
-  return validateSlot(stored.slot, stored.storedAt)
+  const storedSlot = validateSlot(stored.slot, stored.storedAt)
+  if (!storedSlot.ok) {
+    return storedSlot
+  }
+  return validateBuildQueue(stored.buildQueue)
 }
 
 export class Fief {
@@ -139,6 +167,7 @@ export class Fief {
     readonly storedAt: Instant,
     readonly buildingLevels: FiefBuildingLevels,
     readonly slot: BuildSlot,
+    readonly buildQueue: BuildQueue,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -151,6 +180,7 @@ export class Fief {
       founding.at,
       unbuiltLevels,
       { kind: 'idle' },
+      [],
     )
   }
 
@@ -178,6 +208,7 @@ export class Fief {
         stored.storedAt,
         stored.buildingLevels,
         stored.slot,
+        stored.buildQueue,
       ),
     )
   }
@@ -201,6 +232,7 @@ export class Fief {
         now,
         this.buildingLevels,
         { kind: 'busy', building, targetLevel, startedAt: now, finishesAt, cost },
+        this.buildQueue,
       ),
     )
   }
@@ -220,6 +252,7 @@ export class Fief {
         now,
         this.buildingLevels,
         { kind: 'idle' },
+        this.buildQueue,
       ),
     )
   }
@@ -235,6 +268,7 @@ export class Fief {
       finishesAt,
       { ...this.buildingLevels, [building]: targetLevel },
       { kind: 'idle' },
+      this.buildQueue,
     )
   }
 
@@ -253,6 +287,7 @@ export class Fief {
         now,
         this.buildingLevels,
         this.slot,
+        this.buildQueue,
       ),
     )
   }

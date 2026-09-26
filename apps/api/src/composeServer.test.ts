@@ -52,6 +52,7 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
       uplands: { resource: 'stone', ratePerHour: 4 },
       ridges: { resource: 'iron', ratePerHour: 2 },
     },
+    buildQueueCap: 4,
   },
 }
 
@@ -219,7 +220,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<void> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
-    await client.query('TRUNCATE players, sessions, fiefs, fief_buildings')
+    await client.query('TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries')
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2)",
       [ana, new Date('2026-09-22T08:00:00Z')],
@@ -268,7 +269,7 @@ const isLockedFiefReadWaiting = async (observer: Client): Promise<boolean> => {
        WHERE datname = current_database()
          AND pid <> pg_backend_pid()
          AND wait_event_type = 'Lock'
-         AND query ILIKE '%for update of "fiefs"%'
+         AND query ILIKE 'select "fiefs"."id", %'
      ) AS waiting`,
   )
   return probe.rows[0]?.waiting === true
