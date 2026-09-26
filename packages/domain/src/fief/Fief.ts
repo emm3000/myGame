@@ -75,6 +75,14 @@ const buildingKinds: ReadonlyArray<BuildingKind> = Object.keys(unbuiltLevels).fi
 
 const isWholeLevel = (level: number): boolean => Number.isInteger(level) && level >= 0
 
+const refuseNegativeAmount = (stocks: Stocks): Result<void, DomainError> => {
+  const negativeAmount = Object.values(stocks).find((amount) => amount < 0)
+  if (negativeAmount !== undefined) {
+    return err({ kind: 'NegativeResourceAmount', amount: negativeAmount })
+  }
+  return ok(undefined)
+}
+
 const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainError> => {
   if (slot.kind === 'idle') {
     return ok(undefined)
@@ -92,13 +100,13 @@ const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainEr
       finishesAt: slot.finishesAt,
     })
   }
-  return ok(undefined)
+  return refuseNegativeAmount(slot.cost)
 }
 
 const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
-  const negativeAmount = Object.values(stored.stocks).find((amount) => amount < 0)
-  if (negativeAmount !== undefined) {
-    return err({ kind: 'NegativeResourceAmount', amount: negativeAmount })
+  const storedStocks = refuseNegativeAmount(stored.stocks)
+  if (!storedStocks.ok) {
+    return storedStocks
   }
   const invalidBuilding = buildingKinds.find(
     (building) => !isWholeLevel(stored.buildingLevels[building]),
@@ -184,7 +192,7 @@ export class Fief {
         debit(stocksAtNow, cost),
         now,
         this.buildingLevels,
-        { kind: 'busy', building, targetLevel, startedAt: now, finishesAt },
+        { kind: 'busy', building, targetLevel, startedAt: now, finishesAt, cost },
       ),
     )
   }

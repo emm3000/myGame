@@ -1,10 +1,12 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
 import { Coordinates } from './Coordinates'
-import { Fief, type StoredFief } from './Fief'
+import { Fief, type Stocks, type StoredFief } from './Fief'
 import { FiefName } from './FiefName'
 
 const foundingInstant = Instant.fromEpochMilliseconds(86_400_000)
+
+const quarryCost: Stocks = { wood: 50, stone: 20, iron: 0, gold: 0, food: 0 }
 
 const storedBusyFief: StoredFief = {
   id: 'fief-1',
@@ -20,6 +22,7 @@ const storedBusyFief: StoredFief = {
     targetLevel: 2,
     startedAt: foundingInstant,
     finishesAt: Instant.fromEpochMilliseconds(86_500_000),
+    cost: quarryCost,
   },
 }
 
@@ -96,6 +99,7 @@ describe('Fief', () => {
         targetLevel: 0,
         startedAt: foundingInstant,
         finishesAt: foundingInstant,
+        cost: quarryCost,
       },
     })
 
@@ -115,6 +119,7 @@ describe('Fief', () => {
         targetLevel: 2,
         startedAt: foundingInstant,
         finishesAt,
+        cost: quarryCost,
       },
     })
 
@@ -129,12 +134,35 @@ describe('Fief', () => {
     const finishesAt = Instant.fromEpochMilliseconds(86_500_000)
     const restored = Fief.restore({
       ...storedBusyFief,
-      slot: { kind: 'busy', building: 'quarry', targetLevel: 2, startedAt, finishesAt },
+      slot: {
+        kind: 'busy',
+        building: 'quarry',
+        targetLevel: 2,
+        startedAt,
+        finishesAt,
+        cost: quarryCost,
+      },
     })
 
     expect(restored).toEqual({
       ok: false,
       error: { kind: 'SlotStartsAfterFinish', startedAt, finishesAt },
     })
+  })
+
+  it('refuses a stored busy slot whose cost is negative', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      slot: {
+        kind: 'busy',
+        building: 'quarry',
+        targetLevel: 2,
+        startedAt: foundingInstant,
+        finishesAt: Instant.fromEpochMilliseconds(86_500_000),
+        cost: { ...quarryCost, stone: -20 },
+      },
+    })
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -20 } })
   })
 })

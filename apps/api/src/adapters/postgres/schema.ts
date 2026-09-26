@@ -66,6 +66,11 @@ export const fiefs = pgTable(
     slotLevel: integer('slot_level'),
     slotStartedAt: timestamp('slot_started_at', { withTimezone: true }),
     slotFinishesAt: timestamp('slot_finishes_at', { withTimezone: true }),
+    slotCostWood: doublePrecision('slot_cost_wood').notNull().default(0),
+    slotCostStone: doublePrecision('slot_cost_stone').notNull().default(0),
+    slotCostIron: doublePrecision('slot_cost_iron').notNull().default(0),
+    slotCostGold: doublePrecision('slot_cost_gold').notNull().default(0),
+    slotCostFood: doublePrecision('slot_cost_food').notNull().default(0),
   },
   (table) => [
     unique('fiefs_coordinates_unique').on(table.kingdom, table.province, table.plot),

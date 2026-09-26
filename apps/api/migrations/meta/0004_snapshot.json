@@ -1,0 +1,410 @@
+{
+  "id": "d59fdd20-9b4b-4be6-ba61-57598ac7dbec",
+  "prevId": "074e1d5e-c4bf-42a7-aaae-d08b8abd686e",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.fief_buildings": {
+      "name": "fief_buildings",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_buildings_fief_id_fiefs_id_fk": {
+          "name": "fief_buildings_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_buildings",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "fief_buildings_pkey": {
+          "name": "fief_buildings_pkey",
+          "columns": [
+            "fief_id",
+            "building"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fiefs": {
+      "name": "fiefs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kingdom": {
+          "name": "kingdom",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "province": {
+          "name": "province",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plot": {
+          "name": "plot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "terrain": {
+          "name": "terrain",
+          "type": "terrain",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "wood": {
+          "name": "wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stone": {
+          "name": "stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iron": {
+          "name": "iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gold": {
+          "name": "gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "food": {
+          "name": "food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stored_at": {
+          "name": "stored_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_building": {
+          "name": "slot_building",
+          "type": "building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_level": {
+          "name": "slot_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_started_at": {
+          "name": "slot_started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_finishes_at": {
+          "name": "slot_finishes_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_cost_wood": {
+          "name": "slot_cost_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_stone": {
+          "name": "slot_cost_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_iron": {
+          "name": "slot_cost_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_gold": {
+          "name": "slot_cost_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_food": {
+          "name": "slot_cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "fiefs_player_unique": {
+          "name": "fiefs_player_unique",
+          "columns": [
+            {
+              "expression": "player_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fiefs_player_id_players_id_fk": {
+          "name": "fiefs_player_id_players_id_fk",
+          "tableFrom": "fiefs",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "fiefs_coordinates_unique": {
+          "name": "fiefs_coordinates_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kingdom",
+            "province",
+            "plot"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "fiefs_wood_whole": {
+          "name": "fiefs_wood_whole",
+          "value": "\"fiefs\".\"wood\" >= 0 AND \"fiefs\".\"wood\" = trunc(\"fiefs\".\"wood\")"
+        },
+        "fiefs_stone_whole": {
+          "name": "fiefs_stone_whole",
+          "value": "\"fiefs\".\"stone\" >= 0 AND \"fiefs\".\"stone\" = trunc(\"fiefs\".\"stone\")"
+        },
+        "fiefs_iron_whole": {
+          "name": "fiefs_iron_whole",
+          "value": "\"fiefs\".\"iron\" >= 0 AND \"fiefs\".\"iron\" = trunc(\"fiefs\".\"iron\")"
+        },
+        "fiefs_gold_whole": {
+          "name": "fiefs_gold_whole",
+          "value": "\"fiefs\".\"gold\" >= 0 AND \"fiefs\".\"gold\" = trunc(\"fiefs\".\"gold\")"
+        },
+        "fiefs_food_whole": {
+          "name": "fiefs_food_whole",
+          "value": "\"fiefs\".\"food\" >= 0 AND \"fiefs\".\"food\" = trunc(\"fiefs\".\"food\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.players": {
+      "name": "players",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "players_email_unique": {
+          "name": "players_email_unique",
+          "columns": [
+            {
+              "expression": "lower(\"email\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "token_digest": {
+          "name": "token_digest",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_player_id_players_id_fk": {
+          "name": "sessions_player_id_players_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "sessions_token_digest_hex": {
+          "name": "sessions_token_digest_hex",
+          "value": "\"sessions\".\"token_digest\" ~ '^[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.building": {
+      "name": "building",
+      "schema": "public",
+      "values": [
+        "sawmill",
+        "quarry",
+        "iron_mine",
+        "farm",
+        "warehouse"
+      ]
+    },
+    "public.terrain": {
+      "name": "terrain",
+      "schema": "public",
+      "values": [
+        "lowlands",
+        "uplands",
+        "ridges"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
