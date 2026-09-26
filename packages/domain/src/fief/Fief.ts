@@ -12,6 +12,7 @@ import { entryFitsProjection } from './entryFitsProjection'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
+import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
 import type { Terrain } from './Terrain'
@@ -236,6 +237,39 @@ const revalidateBuildQueue = (
   return ok({ buildQueue: kept, refund })
 }
 
+type Cancellation = SlotAndQueue & {
+  readonly refund: Stocks
+}
+
+const cancellationAt = (
+  current: SlotAndQueue,
+  position: number,
+  now: Instant,
+): Result<Cancellation, DomainError> => {
+  const { slot, buildQueue } = current
+  if (position === 0) {
+    if (slot.kind === 'idle' || isSlotFinishedBy(slot, now)) {
+      return err({ kind: 'UpgradeNotFound', position })
+    }
+    return ok({ slot: { kind: 'idle' }, buildQueue, refund: slot.cost })
+  }
+  const entry = buildQueue[position - 1]
+  if (entry === undefined) {
+    return err({ kind: 'UpgradeNotFound', position })
+  }
+  const remaining = buildQueue.filter((_, index) => index !== position - 1)
+  return ok({ slot, buildQueue: remaining, refund: entry.cost })
+}
+
+const levelsWithSlot = (buildingLevels: FiefBuildingLevels, slot: BuildSlot): FiefBuildingLevels =>
+  slot.kind === 'busy' ? { ...buildingLevels, [slot.building]: slot.targetLevel } : buildingLevels
+
+const slotAndQueueResumingAt = (
+  current: SlotAndQueue,
+  at: Instant,
+): Result<SlotAndQueue, DomainError> =>
+  current.slot.kind === 'busy' ? ok(current) : slotAndQueueStartingAt(current.buildQueue, at)
+
 export class Fief {
   private constructor(
     readonly id: FiefId,
@@ -332,18 +366,32 @@ export class Fief {
     return ok(undefined)
   }
 
-  cancelUpgrade(stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
-    const { slot } = this
-    if (slot.kind === 'idle' || slot.finishesAt.epochMilliseconds <= now.epochMilliseconds) {
-      return err({ kind: 'SlotIdle' })
+  cancelUpgrade(
+    position: number,
+    stocksAtNow: Stocks,
+    now: Instant,
+    catalog: BuildingCatalog,
+  ): Result<Fief, DomainError> {
+    const cancellation = cancellationAt(this, position, now)
+    if (!cancellation.ok) {
+      return cancellation
+    }
+    const { slot, buildQueue, refund } = cancellation.value
+    const projectedFrom = levelsWithSlot(this.buildingLevels, slot)
+    const revalidated = revalidateBuildQueue(projectedFrom, buildQueue, catalog)
+    if (!revalidated.ok) {
+      return revalidated
+    }
+    const next = slotAndQueueResumingAt({ slot, buildQueue: revalidated.value.buildQueue }, now)
+    if (!next.ok) {
+      return next
     }
     return ok(
       this.changed({
-        stocks: credit(stocksAtNow, slot.cost),
+        ...next.value,
+        stocks: credit(credit(stocksAtNow, refund), revalidated.value.refund),
         storedAt: now,
         buildingLevels: this.buildingLevels,
-        slot: { kind: 'idle' },
-        buildQueue: this.buildQueue,
       }),
     )
   }

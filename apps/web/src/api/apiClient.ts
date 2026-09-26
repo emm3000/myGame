@@ -25,7 +25,7 @@ export interface ApiClient {
   currentPlayer(): Promise<Player | undefined>
   fief(): Promise<ApiOutcome<FiefOverview>>
   enqueueUpgrade(building: BuildingKind): Promise<ApiOutcome<FiefOverview>>
-  cancelUpgrade(): Promise<ApiOutcome<FiefOverview>>
+  cancelUpgrade(position: number): Promise<ApiOutcome<FiefOverview>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -89,8 +89,8 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await postJson('/fief/upgrades', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    cancelUpgrade: async () => {
-      const response = await send('/fief/upgrades', { method: 'DELETE' })
+    cancelUpgrade: async (position) => {
+      const response = await send(`/fief/upgrades/${position}`, { method: 'DELETE' })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
   }

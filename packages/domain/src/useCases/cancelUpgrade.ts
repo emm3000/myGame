@@ -9,6 +9,7 @@ import { err, ok, type Result } from '../Result'
 
 export type CancelUpgradeCommand = {
   readonly playerId: PlayerId
+  readonly position: number
 }
 
 export type CancelUpgradeDependencies = {
@@ -35,7 +36,7 @@ export const cancelUpgrade = async (
   if (!stocksAtNow.ok) {
     return stocksAtNow
   }
-  const cancelled = fief.cancelUpgrade(stocksAtNow.value, now)
+  const cancelled = fief.cancelUpgrade(command.position, stocksAtNow.value, now, catalog)
   if (!cancelled.ok) {
     return cancelled
   }

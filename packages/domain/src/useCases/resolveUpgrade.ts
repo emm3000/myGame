@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import type { BusySlot } from '../fief/BuildSlot'
 import type { Fief } from '../fief/Fief'
+import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
@@ -29,7 +30,7 @@ const finishedUpgradeOf = (fief: Fief, now: Instant): BusySlot | undefined => {
   if (slot.kind === 'idle') {
     return undefined
   }
-  return slot.finishesAt.epochMilliseconds <= now.epochMilliseconds ? slot : undefined
+  return isSlotFinishedBy(slot, now) ? slot : undefined
 }
 
 const laterOf = (left: Instant, right: Instant): Instant =>
