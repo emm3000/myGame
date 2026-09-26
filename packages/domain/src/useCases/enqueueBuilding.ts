@@ -69,6 +69,26 @@ const staffUpgrade = (
   return ok(undefined)
 }
 
+const admitUpgrade = (
+  fief: Fief,
+  building: BuildingKind,
+  catalog: BuildingCatalog,
+): Result<BuildingLevel, DomainError> => {
+  const room = fief.roomForUpgrade(catalog.fiefSettings().buildQueueCap)
+  if (!room.ok) {
+    return room
+  }
+  const target = nextLevelOf(fief.projectedBuildingLevels, building, catalog)
+  if (!target.ok) {
+    return target
+  }
+  const staffed = staffUpgrade(fief, target.value, catalog)
+  if (!staffed.ok) {
+    return staffed
+  }
+  return target
+}
+
 const enqueueUpgradeAt = (
   fief: Fief,
   target: BuildingLevel,
@@ -105,15 +125,10 @@ export const enqueueBuilding = async (
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
 
-  const target = nextLevelOf(fief.projectedBuildingLevels, command.building, catalog)
+  const target = admitUpgrade(fief, command.building, catalog)
   if (!target.ok) {
     return target
   }
-  const staffed = staffUpgrade(fief, target.value, catalog)
-  if (!staffed.ok) {
-    return staffed
-  }
-
   const upgraded = enqueueUpgradeAt(fief, target.value, catalog, clock.now())
   if (!upgraded.ok) {
     return upgraded

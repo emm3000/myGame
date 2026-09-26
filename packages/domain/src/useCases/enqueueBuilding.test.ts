@@ -355,6 +355,34 @@ describe('enqueueBuilding', () => {
     expect(result).toEqual({ ok: false, error: { kind: 'QueueFull', cap: 4 } })
   })
 
+  it('refuses a full queue before judging the level', async () => {
+    const fullQueue = [quarryEntry, quarryEntry, quarryEntry, quarryEntry]
+    const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: fullQueue })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'quarry' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'QueueFull', cap: 4 } })
+  })
+
+  it('queues an upgrade behind waiting entries even with the slot idle', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ buildQueue: [quarryEntry] })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(result.value.slot).toEqual({ kind: 'idle' })
+    expect(result.value.buildQueue).toEqual([
+      quarryEntry,
+      { building: 'sawmill', targetLevel: 1, cost: sawmillCost, durationSeconds: 90 },
+    ])
+  })
+
   it('refuses an upgrade the stocks cannot pay for', async () => {
     const poorFief = storedFief({ stocks: { wood: 20, stone: 100, iron: 0, gold: 0, food: 4 } })
     const fiefs = inMemoryFiefRepository([poorFief])

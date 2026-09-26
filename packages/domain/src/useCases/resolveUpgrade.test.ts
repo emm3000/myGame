@@ -1,4 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { BuildQueueEntry } from '../fief/BuildQueue'
+import type { BusySlot } from '../fief/BuildSlot'
 import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type {
@@ -90,6 +92,28 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
   assert(restored.ok)
   return restored.value
 }
+
+const SECONDS_PER_HOUR = 3_600
+
+const sawmillFinishingAfterHours = (hours: number): BusySlot => ({
+  kind: 'busy',
+  building: 'sawmill',
+  targetLevel: 1,
+  startedAt: storedInstant,
+  cost: sawmillCost,
+  finishesAt: hoursAfterStored(hours),
+})
+
+const waitingEntry = (
+  building: 'sawmill' | 'warehouse',
+  targetLevel: number,
+  hours: number,
+): BuildQueueEntry => ({
+  building,
+  targetLevel,
+  cost: building === 'sawmill' ? sawmillCost : warehouseLevelOne.cost,
+  durationSeconds: hours * SECONDS_PER_HOUR,
+})
 
 describe('resolveUpgrade', () => {
   it('applies the upgrade whose finish instant has passed', async () => {
@@ -268,6 +292,119 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value.fief.stocks.wood).toBe(1200)
+  })
+
+  it('applies every upgrade whose finish has passed, in order', async () => {
+    const queuedFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      buildQueue: [waitingEntry('sawmill', 2, 1), waitingEntry('warehouse', 1, 1)],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(5)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.buildingLevels).toEqual({ ...unbuiltLevels, sawmill: 2, warehouse: 1 })
+    expect(stored?.slot).toEqual({ kind: 'idle' })
+    expect(stored?.buildQueue).toEqual([])
+  })
+
+  it('starts the next waiting upgrade at the instant the one before finished', async () => {
+    const queuedFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      buildQueue: [waitingEntry('sawmill', 2, 2)],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.slot).toEqual({
+      kind: 'busy',
+      building: 'sawmill',
+      targetLevel: 2,
+      startedAt: hoursAfterStored(1),
+      finishesAt: hoursAfterStored(3),
+      cost: sawmillCost,
+    })
+    expect(result.value.fief.buildQueue).toEqual([])
+  })
+
+  it('accrues each step at the rates the levels before it set', async () => {
+    const queuedFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      buildQueue: [waitingEntry('sawmill', 2, 1)],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(3)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks).toEqual({
+      wood: 220,
+      stone: 130,
+      iron: 145,
+      gold: 106,
+      food: 130,
+    })
+  })
+
+  it('stops at the first upgrade still building and keeps it in the slot', async () => {
+    const warehouseEntry = waitingEntry('warehouse', 1, 1)
+    const queuedFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      buildQueue: [waitingEntry('sawmill', 2, 2), warehouseEntry],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+    const now = hoursAfterStored(2)
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(now) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.buildingLevels).toEqual({ ...unbuiltLevels, sawmill: 1 })
+    expect(stored?.slot).toMatchObject({ building: 'sawmill', finishesAt: hoursAfterStored(3) })
+    expect(stored?.buildQueue).toEqual([warehouseEntry])
+    expect(stored?.storedAt).toBe(now)
+  })
+
+  it('raises the capacity for the steps after a finished warehouse', async () => {
+    const queuedFief = storedFief({
+      stocks: { wood: 900, stone: 100, iron: 100, gold: 100, food: 100 },
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      slot: {
+        kind: 'busy',
+        building: 'warehouse',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        cost: warehouseLevelOne.cost,
+        finishesAt: hoursAfterStored(1),
+      },
+      buildQueue: [waitingEntry('sawmill', 2, 10)],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(12)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks.wood).toBe(1410)
   })
 
   it('reports no change to persist for an idle slot', async () => {

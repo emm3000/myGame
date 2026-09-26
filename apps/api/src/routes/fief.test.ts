@@ -401,6 +401,7 @@ describe('the fief route', () => {
       for (const building of ['sawmill', 'sawmill', 'quarry', 'farm', 'ironMine']) {
         expect((await enqueue(ana.cookie, building)).status).toBe(200)
       }
+      const before = await server.fiefs.fiefOf(ana.playerId)
 
       const response = await enqueue(ana.cookie, 'warehouse')
 
@@ -409,6 +410,41 @@ describe('the fief route', () => {
         kind: 'QueueFull',
         message: 'Ya no caben más obras en espera. Espera a que avance alguna.',
       })
+      expect(await server.fiefs.fiefOf(ana.playerId)).toEqual(before)
+    })
+
+    it('applies three queued upgrades on the first read after they all finished', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      for (const building of ['sawmill', 'quarry', 'farm']) {
+        expect((await enqueue(ana.cookie, building)).status).toBe(200)
+      }
+      const statements: Array<string> = []
+      const query = Client.prototype.query
+      vi.spyOn(Client.prototype, 'query').mockImplementation(function (
+        this: Client,
+        ...parameters: Parameters<typeof query>
+      ) {
+        statements.push(statementTextOf(parameters[0]))
+        return Reflect.apply(query, this, parameters)
+      })
+      clock.advanceMinutes(7.5)
+      const statementsBeforeRead = [...statements]
+
+      const response = await fiefOf(ana.cookie)
+
+      expect(statementsBeforeRead).toEqual([])
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.readAt).toBe('2026-09-22T08:07:30.000Z')
+      expect(overview.buildings.sawmill.level).toBe(1)
+      expect(overview.buildings.quarry.level).toBe(1)
+      expect(overview.buildings.farm.level).toBe(1)
+      expect(overview.slot).toEqual({ kind: 'idle' })
+      expect(overview.queue).toEqual([])
+      expect(
+        Object.fromEntries(
+          Object.entries(overview.resources).map(([resource, { amount }]) => [resource, amount]),
+        ),
+      ).toEqual({ wood: 322, stone: 441, iron: 200, gold: 50, food: 300 })
     })
 
     it('refuses an upgrade the free peasants cannot staff', async () => {
