@@ -433,6 +433,61 @@ describe('resolveUpgrade', () => {
     expect(stored?.buildQueue).toEqual([warehouseEntry])
   })
 
+  it('refunds a waiting level whose lower level was cancelled instead of building it', async () => {
+    const orphanedFief = storedFief({
+      buildQueue: [waitingEntry('sawmill', 2, 1), waitingEntry('warehouse', 1, 2)],
+    })
+    const fiefs = inMemoryFiefRepository([orphanedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toMatchObject({ building: 'warehouse', startedAt: storedInstant })
+    expect(stored?.buildQueue).toEqual([])
+    expect(stored?.buildingLevels.sawmill).toBe(0)
+    expect(stored?.stocks.wood).toBe(170)
+  })
+
+  it('refunds a waiting upgrade the free peasants can no longer staff', async () => {
+    const handHungryCatalog = inMemoryCatalog([
+      sawmillLevel(1, 30),
+      { ...warehouseLevelOne, peasantOccupancy: 5 },
+    ])
+    const understaffedFief = storedFief({
+      buildQueue: [waitingEntry('warehouse', 1, 1), waitingEntry('sawmill', 1, 2)],
+    })
+    const fiefs = inMemoryFiefRepository([understaffedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: handHungryCatalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toMatchObject({ building: 'sawmill', startedAt: storedInstant })
+    expect(stored?.buildQueue).toEqual([])
+    expect(stored?.stocks.wood).toBe(210)
+  })
+
+  it('resumes a waiting upgrade on a read whose instant is earlier than the stored one', async () => {
+    const waitingFief = storedFief({ buildQueue: [waitingEntry('sawmill', 1, 2)] })
+    const fiefs = inMemoryFiefRepository([waitingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(-1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.storedAt).toBe(storedInstant)
+    expect(result.value.fief.slot).toMatchObject({ building: 'sawmill', startedAt: storedInstant })
+  })
+
   it('reports no change to persist for an idle slot', async () => {
     const idleFief = storedFief({})
     const fiefs = inMemoryFiefRepository([idleFief])
