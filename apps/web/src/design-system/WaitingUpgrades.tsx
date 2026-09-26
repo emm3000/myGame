@@ -26,17 +26,16 @@ export function WaitingUpgrades({
       <span className="font-utility text-label text-ink-muted uppercase">{title}</span>
       <ol aria-label={title} className="m-0 flex list-none flex-col gap-3 p-0">
         {upgrades.map(({ buildingName, levelLabel, remainingSeconds, cancel }) => (
-          <li
-            key={`${buildingName}-${levelLabel}`}
-            className="flex flex-wrap items-center justify-between gap-2"
-          >
-            <span className="flex items-baseline gap-2">
-              <span className="font-display text-body text-ink">{buildingName}</span>
-              <span className="rounded-pill bg-surface-raised px-2 font-utility text-label text-ink-muted tabular-nums">
-                {levelLabel}
+          <li key={`${buildingName}-${levelLabel}`} className="flex flex-col items-end gap-2">
+            <span className="flex flex-wrap items-center justify-between gap-2 self-stretch">
+              <span className="flex items-baseline gap-2">
+                <span className="font-display text-body text-ink">{buildingName}</span>
+                <span className="rounded-pill bg-surface-raised px-2 font-utility text-label text-ink-muted tabular-nums">
+                  {levelLabel}
+                </span>
               </span>
+              <Countdown remainingSeconds={remainingSeconds} finishedLabel={finishedLabel} />
             </span>
-            <Countdown remainingSeconds={remainingSeconds} finishedLabel={finishedLabel} />
             <Button
               type="button"
               tone="quiet"
