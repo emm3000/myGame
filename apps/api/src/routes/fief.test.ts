@@ -128,7 +128,14 @@ describe('the fief route', () => {
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.name).toBe('Valdehierro')
     expect(overview.resources.wood).toEqual({ amount: 500, ratePerHour: 10, capacity: 1000 })
-    expect(overview.peasants).toEqual({ supplied: 10, occupied: 0, free: 10, projectedFree: 10 })
+    expect(overview.peasants).toEqual({
+      supplied: 10,
+      occupied: 0,
+      free: 10,
+      projectedSupplied: 10,
+      projectedOccupied: 0,
+      projectedFree: 10,
+    })
     expect(overview.slot).toEqual({ kind: 'idle' })
     expect(overview.queue).toEqual({ entries: [], cap: 4 })
     expect(overview.readAt).toBe('2026-09-22T08:00:00.000Z')
@@ -393,7 +400,32 @@ describe('the fief route', () => {
           peasants: 1,
         },
       })
-      expect(peasants).toEqual({ supplied: 10, occupied: 0, free: 10, projectedFree: 8 })
+      expect(peasants).toEqual({
+        supplied: 10,
+        occupied: 0,
+        free: 10,
+        projectedSupplied: 10,
+        projectedOccupied: 2,
+        projectedFree: 8,
+      })
+    })
+
+    it('answers the peasants a waiting farm will supply', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana.cookie, 'farm')
+
+      const response = await fiefOf(ana.cookie)
+
+      const { peasants } = FiefOverviewSchema.parse(await response.json())
+      expect(peasants).toEqual({
+        supplied: 10,
+        occupied: 0,
+        free: 10,
+        projectedSupplied: 15,
+        projectedOccupied: 2,
+        projectedFree: 13,
+      })
     })
 
     it('refuses an upgrade when the queue is full', async () => {

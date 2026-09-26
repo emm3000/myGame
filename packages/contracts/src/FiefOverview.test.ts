@@ -54,7 +54,14 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
     food: resource(260),
   },
   buildings: fiveBuildings,
-  peasants: { supplied: 12, occupied: 7, free: 5, projectedFree: 3 },
+  peasants: {
+    supplied: 12,
+    occupied: 7,
+    free: 5,
+    projectedSupplied: 17,
+    projectedOccupied: 14,
+    projectedFree: 3,
+  },
   slot,
   queue: { entries: [waitingQuarry], cap: 4 },
   readAt: '2026-09-22T14:00:00.000Z',
@@ -99,6 +106,16 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithUnstartedEntry).success).toBe(false)
+  })
+
+  it('rejects a negative projected occupancy', () => {
+    const busyOverview = overviewWithSlot(busySlot)
+    const negativeOccupancyOverview = {
+      ...busyOverview,
+      peasants: { ...(busyOverview.peasants as object), projectedOccupied: -1 },
+    }
+
+    expect(FiefOverviewSchema.safeParse(negativeOccupancyOverview).success).toBe(false)
   })
 
   it('rejects a negative build queue cap', () => {
