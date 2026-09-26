@@ -40,7 +40,14 @@ const sawmillUpgradeUnderWay: FiefOverview = {
     wood: { ...knownFief.resources.wood, amount: 910 },
     stone: { ...knownFief.resources.stone, amount: 777 },
   },
-  peasants: { supplied: 12, occupied: 5, free: 7, projectedFree: 6 },
+  peasants: {
+    supplied: 12,
+    occupied: 5,
+    free: 7,
+    projectedSupplied: 12,
+    projectedOccupied: 6,
+    projectedFree: 6,
+  },
   slot: {
     kind: 'busy',
     building: 'sawmill',
@@ -158,6 +165,39 @@ it('shows under each card why the full build queue refuses the upgrade', async (
   ).toBeDefined()
 })
 
+it('refuses a card for the full build queue before its missing resources', async () => {
+  const brokeWithFullQueue: FiefOverview = {
+    ...queueFullBehindSawmill,
+    resources: {
+      ...queueFullBehindSawmill.resources,
+      wood: { ...queueFullBehindSawmill.resources.wood, amount: 0 },
+    },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: brokeWithFullQueue }) }))
+
+  expect(
+    within(cardOf('quarry')).getByRole('button', {
+      name: 'Mejorar · 3:12. Ya no caben más obras en espera. Espera a que avance alguna.',
+    }),
+  ).toBeDefined()
+})
+
+it('refuses a card for the full build queue before its missing peasants', async () => {
+  const nobodyFreeWithFullQueue: FiefOverview = {
+    ...queueFullBehindSawmill,
+    peasants: { ...queueFullBehindSawmill.peasants, projectedOccupied: 12, projectedFree: 0 },
+  }
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: nobodyFreeWithFullQueue }) }),
+  )
+
+  expect(
+    within(cardOf('quarry')).getByRole('button', {
+      name: 'Mejorar · 3:12. Ya no caben más obras en espera. Espera a que avance alguna.',
+    }),
+  ).toBeDefined()
+})
+
 it('keeps the upgrade buttons enabled while the build queue has room', async () => {
   await showFief(
     signedInClient({ fief: async () => ({ ok: true, value: threeWaitingBehindSawmill }) }),
@@ -169,7 +209,14 @@ it('keeps the upgrade buttons enabled while the build queue has room', async () 
 it('disables a card the free peasants cannot staff', async () => {
   const twoFreePeasants: FiefOverview = {
     ...knownFief,
-    peasants: { supplied: 12, occupied: 10, free: 2, projectedFree: 2 },
+    peasants: {
+      supplied: 12,
+      occupied: 10,
+      free: 2,
+      projectedSupplied: 12,
+      projectedOccupied: 10,
+      projectedFree: 2,
+    },
     buildings: {
       ...knownFief.buildings,
       farm: {
@@ -195,7 +242,14 @@ it('disables a card the free peasants cannot staff', async () => {
 it('checks a card against the free peasants left after the waiting upgrades', async () => {
   const twoFreeAfterQueue: FiefOverview = {
     ...knownFief,
-    peasants: { supplied: 12, occupied: 4, free: 8, projectedFree: 2 },
+    peasants: {
+      supplied: 12,
+      occupied: 4,
+      free: 8,
+      projectedSupplied: 12,
+      projectedOccupied: 10,
+      projectedFree: 2,
+    },
     buildings: {
       ...knownFief.buildings,
       farm: {

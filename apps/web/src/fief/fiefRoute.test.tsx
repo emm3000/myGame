@@ -266,13 +266,64 @@ it("shows the tier image on a built building's card", async () => {
   expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.png$/)
 })
 
-it('shows in the peasant cell the free peasants left after the waiting upgrades', async () => {
-  const twoFreeAfterQueue: FiefOverview = {
-    ...knownFief,
-    peasants: { supplied: 12, occupied: 4, free: 8, projectedFree: 2 },
-  }
-  await showFief(signedInClientServing(() => twoFreeAfterQueue))
+const farmWaitingInFullQueue: FiefOverview = {
+  ...knownFief,
+  peasants: {
+    supplied: 12,
+    occupied: 4,
+    free: 8,
+    projectedSupplied: 15,
+    projectedOccupied: 9,
+    projectedFree: 6,
+  },
+  slot: {
+    kind: 'busy',
+    building: 'sawmill',
+    targetLevel: 2,
+    startedAt: '2026-09-22T12:00:00.000Z',
+    finishesAt: '2026-09-22T12:03:12.000Z',
+  },
+  queue: {
+    entries: [
+      {
+        building: 'farm',
+        targetLevel: 2,
+        startsAt: '2026-09-22T12:03:12.000Z',
+        finishesAt: '2026-09-22T12:06:24.000Z',
+      },
+      {
+        building: 'quarry',
+        targetLevel: 2,
+        startsAt: '2026-09-22T12:06:24.000Z',
+        finishesAt: '2026-09-22T12:09:36.000Z',
+      },
+      {
+        building: 'ironMine',
+        targetLevel: 1,
+        startsAt: '2026-09-22T12:09:36.000Z',
+        finishesAt: '2026-09-22T12:12:48.000Z',
+      },
+      {
+        building: 'warehouse',
+        targetLevel: 1,
+        startsAt: '2026-09-22T12:12:48.000Z',
+        finishesAt: '2026-09-22T12:16:00.000Z',
+      },
+    ],
+    cap: 4,
+  },
+}
 
-  const peasantCell = screen.getByRole('listitem', { name: copy.names.peasants })
-  expect(peasantCell.textContent).toMatch(/(?<!\d)2 \/ 12 libres/)
+const peasantCell = (): HTMLElement => screen.getByRole('listitem', { name: copy.names.peasants })
+
+it('shows in the peasant cell the free peasants of the projected supply', async () => {
+  await showFief(signedInClientServing(() => farmWaitingInFullQueue))
+
+  expect(peasantCell().textContent).toMatch(/(?<!\d)6 \/ 15 libres/)
+})
+
+it('shows in the peasant cell the peasants the waiting upgrades will occupy', async () => {
+  await showFief(signedInClientServing(() => farmWaitingInFullQueue))
+
+  expect(peasantCell().textContent).toMatch(/(?<!\d)9 ocupados/)
 })

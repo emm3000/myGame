@@ -7,7 +7,6 @@ import {
   deriveFreePeasants,
   deriveOccupiedPeasants,
   derivePeasantsForUpgrade,
-  deriveProjectedFreePeasants,
   deriveResourceRates,
   deriveSuppliedPeasants,
   deriveWarehouseCapacity,
@@ -65,11 +64,16 @@ const resourcesOf = (
   food: { amount: stocks.food, ratePerHour: rates.food, capacity },
 })
 
-const peasantsOf = (
-  fief: Fief,
+interface PeasantCounts {
+  readonly supplied: number
+  readonly occupied: number
+  readonly free: number
+}
+
+const peasantCountsAt = (
+  buildingLevels: FiefBuildingLevels,
   catalog: BuildingCatalog,
-): Result<FiefOverview['peasants'], DomainError> => {
-  const { buildingLevels } = fief
+): Result<PeasantCounts, DomainError> => {
   const supplied = deriveSuppliedPeasants(buildingLevels.farm, catalog)
   if (!supplied.ok) {
     return supplied
@@ -82,15 +86,26 @@ const peasantsOf = (
   if (!free.ok) {
     return free
   }
-  const projectedFree = deriveProjectedFreePeasants(fief, catalog)
-  if (!projectedFree.ok) {
-    return projectedFree
+  return ok({ supplied: supplied.value, occupied: occupied.value, free: free.value })
+}
+
+const peasantsOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+): Result<FiefOverview['peasants'], DomainError> => {
+  const built = peasantCountsAt(fief.buildingLevels, catalog)
+  if (!built.ok) {
+    return built
+  }
+  const projected = peasantCountsAt(fief.projectedBuildingLevels, catalog)
+  if (!projected.ok) {
+    return projected
   }
   return ok({
-    supplied: supplied.value,
-    occupied: occupied.value,
-    free: free.value,
-    projectedFree: projectedFree.value,
+    ...built.value,
+    projectedSupplied: projected.value.supplied,
+    projectedOccupied: projected.value.occupied,
+    projectedFree: projected.value.free,
   })
 }
 

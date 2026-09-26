@@ -132,8 +132,8 @@ export function FiefScreen({ fief, upgrade, cancel }: FiefScreenProps): ReactEle
         resources={resources}
         peasants={{
           label: names.peasants,
-          supplied: overview.peasants.supplied,
-          occupied: overview.peasants.occupied,
+          supplied: overview.peasants.projectedSupplied,
+          occupied: overview.peasants.projectedOccupied,
           free: overview.peasants.projectedFree,
         }}
         labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
