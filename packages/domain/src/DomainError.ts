@@ -36,6 +36,7 @@ export type DomainError =
       readonly freePeasants: number
     }
   | { readonly kind: 'SlotBusy'; readonly until: Instant }
+  | { readonly kind: 'SlotIdle' }
   | {
       readonly kind: 'InvalidBuildingLevel'
       readonly building: BuildingKind

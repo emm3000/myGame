@@ -8,11 +8,13 @@ import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
 import { buildingCardOf } from './buildingCardOf'
 import type { LiveFief } from './liveFief'
+import type { Cancel } from './useCancel'
 import type { Upgrade } from './useUpgrade'
 
 export interface FiefScreenProps {
   readonly fief: LiveFief
   readonly upgrade: Upgrade
+  readonly cancel: Cancel
 }
 
 const { names } = copy
@@ -22,7 +24,7 @@ function addressOf({ coordinates }: LiveFief['overview']): string {
   return `${kingdom} ${coordinates.province}:${coordinates.plot}`
 }
 
-function slotStateOf(fief: LiveFief): BuildSlotState {
+function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
   const { slot } = fief.overview
   if (slot.kind === 'idle') {
     return { kind: 'idle', title: names.slot, invitation: names.idleSlot }
@@ -40,6 +42,7 @@ function slotStateOf(fief: LiveFief): BuildSlotState {
     remainingSeconds: fief.slotRemainingSeconds,
     totalSeconds: fief.slotTotalSeconds,
     finishedLabel: copy.fief.finished,
+    cancel: { label: copy.fief.cancel, isWaiting: cancel.isWaiting, onCancel: cancel.start },
     ...building,
   }
 }
@@ -67,7 +70,7 @@ function BuildingItem({
   )
 }
 
-export function FiefScreen({ fief, upgrade }: FiefScreenProps): ReactElement {
+export function FiefScreen({ fief, upgrade, cancel }: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
     kind,
@@ -90,7 +93,10 @@ export function FiefScreen({ fief, upgrade }: FiefScreenProps): ReactElement {
         labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
       />
       <div className="grid items-start gap-6 lg:grid-cols-3">
-        <BuildSlot state={slotStateOf(fief)} />
+        <div className="flex flex-col gap-2">
+          <BuildSlot state={slotStateOf(fief, cancel)} />
+          {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
+        </div>
         <section className="flex flex-col gap-3 lg:col-span-2">
           <h3 className="m-0 font-body text-heading text-ink">{copy.fief.buildings}</h3>
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">

@@ -1,7 +1,14 @@
 import type { ReactElement } from 'react'
+import { Button } from './Button'
 import { Countdown } from './Countdown'
 import { SlotIcon } from './icons/SlotIcon'
 import { Track } from './Track'
+
+export interface SlotCancel {
+  readonly label: string
+  readonly isWaiting: boolean
+  readonly onCancel: () => void
+}
 
 export type BuildSlotState =
   | { readonly kind: 'idle'; readonly title: string; readonly invitation: string }
@@ -13,6 +20,7 @@ export type BuildSlotState =
       readonly remainingSeconds: number
       readonly totalSeconds: number
       readonly finishedLabel: string
+      readonly cancel: SlotCancel
     }
   | {
       readonly kind: 'justFinished'
@@ -78,6 +86,14 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
             total={state.totalSeconds}
             fillClass="fill-slate"
           />
+          <Button
+            type="button"
+            tone="quiet"
+            disabled={state.cancel.isWaiting}
+            onClick={state.cancel.onCancel}
+          >
+            {state.cancel.label}
+          </Button>
         </section>
       )
     case 'justFinished':

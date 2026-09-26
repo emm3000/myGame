@@ -3,24 +3,23 @@ import type { ReactElement } from 'react'
 import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
 import { FiefScreen } from '../../fief/FiefScreen'
+import { useCancel } from '../../fief/useCancel'
 import { useLiveFief } from '../../fief/useLiveFief'
 import { useUpgrade } from '../../fief/useUpgrade'
 
 function FiefOverviewPage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { state, adopt } = useLiveFief(apiClient)
-  const upgrade = useUpgrade(
-    apiClient,
-    adopt,
-    state.kind === 'live' ? state.fief.overview.readAt : undefined,
-  )
+  const readAt = state.kind === 'live' ? state.fief.overview.readAt : undefined
+  const upgrade = useUpgrade(apiClient, adopt, readAt)
+  const cancel = useCancel(apiClient, adopt, readAt)
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.fief.loading}</p>
     case 'refused':
       return <FormAlert message={copy.refusals[state.refusal]} />
     case 'live':
-      return <FiefScreen fief={state.fief} upgrade={upgrade} />
+      return <FiefScreen fief={state.fief} upgrade={upgrade} cancel={cancel} />
     default: {
       const unreachable: never = state
       return unreachable
