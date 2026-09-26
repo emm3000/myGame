@@ -35,6 +35,13 @@ const busySlot = {
   finishesAt: '2026-09-22T14:30:00.000Z',
 }
 
+const waitingQuarry = {
+  building: 'quarry',
+  targetLevel: 2,
+  startsAt: '2026-09-22T14:30:00.000Z',
+  finishesAt: '2026-09-22T14:36:24.000Z',
+}
+
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 2, plot: 3 },
@@ -47,8 +54,9 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
     food: resource(260),
   },
   buildings: fiveBuildings,
-  peasants: { supplied: 12, occupied: 7, free: 5 },
+  peasants: { supplied: 12, occupied: 7, free: 5, projectedFree: 3 },
   slot,
+  queue: [waitingQuarry],
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -81,6 +89,13 @@ describe('FiefOverviewSchema', () => {
     const { startedAt: _, ...slotWithoutStart } = busySlot
 
     expect(FiefOverviewSchema.safeParse(overviewWithSlot(slotWithoutStart)).success).toBe(false)
+  })
+
+  it('rejects a waiting upgrade without its start instant', () => {
+    const { startsAt: _, ...unstartedQuarry } = waitingQuarry
+    const overviewWithUnstartedEntry = { ...overviewWithSlot(busySlot), queue: [unstartedQuarry] }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithUnstartedEntry).success).toBe(false)
   })
 
   it('rejects a start instant that is not an ISO 8601 string', () => {

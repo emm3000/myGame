@@ -40,6 +40,13 @@ const BusySlotSchema = z.object({
   finishesAt: InstantSchema,
 })
 
+const WaitingUpgradeSchema = z.object({
+  building: BuildingKindSchema,
+  targetLevel: BuildingLevelSchema,
+  startsAt: InstantSchema,
+  finishesAt: InstantSchema,
+})
+
 export const FiefOverviewSchema = z.object({
   name: z.string().min(1),
   coordinates: z.object({
@@ -60,8 +67,10 @@ export const FiefOverviewSchema = z.object({
     supplied: WholeCountSchema,
     occupied: WholeCountSchema,
     free: WholeCountSchema,
+    projectedFree: WholeCountSchema,
   }),
   slot: z.discriminatedUnion('kind', [IdleSlotSchema, BusySlotSchema]),
+  queue: z.array(WaitingUpgradeSchema),
   readAt: InstantSchema,
 })
 

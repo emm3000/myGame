@@ -20,7 +20,7 @@ import {
   type Result,
 } from '@mygame/domain'
 import { Client } from 'pg'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { type ComposedServer, composeServer } from './composeServer'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
@@ -342,23 +342,27 @@ describe('a fief transaction from the composed server', () => {
     await server.close()
   })
 
-  it('serializes two concurrent mutations on one fief', async () => {
+  it('queues the second of two concurrent enqueues behind the first', async () => {
     await foundAnasFief(server)
 
     const outcomes = await raceTwoEnqueues(server)
 
-    expect(outcomes).toEqual(['enqueued', 'SlotBusy'])
+    expect(outcomes).toEqual(['enqueued', 'enqueued'])
+    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(ana))
+    assert(stored.ok)
+    expect(stored.value?.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 1 })
+    expect(stored.value?.buildQueue).toMatchObject([{ building: 'sawmill', targetLevel: 2 }])
   })
 
-  it('debits the stocks once when two enqueues race', async () => {
+  it('debits both costs when two enqueues race', async () => {
     await foundAnasFief(server)
 
     await raceTwoEnqueues(server)
 
     const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(ana))
     expect(stored.ok && stored.value?.stocks).toEqual({
-      wood: 440,
-      stone: 485,
+      wood: 350,
+      stone: 462,
       iron: 200,
       gold: 50,
       food: 300,

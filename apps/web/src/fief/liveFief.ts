@@ -1,12 +1,19 @@
-import type { FiefOverview, ResourceKind } from '@mygame/contracts'
+import type { BuildingKind, FiefOverview, ResourceKind } from '@mygame/contracts'
 
 export type LiveAmounts = Readonly<Record<ResourceKind, number>>
+
+export interface LiveWaitingUpgrade {
+  readonly building: BuildingKind
+  readonly targetLevel: number
+  readonly remainingSeconds: number
+}
 
 export interface LiveFief {
   readonly overview: FiefOverview
   readonly amounts: LiveAmounts
   readonly slotRemainingSeconds: number
   readonly slotTotalSeconds: number
+  readonly waitingUpgrades: ReadonlyArray<LiveWaitingUpgrade>
 }
 
 const secondsPerHour = 3600
@@ -17,12 +24,20 @@ const amountAfter = (
 ): number =>
   Math.max(amount, Math.min(capacity, amount + (ratePerHour * elapsedSeconds) / secondsPerHour))
 
+const remainingSecondsAt = (
+  finishesAt: string,
+  overview: FiefOverview,
+  elapsedSeconds: number,
+): number => {
+  const atReadSeconds = (Date.parse(finishesAt) - Date.parse(overview.readAt)) / 1000
+  return Math.max(0, atReadSeconds - elapsedSeconds)
+}
+
 export function slotRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
   if (overview.slot.kind === 'idle') {
     return 0
   }
-  const atReadSeconds = (Date.parse(overview.slot.finishesAt) - Date.parse(overview.readAt)) / 1000
-  return Math.max(0, atReadSeconds - elapsedSeconds)
+  return remainingSecondsAt(overview.slot.finishesAt, overview, elapsedSeconds)
 }
 
 function slotTotalSecondsOf(overview: FiefOverview): number {
@@ -45,5 +60,10 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
     },
     slotRemainingSeconds: slotRemainingSecondsAt(overview, elapsedSeconds),
     slotTotalSeconds: slotTotalSecondsOf(overview),
+    waitingUpgrades: overview.queue.map(({ building, targetLevel, finishesAt }) => ({
+      building,
+      targetLevel,
+      remainingSeconds: remainingSecondsAt(finishesAt, overview, elapsedSeconds),
+    })),
   }
 }

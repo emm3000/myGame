@@ -127,6 +127,15 @@ describe('Fief', () => {
     expect(restored).toEqual({ ok: false, error: { kind: 'NegativeDuration', seconds: -60 } })
   })
 
+  it('refuses a stored entry whose duration is not whole seconds', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      buildQueue: [{ ...farmEntry, durationSeconds: 60.5 }],
+    })
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'FractionalDuration', seconds: 60.5 } })
+  })
+
   it('refuses a stored fief with a negative amount', () => {
     const restored = Fief.restore({
       ...storedBusyFief,

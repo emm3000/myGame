@@ -14,7 +14,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   FiefNotFound: 'No encontramos tus tierras.',
   UnknownBuilding: 'Ese edificio no existe.',
   MaxLevelReached: 'Ese edificio ya está en su nivel más alto.',
-  SlotBusy: 'Ya tienes una obra en marcha. Espera a que termine.',
+  QueueFull: 'Ya no caben más obras en espera. Espera a que avance alguna.',
   SlotIdle: 'Tu obra ya ha terminado. No queda nada que cancelar.',
   InsufficientResources: 'No tienes recursos suficientes para esa obra.',
   NotEnoughPeasants: 'No tienes campesinos libres suficientes para esa obra.',
@@ -56,6 +56,7 @@ const names = {
   slot: 'la obra',
   busySlot: 'una obra en marcha',
   idleSlot: 'Tu feudo no tiene obra.',
+  buildQueue: 'obras en espera',
 } as const
 
 export const copy = {

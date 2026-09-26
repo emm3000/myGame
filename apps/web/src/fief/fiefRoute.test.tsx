@@ -91,6 +91,59 @@ const sawmillStartedNinetySecondsAgo: FiefOverview = {
   },
 }
 
+const sawmillWithTwoWaiting: FiefOverview = {
+  ...knownFief,
+  slot: {
+    kind: 'busy',
+    building: 'sawmill',
+    targetLevel: 2,
+    startedAt: '2026-09-22T12:00:00.000Z',
+    finishesAt: '2026-09-22T12:03:12.000Z',
+  },
+  queue: [
+    {
+      building: 'quarry',
+      targetLevel: 1,
+      startsAt: '2026-09-22T12:03:12.000Z',
+      finishesAt: '2026-09-22T12:05:42.000Z',
+    },
+    {
+      building: 'sawmill',
+      targetLevel: 3,
+      startsAt: '2026-09-22T12:05:42.000Z',
+      finishesAt: '2026-09-22T12:10:49.000Z',
+    },
+  ],
+}
+
+const waitingUpgrades = (): ReadonlyArray<HTMLElement> =>
+  within(screen.getByRole('list', { name: copy.names.buildQueue })).getAllByRole('listitem')
+
+it('lists the waiting upgrades under the one in progress', async () => {
+  await showFief(signedInClientServing(() => sawmillWithTwoWaiting))
+
+  expect(
+    waitingUpgrades().map((entry) => [
+      within(entry).getByText(/Cantera|Aserradero/).textContent,
+      within(entry).getByText(/nivel/).textContent,
+    ]),
+  ).toEqual([
+    ['Cantera', 'nivel 1'],
+    ['Aserradero', 'nivel 3'],
+  ])
+})
+
+it('counts down each waiting upgrade between reads', async () => {
+  await showFief(signedInClientServing(() => sawmillWithTwoWaiting))
+
+  await passSeconds(2)
+
+  expect(waitingUpgrades().map((entry) => within(entry).getByRole('timer').textContent)).toEqual([
+    '5:40',
+    '10:47',
+  ])
+})
+
 it('re-reads the fief when the countdown reaches zero', async () => {
   const fief = vi.fn(() => sawmillStartedNinetySecondsAgo)
   await showFief(signedInClientServing(fief))

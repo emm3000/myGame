@@ -7,7 +7,7 @@ export const ApiErrorKindSchema = z.enum([
   'FiefNotFound',
   'UnknownBuilding',
   'MaxLevelReached',
-  'SlotBusy',
+  'QueueFull',
   'SlotIdle',
   'InsufficientResources',
   'NotEnoughPeasants',

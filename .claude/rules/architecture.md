@@ -43,7 +43,7 @@ Failure modes are a sealed discriminated union:
 ```ts
 export type DomainError =
   | { kind: 'InsufficientResources'; missing: ResourceAmount }
-  | { kind: 'SlotBusy'; until: Instant }
+  | { kind: 'QueueFull'; cap: number }
   | { kind: 'UnknownBuilding'; building: string }
 ```
 

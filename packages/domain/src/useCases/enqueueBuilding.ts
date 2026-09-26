@@ -1,7 +1,6 @@
 import type { DomainError } from '../DomainError'
-import { deriveOccupiedPeasants } from '../fief/deriveOccupiedPeasants'
 import { derivePeasantsForUpgrade } from '../fief/derivePeasantsForUpgrade'
-import { deriveSuppliedPeasants } from '../fief/deriveSuppliedPeasants'
+import { deriveProjectedFreePeasants } from '../fief/deriveProjectedFreePeasants'
 import type { Fief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import { materializeStocks } from '../fief/materializeStocks'
@@ -10,7 +9,6 @@ import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/Buil
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
-import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
 
 export type EnqueueBuildingCommand = {
@@ -46,53 +44,51 @@ const nextLevelOf = (
 }
 
 const staffUpgrade = (
-  buildingLevels: FiefBuildingLevels,
+  fief: Fief,
   target: BuildingLevel,
   catalog: BuildingCatalog,
 ): Result<void, DomainError> => {
-  const supplied = deriveSuppliedPeasants(buildingLevels.farm, catalog)
-  if (!supplied.ok) {
-    return supplied
+  const freeAfterQueue = deriveProjectedFreePeasants(fief, catalog)
+  if (!freeAfterQueue.ok) {
+    return freeAfterQueue
   }
-  const occupiedNow = deriveOccupiedPeasants(buildingLevels, catalog)
-  if (!occupiedNow.ok) {
-    return occupiedNow
-  }
-  const required = derivePeasantsForUpgrade(buildingLevels, target.building, target.level, catalog)
+  const required = derivePeasantsForUpgrade(
+    fief.projectedBuildingLevels,
+    target.building,
+    target.level,
+    catalog,
+  )
   if (!required.ok) {
     return required
   }
   const requiredPeasants = required.value
-  const freePeasants = supplied.value - occupiedNow.value
+  const freePeasants = freeAfterQueue.value
   if (requiredPeasants > freePeasants) {
     return err({ kind: 'NotEnoughPeasants', requiredPeasants, freePeasants })
   }
   return ok(undefined)
 }
 
-const startUpgradeAt = (
+const enqueueUpgradeAt = (
   fief: Fief,
   target: BuildingLevel,
   catalog: BuildingCatalog,
   now: Instant,
 ): Result<Fief, DomainError> => {
-  const duration = Duration.ofSeconds(target.durationSeconds)
-  if (!duration.ok) {
-    return duration
-  }
   const stocksAtNow = materializeStocks(fief, catalog, now)
   if (!stocksAtNow.ok) {
     return stocksAtNow
   }
-  return fief.startUpgrade(
+  return fief.enqueueUpgrade(
     {
       building: target.building,
       targetLevel: target.level,
       cost: target.cost,
-      finishesAt: now.plus(duration.value),
+      durationSeconds: target.durationSeconds,
     },
     stocksAtNow.value,
     now,
+    catalog.fiefSettings().buildQueueCap,
   )
 }
 
@@ -109,16 +105,16 @@ export const enqueueBuilding = async (
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
 
-  const target = nextLevelOf(fief.buildingLevels, command.building, catalog)
+  const target = nextLevelOf(fief.projectedBuildingLevels, command.building, catalog)
   if (!target.ok) {
     return target
   }
-  const staffed = staffUpgrade(fief.buildingLevels, target.value, catalog)
+  const staffed = staffUpgrade(fief, target.value, catalog)
   if (!staffed.ok) {
     return staffed
   }
 
-  const upgraded = startUpgradeAt(fief, target.value, catalog, clock.now())
+  const upgraded = enqueueUpgradeAt(fief, target.value, catalog, clock.now())
   if (!upgraded.ok) {
     return upgraded
   }
