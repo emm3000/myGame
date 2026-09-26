@@ -37,7 +37,11 @@ export type DomainError =
       readonly freePeasants: number
     }
   | { readonly kind: 'QueueFull'; readonly cap: number }
-  | { readonly kind: 'UpgradeNotFound'; readonly position: number }
+  | {
+      readonly kind: 'UpgradeNotFound'
+      readonly building: BuildingKind
+      readonly targetLevel: number
+    }
   | {
       readonly kind: 'InvalidBuildingLevel'
       readonly building: BuildingKind

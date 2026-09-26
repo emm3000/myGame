@@ -94,6 +94,8 @@ export const copy = {
     justFinished: 'La obra ha terminado. Estamos poniendo al día tu feudo.',
     upgrade: 'Mejorar',
     cancel: 'Cancelar la obra',
+    cancelOf: (building: BuildingKind, level: number): string =>
+      `Cancelar la obra: ${buildings[building]}, ${names.level(level)}`,
     maxLevel: 'Nivel máximo',
     nextLevel: (level: number): string => `Sube a ${names.level(level)}.`,
     atMaxLevel: 'Ya está en su nivel más alto.',

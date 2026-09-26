@@ -7,6 +7,7 @@ import {
   type PlayerId,
   type Result,
   resolveUpgrade,
+  type UpgradeTarget,
 } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { laterOf } from './laterOf'
@@ -19,7 +20,7 @@ export type CancelUpgradeDependencies = {
 
 export const cancelUpgradeOf = async (
   playerId: PlayerId,
-  position: number,
+  target: UpgradeTarget,
   { inTransaction, buildingCatalog, clock }: CancelUpgradeDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   inTransaction(async ({ fiefs }) => {
@@ -38,7 +39,7 @@ export const cancelUpgradeOf = async (
       return resolved
     }
     return cancelUpgrade(
-      { playerId, position },
+      { playerId, ...target },
       { fiefs, catalog: buildingCatalog, clock: cancelClock },
     )
   })

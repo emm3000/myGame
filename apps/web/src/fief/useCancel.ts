@@ -1,11 +1,11 @@
-import type { FiefOverview } from '@mygame/contracts'
+import type { CancelUpgradeRequest, FiefOverview } from '@mygame/contracts'
 import { useCallback, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 
 export interface Cancel {
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
-  readonly start: (position: number) => void
+  readonly start: (target: CancelUpgradeRequest) => void
 }
 
 interface RefusalOfRead {
@@ -23,14 +23,14 @@ export function useCancel(
   const isInFlight = useRef(false)
 
   const start = useCallback(
-    async (position: number): Promise<void> => {
+    async (target: CancelUpgradeRequest): Promise<void> => {
       if (isInFlight.current) {
         return
       }
       isInFlight.current = true
       setIsWaiting(true)
       setRefused(undefined)
-      const outcome = await apiClient.cancelUpgrade(position)
+      const outcome = await apiClient.cancelUpgrade(target)
       isInFlight.current = false
       setIsWaiting(false)
       if (outcome.ok) {
@@ -45,6 +45,6 @@ export function useCancel(
   return {
     isWaiting,
     refusal: refused?.readAt === readAt ? refused?.refusal : undefined,
-    start: (position) => void start(position),
+    start: (target) => void start(target),
   }
 }

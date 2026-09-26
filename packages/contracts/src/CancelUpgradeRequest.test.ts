@@ -2,18 +2,26 @@ import { describe, expect, it } from 'vitest'
 import { CancelUpgradeRequestSchema } from './index'
 
 describe('CancelUpgradeRequestSchema', () => {
-  it('parses the position of the slot as zero', () => {
-    expect(CancelUpgradeRequestSchema.parse({ position: '0' })).toEqual({ position: 0 })
+  it('parses the building and the target level the path names', () => {
+    expect(CancelUpgradeRequestSchema.parse({ building: 'sawmill', targetLevel: '2' })).toEqual({
+      building: 'sawmill',
+      targetLevel: 2,
+    })
   })
 
-  it('parses the position of a waiting entry', () => {
-    expect(CancelUpgradeRequestSchema.parse({ position: '3' })).toEqual({ position: 3 })
-  })
-
-  it('rejects a position that is not a whole count', () => {
-    const positions = ['-1', '1.5', 'uno', '']
+  it('rejects a building the wire does not name', () => {
     expect(
-      positions.map((position) => CancelUpgradeRequestSchema.safeParse({ position }).success),
-    ).toEqual([false, false, false, false])
+      CancelUpgradeRequestSchema.safeParse({ building: 'castle', targetLevel: '1' }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a target level below one or not whole', () => {
+    const targetLevels = ['0', '-1', '1.5', 'uno', '']
+    expect(
+      targetLevels.map(
+        (targetLevel) =>
+          CancelUpgradeRequestSchema.safeParse({ building: 'sawmill', targetLevel }).success,
+      ),
+    ).toEqual([false, false, false, false, false])
   })
 })

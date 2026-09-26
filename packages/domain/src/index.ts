@@ -1,5 +1,5 @@
 export type { DomainError } from './DomainError'
-export type { BuildQueue, BuildQueueEntry } from './fief/BuildQueue'
+export type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './fief/BuildQueue'
 export type { BuildSlot, BusySlot } from './fief/BuildSlot'
 export { Coordinates } from './fief/Coordinates'
 export { deriveFreePeasants } from './fief/deriveFreePeasants'

@@ -2,6 +2,7 @@ import {
   type ApiErrorKind,
   ApiErrorSchema,
   type BuildingKind,
+  type CancelUpgradeRequest,
   type EnqueueBuildingRequest,
   type FiefOverview,
   FiefOverviewSchema,
@@ -25,7 +26,7 @@ export interface ApiClient {
   currentPlayer(): Promise<Player | undefined>
   fief(): Promise<ApiOutcome<FiefOverview>>
   enqueueUpgrade(building: BuildingKind): Promise<ApiOutcome<FiefOverview>>
-  cancelUpgrade(position: number): Promise<ApiOutcome<FiefOverview>>
+  cancelUpgrade(target: CancelUpgradeRequest): Promise<ApiOutcome<FiefOverview>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -89,8 +90,10 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await postJson('/fief/upgrades', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    cancelUpgrade: async (position) => {
-      const response = await send(`/fief/upgrades/${position}`, { method: 'DELETE' })
+    cancelUpgrade: async ({ building, targetLevel }) => {
+      const response = await send(`/fief/upgrades/${building}/${targetLevel}`, {
+        method: 'DELETE',
+      })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
   }

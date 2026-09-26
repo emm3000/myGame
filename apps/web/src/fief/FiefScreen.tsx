@@ -1,4 +1,9 @@
-import { type BuildingKind, BuildingKindSchema, ResourceKindSchema } from '@mygame/contracts'
+import {
+  type BuildingKind,
+  BuildingKindSchema,
+  type CancelUpgradeRequest,
+  ResourceKindSchema,
+} from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { BuildingCard } from '../design-system/BuildingCard'
@@ -26,11 +31,12 @@ function addressOf({ coordinates }: LiveFief['overview']): string {
   return `${kingdom} ${coordinates.province}:${coordinates.plot}`
 }
 
-function cancelActionOf(cancel: Cancel, position: number): CancelAction {
+function cancelActionOf(cancel: Cancel, target: CancelUpgradeRequest): CancelAction {
   return {
     label: copy.fief.cancel,
+    accessibleName: copy.fief.cancelOf(target.building, target.targetLevel),
     isWaiting: cancel.isWaiting,
-    onCancel: () => cancel.start(position),
+    onCancel: () => cancel.start(target),
   }
 }
 
@@ -52,7 +58,7 @@ function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
     remainingSeconds: fief.slotRemainingSeconds,
     totalSeconds: fief.slotTotalSeconds,
     finishedLabel: copy.fief.finished,
-    cancel: cancelActionOf(cancel, 0),
+    cancel: cancelActionOf(cancel, { building: slot.building, targetLevel: slot.targetLevel }),
     ...building,
   }
 }
@@ -67,14 +73,12 @@ function WaitingUpgradesOf({
   if (fief.waitingUpgrades.length === 0) {
     return null
   }
-  const upgrades = fief.waitingUpgrades.map(
-    ({ building, targetLevel, remainingSeconds }, index) => ({
-      buildingName: capitalize(names.buildings[building]),
-      levelLabel: names.level(targetLevel),
-      remainingSeconds,
-      cancel: cancelActionOf(cancel, index + 1),
-    }),
-  )
+  const upgrades = fief.waitingUpgrades.map(({ building, targetLevel, remainingSeconds }) => ({
+    buildingName: capitalize(names.buildings[building]),
+    levelLabel: names.level(targetLevel),
+    remainingSeconds,
+    cancel: cancelActionOf(cancel, { building, targetLevel }),
+  }))
   return (
     <WaitingUpgrades
       title={names.buildQueue}
