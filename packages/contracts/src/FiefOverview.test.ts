@@ -56,7 +56,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   buildings: fiveBuildings,
   peasants: { supplied: 12, occupied: 7, free: 5, projectedFree: 3 },
   slot,
-  queue: [waitingQuarry],
+  queue: { entries: [waitingQuarry], cap: 4 },
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -93,9 +93,21 @@ describe('FiefOverviewSchema', () => {
 
   it('rejects a waiting upgrade without its start instant', () => {
     const { startsAt: _, ...unstartedQuarry } = waitingQuarry
-    const overviewWithUnstartedEntry = { ...overviewWithSlot(busySlot), queue: [unstartedQuarry] }
+    const overviewWithUnstartedEntry = {
+      ...overviewWithSlot(busySlot),
+      queue: { entries: [unstartedQuarry], cap: 4 },
+    }
 
     expect(FiefOverviewSchema.safeParse(overviewWithUnstartedEntry).success).toBe(false)
+  })
+
+  it('rejects a negative build queue cap', () => {
+    const negativeCapOverview = {
+      ...overviewWithSlot(busySlot),
+      queue: { entries: [waitingQuarry], cap: -1 },
+    }
+
+    expect(FiefOverviewSchema.safeParse(negativeCapOverview).success).toBe(false)
   })
 
   it('rejects a start instant that is not an ISO 8601 string', () => {

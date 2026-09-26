@@ -90,6 +90,82 @@ it('shows the Spanish reason when the queue is full', async () => {
   expect(within(cardOf('sawmill')).queryByRole('alert')).toBeNull()
 })
 
+const threeWaitingBehindSawmill: FiefOverview = {
+  ...sawmillUpgradeUnderWay,
+  queue: {
+    entries: [
+      {
+        building: 'quarry',
+        targetLevel: 2,
+        startsAt: '2026-09-22T12:03:12.000Z',
+        finishesAt: '2026-09-22T12:06:24.000Z',
+      },
+      {
+        building: 'farm',
+        targetLevel: 2,
+        startsAt: '2026-09-22T12:06:24.000Z',
+        finishesAt: '2026-09-22T12:09:36.000Z',
+      },
+      {
+        building: 'ironMine',
+        targetLevel: 1,
+        startsAt: '2026-09-22T12:09:36.000Z',
+        finishesAt: '2026-09-22T12:12:48.000Z',
+      },
+    ],
+    cap: 4,
+  },
+}
+
+const queueFullBehindSawmill: FiefOverview = {
+  ...threeWaitingBehindSawmill,
+  queue: {
+    ...threeWaitingBehindSawmill.queue,
+    entries: [
+      ...threeWaitingBehindSawmill.queue.entries,
+      {
+        building: 'warehouse',
+        targetLevel: 1,
+        startsAt: '2026-09-22T12:12:48.000Z',
+        finishesAt: '2026-09-22T12:16:00.000Z',
+      },
+    ],
+  },
+}
+
+it('disables every upgrade button with the reason while the build queue is full', async () => {
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: queueFullBehindSawmill }) }),
+  )
+
+  for (const building of ['sawmill', 'quarry', 'ironMine', 'farm', 'warehouse'] as const) {
+    const upgradeButton = within(cardOf(building)).getByRole('button', {
+      name: 'Mejorar · 3:12. Ya no caben más obras en espera. Espera a que avance alguna.',
+    })
+    expect(upgradeButton.hasAttribute('disabled')).toBe(true)
+  }
+})
+
+it('shows under each card why the full build queue refuses the upgrade', async () => {
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: queueFullBehindSawmill }) }),
+  )
+
+  expect(
+    within(cardOf('quarry')).getByText(
+      'Ya no caben más obras en espera. Espera a que avance alguna.',
+    ),
+  ).toBeDefined()
+})
+
+it('keeps the upgrade buttons enabled while the build queue has room', async () => {
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: threeWaitingBehindSawmill }) }),
+  )
+
+  expect(upgradeButtonOf('quarry').hasAttribute('disabled')).toBe(false)
+})
+
 it('disables a card the free peasants cannot staff', async () => {
   const twoFreePeasants: FiefOverview = {
     ...knownFief,

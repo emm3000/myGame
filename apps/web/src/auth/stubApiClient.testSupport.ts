@@ -42,7 +42,7 @@ export const knownFief: FiefOverview = {
   },
   peasants: { supplied: 12, occupied: 4, free: 8, projectedFree: 8 },
   slot: { kind: 'idle' },
-  queue: [],
+  queue: { entries: [], cap: 4 },
   readAt: '2026-09-22T12:00:00.000Z',
 }
 

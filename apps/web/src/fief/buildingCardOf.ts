@@ -32,7 +32,14 @@ function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<BuildingCo
   return nextLevel.peasants > 0 ? [...resourceCosts, peasantCost] : resourceCosts
 }
 
+function isQueueFull({ slot, queue }: LiveFief['overview']): boolean {
+  return slot.kind === 'busy' && queue.entries.length >= queue.cap
+}
+
 function stateOf(nextLevel: NextLevel, fief: LiveFief): BuildingCardProps['state'] {
+  if (isQueueFull(fief.overview)) {
+    return { kind: 'queueFull', reason: copy.refusals.QueueFull }
+  }
   const { projectedFree } = fief.overview.peasants
   if (nextLevel.peasants > projectedFree) {
     return {
