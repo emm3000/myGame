@@ -36,13 +36,32 @@ const completeAt = (
   fief: Fief,
   finished: BusySlot,
   catalog: BuildingCatalog,
-  now: Instant,
 ): Result<Fief, DomainError> => {
   const stocksAtFinish = materializeStocks(fief, catalog, finished.finishesAt)
   if (!stocksAtFinish.ok) {
     return stocksAtFinish
   }
-  return fief.completeUpgrade(finished, stocksAtFinish.value).accruedTo(catalog, now)
+  return fief.completeUpgrade(finished, stocksAtFinish.value)
+}
+
+const walkFinishedUpgrades = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+  now: Instant,
+): Result<Fief, DomainError> => {
+  let walked = fief
+  for (
+    let finished = finishedUpgradeOf(walked, now);
+    finished !== undefined;
+    finished = finishedUpgradeOf(walked, now)
+  ) {
+    const completed = completeAt(walked, finished, catalog)
+    if (!completed.ok) {
+      return completed
+    }
+    walked = completed.value
+  }
+  return walked.accruedTo(catalog, now)
 }
 
 export const resolveUpgrade = async (
@@ -59,12 +78,11 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  const finished = finishedUpgradeOf(fief, now)
-  if (finished === undefined) {
+  if (finishedUpgradeOf(fief, now) === undefined) {
     return ok({ fief, hasChanged: false })
   }
 
-  const resolved = completeAt(fief, finished, catalog, now)
+  const resolved = walkFinishedUpgrades(fief, catalog, now)
   if (!resolved.ok) {
     return resolved
   }

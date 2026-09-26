@@ -5,7 +5,7 @@ import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
-import { slotTrackFill } from './slotTrackFill.testSupport'
+import { busySlot, slotTrackFill } from './slotTrackFill.testSupport'
 
 const readAt = new Date(knownFief.readAt)
 
@@ -151,6 +151,38 @@ it('re-reads the fief when the countdown reaches zero', async () => {
   await passSeconds(30)
 
   expect(fief).toHaveBeenCalledTimes(2)
+})
+
+const quarryStartedWhenSawmillFinished: FiefOverview = {
+  ...knownFief,
+  buildings: { ...knownFief.buildings, sawmill: { ...knownFief.buildings.sawmill, level: 2 } },
+  slot: {
+    kind: 'busy',
+    building: 'quarry',
+    targetLevel: 1,
+    startedAt: '2026-09-22T12:03:12.000Z',
+    finishesAt: '2026-09-22T12:05:42.000Z',
+  },
+  queue: [
+    {
+      building: 'sawmill',
+      targetLevel: 3,
+      startsAt: '2026-09-22T12:05:42.000Z',
+      finishesAt: '2026-09-22T12:10:49.000Z',
+    },
+  ],
+  readAt: '2026-09-22T12:03:12.000Z',
+}
+
+it('shows the next waiting upgrade in progress after the slot finishes', async () => {
+  const reads = [sawmillWithTwoWaiting, quarryStartedWhenSawmillFinished]
+  await showFief(signedInClientServing(() => reads.shift() ?? quarryStartedWhenSawmillFinished))
+
+  await passSeconds(192 + 15)
+
+  expect(within(busySlot()).getByText('Cantera')).toBeDefined()
+  expect(slotTrackFill()).toBe('10')
+  expect(waitingUpgrades()).toHaveLength(1)
 })
 
 it('fills the track by the elapsed share of the upgrade on the first read', async () => {

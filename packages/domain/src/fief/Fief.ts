@@ -154,6 +154,57 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   return validateBuildQueue(stored.buildQueue)
 }
 
+type Works = {
+  readonly slot: BuildSlot
+  readonly buildQueue: BuildQueue
+}
+
+const startedAt = (entry: BuildQueueEntry, at: Instant): Result<BusySlot, DomainError> => {
+  const duration = Duration.ofSeconds(entry.durationSeconds)
+  if (!duration.ok) {
+    return duration
+  }
+  const { building, targetLevel, cost } = entry
+  return ok({
+    kind: 'busy',
+    building,
+    targetLevel,
+    startedAt: at,
+    finishesAt: at.plus(duration.value),
+    cost,
+  })
+}
+
+const worksAfterEnqueue = (
+  works: Works,
+  upgrade: BuildQueueEntry,
+  now: Instant,
+): Result<Works, DomainError> => {
+  if (works.slot.kind === 'busy' || works.buildQueue.length > 0) {
+    return ok({ slot: works.slot, buildQueue: [...works.buildQueue, upgrade] })
+  }
+  const slot = startedAt(upgrade, now)
+  if (!slot.ok) {
+    return slot
+  }
+  return ok({ slot: slot.value, buildQueue: [] })
+}
+
+const worksAfterFinish = (
+  buildQueue: BuildQueue,
+  finishedAt: Instant,
+): Result<Works, DomainError> => {
+  const [next, ...waiting] = buildQueue
+  if (next === undefined) {
+    return ok({ slot: { kind: 'idle' }, buildQueue: [] })
+  }
+  const slot = startedAt(next, finishedAt)
+  if (!slot.ok) {
+    return slot
+  }
+  return ok({ slot: slot.value, buildQueue: waiting })
+}
+
 export class Fief {
   private constructor(
     readonly id: FiefId,
@@ -216,45 +267,43 @@ export class Fief {
     now: Instant,
     buildQueueCap: number,
   ): Result<Fief, DomainError> {
-    const isSlotIdle = this.slot.kind === 'idle'
-    if (!isSlotIdle && this.buildQueue.length >= buildQueueCap) {
-      return err({ kind: 'QueueFull', cap: buildQueueCap })
+    const room = this.roomForUpgrade(buildQueueCap)
+    if (!room.ok) {
+      return room
     }
     const validUpgrade = validateEntry(upgrade)
     if (!validUpgrade.ok) {
       return validUpgrade
     }
-    const duration = Duration.ofSeconds(upgrade.durationSeconds)
-    if (!duration.ok) {
-      return duration
-    }
     const missing = shortfall(stocksAtNow, upgrade.cost)
     if (isShort(missing)) {
       return err({ kind: 'InsufficientResources', missing })
     }
-    const { building, targetLevel, cost } = upgrade
+    const works = worksAfterEnqueue({ slot: this.slot, buildQueue: this.buildQueue }, upgrade, now)
+    if (!works.ok) {
+      return works
+    }
     return ok(
       new Fief(
         this.id,
         this.playerId,
         this.name,
         this.coordinates,
-        debit(stocksAtNow, cost),
+        debit(stocksAtNow, upgrade.cost),
         now,
         this.buildingLevels,
-        isSlotIdle
-          ? {
-              kind: 'busy',
-              building,
-              targetLevel,
-              startedAt: now,
-              finishesAt: now.plus(duration.value),
-              cost,
-            }
-          : this.slot,
-        isSlotIdle ? this.buildQueue : [...this.buildQueue, upgrade],
+        works.value.slot,
+        works.value.buildQueue,
       ),
     )
+  }
+
+  roomForUpgrade(buildQueueCap: number): Result<void, DomainError> {
+    const takesSlot = this.slot.kind === 'idle' && this.buildQueue.length === 0
+    if (!takesSlot && this.buildQueue.length >= buildQueueCap) {
+      return err({ kind: 'QueueFull', cap: buildQueueCap })
+    }
+    return ok(undefined)
   }
 
   cancelUpgrade(stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
@@ -277,18 +326,24 @@ export class Fief {
     )
   }
 
-  completeUpgrade(finished: BusySlot, stocksAtFinish: Stocks): Fief {
+  completeUpgrade(finished: BusySlot, stocksAtFinish: Stocks): Result<Fief, DomainError> {
     const { building, targetLevel, finishesAt } = finished
-    return new Fief(
-      this.id,
-      this.playerId,
-      this.name,
-      this.coordinates,
-      stocksAtFinish,
-      finishesAt,
-      { ...this.buildingLevels, [building]: targetLevel },
-      { kind: 'idle' },
-      this.buildQueue,
+    const works = worksAfterFinish(this.buildQueue, finishesAt)
+    if (!works.ok) {
+      return works
+    }
+    return ok(
+      new Fief(
+        this.id,
+        this.playerId,
+        this.name,
+        this.coordinates,
+        stocksAtFinish,
+        finishesAt,
+        { ...this.buildingLevels, [building]: targetLevel },
+        works.value.slot,
+        works.value.buildQueue,
+      ),
     )
   }
 
