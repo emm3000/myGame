@@ -40,6 +40,15 @@ describe('materializeResources', () => {
     expect(result.value.resources.wood.amount).toBe(900)
   })
 
+  it('freezes a stock above the capacity instead of clamping it', () => {
+    const resources = uniformResources(buildResource(1_200, 100, 1_000))
+
+    const result = materializeResources(resources, storedAt, oneHourLater)
+
+    assert(result.ok)
+    expect(result.value.resources.wood.amount).toBe(1_200)
+  })
+
   it('accrues each resource at its own rate', () => {
     const resources: Resources = {
       wood: buildResource(0, 10, 900),

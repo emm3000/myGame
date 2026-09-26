@@ -15,7 +15,9 @@ const accrue = (resource: Resource, elapsedMilliseconds: number): Resource => {
     (resource.amount * MILLISECONDS_PER_HOUR + resource.ratePerHour * elapsedMilliseconds) /
       MILLISECONDS_PER_HOUR,
   )
-  return resource.withAccruedAmount(Math.min(resource.capacityUnits, accruedAmount))
+  return resource.withAccruedAmount(
+    Math.max(resource.amount, Math.min(resource.capacityUnits, accruedAmount)),
+  )
 }
 
 export const materializeResources = (

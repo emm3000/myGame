@@ -65,6 +65,21 @@ it('stops the interpolated amount at the capacity', async () => {
   expect(within(woodCell()).getByText('20 000')).toBeDefined()
 })
 
+it('keeps an amount above the capacity where the read left it', async () => {
+  const woodAboveCapacity: FiefOverview = {
+    ...knownFief,
+    resources: {
+      ...knownFief.resources,
+      wood: { amount: 1200, ratePerHour: 3600, capacity: 1000 },
+    },
+  }
+  await showFief(signedInClientServing(() => woodAboveCapacity))
+
+  await passSeconds(30)
+
+  expect(within(woodCell()).getByText('1 200')).toBeDefined()
+})
+
 const sawmillStartedNinetySecondsAgo: FiefOverview = {
   ...knownFief,
   slot: {
