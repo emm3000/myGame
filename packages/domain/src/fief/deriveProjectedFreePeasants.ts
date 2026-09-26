@@ -1,23 +1,16 @@
 import type { DomainError } from '../DomainError'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
-import type { Result } from '../Result'
-import { deriveFreePeasants } from './deriveFreePeasants'
-import { deriveOccupiedPeasants } from './deriveOccupiedPeasants'
-import { deriveSuppliedPeasants } from './deriveSuppliedPeasants'
+import { ok, type Result } from '../Result'
+import { derivePeasantCounts } from './derivePeasantCounts'
 import type { Fief } from './Fief'
 
 export const deriveProjectedFreePeasants = (
   fief: Fief,
   catalog: BuildingCatalog,
 ): Result<number, DomainError> => {
-  const projectedLevels = fief.projectedBuildingLevels
-  const supplied = deriveSuppliedPeasants(projectedLevels.farm, catalog)
-  if (!supplied.ok) {
-    return supplied
+  const projected = derivePeasantCounts(fief.projectedBuildingLevels, catalog)
+  if (!projected.ok) {
+    return projected
   }
-  const occupied = deriveOccupiedPeasants(projectedLevels, catalog)
-  if (!occupied.ok) {
-    return occupied
-  }
-  return deriveFreePeasants(supplied.value, occupied.value)
+  return ok(projected.value.free)
 }
