@@ -51,7 +51,7 @@ ADRs amend this table by row id.
 | N2 | Resource-lean: the api idles at zero CPU with no requests; a fief read is one round trip to the store; no process advances state on a timer. |
 | N3 | A fief read answers in under 100 ms on the reference host, excluding network. |
 | N4 | Every mutation on a fief is one transaction; two concurrent mutations serialize. |
-| N5 | Content (buildings, costs, durations, names) is data the domain reads, changeable without a code deploy. |
+| N5 | Content (buildings, costs, durations) is data the domain reads, changeable without a code deploy; display names are copy under N6 (ADR 010). |
 | N6 | UI copy is Spanish, tú, and lives in one copy layer; identifiers are English. |
 | N7 | Every image ships with the prompt that produced it and complies with the art bible. |
 
