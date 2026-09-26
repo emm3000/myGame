@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Fief, type StoredFief } from '../fief/Fief'
+import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type {
   BuildingCatalog,
@@ -37,10 +37,12 @@ const fiefSettings: FiefSettings = {
   },
 }
 
+const sawmillCost: Stocks = { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 }
+
 const sawmillLevel = (level: number, ratePerHour: number): ProducerLevel => ({
   building: 'sawmill',
   level,
-  cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 },
+  cost: sawmillCost,
   durationSeconds: 90,
   peasantOccupancy: level,
   ratePerHour,
@@ -95,6 +97,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -119,6 +122,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -142,6 +146,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 2,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -172,6 +177,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -199,6 +205,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(2),
       },
     })
@@ -223,6 +230,7 @@ describe('resolveUpgrade', () => {
         building: 'warehouse',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: warehouseLevelOne.cost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -245,6 +253,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -289,6 +298,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 3,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })
@@ -313,6 +323,7 @@ describe('resolveUpgrade', () => {
         building: 'sawmill',
         targetLevel: 1,
         startedAt: storedInstant,
+        cost: sawmillCost,
         finishesAt: hoursAfterStored(1),
       },
     })

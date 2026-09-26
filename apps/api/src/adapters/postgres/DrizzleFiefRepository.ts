@@ -11,6 +11,7 @@ import {
   type PlayerId,
   type PlotAddress,
   type Result,
+  type Stocks,
   type StoredFief,
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
@@ -70,6 +71,13 @@ const slotOf = (row: FiefRow): BuildSlot => {
     targetLevel: row.slotLevel,
     startedAt: instantOf(row.slotStartedAt),
     finishesAt: instantOf(row.slotFinishesAt),
+    cost: {
+      wood: row.slotCostWood,
+      stone: row.slotCostStone,
+      iron: row.slotCostIron,
+      gold: row.slotCostGold,
+      food: row.slotCostFood,
+    },
   }
 }
 
@@ -84,17 +92,43 @@ const storedFiefOf = (row: FiefRow, levelRows: ReadonlyArray<LevelRow>): StoredF
   slot: slotOf(row),
 })
 
-const slotColumnsOf = (
-  slot: BuildSlot,
-): Pick<FiefRow, 'slotBuilding' | 'slotLevel' | 'slotStartedAt' | 'slotFinishesAt'> => {
+type SlotCostColumns = Pick<
+  FiefRow,
+  'slotCostWood' | 'slotCostStone' | 'slotCostIron' | 'slotCostGold' | 'slotCostFood'
+>
+
+type SlotColumns = Pick<
+  FiefRow,
+  'slotBuilding' | 'slotLevel' | 'slotStartedAt' | 'slotFinishesAt'
+> &
+  SlotCostColumns
+
+const noCost: Stocks = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
+
+const slotCostColumnsOf = (cost: Stocks): SlotCostColumns => ({
+  slotCostWood: cost.wood,
+  slotCostStone: cost.stone,
+  slotCostIron: cost.iron,
+  slotCostGold: cost.gold,
+  slotCostFood: cost.food,
+})
+
+const slotColumnsOf = (slot: BuildSlot): SlotColumns => {
   if (slot.kind === 'idle') {
-    return { slotBuilding: null, slotLevel: null, slotStartedAt: null, slotFinishesAt: null }
+    return {
+      slotBuilding: null,
+      slotLevel: null,
+      slotStartedAt: null,
+      slotFinishesAt: null,
+      ...slotCostColumnsOf(noCost),
+    }
   }
   return {
     slotBuilding: storedBuildings[slot.building],
     slotLevel: slot.targetLevel,
     slotStartedAt: dateOf(slot.startedAt),
     slotFinishesAt: dateOf(slot.finishesAt),
+    ...slotCostColumnsOf(slot.cost),
   }
 }
 

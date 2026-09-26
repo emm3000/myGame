@@ -325,3 +325,43 @@ describe('the session token digest migration', () => {
     expect(renewedFor).toBe(ana.id)
   })
 })
+
+describe('the slot cost migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('stores a zero cost on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 4, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await client.query(
+        `INSERT INTO fiefs (id, player_id, kingdom, province, plot, terrain, name, wood, stone, iron, gold, food,
+           stored_at, slot_building, slot_level, slot_started_at, slot_finishes_at)
+         VALUES ($1, $2, 1, 4, 7, 'lowlands', 'Valdehierro', 500, 500, 0, 0, 200,
+           '2026-09-22T08:00:00Z', 'sawmill', 2, '2026-09-22T08:00:00Z', '2026-09-22T09:00:00Z')`,
+        [anasFief.id, ana.id],
+      )
+    })
+
+    const read = await client.query(
+      `SELECT slot_cost_wood, slot_cost_stone, slot_cost_iron, slot_cost_gold, slot_cost_food
+       FROM fiefs WHERE id = $1`,
+      [anasFief.id],
+    )
+    expect(read.rows).toEqual([
+      {
+        slot_cost_wood: 0,
+        slot_cost_stone: 0,
+        slot_cost_iron: 0,
+        slot_cost_gold: 0,
+        slot_cost_food: 0,
+      },
+    ])
+  })
+})

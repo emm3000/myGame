@@ -1,5 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
-import { Fief, type StoredFief } from '../fief/Fief'
+import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type {
   BuildingCatalog,
@@ -34,10 +34,12 @@ const fiefSettings: FiefSettings = {
   },
 }
 
+const sawmillCost: Stocks = { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 }
+
 const sawmillLevel = (level: number, peasantOccupancy: number): ProducerLevel => ({
   building: 'sawmill',
   level,
-  cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 },
+  cost: sawmillCost,
   durationSeconds: 90,
   peasantOccupancy,
   ratePerHour: 30,
@@ -115,6 +117,7 @@ describe('enqueueBuilding', () => {
       targetLevel: 1,
       startedAt: storedInstant,
       finishesAt: Instant.fromEpochMilliseconds(86_400_000 + 90_000),
+      cost: sawmillCost,
     })
   })
 
@@ -148,6 +151,23 @@ describe('enqueueBuilding', () => {
     })
   })
 
+  it('stores the debited cost on the busy slot', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'quarry' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.stocks).toEqual({ wood: 50, stone: 80, iron: 100, gold: 100, food: 100 })
+    expect(stored?.slot).toMatchObject({
+      kind: 'busy',
+      cost: { wood: 50, stone: 20, iron: 0, gold: 0, food: 0 },
+    })
+  })
+
   it('refuses a second upgrade while the slot is busy', async () => {
     const sawmillFinishing = Instant.fromEpochMilliseconds(86_400_000 + 90_000)
     const busyFief = storedFief({
@@ -157,6 +177,7 @@ describe('enqueueBuilding', () => {
         targetLevel: 1,
         startedAt: storedInstant,
         finishesAt: sawmillFinishing,
+        cost: sawmillCost,
       },
     })
     const fiefs = inMemoryFiefRepository([busyFief])
