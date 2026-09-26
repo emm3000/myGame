@@ -1,6 +1,7 @@
 import { EnqueueBuildingRequestSchema, type FiefOverview } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
+import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
@@ -9,6 +10,7 @@ import { bodyOf } from '../http/bodyOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 
 export type FiefDependencies = CurrentFiefDependencies &
+  CancelUpgradeDependencies &
   EnqueueUpgradeDependencies &
   RequirePlayerDependencies
 
@@ -39,4 +41,7 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         await enqueueUpgradeOf(c.var.playerId, request.data.building, dependencies),
       )
     })
+    .delete('/upgrades', signedInPlayer, async (c) =>
+      answerFief(c, await cancelUpgradeOf(c.var.playerId, dependencies)),
+    )
 }

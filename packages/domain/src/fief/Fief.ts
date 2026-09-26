@@ -51,6 +51,14 @@ const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
   food: stocks.food - cost.food,
 })
 
+const credit = (stocks: Stocks, refund: Stocks): Stocks => ({
+  wood: stocks.wood + refund.wood,
+  stone: stocks.stone + refund.stone,
+  iron: stocks.iron + refund.iron,
+  gold: stocks.gold + refund.gold,
+  food: stocks.food + refund.food,
+})
+
 const shortfall = (stocks: Stocks, cost: Stocks): Stocks => ({
   wood: Math.max(0, cost.wood - stocks.wood),
   stone: Math.max(0, cost.stone - stocks.stone),
@@ -193,6 +201,25 @@ export class Fief {
         now,
         this.buildingLevels,
         { kind: 'busy', building, targetLevel, startedAt: now, finishesAt, cost },
+      ),
+    )
+  }
+
+  cancelUpgrade(stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
+    const { slot } = this
+    if (slot.kind === 'idle' || slot.finishesAt.epochMilliseconds <= now.epochMilliseconds) {
+      return err({ kind: 'SlotIdle' })
+    }
+    return ok(
+      new Fief(
+        this.id,
+        this.playerId,
+        this.name,
+        this.coordinates,
+        credit(stocksAtNow, slot.cost),
+        now,
+        this.buildingLevels,
+        { kind: 'idle' },
       ),
     )
   }

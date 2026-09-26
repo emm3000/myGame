@@ -460,4 +460,51 @@ describe('the fief route', () => {
       expect(response.status).toBe(401)
     })
   })
+
+  describe('the cancel route', () => {
+    const cancel = async (cookie: string): Promise<Response> =>
+      app.request('/fief/upgrades', { method: 'DELETE', headers: { cookie } })
+
+    it('cancels the upgrade in progress and answers the fief with the slot idle', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueueSawmill(ana.playerId)
+      clock.advanceMinutes(1)
+
+      const response = await cancel(ana.cookie)
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.slot).toEqual({ kind: 'idle' })
+      expect(overview.buildings.sawmill.level).toBe(0)
+      expect(overview.resources.wood.amount).toBe(500)
+      expect(overview.resources.stone.amount).toBe(500)
+      expect(overview.readAt).toBe('2026-09-22T08:01:00.000Z')
+      const stored = await server.fiefs.fiefOf(ana.playerId)
+      expect(stored.ok && stored.value?.slot).toEqual({ kind: 'idle' })
+      expect(stored.ok && stored.value?.stocks.wood).toBe(500)
+    })
+
+    it('applies an upgrade that finished before the cancel and refuses with SlotIdle', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueueSawmill(ana.playerId)
+      clock.advanceMinutes(2)
+
+      const response = await cancel(ana.cookie)
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'SlotIdle',
+        message: 'Tu obra ya ha terminado. No queda nada que cancelar.',
+      })
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(overview.buildings.sawmill.level).toBe(1)
+      expect(overview.slot).toEqual({ kind: 'idle' })
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/upgrades', { method: 'DELETE' })
+
+      expect(response.status).toBe(401)
+    })
+  })
 })

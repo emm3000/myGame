@@ -30,7 +30,8 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Barracks** — where units are trained. Replaces *shipyard*. Not in the MVP.
 - **Build slot** — the single place on a fief where one upgrade builds at a time; nothing waits behind it. A slot with an upgrade in progress is **busy**. Replaces *build queue*.
 - **Enqueue** — the single atomic mutation that debits resources and starts an upgrade in the free slot. Staffs the upgrade by the delta: it releases the current level's occupancy and charges only the increase against the free peasants, so a level-2 upgrade of a building already at level 1 needs `occupancy(2) − occupancy(1)` free peasants, not `occupancy(2)`. Refused with a named reason when the slot is busy, resources are short or free peasants are too few.
-- **Resolve** — applying a finished upgrade to the fief, on read. Nothing can be cancelled in this phase.
+- **Resolve** — applying a finished upgrade to the fief, on read.
+- **Cancel** — the single atomic mutation that stops the upgrade in the busy slot and frees it. It refunds 100 % of the cost the slot stored at the enqueue, added to the stocks at the cancel instant even above the capacity, where they freeze. An upgrade already finished at that instant is resolved instead, and the cancel is refused because the slot is idle. It touches no peasant count, since occupancy derives from built levels.
 
 ## Knowledge and arms
 

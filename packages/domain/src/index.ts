@@ -34,6 +34,11 @@ export { Resource } from './resources/Resources'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
 export {
+  type CancelUpgradeCommand,
+  type CancelUpgradeDependencies,
+  cancelUpgrade,
+} from './useCases/cancelUpgrade'
+export {
   type EnqueueBuildingCommand,
   type EnqueueBuildingDependencies,
   enqueueBuilding,
