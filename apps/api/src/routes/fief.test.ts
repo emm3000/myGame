@@ -605,6 +605,23 @@ describe('the fief route', () => {
       ])
     })
 
+    it('refunds a waiting level whose lower level was cancelled', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana.cookie, 'sawmill')
+      clock.advanceMinutes(1)
+      expect((await cancel(ana.cookie)).status).toBe(200)
+
+      const response = await fiefOf(ana.cookie)
+
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.buildings.sawmill.level).toBe(0)
+      expect(overview.slot).toEqual({ kind: 'idle' })
+      expect(overview.queue).toEqual([])
+      expect(overview.resources.wood.amount).toBe(500)
+      expect(overview.resources.stone.amount).toBe(500)
+    })
+
     it('answers 401 without a session', async () => {
       const response = await app.request('/fief/upgrades', { method: 'DELETE' })
 

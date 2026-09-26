@@ -32,6 +32,9 @@ const finishedUpgradeOf = (fief: Fief, now: Instant): BusySlot | undefined => {
   return slot.finishesAt.epochMilliseconds <= now.epochMilliseconds ? slot : undefined
 }
 
+const laterOf = (left: Instant, right: Instant): Instant =>
+  left.epochMilliseconds >= right.epochMilliseconds ? left : right
+
 const completeAt = (
   fief: Fief,
   finished: BusySlot,
@@ -61,7 +64,7 @@ const walkFinishedUpgrades = (
     }
     walked = completed.value
   }
-  return walked.accruedTo(catalog, now)
+  return walked.accruedTo(catalog, laterOf(now, walked.storedAt))
 }
 
 export const resolveUpgrade = async (
@@ -78,11 +81,11 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  if (!fief.isQueueStalled && finishedUpgradeOf(fief, now) === undefined) {
+  if (!fief.isSlotIdleWithQueue && finishedUpgradeOf(fief, now) === undefined) {
     return ok({ fief, hasChanged: false })
   }
 
-  const resumed = fief.resumeBuildQueue()
+  const resumed = fief.resumeBuildQueue(catalog)
   if (!resumed.ok) {
     return resumed
   }

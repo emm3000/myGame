@@ -8,6 +8,7 @@ import type { Instant } from '../time/Instant'
 import type { BuildQueue, BuildQueueEntry } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
 import { Coordinates } from './Coordinates'
+import { entryFitsProjection } from './entryFitsProjection'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
@@ -207,6 +208,34 @@ const slotAndQueueStartingAt = (
   return ok({ slot: slot.value, buildQueue: waiting })
 }
 
+type RevalidatedQueue = {
+  readonly buildQueue: BuildQueue
+  readonly refund: Stocks
+}
+
+const revalidateBuildQueue = (
+  buildingLevels: FiefBuildingLevels,
+  buildQueue: BuildQueue,
+  catalog: BuildingCatalog,
+): Result<RevalidatedQueue, DomainError> => {
+  const projected = { ...buildingLevels }
+  const kept: Array<BuildQueueEntry> = []
+  let refund: Stocks = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
+  for (const entry of buildQueue) {
+    const fits = entryFitsProjection(projected, entry, catalog)
+    if (!fits.ok) {
+      return fits
+    }
+    if (fits.value) {
+      kept.push(entry)
+      projected[entry.building] = entry.targetLevel
+    } else {
+      refund = credit(refund, entry.cost)
+    }
+  }
+  return ok({ buildQueue: kept, refund })
+}
+
 export class Fief {
   private constructor(
     readonly id: FiefId,
@@ -319,22 +348,26 @@ export class Fief {
     )
   }
 
-  get isQueueStalled(): boolean {
+  get isSlotIdleWithQueue(): boolean {
     return this.slot.kind === 'idle' && this.buildQueue.length > 0
   }
 
-  resumeBuildQueue(): Result<Fief, DomainError> {
-    if (!this.isQueueStalled) {
+  resumeBuildQueue(catalog: BuildingCatalog): Result<Fief, DomainError> {
+    if (!this.isSlotIdleWithQueue) {
       return ok(this)
     }
-    const next = slotAndQueueStartingAt(this.buildQueue, this.storedAt)
+    const revalidated = revalidateBuildQueue(this.buildingLevels, this.buildQueue, catalog)
+    if (!revalidated.ok) {
+      return revalidated
+    }
+    const next = slotAndQueueStartingAt(revalidated.value.buildQueue, this.storedAt)
     if (!next.ok) {
       return next
     }
     return ok(
       this.changed({
         ...next.value,
-        stocks: this.stocks,
+        stocks: credit(this.stocks, revalidated.value.refund),
         storedAt: this.storedAt,
         buildingLevels: this.buildingLevels,
       }),
