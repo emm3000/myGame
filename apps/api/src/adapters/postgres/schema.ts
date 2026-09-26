@@ -94,3 +94,24 @@ export const fiefBuildings = pgTable(
   },
   (table) => [primaryKey({ name: 'fief_buildings_pkey', columns: [table.fiefId, table.building] })],
 )
+
+export const fiefQueueEntries = pgTable(
+  'fief_queue_entries',
+  {
+    fiefId: uuid('fief_id')
+      .notNull()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    position: integer('position').notNull(),
+    building: building('building').notNull(),
+    targetLevel: integer('target_level').notNull(),
+    costWood: doublePrecision('cost_wood').notNull(),
+    costStone: doublePrecision('cost_stone').notNull(),
+    costIron: doublePrecision('cost_iron').notNull(),
+    costGold: doublePrecision('cost_gold').notNull(),
+    costFood: doublePrecision('cost_food').notNull(),
+    durationSeconds: integer('duration_seconds').notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'fief_queue_entries_pkey', columns: [table.fiefId, table.position] }),
+  ],
+)

@@ -25,6 +25,7 @@ const fiefSettings = (
     uplands: { resource: bonusResource, ratePerHour: 10 },
     ridges: { resource: bonusResource, ratePerHour: 10 },
   },
+  buildQueueCap: 4,
 })
 
 const producerLevel = (ratePerHour: number): ProducerLevel => ({
@@ -101,6 +102,7 @@ describe('deriveResourceRates', () => {
           uplands: { resource: 'stone', ratePerHour: 4 },
           ridges: { resource: 'iron', ratePerHour: 2 },
         },
+        buildQueueCap: 4,
       },
       {},
     )

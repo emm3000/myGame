@@ -21,6 +21,7 @@ const fiefSettings: FiefSettings = {
     uplands: { resource: 'stone', ratePerHour: 10 },
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
+  buildQueueCap: 4,
 }
 
 const producerLevel = (

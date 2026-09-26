@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
+import type { BuildQueueEntry } from './BuildQueue'
 import { Coordinates } from './Coordinates'
 import { Fief, type Stocks, type StoredFief } from './Fief'
 import { FiefName } from './FiefName'
@@ -7,6 +8,20 @@ import { FiefName } from './FiefName'
 const foundingInstant = Instant.fromEpochMilliseconds(86_400_000)
 
 const quarryCost: Stocks = { wood: 50, stone: 20, iron: 0, gold: 0, food: 0 }
+
+const sawmillEntry: BuildQueueEntry = {
+  building: 'sawmill',
+  targetLevel: 3,
+  cost: { wood: 90, stone: 40, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 240,
+}
+
+const farmEntry: BuildQueueEntry = {
+  building: 'farm',
+  targetLevel: 2,
+  cost: { wood: 60, stone: 30, iron: 0, gold: 0, food: 10 },
+  durationSeconds: 180,
+}
 
 const storedBusyFief: StoredFief = {
   id: 'fief-1',
@@ -24,6 +39,7 @@ const storedBusyFief: StoredFief = {
     finishesAt: Instant.fromEpochMilliseconds(86_500_000),
     cost: quarryCost,
   },
+  buildQueue: [sawmillEntry, farmEntry],
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -51,7 +67,7 @@ describe('Fief', () => {
     const restored = Fief.restore(storedBusyFief)
 
     assert(restored.ok)
-    const { id, playerId, name, coordinates, stocks, storedAt, buildingLevels, slot } =
+    const { id, playerId, name, coordinates, stocks, storedAt, buildingLevels, slot, buildQueue } =
       restored.value
     expect({
       id,
@@ -66,7 +82,49 @@ describe('Fief', () => {
       storedAt,
       buildingLevels,
       slot,
+      buildQueue,
     }).toEqual(storedBusyFief)
+  })
+
+  it('founds a fief with an empty build queue', () => {
+    expect(fiefInProvince(1).buildQueue).toEqual([])
+  })
+
+  it('restores the waiting entries in their order', () => {
+    const restored = Fief.restore({ ...storedBusyFief, buildQueue: [farmEntry, sawmillEntry] })
+
+    assert(restored.ok)
+    expect(restored.value.buildQueue).toEqual([farmEntry, sawmillEntry])
+  })
+
+  it('refuses a stored entry whose target level is below one', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      buildQueue: [sawmillEntry, { ...farmEntry, targetLevel: 0 }],
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidBuildingLevel', building: 'farm', level: 0 },
+    })
+  })
+
+  it('refuses a stored entry whose cost is negative', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      buildQueue: [{ ...sawmillEntry, cost: { ...sawmillEntry.cost, iron: -5 } }],
+    })
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -5 } })
+  })
+
+  it('refuses a stored entry whose duration is negative', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      buildQueue: [{ ...farmEntry, durationSeconds: -60 }],
+    })
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'NegativeDuration', seconds: -60 } })
   })
 
   it('refuses a stored fief with a negative amount', () => {
