@@ -1,10 +1,13 @@
 import type { ReactElement } from 'react'
+import { Button } from './Button'
+import type { CancelAction } from './CancelAction'
 import { Countdown } from './Countdown'
 
 export interface WaitingUpgrade {
   readonly buildingName: string
   readonly levelLabel: string
   readonly remainingSeconds: number
+  readonly cancel: CancelAction
 }
 
 interface WaitingUpgradesProps {
@@ -22,7 +25,7 @@ export function WaitingUpgrades({
     <section className="flex flex-col gap-2 rounded-md border border-line bg-surface p-4">
       <span className="font-utility text-label text-ink-muted uppercase">{title}</span>
       <ol aria-label={title} className="m-0 flex list-none flex-col gap-3 p-0">
-        {upgrades.map(({ buildingName, levelLabel, remainingSeconds }) => (
+        {upgrades.map(({ buildingName, levelLabel, remainingSeconds, cancel }) => (
           <li
             key={`${buildingName}-${levelLabel}`}
             className="flex flex-wrap items-center justify-between gap-2"
@@ -34,6 +37,14 @@ export function WaitingUpgrades({
               </span>
             </span>
             <Countdown remainingSeconds={remainingSeconds} finishedLabel={finishedLabel} />
+            <Button
+              type="button"
+              tone="quiet"
+              disabled={cancel.isWaiting}
+              onClick={cancel.onCancel}
+            >
+              {cancel.label}
+            </Button>
           </li>
         ))}
       </ol>

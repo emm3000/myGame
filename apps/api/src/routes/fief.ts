@@ -1,4 +1,8 @@
-import { EnqueueBuildingRequestSchema, type FiefOverview } from '@mygame/contracts'
+import {
+  CancelUpgradeRequestSchema,
+  EnqueueBuildingRequestSchema,
+  type FiefOverview,
+} from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
 import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
@@ -41,7 +45,14 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         await enqueueUpgradeOf(c.var.playerId, request.data.building, dependencies),
       )
     })
-    .delete('/upgrades', signedInPlayer, async (c) =>
-      answerFief(c, await cancelUpgradeOf(c.var.playerId, dependencies)),
-    )
+    .delete('/upgrades/:position', signedInPlayer, async (c) => {
+      const request = CancelUpgradeRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(
+        c,
+        await cancelUpgradeOf(c.var.playerId, request.data.position, dependencies),
+      )
+    })
 }

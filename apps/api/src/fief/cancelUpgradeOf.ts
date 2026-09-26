@@ -19,6 +19,7 @@ export type CancelUpgradeDependencies = {
 
 export const cancelUpgradeOf = async (
   playerId: PlayerId,
+  position: number,
   { inTransaction, buildingCatalog, clock }: CancelUpgradeDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   inTransaction(async ({ fiefs }) => {
@@ -36,5 +37,8 @@ export const cancelUpgradeOf = async (
     if (!resolved.ok) {
       return resolved
     }
-    return cancelUpgrade({ playerId }, { fiefs, catalog: buildingCatalog, clock: cancelClock })
+    return cancelUpgrade(
+      { playerId, position },
+      { fiefs, catalog: buildingCatalog, clock: cancelClock },
+    )
   })

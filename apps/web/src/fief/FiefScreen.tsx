@@ -3,6 +3,7 @@ import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
+import type { CancelAction } from '../design-system/CancelAction'
 import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
@@ -25,6 +26,14 @@ function addressOf({ coordinates }: LiveFief['overview']): string {
   return `${kingdom} ${coordinates.province}:${coordinates.plot}`
 }
 
+function cancelActionOf(cancel: Cancel, position: number): CancelAction {
+  return {
+    label: copy.fief.cancel,
+    isWaiting: cancel.isWaiting,
+    onCancel: () => cancel.start(position),
+  }
+}
+
 function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
   const { slot } = fief.overview
   if (slot.kind === 'idle') {
@@ -43,20 +52,29 @@ function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
     remainingSeconds: fief.slotRemainingSeconds,
     totalSeconds: fief.slotTotalSeconds,
     finishedLabel: copy.fief.finished,
-    cancel: { label: copy.fief.cancel, isWaiting: cancel.isWaiting, onCancel: cancel.start },
+    cancel: cancelActionOf(cancel, 0),
     ...building,
   }
 }
 
-function WaitingUpgradesOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
+function WaitingUpgradesOf({
+  fief,
+  cancel,
+}: {
+  readonly fief: LiveFief
+  readonly cancel: Cancel
+}): ReactElement | null {
   if (fief.waitingUpgrades.length === 0) {
     return null
   }
-  const upgrades = fief.waitingUpgrades.map(({ building, targetLevel, remainingSeconds }) => ({
-    buildingName: capitalize(names.buildings[building]),
-    levelLabel: names.level(targetLevel),
-    remainingSeconds,
-  }))
+  const upgrades = fief.waitingUpgrades.map(
+    ({ building, targetLevel, remainingSeconds }, index) => ({
+      buildingName: capitalize(names.buildings[building]),
+      levelLabel: names.level(targetLevel),
+      remainingSeconds,
+      cancel: cancelActionOf(cancel, index + 1),
+    }),
+  )
   return (
     <WaitingUpgrades
       title={names.buildQueue}
@@ -120,7 +138,7 @@ export function FiefScreen({ fief, upgrade, cancel }: FiefScreenProps): ReactEle
         <div className="flex flex-col gap-2">
           <BuildSlot state={slotStateOf(fief, cancel)} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
-          <WaitingUpgradesOf fief={fief} />
+          <WaitingUpgradesOf fief={fief} cancel={cancel} />
         </div>
         <section className="flex flex-col gap-3 lg:col-span-2">
           <h3 className="m-0 font-body text-heading text-ink">{copy.fief.buildings}</h3>

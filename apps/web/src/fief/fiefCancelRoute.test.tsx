@@ -1,6 +1,6 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { act, fireEvent, screen } from '@testing-library/react'
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { act, fireEvent, screen, within } from '@testing-library/react'
+import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
@@ -33,6 +33,24 @@ const sawmillUpgradeUnderWay: FiefOverview = {
   },
 }
 
+const sawmillWithTwoWaiting: FiefOverview = {
+  ...sawmillUpgradeUnderWay,
+  queue: [
+    {
+      building: 'quarry',
+      targetLevel: 2,
+      startsAt: '2026-09-22T12:03:12.000Z',
+      finishesAt: '2026-09-22T12:06:24.000Z',
+    },
+    {
+      building: 'farm',
+      targetLevel: 2,
+      startsAt: '2026-09-22T12:06:24.000Z',
+      finishesAt: '2026-09-22T12:09:36.000Z',
+    },
+  ],
+}
+
 const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   renderAppAt(
     '/',
@@ -60,6 +78,9 @@ const deferred = <T,>(): Deferred<T> => {
   return { promise, resolve }
 }
 
+const waitingRows = (): ReadonlyArray<HTMLElement> =>
+  within(screen.getByRole('list', { name: copy.names.buildQueue })).getAllByRole('listitem')
+
 it('cancels the upgrade in progress from the slot', async () => {
   const cancelUpgrade = vi.fn(async () => ({ ok: true as const, value: knownFief }))
   await showFief({ cancelUpgrade })
@@ -68,8 +89,32 @@ it('cancels the upgrade in progress from the slot', async () => {
   await passSeconds(0)
 
   expect(cancelUpgrade).toHaveBeenCalledTimes(1)
+  expect(cancelUpgrade).toHaveBeenCalledWith(0)
   expect(screen.getByText(copy.names.idleSlot)).toBeDefined()
   expect(screen.queryByRole('button', { name: copy.fief.cancel })).toBeNull()
+})
+
+it('cancels a waiting upgrade from its row', async () => {
+  const farmCancelled: FiefOverview = {
+    ...sawmillWithTwoWaiting,
+    queue: sawmillWithTwoWaiting.queue.slice(0, 1),
+  }
+  const cancelUpgrade = vi.fn(async () => ({ ok: true as const, value: farmCancelled }))
+  await showFief({ fief: async () => ({ ok: true, value: sawmillWithTwoWaiting }), cancelUpgrade })
+
+  const [, farmRow] = waitingRows()
+  assert(farmRow !== undefined)
+  fireEvent.click(within(farmRow).getByRole('button', { name: copy.fief.cancel }))
+  await passSeconds(0)
+
+  expect(cancelUpgrade).toHaveBeenCalledWith(2)
+  expect(waitingRows()).toHaveLength(1)
+})
+
+it('offers a cancel on every waiting upgrade', async () => {
+  await showFief({ fief: async () => ({ ok: true, value: sawmillWithTwoWaiting }) })
+
+  expect(screen.getAllByRole('button', { name: copy.fief.cancel })).toHaveLength(3)
 })
 
 it('cancels at most once on a double click', async () => {
@@ -85,10 +130,10 @@ it('cancels at most once on a double click', async () => {
   expect(cancelUpgrade).toHaveBeenCalledTimes(1)
 })
 
-it('shows the Spanish reason when the upgrade finished before the cancel', async () => {
+it('shows the Spanish reason when the upgrade is gone before the cancel', async () => {
   const cancelUpgrade = async (): Promise<ApiOutcome<FiefOverview>> => ({
     ok: false,
-    refusal: 'SlotIdle',
+    refusal: 'UpgradeNotFound',
   })
   await showFief({ cancelUpgrade })
 
@@ -96,7 +141,7 @@ it('shows the Spanish reason when the upgrade finished before the cancel', async
   await passSeconds(0)
 
   expect(screen.getByRole('alert').textContent).toBe(
-    'Tu obra ya ha terminado. No queda nada que cancelar.',
+    'Esa obra ya no está en tu cola. No queda nada que cancelar.',
   )
 })
 
