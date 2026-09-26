@@ -407,6 +407,32 @@ describe('resolveUpgrade', () => {
     expect(result.value.fief.stocks.wood).toBe(1410)
   })
 
+  it('starts the first waiting upgrade behind an idle slot at the stored instant', async () => {
+    const warehouseEntry = waitingEntry('warehouse', 1, 1)
+    const stalledFief = storedFief({
+      buildQueue: [waitingEntry('sawmill', 1, 2), warehouseEntry],
+    })
+    const fiefs = inMemoryFiefRepository([stalledFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toEqual({
+      kind: 'busy',
+      building: 'sawmill',
+      targetLevel: 1,
+      startedAt: storedInstant,
+      finishesAt: hoursAfterStored(2),
+      cost: sawmillCost,
+    })
+    expect(stored?.buildQueue).toEqual([warehouseEntry])
+  })
+
   it('reports no change to persist for an idle slot', async () => {
     const idleFief = storedFief({})
     const fiefs = inMemoryFiefRepository([idleFief])
