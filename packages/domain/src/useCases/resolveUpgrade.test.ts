@@ -474,6 +474,29 @@ describe('resolveUpgrade', () => {
     expect(stored?.stocks.wood).toBe(210)
   })
 
+  it('refunds every waiting upgrade of a fief whose built levels occupy more peasants than they supply', async () => {
+    const overcrowdingCatalog = inMemoryCatalog([
+      { ...sawmillLevel(2, 60), peasantOccupancy: 9 },
+      warehouseLevelOne,
+    ])
+    const overcrowdedFief = storedFief({
+      buildingLevels: { ...unbuiltLevels, sawmill: 2 },
+      buildQueue: [waitingEntry('warehouse', 1, 1)],
+    })
+    const fiefs = inMemoryFiefRepository([overcrowdedFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: overcrowdingCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.slot).toEqual({ kind: 'idle' })
+    expect(stored?.buildQueue).toEqual([])
+    expect(stored?.stocks).toEqual({ wood: 200, stone: 150, iron: 100, gold: 100, food: 100 })
+  })
+
   it('keeps a waiting level whose lower level also waits when the queue restarts', async () => {
     const sawmillLevelTwo = waitingEntry('sawmill', 2, 1)
     const stalledFief = storedFief({
