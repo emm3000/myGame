@@ -91,4 +91,15 @@ describe('entryFitsProjection', () => {
 
     expect(result).toEqual({ ok: true, value: false })
   })
+
+  it('reports a projected level the catalog does not know', () => {
+    const projectedBeyondCatalog = levelsWith({ sawmill: 3 })
+
+    const result = entryFitsProjection(projectedBeyondCatalog, upgradeTo('farm', 1), catalog)
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'UnknownBuildingLevel', building: 'sawmill', level: 3 },
+    })
+  })
 })
