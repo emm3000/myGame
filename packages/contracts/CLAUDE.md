@@ -19,3 +19,4 @@ The wire vocabulary `apps/web` and `apps/api` share: zod schemas and the types i
 - Wire identifiers are camelCase (`ironMine`); the Postgres enum spells it `iron_mine`, so the api adapter maps between them.
 - `BuildingContentSchema` is a discriminated union by `building`; the `library` variant has levels without `effect`, every other variant carries the effect its building produces.
 - `StartStudyRequestSchema` is `{ art }`. `FiefOverview.study` mirrors `slot` with `art` in place of `building`; `FiefOverview.arts` is a record over `ArtKind` of `{ level, ratePercent, nextLevel }`, `nextLevel` null at the top.
+- `CancelStudyRequestSchema` is the path `{ art, targetLevel }`, `targetLevel` a whole count from 1.
