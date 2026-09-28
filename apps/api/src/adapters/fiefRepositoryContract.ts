@@ -50,6 +50,8 @@ const waitingEntries: BuildQueue = [
   },
 ]
 
+const studiedArts = { smithing: 2, masonry: 1 }
+
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const stranger = '00000000-0000-4000-8000-0000000000ff'
@@ -76,6 +78,7 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
       stocks: { wood: 1200, stone: 830, iron: 415, gold: 90, food: 610 },
       storedAt: foundedAt,
       buildingLevels: { sawmill: 3, quarry: 2, ironMine: 1, farm: 2, warehouse: 1 },
+      artLevels: studiedArts,
       slot: {
         kind: 'busy',
         building: 'ironMine',
@@ -153,6 +156,26 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(bruno)
       expect(restored.ok && restored.value?.buildQueue).toEqual(waitingEntries)
+    })
+
+    it('restores the art levels', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.artLevels).toEqual(studiedArts)
+    })
+
+    it('restores every art of a founded fief at level zero', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+
+      await fiefs.save(anasFief)
+
+      const restored = await fiefs.fiefOf(ana)
+      expect(restored.ok && restored.value?.artLevels).toEqual({ smithing: 0, masonry: 0 })
     })
 
     it('drops the entries a later save no longer holds', async () => {

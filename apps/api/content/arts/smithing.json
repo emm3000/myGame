@@ -1,0 +1,156 @@
+{
+  "art": "smithing",
+  "resource": "iron",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "wood": 120,
+        "stone": 80,
+        "iron": 150,
+        "gold": 60,
+        "food": 0
+      },
+      "durationSeconds": 1800,
+      "requiredLibraryLevel": 1,
+      "effect": {
+        "ratePercent": 5
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "wood": 180,
+        "stone": 120,
+        "iron": 225,
+        "gold": 90,
+        "food": 0
+      },
+      "durationSeconds": 2880,
+      "requiredLibraryLevel": 1,
+      "effect": {
+        "ratePercent": 10
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "wood": 270,
+        "stone": 180,
+        "iron": 338,
+        "gold": 135,
+        "food": 0
+      },
+      "durationSeconds": 4608,
+      "requiredLibraryLevel": 2,
+      "effect": {
+        "ratePercent": 15
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "wood": 405,
+        "stone": 270,
+        "iron": 506,
+        "gold": 202,
+        "food": 0
+      },
+      "durationSeconds": 7373,
+      "requiredLibraryLevel": 2,
+      "effect": {
+        "ratePercent": 20
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "wood": 608,
+        "stone": 405,
+        "iron": 759,
+        "gold": 304,
+        "food": 0
+      },
+      "durationSeconds": 11796,
+      "requiredLibraryLevel": 3,
+      "effect": {
+        "ratePercent": 25
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "wood": 911,
+        "stone": 608,
+        "iron": 1139,
+        "gold": 456,
+        "food": 0
+      },
+      "durationSeconds": 18874,
+      "requiredLibraryLevel": 4,
+      "effect": {
+        "ratePercent": 30
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "wood": 1367,
+        "stone": 911,
+        "iron": 1709,
+        "gold": 683,
+        "food": 0
+      },
+      "durationSeconds": 30199,
+      "requiredLibraryLevel": 5,
+      "effect": {
+        "ratePercent": 35
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "wood": 2050,
+        "stone": 1367,
+        "iron": 2563,
+        "gold": 1025,
+        "food": 0
+      },
+      "durationSeconds": 48318,
+      "requiredLibraryLevel": 6,
+      "effect": {
+        "ratePercent": 40
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "wood": 3075,
+        "stone": 2050,
+        "iron": 3844,
+        "gold": 1538,
+        "food": 0
+      },
+      "durationSeconds": 77309,
+      "requiredLibraryLevel": 8,
+      "effect": {
+        "ratePercent": 45
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "wood": 4613,
+        "stone": 3075,
+        "iron": 5767,
+        "gold": 2307,
+        "food": 0
+      },
+      "durationSeconds": 123695,
+      "requiredLibraryLevel": 10,
+      "effect": {
+        "ratePercent": 50
+      }
+    }
+  ]
+}

@@ -1,10 +1,12 @@
 import {
+  type ArtKind,
   type BuildingKind,
   type BuildQueue,
   type BuildSlot,
   type DomainError,
   err,
   Fief,
+  type FiefArtLevels,
   type FiefBuildingLevels,
   type FiefRepository,
   Instant,
@@ -17,7 +19,7 @@ import {
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
-import { type building, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
+import { type building, fiefArts, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 type StoredBuilding = (typeof building.enumValues)[number]
@@ -30,7 +32,11 @@ type JoinedRow = {
   readonly building: StoredBuilding | null
   readonly level: number | null
   readonly entry: EntryRow | null
+  readonly art: ArtKind | null
+  readonly artLevel: number | null
 }
+
+const artKinds: ReadonlyArray<ArtKind> = ['smithing', 'masonry']
 
 const storedBuildings: Readonly<Record<BuildingKind, StoredBuilding>> = {
   sawmill: 'sawmill',
@@ -57,6 +63,16 @@ const buildingLevelsOf = (builtRows: ReadonlyArray<JoinedRow>): FiefBuildingLeve
   for (const row of builtRows) {
     if (row.building !== null && row.level !== null) {
       levels[buildingKinds[row.building]] = row.level
+    }
+  }
+  return levels
+}
+
+const artLevelsOf = (joinedRows: ReadonlyArray<JoinedRow>): FiefArtLevels => {
+  const levels = { smithing: 0, masonry: 0 }
+  for (const row of joinedRows) {
+    if (row.art !== null && row.artLevel !== null) {
+      levels[row.art] = row.artLevel
     }
   }
   return levels
@@ -130,6 +146,7 @@ const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): Store
   stocks: { wood: row.wood, stone: row.stone, iron: row.iron, gold: row.gold, food: row.food },
   storedAt: instantOf(row.storedAt),
   buildingLevels: buildingLevelsOf(joinedRows),
+  artLevels: artLevelsOf(joinedRows),
   slot: slotOf(row),
   buildQueue: buildQueueOf(joinedRows),
 })
@@ -217,10 +234,13 @@ export class DrizzleFiefRepository implements FiefRepository {
         building: fiefBuildings.building,
         level: fiefBuildings.level,
         entry: fiefQueueEntries,
+        art: fiefArts.art,
+        artLevel: fiefArts.level,
       })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
       .leftJoin(fiefQueueEntries, eq(fiefQueueEntries.fiefId, fiefs.id))
+      .leftJoin(fiefArts, eq(fiefArts.fiefId, fiefs.id))
       .where(eq(fiefs.playerId, playerId))
       .$dynamic()
     const rows = await (this.read === 'lockedForUpdate'
@@ -242,6 +262,9 @@ export class DrizzleFiefRepository implements FiefRepository {
         level: fief.buildingLevels[buildingKinds[stored]],
       }))
       .filter((row) => row.level > 0)
+    const studiedArtRows = artKinds
+      .map((art) => ({ fiefId: id, art, level: fief.artLevels[art] }))
+      .filter((row) => row.level > 0)
     const entryRows = entryRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
@@ -255,6 +278,15 @@ export class DrizzleFiefRepository implements FiefRepository {
             .values(builtLevelRows)
             .onConflictDoUpdate({
               target: [fiefBuildings.fiefId, fiefBuildings.building],
+              set: { level: sql`excluded.level` },
+            })
+        }
+        if (studiedArtRows.length > 0) {
+          await transaction
+            .insert(fiefArts)
+            .values(studiedArtRows)
+            .onConflictDoUpdate({
+              target: [fiefArts.fiefId, fiefArts.art],
               set: { level: sql`excluded.level` },
             })
         }

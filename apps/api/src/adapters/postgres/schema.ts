@@ -21,6 +21,8 @@ export const terrain = pgEnum('terrain', ['lowlands', 'uplands', 'ridges'])
 
 export const building = pgEnum('building', ['sawmill', 'quarry', 'iron_mine', 'farm', 'warehouse'])
 
+export const art = pgEnum('art', ['smithing', 'masonry'])
+
 export const players = pgTable(
   'players',
   {
@@ -114,4 +116,16 @@ export const fiefQueueEntries = pgTable(
   (table) => [
     primaryKey({ name: 'fief_queue_entries_pkey', columns: [table.fiefId, table.position] }),
   ],
+)
+
+export const fiefArts = pgTable(
+  'fief_arts',
+  {
+    fiefId: uuid('fief_id')
+      .notNull()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    art: art('art').notNull(),
+    level: integer('level').notNull(),
+  },
+  (table) => [primaryKey({ name: 'fief_arts_pkey', columns: [table.fiefId, table.art] })],
 )

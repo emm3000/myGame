@@ -1,5 +1,7 @@
 export { type ApiError, ApiErrorSchema } from './ApiError'
 export { type ApiErrorKind, ApiErrorKindSchema } from './ApiErrorKind'
+export { type ArtContent, ArtContentSchema } from './ArtContent'
+export { type ArtKind, ArtKindSchema } from './ArtKind'
 export { type BuildingContent, BuildingContentSchema } from './BuildingContent'
 export { type BuildingKind, BuildingKindSchema } from './BuildingKind'
 export { type CancelUpgradeRequest, CancelUpgradeRequestSchema } from './CancelUpgradeRequest'

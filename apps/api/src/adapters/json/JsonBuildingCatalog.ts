@@ -1,12 +1,21 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
+  type ArtContent,
+  ArtContentSchema,
   type BuildingContent,
   BuildingContentSchema,
   type FiefContent,
   FiefContentSchema,
 } from '@mygame/contracts'
-import type { BuildingCatalog, BuildingKind, BuildingLevel, FiefSettings } from '@mygame/domain'
+import type {
+  ArtKind,
+  ArtLevel,
+  BuildingCatalog,
+  BuildingKind,
+  BuildingLevel,
+  FiefSettings,
+} from '@mygame/domain'
 
 const buildingFiles: Readonly<Record<BuildingKind, string>> = {
   sawmill: 'sawmill.json',
@@ -14,6 +23,11 @@ const buildingFiles: Readonly<Record<BuildingKind, string>> = {
   ironMine: 'iron-mine.json',
   farm: 'farm.json',
   warehouse: 'warehouse.json',
+}
+
+const artFiles: Readonly<Record<ArtKind, string>> = {
+  smithing: join('arts', 'smithing.json'),
+  masonry: join('arts', 'masonry.json'),
 }
 
 const fiefFile = 'fief.json'
@@ -57,15 +71,33 @@ const buildingLevelsOf = (content: BuildingContent): ReadonlyArray<BuildingLevel
   }
 }
 
+const artLevelsOf = (content: ArtContent): ReadonlyArray<ArtLevel> =>
+  content.levels.map(({ effect, ...level }) => ({
+    ...level,
+    art: content.art,
+    resource: content.resource,
+    ratePercent: effect.ratePercent,
+  }))
+
 export class JsonBuildingCatalog implements BuildingCatalog {
   private readonly levels: ReadonlyMap<string, BuildingLevel>
+  private readonly artLevels: ReadonlyMap<string, ArtLevel>
   private readonly settings: FiefSettings
 
-  constructor(buildings: ReadonlyArray<BuildingContent>, fief: FiefContent) {
+  constructor(
+    buildings: ReadonlyArray<BuildingContent>,
+    arts: ReadonlyArray<ArtContent>,
+    fief: FiefContent,
+  ) {
     this.levels = new Map(
       buildings
         .flatMap(buildingLevelsOf)
         .map((level) => [JsonBuildingCatalog.keyOf(level.building, level.level), level]),
+    )
+    this.artLevels = new Map(
+      arts
+        .flatMap(artLevelsOf)
+        .map((level) => [JsonBuildingCatalog.keyOf(level.art, level.level), level]),
     )
     this.settings = fief
   }
@@ -78,18 +110,33 @@ export class JsonBuildingCatalog implements BuildingCatalog {
       }
       return content
     })
-    return new JsonBuildingCatalog(buildings, parseFile(directory, fiefFile, FiefContentSchema))
+    const arts = Object.entries(artFiles).map(([art, file]) => {
+      const content = parseFile(directory, file, ArtContentSchema)
+      if (content.art !== art) {
+        throw new Error(`Content file ${join(directory, file)} describes ${content.art}`)
+      }
+      return content
+    })
+    return new JsonBuildingCatalog(
+      buildings,
+      arts,
+      parseFile(directory, fiefFile, FiefContentSchema),
+    )
   }
 
   levelOf(building: BuildingKind, level: number): BuildingLevel | undefined {
     return this.levels.get(JsonBuildingCatalog.keyOf(building, level))
   }
 
+  artLevelOf(art: ArtKind, level: number): ArtLevel | undefined {
+    return this.artLevels.get(JsonBuildingCatalog.keyOf(art, level))
+  }
+
   fiefSettings(): FiefSettings {
     return this.settings
   }
 
-  private static keyOf(building: BuildingKind, level: number): string {
-    return `${building}:${level}`
+  private static keyOf(kind: BuildingKind | ArtKind, level: number): string {
+    return `${kind}:${level}`
   }
 }

@@ -33,6 +33,7 @@ const fiefSettings = (plotsPerProvince: number): FiefSettings => ({
 
 const inMemoryCatalog = (settings: FiefSettings): BuildingCatalog => ({
   levelOf: () => undefined,
+  artLevelOf: () => undefined,
   fiefSettings: () => settings,
 })
 

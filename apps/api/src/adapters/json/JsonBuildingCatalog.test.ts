@@ -1,5 +1,9 @@
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { BuildingContent, FiefContent } from '@mygame/contracts'
+import type { ArtContent, BuildingContent, FiefContent } from '@mygame/contracts'
+import type { ArtKind, ArtLevel } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { JsonBuildingCatalog } from './JsonBuildingCatalog'
 
@@ -34,8 +38,64 @@ const plainFief: FiefContent = {
   buildQueueCap: 4,
 }
 
+const oneLevelArts: ReadonlyArray<ArtContent> = [
+  {
+    art: 'smithing',
+    resource: 'iron',
+    levels: [
+      {
+        level: 1,
+        cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
+        durationSeconds: 1800,
+        requiredLibraryLevel: 1,
+        effect: { ratePercent: 5 },
+      },
+    ],
+  },
+  {
+    art: 'masonry',
+    resource: 'stone',
+    levels: [
+      {
+        level: 1,
+        cost: { wood: 150, stone: 150, iron: 60, gold: 60, food: 0 },
+        durationSeconds: 1800,
+        requiredLibraryLevel: 1,
+        effect: { ratePercent: 8 },
+      },
+    ],
+  },
+]
+
 const oneLevelCatalog = (): JsonBuildingCatalog =>
-  new JsonBuildingCatalog(oneLevelBuildings, plainFief)
+  new JsonBuildingCatalog(oneLevelBuildings, oneLevelArts, plainFief)
+
+const shippedArtLevels = (art: ArtKind): ReadonlyArray<ArtLevel | undefined> => {
+  const catalog = JsonBuildingCatalog.fromDirectory(shippedContent)
+  return Array.from({ length: 10 }, (_, index) => catalog.artLevelOf(art, index + 1))
+}
+
+const shippedRequirements = (): ReadonlyArray<ReadonlyArray<number>> =>
+  (['smithing', 'masonry'] as const).map((art) =>
+    shippedArtLevels(art).map((line) => line?.requiredLibraryLevel ?? 0),
+  )
+
+const withContentDirectory = (arrange: (directory: string) => void): string => {
+  const directory = mkdtempSync(join(tmpdir(), 'mygame-content-'))
+  cpSync(shippedContent, directory, { recursive: true })
+  arrange(directory)
+  return directory
+}
+
+const startingUpOn =
+  (directory: string): (() => JsonBuildingCatalog) =>
+  () => {
+    try {
+      return JsonBuildingCatalog.fromDirectory(directory)
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  }
 
 describe('JsonBuildingCatalog', () => {
   it('reports a level the building does not list as undefined', () => {
@@ -81,5 +141,88 @@ describe('JsonBuildingCatalog', () => {
 
   it('serves a build queue cap of four from the shipped content', () => {
     expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().buildQueueCap).toBe(4)
+  })
+
+  it('reads a smithing level as an iron percent with its library requirement', () => {
+    expect(oneLevelCatalog().artLevelOf('smithing', 1)).toEqual({
+      art: 'smithing',
+      level: 1,
+      cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
+      durationSeconds: 1800,
+      requiredLibraryLevel: 1,
+      resource: 'iron',
+      ratePercent: 5,
+    })
+  })
+
+  it('reports an art level the art does not list as undefined', () => {
+    expect(oneLevelCatalog().artLevelOf('masonry', 2)).toBeUndefined()
+  })
+
+  it('fails at start-up on an art file that names the other art', () => {
+    const directory = withContentDirectory((copy) => {
+      const smithing = readFileSync(join(copy, 'arts', 'smithing.json'), 'utf8')
+      writeFileSync(join(copy, 'arts', 'masonry.json'), smithing)
+    })
+
+    expect(startingUpOn(directory)).toThrow(/masonry\.json describes smithing/)
+  })
+
+  it('fails at start-up on a malformed art file', () => {
+    const directory = withContentDirectory((copy) => {
+      writeFileSync(join(copy, 'arts', 'smithing.json'), '{ "art": "smithing" }')
+    })
+
+    expect(startingUpOn(directory)).toThrow(/smithing\.json is malformed/)
+  })
+
+  it('ships smithing raising iron and masonry raising stone, at levels 1 to 10', () => {
+    expect(
+      [shippedArtLevels('smithing'), shippedArtLevels('masonry')].map((levels) =>
+        levels.map((line) => `${line?.resource}:${line?.level}`),
+      ),
+    ).toEqual([
+      Array.from({ length: 10 }, (_, index) => `iron:${index + 1}`),
+      Array.from({ length: 10 }, (_, index) => `stone:${index + 1}`),
+    ])
+  })
+
+  it('ships level 1 of every art requiring library level 1', () => {
+    expect(shippedRequirements().map((requirements) => requirements[0])).toEqual([1, 1])
+  })
+
+  it('ships library requirements that never decrease from one art level to the next', () => {
+    expect(
+      shippedRequirements().map((requirements) =>
+        requirements.every((required, index) => required >= (requirements[index - 1] ?? 1)),
+      ),
+    ).toEqual([true, true])
+  })
+
+  it('ships library requirements that never pass level 10', () => {
+    expect(
+      shippedRequirements()
+        .flat()
+        .every((required) => required <= 10),
+    ).toBe(true)
+  })
+
+  it('ships a percent that strictly rises with every art level', () => {
+    const percentsOf = (art: ArtKind): ReadonlyArray<number> =>
+      shippedArtLevels(art).map((line) => line?.ratePercent ?? 0)
+
+    expect(
+      [percentsOf('smithing'), percentsOf('masonry')].map((percents) =>
+        percents.every((percent, index) => index === 0 || percent > (percents[index - 1] ?? 0)),
+      ),
+    ).toEqual([true, true])
+  })
+
+  it('ships art levels that each cost gold', () => {
+    const golds = [...shippedArtLevels('smithing'), ...shippedArtLevels('masonry')].map(
+      (line) => line?.cost.gold ?? 0,
+    )
+
+    expect(golds.every((gold) => gold > 0)).toBe(true)
   })
 })

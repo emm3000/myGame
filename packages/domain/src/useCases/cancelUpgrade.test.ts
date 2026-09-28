@@ -91,6 +91,7 @@ const knownLevels: ReadonlyArray<BuildingLevel> = [
 const catalog: BuildingCatalog = {
   levelOf: (building, level) =>
     knownLevels.find((known) => known.building === building && known.level === level),
+  artLevelOf: () => undefined,
   fiefSettings: () => fiefSettings,
 }
 
@@ -140,6 +141,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     stocks: { wood: 40, stone: 85, iron: 100, gold: 100, food: 90 },
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
+    artLevels: { smithing: 0, masonry: 0 },
     slot: sawmillInProgress,
     buildQueue: [],
     ...overrides,
