@@ -12,6 +12,7 @@ import type {
 } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
+import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { Instant } from '../time/Instant'
 import { cancelStudy } from './cancelStudy'
@@ -125,7 +126,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -146,7 +147,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -165,7 +166,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
@@ -197,7 +198,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -211,7 +212,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'smithing', targetLevel: 1 }))
@@ -222,7 +223,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'masonry', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'masonry', targetLevel: 1 }))
@@ -233,7 +234,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 2 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'smithing', targetLevel: 2 }))
@@ -244,7 +245,12 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(smithingInProgress.finishesAt) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(smithingInProgress.finishesAt),
+      },
     )
 
     expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'smithing', targetLevel: 1 }))
@@ -256,7 +262,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'masonry', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(!result.ok)
@@ -268,7 +274,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'landless', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
@@ -280,7 +286,7 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'smithing', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
@@ -300,9 +306,44 @@ describe('cancelStudy', () => {
 
     const result = await cancelStudy(
       { playerId: 'lord', art: 'masonry', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'masonry', targetLevel: 1 }))
+  })
+
+  it('records the cancel it applied through the chronicle', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+    const cancelInstant = hoursAfterStored(1)
+
+    const result = await cancelStudy(
+      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { fiefs, chronicle, catalog, clock: frozenClock(cancelInstant) },
+    )
+
+    assert(result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'studyCancelled',
+        art: 'smithing',
+        level: 1,
+        occurredAt: cancelInstant,
+        refund: { wood: 40, stone: 30, iron: 50, gold: 20, food: 0 },
+      },
+    ])
+  })
+
+  it('records nothing when the cancel is refused', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+
+    const result = await cancelStudy(
+      { playerId: 'lord', art: 'masonry', targetLevel: 1 },
+      { fiefs, chronicle, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(!result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
   })
 })

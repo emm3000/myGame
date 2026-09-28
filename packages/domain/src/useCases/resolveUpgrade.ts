@@ -8,6 +8,7 @@ import { materializeStocks } from '../fief/materializeStocks'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
+import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
@@ -19,6 +20,7 @@ export type ResolveUpgradeCommand = {
 
 export type ResolveUpgradeDependencies = {
   readonly fiefs: FiefRepository
+  readonly chronicle: ChronicleWriter
   readonly catalog: BuildingCatalog
   readonly clock: Clock
 }
@@ -141,7 +143,7 @@ const walkFinishedWork = (
 
 export const resolveUpgrade = async (
   command: ResolveUpgradeCommand,
-  { fiefs, catalog, clock }: ResolveUpgradeDependencies,
+  { fiefs, chronicle, catalog, clock }: ResolveUpgradeDependencies,
 ): Promise<Result<ResolvedFief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.playerId)
   if (!stored.ok) {
@@ -168,6 +170,10 @@ export const resolveUpgrade = async (
   const saved = await fiefs.save(resolved.value.fief)
   if (!saved.ok) {
     return saved
+  }
+  const recorded = await chronicle.record(resolved.value.fief.id, resolved.value.events)
+  if (!recorded.ok) {
+    return recorded
   }
   return ok({ ...resolved.value, hasChanged: true })
 }

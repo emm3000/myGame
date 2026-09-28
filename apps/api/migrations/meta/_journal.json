@@ -64,6 +64,13 @@
       "when": 1790606969466,
       "tag": "0008_study_slot",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790612122214,
+      "tag": "0009_chronicle_events",
+      "breakpoints": true
     }
   ]
 }

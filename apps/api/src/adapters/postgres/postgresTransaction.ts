@@ -1,12 +1,14 @@
-import type { FiefRepository, Result } from '@mygame/domain'
+import type { ChronicleWriter, FiefRepository, Result } from '@mygame/domain'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
 import { DrizzleAccounts } from './DrizzleAccounts'
+import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 
 export type TransactionStores = {
   readonly fiefs: FiefRepository
+  readonly chronicle: ChronicleWriter
   readonly accounts: Accounts
 }
 
@@ -24,6 +26,7 @@ export const postgresTransaction =
       return await database.transaction(async (transaction) => {
         const outcome = await work({
           fiefs: new DrizzleFiefRepository(transaction, 'lockedForUpdate'),
+          chronicle: new DrizzleChronicle(transaction),
           accounts: new DrizzleAccounts(transaction),
         })
         if (!outcome.ok) {

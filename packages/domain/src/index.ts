@@ -36,6 +36,7 @@ export type {
   TerrainBonus,
   WarehouseLevel,
 } from './ports/BuildingCatalog'
+export type { ChronicleWriter } from './ports/ChronicleWriter'
 export type { Clock } from './ports/Clock'
 export type { FiefRepository } from './ports/FiefRepository'
 export type { IdGenerator } from './ports/IdGenerator'

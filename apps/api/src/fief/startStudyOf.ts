@@ -17,7 +17,7 @@ export const startStudyOf = async (
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
     playerId,
-    (fiefs, clock) =>
+    ({ fiefs }, clock) =>
       startStudy({ playerId, art }, { fiefs, catalog: dependencies.buildingCatalog, clock }),
     dependencies,
   )

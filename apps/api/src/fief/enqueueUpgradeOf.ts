@@ -17,7 +17,7 @@ export const enqueueUpgradeOf = async (
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
     playerId,
-    (fiefs, clock) =>
+    ({ fiefs }, clock) =>
       enqueueBuilding(
         { playerId, building },
         { fiefs, catalog: dependencies.buildingCatalog, clock },

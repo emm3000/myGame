@@ -3,12 +3,11 @@ import {
   type Clock,
   type DomainError,
   type Fief,
-  type FiefRepository,
   type PlayerId,
   type Result,
   resolveUpgrade,
 } from '@mygame/domain'
-import type { Transaction } from '../adapters/postgres/postgresTransaction'
+import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
 import { laterOf } from './laterOf'
 
 export type MutateAfterResolveDependencies = {
@@ -17,17 +16,16 @@ export type MutateAfterResolveDependencies = {
   readonly clock: Clock
 }
 
-export type FiefMutation = (
-  fiefs: FiefRepository,
-  clock: Clock,
-) => Promise<Result<Fief, DomainError>>
+export type FiefStores = Pick<TransactionStores, 'fiefs' | 'chronicle'>
+
+export type FiefMutation = (stores: FiefStores, clock: Clock) => Promise<Result<Fief, DomainError>>
 
 export const mutateAfterResolve = async (
   playerId: PlayerId,
   mutation: FiefMutation,
   { inTransaction, buildingCatalog, clock }: MutateAfterResolveDependencies,
 ): Promise<Result<Fief, DomainError>> =>
-  inTransaction(async ({ fiefs }) => {
+  inTransaction(async ({ fiefs, chronicle }) => {
     const locked = await fiefs.fiefOf(playerId)
     if (!locked.ok) {
       return locked
@@ -37,10 +35,10 @@ export const mutateAfterResolve = async (
     const mutationClock: Clock = { now: () => mutatedAt }
     const resolved = await resolveUpgrade(
       { playerId },
-      { fiefs, catalog: buildingCatalog, clock: mutationClock },
+      { fiefs, chronicle, catalog: buildingCatalog, clock: mutationClock },
     )
     if (!resolved.ok) {
       return resolved
     }
-    return mutation(fiefs, mutationClock)
+    return mutation({ fiefs, chronicle }, mutationClock)
   })

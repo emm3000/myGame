@@ -18,10 +18,10 @@ export const cancelStudyOf = async (
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
     playerId,
-    async (fiefs, clock) => {
+    async ({ fiefs, chronicle }, clock) => {
       const cancelled = await cancelStudy(
         { playerId, ...target },
-        { fiefs, catalog: dependencies.buildingCatalog, clock },
+        { fiefs, chronicle, catalog: dependencies.buildingCatalog, clock },
       )
       return cancelled.ok ? ok(cancelled.value.fief) : cancelled
     },

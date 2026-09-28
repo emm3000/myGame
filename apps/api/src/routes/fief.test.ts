@@ -44,6 +44,31 @@ const runSql = async (statement: string): Promise<void> => {
   }
 }
 
+type StoredEventRow = {
+  readonly kind: string
+  readonly building: string | null
+  readonly art: string | null
+  readonly level: number
+  readonly refund: ReadonlyArray<number>
+  readonly occurredAt: string
+}
+
+const storedEvents = async (): Promise<ReadonlyArray<StoredEventRow>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const read = await client.query<StoredEventRow>(
+      `SELECT kind, building, art, level,
+         ARRAY[refund_wood, refund_stone, refund_iron, refund_gold, refund_food] AS refund,
+         to_char(occurred_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "occurredAt"
+       FROM fief_events ORDER BY id`,
+    )
+    return read.rows
+  } finally {
+    await client.end()
+  }
+}
+
 const statementTextOf = (query: unknown): string => {
   if (typeof query === 'string') {
     return query
@@ -84,7 +109,9 @@ describe('the fief route', () => {
   })
 
   beforeEach(async () => {
-    await runSql('TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts')
+    await runSql(
+      'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+    )
     clock = movableClock()
     app = createApp({ ...server, clock })
   })
@@ -268,6 +295,25 @@ describe('the fief route', () => {
     expect(stored.ok && stored.value?.studySlot).toEqual({ kind: 'idle' })
   })
 
+  it('writes the finish a read applied at its finish instant', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await enqueueSawmill(ana.playerId)
+    clock.advanceMinutes(3)
+
+    await fiefOf(ana.cookie)
+
+    expect(await storedEvents()).toEqual([
+      {
+        kind: 'upgrade_finished',
+        building: 'sawmill',
+        art: null,
+        level: 1,
+        refund: [0, 0, 0, 0, 0],
+        occurredAt: '2026-09-22T08:02:00Z',
+      },
+    ])
+  })
+
   it('answers amounts that match the accrual formula for the elapsed time', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(90)
@@ -320,7 +366,7 @@ describe('the fief route', () => {
 
   it('answers 404 with FiefNotFound when the player holds no fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await runSql('TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts')
+    await runSql('TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events')
 
     const response = await fiefOf(ana.cookie)
 
@@ -665,6 +711,36 @@ describe('the fief route', () => {
       const stored = await server.fiefs.fiefOf(ana.playerId)
       expect(stored.ok && stored.value?.slot).toEqual({ kind: 'idle' })
       expect(stored.ok && stored.value?.stocks.wood).toBe(500)
+    })
+
+    it('writes the cancel with its refund', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueueSawmill(ana.playerId)
+      clock.advanceMinutes(1)
+
+      await cancel(ana.cookie, 'sawmill', 1)
+
+      expect(await storedEvents()).toEqual([
+        {
+          kind: 'upgrade_cancelled',
+          building: 'sawmill',
+          art: null,
+          level: 1,
+          refund: [60, 15, 0, 0, 0],
+          occurredAt: '2026-09-22T08:01:00Z',
+        },
+      ])
+    })
+
+    it('writes no event when the cancel is refused', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueueSawmill(ana.playerId)
+      clock.advanceMinutes(3)
+
+      const response = await cancel(ana.cookie, 'sawmill', 1)
+
+      expect(response.status).toBe(409)
+      expect(await storedEvents()).toEqual([])
     })
 
     it('cancels the upgrade in progress and answers the next one started at the cancel instant', async () => {
