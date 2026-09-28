@@ -19,10 +19,12 @@ import {
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
-import { type building, fiefArts, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
+import { type art, type building, fiefArts, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 type StoredBuilding = (typeof building.enumValues)[number]
+
+type StoredArt = (typeof art.enumValues)[number]
 
 type FiefRow = typeof fiefs.$inferSelect
 
@@ -32,11 +34,19 @@ type JoinedRow = {
   readonly building: StoredBuilding | null
   readonly level: number | null
   readonly entry: EntryRow | null
-  readonly art: ArtKind | null
+  readonly art: StoredArt | null
   readonly artLevel: number | null
 }
 
-const artKinds: ReadonlyArray<ArtKind> = ['smithing', 'masonry']
+const storedArts: Readonly<Record<ArtKind, StoredArt>> = {
+  smithing: 'smithing',
+  masonry: 'masonry',
+}
+
+const artKinds: Readonly<Record<StoredArt, ArtKind>> = {
+  smithing: 'smithing',
+  masonry: 'masonry',
+}
 
 const storedBuildings: Readonly<Record<BuildingKind, StoredBuilding>> = {
   sawmill: 'sawmill',
@@ -72,7 +82,7 @@ const artLevelsOf = (joinedRows: ReadonlyArray<JoinedRow>): FiefArtLevels => {
   const levels = { smithing: 0, masonry: 0 }
   for (const row of joinedRows) {
     if (row.art !== null && row.artLevel !== null) {
-      levels[row.art] = row.artLevel
+      levels[artKinds[row.art]] = row.artLevel
     }
   }
   return levels
@@ -262,8 +272,8 @@ export class DrizzleFiefRepository implements FiefRepository {
         level: fief.buildingLevels[buildingKinds[stored]],
       }))
       .filter((row) => row.level > 0)
-    const studiedArtRows = artKinds
-      .map((art) => ({ fiefId: id, art, level: fief.artLevels[art] }))
+    const studiedArtRows = Object.values(storedArts)
+      .map((stored) => ({ fiefId: id, art: stored, level: fief.artLevels[artKinds[stored]] }))
       .filter((row) => row.level > 0)
     const entryRows = entryRowsOf(fief)
     try {
