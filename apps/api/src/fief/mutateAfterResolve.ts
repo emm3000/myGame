@@ -2,6 +2,7 @@ import {
   type BuildingCatalog,
   type Clock,
   type DomainError,
+  type Fief,
   type FiefRepository,
   type PlayerId,
   type Result,
@@ -16,16 +17,16 @@ export type MutateAfterResolveDependencies = {
   readonly clock: Clock
 }
 
-export type FiefMutation<Mutated> = (
+export type FiefMutation = (
   fiefs: FiefRepository,
   clock: Clock,
-) => Promise<Result<Mutated, DomainError>>
+) => Promise<Result<Fief, DomainError>>
 
-export const mutateAfterResolve = async <Mutated>(
+export const mutateAfterResolve = async (
   playerId: PlayerId,
-  mutation: FiefMutation<Mutated>,
+  mutation: FiefMutation,
   { inTransaction, buildingCatalog, clock }: MutateAfterResolveDependencies,
-): Promise<Result<Mutated, DomainError>> =>
+): Promise<Result<Fief, DomainError>> =>
   inTransaction(async ({ fiefs }) => {
     const locked = await fiefs.fiefOf(playerId)
     if (!locked.ok) {
