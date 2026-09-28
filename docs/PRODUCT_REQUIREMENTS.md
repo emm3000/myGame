@@ -25,7 +25,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | S4 | Every building, resource and unit has an image generated to `docs/art/art-bible.md`. |
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
-| S7 | Password reset and email verification. |
+| S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015). |
 
 ## Won't have (this phase)
 
