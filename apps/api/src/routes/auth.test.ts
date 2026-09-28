@@ -4,10 +4,10 @@ import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
-import { sessionTokenDigest } from '../adapters/postgres/sessionTokenDigest'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
 import type { Mail } from '../auth/Mailer'
+import { tokenDigest } from '../auth/tokenDigest'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 
@@ -249,7 +249,7 @@ describe('the auth routes', () => {
   it('stores the digest of the session token, never the token', async () => {
     const [, token = ''] = sessionCookieOf(await signUpAna()).split('=')
 
-    expect(await storedSessionKeys()).toEqual([sessionTokenDigest(token)])
+    expect(await storedSessionKeys()).toEqual([tokenDigest(token)])
   })
 
   it('answers the signed-in player behind the session cookie', async () => {

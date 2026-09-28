@@ -4,6 +4,7 @@ import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { tokenDigest } from '../../auth/tokenDigest'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
@@ -17,7 +18,6 @@ import {
   players,
   sessions,
 } from './schema'
-import { sessionTokenDigest } from './sessionTokenDigest'
 
 const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.meta.url))
 
@@ -142,11 +142,11 @@ describe('the migrations', () => {
   it('refuses two sessions with the same token digest', async () => {
     await db.insert(players).values([ana, bruno])
     const expiresAt = new Date('2026-10-22T08:00:00Z')
-    const tokenDigest = sessionTokenDigest('opaque-token')
-    await db.insert(sessions).values({ tokenDigest, playerId: ana.id, expiresAt })
+    const digest = tokenDigest('opaque-token')
+    await db.insert(sessions).values({ tokenDigest: digest, playerId: ana.id, expiresAt })
 
     await expect(
-      db.insert(sessions).values({ tokenDigest, playerId: bruno.id, expiresAt }),
+      db.insert(sessions).values({ tokenDigest: digest, playerId: bruno.id, expiresAt }),
     ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'sessions_pkey' } })
   })
 
@@ -182,7 +182,7 @@ describe('the migrations', () => {
   it('drops the tokens of a deleted player', async () => {
     await db.insert(players).values(ana)
     await db.insert(accountTokens).values({
-      tokenDigest: sessionTokenDigest('opaque-token'),
+      tokenDigest: tokenDigest('opaque-token'),
       playerId: ana.id,
       kind: 'reset',
       expiresAt: new Date('2026-09-22T09:00:00Z'),

@@ -1,9 +1,9 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import { and, eq, gt, isNotNull, isNull, lte, or } from 'drizzle-orm'
 import type { AccountToken, AccountTokenKind, AccountTokens } from '../../auth/AccountTokens'
+import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from './connectPostgres'
 import { accountTokens, players } from './schema'
-import { sessionTokenDigest } from './sessionTokenDigest'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
@@ -30,7 +30,7 @@ export class DrizzleAccountTokens implements AccountTokens {
           ),
         )
       await transaction.insert(accountTokens).values({
-        tokenDigest: sessionTokenDigest(token.token),
+        tokenDigest: tokenDigest(token.token),
         playerId: token.playerId,
         kind: token.kind,
         expiresAt: dateOf(token.expiresAt),
@@ -40,7 +40,7 @@ export class DrizzleAccountTokens implements AccountTokens {
 
   async redeem(token: string, kind: AccountTokenKind, now: Instant): Promise<PlayerId | undefined> {
     const live = and(
-      eq(accountTokens.tokenDigest, sessionTokenDigest(token)),
+      eq(accountTokens.tokenDigest, tokenDigest(token)),
       eq(accountTokens.kind, kind),
       isNull(accountTokens.usedAt),
       gt(accountTokens.expiresAt, dateOf(now)),

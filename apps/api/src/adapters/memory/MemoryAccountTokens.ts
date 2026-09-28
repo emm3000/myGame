@@ -1,6 +1,6 @@
 import type { Instant, PlayerId } from '@mygame/domain'
 import type { AccountToken, AccountTokenKind, AccountTokens } from '../../auth/AccountTokens'
-import { sessionTokenDigest } from '../postgres/sessionTokenDigest'
+import { tokenDigest } from '../../auth/tokenDigest'
 
 type StoredToken = {
   readonly playerId: PlayerId
@@ -24,7 +24,7 @@ export class MemoryAccountTokens implements AccountTokens {
         this.tokens.delete(digest)
       }
     }
-    this.tokens.set(sessionTokenDigest(token.token), {
+    this.tokens.set(tokenDigest(token.token), {
       playerId: token.playerId,
       kind: token.kind,
       expiresAt: token.expiresAt,
@@ -33,7 +33,7 @@ export class MemoryAccountTokens implements AccountTokens {
   }
 
   async redeem(token: string, kind: AccountTokenKind, now: Instant): Promise<PlayerId | undefined> {
-    const digest = sessionTokenDigest(token)
+    const digest = tokenDigest(token)
     const stored = this.tokens.get(digest)
     if (stored === undefined || stored.kind !== kind || !isLive(stored, now)) {
       return undefined
