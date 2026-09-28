@@ -94,6 +94,8 @@ const ratePercent = (percent: number, resource: ResourceKind): string =>
 
 const atMaxLevel = 'Ya está en su nivel más alto.'
 
+const signInTitle = 'Entra en tu feudo'
+
 export const copy = {
   shell: {
     title: 'myGame',
@@ -109,7 +111,7 @@ export const copy = {
     password: 'Contraseña',
     invalidEmail: 'Escribe un correo válido, como nombre@ejemplo.com.',
     signIn: {
-      title: 'Entra en tu feudo',
+      title: signInTitle,
       submit: 'Entrar',
       switchPrompt: '¿Aún no tienes feudo?',
       switchLink: 'Crea tu cuenta',
@@ -121,6 +123,20 @@ export const copy = {
       submit: 'Crear cuenta',
       switchPrompt: '¿Ya tienes cuenta?',
       switchLink: 'Entra',
+    },
+  },
+  verification: {
+    banner: {
+      line: 'Aún no has confirmado tu correo. Sin confirmarlo no podrás recuperar tu contraseña.',
+      resend: 'Enviar otro enlace',
+      sent: 'Te hemos enviado otro enlace. Búscalo en tu correo: vale 24 horas.',
+    },
+    verify: {
+      title: 'Confirma tu correo',
+      verifying: 'Estamos confirmando tu correo…',
+      verified: 'Tu correo queda confirmado.',
+      toFief: 'Ir a tu feudo',
+      toSignIn: signInTitle,
     },
   },
   names,
