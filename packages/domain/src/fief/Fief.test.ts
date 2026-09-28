@@ -9,6 +9,8 @@ const foundingInstant = Instant.fromEpochMilliseconds(86_400_000)
 
 const quarryCost: Stocks = { wood: 50, stone: 20, iron: 0, gold: 0, food: 0 }
 
+const smithingCost: Stocks = { wood: 30, stone: 0, iron: 60, gold: 25, food: 0 }
+
 const sawmillEntry: BuildQueueEntry = {
   building: 'sawmill',
   targetLevel: 3,
@@ -41,6 +43,14 @@ const storedBusyFief: StoredFief = {
     cost: quarryCost,
   },
   buildQueue: [sawmillEntry, farmEntry],
+  studySlot: {
+    kind: 'busy',
+    art: 'smithing',
+    targetLevel: 3,
+    startedAt: foundingInstant,
+    finishesAt: Instant.fromEpochMilliseconds(86_700_000),
+    cost: smithingCost,
+  },
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -79,6 +89,7 @@ describe('Fief', () => {
       artLevels,
       slot,
       buildQueue,
+      studySlot,
     } = restored.value
     expect({
       id,
@@ -95,6 +106,7 @@ describe('Fief', () => {
       artLevels,
       slot,
       buildQueue,
+      studySlot,
     }).toEqual(storedBusyFief)
   })
 
@@ -108,6 +120,10 @@ describe('Fief', () => {
 
   it('founds a fief with every art at level zero', () => {
     expect(fiefInProvince(1).artLevels).toEqual({ smithing: 0, masonry: 0 })
+  })
+
+  it('founds a fief with the study slot idle', () => {
+    expect(fiefInProvince(1).studySlot).toEqual({ kind: 'idle' })
   })
 
   it('refuses a stored art level that is not a whole count', () => {
@@ -275,5 +291,81 @@ describe('Fief', () => {
     })
 
     expect(restored).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -20 } })
+  })
+
+  it('refuses a stored study whose target level is below one', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      studySlot: {
+        kind: 'busy',
+        art: 'masonry',
+        targetLevel: 0,
+        startedAt: foundingInstant,
+        finishesAt: foundingInstant,
+        cost: smithingCost,
+      },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidArtLevel', art: 'masonry', level: 0 },
+    })
+  })
+
+  it('refuses a stored study that finishes before the fief was stored', () => {
+    const finishesAt = Instant.fromEpochMilliseconds(86_399_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      studySlot: {
+        kind: 'busy',
+        art: 'smithing',
+        targetLevel: 3,
+        startedAt: Instant.fromEpochMilliseconds(86_000_000),
+        finishesAt,
+        cost: smithingCost,
+      },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt },
+    })
+  })
+
+  it('refuses a stored study that starts after it finishes', () => {
+    const startedAt = Instant.fromEpochMilliseconds(86_800_000)
+    const finishesAt = Instant.fromEpochMilliseconds(86_700_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      studySlot: {
+        kind: 'busy',
+        art: 'smithing',
+        targetLevel: 3,
+        startedAt,
+        finishesAt,
+        cost: smithingCost,
+      },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotStartsAfterFinish', startedAt, finishesAt },
+    })
+  })
+
+  it('refuses a stored study whose cost is negative', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      studySlot: {
+        kind: 'busy',
+        art: 'smithing',
+        targetLevel: 3,
+        startedAt: foundingInstant,
+        finishesAt: Instant.fromEpochMilliseconds(86_700_000),
+        cost: { ...smithingCost, gold: -25 },
+      },
+    })
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'NegativeResourceAmount', amount: -25 } })
   })
 })

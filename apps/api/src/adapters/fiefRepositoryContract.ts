@@ -9,6 +9,7 @@ import {
   ok,
   type PlayerId,
   type Result,
+  type StudySlot,
 } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 
@@ -52,6 +53,15 @@ const waitingEntries: BuildQueue = [
 
 const studiedArts = { smithing: 2, masonry: 1 }
 
+const masonryStudy: StudySlot = {
+  kind: 'busy',
+  art: 'masonry',
+  targetLevel: 2,
+  startedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:30:00Z')),
+  finishesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:15:00Z')),
+  cost: { wood: 80, stone: 120, iron: 0, gold: 35, food: 0 },
+}
+
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const stranger = '00000000-0000-4000-8000-0000000000ff'
@@ -88,6 +98,7 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
         cost: ironMineCost,
       },
       buildQueue,
+      studySlot: masonryStudy,
     }),
   )
 
@@ -176,6 +187,16 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(bruno)
       expect(restored.ok && restored.value?.artLevels).toEqual(studiedArts)
+    })
+
+    it('restores a busy study slot with its cost', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.studySlot).toEqual(masonryStudy)
     })
 
     it('restores every art of a founded fief at level zero', async () => {

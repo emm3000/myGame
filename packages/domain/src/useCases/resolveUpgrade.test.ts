@@ -3,7 +3,9 @@ import type { BuildQueueEntry } from '../fief/BuildQueue'
 import type { BusySlot } from '../fief/BuildSlot'
 import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import type { BusyStudySlot } from '../fief/StudySlot'
 import type {
+  ArtLevel,
   BuildingCatalog,
   BuildingLevel,
   FiefSettings,
@@ -69,6 +71,32 @@ const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog 
 
 const catalog = inMemoryCatalog([sawmillLevel(1, 30), sawmillLevel(2, 60), warehouseLevelOne])
 
+const smithingCost: Stocks = { wood: 40, stone: 0, iron: 30, gold: 20, food: 0 }
+
+const doublingSmithing: ArtLevel = {
+  art: 'smithing',
+  level: 1,
+  cost: smithingCost,
+  durationSeconds: 3_600,
+  requiredLibraryLevel: 1,
+  resource: 'iron',
+  ratePercent: 100,
+}
+
+const studyingCatalog: BuildingCatalog = {
+  ...catalog,
+  artLevelOf: (art, level) => (art === 'smithing' && level === 1 ? doublingSmithing : undefined),
+}
+
+const smithingStudyFinishingAfterHours = (hours: number): BusyStudySlot => ({
+  kind: 'busy',
+  art: 'smithing',
+  targetLevel: 1,
+  startedAt: storedInstant,
+  finishesAt: hoursAfterStored(hours),
+  cost: smithingCost,
+})
+
 const unbuiltLevels: FiefBuildingLevels = {
   sawmill: 0,
   quarry: 0,
@@ -90,6 +118,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     artLevels: { smithing: 0, masonry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    studySlot: { kind: 'idle' },
     ...overrides,
   })
   assert(restored.ok)
@@ -644,5 +673,93 @@ describe('resolveUpgrade', () => {
       ok: false,
       error: { kind: 'CoordinatesTaken', coordinates: sawmillBuildingFief.coordinates },
     })
+  })
+
+  it('raises the art when its study has finished by the read', async () => {
+    const studyingFief = storedFief({ studySlot: smithingStudyFinishingAfterHours(1) })
+    const fiefs = inMemoryFiefRepository([studyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.artLevels).toEqual({ smithing: 1, masonry: 0 })
+    expect(stored?.studySlot).toEqual({ kind: 'idle' })
+  })
+
+  it('accrues iron at the smithing rate only after the study finishes', async () => {
+    const studyingFief = storedFief({ studySlot: smithingStudyFinishingAfterHours(1) })
+    const fiefs = inMemoryFiefRepository([studyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks.iron).toBe(175)
+  })
+
+  it('applies an upgrade that finishes before a study at the rates in force before each', async () => {
+    const buildingAndStudyingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      studySlot: smithingStudyFinishingAfterHours(2),
+    })
+    const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks).toEqual({
+      wood: 190,
+      stone: 130,
+      iron: 160,
+      gold: 106,
+      food: 130,
+    })
+  })
+
+  it('applies an upgrade and a study that finish at one instant', async () => {
+    const buildingAndStudyingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      studySlot: smithingStudyFinishingAfterHours(1),
+    })
+    const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    const { buildingLevels, artLevels, slot, studySlot, stocks } = result.value.fief
+    expect({ buildingLevels, artLevels, slot, studySlot, stocks }).toEqual({
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      artLevels: { smithing: 1, masonry: 0 },
+      slot: { kind: 'idle' },
+      studySlot: { kind: 'idle' },
+      stocks: { wood: 150, stone: 120, iron: 145, gold: 104, food: 120 },
+    })
+  })
+
+  it('leaves a study still running untouched', async () => {
+    const studyingFief = storedFief({ studySlot: smithingStudyFinishingAfterHours(2) })
+    const fiefs = inMemoryFiefRepository([studyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value).toEqual({ fief: studyingFief, hasChanged: false })
+    expect(fiefs.storedFiefOf('lord')).toBe(studyingFief)
   })
 })
