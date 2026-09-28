@@ -54,6 +54,7 @@ const busyStudy = {
 const twoArts = {
   smithing: {
     level: 0,
+    resource: 'iron',
     ratePercent: 0,
     nextLevel: {
       level: 1,
@@ -63,7 +64,7 @@ const twoArts = {
       ratePercent: 5,
     },
   },
-  masonry: { level: 10, ratePercent: 50, nextLevel: null },
+  masonry: { level: 10, resource: 'stone', ratePercent: 50, nextLevel: null },
 }
 
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
@@ -194,5 +195,15 @@ describe('FiefOverviewSchema', () => {
     const overviewWithOneArt = { ...overviewWithSlot(busySlot), arts: oneArt }
 
     expect(FiefOverviewSchema.safeParse(overviewWithOneArt).success).toBe(false)
+  })
+
+  it('rejects an art that does not name the resource it raises', () => {
+    const { resource: _, ...masonryWithoutResource } = twoArts.masonry
+    const overviewWithUnnamedResource = {
+      ...overviewWithSlot(busySlot),
+      arts: { ...twoArts, masonry: masonryWithoutResource },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithUnnamedResource).success).toBe(false)
   })
 })

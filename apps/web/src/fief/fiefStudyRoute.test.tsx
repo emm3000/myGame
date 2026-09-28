@@ -144,6 +144,7 @@ it('names the library level an art still requires', async () => {
       ...libraryBuilt.arts,
       smithing: {
         level: 2,
+        resource: 'iron',
         ratePercent: 10,
         nextLevel: {
           level: 3,
@@ -196,6 +197,7 @@ it('enables a study once the interpolated amounts cover its cost', async () => {
 
 const smithingNeedsLibraryTwo: FiefOverview['arts']['smithing'] = {
   level: 2,
+  resource: 'iron',
   ratePercent: 10,
   nextLevel: {
     level: 3,
@@ -244,7 +246,10 @@ it('names the library level before the resources a study lacks', async () => {
 it('shows an art at its top level as finished while a study runs', async () => {
   const smithingAtTopWhileMasonryRuns: FiefOverview = {
     ...libraryBuilt,
-    arts: { ...libraryBuilt.arts, smithing: { level: 10, ratePercent: 50, nextLevel: null } },
+    arts: {
+      ...libraryBuilt.arts,
+      smithing: { level: 10, resource: 'iron', ratePercent: 50, nextLevel: null },
+    },
     study: {
       kind: 'busy',
       art: 'masonry',
@@ -262,7 +267,10 @@ it('shows an art at its top level as finished while a study runs', async () => {
 it('shows an art at its top level as finished', async () => {
   const smithingAtTop: FiefOverview = {
     ...libraryBuilt,
-    arts: { ...libraryBuilt.arts, smithing: { level: 10, ratePercent: 50, nextLevel: null } },
+    arts: {
+      ...libraryBuilt.arts,
+      smithing: { level: 10, resource: 'iron', ratePercent: 50, nextLevel: null },
+    },
   }
   await showFief({ fief: async () => ({ ok: true, value: smithingAtTop }) })
 

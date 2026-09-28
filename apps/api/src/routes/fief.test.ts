@@ -858,6 +858,7 @@ describe('the fief route', () => {
       expect(studySlot).toEqual({ kind: 'idle' })
       expect(arts.smithing).toEqual({
         level: 0,
+        resource: 'iron',
         ratePercent: 0,
         nextLevel: {
           level: 1,
@@ -867,6 +868,16 @@ describe('the fief route', () => {
           ratePercent: 5,
         },
       })
+    })
+
+    it('names the resource each art raises', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await fiefOf(ana.cookie)
+
+      const { arts } = FiefOverviewSchema.parse(await response.json())
+      expect(arts.smithing.resource).toBe('iron')
+      expect(arts.masonry.resource).toBe('stone')
     })
 
     it('answers 400 to an art the wire does not name', async () => {

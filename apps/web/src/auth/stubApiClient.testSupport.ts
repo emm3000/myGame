@@ -55,6 +55,7 @@ export const knownFief: FiefOverview = {
   arts: {
     smithing: {
       level: 0,
+      resource: 'iron',
       ratePercent: 0,
       nextLevel: {
         level: 1,
@@ -66,6 +67,7 @@ export const knownFief: FiefOverview = {
     },
     masonry: {
       level: 0,
+      resource: 'stone',
       ratePercent: 0,
       nextLevel: {
         level: 1,

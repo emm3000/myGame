@@ -1,4 +1,4 @@
-import type { ArtKind, ResourceKind } from '@mygame/contracts'
+import type { ArtKind } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { ArtCardProps } from '../design-system/ArtCard'
 import type { CardActionState } from '../design-system/CardAction'
@@ -10,11 +10,6 @@ import { shortfallsOf } from './shortfallsOf'
 export type ArtCardContent = Omit<ArtCardProps, 'titleElement' | 'isWaiting' | 'onStudy'>
 
 const { names } = copy
-
-const artResource: Readonly<Record<ArtKind, ResourceKind>> = {
-  smithing: 'iron',
-  masonry: 'stone',
-}
 
 type NextArtLevel = NonNullable<LiveFief['overview']['arts'][ArtKind]['nextLevel']>
 
@@ -37,8 +32,7 @@ function stateOf(nextLevel: NextArtLevel, fief: LiveFief): CardActionState {
 }
 
 export function artCardOf(art: ArtKind, fief: LiveFief): ArtCardContent {
-  const { level, ratePercent, nextLevel } = fief.overview.arts[art]
-  const resource = artResource[art]
+  const { level, resource, ratePercent, nextLevel } = fief.overview.arts[art]
   const common = {
     name: capitalize(names.arts[art]),
     levelLabel: level === 0 ? names.unstudied : names.level(level),
