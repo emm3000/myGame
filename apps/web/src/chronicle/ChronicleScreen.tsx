@@ -19,7 +19,7 @@ function ChronicleEntry({ row }: { readonly row: ChronicleRow }): ReactElement {
           <b className="font-bold">{row.heading}</b> {row.subject}
         </p>
         {row.refund === undefined ? null : (
-          <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <span aria-hidden="true" className="font-body text-body text-ink-muted">
               {copy.chronicle.recovered}
             </span>
@@ -27,7 +27,7 @@ function ChronicleEntry({ row }: { readonly row: ChronicleRow }): ReactElement {
             <span aria-hidden="true" className="flex">
               <CostList costs={row.refund.costs} />
             </span>
-          </p>
+          </div>
         )}
       </div>
     </li>
