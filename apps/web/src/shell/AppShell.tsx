@@ -40,20 +40,22 @@ export function AppShell({ onSignOut, children }: AppShellProps): ReactElement {
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
         <h1 className="m-0 font-display text-display-xl text-umber">{copy.shell.title}</h1>
-        <nav className="flex grow items-center gap-4 md:grow-0">
-          <ul className="m-0 flex list-none gap-1 p-0">
-            {screens.map((screen) => (
-              <li key={screen.to} className="flex">
-                <ScreenLink {...screen} />
-              </li>
-            ))}
-          </ul>
+        <div className="flex grow items-center gap-4 md:grow-0">
+          <nav className="flex">
+            <ul className="m-0 flex list-none gap-1 p-0">
+              {screens.map((screen) => (
+                <li key={screen.to} className="flex">
+                  <ScreenLink {...screen} />
+                </li>
+              ))}
+            </ul>
+          </nav>
           <span className="ml-auto flex">
             <Button type="button" tone="quiet" onClick={onSignOut}>
               {copy.shell.signOut}
             </Button>
           </span>
-        </nav>
+        </div>
       </header>
       <main className="px-4 py-6 font-body text-body text-ink-muted md:px-8">{children}</main>
     </div>
