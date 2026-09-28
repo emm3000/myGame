@@ -4,6 +4,7 @@ import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
+import { mailEnvironment } from '../composeServer.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -37,7 +38,10 @@ describe('the map route', () => {
   let app: ReturnType<typeof createApp>
 
   beforeAll(() => {
-    server = composeServer({ API_PORT: '3195', DATABASE_URL: databaseUrl() }, contentDirectory)
+    server = composeServer(
+      { API_PORT: '3195', DATABASE_URL: databaseUrl(), ...mailEnvironment },
+      contentDirectory,
+    )
   })
 
   afterAll(async () => {

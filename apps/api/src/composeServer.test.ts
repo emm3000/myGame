@@ -15,10 +15,20 @@ import {
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { type ComposedServer, composeServer } from './composeServer'
+import { mailEnvironment } from './composeServer.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
 const unusedDatabaseUrl = 'postgres://composer@localhost:5432/unused'
+
+const composableEnvironment: NodeJS.ProcessEnv = {
+  API_PORT: '3106',
+  DATABASE_URL: unusedDatabaseUrl,
+  ...mailEnvironment,
+}
+
+const environmentWithout = (name: string): NodeJS.ProcessEnv =>
+  Object.fromEntries(Object.entries(composableEnvironment).filter(([key]) => key !== name))
 
 const oneLevel = (effect: object): object => ({
   level: 1,
@@ -105,20 +115,14 @@ describe('composeServer', () => {
   })
 
   it('listens on the port API_PORT names', async () => {
-    const server = composeServer(
-      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
-      fixtureDirectory,
-    )
+    const server = composeServer(composableEnvironment, fixtureDirectory)
 
     expect(server.port).toBe(3106)
     await server.close()
   })
 
   it('builds a catalog from the content folder at start-up', async () => {
-    const server = composeServer(
-      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
-      contentDirectory,
-    )
+    const server = composeServer(composableEnvironment, contentDirectory)
 
     expect(server.buildingCatalog.levelOf('sawmill', 1)).toEqual({
       building: 'sawmill',
@@ -132,10 +136,7 @@ describe('composeServer', () => {
   })
 
   it('reads the new fief settings from the content folder at start-up', async () => {
-    const server = composeServer(
-      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
-      contentDirectory,
-    )
+    const server = composeServer(composableEnvironment, contentDirectory)
 
     expect(server.buildingCatalog.fiefSettings().startingStocks).toEqual({
       wood: 500,
@@ -151,41 +152,38 @@ describe('composeServer', () => {
     const malformedDirectory = contentCopyWithTruncatedSawmill()
 
     try {
-      expect(() =>
-        composeServer({ API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl }, malformedDirectory),
-      ).toThrow('sawmill.json')
+      expect(() => composeServer(composableEnvironment, malformedDirectory)).toThrow('sawmill.json')
     } finally {
       removeDirectory(malformedDirectory)
     }
   })
 
   it('refuses to compose without API_PORT', () => {
-    expect(() => composeServer({ DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory)).toThrow(
+    expect(() => composeServer(environmentWithout('API_PORT'), fixtureDirectory)).toThrow(
       'API_PORT',
     )
   })
 
   it('refuses to compose with a non-integer API_PORT', () => {
     expect(() =>
-      composeServer({ API_PORT: '31.5', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
+      composeServer({ ...composableEnvironment, API_PORT: '31.5' }, fixtureDirectory),
     ).toThrow('API_PORT')
   })
 
   it('refuses to compose with a non-positive API_PORT', () => {
     expect(() =>
-      composeServer({ API_PORT: '0', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
+      composeServer({ ...composableEnvironment, API_PORT: '0' }, fixtureDirectory),
     ).toThrow('API_PORT')
   })
 
   it('refuses to compose without DATABASE_URL', () => {
-    expect(() => composeServer({ API_PORT: '3106' }, fixtureDirectory)).toThrow('DATABASE_URL')
+    expect(() => composeServer(environmentWithout('DATABASE_URL'), fixtureDirectory)).toThrow(
+      'DATABASE_URL',
+    )
   })
 
   it('marks the session cookie Secure unless SESSION_COOKIE_SECURE is false', async () => {
-    const server = composeServer(
-      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl },
-      fixtureDirectory,
-    )
+    const server = composeServer(composableEnvironment, fixtureDirectory)
 
     expect(server.isSessionCookieSecure).toBe(true)
     await server.close()
@@ -193,7 +191,7 @@ describe('composeServer', () => {
 
   it('drops the Secure flag when SESSION_COOKIE_SECURE is false', async () => {
     const server = composeServer(
-      { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl, SESSION_COOKIE_SECURE: 'false' },
+      { ...composableEnvironment, SESSION_COOKIE_SECURE: 'false' },
       fixtureDirectory,
     )
 
@@ -203,17 +201,70 @@ describe('composeServer', () => {
 
   it('refuses to compose with a SESSION_COOKIE_SECURE other than true or false', () => {
     expect(() =>
-      composeServer(
-        { API_PORT: '3106', DATABASE_URL: unusedDatabaseUrl, SESSION_COOKIE_SECURE: 'yes' },
-        fixtureDirectory,
-      ),
+      composeServer({ ...composableEnvironment, SESSION_COOKIE_SECURE: 'yes' }, fixtureDirectory),
     ).toThrow('SESSION_COOKIE_SECURE')
   })
 
   it('refuses to compose with an API_PORT above 65535', () => {
     expect(() =>
-      composeServer({ API_PORT: '65536', DATABASE_URL: unusedDatabaseUrl }, fixtureDirectory),
+      composeServer({ ...composableEnvironment, API_PORT: '65536' }, fixtureDirectory),
     ).toThrow('API_PORT')
+  })
+  it('refuses to compose without SMTP_URL', () => {
+    expect(() => composeServer(environmentWithout('SMTP_URL'), fixtureDirectory)).toThrow(
+      'SMTP_URL',
+    )
+  })
+
+  it('refuses an SMTP_URL that is not smtp or smtps', () => {
+    expect(() =>
+      composeServer(
+        { ...composableEnvironment, SMTP_URL: 'http://127.0.0.1:1025' },
+        fixtureDirectory,
+      ),
+    ).toThrow('SMTP_URL')
+  })
+
+  it('refuses to compose without MAIL_FROM', () => {
+    expect(() => composeServer(environmentWithout('MAIL_FROM'), fixtureDirectory)).toThrow(
+      'MAIL_FROM',
+    )
+  })
+
+  it('refuses to compose without WEB_URL', () => {
+    expect(() => composeServer(environmentWithout('WEB_URL'), fixtureDirectory)).toThrow('WEB_URL')
+  })
+
+  it('refuses a WEB_URL that is not http or https', () => {
+    expect(() =>
+      composeServer(
+        { ...composableEnvironment, WEB_URL: 'ftp://localhost:3259' },
+        fixtureDirectory,
+      ),
+    ).toThrow('WEB_URL')
+  })
+
+  it('exposes the web origin WEB_URL names', async () => {
+    const server = composeServer(
+      { ...composableEnvironment, WEB_URL: 'https://mygame.example' },
+      fixtureDirectory,
+    )
+
+    expect(server.webUrl).toBe('https://mygame.example')
+    await server.close()
+  })
+
+  it('sends mail through the SMTP server SMTP_URL names', async () => {
+    const server = composeServer(composableEnvironment, fixtureDirectory)
+
+    const delivery = await server.mailer.send({
+      to: 'aldonza@example.com',
+      subject: 'Confirma tu correo',
+      text: 'Sigue este enlace.',
+    })
+
+    expect(delivery).toBe('failed')
+    await server.close()
   })
 })
 
@@ -350,7 +401,10 @@ describe('a fief transaction from the composed server', () => {
   let server: ComposedServer
 
   beforeAll(() => {
-    server = composeServer({ API_PORT: '3190', DATABASE_URL: databaseUrl() }, contentDirectory)
+    server = composeServer(
+      { API_PORT: '3190', DATABASE_URL: databaseUrl(), ...mailEnvironment },
+      contentDirectory,
+    )
   })
 
   afterAll(async () => {

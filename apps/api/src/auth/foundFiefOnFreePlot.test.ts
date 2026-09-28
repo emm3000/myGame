@@ -10,6 +10,7 @@ import {
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { type ComposedServer, composeServer } from '../composeServer'
+import { mailEnvironment } from '../composeServer.testSupport'
 import { foundFiefOnFreePlot } from './foundFiefOnFreePlot'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -124,7 +125,10 @@ describe('foundFiefOnFreePlot', () => {
   let server: ComposedServer
 
   beforeAll(() => {
-    server = composeServer({ API_PORT: '3192', DATABASE_URL: databaseUrl() }, contentDirectory)
+    server = composeServer(
+      { API_PORT: '3192', DATABASE_URL: databaseUrl(), ...mailEnvironment },
+      contentDirectory,
+    )
   })
 
   afterAll(async () => {
