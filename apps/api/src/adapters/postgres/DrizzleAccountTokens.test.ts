@@ -52,30 +52,38 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
 
 const probeLimit = 500
 
-const isPlayerLockWaiting = async (): Promise<boolean> => {
+const playerLockQuery = 'select "id" from "players" %for no key update'
+const tokenDeleteQuery = 'delete from "account_tokens" %'
+
+const isLockWaiting = async (queries: ReadonlyArray<string>): Promise<boolean> => {
   const probe = await pool.query<{ waiting: boolean }>(
     `SELECT pg_sleep(0.01), EXISTS (
        SELECT 1 FROM pg_stat_activity
        WHERE datname = current_database()
          AND pid <> pg_backend_pid()
          AND wait_event_type = 'Lock'
-         AND query ILIKE 'select "id" from "players" %for no key update'
+         AND query ILIKE ANY($1::text[])
      ) AS waiting`,
+    [queries],
   )
   return probe.rows[0]?.waiting === true
 }
 
-const untilBlockedOrIssued = async (issue: Promise<void>): Promise<void> => {
-  let hasIssued = false
-  void issue.then(() => {
-    hasIssued = true
+const untilWaitingOrDone = async (
+  work: Promise<void>,
+  queries: ReadonlyArray<string>,
+  failure: string,
+): Promise<void> => {
+  let isDone = false
+  void work.then(() => {
+    isDone = true
   })
   for (let probes = 0; probes < probeLimit; probes += 1) {
-    if (hasIssued || (await isPlayerLockWaiting())) {
+    if (isDone || (await isLockWaiting(queries))) {
       return
     }
   }
-  throw new Error('The second issue neither waited on the player lock nor finished')
+  throw new Error(failure)
 }
 
 const issueTogether = async (
@@ -93,34 +101,13 @@ const issueTogether = async (
   })
   await firstHasIssued.promise
   const secondIssue = new DrizzleAccountTokens(database).issue(second, now)
-  await untilBlockedOrIssued(secondIssue)
+  await untilWaitingOrDone(
+    secondIssue,
+    [playerLockQuery],
+    'The second issue neither waited on the player lock nor finished',
+  )
   firstMayCommit.resolve()
   await Promise.all([firstIssue, secondIssue])
-}
-
-const isIssueLockWaiting = async (): Promise<boolean> => {
-  const probe = await pool.query<{ waiting: boolean }>(
-    `SELECT pg_sleep(0.01), EXISTS (
-       SELECT 1 FROM pg_stat_activity
-       WHERE datname = current_database()
-         AND pid <> pg_backend_pid()
-         AND wait_event_type = 'Lock'
-     ) AS waiting`,
-  )
-  return probe.rows[0]?.waiting === true
-}
-
-const untilIssueWaits = async (issue: Promise<void>): Promise<void> => {
-  let hasIssued = false
-  void issue.then(() => {
-    hasIssued = true
-  })
-  for (let probes = 0; probes < probeLimit; probes += 1) {
-    if (hasIssued || (await isIssueLockWaiting())) {
-      return
-    }
-  }
-  throw new Error('The issue neither waited on a lock nor finished')
 }
 
 const verifyWhileIssuing = async (
@@ -142,7 +129,11 @@ const verifyWhileIssuing = async (
   })
   await hasRedeemed.promise
   const issue = new DrizzleAccountTokens(database).issue(issued, now)
-  await untilIssueWaits(issue)
+  await untilWaitingOrDone(
+    issue,
+    [playerLockQuery, tokenDeleteQuery],
+    'The issue neither waited on a lock nor finished',
+  )
   mayVerify.resolve()
   const [verifiedPlayer] = await Promise.all([verify, issue])
   return verifiedPlayer
