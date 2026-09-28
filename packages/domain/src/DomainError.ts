@@ -62,3 +62,10 @@ export type DomainError =
   | { readonly kind: 'FiefNotFound'; readonly playerId: PlayerId }
   | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
   | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }
+  | { readonly kind: 'StudySlotBusy'; readonly art: ArtKind }
+  | {
+      readonly kind: 'LibraryLevelTooLow'
+      readonly requiredLibraryLevel: number
+      readonly libraryLevel: number
+    }
+  | { readonly kind: 'ArtMaxLevelReached'; readonly art: ArtKind; readonly level: number }

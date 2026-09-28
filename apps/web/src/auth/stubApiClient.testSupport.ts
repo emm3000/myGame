@@ -51,6 +51,31 @@ export const knownFief: FiefOverview = {
   },
   slot: { kind: 'idle' },
   queue: { entries: [], cap: 4 },
+  study: { kind: 'idle' },
+  arts: {
+    smithing: {
+      level: 0,
+      ratePercent: 0,
+      nextLevel: {
+        level: 1,
+        cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
+        durationSeconds: 1800,
+        requiredLibraryLevel: 1,
+        ratePercent: 5,
+      },
+    },
+    masonry: {
+      level: 0,
+      ratePercent: 0,
+      nextLevel: {
+        level: 1,
+        cost: { wood: 150, stone: 150, iron: 60, gold: 60, food: 0 },
+        durationSeconds: 1800,
+        requiredLibraryLevel: 1,
+        ratePercent: 5,
+      },
+    },
+  },
   readAt: '2026-09-22T12:00:00.000Z',
 }
 

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { TerrainSchema } from './Terrain'
@@ -40,6 +41,32 @@ const BusySlotSchema = z.object({
   finishesAt: InstantSchema,
 })
 
+const IdleStudySchema = z.object({
+  kind: z.literal('idle'),
+})
+
+const BusyStudySchema = z.object({
+  kind: z.literal('busy'),
+  art: ArtKindSchema,
+  targetLevel: BuildingLevelSchema,
+  startedAt: InstantSchema,
+  finishesAt: InstantSchema,
+})
+
+const NextArtLevelSchema = z.object({
+  level: BuildingLevelSchema,
+  cost: ResourceAmountsSchema,
+  durationSeconds: DurationSecondsSchema,
+  requiredLibraryLevel: BuildingLevelSchema,
+  ratePercent: QuantitySchema,
+})
+
+const ArtStateSchema = z.object({
+  level: WholeCountSchema,
+  ratePercent: QuantitySchema,
+  nextLevel: NextArtLevelSchema.nullable(),
+})
+
 const WaitingUpgradeSchema = z.object({
   building: BuildingKindSchema,
   targetLevel: BuildingLevelSchema,
@@ -76,6 +103,8 @@ export const FiefOverviewSchema = z.object({
     entries: z.array(WaitingUpgradeSchema),
     cap: WholeCountSchema,
   }),
+  study: z.discriminatedUnion('kind', [IdleStudySchema, BusyStudySchema]),
+  arts: z.record(ArtKindSchema, ArtStateSchema),
   readAt: InstantSchema,
 })
 

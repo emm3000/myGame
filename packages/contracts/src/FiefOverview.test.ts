@@ -43,6 +43,29 @@ const waitingQuarry = {
   finishesAt: '2026-09-22T14:36:24.000Z',
 }
 
+const busyStudy = {
+  kind: 'busy',
+  art: 'smithing',
+  targetLevel: 1,
+  startedAt: '2026-09-22T13:50:00.000Z',
+  finishesAt: '2026-09-22T14:05:00.000Z',
+}
+
+const twoArts = {
+  smithing: {
+    level: 0,
+    ratePercent: 0,
+    nextLevel: {
+      level: 1,
+      cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
+      durationSeconds: 900,
+      requiredLibraryLevel: 1,
+      ratePercent: 5,
+    },
+  },
+  masonry: { level: 10, ratePercent: 50, nextLevel: null },
+}
+
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 2, plot: 3 },
@@ -65,6 +88,8 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   },
   slot,
   queue: { entries: [waitingQuarry], cap: 4 },
+  study: { kind: 'idle' },
+  arts: twoArts,
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -149,5 +174,25 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutNextLevel).success).toBe(false)
+  })
+
+  it('parses a fief overview with a busy study', () => {
+    const studyingOverview = { ...overviewWithSlot(busySlot), study: busyStudy }
+
+    expect(FiefOverviewSchema.parse(studyingOverview)).toEqual(studyingOverview)
+  })
+
+  it('rejects a busy study without its art', () => {
+    const { art: _, ...studyWithoutArt } = busyStudy
+    const overviewWithNamelessStudy = { ...overviewWithSlot(busySlot), study: studyWithoutArt }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithNamelessStudy).success).toBe(false)
+  })
+
+  it('rejects a fief overview missing one of the two arts', () => {
+    const { masonry: _, ...oneArt } = twoArts
+    const overviewWithOneArt = { ...overviewWithSlot(busySlot), arts: oneArt }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithOneArt).success).toBe(false)
   })
 })

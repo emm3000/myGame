@@ -1,5 +1,6 @@
 import { BuildingKindSchema, type FiefOverview } from '@mygame/contracts'
 import {
+  type ArtKind,
   type BuildingCatalog,
   type BuildingKind,
   type BuildSlot,
@@ -7,7 +8,9 @@ import {
   derivePeasantCounts,
   derivePeasantsForUpgrade,
   deriveResourceRates,
+  deriveStudyDurationSeconds,
   deriveWarehouseCapacity,
+  err,
   type Fief,
   type FiefBuildingLevels,
   type Instant,
@@ -15,6 +18,7 @@ import {
   type ResourceKind,
   type Result,
   type Stocks,
+  type StudySlot,
   scheduleBuildQueue,
 } from '@mygame/domain'
 
@@ -30,6 +34,79 @@ const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
         startedAt: isoOf(slot.startedAt),
         finishesAt: isoOf(slot.finishesAt),
       }
+
+const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
+  studySlot.kind === 'idle'
+    ? { kind: 'idle' }
+    : {
+        kind: 'busy',
+        art: studySlot.art,
+        targetLevel: studySlot.targetLevel,
+        startedAt: isoOf(studySlot.startedAt),
+        finishesAt: isoOf(studySlot.finishesAt),
+      }
+
+type ArtState = FiefOverview['arts'][ArtKind]
+
+const ratePercentOf = (
+  art: ArtKind,
+  level: number,
+  catalog: BuildingCatalog,
+): Result<number, DomainError> => {
+  if (level === 0) {
+    return ok(0)
+  }
+  const line = catalog.artLevelOf(art, level)
+  if (line === undefined) {
+    return err({ kind: 'UnknownArtLevel', art, level })
+  }
+  return ok(line.ratePercent)
+}
+
+const artStateOf = (
+  art: ArtKind,
+  fief: Fief,
+  catalog: BuildingCatalog,
+): Result<ArtState, DomainError> => {
+  const level = fief.artLevels[art]
+  const ratePercent = ratePercentOf(art, level, catalog)
+  if (!ratePercent.ok) {
+    return ratePercent
+  }
+  const next = catalog.artLevelOf(art, level + 1)
+  if (next === undefined) {
+    return ok({ level, ratePercent: ratePercent.value, nextLevel: null })
+  }
+  return ok({
+    level,
+    ratePercent: ratePercent.value,
+    nextLevel: {
+      level: next.level,
+      cost: { ...next.cost },
+      durationSeconds: deriveStudyDurationSeconds(
+        next.durationSeconds,
+        fief.buildingLevels.library,
+      ),
+      requiredLibraryLevel: next.requiredLibraryLevel,
+      ratePercent: next.ratePercent,
+    },
+  })
+}
+
+const artsOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+): Result<FiefOverview['arts'], DomainError> => {
+  const smithing = artStateOf('smithing', fief, catalog)
+  if (!smithing.ok) {
+    return smithing
+  }
+  const masonry = artStateOf('masonry', fief, catalog)
+  if (!masonry.ok) {
+    return masonry
+  }
+  return ok({ smithing: smithing.value, masonry: masonry.value })
+}
 
 const queueOf = (
   fief: Fief,
@@ -148,6 +225,10 @@ export const fiefOverviewOf = (
   if (!queue.ok) {
     return queue
   }
+  const arts = artsOf(fief, catalog)
+  if (!arts.ok) {
+    return arts
+  }
   const { kingdom, province, plot } = fief.coordinates
   return ok({
     name: fief.name.value,
@@ -158,6 +239,8 @@ export const fiefOverviewOf = (
     peasants: peasants.value,
     slot: slotOf(fief.slot),
     queue: queue.value,
+    study: studyOf(fief.studySlot),
+    arts: arts.value,
     readAt: isoOf(fief.storedAt),
   })
 }

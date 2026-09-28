@@ -7,6 +7,7 @@ export { derivePeasantCounts } from './fief/derivePeasantCounts'
 export { derivePeasantsForUpgrade } from './fief/derivePeasantsForUpgrade'
 export { deriveProjectedFreePeasants } from './fief/deriveProjectedFreePeasants'
 export { deriveResourceRates } from './fief/deriveResourceRates'
+export { deriveStudyDurationSeconds } from './fief/deriveStudyDurationSeconds'
 export { deriveWarehouseCapacity } from './fief/deriveWarehouseCapacity'
 export { Fief, type FiefFounding, type Stocks, type StoredFief } from './fief/Fief'
 export type { FiefArtLevels } from './fief/FiefArtLevels'
@@ -60,3 +61,8 @@ export {
   type ResolveUpgradeDependencies,
   resolveUpgrade,
 } from './useCases/resolveUpgrade'
+export {
+  type StartStudyCommand,
+  type StartStudyDependencies,
+  startStudy,
+} from './useCases/startStudy'
