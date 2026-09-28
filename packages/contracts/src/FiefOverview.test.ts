@@ -67,6 +67,13 @@ const twoArts = {
   masonry: { level: 10, resource: 'stone', ratePercent: 50, nextLevel: null },
 }
 
+const autumnOfYearOne = {
+  kind: 'autumn',
+  year: 1,
+  endsAt: '2026-10-26T00:00:00.000Z',
+  multiplierPercent: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
+}
+
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 2, plot: 3 },
@@ -91,6 +98,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   queue: { entries: [waitingQuarry], cap: 4 },
   study: { kind: 'idle' },
   arts: twoArts,
+  season: autumnOfYearOne,
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -205,5 +213,36 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithUnnamedResource).success).toBe(false)
+  })
+
+  it('rejects an overview without a season', () => {
+    const { season: _, ...seasonlessOverview } = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.safeParse(seasonlessOverview).success).toBe(false)
+  })
+
+  it('accepts a null season before the calendar starts', () => {
+    const overviewBeforeTheEpoch = { ...overviewWithSlot(busySlot), season: null }
+
+    expect(FiefOverviewSchema.parse(overviewBeforeTheEpoch)).toEqual(overviewBeforeTheEpoch)
+  })
+
+  it('rejects a season in year 0', () => {
+    const overviewInYearZero = {
+      ...overviewWithSlot(busySlot),
+      season: { ...autumnOfYearOne, year: 0 },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewInYearZero).success).toBe(false)
+  })
+
+  it('rejects a season missing a resource multiplier', () => {
+    const { food: _, ...fourMultipliers } = autumnOfYearOne.multiplierPercent
+    const overviewWithFourMultipliers = {
+      ...overviewWithSlot(busySlot),
+      season: { ...autumnOfYearOne, multiplierPercent: fourMultipliers },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithFourMultipliers).success).toBe(false)
   })
 })

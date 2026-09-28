@@ -22,6 +22,7 @@ import {
   type Stocks,
   type StudySlot,
   scheduleBuildQueue,
+  seasonAt,
 } from '@mygame/domain'
 
 const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
@@ -118,6 +119,20 @@ const queueOf = (
     })),
     cap: catalog.fiefSettings().buildQueueCap,
   })
+}
+
+const seasonOf = (fief: Fief, catalog: BuildingCatalog): FiefOverview['season'] => {
+  const settings = catalog.fiefSettings()
+  const season = seasonAt(fief.storedAt, settings)
+  if (season === undefined) {
+    return null
+  }
+  return {
+    kind: season.kind,
+    year: season.year,
+    endsAt: isoOf(season.endsAt),
+    multiplierPercent: { ...settings.seasons.multiplierPercent[season.kind] },
+  }
 }
 
 const resourcesOf = (
@@ -240,6 +255,7 @@ export const fiefOverviewOf = (
     queue: queue.value,
     study: studyOf(fief.studySlot),
     arts: arts.value,
+    season: seasonOf(fief, catalog),
     readAt: isoOf(fief.storedAt),
   })
 }
