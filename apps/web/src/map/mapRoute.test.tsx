@@ -164,6 +164,26 @@ it('shows the Spanish refusal for a province beyond the map', async () => {
   )
 })
 
+it("leads back from a province beyond the map to the viewer's own province", async () => {
+  const requested: Array<number | undefined> = []
+  renderAppAt(
+    '/mapa/9',
+    signedInClientServing(async (province) => {
+      requested.push(province)
+      return province === undefined
+        ? { ok: true, value: knownProvinceMap }
+        : { ok: false, refusal: 'ProvinceNotFound' }
+    }),
+  )
+
+  fireEvent.click(await screen.findByRole('link', { name: 'Ir a tu provincia' }))
+
+  expect(
+    await screen.findByRole('heading', { level: 3, name: 'Vadoalto, provincia 3' }),
+  ).toBeDefined()
+  expect(requested).toEqual([9, undefined])
+})
+
 it.each(['/mapa/0', '/mapa/abc'])('refuses %s without asking the api', async (path) => {
   const { client, requested } = recordingClient(provinceNumbered)
   renderAppAt(path, client)

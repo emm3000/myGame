@@ -231,6 +231,7 @@ export const copy = {
     previous: 'Provincia anterior',
     next: 'Provincia siguiente',
     jump: 'Ir a la provincia',
+    backToOwnProvince: 'Ir a tu provincia',
   },
   refusals,
 } as const
