@@ -1,6 +1,6 @@
 # Names the player reads
 
-Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map and the account. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
+Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account and the seasons. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
 
 ## Resources
 
@@ -171,6 +171,35 @@ The landing of the mailed link, outside the signed-in shell.
 - Its **success line**: *Tu contraseña ha cambiado y hemos cerrado todas tus sesiones.* Under it, the link to sign in reads *Entra en tu feudo*, the sign-in title.
 - Under its **`TokenInvalid` refusal**, the way to ask for a new link reads *Pedir otro enlace* and leads to the reset request.
 
+## The seasons
+
+Every line of this section is a proposal for the author, not yet accepted (`world.md`, Seasons). The English identifiers `spring`, `summer`, `autumn`, `winter`, `season`, `year`, `endsAt` and `multiplierPercent` are fixed by the S8 tickets (#182); only the Spanish is proposed here.
+
+- A **season** is *la estación*. The four turn together over the whole land, seven days each, spring first, and no screen names one by *estación*: the season's own label carries it.
+
+| Term | Label | Article | Note |
+|---|---|---|---|
+| spring | primavera | la primavera | raises the harvest: food |
+| summer | verano | el verano | changes no rate in this phase; its speed on building comes later |
+| autumn | otoño | el otoño | favours trade: gold |
+| winter | invierno | el invierno | lowers the harvest: food |
+
+- A season's label is written in lower case, as *vega* and *herrería* are, and capitalised only as the first word of a line.
+- The **year** is *el año*; a numbered one reads *año 1*, as *nivel 3* and *provincia 3* do, so it needs no article. Years are counted from the first spring; there is no named calendar and no era.
+- The **header line** puts the season first, then a comma and the year, in the register of *Vadoalto, provincia 3*: *Otoño, año 1*. It sits in the fief header; where, and whether it shares a line with the countdown, is the design's call (#185).
+- The **countdown line** to the next season reads the next season's label, *en* and the time left, in the register of *Sube a nivel 3*: *Invierno en 3 días*. Slots: the next season (the label of the season after the one in force; after winter, spring of the next year) and the time left until `endsAt`, formatted as the design decides (#185): days, or hours as `formatDuration` reads today, when seven days would read *168 h*. The unit is not a lore name.
+- The **mark** on the resource bar, on the one resource the season changes, reads the season in force, a colon, the signed percent, *de* and the resource label, as the arts' rate line *+25 % de hierro / h* reads:
+
+| Rate | Mark | Slots |
+|---|---|---|
+| lowered | *Invierno: −25 % de comida* | the resource label, the percent |
+| raised | *Otoño: +25 % de oro* | the resource label, the percent |
+
+- The **percent** in the mark is the change from the neutral rate, a whole number: a `multiplierPercent` of `75` reads *−25 %*, one of `125` reads *+25 %*. A resource at `100` is not marked. The mark carries no *por hora*: the rate line beside it already reads */ h*.
+- Where the design keeps the mark to a sign and an icon (#185), its **spoken form**, the accessible name, says the same in words: a lowered rate *El invierno baja la comida un 25 %.*, a raised rate *El otoño sube el oro un 25 %.* This sentence needs the resource's article, which the Resources table does not carry: *la madera*, *la piedra*, *el hierro*, *el oro*, *la comida*.
+- **Before the calendar starts** (`season` null on the wire) the header shows no season line and no countdown, and the bar marks nothing; no line reads *sin estación*.
+- **Summer** changes no rate in this phase, so the bar marks nothing in summer; the header still reads *Verano, año 1* and the countdown still runs to autumn.
+
 ## Open questions
 
 - The names of the second and third kingdoms, one per remaining house.
@@ -179,3 +208,4 @@ The landing of the mailed link, outside the signed-in shell.
 - Whether the lectern, *el atril*, names the study slot on screen instead of *el estudio*.
 - Whether *parcela* survives once a lord can choose a plot at founding, or a plainer *tierra* takes its place.
 - Whether *vega*, *páramo* and *riscos* survive once each terrain has an image (`docs/art/art-bible.md`).
+- Whether the seasons keep their plain names or the land gives each one a name of its own once summer speeds building (S9).
