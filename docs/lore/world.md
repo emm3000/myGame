@@ -38,7 +38,9 @@ In the MVP houses are flavour in the lore only; mechanics for houses are a later
 
 Four seasons cycle over the world. Winter lowers harvests, spring raises them, summer speeds building, autumn favours trade. A lore hook; not in the MVP.
 
-Proposal (S8, #183): the seasons turn together over the whole land every seven days, spring first, and the year is counted from the first spring; winter lowers the harvest, spring raises it, autumn favours trade and gold; summer's speed on building comes later. No named calendar or era: a season is known by its name and the year by its number (`names.md`, The seasons).
+Proposal (S8, #183): the seasons turn together over the whole land every seven days, spring first, and the year is counted from the first spring; winter lowers the harvest, spring raises it, autumn favours trade and gold. No named calendar or era: a season is known by its name and the year by its number (`names.md`, The seasons).
+
+Proposal (S9, #199): summer shortens building and winter shortens study. A building work takes the season in force when it is ordered, a study the season in force when it starts, and neither changes with the season while it runs.
 
 ## Open questions
 

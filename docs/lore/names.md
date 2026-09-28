@@ -173,16 +173,16 @@ The landing of the mailed link, outside the signed-in shell.
 
 ## The seasons
 
-Every line of this section is a proposal for the author, not yet accepted (`world.md`, Seasons). The English identifiers `spring`, `summer`, `autumn`, `winter`, `season`, `year`, `endsAt` and `multiplierPercent` are fixed by the S8 tickets (#182); only the Spanish is proposed here.
+Every line of this section is a proposal for the author, not yet accepted (`world.md`, Seasons). The English identifiers `spring`, `summer`, `autumn`, `winter`, `season`, `year`, `endsAt` and `multiplierPercent` are fixed by the S8 tickets (#182), and `durationPercent`, `build` and `study` by the S9 tickets (#198); only the Spanish is proposed here.
 
 - A **season** is *la estación*. The four turn together over the whole land, seven days each, spring first, and no screen names one by *estación*: the season's own label carries it.
 
 | Term | Label | Article | Note |
 |---|---|---|---|
 | spring | primavera | la primavera | raises the harvest: food |
-| summer | verano | el verano | changes no rate in this phase; its speed on building comes later |
+| summer | verano | el verano | shortens building |
 | autumn | otoño | el otoño | favours trade: gold |
-| winter | invierno | el invierno | lowers the harvest: food |
+| winter | invierno | el invierno | lowers the harvest: food; shortens study |
 
 - A season's label is written in lower case, as *vega* and *herrería* are, and capitalised only as the first word of a line.
 - The **year** is *el año*; a numbered one reads *año 1*, as *nivel 3* and *provincia 3* do, so it needs no article. Years are counted from the first spring; there is no named calendar and no era.
@@ -198,7 +198,16 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 - The **percent** in the mark is the change from the neutral rate, a whole number: a `multiplierPercent` of `75` reads *-25 %*, one of `125` reads *+25 %*. A resource at `100` is not marked. The sign is the ASCII hyphen-minus and plus, as `copy.ts` writes `+${percent} %` for the arts; no typographic minus. The mark carries no *por hora*: the rate line beside it already reads */ h*.
 - Where the design keeps the mark to a sign and an icon (#185), its **spoken form**, the accessible name, says the same in words: a lowered rate *El invierno reduce la comida un 25 %.*, a raised rate *El otoño sube el oro un 25 %.* This sentence needs the resource's article, which the Resources table does not carry: *la madera*, *la piedra*, *el hierro*, *el oro*, *la comida*.
 - **Before the calendar starts** (`season` null on the wire) the header shows no season line and no countdown, and the bar marks nothing; no line reads *sin estación*.
-- **Summer** changes no rate in this phase, so the bar marks nothing in summer; the header still reads *Verano, año 1* and the countdown still runs to autumn.
+- **Summer** changes no rate, so the bar marks nothing in summer; the header still reads *Verano, año 1* and the countdown still runs to autumn.
+- The **mark on a section header** (S9, #198), on the section whose work the season shortens, is a full sentence with no percent: the season in force with its article from the table, *acorta* and the work, in the register of the spoken form above:
+
+| Section | Mark | Slots |
+|---|---|---|
+| the buildings, *Edificios* | *El verano acorta las obras* | the season with its article, the work: *las obras* |
+| the arts, *Biblioteca* | *El invierno acorta los estudios* | the season with its article, the work: *los estudios* |
+
+- The work is named in the plural of *la obra* and *el estudio*, so the sentence covers every card of the section; the shortened duration itself is read on each card's button, as it is today. The sentence needs the season's article, which the table carries, and no resource.
+- A section is marked only when the season's `durationPercent` for it is not `100`: summer marks the buildings section, winter marks the arts section, spring and autumn mark no section, and nothing is marked before the calendar starts (`season` null). The resource bar lines above stay as they are: winter marks *comida* on the bar and *los estudios* on its section, both at once.
 
 ## Open questions
 
