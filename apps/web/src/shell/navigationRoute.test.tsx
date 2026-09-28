@@ -29,14 +29,24 @@ it('lists the fief, the map and the chronicle in the navigation', async () => {
   expect(links.map((link) => link.textContent)).toEqual(['Feudo', 'Mapa', 'Crónica'])
 })
 
-it.each(['/mapa', '/mapa/3'])('marks the map in the navigation on %s', async (path) => {
-  renderAppAt(path, signedInClient)
-
+const expectMapMarked = async (): Promise<void> => {
   const map = await navigationLink(copy.shell.navigation.map)
   const fief = await navigationLink(copy.shell.navigation.fief)
 
   expect(map.getAttribute('aria-current')).toBe('page')
   expect(fief.getAttribute('aria-current')).toBeNull()
+}
+
+it('marks the map in the navigation on the province of the fief', async () => {
+  renderAppAt('/mapa', signedInClient)
+
+  await expectMapMarked()
+})
+
+it('marks the map in the navigation on a numbered province', async () => {
+  renderAppAt('/mapa/3', signedInClient)
+
+  await expectMapMarked()
 })
 
 it('opens the chronicle from the fief screen', async () => {
