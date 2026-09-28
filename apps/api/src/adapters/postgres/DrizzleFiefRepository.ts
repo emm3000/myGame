@@ -16,6 +16,7 @@ import {
   type Result,
   type Stocks,
   type StoredFief,
+  type StudySlot,
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
@@ -150,6 +151,29 @@ const slotOf = (row: FiefRow): BuildSlot => {
   }
 }
 
+const studySlotOf = (row: FiefRow): StudySlot => {
+  if (row.studyArt === null) {
+    return { kind: 'idle' }
+  }
+  if (row.studyLevel === null || row.studyStartedAt === null || row.studyFinishesAt === null) {
+    throw new Error(`Fief ${row.id} stores a half-written study slot`)
+  }
+  return {
+    kind: 'busy',
+    art: artKinds[row.studyArt],
+    targetLevel: row.studyLevel,
+    startedAt: instantOf(row.studyStartedAt),
+    finishesAt: instantOf(row.studyFinishesAt),
+    cost: {
+      wood: row.studyCostWood,
+      stone: row.studyCostStone,
+      iron: row.studyCostIron,
+      gold: row.studyCostGold,
+      food: row.studyCostFood,
+    },
+  }
+}
+
 const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): StoredFief => ({
   id: row.id,
   playerId: row.playerId,
@@ -161,6 +185,7 @@ const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): Store
   artLevels: artLevelsOf(joinedRows),
   slot: slotOf(row),
   buildQueue: buildQueueOf(joinedRows),
+  studySlot: studySlotOf(row),
 })
 
 type SlotCostColumns = Pick<
@@ -203,6 +228,44 @@ const slotColumnsOf = (slot: BuildSlot): SlotColumns => {
   }
 }
 
+type StudyCostColumns = Pick<
+  FiefRow,
+  'studyCostWood' | 'studyCostStone' | 'studyCostIron' | 'studyCostGold' | 'studyCostFood'
+>
+
+type StudyColumns = Pick<
+  FiefRow,
+  'studyArt' | 'studyLevel' | 'studyStartedAt' | 'studyFinishesAt'
+> &
+  StudyCostColumns
+
+const studyCostColumnsOf = (cost: Stocks): StudyCostColumns => ({
+  studyCostWood: cost.wood,
+  studyCostStone: cost.stone,
+  studyCostIron: cost.iron,
+  studyCostGold: cost.gold,
+  studyCostFood: cost.food,
+})
+
+const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
+  if (studySlot.kind === 'idle') {
+    return {
+      studyArt: null,
+      studyLevel: null,
+      studyStartedAt: null,
+      studyFinishesAt: null,
+      ...studyCostColumnsOf(noCost),
+    }
+  }
+  return {
+    studyArt: storedArts[studySlot.art],
+    studyLevel: studySlot.targetLevel,
+    studyStartedAt: dateOf(studySlot.startedAt),
+    studyFinishesAt: dateOf(studySlot.finishesAt),
+    ...studyCostColumnsOf(studySlot.cost),
+  }
+}
+
 const fiefRowOf = (fief: Fief): FiefRow => ({
   id: fief.id,
   playerId: fief.playerId,
@@ -214,6 +277,7 @@ const fiefRowOf = (fief: Fief): FiefRow => ({
   ...fief.stocks,
   storedAt: dateOf(fief.storedAt),
   ...slotColumnsOf(fief.slot),
+  ...studyColumnsOf(fief.studySlot),
 })
 
 export type FiefRead = 'lockedForUpdate' | 'lockFree'

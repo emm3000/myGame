@@ -145,6 +145,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     artLevels: { smithing: 0, masonry: 0 },
     slot: sawmillInProgress,
     buildQueue: [],
+    studySlot: { kind: 'idle' },
     ...overrides,
   })
   assert(restored.ok)

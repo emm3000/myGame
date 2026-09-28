@@ -1,8 +1,9 @@
 import type { DomainError } from '../DomainError'
 import type { BusySlot } from '../fief/BuildSlot'
-import type { Fief } from '../fief/Fief'
+import type { Fief, Stocks } from '../fief/Fief'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
+import type { BusyStudySlot } from '../fief/StudySlot'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -25,39 +26,79 @@ export type ResolvedFief = {
   readonly hasChanged: boolean
 }
 
-const finishedUpgradeOf = (fief: Fief, now: Instant): BusySlot | undefined => {
+type FinishedWork =
+  | { readonly kind: 'upgrade'; readonly slot: BusySlot }
+  | { readonly kind: 'study'; readonly slot: BusyStudySlot }
+
+const finishedUpgradeOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
   const { slot } = fief
-  if (slot.kind === 'idle') {
+  if (slot.kind === 'idle' || !isSlotFinishedBy(slot, now)) {
     return undefined
   }
-  return isSlotFinishedBy(slot, now) ? slot : undefined
+  return { kind: 'upgrade', slot }
+}
+
+const finishedStudyOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
+  const { studySlot } = fief
+  if (studySlot.kind === 'idle' || !isSlotFinishedBy(studySlot, now)) {
+    return undefined
+  }
+  return { kind: 'study', slot: studySlot }
+}
+
+const earliestFinishedOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
+  const upgrade = finishedUpgradeOf(fief, now)
+  const study = finishedStudyOf(fief, now)
+  if (upgrade === undefined || study === undefined) {
+    return upgrade ?? study
+  }
+  const studyFinishesFirst =
+    study.slot.finishesAt.epochMilliseconds < upgrade.slot.finishesAt.epochMilliseconds
+  return studyFinishesFirst ? study : upgrade
 }
 
 const laterOf = (left: Instant, right: Instant): Instant =>
   left.epochMilliseconds >= right.epochMilliseconds ? left : right
 
+const applyFinished = (
+  fief: Fief,
+  finished: FinishedWork,
+  stocksAtFinish: Stocks,
+): Result<Fief, DomainError> => {
+  switch (finished.kind) {
+    case 'upgrade':
+      return fief.completeUpgrade(finished.slot, stocksAtFinish)
+    case 'study':
+      return ok(fief.completeStudy(finished.slot, stocksAtFinish))
+    default: {
+      const unreachable: never = finished
+      return unreachable
+    }
+  }
+}
+
 const completeAt = (
   fief: Fief,
-  finished: BusySlot,
+  finished: FinishedWork,
   catalog: BuildingCatalog,
 ): Result<Fief, DomainError> => {
-  const stocksAtFinish = materializeStocks(fief, catalog, finished.finishesAt)
+  const stocksAtFinish = materializeStocks(fief, catalog, finished.slot.finishesAt)
   if (!stocksAtFinish.ok) {
     return stocksAtFinish
   }
-  return fief.completeUpgrade(finished, stocksAtFinish.value)
+  return applyFinished(fief, finished, stocksAtFinish.value)
 }
 
-const walkFinishedUpgrades = (
+const walkFinishedWork = (
   fief: Fief,
   catalog: BuildingCatalog,
   now: Instant,
 ): Result<Fief, DomainError> => {
   let walked = fief
   for (
-    let finished = finishedUpgradeOf(walked, now);
+    let finished = earliestFinishedOf(walked, now);
     finished !== undefined;
-    finished = finishedUpgradeOf(walked, now)
+    finished = earliestFinishedOf(walked, now)
   ) {
     const completed = completeAt(walked, finished, catalog)
     if (!completed.ok) {
@@ -82,7 +123,7 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  if (!fief.isSlotIdleWithQueue && finishedUpgradeOf(fief, now) === undefined) {
+  if (!fief.isSlotIdleWithQueue && earliestFinishedOf(fief, now) === undefined) {
     return ok({ fief, hasChanged: false })
   }
 
@@ -90,7 +131,7 @@ export const resolveUpgrade = async (
   if (!resumed.ok) {
     return resumed
   }
-  const resolved = walkFinishedUpgrades(resumed.value, catalog, now)
+  const resolved = walkFinishedWork(resumed.value, catalog, now)
   if (!resolved.ok) {
     return resolved
   }

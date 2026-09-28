@@ -462,3 +462,48 @@ describe('the library building migration', () => {
     expect(restored.ok && restored.value?.buildingLevels.library).toBe(1)
   })
 })
+
+describe('the study slot migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('reads an idle study slot on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 8, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(restored.ok && restored.value?.studySlot).toEqual({ kind: 'idle' })
+  })
+
+  it('stores a zero study cost on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 8, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    const read = await client.query(
+      `SELECT study_cost_wood, study_cost_stone, study_cost_iron, study_cost_gold, study_cost_food
+       FROM fiefs WHERE id = $1`,
+      [anasFief.id],
+    )
+    expect(read.rows).toEqual([
+      {
+        study_cost_wood: 0,
+        study_cost_stone: 0,
+        study_cost_iron: 0,
+        study_cost_gold: 0,
+        study_cost_food: 0,
+      },
+    ])
+  })
+})

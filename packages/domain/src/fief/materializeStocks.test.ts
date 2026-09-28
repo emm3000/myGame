@@ -56,6 +56,7 @@ const smithingFief = (): Fief => {
     artLevels: { smithing: 1, masonry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    studySlot: { kind: 'idle' },
   })
   assert(restored.ok)
   return restored.value

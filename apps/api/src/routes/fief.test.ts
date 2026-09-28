@@ -250,6 +250,24 @@ describe('the fief route', () => {
     expect(stored.ok && stored.value?.slot).toEqual({ kind: 'idle' })
   })
 
+  it('applies a finished study on the read and persists it', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql(
+      `UPDATE fiefs SET study_art = 'smithing', study_level = 1,
+         study_started_at = '2026-09-22T08:00:00Z', study_finishes_at = '2026-09-22T08:30:00Z',
+         study_cost_wood = 120, study_cost_stone = 80, study_cost_iron = 150, study_cost_gold = 60`,
+    )
+    clock.advanceMinutes(60)
+
+    const response = await fiefOf(ana.cookie)
+
+    const overview = FiefOverviewSchema.parse(await response.json())
+    expect(overview.resources.iron.ratePerHour).toBe(5.25)
+    const stored = await server.fiefs.fiefOf(ana.playerId)
+    expect(stored.ok && stored.value?.artLevels).toEqual({ smithing: 1, masonry: 0 })
+    expect(stored.ok && stored.value?.studySlot).toEqual({ kind: 'idle' })
+  })
+
   it('answers amounts that match the accrual formula for the elapsed time', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(90)

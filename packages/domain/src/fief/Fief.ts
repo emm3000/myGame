@@ -17,6 +17,7 @@ import { FiefName } from './FiefName'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
+import type { BusyStudySlot, StudySlot } from './StudySlot'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
 
@@ -42,6 +43,7 @@ export type StoredFief = {
   readonly artLevels: FiefArtLevels
   readonly slot: BuildSlot
   readonly buildQueue: BuildQueue
+  readonly studySlot: StudySlot
 }
 
 const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
@@ -120,6 +122,26 @@ const validateBuildQueue = (buildQueue: BuildQueue): Result<void, DomainError> =
   return ok(undefined)
 }
 
+type TimedWork = {
+  readonly startedAt: Instant
+  readonly finishesAt: Instant
+  readonly cost: Stocks
+}
+
+const validateTimedWork = (work: TimedWork, storedAt: Instant): Result<void, DomainError> => {
+  if (work.finishesAt.epochMilliseconds < storedAt.epochMilliseconds) {
+    return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: work.finishesAt })
+  }
+  if (work.startedAt.epochMilliseconds > work.finishesAt.epochMilliseconds) {
+    return err({
+      kind: 'SlotStartsAfterFinish',
+      startedAt: work.startedAt,
+      finishesAt: work.finishesAt,
+    })
+  }
+  return refuseNegativeAmount(work.cost)
+}
+
 const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainError> => {
   if (slot.kind === 'idle') {
     return ok(undefined)
@@ -127,17 +149,17 @@ const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainEr
   if (!isTargetLevel(slot.targetLevel)) {
     return err({ kind: 'InvalidBuildingLevel', building: slot.building, level: slot.targetLevel })
   }
-  if (slot.finishesAt.epochMilliseconds < storedAt.epochMilliseconds) {
-    return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: slot.finishesAt })
+  return validateTimedWork(slot, storedAt)
+}
+
+const validateStudySlot = (studySlot: StudySlot, storedAt: Instant): Result<void, DomainError> => {
+  if (studySlot.kind === 'idle') {
+    return ok(undefined)
   }
-  if (slot.startedAt.epochMilliseconds > slot.finishesAt.epochMilliseconds) {
-    return err({
-      kind: 'SlotStartsAfterFinish',
-      startedAt: slot.startedAt,
-      finishesAt: slot.finishesAt,
-    })
+  if (!isTargetLevel(studySlot.targetLevel)) {
+    return err({ kind: 'InvalidArtLevel', art: studySlot.art, level: studySlot.targetLevel })
   }
-  return refuseNegativeAmount(slot.cost)
+  return validateTimedWork(studySlot, storedAt)
 }
 
 const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
@@ -163,6 +185,10 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   if (!storedSlot.ok) {
     return storedSlot
   }
+  const storedStudySlot = validateStudySlot(stored.studySlot, stored.storedAt)
+  if (!storedStudySlot.ok) {
+    return storedStudySlot
+  }
   return validateBuildQueue(stored.buildQueue)
 }
 
@@ -171,11 +197,15 @@ type SlotAndQueue = {
   readonly buildQueue: BuildQueue
 }
 
-type FiefChange = SlotAndQueue & {
-  readonly stocks: Stocks
-  readonly storedAt: Instant
-  readonly buildingLevels: FiefBuildingLevels
-}
+type FiefChange = Partial<
+  SlotAndQueue & {
+    readonly stocks: Stocks
+    readonly storedAt: Instant
+    readonly buildingLevels: FiefBuildingLevels
+    readonly artLevels: FiefArtLevels
+    readonly studySlot: StudySlot
+  }
+>
 
 const startEntryAt = (entry: BuildQueueEntry, at: Instant): Result<BusySlot, DomainError> => {
   const duration = Duration.ofSeconds(entry.durationSeconds)
@@ -300,6 +330,7 @@ export class Fief {
     readonly artLevels: FiefArtLevels,
     readonly slot: BuildSlot,
     readonly buildQueue: BuildQueue,
+    readonly studySlot: StudySlot,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -314,6 +345,7 @@ export class Fief {
       unstudiedArts,
       { kind: 'idle' },
       [],
+      { kind: 'idle' },
     )
   }
 
@@ -343,6 +375,7 @@ export class Fief {
         stored.artLevels,
         stored.slot,
         stored.buildQueue,
+        stored.studySlot,
       ),
     )
   }
@@ -374,7 +407,6 @@ export class Fief {
         ...next.value,
         stocks: debit(stocksAtNow, upgrade.cost),
         storedAt: now,
-        buildingLevels: this.buildingLevels,
       }),
     )
   }
@@ -412,7 +444,6 @@ export class Fief {
         ...next.value,
         stocks: credit(credit(stocksAtNow, refund), revalidated.value.refund),
         storedAt: now,
-        buildingLevels: this.buildingLevels,
       }),
     )
   }
@@ -437,8 +468,6 @@ export class Fief {
       this.changed({
         ...next.value,
         stocks: credit(this.stocks, revalidated.value.refund),
-        storedAt: this.storedAt,
-        buildingLevels: this.buildingLevels,
       }),
     )
   }
@@ -459,20 +488,22 @@ export class Fief {
     )
   }
 
+  completeStudy(finished: BusyStudySlot, stocksAtFinish: Stocks): Fief {
+    const { art, targetLevel, finishesAt } = finished
+    return this.changed({
+      stocks: stocksAtFinish,
+      storedAt: finishesAt,
+      artLevels: { ...this.artLevels, [art]: targetLevel },
+      studySlot: { kind: 'idle' },
+    })
+  }
+
   accruedTo(catalog: BuildingCatalog, now: Instant): Result<Fief, DomainError> {
     const stocksAtNow = materializeStocks(this, catalog, now)
     if (!stocksAtNow.ok) {
       return stocksAtNow
     }
-    return ok(
-      this.changed({
-        stocks: stocksAtNow.value,
-        storedAt: now,
-        buildingLevels: this.buildingLevels,
-        slot: this.slot,
-        buildQueue: this.buildQueue,
-      }),
-    )
+    return ok(this.changed({ stocks: stocksAtNow.value, storedAt: now }))
   }
 
   private changed(change: FiefChange): Fief {
@@ -481,12 +512,13 @@ export class Fief {
       this.playerId,
       this.name,
       this.coordinates,
-      change.stocks,
-      change.storedAt,
-      change.buildingLevels,
-      this.artLevels,
-      change.slot,
-      change.buildQueue,
+      change.stocks ?? this.stocks,
+      change.storedAt ?? this.storedAt,
+      change.buildingLevels ?? this.buildingLevels,
+      change.artLevels ?? this.artLevels,
+      change.slot ?? this.slot,
+      change.buildQueue ?? this.buildQueue,
+      change.studySlot ?? this.studySlot,
     )
   }
 
