@@ -47,7 +47,7 @@ export function PlotTile({ plotLabel, terrainLabel, holder }: PlotTileProps): Re
   return (
     <li
       aria-current={holder.kind === 'own' ? 'true' : undefined}
-      className={`flex flex-col gap-2 rounded-md p-3 ${frameClass[holder.kind]}`}
+      className={`flex min-h-plot flex-col gap-2 rounded-md p-3 ${frameClass[holder.kind]}`}
     >
       <span className="flex items-baseline justify-between gap-2">
         <span className="font-utility text-label uppercase text-ink-muted tabular-nums">

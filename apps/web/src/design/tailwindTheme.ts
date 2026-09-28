@@ -2,6 +2,7 @@ import plugin from 'tailwindcss/plugin'
 import {
   type ColorToken,
   color,
+  minHeights,
   palette,
   radii,
   shadows,
@@ -39,6 +40,7 @@ export default plugin(
     theme: {
       colors: Object.fromEntries(colorTokens.map((token) => [token, color(token)])),
       spacing,
+      minHeight: minHeights,
       borderRadius: radii,
       boxShadow: shadows,
       fontFamily: typeFamilies,
