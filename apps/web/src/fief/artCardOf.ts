@@ -4,7 +4,8 @@ import type { ArtCardProps } from '../design-system/ArtCard'
 import type { CardActionState } from '../design-system/CardAction'
 import { capitalize } from '../design-system/capitalize'
 import type { LiveFief } from './liveFief'
-import { resourceCostsOf, shortfallsOf } from './resourceCosts'
+import { resourceCostsOf } from './resourceCostsOf'
+import { shortfallsOf } from './shortfallsOf'
 
 export type ArtCardContent = Omit<ArtCardProps, 'titleElement' | 'isWaiting' | 'onStudy'>
 
