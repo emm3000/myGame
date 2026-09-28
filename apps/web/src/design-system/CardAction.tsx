@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { buttonClassOf } from './Button'
+import { Button } from './Button'
 import { formatDuration } from './formatDuration'
 
 export type CardActionState =
@@ -23,30 +23,6 @@ const cardTone: Readonly<Record<CardActionState['kind'], string>> = {
 
 export const cardToneOf = (state: CardActionState): string => cardTone[state.kind]
 
-function ActionButton({
-  label,
-  accessibleName,
-  isEnabled,
-  onAction,
-}: {
-  readonly label: string
-  readonly accessibleName?: string
-  readonly isEnabled: boolean
-  readonly onAction?: (() => void) | undefined
-}): ReactElement {
-  return (
-    <button
-      type="button"
-      aria-label={accessibleName}
-      disabled={!isEnabled}
-      onClick={onAction}
-      className={buttonClassOf('primary')}
-    >
-      {label}
-    </button>
-  )
-}
-
 export function CardAction({
   state,
   actionLabel,
@@ -55,15 +31,25 @@ export function CardAction({
   onAction,
 }: CardActionProps): ReactElement {
   if (state.kind === 'atMaxLevel') {
-    return <ActionButton label={state.label} isEnabled={false} />
+    return (
+      <Button type="button" tone="primary" disabled>
+        {state.label}
+      </Button>
+    )
   }
   const label = `${actionLabel} · ${formatDuration(durationSeconds)}`
   if (state.kind === 'affordable') {
-    return <ActionButton label={label} isEnabled={!isWaiting} onAction={onAction} />
+    return (
+      <Button type="button" tone="primary" disabled={isWaiting} onClick={onAction}>
+        {label}
+      </Button>
+    )
   }
   return (
     <div className="flex flex-col gap-2">
-      <ActionButton label={label} accessibleName={`${label}. ${state.reason}`} isEnabled={false} />
+      <Button type="button" tone="primary" disabled accessibleName={`${label}. ${state.reason}`}>
+        {label}
+      </Button>
       <span className="font-body text-caption text-rust">{state.reason}</span>
     </div>
   )

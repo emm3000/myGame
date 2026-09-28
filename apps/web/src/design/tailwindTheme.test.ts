@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { compile } from '@tailwindcss/node'
 import { expect, it } from 'vitest'
-import { palette, radii, shadows, spacing } from './tokens'
+import { minHeights, palette, radii, shadows, spacing, widths } from './tokens'
 
 async function compileStylesheet(): Promise<Awaited<ReturnType<typeof compile>>> {
   const base = join(import.meta.dirname, '..')
@@ -46,4 +46,22 @@ it('exposes a Tailwind shadow utility for every shadow token', async () => {
   const css = stylesheet.build(names.map((name) => `shadow-${name}`))
 
   expect(names.filter((name) => !css.includes(`.shadow-${name} {`))).toEqual([])
+})
+
+it('exposes a Tailwind min-height utility for every min-height token', async () => {
+  const stylesheet = await compileStylesheet()
+  const names = Object.keys(minHeights)
+
+  const css = stylesheet.build(names.map((name) => `min-h-${name}`))
+
+  expect(names.filter((name) => !css.includes(`.min-h-${name} {`))).toEqual([])
+})
+
+it('exposes a Tailwind width utility for every width token', async () => {
+  const stylesheet = await compileStylesheet()
+  const names = Object.keys(widths)
+
+  const css = stylesheet.build(names.map((name) => `w-${name}`))
+
+  expect(names.filter((name) => !css.includes(`.w-${name} {`))).toEqual([])
 })
