@@ -6,13 +6,28 @@ type WireEvent = FiefChronicle['events'][number]
 const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
 
 const wireEventOf = (event: FiefEvent): WireEvent => {
+  const occurredAt = isoOf(event.occurredAt)
   switch (event.kind) {
     case 'upgradeFinished':
+      return { kind: event.kind, building: event.building, level: event.level, occurredAt }
     case 'artLearned':
-      return { ...event, occurredAt: isoOf(event.occurredAt) }
+      return { kind: event.kind, art: event.art, level: event.level, occurredAt }
     case 'upgradeCancelled':
+      return {
+        kind: event.kind,
+        building: event.building,
+        level: event.level,
+        occurredAt,
+        refund: event.refund,
+      }
     case 'studyCancelled':
-      return { ...event, occurredAt: isoOf(event.occurredAt), refund: { ...event.refund } }
+      return {
+        kind: event.kind,
+        art: event.art,
+        level: event.level,
+        occurredAt,
+        refund: event.refund,
+      }
     default: {
       const unreachable: never = event
       return unreachable
