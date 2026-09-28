@@ -3,6 +3,7 @@ import { HealthResponseSchema } from '@mygame/contracts'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createApp } from './app'
 import { type ComposedServer, composeServer } from './composeServer'
+import { mailEnvironment } from './composeServer.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -12,7 +13,10 @@ describe('app', () => {
   let server: ComposedServer
 
   beforeAll(() => {
-    server = composeServer({ API_PORT: '3192', DATABASE_URL: unusedDatabaseUrl }, contentDirectory)
+    server = composeServer(
+      { API_PORT: '3192', DATABASE_URL: unusedDatabaseUrl, ...mailEnvironment },
+      contentDirectory,
+    )
   })
 
   afterAll(async () => {

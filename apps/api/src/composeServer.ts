@@ -7,12 +7,14 @@ import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
 import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
+import { SmtpMailer } from './adapters/smtp/SmtpMailer'
 import { Argon2Passwords } from './adapters/system/Argon2Passwords'
 import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
 import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
+import type { Mailer } from './auth/Mailer'
 import type { ChronicleReader } from './fief/ChronicleReader'
 import type { FiefReader } from './fief/FiefReader'
 
@@ -28,7 +30,39 @@ const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
   throw new Error(`SESSION_COOKIE_SECURE must be true or false, got ${flag}`)
 }
 
-export type ComposedServer = {
+const urlWithProtocol = (
+  name: string,
+  value: string | undefined,
+  protocols: ReadonlyArray<string>,
+): string => {
+  if (!value) {
+    throw new Error(`${name} is not set`)
+  }
+  const protocol = URL.canParse(value) ? new URL(value).protocol : undefined
+  if (protocol === undefined || !protocols.includes(protocol)) {
+    throw new Error(`${name} must be a ${protocols.join(' or ')} URL, got ${value}`)
+  }
+  return value
+}
+
+type MailSettings = {
+  readonly mailer: Mailer
+  readonly webUrl: string
+}
+
+const mailFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
+  const smtpUrl = urlWithProtocol('SMTP_URL', environment.SMTP_URL, ['smtp:', 'smtps:'])
+  const sender = environment.MAIL_FROM
+  if (!sender) {
+    throw new Error('MAIL_FROM is not set')
+  }
+  return {
+    mailer: new SmtpMailer(smtpUrl, sender),
+    webUrl: urlWithProtocol('WEB_URL', environment.WEB_URL, ['http:', 'https:']),
+  }
+}
+
+export type ComposedServer = MailSettings & {
   readonly fetch: Hono['fetch']
   readonly port: number
   readonly buildingCatalog: BuildingCatalog
@@ -60,6 +94,7 @@ export function composeServer(
     throw new Error('DATABASE_URL is not set')
   }
   const isSessionCookieSecure = isSessionCookieSecureFrom(environment.SESSION_COOKIE_SECURE)
+  const mail = mailFrom(environment)
   const { database, close } = connectPostgres(databaseUrl)
   const dependencies = {
     buildingCatalog: JsonBuildingCatalog.fromDirectory(contentDirectory),
@@ -78,6 +113,7 @@ export function composeServer(
     ...dependencies,
     fetch: createApp(dependencies).fetch,
     port,
+    ...mail,
     close,
   }
 }
