@@ -17,3 +17,4 @@ The wire vocabulary `apps/web` and `apps/api` share: zod schemas and the types i
 - One schema per file under `src/`, named after its wire noun (`FiefOverview.ts`); `src/index.ts` only re-exports. Shared primitives (instants, whole-second durations, counts) live in `src/Wire.ts` and are not exported from the entry.
 - Instants are ISO 8601 strings (`z.iso.datetime()`), durations are whole seconds; no `Date` crosses the wire.
 - Wire identifiers are camelCase (`ironMine`); the Postgres enum spells it `iron_mine`, so the api adapter maps between them.
+- `BuildingContentSchema` is a discriminated union by `building`; the `library` variant has levels without `effect`, every other variant carries the effect its building produces.
