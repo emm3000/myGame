@@ -17,6 +17,7 @@ import {
   type SignInRequest,
   type SignUpRequest,
   type StartStudyRequest,
+  type VerifyEmailRequest,
 } from '@mygame/contracts'
 import type { ZodType } from 'zod'
 
@@ -38,14 +39,21 @@ export interface ApiClient {
   cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
+  verifyEmail(token: string): Promise<ApiRefusal | undefined>
+  resendVerification(): Promise<ApiRefusal | undefined>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
 
-const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => {
+const refusalKindOf = async (response: Response): Promise<ApiRefusal> => {
   const parsed = ApiErrorSchema.safeParse(await response.json().catch(() => undefined))
-  return parsed.success ? { ok: false, refusal: parsed.data.kind } : unexpected
+  return parsed.success ? parsed.data.kind : 'Unexpected'
 }
+
+const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => ({
+  ok: false,
+  refusal: await refusalKindOf(response),
+})
 
 const bodyOf = async <T>(response: Response, schema: ZodType<T>): Promise<ApiOutcome<T>> => {
   if (!response.ok) {
@@ -53,6 +61,15 @@ const bodyOf = async <T>(response: Response, schema: ZodType<T>): Promise<ApiOut
   }
   const parsed = schema.safeParse(await response.json().catch(() => undefined))
   return parsed.success ? { ok: true, value: parsed.data } : unexpected
+}
+
+const refusalOrNothing = async (
+  response: Response | undefined,
+): Promise<ApiRefusal | undefined> => {
+  if (response === undefined) {
+    return 'Unexpected'
+  }
+  return response.ok ? undefined : refusalKindOf(response)
 }
 
 const playerOf = (response: Response): Promise<ApiOutcome<Player>> => bodyOf(response, PlayerSchema)
@@ -125,5 +142,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await send(path, { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, ProvinceMapSchema)
     },
+    verifyEmail: async (token) => {
+      const request: VerifyEmailRequest = { token }
+      return refusalOrNothing(await postJson('/auth/verify-email', request))
+    },
+    resendVerification: async () =>
+      refusalOrNothing(await send('/auth/verify-email/resend', { method: 'POST' })),
   }
 }

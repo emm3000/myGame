@@ -1,9 +1,14 @@
+import type { Player } from '@mygame/contracts'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
+import type { ResendVerification } from '../verification/useResendVerification'
+import { VerificationBanner } from '../verification/VerificationBanner'
 
 export interface AppShellProps {
+  readonly player: Player
+  readonly verification: ResendVerification
   readonly onSignOut: () => void
   readonly children: ReactNode
 }
@@ -37,7 +42,12 @@ function ScreenLink({ to, label, isExact }: Screen): ReactElement {
   )
 }
 
-export function AppShell({ onSignOut, children }: AppShellProps): ReactElement {
+export function AppShell({
+  player,
+  verification,
+  onSignOut,
+  children,
+}: AppShellProps): ReactElement {
   return (
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
@@ -59,7 +69,10 @@ export function AppShell({ onSignOut, children }: AppShellProps): ReactElement {
           </span>
         </div>
       </header>
-      <main className="px-4 py-6 font-body text-body text-ink-muted md:px-8">{children}</main>
+      <main className="flex flex-col gap-6 px-4 py-6 font-body text-body text-ink-muted md:px-8">
+        {player.emailVerified ? null : <VerificationBanner {...verification} />}
+        <div>{children}</div>
+      </main>
     </div>
   )
 }

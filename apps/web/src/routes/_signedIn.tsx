@@ -1,9 +1,11 @@
 import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { AppShell } from '../shell/AppShell'
+import { useResendVerification } from '../verification/useResendVerification'
 
 function SignedInLayout(): ReactElement {
-  const { apiClient } = Route.useRouteContext()
+  const { apiClient, player } = Route.useRouteContext()
+  const verification = useResendVerification(apiClient)
   const navigate = useNavigate()
 
   const signOut = async (): Promise<void> => {
@@ -12,7 +14,7 @@ function SignedInLayout(): ReactElement {
   }
 
   return (
-    <AppShell onSignOut={signOut}>
+    <AppShell player={player} verification={verification} onSignOut={signOut}>
       <Outlet />
     </AppShell>
   )
@@ -21,9 +23,11 @@ function SignedInLayout(): ReactElement {
 export const Route = createFileRoute('/_signedIn')({
   ssr: false,
   beforeLoad: async ({ context }) => {
-    if ((await context.apiClient.currentPlayer()) === undefined) {
+    const player = await context.apiClient.currentPlayer()
+    if (player === undefined) {
       throw redirect({ to: '/sign-in' })
     }
+    return { player }
   },
   component: SignedInLayout,
 })

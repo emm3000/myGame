@@ -1,6 +1,11 @@
 import type { ReactElement, ReactNode } from 'react'
 
-export function IconFrame({ children }: { readonly children: ReactNode }): ReactElement {
+export interface IconFrameProps {
+  readonly children: ReactNode
+  readonly sizeClass?: string
+}
+
+export function IconFrame({ children, sizeClass = 'size-4' }: IconFrameProps): ReactElement {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -11,7 +16,7 @@ export function IconFrame({ children }: { readonly children: ReactNode }): React
       strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
-      className="size-4 shrink-0"
+      className={`${sizeClass} shrink-0`}
     >
       {children}
     </svg>

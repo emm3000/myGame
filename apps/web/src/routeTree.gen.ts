@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as SignedInRouteImport } from './routes/_signedIn'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
@@ -24,6 +25,11 @@ const GuestRoute = GuestRouteImport.update({
 } as any)
 const SignedInRoute = SignedInRouteImport.update({
   id: '/_signedIn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuestSignInRoute = GuestSignInRouteImport.update({
@@ -59,6 +65,7 @@ const SignedInMapaProvinceRoute = SignedInMapaProvinceRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SignedInIndexRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/cronica': typeof SignedInCronicaRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof SignedInIndexRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/cronica': typeof SignedInCronicaRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_guest': typeof GuestRouteWithChildren
   '/_signedIn': typeof SignedInRouteWithChildren
+  '/verify-email': typeof VerifyEmailRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
   '/_signedIn/cronica': typeof SignedInCronicaRoute
@@ -87,13 +96,27 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/sign-in' | '/sign-up' | '/cronica' | '/mapa/$province' | '/mapa/'
+    | '/'
+    | '/verify-email'
+    | '/sign-in'
+    | '/sign-up'
+    | '/cronica'
+    | '/mapa/$province'
+    | '/mapa/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/sign-up' | '/cronica' | '/mapa/$province' | '/mapa'
+  to:
+    | '/'
+    | '/verify-email'
+    | '/sign-in'
+    | '/sign-up'
+    | '/cronica'
+    | '/mapa/$province'
+    | '/mapa'
   id:
     | '__root__'
     | '/_guest'
     | '/_signedIn'
+    | '/verify-email'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
     | '/_signedIn/cronica'
@@ -105,6 +128,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   GuestRoute: typeof GuestRouteWithChildren
   SignedInRoute: typeof SignedInRouteWithChildren
+  VerifyEmailRoute: typeof VerifyEmailRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -121,6 +145,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof SignedInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_guest/sign-in': {
@@ -201,6 +232,7 @@ const SignedInRouteWithChildren = SignedInRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   GuestRoute: GuestRouteWithChildren,
   SignedInRoute: SignedInRouteWithChildren,
+  VerifyEmailRoute: VerifyEmailRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
