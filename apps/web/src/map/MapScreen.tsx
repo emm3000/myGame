@@ -5,6 +5,7 @@ import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { NumberField } from '../design-system/NumberField'
 import { type PlotHolder, PlotTile } from '../design-system/PlotTile'
+import { TextLink } from '../design-system/TextLink'
 import type { ProvinceMapState } from './useProvinceMap'
 
 export interface MapScreenProps {
@@ -103,7 +104,14 @@ function MapBody({ state, onBrowse }: MapScreenProps): ReactElement {
     case 'loading':
       return <p className="m-0">{copy.map.loading}</p>
     case 'refused':
-      return <FormAlert message={copy.refusals[state.refusal]} />
+      return state.refusal === 'ProvinceNotFound' ? (
+        <div className="flex flex-col items-start gap-3">
+          <FormAlert message={copy.refusals.ProvinceNotFound} />
+          <TextLink to="/mapa">{copy.map.backToOwnProvince}</TextLink>
+        </div>
+      ) : (
+        <FormAlert message={copy.refusals[state.refusal]} />
+      )
     case 'read':
       return <Province map={state.map} onBrowse={onBrowse} />
     default: {
