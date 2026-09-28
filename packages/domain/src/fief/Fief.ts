@@ -18,7 +18,7 @@ import { FiefName } from './FiefName'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
-import type { BusyStudySlot, StudySlot } from './StudySlot'
+import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
 
@@ -444,6 +444,25 @@ export class Fief {
       this.changed({
         ...next.value,
         stocks: credit(credit(stocksAtNow, refund), revalidated.value.refund),
+        storedAt: now,
+      }),
+    )
+  }
+
+  cancelStudy(target: StudyTarget, stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
+    const { studySlot } = this
+    if (
+      studySlot.kind === 'idle' ||
+      studySlot.art !== target.art ||
+      studySlot.targetLevel !== target.targetLevel ||
+      isSlotFinishedBy(studySlot, now)
+    ) {
+      return err({ kind: 'StudyNotFound', art: target.art, targetLevel: target.targetLevel })
+    }
+    return ok(
+      this.changed({
+        studySlot: { kind: 'idle' },
+        stocks: credit(stocksAtNow, studySlot.cost),
         storedAt: now,
       }),
     )

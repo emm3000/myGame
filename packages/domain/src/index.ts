@@ -17,7 +17,7 @@ export type { FiefId } from './fief/FiefId'
 export { FiefName } from './fief/FiefName'
 export { nextArtLevelOf } from './fief/nextArtLevelOf'
 export type { PlotAddress } from './fief/PlotAddress'
-export type { BusyStudySlot, StudySlot } from './fief/StudySlot'
+export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
 export type { Terrain } from './fief/Terrain'
 export type { PlayerId } from './player/PlayerId'
@@ -42,6 +42,11 @@ export type { ResourceKind, Resources } from './resources/Resources'
 export { Resource } from './resources/Resources'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
+export {
+  type CancelStudyCommand,
+  type CancelStudyDependencies,
+  cancelStudy,
+} from './useCases/cancelStudy'
 export {
   type CancelUpgradeCommand,
   type CancelUpgradeDependencies,

@@ -14,3 +14,5 @@ export type StudySlot =
     }
 
 export type BusyStudySlot = Extract<StudySlot, { readonly kind: 'busy' }>
+
+export type StudyTarget = Pick<BusyStudySlot, 'art' | 'targetLevel'>
