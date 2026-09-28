@@ -60,14 +60,6 @@ const artCard = (art: ArtKind): HTMLElement =>
 
 const studyButtonOf = (art: ArtKind): HTMLElement => within(artCard(art)).getByRole('button')
 
-const studySlot = (): HTMLElement => {
-  const slot = within(librarySection()).getByRole('timer').closest('section')
-  if (slot === null) {
-    throw new Error('the busy study slot is not a section')
-  }
-  return slot
-}
-
 interface Deferred<T> {
   readonly promise: Promise<T>
   readonly resolve: (value: T) => void
@@ -114,7 +106,9 @@ it('starts a study from an art card', async () => {
   await passSeconds(0)
 
   expect(startStudy).toHaveBeenCalledWith('smithing')
-  expect(within(studySlot()).getByText('Herrería')).toBeDefined()
+  expect(
+    within(librarySection()).getByRole('button', { name: copy.study.cancelOf('smithing', 1) }),
+  ).toBeDefined()
 })
 
 it('studies at most once on a double click', async () => {
@@ -122,8 +116,11 @@ it('studies at most once on a double click', async () => {
   const startStudy = vi.fn(() => answer.promise)
   await showFief({ startStudy })
 
-  fireEvent.click(studyButtonOf('smithing'))
-  fireEvent.click(studyButtonOf('masonry'))
+  const smithingButton = studyButtonOf('smithing')
+  act(() => {
+    smithingButton.click()
+    smithingButton.click()
+  })
   answer.resolve({ ok: true, value: smithingUnderWay })
   await passSeconds(0)
 
@@ -197,6 +194,71 @@ it('enables a study once the interpolated amounts cover its cost', async () => {
   expect(studyButtonOf('smithing').hasAttribute('disabled')).toBe(false)
 })
 
+const smithingNeedsLibraryTwo: FiefOverview['arts']['smithing'] = {
+  level: 2,
+  ratePercent: 10,
+  nextLevel: {
+    level: 3,
+    cost: { wood: 270, stone: 180, iron: 338, gold: 135, food: 0 },
+    durationSeconds: 1152,
+    requiredLibraryLevel: 2,
+    ratePercent: 15,
+  },
+}
+
+it('names the running study before the library an art still requires', async () => {
+  const masonryUnderWay: FiefOverview = {
+    ...libraryBuilt,
+    arts: { ...libraryBuilt.arts, smithing: smithingNeedsLibraryTwo },
+    study: {
+      kind: 'busy',
+      art: 'masonry',
+      targetLevel: 1,
+      startedAt: '2026-09-22T11:50:00.000Z',
+      finishesAt: '2026-09-22T12:20:00.000Z',
+    },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: masonryUnderWay }) })
+
+  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
+    'Estudiar · 19:12. Ya hay un estudio en marcha.',
+  )
+})
+
+it('names the library level before the resources a study lacks', async () => {
+  const shortOfGoldAndLibrary: FiefOverview = {
+    ...libraryBuilt,
+    resources: {
+      ...libraryBuilt.resources,
+      gold: { ...libraryBuilt.resources.gold, amount: 20, ratePerHour: 0 },
+    },
+    arts: { ...libraryBuilt.arts, smithing: smithingNeedsLibraryTwo },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: shortOfGoldAndLibrary }) })
+
+  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
+    'Estudiar · 19:12. Necesitas la biblioteca a nivel 2 y está a nivel 1.',
+  )
+})
+
+it('shows an art at its top level as finished while a study runs', async () => {
+  const smithingAtTopWhileMasonryRuns: FiefOverview = {
+    ...libraryBuilt,
+    arts: { ...libraryBuilt.arts, smithing: { level: 10, ratePercent: 50, nextLevel: null } },
+    study: {
+      kind: 'busy',
+      art: 'masonry',
+      targetLevel: 1,
+      startedAt: '2026-09-22T11:50:00.000Z',
+      finishesAt: '2026-09-22T12:20:00.000Z',
+    },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: smithingAtTopWhileMasonryRuns }) })
+
+  expect(studyButtonOf('smithing').textContent).toBe('Nivel máximo')
+  expect(within(artCard('smithing')).queryByText('Ya hay un estudio en marcha.')).toBeNull()
+})
+
 it('shows an art at its top level as finished', async () => {
   const smithingAtTop: FiefOverview = {
     ...libraryBuilt,
@@ -216,7 +278,7 @@ it('counts down the study in progress between reads', async () => {
 
   await passSeconds(5)
 
-  expect(within(studySlot()).getByRole('timer').textContent).toBe('19:55')
+  expect(within(librarySection()).getByRole('timer').textContent).toBe('19:55')
 })
 
 it('re-reads the fief when the study finishes', async () => {
