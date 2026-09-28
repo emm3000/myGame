@@ -92,6 +92,9 @@ it('lists the resources a cancel refunded', async () => {
   expect(
     within(upgradeRow as HTMLElement).getByText('Recuperas 120 de madera y 80 de piedra.'),
   ).toBeDefined()
+  expect(within(upgradeRow as HTMLElement).getByText('Recuperas')).toBeDefined()
+  expect(within(upgradeRow as HTMLElement).getByText('120')).toBeDefined()
+  expect(within(upgradeRow as HTMLElement).getByText('80')).toBeDefined()
   expect(
     within(studyRow as HTMLElement).getByText('Recuperas 60 de hierro y 1 200 de oro.'),
   ).toBeDefined()
@@ -125,11 +128,26 @@ it('shows the Spanish refusal when the chronicle cannot be read', async () => {
   expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.Unexpected)
 })
 
-it('reads the chronicle while it waits for the answer', async () => {
+it('shows the loading line while the chronicle is being read', async () => {
   renderAppAt(
     '/cronica',
     signedInClientServing(() => new Promise(() => undefined)),
   )
 
   expect(await screen.findByText(copy.chronicle.loading)).toBeDefined()
+})
+
+it('reads the chronicle once when the screen opens', async () => {
+  let reads = 0
+  renderAppAt(
+    '/cronica',
+    signedInClientServing(async () => {
+      reads += 1
+      return { ok: true, value: { events: [] } }
+    }),
+  )
+
+  await screen.findByText(copy.chronicle.empty)
+
+  expect(reads).toBe(1)
 })
