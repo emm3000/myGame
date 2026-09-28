@@ -21,7 +21,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 |---|---|
 | S1 | The library and two arts that raise production. |
 | S2 | A kingdom map showing the player's province and its plots. |
-| S3 | A chronicle of the fief's events (upgrades finished, arts learned). |
+| S3 | A chronicle of the fief's events, each with the instant it happened: an upgrade finished, an art learned, an upgrade cancelled and a study cancelled, the two cancels with their refund (ADR 013). |
 | S4 | Every building, resource and unit has an image generated to `docs/art/art-bible.md`. |
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
