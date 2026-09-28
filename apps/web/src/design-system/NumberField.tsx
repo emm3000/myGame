@@ -19,7 +19,7 @@ export function NumberField(props: NumberFieldProps): ReactElement {
       value={props.value}
       aria-label={props.accessibleName}
       onChange={(event) => props.onChange(event.target.value)}
-      className="box-content w-12 rounded-sm border border-line-strong bg-surface-raised px-3 py-2 font-utility text-numeral text-ink tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
+      className="min-h-control w-numeral rounded-sm border border-line-strong bg-surface-raised px-3 py-2 font-utility text-numeral text-ink tabular-nums focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
     />
   )
 }

@@ -10,6 +10,7 @@ import {
   type Theme,
   typeFamilies,
   typeScale,
+  widths,
 } from './tokens'
 
 function isColorToken(key: string): key is ColorToken {
@@ -41,6 +42,7 @@ export default plugin(
       colors: Object.fromEntries(colorTokens.map((token) => [token, color(token)])),
       spacing,
       minHeight: minHeights,
+      width: widths,
       borderRadius: radii,
       boxShadow: shadows,
       fontFamily: typeFamilies,
