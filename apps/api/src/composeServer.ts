@@ -1,10 +1,11 @@
-import type { BuildingCatalog, Clock, IdGenerator } from '@mygame/domain'
+import type { BuildingCatalog, Clock, IdGenerator, KingdomMapReader } from '@mygame/domain'
 import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
+import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
 import { Argon2Passwords } from './adapters/system/Argon2Passwords'
 import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
@@ -35,6 +36,7 @@ export type ComposedServer = {
   readonly ids: IdGenerator
   readonly fiefs: FiefReader
   readonly chronicle: ChronicleReader
+  readonly map: KingdomMapReader
   readonly accounts: Accounts
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
@@ -69,6 +71,7 @@ export function composeServer(
     inTransaction: postgresTransaction(database),
     fiefs: new DrizzleFiefRepository(database, 'lockFree'),
     chronicle: new DrizzleChronicle(database),
+    map: new DrizzleKingdomMapReader(database),
     isSessionCookieSecure,
   }
   return {
