@@ -71,6 +71,13 @@
       "when": 1790612122214,
       "tag": "0009_chronicle_events",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790623571071,
+      "tag": "0010_account_tokens",
+      "breakpoints": true
     }
   ]
 }

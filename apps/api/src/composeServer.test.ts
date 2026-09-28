@@ -5,15 +5,18 @@ import { fileURLToPath } from 'node:url'
 import {
   type DomainError,
   enqueueBuilding,
+  err,
   type Fief,
   type FiefRepository,
   foundFief,
   Instant,
+  ok,
   type PlayerId,
   type Result,
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
+import type { AccountToken } from './auth/AccountTokens'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
 
@@ -286,7 +289,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<void> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
     )
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2)",
@@ -437,5 +440,40 @@ describe('a fief transaction from the composed server', () => {
       gold: 50,
       food: 300,
     })
+  })
+})
+
+describe('an account transaction from the composed server', () => {
+  let server: ComposedServer
+
+  beforeAll(() => {
+    server = composeServer(
+      { API_PORT: '3190', DATABASE_URL: databaseUrl(), ...mailEnvironment },
+      contentDirectory,
+    )
+  })
+
+  afterAll(async () => {
+    await server.close()
+  })
+
+  it('forgets a token issued in a refused transaction', async () => {
+    await foundAnasFief(server)
+    const verifyLink: AccountToken = {
+      token: 'refused-verify-link-token',
+      playerId: ana,
+      kind: 'verify',
+      expiresAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-23T08:00:00Z')),
+    }
+
+    await server.inTransaction(async ({ accountTokens }) => {
+      await accountTokens.issue(verifyLink, foundedAt)
+      return err('refused')
+    })
+
+    const redeemed = await server.inTransaction(async ({ accountTokens }) =>
+      ok(await accountTokens.redeem(verifyLink.token, 'verify', foundedAt)),
+    )
+    expect(redeemed).toEqual(ok(undefined))
   })
 })
