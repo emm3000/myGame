@@ -15,6 +15,7 @@ export const ApiErrorKindSchema = z.enum([
   'StudySlotBusy',
   'LibraryLevelTooLow',
   'ArtMaxLevelReached',
+  'StudyNotFound',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>

@@ -69,3 +69,4 @@ export type DomainError =
       readonly libraryLevel: number
     }
   | { readonly kind: 'ArtMaxLevelReached'; readonly art: ArtKind; readonly level: number }
+  | { readonly kind: 'StudyNotFound'; readonly art: ArtKind; readonly targetLevel: number }

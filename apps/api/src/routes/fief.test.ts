@@ -887,4 +887,79 @@ describe('the fief route', () => {
       expect(response.status).toBe(401)
     })
   })
+
+  describe('the study cancel route', () => {
+    const cancelStudy = async (
+      cookie: string,
+      art: string,
+      targetLevel: string | number,
+    ): Promise<Response> =>
+      app.request(`/fief/studies/${art}/${targetLevel}`, {
+        method: 'DELETE',
+        headers: { cookie },
+      })
+
+    const studySmithingAtMinuteTen = async (cookie: string): Promise<void> => {
+      await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, 'library'::building, 1 FROM fiefs`)
+      await runSql('UPDATE fiefs SET gold = 100')
+      clock.advanceMinutes(10)
+      const started = await app.request('/fief/studies', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ art: 'smithing' }),
+      })
+      expect(started.status).toBe(200)
+    }
+
+    it('cancels the study and answers the fief with the study slot idle', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await studySmithingAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(1)
+
+      const response = await cancelStudy(ana.cookie, 'smithing', 1)
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.study).toEqual({ kind: 'idle' })
+      expect(overview.arts.smithing.level).toBe(0)
+      expect(overview.resources.gold.amount).toBe(100)
+      expect(overview.readAt).toBe('2026-09-22T08:11:00.000Z')
+      const stored = await server.fiefs.fiefOf(ana.playerId)
+      expect(stored.ok && stored.value?.studySlot).toEqual({ kind: 'idle' })
+      expect(stored.ok && stored.value?.stocks.gold).toBe(100)
+    })
+
+    it('applies a study that finished before the cancel and refuses with StudyNotFound', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await studySmithingAtMinuteTen(ana.cookie)
+      await runSql(`UPDATE fiefs SET study_finishes_at = '2026-09-22T08:12:00Z'`)
+      clock.advanceMinutes(3)
+
+      const response = await cancelStudy(ana.cookie, 'smithing', 1)
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'StudyNotFound',
+        message: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
+      })
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(overview.arts.smithing.level).toBe(1)
+      expect(overview.study).toEqual({ kind: 'idle' })
+    })
+
+    it('answers 400 to a target level that is not a whole count from one', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await cancelStudy(ana.cookie, 'smithing', 0)
+
+      expect(response.status).toBe(400)
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/studies/smithing/1', { method: 'DELETE' })
+
+      expect(response.status).toBe(401)
+    })
+  })
 })

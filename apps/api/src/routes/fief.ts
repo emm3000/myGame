@@ -1,4 +1,5 @@
 import {
+  CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
   EnqueueBuildingRequestSchema,
   type FiefOverview,
@@ -6,6 +7,7 @@ import {
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
+import { type CancelStudyDependencies, cancelStudyOf } from '../fief/cancelStudyOf'
 import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
@@ -17,6 +19,7 @@ import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePl
 
 export type FiefDependencies = CurrentFiefDependencies &
   CancelUpgradeDependencies &
+  CancelStudyDependencies &
   EnqueueUpgradeDependencies &
   StartStudyDependencies &
   RequirePlayerDependencies
@@ -61,5 +64,12 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await startStudyOf(c.var.playerId, request.data.art, dependencies))
+    })
+    .delete('/studies/:art/:targetLevel', signedInPlayer, async (c) => {
+      const request = CancelStudyRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await cancelStudyOf(c.var.playerId, request.data, dependencies))
     })
 }

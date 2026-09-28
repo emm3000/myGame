@@ -23,6 +23,7 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   StudySlotBusy: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
   LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
+  StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
 }
 
 const internalFailure: RefusalAnswer = { status: 500 }
@@ -43,6 +44,7 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   StudySlotBusy: { status: 409, kind: 'StudySlotBusy' },
   LibraryLevelTooLow: { status: 409, kind: 'LibraryLevelTooLow' },
   ArtMaxLevelReached: { status: 409, kind: 'ArtMaxLevelReached' },
+  StudyNotFound: { status: 409, kind: 'StudyNotFound' },
   SignedOut: { status: 401 },
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },
