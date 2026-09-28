@@ -35,7 +35,7 @@ const refundOf = (refund: Refund): ChronicleRefund => {
 export function chronicleRowOf(event: FiefEvent, readAt: Date): ChronicleRow {
   const label = labelOf(event)
   return {
-    key: `${event.kind}-${label}-${event.level}-${event.occurredAt}`,
+    key: `${event.kind}-${'building' in event ? event.building : event.art}-${event.level}-${event.occurredAt}`,
     occurredAt: event.occurredAt,
     instant: formatInstant(new Date(event.occurredAt), readAt),
     heading: copy.chronicle.headings[event.kind],
