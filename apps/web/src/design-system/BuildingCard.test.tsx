@@ -14,7 +14,7 @@ function quarryShortOfStone(): BuildingCardProps {
     ],
     actionLabel: 'Upgrade',
     durationSeconds: 11100,
-    state: { kind: 'tooExpensive', reason: 'You lack 985 stone.' },
+    state: { kind: 'blocked', reason: 'You lack 985 stone.' },
     titleElement: 'h3',
     artSrc: undefined,
   }

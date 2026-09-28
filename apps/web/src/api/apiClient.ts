@@ -1,7 +1,9 @@
 import {
   type ApiErrorKind,
   ApiErrorSchema,
+  type ArtKind,
   type BuildingKind,
+  type CancelStudyRequest,
   type CancelUpgradeRequest,
   type EnqueueBuildingRequest,
   type FiefOverview,
@@ -10,6 +12,7 @@ import {
   PlayerSchema,
   type SignInRequest,
   type SignUpRequest,
+  type StartStudyRequest,
 } from '@mygame/contracts'
 import type { ZodType } from 'zod'
 
@@ -27,6 +30,8 @@ export interface ApiClient {
   fief(): Promise<ApiOutcome<FiefOverview>>
   enqueueUpgrade(building: BuildingKind): Promise<ApiOutcome<FiefOverview>>
   cancelUpgrade(target: CancelUpgradeRequest): Promise<ApiOutcome<FiefOverview>>
+  startStudy(art: ArtKind): Promise<ApiOutcome<FiefOverview>>
+  cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -94,6 +99,15 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await send(`/fief/upgrades/${building}/${targetLevel}`, {
         method: 'DELETE',
       })
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    startStudy: async (art) => {
+      const request: StartStudyRequest = { art }
+      const response = await postJson('/fief/studies', request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    cancelStudy: async ({ art, targetLevel }) => {
+      const response = await send(`/fief/studies/${art}/${targetLevel}`, { method: 'DELETE' })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
   }

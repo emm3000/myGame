@@ -1,9 +1,12 @@
-import { type BuildingKind, ResourceKindSchema } from '@mygame/contracts'
+import type { BuildingKind } from '@mygame/contracts'
 import { copy } from '../copy'
-import type { BuildingCardProps, BuildingCost } from '../design-system/BuildingCard'
+import type { BuildingCardProps } from '../design-system/BuildingCard'
 import { buildingArtOf } from '../design-system/buildingArtOf'
+import type { CardActionState } from '../design-system/CardAction'
+import type { CardCost } from '../design-system/CostList'
 import { capitalize } from '../design-system/capitalize'
 import type { LiveFief } from './liveFief'
+import { resourceCostsOf, shortfallsOf } from './resourceCosts'
 
 export type BuildingCardContent = Omit<
   BuildingCardProps,
@@ -14,16 +17,8 @@ const { names } = copy
 
 type NextLevel = NonNullable<LiveFief['overview']['buildings'][BuildingKind]['nextLevel']>
 
-const shortfallOf = (cost: number, amount: number): number => Math.max(0, cost - Math.floor(amount))
-
-function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<BuildingCost> {
-  const resourceCosts = ResourceKindSchema.options
-    .filter((kind) => nextLevel.cost[kind] > 0)
-    .map((kind) => ({
-      kind,
-      amount: nextLevel.cost[kind],
-      isShort: shortfallOf(nextLevel.cost[kind], fief.amounts[kind]) > 0,
-    }))
+function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<CardCost> {
+  const resourceCosts = resourceCostsOf(nextLevel.cost, fief.amounts)
   const peasantCost = {
     kind: 'peasants' as const,
     amount: nextLevel.peasants,
@@ -36,23 +31,20 @@ function isQueueFull({ slot, queue }: LiveFief['overview']): boolean {
   return slot.kind === 'busy' && queue.entries.length >= queue.cap
 }
 
-function stateOf(nextLevel: NextLevel, fief: LiveFief): BuildingCardProps['state'] {
+function stateOf(nextLevel: NextLevel, fief: LiveFief): CardActionState {
   if (isQueueFull(fief.overview)) {
-    return { kind: 'queueFull', reason: copy.refusals.QueueFull }
+    return { kind: 'blocked', reason: copy.refusals.QueueFull }
   }
   const { projectedFree } = fief.overview.peasants
   if (nextLevel.peasants > projectedFree) {
     return {
-      kind: 'notEnoughPeasants',
+      kind: 'blocked',
       reason: copy.fief.notEnoughPeasants(nextLevel.peasants, projectedFree),
     }
   }
-  const shortfalls = ResourceKindSchema.options
-    .map((kind) => ({ kind, missing: shortfallOf(nextLevel.cost[kind], fief.amounts[kind]) }))
-    .filter(({ missing }) => missing > 0)
-    .map(({ kind, missing }) => ({ amount: missing, resource: kind }))
+  const shortfalls = shortfallsOf(nextLevel.cost, fief.amounts)
   if (shortfalls.length > 0) {
-    return { kind: 'tooExpensive', reason: copy.fief.tooExpensive(shortfalls) }
+    return { kind: 'blocked', reason: copy.fief.tooExpensive(shortfalls) }
   }
   return { kind: 'affordable' }
 }
