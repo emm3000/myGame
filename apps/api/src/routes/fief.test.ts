@@ -1,5 +1,10 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, FiefOverviewSchema, PlayerSchema } from '@mygame/contracts'
+import {
+  ApiErrorSchema,
+  FiefChronicleSchema,
+  FiefOverviewSchema,
+  PlayerSchema,
+} from '@mygame/contracts'
 import { type Clock, enqueueBuilding, Instant, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -401,6 +406,99 @@ describe('the fief route', () => {
     const response = await app.request('/fief')
 
     expect(response.status).toBe(401)
+  })
+
+  describe('the chronicle route', () => {
+    const chronicleOf = async (cookie: string): Promise<Response> =>
+      app.request('/fief/events', { headers: { cookie } })
+
+    it('answers an empty chronicle for a new fief', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await chronicleOf(ana.cookie)
+
+      expect(response.status).toBe(200)
+      expect(FiefChronicleSchema.parse(await response.json())).toEqual({ events: [] })
+    })
+
+    it('lists a finish that no read had applied yet', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(
+        `UPDATE fiefs SET slot_building = 'sawmill', slot_level = 1,
+           slot_started_at = '2026-09-22T08:00:00Z', slot_finishes_at = '2026-09-22T08:02:00Z',
+           slot_cost_wood = 60, slot_cost_stone = 15`,
+      )
+      clock.advanceMinutes(3)
+
+      const response = await chronicleOf(ana.cookie)
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'upgradeFinished',
+          building: 'sawmill',
+          level: 1,
+          occurredAt: '2026-09-22T08:02:00.000Z',
+        },
+      ])
+    })
+
+    it('answers a cancel with the cost it refunded', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'ironMine')
+      clock.advanceMinutes(1)
+      await app.request('/fief/upgrades/ironMine/1', {
+        method: 'DELETE',
+        headers: { cookie: ana.cookie },
+      })
+
+      const response = await chronicleOf(ana.cookie)
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'upgradeCancelled',
+          building: 'ironMine',
+          level: 1,
+          occurredAt: '2026-09-22T08:01:00.000Z',
+          refund: { wood: 90, stone: 70, iron: 20, gold: 0, food: 0 },
+        },
+      ])
+    })
+
+    it('answers the chronicle newest first', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      clock.advanceMinutes(3)
+      await enqueue(ana.cookie, 'quarry')
+      clock.advanceMinutes(1)
+      await app.request('/fief/upgrades/quarry/1', {
+        method: 'DELETE',
+        headers: { cookie: ana.cookie },
+      })
+
+      const response = await chronicleOf(ana.cookie)
+
+      const events = FiefChronicleSchema.parse(await response.json()).events
+      expect(events.map(({ kind, occurredAt }) => ({ kind, occurredAt }))).toEqual([
+        { kind: 'upgradeCancelled', occurredAt: '2026-09-22T08:04:00.000Z' },
+        { kind: 'upgradeFinished', occurredAt: '2026-09-22T08:02:00.000Z' },
+      ])
+    })
+
+    it('answers 404 with FiefNotFound when the player holds no fief', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql('TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events')
+
+      const response = await chronicleOf(ana.cookie)
+
+      expect(response.status).toBe(404)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/events')
+
+      expect(response.status).toBe(401)
+    })
   })
 
   describe('the enqueue route', () => {

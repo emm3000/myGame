@@ -3,6 +3,7 @@ import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
+import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
 import { Argon2Passwords } from './adapters/system/Argon2Passwords'
@@ -11,6 +12,7 @@ import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
 import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
+import type { ChronicleReader } from './fief/ChronicleReader'
 import type { FiefReader } from './fief/FiefReader'
 
 const highestPort = 65535
@@ -32,6 +34,7 @@ export type ComposedServer = {
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly fiefs: FiefReader
+  readonly chronicle: ChronicleReader
   readonly accounts: Accounts
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
@@ -65,6 +68,7 @@ export function composeServer(
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database),
     fiefs: new DrizzleFiefRepository(database, 'lockFree'),
+    chronicle: new DrizzleChronicle(database),
     isSessionCookieSecure,
   }
   return {

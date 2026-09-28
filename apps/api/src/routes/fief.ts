@@ -2,15 +2,18 @@ import {
   CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
   EnqueueBuildingRequestSchema,
+  type FiefChronicle,
   type FiefOverview,
   StartStudyRequestSchema,
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
+import type { ChronicleReader } from '../fief/ChronicleReader'
 import { type CancelStudyDependencies, cancelStudyOf } from '../fief/cancelStudyOf'
 import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
+import { fiefChronicleOf } from '../fief/fiefChronicleOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { answerRefusal } from '../http/answerRefusal'
@@ -22,7 +25,9 @@ export type FiefDependencies = CurrentFiefDependencies &
   CancelStudyDependencies &
   EnqueueUpgradeDependencies &
   StartStudyDependencies &
-  RequirePlayerDependencies
+  RequirePlayerDependencies & {
+    readonly chronicle: ChronicleReader
+  }
 
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
   const answerFief = (c: Context, fief: Result<Fief, DomainError>): Response => {
@@ -41,6 +46,16 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
     .get('/', signedInPlayer, async (c) =>
       answerFief(c, await currentFiefOf(c.var.playerId, dependencies)),
     )
+    .get('/events', signedInPlayer, async (c) => {
+      const fief = await currentFiefOf(c.var.playerId, dependencies)
+      if (!fief.ok) {
+        return answerRefusal(c, fief.error)
+      }
+      const body: FiefChronicle = fiefChronicleOf(
+        await dependencies.chronicle.eventsOf(fief.value.id),
+      )
+      return c.json(body)
+    })
     .post('/upgrades', signedInPlayer, async (c) => {
       const request = EnqueueBuildingRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
