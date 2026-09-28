@@ -6,9 +6,9 @@ import {
   readProvinceMap,
 } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
-import { provinceMapOf } from '../fief/provinceMapOf'
 import { answerRefusal } from '../http/answerRefusal'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import { provinceMapOf } from '../kingdom/provinceMapOf'
 
 export type MapDependencies = RequirePlayerDependencies & {
   readonly map: KingdomMapReader
