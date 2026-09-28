@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import type { Fief } from '../fief/Fief'
 import { materializeStocks } from '../fief/materializeStocks'
+import { nextArtLevelOf } from '../fief/nextArtLevelOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { ArtKind, ArtLevel, BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -18,14 +19,14 @@ export type StartStudyDependencies = {
   readonly clock: Clock
 }
 
-const nextArtLevelOf = (
+const admitStudy = (
   fief: Fief,
   art: ArtKind,
   catalog: BuildingCatalog,
 ): Result<ArtLevel, DomainError> => {
   const level = fief.artLevels[art]
-  const next = catalog.artLevelOf(art, level + 1)
-  if (next === undefined || next.art !== art) {
+  const next = nextArtLevelOf(art, level, catalog)
+  if (next === undefined) {
     return err({ kind: 'ArtMaxLevelReached', art, level })
   }
   return ok(next)
@@ -44,7 +45,7 @@ export const startStudy = async (
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
 
-  const line = nextArtLevelOf(fief, command.art, catalog)
+  const line = admitStudy(fief, command.art, catalog)
   if (!line.ok) {
     return line
   }
