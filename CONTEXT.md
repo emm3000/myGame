@@ -26,7 +26,7 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 - **Building** — a structure on a fief with a level; each level has a cost, a build duration and an effect.
 - **Sawmill / Quarry / Iron mine / Farm** — the producers.
-- **Library** — where arts are studied. Replaces *research lab*.
+- **Library** — the building where arts are studied, one at a time in its study slot. Its level gates which art levels can be studied and shortens every study. Replaces *research lab*.
 - **Barracks** — where units are trained. Replaces *shipyard*. Not in the MVP.
 - **Build slot** — the single place on a fief where the upgrade in progress builds; one upgrade at a time. A slot with an upgrade in progress is **busy**.
 - **Build queue** — the ordered upgrades waiting behind the busy slot, at most the content cap. Each entry keeps the building, the target level, the cost it debited and the duration fixed at its enqueue, and starts the instant the one before it finishes.
@@ -36,7 +36,11 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 ## Knowledge and arms
 
-- **Art** — a researched improvement (smithing, masonry, alchemy, tactics). Replaces *technology*. Not in the MVP.
+- **Art** — craft knowledge a fief holds at a level; each level multiplies one resource rate by the content's percent, on top of base, producers and terrain. It occupies no peasants. Replaces *technology*.
+- **Smithing** — the art that raises the iron rate.
+- **Masonry** — the art that raises the stone rate.
+- **Study** — the timed act that raises an art one level, paid in materials and gold at its start; the library's built level gates it and shortens it. Cancelled with a full refund, like an upgrade, until it finishes.
+- **Study slot** — the library's single place for the study in progress; one study at a time, no queue. A slot with a study in progress is **busy**.
 - **Unit** — infantry, archers, cavalry, rams. Replace *ships*. Not in the MVP.
 - **Army** — units on a march. Replaces *fleet*. Not in the MVP.
 - **March** — an army's movement between coordinates, with a duration. Replaces *mission*. Not in the MVP.
@@ -54,4 +58,4 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 ## Avoided words
 
-`planet`, `colony`, `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `mission`, `alliance`, `tech`, `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown).
+`planet`, `colony`, `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `mission`, `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown).
