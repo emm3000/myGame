@@ -20,3 +20,13 @@ it('shows the Spanish message for a refused credential', async () => {
 
   expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.InvalidCredentials)
 })
+
+it('opens the reset request from the sign-in screen', async () => {
+  renderAppAt('/sign-in', stubApiClient())
+
+  fireEvent.click(await screen.findByRole('link', { name: '¿Has olvidado tu contraseña?' }))
+
+  expect(
+    (await screen.findByRole('heading', { level: 1, name: 'Recupera tu contraseña' })).textContent,
+  ).toBe('Recupera tu contraseña')
+})
