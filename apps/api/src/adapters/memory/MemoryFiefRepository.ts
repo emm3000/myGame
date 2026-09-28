@@ -17,6 +17,10 @@ const sharesPlot = (left: Fief, right: Fief): boolean =>
 export class MemoryFiefRepository implements FiefRepository {
   private readonly fiefs = new Map<string, Fief>()
 
+  heldFiefs(): ReadonlyArray<Fief> {
+    return [...this.fiefs.values()]
+  }
+
   async occupiedPlots(): Promise<ReadonlyArray<PlotAddress>> {
     return [...this.fiefs.values()].map(({ coordinates: { kingdom, province, plot } }) => ({
       kingdom,
