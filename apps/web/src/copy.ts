@@ -120,6 +120,13 @@ const quantitiesOf = (quantities: ReadonlyArray<ResourceQuantity>): string =>
     quantities.map(({ amount, resource }) => `${formatQuantity(amount)} de ${resources[resource]}`),
   )
 
+const neutralPercent = 100
+
+const signedChange = (multiplierPercent: number): string => {
+  const change = multiplierPercent - neutralPercent
+  return change > 0 ? `+${change}` : `-${-change}`
+}
+
 const ratePercent = (percent: number, resource: ResourceKind): string =>
   `+${percent} % de ${resources[resource]} / h`
 
@@ -214,6 +221,8 @@ export const copy = {
       `${capitalize(seasons[season])}, año ${year}`,
     seasonCountdown: (season: SeasonKind, remainingSeconds: number): string =>
       `${capitalize(seasons[seasonAfter[season]])} en ${seasonTimeLeft(remainingSeconds)}`,
+    seasonMark: (season: SeasonKind, resource: ResourceKind, multiplierPercent: number): string =>
+      `${capitalize(seasons[season])}: ${signedChange(multiplierPercent)} % de ${resources[resource]}`,
     notEnoughPeasants: (needed: number, free: number): string =>
       `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
   },
