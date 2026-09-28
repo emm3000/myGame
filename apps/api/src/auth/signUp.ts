@@ -12,7 +12,7 @@ import type { Argon2Passwords } from '../adapters/system/Argon2Passwords'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
 import type { Refusal } from '../http/Refusal'
 import { foundFiefOnFreePlot } from './foundFiefOnFreePlot'
-import { issueVerifyToken } from './issueVerifyToken'
+import { issueAccountToken } from './issueAccountToken'
 import { openSession } from './openSession'
 import type { SignedIn } from './SignedIn'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
@@ -64,7 +64,11 @@ export const signUp = async (
         return founded
       }
       const session = await openSession(player.id, { accounts, clock, sessionTokens })
-      const verifyToken = await issueVerifyToken(player.id, { accountTokens, clock, sessionTokens })
+      const verifyToken = await issueAccountToken('verify', player.id, {
+        accountTokens,
+        clock,
+        sessionTokens,
+      })
       return ok({ player, session, verifyToken })
     },
   )

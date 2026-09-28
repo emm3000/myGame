@@ -2,6 +2,7 @@ import { Instant } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import type { AccountToken } from '../../auth/AccountTokens'
 import { accountTokensContract } from '../accountTokensContract'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { sessionTokenDigest } from './sessionTokenDigest'
@@ -40,9 +41,65 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
   }
 }
 
+const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
+  let resolve = (): void => {}
+  const promise = new Promise<void>((settle) => {
+    resolve = settle
+  })
+  return { promise, resolve }
+}
+
+const probeLimit = 500
+
+const isPlayerLockWaiting = async (): Promise<boolean> => {
+  const probe = await pool.query<{ waiting: boolean }>(
+    `SELECT pg_sleep(0.01), EXISTS (
+       SELECT 1 FROM pg_stat_activity
+       WHERE datname = current_database()
+         AND pid <> pg_backend_pid()
+         AND wait_event_type = 'Lock'
+         AND query ILIKE 'select "id" from "players" %for update'
+     ) AS waiting`,
+  )
+  return probe.rows[0]?.waiting === true
+}
+
+const untilBlockedOrIssued = async (issue: Promise<void>): Promise<void> => {
+  let hasIssued = false
+  void issue.then(() => {
+    hasIssued = true
+  })
+  for (let probes = 0; probes < probeLimit; probes += 1) {
+    if (hasIssued || (await isPlayerLockWaiting())) {
+      return
+    }
+  }
+  throw new Error('The second issue neither waited on the player lock nor finished')
+}
+
+const issueTogether = async (
+  first: AccountToken,
+  second: AccountToken,
+  now: Instant,
+): Promise<void> => {
+  const database = drizzle(pool)
+  const firstHasIssued = signal()
+  const firstMayCommit = signal()
+  const firstIssue = database.transaction(async (transaction) => {
+    await new DrizzleAccountTokens(transaction).issue(first, now)
+    firstHasIssued.resolve()
+    await firstMayCommit.promise
+  })
+  await firstHasIssued.promise
+  const secondIssue = new DrizzleAccountTokens(database).issue(second, now)
+  await untilBlockedOrIssued(secondIssue)
+  firstMayCommit.resolve()
+  await Promise.all([firstIssue, secondIssue])
+}
+
 accountTokensContract('DrizzleAccountTokens', async () => {
   await emptyDatabase()
-  return { accountTokens: new DrizzleAccountTokens(drizzle(pool)), registerPlayers }
+  return { accountTokens: new DrizzleAccountTokens(drizzle(pool)), registerPlayers, issueTogether }
 })
 
 const ana = '00000000-0000-4000-8000-000000000001'

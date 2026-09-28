@@ -12,4 +12,17 @@ export const mailCopy = {
         'Si no has fundado ningún feudo, ignora este correo.',
       ].join('\n'),
   },
+  reset: {
+    subject: 'Cambia tu contraseña',
+    textWith: (link: string): string =>
+      [
+        'Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:',
+        '',
+        link,
+        '',
+        'El enlace vale una hora y una sola vez.',
+        '',
+        'Si no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.',
+      ].join('\n'),
+  },
 } as const

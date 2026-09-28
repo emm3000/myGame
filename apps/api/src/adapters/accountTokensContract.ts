@@ -5,6 +5,7 @@ import type { AccountToken, AccountTokens } from '../auth/AccountTokens'
 export type AccountTokensFixture = {
   readonly accountTokens: AccountTokens
   readonly registerPlayers: (playerIds: ReadonlyArray<PlayerId>) => Promise<void>
+  readonly issueTogether: (first: AccountToken, second: AccountToken, now: Instant) => Promise<void>
 }
 
 const ana = '00000000-0000-4000-8000-000000000001'
@@ -90,6 +91,20 @@ export const accountTokensContract = (
       await accountTokens.issue(verifyLink, dawn)
 
       expect(await accountTokens.redeem(resetLink.token, 'reset', dawn)).toBe(ana)
+    })
+
+    it('keeps one live token of a kind when two are issued at once', async () => {
+      const { accountTokens, registerPlayers, issueTogether } = await arrange()
+      await registerPlayers([ana])
+      const racingResetLink = { ...resetLink, token: 'racing-reset-link-token' }
+
+      await issueTogether(resetLink, racingResetLink, dawn)
+
+      const redeemed = [
+        await accountTokens.redeem(resetLink.token, 'reset', dawn),
+        await accountTokens.redeem(racingResetLink.token, 'reset', dawn),
+      ]
+      expect(redeemed.filter((playerId) => playerId === ana)).toHaveLength(1)
     })
   })
 }

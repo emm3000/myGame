@@ -2,7 +2,7 @@ import { type Clock, err, ok, type PlayerId, type Result } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
 import type { Refusal } from '../http/Refusal'
-import { issueVerifyToken } from './issueVerifyToken'
+import { issueAccountToken } from './issueAccountToken'
 import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
 export type ResendVerificationMailDependencies = SendVerificationMailDependencies & {
@@ -29,7 +29,11 @@ export const resendVerificationMail = async (
       if (player.emailVerified) {
         return ok(undefined)
       }
-      const token = await issueVerifyToken(playerId, { accountTokens, clock, sessionTokens })
+      const token = await issueAccountToken('verify', playerId, {
+        accountTokens,
+        clock,
+        sessionTokens,
+      })
       return ok({ email: player.email, token })
     },
   )

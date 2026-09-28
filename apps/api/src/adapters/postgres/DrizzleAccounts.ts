@@ -60,6 +60,10 @@ export class DrizzleAccounts implements Accounts {
       .where(eq(players.id, playerId))
   }
 
+  async storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void> {
+    await this.database.update(players).set({ passwordHash }).where(eq(players.id, playerId))
+  }
+
   async openSession(session: Session): Promise<void> {
     await this.database.insert(sessions).values({
       tokenDigest: sessionTokenDigest(session.token),
@@ -88,5 +92,9 @@ export class DrizzleAccounts implements Accounts {
 
   async closeSession(token: string): Promise<void> {
     await this.database.delete(sessions).where(eq(sessions.tokenDigest, sessionTokenDigest(token)))
+  }
+
+  async closeSessionsOf(playerId: PlayerId): Promise<void> {
+    await this.database.delete(sessions).where(eq(sessions.playerId, playerId))
   }
 }

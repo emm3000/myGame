@@ -30,7 +30,9 @@ export interface Accounts {
   credentialsOf(email: string): Promise<PlayerCredentials | undefined>
   playerOf(playerId: PlayerId): Promise<StoredPlayer | undefined>
   markEmailVerified(playerId: PlayerId, now: Instant): Promise<void>
+  storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void>
   openSession(session: Session): Promise<void>
   renewSession(token: string, now: Instant, expiresAt: Instant): Promise<PlayerId | undefined>
   closeSession(token: string): Promise<void>
+  closeSessionsOf(playerId: PlayerId): Promise<void>
 }
