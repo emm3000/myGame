@@ -1,5 +1,5 @@
 import type { Instant, PlayerId } from '@mygame/domain'
-import { and, eq, gt, isNull, sql } from 'drizzle-orm'
+import { and, eq, gt, sql } from 'drizzle-orm'
 import type {
   Accounts,
   NewPlayer,
@@ -57,7 +57,7 @@ export class DrizzleAccounts implements Accounts {
     await this.database
       .update(players)
       .set({ emailVerifiedAt: dateOf(now) })
-      .where(and(eq(players.id, playerId), isNull(players.emailVerifiedAt)))
+      .where(eq(players.id, playerId))
   }
 
   async openSession(session: Session): Promise<void> {
