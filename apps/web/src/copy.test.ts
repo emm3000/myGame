@@ -25,3 +25,7 @@ it('says te faltan for two shortfalls of one each', () => {
 it('says te faltan for a single shortfall of several', () => {
   expect(copy.fief.tooExpensive([{ amount: 30, resource: 'wood' }])).toBe('Te faltan 30 de madera.')
 })
+
+it('writes no sign on a season mark at the neutral percent', () => {
+  expect(copy.fief.seasonMark('summer', 'wood', 100)).toBe('Verano: 0 % de madera')
+})
