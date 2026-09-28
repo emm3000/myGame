@@ -189,6 +189,7 @@ it.each(['/mapa/0', '/mapa/abc'])('refuses %s without asking the api', async (pa
   renderAppAt(path, client)
 
   expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.ProvinceNotFound)
+  expect(screen.getByRole('link', { name: 'Ir a tu provincia' })).toBeDefined()
   expect(requested).toEqual([])
 })
 
@@ -199,6 +200,7 @@ it('shows the Spanish refusal when the map cannot be read', async () => {
   )
 
   expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.Unexpected)
+  expect(screen.queryByRole('link', { name: 'Ir a tu provincia' })).toBeNull()
 })
 
 it('shows the loading line while the map is being read', async () => {
