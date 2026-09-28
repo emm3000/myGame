@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { cleanup, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { stubApiClient } from '../auth/stubApiClient.testSupport'
@@ -9,25 +9,34 @@ const askForReset = async (email: string): Promise<void> => {
   fireEvent.click(screen.getByRole('button', { name: copy.passwordReset.request.submit }))
 }
 
-it('confirms a reset request in the same words for any email', async () => {
-  const requestedEmails: string[] = []
+const confirmationFor = async (email: string, requestedEmails: string[]): Promise<string> => {
   renderAppAt(
     '/forgot-password',
     stubApiClient({
-      forgotPassword: async (email) => {
-        requestedEmails.push(email)
+      forgotPassword: async (requested) => {
+        requestedEmails.push(requested)
         return undefined
       },
     }),
   )
+  await askForReset(email)
+  const confirmation = (await screen.findByRole('status')).textContent ?? ''
+  expect(screen.queryByLabelText(copy.auth.email)).toBeNull()
+  cleanup()
+  return confirmation
+}
 
-  await askForReset('nadie@example.com')
+it('confirms a reset request in the same words for any email', async () => {
+  const requestedEmails: string[] = []
 
-  expect((await screen.findByRole('status')).textContent).toBe(
+  const knownEmailConfirmation = await confirmationFor('aldonza@example.com', requestedEmails)
+  const unknownEmailConfirmation = await confirmationFor('nadie@example.com', requestedEmails)
+
+  expect(knownEmailConfirmation).toBe(
     'Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.',
   )
-  expect(screen.queryByLabelText(copy.auth.email)).toBeNull()
-  expect(requestedEmails).toEqual(['nadie@example.com'])
+  expect(unknownEmailConfirmation).toBe(knownEmailConfirmation)
+  expect(requestedEmails).toEqual(['aldonza@example.com', 'nadie@example.com'])
 })
 
 it('refuses a malformed email without a request', async () => {
