@@ -1,9 +1,9 @@
 import type { DomainError } from '../DomainError'
 import { terrainOf } from '../fief/terrainOf'
-import type { ProvinceMap } from '../kingdom/ProvinceMap'
+import type { ProvinceMap, ProvincePlot } from '../kingdom/ProvinceMap'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
-import type { KingdomMapReader } from '../ports/KingdomMapReader'
+import type { KingdomMapReader, PlotHolder } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
 
 export type ReadProvinceMapCommand = {
@@ -15,6 +15,21 @@ export type ReadProvinceMapDependencies = {
   readonly map: KingdomMapReader
   readonly catalog: BuildingCatalog
 }
+
+const plotsOf = (
+  plotsPerProvince: number,
+  holders: ReadonlyArray<PlotHolder>,
+  viewer: PlayerId,
+): ReadonlyArray<ProvincePlot> =>
+  Array.from({ length: plotsPerProvince }, (_, index) => {
+    const plot = index + 1
+    const holder = holders.find((held) => held.plot === plot)
+    return {
+      plot,
+      fief:
+        holder === undefined ? undefined : { name: holder.name, isOwn: holder.playerId === viewer },
+    }
+  })
 
 export const readProvinceMap = async (
   command: ReadProvinceMapCommand,
@@ -30,24 +45,11 @@ export const readProvinceMap = async (
     return err({ kind: 'ProvinceNotFound', province, lastProvince })
   }
   const holders = await map.holdersIn(address.kingdom, province)
-  const plotNumbers = Array.from(
-    { length: catalog.fiefSettings().plotsPerProvince },
-    (_, index) => index + 1,
-  )
   return ok({
     kingdom: address.kingdom,
     province,
     lastProvince,
     terrain: terrainOf(province),
-    plots: plotNumbers.map((plot) => {
-      const holder = holders.find((held) => held.plot === plot)
-      return {
-        plot,
-        fief:
-          holder === undefined
-            ? undefined
-            : { name: holder.name, isOwn: holder.playerId === command.playerId },
-      }
-    }),
+    plots: plotsOf(catalog.fiefSettings().plotsPerProvince, holders, command.playerId),
   })
 }
