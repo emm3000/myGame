@@ -2,6 +2,7 @@ import {
   type BuildingKind,
   BuildingKindSchema,
   type CancelUpgradeRequest,
+  type ResourceKind,
   ResourceKindSchema,
 } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
@@ -14,6 +15,7 @@ import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
 import { SeasonLine } from '../design-system/SeasonLine'
+import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { buildingCardOf } from './buildingCardOf'
 import { LibrarySection } from './LibrarySection'
@@ -48,6 +50,19 @@ function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | nul
       countdownLine={copy.fief.seasonCountdown(season.kind, fief.seasonRemainingSeconds)}
     />
   )
+}
+
+function seasonMarkOf(
+  season: LiveFief['overview']['season'],
+  resource: ResourceKind,
+): SeasonMarkProps | undefined {
+  if (season === null || season.multiplierPercent[resource] === 100) {
+    return undefined
+  }
+  return {
+    season: season.kind,
+    words: copy.fief.seasonMark(season.kind, resource, season.multiplierPercent[resource]),
+  }
 }
 
 function cancelActionOf(cancel: Cancel, target: CancelUpgradeRequest): CancelAction {
@@ -138,6 +153,7 @@ export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): R
     amount: amounts[kind],
     ratePerHour: overview.resources[kind].ratePerHour,
     capacity: overview.resources[kind].capacity,
+    mark: seasonMarkOf(overview.season, kind),
   }))
   return (
     <div className="flex flex-col gap-6">

@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { copy } from '../copy'
-import { ResourceBar, type ResourceBarProps } from './ResourceBar'
+import { ResourceBar, type ResourceBarProps, type ResourceCell } from './ResourceBar'
 
 function storeWithFullGranary(): ResourceBarProps {
   return {
@@ -74,4 +74,38 @@ it('labels one supplied peasant as libre', () => {
 
   const village = screen.getByRole('listitem', { name: 'Campesinos' })
   expect(within(village).getByText('/ 1 libre')).toBeDefined()
+})
+
+function storeMarked(mark: ResourceCell['mark']): ResourceBarProps {
+  return {
+    resources: [
+      { kind: 'food', label: 'Comida', amount: 14300, ratePerHour: 195, capacity: 20000, mark },
+      { kind: 'wood', label: 'Madera', amount: 12480, ratePerHour: 340, capacity: 20000 },
+    ],
+    peasants: { label: 'Campesinos', free: 36, supplied: 60, occupied: 24 },
+    labels: { full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied },
+  }
+}
+
+it('marks a lowered rate with its effect', () => {
+  render(<ResourceBar {...storeMarked({ season: 'winter', words: 'Invierno: -25 % de comida' })} />)
+
+  const granary = screen.getByRole('listitem', { name: 'Comida' })
+  const rate = within(granary).getByText('+195 / h')
+  const mark = within(granary).getByText('Invierno: -25 % de comida')
+  expect(rate.compareDocumentPosition(mark)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+})
+
+it('marks a raised rate with its effect', () => {
+  render(<ResourceBar {...storeMarked({ season: 'autumn', words: 'Otoño: +25 % de oro' })} />)
+
+  const granary = screen.getByRole('listitem', { name: 'Comida' })
+  expect(within(granary).getByText('Otoño: +25 % de oro')).toBeDefined()
+})
+
+it('marks nothing on a cell without an effect', () => {
+  render(<ResourceBar {...storeMarked({ season: 'winter', words: 'Invierno: -25 % de comida' })} />)
+
+  const woodpile = screen.getByRole('listitem', { name: 'Madera' })
+  expect(within(woodpile).queryByText(/: [+-]\d+ % de /)).toBeNull()
 })

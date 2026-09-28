@@ -1,5 +1,5 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -163,4 +163,53 @@ it('waits for the minute re-read when the season ends past the longest timeout',
   await passSeconds(59)
 
   expect(fief).toHaveBeenCalledTimes(1)
+})
+
+const storeOf = (resource: string): HTMLElement => screen.getByRole('listitem', { name: resource })
+
+const seasonMarkIn = (resource: string): HTMLElement | null =>
+  within(storeOf(resource)).queryByText(/^\S+: [+-]\d+ % de \S+$/)
+
+it('marks the food rate winter lowers', async () => {
+  await showFief(signedInClientServing(() => winterEndingInADayAndHalfAMinute))
+
+  expect(seasonMarkIn('comida')?.textContent).toBe('Invierno: -25 % de comida')
+  expect(seasonMarkIn('oro')).toBeNull()
+})
+
+it('marks the gold rate autumn raises', async () => {
+  await showFief(signedInClientServing(() => autumnEndingInThreeDaysAndFiveHours))
+
+  expect(seasonMarkIn('oro')?.textContent).toBe('Otoño: +25 % de oro')
+  expect(seasonMarkIn('comida')).toBeNull()
+})
+
+it('marks no resource in summer', async () => {
+  await showFief(signedInClientServing(() => summerEndingInHalfAMinute))
+
+  for (const resource of ['madera', 'piedra', 'hierro', 'oro', 'comida']) {
+    expect(seasonMarkIn(resource)).toBeNull()
+  }
+})
+
+it('marks no resource before the calendar starts', async () => {
+  await showFief(signedInClientServing(() => knownFief))
+
+  for (const resource of ['madera', 'piedra', 'hierro', 'oro', 'comida']) {
+    expect(seasonMarkIn(resource)).toBeNull()
+  }
+})
+
+const winterWithAFractionalFoodRate: FiefOverview = {
+  ...winterEndingInADayAndHalfAMinute,
+  resources: {
+    ...knownFief.resources,
+    food: { amount: 1000, ratePerHour: 11.25, capacity: 20000 },
+  },
+}
+
+it('shows the rate the fief read answered', async () => {
+  await showFief(signedInClientServing(() => winterWithAFractionalFoodRate))
+
+  expect(within(storeOf('comida')).getByText('+11 / h')).toBeDefined()
 })

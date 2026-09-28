@@ -2,6 +2,7 @@ import type { ResourceKind } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
 import { formatQuantity } from './formatQuantity'
 import { resourceAccent } from './resourceAccent'
+import { SeasonMark, type SeasonMarkProps } from './SeasonMark'
 import { Track } from './Track'
 
 export interface ResourceCell {
@@ -10,6 +11,7 @@ export interface ResourceCell {
   readonly amount: number
   readonly ratePerHour: number
   readonly capacity: number
+  readonly mark?: SeasonMarkProps | undefined
 }
 
 export interface PeasantCell {
@@ -60,6 +62,7 @@ function ResourceItem({
       <span className={`${numeralClass} text-numeral ${isFull ? 'text-rust' : 'text-ink-muted'}`}>
         {isFull ? fullLabel : `+${formatQuantity(cell.ratePerHour)} / h`}
       </span>
+      {cell.mark !== undefined && <SeasonMark {...cell.mark} />}
       <Track
         value={cell.amount}
         total={cell.capacity}
