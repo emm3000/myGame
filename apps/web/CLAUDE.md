@@ -31,6 +31,7 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - No raw `fetch` with an ad-hoc shape. A call to the api is typed by a schema from `@mygame/contracts`.
 - The design system is the only source of visual primitives: style with the Tailwind utilities the theme derives from `tokens.ts` (`bg-surface`, `p-4`, `text-body`), never a hex, a px literal or a `style` prop. Arbitrary values (`p-[13px]`) fail `biome check`. A missing value goes into `tokens.ts`. Check: `rg -n "#[0-9a-fA-F]{6}" apps/web/src --glob '!**/tokens*'` stays empty.
 - No Spanish outside `copy.ts`; identifiers stay English.
+- `copy.refusals` includes `TokenInvalid` and `MailNotSent`, the same lines as the api's `answerRefusal.ts`; `knownPlayer` in `stubApiClient.testSupport.ts` carries `emailVerified: true`.
 - React 19 holds a commit until every head stylesheet fires `load`, which jsdom never does, so the root document rendered empty in tests. `vitest.setup.ts` dispatches `load` on each stylesheet or style preload link as it is inserted.
 - No snapshot tests. Components are tested through Testing Library queries by role and text; visual verification is a screenshot in the PR.
 - Testing Library's default normalizer turns the thin space from `formatQuantity` into a plain space, so a `getByText` expectation writes `1 200` with a plain space.
