@@ -14,6 +14,7 @@ import { Route as SignedInRouteImport } from './routes/_signedIn'
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
+import { Route as SignedInCronicaRouteImport } from './routes/_signedIn/cronica'
 
 const GuestRoute = GuestRouteImport.update({
   id: '/_guest',
@@ -38,16 +39,23 @@ const SignedInIndexRoute = SignedInIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInCronicaRoute = SignedInCronicaRouteImport.update({
+  id: '/cronica',
+  path: '/cronica',
+  getParentRoute: () => SignedInRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SignedInIndexRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/cronica': typeof SignedInCronicaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SignedInIndexRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/cronica': typeof SignedInCronicaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -55,19 +63,21 @@ export interface FileRoutesById {
   '/_signedIn': typeof SignedInRouteWithChildren
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
+  '/_signedIn/cronica': typeof SignedInCronicaRoute
   '/_signedIn/': typeof SignedInIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/sign-up'
+  fullPaths: '/' | '/sign-in' | '/sign-up' | '/cronica'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/sign-up'
+  to: '/' | '/sign-in' | '/sign-up' | '/cronica'
   id:
     | '__root__'
     | '/_guest'
     | '/_signedIn'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
+    | '/_signedIn/cronica'
     | '/_signedIn/'
   fileRoutesById: FileRoutesById
 }
@@ -113,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInIndexRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/cronica': {
+      id: '/_signedIn/cronica'
+      path: '/cronica'
+      fullPath: '/cronica'
+      preLoaderRoute: typeof SignedInCronicaRouteImport
+      parentRoute: typeof SignedInRoute
+    }
   }
 }
 
@@ -129,10 +146,12 @@ const GuestRouteChildren: GuestRouteChildren = {
 const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 
 interface SignedInRouteChildren {
+  SignedInCronicaRoute: typeof SignedInCronicaRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
+  SignedInCronicaRoute: SignedInCronicaRoute,
   SignedInIndexRoute: SignedInIndexRoute,
 }
 
