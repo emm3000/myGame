@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -41,8 +41,10 @@ it('sends one resend per click', async () => {
   )
   const button = await resendButton()
 
-  fireEvent.click(button)
-  fireEvent.click(button)
+  act(() => {
+    button.click()
+    button.click()
+  })
 
   expect(resends).toBe(1)
   expect((await resendButton()).hasAttribute('disabled')).toBe(true)
