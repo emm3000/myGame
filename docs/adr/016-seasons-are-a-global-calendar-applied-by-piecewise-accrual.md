@@ -17,12 +17,11 @@ changes a rate without the player touching the fief, and the obvious
 designs pull in what the PRD forbids: a job that turns the season and
 rewrites every fief (W7, N2), a stored rate that goes stale at each boundary,
 a season the client computes from the wall clock (N1), a `season` table
-beside the content. The owner grilled the slice on 2026-09-29 (#182, the engram
-memory "myGame S8 seasons: grilled decisions"), took the recommended option
-on every one of its sixteen questions, and confirmed the five gaps the tickets left with their defaults
-on the same day (the owner's comment on #182). This ADR records the
-decisions after PRs #191 to #195 shipped and while #189, the mark on the
-resource bar, was in flight; nothing in it waits for #189.
+beside the content. The owner grilled the slice on 2026-09-29 (#182), took the
+recommended option on every question, and confirmed the five gaps the
+tickets left with their defaults on the same day (the owner's comment on
+#182). This ADR records the decisions S8 shipped: PRs #191 to #195, and
+#189, the mark on the resource bar.
 
 ## Decision
 
@@ -76,7 +75,7 @@ resource bar, was in flight; nothing in it waits for #189.
   finishes before a season change accrues at the old season's rates and one
   that finishes after it at the new. No use case changed for S8, and every
   caller of `materializeStocks` (the resolve, the enqueue, both cancels, the
-  study start) splits the same way.
+  study start and `Fief.accruedTo`) splits the same way.
 - **The wire carries the season as data, or `null`.** `FiefOverview.season`
   (ADR 010) is `null` before the epoch, otherwise a strict `{ kind, year,
   endsAt, multiplierPercent }`: the season `seasonAt` answers for the read's
