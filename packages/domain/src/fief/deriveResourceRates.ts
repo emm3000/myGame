@@ -41,7 +41,7 @@ const applyArts = (
     if (found === undefined || found.art !== art) {
       return err({ kind: 'UnknownArtLevel', art, level })
     }
-    multiplied[found.resource] *= 1 + found.ratePercent / 100
+    multiplied[found.resource] = (multiplied[found.resource] * (100 + found.ratePercent)) / 100
   }
   return ok(multiplied)
 }
