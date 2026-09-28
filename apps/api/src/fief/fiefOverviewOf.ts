@@ -2,6 +2,7 @@ import { BuildingKindSchema, type FiefOverview } from '@mygame/contracts'
 import {
   type ArtKind,
   artLevelInForce,
+  artResourceOf,
   type BuildingCatalog,
   type BuildingKind,
   type BuildSlot,
@@ -11,7 +12,6 @@ import {
   deriveResourceRates,
   deriveStudyDurationSeconds,
   deriveWarehouseCapacity,
-  err,
   type Fief,
   type FiefBuildingLevels,
   type Instant,
@@ -50,17 +50,6 @@ const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
 
 type ArtState = FiefOverview['arts'][ArtKind]
 
-const resourceRaisedBy = (
-  art: ArtKind,
-  catalog: BuildingCatalog,
-): Result<ResourceKind, DomainError> => {
-  const firstLevel = catalog.artLevelOf(art, 1)
-  if (firstLevel === undefined || firstLevel.art !== art) {
-    return err({ kind: 'UnknownArtLevel', art, level: 1 })
-  }
-  return ok(firstLevel.resource)
-}
-
 const artStateOf = (
   art: ArtKind,
   fief: Fief,
@@ -71,7 +60,7 @@ const artStateOf = (
   if (!inForce.ok) {
     return inForce
   }
-  const resource = resourceRaisedBy(art, catalog)
+  const resource = artResourceOf(art, catalog)
   if (!resource.ok) {
     return resource
   }
