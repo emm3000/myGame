@@ -8,9 +8,9 @@ import type {
   Session,
   StoredPlayer,
 } from '../../auth/Accounts'
+import { tokenDigest } from '../../auth/tokenDigest'
 import type { PostgresSession } from './connectPostgres'
 import { players, sessions } from './schema'
-import { sessionTokenDigest } from './sessionTokenDigest'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
@@ -66,7 +66,7 @@ export class DrizzleAccounts implements Accounts {
 
   async openSession(session: Session): Promise<void> {
     await this.database.insert(sessions).values({
-      tokenDigest: sessionTokenDigest(session.token),
+      tokenDigest: tokenDigest(session.token),
       playerId: session.playerId,
       expiresAt: dateOf(session.expiresAt),
     })
@@ -80,18 +80,13 @@ export class DrizzleAccounts implements Accounts {
     const [renewed] = await this.database
       .update(sessions)
       .set({ expiresAt: dateOf(expiresAt) })
-      .where(
-        and(
-          eq(sessions.tokenDigest, sessionTokenDigest(token)),
-          gt(sessions.expiresAt, dateOf(now)),
-        ),
-      )
+      .where(and(eq(sessions.tokenDigest, tokenDigest(token)), gt(sessions.expiresAt, dateOf(now))))
       .returning({ playerId: sessions.playerId })
     return renewed?.playerId
   }
 
   async closeSession(token: string): Promise<void> {
-    await this.database.delete(sessions).where(eq(sessions.tokenDigest, sessionTokenDigest(token)))
+    await this.database.delete(sessions).where(eq(sessions.tokenDigest, tokenDigest(token)))
   }
 
   async closeSessionsOf(playerId: PlayerId): Promise<void> {

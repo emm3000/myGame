@@ -3,10 +3,10 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { AccountToken } from '../../auth/AccountTokens'
+import { tokenDigest } from '../../auth/tokenDigest'
 import { accountTokensContract } from '../accountTokensContract'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
-import { sessionTokenDigest } from './sessionTokenDigest'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -159,7 +159,7 @@ const storeToken = async (
   await pool.query(
     `INSERT INTO account_tokens (token_digest, player_id, kind, expires_at, used_at)
      VALUES ($1, $2, $3, $4, $5)`,
-    [sessionTokenDigest(token), playerId, kind, expiresAt, usedAt],
+    [tokenDigest(token), playerId, kind, expiresAt, usedAt],
   )
 }
 
@@ -189,7 +189,7 @@ describe('DrizzleAccountTokens stores', () => {
     )
 
     expect(await storedDigests()).toEqual(
-      [sessionTokenDigest('fresh-reset'), sessionTokenDigest('brunos-expired-reset')].sort(),
+      [tokenDigest('fresh-reset'), tokenDigest('brunos-expired-reset')].sort(),
     )
   })
 
@@ -223,6 +223,6 @@ describe('DrizzleAccountTokens stores', () => {
     )
 
     expect(verifiedPlayer).toBe(ana)
-    expect(await storedDigests()).toEqual([sessionTokenDigest('resent-verify')])
+    expect(await storedDigests()).toEqual([tokenDigest('resent-verify')])
   })
 })
