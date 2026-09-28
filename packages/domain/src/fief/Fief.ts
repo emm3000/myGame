@@ -8,11 +8,13 @@ import type { Instant } from '../time/Instant'
 import { artKinds } from './artKinds'
 import type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
+import type { ChangedFief } from './ChangedFief'
 import { Coordinates } from './Coordinates'
 import { deriveStudyDurationSeconds } from './deriveStudyDurationSeconds'
 import { entryFitsProjection } from './entryFitsProjection'
 import type { FiefArtLevels } from './FiefArtLevels'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
+import type { FiefEvent } from './FiefEvent'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
@@ -252,8 +254,13 @@ const slotAndQueueStartingAt = (
 
 type RevalidatedQueue = {
   readonly buildQueue: BuildQueue
-  readonly refund: Stocks
+  readonly dropped: BuildQueue
 }
+
+const noStocks: Stocks = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
+
+const refundOf = (dropped: BuildQueue): Stocks =>
+  dropped.reduce((refund, entry) => credit(refund, entry.cost), noStocks)
 
 const revalidateBuildQueue = (
   buildingLevels: FiefBuildingLevels,
@@ -262,7 +269,7 @@ const revalidateBuildQueue = (
 ): Result<RevalidatedQueue, DomainError> => {
   const projected = { ...buildingLevels }
   const kept: Array<BuildQueueEntry> = []
-  let refund: Stocks = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
+  const dropped: Array<BuildQueueEntry> = []
   for (const entry of buildQueue) {
     const fits = entryFitsProjection(projected, entry, catalog)
     if (!fits.ok) {
@@ -272,15 +279,27 @@ const revalidateBuildQueue = (
       kept.push(entry)
       projected[entry.building] = entry.targetLevel
     } else {
-      refund = credit(refund, entry.cost)
+      dropped.push(entry)
     }
   }
-  return ok({ buildQueue: kept, refund })
+  return ok({ buildQueue: kept, dropped })
+}
+
+type CancelledUpgrade = UpgradeTarget & {
+  readonly cost: Stocks
 }
 
 type Cancellation = SlotAndQueue & {
-  readonly refund: Stocks
+  readonly cancelled: CancelledUpgrade
 }
+
+const upgradeCancelledAt = (cancelled: CancelledUpgrade, now: Instant): FiefEvent => ({
+  kind: 'upgradeCancelled',
+  building: cancelled.building,
+  level: cancelled.targetLevel,
+  occurredAt: now,
+  refund: cancelled.cost,
+})
 
 const isUpgradeOf = (target: UpgradeTarget, upgrade: UpgradeTarget): boolean =>
   upgrade.building === target.building && upgrade.targetLevel === target.targetLevel
@@ -300,14 +319,14 @@ const cancellationOf = (
     return notFound
   }
   if (slot.kind === 'busy' && isUpgradeOf(target, slot)) {
-    return ok({ slot: { kind: 'idle' }, buildQueue, refund: slot.cost })
+    return ok({ slot: { kind: 'idle' }, buildQueue, cancelled: slot })
   }
   const entry = buildQueue.find((waiting) => isUpgradeOf(target, waiting))
   if (entry === undefined) {
     return notFound
   }
   const remaining = buildQueue.filter((waiting) => waiting !== entry)
-  return ok({ slot, buildQueue: remaining, refund: entry.cost })
+  return ok({ slot, buildQueue: remaining, cancelled: entry })
 }
 
 const levelsWithSlot = (buildingLevels: FiefBuildingLevels, slot: BuildSlot): FiefBuildingLevels =>
@@ -425,12 +444,12 @@ export class Fief {
     stocksAtNow: Stocks,
     now: Instant,
     catalog: BuildingCatalog,
-  ): Result<Fief, DomainError> {
+  ): Result<ChangedFief, DomainError> {
     const cancellation = cancellationOf(this, target, now)
     if (!cancellation.ok) {
       return cancellation
     }
-    const { slot, buildQueue, refund } = cancellation.value
+    const { slot, buildQueue, cancelled } = cancellation.value
     const projectedFrom = levelsWithSlot(this.buildingLevels, slot)
     const revalidated = revalidateBuildQueue(projectedFrom, buildQueue, catalog)
     if (!revalidated.ok) {
@@ -440,16 +459,22 @@ export class Fief {
     if (!next.ok) {
       return next
     }
-    return ok(
-      this.changed({
+    const { dropped } = revalidated.value
+    return ok({
+      fief: this.changed({
         ...next.value,
-        stocks: credit(credit(stocksAtNow, refund), revalidated.value.refund),
+        stocks: credit(credit(stocksAtNow, cancelled.cost), refundOf(dropped)),
         storedAt: now,
       }),
-    )
+      events: [cancelled, ...dropped].map((upgrade) => upgradeCancelledAt(upgrade, now)),
+    })
   }
 
-  cancelStudy(target: StudyTarget, stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
+  cancelStudy(
+    target: StudyTarget,
+    stocksAtNow: Stocks,
+    now: Instant,
+  ): Result<ChangedFief, DomainError> {
     const { studySlot } = this
     if (
       studySlot.kind === 'idle' ||
@@ -459,13 +484,22 @@ export class Fief {
     ) {
       return err({ kind: 'StudyNotFound', art: target.art, targetLevel: target.targetLevel })
     }
-    return ok(
-      this.changed({
+    return ok({
+      fief: this.changed({
         studySlot: { kind: 'idle' },
         stocks: credit(stocksAtNow, studySlot.cost),
         storedAt: now,
       }),
-    )
+      events: [
+        {
+          kind: 'studyCancelled',
+          art: studySlot.art,
+          level: studySlot.targetLevel,
+          occurredAt: now,
+          refund: studySlot.cost,
+        },
+      ],
+    })
   }
 
   startStudy(line: ArtLevel, stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
@@ -526,7 +560,7 @@ export class Fief {
     return ok(
       this.changed({
         ...next.value,
-        stocks: credit(this.stocks, revalidated.value.refund),
+        stocks: credit(this.stocks, refundOf(revalidated.value.dropped)),
       }),
     )
   }

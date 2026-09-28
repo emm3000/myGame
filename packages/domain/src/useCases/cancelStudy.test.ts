@@ -273,4 +273,36 @@ describe('cancelStudy', () => {
 
     expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
   })
+
+  it('answers the cancelled study with its refund at the cancel instant', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const cancelInstant = hoursAfterStored(1)
+
+    const result = await cancelStudy(
+      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      {
+        kind: 'studyCancelled',
+        art: 'smithing',
+        level: 1,
+        occurredAt: cancelInstant,
+        refund: { wood: 40, stone: 30, iron: 50, gold: 20, food: 0 },
+      },
+    ])
+  })
+
+  it('answers no event when the cancel is refused', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+
+    const result = await cancelStudy(
+      { playerId: 'lord', art: 'masonry', targetLevel: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'masonry', targetLevel: 1 }))
+  })
 })
