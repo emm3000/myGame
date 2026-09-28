@@ -9,7 +9,10 @@ The old crown fell a generation ago and no one has claimed it. What remains is a
 ## The land
 
 - **Kingdoms** are the great regions, named by their landmark. Provinces within them are numbered; plots within a province are numbered. A fief's address is `kingdom:province:plot`; the first kingdom is Vadoalto (`names.md`).
-- **Lowlands** give food and wood. **Uplands** give stone. **Ridges** give iron. A plot's terrain tilts its starting rates; it never forbids a building.
+- A **province** is one stretch of a kingdom, numbered along the old crown road, and holds a fixed count of plots. A **plot** is one numbered piece of a province; it is free until a lord founds a fief on it, and one fief holds one plot.
+- **Terrain belongs to the province**, never to a single plot: every plot of a province shares its ground. **Lowlands** give food and wood. **Uplands** give stone. **Ridges** give iron. A province's terrain tilts the starting rates of every fief founded in it; it never forbids a building.
+- The crown road climbs and falls as it runs through a kingdom, so the provinces follow it in turn: lowlands, then uplands, then ridges, then down into the next lowlands (`packages/domain/src/fief/terrainOf.ts`, the code wins).
+- The **kingdom map** is the sheet in the hall that shows one province at a time: each plot with the name of the fief that holds it, or empty when no one does. It shows every province up to the last one that holds a fief and one more beyond it, the land no lord has reached yet. It is read to plan, never acted on: nothing is ordered from the map.
 - Roads are old and slow. Distance on the map is time on the road.
 
 ## Where resources come from

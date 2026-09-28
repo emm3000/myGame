@@ -8,7 +8,10 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Fief** — the holding a player develops: land, buildings, stores, peasants. Replaces *planet*. One per player in the MVP.
 - **Coordinates** — `kingdom:province:plot`, the fief's place on the map. A new fief takes the lowest free plot. Replaces *galaxy:system:position*.
 - **Kingdom** — the great region a fief lies in, a number in the data and a name on screen (Vadoalto is kingdom 1). Provinces and plots inside it are numbered. Replaces *galaxy*.
+- **Province** — a numbered region of a kingdom with `plotsPerProvince` plots and one terrain, shared by every plot in it. Replaces *system*.
+- **Plot** — the numbered place in a province that one fief holds; free until a fief is founded on it, held after. Replaces *position*.
 - **Terrain** — what a province is made of: lowlands, uplands or ridges. It raises the starting rate of the resource it favours and forbids nothing.
+- **Kingdom map** — the read-only view of one province at a time: every plot with its terrain and the name of the fief holding it, the viewer's own marked. Browsable within the viewer's kingdom from province 1 to `lastProvince`, the last province holding a fief plus one; a province outside that range is refused `ProvinceNotFound`. Replaces *galaxy view*.
 - **New land** — a second fief founded elsewhere. Replaces *colony*. Not in this phase (W4).
 
 ## Resources
@@ -63,4 +66,4 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 ## Avoided words
 
-`planet`, `colony`, `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `mission`, `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle).
+`planet`, `colony`, `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `mission`, `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle).
