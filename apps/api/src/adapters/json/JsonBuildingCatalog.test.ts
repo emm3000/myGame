@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ArtContent, BuildingContent, FiefContent } from '@mygame/contracts'
-import type { ArtKind, ArtLevel, BuildingLevel } from '@mygame/domain'
+import { type ArtKind, type ArtLevel, type BuildingLevel, Instant } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { JsonBuildingCatalog } from './JsonBuildingCatalog'
 
@@ -37,6 +37,16 @@ const plainFief: FiefContent = {
     ridges: { resource: 'iron', ratePerHour: 2 },
   },
   buildQueueCap: 4,
+  seasons: {
+    epoch: '2026-10-05T00:00:00Z',
+    daysPerSeason: 7,
+    multiplierPercent: {
+      spring: { wood: 100, stone: 100, iron: 100, gold: 100, food: 125 },
+      summer: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+      autumn: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
+      winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
+    },
+  },
 }
 
 const oneLevelArts: ReadonlyArray<ArtContent> = [
@@ -262,5 +272,20 @@ describe('JsonBuildingCatalog', () => {
     )
 
     expect(golds.every((gold) => gold > 0)).toBe(true)
+  })
+
+  it('reads the season calendar from the shipped content', () => {
+    const unchangedRates = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons).toEqual({
+      epoch: Instant.fromEpochMilliseconds(Date.UTC(2026, 9, 5)),
+      daysPerSeason: 7,
+      multiplierPercent: {
+        spring: { ...unchangedRates, food: 125 },
+        summer: unchangedRates,
+        autumn: { ...unchangedRates, gold: 125 },
+        winter: { ...unchangedRates, food: 75 },
+      },
+    })
   })
 })

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BuildingCatalog, FiefSettings, WarehouseLevel } from '../ports/BuildingCatalog'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { deriveWarehouseCapacity } from './deriveWarehouseCapacity'
 
 const fiefSettings: FiefSettings = {
@@ -14,6 +15,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const warehouseLevelTwo: WarehouseLevel = {

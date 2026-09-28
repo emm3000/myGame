@@ -19,6 +19,7 @@ export { type ProvinceMapRequest, ProvinceMapRequestSchema } from './ProvinceMap
 export { type ResetPasswordRequest, ResetPasswordRequestSchema } from './ResetPasswordRequest'
 export { type ResourceAmounts, ResourceAmountsSchema } from './ResourceAmounts'
 export { type ResourceKind, ResourceKindSchema } from './ResourceKind'
+export { type SeasonKind, SeasonKindSchema } from './SeasonKind'
 export { type SignInRequest, SignInRequestSchema } from './SignInRequest'
 export { type SignUpRequest, SignUpRequestSchema } from './SignUpRequest'
 export { type StartStudyRequest, StartStudyRequestSchema } from './StartStudyRequest'

@@ -17,6 +17,7 @@ import type { FiefRepository } from '../ports/FiefRepository'
 import { err } from '../Result'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
 import { resolveUpgrade } from './resolveUpgrade'
@@ -42,6 +43,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const sawmillCost: Stocks = { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 }

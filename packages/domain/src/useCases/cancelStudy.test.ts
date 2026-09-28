@@ -14,6 +14,7 @@ import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
 import { cancelStudy } from './cancelStudy'
@@ -39,6 +40,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const libraryLevelOne: LibraryLevel = {

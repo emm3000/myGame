@@ -9,6 +9,17 @@ const terrainBonus = {
 
 const baseRates = { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 }
 
+const unchangedRates = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+const multiplierPercent = {
+  spring: { ...unchangedRates, food: 125 },
+  summer: unchangedRates,
+  autumn: { ...unchangedRates, gold: 125 },
+  winter: { ...unchangedRates, food: 75 },
+}
+
+const seasons = { epoch: '2026-10-05T00:00:00Z', daysPerSeason: 7, multiplierPercent }
+
 const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   startingStocks: { wood: 500, stone: 300, iron: 200, gold: 0, food: 300 },
   startingCapacity: 1000,
@@ -17,6 +28,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   baseRates,
   terrainBonus,
   buildQueueCap: 4,
+  seasons,
   ...overrides,
 })
 
@@ -62,5 +74,70 @@ describe('FiefContentSchema', () => {
     expect(FiefContentSchema.safeParse(fiefContent({ baseRates: fourBaseRates })).success).toBe(
       false,
     )
+  })
+
+  it('rejects seasons missing a season', () => {
+    const { winter: _, ...threeSeasons } = multiplierPercent
+
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ seasons: { ...seasons, multiplierPercent: threeSeasons } }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a season missing a resource', () => {
+    const { food: _, ...fourResources } = unchangedRates
+
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            multiplierPercent: { ...multiplierPercent, summer: fourResources },
+          },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a multiplier of zero', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            multiplierPercent: { ...multiplierPercent, winter: { ...unchangedRates, food: 0 } },
+          },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a negative multiplier', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            multiplierPercent: { ...multiplierPercent, winter: { ...unchangedRates, food: -75 } },
+          },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a season shorter than a day', () => {
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ seasons: { ...seasons, daysPerSeason: 0 } }))
+        .success,
+    ).toBe(false)
+  })
+
+  it('rejects a calendar whose epoch is not an instant', () => {
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ seasons: { ...seasons, epoch: '2026-10-05' } }))
+        .success,
+    ).toBe(false)
   })
 })

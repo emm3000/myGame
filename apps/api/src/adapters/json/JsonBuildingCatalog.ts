@@ -8,13 +8,14 @@ import {
   type FiefContent,
   FiefContentSchema,
 } from '@mygame/contracts'
-import type {
-  ArtKind,
-  ArtLevel,
-  BuildingCatalog,
-  BuildingKind,
-  BuildingLevel,
-  FiefSettings,
+import {
+  type ArtKind,
+  type ArtLevel,
+  type BuildingCatalog,
+  type BuildingKind,
+  type BuildingLevel,
+  type FiefSettings,
+  Instant,
 } from '@mygame/domain'
 
 const buildingFiles: Readonly<Record<BuildingKind, string>> = {
@@ -102,7 +103,13 @@ export class JsonBuildingCatalog implements BuildingCatalog {
         .flatMap(artLevelsOf)
         .map((level) => [JsonBuildingCatalog.keyOf(level.art, level.level), level]),
     )
-    this.settings = fief
+    this.settings = {
+      ...fief,
+      seasons: {
+        ...fief.seasons,
+        epoch: Instant.fromEpochMilliseconds(Date.parse(fief.seasons.epoch)),
+      },
+    }
   }
 
   static fromDirectory(directory: string): JsonBuildingCatalog {

@@ -1,0 +1,15 @@
+import type { SeasonCalendar } from '../season/SeasonCalendar'
+import { Instant } from '../time/Instant'
+
+const unchangedRates = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+export const neutralSeasons: SeasonCalendar = {
+  epoch: Instant.fromEpochMilliseconds(0),
+  daysPerSeason: 7,
+  multiplierPercent: {
+    spring: unchangedRates,
+    summer: unchangedRates,
+    autumn: unchangedRates,
+    winter: unchangedRates,
+  },
+}

@@ -198,7 +198,13 @@ export const fiefOverviewOf = (
   fief: Fief,
   catalog: BuildingCatalog,
 ): Result<FiefOverview, DomainError> => {
-  const rates = deriveResourceRates(fief.buildingLevels, fief.artLevels, fief.terrain, catalog)
+  const rates = deriveResourceRates(
+    fief.buildingLevels,
+    fief.artLevels,
+    fief.terrain,
+    catalog,
+    fief.storedAt,
+  )
   if (!rates.ok) {
     return rates
   }
