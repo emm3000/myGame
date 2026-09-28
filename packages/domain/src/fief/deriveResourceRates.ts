@@ -3,6 +3,7 @@ import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import { artKinds } from './artKinds'
+import { artLevelInForce } from './artLevelInForce'
 import type { FiefArtLevels } from './FiefArtLevels'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { Terrain } from './Terrain'
@@ -33,13 +34,13 @@ const applyArts = (
 ): Result<Rates, DomainError> => {
   const multiplied = { ...rates }
   for (const art of artKinds) {
-    const level = artLevels[art]
-    if (level === 0) {
-      continue
+    const inForce = artLevelInForce(art, artLevels[art], catalog)
+    if (!inForce.ok) {
+      return inForce
     }
-    const found = catalog.artLevelOf(art, level)
-    if (found === undefined || found.art !== art) {
-      return err({ kind: 'UnknownArtLevel', art, level })
+    const found = inForce.value
+    if (found === undefined) {
+      continue
     }
     multiplied[found.resource] = (multiplied[found.resource] * (100 + found.ratePercent)) / 100
   }

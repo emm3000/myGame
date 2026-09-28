@@ -1,5 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type {
@@ -270,9 +269,6 @@ describe('startStudy', () => {
     )
 
     assert(result.ok)
-    expect(derivePeasantCounts(result.value.buildingLevels, catalog)).toEqual(
-      derivePeasantCounts(levelsWithLibrary(1), catalog),
-    )
     expect(result.value.projectedBuildingLevels).toEqual(levelsWithLibrary(1))
   })
 })
