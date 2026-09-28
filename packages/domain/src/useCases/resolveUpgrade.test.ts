@@ -75,6 +75,25 @@ const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog 
 
 const catalog = inMemoryCatalog([sawmillLevel(1, 30), sawmillLevel(2, 60), warehouseLevelOne])
 
+const unchangedPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+const springDoublingWoodFrom = (epoch: Instant): BuildingCatalog => ({
+  ...catalog,
+  fiefSettings: () => ({
+    ...fiefSettings,
+    seasons: {
+      epoch,
+      daysPerSeason: 7,
+      multiplierPercent: {
+        spring: { ...unchangedPercents, wood: 200 },
+        summer: unchangedPercents,
+        autumn: unchangedPercents,
+        winter: unchangedPercents,
+      },
+    },
+  }),
+})
+
 const smithingCost: Stocks = { wood: 40, stone: 0, iron: 30, gold: 20, food: 0 }
 
 const doublingSmithing: ArtLevel = {
@@ -230,6 +249,40 @@ describe('resolveUpgrade', () => {
     })
     expect(result.value.fief.storedAt).toBe(now)
     expect(fiefs.storedFiefOf('lord')).toBe(result.value.fief)
+  })
+
+  it('applies a finish that comes before a season change at the old season rates', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(1) })])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: springDoublingWoodFrom(hoursAfterStored(2)),
+        clock: frozenClock(hoursAfterStored(3)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks.wood).toBe(230)
+  })
+
+  it('applies a finish that comes after a season change at the new season rates', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(2) })])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: springDoublingWoodFrom(hoursAfterStored(1)),
+        clock: frozenClock(hoursAfterStored(3)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.stocks.wood).toBe(210)
   })
 
   it('accrues every resource on a fief with no building', async () => {
