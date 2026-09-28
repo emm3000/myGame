@@ -8,9 +8,8 @@ const MILLISECONDS_PER_HOUR = 3_600_000
 
 const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
 
-const twoHoursLater = Instant.fromEpochMilliseconds(
-  storedInstant.epochMilliseconds + 2 * MILLISECONDS_PER_HOUR,
-)
+const hoursLater = (hours: number): Instant =>
+  Instant.fromEpochMilliseconds(storedInstant.epochMilliseconds + hours * MILLISECONDS_PER_HOUR)
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
@@ -36,11 +35,14 @@ const doublingSmithing: ArtLevel = {
   ratePercent: 100,
 }
 
-const smithingCatalog: BuildingCatalog = {
+const smithingCatalog = (baseIronRate: number, smithing: ArtLevel): BuildingCatalog => ({
   levelOf: () => undefined,
-  artLevelOf: (art, level) => (art === 'smithing' && level === 1 ? doublingSmithing : undefined),
-  fiefSettings: () => fiefSettings,
-}
+  artLevelOf: (art, level) => (art === 'smithing' && level === 1 ? smithing : undefined),
+  fiefSettings: () => ({
+    ...fiefSettings,
+    baseRates: { ...fiefSettings.baseRates, iron: baseIronRate },
+  }),
+})
 
 const smithingFief = (): Fief => {
   const restored = Fief.restore({
@@ -61,9 +63,20 @@ const smithingFief = (): Fief => {
 
 describe('materializeStocks', () => {
   it('accrues iron at the rate the smithing level of the fief raises', () => {
-    const stocks = materializeStocks(smithingFief(), smithingCatalog, twoHoursLater)
+    const catalog = smithingCatalog(5, doublingSmithing)
+
+    const stocks = materializeStocks(smithingFief(), catalog, hoursLater(2))
 
     assert(stocks.ok)
     expect(stocks.value.iron).toBe(40)
+  })
+
+  it('accrues the whole raised rate when the percent has no exact binary fraction', () => {
+    const catalog = smithingCatalog(200, { ...doublingSmithing, ratePercent: 15 })
+
+    const stocks = materializeStocks(smithingFief(), catalog, hoursLater(1))
+
+    assert(stocks.ok)
+    expect(stocks.value.iron).toBe(250)
   })
 })
