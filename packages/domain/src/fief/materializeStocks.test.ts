@@ -52,7 +52,7 @@ const smithingFief = (): Fief => {
     address: { kingdom: 1, province: 1, plot: 7 },
     stocks: { wood: 0, stone: 0, iron: 20, gold: 0, food: 0 },
     storedAt: storedInstant,
-    buildingLevels: { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0 },
+    buildingLevels: { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0, library: 0 },
     artLevels: { smithing: 1, masonry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],

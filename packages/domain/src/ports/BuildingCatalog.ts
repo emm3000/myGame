@@ -1,7 +1,7 @@
 import type { Terrain } from '../fief/Terrain'
 import type { ResourceKind } from '../resources/Resources'
 
-export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehouse'
+export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehouse' | 'library'
 
 export type ArtKind = 'smithing' | 'masonry'
 
@@ -28,7 +28,11 @@ export type WarehouseLevel = BuildingLevelData & {
   readonly capacityUnits: number
 }
 
-export type BuildingLevel = ProducerLevel | FarmLevel | WarehouseLevel
+export type LibraryLevel = BuildingLevelData & {
+  readonly building: 'library'
+}
+
+export type BuildingLevel = ProducerLevel | FarmLevel | WarehouseLevel | LibraryLevel
 
 export type ArtLevel = {
   readonly art: ArtKind

@@ -25,12 +25,15 @@ const WarehouseLevelsSchema = z
   .array(LevelSchema.extend({ effect: z.object({ capacity: WholeCountSchema }) }))
   .min(1)
 
+const LibraryLevelsSchema = z.array(LevelSchema).min(1)
+
 export const BuildingContentSchema = z.discriminatedUnion('building', [
   z.object({ building: z.literal('sawmill'), levels: ProducerLevelsSchema }),
   z.object({ building: z.literal('quarry'), levels: ProducerLevelsSchema }),
   z.object({ building: z.literal('ironMine'), levels: ProducerLevelsSchema }),
   z.object({ building: z.literal('farm'), levels: FarmLevelsSchema }),
   z.object({ building: z.literal('warehouse'), levels: WarehouseLevelsSchema }),
+  z.object({ building: z.literal('library'), levels: LibraryLevelsSchema }),
 ])
 
 export type BuildingContent = z.infer<typeof BuildingContentSchema>

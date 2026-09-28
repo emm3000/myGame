@@ -63,6 +63,7 @@ const levelsWith = (levels: Partial<FiefBuildingLevels>): FiefBuildingLevels => 
   ironMine: 0,
   farm: 0,
   warehouse: 0,
+  library: 0,
   ...levels,
 })
 

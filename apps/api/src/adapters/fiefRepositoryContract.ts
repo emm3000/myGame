@@ -77,7 +77,7 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
       address: { kingdom: 1, province: 5, plot: 2 },
       stocks: { wood: 1200, stone: 830, iron: 415, gold: 90, food: 610 },
       storedAt: foundedAt,
-      buildingLevels: { sawmill: 3, quarry: 2, ironMine: 1, farm: 2, warehouse: 1 },
+      buildingLevels: { sawmill: 3, quarry: 2, ironMine: 1, farm: 2, warehouse: 1, library: 2 },
       artLevels: studiedArts,
       slot: {
         kind: 'busy',
@@ -156,6 +156,16 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(bruno)
       expect(restored.ok && restored.value?.buildQueue).toEqual(waitingEntries)
+    })
+
+    it('restores the library level', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.buildingLevels.library).toBe(2)
     })
 
     it('restores the art levels', async () => {
