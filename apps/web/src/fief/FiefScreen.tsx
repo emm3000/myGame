@@ -3,7 +3,6 @@ import {
   BuildingKindSchema,
   type CancelUpgradeRequest,
   ResourceKindSchema,
-  type SeasonKind,
 } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
@@ -37,13 +36,6 @@ function addressOf({ coordinates }: LiveFief['overview']): string {
   return `${kingdom} ${coordinates.province}:${coordinates.plot}`
 }
 
-const seasonAfter: Readonly<Record<SeasonKind, SeasonKind>> = {
-  spring: 'summer',
-  summer: 'autumn',
-  autumn: 'winter',
-  winter: 'spring',
-}
-
 function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
   const { season } = fief.overview
   if (season === null) {
@@ -53,10 +45,7 @@ function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | nul
     <SeasonLine
       season={season.kind}
       headerLine={copy.fief.seasonLine(season.kind, season.year)}
-      countdownLine={copy.fief.seasonCountdown(
-        seasonAfter[season.kind],
-        fief.seasonRemainingSeconds,
-      )}
+      countdownLine={copy.fief.seasonCountdown(season.kind, fief.seasonRemainingSeconds)}
     />
   )
 }

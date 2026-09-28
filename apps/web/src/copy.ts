@@ -77,6 +77,13 @@ const seasons: Readonly<Record<SeasonKind, string>> = {
   winter: 'invierno',
 }
 
+const seasonAfter: Readonly<Record<SeasonKind, SeasonKind>> = {
+  spring: 'summer',
+  summer: 'autumn',
+  autumn: 'winter',
+  winter: 'spring',
+}
+
 const secondsPerDay = 86_400
 
 const listFormat = new Intl.ListFormat('es', { type: 'conjunction' })
@@ -205,8 +212,8 @@ export const copy = {
     },
     seasonLine: (season: SeasonKind, year: number): string =>
       `${capitalize(seasons[season])}, año ${year}`,
-    seasonCountdown: (nextSeason: SeasonKind, remainingSeconds: number): string =>
-      `${capitalize(seasons[nextSeason])} en ${seasonTimeLeft(remainingSeconds)}`,
+    seasonCountdown: (season: SeasonKind, remainingSeconds: number): string =>
+      `${capitalize(seasons[seasonAfter[season]])} en ${seasonTimeLeft(remainingSeconds)}`,
     notEnoughPeasants: (needed: number, free: number): string =>
       `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
   },

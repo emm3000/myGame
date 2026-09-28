@@ -122,3 +122,45 @@ it('shows no season before the calendar starts', async () => {
   expect(screen.queryByText(/, año \d+$/)).toBeNull()
   expect(screen.queryByText(/ en \d/)).toBeNull()
 })
+
+const springEndingInSixDays: FiefOverview = {
+  ...knownFief,
+  season: {
+    kind: 'spring',
+    year: 2,
+    endsAt: '2026-09-28T12:00:00.000Z',
+    multiplierPercent: { ...neutralPercents, food: 125 },
+  },
+}
+
+it('counts down to summer in spring', async () => {
+  await showFief(signedInClientServing(() => springEndingInSixDays))
+
+  expect(screen.getByText('Primavera, año 2')).toBeDefined()
+  expect(screen.getByText('Verano en 6 días')).toBeDefined()
+})
+
+it('counts down to autumn in summer', async () => {
+  await showFief(signedInClientServing(() => summerEndingInHalfAMinute))
+
+  expect(screen.getByText('Otoño en 0:30')).toBeDefined()
+})
+
+const summerEndingAfterTheLongestTimeout: FiefOverview = {
+  ...knownFief,
+  season: {
+    kind: 'summer',
+    year: 1,
+    endsAt: '2026-10-22T12:00:00.000Z',
+    multiplierPercent: neutralPercents,
+  },
+}
+
+it('waits for the minute re-read when the season ends past the longest timeout', async () => {
+  const fief = vi.fn(() => summerEndingAfterTheLongestTimeout)
+  await showFief(signedInClientServing(fief))
+
+  await passSeconds(59)
+
+  expect(fief).toHaveBeenCalledTimes(1)
+})
