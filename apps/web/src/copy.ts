@@ -1,5 +1,14 @@
-import type { ArtKind, BuildingKind, FiefEvent, ResourceKind, Terrain } from '@mygame/contracts'
+import type {
+  ArtKind,
+  BuildingKind,
+  FiefEvent,
+  ResourceKind,
+  SeasonKind,
+  Terrain,
+} from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
+import { capitalize } from './design-system/capitalize'
+import { formatDuration } from './design-system/formatDuration'
 import { formatQuantity } from './design-system/formatQuantity'
 
 interface ResourceQuantity {
@@ -61,6 +70,15 @@ const terrains: Readonly<Record<Terrain, string>> = {
   ridges: 'riscos',
 }
 
+const seasons: Readonly<Record<SeasonKind, string>> = {
+  spring: 'primavera',
+  summer: 'verano',
+  autumn: 'otoño',
+  winter: 'invierno',
+}
+
+const secondsPerDay = 86_400
+
 const listFormat = new Intl.ListFormat('es', { type: 'conjunction' })
 
 const agreeing = (count: number, singular: string, plural: string): string =>
@@ -72,6 +90,7 @@ const names = {
   buildings,
   kingdoms,
   terrains,
+  seasons,
   level: (level: number): string => `nivel ${level}`,
   slot: 'la obra',
   busySlot: 'una obra en marcha',
@@ -83,6 +102,11 @@ const names = {
   busyStudy: 'un estudio en marcha',
   idleStudy: 'La biblioteca no tiene estudio en marcha.',
 } as const
+
+const seasonTimeLeft = (seconds: number): string => {
+  const days = Math.floor(seconds / secondsPerDay)
+  return days >= 1 ? `${days} ${agreeing(days, 'día', 'días')}` : formatDuration(seconds)
+}
 
 const quantitiesOf = (quantities: ReadonlyArray<ResourceQuantity>): string =>
   listFormat.format(
@@ -179,6 +203,10 @@ export const copy = {
       const verb = isSingleOne ? 'falta' : 'faltan'
       return `Te ${verb} ${quantitiesOf(shortfalls)}.`
     },
+    seasonLine: (season: SeasonKind, year: number): string =>
+      `${capitalize(seasons[season])}, año ${year}`,
+    seasonCountdown: (nextSeason: SeasonKind, remainingSeconds: number): string =>
+      `${capitalize(seasons[nextSeason])} en ${seasonTimeLeft(remainingSeconds)}`,
     notEnoughPeasants: (needed: number, free: number): string =>
       `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
   },

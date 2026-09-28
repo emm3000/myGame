@@ -15,6 +15,7 @@ export interface LiveFief {
   readonly slotTotalSeconds: number
   readonly studyRemainingSeconds: number
   readonly studyTotalSeconds: number
+  readonly seasonRemainingSeconds: number
   readonly waitingUpgrades: ReadonlyArray<LiveWaitingUpgrade>
 }
 
@@ -59,6 +60,12 @@ export function studyRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: 
   return remainingSecondsOf(overview.study, overview, elapsedSeconds)
 }
 
+export function seasonRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
+  return overview.season === null
+    ? 0
+    : remainingSecondsAt(overview.season.endsAt, overview, elapsedSeconds)
+}
+
 export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): LiveFief {
   const { wood, stone, iron, gold, food } = overview.resources
   return {
@@ -74,6 +81,7 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
     slotTotalSeconds: totalSecondsOf(overview.slot),
     studyRemainingSeconds: studyRemainingSecondsAt(overview, elapsedSeconds),
     studyTotalSeconds: totalSecondsOf(overview.study),
+    seasonRemainingSeconds: seasonRemainingSecondsAt(overview, elapsedSeconds),
     waitingUpgrades: overview.queue.entries.map(({ building, targetLevel, finishesAt }) => ({
       building,
       targetLevel,
