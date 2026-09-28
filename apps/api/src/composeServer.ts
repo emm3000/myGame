@@ -50,7 +50,7 @@ type MailSettings = {
   readonly webUrl: string
 }
 
-const mailFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
+const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
   const smtpUrl = urlWithProtocol('SMTP_URL', environment.SMTP_URL, ['smtp:', 'smtps:'])
   const sender = environment.MAIL_FROM
   if (!sender) {
@@ -94,7 +94,7 @@ export function composeServer(
     throw new Error('DATABASE_URL is not set')
   }
   const isSessionCookieSecure = isSessionCookieSecureFrom(environment.SESSION_COOKIE_SECURE)
-  const mail = mailFrom(environment)
+  const mail = mailSettingsFrom(environment)
   const { database, close } = connectPostgres(databaseUrl)
   const dependencies = {
     buildingCatalog: JsonBuildingCatalog.fromDirectory(contentDirectory),
