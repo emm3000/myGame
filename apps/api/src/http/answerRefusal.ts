@@ -20,6 +20,9 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   InsufficientResources: 'No tienes recursos suficientes para esa obra.',
   NotEnoughPeasants: 'No tienes campesinos libres suficientes para esa obra.',
   BlankFiefName: 'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
+  StudySlotBusy: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
+  LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
+  ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
 }
 
 const internalFailure: RefusalAnswer = { status: 500 }
@@ -37,6 +40,9 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   NotEnoughPeasants: { status: 409, kind: 'NotEnoughPeasants' },
   MalformedRequest: { status: 400 },
   BlankFiefName: { status: 400, kind: 'BlankFiefName' },
+  StudySlotBusy: { status: 409, kind: 'StudySlotBusy' },
+  LibraryLevelTooLow: { status: 409, kind: 'LibraryLevelTooLow' },
+  ArtMaxLevelReached: { status: 409, kind: 'ArtMaxLevelReached' },
   SignedOut: { status: 401 },
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },

@@ -1,6 +1,6 @@
 import type { DomainError } from '../DomainError'
 import type { PlayerId } from '../player/PlayerId'
-import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
+import type { ArtLevel, BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import { Duration } from '../time/Duration'
@@ -9,6 +9,7 @@ import { artKinds } from './artKinds'
 import type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
 import { Coordinates } from './Coordinates'
+import { deriveStudyDurationSeconds } from './deriveStudyDurationSeconds'
 import { entryFitsProjection } from './entryFitsProjection'
 import type { FiefArtLevels } from './FiefArtLevels'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
@@ -443,6 +444,45 @@ export class Fief {
       this.changed({
         ...next.value,
         stocks: credit(credit(stocksAtNow, refund), revalidated.value.refund),
+        storedAt: now,
+      }),
+    )
+  }
+
+  startStudy(line: ArtLevel, stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
+    if (this.studySlot.kind === 'busy') {
+      return err({ kind: 'StudySlotBusy', art: this.studySlot.art })
+    }
+    const libraryLevel = this.buildingLevels.library
+    if (libraryLevel < line.requiredLibraryLevel) {
+      return err({
+        kind: 'LibraryLevelTooLow',
+        requiredLibraryLevel: line.requiredLibraryLevel,
+        libraryLevel,
+      })
+    }
+    const missing = shortfall(stocksAtNow, line.cost)
+    if (isShort(missing)) {
+      return err({ kind: 'InsufficientResources', missing })
+    }
+    const duration = Duration.ofSeconds(
+      deriveStudyDurationSeconds(line.durationSeconds, libraryLevel),
+    )
+    if (!duration.ok) {
+      return duration
+    }
+    const { art, level, cost } = line
+    return ok(
+      this.changed({
+        studySlot: {
+          kind: 'busy',
+          art,
+          targetLevel: level,
+          startedAt: now,
+          finishesAt: now.plus(duration.value),
+          cost,
+        },
+        stocks: debit(stocksAtNow, cost),
         storedAt: now,
       }),
     )

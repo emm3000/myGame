@@ -19,6 +19,9 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   InsufficientResources: 'No tienes recursos suficientes para esa obra.',
   NotEnoughPeasants: 'No tienes campesinos libres suficientes para esa obra.',
   BlankFiefName: 'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
+  StudySlotBusy: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
+  LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
+  ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   Unexpected: 'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
 }
 

@@ -2,6 +2,7 @@ import {
   CancelUpgradeRequestSchema,
   EnqueueBuildingRequestSchema,
   type FiefOverview,
+  StartStudyRequestSchema,
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
@@ -9,6 +10,7 @@ import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelU
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
+import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
@@ -16,6 +18,7 @@ import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePl
 export type FiefDependencies = CurrentFiefDependencies &
   CancelUpgradeDependencies &
   EnqueueUpgradeDependencies &
+  StartStudyDependencies &
   RequirePlayerDependencies
 
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
@@ -51,5 +54,12 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await cancelUpgradeOf(c.var.playerId, request.data, dependencies))
+    })
+    .post('/studies', signedInPlayer, async (c) => {
+      const request = StartStudyRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await startStudyOf(c.var.playerId, request.data.art, dependencies))
     })
 }

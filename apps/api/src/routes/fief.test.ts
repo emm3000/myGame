@@ -789,4 +789,102 @@ describe('the fief route', () => {
       expect(response.status).toBe(401)
     })
   })
+  describe('the study route', () => {
+    const study = async (cookie: string, art: string): Promise<Response> =>
+      app.request('/fief/studies', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ art }),
+      })
+
+    const buildLibraryAt = async (level: number): Promise<void> =>
+      runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, 'library'::building, ${level} FROM fiefs`)
+
+    it('starts a study and answers the fief with the study slot busy', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildLibraryAt(1)
+      await runSql('UPDATE fiefs SET gold = 100')
+      clock.advanceMinutes(10)
+
+      const response = await study(ana.cookie, 'smithing')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.study).toEqual({
+        kind: 'busy',
+        art: 'smithing',
+        targetLevel: 1,
+        startedAt: '2026-09-22T08:10:00.000Z',
+        finishesAt: '2026-09-22T08:25:00.000Z',
+      })
+      expect(overview.resources.gold.amount).toBe(40)
+      expect(overview.slot).toEqual({ kind: 'idle' })
+      const stored = await server.fiefs.fiefOf(ana.playerId)
+      expect(stored.ok && stored.value?.studySlot.kind).toBe('busy')
+    })
+
+    it('refuses a study without a library', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql('UPDATE fiefs SET gold = 100')
+      const before = await server.fiefs.fiefOf(ana.playerId)
+
+      const response = await study(ana.cookie, 'smithing')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('LibraryLevelTooLow')
+      expect(await server.fiefs.fiefOf(ana.playerId)).toEqual(before)
+    })
+
+    it('refuses a second study while one runs', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildLibraryAt(1)
+      await runSql('UPDATE fiefs SET gold = 1000')
+      expect((await study(ana.cookie, 'smithing')).status).toBe(200)
+
+      const response = await study(ana.cookie, 'masonry')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('StudySlotBusy')
+    })
+
+    it('answers the shortened duration of the next art level', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildLibraryAt(2)
+
+      const response = await fiefOf(ana.cookie)
+
+      const { arts, study: studySlot } = FiefOverviewSchema.parse(await response.json())
+      expect(studySlot).toEqual({ kind: 'idle' })
+      expect(arts.smithing).toEqual({
+        level: 0,
+        ratePercent: 0,
+        nextLevel: {
+          level: 1,
+          cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
+          durationSeconds: 600,
+          requiredLibraryLevel: 1,
+          ratePercent: 5,
+        },
+      })
+    })
+
+    it('answers 400 to an art the wire does not name', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await study(ana.cookie, 'alchemy')
+
+      expect(response.status).toBe(400)
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/studies', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ art: 'smithing' }),
+      })
+
+      expect(response.status).toBe(401)
+    })
+  })
 })
