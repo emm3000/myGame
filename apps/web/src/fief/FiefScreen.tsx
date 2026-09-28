@@ -4,6 +4,7 @@ import {
   type CancelUpgradeRequest,
   ResourceKindSchema,
 } from '@mygame/contracts'
+import { Link } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { BuildingCard } from '../design-system/BuildingCard'
@@ -126,9 +127,13 @@ export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): R
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <span className="font-utility text-label text-ink-muted tabular-nums">
+        <Link
+          to="/mapa/$province"
+          params={{ province: String(overview.coordinates.province) }}
+          className="self-start font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
+        >
           {addressOf(overview)}
-        </span>
+        </Link>
         <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
       </header>
       <ResourceBar

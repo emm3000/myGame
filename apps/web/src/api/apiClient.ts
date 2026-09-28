@@ -12,6 +12,8 @@ import {
   FiefOverviewSchema,
   type Player,
   PlayerSchema,
+  type ProvinceMap,
+  ProvinceMapSchema,
   type SignInRequest,
   type SignUpRequest,
   type StartStudyRequest,
@@ -35,6 +37,7 @@ export interface ApiClient {
   startStudy(art: ArtKind): Promise<ApiOutcome<FiefOverview>>
   cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(): Promise<ApiOutcome<FiefChronicle>>
+  provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -116,6 +119,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     chronicle: async () => {
       const response = await send('/fief/events', { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, FiefChronicleSchema)
+    },
+    provinceMap: async (province) => {
+      const path = province === undefined ? '/map' : `/map/${province}`
+      const response = await send(path, { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, ProvinceMapSchema)
     },
   }
 }
