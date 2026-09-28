@@ -124,6 +124,9 @@ const neutralPercent = 100
 
 const signedChange = (multiplierPercent: number): string => {
   const change = multiplierPercent - neutralPercent
+  if (change === 0) {
+    return '0'
+  }
   return change > 0 ? `+${change}` : `-${-change}`
 }
 
