@@ -210,6 +210,7 @@ describe('composeServer', () => {
       composeServer({ ...composableEnvironment, API_PORT: '65536' }, fixtureDirectory),
     ).toThrow('API_PORT')
   })
+
   it('refuses to compose without SMTP_URL', () => {
     expect(() => composeServer(environmentWithout('SMTP_URL'), fixtureDirectory)).toThrow(
       'SMTP_URL',
@@ -254,7 +255,7 @@ describe('composeServer', () => {
     await server.close()
   })
 
-  it('sends mail through the SMTP server SMTP_URL names', async () => {
+  it('answers failed from an unreachable SMTP_URL', async () => {
     const server = composeServer(composableEnvironment, fixtureDirectory)
 
     const delivery = await server.mailer.send({
