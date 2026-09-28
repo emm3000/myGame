@@ -192,11 +192,11 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 
 | Rate | Mark | Slots |
 |---|---|---|
-| lowered | *Invierno: −25 % de comida* | the resource label, the percent |
+| lowered | *Invierno: -25 % de comida* | the resource label, the percent |
 | raised | *Otoño: +25 % de oro* | the resource label, the percent |
 
-- The **percent** in the mark is the change from the neutral rate, a whole number: a `multiplierPercent` of `75` reads *−25 %*, one of `125` reads *+25 %*. A resource at `100` is not marked. The mark carries no *por hora*: the rate line beside it already reads */ h*.
-- Where the design keeps the mark to a sign and an icon (#185), its **spoken form**, the accessible name, says the same in words: a lowered rate *El invierno baja la comida un 25 %.*, a raised rate *El otoño sube el oro un 25 %.* This sentence needs the resource's article, which the Resources table does not carry: *la madera*, *la piedra*, *el hierro*, *el oro*, *la comida*.
+- The **percent** in the mark is the change from the neutral rate, a whole number: a `multiplierPercent` of `75` reads *-25 %*, one of `125` reads *+25 %*. A resource at `100` is not marked. The sign is the ASCII hyphen-minus and plus, as `copy.ts` writes `+${percent} %` for the arts; no typographic minus. The mark carries no *por hora*: the rate line beside it already reads */ h*.
+- Where the design keeps the mark to a sign and an icon (#185), its **spoken form**, the accessible name, says the same in words: a lowered rate *El invierno reduce la comida un 25 %.*, a raised rate *El otoño sube el oro un 25 %.* This sentence needs the resource's article, which the Resources table does not carry: *la madera*, *la piedra*, *el hierro*, *el oro*, *la comida*.
 - **Before the calendar starts** (`season` null on the wire) the header shows no season line and no countdown, and the bar marks nothing; no line reads *sin estación*.
 - **Summer** changes no rate in this phase, so the bar marks nothing in summer; the header still reads *Verano, año 1* and the countdown still runs to autumn.
 
