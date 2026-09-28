@@ -80,6 +80,17 @@ const storedSessionKeys = async (): Promise<ReadonlyArray<string>> => {
   }
 }
 
+const storedResetTokens = async (): Promise<number> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query("SELECT token_digest FROM account_tokens WHERE kind = 'reset'")
+    return found.rowCount ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
 const post = (body: object, cookie?: string): RequestInit => ({
   method: 'POST',
   headers: {
@@ -512,6 +523,7 @@ describe('the auth routes', () => {
 
     expect(response.status).toBe(202)
     expect(resetMailsTo(anasSignUp.email)).toEqual([])
+    expect(await storedResetTokens()).toBe(0)
   })
 
   it('answers an unknown email as it answers a known one', async () => {
