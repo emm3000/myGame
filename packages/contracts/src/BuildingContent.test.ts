@@ -18,6 +18,18 @@ describe('BuildingContentSchema', () => {
     )
   })
 
+  it('parses library content whose levels carry no effect', () => {
+    const libraryLevelOne = {
+      level: 1,
+      cost: { wood: 120, stone: 100, iron: 20, gold: 40, food: 0 },
+      durationSeconds: 300,
+      peasantOccupancy: 2,
+    }
+    const libraryContent = { building: 'library', levels: [libraryLevelOne] }
+
+    expect(BuildingContentSchema.parse(libraryContent)).toEqual(libraryContent)
+  })
+
   it('rejects a building level without a peasant occupancy', () => {
     const { peasantOccupancy: _, ...levelWithoutOccupancy } = farmLevelOne
 

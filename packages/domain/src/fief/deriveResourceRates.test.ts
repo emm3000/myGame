@@ -10,7 +10,14 @@ import { deriveResourceRates } from './deriveResourceRates'
 import type { FiefArtLevels } from './FiefArtLevels'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
-const noLevels: FiefBuildingLevels = { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0 }
+const noLevels: FiefBuildingLevels = {
+  sawmill: 0,
+  quarry: 0,
+  ironMine: 0,
+  farm: 0,
+  warehouse: 0,
+  library: 0,
+}
 
 const noArts: FiefArtLevels = { smithing: 0, masonry: 0 }
 

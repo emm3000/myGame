@@ -435,3 +435,30 @@ describe('the fief arts migration', () => {
     expect(restored.ok && restored.value?.artLevels).toEqual({ smithing: 0, masonry: 0 })
   })
 })
+
+describe('the library building migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('reads a library level stored on a fief of the previous version', async () => {
+    await migratedFrom(client, 7, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+    await client.query(
+      `INSERT INTO fief_buildings (fief_id, building, level) VALUES ($1, 'library', 1)`,
+      [anasFief.id],
+    )
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(restored.ok && restored.value?.buildingLevels.library).toBe(1)
+  })
+})

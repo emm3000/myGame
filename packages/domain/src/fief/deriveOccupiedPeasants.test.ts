@@ -4,6 +4,7 @@ import type {
   BuildingLevel,
   FarmLevel,
   FiefSettings,
+  LibraryLevel,
   ProducerLevel,
   WarehouseLevel,
 } from '../ports/BuildingCatalog'
@@ -55,6 +56,14 @@ const warehouseLevelOne: WarehouseLevel = {
   capacityUnits: 900,
 }
 
+const libraryLevelTwo: LibraryLevel = {
+  building: 'library',
+  level: 2,
+  cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 120,
+  peasantOccupancy: 3,
+}
+
 const inMemoryCatalog = (levels: Partial<Record<string, BuildingLevel>>): BuildingCatalog => ({
   levelOf: (building, buildingLevel) => levels[`${building}:${buildingLevel}`],
   artLevelOf: () => undefined,
@@ -76,6 +85,7 @@ describe('deriveOccupiedPeasants', () => {
       ironMine: 1,
       farm: 1,
       warehouse: 1,
+      library: 0,
     }
 
     const result = deriveOccupiedPeasants(levels, catalog)
@@ -83,9 +93,32 @@ describe('deriveOccupiedPeasants', () => {
     expect(result).toEqual({ ok: true, value: 9 })
   })
 
+  it('counts the peasants the library occupies', () => {
+    const catalog = inMemoryCatalog({ 'library:2': libraryLevelTwo })
+    const levels: FiefBuildingLevels = {
+      sawmill: 0,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 2,
+    }
+
+    const result = deriveOccupiedPeasants(levels, catalog)
+
+    expect(result).toEqual({ ok: true, value: 3 })
+  })
+
   it('occupies no peasants with nothing built', () => {
     const catalog = inMemoryCatalog({})
-    const levels: FiefBuildingLevels = { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0 }
+    const levels: FiefBuildingLevels = {
+      sawmill: 0,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 0,
+    }
 
     const result = deriveOccupiedPeasants(levels, catalog)
 
@@ -94,7 +127,14 @@ describe('deriveOccupiedPeasants', () => {
 
   it('refuses a building level the catalog does not know', () => {
     const catalog = inMemoryCatalog({})
-    const levels: FiefBuildingLevels = { sawmill: 4, quarry: 0, ironMine: 0, farm: 0, warehouse: 0 }
+    const levels: FiefBuildingLevels = {
+      sawmill: 4,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 0,
+    }
 
     const result = deriveOccupiedPeasants(levels, catalog)
 

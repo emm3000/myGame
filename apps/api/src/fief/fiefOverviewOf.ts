@@ -112,6 +112,7 @@ const buildingsOf = (
     ironMine: { level: buildingLevels.ironMine, nextLevel: null },
     farm: { level: buildingLevels.farm, nextLevel: null },
     warehouse: { level: buildingLevels.warehouse, nextLevel: null },
+    library: { level: buildingLevels.library, nextLevel: null },
   }
   for (const building of BuildingKindSchema.options) {
     const nextLevel = nextLevelOf(building, projectedBuildingLevels, catalog)

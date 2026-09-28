@@ -54,6 +54,7 @@ const storedBuildings: Readonly<Record<BuildingKind, StoredBuilding>> = {
   ironMine: 'iron_mine',
   farm: 'farm',
   warehouse: 'warehouse',
+  library: 'library',
 }
 
 const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
@@ -62,6 +63,7 @@ const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
   iron_mine: 'ironMine',
   farm: 'farm',
   warehouse: 'warehouse',
+  library: 'library',
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
@@ -69,7 +71,7 @@ const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.ge
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
 const buildingLevelsOf = (builtRows: ReadonlyArray<JoinedRow>): FiefBuildingLevels => {
-  const levels = { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0 }
+  const levels = { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0, library: 0 }
   for (const row of builtRows) {
     if (row.building !== null && row.level !== null) {
       levels[buildingKinds[row.building]] = row.level

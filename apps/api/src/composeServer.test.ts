@@ -44,6 +44,17 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
   'iron-mine.json': { building: 'ironMine', levels: [oneLevel({ ratePerHour: 10 })] },
   'farm.json': { building: 'farm', levels: [oneLevel({ ratePerHour: 25, peasantSupply: 5 })] },
   'warehouse.json': { building: 'warehouse', levels: [oneLevel({ capacity: 1500 })] },
+  'library.json': {
+    building: 'library',
+    levels: [
+      {
+        level: 1,
+        cost: { wood: 10, stone: 5, iron: 0, gold: 0, food: 0 },
+        durationSeconds: 60,
+        peasantOccupancy: 1,
+      },
+    ],
+  },
   'fief.json': {
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     startingCapacity: 1000,

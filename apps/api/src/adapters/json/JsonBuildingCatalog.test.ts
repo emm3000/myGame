@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ArtContent, BuildingContent, FiefContent } from '@mygame/contracts'
-import type { ArtKind, ArtLevel } from '@mygame/domain'
+import type { ArtKind, ArtLevel, BuildingLevel } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { JsonBuildingCatalog } from './JsonBuildingCatalog'
 
@@ -22,6 +22,7 @@ const oneLevelBuildings: ReadonlyArray<BuildingContent> = [
   { building: 'ironMine', levels: [{ ...levelOne, effect: { ratePerHour: 10 } }] },
   { building: 'farm', levels: [{ ...levelOne, effect: { ratePerHour: 25, peasantSupply: 5 } }] },
   { building: 'warehouse', levels: [{ ...levelOne, effect: { capacity: 1500 } }] },
+  { building: 'library', levels: [{ ...levelOne, peasantOccupancy: 2 }] },
 ]
 
 const plainFief: FiefContent = {
@@ -75,6 +76,14 @@ const shippedArtLevels = (art: ArtKind): ReadonlyArray<ArtLevel | undefined> => 
   return Array.from({ length: 10 }, (_, index) => catalog.artLevelOf(art, index + 1))
 }
 
+const shippedLibraryLevels = (): ReadonlyArray<BuildingLevel | undefined> => {
+  const catalog = JsonBuildingCatalog.fromDirectory(shippedContent)
+  return Array.from({ length: 10 }, (_, index) => catalog.levelOf('library', index + 1))
+}
+
+const strictlyRises = (values: ReadonlyArray<number>): boolean =>
+  values.every((value, index) => index === 0 || value > (values[index - 1] ?? 0))
+
 const shippedRequirements = (): ReadonlyArray<ReadonlyArray<number>> =>
   (['smithing', 'masonry'] as const).map((art) =>
     shippedArtLevels(art).map((line) => line?.requiredLibraryLevel ?? 0),
@@ -122,6 +131,34 @@ describe('JsonBuildingCatalog', () => {
       building: 'warehouse',
       capacityUnits: 1500,
     })
+  })
+
+  it('reads a library level as its cost, duration and occupancy alone', () => {
+    expect(oneLevelCatalog().levelOf('library', 1)).toEqual({
+      building: 'library',
+      ...levelOne,
+      peasantOccupancy: 2,
+    })
+  })
+
+  it('ships the library at levels 1 to 10', () => {
+    expect(shippedLibraryLevels().map((line) => `${line?.building}:${line?.level}`)).toEqual(
+      Array.from({ length: 10 }, (_, index) => `library:${index + 1}`),
+    )
+  })
+
+  it('ships library levels whose total cost strictly rises', () => {
+    const totals = shippedLibraryLevels().map((line) =>
+      Object.values(line?.cost ?? {}).reduce((total, amount) => total + amount, 0),
+    )
+
+    expect(strictlyRises(totals)).toBe(true)
+  })
+
+  it('ships library levels whose duration strictly rises', () => {
+    expect(strictlyRises(shippedLibraryLevels().map((line) => line?.durationSeconds ?? 0))).toBe(
+      true,
+    )
   })
 
   it('serves the plots per province of the fief content', () => {

@@ -19,7 +19,14 @@ const wholeAmount = (name: string, amount: AnyPgColumn) =>
 
 export const terrain = pgEnum('terrain', ['lowlands', 'uplands', 'ridges'])
 
-export const building = pgEnum('building', ['sawmill', 'quarry', 'iron_mine', 'farm', 'warehouse'])
+export const building = pgEnum('building', [
+  'sawmill',
+  'quarry',
+  'iron_mine',
+  'farm',
+  'warehouse',
+  'library',
+])
 
 export const art = pgEnum('art', ['smithing', 'masonry'])
 

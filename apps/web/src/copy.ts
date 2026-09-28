@@ -36,6 +36,7 @@ const buildings: Readonly<Record<BuildingKind, string>> = {
   ironMine: 'mina de hierro',
   farm: 'granja',
   warehouse: 'almacén',
+  library: 'biblioteca',
 }
 
 const kingdoms: Readonly<Partial<Record<number, string>>> = {

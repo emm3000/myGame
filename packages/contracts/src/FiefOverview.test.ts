@@ -19,12 +19,13 @@ const building = (level: number): FiefOverview['buildings']['sawmill'] => ({
   },
 })
 
-const fiveBuildings = {
+const sixBuildings = {
   sawmill: building(2),
   quarry: building(1),
   ironMine: building(0),
   farm: building(1),
   warehouse: { level: 10, nextLevel: null },
+  library: building(0),
 }
 
 const busySlot = {
@@ -53,7 +54,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
     gold: resource(50),
     food: resource(260),
   },
-  buildings: fiveBuildings,
+  buildings: sixBuildings,
   peasants: {
     supplied: 12,
     occupied: 7,
@@ -133,9 +134,9 @@ describe('FiefOverviewSchema', () => {
     expect(FiefOverviewSchema.safeParse(malformedStartOverview).success).toBe(false)
   })
 
-  it('rejects a fief overview missing one of the five buildings', () => {
-    const { warehouse: _, ...fourBuildings } = fiveBuildings
-    const incompleteOverview = { ...overviewWithSlot(busySlot), buildings: fourBuildings }
+  it('rejects a fief overview missing one of the six buildings', () => {
+    const { warehouse: _, ...fiveBuildings } = sixBuildings
+    const incompleteOverview = { ...overviewWithSlot(busySlot), buildings: fiveBuildings }
 
     expect(FiefOverviewSchema.safeParse(incompleteOverview).success).toBe(false)
   })
@@ -144,7 +145,7 @@ describe('FiefOverviewSchema', () => {
     const { nextLevel: _, ...levelOnly } = building(2)
     const overviewWithoutNextLevel = {
       ...overviewWithSlot(busySlot),
-      buildings: { ...fiveBuildings, sawmill: levelOnly },
+      buildings: { ...sixBuildings, sawmill: levelOnly },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutNextLevel).success).toBe(false)

@@ -266,6 +266,27 @@ it("shows the tier image on a built building's card", async () => {
   expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.png$/)
 })
 
+const libraryCard = (): HTMLElement => screen.getByRole('listitem', { name: 'biblioteca' })
+
+it('shows the library card with its Spanish label', async () => {
+  await showFief(signedInClientServing(() => knownFief))
+
+  expect(within(libraryCard()).getByRole('heading', { name: 'Biblioteca' })).toBeDefined()
+})
+
+it('shows no art on the library card', async () => {
+  const libraryAtLevelThree: FiefOverview = {
+    ...knownFief,
+    buildings: {
+      ...knownFief.buildings,
+      library: { ...knownFief.buildings.library, level: 3 },
+    },
+  }
+  await showFief(signedInClientServing(() => libraryAtLevelThree))
+
+  expect(within(libraryCard()).queryByRole('presentation')).toBeNull()
+})
+
 const farmWaitingInFullQueue: FiefOverview = {
   ...knownFief,
   peasants: {

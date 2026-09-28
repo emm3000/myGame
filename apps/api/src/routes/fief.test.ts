@@ -175,8 +175,25 @@ describe('the fief route', () => {
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.sawmill).toEqual({ level: 0, nextLevel: sawmillLevelOne })
     expect(Object.values(buildings).map((building) => building.nextLevel?.level)).toEqual([
-      1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1,
     ])
+  })
+
+  it('answers the library at level zero with the cost of its first level', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await fiefOf(ana.cookie)
+
+    const { buildings } = FiefOverviewSchema.parse(await response.json())
+    expect(buildings.library).toEqual({
+      level: 0,
+      nextLevel: {
+        level: 1,
+        cost: { wood: 120, stone: 160, iron: 40, gold: 0, food: 0 },
+        durationSeconds: 300,
+        peasants: 1,
+      },
+    })
   })
 
   it('answers no next level for a building at the top of its catalog', async () => {
@@ -341,6 +358,40 @@ describe('the fief route', () => {
       expect(overview.resources.wood.amount).toBe(441)
       expect(overview.resources.stone.amount).toBe(486)
       expect(overview.readAt).toBe('2026-09-22T08:10:00.000Z')
+    })
+
+    it('starts a library upgrade in the idle slot', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await enqueue(ana.cookie, 'library')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.slot).toEqual({
+        kind: 'busy',
+        building: 'library',
+        targetLevel: 1,
+        startedAt: '2026-09-22T08:00:00.000Z',
+        finishesAt: '2026-09-22T08:05:00.000Z',
+      })
+    })
+
+    it('queues a library upgrade behind the busy slot', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+
+      const response = await enqueue(ana.cookie, 'library')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.queue.entries).toEqual([
+        {
+          building: 'library',
+          targetLevel: 1,
+          startsAt: '2026-09-22T08:02:00.000Z',
+          finishesAt: '2026-09-22T08:07:00.000Z',
+        },
+      ])
     })
 
     it('answers the instant the upgrade started on a later read', async () => {

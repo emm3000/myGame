@@ -28,6 +28,7 @@ export const deriveOccupiedPeasants = (
     ironMine: occupancyOf(catalog, 'ironMine', buildingLevels.ironMine),
     farm: occupancyOf(catalog, 'farm', buildingLevels.farm),
     warehouse: occupancyOf(catalog, 'warehouse', buildingLevels.warehouse),
+    library: occupancyOf(catalog, 'library', buildingLevels.library),
   }
 
   let occupiedPeasants = 0
