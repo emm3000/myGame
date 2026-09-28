@@ -118,7 +118,7 @@ export const kingdomMapReaderContract = (
         {
           id: '00000000-0000-4000-8000-00000000000c',
           playerId: carla,
-          name: 'Peñagris',
+          name: 'Pedregal',
           kingdom: 2,
           province: 9,
           plot: 1,
@@ -166,7 +166,7 @@ export const kingdomMapReaderContract = (
         {
           id: '00000000-0000-4000-8000-00000000000c',
           playerId: carla,
-          name: 'Peñagris',
+          name: 'Pedregal',
           kingdom: 1,
           province: 3,
           plot: 5,
@@ -175,7 +175,7 @@ export const kingdomMapReaderContract = (
 
       expect(await fixture.map.holdersIn(1, 3)).toEqual([
         { plot: 2, name: 'Robledal', playerId: bruno },
-        { plot: 5, name: 'Peñagris', playerId: carla },
+        { plot: 5, name: 'Pedregal', playerId: carla },
         { plot: 9, name: 'Valdehierro', playerId: ana },
       ])
     })
@@ -202,7 +202,7 @@ export const kingdomMapReaderContract = (
         {
           id: '00000000-0000-4000-8000-00000000000c',
           playerId: carla,
-          name: 'Peñagris',
+          name: 'Pedregal',
           kingdom: 2,
           province: 3,
           plot: 4,
