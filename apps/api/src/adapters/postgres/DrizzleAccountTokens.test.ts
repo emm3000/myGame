@@ -1,9 +1,10 @@
-import { Instant } from '@mygame/domain'
+import { Instant, type PlayerId } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { AccountToken } from '../../auth/AccountTokens'
 import { accountTokensContract } from '../accountTokensContract'
+import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { sessionTokenDigest } from './sessionTokenDigest'
 
@@ -97,6 +98,56 @@ const issueTogether = async (
   await Promise.all([firstIssue, secondIssue])
 }
 
+const isIssueLockWaiting = async (): Promise<boolean> => {
+  const probe = await pool.query<{ waiting: boolean }>(
+    `SELECT pg_sleep(0.01), EXISTS (
+       SELECT 1 FROM pg_stat_activity
+       WHERE datname = current_database()
+         AND pid <> pg_backend_pid()
+         AND wait_event_type = 'Lock'
+     ) AS waiting`,
+  )
+  return probe.rows[0]?.waiting === true
+}
+
+const untilIssueWaits = async (issue: Promise<void>): Promise<void> => {
+  let hasIssued = false
+  void issue.then(() => {
+    hasIssued = true
+  })
+  for (let probes = 0; probes < probeLimit; probes += 1) {
+    if (hasIssued || (await isIssueLockWaiting())) {
+      return
+    }
+  }
+  throw new Error('The issue neither waited on a lock nor finished')
+}
+
+const verifyWhileIssuing = async (
+  redeemed: string,
+  issued: AccountToken,
+  now: Instant,
+): Promise<PlayerId | undefined> => {
+  const database = drizzle(pool)
+  const hasRedeemed = signal()
+  const mayVerify = signal()
+  const verify = database.transaction(async (transaction) => {
+    const playerId = await new DrizzleAccountTokens(transaction).redeem(redeemed, 'verify', now)
+    hasRedeemed.resolve()
+    await mayVerify.promise
+    if (playerId !== undefined) {
+      await new DrizzleAccounts(transaction).markEmailVerified(playerId, now)
+    }
+    return playerId
+  })
+  await hasRedeemed.promise
+  const issue = new DrizzleAccountTokens(database).issue(issued, now)
+  await untilIssueWaits(issue)
+  mayVerify.resolve()
+  const [verifiedPlayer] = await Promise.all([verify, issue])
+  return verifiedPlayer
+}
+
 accountTokensContract('DrizzleAccountTokens', async () => {
   await emptyDatabase()
   return { accountTokens: new DrizzleAccountTokens(drizzle(pool)), registerPlayers, issueTogether }
@@ -162,5 +213,25 @@ describe('DrizzleAccountTokens stores', () => {
     ])
 
     expect(redeemed.filter((playerId) => playerId === ana)).toHaveLength(1)
+  })
+
+  it('lets a redeem and an issue of the same kind race without a deadlock', async () => {
+    await emptyDatabase()
+    await registerPlayers([ana])
+    await storeToken('first-verify', ana, 'verify', '2026-09-29T08:00:00Z', null)
+
+    const verifiedPlayer = await verifyWhileIssuing(
+      'first-verify',
+      {
+        token: 'resent-verify',
+        playerId: ana,
+        kind: 'verify',
+        expiresAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-29T08:00:00Z')),
+      },
+      dawn,
+    )
+
+    expect(verifiedPlayer).toBe(ana)
+    expect(await storedDigests()).toEqual([sessionTokenDigest('resent-verify')])
   })
 })
