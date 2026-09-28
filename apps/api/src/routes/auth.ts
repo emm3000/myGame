@@ -3,20 +3,40 @@ import {
   SignInRequestSchema,
   type SignUpRequest,
   SignUpRequestSchema,
+  VerifyEmailRequestSchema,
 } from '@mygame/contracts'
 import { err, ok, type Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
+import type { StoredPlayer } from '../auth/Accounts'
+import {
+  type ResendVerificationMailDependencies,
+  resendVerificationMail,
+} from '../auth/resendVerificationMail'
 import type { SignedIn } from '../auth/SignedIn'
 import { type SignInDependencies, signIn } from '../auth/signIn'
 import { type SignUpDependencies, signUp } from '../auth/signUp'
+import { type VerifyEmailDependencies, verifyEmail } from '../auth/verifyEmail'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import type { Refusal } from '../http/Refusal'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { clearSessionCookie, writeSessionCookie } from '../http/sessionCookie'
 
-export type AuthDependencies = SignUpDependencies & SignInDependencies & RequirePlayerDependencies
+export type AuthDependencies = SignUpDependencies &
+  SignInDependencies &
+  VerifyEmailDependencies &
+  ResendVerificationMailDependencies &
+  RequirePlayerDependencies
+
+const playerOf = (stored: StoredPlayer): Player => ({
+  id: stored.id,
+  email: stored.email,
+  emailVerified: stored.emailVerified,
+})
+
+const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
+  done.ok ? c.body(null, 204) : answerRefusal(c, done.error)
 
 const parseSignUp = (body: unknown): Result<SignUpRequest, Refusal> => {
   const parsed = SignUpRequestSchema.safeParse(body)
@@ -39,8 +59,7 @@ const answerSignedIn = (
     return answerRefusal(c, signedIn.error)
   }
   writeSessionCookie(c, signedIn.value.session, isSessionCookieSecure)
-  const body: Player = signedIn.value.player
-  return c.json(body, status)
+  return c.json(playerOf(signedIn.value.player), status)
 }
 
 export const authRoutes = (dependencies: AuthDependencies): Hono => {
@@ -80,7 +99,16 @@ export const authRoutes = (dependencies: AuthDependencies): Hono => {
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
-      const body: Player = player
-      return c.json(body)
+      return c.json(playerOf(player))
     })
+    .post('/verify-email', async (c) => {
+      const request = VerifyEmailRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerDone(c, await verifyEmail(request.data, dependencies))
+    })
+    .post('/verify-email/resend', signedInPlayer, async (c) =>
+      answerDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
+    )
 }

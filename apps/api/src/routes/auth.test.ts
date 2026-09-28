@@ -1,10 +1,13 @@
 import { fileURLToPath } from 'node:url'
 import { ApiErrorSchema, PlayerSchema } from '@mygame/contracts'
-import { type Clock, Instant } from '@mygame/domain'
+import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { sessionTokenDigest } from '../adapters/postgres/sessionTokenDigest'
 import { createApp } from '../app'
+import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
+import type { Mail } from '../auth/Mailer'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 
@@ -87,9 +90,15 @@ const sessionCookieOf = (response: Response): string => {
 
 const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', fiefName: 'Valdehierro' }
 
+const tokenOf = (mail: Mail | undefined): string => {
+  const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
+  return link === undefined ? '' : (new URL(link).searchParams.get('token') ?? '')
+}
+
 describe('the auth routes', () => {
   let server: ComposedServer
   let clock: MovableClock
+  let mailer: MemoryMailer
   let app: ReturnType<typeof createApp>
 
   beforeAll(() => {
@@ -106,7 +115,8 @@ describe('the auth routes', () => {
   beforeEach(async () => {
     await truncateAccounts()
     clock = movableClock()
-    app = createApp({ ...server, clock })
+    mailer = new MemoryMailer()
+    app = createApp({ ...server, clock, mailer })
   })
 
   it('refuses a password shorter than eight characters', async () => {
@@ -272,5 +282,165 @@ describe('the auth routes', () => {
     const signedOut = await app.request('/auth/sign-out', post({}, cookie))
 
     expect(signedOut.headers.getSetCookie().at(-1)).toMatch(/^session=; Max-Age=0;/)
+  })
+
+  const verifyEmail = async (token: string): Promise<Response> =>
+    app.request('/auth/verify-email', post({ token }))
+
+  const resendFor = async (cookie: string, resendingApp = app): Promise<Response> =>
+    resendingApp.request('/auth/verify-email/resend', post({}, cookie))
+
+  const isEmailVerified = async (cookie: string): Promise<boolean> =>
+    PlayerSchema.parse(await (await sessionOf(cookie)).json()).emailVerified
+
+  it('sends the verification mail to a new player', async () => {
+    await signUpAna()
+
+    const sent = mailer.sentTo(anasSignUp.email)
+    const token = tokenOf(sent[0])
+    expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/)
+    expect(sent).toEqual([
+      {
+        to: anasSignUp.email,
+        subject: 'Confirma tu correo',
+        text: [
+          'Confirma que este correo es el de tu feudo abriendo este enlace:',
+          '',
+          `http://localhost:3259/verify-email?token=${token}`,
+          '',
+          'El enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.',
+          '',
+          'Si no has fundado ningún feudo, ignora este correo.',
+        ].join('\n'),
+      },
+    ])
+  })
+
+  it('signs up a player whose email is not verified', async () => {
+    const response = await signUpAna()
+
+    expect(PlayerSchema.parse(await response.json()).emailVerified).toBe(false)
+    expect(await isEmailVerified(sessionCookieOf(response))).toBe(false)
+  })
+
+  it('signs up even when the mail cannot be sent', async () => {
+    const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
+
+    const response = await failingApp.request('/auth/sign-up', post(anasSignUp))
+
+    expect(response.status).toBe(201)
+    expect(await playersWithEmail(anasSignUp.email)).toBe(1)
+  })
+
+  it('verifies the email the link was sent to', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+
+    const verified = await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+
+    expect(verified.status).toBe(204)
+    expect(await isEmailVerified(cookie)).toBe(true)
+    const signedIn = await app.request(
+      '/auth/sign-in',
+      post({ email: anasSignUp.email, password: anasSignUp.password }),
+    )
+    expect(PlayerSchema.parse(await signedIn.json()).emailVerified).toBe(true)
+  })
+
+  it('refuses a verify link used twice', async () => {
+    await signUpAna()
+    const token = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+    await verifyEmail(token)
+
+    const second = await verifyEmail(token)
+
+    expect(second.status).toBe(400)
+    expect(ApiErrorSchema.parse(await second.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a verify link past its day', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    clock.advanceDays(1)
+
+    const response = await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+    expect(await isEmailVerified(cookie)).toBe(false)
+  })
+
+  it('refuses a reset token as a verify link', async () => {
+    const player = PlayerSchema.parse(await (await signUpAna()).json())
+    const resetToken = 'a-reset-token-that-no-verify-link-carries'
+    await server.inTransaction(async ({ accountTokens }) => {
+      await accountTokens.issue(
+        {
+          token: resetToken,
+          playerId: player.id,
+          kind: 'reset',
+          expiresAt: accountTokenExpiryFrom('reset', clock.now()),
+        },
+        clock.now(),
+      )
+      return ok(undefined)
+    })
+
+    const response = await verifyEmail(resetToken)
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a token no link carried', async () => {
+    await signUpAna()
+
+    const response = await verifyEmail('a-token-nobody-was-sent')
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a verify request without a token as malformed', async () => {
+    const response = await app.request('/auth/verify-email', post({}))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('stops the earlier link working when a new one is sent', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    const earlierToken = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+
+    const resent = await resendFor(cookie)
+
+    expect(resent.status).toBe(204)
+    const laterToken = tokenOf(mailer.sentTo(anasSignUp.email)[1])
+    expect((await verifyEmail(earlierToken)).status).toBe(400)
+    expect((await verifyEmail(laterToken)).status).toBe(204)
+  })
+
+  it('sends no mail to a verified player', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+
+    const resent = await resendFor(cookie)
+
+    expect(resent.status).toBe(204)
+    expect(mailer.sentTo(anasSignUp.email)).toHaveLength(1)
+  })
+
+  it('answers 503 when the new link cannot be sent', async () => {
+    const cookie = sessionCookieOf(await signUpAna())
+    const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
+
+    const resent = await resendFor(cookie, failingApp)
+
+    expect(resent.status).toBe(503)
+    expect(ApiErrorSchema.parse(await resent.json()).kind).toBe('MailNotSent')
+  })
+
+  it('answers 401 for a resend without a session', async () => {
+    const response = await app.request('/auth/verify-email/resend', post({}))
+
+    expect(response.status).toBe(401)
   })
 })

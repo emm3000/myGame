@@ -24,5 +24,10 @@ export const signIn = async (
     return err({ kind: 'InvalidCredentials' })
   }
   const session = await openSession(credentials.id, { accounts, clock, sessionTokens })
-  return ok({ player: { id: credentials.id, email: credentials.email }, session })
+  const player = {
+    id: credentials.id,
+    email: credentials.email,
+    emailVerified: credentials.emailVerified,
+  }
+  return ok({ player, session })
 }

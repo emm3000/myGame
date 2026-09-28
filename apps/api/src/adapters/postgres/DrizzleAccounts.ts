@@ -1,5 +1,5 @@
 import type { Instant, PlayerId } from '@mygame/domain'
-import { and, eq, gt, sql } from 'drizzle-orm'
+import { and, eq, gt, isNull, sql } from 'drizzle-orm'
 import type {
   Accounts,
   NewPlayer,
@@ -14,6 +14,8 @@ import { sessionTokenDigest } from './sessionTokenDigest'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
+
+const emailVerified = sql<boolean>`${players.emailVerifiedAt} IS NOT NULL`
 
 export class DrizzleAccounts implements Accounts {
   constructor(private readonly database: PostgresSession) {}
@@ -32,7 +34,12 @@ export class DrizzleAccounts implements Accounts {
 
   async credentialsOf(email: string): Promise<PlayerCredentials | undefined> {
     const [found] = await this.database
-      .select({ id: players.id, email: players.email, passwordHash: players.passwordHash })
+      .select({
+        id: players.id,
+        email: players.email,
+        emailVerified,
+        passwordHash: players.passwordHash,
+      })
       .from(players)
       .where(sql`lower(${players.email}) = lower(${email})`)
     return found
@@ -40,10 +47,17 @@ export class DrizzleAccounts implements Accounts {
 
   async playerOf(playerId: PlayerId): Promise<StoredPlayer | undefined> {
     const [found] = await this.database
-      .select({ id: players.id, email: players.email })
+      .select({ id: players.id, email: players.email, emailVerified })
       .from(players)
       .where(eq(players.id, playerId))
     return found
+  }
+
+  async markEmailVerified(playerId: PlayerId, now: Instant): Promise<void> {
+    await this.database
+      .update(players)
+      .set({ emailVerifiedAt: dateOf(now) })
+      .where(and(eq(players.id, playerId), isNull(players.emailVerifiedAt)))
   }
 
   async openSession(session: Session): Promise<void> {

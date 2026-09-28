@@ -108,12 +108,12 @@ export function composeServer(
     chronicle: new DrizzleChronicle(database),
     map: new DrizzleKingdomMapReader(database),
     isSessionCookieSecure,
+    ...mail,
   }
   return {
     ...dependencies,
     fetch: createApp(dependencies).fetch,
     port,
-    ...mail,
     close,
   }
 }

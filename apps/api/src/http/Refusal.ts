@@ -7,3 +7,5 @@ export type Refusal =
   | { readonly kind: 'WeakPassword' }
   | { readonly kind: 'MalformedRequest' }
   | { readonly kind: 'SignedOut' }
+  | { readonly kind: 'TokenInvalid' }
+  | { readonly kind: 'MailNotSent' }
