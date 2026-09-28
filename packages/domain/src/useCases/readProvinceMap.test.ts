@@ -41,7 +41,25 @@ const farFief: HeldPlot = {
   address: { kingdom: 1, province: 5, plot: 2 },
 }
 
-const kingdomMap = inMemoryKingdomMap([viewerFief, neighbourFief, farFief])
+const foreignFief: HeldPlot = {
+  playerId: 'foreigner',
+  name: 'Torre Lejana',
+  address: { kingdom: 2, province: 2, plot: 2 },
+}
+
+const deepForeignFief: HeldPlot = {
+  playerId: 'deep-foreigner',
+  name: 'Hondonada',
+  address: { kingdom: 2, province: 8, plot: 1 },
+}
+
+const kingdomMap = inMemoryKingdomMap([
+  viewerFief,
+  neighbourFief,
+  farFief,
+  foreignFief,
+  deepForeignFief,
+])
 
 describe('readProvinceMap', () => {
   it('opens the province of the viewer fief when none is named', async () => {
@@ -145,5 +163,28 @@ describe('readProvinceMap', () => {
     const read = await readProvinceMap({ playerId: 'landless' }, { map: kingdomMap, catalog })
 
     expect(read).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+  })
+
+  it('bounds and lists only the kingdom of the viewer', async () => {
+    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+
+    assert(read.ok)
+    expect(read.value.kingdom).toBe(1)
+    expect(read.value.lastProvince).toBe(6)
+    expect(read.value.plots[1]?.fief).toBeUndefined()
+  })
+
+  it('opens the kingdom of a viewer outside the first one', async () => {
+    const read = await readProvinceMap({ playerId: 'foreigner' }, { map: kingdomMap, catalog })
+
+    assert(read.ok)
+    expect(read.value.kingdom).toBe(2)
+    expect(read.value.lastProvince).toBe(9)
+    expect(read.value.plots.map(({ fief }) => fief)).toEqual([
+      undefined,
+      { name: 'Torre Lejana', isOwn: true },
+      undefined,
+      undefined,
+    ])
   })
 })
