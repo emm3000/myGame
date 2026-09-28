@@ -12,10 +12,12 @@ import type { Argon2Passwords } from '../adapters/system/Argon2Passwords'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
 import type { Refusal } from '../http/Refusal'
 import { foundFiefOnFreePlot } from './foundFiefOnFreePlot'
+import { issueVerifyToken } from './issueVerifyToken'
 import { openSession } from './openSession'
 import type { SignedIn } from './SignedIn'
+import { type SendVerificationMailDependencies, sendVerificationMail } from './sendVerificationMail'
 
-export type SignUpDependencies = {
+export type SignUpDependencies = SendVerificationMailDependencies & {
   readonly inTransaction: Transaction
   readonly buildingCatalog: BuildingCatalog
   readonly clock: Clock
@@ -24,25 +26,52 @@ export type SignUpDependencies = {
   readonly sessionTokens: CryptoSessionTokens
 }
 
+type SignedUp = SignedIn & {
+  readonly verifyToken: string
+}
+
 export const signUp = async (
   request: SignUpRequest,
-  { inTransaction, buildingCatalog, clock, ids, passwords, sessionTokens }: SignUpDependencies,
+  {
+    inTransaction,
+    buildingCatalog,
+    clock,
+    ids,
+    passwords,
+    sessionTokens,
+    mailer,
+    webUrl,
+  }: SignUpDependencies,
 ): Promise<Result<SignedIn, Refusal>> => {
   const passwordHash = await passwords.hashOf(request.password)
-  return inTransaction<SignedIn, Refusal>(async ({ fiefs, accounts }) => {
-    const player = { id: ids.newId(), email: request.email }
-    const added = await accounts.addPlayer({ ...player, passwordHash, createdAt: clock.now() })
-    if (added === 'emailTaken') {
-      return err({ kind: 'EmailTaken' })
-    }
-    const founded = await foundFiefOnFreePlot(
-      { playerId: player.id, name: request.fiefName },
-      { fiefs, catalog: buildingCatalog, clock, ids },
-    )
-    if (!founded.ok) {
-      return founded
-    }
-    const session = await openSession(player.id, { accounts, clock, sessionTokens })
-    return ok({ player, session })
-  })
+  const signedUp = await inTransaction<SignedUp, Refusal>(
+    async ({ fiefs, accounts, accountTokens }) => {
+      const player = { id: ids.newId(), email: request.email, emailVerified: false }
+      const added = await accounts.addPlayer({
+        id: player.id,
+        email: player.email,
+        passwordHash,
+        createdAt: clock.now(),
+      })
+      if (added === 'emailTaken') {
+        return err({ kind: 'EmailTaken' })
+      }
+      const founded = await foundFiefOnFreePlot(
+        { playerId: player.id, name: request.fiefName },
+        { fiefs, catalog: buildingCatalog, clock, ids },
+      )
+      if (!founded.ok) {
+        return founded
+      }
+      const session = await openSession(player.id, { accounts, clock, sessionTokens })
+      const verifyToken = await issueVerifyToken(player.id, { accountTokens, clock, sessionTokens })
+      return ok({ player, session, verifyToken })
+    },
+  )
+  if (!signedUp.ok) {
+    return signedUp
+  }
+  const { player, session, verifyToken } = signedUp.value
+  await sendVerificationMail(player.email, verifyToken, { mailer, webUrl })
+  return ok({ player, session })
 }

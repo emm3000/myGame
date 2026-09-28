@@ -17,6 +17,8 @@ export const ApiErrorKindSchema = z.enum([
   'ArtMaxLevelReached',
   'StudyNotFound',
   'ProvinceNotFound',
+  'TokenInvalid',
+  'MailNotSent',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>

@@ -24,6 +24,8 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
+  TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
+  MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
   Unexpected: 'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
 }
 

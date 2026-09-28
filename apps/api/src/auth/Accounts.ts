@@ -10,6 +10,7 @@ export type NewPlayer = {
 export type StoredPlayer = {
   readonly id: PlayerId
   readonly email: string
+  readonly emailVerified: boolean
 }
 
 export type PlayerCredentials = StoredPlayer & {
@@ -28,6 +29,7 @@ export interface Accounts {
   addPlayer(player: NewPlayer): Promise<PlayerAdded>
   credentialsOf(email: string): Promise<PlayerCredentials | undefined>
   playerOf(playerId: PlayerId): Promise<StoredPlayer | undefined>
+  markEmailVerified(playerId: PlayerId, now: Instant): Promise<void>
   openSession(session: Session): Promise<void>
   renewSession(token: string, now: Instant, expiresAt: Instant): Promise<PlayerId | undefined>
   closeSession(token: string): Promise<void>

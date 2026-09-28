@@ -25,6 +25,8 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
+  TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
+  MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
 }
 
 const internalFailure: RefusalAnswer = { status: 500 }
@@ -47,6 +49,8 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   ArtMaxLevelReached: { status: 409, kind: 'ArtMaxLevelReached' },
   StudyNotFound: { status: 409, kind: 'StudyNotFound' },
   SignedOut: { status: 401 },
+  TokenInvalid: { status: 400, kind: 'TokenInvalid' },
+  MailNotSent: { status: 503, kind: 'MailNotSent' },
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },
   ProvinceNotFound: { status: 404, kind: 'ProvinceNotFound' },
