@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import type { ArtKind, ArtLevel, BuildingCatalog } from '../ports/BuildingCatalog'
-import { err, ok, type Result } from '../Result'
+import { ok, type Result } from '../Result'
+import { artLineOf } from './artLineOf'
 
 export const artLevelInForce = (
   art: ArtKind,
@@ -10,9 +11,5 @@ export const artLevelInForce = (
   if (level === 0) {
     return ok(undefined)
   }
-  const found = catalog.artLevelOf(art, level)
-  if (found === undefined || found.art !== art) {
-    return err({ kind: 'UnknownArtLevel', art, level })
-  }
-  return ok(found)
+  return artLineOf(art, level, catalog)
 }

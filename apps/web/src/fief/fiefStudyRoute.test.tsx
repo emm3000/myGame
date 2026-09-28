@@ -98,6 +98,19 @@ it('shows on an art card its level, effect, cost, duration and library requireme
   expect(studyButtonOf('smithing').textContent).toBe('Estudiar · 30:00')
 })
 
+it('names on an art card the resource the fief overview says the art raises', async () => {
+  const smithingRaisingWood: FiefOverview = {
+    ...libraryBuilt,
+    arts: {
+      ...libraryBuilt.arts,
+      smithing: { ...libraryBuilt.arts.smithing, resource: 'wood' },
+    },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: smithingRaisingWood }) })
+
+  expect(within(artCard('smithing')).getByText('+0 % de madera / h · nivel 1: +5 %')).toBeDefined()
+})
+
 it('starts a study from an art card', async () => {
   const startStudy = vi.fn(async () => ({ ok: true as const, value: smithingUnderWay }))
   await showFief({ startStudy })
