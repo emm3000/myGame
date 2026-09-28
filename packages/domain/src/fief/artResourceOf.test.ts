@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ArtLevel, BuildingCatalog } from '../ports/BuildingCatalog'
+import type { ArtLevel, BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import { artResourceOf } from './artResourceOf'
 
 const firstLevelOf = (art: ArtLevel['art'], resource: ArtLevel['resource']): ArtLevel => ({
@@ -12,12 +12,24 @@ const firstLevelOf = (art: ArtLevel['art'], resource: ArtLevel['resource']): Art
   ratePercent: 5,
 })
 
+const fiefSettings: FiefSettings = {
+  startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+  startingCapacity: 1000,
+  basePeasantSupply: 4,
+  plotsPerProvince: 15,
+  baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
+  terrainBonus: {
+    lowlands: { resource: 'food', ratePerHour: 10 },
+    uplands: { resource: 'stone', ratePerHour: 10 },
+    ridges: { resource: 'iron', ratePerHour: 10 },
+  },
+  buildQueueCap: 4,
+}
+
 const artCatalog = (arts: Partial<Record<string, ArtLevel>>): BuildingCatalog => ({
   levelOf: () => undefined,
   artLevelOf: (art, level) => arts[`${art}:${level}`],
-  fiefSettings: () => {
-    throw new Error('the art resource never reads the fief settings')
-  },
+  fiefSettings: () => fiefSettings,
 })
 
 describe('artResourceOf', () => {
