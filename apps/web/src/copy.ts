@@ -23,6 +23,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
+  ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   Unexpected: 'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
 }
 

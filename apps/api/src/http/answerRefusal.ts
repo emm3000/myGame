@@ -24,6 +24,7 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
+  ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
 }
 
 const internalFailure: RefusalAnswer = { status: 500 }
@@ -48,7 +49,7 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   SignedOut: { status: 401 },
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },
-  ProvinceNotFound: { status: 404 },
+  ProvinceNotFound: { status: 404, kind: 'ProvinceNotFound' },
   NegativeDuration: internalFailure,
   FractionalDuration: internalFailure,
   InstantBeforeStored: internalFailure,

@@ -1,0 +1,40 @@
+import { type ProvinceMap, ProvinceMapRequestSchema } from '@mygame/contracts'
+import {
+  type BuildingCatalog,
+  type KingdomMapReader,
+  type ReadProvinceMapCommand,
+  readProvinceMap,
+} from '@mygame/domain'
+import { type Context, Hono } from 'hono'
+import { provinceMapOf } from '../fief/provinceMapOf'
+import { answerRefusal } from '../http/answerRefusal'
+import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+
+export type MapDependencies = RequirePlayerDependencies & {
+  readonly map: KingdomMapReader
+  readonly buildingCatalog: BuildingCatalog
+}
+
+export const mapRoutes = (dependencies: MapDependencies): Hono => {
+  const answerProvince = async (c: Context, command: ReadProvinceMapCommand): Promise<Response> => {
+    const map = await readProvinceMap(command, {
+      map: dependencies.map,
+      catalog: dependencies.buildingCatalog,
+    })
+    if (!map.ok) {
+      return answerRefusal(c, map.error)
+    }
+    const body: ProvinceMap = provinceMapOf(map.value)
+    return c.json(body)
+  }
+  const signedInPlayer = requirePlayer(dependencies)
+  return new Hono()
+    .get('/', signedInPlayer, async (c) => answerProvince(c, { playerId: c.var.playerId }))
+    .get('/:province', signedInPlayer, async (c) => {
+      const request = ProvinceMapRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerProvince(c, { playerId: c.var.playerId, province: request.data.province })
+    })
+}
