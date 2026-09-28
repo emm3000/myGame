@@ -39,18 +39,31 @@ export class DrizzleAccountTokens implements AccountTokens {
   }
 
   async redeem(token: string, kind: AccountTokenKind, now: Instant): Promise<PlayerId | undefined> {
-    const [redeemed] = await this.database
-      .update(accountTokens)
-      .set({ usedAt: dateOf(now) })
-      .where(
-        and(
-          eq(accountTokens.tokenDigest, sessionTokenDigest(token)),
-          eq(accountTokens.kind, kind),
-          isNull(accountTokens.usedAt),
-          gt(accountTokens.expiresAt, dateOf(now)),
-        ),
-      )
-      .returning({ playerId: accountTokens.playerId })
-    return redeemed?.playerId
+    const live = and(
+      eq(accountTokens.tokenDigest, sessionTokenDigest(token)),
+      eq(accountTokens.kind, kind),
+      isNull(accountTokens.usedAt),
+      gt(accountTokens.expiresAt, dateOf(now)),
+    )
+    return this.database.transaction(async (transaction) => {
+      const [holder] = await transaction
+        .select({ playerId: accountTokens.playerId })
+        .from(accountTokens)
+        .where(live)
+      if (holder === undefined) {
+        return undefined
+      }
+      await transaction
+        .select({ id: players.id })
+        .from(players)
+        .where(eq(players.id, holder.playerId))
+        .for('no key update')
+      const [redeemed] = await transaction
+        .update(accountTokens)
+        .set({ usedAt: dateOf(now) })
+        .where(live)
+        .returning({ playerId: accountTokens.playerId })
+      return redeemed?.playerId
+    })
   }
 }
