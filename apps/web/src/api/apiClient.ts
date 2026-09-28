@@ -10,10 +10,12 @@ import {
   FiefChronicleSchema,
   type FiefOverview,
   FiefOverviewSchema,
+  type ForgotPasswordRequest,
   type Player,
   PlayerSchema,
   type ProvinceMap,
   ProvinceMapSchema,
+  type ResetPasswordRequest,
   type SignInRequest,
   type SignUpRequest,
   type StartStudyRequest,
@@ -41,6 +43,8 @@ export interface ApiClient {
   provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
   resendVerification(): Promise<ApiRefusal | undefined>
+  forgotPassword(email: string): Promise<ApiRefusal | undefined>
+  resetPassword(request: ResetPasswordRequest): Promise<ApiRefusal | undefined>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -148,5 +152,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     },
     resendVerification: async () =>
       refusalOrNothing(await send('/auth/verify-email/resend', { method: 'POST' })),
+    forgotPassword: async (email) => {
+      const request: ForgotPasswordRequest = { email }
+      return refusalOrNothing(await postJson('/auth/forgot-password', request))
+    },
+    resetPassword: async (request) =>
+      refusalOrNothing(await postJson('/auth/reset-password', request)),
   }
 }

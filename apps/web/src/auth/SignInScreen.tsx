@@ -48,6 +48,9 @@ export function SignInScreen(props: SignInScreenProps): ReactElement {
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
         {copy.auth.signIn.submit}
       </Button>
+      <span className="flex">
+        <TextLink to="/forgot-password">{copy.auth.signIn.forgotPassword}</TextLink>
+      </span>
     </AuthPanel>
   )
 }

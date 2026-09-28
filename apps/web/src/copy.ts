@@ -115,6 +115,7 @@ export const copy = {
       submit: 'Entrar',
       switchPrompt: '¿Aún no tienes feudo?',
       switchLink: 'Crea tu cuenta',
+      forgotPassword: '¿Has olvidado tu contraseña?',
     },
     signUp: {
       title: 'Funda tu feudo',
@@ -123,6 +124,24 @@ export const copy = {
       submit: 'Crear cuenta',
       switchPrompt: '¿Ya tienes cuenta?',
       switchLink: 'Entra',
+    },
+  },
+  passwordReset: {
+    request: {
+      title: 'Recupera tu contraseña',
+      submit: 'Enviar enlace',
+      confirmation:
+        'Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.',
+      toSignIn: signInTitle,
+    },
+    newPassword: {
+      title: 'Elige una contraseña nueva',
+      password: 'Contraseña nueva',
+      passwordHint: 'Al menos 8 caracteres.',
+      submit: 'Cambiar la contraseña',
+      changed: 'Tu contraseña ha cambiado y hemos cerrado todas tus sesiones.',
+      toSignIn: signInTitle,
+      newLink: 'Pedir otro enlace',
     },
   },
   verification: {

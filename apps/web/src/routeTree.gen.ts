@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as SignedInRouteImport } from './routes/_signedIn'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as GuestForgotPasswordRouteImport } from './routes/_guest/forgot-password'
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
@@ -27,10 +29,20 @@ const SignedInRoute = SignedInRouteImport.update({
   id: '/_signedIn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GuestForgotPasswordRoute = GuestForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => GuestRoute,
 } as any)
 const GuestSignInRoute = GuestSignInRouteImport.update({
   id: '/sign-in',
@@ -65,7 +77,9 @@ const SignedInMapaProvinceRoute = SignedInMapaProvinceRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SignedInIndexRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/cronica': typeof SignedInCronicaRoute
@@ -74,7 +88,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof SignedInIndexRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/cronica': typeof SignedInCronicaRoute
@@ -85,7 +101,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_guest': typeof GuestRouteWithChildren
   '/_signedIn': typeof SignedInRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/_guest/forgot-password': typeof GuestForgotPasswordRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
   '/_signedIn/cronica': typeof SignedInCronicaRoute
@@ -97,7 +115,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/reset-password'
     | '/verify-email'
+    | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
     | '/cronica'
@@ -106,7 +126,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/reset-password'
     | '/verify-email'
+    | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
     | '/cronica'
@@ -116,7 +138,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_guest'
     | '/_signedIn'
+    | '/reset-password'
     | '/verify-email'
+    | '/_guest/forgot-password'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
     | '/_signedIn/cronica'
@@ -128,6 +152,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   GuestRoute: typeof GuestRouteWithChildren
   SignedInRoute: typeof SignedInRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
 }
 
@@ -147,12 +172,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify-email': {
       id: '/verify-email'
       path: '/verify-email'
       fullPath: '/verify-email'
       preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_guest/forgot-password': {
+      id: '/_guest/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof GuestForgotPasswordRouteImport
+      parentRoute: typeof GuestRoute
     }
     '/_guest/sign-in': {
       id: '/_guest/sign-in'
@@ -200,11 +239,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface GuestRouteChildren {
+  GuestForgotPasswordRoute: typeof GuestForgotPasswordRoute
   GuestSignInRoute: typeof GuestSignInRoute
   GuestSignUpRoute: typeof GuestSignUpRoute
 }
 
 const GuestRouteChildren: GuestRouteChildren = {
+  GuestForgotPasswordRoute: GuestForgotPasswordRoute,
   GuestSignInRoute: GuestSignInRoute,
   GuestSignUpRoute: GuestSignUpRoute,
 }
@@ -232,6 +273,7 @@ const SignedInRouteWithChildren = SignedInRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   GuestRoute: GuestRouteWithChildren,
   SignedInRoute: SignedInRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   VerifyEmailRoute: VerifyEmailRoute,
 }
 export const routeTree = rootRouteImport
