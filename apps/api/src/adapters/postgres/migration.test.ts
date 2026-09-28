@@ -8,6 +8,7 @@ import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 import {
+  accountTokens,
   fiefArts,
   fiefBuildings,
   fiefEvents,
@@ -104,6 +105,7 @@ describe('the migrations', () => {
     )
 
     expect(tables.rows.map((row) => row.name)).toEqual([
+      'account_tokens',
       'fief_arts',
       'fief_buildings',
       'fief_events',
@@ -160,6 +162,35 @@ describe('the migrations', () => {
     ).rejects.toMatchObject({
       cause: { code: checkViolation, constraint: 'sessions_token_digest_hex' },
     })
+  })
+
+  it('refuses an account token stored with a plain token', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(accountTokens).values({
+        tokenDigest: 'opaque-token',
+        playerId: ana.id,
+        kind: 'verify',
+        expiresAt: new Date('2026-09-23T08:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'account_tokens_token_digest_hex' },
+    })
+  })
+
+  it('drops the tokens of a deleted player', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(accountTokens).values({
+      tokenDigest: sessionTokenDigest('opaque-token'),
+      playerId: ana.id,
+      kind: 'reset',
+      expiresAt: new Date('2026-09-22T09:00:00Z'),
+    })
+
+    await db.delete(players)
+
+    expect(await db.select().from(accountTokens)).toEqual([])
   })
 
   it('refuses a second level row for the same building on a fief', async () => {
@@ -586,5 +617,33 @@ describe('the fief events migration', () => {
     })
 
     expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([])
+  })
+})
+
+describe('the account tokens migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('reads an unverified email on a player stored by the previous version', async () => {
+    await migratedFrom(client, 10, async () => {
+      await insertPlayersOfPreviousVersion(client)
+    })
+
+    expect(
+      await drizzle(client)
+        .select({ id: players.id, emailVerifiedAt: players.emailVerifiedAt })
+        .from(players)
+        .orderBy(players.id),
+    ).toEqual([
+      { id: ana.id, emailVerifiedAt: null },
+      { id: bruno.id, emailVerifiedAt: null },
+    ])
   })
 })

@@ -41,7 +41,7 @@ const registerFiefs = async (fiefIds: ReadonlyArray<string>): Promise<void> => {
 
 const emptyDatabase = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+    'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
   )
 }
 

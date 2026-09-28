@@ -2,7 +2,9 @@ import type { ChronicleWriter, FiefRepository, Result } from '@mygame/domain'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
+import type { AccountTokens } from '../../auth/AccountTokens'
 import { DrizzleAccounts } from './DrizzleAccounts'
+import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 
@@ -10,6 +12,7 @@ export type TransactionStores = {
   readonly fiefs: FiefRepository
   readonly chronicle: ChronicleWriter
   readonly accounts: Accounts
+  readonly accountTokens: AccountTokens
 }
 
 export type Transaction = <T, E>(
@@ -28,6 +31,7 @@ export const postgresTransaction =
           fiefs: new DrizzleFiefRepository(transaction, 'lockedForUpdate'),
           chronicle: new DrizzleChronicle(transaction),
           accounts: new DrizzleAccounts(transaction),
+          accountTokens: new DrizzleAccountTokens(transaction),
         })
         if (!outcome.ok) {
           refused = outcome

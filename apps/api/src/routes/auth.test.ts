@@ -39,7 +39,7 @@ const truncateAccounts = async (): Promise<void> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
     )
   } finally {
     await client.end()

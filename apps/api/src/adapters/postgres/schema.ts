@@ -39,6 +39,8 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'study_cancelled',
 ])
 
+export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
+
 export const players = pgTable(
   'players',
   {
@@ -46,6 +48,7 @@ export const players = pgTable(
     email: text('email').notNull(),
     passwordHash: text('password_hash').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+    emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   },
   (table) => [uniqueIndex('players_email_unique').on(sql`lower(${table.email})`)],
 )
@@ -60,6 +63,22 @@ export const sessions = pgTable(
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   },
   (table) => [check('sessions_token_digest_hex', sql`${table.tokenDigest} ~ '^[0-9a-f]{64}$'`)],
+)
+
+export const accountTokens = pgTable(
+  'account_tokens',
+  {
+    tokenDigest: text('token_digest').primaryKey(),
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    kind: accountTokenKind('kind').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+  },
+  (table) => [
+    check('account_tokens_token_digest_hex', sql`${table.tokenDigest} ~ '^[0-9a-f]{64}$'`),
+  ],
 )
 
 export const fiefs = pgTable(

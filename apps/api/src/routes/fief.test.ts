@@ -119,7 +119,7 @@ describe('the fief route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
