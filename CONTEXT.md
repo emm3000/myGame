@@ -54,6 +54,11 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Chronicle** — a fief's record of its latest 100 events, written in the same act that applies them, the resolve or the cancel; the domain never reads it (ADR 013).
 - **Event** — one happening of one of four kinds: an upgrade finished, an art learned, an upgrade cancelled, a study cancelled. It names its building or art and its level, the refund for a cancel, and is stamped with the instant it happened: the finish for a finish, the cancel instant for a cancel, never the instant of the read that wrote it. Every upgrade a cascade cancels is an event of its own, with its own refund; an upgrade the resolve drops from a restarted build queue is refunded without one.
 
+## The account
+
+- **Verified email** — a player's email once proven to receive mail, by following the verify link sent to it. It gates only a password reset, never sign-in or play.
+- **Account token** — a single-use link token of kind `verify` or `reset`, mailed to a player and stored as a digest, never in clear. A verify token lives 24 hours, a reset token 1 hour; issuing one retires the player's earlier token of that kind, and one that expired or was used is refused as `TokenInvalid`.
+
 ## Society
 
 - **House** — a group of players under one banner. Replaces *alliance*. Not in this phase (W2).
@@ -66,4 +71,4 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 ## Avoided words
 
-`planet`, `colony`, `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `mission`, `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle).
+`planet`, `colony`, `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `mission`, `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle), `confirmed email` (say verified email), `recovery` (say reset).

@@ -1,6 +1,6 @@
 # Names the player reads
 
-Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle and the map. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
+Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map and the account. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
 
 ## Resources
 
@@ -93,9 +93,88 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 - The **browsing controls** read *Provincia anterior*, *Provincia siguiente* and *Ir a la provincia*, the last one next to a field that takes the number, in the register of *Cancelar la obra*.
 - The **last province** (`lastProvince`) needs no label: it is the province after which *Provincia siguiente* is not offered. A province beyond it, or below 1 (`ProvinceNotFound`), reads *Esa provincia no está en el mapa. Vuelve a la tuya.*
 
+## The account
+
+Every line of this section is a proposal for the author, not yet accepted, except the shipped lines of the first table. The English identifiers `verify`, `reset`, `emailVerified`, `TokenInvalid`, `MailNotSent`, `Mailer`, `Mail` and `accountTokens` are fixed by the S7 tickets (#157); only the Spanish is proposed here.
+
+The **sign-in and sign-up** lines shipped before this section and are recorded here unchanged, so the lines below sit beside them in one register:
+
+| Screen | Line | Note |
+|---|---|---|
+| both | *Correo*, *Contraseña* | the two field labels |
+| both | *Escribe un correo válido, como nombre@ejemplo.com.* | a malformed email, refused before any request |
+| sign-in | *Entra en tu feudo*, *Entrar* | the title and the submit |
+| sign-in | *¿Aún no tienes feudo?* *Crea tu cuenta* | the switch to sign-up |
+| sign-up | *Funda tu feudo*, *Nombre de tu feudo*, *Crear cuenta* | the title, the fief name field and the submit |
+| sign-up | *Al menos 8 caracteres.* | the password hint |
+| sign-up | *¿Ya tienes cuenta?* *Entra* | the switch to sign-in |
+
+### The mails
+
+- The **sender name** the mails carry (`MAIL_FROM`) is *myGame*, as the shell title reads until the lore names the game. The address after it is the deployment's, not a lore name.
+- Mails are plain text, addressed as tú, and each one carries the link on a line of its own so it survives any mail reader. Each names its lifetime in words that agree with the number, so the copy holds *24 horas* and *una hora* as phrases, never a bare count.
+- The **verification mail** (kind `verify`), sent at sign-up and again on each resend:
+
+  Subject: *Confirma tu correo*
+
+  ```
+  Confirma que este correo es el de tu feudo abriendo este enlace:
+
+  <enlace>
+
+  El enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.
+
+  Si no has fundado ningún feudo, ignora este correo.
+  ```
+
+  Slots: the link (`<WEB_URL>/verify-email?token=…`) and the lifetime (*24 horas*).
+
+- The **reset mail** (kind `reset`), sent only to a verified email that has an account:
+
+  Subject: *Cambia tu contraseña*
+
+  ```
+  Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:
+
+  <enlace>
+
+  El enlace vale una hora y una sola vez.
+
+  Si no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.
+  ```
+
+  Slots: the link (`<WEB_URL>/reset-password?token=…`) and the lifetime (*una hora*). The last line is for a reader who asked for nothing.
+
+### The banner
+
+Shown in the signed-in shell while the email is unverified (`emailVerified` false), gone once it is.
+
+- The **banner's line**: *Aún no has confirmado tu correo. Sin confirmarlo no podrás recuperar tu contraseña.*
+- The **resend button**: *Enviar otro enlace*, in the register of *Cancelar la obra*.
+- The **line after a resend**: *Te hemos enviado otro enlace. Búscalo en tu correo: vale 24 horas.*
+- The **`MailNotSent` refusal**, a resend the server could not deliver, in the register of the *Unexpected* line: *No hemos podido enviar el correo. Vuelve a intentarlo en un momento.*
+
+### The verify screen
+
+The landing of the mailed link, outside the signed-in shell.
+
+- The **verifying line**, in the register of *Estamos leyendo tu feudo…*: *Estamos confirmando tu correo…*
+- The **verified line**: *Tu correo queda confirmado.* Under it, the link to the fief reads *Ir a tu feudo*, in the register of *Ir a la provincia*.
+- The **`TokenInvalid` refusal**, one line for a link that expired, was used or was never sent, shared by the verify and the new password screens: *Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.*
+
+### The reset
+
+- The **sign-in link** to the reset request, under the form: *¿Has olvidado tu contraseña?*
+- The **reset request screen**: title *Recupera tu contraseña*; the email field is the shipped *Correo*; submit *Enviar enlace*.
+- Its **confirmation line**, the same whatever the email: *Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.* It reads true whether or not the email has an account, and promises no mail.
+- The **new password screen**: title *Elige una contraseña nueva*; field *Contraseña nueva*; hint the shipped *Al menos 8 caracteres.*; submit *Cambiar la contraseña*.
+- Its **success line**: *Tu contraseña ha cambiado y hemos cerrado todas tus sesiones.* Under it, the link to sign in reads *Entra en tu feudo*, the sign-in title.
+- Under its **`TokenInvalid` refusal**, the way to ask for a new link reads *Pedir otro enlace* and leads to the reset request.
+
 ## Open questions
 
 - The names of the second and third kingdoms, one per remaining house.
+- Whether the sender name *myGame* and the mail lines change once the lore names the game.
 - Whether *obra* survives once a fief can hold more than one slot.
 - Whether the lectern, *el atril*, names the study slot on screen instead of *el estudio*.
 - Whether *parcela* survives once a lord can choose a plot at founding, or a plainer *tierra* takes its place.
