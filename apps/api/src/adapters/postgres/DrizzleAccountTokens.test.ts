@@ -58,7 +58,7 @@ const isPlayerLockWaiting = async (): Promise<boolean> => {
        WHERE datname = current_database()
          AND pid <> pg_backend_pid()
          AND wait_event_type = 'Lock'
-         AND query ILIKE 'select "id" from "players" %for update'
+         AND query ILIKE 'select "id" from "players" %for no key update'
      ) AS waiting`,
   )
   return probe.rows[0]?.waiting === true

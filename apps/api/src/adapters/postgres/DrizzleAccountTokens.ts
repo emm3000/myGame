@@ -16,7 +16,7 @@ export class DrizzleAccountTokens implements AccountTokens {
         .select({ id: players.id })
         .from(players)
         .where(eq(players.id, token.playerId))
-        .for('update')
+        .for('no key update')
       await transaction
         .delete(accountTokens)
         .where(
