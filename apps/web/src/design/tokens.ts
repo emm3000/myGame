@@ -82,6 +82,13 @@ export const spacing: Readonly<Record<SpaceStep, string>> = {
   12: '48px',
 }
 
+export type MinHeight = 'control' | 'plot'
+
+export const minHeights: Readonly<Record<MinHeight, string>> = {
+  control: '44px',
+  plot: '96px',
+}
+
 export type Radius = 'sm' | 'md' | 'pill'
 
 export const radii: Readonly<Record<Radius, string>> = {

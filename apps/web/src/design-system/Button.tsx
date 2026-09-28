@@ -17,7 +17,7 @@ const toneClass: Readonly<Record<ButtonTone, string>> = {
 }
 
 export const buttonClassOf = (tone: ButtonTone): string =>
-  `cursor-pointer rounded-md border px-3 py-2 font-utility text-button focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint ${toneClass[tone]}`
+  `min-h-control cursor-pointer rounded-md border px-3 py-2 font-utility text-button focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint ${toneClass[tone]}`
 
 export function Button(props: ButtonProps): ReactElement {
   return (
