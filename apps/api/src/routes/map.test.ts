@@ -65,6 +65,9 @@ describe('the map route', () => {
     app.request(path, { headers: { cookie } })
 
   it('opens the province of the signed-in fief', async () => {
+    for (let plot = 1; plot <= plotsPerProvince; plot += 1) {
+      await signUp(`vecino-${plot}@example.com`, `Vecino ${plot}`)
+    }
     const cookie = await signUp('ana@example.com', 'Valdehierro')
 
     const response = await mapOf(cookie)
@@ -75,7 +78,7 @@ describe('the map route', () => {
       kingdom: map.kingdom,
       province: map.province,
       lastProvince: map.lastProvince,
-    }).toEqual({ kingdom: 1, province: 1, lastProvince: 2 })
+    }).toEqual({ kingdom: 1, province: 2, lastProvince: 3 })
     expect(map.plots[0]).toEqual({ plot: 1, fief: { name: 'Valdehierro', isOwn: true } })
   })
 
