@@ -48,8 +48,8 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 ## The chronicle
 
-- **Chronicle** — a fief's record of its latest 100 events, written by the mutation that applies them; the domain never reads it.
-- **Event** — one happening of one of four kinds: an upgrade finished, an art learned, an upgrade cancelled, a study cancelled. It names its building or art and its level, the refund for a cancel, and is stamped with the instant it happened: the finish for a finish, the cancel instant for a cancel, never the instant of the read that wrote it.
+- **Chronicle** — a fief's record of its latest 100 events, written in the same act that applies them, the resolve or the cancel; the domain never reads it (ADR 013).
+- **Event** — one happening of one of four kinds: an upgrade finished, an art learned, an upgrade cancelled, a study cancelled. It names its building or art and its level, the refund for a cancel, and is stamped with the instant it happened: the finish for a finish, the cancel instant for a cancel, never the instant of the read that wrote it. Every upgrade a cascade cancels is an event of its own, with its own refund; an upgrade the resolve drops from a restarted build queue is refunded without one.
 
 ## Society
 
