@@ -47,7 +47,7 @@ export const materializeStocks = (
   catalog: BuildingCatalog,
   now: Instant,
 ): Result<Stocks, DomainError> => {
-  const rates = deriveResourceRates(fief.buildingLevels, fief.terrain, catalog)
+  const rates = deriveResourceRates(fief.buildingLevels, fief.artLevels, fief.terrain, catalog)
   if (!rates.ok) {
     return rates
   }

@@ -45,6 +45,7 @@ const sawmillLevel = (level: number, peasantOccupancy: number): ProducerLevel =>
 const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog => ({
   levelOf: (building, level) =>
     levels.find((found) => found.building === building && found.level === level),
+  artLevelOf: () => undefined,
   fiefSettings: () => fiefSettings,
 })
 

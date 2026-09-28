@@ -63,6 +63,7 @@ const warehouseLevelOne: WarehouseLevel = {
 const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog => ({
   levelOf: (building, level) =>
     levels.find((known) => known.building === building && known.level === level),
+  artLevelOf: () => undefined,
   fiefSettings: () => fiefSettings,
 })
 
@@ -85,6 +86,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     stocks: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
+    artLevels: { smithing: 0, masonry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     ...overrides,

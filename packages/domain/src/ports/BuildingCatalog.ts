@@ -3,6 +3,8 @@ import type { ResourceKind } from '../resources/Resources'
 
 export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehouse'
 
+export type ArtKind = 'smithing' | 'masonry'
+
 type BuildingLevelData = {
   readonly level: number
   readonly cost: Readonly<Record<ResourceKind, number>>
@@ -28,6 +30,16 @@ export type WarehouseLevel = BuildingLevelData & {
 
 export type BuildingLevel = ProducerLevel | FarmLevel | WarehouseLevel
 
+export type ArtLevel = {
+  readonly art: ArtKind
+  readonly level: number
+  readonly cost: Readonly<Record<ResourceKind, number>>
+  readonly durationSeconds: number
+  readonly requiredLibraryLevel: number
+  readonly resource: ResourceKind
+  readonly ratePercent: number
+}
+
 export type TerrainBonus = {
   readonly resource: ResourceKind
   readonly ratePerHour: number
@@ -45,5 +57,6 @@ export type FiefSettings = {
 
 export interface BuildingCatalog {
   levelOf(building: BuildingKind, level: number): BuildingLevel | undefined
+  artLevelOf(art: ArtKind, level: number): ArtLevel | undefined
   fiefSettings(): FiefSettings
 }

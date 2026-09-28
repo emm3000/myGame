@@ -31,6 +31,7 @@ const storedBusyFief: StoredFief = {
   stocks: { wood: 120, stone: 80, iron: 20, gold: 5, food: 60 },
   storedAt: foundingInstant,
   buildingLevels: { sawmill: 2, quarry: 1, ironMine: 0, farm: 1, warehouse: 0 },
+  artLevels: { smithing: 2, masonry: 0 },
   slot: {
     kind: 'busy',
     building: 'quarry',
@@ -67,8 +68,18 @@ describe('Fief', () => {
     const restored = Fief.restore(storedBusyFief)
 
     assert(restored.ok)
-    const { id, playerId, name, coordinates, stocks, storedAt, buildingLevels, slot, buildQueue } =
-      restored.value
+    const {
+      id,
+      playerId,
+      name,
+      coordinates,
+      stocks,
+      storedAt,
+      buildingLevels,
+      artLevels,
+      slot,
+      buildQueue,
+    } = restored.value
     expect({
       id,
       playerId,
@@ -81,6 +92,7 @@ describe('Fief', () => {
       stocks,
       storedAt,
       buildingLevels,
+      artLevels,
       slot,
       buildQueue,
     }).toEqual(storedBusyFief)
@@ -88,6 +100,34 @@ describe('Fief', () => {
 
   it('founds a fief with an empty build queue', () => {
     expect(fiefInProvince(1).buildQueue).toEqual([])
+  })
+
+  it('founds a fief with every art at level zero', () => {
+    expect(fiefInProvince(1).artLevels).toEqual({ smithing: 0, masonry: 0 })
+  })
+
+  it('refuses a stored art level that is not a whole count', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      artLevels: { ...storedBusyFief.artLevels, masonry: 1.5 },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidArtLevel', art: 'masonry', level: 1.5 },
+    })
+  })
+
+  it('refuses a stored negative art level', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      artLevels: { ...storedBusyFief.artLevels, smithing: -1 },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidArtLevel', art: 'smithing', level: -1 },
+    })
   })
 
   it('restores the waiting entries in their order', () => {

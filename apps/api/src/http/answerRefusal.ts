@@ -46,6 +46,8 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   NegativeResourceAmount: internalFailure,
   NegativeResourceRate: internalFailure,
   UnknownBuildingLevel: internalFailure,
+  UnknownArtLevel: internalFailure,
+  InvalidArtLevel: internalFailure,
   NegativeFreePeasants: internalFailure,
   InvalidCoordinates: internalFailure,
   InvalidPlotsPerProvince: internalFailure,

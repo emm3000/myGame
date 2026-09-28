@@ -2,6 +2,8 @@ import type { DomainError } from '../DomainError'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
+import { artKinds } from './artKinds'
+import type { FiefArtLevels } from './FiefArtLevels'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { Terrain } from './Terrain'
 
@@ -22,8 +24,31 @@ const producerRate = (
   return ok(found.ratePerHour)
 }
 
+type Rates = Record<ResourceKind, number>
+
+const applyArts = (
+  rates: Rates,
+  artLevels: FiefArtLevels,
+  catalog: BuildingCatalog,
+): Result<Rates, DomainError> => {
+  const multiplied = { ...rates }
+  for (const art of artKinds) {
+    const level = artLevels[art]
+    if (level === 0) {
+      continue
+    }
+    const found = catalog.artLevelOf(art, level)
+    if (found === undefined || found.art !== art) {
+      return err({ kind: 'UnknownArtLevel', art, level })
+    }
+    multiplied[found.resource] *= 1 + found.ratePercent / 100
+  }
+  return ok(multiplied)
+}
+
 export const deriveResourceRates = (
   buildingLevels: FiefBuildingLevels,
+  artLevels: FiefArtLevels,
   terrain: Terrain,
   catalog: BuildingCatalog,
 ): Result<Readonly<Record<ResourceKind, number>>, DomainError> => {
@@ -45,7 +70,7 @@ export const deriveResourceRates = (
   }
 
   const { baseRates, terrainBonus } = catalog.fiefSettings()
-  const rates: Record<ResourceKind, number> = {
+  const rates: Rates = {
     wood: baseRates.wood + wood.value,
     stone: baseRates.stone + stone.value,
     iron: baseRates.iron + iron.value,
@@ -56,5 +81,5 @@ export const deriveResourceRates = (
   const bonus = terrainBonus[terrain]
   rates[bonus.resource] += bonus.ratePerHour
 
-  return ok(rates)
+  return applyArts(rates, artLevels, catalog)
 }

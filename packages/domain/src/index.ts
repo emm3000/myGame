@@ -9,6 +9,7 @@ export { deriveProjectedFreePeasants } from './fief/deriveProjectedFreePeasants'
 export { deriveResourceRates } from './fief/deriveResourceRates'
 export { deriveWarehouseCapacity } from './fief/deriveWarehouseCapacity'
 export { Fief, type FiefFounding, type Stocks, type StoredFief } from './fief/Fief'
+export type { FiefArtLevels } from './fief/FiefArtLevels'
 export type { FiefBuildingLevels } from './fief/FiefBuildingLevels'
 export type { FiefId } from './fief/FiefId'
 export { FiefName } from './fief/FiefName'
@@ -17,6 +18,8 @@ export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQ
 export type { Terrain } from './fief/Terrain'
 export type { PlayerId } from './player/PlayerId'
 export type {
+  ArtKind,
+  ArtLevel,
   BuildingCatalog,
   BuildingKind,
   BuildingLevel,

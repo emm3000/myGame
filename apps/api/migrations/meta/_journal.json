@@ -43,6 +43,13 @@
       "when": 1790396616738,
       "tag": "0005_build_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790605291908,
+      "tag": "0006_fief_arts",
+      "breakpoints": true
     }
   ]
 }

@@ -57,6 +57,7 @@ const warehouseLevelOne: WarehouseLevel = {
 
 const inMemoryCatalog = (levels: Partial<Record<string, BuildingLevel>>): BuildingCatalog => ({
   levelOf: (building, buildingLevel) => levels[`${building}:${buildingLevel}`],
+  artLevelOf: () => undefined,
   fiefSettings: () => fiefSettings,
 })
 

@@ -5,7 +5,8 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleAccounts } from './DrizzleAccounts'
-import { fiefBuildings, fiefQueueEntries, fiefs, players, sessions } from './schema'
+import { DrizzleFiefRepository } from './DrizzleFiefRepository'
+import { fiefArts, fiefBuildings, fiefQueueEntries, fiefs, players, sessions } from './schema'
 import { sessionTokenDigest } from './sessionTokenDigest'
 
 const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.meta.url))
@@ -94,6 +95,7 @@ describe('the migrations', () => {
     )
 
     expect(tables.rows.map((row) => row.name)).toEqual([
+      'fief_arts',
       'fief_buildings',
       'fief_queue_entries',
       'fiefs',
@@ -182,6 +184,26 @@ describe('the migrations', () => {
     ).rejects.toMatchObject({
       cause: { code: uniqueViolation, constraint: 'fief_queue_entries_pkey' },
     })
+  })
+
+  it('refuses two rows for one art of one fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefArts).values({ fiefId: anasFief.id, art: 'smithing', level: 1 })
+
+    await expect(
+      db.insert(fiefArts).values({ fiefId: anasFief.id, art: 'smithing', level: 2 }),
+    ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'fief_arts_pkey' } })
+  })
+
+  it('drops the art rows of a deleted fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefArts).values({ fiefId: anasFief.id, art: 'masonry', level: 1 })
+
+    await db.delete(fiefs)
+
+    expect(await db.select().from(fiefArts)).toEqual([])
   })
 
   it('refuses a second fief for the same player', async () => {
@@ -388,5 +410,28 @@ describe('the slot cost migration', () => {
         slot_cost_food: 0,
       },
     ])
+  })
+})
+
+describe('the fief arts migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('reads every art at level zero on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 6, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(restored.ok && restored.value?.artLevels).toEqual({ smithing: 0, masonry: 0 })
   })
 })

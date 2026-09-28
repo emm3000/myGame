@@ -5,10 +5,12 @@ import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
+import { artKinds } from './artKinds'
 import type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
 import { Coordinates } from './Coordinates'
 import { entryFitsProjection } from './entryFitsProjection'
+import type { FiefArtLevels } from './FiefArtLevels'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
@@ -37,6 +39,7 @@ export type StoredFief = {
   readonly stocks: Stocks
   readonly storedAt: Instant
   readonly buildingLevels: FiefBuildingLevels
+  readonly artLevels: FiefArtLevels
   readonly slot: BuildSlot
   readonly buildQueue: BuildQueue
 }
@@ -74,6 +77,8 @@ const unbuiltLevels: FiefBuildingLevels = {
   farm: 0,
   warehouse: 0,
 }
+
+const unstudiedArts: FiefArtLevels = { smithing: 0, masonry: 0 }
 
 const isBuildingKind = (key: string): key is BuildingKind => key in unbuiltLevels
 
@@ -148,6 +153,10 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
       building: invalidBuilding,
       level: stored.buildingLevels[invalidBuilding],
     })
+  }
+  const invalidArt = artKinds.find((art) => !isWholeLevel(stored.artLevels[art]))
+  if (invalidArt !== undefined) {
+    return err({ kind: 'InvalidArtLevel', art: invalidArt, level: stored.artLevels[invalidArt] })
   }
   const storedSlot = validateSlot(stored.slot, stored.storedAt)
   if (!storedSlot.ok) {
@@ -287,6 +296,7 @@ export class Fief {
     readonly stocks: Stocks,
     readonly storedAt: Instant,
     readonly buildingLevels: FiefBuildingLevels,
+    readonly artLevels: FiefArtLevels,
     readonly slot: BuildSlot,
     readonly buildQueue: BuildQueue,
   ) {}
@@ -300,6 +310,7 @@ export class Fief {
       founding.startingStocks,
       founding.at,
       unbuiltLevels,
+      unstudiedArts,
       { kind: 'idle' },
       [],
     )
@@ -328,6 +339,7 @@ export class Fief {
         stored.stocks,
         stored.storedAt,
         stored.buildingLevels,
+        stored.artLevels,
         stored.slot,
         stored.buildQueue,
       ),
@@ -471,6 +483,7 @@ export class Fief {
       change.stocks,
       change.storedAt,
       change.buildingLevels,
+      this.artLevels,
       change.slot,
       change.buildQueue,
     )

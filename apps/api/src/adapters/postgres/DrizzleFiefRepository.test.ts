@@ -25,7 +25,9 @@ afterAll(async () => {
 })
 
 const emptyDatabase = async (): Promise<void> => {
-  await pool.query('TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries')
+  await pool.query(
+    'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts',
+  )
 }
 
 const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> => {

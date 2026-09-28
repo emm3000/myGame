@@ -1,11 +1,4 @@
-import {
-  copyFileSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -35,7 +28,17 @@ const oneLevel = (effect: object): object => ({
   effect,
 })
 
+const oneArtLevel = {
+  level: 1,
+  cost: { wood: 10, stone: 5, iron: 5, gold: 5, food: 0 },
+  durationSeconds: 60,
+  requiredLibraryLevel: 1,
+  effect: { ratePercent: 5 },
+}
+
 const minimalContentFiles: Readonly<Record<string, object>> = {
+  'arts/smithing.json': { art: 'smithing', resource: 'iron', levels: [oneArtLevel] },
+  'arts/masonry.json': { art: 'masonry', resource: 'stone', levels: [oneArtLevel] },
   'sawmill.json': { building: 'sawmill', levels: [oneLevel({ ratePerHour: 30 })] },
   'quarry.json': { building: 'quarry', levels: [oneLevel({ ratePerHour: 20 })] },
   'iron-mine.json': { building: 'ironMine', levels: [oneLevel({ ratePerHour: 10 })] },
@@ -60,6 +63,7 @@ const temporaryDirectory = (): string => mkdtempSync(join(tmpdir(), 'mygame-cont
 
 const minimalContentDirectory = (): string => {
   const directory = temporaryDirectory()
+  mkdirSync(join(directory, 'arts'))
   for (const [file, content] of Object.entries(minimalContentFiles)) {
     writeFileSync(join(directory, file), JSON.stringify(content))
   }
@@ -68,9 +72,7 @@ const minimalContentDirectory = (): string => {
 
 const contentCopyWithTruncatedSawmill = (): string => {
   const directory = temporaryDirectory()
-  for (const file of readdirSync(contentDirectory)) {
-    copyFileSync(join(contentDirectory, file), join(directory, file))
-  }
+  cpSync(contentDirectory, directory, { recursive: true })
   const sawmill = readFileSync(join(directory, 'sawmill.json'), 'utf8')
   writeFileSync(join(directory, 'sawmill.json'), sawmill.slice(0, sawmill.length / 2))
   return directory
@@ -220,7 +222,9 @@ const foundAnasFief = async (server: ComposedServer): Promise<void> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
-    await client.query('TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries')
+    await client.query(
+      'TRUNCATE players, sessions, fiefs, fief_buildings, fief_queue_entries, fief_arts',
+    )
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2)",
       [ana, new Date('2026-09-22T08:00:00Z')],
