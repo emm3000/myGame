@@ -318,3 +318,29 @@ describe('deriveResourceRates in a season', () => {
     })
   })
 })
+
+describe('deriveResourceRates with an art in a season', () => {
+  it('applies an art and the season with one exact division', () => {
+    const ironAutumn: FiefSettings = {
+      ...fiefSettings('gold'),
+      seasons: {
+        ...gentleSeasons,
+        multiplierPercent: {
+          ...gentleSeasons.multiplierPercent,
+          autumn: { ...neutralPercents, iron: 125 },
+        },
+      },
+    }
+    const catalog = inMemoryCatalog(
+      ironAutumn,
+      { 'ironMine:1': { ...producerLevel(26), building: 'ironMine' } },
+      { 'smithing:1': smithingLevel(1, 5) },
+    )
+    const arts: FiefArtLevels = { ...noArts, smithing: 1 }
+
+    const result = deriveResourceRates(minedLevels, arts, 'ridges', catalog, midAutumn)
+
+    assert(result.ok)
+    expect(result.value.iron).toBe(40.6875)
+  })
+})

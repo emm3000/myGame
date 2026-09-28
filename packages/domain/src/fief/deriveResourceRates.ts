@@ -29,12 +29,16 @@ const producerRate = (
 
 type Rates = Record<ResourceKind, number>
 
-const applyArts = (
-  rates: Rates,
+type Percents = Record<ResourceKind, ReadonlyArray<number>>
+
+const noPercents: Percents = { wood: [], stone: [], iron: [], gold: [], food: [] }
+
+const withArtPercents = (
+  percents: Percents,
   artLevels: FiefArtLevels,
   catalog: BuildingCatalog,
-): Result<Rates, DomainError> => {
-  const multiplied = { ...rates }
+): Result<Percents, DomainError> => {
+  const collected = { ...percents }
   for (const art of artKinds) {
     const inForce = artLevelInForce(art, artLevels[art], catalog)
     if (!inForce.ok) {
@@ -44,26 +48,33 @@ const applyArts = (
     if (found === undefined) {
       continue
     }
-    multiplied[found.resource] = (multiplied[found.resource] * (100 + found.ratePercent)) / 100
+    collected[found.resource] = [...collected[found.resource], 100 + found.ratePercent]
   }
-  return ok(multiplied)
+  return ok(collected)
 }
 
-const applySeason = (rates: Rates, at: Instant, catalog: BuildingCatalog): Rates => {
+const withSeasonPercents = (
+  percents: Percents,
+  at: Instant,
+  catalog: BuildingCatalog,
+): Percents => {
   const settings = catalog.fiefSettings()
   const season = seasonAt(at, settings)
   if (season === undefined) {
-    return rates
+    return percents
   }
-  const percents = settings.seasons.multiplierPercent[season.kind]
+  const inForce = settings.seasons.multiplierPercent[season.kind]
   return {
-    wood: (rates.wood * percents.wood) / 100,
-    stone: (rates.stone * percents.stone) / 100,
-    iron: (rates.iron * percents.iron) / 100,
-    gold: (rates.gold * percents.gold) / 100,
-    food: (rates.food * percents.food) / 100,
+    wood: [...percents.wood, inForce.wood],
+    stone: [...percents.stone, inForce.stone],
+    iron: [...percents.iron, inForce.iron],
+    gold: [...percents.gold, inForce.gold],
+    food: [...percents.food, inForce.food],
   }
 }
+
+const scaledBy = (rate: number, percents: ReadonlyArray<number>): number =>
+  (rate * percents.reduce((product, percent) => product * percent, 1)) / 100 ** percents.length
 
 export const deriveResourceRates = (
   buildingLevels: FiefBuildingLevels,
@@ -101,9 +112,16 @@ export const deriveResourceRates = (
   const bonus = terrainBonus[terrain]
   rates[bonus.resource] += bonus.ratePerHour
 
-  const withArts = applyArts(rates, artLevels, catalog)
-  if (!withArts.ok) {
-    return withArts
+  const artPercents = withArtPercents(noPercents, artLevels, catalog)
+  if (!artPercents.ok) {
+    return artPercents
   }
-  return ok(applySeason(withArts.value, at, catalog))
+  const percents = withSeasonPercents(artPercents.value, at, catalog)
+  return ok({
+    wood: scaledBy(rates.wood, percents.wood),
+    stone: scaledBy(rates.stone, percents.stone),
+    iron: scaledBy(rates.iron, percents.iron),
+    gold: scaledBy(rates.gold, percents.gold),
+    food: scaledBy(rates.food, percents.food),
+  })
 }
