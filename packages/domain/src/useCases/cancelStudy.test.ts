@@ -14,6 +14,7 @@ import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
 import { cancelStudy } from './cancelStudy'
 
@@ -345,5 +346,22 @@ describe('cancelStudy', () => {
 
     assert(!result.ok)
     expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
+  })
+
+  it('reports a record the chronicle refuses', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const refusal = { kind: 'FiefNotFound', playerId: 'lord' } as const
+
+    const result = await cancelStudy(
+      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      {
+        fiefs,
+        chronicle: refusingChronicle(refusal),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
+    )
+
+    expect(result).toEqual({ ok: false, error: refusal })
   })
 })

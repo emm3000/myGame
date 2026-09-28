@@ -151,6 +151,7 @@ export class DrizzleChronicle implements ChronicleWriter, ChronicleReader {
       .from(fiefEvents)
       .where(eq(fiefEvents.fiefId, fiefId))
       .orderBy(desc(fiefEvents.occurredAt), desc(fiefEvents.id))
+      .limit(keptEventsPerFief)
     return rows.map(eventOf)
   }
 }
