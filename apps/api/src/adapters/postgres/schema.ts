@@ -1,8 +1,10 @@
 import { sql } from 'drizzle-orm'
 import {
   type AnyPgColumn,
+  bigint,
   check,
   doublePrecision,
+  index,
   integer,
   pgEnum,
   pgTable,
@@ -29,6 +31,13 @@ export const building = pgEnum('building', [
 ])
 
 export const art = pgEnum('art', ['smithing', 'masonry'])
+
+export const fiefEventKind = pgEnum('fief_event_kind', [
+  'upgrade_finished',
+  'art_learned',
+  'upgrade_cancelled',
+  'study_cancelled',
+])
 
 export const players = pgTable(
   'players',
@@ -144,4 +153,31 @@ export const fiefArts = pgTable(
     level: integer('level').notNull(),
   },
   (table) => [primaryKey({ name: 'fief_arts_pkey', columns: [table.fiefId, table.art] })],
+)
+
+export const fiefEvents = pgTable(
+  'fief_events',
+  {
+    id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+    fiefId: uuid('fief_id')
+      .notNull()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    kind: fiefEventKind('kind').notNull(),
+    building: building('building'),
+    art: art('art'),
+    level: integer('level').notNull(),
+    refundWood: doublePrecision('refund_wood').notNull().default(0),
+    refundStone: doublePrecision('refund_stone').notNull().default(0),
+    refundIron: doublePrecision('refund_iron').notNull().default(0),
+    refundGold: doublePrecision('refund_gold').notNull().default(0),
+    refundFood: doublePrecision('refund_food').notNull().default(0),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check(
+      'fief_events_building_or_art',
+      sql`(${table.building} IS NULL) <> (${table.art} IS NULL)`,
+    ),
+    index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
+  ],
 )

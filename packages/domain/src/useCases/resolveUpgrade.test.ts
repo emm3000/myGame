@@ -15,6 +15,7 @@ import type {
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err } from '../Result'
+import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { Instant } from '../time/Instant'
 import { resolveUpgrade } from './resolveUpgrade'
@@ -163,7 +164,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
     )
 
     assert(result.ok)
@@ -188,7 +189,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -213,7 +214,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(now) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(now) },
     )
 
     assert(result.ok)
@@ -243,7 +244,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -271,7 +272,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -296,7 +297,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(100)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(100)) },
     )
 
     assert(result.ok)
@@ -319,7 +320,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
     )
 
     assert(result.ok)
@@ -335,7 +336,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(5)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(5)) },
     )
 
     assert(result.ok)
@@ -355,7 +356,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
     )
 
     assert(result.ok)
@@ -379,7 +380,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(3)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(3)) },
     )
 
     assert(result.ok)
@@ -403,7 +404,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(now) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(now) },
     )
 
     assert(result.ok)
@@ -432,7 +433,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(12)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(12)) },
     )
 
     assert(result.ok)
@@ -448,7 +449,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -473,7 +474,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -496,7 +497,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: handHungryCatalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: handHungryCatalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -519,7 +525,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: overcrowdingCatalog, clock: frozenClock(storedInstant) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: overcrowdingCatalog,
+        clock: frozenClock(storedInstant),
+      },
     )
 
     assert(result.ok)
@@ -538,7 +549,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -577,7 +588,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: threeLevelCatalog, clock: frozenClock(hoursAfterStored(0.5)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: threeLevelCatalog,
+        clock: frozenClock(hoursAfterStored(0.5)),
+      },
     )
 
     assert(result.ok)
@@ -592,7 +608,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(-1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(-1)) },
     )
 
     assert(result.ok)
@@ -606,7 +622,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(5)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(5)) },
     )
 
     assert(result.ok)
@@ -617,7 +633,12 @@ describe('resolveUpgrade', () => {
   it('refuses a player who holds no fief', async () => {
     const result = await resolveUpgrade(
       { playerId: 'landless' },
-      { fiefs: inMemoryFiefRepository([]), catalog, clock: frozenClock(storedInstant) },
+      {
+        fiefs: inMemoryFiefRepository([]),
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(storedInstant),
+      },
     )
 
     expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
@@ -638,7 +659,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
     )
 
     expect(result).toEqual({
@@ -666,7 +687,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs: refusingFiefs, catalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs: refusingFiefs,
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     expect(result).toEqual({
@@ -681,7 +707,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -697,7 +728,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
     )
 
     assert(result.ok)
@@ -713,7 +749,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
     )
 
     assert(result.ok)
@@ -735,7 +776,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -755,7 +801,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -768,7 +819,7 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(3)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(3)) },
     )
 
     assert(result.ok)
@@ -792,7 +843,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
     )
 
     assert(result.ok)
@@ -822,7 +878,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -839,7 +900,12 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -853,10 +919,48 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
     expect(result.value.events).toEqual([])
+  })
+
+  it('records the finishes it applied through the chronicle', async () => {
+    const buildingAndStudyingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      studySlot: smithingStudyFinishingAfterHours(1.5),
+    })
+    const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, chronicle, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+    )
+
+    assert(result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 1,
+        occurredAt: hoursAfterStored(1),
+      },
+      { kind: 'artLearned', art: 'smithing', level: 1, occurredAt: hoursAfterStored(1.5) },
+    ])
+  })
+
+  it('records nothing when the read has nothing to resolve', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(2) })])
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, chronicle, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
   })
 })

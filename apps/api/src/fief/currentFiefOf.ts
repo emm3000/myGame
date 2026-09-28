@@ -1,5 +1,6 @@
 import {
   type BuildingCatalog,
+  type ChronicleWriter,
   type Clock,
   type DomainError,
   type Fief,
@@ -27,6 +28,10 @@ const dryRunOver = (fiefs: FiefReader): FiefRepository => ({
   save: async () => ok(undefined),
 })
 
+const discardingChronicle: ChronicleWriter = {
+  record: async () => ok(undefined),
+}
+
 export const currentFiefOf = async (
   playerId: PlayerId,
   { fiefs, inTransaction, buildingCatalog, clock }: CurrentFiefDependencies,
@@ -35,14 +40,24 @@ export const currentFiefOf = async (
   const readClock: Clock = { now: () => now }
   const preview = await resolveUpgrade(
     { playerId },
-    { fiefs: dryRunOver(fiefs), catalog: buildingCatalog, clock: readClock },
+    {
+      fiefs: dryRunOver(fiefs),
+      chronicle: discardingChronicle,
+      catalog: buildingCatalog,
+      clock: readClock,
+    },
   )
   const resolved =
     preview.ok && preview.value.hasChanged
       ? await inTransaction((stores) =>
           resolveUpgrade(
             { playerId },
-            { fiefs: stores.fiefs, catalog: buildingCatalog, clock: readClock },
+            {
+              fiefs: stores.fiefs,
+              chronicle: stores.chronicle,
+              catalog: buildingCatalog,
+              clock: readClock,
+            },
           ),
         )
       : preview

@@ -3,6 +3,7 @@ import type { ChangedFief } from '../fief/ChangedFief'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { PlayerId } from '../player/PlayerId'
 import type { ArtKind, BuildingCatalog } from '../ports/BuildingCatalog'
+import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
@@ -15,13 +16,14 @@ export type CancelStudyCommand = {
 
 export type CancelStudyDependencies = {
   readonly fiefs: FiefRepository
+  readonly chronicle: ChronicleWriter
   readonly catalog: BuildingCatalog
   readonly clock: Clock
 }
 
 export const cancelStudy = async (
   command: CancelStudyCommand,
-  { fiefs, catalog, clock }: CancelStudyDependencies,
+  { fiefs, chronicle, catalog, clock }: CancelStudyDependencies,
 ): Promise<Result<ChangedFief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.playerId)
   if (!stored.ok) {
@@ -48,6 +50,10 @@ export const cancelStudy = async (
   const saved = await fiefs.save(cancelled.value.fief)
   if (!saved.ok) {
     return saved
+  }
+  const recorded = await chronicle.record(cancelled.value.fief.id, cancelled.value.events)
+  if (!recorded.ok) {
+    return recorded
   }
   return ok(cancelled.value)
 }

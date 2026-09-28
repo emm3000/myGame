@@ -13,6 +13,7 @@ import type {
   WarehouseLevel,
 } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
+import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { Instant } from '../time/Instant'
 import { cancelUpgrade } from './cancelUpgrade'
@@ -158,7 +159,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -176,7 +177,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
@@ -195,7 +196,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
@@ -213,7 +214,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -236,7 +237,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'warehouse', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -254,7 +255,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
@@ -280,7 +281,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -295,7 +296,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -315,7 +316,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'farm', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -335,7 +336,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -352,7 +353,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 2 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
@@ -365,7 +366,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'farm', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual({
@@ -379,7 +380,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual({
@@ -393,7 +394,12 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(sawmillInProgress.finishesAt) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(sawmillInProgress.finishesAt),
+      },
     )
 
     expect(result).toEqual({
@@ -408,7 +414,12 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'warehouse', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(sawmillInProgress.finishesAt) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(sawmillInProgress.finishesAt),
+      },
     )
 
     expect(result).toEqual({
@@ -423,7 +434,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(!result.ok)
@@ -435,7 +446,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'landless', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
@@ -447,7 +458,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
@@ -477,7 +488,7 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
@@ -512,12 +523,47 @@ describe('cancelUpgrade', () => {
 
     const result = await cancelUpgrade(
       { playerId: 'lord', building: 'quarry', targetLevel: 1 },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual({
       ok: false,
       error: { kind: 'UpgradeNotFound', building: 'quarry', targetLevel: 1 },
     })
+  })
+
+  it('records the cancel it applied through the chronicle', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+    const cancelInstant = hoursAfterStored(1)
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { fiefs, chronicle, catalog, clock: frozenClock(cancelInstant) },
+    )
+
+    assert(result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'upgradeCancelled',
+        building: 'sawmill',
+        level: 1,
+        occurredAt: cancelInstant,
+        refund: { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 },
+      },
+    ])
+  })
+
+  it('records nothing when the cancel is refused', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', building: 'quarry', targetLevel: 1 },
+      { fiefs, chronicle, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(!result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
   })
 })

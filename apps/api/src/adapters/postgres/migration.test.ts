@@ -5,8 +5,17 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { DrizzleAccounts } from './DrizzleAccounts'
+import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
-import { fiefArts, fiefBuildings, fiefQueueEntries, fiefs, players, sessions } from './schema'
+import {
+  fiefArts,
+  fiefBuildings,
+  fiefEvents,
+  fiefQueueEntries,
+  fiefs,
+  players,
+  sessions,
+} from './schema'
 import { sessionTokenDigest } from './sessionTokenDigest'
 
 const migrationsFolder = fileURLToPath(new URL('../../../migrations', import.meta.url))
@@ -97,6 +106,7 @@ describe('the migrations', () => {
     expect(tables.rows.map((row) => row.name)).toEqual([
       'fief_arts',
       'fief_buildings',
+      'fief_events',
       'fief_queue_entries',
       'fiefs',
       'players',
@@ -204,6 +214,56 @@ describe('the migrations', () => {
     await db.delete(fiefs)
 
     expect(await db.select().from(fiefArts)).toEqual([])
+  })
+
+  it('refuses an event that names both a building and an art', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        building: 'sawmill',
+        art: 'smithing',
+        level: 1,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_building_or_art' },
+    })
+  })
+
+  it('refuses an event that names neither a building nor an art', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        level: 1,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_building_or_art' },
+    })
+  })
+
+  it('drops the events of a deleted fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefEvents).values({
+      fiefId: anasFief.id,
+      kind: 'art_learned',
+      art: 'masonry',
+      level: 1,
+      occurredAt: new Date('2026-09-22T09:00:00Z'),
+    })
+
+    await db.delete(fiefs)
+
+    expect(await db.select().from(fiefEvents)).toEqual([])
   })
 
   it('refuses a second fief for the same player', async () => {
@@ -505,5 +565,26 @@ describe('the study slot migration', () => {
         study_cost_food: 0,
       },
     ])
+  })
+})
+
+describe('the fief events migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('reads an empty chronicle on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 9, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([])
   })
 })
