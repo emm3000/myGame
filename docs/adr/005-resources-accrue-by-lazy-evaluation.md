@@ -41,3 +41,14 @@ capacity; clamping on the next read would destroy it. A stock at or above the
 capacity reads back unchanged whatever the elapsed time, with no accrual and
 no clamp, until spending brings it under; a stock under the capacity accrues
 up to it as before.
+
+## Amendment (2026-09-29)
+
+A rate is no longer constant over a span. The season in force scales every
+rate, and the season changes on a global calendar (ADR 016), so reading a
+fief splits `[at, now]` at every season boundary it crosses and accrues
+segment by segment, each segment at the rates in force at its start and each
+floored, clamped and frozen on its own by the formula above. A span inside
+one season accrues exactly as before. Nothing else here changes: the state
+stored is still `(amount, at)`, the rates are still derived on read, and no
+process turns the season.

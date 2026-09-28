@@ -23,7 +23,7 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Peasants** — the workforce. The fief supplies a base number and each farm level adds more; each building level occupies some. Free peasants = supplied − occupied, a derived number that never grows on its own. An upgrade charges only the increase in occupancy against the free peasants, releasing the current level's occupancy. Replaces *energy*.
 - **Warehouse** — the building that sets a resource's capacity.
 - **Base rate** — the rate per hour every fief earns of each resource from founding, with no building; a producer's rate and the terrain bonus add on top of it.
-- **Accrual** — the amount a resource holds at a later instant, computed on read as `max(amount, min(capacity, amount + rate × elapsed))`: a stock under the capacity fills up to it, a stock above it (after a refund) freezes, neither accruing nor clamped (ADR 005).
+- **Accrual** — the amount a resource holds at a later instant, computed on read segment by segment: the span since the stored instant is split at every season boundary it crosses, and each segment accrues at the rates in force at its start as `max(amount, min(capacity, amount + rate × elapsed))`, floored on its own. A stock under the capacity fills up to it, a stock above it (after a refund) freezes, neither accruing nor clamped (ADR 005, ADR 016).
 
 ## Buildings
 
@@ -62,12 +62,13 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 ## Society
 
 - **House** — a group of players under one banner. Replaces *alliance*. Not in this phase (W2).
-- **Season** — a world-wide modifier over time (winter lowers harvests). A lore hook, not in this phase.
 
 ## Time
 
 - **Instant** — a point in time from the `Clock` port; the domain never reads the wall clock.
 - **Duration** — a length of time in seconds; build times and marches are durations.
+- **Season** — one of spring, summer, autumn, winter, in force over the whole world at once for a fixed number of days set by the content's calendar, from its start, included, to the instant it ends, excluded. Each season scales every resource's rate by a whole percent from content, applied last (winter lowers food, spring raises it, autumn raises gold, summer changes nothing); there is no season before the calendar's epoch, and no season touches a build or study duration in this phase (ADR 016).
+- **Year** — four seasons, counted from the first spring at the calendar's epoch: *año 1* is the first. There is no named calendar and no era (ADR 016).
 
 ## Avoided words
 

@@ -26,6 +26,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
 | S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015). |
+| S8 | Seasons: one global calendar in content turns spring, summer, autumn and winter over every fief; each season scales production rates by whole percents, a read accrues each season segment at its own rates, the fief header shows the season, the year and a countdown, and the resource bar marks the resource the season changes (ADR 016). |
 
 ## Won't have (this phase)
 
