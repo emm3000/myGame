@@ -1,6 +1,4 @@
 import {
-  type ArtKind,
-  type BuildingKind,
   type BuildQueue,
   type BuildSlot,
   type DomainError,
@@ -20,12 +18,16 @@ import {
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
-import { type art, type building, fiefArts, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
+import { fiefArts, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
+import {
+  artKinds,
+  buildingKinds,
+  type StoredArt,
+  type StoredBuilding,
+  storedArts,
+  storedBuildings,
+} from './storedKinds'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
-
-type StoredBuilding = (typeof building.enumValues)[number]
-
-type StoredArt = (typeof art.enumValues)[number]
 
 type FiefRow = typeof fiefs.$inferSelect
 
@@ -37,34 +39,6 @@ type JoinedRow = {
   readonly entry: EntryRow | null
   readonly art: StoredArt | null
   readonly artLevel: number | null
-}
-
-const storedArts: Readonly<Record<ArtKind, StoredArt>> = {
-  smithing: 'smithing',
-  masonry: 'masonry',
-}
-
-const artKinds: Readonly<Record<StoredArt, ArtKind>> = {
-  smithing: 'smithing',
-  masonry: 'masonry',
-}
-
-const storedBuildings: Readonly<Record<BuildingKind, StoredBuilding>> = {
-  sawmill: 'sawmill',
-  quarry: 'quarry',
-  ironMine: 'iron_mine',
-  farm: 'farm',
-  warehouse: 'warehouse',
-  library: 'library',
-}
-
-const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
-  sawmill: 'sawmill',
-  quarry: 'quarry',
-  iron_mine: 'ironMine',
-  farm: 'farm',
-  warehouse: 'warehouse',
-  library: 'library',
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
