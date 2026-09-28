@@ -627,6 +627,6 @@ export class Fief {
   }
 
   get terrain(): Terrain {
-    return terrainOf(this.coordinates)
+    return terrainOf(this.coordinates.province)
   }
 }

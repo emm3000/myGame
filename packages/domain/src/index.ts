@@ -23,6 +23,7 @@ export type { PlotAddress } from './fief/PlotAddress'
 export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
 export type { Terrain } from './fief/Terrain'
+export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
 export type { PlayerId } from './player/PlayerId'
 export type {
   ArtKind,
@@ -40,6 +41,7 @@ export type { ChronicleWriter } from './ports/ChronicleWriter'
 export type { Clock } from './ports/Clock'
 export type { FiefRepository } from './ports/FiefRepository'
 export type { IdGenerator } from './ports/IdGenerator'
+export type { KingdomMapReader, PlotHolder } from './ports/KingdomMapReader'
 export { err, ok, type Result } from './Result'
 export { type MaterializedResources, materializeResources } from './resources/materializeResources'
 export type { ResourceKind, Resources } from './resources/Resources'
@@ -66,6 +68,11 @@ export {
   type FoundFiefDependencies,
   foundFief,
 } from './useCases/foundFief'
+export {
+  type ReadProvinceMapCommand,
+  type ReadProvinceMapDependencies,
+  readProvinceMap,
+} from './useCases/readProvinceMap'
 export {
   type ResolvedFief,
   type ResolveUpgradeCommand,

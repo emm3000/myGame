@@ -60,6 +60,7 @@ export type DomainError =
       readonly finishesAt: Instant
     }
   | { readonly kind: 'FiefNotFound'; readonly playerId: PlayerId }
+  | { readonly kind: 'ProvinceNotFound'; readonly province: number; readonly lastProvince: number }
   | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
   | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }
   | { readonly kind: 'StudySlotBusy'; readonly art: ArtKind }

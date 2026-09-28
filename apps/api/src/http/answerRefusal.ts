@@ -48,6 +48,7 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   SignedOut: { status: 401 },
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },
+  ProvinceNotFound: { status: 404 },
   NegativeDuration: internalFailure,
   FractionalDuration: internalFailure,
   InstantBeforeStored: internalFailure,
