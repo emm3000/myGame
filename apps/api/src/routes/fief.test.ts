@@ -334,9 +334,43 @@ describe('the fief route', () => {
     expect(resources.wood).toEqual({ amount: 515, ratePerHour: 10, capacity: 1000 })
   })
 
-  it('answers the food rate the winter lowers at the instant of the read', async () => {
+  it('answers no season before the epoch', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    const minutesToFirstWinter = (Date.parse('2026-10-26T00:00:00Z') - signedUpAt) / 60_000
+
+    const response = await fiefOf(ana.cookie)
+
+    const { season } = FiefOverviewSchema.parse(await response.json())
+    expect(season).toBeNull()
+  })
+
+  const minutesToFirstAutumnRead =
+    (Date.parse('2026-10-20T08:00:00Z') - signedUpAt) / millisecondsPerMinute
+
+  it('answers autumn of year 1 and the instant it ends', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes(minutesToFirstAutumnRead)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { season } = FiefOverviewSchema.parse(await response.json())
+    expect(season).toMatchObject({ kind: 'autumn', year: 1, endsAt: '2026-10-26T00:00:00.000Z' })
+  })
+
+  it('answers the autumn gold rate raised by its multiplier', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes(minutesToFirstAutumnRead)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { resources, season } = FiefOverviewSchema.parse(await response.json())
+    expect(season?.multiplierPercent.gold).toBe(125)
+    expect(resources.gold.ratePerHour).toBe(2.5)
+  })
+
+  it('answers the winter food rate lowered by its multiplier', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    const minutesToFirstWinter =
+      (Date.parse('2026-10-26T00:00:00Z') - signedUpAt) / millisecondsPerMinute
     const minutesWithinTheSession = 20 * 24 * 60
     clock.advanceMinutes(minutesWithinTheSession)
     await fiefOf(ana.cookie)
@@ -344,7 +378,9 @@ describe('the fief route', () => {
 
     const response = await fiefOf(ana.cookie)
 
-    const { resources } = FiefOverviewSchema.parse(await response.json())
+    const { resources, season } = FiefOverviewSchema.parse(await response.json())
+    expect(season?.kind).toBe('winter')
+    expect(season?.multiplierPercent.food).toBe(75)
     expect(resources.food.ratePerHour).toBe(11.25)
   })
 

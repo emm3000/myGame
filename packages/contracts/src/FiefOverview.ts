@@ -3,6 +3,7 @@ import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
 import {
   BuildingLevelSchema,
@@ -76,6 +77,13 @@ const WaitingUpgradeSchema = z.object({
   finishesAt: InstantSchema,
 })
 
+const SeasonStateSchema = z.strictObject({
+  kind: SeasonKindSchema,
+  year: WholeCountSchema.positive(),
+  endsAt: InstantSchema,
+  multiplierPercent: z.record(ResourceKindSchema, WholeCountSchema.positive()),
+})
+
 export const FiefOverviewSchema = z.object({
   name: z.string().min(1),
   coordinates: z.object({
@@ -107,6 +115,7 @@ export const FiefOverviewSchema = z.object({
   }),
   study: z.discriminatedUnion('kind', [IdleStudySchema, BusyStudySchema]),
   arts: z.record(ArtKindSchema, ArtStateSchema),
+  season: SeasonStateSchema.nullable(),
   readAt: InstantSchema,
 })
 
