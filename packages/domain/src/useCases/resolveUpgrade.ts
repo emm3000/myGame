@@ -1,6 +1,8 @@
 import type { DomainError } from '../DomainError'
 import type { BusySlot } from '../fief/BuildSlot'
+import type { ChangedFief } from '../fief/ChangedFief'
 import type { Fief, Stocks } from '../fief/Fief'
+import type { FiefEvent } from '../fief/FiefEvent'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { BusyStudySlot } from '../fief/StudySlot'
@@ -21,8 +23,7 @@ export type ResolveUpgradeDependencies = {
   readonly clock: Clock
 }
 
-export type ResolvedFief = {
-  readonly fief: Fief
+export type ResolvedFief = ChangedFief & {
   readonly hasChanged: boolean
 }
 
@@ -55,6 +56,29 @@ const earliestFinishedOf = (fief: Fief, now: Instant): FinishedWork | undefined 
   const studyFinishesFirst =
     study.slot.finishesAt.epochMilliseconds < upgrade.slot.finishesAt.epochMilliseconds
   return studyFinishesFirst ? study : upgrade
+}
+
+const eventOf = (finished: FinishedWork): FiefEvent => {
+  switch (finished.kind) {
+    case 'upgrade':
+      return {
+        kind: 'upgradeFinished',
+        building: finished.slot.building,
+        level: finished.slot.targetLevel,
+        occurredAt: finished.slot.finishesAt,
+      }
+    case 'study':
+      return {
+        kind: 'artLearned',
+        art: finished.slot.art,
+        level: finished.slot.targetLevel,
+        occurredAt: finished.slot.finishesAt,
+      }
+    default: {
+      const unreachable: never = finished
+      return unreachable
+    }
+  }
 }
 
 const laterOf = (left: Instant, right: Instant): Instant =>
@@ -93,8 +117,9 @@ const walkFinishedWork = (
   fief: Fief,
   catalog: BuildingCatalog,
   now: Instant,
-): Result<Fief, DomainError> => {
+): Result<ChangedFief, DomainError> => {
   let walked = fief
+  const events: Array<FiefEvent> = []
   for (
     let finished = earliestFinishedOf(walked, now);
     finished !== undefined;
@@ -105,8 +130,13 @@ const walkFinishedWork = (
       return completed
     }
     walked = completed.value
+    events.push(eventOf(finished))
   }
-  return walked.accruedTo(catalog, laterOf(now, walked.storedAt))
+  const accrued = walked.accruedTo(catalog, laterOf(now, walked.storedAt))
+  if (!accrued.ok) {
+    return accrued
+  }
+  return ok({ fief: accrued.value, events })
 }
 
 export const resolveUpgrade = async (
@@ -124,7 +154,7 @@ export const resolveUpgrade = async (
 
   const now = clock.now()
   if (!fief.isSlotIdleWithQueue && earliestFinishedOf(fief, now) === undefined) {
-    return ok({ fief, hasChanged: false })
+    return ok({ fief, events: [], hasChanged: false })
   }
 
   const resumed = fief.resumeBuildQueue(catalog)
@@ -135,9 +165,9 @@ export const resolveUpgrade = async (
   if (!resolved.ok) {
     return resolved
   }
-  const saved = await fiefs.save(resolved.value)
+  const saved = await fiefs.save(resolved.value.fief)
   if (!saved.ok) {
     return saved
   }
-  return ok({ fief: resolved.value, hasChanged: true })
+  return ok({ ...resolved.value, hasChanged: true })
 }

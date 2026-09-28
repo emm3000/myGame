@@ -2,6 +2,7 @@ import {
   cancelUpgrade,
   type DomainError,
   type Fief,
+  ok,
   type PlayerId,
   type Result,
   type UpgradeTarget,
@@ -17,10 +18,12 @@ export const cancelUpgradeOf = async (
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
     playerId,
-    (fiefs, clock) =>
-      cancelUpgrade(
+    async (fiefs, clock) => {
+      const cancelled = await cancelUpgrade(
         { playerId, ...target },
         { fiefs, catalog: dependencies.buildingCatalog, clock },
-      ),
+      )
+      return cancelled.ok ? ok(cancelled.value.fief) : cancelled
+    },
     dependencies,
   )

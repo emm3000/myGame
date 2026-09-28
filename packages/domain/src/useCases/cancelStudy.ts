@@ -1,5 +1,5 @@
 import type { DomainError } from '../DomainError'
-import type { Fief } from '../fief/Fief'
+import type { ChangedFief } from '../fief/ChangedFief'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { PlayerId } from '../player/PlayerId'
 import type { ArtKind, BuildingCatalog } from '../ports/BuildingCatalog'
@@ -22,7 +22,7 @@ export type CancelStudyDependencies = {
 export const cancelStudy = async (
   command: CancelStudyCommand,
   { fiefs, catalog, clock }: CancelStudyDependencies,
-): Promise<Result<Fief, DomainError>> => {
+): Promise<Result<ChangedFief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.playerId)
   if (!stored.ok) {
     return stored
@@ -45,7 +45,7 @@ export const cancelStudy = async (
   if (!cancelled.ok) {
     return cancelled
   }
-  const saved = await fiefs.save(cancelled.value)
+  const saved = await fiefs.save(cancelled.value.fief)
   if (!saved.ok) {
     return saved
   }

@@ -275,7 +275,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    expect(result.value).toEqual({ fief: sawmillBuildingFief, hasChanged: false })
+    expect(result.value).toEqual({ fief: sawmillBuildingFief, events: [], hasChanged: false })
     expect(fiefs.storedFiefOf('lord')).toBe(sawmillBuildingFief)
   })
 
@@ -610,7 +610,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    expect(result.value).toEqual({ fief: idleFief, hasChanged: false })
+    expect(result.value).toEqual({ fief: idleFief, events: [], hasChanged: false })
     expect(fiefs.storedFiefOf('lord')).toBe(idleFief)
   })
 
@@ -759,7 +759,104 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    expect(result.value).toEqual({ fief: studyingFief, hasChanged: false })
+    expect(result.value).toEqual({ fief: studyingFief, events: [], hasChanged: false })
     expect(fiefs.storedFiefOf('lord')).toBe(studyingFief)
+  })
+
+  it('answers a finished upgrade at the instant it finished', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(1) })])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(3)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 1,
+        occurredAt: hoursAfterStored(1),
+      },
+    ])
+  })
+
+  it('answers the finishes in the order they applied', async () => {
+    const buildingAndStudyingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      buildQueue: [waitingEntry('sawmill', 2, 1)],
+      studySlot: smithingStudyFinishingAfterHours(1.5),
+    })
+    const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 1,
+        occurredAt: hoursAfterStored(1),
+      },
+      { kind: 'artLearned', art: 'smithing', level: 1, occurredAt: hoursAfterStored(1.5) },
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: hoursAfterStored(2),
+      },
+    ])
+  })
+
+  it('answers the upgrade before the study that finishes at the same instant', async () => {
+    const buildingAndStudyingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      studySlot: smithingStudyFinishingAfterHours(1),
+    })
+    const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events.map((event) => event.kind)).toEqual([
+      'upgradeFinished',
+      'artLearned',
+    ])
+  })
+
+  it('answers an art learned at the level the study reached', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ studySlot: smithingStudyFinishingAfterHours(1) }),
+    ])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      { kind: 'artLearned', art: 'smithing', level: 1, occurredAt: hoursAfterStored(1) },
+    ])
+  })
+
+  it('answers no event for a read with nothing to resolve', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(2) })])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([])
   })
 })

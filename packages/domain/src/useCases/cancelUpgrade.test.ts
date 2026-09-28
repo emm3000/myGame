@@ -440,4 +440,84 @@ describe('cancelUpgrade', () => {
 
     expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
   })
+
+  it('answers the cancelled upgrade with the cost it stored', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const cancelInstant = hoursAfterStored(1)
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      {
+        kind: 'upgradeCancelled',
+        building: 'sawmill',
+        level: 1,
+        occurredAt: cancelInstant,
+        refund: { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 },
+      },
+    ])
+  })
+
+  it('answers one cancel per entry dropped in cascade', async () => {
+    const queuedFief = storedFief({
+      slot: warehouseInProgress,
+      buildQueue: [
+        waitingEntry('sawmill', 1, 10),
+        waitingEntry('quarry', 1, 40),
+        waitingEntry('sawmill', 2, 20),
+        waitingEntry('sawmill', 3, 300),
+      ],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+    const cancelInstant = hoursAfterStored(0.5)
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { fiefs, catalog, clock: frozenClock(cancelInstant) },
+    )
+
+    assert(result.ok)
+    const woodOnly = (wood: number): Stocks => ({ wood, stone: 0, iron: 0, gold: 0, food: 0 })
+    expect(result.value.events).toEqual([
+      {
+        kind: 'upgradeCancelled',
+        building: 'sawmill',
+        level: 1,
+        occurredAt: cancelInstant,
+        refund: woodOnly(10),
+      },
+      {
+        kind: 'upgradeCancelled',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: cancelInstant,
+        refund: woodOnly(20),
+      },
+      {
+        kind: 'upgradeCancelled',
+        building: 'sawmill',
+        level: 3,
+        occurredAt: cancelInstant,
+        refund: woodOnly(300),
+      },
+    ])
+  })
+
+  it('answers no event when the cancel is refused', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', building: 'quarry', targetLevel: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'UpgradeNotFound', building: 'quarry', targetLevel: 1 },
+    })
+  })
 })
