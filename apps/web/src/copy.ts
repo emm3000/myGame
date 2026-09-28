@@ -1,8 +1,8 @@
-import type { ArtKind, BuildingKind, ResourceKind } from '@mygame/contracts'
+import type { ArtKind, BuildingKind, FiefEvent, ResourceKind } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { formatQuantity } from './design-system/formatQuantity'
 
-interface Shortfall {
+interface ResourceQuantity {
   readonly amount: number
   readonly resource: ResourceKind
 }
@@ -74,6 +74,11 @@ const names = {
   idleStudy: 'La biblioteca no tiene estudio en marcha.',
 } as const
 
+const quantitiesOf = (quantities: ReadonlyArray<ResourceQuantity>): string =>
+  listFormat.format(
+    quantities.map(({ amount, resource }) => `${formatQuantity(amount)} de ${resources[resource]}`),
+  )
+
 const ratePercent = (percent: number, resource: ResourceKind): string =>
   `+${percent} % de ${resources[resource]} / h`
 
@@ -83,6 +88,10 @@ export const copy = {
   shell: {
     title: 'myGame',
     signOut: 'Salir',
+    navigation: {
+      fief: 'Feudo',
+      chronicle: 'Crónica',
+    },
   },
   auth: {
     email: 'Correo',
@@ -119,13 +128,10 @@ export const copy = {
     maxLevel: 'Nivel máximo',
     nextLevel: (level: number): string => `Sube a ${names.level(level)}.`,
     atMaxLevel,
-    tooExpensive: (shortfalls: ReadonlyArray<Shortfall>): string => {
+    tooExpensive: (shortfalls: ReadonlyArray<ResourceQuantity>): string => {
       const isSingleOne = shortfalls.length === 1 && shortfalls[0]?.amount === 1
       const verb = isSingleOne ? 'falta' : 'faltan'
-      const missing = shortfalls.map(
-        ({ amount, resource }) => `${formatQuantity(amount)} de ${resources[resource]}`,
-      )
-      return `Te ${verb} ${listFormat.format(missing)}.`
+      return `Te ${verb} ${quantitiesOf(shortfalls)}.`
     },
     notEnoughPeasants: (needed: number, free: number): string =>
       `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
@@ -150,6 +156,22 @@ export const copy = {
     studyRunning: 'Ya hay un estudio en marcha.',
     libraryTooLow: (required: number, current: number): string =>
       `Necesitas la biblioteca a ${names.level(required)} y está a ${names.level(current)}.`,
+  },
+  chronicle: {
+    title: 'Crónica',
+    loading: 'Estamos leyendo la crónica…',
+    empty: 'La crónica está en blanco: aún no hay nada que contar.',
+    today: (time: string): string => `Hoy, ${time}`,
+    headings: {
+      upgradeFinished: 'Obra terminada:',
+      artLearned: 'Estudio terminado:',
+      upgradeCancelled: 'Obra cancelada:',
+      studyCancelled: 'Estudio cancelado:',
+    } satisfies Readonly<Record<FiefEvent['kind'], string>>,
+    subject: (label: string, level: number): string => `${label}, ${names.level(level)}.`,
+    recovered: 'Recuperas',
+    refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
+      `Recuperas ${quantitiesOf(refund)}.`,
   },
   refusals,
 } as const

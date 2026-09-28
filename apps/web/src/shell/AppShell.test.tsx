@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import { AppShell } from './AppShell'
+import { renderAppAt } from '../auth/renderAppAt.testSupport'
+import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 
-it('renders the shell title', () => {
-  render(<AppShell onSignOut={() => undefined}>{null}</AppShell>)
+it('renders the shell title', async () => {
+  renderAppAt('/', stubApiClient({ currentPlayer: async () => knownPlayer }))
 
-  expect(screen.getByRole('heading', { level: 1, name: 'myGame' })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: 'myGame' })).toBeDefined()
 })

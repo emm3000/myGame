@@ -6,6 +6,8 @@ import {
   type CancelStudyRequest,
   type CancelUpgradeRequest,
   type EnqueueBuildingRequest,
+  type FiefChronicle,
+  FiefChronicleSchema,
   type FiefOverview,
   FiefOverviewSchema,
   type Player,
@@ -32,6 +34,7 @@ export interface ApiClient {
   cancelUpgrade(target: CancelUpgradeRequest): Promise<ApiOutcome<FiefOverview>>
   startStudy(art: ArtKind): Promise<ApiOutcome<FiefOverview>>
   cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
+  chronicle(): Promise<ApiOutcome<FiefChronicle>>
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -109,6 +112,10 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     cancelStudy: async ({ art, targetLevel }) => {
       const response = await send(`/fief/studies/${art}/${targetLevel}`, { method: 'DELETE' })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    chronicle: async () => {
+      const response = await send('/fief/events', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, FiefChronicleSchema)
     },
   }
 }
