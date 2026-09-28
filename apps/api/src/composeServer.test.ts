@@ -258,6 +258,16 @@ describe('composeServer', () => {
     await server.close()
   })
 
+  it('drops the trailing slash of WEB_URL so a link never doubles it', async () => {
+    const server = composeServer(
+      { ...composableEnvironment, WEB_URL: 'https://mygame.example/' },
+      fixtureDirectory,
+    )
+
+    expect(server.webUrl).toBe('https://mygame.example')
+    await server.close()
+  })
+
   it('answers failed from an unreachable SMTP_URL', async () => {
     const server = composeServer(composableEnvironment, fixtureDirectory)
 

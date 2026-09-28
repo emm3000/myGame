@@ -58,7 +58,7 @@ const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
   }
   return {
     mailer: new SmtpMailer(smtpUrl, sender),
-    webUrl: urlWithProtocol('WEB_URL', environment.WEB_URL, ['http:', 'https:']),
+    webUrl: urlWithProtocol('WEB_URL', environment.WEB_URL, ['http:', 'https:']).replace(/\/$/, ''),
   }
 }
 
