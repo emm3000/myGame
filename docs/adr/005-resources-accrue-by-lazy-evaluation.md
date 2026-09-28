@@ -47,8 +47,10 @@ up to it as before.
 A rate is no longer constant over a span. The season in force scales every
 rate, and the season changes on a global calendar (ADR 016), so reading a
 fief splits `[at, now]` at every season boundary it crosses and accrues
-segment by segment, each segment at the rates in force at its start and each
-floored, clamped and frozen on its own by the formula above. A span inside
-one season accrues exactly as before. Nothing else here changes: the state
-stored is still `(amount, at)`, the rates are still derived on read, and no
-process turns the season.
+segment by segment: each segment takes the `ratePerHour` in force at its
+start, applies the formula above over its own elapsed time, and floors its
+result to a whole amount, so a stock is clamped to the capacity or frozen
+above it within each segment, never once for the span. A span inside one
+season accrues exactly as before. Nothing else here changes: the state stored
+is still `(amount, at, ratePerHour, capacity)`, the rates are still derived
+on read, and no process turns the season.
