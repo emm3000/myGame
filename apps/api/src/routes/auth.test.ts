@@ -13,19 +13,26 @@ import { mailEnvironment } from '../composeServer.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
-const millisecondsPerDay = 86_400_000
+const millisecondsPerHour = 3_600_000
+
+const millisecondsPerDay = 24 * millisecondsPerHour
 
 const signedUpAt = Date.parse('2026-09-22T08:00:00Z')
 
-type MovableClock = Clock & { readonly advanceDays: (days: number) => void }
+type MovableClock = Clock & {
+  readonly advanceDays: (days: number) => void
+  readonly advanceHours: (hours: number) => void
+}
 
 const movableClock = (): MovableClock => {
   let current = Instant.fromEpochMilliseconds(signedUpAt)
+  const advance = (milliseconds: number): void => {
+    current = Instant.fromEpochMilliseconds(current.epochMilliseconds + milliseconds)
+  }
   return {
     now: () => current,
-    advanceDays: (days) => {
-      current = Instant.fromEpochMilliseconds(current.epochMilliseconds + days * millisecondsPerDay)
-    },
+    advanceDays: (days) => advance(days * millisecondsPerDay),
+    advanceHours: (hours) => advance(hours * millisecondsPerHour),
   }
 }
 
@@ -442,5 +449,206 @@ describe('the auth routes', () => {
     const response = await app.request('/auth/verify-email/resend', post({}))
 
     expect(response.status).toBe(401)
+  })
+
+  const resetMailSubject = 'Cambia tu contraseña'
+
+  const resetMailsTo = (email: string): ReadonlyArray<Mail> =>
+    mailer.sentTo(email).filter((mail) => mail.subject === resetMailSubject)
+
+  const verifiedAna = async (): Promise<string> => {
+    const cookie = sessionCookieOf(await signUpAna())
+    await verifyEmail(tokenOf(mailer.sentTo(anasSignUp.email)[0]))
+    return cookie
+  }
+
+  const forgotPassword = async (email: string, forgettingApp = app): Promise<Response> =>
+    forgettingApp.request('/auth/forgot-password', post({ email }))
+
+  const resetPassword = async (token: string, password: string): Promise<Response> =>
+    app.request('/auth/reset-password', post({ token, password }))
+
+  const signInAna = async (password: string): Promise<Response> =>
+    app.request('/auth/sign-in', post({ email: anasSignUp.email, password }))
+
+  const resetLinkOfAna = async (): Promise<string> => {
+    await forgotPassword(anasSignUp.email)
+    return tokenOf(resetMailsTo(anasSignUp.email).at(-1))
+  }
+
+  const newPassword = 'acero-y-trigo'
+
+  it('sends a reset link to a verified email', async () => {
+    await verifiedAna()
+
+    const response = await forgotPassword(anasSignUp.email)
+
+    expect(response.status).toBe(202)
+    expect(await response.text()).toBe('')
+    const sent = resetMailsTo(anasSignUp.email)
+    const token = tokenOf(sent[0])
+    expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/)
+    expect(sent).toEqual([
+      {
+        to: anasSignUp.email,
+        subject: resetMailSubject,
+        text: [
+          'Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:',
+          '',
+          `http://localhost:3259/reset-password?token=${token}`,
+          '',
+          'El enlace vale una hora y una sola vez.',
+          '',
+          'Si no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.',
+        ].join('\n'),
+      },
+    ])
+  })
+
+  it('sends nothing to an unverified email', async () => {
+    await signUpAna()
+
+    const response = await forgotPassword(anasSignUp.email)
+
+    expect(response.status).toBe(202)
+    expect(resetMailsTo(anasSignUp.email)).toEqual([])
+  })
+
+  it('answers an unknown email as it answers a known one', async () => {
+    await verifiedAna()
+
+    const known = await forgotPassword(anasSignUp.email)
+    const unknown = await forgotPassword('nadie@example.com')
+
+    expect([unknown.status, await unknown.text()]).toEqual([known.status, await known.text()])
+    expect(mailer.sentTo('nadie@example.com')).toEqual([])
+  })
+
+  it('answers 202 when the reset link cannot be sent', async () => {
+    await verifiedAna()
+    const failingApp = createApp({ ...server, clock, mailer: MemoryMailer.failing() })
+
+    const response = await forgotPassword(anasSignUp.email, failingApp)
+
+    expect(response.status).toBe(202)
+  })
+
+  it('refuses a reset request with a malformed email', async () => {
+    const response = await forgotPassword('ana')
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('sets the new password', async () => {
+    await verifiedAna()
+
+    const reset = await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect(reset.status).toBe(204)
+    expect((await signInAna(newPassword)).status).toBe(200)
+  })
+
+  it('opens no session when it sets the new password', async () => {
+    await verifiedAna()
+
+    const reset = await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect(reset.headers.get('set-cookie')).toBeNull()
+    expect(await storedSessionKeys()).toEqual([])
+  })
+
+  it('refuses the old password after a reset', async () => {
+    await verifiedAna()
+
+    await resetPassword(await resetLinkOfAna(), newPassword)
+
+    const signedIn = await signInAna(anasSignUp.password)
+    expect(signedIn.status).toBe(401)
+    expect(ApiErrorSchema.parse(await signedIn.json()).kind).toBe('InvalidCredentials')
+  })
+
+  it('signs out every session of the player', async () => {
+    const signUpCookie = await verifiedAna()
+    const signInCookie = sessionCookieOf(await signInAna(anasSignUp.password))
+
+    await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect((await sessionOf(signUpCookie)).status).toBe(401)
+    expect((await sessionOf(signInCookie)).status).toBe(401)
+  })
+
+  it('keeps the sessions of every other player', async () => {
+    await verifiedAna()
+    const brunosCookie = sessionCookieOf(
+      await app.request(
+        '/auth/sign-up',
+        post({ email: 'bruno@example.com', password: 'piedra-y-oro', fiefName: 'Pedregal' }),
+      ),
+    )
+
+    await resetPassword(await resetLinkOfAna(), newPassword)
+
+    expect((await sessionOf(brunosCookie)).status).toBe(200)
+  })
+
+  it('refuses a reset link used twice', async () => {
+    await verifiedAna()
+    const token = await resetLinkOfAna()
+    await resetPassword(token, newPassword)
+
+    const second = await resetPassword(token, 'otra-clave-nueva')
+
+    expect(second.status).toBe(400)
+    expect(ApiErrorSchema.parse(await second.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a reset link past its hour', async () => {
+    await verifiedAna()
+    const token = await resetLinkOfAna()
+    clock.advanceHours(1)
+
+    const response = await resetPassword(token, newPassword)
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a verify token as a reset link', async () => {
+    await signUpAna()
+    const verifyToken = tokenOf(mailer.sentTo(anasSignUp.email)[0])
+
+    const response = await resetPassword(verifyToken, newPassword)
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('TokenInvalid')
+  })
+
+  it('refuses a short new password', async () => {
+    await verifiedAna()
+    const token = await resetLinkOfAna()
+
+    const response = await resetPassword(token, 'corta77')
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('WeakPassword')
+    expect((await resetPassword(token, newPassword)).status).toBe(204)
+  })
+
+  it('refuses a reset without a token as malformed', async () => {
+    const response = await app.request('/auth/reset-password', post({ password: newPassword }))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
+  it('stops the earlier reset link working when a new one is asked', async () => {
+    await verifiedAna()
+    const earlierToken = await resetLinkOfAna()
+
+    const laterToken = await resetLinkOfAna()
+
+    expect((await resetPassword(earlierToken, newPassword)).status).toBe(400)
+    expect((await resetPassword(laterToken, newPassword)).status).toBe(204)
   })
 })
