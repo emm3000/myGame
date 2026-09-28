@@ -176,15 +176,16 @@ describe('JsonBuildingCatalog', () => {
     expect(startingUpOn(directory)).toThrow(/smithing\.json is malformed/)
   })
 
-  it('ships smithing raising iron and masonry raising stone, at levels 1 to 10', () => {
-    expect(
-      [shippedArtLevels('smithing'), shippedArtLevels('masonry')].map((levels) =>
-        levels.map((line) => `${line?.resource}:${line?.level}`),
-      ),
-    ).toEqual([
+  it('ships smithing raising iron at levels 1 to 10', () => {
+    expect(shippedArtLevels('smithing').map((line) => `${line?.resource}:${line?.level}`)).toEqual(
       Array.from({ length: 10 }, (_, index) => `iron:${index + 1}`),
+    )
+  })
+
+  it('ships masonry raising stone at levels 1 to 10', () => {
+    expect(shippedArtLevels('masonry').map((line) => `${line?.resource}:${line?.level}`)).toEqual(
       Array.from({ length: 10 }, (_, index) => `stone:${index + 1}`),
-    ])
+    )
   })
 
   it('ships level 1 of every art requiring library level 1', () => {
