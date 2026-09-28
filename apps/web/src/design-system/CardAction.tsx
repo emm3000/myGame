@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import { buttonClassOf } from './Button'
 import { formatDuration } from './formatDuration'
 
 export type CardActionState =
@@ -39,7 +40,7 @@ function ActionButton({
       aria-label={accessibleName}
       disabled={!isEnabled}
       onClick={onAction}
-      className="cursor-pointer rounded-md border border-umber bg-umber px-3 py-2 font-utility text-button text-on-umber focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint"
+      className={buttonClassOf('primary')}
     >
       {label}
     </button>

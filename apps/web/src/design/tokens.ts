@@ -89,6 +89,12 @@ export const minHeights: Readonly<Record<MinHeight, string>> = {
   plot: '96px',
 }
 
+export type Width = 'numeral'
+
+export const widths: Readonly<Record<Width, string>> = {
+  numeral: '74px',
+}
+
 export type Radius = 'sm' | 'md' | 'pill'
 
 export const radii: Readonly<Record<Radius, string>> = {
