@@ -72,7 +72,7 @@ Every dispatch to a peer session must include:
 ## Isolation: ports and databases
 
 - Each peer that runs the api or the web locally picks a port from the dispatch (`API_PORT`, `WEB_PORT`), never the defaults, so two peers never collide. The orchestrator assigns them in the dispatch.
-- A database is one Docker container per peer, `mygame-<session>-pg` on its own host port, named in the dispatch; never the owner's local database. A peer never changes the owner's machine outside its worktree: no `brew services`, no LaunchAgent, no global install, no system-wide config. What a ticket needs runs in a container or inside the worktree.
+- A database is one Docker container per peer, `mygame-<session>-pg` on its own host port, named in the dispatch; never the owner's local database. Mail is a second container per peer, `mygame-<session>-mail` running `axllent/mailpit` at the tag CI pins, with two host ports the dispatch assigns: its SMTP port (container 1025, `SMTP_URL`) and its web and HTTP API port (container 8025, `MAILPIT_URL`); from #159 on every peer's `pnpm gate` needs it. Before `docker run`, `lsof -nP -iTCP:<port> -sTCP:LISTEN` shows the host port free: a listener bound to `127.0.0.1` by another VM wins over Docker's wildcard bind, and the peer then reaches the wrong process. A peer never changes the owner's machine outside its worktree: no `brew services`, no LaunchAgent, no global install, no system-wide config. What a ticket needs runs in a container or inside the worktree.
 
 ## Review cycle
 
