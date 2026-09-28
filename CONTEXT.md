@@ -9,7 +9,7 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Coordinates** — `kingdom:province:plot`, the fief's place on the map. A new fief takes the lowest free plot. Replaces *galaxy:system:position*.
 - **Kingdom** — the great region a fief lies in, a number in the data and a name on screen (Vadoalto is kingdom 1). Provinces and plots inside it are numbered. Replaces *galaxy*.
 - **Terrain** — what a province is made of: lowlands, uplands or ridges. It raises the starting rate of the resource it favours and forbids nothing.
-- **New land** — a second fief founded elsewhere. Replaces *colony*. Not in the MVP.
+- **New land** — a second fief founded elsewhere. Replaces *colony*. Not in this phase (W4).
 
 ## Resources
 
@@ -26,12 +26,12 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 
 - **Building** — a structure on a fief with a level; each level has a cost, a build duration and an effect.
 - **Sawmill / Quarry / Iron mine / Farm** — the producers.
-- **Library** — the building where arts are studied, one at a time in its study slot. Its level gates which art levels can be studied and shortens every study. Replaces *research lab*.
-- **Barracks** — where units are trained. Replaces *shipyard*. Not in the MVP.
+- **Library** — the building where arts are studied, one at a time in its study slot. Its built level, never the projected one, gates which art levels can be studied and shortens every study. Replaces *research lab*.
+- **Barracks** — where units are trained. Replaces *shipyard*. Not in this phase (W1).
 - **Build slot** — the single place on a fief where the upgrade in progress builds; one upgrade at a time. A slot with an upgrade in progress is **busy**.
 - **Build queue** — the ordered upgrades waiting behind the busy slot, at most the content cap. Each entry keeps the building, the target level, the cost it debited and the duration fixed at its enqueue, and starts the instant the one before it finishes.
 - **Enqueue** — the single atomic mutation that debits resources and either starts an upgrade in the idle slot or appends it to the build queue. The target level and the peasants are judged on the fief as it will stand once the slot and the queue finish. Staffs the upgrade by the delta: it releases the current level's occupancy and charges only the increase against the free peasants, so a level-2 upgrade of a building already at level 1 needs `occupancy(2) − occupancy(1)` free peasants, not `occupancy(2)`. Refused with a named reason when the build queue is full, resources are short or free peasants are too few.
-- **Resolve** — applying the finished upgrades and the finished study to the fief, on read, in the order they finished: each stretch accrues to the next finish at the rates in force, set by the building and art levels before it, then that finish applies. A finished upgrade raises its building and the next waiting upgrade starts at that instant; a finished study raises its art and leaves the study slot idle. An upgrade and a study that finish at one instant both apply there. A build queue left behind an idle build slot, which only a cancel stored before #92 left, restarts at the stored instant, the cancel instant. Every waiting upgrade that no longer fits the fief as projected (a level whose lower level was cancelled, too few free peasants) is dropped first, with a full refund.
+- **Resolve** — applying the finished upgrades and the finished study to the fief, on read, in the order they finished: each stretch accrues to the next finish at the rates in force, set by the building and art levels before it, then that finish applies. A finished upgrade raises its building and the next waiting upgrade starts at that instant; a finished study raises its art and leaves the study slot idle. An upgrade and a study that finish at one instant both apply there, the upgrade first. A build queue left behind an idle build slot, which only a cancel stored before #92 left, restarts at the stored instant, the cancel instant. Every waiting upgrade that no longer fits the fief as projected (a level whose lower level was cancelled, too few free peasants) is dropped first, with a full refund.
 - **Cancel** — the single atomic mutation that removes one entry, named by its building and target level, which no other entry of the slot or the queue shares: the upgrade in the busy slot or a waiting entry of the build queue. It refunds 100 % of the cost the entry stored at the enqueue, added to the stocks at the cancel instant even above the capacity, where they freeze. Cancelling the upgrade in the slot starts the next waiting entry at the cancel instant, or leaves the slot idle; cancelling a waiting entry closes the gap, so the entries after it keep their order and finish earlier. Then it cancels in **cascade**: the remaining entries are walked in order on the projection, and every one that no longer fits (its target level is not the projected level plus one, or the projected free peasants cannot staff its increase) is cancelled too, with its own full refund. Every finished upgrade is resolved first; an entry that has finished by then, or that the slot and the queue no longer hold, is refused, never swapped for a neighbour. It touches no peasant count, since occupancy derives from built levels. Cancelling the **study** in the study slot, named by its art and target level, refunds 100 % of the cost the study stored at its start the same way, even above the capacity; there is no cascade, since the study slot has no queue, and the build slot and the build queue stay untouched. A study that has finished by then is applied first and refused, never cancelled.
 
 ## Knowledge and arms
@@ -41,15 +41,15 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Masonry** — the art that raises the stone rate.
 - **Study** — the timed act that raises an art one level, paid in materials and gold at its start; the library's built level gates it and shortens it. Cancelled with a full refund, like an upgrade, until it finishes.
 - **Study slot** — the library's single place for the study in progress; one study at a time, no queue. A slot with a study in progress is **busy**.
-- **Unit** — infantry, archers, cavalry, rams. Replace *ships*. Not in the MVP.
-- **Army** — units on a march. Replaces *fleet*. Not in the MVP.
-- **March** — an army's movement between coordinates, with a duration. Replaces *mission*. Not in the MVP.
-- **Scout** — the unit that reveals another fief. Replaces *espionage probe*. Not in the MVP.
+- **Unit** — infantry, archers, cavalry, rams. Replace *ships*. Not in this phase (W1).
+- **Army** — units on a march. Replaces *fleet*. Not in this phase (W1).
+- **March** — an army's movement between coordinates, with a duration. Replaces *mission*. Not in this phase (W1).
+- **Scout** — the unit that reveals another fief. Replaces *espionage probe*. Not in this phase (W1).
 
 ## Society
 
-- **House** — a group of players under one banner. Replaces *alliance*. Not in the MVP.
-- **Season** — a world-wide modifier over time (winter lowers harvests). A lore hook, not in the MVP.
+- **House** — a group of players under one banner. Replaces *alliance*. Not in this phase (W2).
+- **Season** — a world-wide modifier over time (winter lowers harvests). A lore hook, not in this phase.
 
 ## Time
 
