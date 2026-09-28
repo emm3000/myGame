@@ -1,0 +1,25 @@
+# The chronicle
+
+Status: proposal. Every fact below is a proposal until the author accepts it. The English terms `chronicle` and the four event kinds `upgradeFinished`, `artLearned`, `upgradeCancelled` and `studyCancelled` are fixed by the S3 tickets (#128); the Spanish labels and the sentence of each event are in `names.md`.
+
+## What the chronicle is
+
+A lord is not always at the hall. Works finish at night, a master leaves once the treatise is copied, a recalled commission sends its materials back to the stores, and the lord hears of it on return, if anyone remembers to tell. The **chronicle** is the fief's remedy: one roll of parchment kept in the hall, on which each such happening is written as a single short line with the day and the hour it happened. It is the fief's memory of what went on while the lord looked elsewhere.
+
+The chronicle records endings, never orders. Ordering a work or commissioning a study is the lord's own act, done in the lord's presence, and the busy slot shows it; it needs no line. What ends a work or a study is what the lord may miss, so the roll holds four kinds of line: a work finished, an art learned, a work cancelled and a study cancelled. A cancelled work is written even when the lord ordered the cancel, because one cancel can drag down the works waiting behind it (`CONTEXT.md`, Cancel), and each of those is a line of its own, with what it sent back to the stores. The two cancels always say how much came back, material by material, since a lord who sees the stores full again wants to know why.
+
+Each line is dated by the hour the thing happened, never by the hour it was written. The scribe does not sit by the scaffold: the line is written when the lord next asks after the fief, from the foreman's word on when the last stone went in, and that hour is the one the roll keeps.
+
+## Who keeps it
+
+The **scribe of the hall**, *el escribano*, keeps the roll. Every fief has one from its founding, before it has a library: a hall that collects tolls and counts sacks needs someone who can write. The scribe is not one of the library's copyists (`arts.md`), who copy treatises; the scribe writes what happened. The roll is read from its end, where the ink is fresh, so the newest line comes first.
+
+## Why only the latest hundred lines
+
+Parchment is dear, and a fief has better uses for a calf than its own annals. The roll holds a hundred lines. When it is full, the scribe scrapes the oldest line and writes the newest over it, as the crown's clerks did with their ledgers. Nothing older than a hundred happenings survives, and no lord has yet missed it.
+
+## Open questions
+
+- Whether the scribe is ever named or shown on screen.
+- Whether the roll one day records what other fiefs do to this one: a march sighted, a scout caught. Out of scope for S3 (#128).
+- What the roll looks like; the chronicle has no image yet (`docs/art/art-bible.md`).
