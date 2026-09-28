@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
+import { ResourceKindSchema } from './ResourceKind'
 import { TerrainSchema } from './Terrain'
 import {
   BuildingLevelSchema,
@@ -63,6 +64,7 @@ const NextArtLevelSchema = z.object({
 
 const ArtStateSchema = z.object({
   level: WholeCountSchema,
+  resource: ResourceKindSchema,
   ratePercent: QuantitySchema,
   nextLevel: NextArtLevelSchema.nullable(),
 })

@@ -11,6 +11,7 @@ import {
   deriveResourceRates,
   deriveStudyDurationSeconds,
   deriveWarehouseCapacity,
+  err,
   type Fief,
   type FiefBuildingLevels,
   type Instant,
@@ -49,6 +50,17 @@ const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
 
 type ArtState = FiefOverview['arts'][ArtKind]
 
+const resourceRaisedBy = (
+  art: ArtKind,
+  catalog: BuildingCatalog,
+): Result<ResourceKind, DomainError> => {
+  const firstLevel = catalog.artLevelOf(art, 1)
+  if (firstLevel === undefined || firstLevel.art !== art) {
+    return err({ kind: 'UnknownArtLevel', art, level: 1 })
+  }
+  return ok(firstLevel.resource)
+}
+
 const artStateOf = (
   art: ArtKind,
   fief: Fief,
@@ -59,13 +71,18 @@ const artStateOf = (
   if (!inForce.ok) {
     return inForce
   }
+  const resource = resourceRaisedBy(art, catalog)
+  if (!resource.ok) {
+    return resource
+  }
   const ratePercent = inForce.value?.ratePercent ?? 0
   const next = nextArtLevelOf(art, level, catalog)
   if (next === undefined) {
-    return ok({ level, ratePercent, nextLevel: null })
+    return ok({ level, resource: resource.value, ratePercent, nextLevel: null })
   }
   return ok({
     level,
+    resource: resource.value,
     ratePercent,
     nextLevel: {
       level: next.level,
