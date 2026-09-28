@@ -13,6 +13,7 @@ import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err } from '../Result'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { Instant } from '../time/Instant'
 import { enqueueBuilding } from './enqueueBuilding'
 
@@ -34,6 +35,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const sawmillCost: Stocks = { wood: 60, stone: 15, iron: 0, gold: 0, food: 10 }

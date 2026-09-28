@@ -80,6 +80,16 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
       ridges: { resource: 'iron', ratePerHour: 2 },
     },
     buildQueueCap: 4,
+    seasons: {
+      epoch: '2026-10-05T00:00:00Z',
+      daysPerSeason: 7,
+      multiplierPercent: {
+        spring: { wood: 100, stone: 100, iron: 100, gold: 100, food: 125 },
+        summer: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+        autumn: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
+        winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
+      },
+    },
   },
 }
 

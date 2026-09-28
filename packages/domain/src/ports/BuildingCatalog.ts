@@ -1,5 +1,6 @@
 import type { Terrain } from '../fief/Terrain'
 import type { ResourceKind } from '../resources/Resources'
+import type { SeasonCalendar } from '../season/SeasonCalendar'
 
 export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehouse' | 'library'
 
@@ -57,6 +58,7 @@ export type FiefSettings = {
   readonly baseRates: Readonly<Record<ResourceKind, number>>
   readonly terrainBonus: Readonly<Record<Terrain, TerrainBonus>>
   readonly buildQueueCap: number
+  readonly seasons: SeasonCalendar
 }
 
 export interface BuildingCatalog {

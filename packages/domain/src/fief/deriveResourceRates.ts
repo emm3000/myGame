@@ -2,6 +2,8 @@ import type { DomainError } from '../DomainError'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
+import { seasonAt } from '../season/seasonAt'
+import type { Instant } from '../time/Instant'
 import { artKinds } from './artKinds'
 import { artLevelInForce } from './artLevelInForce'
 import type { FiefArtLevels } from './FiefArtLevels'
@@ -47,11 +49,28 @@ const applyArts = (
   return ok(multiplied)
 }
 
+const applySeason = (rates: Rates, at: Instant, catalog: BuildingCatalog): Rates => {
+  const settings = catalog.fiefSettings()
+  const season = seasonAt(at, settings)
+  if (season === undefined) {
+    return rates
+  }
+  const percents = settings.seasons.multiplierPercent[season.kind]
+  return {
+    wood: (rates.wood * percents.wood) / 100,
+    stone: (rates.stone * percents.stone) / 100,
+    iron: (rates.iron * percents.iron) / 100,
+    gold: (rates.gold * percents.gold) / 100,
+    food: (rates.food * percents.food) / 100,
+  }
+}
+
 export const deriveResourceRates = (
   buildingLevels: FiefBuildingLevels,
   artLevels: FiefArtLevels,
   terrain: Terrain,
   catalog: BuildingCatalog,
+  at: Instant,
 ): Result<Readonly<Record<ResourceKind, number>>, DomainError> => {
   const wood = producerRate(catalog, 'sawmill', buildingLevels.sawmill)
   if (!wood.ok) {
@@ -82,5 +101,9 @@ export const deriveResourceRates = (
   const bonus = terrainBonus[terrain]
   rates[bonus.resource] += bonus.ratePerHour
 
-  return applyArts(rates, artLevels, catalog)
+  const withArts = applyArts(rates, artLevels, catalog)
+  if (!withArts.ok) {
+    return withArts
+  }
+  return ok(applySeason(withArts.value, at, catalog))
 }

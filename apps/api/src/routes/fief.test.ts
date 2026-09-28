@@ -334,6 +334,20 @@ describe('the fief route', () => {
     expect(resources.wood).toEqual({ amount: 515, ratePerHour: 10, capacity: 1000 })
   })
 
+  it('answers the food rate the winter lowers at the instant of the read', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    const minutesToFirstWinter = (Date.parse('2026-10-26T00:00:00Z') - signedUpAt) / 60_000
+    const minutesWithinTheSession = 20 * 24 * 60
+    clock.advanceMinutes(minutesWithinTheSession)
+    await fiefOf(ana.cookie)
+    clock.advanceMinutes(minutesToFirstWinter - minutesWithinTheSession + 60)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect(resources.food.ratePerHour).toBe(11.25)
+  })
+
   it('answers a stock above the capacity unchanged after an hour', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await runSql('UPDATE fiefs SET wood = 1200')

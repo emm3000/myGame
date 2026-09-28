@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ArtLevel, BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { artResourceOf } from './artResourceOf'
 
 const firstLevelOf = (art: ArtLevel['art'], resource: ArtLevel['resource']): ArtLevel => ({
@@ -24,6 +25,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const artCatalog = (arts: Partial<Record<string, ArtLevel>>): BuildingCatalog => ({

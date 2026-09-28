@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { ArtLevel, BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { Instant } from '../time/Instant'
 import { Fief } from './Fief'
 import { materializeStocks } from './materializeStocks'
@@ -23,6 +24,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const doublingSmithing: ArtLevel = {
@@ -79,5 +81,33 @@ describe('materializeStocks', () => {
 
     assert(stocks.ok)
     expect(stocks.value.iron).toBe(250)
+  })
+
+  it('accrues the whole span at the season in force when the stocks were stored', () => {
+    const unchangedRates = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+    const springEndingAnHourAfterStorage: FiefSettings = {
+      ...fiefSettings,
+      seasons: {
+        epoch: Instant.fromEpochMilliseconds(
+          hoursLater(1).epochMilliseconds - 24 * MILLISECONDS_PER_HOUR,
+        ),
+        daysPerSeason: 1,
+        multiplierPercent: {
+          spring: { ...unchangedRates, gold: 50 },
+          summer: { ...unchangedRates, gold: 200 },
+          autumn: unchangedRates,
+          winter: unchangedRates,
+        },
+      },
+    }
+    const catalog: BuildingCatalog = {
+      ...smithingCatalog(5, doublingSmithing),
+      fiefSettings: () => springEndingAnHourAfterStorage,
+    }
+
+    const stocks = materializeStocks(smithingFief(), catalog, hoursLater(2))
+
+    assert(stocks.ok)
+    expect(stocks.value.gold).toBe(2)
   })
 })

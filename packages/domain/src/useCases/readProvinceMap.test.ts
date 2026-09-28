@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import { type HeldPlot, inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { readProvinceMap } from './readProvinceMap'
 
 const fiefSettings: FiefSettings = {
@@ -15,6 +16,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 }
 
 const catalog: BuildingCatalog = {

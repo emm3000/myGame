@@ -10,6 +10,7 @@ import {
   type InMemoryFiefRepository,
   inMemoryFiefRepository,
 } from '../testing/inMemoryFiefRepository'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { Instant } from '../time/Instant'
 import { foundFief } from './foundFief'
 
@@ -29,6 +30,7 @@ const fiefSettings = (plotsPerProvince: number): FiefSettings => ({
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  seasons: neutralSeasons,
 })
 
 const inMemoryCatalog = (settings: FiefSettings): BuildingCatalog => ({
