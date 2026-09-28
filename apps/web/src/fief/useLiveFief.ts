@@ -1,7 +1,12 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
-import { type LiveFief, liveFiefAt, slotRemainingSecondsAt } from './liveFief'
+import {
+  type LiveFief,
+  liveFiefAt,
+  slotRemainingSecondsAt,
+  studyRemainingSecondsAt,
+} from './liveFief'
 
 export type LiveFiefState =
   | { readonly kind: 'loading' }
@@ -42,8 +47,11 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
       return
     }
     const timers = [setTimeout(read, rereadIntervalMs)]
-    const remainingSeconds = slotRemainingSecondsAt(lastRead.overview, 0)
-    if (remainingSeconds > 0) {
+    const countdowns = [
+      slotRemainingSecondsAt(lastRead.overview, 0),
+      studyRemainingSecondsAt(lastRead.overview, 0),
+    ]
+    for (const remainingSeconds of countdowns.filter((seconds) => seconds > 0)) {
       timers.push(setTimeout(read, remainingSeconds * 1000))
     }
     return () => {

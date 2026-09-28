@@ -13,6 +13,8 @@ export interface LiveFief {
   readonly amounts: LiveAmounts
   readonly slotRemainingSeconds: number
   readonly slotTotalSeconds: number
+  readonly studyRemainingSeconds: number
+  readonly studyTotalSeconds: number
   readonly waitingUpgrades: ReadonlyArray<LiveWaitingUpgrade>
 }
 
@@ -33,18 +35,28 @@ const remainingSecondsAt = (
   return Math.max(0, atReadSeconds - elapsedSeconds)
 }
 
-export function slotRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
-  if (overview.slot.kind === 'idle') {
-    return 0
-  }
-  return remainingSecondsAt(overview.slot.finishesAt, overview, elapsedSeconds)
+type TimedWork = FiefOverview['slot'] | FiefOverview['study']
+
+function remainingSecondsOf(
+  work: TimedWork,
+  overview: FiefOverview,
+  elapsedSeconds: number,
+): number {
+  return work.kind === 'idle' ? 0 : remainingSecondsAt(work.finishesAt, overview, elapsedSeconds)
 }
 
-function slotTotalSecondsOf(overview: FiefOverview): number {
-  if (overview.slot.kind === 'idle') {
-    return 0
-  }
-  return (Date.parse(overview.slot.finishesAt) - Date.parse(overview.slot.startedAt)) / 1000
+function totalSecondsOf(work: TimedWork): number {
+  return work.kind === 'idle'
+    ? 0
+    : (Date.parse(work.finishesAt) - Date.parse(work.startedAt)) / 1000
+}
+
+export function slotRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
+  return remainingSecondsOf(overview.slot, overview, elapsedSeconds)
+}
+
+export function studyRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
+  return remainingSecondsOf(overview.study, overview, elapsedSeconds)
 }
 
 export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): LiveFief {
@@ -59,7 +71,9 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
       food: amountAfter(food, elapsedSeconds),
     },
     slotRemainingSeconds: slotRemainingSecondsAt(overview, elapsedSeconds),
-    slotTotalSeconds: slotTotalSecondsOf(overview),
+    slotTotalSeconds: totalSecondsOf(overview.slot),
+    studyRemainingSeconds: studyRemainingSecondsAt(overview, elapsedSeconds),
+    studyTotalSeconds: totalSecondsOf(overview.study),
     waitingUpgrades: overview.queue.entries.map(({ building, targetLevel, finishesAt }) => ({
       building,
       targetLevel,

@@ -1,0 +1,92 @@
+import { type ArtKind, ArtKindSchema } from '@mygame/contracts'
+import { type ReactElement, useId } from 'react'
+import { copy } from '../copy'
+import { ArtCard } from '../design-system/ArtCard'
+import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
+import { capitalize } from '../design-system/capitalize'
+import { FormAlert } from '../design-system/FormAlert'
+import { artCardOf } from './artCardOf'
+import type { LiveFief } from './liveFief'
+import type { Study } from './useStudy'
+
+const { names } = copy
+
+function studySlotStateOf(fief: LiveFief, study: Study): BuildSlotState {
+  const { study: slot } = fief.overview
+  if (slot.kind === 'idle') {
+    return { kind: 'idle', title: names.studySlot, invitation: names.idleStudy }
+  }
+  const art = {
+    buildingName: capitalize(names.arts[slot.art]),
+    levelLabel: names.level(slot.targetLevel),
+  }
+  if (fief.studyRemainingSeconds <= 0) {
+    return {
+      kind: 'justFinished',
+      title: names.studySlot,
+      message: copy.study.justFinished,
+      ...art,
+    }
+  }
+  return {
+    kind: 'busy',
+    title: names.busyStudy,
+    remainingSeconds: fief.studyRemainingSeconds,
+    totalSeconds: fief.studyTotalSeconds,
+    finishedLabel: copy.fief.finished,
+    cancel: {
+      label: copy.study.cancel,
+      accessibleName: copy.study.cancelOf(slot.art, slot.targetLevel),
+      isWaiting: study.isWaiting,
+      onCancel: () => study.cancel({ art: slot.art, targetLevel: slot.targetLevel }),
+    },
+    ...art,
+  }
+}
+
+function ArtItem({
+  art,
+  fief,
+  study,
+}: {
+  readonly art: ArtKind
+  readonly fief: LiveFief
+  readonly study: Study
+}): ReactElement {
+  return (
+    <li aria-label={names.arts[art]} className="flex flex-col">
+      <ArtCard
+        {...artCardOf(art, fief)}
+        titleElement="h4"
+        isWaiting={study.isWaiting}
+        onStudy={() => study.start(art)}
+      />
+    </li>
+  )
+}
+
+export function LibrarySection({
+  fief,
+  study,
+}: {
+  readonly fief: LiveFief
+  readonly study: Study
+}): ReactElement {
+  const headingId = useId()
+  return (
+    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+      <h3 id={headingId} className="m-0 font-body text-heading text-ink">
+        {copy.study.section}
+      </h3>
+      <div className="grid items-start gap-6 lg:grid-cols-3">
+        <BuildSlot state={studySlotStateOf(fief, study)} />
+        <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
+          {ArtKindSchema.options.map((art) => (
+            <ArtItem key={art} art={art} fief={fief} study={study} />
+          ))}
+        </ul>
+      </div>
+      {study.refusal !== undefined && <FormAlert message={copy.refusals[study.refusal]} />}
+    </section>
+  )
+}

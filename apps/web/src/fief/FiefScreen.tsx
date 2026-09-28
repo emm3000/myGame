@@ -14,14 +14,17 @@ import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { buildingCardOf } from './buildingCardOf'
+import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
 import type { Cancel } from './useCancel'
+import type { Study } from './useStudy'
 import type { Upgrade } from './useUpgrade'
 
 export interface FiefScreenProps {
   readonly fief: LiveFief
   readonly upgrade: Upgrade
   readonly cancel: Cancel
+  readonly study: Study
 }
 
 const { names } = copy
@@ -111,7 +114,7 @@ function BuildingItem({
   )
 }
 
-export function FiefScreen({ fief, upgrade, cancel }: FiefScreenProps): ReactElement {
+export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
     kind,
@@ -153,6 +156,7 @@ export function FiefScreen({ fief, upgrade, cancel }: FiefScreenProps): ReactEle
           </ul>
         </section>
       </div>
+      {overview.buildings.library.level >= 1 && <LibrarySection fief={fief} study={study} />}
     </div>
   )
 }
