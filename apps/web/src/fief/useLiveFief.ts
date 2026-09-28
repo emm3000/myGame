@@ -4,6 +4,7 @@ import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import {
   type LiveFief,
   liveFiefAt,
+  seasonRemainingSecondsAt,
   slotRemainingSecondsAt,
   studyRemainingSecondsAt,
 } from './liveFief'
@@ -26,6 +27,7 @@ interface LastRead {
 const rereadIntervalMs = 60_000
 const displayTickMs = 1000
 const focusFloorMs = 1000
+const longestTimeoutMs = 2_147_483_647
 
 const elapsedSecondsSince = (receivedAtMs: number, nowMs: number): number =>
   Math.max(0, (nowMs - receivedAtMs) / 1000)
@@ -50,9 +52,10 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
     const countdowns = [
       slotRemainingSecondsAt(lastRead.overview, 0),
       studyRemainingSecondsAt(lastRead.overview, 0),
+      seasonRemainingSecondsAt(lastRead.overview, 0),
     ]
     for (const remainingSeconds of countdowns.filter((seconds) => seconds > 0)) {
-      timers.push(setTimeout(read, remainingSeconds * 1000))
+      timers.push(setTimeout(read, Math.min(remainingSeconds * 1000, longestTimeoutMs)))
     }
     return () => {
       for (const timer of timers) {

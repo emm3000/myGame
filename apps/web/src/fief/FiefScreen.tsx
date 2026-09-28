@@ -3,6 +3,7 @@ import {
   BuildingKindSchema,
   type CancelUpgradeRequest,
   ResourceKindSchema,
+  type SeasonKind,
 } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
@@ -13,6 +14,7 @@ import type { CancelAction } from '../design-system/CancelAction'
 import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
+import { SeasonLine } from '../design-system/SeasonLine'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { buildingCardOf } from './buildingCardOf'
 import { LibrarySection } from './LibrarySection'
@@ -33,6 +35,30 @@ const { names } = copy
 function addressOf({ coordinates }: LiveFief['overview']): string {
   const kingdom = names.kingdoms[coordinates.kingdom] ?? String(coordinates.kingdom)
   return `${kingdom} ${coordinates.province}:${coordinates.plot}`
+}
+
+const seasonAfter: Readonly<Record<SeasonKind, SeasonKind>> = {
+  spring: 'summer',
+  summer: 'autumn',
+  autumn: 'winter',
+  winter: 'spring',
+}
+
+function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
+  const { season } = fief.overview
+  if (season === null) {
+    return null
+  }
+  return (
+    <SeasonLine
+      season={season.kind}
+      headerLine={copy.fief.seasonLine(season.kind, season.year)}
+      countdownLine={copy.fief.seasonCountdown(
+        seasonAfter[season.kind],
+        fief.seasonRemainingSeconds,
+      )}
+    />
+  )
 }
 
 function cancelActionOf(cancel: Cancel, target: CancelUpgradeRequest): CancelAction {
@@ -135,6 +161,7 @@ export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): R
           {addressOf(overview)}
         </Link>
         <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
+        <SeasonLineOf fief={fief} />
       </header>
       <ResourceBar
         resources={resources}
