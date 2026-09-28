@@ -15,6 +15,8 @@ import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
 import { Route as SignedInCronicaRouteImport } from './routes/_signedIn/cronica'
+import { Route as SignedInMapaIndexRouteImport } from './routes/_signedIn/mapa.index'
+import { Route as SignedInMapaProvinceRouteImport } from './routes/_signedIn/mapa.$province'
 
 const GuestRoute = GuestRouteImport.update({
   id: '/_guest',
@@ -44,18 +46,32 @@ const SignedInCronicaRoute = SignedInCronicaRouteImport.update({
   path: '/cronica',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInMapaIndexRoute = SignedInMapaIndexRouteImport.update({
+  id: '/mapa/',
+  path: '/mapa/',
+  getParentRoute: () => SignedInRoute,
+} as any)
+const SignedInMapaProvinceRoute = SignedInMapaProvinceRouteImport.update({
+  id: '/mapa/$province',
+  path: '/mapa/$province',
+  getParentRoute: () => SignedInRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SignedInIndexRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/cronica': typeof SignedInCronicaRoute
+  '/mapa/$province': typeof SignedInMapaProvinceRoute
+  '/mapa/': typeof SignedInMapaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SignedInIndexRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/cronica': typeof SignedInCronicaRoute
+  '/mapa/$province': typeof SignedInMapaProvinceRoute
+  '/mapa': typeof SignedInMapaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -65,12 +81,15 @@ export interface FileRoutesById {
   '/_guest/sign-up': typeof GuestSignUpRoute
   '/_signedIn/cronica': typeof SignedInCronicaRoute
   '/_signedIn/': typeof SignedInIndexRoute
+  '/_signedIn/mapa/$province': typeof SignedInMapaProvinceRoute
+  '/_signedIn/mapa/': typeof SignedInMapaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/sign-up' | '/cronica'
+  fullPaths:
+    '/' | '/sign-in' | '/sign-up' | '/cronica' | '/mapa/$province' | '/mapa/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/sign-up' | '/cronica'
+  to: '/' | '/sign-in' | '/sign-up' | '/cronica' | '/mapa/$province' | '/mapa'
   id:
     | '__root__'
     | '/_guest'
@@ -79,6 +98,8 @@ export interface FileRouteTypes {
     | '/_guest/sign-up'
     | '/_signedIn/cronica'
     | '/_signedIn/'
+    | '/_signedIn/mapa/$province'
+    | '/_signedIn/mapa/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,6 +151,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInCronicaRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/mapa/': {
+      id: '/_signedIn/mapa/'
+      path: '/mapa'
+      fullPath: '/mapa/'
+      preLoaderRoute: typeof SignedInMapaIndexRouteImport
+      parentRoute: typeof SignedInRoute
+    }
+    '/_signedIn/mapa/$province': {
+      id: '/_signedIn/mapa/$province'
+      path: '/mapa/$province'
+      fullPath: '/mapa/$province'
+      preLoaderRoute: typeof SignedInMapaProvinceRouteImport
+      parentRoute: typeof SignedInRoute
+    }
   }
 }
 
@@ -148,11 +183,15 @@ const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 interface SignedInRouteChildren {
   SignedInCronicaRoute: typeof SignedInCronicaRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
+  SignedInMapaProvinceRoute: typeof SignedInMapaProvinceRoute
+  SignedInMapaIndexRoute: typeof SignedInMapaIndexRoute
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
   SignedInCronicaRoute: SignedInCronicaRoute,
   SignedInIndexRoute: SignedInIndexRoute,
+  SignedInMapaProvinceRoute: SignedInMapaProvinceRoute,
+  SignedInMapaIndexRoute: SignedInMapaIndexRoute,
 }
 
 const SignedInRouteWithChildren = SignedInRoute._addFileChildren(

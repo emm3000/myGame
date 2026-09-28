@@ -11,21 +11,23 @@ export interface AppShellProps {
 interface Screen {
   readonly to: NonNullable<LinkProps['to']>
   readonly label: string
+  readonly isExact: boolean
 }
 
 const screens: ReadonlyArray<Screen> = [
-  { to: '/', label: copy.shell.navigation.fief },
-  { to: '/cronica', label: copy.shell.navigation.chronicle },
+  { to: '/', label: copy.shell.navigation.fief, isExact: true },
+  { to: '/mapa', label: copy.shell.navigation.map, isExact: false },
+  { to: '/cronica', label: copy.shell.navigation.chronicle, isExact: true },
 ]
 
 const linkClass =
   'flex items-center border-b-3 px-3 py-3 font-utility text-button no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
 
-function ScreenLink({ to, label }: Screen): ReactElement {
+function ScreenLink({ to, label, isExact }: Screen): ReactElement {
   return (
     <Link
       to={to}
-      activeOptions={{ exact: true }}
+      activeOptions={{ exact: isExact }}
       className={linkClass}
       activeProps={{ className: 'border-river font-bold text-river' }}
       inactiveProps={{ className: 'border-transparent text-ink-muted' }}

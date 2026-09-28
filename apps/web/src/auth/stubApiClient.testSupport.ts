@@ -1,4 +1,4 @@
-import type { FiefOverview, Player } from '@mygame/contracts'
+import type { FiefOverview, Player, ProvinceMap } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 
 export const knownPlayer: Player = {
@@ -81,6 +81,25 @@ export const knownFief: FiefOverview = {
   readAt: '2026-09-22T12:00:00.000Z',
 }
 
+const heldPlots: Readonly<Record<number, string>> = {
+  1: 'Sotoverde',
+  3: 'Penalba',
+  7: 'Castrofrio',
+  12: 'Fuenteclara',
+}
+
+export const knownProvinceMap: ProvinceMap = {
+  kingdom: 1,
+  province: 3,
+  lastProvince: 4,
+  terrain: 'ridges',
+  plots: Array.from({ length: 15 }, (_, index) => {
+    const plot = index + 1
+    const name = heldPlots[plot]
+    return { plot, fief: name === undefined ? null : { name, isOwn: plot === 12 } }
+  }),
+}
+
 export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => ({
   signUp: async () => ({ ok: true, value: knownPlayer }),
   signIn: async () => ({ ok: true, value: knownPlayer }),
@@ -92,5 +111,6 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   startStudy: async () => ({ ok: true, value: knownFief }),
   cancelStudy: async () => ({ ok: true, value: knownFief }),
   chronicle: async () => ({ ok: true, value: { events: [] } }),
+  provinceMap: async () => ({ ok: true, value: knownProvinceMap }),
   ...overrides,
 })

@@ -1,4 +1,4 @@
-import type { ArtKind, BuildingKind, FiefEvent, ResourceKind } from '@mygame/contracts'
+import type { ArtKind, BuildingKind, FiefEvent, ResourceKind, Terrain } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { formatQuantity } from './design-system/formatQuantity'
 
@@ -53,6 +53,12 @@ const kingdoms: Readonly<Partial<Record<number, string>>> = {
   1: 'Vadoalto',
 }
 
+const terrains: Readonly<Record<Terrain, string>> = {
+  lowlands: 'vega',
+  uplands: 'páramo',
+  ridges: 'riscos',
+}
+
 const listFormat = new Intl.ListFormat('es', { type: 'conjunction' })
 
 const agreeing = (count: number, singular: string, plural: string): string =>
@@ -63,6 +69,7 @@ const names = {
   peasants: 'campesinos',
   buildings,
   kingdoms,
+  terrains,
   level: (level: number): string => `nivel ${level}`,
   slot: 'la obra',
   busySlot: 'una obra en marcha',
@@ -91,6 +98,7 @@ export const copy = {
     signOut: 'Salir',
     navigation: {
       fief: 'Feudo',
+      map: 'Mapa',
       chronicle: 'Crónica',
     },
   },
@@ -173,6 +181,19 @@ export const copy = {
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,
+  },
+  map: {
+    title: 'Mapa',
+    loading: 'Estamos leyendo el mapa…',
+    heading: (kingdom: number, province: number): string =>
+      `${kingdoms[kingdom] ?? String(kingdom)}, provincia ${province}`,
+    terrain: (terrain: Terrain): string => `Terreno: ${terrains[terrain]}`,
+    plot: (plot: number): string => `Parcela ${plot}`,
+    free: 'libre',
+    ownFief: 'Tu feudo',
+    previous: 'Provincia anterior',
+    next: 'Provincia siguiente',
+    jump: 'Ir a la provincia',
   },
   refusals,
 } as const
