@@ -311,3 +311,74 @@ mockup of #213 draws it.
 - Out of scope of #209, each a future ADR or an amendment of this one: a
   cancel of a recruit order, a recruit queue, other unit kinds, a season on
   training, upkeep or famine, marches, combat, units on the map.
+
+## Amendment (2026-09-29)
+
+S11 (#231) supersedes the decision "No cancel of a recruit order in this
+slice" and lifts the "Cancel of a recruit order" rejection above. The owner
+grilled it on 2026-09-28 and took the recommended option on every question;
+this records what S11 shipped, PRs #240 to #243 and #237, where the code
+stands over the tickets.
+
+- **The lord keeps the delivered units and is refunded the rest in full.**
+  `Fief.cancelRecruitOrder(target, stocksAtNow, now)` reads the delivered
+  units with `deliveredUnitsOf(order, now)`, a delivery at the cancel instant
+  counting (the floor), and adds them to the stored count of the order's
+  unit. The undelivered units are `count - delivered`, and their refund is
+  `shareOf(cost, cancelled, count)`, the stored cost times the undelivered
+  over the count: exact, since the stored cost is `count` times the unit
+  cost and seasons scale only durations (ADR 017). The refund is added to
+  the stocks at the cancel instant even above the capacity, where it freezes,
+  like the other cancels, `storedAt` becomes the cancel instant and the
+  recruit slot is left idle. Their peasants are freed with no code of their
+  own: occupancy derives from the counts plus the open order (Decision "The
+  order's occupancy"), so the delivered units stay occupied and the
+  undelivered ones stop being.
+- **The resolve comes first, and an ended order is refused.** The use case
+  `cancelRecruitOrder` materializes the stocks to the cancel instant, and the
+  api runs the resolve walk before it (ADR 005, ADR 016), so every finished
+  work is applied first. An order whose end is at or before the cancel
+  instant is refused, never swapped for another: the walk has closed it, and
+  the answer is the same `RecruitOrderNotFound`.
+- **The order is named by its unit and its `startedAt`.** The cancel is
+  refused `RecruitOrderNotFound { unit, startedAt }`, a new member of
+  `DomainError` in the style of `UpgradeNotFound` and `StudyNotFound`, when
+  the slot is idle, holds another unit, or holds an order started at another
+  instant (compared by epoch milliseconds), so a stale tab never cancels a
+  newer order. It maps to HTTP 409 with `RecruitOrderNotFound` in
+  `ApiErrorKindSchema`.
+- **No cascade.** Freeing peasants only raises the free count. The build
+  slot, the build queue and the study slot stay untouched, since none of
+  them holds an entry that a rising free count can invalidate.
+- **The chronicle gains a sixth event kind, recruits cancelled** (ADR 013,
+  amended): one event per order, `recruitsCancelled` with its `unit`, the
+  `delivered` count (from 0), the `cancelled` count (from 1) and the
+  `refund`, stamped with the cancel instant and written in the cancel's
+  transaction. It carries no level. The wire schema is strict, its Spanish
+  line is a lore proposal of #232 that waits for the author, and the
+  chronicle row reads its identity from the unit, the delivered and the
+  cancelled counts.
+- **Persistence: one value and one column, migration 0013**, alone in its
+  wave. `fief_event_kind` gains `recruits_cancelled`; `fief_events` gains a
+  nullable `cancelled_count`. The delivered units of a recruits-cancelled
+  row live in the existing `count` column, which a recruits-delivered row
+  already uses for the units it delivered, and the refund reuses the
+  `refund_*` columns of the two other cancels. The check
+  `fief_events_one_subject` is replaced: `cancelled_count` may be set only
+  on a unit row and then from 1. Every row stored before it reads as
+  before. The alternative, a `delivered_count` column beside `count`, would
+  leave `count` meaning two things on one kind and null on the other.
+- **The route is `DELETE /fief/recruit-orders/:unit/:startedAt`**, the
+  instant URL-encoded in the path, validated by
+  `CancelRecruitOrderRequestSchema` `{ unit, startedAt }` and answering the
+  fief overview like the other cancels.
+- **The screen is the Design System `CancelAction` inside `RecruitSlot`,**
+  with no confirmation dialog, as the build and study cancels (Decision 6
+  of #231, #237); no design ticket.
+
+Nothing else here changes: the order is still placed in full, delivers on
+read and closes at its last delivery, a second order still waits for the
+slot, and a recruit queue, other unit kinds, a season on training, upkeep or
+famine, marches, combat and units on the map stay out. PRD S3 lists four
+event kinds and ADR 013 five; this amendment amends neither list, as
+Decision 8 of #231 fixes.
