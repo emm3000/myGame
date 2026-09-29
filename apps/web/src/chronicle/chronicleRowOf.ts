@@ -86,13 +86,18 @@ const amountsOf = (event: FiefEvent): ChronicleAmounts | undefined => {
   return undefined
 }
 
+const headingOf = (event: FiefEvent): string =>
+  event.kind === 'marchReturned' && event.recalled
+    ? copy.chronicle.marchRecalled
+    : copy.chronicle.headings[event.kind]
+
 export function chronicleRowOf(event: FiefEvent, readAt: Date): ChronicleRow {
   const subject = subjectOf(event)
   return {
     key: `${event.kind}-${subject.identity}-${event.occurredAt}`,
     occurredAt: event.occurredAt,
     instant: formatInstant(new Date(event.occurredAt), readAt),
-    heading: copy.chronicle.headings[event.kind],
+    heading: headingOf(event),
     subject: subject.text,
     amounts: amountsOf(event),
   }

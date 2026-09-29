@@ -363,6 +363,7 @@ export const copy = {
       recruitsCancelled: 'Leva cancelada:',
       marchReturned: 'Marcha terminada:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
+    marchRecalled: 'Marcha retirada:',
     subject: (label: string, level: number): string => `${label}, ${names.level(level)}.`,
     recruits: (unit: UnitKind, count: number): string => `${countedUnits(unit, count)}.`,
     recruitsCancelled: (unit: UnitKind, delivered: number, cancelled: number): string =>
