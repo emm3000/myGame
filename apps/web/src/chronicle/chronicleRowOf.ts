@@ -43,6 +43,11 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
         identity: `${event.unit}-${event.count}`,
         text: copy.chronicle.recruits(event.unit, event.count),
       }
+    case 'recruitsCancelled':
+      return {
+        identity: `${event.unit}-${event.delivered}-${event.cancelled}`,
+        text: copy.chronicle.recruitsCancelled(event.unit, event.delivered, event.cancelled),
+      }
     default: {
       const unreachable: never = event
       return unreachable

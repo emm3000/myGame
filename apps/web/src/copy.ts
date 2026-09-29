@@ -111,6 +111,9 @@ const listFormat = new Intl.ListFormat('es', { type: 'conjunction' })
 const agreeing = (count: number, singular: string, plural: string): string =>
   count === 1 ? singular : plural
 
+const countedUnits = (unit: UnitKind, count: number): string =>
+  `${count} ${agreeing(count, units[unit].singular, units[unit].plural)}`
+
 const names = {
   resources,
   peasants: 'campesinos',
@@ -304,10 +307,12 @@ export const copy = {
       upgradeCancelled: 'Obra cancelada:',
       studyCancelled: 'Estudio cancelado:',
       recruitsDelivered: 'Leva terminada:',
+      recruitsCancelled: 'Leva cancelada:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
     subject: (label: string, level: number): string => `${label}, ${names.level(level)}.`,
-    recruits: (unit: UnitKind, count: number): string =>
-      `${count} ${agreeing(count, units[unit].singular, units[unit].plural)}.`,
+    recruits: (unit: UnitKind, count: number): string => `${countedUnits(unit, count)}.`,
+    recruitsCancelled: (unit: UnitKind, delivered: number, cancelled: number): string =>
+      `${countedUnits(unit, delivered)} en filas, ${countedUnits(unit, cancelled)} de vuelta al campo.`,
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,

@@ -116,7 +116,7 @@ it('shows the units an order delivered with their count', async () => {
 })
 
 it('agrees the unit label with a count of one', async () => {
-  const [row] = await showChronicle({
+  const [deliveredRow, cancelledRow] = await showChronicle({
     events: [
       {
         kind: 'recruitsDelivered',
@@ -124,10 +124,21 @@ it('agrees the unit label with a count of one', async () => {
         count: 1,
         occurredAt: '2026-09-22T11:00:00.000Z',
       },
+      {
+        kind: 'recruitsCancelled',
+        unit: 'infantry',
+        delivered: 1,
+        cancelled: 1,
+        occurredAt: '2026-09-22T10:00:00.000Z',
+        refund: { ...noRefund, wood: 20, iron: 10, food: 30 },
+      },
     ],
   })
 
-  expect(row?.textContent).toContain('Leva terminada: 1 infante.')
+  expect(deliveredRow?.textContent).toContain('Leva terminada: 1 infante.')
+  expect(cancelledRow?.textContent).toContain(
+    'Leva cancelada: 1 infante en filas, 1 infante de vuelta al campo.',
+  )
 })
 
 it('shows no refund on a recruits-delivered line', async () => {
@@ -143,6 +154,47 @@ it('shows no refund on a recruits-delivered line', async () => {
   })
 
   expect(within(row as HTMLElement).queryByText(copy.chronicle.recovered)).toBeNull()
+})
+
+it('shows the units a cancelled order delivered and cancelled', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'recruitsCancelled',
+        unit: 'infantry',
+        delivered: 4,
+        cancelled: 8,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        refund: { ...noRefund, wood: 160, iron: 80, food: 240 },
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Leva cancelada: 4 infantes en filas, 8 infantes de vuelta al campo.',
+  )
+})
+
+it('shows the refund of a cancelled order', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'recruitsCancelled',
+        unit: 'infantry',
+        delivered: 0,
+        cancelled: 12,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        refund: { ...noRefund, wood: 240, iron: 120, food: 360 },
+      },
+    ],
+  })
+
+  expect(
+    within(row as HTMLElement).getByText('Recuperas 240 de madera, 120 de hierro y 360 de comida.'),
+  ).toBeDefined()
+  expect(row?.textContent).toContain(
+    'Leva cancelada: 0 infantes en filas, 12 infantes de vuelta al campo.',
+  )
 })
 
 it('shows each event at the instant it happened', async () => {
