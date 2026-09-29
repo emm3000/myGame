@@ -36,6 +36,7 @@ const ownProvince = provinceOf(1, 'lowlands', {
 const uplands = provinceOf(2, 'uplands', { 3: { name: 'Castrofrio', isOwn: false } })
 
 const marchAway: NonNullable<FiefOverview['march']> = {
+  order: 'forage',
   province: 2,
   plot: 5,
   terrain: 'uplands',
@@ -48,6 +49,8 @@ const marchAway: NonNullable<FiefOverview['march']> = {
   leavesAt: '2026-09-22T14:14:00.000Z',
   returnsAt: '2026-09-22T14:28:00.000Z',
   recalledAt: null,
+  camp: null,
+  fought: false,
 }
 
 interface Deferred<T> {

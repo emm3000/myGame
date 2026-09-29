@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CampTiersSchema } from './CampTiers'
 import { ForageTermsSchema } from './ForageTerms'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
@@ -30,19 +31,10 @@ const UnitTermsSchema = z.strictObject({
   strength: WholeCountSchema.positive(),
 })
 
-const CampTierTermsSchema = z.strictObject({
-  maxStrength: WholeCountSchema.positive(),
-  regrowHours: WholeCountSchema.positive(),
-})
-
 const CampTermsSchema = z.strictObject({
   campFraction: z.number().min(0).max(1),
   lootPerStrength: WholeCountSchema.positive(),
-  tiers: z.strictObject({
-    1: CampTierTermsSchema,
-    2: CampTierTermsSchema,
-    3: CampTierTermsSchema,
-  }),
+  tiers: CampTiersSchema,
 })
 
 export const FiefContentSchema = z.object({

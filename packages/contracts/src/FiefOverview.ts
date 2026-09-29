@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
+import { CampTiersSchema } from './CampTiers'
 import { ForageTermsSchema } from './ForageTerms'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
@@ -103,12 +104,11 @@ const RecruitTermsSchema = z.strictObject({
   perUnitSeconds: DurationSecondsSchema.positive(),
 })
 
-const MarchStateSchema = z.strictObject({
+const MarchOnTheRoadSchema = z.strictObject({
   province: WholeCountSchema.positive(),
   plot: WholeCountSchema.positive(),
   terrain: TerrainSchema,
   infantry: WholeCountSchema.positive(),
-  stayHours: WholeCountSchema.positive(),
   departedAt: InstantSchema,
   oneWaySeconds: DurationSecondsSchema.positive(),
   loot: ResourceAmountsSchema,
@@ -116,6 +116,36 @@ const MarchStateSchema = z.strictObject({
   leavesAt: InstantSchema,
   returnsAt: InstantSchema,
   recalledAt: InstantSchema.nullable(),
+})
+
+const ForageMarchStateSchema = MarchOnTheRoadSchema.extend({
+  order: z.literal('forage'),
+  stayHours: WholeCountSchema.positive(),
+  camp: z.null(),
+  fought: z.literal(false),
+})
+
+const AttackedCampSchema = z.strictObject({
+  tier: z.literal([1, 2, 3]),
+  strength: WholeCountSchema,
+})
+
+const AttackMarchStateSchema = MarchOnTheRoadSchema.extend({
+  order: z.literal('attack'),
+  stayHours: z.literal(0),
+  camp: AttackedCampSchema,
+  fought: z.boolean(),
+})
+
+const MarchStateSchema = z.discriminatedUnion('order', [
+  ForageMarchStateSchema,
+  AttackMarchStateSchema,
+])
+
+const CombatTermsSchema = z.strictObject({
+  infantryStrength: WholeCountSchema.positive(),
+  lootPerStrength: WholeCountSchema.positive(),
+  tiers: CampTiersSchema,
 })
 
 export const FiefOverviewSchema = z.object({
@@ -155,6 +185,7 @@ export const FiefOverviewSchema = z.object({
   recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
   march: MarchStateSchema.nullable(),
   forageTerms: ForageTermsSchema,
+  combatTerms: CombatTermsSchema,
   readAt: InstantSchema,
 })
 
