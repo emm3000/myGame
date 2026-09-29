@@ -48,4 +48,38 @@ describe('FiefEventSchema', () => {
 
     expect(events.map((event) => FiefEventSchema.safeParse(event).success)).toEqual([false, false])
   })
+
+  it('accepts a recruits-delivered event', () => {
+    const delivered = {
+      kind: 'recruitsDelivered',
+      unit: 'infantry',
+      count: 12,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(delivered)).toEqual(delivered)
+  })
+
+  it('rejects a recruits-delivered event of zero units', () => {
+    const delivered = {
+      kind: 'recruitsDelivered',
+      unit: 'infantry',
+      count: 0,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(delivered).success).toBe(false)
+  })
+
+  it('rejects a recruits-delivered event with a level', () => {
+    const delivered = {
+      kind: 'recruitsDelivered',
+      unit: 'infantry',
+      count: 12,
+      level: 1,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(delivered).success).toBe(false)
+  })
 })

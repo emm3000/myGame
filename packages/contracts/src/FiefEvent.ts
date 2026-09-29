@@ -2,7 +2,8 @@ import { z } from 'zod'
 import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
-import { BuildingLevelSchema, InstantSchema } from './Wire'
+import { UnitKindSchema } from './UnitKind'
+import { BuildingLevelSchema, InstantSchema, WholeCountSchema } from './Wire'
 
 const UpgradeFinishedSchema = z.strictObject({
   kind: z.literal('upgradeFinished'),
@@ -34,11 +35,19 @@ const StudyCancelledSchema = z.strictObject({
   refund: ResourceAmountsSchema,
 })
 
+const RecruitsDeliveredSchema = z.strictObject({
+  kind: z.literal('recruitsDelivered'),
+  unit: UnitKindSchema,
+  count: WholeCountSchema.positive(),
+  occurredAt: InstantSchema,
+})
+
 export const FiefEventSchema = z.discriminatedUnion('kind', [
   UpgradeFinishedSchema,
   ArtLearnedSchema,
   UpgradeCancelledSchema,
   StudyCancelledSchema,
+  RecruitsDeliveredSchema,
 ])
 
 export type FiefEvent = z.infer<typeof FiefEventSchema>

@@ -5,6 +5,7 @@ import type {
   ResourceKind,
   SeasonKind,
   Terrain,
+  UnitKind,
 } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { capitalize } from './design-system/capitalize'
@@ -59,6 +60,15 @@ const buildings: Readonly<Record<BuildingKind, string>> = {
 const arts: Readonly<Record<ArtKind, string>> = {
   smithing: 'herrería',
   masonry: 'cantería',
+}
+
+interface UnitLabel {
+  readonly singular: string
+  readonly plural: string
+}
+
+const units: Readonly<Record<UnitKind, UnitLabel>> = {
+  infantry: { singular: 'infante', plural: 'infantes' },
 }
 
 const kingdoms: Readonly<Partial<Record<number, string>>> = {
@@ -116,6 +126,7 @@ const names = {
   studySlot: 'el estudio',
   busyStudy: 'un estudio en marcha',
   idleStudy: 'La biblioteca no tiene estudio en marcha.',
+  units,
 } as const
 
 const seasonTimeLeft = (seconds: number): string => {
@@ -272,8 +283,11 @@ export const copy = {
       artLearned: 'Estudio terminado:',
       upgradeCancelled: 'Obra cancelada:',
       studyCancelled: 'Estudio cancelado:',
+      recruitsDelivered: 'Leva terminada:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
     subject: (label: string, level: number): string => `${label}, ${names.level(level)}.`,
+    recruits: (unit: UnitKind, count: number): string =>
+      `${count} ${agreeing(count, units[unit].singular, units[unit].plural)}.`,
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,

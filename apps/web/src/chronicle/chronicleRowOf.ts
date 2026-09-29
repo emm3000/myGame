@@ -19,8 +19,36 @@ export interface ChronicleRow {
 
 type Refund = Extract<FiefEvent, { readonly refund: unknown }>['refund']
 
-const labelOf = (event: FiefEvent): string =>
-  'building' in event ? copy.names.buildings[event.building] : copy.names.arts[event.art]
+interface ChronicleSubject {
+  readonly identity: string
+  readonly text: string
+}
+
+const subjectOf = (event: FiefEvent): ChronicleSubject => {
+  switch (event.kind) {
+    case 'upgradeFinished':
+    case 'upgradeCancelled':
+      return {
+        identity: `${event.building}-${event.level}`,
+        text: copy.chronicle.subject(copy.names.buildings[event.building], event.level),
+      }
+    case 'artLearned':
+    case 'studyCancelled':
+      return {
+        identity: `${event.art}-${event.level}`,
+        text: copy.chronicle.subject(copy.names.arts[event.art], event.level),
+      }
+    case 'recruitsDelivered':
+      return {
+        identity: `${event.unit}-${event.count}`,
+        text: copy.chronicle.recruits(event.unit, event.count),
+      }
+    default: {
+      const unreachable: never = event
+      return unreachable
+    }
+  }
+}
 
 const refundOf = (refund: Refund): ChronicleRefund => {
   const refunded = ResourceKindSchema.options
@@ -33,13 +61,13 @@ const refundOf = (refund: Refund): ChronicleRefund => {
 }
 
 export function chronicleRowOf(event: FiefEvent, readAt: Date): ChronicleRow {
-  const label = labelOf(event)
+  const subject = subjectOf(event)
   return {
-    key: `${event.kind}-${'building' in event ? event.building : event.art}-${event.level}-${event.occurredAt}`,
+    key: `${event.kind}-${subject.identity}-${event.occurredAt}`,
     occurredAt: event.occurredAt,
     instant: formatInstant(new Date(event.occurredAt), readAt),
     heading: copy.chronicle.headings[event.kind],
-    subject: copy.chronicle.subject(label, event.level),
+    subject: subject.text,
     refund: 'refund' in event ? refundOf(event.refund) : undefined,
   }
 }
