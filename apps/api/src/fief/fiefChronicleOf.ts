@@ -30,6 +30,15 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
       }
     case 'recruitsDelivered':
       return { kind: event.kind, unit: event.unit, count: event.count, occurredAt }
+    case 'recruitsCancelled':
+      return {
+        kind: event.kind,
+        unit: event.unit,
+        delivered: event.delivered,
+        cancelled: event.cancelled,
+        occurredAt,
+        refund: event.refund,
+      }
     default: {
       const unreachable: never = event
       return unreachable

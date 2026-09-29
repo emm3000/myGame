@@ -86,6 +86,15 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         count: event.count,
         ...refundColumnsOf(noRefund),
       }
+    case 'recruitsCancelled':
+      return {
+        ...common,
+        kind: 'recruits_cancelled',
+        unit: storedUnits[event.unit],
+        count: event.delivered,
+        cancelledCount: event.cancelled,
+        ...refundColumnsOf(event.refund),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -128,6 +137,13 @@ const countOf = (row: EventRow): number => {
   return row.count
 }
 
+const cancelledCountOf = (row: EventRow): number => {
+  if (row.cancelledCount === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no cancelled count`)
+  }
+  return row.cancelledCount
+}
+
 const eventOf = (row: EventRow): FiefEvent => {
   const occurredAt = Instant.fromEpochMilliseconds(row.occurredAt.getTime())
   switch (row.kind) {
@@ -158,6 +174,15 @@ const eventOf = (row: EventRow): FiefEvent => {
       }
     case 'recruits_delivered':
       return { kind: 'recruitsDelivered', unit: unitOf(row), count: countOf(row), occurredAt }
+    case 'recruits_cancelled':
+      return {
+        kind: 'recruitsCancelled',
+        unit: unitOf(row),
+        delivered: countOf(row),
+        cancelled: cancelledCountOf(row),
+        occurredAt,
+        refund: refundOf(row),
+      }
     default: {
       const unreachable: never = row.kind
       return unreachable

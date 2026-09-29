@@ -35,3 +35,11 @@ export type FiefEvent =
       readonly count: number
       readonly occurredAt: Instant
     }
+  | {
+      readonly kind: 'recruitsCancelled'
+      readonly unit: UnitKind
+      readonly delivered: number
+      readonly cancelled: number
+      readonly occurredAt: Instant
+      readonly refund: Stocks
+    }

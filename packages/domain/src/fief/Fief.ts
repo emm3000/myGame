@@ -603,15 +603,25 @@ export class Fief {
       return err({ kind: 'RecruitOrderNotFound', unit: target.unit, startedAt: target.startedAt })
     }
     const delivered = deliveredUnitsOf(recruitOrder, now)
-    const undelivered = recruitOrder.count - delivered
+    const cancelled = recruitOrder.count - delivered
+    const refund = shareOf(recruitOrder.cost, cancelled, recruitOrder.count)
     return ok({
       fief: this.changed({
         units: this.units.plus(recruitOrder.unit, delivered),
         recruitOrder: { kind: 'idle' },
-        stocks: credit(stocksAtNow, shareOf(recruitOrder.cost, undelivered, recruitOrder.count)),
+        stocks: credit(stocksAtNow, refund),
         storedAt: now,
       }),
-      events: [],
+      events: [
+        {
+          kind: 'recruitsCancelled',
+          unit: recruitOrder.unit,
+          delivered,
+          cancelled,
+          occurredAt: now,
+          refund,
+        },
+      ],
     })
   }
 

@@ -20,6 +20,7 @@ import {
 } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainUnits } from '../testing/plainUnits'
+import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
 import { cancelRecruitOrder } from './cancelRecruitOrder'
 
@@ -137,7 +138,6 @@ describe('cancelRecruitOrder', () => {
     expect(stored?.units.countOf('infantry')).toBe(2)
     expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
     expect(stored?.storedAt).toEqual(secondsAfterStored(100))
-    expect(result.value.events).toEqual([])
   })
 
   it('counts a delivery at the cancel instant as delivered', async () => {
@@ -300,6 +300,75 @@ describe('cancelRecruitOrder', () => {
     assert(!result.ok)
     expect(JSON.stringify(fiefs.storedFiefOf('lord'))).toBe(before)
     expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
+  })
+
+  it('records the units kept, the units cancelled and the refund', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+
+    const result = await cancelRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { fiefs, chronicle, catalog, clock: frozenClock(secondsAfterStored(90)) },
+    )
+
+    assert(result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'recruitsCancelled',
+        unit: 'infantry',
+        delivered: 2,
+        cancelled: 3,
+        occurredAt: secondsAfterStored(90),
+        refund: { wood: 60, stone: 0, iron: 30, gold: 0, food: 90 },
+      },
+    ])
+    expect(result.value.events).toEqual(chronicle.recordedEventsOf('fief-1'))
+  })
+
+  it('stamps the cancel event with the cancel instant', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+    const cancelInstant = secondsAfterStored(100)
+
+    const result = await cancelRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { fiefs, chronicle, catalog, clock: frozenClock(cancelInstant) },
+    )
+
+    assert(result.ok)
+    expect(chronicle.recordedEventsOf('fief-1').map((event) => event.occurredAt)).toEqual([
+      cancelInstant,
+    ])
+  })
+
+  it('records no event when it refuses', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const chronicle = inMemoryChronicle()
+
+    const result = await cancelRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { fiefs, chronicle, catalog, clock: frozenClock(secondsAfterStored(225)) },
+    )
+
+    assert(!result.ok)
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
+  })
+
+  it('reports a record the chronicle refuses', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+    const refusal = { kind: 'FiefNotFound', playerId: 'lord' } as const
+
+    const result = await cancelRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      {
+        fiefs,
+        chronicle: refusingChronicle(refusal),
+        catalog,
+        clock: frozenClock(secondsAfterStored(90)),
+      },
+    )
+
+    expect(result).toEqual({ ok: false, error: refusal })
   })
 
   it('refuses a player who holds no fief', async () => {
