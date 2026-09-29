@@ -19,6 +19,7 @@ import {
   inMemoryFiefRepository,
 } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
@@ -46,6 +47,7 @@ const fiefSettings: FiefSettings = {
   },
   buildQueueCap: 4,
   units: plainUnits,
+  forage: plainForage,
   seasons: neutralSeasons,
 }
 

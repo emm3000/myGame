@@ -29,6 +29,8 @@ export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
 export type { Terrain } from './fief/Terrain'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
+export { forageLootOf } from './march/forageLootOf'
+export { marchOneWaySeconds } from './march/marchOneWaySeconds'
 export type { PlayerId } from './player/PlayerId'
 export type {
   ArtKind,
@@ -38,6 +40,7 @@ export type {
   BuildingLevel,
   FarmLevel,
   FiefSettings,
+  ForageTerms,
   ProducerLevel,
   TerrainBonus,
   UnitKind,

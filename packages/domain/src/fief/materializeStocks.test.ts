@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { ArtLevel, BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { Fief, type Stocks } from './Fief'
@@ -26,6 +27,7 @@ const fiefSettings: FiefSettings = {
   },
   buildQueueCap: 4,
   units: plainUnits,
+  forage: plainForage,
   seasons: neutralSeasons,
 }
 

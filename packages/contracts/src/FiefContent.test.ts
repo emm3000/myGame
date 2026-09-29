@@ -42,6 +42,22 @@ const infantry = {
 
 const units = { infantry }
 
+const noYield = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
+
+const yieldPerHour = {
+  lowlands: { ...noYield, food: 3, wood: 3 },
+  uplands: { ...noYield, wood: 3, stone: 3 },
+  ridges: { ...noYield, stone: 3, iron: 3 },
+}
+
+const forage = {
+  secondsPerProvince: 600,
+  secondsPerPlot: 60,
+  carryPerInfantry: 48,
+  maxStayHours: 8,
+  yieldPerHour,
+}
+
 const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   startingStocks: { wood: 500, stone: 300, iron: 200, gold: 0, food: 300 },
   startingCapacity: 1000,
@@ -52,6 +68,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   buildQueueCap: 4,
   seasons,
   units,
+  forage,
   ...overrides,
 })
 
@@ -256,6 +273,31 @@ describe('FiefContentSchema', () => {
       FiefContentSchema.safeParse(
         fiefContent({ units: { infantry: { ...infantry, durationSeconds: 0 } } }),
       ).success,
+    ).toBe(false)
+  })
+
+  it('rejects forage terms that yield gold', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          forage: { ...forage, yieldPerHour: { ...yieldPerHour, ridges: { ...noYield, gold: 3 } } },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects forage terms missing the ridges', () => {
+    const { ridges: _, ...twoTerrains } = yieldPerHour
+
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ forage: { ...forage, yieldPerHour: twoTerrains } }))
+        .success,
+    ).toBe(false)
+  })
+
+  it('rejects a longest stay of zero hours', () => {
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ forage: { ...forage, maxStayHours: 0 } })).success,
     ).toBe(false)
   })
 })

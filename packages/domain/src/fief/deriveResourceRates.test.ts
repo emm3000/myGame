@@ -8,6 +8,7 @@ import type {
 } from '../ports/BuildingCatalog'
 import type { SeasonCalendar } from '../season/SeasonCalendar'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { deriveResourceRates } from './deriveResourceRates'
@@ -70,6 +71,7 @@ const fiefSettings = (
   },
   buildQueueCap: 4,
   units: plainUnits,
+  forage: plainForage,
   seasons: gentleSeasons,
 })
 

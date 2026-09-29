@@ -67,6 +67,17 @@ const plainFief: FiefContent = {
       peasantOccupancy: 1,
     },
   },
+  forage: {
+    secondsPerProvince: 600,
+    secondsPerPlot: 60,
+    carryPerInfantry: 48,
+    maxStayHours: 8,
+    yieldPerHour: {
+      lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
+      uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
+      ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
+    },
+  },
 }
 
 const oneLevelArts: ReadonlyArray<ArtContent> = [
@@ -361,6 +372,20 @@ describe('JsonBuildingCatalog', () => {
         cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
         durationSeconds: 90,
         peasantOccupancy: 1,
+      },
+    })
+  })
+
+  it('reads the forage terms from the shipped content', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().forage).toEqual({
+      secondsPerProvince: 600,
+      secondsPerPlot: 60,
+      carryPerInfantry: 48,
+      maxStayHours: 8,
+      yieldPerHour: {
+        lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
+        uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
+        ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
       },
     })
   })
