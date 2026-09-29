@@ -162,7 +162,7 @@ describe('dispatchAttack', () => {
     await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)
 
     expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
-      oneWaySeconds: 600,
+      oneWaySeconds: 600 + (tierOnePlot - 1) * 60,
     })
   })
 
@@ -219,18 +219,24 @@ describe('dispatchAttack', () => {
     })
   })
 
-  it('debits nothing and keeps the stored instant and the units', async () => {
+  it('debits nothing and keeps the stored instant', async () => {
     const fief = storedFief({})
     const dependencies = dependenciesOver(fief)
 
     await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)
 
     const away = dependencies.fiefs.storedFiefOf('lord')
-    expect([away?.stocks, away?.storedAt, away?.units]).toEqual([
-      fief.stocks,
-      fief.storedAt,
-      fief.units,
-    ])
+    expect(away?.stocks).toEqual(fief.stocks)
+    expect(away?.storedAt).toBe(fief.storedAt)
+  })
+
+  it('keeps the unit counts at dispatch', async () => {
+    const fief = storedFief({})
+    const dependencies = dependenciesOver(fief)
+
+    await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)
+
+    expect(dependencies.fiefs.storedFiefOf('lord')?.units).toEqual(fief.units)
   })
 
   it('refuses a player who holds no fief', async () => {

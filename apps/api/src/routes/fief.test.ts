@@ -5,7 +5,7 @@ import {
   FiefOverviewSchema,
   PlayerSchema,
 } from '@mygame/contracts'
-import { type Clock, enqueueBuilding, Instant, type PlayerId } from '@mygame/domain'
+import { type Clock, campOf, enqueueBuilding, Instant, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
 import {
   afterAll,
@@ -1887,7 +1887,15 @@ describe('the fief route', () => {
     it('refuses a forage march to a camp plot', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, { ...fiveInfantryToProvinceTwoPlotFive, plot: 1 })
+      const { camps } = server.buildingCatalog.fiefSettings()
+      const campPlot = Array.from({ length: 15 }, (_, index) => index + 1).find(
+        (plot) => campOf({ kingdom: 1, province: 2, plot }, camps) !== undefined,
+      )
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        plot: campPlot,
+      })
 
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
