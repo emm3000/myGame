@@ -30,6 +30,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | S9 | Seasons on durations: content gives each season a build and a study percent, summer shortens building and winter shortens study; a duration is fixed with the season in force at the enqueue or the study start and never retimed, the overview answers the effective durations and the season's percents, and the buildings and arts section headers mark the season that shortens them (ADR 017). |
 | S10 | Units recruited in a barracks slot: the barracks is the seventh building, whose built level gates recruiting and shortens every unit's training; one order at a time of N infantry, paid and staffed in full at the order, delivered one unit at a time on read and closed at its last delivery with a chronicle line; every unit occupies peasants and eats nothing (ADR 018). |
 | S11 | Cancelling the recruit order in progress: the lord keeps the units delivered by the cancel instant, the undelivered units are refunded in full and their peasants freed, an order named by its unit and start so a stale tab is refused, and the chronicle records one line with the delivered and cancelled counts (ADR 018 as amended). |
+| S12 | A season on unit training: content gives each season a train percent, spring shortens training; a unit's duration is fixed with the season in force at the recruit order for all its units and never retimed, and the overview answers the scaled terms and the season's train percent (ADR 017 as amended). |
 
 ## Won't have (this phase)
 

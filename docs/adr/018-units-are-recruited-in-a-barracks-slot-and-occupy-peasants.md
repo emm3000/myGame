@@ -64,7 +64,7 @@ mockup of #213 draws it.
   `ceil(durationSeconds / (1 + barracksLevel))`: one division, one `ceil`,
   the content seconds divided by one plus the built barracks level, as the
   library divides a study (ADR 012). 90 seconds at barracks 1 is 45, at
-  barracks 2 is 30. No season on recruiting in this slice: the function
+  barracks 2 is 30. No season on recruiting in this slice (S12 lifts it: ADR 017 as amended): the function
   reads no `durationPercent` (ADR 017), and a barracks finished while an
   order runs shortens nothing.
 - **The barracks has a recruit slot: one order at a time, no queue.** `Fief`
@@ -246,7 +246,7 @@ mockup of #213 draws it.
   behind would be the one finish the timeline skips, and the next stretch
   would start at the wrong instant.
 - **A season on recruiting**, a `recruit` percent beside `build` and
-  `study` (ADR 017). Out of scope of #209, a future amendment of ADR 017.
+  `study` (ADR 017). Out of scope of #209; S12 ships it as `train`, in ADR 017 as amended.
 - **Cancel of a recruit order**, a march, combat, other kinds, upkeep or
   famine (W9), units on the map, generated unit images (S4). Out of scope of
   #209, each a future ADR or ticket.
@@ -310,7 +310,8 @@ mockup of #213 draws it.
   infantry icon of #213 is a hand-drawn line SVG (`docs/art/art-bible.md`).
 - Out of scope of #209, each a future ADR or an amendment of this one: a
   cancel of a recruit order, a recruit queue, other unit kinds, a season on
-  training, upkeep or famine, marches, combat, units on the map.
+  training (S12 ships it: ADR 017 as amended), upkeep or famine, marches,
+  combat, units on the map.
 
 ## Amendment (2026-09-29)
 

@@ -195,3 +195,62 @@ places as Decisions 6 and 7 fix it.
   duration that follows the season while the work runs, a season recomputed
   when a queued entry starts, a season on costs, capacities or peasants, a
   per-card mark, a chronicle event per season, the map.
+
+## Amendment (2026-09-28)
+
+S12 (#246) lifts ADR 018's "No season on recruiting in this slice" and its
+"A season on recruiting" considered option. The owner grilled it on
+2026-09-28 and took the recommended option on every question; this records
+what S12 shipped, PR #252, where the code stands over the tickets. The
+title and the Context above speak of build and study only, and the file
+keeps its name.
+
+- **A train percent per season, in content.** `seasons.durationPercent`
+  becomes a strict `{ build, study, train }` per season, every cell a whole
+  percent from 1, parsed at start-up as before. The shipped cells:
+  `spring.train` 75, every other `train` 100; `summer.build` 75 and
+  `winter.study` 75 are unchanged. Spring, which only raised food, gains
+  something to do. The cell is named `train`; the `recruit` of ADR 018's
+  considered option stays there as history. `SeasonDurationPercentSchema`
+  in `packages/contracts` gains `train`, and `durationPercentAt` answers
+  `{ build: 100, study: 100, train: 100 }` before the epoch.
+- **One division and one `ceil`, never chained roundings.**
+  `deriveUnitDurationSeconds` gains the percent as a third argument, as
+  `deriveStudyDurationSeconds` did: `ceil(seconds * train / (100 * (1 +
+  barracksLevel)))`. 100 seconds at barracks 2 in a 75 % spring is 25
+  seconds, where a rounding per factor gives 26.
+- **The duration is fixed with the season at the order, for all N units.**
+  `placeRecruitOrder` hands `Fief.placeRecruitOrder` the train percent at
+  `clock.now()` and the `Fief` reads no calendar, as `startStudy` does. An
+  order that spans a season change is never retimed: it keeps the
+  `perUnitSeconds` it stored, and the resolve walk (ADR 005, ADR 016) reads
+  no `durationPercent`. An order placed in spring keeps its spring duration
+  after summer begins.
+- **The wire answers the scaled terms and the percent as data.**
+  `FiefOverview.recruitTerms[unit].perUnitSeconds` is scaled by
+  `durationPercentAt` at the read instant, the barracks level and the
+  season together in one call so they agree, and `season.durationPercent`
+  gains `train`; `season` stays `null` before the epoch. A read and an
+  order at one instant agree; the order stores what the server computes
+  (N1).
+- **A mark on the army section header, no per-card mark.** As Decision 6 of
+  #246 fixes it, and not as shipped (#249 runs beside this amendment): the
+  `SeasonMark` chip of ADR 016 on the *Cuartel* header when
+  `season.durationPercent.train` is not 100, with the season's icon and the
+  effect in words; no mark at 100 or for `season: null`. No design ticket.
+- **Lore first.** The phrase, *La primavera acorta la leva* in the register
+  of *El verano acorta las obras*, is proposed for the author in the seasons
+  section of `docs/lore/names.md` (#247, PR #251). It waits for the author;
+  until accepted, `apps/web/src/copy.ts` mirrors the proposal.
+- **No event, no change to cancels or refunds, no migration.** The recruit
+  cancel already reads the stored `perUnitSeconds` and the cost is not
+  scaled; the chronicle keeps its six kinds (ADR 013, ADR 018 as amended);
+  `perUnitSeconds` was already stored on the order, so S12 adds no column
+  and no table (N2).
+
+Nothing else here changes: rates never read `durationPercent`, a waiting
+entry keeps the season of its enqueue, and a duration that follows the
+season while the work runs, an order retimed at a season boundary, a season
+on unit costs or occupancy, a per-card mark, a chronicle event per season,
+a recruit queue, other unit kinds, upkeep or famine, marches and combat stay
+out.
