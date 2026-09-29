@@ -14,12 +14,12 @@ Totals of rows already folded out of Recent.
 |---|---|---|---|---|---|---|
 | 1 | sonnet:low | 3 | 1 | 0 | 0 | 2 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
-| 2 | opus:medium | 18 | 14 | 3 | 0 | 1 |
+| 2 | opus:medium | 19 | 15 | 3 | 0 | 1 |
 | 3 | opus:medium | 24 | 16 | 3 | 4 | 1 |
 | 4 | opus:high | 22 | 18 | 1 | 2 | 1 |
 | 3 | opus:high | 4 | 4 | 0 | 0 | 0 |
 | 1 | fable:high | 9 | 9 | 0 | 0 | 0 |
-| 5 | fable:high | 5 | 5 | 0 | 0 | 0 |
+| 5 | fable:high | 6 | 6 | 0 | 0 | 0 |
 
 ## Recent
 
@@ -27,8 +27,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| #185 (artifact) | #185 | 5 | fable:high | MERGE | |
-| #195 | #188 | 2 | opus:medium | MERGE | |
 | #196 | #190 | 1 | fable:high | MERGE | |
 | #197 | #189 | 2 | opus:medium | MERGE | |
 | #204 | #199 | 1 | fable:high | MERGE | |
@@ -47,3 +45,5 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #228 | #218 | 3 | opus:high | MERGE | |
 | #229 | #220 | 1 | fable:high | MERGE | |
 | #230 | #219 | 2 | opus:medium | MERGE | |
+| #239 | #232 | 1 | fable:high | MERGE | |
+| #240 | #233 | 2 | opus:medium | MERGE | |
