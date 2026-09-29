@@ -436,3 +436,29 @@ second march, a season on the road or the forage and combat stay out. PRD
 W1 is unchanged, S14 is added under Should have citing this ADR as amended,
 and `CONTEXT.md` gains **Recall**, adjusts **March**, **Loot** and **Event**.
 Known gap: the lore proposals of #278 wait for the author.
+
+## Second amendment (2026-09-29)
+
+S15 (ADR 020) supersedes "No combat" in the decision "No combat, no
+recall, no season" and lifts "Combat, scouting, a march that meets
+another lord" from the considered options as far as the bandits go: the
+march slot takes a second order, `attack`, beside `forage`, on `AwayMarch`
+discriminated by `order`. An attack goes to a camp's plot, checked as a
+forage's target is and refused `PlotHasNoCamp` where no camp stands, and
+a forage to a camp's plot is refused `PlotHasCamp`. It walks the same road
+with no stay: `stayHours` is 0, `marchInstantsOf` answers `leavesAt =
+arrivesAt`, and `marchPhaseAt` reads it outbound and then returning. Its
+loot is fixed at dispatch as the forage loot is, from the camp's strength
+and the predicted survivors, in thirds with gold, capped by the survivors'
+carry. The battle is a fifth finish of the resolve at the arrival, between
+the recruit order and the march; the dead leave the count then, and a won
+attack keeps the march with the survivors, so `marchReturned` counts them,
+while a lost attack idles the slot at the arrival with no return. The
+recall of the amendment above is allowed only outbound, before the battle:
+at or after the arrival it is refused `MarchAlreadyReturning` for a won
+attack and `MarchNotFound` for a lost one, with no new rule. `fief_marches`
+gains `march_order`, `camp_tier`, `camp_strength` and `fought` (migration
+0016), and the wire's `march` is a union on `order`. Nothing else here
+changes: one march at a time, the road, the forage terms and its loot, the
+men away still counted and the tie order of the four earlier finishes
+stand; a march that meets another lord stays out.

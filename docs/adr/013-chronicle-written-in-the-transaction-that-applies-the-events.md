@@ -156,3 +156,25 @@ both from 1 on a unit row only (migration 0014). Nothing else here
 changes: the events are still written in the transaction that applies
 them, the chronicle still records endings and never orders, the domain
 never reads it, and retention stays at 100.
+
+## Third amendment (2026-09-29)
+
+The chronicle records an eighth kind of event, battle fought (S15, ADR
+020): the battle one attack fought at its camp, won or lost, one event per
+attack, naming the plot (province and plot), the camp's tier, the infantry
+lost and the strength the camp lost, both counts written even when one is
+0, and stamped with the attack's arrival, `arrivesAt`, never the `now` of
+the read that fought it. It carries no level, no unit count of its own on
+the wire and no refund. The resolve answers it beside the finishes of the
+same walk, after the upgrade, the study and the recruits delivered of a
+tied instant and before the march returned, and the api writes it in the
+transaction that fights the battle. A won attack goes on to write a march
+returned at the return, with the survivors and the loot; a lost attack
+writes the battle alone. `fief_events` gains a nullable `camp_tier` and
+`camp_lost` and a `won` boolean defaulting to false, a battle row is stored
+as a unit row with the infantry lost in `count` and the target in
+`province` and `plot`, and the check `fief_events_battle_terms` ties the
+three columns to `battle_fought` by `kind::text` (migration 0017). Nothing
+else here changes: the events are still written in the transaction that
+applies them, the chronicle still records endings and never orders, the
+domain never reads it, and retention stays at 100.
