@@ -317,7 +317,7 @@ mockup of #213 draws it.
 S11 (#231) supersedes the decision "No cancel of a recruit order in this
 slice" and lifts the "Cancel of a recruit order" rejection above. The owner
 grilled it on 2026-09-28 and took the recommended option on every question;
-this records what S11 shipped, PRs #240 to #243 and #237, where the code
+this records what S11 shipped, PRs #240 to #243, where the code
 stands over the tickets.
 
 - **The lord keeps the delivered units and is refunded the rest in full.**
@@ -350,8 +350,7 @@ stands over the tickets.
 - **No cascade.** Freeing peasants only raises the free count. The build
   slot, the build queue and the study slot stay untouched, since none of
   them holds an entry that a rising free count can invalidate.
-- **The chronicle gains a sixth event kind, recruits cancelled** (ADR 013,
-  amended): one event per order, `recruitsCancelled` with its `unit`, the
+- **The chronicle gains a sixth event kind, recruits cancelled** (ADR 013): one event per order, `recruitsCancelled` with its `unit`, the
   `delivered` count (from 0), the `cancelled` count (from 1) and the
   `refund`, stamped with the cancel instant and written in the cancel's
   transaction. It carries no level. The wire schema is strict, its Spanish
@@ -374,7 +373,7 @@ stands over the tickets.
   fief overview like the other cancels.
 - **The screen is the Design System `CancelAction` inside `RecruitSlot`,**
   with no confirmation dialog, as the build and study cancels (Decision 6
-  of #231, #237); no design ticket.
+  of #231, recorded as it fixes it and not as shipped); no design ticket.
 
 Nothing else here changes: the order is still placed in full, delivers on
 read and closes at its last delivery, a second order still waits for the
