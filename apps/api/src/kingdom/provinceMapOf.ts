@@ -6,8 +6,9 @@ export const provinceMapOf = (map: ProvinceMap): WireProvinceMap => ({
   province: map.province,
   lastProvince: map.lastProvince,
   terrain: map.terrain,
-  plots: map.plots.map(({ plot, fief }) => ({
+  plots: map.plots.map(({ plot, fief, camp }) => ({
     plot,
     fief: fief === undefined ? null : { name: fief.name, isOwn: fief.isOwn },
+    camp: camp === undefined ? null : { tier: camp.tier, strength: camp.strength },
   })),
 })

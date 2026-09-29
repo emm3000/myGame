@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { ApiErrorSchema, ProvinceMapSchema } from '@mygame/contracts'
+import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '../app'
@@ -9,6 +10,24 @@ import { mailEnvironment } from '../composeServer.testSupport'
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
 const plotsPerProvince = 15
+
+const millisecondsPerMinute = 60_000
+
+const signedUpAt = Date.parse('2026-09-22T08:00:00Z')
+
+type MovableClock = Clock & { readonly advanceMinutes: (minutes: number) => void }
+
+const movableClock = (): MovableClock => {
+  let current = Instant.fromEpochMilliseconds(signedUpAt)
+  return {
+    now: () => current,
+    advanceMinutes: (minutes) => {
+      current = Instant.fromEpochMilliseconds(
+        current.epochMilliseconds + minutes * millisecondsPerMinute,
+      )
+    },
+  }
+}
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -36,6 +55,7 @@ const sessionCookieOf = (response: Response): string => {
 describe('the map route', () => {
   let server: ComposedServer
   let app: ReturnType<typeof createApp>
+  let clock: MovableClock
 
   beforeAll(() => {
     server = composeServer(
@@ -52,7 +72,8 @@ describe('the map route', () => {
     await runSql(
       'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
     )
-    app = createApp(server)
+    clock = movableClock()
+    app = createApp({ ...server, clock })
   })
 
   const signUp = async (email: string, fiefName: string): Promise<string> => {
@@ -83,7 +104,11 @@ describe('the map route', () => {
       province: map.province,
       lastProvince: map.lastProvince,
     }).toEqual({ kingdom: 1, province: 2, lastProvince: 3 })
-    expect(map.plots[0]).toEqual({ plot: 1, fief: { name: 'Valdehierro', isOwn: true } })
+    expect(map.plots[0]).toEqual({
+      plot: 1,
+      fief: { name: 'Valdehierro', isOwn: true },
+      camp: null,
+    })
   })
 
   it('marks only the signed-in fief as own', async () => {
@@ -94,9 +119,9 @@ describe('the map route', () => {
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.plots.slice(0, 3)).toEqual([
-      { plot: 1, fief: { name: 'Valdehierro', isOwn: false } },
-      { plot: 2, fief: { name: 'Robledal', isOwn: true } },
-      { plot: 3, fief: null },
+      { plot: 1, fief: { name: 'Valdehierro', isOwn: false }, camp: null },
+      { plot: 2, fief: { name: 'Robledal', isOwn: true }, camp: null },
+      { plot: 3, fief: null, camp: null },
     ])
   })
 
@@ -159,6 +184,38 @@ describe('the map route', () => {
 
     expect(response.status).toBe(404)
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
+  })
+
+  it('answers the camps of a province', async () => {
+    const cookie = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await mapOf(cookie, '/map/1')
+
+    const map = ProvinceMapSchema.parse(await response.json())
+    expect(map.plots.filter(({ camp }) => camp !== null)).toEqual([
+      { plot: 9, fief: null, camp: { tier: 3, strength: 40 } },
+      { plot: 12, fief: null, camp: { tier: 1, strength: 6 } },
+    ])
+  })
+
+  it('answers a camp recorded beaten regrown an hour later', async () => {
+    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const beatenTierOneCamp = {
+      kingdom: 1,
+      province: 1,
+      plot: 12,
+      strength: 0,
+      foughtAt: clock.now(),
+    }
+    expect(await server.inTransaction(({ camps }) => camps.record(beatenTierOneCamp))).toEqual(
+      ok(undefined),
+    )
+    clock.advanceMinutes(60)
+
+    const response = await mapOf(cookie, '/map/1')
+
+    const map = ProvinceMapSchema.parse(await response.json())
+    expect(map.plots[11]).toEqual({ plot: 12, fief: null, camp: { tier: 1, strength: 1 } })
   })
 
   it('answers 401 without a session', async () => {

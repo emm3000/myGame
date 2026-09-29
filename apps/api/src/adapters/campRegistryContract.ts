@@ -81,5 +81,14 @@ export const campRegistryContract = (
 
       expect(await camps.lastBattlesIn(1, 3)).toEqual([lastOnSeven, lastOnTwelve])
     })
+
+    it('answers the latest record of each camp of a province when two battles tie', async () => {
+      const { camps } = await arrange()
+      const latestRecord = battleOn(camp, 2, '2026-09-22T11:00:00Z')
+
+      await recordAll(camps, [battleOn(camp, 5, '2026-09-22T11:00:00Z'), latestRecord])
+
+      expect(await camps.lastBattlesIn(1, 3)).toEqual([latestRecord])
+    })
   })
 }

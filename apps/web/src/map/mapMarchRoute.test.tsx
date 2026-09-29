@@ -24,6 +24,7 @@ const provinceOf = (
   plots: Array.from({ length: 15 }, (_, index) => ({
     plot: index + 1,
     fief: held[index + 1] ?? null,
+    camp: null,
   })),
 })
 
