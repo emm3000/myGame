@@ -337,7 +337,7 @@ S14 (#277) supersedes "There is no recall in this slice" in the decision
 march, ..." and the out-of-scope line of the Consequences: a march is now
 recalled on its way out or at the plot. Combat and seasons stay out. The
 owner grilled it on 2026-09-29 and took the recommended option on every
-question; this records what S14 shipped, PRs #285 to #289 and the lore
+question; this records what S14 has shipped so far, PRs #285 to #289 and the lore
 proposals of #278 (PR #286), where the code stands over the tickets.
 
 - **A march is recalled while outbound or foraging, never while returning.**
