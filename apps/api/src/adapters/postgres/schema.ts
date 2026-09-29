@@ -41,6 +41,7 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'upgrade_cancelled',
   'study_cancelled',
   'recruits_delivered',
+  'recruits_cancelled',
 ])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
@@ -228,6 +229,7 @@ export const fiefEvents = pgTable(
     unit: unit('unit'),
     level: integer('level'),
     count: integer('count'),
+    cancelledCount: integer('cancelled_count'),
     refundWood: doublePrecision('refund_wood').notNull().default(0),
     refundStone: doublePrecision('refund_stone').notNull().default(0),
     refundIron: doublePrecision('refund_iron').notNull().default(0),
@@ -238,7 +240,7 @@ export const fiefEvents = pgTable(
   (table) => [
     check(
       'fief_events_one_subject',
-      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}) = 1 AND (${table.level} IS NULL) = (${table.unit} IS NOT NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL)`,
+      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}) = 1 AND (${table.level} IS NULL) = (${table.unit} IS NOT NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1))`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],

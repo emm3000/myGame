@@ -320,6 +320,42 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a cancelled count on a building row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_cancelled',
+        building: 'sawmill',
+        level: 1,
+        cancelledCount: 3,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
+  it('refuses a unit row that cancels no unit', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'recruits_cancelled',
+        unit: 'infantry',
+        count: 2,
+        cancelledCount: 0,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
   it('refuses a second row for one unit of one fief', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -883,5 +919,53 @@ describe('the units and recruit orders migration', () => {
         recruitOrder: restored.value?.recruitOrder,
       },
     ).toEqual({ infantry: 0, recruitOrder: { kind: 'idle' } })
+  })
+})
+
+describe('the recruits cancelled migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the chronicle rows stored before the cancel migration', async () => {
+    await migratedFrom(client, 13, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_events (fief_id, kind, building, art, unit, level, count, refund_wood, refund_stone, occurred_at)
+         VALUES ($1, 'upgrade_finished', 'sawmill', NULL, NULL, 2, NULL, 0, 0, '2026-09-22T09:00:00Z'),
+                ($1, 'study_cancelled', NULL, 'masonry', NULL, 1, NULL, 80, 120, '2026-09-22T09:30:00Z'),
+                ($1, 'recruits_delivered', NULL, NULL, 'infantry', NULL, 5, 0, 0, '2026-09-22T10:00:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
+      {
+        kind: 'recruitsDelivered',
+        unit: 'infantry',
+        count: 5,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
+      },
+      {
+        kind: 'studyCancelled',
+        art: 'masonry',
+        level: 1,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:30:00Z')),
+        refund: { wood: 80, stone: 120, iron: 0, gold: 0, food: 0 },
+      },
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
+      },
+    ])
   })
 })

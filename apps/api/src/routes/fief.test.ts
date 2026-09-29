@@ -589,6 +589,29 @@ describe('the fief route', () => {
       ])
     })
 
+    it('answers a recruit cancel with the units kept, the units cancelled and the refund', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(
+        `INSERT INTO fief_events (fief_id, kind, unit, count, cancelled_count, refund_wood,
+           refund_iron, refund_food, occurred_at)
+         SELECT id, 'recruits_cancelled', 'infantry', 2, 3, 60, 30, 90, '2026-09-22T08:02:30Z'
+         FROM fiefs`,
+      )
+
+      const response = await chronicleOf(ana.cookie)
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'recruitsCancelled',
+          unit: 'infantry',
+          delivered: 2,
+          cancelled: 3,
+          occurredAt: '2026-09-22T08:02:30.000Z',
+          refund: { wood: 60, stone: 0, iron: 30, gold: 0, food: 90 },
+        },
+      ])
+    })
+
     it('answers the chronicle newest first', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueue(ana.cookie, 'sawmill')

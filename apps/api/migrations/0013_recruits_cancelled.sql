@@ -1,0 +1,4 @@
+ALTER TYPE "public"."fief_event_kind" ADD VALUE 'recruits_cancelled';--> statement-breakpoint
+ALTER TABLE "fief_events" DROP CONSTRAINT "fief_events_one_subject";--> statement-breakpoint
+ALTER TABLE "fief_events" ADD COLUMN "cancelled_count" integer;--> statement-breakpoint
+ALTER TABLE "fief_events" ADD CONSTRAINT "fief_events_one_subject" CHECK (num_nonnulls("fief_events"."building", "fief_events"."art", "fief_events"."unit") = 1 AND ("fief_events"."level" IS NULL) = ("fief_events"."unit" IS NOT NULL) AND ("fief_events"."count" IS NULL) = ("fief_events"."unit" IS NULL) AND ("fief_events"."cancelled_count" IS NULL OR ("fief_events"."unit" IS NOT NULL AND "fief_events"."cancelled_count" >= 1)));
