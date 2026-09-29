@@ -78,6 +78,8 @@ export type DomainError =
   | { readonly kind: 'RecruitOrderNotFound'; readonly unit: UnitKind; readonly startedAt: Instant }
   | { readonly kind: 'StayOutOfRange'; readonly stayHours: number }
   | { readonly kind: 'MarchSlotBusy' }
+  | { readonly kind: 'MarchNotFound'; readonly departedAt: Instant }
+  | { readonly kind: 'MarchAlreadyReturning' }
   | { readonly kind: 'MarchTargetOutOfBounds'; readonly province: number; readonly plot: number }
   | { readonly kind: 'MarchToOwnPlot' }
   | { readonly kind: 'PlotHeld'; readonly province: number; readonly plot: number }

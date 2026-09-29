@@ -1,8 +1,10 @@
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
+import { forageLootOfSeconds } from '../march/forageLootOfSeconds'
 import type { AwayMarch, March } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
+import { marchPhaseAt } from '../march/marchPhaseAt'
 import type { PlayerId } from '../player/PlayerId'
 import type {
   ArtLevel,
@@ -72,6 +74,10 @@ export type RecruitRequest = {
   readonly unit: UnitKind
   readonly count: number
   readonly terms: UnitTerms
+}
+
+export type MarchTarget = {
+  readonly departedAt: Instant
 }
 
 export type MarchOrder = {
@@ -224,6 +230,22 @@ const validateRecruitOrder = (
   return refuseNegativeAmount(recruitOrder.cost)
 }
 
+const validateRecall = (march: AwayMarch): Result<void, DomainError> => {
+  const { recalledAt, ...unrecalled } = march
+  if (recalledAt === undefined) {
+    return ok(undefined)
+  }
+  const { departedAt } = unrecalled
+  if (recalledAt.epochMilliseconds < departedAt.epochMilliseconds) {
+    return err({ kind: 'SlotStartsAfterFinish', startedAt: departedAt, finishesAt: recalledAt })
+  }
+  const { leavesAt } = marchInstantsOf(unrecalled)
+  if (recalledAt.epochMilliseconds >= leavesAt.epochMilliseconds) {
+    return err({ kind: 'SlotStartsAfterFinish', startedAt: recalledAt, finishesAt: leavesAt })
+  }
+  return ok(undefined)
+}
+
 const validateMarch = (march: March, storedAt: Instant): Result<void, DomainError> => {
   if (march.kind === 'idle') {
     return ok(undefined)
@@ -239,6 +261,10 @@ const validateMarch = (march: March, storedAt: Instant): Result<void, DomainErro
   }
   if (!Number.isInteger(march.oneWaySeconds)) {
     return err({ kind: 'FractionalDuration', seconds: march.oneWaySeconds })
+  }
+  const recall = validateRecall(march)
+  if (!recall.ok) {
+    return recall
   }
   const { returnsAt } = marchInstantsOf(march)
   if (returnsAt.epochMilliseconds < storedAt.epochMilliseconds) {
@@ -791,6 +817,35 @@ export class Fief {
           departedAt: now,
           oneWaySeconds: marchOneWaySeconds(this.coordinates, target, forage),
           loot: forageLootOf(terrainOf(province), infantry, stayHours, forage),
+        },
+      }),
+    )
+  }
+
+  recallMarch(target: MarchTarget, now: Instant, forage: ForageTerms): Result<Fief, DomainError> {
+    const { march } = this
+    if (
+      march.kind === 'idle' ||
+      march.departedAt.epochMilliseconds !== target.departedAt.epochMilliseconds
+    ) {
+      return err({ kind: 'MarchNotFound', departedAt: target.departedAt })
+    }
+    if (marchPhaseAt(march, now) === 'returning') {
+      return err({ kind: 'MarchAlreadyReturning' })
+    }
+    const { arrivesAt } = marchInstantsOf(march)
+    const foragedSeconds = Math.max(0, now.secondsSince(arrivesAt))
+    return ok(
+      this.changed({
+        march: {
+          ...march,
+          recalledAt: now,
+          loot: forageLootOfSeconds(
+            terrainOf(march.province),
+            march.infantry,
+            foragedSeconds,
+            forage,
+          ),
         },
       }),
     )

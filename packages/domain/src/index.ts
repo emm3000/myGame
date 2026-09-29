@@ -19,6 +19,7 @@ export {
   Fief,
   type FiefFounding,
   type MarchOrder,
+  type MarchTarget,
   type Stocks,
   type StoredFief,
 } from './fief/Fief'
@@ -37,6 +38,7 @@ export type { Terrain } from './fief/Terrain'
 export { terrainOf } from './fief/terrainOf'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
 export { forageLootOf } from './march/forageLootOf'
+export { forageLootOfSeconds } from './march/forageLootOfSeconds'
 export type { AwayMarch, March } from './march/March'
 export { type MarchInstants, marchInstantsOf } from './march/marchInstantsOf'
 export { marchOneWaySeconds } from './march/marchOneWaySeconds'
@@ -111,6 +113,11 @@ export {
   type ReadProvinceMapDependencies,
   readProvinceMap,
 } from './useCases/readProvinceMap'
+export {
+  type RecallMarchCommand,
+  type RecallMarchDependencies,
+  recallMarch,
+} from './useCases/recallMarch'
 export {
   type ResolvedFief,
   type ResolveUpgradeCommand,

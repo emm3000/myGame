@@ -14,7 +14,25 @@ export type MarchInstants = {
 const secondsAfter = (from: Instant, seconds: number): Instant =>
   Instant.fromEpochMilliseconds(from.epochMilliseconds + seconds * MILLISECONDS_PER_SECOND)
 
+const recalledInstantsOf = (march: AwayMarch, recalledAt: Instant): MarchInstants => {
+  const arrivesAt = Instant.fromEpochMilliseconds(
+    Math.min(
+      secondsAfter(march.departedAt, march.oneWaySeconds).epochMilliseconds,
+      recalledAt.epochMilliseconds,
+    ),
+  )
+  const walkedMilliseconds = arrivesAt.epochMilliseconds - march.departedAt.epochMilliseconds
+  return {
+    arrivesAt,
+    leavesAt: recalledAt,
+    returnsAt: Instant.fromEpochMilliseconds(recalledAt.epochMilliseconds + walkedMilliseconds),
+  }
+}
+
 export const marchInstantsOf = (march: AwayMarch): MarchInstants => {
+  if (march.recalledAt !== undefined) {
+    return recalledInstantsOf(march, march.recalledAt)
+  }
   const arrivesAt = secondsAfter(march.departedAt, march.oneWaySeconds)
   const leavesAt = secondsAfter(arrivesAt, march.stayHours * SECONDS_PER_HOUR)
   const returnsAt = secondsAfter(leavesAt, march.oneWaySeconds)
