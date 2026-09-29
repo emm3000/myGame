@@ -28,8 +28,10 @@ function countdownsOf(order: LiveRecruitOrder): ReadonlyArray<RecruitCountdown> 
   return [nextUnit, orderComplete]
 }
 
-function recruitSlotStateOf(order: LiveRecruitOrder | null): RecruitSlotState {
-  if (order === null) {
+function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState {
+  const order = fief.recruitOrder
+  const answered = fief.overview.recruitOrder
+  if (order === null || answered === null) {
     return { kind: 'idle', title: army.slot, invitation: army.idleSlot }
   }
   return {
@@ -40,6 +42,12 @@ function recruitSlotStateOf(order: LiveRecruitOrder | null): RecruitSlotState {
     countdowns: countdownsOf(order),
     remainingSeconds: order.remainingSeconds,
     totalSeconds: order.totalSeconds,
+    cancel: {
+      label: army.cancel,
+      accessibleName: army.cancelOf(answered.unit, answered.count),
+      isWaiting: recruit.isWaiting,
+      onCancel: () => recruit.cancel({ unit: answered.unit, startedAt: answered.startedAt }),
+    },
   }
 }
 
@@ -87,7 +95,7 @@ export function ArmySection({
         {army.section}
       </h3>
       <div className="grid items-start gap-6 lg:grid-cols-3">
-        <RecruitSlot state={recruitSlotStateOf(fief.recruitOrder)} />
+        <RecruitSlot state={recruitSlotStateOf(fief, recruit)} />
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
           {UnitKindSchema.options.map((unit) => (
             <UnitItem key={unit} unit={unit} fief={fief} recruit={recruit} />

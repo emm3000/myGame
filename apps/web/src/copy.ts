@@ -294,6 +294,9 @@ export const copy = {
       agreeing(count, units[unit].singular, units[unit].plural),
     countField: (unit: UnitKind): string => `${capitalize(units[unit].plural)} a reclutar`,
     recruit: (unit: UnitKind): string => `Reclutar ${units[unit].plural}`,
+    cancel: 'Cancelar la leva',
+    cancelOf: (unit: UnitKind, count: number): string =>
+      `Cancelar la leva: ${countedUnits(unit, count)}`,
     orderRunning: 'Ya hay una leva en marcha.',
     invalidCount: 'Un número entero, al menos 1.',
   },
