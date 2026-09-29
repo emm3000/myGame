@@ -3,6 +3,7 @@ import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
 import {
@@ -82,6 +83,7 @@ const SeasonStateSchema = z.strictObject({
   year: WholeCountSchema.positive(),
   endsAt: InstantSchema,
   multiplierPercent: z.record(ResourceKindSchema, WholeCountSchema.positive()),
+  durationPercent: SeasonDurationPercentSchema,
 })
 
 export const FiefOverviewSchema = z.object({

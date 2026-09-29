@@ -394,6 +394,44 @@ describe('the fief route', () => {
     expect(buildings.sawmill.nextLevel?.durationSeconds).toBe(90)
   })
 
+  it('answers the summer build percent', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes((Date.parse('2026-10-14T08:00:00Z') - signedUpAt) / millisecondsPerMinute)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { season } = FiefOverviewSchema.parse(await response.json())
+    expect(season?.kind).toBe('summer')
+    expect(season?.durationPercent).toEqual({ build: 75, study: 100 })
+  })
+
+  it('answers the winter study percent', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    const minutesToWinterRead =
+      (Date.parse('2026-10-28T08:00:00Z') - signedUpAt) / millisecondsPerMinute
+    const minutesWithinTheSession = 20 * 24 * 60
+    clock.advanceMinutes(minutesWithinTheSession)
+    await fiefOf(ana.cookie)
+    clock.advanceMinutes(minutesToWinterRead - minutesWithinTheSession)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { season } = FiefOverviewSchema.parse(await response.json())
+    expect(season?.kind).toBe('winter')
+    expect(season?.durationPercent).toEqual({ build: 100, study: 75 })
+  })
+
+  it('answers neutral duration percents in autumn', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes(minutesToFirstAutumnRead)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { season } = FiefOverviewSchema.parse(await response.json())
+    expect(season?.kind).toBe('autumn')
+    expect(season?.durationPercent).toEqual({ build: 100, study: 100 })
+  })
+
   it('answers a stock above the capacity unchanged after an hour', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await runSql('UPDATE fiefs SET wood = 1200')

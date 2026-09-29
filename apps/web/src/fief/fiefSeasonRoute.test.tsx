@@ -32,6 +32,8 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
 
 const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
+const neutralDurations = { build: 100, study: 100 }
+
 const autumnEndingInThreeDaysAndFiveHours: FiefOverview = {
   ...knownFief,
   season: {
@@ -39,6 +41,7 @@ const autumnEndingInThreeDaysAndFiveHours: FiefOverview = {
     year: 1,
     endsAt: '2026-09-25T17:00:00.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
+    durationPercent: neutralDurations,
   },
 }
 
@@ -56,6 +59,7 @@ const winterEndingInADayAndHalfAMinute: FiefOverview = {
     year: 1,
     endsAt: '2026-09-23T12:00:30.000Z',
     multiplierPercent: { ...neutralPercents, food: 75 },
+    durationPercent: neutralDurations,
   },
 }
 
@@ -78,6 +82,7 @@ const summerEndingInHalfAMinute: FiefOverview = {
     year: 1,
     endsAt: '2026-09-22T12:00:30.000Z',
     multiplierPercent: neutralPercents,
+    durationPercent: neutralDurations,
   },
 }
 
@@ -99,6 +104,7 @@ const autumnReadWhenSummerEnded: FiefOverview = {
     year: 1,
     endsAt: '2026-09-29T12:00:30.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
+    durationPercent: neutralDurations,
   },
   readAt: '2026-09-22T12:00:30.000Z',
 }
@@ -130,6 +136,7 @@ const springEndingInSixDays: FiefOverview = {
     year: 2,
     endsAt: '2026-09-28T12:00:00.000Z',
     multiplierPercent: { ...neutralPercents, food: 125 },
+    durationPercent: neutralDurations,
   },
 }
 
@@ -153,6 +160,7 @@ const summerEndingAfterTheLongestTimeout: FiefOverview = {
     year: 1,
     endsAt: '2026-10-22T12:00:00.000Z',
     multiplierPercent: neutralPercents,
+    durationPercent: neutralDurations,
   },
 }
 

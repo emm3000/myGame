@@ -72,6 +72,7 @@ const autumnOfYearOne = {
   year: 1,
   endsAt: '2026-10-26T00:00:00.000Z',
   multiplierPercent: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
+  durationPercent: { build: 100, study: 100 },
 }
 
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
@@ -244,5 +245,32 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithFourMultipliers).success).toBe(false)
+  })
+  it('rejects a season without duration percents', () => {
+    const { durationPercent: _, ...seasonWithoutDurations } = autumnOfYearOne
+    const overviewWithoutDurations = {
+      ...overviewWithSlot(busySlot),
+      season: seasonWithoutDurations,
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutDurations).success).toBe(false)
+  })
+
+  it('rejects a season missing its build percent', () => {
+    const overviewWithoutBuildPercent = {
+      ...overviewWithSlot(busySlot),
+      season: { ...autumnOfYearOne, durationPercent: { study: 100 } },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutBuildPercent).success).toBe(false)
+  })
+
+  it('rejects a duration percent of zero', () => {
+    const overviewWithZeroStudyPercent = {
+      ...overviewWithSlot(busySlot),
+      season: { ...autumnOfYearOne, durationPercent: { build: 100, study: 0 } },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithZeroStudyPercent).success).toBe(false)
   })
 })
