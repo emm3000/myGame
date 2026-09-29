@@ -149,6 +149,7 @@ const marchOf = (row: MarchRow | null): March => {
   }
   return {
     kind: 'away',
+    order: 'forage',
     province: row.province,
     plot: row.plot,
     infantry: row.infantry,
@@ -168,7 +169,7 @@ const marchOf = (row: MarchRow | null): March => {
 
 const marchRowOf = (fief: Fief): MarchRow | undefined => {
   const { march } = fief
-  if (march.kind === 'idle') {
+  if (march.kind === 'idle' || march.order === 'attack') {
     return undefined
   }
   return {

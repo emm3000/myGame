@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import { campOf } from '../camp/campOf'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
@@ -129,6 +130,14 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
   return restored.value
 }
 
+const campPlotOfProvinceTwo = (): number => {
+  const plot = Array.from({ length: 15 }, (_, index) => index + 1).find(
+    (candidate) => campOf({ kingdom: 1, province: 2, plot: candidate }, plainCamps) !== undefined,
+  )
+  assert(plot !== undefined)
+  return plot
+}
+
 const tenInfantryForTwoHours = {
   playerId: 'lord',
   province: 2,
@@ -151,6 +160,7 @@ describe('dispatchMarch', () => {
     assert(result.ok)
     expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
       kind: 'away',
+      order: 'forage',
       province: 2,
       plot: 5,
       infantry: 10,
@@ -287,6 +297,16 @@ describe('dispatchMarch', () => {
     expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
   })
 
+  it('refuses a forage march to a camp plot', async () => {
+    const dependencies = dependenciesOver(storedFief({}))
+    const campPlot = campPlotOfProvinceTwo()
+
+    const result = await dispatchMarch({ ...tenInfantryForTwoHours, plot: campPlot }, dependencies)
+
+    expect(result).toEqual(err({ kind: 'PlotHasCamp', province: 2, plot: campPlot }))
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
+  })
+
   it('refuses a march to the fief own plot', async () => {
     const dependencies = dependenciesOver(storedFief({}))
 
@@ -357,14 +377,17 @@ describe('dispatchMarch', () => {
 
     const past = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 16 }, dependencies)
     const none = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 0 }, dependencies)
-    const last = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 15 }, dependencies)
+    const last = await dispatchMarch(
+      { ...tenInfantryForTwoHours, province: 3, plot: 15 },
+      dependencies,
+    )
 
     expect(past).toEqual(err({ kind: 'MarchTargetOutOfBounds', province: 2, plot: 16 }))
     expect(none).toEqual(err({ kind: 'MarchTargetOutOfBounds', province: 2, plot: 0 }))
     assert(last.ok)
   })
 
-  it('refuses in order: count, stay, slot, bounds, own plot, held plot, infantry at home', async () => {
+  it('refuses in order: count, stay, slot, bounds, own plot, held plot, camp, infantry at home', async () => {
     const away = dependenciesOver(storedFief({}))
     await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 4 }, away)
     const idle = dependenciesOver(storedFief({}))
@@ -376,6 +399,11 @@ describe('dispatchMarch', () => {
       dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11, province: 1, plot: 16 }, idle),
       dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11, province: 1, plot: 1 }, idle),
       dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11, plot: 9 }, idle),
+      dispatchMarch(
+        { ...tenInfantryForTwoHours, infantry: 11, plot: campPlotOfProvinceTwo() },
+        idle,
+      ),
+      dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11 }, idle),
     ])
 
     expect(refusals.map((refusal) => (refusal.ok ? 'sent' : refusal.error.kind))).toEqual([
@@ -385,6 +413,8 @@ describe('dispatchMarch', () => {
       'MarchTargetOutOfBounds',
       'MarchToOwnPlot',
       'PlotHeld',
+      'PlotHasCamp',
+      'NotEnoughInfantryAtHome',
     ])
   })
 

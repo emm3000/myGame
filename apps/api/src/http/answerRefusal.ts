@@ -28,6 +28,8 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   RecruitOrderNotFound: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
+  PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
+  PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
   MarchToOwnPlot: 'Esa parcela es tu feudo. Envía la marcha a otra.',
   NotEnoughInfantryAtHome: 'No tienes infantes en casa suficientes para esa marcha.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
@@ -91,6 +93,9 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   MarchTargetOutOfBounds: { status: 409, kind: 'MarchTargetOutOfBounds' },
   MarchToOwnPlot: { status: 409, kind: 'MarchToOwnPlot' },
   PlotHeld: { status: 409, kind: 'PlotHeld' },
+  PlotHasCamp: { status: 409, kind: 'PlotHasCamp' },
+  PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
+  InvalidCamp: internalFailure,
   NotEnoughInfantryAtHome: { status: 409, kind: 'NotEnoughInfantryAtHome' },
 }
 

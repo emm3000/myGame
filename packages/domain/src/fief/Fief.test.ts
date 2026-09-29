@@ -37,6 +37,7 @@ const openOrder = {
 
 const awayMarch = {
   kind: 'away',
+  order: 'forage',
   province: 3,
   plot: 5,
   infantry: 3,
@@ -44,6 +45,20 @@ const awayMarch = {
   departedAt: foundingInstant,
   oneWaySeconds: 720,
   loot: { wood: 0, stone: 18, iron: 18, gold: 0, food: 0 },
+} as const
+
+const attackMarch = {
+  kind: 'away',
+  order: 'attack',
+  province: 3,
+  plot: 5,
+  infantry: 3,
+  stayHours: 0,
+  departedAt: foundingInstant,
+  oneWaySeconds: 720,
+  loot: { wood: 0, stone: 16, iron: 16, gold: 16, food: 0 },
+  camp: { tier: 1, strength: 2 },
+  fought: false,
 } as const
 
 const storedBusyFief: StoredFief = {
@@ -230,6 +245,40 @@ describe('Fief', () => {
       err({ kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt: returnsAt }),
     )
     expect(returningAtStored.ok).toBe(true)
+  })
+
+  it('restores a stored attack', () => {
+    const restored = Fief.restore({ ...storedBusyFief, march: attackMarch })
+
+    assert(restored.ok)
+    expect(restored.value.march).toEqual(attackMarch)
+  })
+
+  it('refuses a stored attack with a stay', () => {
+    const restored = Fief.restore({ ...storedBusyFief, march: { ...attackMarch, stayHours: 1 } })
+
+    expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
+  })
+
+  it('refuses a stored attack on a camp of no tier or of a strength that is not whole', () => {
+    const tierless = Fief.restore({
+      ...storedBusyFief,
+      march: { ...attackMarch, camp: { tier: 4 as 1, strength: 2 } },
+    })
+    const negative = Fief.restore({
+      ...storedBusyFief,
+      march: { ...attackMarch, camp: { tier: 1, strength: -1 } },
+    })
+    const fractional = Fief.restore({
+      ...storedBusyFief,
+      march: { ...attackMarch, camp: { tier: 1, strength: 1.5 } },
+    })
+
+    expect([tierless, negative, fractional]).toEqual([
+      err({ kind: 'InvalidCamp', tier: 4, strength: 2 }),
+      err({ kind: 'InvalidCamp', tier: 1, strength: -1 }),
+      err({ kind: 'InvalidCamp', tier: 1, strength: 1.5 }),
+    ])
   })
 
   it('refuses a stored recall before the departure', () => {

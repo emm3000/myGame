@@ -1,7 +1,8 @@
+import type { CampTier } from '../camp/CampTier'
 import type { Stocks } from '../fief/Fief'
 import type { Instant } from '../time/Instant'
 
-export type AwayMarch = {
+type MarchOnTheRoad = {
   readonly kind: 'away'
   readonly province: number
   readonly plot: number
@@ -12,5 +13,20 @@ export type AwayMarch = {
   readonly loot: Stocks
   readonly recalledAt?: Instant
 }
+
+export type AttackedCamp = {
+  readonly tier: CampTier
+  readonly strength: number
+}
+
+export type ForageMarch = MarchOnTheRoad & { readonly order: 'forage' }
+
+export type AttackMarch = MarchOnTheRoad & {
+  readonly order: 'attack'
+  readonly camp: AttackedCamp
+  readonly fought: boolean
+}
+
+export type AwayMarch = ForageMarch | AttackMarch
 
 export type March = { readonly kind: 'idle' } | AwayMarch

@@ -11,6 +11,7 @@ const secondsAfterDeparture = (seconds: number): Instant =>
 
 const tenInfantryForTwoHours: AwayMarch = {
   kind: 'away',
+  order: 'forage',
   province: 2,
   plot: 5,
   infantry: 10,
@@ -18,6 +19,20 @@ const tenInfantryForTwoHours: AwayMarch = {
   departedAt,
   oneWaySeconds: 840,
   loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+}
+
+const tenInfantryAttacking: AwayMarch = {
+  kind: 'away',
+  order: 'attack',
+  province: 2,
+  plot: 7,
+  infantry: 10,
+  stayHours: 0,
+  departedAt,
+  oneWaySeconds: 900,
+  loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+  camp: { tier: 1, strength: 6 },
+  fought: false,
 }
 
 describe('marchInstantsOf', () => {
@@ -44,5 +59,11 @@ describe('marchPhaseAt', () => {
   it('reads the march returning once the stay ends', () => {
     expect(marchPhaseAt(tenInfantryForTwoHours, secondsAfterDeparture(8_040))).toBe('returning')
     expect(marchPhaseAt(tenInfantryForTwoHours, secondsAfterDeparture(8_879))).toBe('returning')
+  })
+
+  it('reads an attack returning from its arrival', () => {
+    expect(marchPhaseAt(tenInfantryAttacking, secondsAfterDeparture(899))).toBe('outbound')
+    expect(marchPhaseAt(tenInfantryAttacking, secondsAfterDeparture(900))).toBe('returning')
+    expect(marchInstantsOf(tenInfantryAttacking).returnsAt).toEqual(secondsAfterDeparture(1_800))
   })
 })

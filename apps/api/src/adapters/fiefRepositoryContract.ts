@@ -79,6 +79,7 @@ const infantryOrder: OpenRecruitOrder = {
 
 const tenInfantryForaging: AwayMarch = {
   kind: 'away',
+  order: 'forage',
   province: 6,
   plot: 9,
   infantry: 10,
