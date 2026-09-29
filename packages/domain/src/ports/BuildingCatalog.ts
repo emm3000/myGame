@@ -6,6 +6,8 @@ export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehou
 
 export type ArtKind = 'smithing' | 'masonry'
 
+export type UnitKind = 'infantry'
+
 type BuildingLevelData = {
   readonly level: number
   readonly cost: Readonly<Record<ResourceKind, number>>
@@ -45,6 +47,12 @@ export type ArtLevel = {
   readonly ratePercent: number
 }
 
+export type UnitTerms = {
+  readonly cost: Readonly<Record<ResourceKind, number>>
+  readonly durationSeconds: number
+  readonly peasantOccupancy: number
+}
+
 export type TerrainBonus = {
   readonly resource: ResourceKind
   readonly ratePerHour: number
@@ -59,6 +67,7 @@ export type FiefSettings = {
   readonly terrainBonus: Readonly<Record<Terrain, TerrainBonus>>
   readonly buildQueueCap: number
   readonly seasons: SeasonCalendar
+  readonly units: Readonly<Record<UnitKind, UnitTerms>>
 }
 
 export interface BuildingCatalog {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { FiefSettings } from '../ports/BuildingCatalog'
+import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { durationPercentAt } from './durationPercentAt'
 
@@ -24,6 +25,7 @@ const shippedSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 2 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: {
     epoch,
     daysPerSeason: 7,

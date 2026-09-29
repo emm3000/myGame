@@ -155,11 +155,11 @@ const peasantsOf = (
   fief: Fief,
   catalog: BuildingCatalog,
 ): Result<FiefOverview['peasants'], DomainError> => {
-  const built = derivePeasantCounts(fief.buildingLevels, catalog)
+  const built = derivePeasantCounts(fief.buildingLevels, fief.units, catalog)
   if (!built.ok) {
     return built
   }
-  const projected = derivePeasantCounts(fief.projectedBuildingLevels, catalog)
+  const projected = derivePeasantCounts(fief.projectedBuildingLevels, fief.units, catalog)
   if (!projected.ok) {
     return projected
   }

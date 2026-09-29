@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { FiefSettings } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { seasonAt } from './seasonAt'
 
@@ -25,6 +26,7 @@ const weeklySettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 2 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: {
     epoch,
     daysPerSeason: 7,

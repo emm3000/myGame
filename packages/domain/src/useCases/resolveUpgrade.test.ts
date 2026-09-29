@@ -18,6 +18,7 @@ import { err } from '../Result'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
 import { enqueueBuilding } from './enqueueBuilding'
@@ -45,6 +46,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 
@@ -142,6 +144,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     artLevels: { smithing: 0, masonry: 0 },
+    units: { infantry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import type {
   BuildingCatalog,
   BuildingLevel,
@@ -7,9 +7,11 @@ import type {
   ProducerLevel,
 } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import type { BuildQueueEntry } from './BuildQueue'
 import { entryFitsProjection } from './entryFitsProjection'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
+import { FiefUnitCounts } from './FiefUnitCounts'
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
@@ -23,6 +25,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 
@@ -83,15 +86,39 @@ describe('entryFitsProjection', () => {
   it('fits an entry whose peasant increase the projected free peasants cover', () => {
     const projectedWithFarm = levelsWith({ farm: 1 })
 
-    const result = entryFitsProjection(projectedWithFarm, upgradeTo('sawmill', 1), catalog)
+    const result = entryFitsProjection(
+      projectedWithFarm,
+      FiefUnitCounts.none,
+      upgradeTo('sawmill', 1),
+      catalog,
+    )
 
     expect(result).toEqual({ ok: true, value: true })
+  })
+
+  it('answers that an entry does not fit the peasants the units occupy', () => {
+    const nineInfantry = FiefUnitCounts.create({ infantry: 9 })
+    assert(nineInfantry.ok)
+
+    const result = entryFitsProjection(
+      levelsWith({ farm: 1 }),
+      nineInfantry.value,
+      upgradeTo('sawmill', 1),
+      catalog,
+    )
+
+    expect(result).toEqual({ ok: true, value: false })
   })
 
   it('answers that no entry fits a projection that occupies more peasants than it supplies', () => {
     const overcrowded = levelsWith({ sawmill: 2 })
 
-    const result = entryFitsProjection(overcrowded, upgradeTo('farm', 1), catalog)
+    const result = entryFitsProjection(
+      overcrowded,
+      FiefUnitCounts.none,
+      upgradeTo('farm', 1),
+      catalog,
+    )
 
     expect(result).toEqual({ ok: true, value: false })
   })
@@ -99,7 +126,12 @@ describe('entryFitsProjection', () => {
   it('reports a projected level the catalog does not know', () => {
     const projectedBeyondCatalog = levelsWith({ sawmill: 3 })
 
-    const result = entryFitsProjection(projectedBeyondCatalog, upgradeTo('farm', 1), catalog)
+    const result = entryFitsProjection(
+      projectedBeyondCatalog,
+      FiefUnitCounts.none,
+      upgradeTo('farm', 1),
+      catalog,
+    )
 
     expect(result).toEqual({
       ok: false,
