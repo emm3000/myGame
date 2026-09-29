@@ -1793,6 +1793,7 @@ describe('the fief route', () => {
         arrivesAt: '2026-09-22T08:14:00.000Z',
         leavesAt: '2026-09-22T10:14:00.000Z',
         returnsAt: '2026-09-22T10:28:00.000Z',
+        recalledAt: null,
       })
     })
 
@@ -1978,6 +1979,144 @@ describe('the fief route', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(fiveInfantryToProvinceTwoPlotFive),
+      })
+
+      expect(response.status).toBe(401)
+    })
+  })
+
+  describe('the march recall route', () => {
+    const recall = async (cookie: string, departedAt: string): Promise<Response> =>
+      app.request(`/fief/marches/${encodeURIComponent(departedAt)}/recall`, {
+        method: 'POST',
+        headers: { cookie },
+      })
+
+    const departedAt = '2026-09-22T08:00:00.000Z'
+
+    const sendFiveInfantryToProvinceTwoPlotFive = async (): Promise<SignedUpPlayer> => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'infantry'::unit, 5 FROM fiefs`)
+      const sent = await app.request('/fief/marches', {
+        method: 'POST',
+        headers: { cookie: ana.cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ province: 2, plot: 5, infantry: 5, stayHours: 2 }),
+      })
+      expect(sent.status).toBe(200)
+      return ana
+    }
+
+    const marchNotFound = {
+      kind: 'MarchNotFound',
+      message: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
+    }
+
+    it('recalls a march on the way out and answers it returning', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      clock.advanceMinutes(10)
+
+      const response = await recall(ana.cookie, departedAt)
+
+      expect(response.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await response.json()).march).toEqual({
+        province: 2,
+        plot: 5,
+        terrain: 'uplands',
+        infantry: 5,
+        stayHours: 2,
+        departedAt,
+        oneWaySeconds: 840,
+        loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+        arrivesAt: '2026-09-22T08:10:00.000Z',
+        leavesAt: '2026-09-22T08:10:00.000Z',
+        returnsAt: '2026-09-22T08:20:00.000Z',
+        recalledAt: '2026-09-22T08:10:00.000Z',
+      })
+    })
+
+    it('recalls a foraging march with the loot of the seconds foraged', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      clock.advanceMinutes(44)
+
+      const response = await recall(ana.cookie, departedAt)
+
+      expect(response.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await response.json()).march).toMatchObject({
+        loot: { wood: 7, stone: 7, iron: 0, gold: 0, food: 0 },
+        arrivesAt: '2026-09-22T08:14:00.000Z',
+        leavesAt: '2026-09-22T08:44:00.000Z',
+        returnsAt: '2026-09-22T08:58:00.000Z',
+        recalledAt: '2026-09-22T08:44:00.000Z',
+      })
+    })
+
+    it('brings the recalled loot home on the read after the return', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      await runSql('UPDATE fiefs SET wood = 1000, stone = 1000')
+      clock.advanceMinutes(44)
+      expect((await recall(ana.cookie, departedAt)).status).toBe(200)
+      clock.advanceMinutes(14)
+
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+
+      expect(overview.march).toBeNull()
+      expect(overview.resources.wood.amount).toBe(1007)
+      expect(overview.resources.stone.amount).toBe(1007)
+      expect(overview.units).toEqual({ infantry: 5 })
+    })
+
+    it('refuses a recall once the march is returning', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      clock.advanceMinutes(140)
+
+      const response = await recall(ana.cookie, departedAt)
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'MarchAlreadyReturning',
+        message: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
+      })
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(march).toMatchObject({ recalledAt: null, returnsAt: '2026-09-22T10:28:00.000Z' })
+    })
+
+    it('refuses a recall that names another departure', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      clock.advanceMinutes(10)
+
+      const response = await recall(ana.cookie, '2026-09-22T07:59:00.000Z')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual(marchNotFound)
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(march).toMatchObject({ departedAt, recalledAt: null })
+    })
+
+    it('refuses a recall after the march came home', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      clock.advanceMinutes(148)
+
+      const response = await recall(ana.cookie, departedAt)
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual(marchNotFound)
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(march).toBeNull()
+    })
+
+    it('answers 400 for a malformed departure', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+
+      const response = await recall(ana.cookie, 'ayer')
+
+      expect(response.status).toBe(400)
+      expect(await response.text()).toBe('')
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request(`/fief/marches/${encodeURIComponent(departedAt)}/recall`, {
+        method: 'POST',
       })
 
       expect(response.status).toBe(401)

@@ -7,6 +7,7 @@ import {
   type FiefChronicle,
   type FiefOverview,
   PlaceRecruitOrderRequestSchema,
+  RecallMarchRequestSchema,
   StartStudyRequestSchema,
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
@@ -27,6 +28,7 @@ import {
   type PlaceRecruitOrderDependencies,
   placeRecruitOrderOf,
 } from '../fief/placeRecruitOrderOf'
+import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarchOf'
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
@@ -40,6 +42,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   PlaceRecruitOrderDependencies &
   CancelRecruitOrderDependencies &
   DispatchMarchDependencies &
+  RecallMarchDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
   }
@@ -122,5 +125,12 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchMarchOf(c.var.playerId, request.data, dependencies))
+    })
+    .post('/marches/:departedAt/recall', signedInPlayer, async (c) => {
+      const request = RecallMarchRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await recallMarchOf(c.var.playerId, request.data, dependencies))
     })
 }

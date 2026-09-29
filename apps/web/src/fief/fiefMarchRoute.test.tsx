@@ -44,6 +44,7 @@ const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({
     arrivesAt: instantAfterRead(840 - secondsBeforeRead),
     leavesAt: instantAfterRead(8040 - secondsBeforeRead),
     returnsAt: instantAfterRead(8880 - secondsBeforeRead),
+    recalledAt: null,
   },
 })
 
@@ -65,6 +66,7 @@ const hourLongForage: NonNullable<FiefOverview['march']> = {
   arrivesAt: instantAfterRead(-3590),
   leavesAt: instantAfterRead(10),
   returnsAt: instantAfterRead(30),
+  recalledAt: null,
 }
 
 const marchDueBack: FiefOverview = { ...barracksBuilt, march: hourLongForage }

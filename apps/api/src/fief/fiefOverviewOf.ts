@@ -118,6 +118,7 @@ const awayMarchOf = (march: AwayMarch): NonNullable<FiefOverview['march']> => {
     arrivesAt: isoOf(arrivesAt),
     leavesAt: isoOf(leavesAt),
     returnsAt: isoOf(returnsAt),
+    recalledAt: march.recalledAt === undefined ? null : isoOf(march.recalledAt),
   }
 }
 
