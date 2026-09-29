@@ -75,3 +75,4 @@ export type DomainError =
   | { readonly kind: 'StudyNotFound'; readonly art: ArtKind; readonly targetLevel: number }
   | { readonly kind: 'BarracksNotBuilt' }
   | { readonly kind: 'RecruitSlotBusy'; readonly unit: UnitKind }
+  | { readonly kind: 'RecruitOrderNotFound'; readonly unit: UnitKind; readonly startedAt: Instant }

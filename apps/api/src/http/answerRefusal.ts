@@ -68,6 +68,7 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   InvalidUnitDuration: internalFailure,
   BarracksNotBuilt: { status: 409, kind: 'BarracksNotBuilt' },
   RecruitSlotBusy: { status: 409, kind: 'RecruitSlotBusy' },
+  RecruitOrderNotFound: internalFailure,
   NegativeFreePeasants: internalFailure,
   InvalidCoordinates: internalFailure,
   InvalidPlotsPerProvince: internalFailure,

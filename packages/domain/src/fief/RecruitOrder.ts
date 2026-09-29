@@ -12,3 +12,5 @@ export type OpenRecruitOrder = {
 }
 
 export type RecruitOrder = { readonly kind: 'idle' } | OpenRecruitOrder
+
+export type RecruitOrderTarget = Pick<OpenRecruitOrder, 'unit' | 'startedAt'>
