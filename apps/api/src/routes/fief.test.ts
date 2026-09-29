@@ -2205,6 +2205,36 @@ describe('the fief route', () => {
       ])
     })
 
+    it('answers the battle and the return of a won attack in the chronicle', async () => {
+      const plot = tierOneCampPlot()
+      const ana = await signUpAttackingTierOneCamp(plot)
+      clock.advanceMinutes(21)
+
+      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'marchReturned',
+          province: 2,
+          plot,
+          infantry: 6,
+          loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+          occurredAt: '2026-09-22T08:20:00.000Z',
+          recalled: false,
+        },
+        {
+          kind: 'battleFought',
+          province: 2,
+          plot,
+          tier: 1,
+          won: true,
+          infantryLost: 4,
+          campLost: 6,
+          occurredAt: '2026-09-22T08:10:00.000Z',
+        },
+      ])
+    })
+
     it('stores no camp battle when the mutation after the resolve is refused', async () => {
       const ana = await signUpAttackingTierOneCamp(tierOneCampPlot())
       await runSql('UPDATE fiefs SET wood = 0')

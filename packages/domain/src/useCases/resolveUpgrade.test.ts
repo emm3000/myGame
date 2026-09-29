@@ -1936,16 +1936,13 @@ describe('resolveUpgrade with an attack', () => {
     const result = await resolveAttackAt(attacking, returned, inMemoryCampRegistry([]))
 
     assert(result.ok)
-    const { fief, events } = result.value
+    const { fief } = result.value
     expect({ march: fief.march, stocks: fief.stocks, storedAt: fief.storedAt }).toEqual({
       march: { kind: 'idle' },
       stocks: { wood: 198, stone: 198, iron: 100, gold: 196, food: 106 },
       storedAt: returned,
     })
     expect(fief.unitsAtHomeAt(returned).countOf('infantry')).toBe(6)
-    expect(events).toMatchObject([
-      { kind: 'marchReturned', infantry: 6, loot: { wood: 96, stone: 96, gold: 96 } },
-    ])
   })
 
   it('idles the march slot when the battle is lost', async () => {
@@ -1956,7 +1953,6 @@ describe('resolveUpgrade with an attack', () => {
     assert(result.ok)
     expect(result.value.fief.march).toEqual({ kind: 'idle' })
     expect(result.value.fief.units.countOf('infantry')).toBe(0)
-    expect(result.value.events).toEqual([])
   })
 
   it('records the camp beaten to 0 at the arrival', async () => {
@@ -2061,7 +2057,101 @@ describe('resolveUpgrade with an attack', () => {
     expect(fief.buildingLevels.sawmill).toBe(1)
     expect(fief.units.countOf('infantry')).toBe(6)
     expect(fief.march).toMatchObject({ fought: true, infantry: 6 })
-    expect(events.map(({ kind }) => kind)).toEqual(['upgradeFinished'])
+    expect(events.map(({ kind, occurredAt }) => ({ kind, occurredAt }))).toEqual([
+      { kind: 'upgradeFinished', occurredAt: arrival },
+      { kind: 'battleFought', occurredAt: arrival },
+    ])
+  })
+
+  it('records a won battle with the losses on each side', async () => {
+    const attacking = attackingFief(1, 6)
+
+    const result = await resolveAttackAt(attacking, arrivalOf(attacking), inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: campPlotOfProvinceTwo(1),
+        tier: 1,
+        won: true,
+        infantryLost: 4,
+        campLost: 6,
+        occurredAt: arrivalOf(attacking),
+      },
+    ])
+  })
+
+  it('records a lost battle', async () => {
+    const attacking = attackingFief(2, 15)
+
+    const result = await resolveAttackAt(attacking, arrivalOf(attacking), inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: campPlotOfProvinceTwo(2),
+        tier: 2,
+        won: false,
+        infantryLost: 10,
+        campLost: 7,
+        occurredAt: arrivalOf(attacking),
+      },
+    ])
+  })
+
+  it('stamps the battle with the arrival', async () => {
+    const attacking = attackingFief(1, 6)
+    const arrival = arrivalOf(attacking)
+
+    const result = await resolveAttackAt(
+      attacking,
+      secondsAfterStored(900),
+      inMemoryCampRegistry([]),
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toMatchObject([{ kind: 'battleFought', occurredAt: arrival }])
+  })
+
+  it('records the return of a won attack after its battle', async () => {
+    const attacking = attackingFief(1, 6)
+    const returned = secondsAfterStored(2 * 600)
+
+    const result = await resolveAttackAt(attacking, returned, inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.events).toMatchObject([
+      { kind: 'battleFought', won: true, occurredAt: arrivalOf(attacking) },
+      {
+        kind: 'marchReturned',
+        infantry: 6,
+        loot: { wood: 96, stone: 96, gold: 96 },
+        recalled: false,
+        occurredAt: returned,
+      },
+    ])
+  })
+
+  it('records no battle for a recalled attack', async () => {
+    const recalled = attackingFief(1, 6).recallMarch(
+      { departedAt: storedInstant },
+      secondsAfterStored(300),
+      plainForage,
+    )
+    assert(recalled.ok)
+
+    const result = await resolveAttackAt(
+      recalled.value,
+      secondsAfterStored(600),
+      inMemoryCampRegistry([]),
+    )
+
+    assert(result.ok)
+    expect(result.value.events.map(({ kind }) => kind)).toEqual(['marchReturned'])
   })
 
   it('does not fight a battle twice', async () => {
@@ -2180,6 +2270,7 @@ describe('resolveUpgrade with an attack', () => {
 
       assert(result.ok)
       expect(result.value.events).toMatchObject([
+        { kind: 'battleFought', won: true },
         { kind: 'recruitsDelivered', unit: 'infantry', count: 10 },
         { kind: 'marchReturned', infantry: 6 },
       ])

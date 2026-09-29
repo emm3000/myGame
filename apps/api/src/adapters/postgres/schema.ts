@@ -46,6 +46,7 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'recruits_delivered',
   'recruits_cancelled',
   'march_returned',
+  'battle_fought',
 ])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
@@ -311,6 +312,9 @@ export const fiefEvents = pgTable(
     refundGold: doublePrecision('refund_gold').notNull().default(0),
     refundFood: doublePrecision('refund_food').notNull().default(0),
     recalled: boolean('recalled').notNull().default(false),
+    campTier: integer('camp_tier'),
+    campLost: integer('camp_lost'),
+    won: boolean('won').notNull().default(false),
     occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
   },
   (table) => [
@@ -321,6 +325,10 @@ export const fiefEvents = pgTable(
     check(
       'fief_events_recalled_only_march',
       sql`NOT ${table.recalled} OR ${table.kind}::text = 'march_returned'`,
+    ),
+    check(
+      'fief_events_battle_terms',
+      sql`(${table.kind}::text = 'battle_fought') = (${table.campTier} IS NOT NULL) AND (${table.campTier} IS NULL) = (${table.campLost} IS NULL) AND (${table.campTier} IS NULL OR (${table.campTier} BETWEEN 1 AND 3 AND ${table.campLost} >= 0 AND ${table.province} IS NOT NULL)) AND (NOT ${table.won} OR ${table.kind}::text = 'battle_fought')`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],

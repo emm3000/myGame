@@ -170,7 +170,18 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
         },
       ]
     case 'battle':
-      return []
+      return [
+        {
+          kind: 'battleFought',
+          province: finished.march.province,
+          plot: finished.march.plot,
+          tier: finished.march.camp.tier,
+          won: finished.battle.won,
+          infantryLost: finished.battle.infantryLost,
+          campLost: finished.battle.campLost,
+          occurredAt: finished.finishedAt,
+        },
+      ]
     case 'march':
       return [
         {

@@ -696,6 +696,65 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a camp tier on a march-returned row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'march_returned',
+        unit: 'infantry',
+        count: 10,
+        province: 2,
+        plot: 5,
+        campTier: 1,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_battle_terms' },
+    })
+  })
+
+  it('refuses won on a building row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        building: 'sawmill',
+        level: 1,
+        won: true,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_battle_terms' },
+    })
+  })
+
+  it('refuses a battle row without its tier', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'battle_fought',
+        unit: 'infantry',
+        count: 4,
+        province: 2,
+        plot: 5,
+        campLost: 6,
+        won: true,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_battle_terms' },
+    })
+  })
+
   it('drops the units and the recruit order of a deleted fief', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -1412,5 +1471,75 @@ describe('the attack marches migration', () => {
       loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
       recalledAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:30:00Z')),
     })
+  })
+})
+
+describe('the battle event migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('adds the battle kind in the transaction that migrates a database committed at the recall migration', async () => {
+    const probeName = `mygame_battle_probe_${process.pid}`
+    const admin = new Client({ connectionString: databaseUrl() })
+    await admin.connect()
+    await admin.query(`CREATE DATABASE ${probeName}`)
+    const probeUrl = new URL(databaseUrl())
+    probeUrl.pathname = `/${probeName}`
+    const probe = new Client({ connectionString: probeUrl.toString() })
+    try {
+      await probe.connect()
+      const migrations = readMigrationFiles({ migrationsFolder })
+      await applyMigrations(probe, migrations.slice(0, 16))
+      await probe.query('BEGIN')
+      await applyMigrations(probe, migrations.slice(16))
+      await probe.query('COMMIT')
+
+      const kinds = await probe.query(
+        'SELECT unnest(enum_range(NULL::fief_event_kind))::text AS kind',
+      )
+      expect(kinds.rows.map(({ kind }) => kind)).toContain('battle_fought')
+    } finally {
+      await probe.end()
+      await admin.query(`DROP DATABASE ${probeName} WITH (FORCE)`)
+      await admin.end()
+    }
+  })
+
+  it('keeps the chronicle rows stored before the battle migration', async () => {
+    await migratedFrom(client, 17, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_events (fief_id, kind, building, unit, level, count, province, plot, refund_wood, refund_stone, recalled, occurred_at)
+         VALUES ($1, 'upgrade_finished', 'sawmill', NULL, 2, NULL, NULL, NULL, 0, 0, false, '2026-09-22T09:00:00Z'),
+                ($1, 'march_returned', NULL, 'infantry', NULL, 10, 2, 5, 240, 240, true, '2026-09-22T10:00:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 5,
+        infantry: 10,
+        loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
+        recalled: true,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
+      },
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
+      },
+    ])
   })
 })

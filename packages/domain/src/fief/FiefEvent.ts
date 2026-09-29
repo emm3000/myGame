@@ -1,3 +1,4 @@
+import type { CampTier } from '../camp/CampTier'
 import type { ArtKind, BuildingKind, UnitKind } from '../ports/BuildingCatalog'
 import type { Instant } from '../time/Instant'
 import type { Stocks } from './Fief'
@@ -50,5 +51,15 @@ export type FiefEvent =
       readonly infantry: number
       readonly loot: Stocks
       readonly recalled: boolean
+      readonly occurredAt: Instant
+    }
+  | {
+      readonly kind: 'battleFought'
+      readonly province: number
+      readonly plot: number
+      readonly tier: CampTier
+      readonly won: boolean
+      readonly infantryLost: number
+      readonly campLost: number
       readonly occurredAt: Instant
     }

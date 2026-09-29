@@ -2,7 +2,6 @@ import {
   type AwayMarch,
   type BuildQueue,
   type BuildSlot,
-  type CampTier,
   type DomainError,
   err,
   Fief,
@@ -22,6 +21,7 @@ import {
 } from '@mygame/domain'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
+import { isCampTier } from './isCampTier'
 import {
   fiefArts,
   fiefBuildings,
@@ -148,8 +148,6 @@ const recruitOrderRowOf = (fief: Fief): RecruitOrderRow | undefined => {
 type AttackMarch = Extract<AwayMarch, { readonly order: 'attack' }>
 
 type MarchOrderColumns = Pick<MarchRow, 'marchOrder' | 'campTier' | 'campStrength' | 'fought'>
-
-const isCampTier = (tier: number): tier is CampTier => tier === 1 || tier === 2 || tier === 3
 
 const attackedCampOf = (row: MarchRow): AttackMarch['camp'] => {
   if (row.campTier === null || row.campStrength === null || !isCampTier(row.campTier)) {
