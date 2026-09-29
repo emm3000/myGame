@@ -329,3 +329,110 @@ draws them.
   more than one march per fief, a season on the forage or on the road,
   plot depletion or reservation, other kingdoms, units drawn on the map,
   other unit kinds, upkeep or famine (W9), generated images (S4).
+
+## Amendment (2026-09-29)
+
+S14 (#277) supersedes "There is no recall in this slice" in the decision
+"No combat, no recall, no season", the considered option "A recall, a second
+march, ..." and the out-of-scope line of the Consequences: a march is now
+recalled on its way out or at the plot. Combat and seasons stay out. The
+owner grilled it on 2026-09-29 and took the recommended option on every
+question; this records what S14 shipped, PRs #285 to #289 and the lore
+proposals of #278 (PR #286), where the code stands over the tickets.
+
+- **A march is recalled while outbound or foraging, never while returning.**
+  `marchPhaseAt` reads the instant of the recall: a boundary reads the later
+  phase, so a recall exactly at `arrivesAt` is foraging with nothing
+  foraged, and a recall at `leavesAt` or after is returning and refused. A
+  march already home when the recall arrives is closed by the resolve first
+  and refused as not found, as ADR 018's amendment refuses a recruit order
+  that already ended.
+- **The return depends on the phase.** Recalled outbound, the men turn back
+  where they stand and walk as long as they walked:
+  `returnsAt = recalledAt + (recalledAt - departedAt)`. Recalled foraging,
+  they walk the full road back: `returnsAt = recalledAt + oneWaySeconds`.
+- **The partial loot is computed in whole milliseconds.** Recalled outbound
+  it is nothing. Recalled foraging, per resource the terrain yields it is
+  `floor(infantry × ratePerHour × foragedMilliseconds / 3_600_000)`, the
+  foraged time being `recalledAt - arrivesAt` in milliseconds, capped at the
+  even carry share `floor(carryPerInfantry × infantry / yielded)` as
+  `forageLootOf` caps it, and never gold. `forageLootOfMilliseconds` holds
+  the formula and `forageLootOf` calls it with `stayHours` in milliseconds,
+  so dispatch and recall share one rule; a fractional count of seconds never
+  enters it, as `materializeResources` floors in milliseconds too. The
+  recall overwrites the loot stored at dispatch.
+- **Worked numbers**, with the shipped terms. Ten infantry on the uplands,
+  840 seconds each way, two hours of stay (the domain fixture), recalled
+  1 800 seconds after the arrival: `floor(10 × 3 × 1800 / 3600) = 15` wood
+  and 15 stone, against 60 each had they stayed; the carry share is 240 and
+  does not bind. Twelve infantry on the lore march, 900 seconds each way:
+  recalled 1 800 seconds after the arrival they bring 18 of each; recalled
+  1 150 seconds after it, `floor(12 × 3 × 1150 / 3600) = 11`.
+- **The instants derive from `recalledAt` on read** (ADR 005, N2).
+  `AwayMarch` gains an optional `recalledAt`. `marchInstantsOf` answers, for
+  a recalled march, `arrivesAt = min(departedAt + oneWaySeconds,
+  recalledAt)`, `leavesAt = recalledAt` and `returnsAt = recalledAt +
+  (arrivesAt - departedAt)`. That is both returns above, and a march
+  recalled on the way out answers `arrivesAt = leavesAt = recalledAt`.
+  `marchPhaseAt`, the resolve's closing of the march and the web's phase
+  read a recalled march with no change of code. No timer runs; time comes
+  through `Clock`.
+- **The domain.** `Fief.recallMarch(target, now, forage)` takes a
+  `MarchTarget { departedAt }` and refuses `MarchNotFound { departedAt }`
+  when the slot is idle or holds a march departed at another instant
+  (compared by epoch milliseconds), so a stale tab never recalls a newer
+  march, then `MarchAlreadyReturning`, which carries no field, as
+  `MarchSlotBusy` does; both are new members of `DomainError`. It writes no
+  event and moves no stock: the resolve credits the loot at the return, so
+  neither `recallMarch` nor its use case takes a chronicle or materializes
+  the stocks. `Fief.restore` refuses a stored `recalledAt` before
+  `departedAt`, or at or after the `leavesAt` the unrecalled march would
+  have, as `SlotStartsAfterFinish`.
+- **The resolve closes it as any march.** At the recalled `returnsAt` the
+  resolve credits the partial loot even above the capacity, where it freezes
+  as a refund does (ADR 011), and leaves the march slot idle; the tie order
+  of ADR 019 is unchanged.
+- **The chronicle gains no event kind; `marchReturned` gains `recalled`**
+  (ADR 013). `marchReturned { province, plot, infantry, loot, recalled }`,
+  still one per march, stamped with `returnsAt` and written at the return in
+  the resolve's transaction. `recalled` is true when the closed march
+  carries a `recalledAt`. The chronicle stays at seven kinds; the wire's
+  `recalled` is a required boolean of the strict schema, and its Spanish
+  line is a lore proposal of #278 that waits for the author.
+- **Persistence: two columns and two checks, migration 0015** (ADR 006),
+  alone in its wave. `fief_marches.recalled_at` is nullable under
+  `fief_marches_recalled_after_departure`, null or at or after `departed_at`;
+  `fief_events.recalled` is `boolean NOT NULL DEFAULT false` under
+  `fief_events_recalled_only_march`, so older rows read `false` with no
+  backfill. That check compares `kind::text` with `'march_returned'` and not
+  the enum value: Drizzle's migrator runs every pending migration in one
+  transaction, so a database still at 0013 runs the `ADD VALUE` of 0014 and
+  the check of 0015 together, and Postgres refuses to use an enum value in
+  the transaction that adds it. The cast reads the label as text instead.
+- **The route is `POST /fief/marches/:departedAt/recall`, not `DELETE`:**
+  the march still exists while it walks home. `departedAt`, an ISO instant
+  in the path, is validated by `RecallMarchRequestSchema { departedAt }`
+  and names the march. The route runs the resolve and then `recallMarch` in
+  one transaction through `mutateAfterResolve`, and answers the fief
+  overview. `MarchNotFound` and `MarchAlreadyReturning` answer 409 with
+  their kind in `ApiErrorKindSchema` and a Spanish line. A `departedAt`
+  that fails the schema answers 400 `MalformedRequest` with an empty body,
+  as every malformed request does, never an `ApiErrorKind`.
+- **The wire answers `recalledAt`.** `FiefOverview.march` gains
+  `recalledAt`, an instant or `null` when not recalled; its `arrivesAt`,
+  `leavesAt` and `returnsAt` are those `marchInstantsOf` derives, so a
+  client reads the phase from them and no phase field is added.
+- **Screen (Decision 8 of #277, recorded as it fixes it and not as
+  shipped: #283 is open).** One direct button on the army section's march
+  slot, shown outbound and foraging only, with no confirmation dialog, as
+  *Cancelar la leva* has none; after the recall the card shows the returning
+  countdown to the new `returnsAt`. No design ticket. The button's copy is a
+  lore proposal of #278 that waits for the author.
+
+Nothing else here changes: one march at a time, the road, the terms and the
+loot at dispatch, the men away still counted, the seven event kinds and the
+resolve's tie order stand. A recall while returning, a confirmation, a
+second march, a season on the road or the forage and combat stay out. PRD
+W1 is unchanged, S14 is added under Should have citing this ADR as amended,
+and `CONTEXT.md` gains **Recall**, adjusts **March**, **Loot** and **Event**.
+Known gap: the lore proposals of #278 wait for the author.
