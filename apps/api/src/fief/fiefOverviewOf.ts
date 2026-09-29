@@ -7,6 +7,7 @@ import {
   type BuildingKind,
   type BuildSlot,
   type DomainError,
+  type DurationPercent,
   deliveredUnitsOf,
   deriveBuildDurationSeconds,
   derivePeasantCounts,
@@ -78,13 +79,21 @@ const recruitOrderOf = (
 
 type RecruitTerms = FiefOverview['recruitTerms'][UnitKind]
 
-const recruitTermsOf = (fief: Fief, catalog: BuildingCatalog): FiefOverview['recruitTerms'] => {
+const recruitTermsOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+  durations: DurationPercent,
+): FiefOverview['recruitTerms'] => {
   const termsOf = (unit: UnitKind): RecruitTerms => {
     const { cost, durationSeconds, peasantOccupancy } = catalog.fiefSettings().units[unit]
     return {
       cost: { ...cost },
       peasants: peasantOccupancy,
-      perUnitSeconds: deriveUnitDurationSeconds(durationSeconds, fief.buildingLevels.barracks),
+      perUnitSeconds: deriveUnitDurationSeconds(
+        durationSeconds,
+        fief.buildingLevels.barracks,
+        durations.train,
+      ),
     }
   }
   return { infantry: termsOf('infantry') }
@@ -163,7 +172,11 @@ const queueOf = (
   })
 }
 
-const seasonOf = (fief: Fief, catalog: BuildingCatalog): FiefOverview['season'] => {
+const seasonOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+  durations: DurationPercent,
+): FiefOverview['season'] => {
   const settings = catalog.fiefSettings()
   const season = seasonAt(fief.storedAt, settings)
   if (season === undefined) {
@@ -174,7 +187,7 @@ const seasonOf = (fief: Fief, catalog: BuildingCatalog): FiefOverview['season'] 
     year: season.year,
     endsAt: isoOf(season.endsAt),
     multiplierPercent: { ...settings.seasons.multiplierPercent[season.kind] },
-    durationPercent: { ...durationPercentAt(fief.storedAt, settings) },
+    durationPercent: { ...durations },
   }
 }
 
@@ -299,6 +312,7 @@ export const fiefOverviewOf = (
   if (!arts.ok) {
     return arts
   }
+  const durations = durationPercentAt(fief.storedAt, catalog.fiefSettings())
   const { kingdom, province, plot } = fief.coordinates
   return ok({
     name: fief.name.value,
@@ -311,10 +325,10 @@ export const fiefOverviewOf = (
     queue: queue.value,
     study: studyOf(fief.studySlot),
     arts: arts.value,
-    season: seasonOf(fief, catalog),
+    season: seasonOf(fief, catalog, durations),
     units: unitsOf(fief),
     recruitOrder: recruitOrderOf(fief.recruitOrder, fief.storedAt),
-    recruitTerms: recruitTermsOf(fief, catalog),
+    recruitTerms: recruitTermsOf(fief, catalog, durations),
     readAt: isoOf(fief.storedAt),
   })
 }

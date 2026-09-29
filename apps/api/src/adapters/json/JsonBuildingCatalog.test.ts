@@ -54,10 +54,10 @@ const plainFief: FiefContent = {
       winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
     },
     durationPercent: {
-      spring: { build: 100, study: 100 },
-      summer: { build: 100, study: 100 },
-      autumn: { build: 100, study: 100 },
-      winter: { build: 100, study: 100 },
+      spring: { build: 100, study: 100, train: 100 },
+      summer: { build: 100, study: 100, train: 100 },
+      autumn: { build: 100, study: 100, train: 100 },
+      winter: { build: 100, study: 100, train: 100 },
     },
   },
   units: {
@@ -336,16 +336,23 @@ describe('JsonBuildingCatalog', () => {
   })
 
   it('reads the duration percents from the shipped content', () => {
-    const unchangedDurations = { build: 100, study: 100 }
+    const unchangedDurations = { build: 100, study: 100, train: 100 }
 
     expect(
       JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent,
     ).toEqual({
-      spring: unchangedDurations,
+      spring: { ...unchangedDurations, train: 75 },
       summer: { ...unchangedDurations, build: 75 },
       autumn: unchangedDurations,
       winter: { ...unchangedDurations, study: 75 },
     })
+  })
+
+  it('reads the train percents from the shipped content', () => {
+    const { spring, summer, autumn, winter } =
+      JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent
+
+    expect([spring.train, summer.train, autumn.train, winter.train]).toEqual([75, 100, 100, 100])
   })
 
   it('reads the infantry terms from the shipped content', () => {

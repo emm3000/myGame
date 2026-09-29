@@ -5,6 +5,7 @@ import type { SeasonKind } from './SeasonKind'
 export type DurationPercent = {
   readonly build: number
   readonly study: number
+  readonly train: number
 }
 
 export type SeasonCalendar = {

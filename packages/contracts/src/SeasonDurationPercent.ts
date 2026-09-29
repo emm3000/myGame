@@ -4,4 +4,5 @@ import { WholeCountSchema } from './Wire'
 export const SeasonDurationPercentSchema = z.strictObject({
   build: WholeCountSchema.positive(),
   study: WholeCountSchema.positive(),
+  train: WholeCountSchema.positive(),
 })

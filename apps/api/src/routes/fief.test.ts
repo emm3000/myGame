@@ -7,7 +7,17 @@ import {
 } from '@mygame/contracts'
 import { type Clock, enqueueBuilding, Instant, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterAll,
+  afterEach,
+  assert,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -402,7 +412,18 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('summer')
-    expect(season?.durationPercent).toEqual({ build: 75, study: 100 })
+    expect(season?.durationPercent).toEqual({ build: 75, study: 100, train: 100 })
+  })
+
+  it('answers the spring train percent', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes((Date.parse('2026-10-07T08:00:00Z') - signedUpAt) / millisecondsPerMinute)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { season } = FiefOverviewSchema.parse(await response.json())
+    expect(season?.kind).toBe('spring')
+    expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 75 })
   })
 
   it('answers the winter study percent', async () => {
@@ -418,7 +439,7 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('winter')
-    expect(season?.durationPercent).toEqual({ build: 100, study: 75 })
+    expect(season?.durationPercent).toEqual({ build: 100, study: 75, train: 100 })
   })
 
   it('answers neutral duration percents in autumn', async () => {
@@ -429,7 +450,7 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('autumn')
-    expect(season?.durationPercent).toEqual({ build: 100, study: 100 })
+    expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 100 })
   })
 
   it('answers a stock above the capacity unchanged after an hour', async () => {
@@ -1353,6 +1374,51 @@ describe('the fief route', () => {
           perUnitSeconds: 30,
         },
       })
+    })
+
+    it('answers the spring unit duration at barracks 2', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(2)
+      clock.advanceMinutes(
+        (Date.parse('2026-10-07T08:00:00Z') - signedUpAt) / millisecondsPerMinute,
+      )
+
+      const response = await fiefOf(ana.cookie)
+
+      const { recruitTerms } = FiefOverviewSchema.parse(await response.json())
+      expect(recruitTerms.infantry.perUnitSeconds).toBe(23)
+    })
+
+    it('stores the spring duration on an order placed in spring', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+      clock.advanceMinutes(
+        (Date.parse('2026-10-07T08:00:00Z') - signedUpAt) / millisecondsPerMinute,
+      )
+
+      expect((await recruit(ana.cookie, { unit: 'infantry', count: 3 })).status).toBe(200)
+
+      const stored = await server.fiefs.fiefOf(ana.playerId)
+      assert(stored.ok)
+      expect(stored.value?.recruitOrder).toMatchObject({ kind: 'open', perUnitSeconds: 34 })
+    })
+
+    it('keeps the spring duration of an order read in summer', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+      clock.advanceMinutes(
+        (Date.parse('2026-10-11T23:59:00Z') - signedUpAt) / millisecondsPerMinute,
+      )
+      expect((await recruit(ana.cookie, { unit: 'infantry', count: 5 })).status).toBe(200)
+      clock.advanceMinutes(2)
+
+      const response = await fiefOf(ana.cookie)
+
+      const { season, recruitOrder, recruitTerms } = FiefOverviewSchema.parse(await response.json())
+      expect(season?.kind).toBe('summer')
+      expect(recruitTerms.infantry.perUnitSeconds).toBe(45)
+      expect(recruitOrder).toMatchObject({ perUnitSeconds: 34, delivered: 3 })
+      expect(recruitOrder?.endsAt).toBe('2026-10-12T00:01:50.000Z')
     })
 
     it('refuses an order without a barracks', async () => {

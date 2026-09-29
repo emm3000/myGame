@@ -18,10 +18,10 @@ const multiplierPercent = {
   winter: { ...unchangedRates, food: 75 },
 }
 
-const unchangedDurations = { build: 100, study: 100 }
+const unchangedDurations = { build: 100, study: 100, train: 100 }
 
 const durationPercent = {
-  spring: unchangedDurations,
+  spring: { ...unchangedDurations, train: 75 },
   summer: { ...unchangedDurations, build: 75 },
   autumn: unchangedDurations,
   winter: { ...unchangedDurations, study: 75 },
@@ -178,7 +178,36 @@ describe('FiefContentSchema', () => {
     expect(
       FiefContentSchema.safeParse(
         fiefContent({
-          seasons: { ...seasons, durationPercent: { ...durationPercent, winter: { build: 100 } } },
+          seasons: {
+            ...seasons,
+            durationPercent: { ...durationPercent, winter: { build: 100, train: 100 } },
+          },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a season missing its train percent', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            durationPercent: { ...durationPercent, spring: { build: 100, study: 100 } },
+          },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a train percent of zero', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            durationPercent: { ...durationPercent, spring: { ...unchangedDurations, train: 0 } },
+          },
         }),
       ).success,
     ).toBe(false)

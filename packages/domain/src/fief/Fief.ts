@@ -673,6 +673,7 @@ export class Fief {
     request: RecruitRequest,
     stocksAtNow: Stocks,
     now: Instant,
+    trainPercent: number,
   ): Result<Fief, DomainError> {
     const { unit, count, terms } = request
     if (!isUnitCount(count)) {
@@ -697,7 +698,11 @@ export class Fief {
           unit,
           count,
           cost,
-          perUnitSeconds: deriveUnitDurationSeconds(terms.durationSeconds, barracksLevel),
+          perUnitSeconds: deriveUnitDurationSeconds(
+            terms.durationSeconds,
+            barracksLevel,
+            trainPercent,
+          ),
           startedAt: now,
         },
         stocks: debit(stocksAtNow, cost),
