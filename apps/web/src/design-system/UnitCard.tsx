@@ -6,8 +6,6 @@ import { Panel } from './Panel'
 import { SubmitAction, type SubmitActionState } from './SubmitAction'
 import { UnitCount } from './UnitCount'
 
-export type UnitCardState = SubmitActionState
-
 export interface UnitCardProps {
   readonly name: string
   readonly count: number
@@ -17,7 +15,7 @@ export interface UnitCardProps {
   readonly isFieldDisabled: boolean
   readonly costs: ReadonlyArray<CardCost> | undefined
   readonly actionLabel: string
-  readonly state: UnitCardState
+  readonly state: SubmitActionState
   readonly titleElement: 'h3' | 'h4'
   readonly isWaiting: boolean
   readonly onEntryChange: (entry: string) => void
