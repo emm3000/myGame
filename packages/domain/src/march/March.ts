@@ -10,6 +10,7 @@ export type AwayMarch = {
   readonly departedAt: Instant
   readonly oneWaySeconds: number
   readonly loot: Stocks
+  readonly recalledAt?: Instant
 }
 
 export type March = { readonly kind: 'idle' } | AwayMarch

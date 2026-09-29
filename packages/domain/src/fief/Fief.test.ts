@@ -232,6 +232,32 @@ describe('Fief', () => {
     expect(returningAtStored.ok).toBe(true)
   })
 
+  it('refuses a stored recall before the departure or from the end of the stay', () => {
+    const secondsAfterDeparture = (seconds: number): Instant =>
+      Instant.fromEpochMilliseconds(foundingInstant.epochMilliseconds + seconds * 1_000)
+    const recalledAt = (seconds: number) =>
+      Fief.restore({
+        ...storedBusyFief,
+        march: { ...awayMarch, recalledAt: secondsAfterDeparture(seconds) },
+      })
+
+    expect(recalledAt(-1)).toEqual(
+      err({
+        kind: 'SlotStartsAfterFinish',
+        startedAt: foundingInstant,
+        finishesAt: secondsAfterDeparture(-1),
+      }),
+    )
+    expect(recalledAt(7_920)).toEqual(
+      err({
+        kind: 'SlotStartsAfterFinish',
+        startedAt: secondsAfterDeparture(7_920),
+        finishesAt: secondsAfterDeparture(7_920),
+      }),
+    )
+    expect([recalledAt(0).ok, recalledAt(7_919).ok]).toEqual([true, true])
+  })
+
   it('counts the infantry away out of those at home', () => {
     const restored = Fief.restore({ ...storedBusyFief, recruitOrder: { kind: 'idle' } })
 

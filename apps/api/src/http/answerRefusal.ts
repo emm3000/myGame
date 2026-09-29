@@ -84,6 +84,8 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   SlotStartsAfterFinish: internalFailure,
   StayOutOfRange: { status: 409, kind: 'StayOutOfRange' },
   MarchSlotBusy: { status: 409, kind: 'MarchSlotBusy' },
+  MarchNotFound: internalFailure,
+  MarchAlreadyReturning: internalFailure,
   MarchTargetOutOfBounds: { status: 409, kind: 'MarchTargetOutOfBounds' },
   MarchToOwnPlot: { status: 409, kind: 'MarchToOwnPlot' },
   PlotHeld: { status: 409, kind: 'PlotHeld' },
