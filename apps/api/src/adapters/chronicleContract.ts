@@ -81,6 +81,21 @@ export const chronicleContract = (
       expect(await chronicle.eventsOf(valdehierro)).toEqual(everyKind)
     })
 
+    it('reads back a recruits-delivered event', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const delivered: FiefEvent = {
+        kind: 'recruitsDelivered',
+        unit: 'infantry',
+        count: 12,
+        occurredAt: minutesAfterDawn(18),
+      }
+
+      await chronicle.record(valdehierro, [delivered])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([delivered])
+    })
+
     it('answers the events newest first', async () => {
       const { chronicle, registerFiefs } = await arrange()
       await registerFiefs([valdehierro])

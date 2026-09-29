@@ -119,7 +119,7 @@ describe('the fief route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
@@ -473,7 +473,9 @@ describe('the fief route', () => {
 
   it('answers 404 with FiefNotFound when the player holds no fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await runSql('TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events')
+    await runSql(
+      'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders',
+    )
 
     const response = await fiefOf(ana.cookie)
 
@@ -544,6 +546,27 @@ describe('the fief route', () => {
       ])
     })
 
+    it('lists the units of an order that no read had closed yet', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(
+        `INSERT INTO fief_recruit_orders (fief_id, kind, count, cost_wood, cost_stone, cost_iron,
+           cost_gold, cost_food, per_unit_seconds, started_at)
+         SELECT id, 'infantry', 3, 60, 0, 30, 0, 90, 60, '2026-09-22T08:00:00Z' FROM fiefs`,
+      )
+      clock.advanceMinutes(5)
+
+      const response = await chronicleOf(ana.cookie)
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'recruitsDelivered',
+          unit: 'infantry',
+          count: 3,
+          occurredAt: '2026-09-22T08:03:00.000Z',
+        },
+      ])
+    })
+
     it('answers a cancel with the cost it refunded', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await enqueue(ana.cookie, 'ironMine')
@@ -588,7 +611,9 @@ describe('the fief route', () => {
 
     it('answers 404 with FiefNotFound when the player holds no fief', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await runSql('TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events')
+      await runSql(
+        'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders',
+      )
 
       const response = await chronicleOf(ana.cookie)
 

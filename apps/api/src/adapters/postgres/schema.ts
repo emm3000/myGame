@@ -33,11 +33,14 @@ export const building = pgEnum('building', [
 
 export const art = pgEnum('art', ['smithing', 'masonry'])
 
+export const unit = pgEnum('unit', ['infantry'])
+
 export const fiefEventKind = pgEnum('fief_event_kind', [
   'upgrade_finished',
   'art_learned',
   'upgrade_cancelled',
   'study_cancelled',
+  'recruits_delivered',
 ])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
@@ -175,6 +178,43 @@ export const fiefArts = pgTable(
   (table) => [primaryKey({ name: 'fief_arts_pkey', columns: [table.fiefId, table.art] })],
 )
 
+export const fiefUnits = pgTable(
+  'fief_units',
+  {
+    fiefId: uuid('fief_id')
+      .notNull()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    kind: unit('kind').notNull(),
+    count: integer('count').notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'fief_units_pkey', columns: [table.fiefId, table.kind] }),
+    check('fief_units_count_whole', sql`${table.count} >= 0`),
+  ],
+)
+
+export const fiefRecruitOrders = pgTable(
+  'fief_recruit_orders',
+  {
+    fiefId: uuid('fief_id')
+      .primaryKey()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    kind: unit('kind').notNull(),
+    count: integer('count').notNull(),
+    costWood: doublePrecision('cost_wood').notNull(),
+    costStone: doublePrecision('cost_stone').notNull(),
+    costIron: doublePrecision('cost_iron').notNull(),
+    costGold: doublePrecision('cost_gold').notNull(),
+    costFood: doublePrecision('cost_food').notNull(),
+    perUnitSeconds: integer('per_unit_seconds').notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check('fief_recruit_orders_count_positive', sql`${table.count} >= 1`),
+    check('fief_recruit_orders_per_unit_seconds_positive', sql`${table.perUnitSeconds} >= 1`),
+  ],
+)
+
 export const fiefEvents = pgTable(
   'fief_events',
   {
@@ -185,7 +225,9 @@ export const fiefEvents = pgTable(
     kind: fiefEventKind('kind').notNull(),
     building: building('building'),
     art: art('art'),
-    level: integer('level').notNull(),
+    unit: unit('unit'),
+    level: integer('level'),
+    count: integer('count'),
     refundWood: doublePrecision('refund_wood').notNull().default(0),
     refundStone: doublePrecision('refund_stone').notNull().default(0),
     refundIron: doublePrecision('refund_iron').notNull().default(0),
@@ -195,8 +237,8 @@ export const fiefEvents = pgTable(
   },
   (table) => [
     check(
-      'fief_events_building_or_art',
-      sql`(${table.building} IS NULL) <> (${table.art} IS NULL)`,
+      'fief_events_one_subject',
+      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}) = 1 AND (${table.level} IS NULL) = (${table.unit} IS NOT NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL)`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],

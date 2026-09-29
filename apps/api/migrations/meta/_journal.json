@@ -85,6 +85,13 @@
       "when": 1790646057366,
       "tag": "0011_barracks_building",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790648250533,
+      "tag": "0012_units_and_recruit_orders",
+      "breakpoints": true
     }
   ]
 }

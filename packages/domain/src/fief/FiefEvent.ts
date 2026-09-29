@@ -1,4 +1,4 @@
-import type { ArtKind, BuildingKind } from '../ports/BuildingCatalog'
+import type { ArtKind, BuildingKind, UnitKind } from '../ports/BuildingCatalog'
 import type { Instant } from '../time/Instant'
 import type { Stocks } from './Fief'
 
@@ -28,4 +28,10 @@ export type FiefEvent =
       readonly level: number
       readonly occurredAt: Instant
       readonly refund: Stocks
+    }
+  | {
+      readonly kind: 'recruitsDelivered'
+      readonly unit: UnitKind
+      readonly count: number
+      readonly occurredAt: Instant
     }

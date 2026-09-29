@@ -41,7 +41,7 @@ const registerFiefs = async (fiefIds: ReadonlyArray<string>): Promise<void> => {
 
 const emptyDatabase = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events',
+    'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders',
   )
 }
 
@@ -65,6 +65,9 @@ describe('DrizzleChronicle reads', () => {
 
     const events = await new DrizzleChronicle(drizzle(pool)).eventsOf(valdehierro)
 
-    expect([events.length, events.at(-1)?.level]).toEqual([keptEventsPerFief, 2])
+    expect([events.length, events.at(-1)]).toEqual([
+      keptEventsPerFief,
+      expect.objectContaining({ kind: 'upgradeFinished', level: 2 }),
+    ])
   })
 })

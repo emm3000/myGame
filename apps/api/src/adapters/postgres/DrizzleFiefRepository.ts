@@ -11,6 +11,7 @@ import {
   ok,
   type PlayerId,
   type PlotAddress,
+  type RecruitOrder,
   type Result,
   type Stocks,
   type StoredFief,
@@ -18,14 +19,24 @@ import {
 } from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
-import { fiefArts, fiefBuildings, fiefQueueEntries, fiefs } from './schema'
+import {
+  fiefArts,
+  fiefBuildings,
+  fiefQueueEntries,
+  fiefRecruitOrders,
+  fiefs,
+  fiefUnits,
+} from './schema'
 import {
   artKinds,
   buildingKinds,
   type StoredArt,
   type StoredBuilding,
+  type StoredUnit,
   storedArts,
   storedBuildings,
+  storedUnits,
+  unitKinds,
 } from './storedKinds'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
@@ -33,12 +44,17 @@ type FiefRow = typeof fiefs.$inferSelect
 
 type EntryRow = typeof fiefQueueEntries.$inferSelect
 
+type RecruitOrderRow = typeof fiefRecruitOrders.$inferSelect
+
 type JoinedRow = {
   readonly building: StoredBuilding | null
   readonly level: number | null
   readonly entry: EntryRow | null
   readonly art: StoredArt | null
   readonly artLevel: number | null
+  readonly unit: StoredUnit | null
+  readonly unitCount: number | null
+  readonly recruitOrder: RecruitOrderRow | null
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
@@ -71,6 +87,55 @@ const artLevelsOf = (joinedRows: ReadonlyArray<JoinedRow>): FiefArtLevels => {
     }
   }
   return levels
+}
+
+const unitCountsOf = (joinedRows: ReadonlyArray<JoinedRow>): StoredFief['units'] => {
+  const counts = { infantry: 0 }
+  for (const row of joinedRows) {
+    if (row.unit !== null && row.unitCount !== null) {
+      counts[unitKinds[row.unit]] = row.unitCount
+    }
+  }
+  return counts
+}
+
+const recruitOrderOf = (row: RecruitOrderRow | null): RecruitOrder => {
+  if (row === null) {
+    return { kind: 'idle' }
+  }
+  return {
+    kind: 'open',
+    unit: unitKinds[row.kind],
+    count: row.count,
+    cost: {
+      wood: row.costWood,
+      stone: row.costStone,
+      iron: row.costIron,
+      gold: row.costGold,
+      food: row.costFood,
+    },
+    perUnitSeconds: row.perUnitSeconds,
+    startedAt: instantOf(row.startedAt),
+  }
+}
+
+const recruitOrderRowOf = (fief: Fief): RecruitOrderRow | undefined => {
+  const { recruitOrder } = fief
+  if (recruitOrder.kind === 'idle') {
+    return undefined
+  }
+  return {
+    fiefId: fief.id,
+    kind: storedUnits[recruitOrder.unit],
+    count: recruitOrder.count,
+    costWood: recruitOrder.cost.wood,
+    costStone: recruitOrder.cost.stone,
+    costIron: recruitOrder.cost.iron,
+    costGold: recruitOrder.cost.gold,
+    costFood: recruitOrder.cost.food,
+    perUnitSeconds: recruitOrder.perUnitSeconds,
+    startedAt: dateOf(recruitOrder.startedAt),
+  }
 }
 
 const buildQueueOf = (joinedRows: ReadonlyArray<JoinedRow>): BuildQueue => {
@@ -156,7 +221,11 @@ const studySlotOf = (row: FiefRow): StudySlot => {
   }
 }
 
-const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): StoredFief => ({
+const storedFiefOf = (
+  row: FiefRow,
+  recruitOrder: RecruitOrderRow | null,
+  joinedRows: ReadonlyArray<JoinedRow>,
+): StoredFief => ({
   id: row.id,
   playerId: row.playerId,
   name: row.name,
@@ -165,11 +234,11 @@ const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): Store
   storedAt: instantOf(row.storedAt),
   buildingLevels: buildingLevelsOf(joinedRows),
   artLevels: artLevelsOf(joinedRows),
-  units: { infantry: 0 },
+  units: unitCountsOf(joinedRows),
   slot: slotOf(row),
   buildQueue: buildQueueOf(joinedRows),
   studySlot: studySlotOf(row),
-  recruitOrder: { kind: 'idle' },
+  recruitOrder: recruitOrderOf(recruitOrder),
 })
 
 type SlotCostColumns = Pick<
@@ -296,11 +365,16 @@ export class DrizzleFiefRepository implements FiefRepository {
         entry: fiefQueueEntries,
         art: fiefArts.art,
         artLevel: fiefArts.level,
+        unit: fiefUnits.kind,
+        unitCount: fiefUnits.count,
+        recruitOrder: fiefRecruitOrders,
       })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
       .leftJoin(fiefQueueEntries, eq(fiefQueueEntries.fiefId, fiefs.id))
       .leftJoin(fiefArts, eq(fiefArts.fiefId, fiefs.id))
+      .leftJoin(fiefUnits, eq(fiefUnits.fiefId, fiefs.id))
+      .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
       .where(eq(fiefs.playerId, playerId))
       .$dynamic()
     const rows = await (this.read === 'lockedForUpdate'
@@ -310,7 +384,7 @@ export class DrizzleFiefRepository implements FiefRepository {
     if (first === undefined) {
       return ok(undefined)
     }
-    return Fief.restore(storedFiefOf(first.fief, rows))
+    return Fief.restore(storedFiefOf(first.fief, first.recruitOrder, rows))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
@@ -325,6 +399,10 @@ export class DrizzleFiefRepository implements FiefRepository {
     const studiedArtRows = Object.values(storedArts)
       .map((stored) => ({ fiefId: id, art: stored, level: fief.artLevels[artKinds[stored]] }))
       .filter((row) => row.level > 0)
+    const unitRows = Object.values(storedUnits)
+      .map((stored) => ({ fiefId: id, kind: stored, count: fief.units.countOf(unitKinds[stored]) }))
+      .filter((row) => row.count > 0)
+    const recruitOrderRow = recruitOrderRowOf(fief)
     const entryRows = entryRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
@@ -350,9 +428,22 @@ export class DrizzleFiefRepository implements FiefRepository {
               set: { level: sql`excluded.level` },
             })
         }
+        if (unitRows.length > 0) {
+          await transaction
+            .insert(fiefUnits)
+            .values(unitRows)
+            .onConflictDoUpdate({
+              target: [fiefUnits.fiefId, fiefUnits.kind],
+              set: { count: sql`excluded.count` },
+            })
+        }
         await transaction.delete(fiefQueueEntries).where(eq(fiefQueueEntries.fiefId, id))
         if (entryRows.length > 0) {
           await transaction.insert(fiefQueueEntries).values([...entryRows])
+        }
+        await transaction.delete(fiefRecruitOrders).where(eq(fiefRecruitOrders.fiefId, id))
+        if (recruitOrderRow !== undefined) {
+          await transaction.insert(fiefRecruitOrders).values(recruitOrderRow)
         }
       })
       return ok(undefined)

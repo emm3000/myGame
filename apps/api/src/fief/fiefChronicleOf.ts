@@ -28,6 +28,8 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
         occurredAt,
         refund: event.refund,
       }
+    case 'recruitsDelivered':
+      return { kind: event.kind, unit: event.unit, count: event.count, occurredAt }
     default: {
       const unreachable: never = event
       return unreachable

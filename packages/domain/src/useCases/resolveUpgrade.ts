@@ -103,7 +103,14 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
         },
       ]
     case 'recruit':
-      return []
+      return [
+        {
+          kind: 'recruitsDelivered',
+          unit: finished.order.unit,
+          count: finished.order.count,
+          occurredAt: finished.finishedAt,
+        },
+      ]
     default: {
       const unreachable: never = finished
       return unreachable

@@ -22,6 +22,10 @@ describe('deliveredUnitsOf', () => {
     expect(deliveredUnitsOf(fiveInfantryAtSixtySeconds, secondsAfterOrder(59))).toBe(0)
   })
 
+  it('delivers no unit before the order starts', () => {
+    expect(deliveredUnitsOf(fiveInfantryAtSixtySeconds, secondsAfterOrder(-120))).toBe(0)
+  })
+
   it('delivers one unit per period elapsed', () => {
     expect(deliveredUnitsOf(fiveInfantryAtSixtySeconds, secondsAfterOrder(150))).toBe(2)
   })
