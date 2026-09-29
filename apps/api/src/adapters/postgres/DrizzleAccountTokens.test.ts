@@ -28,7 +28,7 @@ afterAll(async () => {
 
 const emptyDatabase = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders',
+    'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches',
   )
 }
 

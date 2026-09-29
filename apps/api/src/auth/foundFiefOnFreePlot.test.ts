@@ -33,7 +33,7 @@ const withSignedUpPlayers = async (playerIds: ReadonlyArray<PlayerId>): Promise<
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches',
     )
     for (const playerId of playerIds) {
       await client.query(

@@ -13,6 +13,7 @@ import {
   fiefArts,
   fiefBuildings,
   fiefEvents,
+  fiefMarches,
   fiefQueueEntries,
   fiefRecruitOrders,
   fiefs,
@@ -72,6 +73,23 @@ function infantryOrderOf(fiefId: string): typeof fiefRecruitOrders.$inferInsert 
   }
 }
 
+function infantryMarchOf(fiefId: string): typeof fiefMarches.$inferInsert {
+  return {
+    fiefId,
+    province: 2,
+    plot: 5,
+    infantry: 10,
+    stayHours: 2,
+    oneWaySeconds: 840,
+    departedAt: new Date('2026-09-22T08:00:00Z'),
+    lootWood: 60,
+    lootStone: 60,
+    lootIron: 0,
+    lootGold: 0,
+    lootFood: 0,
+  }
+}
+
 const ana = aPlayer('00000000-0000-4000-8000-000000000001', 'Ana@Example.com')
 const bruno = aPlayer('00000000-0000-4000-8000-000000000002', 'bruno@example.com')
 const anasFief = aFief('00000000-0000-4000-8000-00000000000a', ana.id)
@@ -126,6 +144,7 @@ describe('the migrations', () => {
       'fief_arts',
       'fief_buildings',
       'fief_events',
+      'fief_marches',
       'fief_queue_entries',
       'fief_recruit_orders',
       'fief_units',
@@ -414,6 +433,88 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a second march for one fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefMarches).values(infantryMarchOf(anasFief.id))
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), infantry: 3 }),
+    ).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'fief_marches_pkey' },
+    })
+  })
+
+  it('refuses a march of no infantry', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), infantry: 0 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_infantry_positive' },
+    })
+  })
+
+  it('refuses a march that takes no road', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), oneWaySeconds: 0 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_one_way_seconds_positive' },
+    })
+  })
+
+  it('refuses a negative loot', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), lootIron: -1 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_loot_iron_whole' },
+    })
+  })
+
+  it('refuses a plot on a building row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        building: 'sawmill',
+        level: 1,
+        province: 2,
+        plot: 5,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
+  it('refuses a province without a plot on a unit row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'march_returned',
+        unit: 'infantry',
+        count: 10,
+        province: 2,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
   it('drops the units and the recruit order of a deleted fief', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -426,6 +527,16 @@ describe('the migrations', () => {
       units: await db.select().from(fiefUnits),
       orders: await db.select().from(fiefRecruitOrders),
     }).toEqual({ units: [], orders: [] })
+  })
+
+  it('drops the march of a deleted fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefMarches).values(infantryMarchOf(anasFief.id))
+
+    await db.delete(fiefs)
+
+    expect(await db.select().from(fiefMarches)).toEqual([])
   })
 
   it('refuses an event that names both a building and an art', async () => {
@@ -967,5 +1078,58 @@ describe('the recruits cancelled migration', () => {
         occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
       },
     ])
+  })
+})
+
+describe('the marches migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the chronicle rows stored before the march migration', async () => {
+    await migratedFrom(client, 14, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_events (fief_id, kind, building, unit, level, count, cancelled_count, refund_wood, refund_food, occurred_at)
+         VALUES ($1, 'upgrade_finished', 'sawmill', NULL, 2, NULL, NULL, 0, 0, '2026-09-22T09:00:00Z'),
+                ($1, 'recruits_cancelled', NULL, 'infantry', NULL, 2, 3, 60, 90, '2026-09-22T10:00:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
+      {
+        kind: 'recruitsCancelled',
+        unit: 'infantry',
+        delivered: 2,
+        cancelled: 3,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
+        refund: { wood: 60, stone: 0, iron: 0, gold: 0, food: 90 },
+      },
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
+      },
+    ])
+  })
+
+  it('reads an idle march slot on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 14, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(restored.ok && restored.value?.march).toEqual({ kind: 'idle' })
   })
 })

@@ -1414,6 +1414,68 @@ describe('resolveUpgrade with a march', () => {
     expect(fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
   })
 
+  it('records the plot, the infantry and the loot when the march returns', async () => {
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([marchingFief({})]),
+        chronicle,
+        catalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
+    )
+
+    assert(result.ok)
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 5,
+      infantry: 10,
+      loot: { wood: 200, stone: 200, iron: 0, gold: 0, food: 0 },
+    }
+    expect(result.value.events).toMatchObject([returned])
+    expect(chronicle.recordedEventsOf('fief-1')).toMatchObject([returned])
+  })
+
+  it('stamps the return event with the return instant', async () => {
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([marchingFief({})]),
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.events.map(({ occurredAt }) => occurredAt)).toEqual([
+      secondsAfterStored(8_880),
+    ])
+  })
+
+  it('records no return event while the march is away', async () => {
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([marchingFief({ slot: sawmillFinishingAfterHours(1) })]),
+        chronicle,
+        catalog,
+        clock: frozenClock(secondsAfterStored(8_879)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.march.kind).toBe('away')
+    expect(chronicle.recordedEventsOf('fief-1').map(({ kind }) => kind)).toEqual([
+      'upgradeFinished',
+    ])
+  })
+
   it('adds the loot above the capacity where the stocks freeze', async () => {
     const returningAtStored = (): Fief =>
       marchingFief({
@@ -1489,6 +1551,7 @@ describe('resolveUpgrade with a march', () => {
       'upgradeFinished',
       'artLearned',
       'recruitsDelivered',
+      'marchReturned',
     ])
   })
 

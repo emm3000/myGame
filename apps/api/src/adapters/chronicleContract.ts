@@ -113,6 +113,23 @@ export const chronicleContract = (
       expect(await chronicle.eventsOf(valdehierro)).toEqual([cancelled])
     })
 
+    it('reads back a march-returned event', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const returned: FiefEvent = {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        infantry: 10,
+        loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
+        occurredAt: minutesAfterDawn(40),
+      }
+
+      await chronicle.record(valdehierro, [returned])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([returned])
+    })
+
     it('reads back a recruits-cancelled event with no unit delivered', async () => {
       const { chronicle, registerFiefs } = await arrange()
       await registerFiefs([valdehierro])

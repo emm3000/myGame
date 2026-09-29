@@ -8,6 +8,7 @@ import {
   type FiefBuildingLevels,
   type FiefRepository,
   Instant,
+  type March,
   ok,
   type PlayerId,
   type PlotAddress,
@@ -22,6 +23,7 @@ import type { PostgresSession } from './connectPostgres'
 import {
   fiefArts,
   fiefBuildings,
+  fiefMarches,
   fiefQueueEntries,
   fiefRecruitOrders,
   fiefs,
@@ -46,6 +48,8 @@ type EntryRow = typeof fiefQueueEntries.$inferSelect
 
 type RecruitOrderRow = typeof fiefRecruitOrders.$inferSelect
 
+type MarchRow = typeof fiefMarches.$inferSelect
+
 type JoinedRow = {
   readonly building: StoredBuilding | null
   readonly level: number | null
@@ -55,6 +59,7 @@ type JoinedRow = {
   readonly unit: StoredUnit | null
   readonly unitCount: number | null
   readonly recruitOrder: RecruitOrderRow | null
+  readonly march: MarchRow | null
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
@@ -135,6 +140,49 @@ const recruitOrderRowOf = (fief: Fief): RecruitOrderRow | undefined => {
     costFood: recruitOrder.cost.food,
     perUnitSeconds: recruitOrder.perUnitSeconds,
     startedAt: dateOf(recruitOrder.startedAt),
+  }
+}
+
+const marchOf = (row: MarchRow | null): March => {
+  if (row === null) {
+    return { kind: 'idle' }
+  }
+  return {
+    kind: 'away',
+    province: row.province,
+    plot: row.plot,
+    infantry: row.infantry,
+    stayHours: row.stayHours,
+    departedAt: instantOf(row.departedAt),
+    oneWaySeconds: row.oneWaySeconds,
+    loot: {
+      wood: row.lootWood,
+      stone: row.lootStone,
+      iron: row.lootIron,
+      gold: row.lootGold,
+      food: row.lootFood,
+    },
+  }
+}
+
+const marchRowOf = (fief: Fief): MarchRow | undefined => {
+  const { march } = fief
+  if (march.kind === 'idle') {
+    return undefined
+  }
+  return {
+    fiefId: fief.id,
+    province: march.province,
+    plot: march.plot,
+    infantry: march.infantry,
+    stayHours: march.stayHours,
+    oneWaySeconds: march.oneWaySeconds,
+    departedAt: dateOf(march.departedAt),
+    lootWood: march.loot.wood,
+    lootStone: march.loot.stone,
+    lootIron: march.loot.iron,
+    lootGold: march.loot.gold,
+    lootFood: march.loot.food,
   }
 }
 
@@ -224,6 +272,7 @@ const studySlotOf = (row: FiefRow): StudySlot => {
 const storedFiefOf = (
   row: FiefRow,
   recruitOrder: RecruitOrderRow | null,
+  march: MarchRow | null,
   joinedRows: ReadonlyArray<JoinedRow>,
 ): StoredFief => ({
   id: row.id,
@@ -239,7 +288,7 @@ const storedFiefOf = (
   buildQueue: buildQueueOf(joinedRows),
   studySlot: studySlotOf(row),
   recruitOrder: recruitOrderOf(recruitOrder),
-  march: { kind: 'idle' },
+  march: marchOf(march),
 })
 
 type SlotCostColumns = Pick<
@@ -369,6 +418,7 @@ export class DrizzleFiefRepository implements FiefRepository {
         unit: fiefUnits.kind,
         unitCount: fiefUnits.count,
         recruitOrder: fiefRecruitOrders,
+        march: fiefMarches,
       })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
@@ -376,6 +426,7 @@ export class DrizzleFiefRepository implements FiefRepository {
       .leftJoin(fiefArts, eq(fiefArts.fiefId, fiefs.id))
       .leftJoin(fiefUnits, eq(fiefUnits.fiefId, fiefs.id))
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
+      .leftJoin(fiefMarches, eq(fiefMarches.fiefId, fiefs.id))
       .where(eq(fiefs.playerId, playerId))
       .$dynamic()
     const rows = await (this.read === 'lockedForUpdate'
@@ -385,7 +436,7 @@ export class DrizzleFiefRepository implements FiefRepository {
     if (first === undefined) {
       return ok(undefined)
     }
-    return Fief.restore(storedFiefOf(first.fief, first.recruitOrder, rows))
+    return Fief.restore(storedFiefOf(first.fief, first.recruitOrder, first.march, rows))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
@@ -404,6 +455,7 @@ export class DrizzleFiefRepository implements FiefRepository {
       .map((stored) => ({ fiefId: id, kind: stored, count: fief.units.countOf(unitKinds[stored]) }))
       .filter((row) => row.count > 0)
     const recruitOrderRow = recruitOrderRowOf(fief)
+    const marchRow = marchRowOf(fief)
     const entryRows = entryRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
@@ -445,6 +497,10 @@ export class DrizzleFiefRepository implements FiefRepository {
         await transaction.delete(fiefRecruitOrders).where(eq(fiefRecruitOrders.fiefId, id))
         if (recruitOrderRow !== undefined) {
           await transaction.insert(fiefRecruitOrders).values(recruitOrderRow)
+        }
+        await transaction.delete(fiefMarches).where(eq(fiefMarches.fiefId, id))
+        if (marchRow !== undefined) {
+          await transaction.insert(fiefMarches).values(marchRow)
         }
       })
       return ok(undefined)

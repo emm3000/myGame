@@ -43,3 +43,11 @@ export type FiefEvent =
       readonly occurredAt: Instant
       readonly refund: Stocks
     }
+  | {
+      readonly kind: 'marchReturned'
+      readonly province: number
+      readonly plot: number
+      readonly infantry: number
+      readonly loot: Stocks
+      readonly occurredAt: Instant
+    }

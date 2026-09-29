@@ -95,6 +95,16 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         cancelledCount: event.cancelled,
         ...refundColumnsOf(event.refund),
       }
+    case 'marchReturned':
+      return {
+        ...common,
+        kind: 'march_returned',
+        unit: storedUnits.infantry,
+        count: event.infantry,
+        province: event.province,
+        plot: event.plot,
+        ...refundColumnsOf(event.loot),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -144,6 +154,20 @@ const cancelledCountOf = (row: EventRow): number => {
   return row.cancelledCount
 }
 
+const provinceOf = (row: EventRow): number => {
+  if (row.province === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no province`)
+  }
+  return row.province
+}
+
+const plotOf = (row: EventRow): number => {
+  if (row.plot === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no plot`)
+  }
+  return row.plot
+}
+
 const eventOf = (row: EventRow): FiefEvent => {
   const occurredAt = Instant.fromEpochMilliseconds(row.occurredAt.getTime())
   switch (row.kind) {
@@ -182,6 +206,15 @@ const eventOf = (row: EventRow): FiefEvent => {
         cancelled: cancelledCountOf(row),
         occurredAt,
         refund: refundOf(row),
+      }
+    case 'march_returned':
+      return {
+        kind: 'marchReturned',
+        province: provinceOf(row),
+        plot: plotOf(row),
+        infantry: countOf(row),
+        loot: refundOf(row),
+        occurredAt,
       }
     default: {
       const unreachable: never = row.kind
