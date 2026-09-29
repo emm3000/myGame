@@ -115,6 +115,7 @@ const MarchStateSchema = z.strictObject({
   arrivesAt: InstantSchema,
   leavesAt: InstantSchema,
   returnsAt: InstantSchema,
+  recalledAt: InstantSchema.nullable(),
 })
 
 export const FiefOverviewSchema = z.object({

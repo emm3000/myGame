@@ -42,6 +42,8 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
   StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
+  MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
+  MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',

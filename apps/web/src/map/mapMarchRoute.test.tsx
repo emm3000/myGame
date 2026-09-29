@@ -46,6 +46,7 @@ const marchAway: NonNullable<FiefOverview['march']> = {
   arrivesAt: '2026-09-22T12:14:00.000Z',
   leavesAt: '2026-09-22T14:14:00.000Z',
   returnsAt: '2026-09-22T14:28:00.000Z',
+  recalledAt: null,
 }
 
 interface Deferred<T> {

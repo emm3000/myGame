@@ -103,6 +103,16 @@ const awayMarch = {
   arrivesAt: '2026-09-22T14:14:00.000Z',
   leavesAt: '2026-09-22T16:14:00.000Z',
   returnsAt: '2026-09-22T16:28:00.000Z',
+  recalledAt: null,
+}
+
+const marchRecalledOnTheRoad = {
+  ...awayMarch,
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  arrivesAt: '2026-09-22T14:10:00.000Z',
+  leavesAt: '2026-09-22T14:10:00.000Z',
+  returnsAt: '2026-09-22T14:20:00.000Z',
+  recalledAt: '2026-09-22T14:10:00.000Z',
 }
 
 const shippedForageTerms = {
@@ -355,6 +365,28 @@ describe('FiefOverviewSchema', () => {
     const overviewWithIdleMarchSlot = { ...overviewWithSlot(busySlot), march: null }
 
     expect(FiefOverviewSchema.parse(overviewWithIdleMarchSlot)).toEqual(overviewWithIdleMarchSlot)
+  })
+
+  it('accepts a march that was not recalled', () => {
+    const overviewWithUnrecalledMarch = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.parse(overviewWithUnrecalledMarch).march?.recalledAt).toBeNull()
+  })
+
+  it('accepts a recalled march', () => {
+    const overviewWithRecalledMarch = {
+      ...overviewWithSlot(busySlot),
+      march: marchRecalledOnTheRoad,
+    }
+
+    expect(FiefOverviewSchema.parse(overviewWithRecalledMarch)).toEqual(overviewWithRecalledMarch)
+  })
+
+  it('rejects a march without its recall instant', () => {
+    const { recalledAt: _, ...marchWithoutRecall } = awayMarch
+    const overviewWithoutRecall = { ...overviewWithSlot(busySlot), march: marchWithoutRecall }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutRecall).success).toBe(false)
   })
 
   it('rejects a march with no infantry', () => {

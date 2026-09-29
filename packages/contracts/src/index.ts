@@ -25,6 +25,7 @@ export {
 export { type Player, PlayerSchema } from './Player'
 export { type ProvinceMap, ProvinceMapSchema } from './ProvinceMap'
 export { type ProvinceMapRequest, ProvinceMapRequestSchema } from './ProvinceMapRequest'
+export { type RecallMarchRequest, RecallMarchRequestSchema } from './RecallMarchRequest'
 export { type ResetPasswordRequest, ResetPasswordRequestSchema } from './ResetPasswordRequest'
 export { type ResourceAmounts, ResourceAmountsSchema } from './ResourceAmounts'
 export { type ResourceKind, ResourceKindSchema } from './ResourceKind'
