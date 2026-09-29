@@ -46,15 +46,13 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
 }
 
 export function MapMarchPanel({ march }: { readonly march: MapMarch }): ReactElement {
-  const sent = march.sentTo === undefined ? undefined : march.overview?.march
+  const sent = march.isSent ? march.overview?.march : undefined
   const refusal = march.refusal ?? march.fiefRefusal
   return (
     <div className="flex flex-col gap-3">
       <OpenForm march={march} />
       {sent !== undefined && sent !== null && march.overview !== undefined && (
-        <MarchSent
-          lines={marchSentLinesOf(sent, march.overview.readAt, march.sentTo?.camp ?? null)}
-        />
+        <MarchSent lines={marchSentLinesOf(sent, march.overview.readAt)} />
       )}
       {refusal !== undefined && <FormAlert message={copy.refusals[refusal]} />}
     </div>
