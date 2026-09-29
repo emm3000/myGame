@@ -90,6 +90,7 @@ describe('entryFitsProjection', () => {
     const result = entryFitsProjection(
       projectedWithFarm,
       FiefUnitCounts.none,
+      { kind: 'idle' },
       upgradeTo('sawmill', 1),
       catalog,
     )
@@ -104,6 +105,7 @@ describe('entryFitsProjection', () => {
     const result = entryFitsProjection(
       levelsWith({ farm: 1 }),
       nineInfantry.value,
+      { kind: 'idle' },
       upgradeTo('sawmill', 1),
       catalog,
     )
@@ -117,6 +119,7 @@ describe('entryFitsProjection', () => {
     const result = entryFitsProjection(
       overcrowded,
       FiefUnitCounts.none,
+      { kind: 'idle' },
       upgradeTo('farm', 1),
       catalog,
     )
@@ -130,6 +133,7 @@ describe('entryFitsProjection', () => {
     const result = entryFitsProjection(
       projectedBeyondCatalog,
       FiefUnitCounts.none,
+      { kind: 'idle' },
       upgradeTo('farm', 1),
       catalog,
     )

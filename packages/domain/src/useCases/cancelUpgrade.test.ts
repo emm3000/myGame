@@ -154,6 +154,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     slot: sawmillInProgress,
     buildQueue: [],
     studySlot: { kind: 'idle' },
+    recruitOrder: { kind: 'idle' },
     ...overrides,
   })
   assert(restored.ok)

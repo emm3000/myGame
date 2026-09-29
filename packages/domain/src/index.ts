@@ -21,6 +21,7 @@ export type { FiefId } from './fief/FiefId'
 export { FiefName } from './fief/FiefName'
 export { nextArtLevelOf } from './fief/nextArtLevelOf'
 export type { PlotAddress } from './fief/PlotAddress'
+export type { RecruitOrder } from './fief/RecruitOrder'
 export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
 export type { Terrain } from './fief/Terrain'
@@ -74,6 +75,11 @@ export {
   type FoundFiefDependencies,
   foundFief,
 } from './useCases/foundFief'
+export {
+  type PlaceRecruitOrderCommand,
+  type PlaceRecruitOrderDependencies,
+  placeRecruitOrder,
+} from './useCases/placeRecruitOrder'
 export {
   type ReadProvinceMapCommand,
   type ReadProvinceMapDependencies,

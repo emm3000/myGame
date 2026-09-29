@@ -18,6 +18,7 @@ export type DomainError =
   | { readonly kind: 'UnknownArtLevel'; readonly art: ArtKind; readonly level: number }
   | { readonly kind: 'InvalidArtLevel'; readonly art: ArtKind; readonly level: number }
   | { readonly kind: 'InvalidUnitCount'; readonly unit: UnitKind; readonly count: number }
+  | { readonly kind: 'InvalidUnitDuration'; readonly unit: UnitKind; readonly seconds: number }
   | {
       readonly kind: 'NegativeFreePeasants'
       readonly suppliedPeasants: number
@@ -72,3 +73,5 @@ export type DomainError =
     }
   | { readonly kind: 'ArtMaxLevelReached'; readonly art: ArtKind; readonly level: number }
   | { readonly kind: 'StudyNotFound'; readonly art: ArtKind; readonly targetLevel: number }
+  | { readonly kind: 'BarracksNotBuilt' }
+  | { readonly kind: 'RecruitSlotBusy'; readonly unit: UnitKind }

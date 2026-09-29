@@ -6,17 +6,19 @@ import { derivePeasantCounts } from './derivePeasantCounts'
 import { derivePeasantsForUpgrade } from './derivePeasantsForUpgrade'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { FiefUnitCounts } from './FiefUnitCounts'
+import type { RecruitOrder } from './RecruitOrder'
 
 export const entryFitsProjection = (
   projectedLevels: FiefBuildingLevels,
   units: FiefUnitCounts,
+  recruitOrder: RecruitOrder,
   entry: BuildQueueEntry,
   catalog: BuildingCatalog,
 ): Result<boolean, DomainError> => {
   if (entry.targetLevel !== projectedLevels[entry.building] + 1) {
     return ok(false)
   }
-  const peasants = derivePeasantCounts(projectedLevels, units, catalog)
+  const peasants = derivePeasantCounts(projectedLevels, units, recruitOrder, catalog)
   if (!peasants.ok) {
     return peasants.error.kind === 'NegativeFreePeasants' ? ok(false) : peasants
   }
