@@ -81,6 +81,15 @@ export const knownFief: FiefOverview = {
     },
   },
   season: null,
+  units: { infantry: 0 },
+  recruitOrder: null,
+  recruitTerms: {
+    infantry: {
+      cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
+      peasants: 1,
+      perUnitSeconds: 90,
+    },
+  },
   readAt: '2026-09-22T12:00:00.000Z',
 }
 

@@ -6,6 +6,7 @@ import { ResourceKindSchema } from './ResourceKind'
 import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
+import { UnitKindSchema } from './UnitKind'
 import {
   BuildingLevelSchema,
   DurationSecondsSchema,
@@ -86,6 +87,21 @@ const SeasonStateSchema = z.strictObject({
   durationPercent: SeasonDurationPercentSchema,
 })
 
+const RecruitOrderStateSchema = z.strictObject({
+  unit: UnitKindSchema,
+  count: WholeCountSchema.positive(),
+  delivered: WholeCountSchema,
+  perUnitSeconds: DurationSecondsSchema.positive(),
+  startedAt: InstantSchema,
+  endsAt: InstantSchema,
+})
+
+const RecruitTermsSchema = z.strictObject({
+  cost: ResourceAmountsSchema,
+  peasants: WholeCountSchema,
+  perUnitSeconds: DurationSecondsSchema.positive(),
+})
+
 export const FiefOverviewSchema = z.object({
   name: z.string().min(1),
   coordinates: z.object({
@@ -118,6 +134,9 @@ export const FiefOverviewSchema = z.object({
   study: z.discriminatedUnion('kind', [IdleStudySchema, BusyStudySchema]),
   arts: z.record(ArtKindSchema, ArtStateSchema),
   season: SeasonStateSchema.nullable(),
+  units: z.record(UnitKindSchema, WholeCountSchema),
+  recruitOrder: RecruitOrderStateSchema.nullable(),
+  recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
   readAt: InstantSchema,
 })
 
