@@ -27,8 +27,9 @@ recommended option on every question, and its fourteen decisions bound the
 tickets; the ticketing found nine points the decisions left open and the
 owner accepted the default of each. This ADR records what S15 shipped, PRs
 #306 and #308 to #314, and the lore proposals of #307; where the code
-stands over a ticket it records the code. The screens (#303, #305) are
-recorded as Decision 4 fixes them and the mockup of #295 draws them.
+stands over a ticket it records the code. The screens shipped after it,
+#303 as PR #316 and #305 as PR #317, as Decision 4 fixes them and the
+mockup of #295 draws them.
 
 ## Decision
 
@@ -218,17 +219,19 @@ recorded as Decision 4 fixes them and the mockup of #295 draws them.
   `dispatchAttack` in one transaction through `mutateAfterResolve` and
   answers the fief overview, whose `march.camp.strength` is the strength
   the men will fight.
-- **Screens (Decision 4 of #292, the mockup of #295, #303 and #305 not yet
-  shipped).** A camp's plot on `/mapa` reads its tier and strength behind
+- **Screens (Decision 4 of #292, the mockup of #295, shipped as PR #316
+  and PR #317).** A camp's plot on `/mapa` reads its tier and strength behind
   a tent icon and carries *Atacar el campamento* in place of *Enviar una
   marcha*; the form has the infantry field alone and previews the road,
   the return, the camp, the outcome, the losses, the bandits' losses, the
   survivors and the loot from `combatTerms` and the camp as the map shows
   it, marking a shortfall in men and blocking no battle read as lost; the
-  sent state shows the strength the server fixed when it differs from the
-  preview. The army section's march card reads the two attack phases with
+  sent state states in words the strength the server fixed, which may
+  differ from the preview, never marking the difference by colour alone.
+  The army section's march card reads the two attack phases with
   the survivors, the *Campamento* line, the loot with gold and the S14
-  recall button outbound only; a lost attack idles the slot from the
+  recall button outbound only; a recalled attack reads *Marcha de vuelta*
+  with no *Campamento* line, as it never fought; a lost attack idles the slot from the
   battle and the unit card counts the men at home. The web re-reads at an
   unfought attack's `arrivesAt` as well as at `returnsAt`, since the
   battle changes the count and may idle the slot. A hand-drawn camp icon,
@@ -381,9 +384,10 @@ recorded as Decision 4 fixes them and the mockup of #295 draws them.
 - Known gap: the lore proposals of #307 wait for the author; until
   accepted, `apps/web/src/copy.ts` mirrors them. The camp icon is a
   hand-drawn line SVG and the camp has no generated image (S4).
-- #303 and #305 are recorded here as Decision 4 fixes them and the mockup
-  of #295 draws them, not as shipped; the ADR is amended if either
-  corrects a decision.
+- #303 and #305 shipped as PR #316 and PR #317 after this ADR. The sent
+  state dropped the mockup's ochre for the server's strength, and a
+  recalled attack reads as a forage march on its way back; neither
+  changes a decision.
 - Out of scope of #292, each a future ADR or an amendment of this one:
   PvP, scouting, any march that meets another lord, a season on combat, a
   recall after the battle, a second march at a time, other unit kinds,
