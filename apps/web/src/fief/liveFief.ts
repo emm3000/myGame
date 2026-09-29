@@ -17,6 +17,17 @@ export interface LiveRecruitOrder {
   readonly totalSeconds: number
 }
 
+export type MarchPhase = 'outbound' | 'foraging' | 'returning'
+
+export interface LiveMarch {
+  readonly phase: MarchPhase
+  readonly remainingSeconds: number
+  readonly elapsedSeconds: number
+  readonly totalSeconds: number
+  readonly arrivalSeconds: number
+  readonly leavingSeconds: number
+}
+
 export interface LiveFief {
   readonly overview: FiefOverview
   readonly amounts: LiveAmounts
@@ -28,6 +39,7 @@ export interface LiveFief {
   readonly waitingUpgrades: ReadonlyArray<LiveWaitingUpgrade>
   readonly units: Readonly<Record<UnitKind, number>>
   readonly recruitOrder: LiveRecruitOrder | null
+  readonly march: LiveMarch | null
 }
 
 const secondsPerHour = 3600
@@ -108,6 +120,40 @@ function recruitOrderAt(overview: FiefOverview, elapsedSeconds: number): LiveRec
   }
 }
 
+export function marchRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
+  return overview.march === null
+    ? 0
+    : remainingSecondsAt(overview.march.returnsAt, overview, elapsedSeconds)
+}
+
+const secondsBetween = (from: string, to: string): number =>
+  (Date.parse(to) - Date.parse(from)) / 1000
+
+function phaseOf(march: NonNullable<FiefOverview['march']>, sinceDeparture: number): MarchPhase {
+  if (sinceDeparture < secondsBetween(march.departedAt, march.arrivesAt)) {
+    return 'outbound'
+  }
+  return sinceDeparture < secondsBetween(march.departedAt, march.leavesAt)
+    ? 'foraging'
+    : 'returning'
+}
+
+function marchAt(overview: FiefOverview, elapsedSeconds: number): LiveMarch | null {
+  const march = overview.march
+  if (march === null) {
+    return null
+  }
+  const sinceDeparture = secondsBetween(march.departedAt, overview.readAt) + elapsedSeconds
+  return {
+    phase: phaseOf(march, sinceDeparture),
+    remainingSeconds: marchRemainingSecondsAt(overview, elapsedSeconds),
+    elapsedSeconds: sinceDeparture,
+    totalSeconds: secondsBetween(march.departedAt, march.returnsAt),
+    arrivalSeconds: secondsBetween(march.departedAt, march.arrivesAt),
+    leavingSeconds: secondsBetween(march.departedAt, march.leavesAt),
+  }
+}
+
 function unitsAt(
   overview: FiefOverview,
   order: LiveRecruitOrder | null,
@@ -143,5 +189,6 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
     })),
     units: unitsAt(overview, recruitOrder),
     recruitOrder,
+    march: marchAt(overview, elapsedSeconds),
   }
 }

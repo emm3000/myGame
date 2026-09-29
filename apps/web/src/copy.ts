@@ -300,8 +300,12 @@ export const copy = {
     nextUnitIn: (unit: UnitKind): string => `Siguiente ${units[unit].singular} en`,
     orderCompleteIn: 'Leva completa en',
     unitTitle: (unit: UnitKind): string => capitalize(units[unit].plural),
-    unitCount: (unit: UnitKind, count: number): string =>
-      agreeing(count, units[unit].singular, units[unit].plural),
+    atHome: (unit: UnitKind, count: number): string =>
+      `${agreeing(count, units[unit].singular, units[unit].plural)} en casa`,
+    atHomeBeforeAway: (unit: UnitKind, count: number): string =>
+      `${agreeing(count, units[unit].singular, units[unit].plural)} en casa,`,
+    away: (unit: UnitKind, count: number): string =>
+      `${agreeing(count, units[unit].singular, units[unit].plural)} de marcha`,
     countField: (unit: UnitKind): string => `${capitalize(units[unit].plural)} a reclutar`,
     recruit: (unit: UnitKind): string => `Reclutar ${units[unit].plural}`,
     cancel: 'Cancelar la leva',
@@ -323,9 +327,22 @@ export const copy = {
     returnHeading: 'Vuelta en',
     lootHeading: 'Botín:',
     loot: (loot: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(loot),
-    outboundHeading: 'Marcha de ida:',
-    outbound: (infantry: number, province: number, plot: number): string =>
-      `${countedUnits('infantry', infantry)} a provincia ${province}, parcela ${plot}`,
+    slot: 'la marcha',
+    busySlot: 'una marcha en curso',
+    idleSlot: 'El cuartel no tiene marcha en curso.',
+    phaseHeadings: {
+      outbound: 'Marcha de ida:',
+      foraging: 'Forrajeo:',
+      returning: 'Marcha de vuelta:',
+    },
+    phaseLines: {
+      outbound: (infantry: number, province: number, plot: number): string =>
+        `${countedUnits('infantry', infantry)} a provincia ${province}, parcela ${plot}`,
+      foraging: (infantry: number, province: number, plot: number): string =>
+        `${countedUnits('infantry', infantry)} en provincia ${province}, parcela ${plot}`,
+      returning: (infantry: number, province: number, plot: number): string =>
+        `${countedUnits('infantry', infantry)} desde provincia ${province}, parcela ${plot}`,
+    },
     marchAway: 'Ya hay una marcha en curso.',
     invalidInfantry: invalidCount,
     invalidHours: (maxStayHours: number): string => `Un número entero, de 1 a ${maxStayHours}.`,

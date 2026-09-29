@@ -4,20 +4,14 @@ import type { CardCost } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import type { UnitCardProps } from '../design-system/UnitCard'
+import type { UnitTally } from '../design-system/UnitCount'
 import type { LiveFief } from './liveFief'
 import { resourceCostsOf } from './resourceCostsOf'
 import { type ResourceCost, shortfallsOf } from './shortfallsOf'
 
 export type UnitCardContent = Pick<
   UnitCardProps,
-  | 'name'
-  | 'count'
-  | 'countLabel'
-  | 'fieldLabel'
-  | 'isFieldDisabled'
-  | 'costs'
-  | 'actionLabel'
-  | 'state'
+  'name' | 'tallies' | 'fieldLabel' | 'isFieldDisabled' | 'costs' | 'actionLabel' | 'state'
 >
 
 const wholeCountPattern = /^[0-9]+$/
@@ -81,14 +75,24 @@ function costsOf(
   ]
 }
 
+function talliesOf(unit: UnitKind, fief: LiveFief): ReadonlyArray<UnitTally> {
+  const away = unit === 'infantry' ? (fief.overview.march?.infantry ?? 0) : 0
+  const atHome = fief.units[unit] - away
+  if (away === 0) {
+    return [{ count: atHome, label: copy.army.atHome(unit, atHome) }]
+  }
+  return [
+    { count: atHome, label: copy.army.atHomeBeforeAway(unit, atHome) },
+    { count: away, label: copy.army.away(unit, away) },
+  ]
+}
+
 export function unitCardOf(unit: UnitKind, entry: string, fief: LiveFief): UnitCardContent {
   const count = recruitCountOf(entry)
-  const unitCount = fief.units[unit]
   const recruit = copy.army.recruit(unit)
   return {
     name: copy.army.unitTitle(unit),
-    count: unitCount,
-    countLabel: copy.army.unitCount(unit, unitCount),
+    tallies: talliesOf(unit, fief),
     fieldLabel: copy.army.countField(unit),
     isFieldDisabled: fief.overview.recruitOrder !== null,
     costs: costsOf(unit, count, fief),

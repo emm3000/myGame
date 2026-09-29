@@ -12,8 +12,8 @@ const secondsBetween = (from: string, to: string): number =>
 export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArray<PreviewLine> {
   return [
     {
-      heading: copy.march.outboundHeading,
-      value: copy.march.outbound(march.infantry, march.province, march.plot),
+      heading: copy.march.phaseHeadings.outbound,
+      value: copy.march.phaseLines.outbound(march.infantry, march.province, march.plot),
       isNumeral: false,
     },
     {

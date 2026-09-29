@@ -4,12 +4,11 @@ import { type CardCost, CostList } from './CostList'
 import { NumberField } from './NumberField'
 import { Panel } from './Panel'
 import { SubmitAction, type SubmitActionState } from './SubmitAction'
-import { UnitCount } from './UnitCount'
+import { UnitCount, type UnitTally } from './UnitCount'
 
 export interface UnitCardProps {
   readonly name: string
-  readonly count: number
-  readonly countLabel: string
+  readonly tallies: ReadonlyArray<UnitTally>
   readonly fieldLabel: string
   readonly entry: string
   readonly isFieldDisabled: boolean
@@ -35,7 +34,7 @@ export function UnitCard(props: UnitCardProps): ReactElement {
     <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <Title className="m-0 font-display text-title text-ink">{props.name}</Title>
-        <UnitCount count={props.count} label={props.countLabel} />
+        <UnitCount tallies={props.tallies} />
       </header>
       <form className="m-0 flex flex-col gap-3" onSubmit={submit}>
         <div className="flex flex-col gap-1">
