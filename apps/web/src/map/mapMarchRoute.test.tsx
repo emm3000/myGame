@@ -185,6 +185,52 @@ it('blocks a march while another is away', async () => {
   expect(dispatchMarch).not.toHaveBeenCalled()
 })
 
+it('counts the infantry at home without the men away', async () => {
+  const twelveAway: FiefOverview = {
+    ...fiefWithTenInfantry,
+    units: { infantry: 20 },
+    march: { ...marchAway, infantry: 12 },
+  }
+  const form = await openMarchTo(uplands, 7, {
+    fief: async () => ({ ok: true, value: twelveAway }),
+  })
+
+  expect(form.closest('article')?.querySelector('header')?.textContent).toContain(
+    '8 infantes en casa',
+  )
+})
+
+it('blocks an infantry count that is not a whole count from 1', async () => {
+  const dispatchMarch = vi.fn(async () => ({ ok: true, value: fiefWithTenInfantry }) as const)
+  const form = await openMarchTo(uplands, 5, { dispatchMarch })
+
+  type(form, 'Infantes a enviar', '0')
+  fireEvent.submit(form)
+
+  expect(sendButton(form).getAttribute('aria-label')).toBe(
+    'Enviar una marcha. Un número entero, al menos 1.',
+  )
+  expect(previewOf(form)).toEqual([])
+  expect(dispatchMarch).not.toHaveBeenCalled()
+})
+
+it('closes the march form when browsing to another province', async () => {
+  const form = await openMarchTo(uplands, 7, {
+    provinceMap: async (province) => ({
+      ok: true,
+      value: provinceOf(province ?? 2, 'uplands', {}),
+    }),
+  })
+  expect(form).toBeDefined()
+
+  fireEvent.click(screen.getByRole('button', { name: 'Provincia siguiente' }))
+  await screen.findByRole('heading', { level: 3, name: 'Vadoalto, provincia 3' })
+  fireEvent.click(screen.getByRole('button', { name: 'Provincia anterior' }))
+  await screen.findByRole('heading', { level: 3, name: 'Vadoalto, provincia 2' })
+
+  expect(screen.queryByRole('form', { name: 'Marcha a provincia 2, parcela 7' })).toBeNull()
+})
+
 it('blocks a stay past the longest', async () => {
   const dispatchMarch = vi.fn(async () => ({ ok: true, value: fiefWithTenInfantry }) as const)
   const form = await openMarchTo(uplands, 5, { dispatchMarch })
