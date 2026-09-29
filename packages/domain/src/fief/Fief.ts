@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
-import type { March } from '../march/March'
+import type { AwayMarch, March } from '../march/March'
+import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import type { PlayerId } from '../player/PlayerId'
 import type {
@@ -223,7 +224,7 @@ const validateRecruitOrder = (
   return refuseNegativeAmount(recruitOrder.cost)
 }
 
-const validateMarch = (march: March): Result<void, DomainError> => {
+const validateMarch = (march: March, storedAt: Instant): Result<void, DomainError> => {
   if (march.kind === 'idle') {
     return ok(undefined)
   }
@@ -238,6 +239,10 @@ const validateMarch = (march: March): Result<void, DomainError> => {
   }
   if (!Number.isInteger(march.oneWaySeconds)) {
     return err({ kind: 'FractionalDuration', seconds: march.oneWaySeconds })
+  }
+  const { returnsAt } = marchInstantsOf(march)
+  if (returnsAt.epochMilliseconds < storedAt.epochMilliseconds) {
+    return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: returnsAt })
   }
   return refuseNegativeAmount(march.loot)
 }
@@ -289,7 +294,7 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   if (!storedRecruitOrder.ok) {
     return storedRecruitOrder
   }
-  const storedMarch = validateMarch(stored.march)
+  const storedMarch = validateMarch(stored.march, stored.storedAt)
   if (!storedMarch.ok) {
     return storedMarch
   }
@@ -853,6 +858,14 @@ export class Fief {
       storedAt: recruitOrderEndsAt(ended),
       units: this.units.plus(ended.unit, ended.count),
       recruitOrder: { kind: 'idle' },
+    })
+  }
+
+  completeMarch(returned: AwayMarch, stocksAtReturn: Stocks): Fief {
+    return this.changed({
+      stocks: credit(stocksAtReturn, returned.loot),
+      storedAt: marchInstantsOf(returned).returnsAt,
+      march: { kind: 'idle' },
     })
   }
 

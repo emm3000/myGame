@@ -8,6 +8,8 @@ import { materializeStocks } from '../fief/materializeStocks'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
+import type { AwayMarch } from '../march/March'
+import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
@@ -35,6 +37,7 @@ type FinishedWork =
   | { readonly kind: 'upgrade'; readonly slot: BusySlot; readonly finishedAt: Instant }
   | { readonly kind: 'study'; readonly slot: BusyStudySlot; readonly finishedAt: Instant }
   | { readonly kind: 'recruit'; readonly order: OpenRecruitOrder; readonly finishedAt: Instant }
+  | { readonly kind: 'march'; readonly march: AwayMarch; readonly finishedAt: Instant }
 
 const finishedUpgradeOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
   const { slot } = fief
@@ -64,6 +67,18 @@ const endedRecruitOrderOf = (fief: Fief, now: Instant): FinishedWork | undefined
   return { kind: 'recruit', order: recruitOrder, finishedAt: endsAt }
 }
 
+const returnedMarchOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
+  const { march } = fief
+  if (march.kind === 'idle') {
+    return undefined
+  }
+  const { returnsAt } = marchInstantsOf(march)
+  if (returnsAt.epochMilliseconds > now.epochMilliseconds) {
+    return undefined
+  }
+  return { kind: 'march', march, finishedAt: returnsAt }
+}
+
 const earlierOf = (
   earliest: FinishedWork | undefined,
   candidate: FinishedWork | undefined,
@@ -77,10 +92,12 @@ const earlierOf = (
 }
 
 const earliestFinishedOf = (fief: Fief, now: Instant): FinishedWork | undefined =>
-  [finishedUpgradeOf(fief, now), finishedStudyOf(fief, now), endedRecruitOrderOf(fief, now)].reduce(
-    earlierOf,
-    undefined,
-  )
+  [
+    finishedUpgradeOf(fief, now),
+    finishedStudyOf(fief, now),
+    endedRecruitOrderOf(fief, now),
+    returnedMarchOf(fief, now),
+  ].reduce(earlierOf, undefined)
 
 const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
   switch (finished.kind) {
@@ -111,6 +128,8 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           occurredAt: finished.finishedAt,
         },
       ]
+    case 'march':
+      return []
     default: {
       const unreachable: never = finished
       return unreachable
@@ -133,6 +152,8 @@ const applyFinished = (
       return ok(fief.completeStudy(finished.slot, stocksAtFinish))
     case 'recruit':
       return ok(fief.completeRecruitOrder(finished.order, stocksAtFinish))
+    case 'march':
+      return ok(fief.completeMarch(finished.march, stocksAtFinish))
     default: {
       const unreachable: never = finished
       return unreachable
