@@ -1,4 +1,5 @@
 import {
+  type CampTier,
   type ChronicleWriter,
   type DomainError,
   type FiefEvent,
@@ -11,6 +12,7 @@ import {
 import { and, desc, eq, notInArray } from 'drizzle-orm'
 import { type ChronicleReader, keptEventsPerFief } from '../../fief/ChronicleReader'
 import type { PostgresSession } from './connectPostgres'
+import { isCampTier } from './isCampTier'
 import { fiefEvents } from './schema'
 import {
   artKinds,
@@ -106,6 +108,19 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         recalled: event.recalled,
         ...refundColumnsOf(event.loot),
       }
+    case 'battleFought':
+      return {
+        ...common,
+        kind: 'battle_fought',
+        unit: storedUnits.infantry,
+        count: event.infantryLost,
+        province: event.province,
+        plot: event.plot,
+        campTier: event.tier,
+        campLost: event.campLost,
+        won: event.won,
+        ...refundColumnsOf(noRefund),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -169,6 +184,20 @@ const plotOf = (row: EventRow): number => {
   return row.plot
 }
 
+const campTierOf = (row: EventRow): CampTier => {
+  if (row.campTier === null || !isCampTier(row.campTier)) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no camp tier`)
+  }
+  return row.campTier
+}
+
+const campLostOf = (row: EventRow): number => {
+  if (row.campLost === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no camp loss`)
+  }
+  return row.campLost
+}
+
 const eventOf = (row: EventRow): FiefEvent => {
   const occurredAt = Instant.fromEpochMilliseconds(row.occurredAt.getTime())
   switch (row.kind) {
@@ -216,6 +245,17 @@ const eventOf = (row: EventRow): FiefEvent => {
         infantry: countOf(row),
         loot: refundOf(row),
         recalled: row.recalled,
+        occurredAt,
+      }
+    case 'battle_fought':
+      return {
+        kind: 'battleFought',
+        province: provinceOf(row),
+        plot: plotOf(row),
+        tier: campTierOf(row),
+        won: row.won,
+        infantryLost: countOf(row),
+        campLost: campLostOf(row),
         occurredAt,
       }
     default: {

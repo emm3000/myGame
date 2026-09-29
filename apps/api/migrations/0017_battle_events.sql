@@ -1,0 +1,5 @@
+ALTER TYPE "public"."fief_event_kind" ADD VALUE 'battle_fought';--> statement-breakpoint
+ALTER TABLE "fief_events" ADD COLUMN "camp_tier" integer;--> statement-breakpoint
+ALTER TABLE "fief_events" ADD COLUMN "camp_lost" integer;--> statement-breakpoint
+ALTER TABLE "fief_events" ADD COLUMN "won" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "fief_events" ADD CONSTRAINT "fief_events_battle_terms" CHECK (("fief_events"."kind"::text = 'battle_fought') = ("fief_events"."camp_tier" IS NOT NULL) AND ("fief_events"."camp_tier" IS NULL) = ("fief_events"."camp_lost" IS NULL) AND ("fief_events"."camp_tier" IS NULL OR ("fief_events"."camp_tier" BETWEEN 1 AND 3 AND "fief_events"."camp_lost" >= 0 AND "fief_events"."province" IS NOT NULL)) AND (NOT "fief_events"."won" OR "fief_events"."kind"::text = 'battle_fought'));

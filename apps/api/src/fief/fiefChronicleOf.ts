@@ -49,6 +49,17 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
         occurredAt,
         recalled: event.recalled,
       }
+    case 'battleFought':
+      return {
+        kind: event.kind,
+        province: event.province,
+        plot: event.plot,
+        tier: event.tier,
+        won: event.won,
+        infantryLost: event.infantryLost,
+        campLost: event.campLost,
+        occurredAt,
+      }
     default: {
       const unreachable: never = event
       return unreachable
