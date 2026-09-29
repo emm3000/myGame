@@ -18,7 +18,21 @@ const multiplierPercent = {
   winter: { ...unchangedRates, food: 75 },
 }
 
-const seasons = { epoch: '2026-10-05T00:00:00Z', daysPerSeason: 7, multiplierPercent }
+const unchangedDurations = { build: 100, study: 100 }
+
+const durationPercent = {
+  spring: unchangedDurations,
+  summer: { ...unchangedDurations, build: 75 },
+  autumn: unchangedDurations,
+  winter: { ...unchangedDurations, study: 75 },
+}
+
+const seasons = {
+  epoch: '2026-10-05T00:00:00Z',
+  daysPerSeason: 7,
+  multiplierPercent,
+  durationPercent,
+}
 
 const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   startingStocks: { wood: 500, stone: 300, iron: 200, gold: 0, food: 300 },
@@ -138,6 +152,52 @@ describe('FiefContentSchema', () => {
     expect(
       FiefContentSchema.safeParse(fiefContent({ seasons: { ...seasons, epoch: '2026-10-05' } }))
         .success,
+    ).toBe(false)
+  })
+
+  it('rejects duration percents missing a season', () => {
+    const { summer: _, ...threeSeasons } = durationPercent
+
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ seasons: { ...seasons, durationPercent: threeSeasons } }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a season missing its study percent', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: { ...seasons, durationPercent: { ...durationPercent, winter: { build: 100 } } },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a duration percent of zero', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            durationPercent: { ...durationPercent, summer: { ...unchangedDurations, build: 0 } },
+          },
+        }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a negative duration percent', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({
+          seasons: {
+            ...seasons,
+            durationPercent: { ...durationPercent, winter: { ...unchangedDurations, study: -75 } },
+          },
+        }),
+      ).success,
     ).toBe(false)
   })
 })

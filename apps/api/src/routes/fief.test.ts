@@ -384,6 +384,16 @@ describe('the fief route', () => {
     expect(resources.food.ratePerHour).toBe(11.25)
   })
 
+  it('answers the summer duration of the next sawmill level', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes((Date.parse('2026-10-13T08:00:00Z') - signedUpAt) / millisecondsPerMinute)
+
+    const response = await fiefOf(ana.cookie)
+
+    const { buildings } = FiefOverviewSchema.parse(await response.json())
+    expect(buildings.sawmill.nextLevel?.durationSeconds).toBe(90)
+  })
+
   it('answers a stock above the capacity unchanged after an hour', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await runSql('UPDATE fiefs SET wood = 1200')
@@ -1096,6 +1106,22 @@ describe('the fief route', () => {
           ratePercent: 5,
         },
       })
+    })
+
+    it('answers the winter duration of the next smithing level', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildLibraryAt(2)
+      const minutesToFirstWinter =
+        (Date.parse('2026-10-26T00:00:00Z') - signedUpAt) / millisecondsPerMinute
+      const minutesWithinTheSession = 20 * 24 * 60
+      clock.advanceMinutes(minutesWithinTheSession)
+      await fiefOf(ana.cookie)
+      clock.advanceMinutes(minutesToFirstWinter - minutesWithinTheSession + 60)
+
+      const response = await fiefOf(ana.cookie)
+
+      const { arts } = FiefOverviewSchema.parse(await response.json())
+      expect(arts.smithing.nextLevel?.durationSeconds).toBe(450)
     })
 
     it('names the resource each art raises', async () => {

@@ -7,11 +7,13 @@ import {
   type BuildingKind,
   type BuildSlot,
   type DomainError,
+  deriveBuildDurationSeconds,
   derivePeasantCounts,
   derivePeasantsForUpgrade,
   deriveResourceRates,
   deriveStudyDurationSeconds,
   deriveWarehouseCapacity,
+  durationPercentAt,
   type Fief,
   type FiefBuildingLevels,
   type Instant,
@@ -80,6 +82,7 @@ const artStateOf = (
       durationSeconds: deriveStudyDurationSeconds(
         next.durationSeconds,
         fief.buildingLevels.library,
+        durationPercentAt(fief.storedAt, catalog.fiefSettings()).study,
       ),
       requiredLibraryLevel: next.requiredLibraryLevel,
       ratePercent: next.ratePercent,
@@ -173,6 +176,7 @@ const nextLevelOf = (
   building: BuildingKind,
   buildingLevels: FiefBuildingLevels,
   catalog: BuildingCatalog,
+  buildPercent: number,
 ): Result<BuildingState['nextLevel'], DomainError> => {
   const next = catalog.levelOf(building, buildingLevels[building] + 1)
   if (next === undefined) {
@@ -183,7 +187,12 @@ const nextLevelOf = (
     return peasants
   }
   const { level, cost, durationSeconds } = next
-  return ok({ level, cost: { ...cost }, durationSeconds, peasants: peasants.value })
+  return ok({
+    level,
+    cost: { ...cost },
+    durationSeconds: deriveBuildDurationSeconds(durationSeconds, buildPercent),
+    peasants: peasants.value,
+  })
 }
 
 const buildingsOf = (
@@ -199,8 +208,9 @@ const buildingsOf = (
     warehouse: { level: buildingLevels.warehouse, nextLevel: null },
     library: { level: buildingLevels.library, nextLevel: null },
   }
+  const buildPercent = durationPercentAt(fief.storedAt, catalog.fiefSettings()).build
   for (const building of BuildingKindSchema.options) {
-    const nextLevel = nextLevelOf(building, projectedBuildingLevels, catalog)
+    const nextLevel = nextLevelOf(building, projectedBuildingLevels, catalog, buildPercent)
     if (!nextLevel.ok) {
       return nextLevel
     }

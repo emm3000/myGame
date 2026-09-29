@@ -10,6 +10,11 @@ const TerrainBonusSchema = z.object({
   ratePerHour: QuantitySchema,
 })
 
+const SeasonDurationPercentSchema = z.strictObject({
+  build: WholeCountSchema.positive(),
+  study: WholeCountSchema.positive(),
+})
+
 const SeasonCalendarSchema = z.strictObject({
   epoch: InstantSchema,
   daysPerSeason: WholeCountSchema.positive(),
@@ -17,6 +22,7 @@ const SeasonCalendarSchema = z.strictObject({
     SeasonKindSchema,
     z.record(ResourceKindSchema, WholeCountSchema.positive()),
   ),
+  durationPercent: z.record(SeasonKindSchema, SeasonDurationPercentSchema),
 })
 
 export const FiefContentSchema = z.object({

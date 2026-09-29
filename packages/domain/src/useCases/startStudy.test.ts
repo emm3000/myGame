@@ -274,3 +274,50 @@ describe('startStudy', () => {
     expect(result.value.projectedBuildingLevels).toEqual(levelsWithLibrary(1))
   })
 })
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const midWinter = daysAfterSeasonEpoch(24)
+
+const seasonalCatalog: BuildingCatalog = {
+  ...catalog,
+  artLevelOf: (art, level) =>
+    art === 'smithing' && level === 1 ? { ...smithingLevelOne, durationSeconds: 1000 } : undefined,
+  fiefSettings: () => ({
+    ...fiefSettings,
+    seasons: {
+      ...neutralSeasons,
+      epoch: seasonEpoch,
+      durationPercent: {
+        spring: { build: 100, study: 100 },
+        summer: { build: 75, study: 100 },
+        autumn: { build: 100, study: 100 },
+        winter: { build: 100, study: 75 },
+      },
+    },
+  }),
+}
+
+describe('startStudy across seasons', () => {
+  it('shortens a study duration in winter with one rounding', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ storedAt: midWinter, buildingLevels: levelsWithLibrary(2) }),
+    ])
+
+    const result = await startStudy(
+      { playerId: 'lord', art: 'smithing' },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midWinter) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.studySlot).toMatchObject({
+      kind: 'busy',
+      finishesAt: Instant.fromEpochMilliseconds(midWinter.epochMilliseconds + 250_000),
+    })
+  })
+})

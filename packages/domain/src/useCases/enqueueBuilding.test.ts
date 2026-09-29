@@ -517,3 +517,108 @@ describe('enqueueBuilding', () => {
     expect(result.value.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 2 })
   })
 })
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const secondsAfter = (instant: Instant, seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
+
+const midSummer = daysAfterSeasonEpoch(10)
+
+const midWinter = daysAfterSeasonEpoch(24)
+
+const seasonalSettings: FiefSettings = {
+  ...fiefSettings,
+  seasons: {
+    ...neutralSeasons,
+    epoch: seasonEpoch,
+    durationPercent: {
+      spring: { build: 100, study: 100 },
+      summer: { build: 75, study: 100 },
+      autumn: { build: 100, study: 100 },
+      winter: { build: 100, study: 75 },
+    },
+  },
+}
+
+const seasonalSawmillCatalog = (durationSeconds: number): BuildingCatalog => ({
+  ...inMemoryCatalog([{ ...sawmillLevel(1, 1), durationSeconds }, quarryLevelOne]),
+  fiefSettings: () => seasonalSettings,
+})
+
+describe('enqueueBuilding across seasons', () => {
+  it('shortens a build duration in summer', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSummer })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: seasonalSawmillCatalog(307), clock: frozenClock(midSummer) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+      kind: 'busy',
+      finishesAt: secondsAfter(midSummer, 231),
+    })
+  })
+
+  it('leaves build durations unchanged in winter', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midWinter })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: seasonalSawmillCatalog(307), clock: frozenClock(midWinter) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+      kind: 'busy',
+      finishesAt: secondsAfter(midWinter, 307),
+    })
+  })
+
+  it('never scales a positive duration below one second', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSummer })])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: seasonalSawmillCatalog(1), clock: frozenClock(midSummer) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+      kind: 'busy',
+      finishesAt: secondsAfter(midSummer, 1),
+    })
+  })
+
+  it('fixes the summer duration on an entry that waits behind a busy slot', async () => {
+    const busyUntilAutumn = storedFief({
+      storedAt: midSummer,
+      slot: {
+        kind: 'busy',
+        building: 'quarry',
+        targetLevel: 1,
+        startedAt: midSummer,
+        finishesAt: daysAfterSeasonEpoch(15),
+        cost: quarryLevelOne.cost,
+      },
+    })
+    const fiefs = inMemoryFiefRepository([busyUntilAutumn])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: seasonalSawmillCatalog(307), clock: frozenClock(midSummer) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([
+      { building: 'sawmill', targetLevel: 1, cost: sawmillCost, durationSeconds: 231 },
+    ])
+  })
+})

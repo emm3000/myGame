@@ -7,6 +7,7 @@ import type {
   ProducerLevel,
 } from '../ports/BuildingCatalog'
 import type { SeasonCalendar } from '../season/SeasonCalendar'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { Instant } from '../time/Instant'
 import { deriveResourceRates } from './deriveResourceRates'
 import type { FiefArtLevels } from './FiefArtLevels'
@@ -49,6 +50,7 @@ const gentleSeasons: SeasonCalendar = {
     autumn: { ...neutralPercents, gold: 125 },
     winter: { ...neutralPercents, food: 75 },
   },
+  durationPercent: neutralSeasons.durationPercent,
 }
 
 const fiefSettings = (

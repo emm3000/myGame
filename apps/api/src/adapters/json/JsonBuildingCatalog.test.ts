@@ -46,6 +46,12 @@ const plainFief: FiefContent = {
       autumn: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
       winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
     },
+    durationPercent: {
+      spring: { build: 100, study: 100 },
+      summer: { build: 100, study: 100 },
+      autumn: { build: 100, study: 100 },
+      winter: { build: 100, study: 100 },
+    },
   },
 }
 
@@ -277,7 +283,10 @@ describe('JsonBuildingCatalog', () => {
   it('reads the season calendar from the shipped content', () => {
     const unchangedRates = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
-    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons).toEqual({
+    const { durationPercent: _, ...calendar } =
+      JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons
+
+    expect(calendar).toEqual({
       epoch: Instant.fromEpochMilliseconds(Date.UTC(2026, 9, 5)),
       daysPerSeason: 7,
       multiplierPercent: {
@@ -286,6 +295,19 @@ describe('JsonBuildingCatalog', () => {
         autumn: { ...unchangedRates, gold: 125 },
         winter: { ...unchangedRates, food: 75 },
       },
+    })
+  })
+
+  it('reads the duration percents from the shipped content', () => {
+    const unchangedDurations = { build: 100, study: 100 }
+
+    expect(
+      JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent,
+    ).toEqual({
+      spring: unchangedDurations,
+      summer: { ...unchangedDurations, build: 75 },
+      autumn: unchangedDurations,
+      winter: { ...unchangedDurations, study: 75 },
     })
   })
 })
