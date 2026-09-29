@@ -6,7 +6,7 @@ import {
   ResourceKindSchema,
 } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
-import type { ReactElement } from 'react'
+import { type ReactElement, useId } from 'react'
 import { copy } from '../copy'
 import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
@@ -20,6 +20,8 @@ import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { buildingCardOf } from './buildingCardOf'
 import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
+import { SeasonSectionHeading } from './SeasonSectionHeading'
+import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import type { Cancel } from './useCancel'
 import type { Study } from './useStudy'
 import type { Upgrade } from './useUpgrade'
@@ -147,6 +149,7 @@ function BuildingItem({
 
 export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
+  const buildingsHeadingId = useId()
   const resources = ResourceKindSchema.options.map((kind) => ({
     kind,
     label: names.resources[kind],
@@ -184,8 +187,12 @@ export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): R
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
           <WaitingUpgradesOf fief={fief} cancel={cancel} />
         </div>
-        <section className="flex flex-col gap-3 lg:col-span-2">
-          <h3 className="m-0 font-body text-heading text-ink">{copy.fief.buildings}</h3>
+        <section aria-labelledby={buildingsHeadingId} className="flex flex-col gap-3 lg:col-span-2">
+          <SeasonSectionHeading
+            id={buildingsHeadingId}
+            title={copy.fief.buildings}
+            mark={seasonSectionMarkOf(overview.season, 'build', copy.fief.buildingsSeasonMark)}
+          />
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
             {BuildingKindSchema.options.map((building) => (
               <BuildingItem key={building} building={building} fief={fief} upgrade={upgrade} />

@@ -7,6 +7,8 @@ import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { artCardOf } from './artCardOf'
 import type { LiveFief } from './liveFief'
+import { SeasonSectionHeading } from './SeasonSectionHeading'
+import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import type { Study } from './useStudy'
 
 const { names } = copy
@@ -75,9 +77,11 @@ export function LibrarySection({
   const headingId = useId()
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-3">
-      <h3 id={headingId} className="m-0 font-body text-heading text-ink">
-        {copy.study.section}
-      </h3>
+      <SeasonSectionHeading
+        id={headingId}
+        title={copy.study.section}
+        mark={seasonSectionMarkOf(fief.overview.season, 'study', copy.study.seasonMark)}
+      />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <BuildSlot state={studySlotStateOf(fief, study)} />
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
