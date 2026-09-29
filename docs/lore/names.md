@@ -65,8 +65,10 @@ Every line of this section is a proposal for the author, not yet accepted (`chro
 | upgradeCancelled | *Obra cancelada: aserradero, nivel 3. Recuperas 120 de madera y 80 de piedra.* | the building label, the level cancelled, the refunded amounts |
 | studyCancelled | *Estudio cancelado: herrería, nivel 2. Recuperas 60 de hierro y 20 de oro.* | the art label, the level cancelled, the refunded amounts |
 | recruitsDelivered | *Leva terminada: 12 infantes.* | the count delivered, the unit label agreeing with it |
+| recruitsCancelled | *Leva cancelada: 4 infantes en filas, 8 infantes de vuelta al campo. Recuperas 160 de madera, 80 de hierro y 240 de comida.* | the units delivered, the units cancelled, the unit label agreeing with each count, the refunded amounts |
 
 - The **recruits delivered** line (S10, #209) is a proposal for the author, not yet accepted, as the rows above are: the heading *Leva terminada:*, then the count delivered and the unit label agreeing with it, in the register of *Obra terminada: aserradero, nivel 3*. One unit reads *Leva terminada: 1 infante.*; no level, no refund. One line per order, dated by the last unit's arrival (`chronicle.md`). The unit labels are in The army, below.
+- The **recruits cancelled** line (S11, #231) is a proposal for the author, not yet accepted: the heading *Leva cancelada:*, then the units delivered with *en filas*, a comma, the units cancelled with *de vuelta al campo*, and the refunded amounts as the *Recuperas* sentence of the two cancels above, in the register of *Estudio cancelado: herrería, nivel 2. Recuperas 60 de hierro y 20 de oro.* Each count carries the unit label agreeing with it, as The army says: 1 singular, every other count plural, 0 included. *En filas* and *de vuelta al campo* have one form for either gender and number, so the line needs only the unit's plural and singular. A cancel before the first delivery reads *Leva cancelada: 0 infantes en filas, 12 infantes de vuelta al campo. Recuperas 240 de madera, 120 de hierro y 360 de comida.*; one after the last but one reads *Leva cancelada: 11 infantes en filas, 1 infante de vuelta al campo. Recuperas 20 de madera, 10 de hierro y 30 de comida.* The units cancelled are never 0: a levy already complete is refused, never cancelled (The army, `RecruitOrderNotFound`). No level. One line per order, dated by the cancel (`chronicle.md`).
 
 - The **refunded amounts** read as *Te faltan* does on the fief screen: each as its quantity, *de* and the resource label, in the order of the Resources table, joined as a Spanish list (*120 de madera, 80 de piedra y 20 de oro*). A resource the refund does not hold is left out.
 - The **instant** each line carries is shown as the design decides (#133); it is not a lore name.
@@ -217,7 +219,7 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 
 ## The army
 
-Every line of this section is a proposal for the author, not yet accepted (`world.md`, Where resources come from). The English identifiers `barracks`, `infantry`, `units`, `recruitOrder`, `recruitTerms`, `recruitsDelivered`, `BarracksNotBuilt` and `RecruitSlotBusy` are fixed by the S10 tickets (#209); only the Spanish is proposed here.
+Every line of this section is a proposal for the author, not yet accepted (`world.md`, Where resources come from). The English identifiers `barracks`, `infantry`, `units`, `recruitOrder`, `recruitTerms`, `recruitsDelivered`, `BarracksNotBuilt` and `RecruitSlotBusy` are fixed by the S10 tickets (#209), and `recruitsCancelled`, `RecruitOrderNotFound`, `delivered` and `cancelled` by the S11 tickets (#231); only the Spanish is proposed here.
 
 - The **barracks** is *el cuartel*, the seventh building of the Buildings table: a walled yard with a drill ground and a roof for the spears, where the fief's hands learn to hold a line. Its level shortens every levy, as the library's shortens every study.
 - A **unit** is one armed hand taken from the fields (`world.md`). The **count** of a kind reads the number first and then the label, in the register of *3 días*: *12 infantes*, *0 infantes*, *1 infante*. The copy agrees the label with the numeral before it: 1 singular, every other count plural, 0 included.
@@ -235,13 +237,16 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 - The **form's field** reads *Infantes a reclutar*, in the register of *Nombre de tu feudo*: the unit label in the plural, since no numeral precedes it. Slot: the unit label. The cost and the peasants of the count typed read as the building cards read theirs, and a shortfall as *Te faltan* and *Necesitas 3 campesinos libres y tienes 2.* do; no new line.
 - The **form's empty or invalid entry**, a field left blank or holding zero, a negative or a fraction, reads *Un número entero, al menos 1.*, in the register of *Al menos 8 caracteres.*: the rule the field wants, under it, with no slot (#213, mirrored by #219).
 - The **form blocked by the busy slot** reads *Ya hay una leva en marcha.*, in the register of *Ya hay un estudio en marcha.*
-- The two **refusals** the server answers, in the register of *Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.* and *La biblioteca ya tiene un estudio en marcha. Espera a que termine.*:
+- **Cancelling the levy** in progress (S11, #231) reads *Cancelar la leva*, in the register of *Cancelar el estudio*: the men already drilled stay, the rest go back to the fields, and the stores get back what their arms cost. Where the button needs its full name, *Cancelar la leva: 12 infantes*, in the register of *Cancelar el estudio: herrería, nivel 2*. Slots: the count ordered, the unit label agreeing with it, the numeral before it; an order of one reads *Cancelar la leva: 1 infante*.
+- The three **refusals** the server answers, in the register of *Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.*, *La biblioteca ya tiene un estudio en marcha. Espera a que termine.* and *La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.*:
 
 | Refusal | Line | Slots |
 |---|---|---|
 | BarracksNotBuilt | *Tu feudo aún no tiene cuartel. Levántalo primero.* | none |
 | RecruitSlotBusy | *El cuartel ya tiene una leva en marcha. Espera a que termine.* | none |
+| RecruitOrderNotFound | *El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.* | none |
 
+- The **`RecruitOrderNotFound`** row (S11, #231) answers a cancel that names a levy the yard no longer holds: one already complete, whose men are all in the ranks, or one a newer levy has replaced since the screen last read the fief. It is a proposal for the author, not yet accepted, as the rows above are.
 - Short resources and too few peasants reuse the shipped lines of `InsufficientResources` and `NotEnoughPeasants`, unchanged in this slice.
 
 ## Open questions
