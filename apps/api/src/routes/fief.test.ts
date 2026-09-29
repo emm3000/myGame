@@ -129,7 +129,7 @@ describe('the fief route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
@@ -495,7 +495,7 @@ describe('the fief route', () => {
   it('answers 404 with FiefNotFound when the player holds no fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await runSql(
-      'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches',
+      'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
     )
 
     const response = await fiefOf(ana.cookie)
@@ -681,7 +681,7 @@ describe('the fief route', () => {
     it('answers 404 with FiefNotFound when the player holds no fief', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await runSql(
-        'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches',
+        'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
       )
 
       const response = await chronicleOf(ana.cookie)

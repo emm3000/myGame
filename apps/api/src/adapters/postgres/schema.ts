@@ -36,6 +36,8 @@ export const art = pgEnum('art', ['smithing', 'masonry'])
 
 export const unit = pgEnum('unit', ['infantry'])
 
+export const marchOrder = pgEnum('march_order', ['forage', 'attack'])
+
 export const fiefEventKind = pgEnum('fief_event_kind', [
   'upgrade_finished',
   'art_learned',
@@ -236,12 +238,19 @@ export const fiefMarches = pgTable(
     lootGold: doublePrecision('loot_gold').notNull(),
     lootFood: doublePrecision('loot_food').notNull(),
     recalledAt: timestamp('recalled_at', { withTimezone: true }),
+    marchOrder: marchOrder('march_order').notNull().default('forage'),
+    campTier: integer('camp_tier'),
+    campStrength: integer('camp_strength'),
+    fought: boolean('fought').notNull().default(false),
   },
   (table) => [
     check('fief_marches_province_positive', sql`${table.province} >= 1`),
     check('fief_marches_plot_positive', sql`${table.plot} >= 1`),
     check('fief_marches_infantry_positive', sql`${table.infantry} >= 1`),
-    check('fief_marches_stay_hours_positive', sql`${table.stayHours} >= 1`),
+    check(
+      'fief_marches_order_terms',
+      sql`(${table.marchOrder}::text = 'forage' AND ${table.stayHours} >= 1 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought}) OR (${table.marchOrder}::text = 'attack' AND ${table.stayHours} = 0 AND ${table.campTier} IS NOT NULL AND ${table.campTier} BETWEEN 1 AND 3 AND ${table.campStrength} IS NOT NULL AND ${table.campStrength} >= 0)`,
+    ),
     check('fief_marches_one_way_seconds_positive', sql`${table.oneWaySeconds} >= 1`),
     wholeAmount('fief_marches_loot_wood_whole', table.lootWood),
     wholeAmount('fief_marches_loot_stone_whole', table.lootStone),
@@ -251,6 +260,31 @@ export const fiefMarches = pgTable(
     check(
       'fief_marches_recalled_after_departure',
       sql`${table.recalledAt} IS NULL OR ${table.recalledAt} >= ${table.departedAt}`,
+    ),
+  ],
+)
+
+export const campBattles = pgTable(
+  'camp_battles',
+  {
+    id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+    kingdom: integer('kingdom').notNull(),
+    province: integer('province').notNull(),
+    plot: integer('plot').notNull(),
+    strength: integer('strength').notNull(),
+    foughtAt: timestamp('fought_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check('camp_battles_kingdom_positive', sql`${table.kingdom} >= 1`),
+    check('camp_battles_province_positive', sql`${table.province} >= 1`),
+    check('camp_battles_plot_positive', sql`${table.plot} >= 1`),
+    check('camp_battles_strength_whole', sql`${table.strength} >= 0`),
+    index('camp_battles_plot_order').on(
+      table.kingdom,
+      table.province,
+      table.plot,
+      table.foughtAt,
+      table.id,
     ),
   ],
 )
