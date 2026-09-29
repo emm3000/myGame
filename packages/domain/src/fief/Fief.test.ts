@@ -215,6 +215,23 @@ describe('Fief', () => {
     expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
   })
 
+  it('refuses a stored march that returned before the fief was stored', () => {
+    const returnsAt = Instant.fromEpochMilliseconds(86_399_000)
+    const returnedBefore = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, departedAt: Instant.fromEpochMilliseconds(77_759_000) },
+    })
+    const returningAtStored = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, departedAt: Instant.fromEpochMilliseconds(77_760_000) },
+    })
+
+    expect(returnedBefore).toEqual(
+      err({ kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt: returnsAt }),
+    )
+    expect(returningAtStored.ok).toBe(true)
+  })
+
   it('counts the infantry away out of those at home', () => {
     const restored = Fief.restore({ ...storedBusyFief, recruitOrder: { kind: 'idle' } })
 

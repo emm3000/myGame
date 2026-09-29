@@ -37,7 +37,9 @@ export type { Terrain } from './fief/Terrain'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
 export { forageLootOf } from './march/forageLootOf'
 export type { AwayMarch, March } from './march/March'
+export { type MarchInstants, marchInstantsOf } from './march/marchInstantsOf'
 export { marchOneWaySeconds } from './march/marchOneWaySeconds'
+export { type MarchPhase, marchPhaseAt } from './march/marchPhaseAt'
 export type { PlayerId } from './player/PlayerId'
 export type {
   ArtKind,
