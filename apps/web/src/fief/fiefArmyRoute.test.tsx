@@ -100,7 +100,7 @@ it('shows the infantry count and the form from barracks level 1', async () => {
 
   expect(within(armySection()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
   expect(within(infantryCard()).getByRole('heading', { name: 'Infantes' })).toBeDefined()
-  expect(unitCountOf(infantryCard(), '12 infantes')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '12 infantes en casa')).toBeDefined()
   expect(countField()).toBeDefined()
   expect(recruitButton().textContent).toBe('Reclutar infantes · 1:30')
 })
@@ -258,10 +258,10 @@ it('raises the count one unit per period between reads', async () => {
   await showFief({ fief: async () => ({ ok: true, value: unitDueInHalfAMinute }) })
 
   await passSeconds(29)
-  expect(unitCountOf(infantryCard(), '15 infantes')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '15 infantes en casa')).toBeDefined()
   await passSeconds(1)
 
-  expect(unitCountOf(infantryCard(), '16 infantes')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '16 infantes en casa')).toBeDefined()
   expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
 })
 
@@ -330,13 +330,13 @@ it('shows the slot idle and the delivered units after the cancel', async () => {
     value: cancelledWithFiveDelivered,
   })
   await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }), cancelRecruitOrder })
-  expect(unitCountOf(infantryCard(), '16 infantes')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '16 infantes en casa')).toBeDefined()
 
   fireEvent.click(cancelButton())
   await passSeconds(0)
 
   expect(within(armySection()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
-  expect(unitCountOf(infantryCard(), '17 infantes')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '17 infantes en casa')).toBeDefined()
   expect(within(armySection()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
 })
 

@@ -4,6 +4,7 @@ import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import {
   type LiveFief,
   liveFiefAt,
+  marchRemainingSecondsAt,
   recruitOrderRemainingSecondsAt,
   seasonRemainingSecondsAt,
   slotRemainingSecondsAt,
@@ -55,6 +56,7 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
       studyRemainingSecondsAt(lastRead.overview, 0),
       seasonRemainingSecondsAt(lastRead.overview, 0),
       recruitOrderRemainingSecondsAt(lastRead.overview, 0),
+      marchRemainingSecondsAt(lastRead.overview, 0),
     ]
     for (const remainingSeconds of countdowns.filter((seconds) => seconds > 0)) {
       timers.push(setTimeout(read, Math.min(remainingSeconds * 1000, longestTimeoutMs)))
