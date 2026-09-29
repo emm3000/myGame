@@ -1,6 +1,6 @@
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
-import { forageLootOfSeconds } from '../march/forageLootOfSeconds'
+import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
 import type { AwayMarch, March } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
@@ -834,16 +834,16 @@ export class Fief {
       return err({ kind: 'MarchAlreadyReturning' })
     }
     const { arrivesAt } = marchInstantsOf(march)
-    const foragedSeconds = Math.max(0, now.secondsSince(arrivesAt))
+    const foragedMilliseconds = Math.max(0, now.epochMilliseconds - arrivesAt.epochMilliseconds)
     return ok(
       this.changed({
         march: {
           ...march,
           recalledAt: now,
-          loot: forageLootOfSeconds(
+          loot: forageLootOfMilliseconds(
             terrainOf(march.province),
             march.infantry,
-            foragedSeconds,
+            foragedMilliseconds,
             forage,
           ),
         },
