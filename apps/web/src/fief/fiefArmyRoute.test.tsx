@@ -324,18 +324,19 @@ it('cancels the order named by its unit and start', async () => {
 })
 
 it('shows the slot idle and the delivered units after the cancel', async () => {
-  const cancelledWithFourDelivered: FiefOverview = { ...barracksBuilt, units: { infantry: 16 } }
+  const cancelledWithFiveDelivered: FiefOverview = { ...barracksBuilt, units: { infantry: 17 } }
   const cancelRecruitOrder = async (): Promise<ApiOutcome<FiefOverview>> => ({
     ok: true,
-    value: cancelledWithFourDelivered,
+    value: cancelledWithFiveDelivered,
   })
   await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }), cancelRecruitOrder })
+  expect(unitCountOf(infantryCard(), '16 infantes')).toBeDefined()
 
   fireEvent.click(cancelButton())
   await passSeconds(0)
 
   expect(within(armySection()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
-  expect(unitCountOf(infantryCard(), '16 infantes')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '17 infantes')).toBeDefined()
   expect(within(armySection()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
 })
 
