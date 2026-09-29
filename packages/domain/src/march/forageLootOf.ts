@@ -8,7 +8,7 @@ export const forageLootOf = (
   stayHours: number,
   forage: ForageTerms,
 ): Stocks => {
-  const yieldPerHour = forage.yieldPerHour[terrain]
+  const yieldPerHour = { ...forage.yieldPerHour[terrain], gold: 0 }
   const yielded = Object.values(yieldPerHour).filter((ratePerHour) => ratePerHour > 0).length
   const lootOf = (ratePerHour: number): number =>
     ratePerHour > 0
