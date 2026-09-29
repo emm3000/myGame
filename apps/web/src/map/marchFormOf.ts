@@ -5,7 +5,7 @@ import type { MarchFormProps } from '../design-system/MarchForm'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import { recruitCountOf } from '../fief/unitCardOf'
-import { lootQuantitiesOf } from './lootQuantitiesOf'
+import { quantitiesOf } from '../resources/quantitiesOf'
 
 export interface MarchTarget {
   readonly province: number
@@ -81,7 +81,7 @@ function previewOf(
     },
     {
       heading: copy.march.lootHeading,
-      value: copy.march.loot(lootQuantitiesOf(loot)),
+      value: copy.march.loot(quantitiesOf(loot)),
       isNumeral: false,
     },
   ]

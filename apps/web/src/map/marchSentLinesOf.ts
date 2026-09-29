@@ -2,12 +2,10 @@ import type { FiefOverview } from '@mygame/contracts'
 import { copy } from '../copy'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
-import { lootQuantitiesOf } from './lootQuantitiesOf'
+import { quantitiesOf } from '../resources/quantitiesOf'
+import { secondsBetween } from '../time/secondsBetween'
 
 type SentMarch = NonNullable<FiefOverview['march']>
-
-const secondsBetween = (from: string, to: string): number =>
-  (Date.parse(to) - Date.parse(from)) / 1000
 
 export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArray<PreviewLine> {
   return [
@@ -23,7 +21,7 @@ export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArra
     },
     {
       heading: copy.march.lootHeading,
-      value: copy.march.loot(lootQuantitiesOf(march.loot)),
+      value: copy.march.loot(quantitiesOf(march.loot)),
       isNumeral: false,
     },
   ]

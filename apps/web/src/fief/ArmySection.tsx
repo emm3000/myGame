@@ -6,7 +6,7 @@ import { FormAlert } from '../design-system/FormAlert'
 import { MarchSlot, type MarchSlotState } from '../design-system/MarchSlot'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
-import { lootQuantitiesOf } from '../map/lootQuantitiesOf'
+import { quantitiesOf } from '../resources/quantitiesOf'
 import type { LiveFief, LiveRecruitOrder } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
@@ -69,7 +69,7 @@ function marchSlotStateOf(fief: LiveFief): MarchSlotState {
     countdown: { words: march.returnHeading, remainingSeconds: live.remainingSeconds },
     loot: {
       heading: march.lootHeading,
-      value: march.loot(lootQuantitiesOf(answered.loot)),
+      value: march.loot(quantitiesOf(answered.loot)),
       isNumeral: false,
     },
     elapsedSeconds: live.elapsedSeconds,

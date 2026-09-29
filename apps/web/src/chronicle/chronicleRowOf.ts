@@ -1,6 +1,7 @@
-import { type FiefEvent, type ResourceAmounts, ResourceKindSchema } from '@mygame/contracts'
+import type { FiefEvent, ResourceAmounts } from '@mygame/contracts'
 import { copy, type ResourceQuantity } from '../copy'
 import type { CardCost } from '../design-system/CostList'
+import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatInstant } from './formatInstant'
 
 export interface ChronicleAmounts {
@@ -64,9 +65,7 @@ const listedAmounts = (
   label: string,
   sentenceOf: (listed: ReadonlyArray<ResourceQuantity>) => string,
 ): ChronicleAmounts | undefined => {
-  const listed = ResourceKindSchema.options
-    .filter((resource) => amounts[resource] > 0)
-    .map((resource) => ({ resource, amount: amounts[resource] }))
+  const listed = quantitiesOf(amounts)
   if (listed.length === 0) {
     return undefined
   }
