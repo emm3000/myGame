@@ -77,6 +77,13 @@ const seasons: Readonly<Record<SeasonKind, string>> = {
   winter: 'invierno',
 }
 
+const seasonsWithArticle: Readonly<Record<SeasonKind, string>> = {
+  spring: 'la primavera',
+  summer: 'el verano',
+  autumn: 'el otoño',
+  winter: 'el invierno',
+}
+
 const seasonAfter: Readonly<Record<SeasonKind, SeasonKind>> = {
   spring: 'summer',
   summer: 'autumn',
@@ -226,11 +233,15 @@ export const copy = {
       `${capitalize(seasons[seasonAfter[season]])} en ${seasonTimeLeft(remainingSeconds)}`,
     seasonMark: (season: SeasonKind, resource: ResourceKind, multiplierPercent: number): string =>
       `${capitalize(seasons[season])}: ${signedChange(multiplierPercent)} % de ${resources[resource]}`,
+    buildingsSeasonMark: (season: SeasonKind): string =>
+      `${capitalize(seasonsWithArticle[season])} acorta las obras`,
     notEnoughPeasants: (needed: number, free: number): string =>
       `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
   },
   study: {
     section: 'Biblioteca',
+    seasonMark: (season: SeasonKind): string =>
+      `${capitalize(seasonsWithArticle[season])} acorta los estudios`,
     start: 'Estudiar',
     cancel: 'Cancelar el estudio',
     cancelOf: (art: ArtKind, level: number): string =>

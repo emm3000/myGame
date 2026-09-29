@@ -1,5 +1,5 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { act, screen, within } from '@testing-library/react'
+import { act, cleanup, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -220,4 +220,99 @@ it('shows the rate the fief read answered', async () => {
   await showFief(signedInClientServing(() => winterWithAFractionalFoodRate))
 
   expect(within(storeOf('comida')).getByText('+11 / h')).toBeDefined()
+})
+
+const sectionMarkIn = (section: string): HTMLElement | null =>
+  within(screen.getByRole('region', { name: section })).queryByText(/ acorta /)
+
+const summerShorteningTheWorks: FiefOverview = {
+  ...knownFief,
+  season: {
+    kind: 'summer',
+    year: 1,
+    endsAt: '2026-09-25T12:00:00.000Z',
+    multiplierPercent: neutralPercents,
+    durationPercent: { build: 75, study: 100 },
+  },
+}
+
+it('marks the buildings section summer shortens', async () => {
+  await showFief(signedInClientServing(() => summerShorteningTheWorks))
+
+  expect(sectionMarkIn('Edificios')?.textContent).toBe('El verano acorta las obras')
+})
+
+const withTheLibraryBuilt = (season: FiefOverview['season']): FiefOverview => ({
+  ...knownFief,
+  buildings: {
+    ...knownFief.buildings,
+    library: { ...knownFief.buildings.library, level: 1 },
+  },
+  season,
+})
+
+const winterShorteningTheStudies = withTheLibraryBuilt({
+  kind: 'winter',
+  year: 1,
+  endsAt: '2026-09-25T12:00:00.000Z',
+  multiplierPercent: { ...neutralPercents, food: 75 },
+  durationPercent: { build: 100, study: 75 },
+})
+
+it('marks the arts section winter shortens', async () => {
+  await showFief(signedInClientServing(() => winterShorteningTheStudies))
+
+  expect(sectionMarkIn('Biblioteca')?.textContent).toBe('El invierno acorta los estudios')
+  expect(sectionMarkIn('Edificios')).toBeNull()
+  expect(seasonMarkIn('comida')?.textContent).toBe('Invierno: -25 % de comida')
+})
+
+it('marks no section in spring or autumn', async () => {
+  for (const kind of ['spring', 'autumn'] as const) {
+    await showFief(
+      signedInClientServing(() =>
+        withTheLibraryBuilt({
+          kind,
+          year: 1,
+          endsAt: '2026-09-25T12:00:00.000Z',
+          multiplierPercent: neutralPercents,
+          durationPercent: neutralDurations,
+        }),
+      ),
+    )
+
+    expect(sectionMarkIn('Edificios')).toBeNull()
+    expect(sectionMarkIn('Biblioteca')).toBeNull()
+    cleanup()
+  }
+})
+
+it('marks no section before the calendar starts', async () => {
+  await showFief(signedInClientServing(() => withTheLibraryBuilt(null)))
+
+  expect(sectionMarkIn('Edificios')).toBeNull()
+  expect(sectionMarkIn('Biblioteca')).toBeNull()
+})
+
+const summerAnsweringAShorterSawmill: FiefOverview = {
+  ...summerShorteningTheWorks,
+  buildings: {
+    ...knownFief.buildings,
+    sawmill: {
+      ...knownFief.buildings.sawmill,
+      nextLevel: {
+        level: 2,
+        cost: { wood: 90, stone: 23, iron: 0, gold: 0, food: 0 },
+        durationSeconds: 90,
+        peasants: 1,
+      },
+    },
+  },
+}
+
+it('shows the build duration the fief read answered', async () => {
+  await showFief(signedInClientServing(() => summerAnsweringAShorterSawmill))
+
+  const sawmill = screen.getByRole('listitem', { name: 'aserradero' })
+  expect(within(sawmill).getByRole('button', { name: /· 1:30/ })).toBeDefined()
 })
