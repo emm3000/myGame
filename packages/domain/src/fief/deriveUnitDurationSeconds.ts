@@ -1,2 +1,5 @@
-export const deriveUnitDurationSeconds = (durationSeconds: number, barracksLevel: number): number =>
-  Math.ceil(durationSeconds / (1 + barracksLevel))
+export const deriveUnitDurationSeconds = (
+  durationSeconds: number,
+  barracksLevel: number,
+  trainPercent: number,
+): number => Math.ceil((durationSeconds * trainPercent) / (100 * (1 + barracksLevel)))

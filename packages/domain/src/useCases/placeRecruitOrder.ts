@@ -8,6 +8,7 @@ import type { BuildingCatalog, UnitKind } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
+import { durationPercentAt } from '../season/durationPercentAt'
 
 export type PlaceRecruitOrderCommand = {
   readonly playerId: PlayerId
@@ -66,6 +67,7 @@ export const placeRecruitOrder = async (
     { unit, count, terms: catalog.fiefSettings().units[unit] },
     stocksAtNow.value,
     now,
+    durationPercentAt(now, catalog.fiefSettings()).train,
   )
   if (!recruiting.ok) {
     return recruiting

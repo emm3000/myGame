@@ -32,7 +32,7 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
 
 const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
-const neutralDurations = { build: 100, study: 100 }
+const neutralDurations = { build: 100, study: 100, train: 100 }
 
 const autumnEndingInThreeDaysAndFiveHours: FiefOverview = {
   ...knownFief,
@@ -232,7 +232,7 @@ const summerShorteningTheWorks: FiefOverview = {
     year: 1,
     endsAt: '2026-09-25T12:00:00.000Z',
     multiplierPercent: neutralPercents,
-    durationPercent: { build: 75, study: 100 },
+    durationPercent: { build: 75, study: 100, train: 100 },
   },
 }
 
@@ -256,7 +256,7 @@ const winterShorteningTheStudies = withTheLibraryBuilt({
   year: 1,
   endsAt: '2026-09-25T12:00:00.000Z',
   multiplierPercent: { ...neutralPercents, food: 75 },
-  durationPercent: { build: 100, study: 75 },
+  durationPercent: { build: 100, study: 75, train: 100 },
 })
 
 it('marks the arts section winter shortens', async () => {

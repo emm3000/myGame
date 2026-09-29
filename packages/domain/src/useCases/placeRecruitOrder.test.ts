@@ -1,7 +1,9 @@
 import { assert, describe, expect, it } from 'vitest'
+import { deliveredUnitsOf } from '../fief/deliveredUnitsOf'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type {
   BarracksLevel,
   BuildingCatalog,
@@ -10,11 +12,13 @@ import type {
 } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
+import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { placeRecruitOrder } from './placeRecruitOrder'
+import { resolveUpgrade } from './resolveUpgrade'
 
 const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
 
@@ -385,5 +389,123 @@ describe('placeRecruitOrder', () => {
     expect(stored?.buildQueue).toEqual([])
     expect(stored?.studySlot).toEqual(studySlot)
     expect(stored?.recruitOrder.kind).toBe('open')
+  })
+})
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const secondsAfter = (instant: Instant, seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
+
+const midSpring = daysAfterSeasonEpoch(3)
+
+const midSummer = daysAfterSeasonEpoch(10)
+
+const seasonalSettings: FiefSettings = {
+  ...fiefSettings,
+  seasons: {
+    ...neutralSeasons,
+    epoch: seasonEpoch,
+    durationPercent: {
+      spring: { build: 100, study: 100, train: 75 },
+      summer: { build: 75, study: 100, train: 100 },
+      autumn: { build: 100, study: 100, train: 100 },
+      winter: { build: 100, study: 75, train: 100 },
+    },
+  },
+}
+
+const seasonalCatalog: BuildingCatalog = { ...catalog, fiefSettings: () => seasonalSettings }
+
+describe('placeRecruitOrder across seasons', () => {
+  it('shortens the unit duration in spring', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSpring })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSpring) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toMatchObject({ perUnitSeconds: 34 })
+  })
+
+  it('divides the unit duration by the barracks and the season with one rounding', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ storedAt: midSpring, buildingLevels: levelsWithBarracks(2) }),
+    ])
+    const hundredSecondInfantry: BuildingCatalog = {
+      ...seasonalCatalog,
+      fiefSettings: () => ({
+        ...seasonalSettings,
+        units: { infantry: { ...plainUnits.infantry, durationSeconds: 100 } },
+      }),
+    }
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { fiefs, catalog: hundredSecondInfantry, clock: frozenClock(midSpring) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toMatchObject({ perUnitSeconds: 25 })
+  })
+
+  it('leaves the unit duration unchanged in summer', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSummer })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSummer) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toMatchObject({ perUnitSeconds: 45 })
+  })
+
+  it('fixes one duration for every unit of the order', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSpring })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 3 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSpring) },
+    )
+
+    assert(result.ok)
+    const order = fiefs.storedFiefOf('lord')?.recruitOrder
+    assert(order?.kind === 'open')
+    expect(deliveredUnitsOf(order, secondsAfter(midSpring, 67))).toBe(1)
+    expect(deliveredUnitsOf(order, secondsAfter(midSpring, 68))).toBe(2)
+    expect(recruitOrderEndsAt(order)).toEqual(secondsAfter(midSpring, 102))
+  })
+
+  it('keeps the spring duration of an order that runs into summer', async () => {
+    const lateSpring = secondsAfter(daysAfterSeasonEpoch(7), -60)
+    const fiefs = inMemoryFiefRepository([storedFief({ storedAt: lateSpring })])
+    const placed = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 5 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(lateSpring) },
+    )
+    assert(placed.ok)
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: seasonalCatalog,
+        clock: frozenClock(secondsAfter(lateSpring, 170)),
+      },
+    )
+
+    assert(result.ok)
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
+    expect(stored?.units.countOf('infantry')).toBe(5)
   })
 })
