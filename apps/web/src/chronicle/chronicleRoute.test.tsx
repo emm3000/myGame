@@ -100,6 +100,51 @@ it('lists the resources a cancel refunded', async () => {
   ).toBeDefined()
 })
 
+it('shows the units an order delivered with their count', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'recruitsDelivered',
+        unit: 'infantry',
+        count: 12,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Leva terminada: 12 infantes.')
+})
+
+it('agrees the unit label with a count of one', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'recruitsDelivered',
+        unit: 'infantry',
+        count: 1,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Leva terminada: 1 infante.')
+})
+
+it('shows no refund on a recruits-delivered line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'recruitsDelivered',
+        unit: 'infantry',
+        count: 12,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(within(row as HTMLElement).queryByText(copy.chronicle.recovered)).toBeNull()
+})
+
 it('shows each event at the instant it happened', async () => {
   const occurredAt = new Date(2025, 8, 12, 9, 15).toISOString()
   const [row] = await showChronicle({
