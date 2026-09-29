@@ -1,5 +1,6 @@
 import {
   type BuildingCatalog,
+  type CampRegistry,
   type ChronicleWriter,
   type Clock,
   type DomainError,
@@ -32,6 +33,12 @@ const discardingChronicle: ChronicleWriter = {
   record: async () => ok(undefined),
 }
 
+const discardingCamps: CampRegistry = {
+  lastBattleOf: async () => undefined,
+  lastBattlesIn: async () => [],
+  record: async () => ok(undefined),
+}
+
 export const currentFiefOf = async (
   playerId: PlayerId,
   { fiefs, inTransaction, buildingCatalog, clock }: CurrentFiefDependencies,
@@ -43,6 +50,7 @@ export const currentFiefOf = async (
     {
       fiefs: dryRunOver(fiefs),
       chronicle: discardingChronicle,
+      camps: discardingCamps,
       catalog: buildingCatalog,
       clock: readClock,
     },
@@ -55,6 +63,7 @@ export const currentFiefOf = async (
             {
               fiefs: stores.fiefs,
               chronicle: stores.chronicle,
+              camps: stores.camps,
               catalog: buildingCatalog,
               clock: readClock,
             },

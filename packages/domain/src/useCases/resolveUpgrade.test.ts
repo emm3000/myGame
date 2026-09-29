@@ -1,4 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { CampBattle } from '../camp/CampBattle'
+import type { CampTier } from '../camp/CampTier'
+import { campOf } from '../camp/campOf'
 import type { BuildQueueEntry } from '../fief/BuildQueue'
 import type { BusySlot } from '../fief/BuildSlot'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
@@ -15,9 +18,11 @@ import type {
   ProducerLevel,
   WarehouseLevel,
 } from '../ports/BuildingCatalog'
+import type { CampRegistry } from '../ports/CampRegistry'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err } from '../Result'
+import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
@@ -202,7 +207,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -227,7 +238,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -252,7 +269,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(now) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(now),
+      },
     )
 
     assert(result.ok)
@@ -275,6 +298,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: springDoublingWoodFrom(hoursAfterStored(2)),
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -292,6 +316,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: springDoublingWoodFrom(hoursAfterStored(1)),
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -316,7 +341,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -344,7 +375,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -369,7 +406,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(100)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(100)),
+      },
     )
 
     assert(result.ok)
@@ -392,7 +435,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -408,7 +457,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(5)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(5)),
+      },
     )
 
     assert(result.ok)
@@ -428,7 +483,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -452,7 +513,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(3)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
     )
 
     assert(result.ok)
@@ -476,7 +543,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(now) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(now),
+      },
     )
 
     assert(result.ok)
@@ -505,7 +578,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(12)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(12)),
+      },
     )
 
     assert(result.ok)
@@ -521,7 +600,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -546,7 +631,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -572,6 +663,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: handHungryCatalog,
         clock: frozenClock(hoursAfterStored(1)),
       },
@@ -600,6 +692,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: overcrowdingCatalog,
         clock: frozenClock(storedInstant),
       },
@@ -621,7 +714,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -663,6 +762,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: threeLevelCatalog,
         clock: frozenClock(hoursAfterStored(0.5)),
       },
@@ -680,7 +780,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(-1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(-1)),
+      },
     )
 
     assert(result.ok)
@@ -694,7 +800,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(5)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(5)),
+      },
     )
 
     assert(result.ok)
@@ -708,6 +820,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs: inMemoryFiefRepository([]),
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(storedInstant),
       },
@@ -731,7 +844,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     expect(result).toEqual({
@@ -762,6 +881,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs: refusingFiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -782,6 +902,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -803,6 +924,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -824,6 +946,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -851,6 +974,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -876,6 +1000,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(1)),
       },
@@ -891,7 +1016,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(3)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
     )
 
     assert(result.ok)
@@ -918,6 +1049,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -953,6 +1085,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -975,6 +1108,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -991,7 +1125,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -1008,7 +1148,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle, catalog: studyingCatalog, clock: frozenClock(hoursAfterStored(3)) },
+      {
+        fiefs,
+        chronicle,
+        camps: inMemoryCampRegistry([]),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(3)),
+      },
     )
 
     assert(result.ok)
@@ -1029,7 +1175,13 @@ describe('resolveUpgrade', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle, catalog, clock: frozenClock(hoursAfterStored(1)) },
+      {
+        fiefs,
+        chronicle,
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(1)),
+      },
     )
 
     assert(result.ok)
@@ -1045,6 +1197,7 @@ describe('resolveUpgrade', () => {
       {
         fiefs,
         chronicle: refusingChronicle(refusal),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -1108,6 +1261,7 @@ describe('resolveUpgrade across seasons', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
         clock: frozenClock(secondsAfter(firstDayOfAutumn, 10)),
       },
@@ -1148,6 +1302,7 @@ describe('resolveUpgrade across seasons', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
         clock: frozenClock(daysAfterSeasonEpoch(28)),
       },
@@ -1189,6 +1344,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(300)),
       },
@@ -1210,6 +1366,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs: inMemoryFiefRepository([recruitingFief]),
         chronicle,
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(300)),
       },
@@ -1229,6 +1386,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs: inMemoryFiefRepository([recruitingFief]),
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -1251,6 +1409,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs: inMemoryFiefRepository([buildingAndRecruitingFief]),
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(5_400)),
       },
@@ -1270,7 +1429,13 @@ describe('resolveUpgrade with a recruit order', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
     )
 
     assert(result.ok)
@@ -1297,6 +1462,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -1327,6 +1493,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(299)),
       },
@@ -1360,6 +1527,7 @@ describe('resolveUpgrade with a recruit order', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: staffedCatalog,
         clock: frozenClock(secondsAfterStored(300)),
       },
@@ -1401,6 +1569,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(8_880)),
       },
@@ -1425,6 +1594,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs: inMemoryFiefRepository([marchingFief({})]),
         chronicle,
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -1448,6 +1618,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs: inMemoryFiefRepository([marchingFief({})]),
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(hoursAfterStored(3)),
       },
@@ -1474,6 +1645,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs: inMemoryFiefRepository([recalledFief]),
         chronicle,
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(3_480)),
       },
@@ -1499,6 +1671,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs: inMemoryFiefRepository([marchingFief({})]),
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(8_880)),
       },
@@ -1516,6 +1689,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs: inMemoryFiefRepository([marchingFief({ slot: sawmillFinishingAfterHours(1) })]),
         chronicle,
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(8_879)),
       },
@@ -1540,6 +1714,7 @@ describe('resolveUpgrade with a march', () => {
         {
           fiefs: inMemoryFiefRepository([returningAtStored()]),
           chronicle: inMemoryChronicle(),
+          camps: inMemoryCampRegistry([]),
           catalog,
           clock: frozenClock(at),
         },
@@ -1556,7 +1731,13 @@ describe('resolveUpgrade with a march', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(4)) },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(4)),
+      },
     )
 
     assert(result.ok)
@@ -1584,6 +1765,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
         clock: frozenClock(hoursAfterStored(2)),
       },
@@ -1616,6 +1798,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog,
         clock: frozenClock(secondsAfterStored(8_879)),
       },
@@ -1641,6 +1824,7 @@ describe('resolveUpgrade with a march', () => {
       {
         fiefs: inMemoryFiefRepository([awayFief]),
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: staffedCatalog,
         clock: frozenClock(returned),
       },
@@ -1654,5 +1838,352 @@ describe('resolveUpgrade with a march', () => {
     expect(awayFief.unitsAtHomeAt(secondsAfterStored(8_879)).countOf('infantry')).toBe(0)
     expect(peasantsOf(home)).toEqual(peasantsOf(awayFief))
     expect(peasantsOf(home)).toMatchObject({ ok: true, value: { occupied: 10 } })
+  })
+})
+
+const campPlotOfProvinceTwo = (tier: CampTier): number => {
+  const plot = Array.from({ length: 15 }, (_, index) => index + 1).find(
+    (candidate) => campOf({ kingdom: 1, province: 2, plot: candidate }, plainCamps)?.tier === tier,
+  )
+  assert(plot !== undefined)
+  return plot
+}
+
+const attackingFief = (tier: CampTier, strength: number): Fief => {
+  const dispatched = storedFief({
+    address: { kingdom: 1, province: 1, plot: 1 },
+    units: { infantry: 10 },
+  }).dispatchAttack(
+    { province: 2, plot: campPlotOfProvinceTwo(tier), infantry: 10 },
+    { tier, strength },
+    storedInstant,
+    fiefSettings,
+  )
+  assert(dispatched.ok)
+  return dispatched.value
+}
+
+const arrivalOf = (fief: Fief): Instant => {
+  assert(fief.march.kind === 'away')
+  return secondsAfterStored(fief.march.oneWaySeconds)
+}
+
+const resolveAttackAt = (
+  attacking: Fief,
+  now: Instant,
+  camps: CampRegistry,
+  catalogInForce: BuildingCatalog = catalog,
+): ReturnType<typeof resolveUpgrade> =>
+  resolveUpgrade(
+    { playerId: 'lord' },
+    {
+      fiefs: inMemoryFiefRepository([attacking]),
+      chronicle: inMemoryChronicle(),
+      camps,
+      catalog: catalogInForce,
+      clock: frozenClock(now),
+    },
+  )
+
+const countingCamps = (): {
+  readonly camps: CampRegistry
+  readonly recorded: ReadonlyArray<CampBattle>
+} => {
+  const recorded: Array<CampBattle> = []
+  const camps = inMemoryCampRegistry([])
+  return {
+    camps: {
+      ...camps,
+      record: (battle) => {
+        recorded.push(battle)
+        return camps.record(battle)
+      },
+    },
+    recorded,
+  }
+}
+
+describe('resolveUpgrade with an attack', () => {
+  it('fights the battle at the arrival', async () => {
+    const attacking = attackingFief(1, 6)
+    const arrival = arrivalOf(attacking)
+
+    const result = await resolveAttackAt(attacking, arrival, inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    expect(result.value.fief.march).toMatchObject({ kind: 'away', fought: true })
+    expect(result.value.fief.storedAt).toEqual(arrival)
+  })
+
+  it('lowers the infantry by the lost', async () => {
+    const attacking = attackingFief(1, 6)
+    const arrival = arrivalOf(attacking)
+
+    const result = await resolveAttackAt(attacking, arrival, inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    const { fief } = result.value
+    expect(fief.units.countOf('infantry')).toBe(6)
+    expect(fief.march).toMatchObject({ infantry: 6 })
+    expect(fief.unitsAtHomeAt(arrival).countOf('infantry')).toBe(0)
+  })
+
+  it('walks the survivors home with the loot', async () => {
+    const attacking = attackingFief(1, 6)
+    const returned = secondsAfterStored(2 * 600)
+
+    const result = await resolveAttackAt(attacking, returned, inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    const { fief, events } = result.value
+    expect({ march: fief.march, stocks: fief.stocks, storedAt: fief.storedAt }).toEqual({
+      march: { kind: 'idle' },
+      stocks: { wood: 198, stone: 198, iron: 100, gold: 196, food: 106 },
+      storedAt: returned,
+    })
+    expect(fief.unitsAtHomeAt(returned).countOf('infantry')).toBe(6)
+    expect(events).toMatchObject([
+      { kind: 'marchReturned', infantry: 6, loot: { wood: 96, stone: 96, gold: 96 } },
+    ])
+  })
+
+  it('idles the march slot when the battle is lost', async () => {
+    const attacking = attackingFief(2, 15)
+
+    const result = await resolveAttackAt(attacking, arrivalOf(attacking), inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.fief.march).toEqual({ kind: 'idle' })
+    expect(result.value.fief.units.countOf('infantry')).toBe(0)
+    expect(result.value.events).toEqual([])
+  })
+
+  it('records the camp beaten to 0 at the arrival', async () => {
+    const attacking = attackingFief(1, 6)
+    const arrival = arrivalOf(attacking)
+    const camps = inMemoryCampRegistry([])
+    const address = { kingdom: 1, province: 2, plot: campPlotOfProvinceTwo(1) }
+
+    await resolveAttackAt(attacking, secondsAfterStored(2 * 600), camps)
+
+    expect(await camps.lastBattleOf(address)).toEqual({
+      ...address,
+      strength: 0,
+      foughtAt: arrival,
+    })
+  })
+
+  it('records the strength a defending camp keeps', async () => {
+    const attacking = attackingFief(2, 15)
+    const camps = inMemoryCampRegistry([])
+    const address = { kingdom: 1, province: 2, plot: campPlotOfProvinceTwo(2) }
+
+    await resolveAttackAt(attacking, arrivalOf(attacking), camps)
+
+    expect(await camps.lastBattleOf(address)).toEqual({
+      ...address,
+      strength: 8,
+      foughtAt: arrivalOf(attacking),
+    })
+  })
+
+  it('fights nothing when the attack was recalled', async () => {
+    const recalled = attackingFief(1, 6).recallMarch(
+      { departedAt: storedInstant },
+      secondsAfterStored(300),
+      plainForage,
+    )
+    assert(recalled.ok)
+    const { camps, recorded } = countingCamps()
+
+    const result = await resolveAttackAt(recalled.value, secondsAfterStored(600), camps)
+
+    assert(result.ok)
+    expect(result.value.fief.march).toEqual({ kind: 'idle' })
+    expect(result.value.fief.units.countOf('infantry')).toBe(10)
+    expect(recorded).toEqual([])
+  })
+
+  it('frees the peasants of the dead', async () => {
+    const staffedCatalog: BuildingCatalog = {
+      ...catalog,
+      fiefSettings: () => ({ ...fiefSettings, basePeasantSupply: 20 }),
+    }
+    const attacking = attackingFief(1, 6)
+    const occupiedOf = (fief: Fief): number | undefined => {
+      const peasants = derivePeasantCounts(
+        fief.buildingLevels,
+        fief.units,
+        fief.recruitOrder,
+        staffedCatalog,
+      )
+      return peasants.ok ? peasants.value.occupied : undefined
+    }
+
+    const result = await resolveAttackAt(
+      attacking,
+      arrivalOf(attacking),
+      inMemoryCampRegistry([]),
+      staffedCatalog,
+    )
+
+    assert(result.ok)
+    expect(occupiedOf(attacking)).toBe(10)
+    expect(occupiedOf(result.value.fief)).toBe(6)
+  })
+
+  it('applies an upgrade and a battle ending at one instant in that order', async () => {
+    const attacking = attackingFief(1, 6)
+    const arrival = arrivalOf(attacking)
+    const upgrading = Fief.restore({
+      id: attacking.id,
+      playerId: attacking.playerId,
+      name: 'Vado Viejo',
+      address: { kingdom: 1, province: 1, plot: 1 },
+      stocks: attacking.stocks,
+      storedAt: attacking.storedAt,
+      buildingLevels: unbuiltLevels,
+      artLevels: { smithing: 0, masonry: 0 },
+      units: { infantry: 10 },
+      slot: { ...sawmillFinishingAfterHours(1), finishesAt: arrival },
+      buildQueue: [],
+      studySlot: { kind: 'idle' },
+      recruitOrder: { kind: 'idle' },
+      march: attacking.march,
+    })
+    assert(upgrading.ok)
+
+    const result = await resolveAttackAt(upgrading.value, arrival, inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    const { fief, events } = result.value
+    expect(fief.buildingLevels.sawmill).toBe(1)
+    expect(fief.units.countOf('infantry')).toBe(6)
+    expect(fief.march).toMatchObject({ fought: true, infantry: 6 })
+    expect(events.map(({ kind }) => kind)).toEqual(['upgradeFinished'])
+  })
+
+  it('does not fight a battle twice', async () => {
+    const attacking = attackingFief(1, 6)
+    const arrival = arrivalOf(attacking)
+    const fiefs = inMemoryFiefRepository([attacking])
+    const { camps, recorded } = countingCamps()
+    const readAt = (now: Instant): ReturnType<typeof resolveUpgrade> =>
+      resolveUpgrade(
+        { playerId: 'lord' },
+        { fiefs, chronicle: inMemoryChronicle(), camps, catalog, clock: frozenClock(now) },
+      )
+
+    await readAt(arrival)
+    const second = await readAt(secondsAfterStored(900))
+
+    assert(second.ok)
+    expect(second.value.hasChanged).toBe(false)
+    expect(fiefs.storedFiefOf('lord')?.units.countOf('infantry')).toBe(6)
+    expect(fiefs.storedFiefOf('lord')?.march).toMatchObject({ fought: true, infantry: 6 })
+    expect(recorded).toHaveLength(1)
+  })
+
+  describe('during an open recruit order', () => {
+    const thirtyInfantryAtSixtySeconds: OpenRecruitOrder = {
+      kind: 'open',
+      unit: 'infantry',
+      count: 30,
+      cost: { wood: 600, stone: 0, iron: 300, gold: 0, food: 900 },
+      perUnitSeconds: 60,
+      startedAt: secondsAfterStored(-600),
+    }
+
+    const attackingWithTheLevy = (): Fief => {
+      const dispatched = storedFief({
+        address: { kingdom: 1, province: 1, plot: 1 },
+        recruitOrder: thirtyInfantryAtSixtySeconds,
+      }).dispatchAttack(
+        { province: 2, plot: campPlotOfProvinceTwo(1), infantry: 10 },
+        { tier: 1, strength: 6 },
+        storedInstant,
+        fiefSettings,
+      )
+      assert(dispatched.ok)
+      return dispatched.value
+    }
+
+    it('keeps the stored count whole when a battle falls during an open order', async () => {
+      const attacking = attackingWithTheLevy()
+      const arrival = arrivalOf(attacking)
+
+      const result = await resolveAttackAt(attacking, arrival, inMemoryCampRegistry([]))
+
+      assert(result.ok)
+      const { fief } = result.value
+      expect(fief.units.countOf('infantry')).toBe(16)
+      expect(fief.recruitOrder).toEqual({
+        ...thirtyInfantryAtSixtySeconds,
+        count: 10,
+        cost: { wood: 200, stone: 0, iron: 100, gold: 0, food: 300 },
+        startedAt: arrival,
+      })
+    })
+
+    it('keeps the instants of the remaining deliveries', async () => {
+      const attacking = attackingWithTheLevy()
+      const counted = attacking.unitCountsAt(secondsAfterStored(659)).countOf('infantry')
+
+      const result = await resolveAttackAt(
+        attacking,
+        arrivalOf(attacking),
+        inMemoryCampRegistry([]),
+      )
+
+      assert(result.ok)
+      const { fief } = result.value
+      expect(counted).toBe(20)
+      expect(fief.unitCountsAt(secondsAfterStored(659)).countOf('infantry')).toBe(16)
+      expect(fief.unitCountsAt(secondsAfterStored(660)).countOf('infantry')).toBe(17)
+      expect(fief.unitCountsAt(secondsAfterStored(1_200)).countOf('infantry')).toBe(26)
+    })
+
+    it('refunds exactly the undelivered units on a cancel after the battle', async () => {
+      const attacking = attackingWithTheLevy()
+      const arrival = arrivalOf(attacking)
+      const cancelledAt = secondsAfterStored(690)
+
+      const result = await resolveAttackAt(attacking, arrival, inMemoryCampRegistry([]))
+      assert(result.ok)
+      const cancelled = result.value.fief.cancelRecruitOrder(
+        { unit: 'infantry', startedAt: arrival },
+        result.value.fief.stocks,
+        cancelledAt,
+      )
+
+      assert(cancelled.ok)
+      expect(cancelled.value.events).toMatchObject([
+        {
+          kind: 'recruitsCancelled',
+          delivered: 1,
+          cancelled: 9,
+          refund: { wood: 180, stone: 0, iron: 90, gold: 0, food: 270 },
+        },
+      ])
+      expect(cancelled.value.fief.units.countOf('infantry')).toBe(17)
+    })
+
+    it('counts only the remainder on the levy line that closes the order', async () => {
+      const attacking = attackingWithTheLevy()
+
+      const result = await resolveAttackAt(
+        attacking,
+        secondsAfterStored(1_200),
+        inMemoryCampRegistry([]),
+      )
+
+      assert(result.ok)
+      expect(result.value.events).toMatchObject([
+        { kind: 'recruitsDelivered', unit: 'infantry', count: 10 },
+        { kind: 'marchReturned', infantry: 6 },
+      ])
+      expect(result.value.fief.units.countOf('infantry')).toBe(26)
+    })
   })
 })

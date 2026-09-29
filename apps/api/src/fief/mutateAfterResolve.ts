@@ -16,7 +16,7 @@ export type MutateAfterResolveDependencies = {
   readonly clock: Clock
 }
 
-export type FiefStores = Pick<TransactionStores, 'fiefs' | 'chronicle'>
+export type FiefStores = Pick<TransactionStores, 'fiefs' | 'chronicle' | 'camps'>
 
 export type FiefMutation = (stores: FiefStores, clock: Clock) => Promise<Result<Fief, DomainError>>
 
@@ -25,7 +25,7 @@ export const mutateAfterResolve = async (
   mutation: FiefMutation,
   { inTransaction, buildingCatalog, clock }: MutateAfterResolveDependencies,
 ): Promise<Result<Fief, DomainError>> =>
-  inTransaction(async ({ fiefs, chronicle }) => {
+  inTransaction(async ({ fiefs, chronicle, camps }) => {
     const locked = await fiefs.fiefOf(playerId)
     if (!locked.ok) {
       return locked
@@ -35,10 +35,10 @@ export const mutateAfterResolve = async (
     const mutationClock: Clock = { now: () => mutatedAt }
     const resolved = await resolveUpgrade(
       { playerId },
-      { fiefs, chronicle, catalog: buildingCatalog, clock: mutationClock },
+      { fiefs, chronicle, camps, catalog: buildingCatalog, clock: mutationClock },
     )
     if (!resolved.ok) {
       return resolved
     }
-    return mutation({ fiefs, chronicle }, mutationClock)
+    return mutation({ fiefs, chronicle, camps }, mutationClock)
   })
