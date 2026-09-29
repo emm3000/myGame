@@ -5,6 +5,7 @@ import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings, ForageTerms } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
+import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
@@ -301,7 +302,12 @@ describe('recallMarch', () => {
 
     const result = await resolveUpgrade(
       { playerId: 'lord' },
-      { ...dependencies, chronicle, clock: frozenClock(secondsAfterDeparture(3_480)) },
+      {
+        ...dependencies,
+        chronicle,
+        camps: inMemoryCampRegistry([]),
+        clock: frozenClock(secondsAfterDeparture(3_480)),
+      },
     )
 
     assert(result.ok)

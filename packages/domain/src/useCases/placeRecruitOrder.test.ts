@@ -12,6 +12,7 @@ import type {
 } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
+import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
@@ -503,6 +504,7 @@ describe('placeRecruitOrder across seasons', () => {
       {
         fiefs,
         chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
         clock: frozenClock(secondsAfter(lateSpring, 170)),
       },

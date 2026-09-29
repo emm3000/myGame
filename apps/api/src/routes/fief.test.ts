@@ -2142,4 +2142,82 @@ describe('the fief route', () => {
       expect(response.status).toBe(401)
     })
   })
+  describe('the battle at the arrival', () => {
+    type CampBattleRow = {
+      readonly province: number
+      readonly plot: number
+      readonly strength: number
+      readonly foughtAt: string
+    }
+
+    const campBattleRows = async (): Promise<ReadonlyArray<CampBattleRow>> => {
+      const client = new Client({ connectionString: databaseUrl() })
+      await client.connect()
+      try {
+        const read = await client.query<CampBattleRow>(
+          `SELECT province, plot, strength,
+             to_char(fought_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "foughtAt"
+           FROM camp_battles ORDER BY id`,
+        )
+        return read.rows
+      } finally {
+        await client.end()
+      }
+    }
+
+    const tierOneCampPlot = (): number => {
+      const { camps } = server.buildingCatalog.fiefSettings()
+      const plot = Array.from({ length: 15 }, (_, index) => index + 1).find(
+        (candidate) => campOf({ kingdom: 1, province: 2, plot: candidate }, camps)?.tier === 1,
+      )
+      assert(plot !== undefined)
+      return plot
+    }
+
+    const signUpAttackingTierOneCamp = async (plot: number): Promise<SignedUpPlayer> => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'infantry'::unit, 10 FROM fiefs`)
+      await runSql(
+        `INSERT INTO fief_marches (fief_id, march_order, province, plot, infantry, stay_hours,
+           one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
+           camp_tier, camp_strength, fought)
+         SELECT id, 'attack', 2, ${plot}, 10, 0, 600, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0,
+           1, 6, false
+         FROM fiefs`,
+      )
+      return ana
+    }
+
+    it('stores the camp beaten to 0 with the fief that fought it', async () => {
+      const plot = tierOneCampPlot()
+      const ana = await signUpAttackingTierOneCamp(plot)
+      clock.advanceMinutes(21)
+
+      const response = await fiefOf(ana.cookie)
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.march).toBeNull()
+      expect(overview.units).toEqual({ infantry: 6 })
+      expect(await campBattleRows()).toEqual([
+        { province: 2, plot, strength: 0, foughtAt: '2026-09-22T08:10:00Z' },
+      ])
+    })
+
+    it('stores no camp battle when the mutation after the resolve is refused', async () => {
+      const ana = await signUpAttackingTierOneCamp(tierOneCampPlot())
+      await runSql('UPDATE fiefs SET wood = 0')
+      clock.advanceMinutes(11)
+
+      const response = await enqueue(ana.cookie, 'sawmill')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
+      expect(await campBattleRows()).toEqual([])
+      const stored = await server.fiefs.fiefOf(ana.playerId)
+      assert(stored.ok)
+      expect(stored.value?.march).toMatchObject({ fought: false, infantry: 10 })
+    })
+  })
 })

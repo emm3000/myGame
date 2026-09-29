@@ -1,9 +1,9 @@
 import { attackLootOf } from '../camp/attackLootOf'
-import { battleOf } from '../camp/battleOf'
+import { type Battle, battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
-import type { AttackedCamp, AwayMarch, March } from '../march/March'
+import type { AttackedCamp, AttackMarch, AwayMarch, March } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import { marchPhaseAt } from '../march/marchPhaseAt'
@@ -20,7 +20,7 @@ import type {
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
 import { Duration } from '../time/Duration'
-import type { Instant } from '../time/Instant'
+import { Instant } from '../time/Instant'
 import { artKinds } from './artKinds'
 import type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
@@ -310,6 +310,8 @@ const timesCount = (cost: Stocks, count: number): Stocks => ({
   gold: cost.gold * count,
   food: cost.food * count,
 })
+
+const MILLISECONDS_PER_SECOND = 1_000
 
 const shareOf = (cost: Stocks, part: number, whole: number): Stocks => ({
   wood: (cost.wood * part) / whole,
@@ -987,12 +989,50 @@ export class Fief {
     })
   }
 
+  completeBattle(attack: AttackMarch, battle: Battle, stocksAtArrival: Stocks): Fief {
+    const { arrivesAt } = marchInstantsOf(attack)
+    const { units, recruitOrder } = this.deliveriesSettledAt(arrivesAt)
+    return this.changed({
+      stocks: stocksAtArrival,
+      storedAt: arrivesAt,
+      units: units.minus('infantry', battle.infantryLost),
+      recruitOrder,
+      march: battle.won
+        ? { ...attack, infantry: battle.survivors, fought: true }
+        : { kind: 'idle' },
+    })
+  }
+
   completeMarch(returned: AwayMarch, stocksAtReturn: Stocks): Fief {
     return this.changed({
       stocks: credit(stocksAtReturn, returned.loot),
       storedAt: marchInstantsOf(returned).returnsAt,
       march: { kind: 'idle' },
     })
+  }
+
+  private deliveriesSettledAt(at: Instant): {
+    readonly units: FiefUnitCounts
+    readonly recruitOrder: RecruitOrder
+  } {
+    const { units, recruitOrder } = this
+    if (recruitOrder.kind === 'idle') {
+      return { units, recruitOrder }
+    }
+    const delivered = deliveredUnitsOf(recruitOrder, at)
+    const remaining = recruitOrder.count - delivered
+    return {
+      units: units.plus(recruitOrder.unit, delivered),
+      recruitOrder: {
+        ...recruitOrder,
+        count: remaining,
+        cost: shareOf(recruitOrder.cost, remaining, recruitOrder.count),
+        startedAt: Instant.fromEpochMilliseconds(
+          recruitOrder.startedAt.epochMilliseconds +
+            delivered * recruitOrder.perUnitSeconds * MILLISECONDS_PER_SECOND,
+        ),
+      },
+    }
   }
 
   unitCountsAt(at: Instant): FiefUnitCounts {

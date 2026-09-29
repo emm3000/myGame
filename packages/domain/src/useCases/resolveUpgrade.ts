@@ -1,3 +1,5 @@
+import { type Battle, battleOf } from '../camp/battleOf'
+import type { CampBattle } from '../camp/CampBattle'
 import type { DomainError } from '../DomainError'
 import type { BusySlot } from '../fief/BuildSlot'
 import type { ChangedFief } from '../fief/ChangedFief'
@@ -8,10 +10,11 @@ import { materializeStocks } from '../fief/materializeStocks'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
-import type { AwayMarch } from '../march/March'
+import type { AttackMarch, AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
+import type { CampRegistry } from '../ports/CampRegistry'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
@@ -25,6 +28,7 @@ export type ResolveUpgradeCommand = {
 export type ResolveUpgradeDependencies = {
   readonly fiefs: FiefRepository
   readonly chronicle: ChronicleWriter
+  readonly camps: CampRegistry
   readonly catalog: BuildingCatalog
   readonly clock: Clock
 }
@@ -37,7 +41,17 @@ type FinishedWork =
   | { readonly kind: 'upgrade'; readonly slot: BusySlot; readonly finishedAt: Instant }
   | { readonly kind: 'study'; readonly slot: BusyStudySlot; readonly finishedAt: Instant }
   | { readonly kind: 'recruit'; readonly order: OpenRecruitOrder; readonly finishedAt: Instant }
+  | {
+      readonly kind: 'battle'
+      readonly march: AttackMarch
+      readonly battle: Battle
+      readonly finishedAt: Instant
+    }
   | { readonly kind: 'march'; readonly march: AwayMarch; readonly finishedAt: Instant }
+
+type WalkedFief = ChangedFief & {
+  readonly campBattles: ReadonlyArray<CampBattle>
+}
 
 const finishedUpgradeOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
   const { slot } = fief
@@ -67,6 +81,28 @@ const endedRecruitOrderOf = (fief: Fief, now: Instant): FinishedWork | undefined
   return { kind: 'recruit', order: recruitOrder, finishedAt: endsAt }
 }
 
+const foughtBattleOf = (
+  fief: Fief,
+  now: Instant,
+  infantryStrength: number,
+): FinishedWork | undefined => {
+  const { march } = fief
+  if (
+    march.kind === 'idle' ||
+    march.order !== 'attack' ||
+    march.fought ||
+    march.recalledAt !== undefined
+  ) {
+    return undefined
+  }
+  const { arrivesAt } = marchInstantsOf(march)
+  if (arrivesAt.epochMilliseconds > now.epochMilliseconds) {
+    return undefined
+  }
+  const battle = battleOf(march.infantry, march.camp.strength, infantryStrength)
+  return { kind: 'battle', march, battle, finishedAt: arrivesAt }
+}
+
 const returnedMarchOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
   const { march } = fief
   if (march.kind === 'idle') {
@@ -91,11 +127,16 @@ const earlierOf = (
   return candidateFinishesFirst ? candidate : earliest
 }
 
-const earliestFinishedOf = (fief: Fief, now: Instant): FinishedWork | undefined =>
+const earliestFinishedOf = (
+  fief: Fief,
+  now: Instant,
+  infantryStrength: number,
+): FinishedWork | undefined =>
   [
     finishedUpgradeOf(fief, now),
     finishedStudyOf(fief, now),
     endedRecruitOrderOf(fief, now),
+    foughtBattleOf(fief, now, infantryStrength),
     returnedMarchOf(fief, now),
   ].reduce(earlierOf, undefined)
 
@@ -128,6 +169,8 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           occurredAt: finished.finishedAt,
         },
       ]
+    case 'battle':
+      return []
     case 'march':
       return [
         {
@@ -147,6 +190,22 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
   }
 }
 
+const campBattlesOf = (finished: FinishedWork, kingdom: number): ReadonlyArray<CampBattle> => {
+  if (finished.kind !== 'battle') {
+    return []
+  }
+  const { march, battle, finishedAt } = finished
+  return [
+    {
+      kingdom,
+      province: march.province,
+      plot: march.plot,
+      strength: march.camp.strength - battle.campLost,
+      foughtAt: finishedAt,
+    },
+  ]
+}
+
 const laterOf = (left: Instant, right: Instant): Instant =>
   left.epochMilliseconds >= right.epochMilliseconds ? left : right
 
@@ -162,6 +221,8 @@ const applyFinished = (
       return ok(fief.completeStudy(finished.slot, stocksAtFinish))
     case 'recruit':
       return ok(fief.completeRecruitOrder(finished.order, stocksAtFinish))
+    case 'battle':
+      return ok(fief.completeBattle(finished.march, finished.battle, stocksAtFinish))
     case 'march':
       return ok(fief.completeMarch(finished.march, stocksAtFinish))
     default: {
@@ -187,13 +248,15 @@ const walkFinishedWork = (
   fief: Fief,
   catalog: BuildingCatalog,
   now: Instant,
-): Result<ChangedFief, DomainError> => {
+  infantryStrength: number,
+): Result<WalkedFief, DomainError> => {
   let walked = fief
   const events: Array<FiefEvent> = []
+  const campBattles: Array<CampBattle> = []
   for (
-    let finished = earliestFinishedOf(walked, now);
+    let finished = earliestFinishedOf(walked, now, infantryStrength);
     finished !== undefined;
-    finished = earliestFinishedOf(walked, now)
+    finished = earliestFinishedOf(walked, now, infantryStrength)
   ) {
     const completed = completeAt(walked, finished, catalog)
     if (!completed.ok) {
@@ -201,17 +264,31 @@ const walkFinishedWork = (
     }
     walked = completed.value
     events.push(...eventsOf(finished))
+    campBattles.push(...campBattlesOf(finished, walked.coordinates.kingdom))
   }
   const accrued = walked.accruedTo(catalog, laterOf(now, walked.storedAt))
   if (!accrued.ok) {
     return accrued
   }
-  return ok({ fief: accrued.value, events })
+  return ok({ fief: accrued.value, events, campBattles })
+}
+
+const recordCampBattles = async (
+  camps: CampRegistry,
+  campBattles: ReadonlyArray<CampBattle>,
+): Promise<Result<void, DomainError>> => {
+  for (const campBattle of campBattles) {
+    const recorded = await camps.record(campBattle)
+    if (!recorded.ok) {
+      return recorded
+    }
+  }
+  return ok(undefined)
 }
 
 export const resolveUpgrade = async (
   command: ResolveUpgradeCommand,
-  { fiefs, chronicle, catalog, clock }: ResolveUpgradeDependencies,
+  { fiefs, chronicle, camps, catalog, clock }: ResolveUpgradeDependencies,
 ): Promise<Result<ResolvedFief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.playerId)
   if (!stored.ok) {
@@ -223,7 +300,8 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  if (!fief.isSlotIdleWithQueue && earliestFinishedOf(fief, now) === undefined) {
+  const infantryStrength = catalog.fiefSettings().units.infantry.strength
+  if (!fief.isSlotIdleWithQueue && earliestFinishedOf(fief, now, infantryStrength) === undefined) {
     return ok({ fief, events: [], hasChanged: false })
   }
 
@@ -231,7 +309,7 @@ export const resolveUpgrade = async (
   if (!resumed.ok) {
     return resumed
   }
-  const resolved = walkFinishedWork(resumed.value, catalog, now)
+  const resolved = walkFinishedWork(resumed.value, catalog, now, infantryStrength)
   if (!resolved.ok) {
     return resolved
   }
@@ -239,9 +317,14 @@ export const resolveUpgrade = async (
   if (!saved.ok) {
     return saved
   }
-  const recorded = await chronicle.record(resolved.value.fief.id, resolved.value.events)
+  const { fief: resolvedFief, events, campBattles } = resolved.value
+  const fought = await recordCampBattles(camps, campBattles)
+  if (!fought.ok) {
+    return fought
+  }
+  const recorded = await chronicle.record(resolvedFief.id, events)
   if (!recorded.ok) {
     return recorded
   }
-  return ok({ ...resolved.value, hasChanged: true })
+  return ok({ fief: resolvedFief, events, hasChanged: true })
 }
