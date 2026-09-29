@@ -18,6 +18,7 @@ export const ApiErrorKindSchema = z.enum([
   'StudyNotFound',
   'BarracksNotBuilt',
   'RecruitSlotBusy',
+  'RecruitOrderNotFound',
   'ProvinceNotFound',
   'TokenInvalid',
   'MailNotSent',
