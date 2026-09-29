@@ -241,7 +241,8 @@ keeps its name.
 - **Lore first.** The phrase, *La primavera acorta la leva* in the register
   of *El verano acorta las obras*, is proposed for the author in the seasons
   section of `docs/lore/names.md` (#247, PR #251). It waits for the author;
-  until accepted, `apps/web/src/copy.ts` mirrors the proposal.
+  until accepted, `apps/web/src/copy.ts` will mirror the proposal (#249),
+  as Decision 7 of #246 fixes it.
 - **No event, no change to cancels or refunds, no migration.** The recruit
   cancel already reads the stored `perUnitSeconds` and the cost is not
   scaled; the chronicle keeps its six kinds (ADR 013, ADR 018 as amended);

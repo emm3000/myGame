@@ -64,9 +64,10 @@ mockup of #213 draws it.
   `ceil(durationSeconds / (1 + barracksLevel))`: one division, one `ceil`,
   the content seconds divided by one plus the built barracks level, as the
   library divides a study (ADR 012). 90 seconds at barracks 1 is 45, at
-  barracks 2 is 30. No season on recruiting in this slice (S12 lifts it: ADR 017 as amended): the function
-  reads no `durationPercent` (ADR 017), and a barracks finished while an
-  order runs shortens nothing.
+  barracks 2 is 30. No season on recruiting in this slice: as S10 shipped
+  it, the function read no `durationPercent` (ADR 017), and a barracks
+  finished while an order runs shortens nothing. S12 lifts the season
+  (ADR 017 as amended).
 - **The barracks has a recruit slot: one order at a time, no queue.** `Fief`
   carries `recruitOrder`, idle on founding, or open with its `unit`, its
   `count`, the `cost` it debited, its `perUnitSeconds` and its `startedAt`.
@@ -246,7 +247,8 @@ mockup of #213 draws it.
   behind would be the one finish the timeline skips, and the next stretch
   would start at the wrong instant.
 - **A season on recruiting**, a `recruit` percent beside `build` and
-  `study` (ADR 017). Out of scope of #209; S12 ships it as `train`, in ADR 017 as amended.
+  `study` (ADR 017). Out of scope of #209; S12 ships it as `train`, in
+  ADR 017 as amended.
 - **Cancel of a recruit order**, a march, combat, other kinds, upkeep or
   famine (W9), units on the map, generated unit images (S4). Out of scope of
   #209, each a future ADR or ticket.
@@ -378,7 +380,8 @@ stands over the tickets.
 
 Nothing else here changes: the order is still placed in full, delivers on
 read and closes at its last delivery, a second order still waits for the
-slot, and a recruit queue, other unit kinds, a season on training, upkeep or
-famine, marches, combat and units on the map stay out. PRD S3 lists four
+slot, and a recruit queue, other unit kinds, a season on training (S12
+ships it: ADR 017 as amended), upkeep or famine, marches, combat and units
+on the map stay out. PRD S3 lists four
 event kinds and ADR 013 five; this amendment amends neither list, as
 Decision 8 of #231 fixes.
