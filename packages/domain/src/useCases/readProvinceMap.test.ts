@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import { type HeldPlot, inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { readProvinceMap } from './readProvinceMap'
@@ -20,6 +21,7 @@ const fiefSettings: FiefSettings = {
   buildQueueCap: 4,
   units: plainUnits,
   forage: plainForage,
+  camps: plainCamps,
   seasons: neutralSeasons,
 }
 

@@ -65,6 +65,7 @@ const plainFief: FiefContent = {
       cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
       durationSeconds: 90,
       peasantOccupancy: 1,
+      strength: 1,
     },
   },
   forage: {
@@ -76,6 +77,15 @@ const plainFief: FiefContent = {
       lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
       uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
       ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
+    },
+  },
+  camps: {
+    campFraction: 0.2,
+    lootPerStrength: 60,
+    tiers: {
+      1: { maxStrength: 6, regrowHours: 6 },
+      2: { maxStrength: 15, regrowHours: 12 },
+      3: { maxStrength: 40, regrowHours: 24 },
     },
   },
 }
@@ -372,6 +382,7 @@ describe('JsonBuildingCatalog', () => {
         cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
         durationSeconds: 90,
         peasantOccupancy: 1,
+        strength: 1,
       },
     })
   })
@@ -386,6 +397,18 @@ describe('JsonBuildingCatalog', () => {
         lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
         uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
         ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
+      },
+    })
+  })
+
+  it('reads the camp terms from the shipped content', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().camps).toEqual({
+      campFraction: 0.2,
+      lootPerStrength: 60,
+      tiers: {
+        1: { maxStrength: 6, regrowHours: 6 },
+        2: { maxStrength: 15, regrowHours: 12 },
+        3: { maxStrength: 40, regrowHours: 24 },
       },
     })
   })

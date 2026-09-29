@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ArtLevel, BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { artResourceOf } from './artResourceOf'
@@ -29,6 +30,7 @@ const fiefSettings: FiefSettings = {
   buildQueueCap: 4,
   units: plainUnits,
   forage: plainForage,
+  camps: plainCamps,
   seasons: neutralSeasons,
 }
 

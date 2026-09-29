@@ -38,6 +38,7 @@ const infantry = {
   cost: { wood: 0, stone: 0, iron: 20, gold: 10, food: 30 },
   durationSeconds: 60,
   peasantOccupancy: 1,
+  strength: 1,
 }
 
 const units = { infantry }
@@ -58,6 +59,14 @@ const forage = {
   yieldPerHour,
 }
 
+const tiers = {
+  1: { maxStrength: 6, regrowHours: 6 },
+  2: { maxStrength: 15, regrowHours: 12 },
+  3: { maxStrength: 40, regrowHours: 24 },
+}
+
+const camps = { campFraction: 0.2, lootPerStrength: 60, tiers }
+
 const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   startingStocks: { wood: 500, stone: 300, iron: 200, gold: 0, food: 300 },
   startingCapacity: 1000,
@@ -69,6 +78,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   seasons,
   units,
   forage,
+  camps,
   ...overrides,
 })
 
@@ -298,6 +308,28 @@ describe('FiefContentSchema', () => {
   it('rejects a longest stay of zero hours', () => {
     expect(
       FiefContentSchema.safeParse(fiefContent({ forage: { ...forage, maxStayHours: 0 } })).success,
+    ).toBe(false)
+  })
+
+  it('rejects camp terms missing tier 3', () => {
+    const { 3: _, ...twoTiers } = tiers
+
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ camps: { ...camps, tiers: twoTiers } })).success,
+    ).toBe(false)
+  })
+
+  it('rejects a camp fraction above 1', () => {
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ camps: { ...camps, campFraction: 1.2 } })).success,
+    ).toBe(false)
+  })
+
+  it('rejects an infantry strength of 0', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ units: { infantry: { ...infantry, strength: 0 } } }),
+      ).success,
     ).toBe(false)
   })
 })

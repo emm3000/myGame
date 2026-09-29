@@ -15,6 +15,7 @@ import { err } from '../Result'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { refusingChronicle } from '../testing/refusingChronicle'
@@ -44,6 +45,7 @@ const fiefSettings: FiefSettings = {
   buildQueueCap: 4,
   units: plainUnits,
   forage: plainForage,
+  camps: plainCamps,
   seasons: neutralSeasons,
 }
 

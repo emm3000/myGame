@@ -8,6 +8,7 @@ import { err } from '../Result'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { type HeldPlot, inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
@@ -36,6 +37,7 @@ const fiefSettings: FiefSettings = {
   buildQueueCap: 4,
   units: plainUnits,
   forage: plainForage,
+  camps: plainCamps,
   seasons: neutralSeasons,
 }
 

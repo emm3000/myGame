@@ -1,3 +1,4 @@
+export type { CampTier } from './camp/CampTier'
 export type { DomainError } from './DomainError'
 export { artLevelInForce } from './fief/artLevelInForce'
 export { artResourceOf } from './fief/artResourceOf'
@@ -49,6 +50,8 @@ export type {
   BuildingCatalog,
   BuildingKind,
   BuildingLevel,
+  CampTerms,
+  CampTierTerms,
   FarmLevel,
   FiefSettings,
   ForageTerms,

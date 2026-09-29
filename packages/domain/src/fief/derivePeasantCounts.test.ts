@@ -7,6 +7,7 @@ import type {
   ProducerLevel,
 } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { derivePeasantCounts } from './derivePeasantCounts'
@@ -27,6 +28,7 @@ const fiefSettings: FiefSettings = {
   buildQueueCap: 4,
   units: plainUnits,
   forage: plainForage,
+  camps: plainCamps,
   seasons: neutralSeasons,
 }
 

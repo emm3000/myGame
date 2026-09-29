@@ -1,3 +1,4 @@
+import type { CampTier } from '../camp/CampTier'
 import type { Terrain } from '../fief/Terrain'
 import type { ResourceKind } from '../resources/Resources'
 import type { SeasonCalendar } from '../season/SeasonCalendar'
@@ -67,6 +68,7 @@ export type UnitTerms = {
   readonly cost: Readonly<Record<ResourceKind, number>>
   readonly durationSeconds: number
   readonly peasantOccupancy: number
+  readonly strength: number
 }
 
 export type ForageTerms = {
@@ -75,6 +77,17 @@ export type ForageTerms = {
   readonly carryPerInfantry: number
   readonly maxStayHours: number
   readonly yieldPerHour: Readonly<Record<Terrain, Readonly<Record<ResourceKind, number>>>>
+}
+
+export type CampTierTerms = {
+  readonly maxStrength: number
+  readonly regrowHours: number
+}
+
+export type CampTerms = {
+  readonly campFraction: number
+  readonly lootPerStrength: number
+  readonly tiers: Readonly<Record<CampTier, CampTierTerms>>
 }
 
 export type TerrainBonus = {
@@ -93,6 +106,7 @@ export type FiefSettings = {
   readonly seasons: SeasonCalendar
   readonly units: Readonly<Record<UnitKind, UnitTerms>>
   readonly forage: ForageTerms
+  readonly camps: CampTerms
 }
 
 export interface BuildingCatalog {

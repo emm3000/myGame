@@ -27,6 +27,22 @@ const UnitTermsSchema = z.strictObject({
   cost: ResourceAmountsSchema,
   durationSeconds: WholeCountSchema.positive(),
   peasantOccupancy: WholeCountSchema.positive(),
+  strength: WholeCountSchema.positive(),
+})
+
+const CampTierTermsSchema = z.strictObject({
+  maxStrength: WholeCountSchema.positive(),
+  regrowHours: WholeCountSchema.positive(),
+})
+
+const CampTermsSchema = z.strictObject({
+  campFraction: z.number().min(0).max(1),
+  lootPerStrength: WholeCountSchema.positive(),
+  tiers: z.strictObject({
+    1: CampTierTermsSchema,
+    2: CampTierTermsSchema,
+    3: CampTierTermsSchema,
+  }),
 })
 
 export const FiefContentSchema = z.object({
@@ -40,6 +56,7 @@ export const FiefContentSchema = z.object({
   seasons: SeasonCalendarSchema,
   units: z.record(UnitKindSchema, UnitTermsSchema),
   forage: ForageTermsSchema,
+  camps: CampTermsSchema,
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>
