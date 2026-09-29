@@ -30,7 +30,7 @@ const barracksBuilt: FiefOverview = {
   units: { infantry: 16 },
 }
 
-const marchUnderway: FiefOverview = {
+const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({
   ...barracksBuilt,
   march: {
     province: 2,
@@ -38,14 +38,20 @@ const marchUnderway: FiefOverview = {
     terrain: 'uplands',
     infantry: 10,
     stayHours: 2,
-    departedAt: instantAfterRead(-30),
+    departedAt: instantAfterRead(-secondsBeforeRead),
     oneWaySeconds: 840,
     loot: { wood: 200, stone: 200, iron: 0, gold: 0, food: 0 },
-    arrivesAt: instantAfterRead(810),
-    leavesAt: instantAfterRead(8010),
-    returnsAt: instantAfterRead(8850),
+    arrivesAt: instantAfterRead(840 - secondsBeforeRead),
+    leavesAt: instantAfterRead(8040 - secondsBeforeRead),
+    returnsAt: instantAfterRead(8880 - secondsBeforeRead),
   },
-}
+})
+
+const marchUnderway = twoHourForageDeparted(30)
+
+const marchArrivingInFortySeconds = twoHourForageDeparted(800)
+
+const marchLeavingInFortySeconds = twoHourForageDeparted(8000)
 
 const hourLongForage: NonNullable<FiefOverview['march']> = {
   province: 2,
@@ -127,9 +133,12 @@ it('shows the march outbound with its countdown to the return', async () => {
 })
 
 it('turns the march to foraging at its arrival without a read', async () => {
-  const fief = vi.fn(async () => ({ ok: true as const, value: answeredNow(marchUnderway) }))
+  const fief = vi.fn(async () => ({
+    ok: true as const,
+    value: answeredNow(marchArrivingInFortySeconds),
+  }))
   await showFief({ fief })
-  await passSeconds(809)
+  await passSeconds(39)
   const readsBeforeArrival = fief.mock.calls.length
   expect(phaseLine('Marcha de ida: 10 infantes a provincia 2, parcela 5')).not.toBeNull()
 
@@ -142,9 +151,12 @@ it('turns the march to foraging at its arrival without a read', async () => {
 })
 
 it('turns the march to returning when the stay ends', async () => {
-  const fief = vi.fn(async () => ({ ok: true as const, value: answeredNow(marchUnderway) }))
+  const fief = vi.fn(async () => ({
+    ok: true as const,
+    value: answeredNow(marchLeavingInFortySeconds),
+  }))
   await showFief({ fief })
-  await passSeconds(8009)
+  await passSeconds(39)
   const readsBeforeLeaving = fief.mock.calls.length
   expect(phaseLine('Forrajeo: 10 infantes en provincia 2, parcela 5')).not.toBeNull()
 
@@ -213,6 +225,8 @@ it('waits for the minute re-read when the march returns past the longest timeout
   await showFief({ fief })
 
   await passSeconds(59)
-
   expect(fief).toHaveBeenCalledTimes(1)
+  await passSeconds(1)
+
+  expect(fief).toHaveBeenCalledTimes(2)
 })
