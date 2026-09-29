@@ -53,6 +53,17 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
         identity: `${event.province}-${event.plot}-${event.infantry}`,
         text: copy.chronicle.march(event.province, event.plot, event.infantry),
       }
+    case 'battleFought':
+      return {
+        identity: `${event.province}-${event.plot}-${event.tier}-${event.won}-${event.infantryLost}-${event.campLost}`,
+        text: copy.chronicle.battle(
+          event.province,
+          event.plot,
+          event.tier,
+          event.infantryLost,
+          event.campLost,
+        ),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -86,10 +97,15 @@ const amountsOf = (event: FiefEvent): ChronicleAmounts | undefined => {
   return undefined
 }
 
-const headingOf = (event: FiefEvent): string =>
-  event.kind === 'marchReturned' && event.recalled
-    ? copy.chronicle.marchRecalled
-    : copy.chronicle.headings[event.kind]
+const headingOf = (event: FiefEvent): string => {
+  if (event.kind === 'marchReturned' && event.recalled) {
+    return copy.chronicle.marchRecalled
+  }
+  if (event.kind === 'battleFought' && !event.won) {
+    return copy.chronicle.battleLost
+  }
+  return copy.chronicle.headings[event.kind]
+}
 
 export function chronicleRowOf(event: FiefEvent, readAt: Date): ChronicleRow {
   const subject = subjectOf(event)

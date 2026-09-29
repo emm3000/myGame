@@ -200,4 +200,47 @@ describe('FiefEventSchema', () => {
 
     expect(FiefEventSchema.safeParse(returned).success).toBe(false)
   })
+  it('accepts a battle event', () => {
+    const battle = {
+      kind: 'battleFought',
+      province: 2,
+      plot: 7,
+      tier: 1,
+      won: true,
+      infantryLost: 3,
+      campLost: 6,
+      occurredAt: '2026-09-22T09:15:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(battle)).toEqual(battle)
+  })
+
+  it('rejects a battle event of tier 4', () => {
+    const battle = {
+      kind: 'battleFought',
+      province: 2,
+      plot: 7,
+      tier: 4,
+      won: true,
+      infantryLost: 3,
+      campLost: 6,
+      occurredAt: '2026-09-22T09:15:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(battle).success).toBe(false)
+  })
+
+  it('rejects a battle event without its outcome', () => {
+    const battle = {
+      kind: 'battleFought',
+      province: 2,
+      plot: 7,
+      tier: 2,
+      infantryLost: 12,
+      campLost: 10,
+      occurredAt: '2026-09-22T09:15:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(battle).success).toBe(false)
+  })
 })
