@@ -168,6 +168,8 @@ const atMaxLevel = 'Ya está en su nivel más alto.'
 
 const signInTitle = 'Entra en tu feudo'
 
+const invalidCount = 'Un número entero, al menos 1.'
+
 export const copy = {
   shell: {
     title: 'myGame',
@@ -306,7 +308,29 @@ export const copy = {
     cancelOf: (unit: UnitKind, count: number): string =>
       `Cancelar la leva: ${countedUnits(unit, count)}`,
     orderRunning: 'Ya hay una leva en marcha.',
-    invalidCount: 'Un número entero, al menos 1.',
+    invalidCount,
+  },
+  march: {
+    send: 'Enviar una marcha',
+    sendTo: (plot: number): string => `Enviar una marcha a parcela ${plot}`,
+    title: (province: number, plot: number): string =>
+      `Marcha a provincia ${province}, parcela ${plot}`,
+    atHome: (count: number): string =>
+      `${agreeing(count, units.infantry.singular, units.infantry.plural)} en casa`,
+    infantryField: `${capitalize(units.infantry.plural)} a enviar`,
+    hoursField: 'Horas de forrajeo',
+    roadHeading: 'Camino de ida:',
+    returnHeading: 'Vuelta en',
+    lootHeading: 'Botín:',
+    loot: (loot: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(loot),
+    outboundHeading: 'Marcha de ida:',
+    outbound: (infantry: number, province: number, plot: number): string =>
+      `${countedUnits('infantry', infantry)} a provincia ${province}, parcela ${plot}`,
+    marchAway: 'Ya hay una marcha en curso.',
+    invalidInfantry: invalidCount,
+    invalidHours: (maxStayHours: number): string => `Un número entero, de 1 a ${maxStayHours}.`,
+    notEnoughAtHome: (needed: number, atHome: number): string =>
+      `Necesitas ${countedUnits('infantry', needed)} en casa y tienes ${atHome}.`,
   },
   chronicle: {
     title: 'Crónica',

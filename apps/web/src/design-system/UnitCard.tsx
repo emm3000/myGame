@@ -1,13 +1,12 @@
 import { type FormEvent, type ReactElement, useId } from 'react'
-import { Button } from './Button'
-import { type CardActionState, cardToneOf } from './CardAction'
+import { cardToneOf } from './CardAction'
 import { type CardCost, CostList } from './CostList'
-import { formatQuantity } from './formatQuantity'
-import { InfantryIcon } from './icons/InfantryIcon'
 import { NumberField } from './NumberField'
 import { Panel } from './Panel'
+import { SubmitAction, type SubmitActionState } from './SubmitAction'
+import { UnitCount } from './UnitCount'
 
-export type UnitCardState = Exclude<CardActionState, { readonly kind: 'atMaxLevel' }>
+export type UnitCardState = SubmitActionState
 
 export interface UnitCardProps {
   readonly name: string
@@ -23,51 +22,6 @@ export interface UnitCardProps {
   readonly isWaiting: boolean
   readonly onEntryChange: (entry: string) => void
   readonly onRecruit: () => void
-}
-
-function UnitCount({
-  count,
-  label,
-}: {
-  readonly count: number
-  readonly label: string
-}): ReactElement {
-  return (
-    <span className="flex items-center gap-1 font-utility text-ink tabular-nums">
-      <span className="flex text-ink-muted">
-        <InfantryIcon />
-      </span>
-      <span className="whitespace-nowrap text-numeral-lg">
-        {formatQuantity(count)} <span className="text-numeral text-ink-muted">{label}</span>
-      </span>
-    </span>
-  )
-}
-
-function RecruitAction({
-  label,
-  state,
-  isWaiting,
-}: {
-  readonly label: string
-  readonly state: UnitCardState
-  readonly isWaiting: boolean
-}): ReactElement {
-  if (state.kind === 'affordable') {
-    return (
-      <Button type="submit" tone="primary" disabled={isWaiting}>
-        {label}
-      </Button>
-    )
-  }
-  return (
-    <div className="flex flex-col gap-2">
-      <Button type="submit" tone="primary" disabled accessibleName={`${label}. ${state.reason}`}>
-        {label}
-      </Button>
-      <span className="font-body text-caption text-rust">{state.reason}</span>
-    </div>
-  )
 }
 
 export function UnitCard(props: UnitCardProps): ReactElement {
@@ -99,7 +53,7 @@ export function UnitCard(props: UnitCardProps): ReactElement {
           />
         </div>
         {props.costs !== undefined && <CostList costs={props.costs} />}
-        <RecruitAction label={props.actionLabel} state={props.state} isWaiting={props.isWaiting} />
+        <SubmitAction label={props.actionLabel} state={props.state} isWaiting={props.isWaiting} />
       </form>
     </Panel>
   )

@@ -1,23 +1,27 @@
 import type { ProvinceMap } from '@mygame/contracts'
-import { type FormEvent, type ReactElement, useState } from 'react'
+import { type FormEvent, type ReactElement, type ReactNode, useState } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { NumberField } from '../design-system/NumberField'
-import { type PlotHolder, PlotTile } from '../design-system/PlotTile'
+import { type PlotAction, type PlotHolder, PlotTile } from '../design-system/PlotTile'
 import { TextLink } from '../design-system/TextLink'
 import type { ProvinceMapState } from './useProvinceMap'
 
 export interface MapScreenProps {
   readonly state: ProvinceMapState
   readonly onBrowse: (province: number) => void
+  readonly plotActionOf: (map: ProvinceMap, plot: number) => PlotAction | undefined
+  readonly marchPanel: ReactNode
 }
+
+type ProvinceProps = { readonly map: ProvinceMap } & Omit<MapScreenProps, 'state'>
 
 type Plot = ProvinceMap['plots'][number]
 
-function holderOf({ fief }: Plot): PlotHolder {
+function holderOf({ fief }: Plot, action: PlotAction | undefined): PlotHolder {
   if (fief === null) {
-    return { kind: 'free', line: copy.map.free }
+    return { kind: 'free', line: copy.map.free, action }
   }
   return fief.isOwn
     ? { kind: 'own', name: fief.name, marker: copy.map.ownFief }
@@ -54,10 +58,7 @@ function JumpControl({
   )
 }
 
-function Province({
-  map,
-  onBrowse,
-}: { readonly map: ProvinceMap } & Pick<MapScreenProps, 'onBrowse'>): ReactElement {
+function Province({ map, onBrowse, plotActionOf, marchPanel }: ProvinceProps): ReactElement {
   const heading = copy.map.heading(map.kingdom, map.province)
   const terrainLabel = copy.names.terrains[map.terrain]
   return (
@@ -91,15 +92,16 @@ function Province({
             key={plot.plot}
             plotLabel={copy.map.plot(plot.plot)}
             terrainLabel={terrainLabel}
-            holder={holderOf(plot)}
+            holder={holderOf(plot, plotActionOf(map, plot.plot))}
           />
         ))}
       </ul>
+      {marchPanel}
     </div>
   )
 }
 
-function MapBody({ state, onBrowse }: MapScreenProps): ReactElement {
+function MapBody({ state, ...province }: MapScreenProps): ReactElement {
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.map.loading}</p>
@@ -113,7 +115,7 @@ function MapBody({ state, onBrowse }: MapScreenProps): ReactElement {
         <FormAlert message={copy.refusals[state.refusal]} />
       )
     case 'read':
-      return <Province map={state.map} onBrowse={onBrowse} />
+      return <Province map={state.map} {...province} />
     default: {
       const unreachable: never = state
       return unreachable

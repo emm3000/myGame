@@ -95,6 +95,12 @@ export const widths: Readonly<Record<Width, string>> = {
   numeral: '74px',
 }
 
+export type MaxWidth = 'form'
+
+export const maxWidths: Readonly<Record<MaxWidth, string>> = {
+  form: '640px',
+}
+
 export type Size = 'icon'
 
 export const sizes: Readonly<Record<Size, string>> = {
