@@ -66,8 +66,8 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 ## Time
 
 - **Instant** — a point in time from the `Clock` port; the domain never reads the wall clock.
-- **Duration** — a length of time in seconds; build times and marches are durations.
-- **Season** — one of spring, summer, autumn, winter, in force over the whole world at once for a fixed number of days set by the content's calendar, from its start, included, to the instant it ends, excluded. Each season scales every resource's rate by a whole percent from content, applied last (winter lowers food, spring raises it, autumn raises gold, summer changes nothing); there is no season before the calendar's epoch, and no season touches a build or study duration in this phase (ADR 016).
+- **Duration** — a length of time in seconds; build times, study times and marches are durations. A build or study duration is fixed once, at the enqueue or the study start, from the content's seconds and the percents in force at that instant, the season's for both and the built library's for a study, rounded up to whole seconds in one step; it never changes while the work waits or runs (ADR 011, ADR 012, ADR 017).
+- **Season** — one of spring, summer, autumn, winter, in force over the whole world at once for a fixed number of days set by the content's calendar, from its start, included, to the instant it ends, excluded. Each season scales every resource's rate by a whole percent from content, applied last (winter lowers food, spring raises it, autumn raises gold), and scales build and study durations by a build and a study percent from content, fixed at the enqueue or the study start (summer shortens building, winter shortens study); there is no season before the calendar's epoch (ADR 016, ADR 017).
 - **Year** — four seasons, counted from the first spring at the calendar's epoch: *año 1* is the first. There is no named calendar and no era (ADR 016).
 
 ## Avoided words

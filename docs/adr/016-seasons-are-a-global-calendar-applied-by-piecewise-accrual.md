@@ -195,3 +195,15 @@ tickets left with their defaults on the same day (the owner's comment on
   and study durations by season (S9), a chronicle event per season, a season
   on building cards or on the map, generated season images, a named calendar
   or era, a per-kingdom or per-fief season, a job that turns the season (W7).
+
+## Amendment (2026-09-29)
+
+The "Production rates only" line no longer holds. S9 (ADR 017) gives content
+a build and a study percent per season beside `multiplierPercent`, summer
+shortens building and winter shortens study, and every other cell is 100.
+A duration is fixed with the season in force at the enqueue or the study
+start, in one division and one `ceil`, and never retimed while the work
+waits or runs; the wire's `season` gains `durationPercent { build, study }`
+and stays `null` before the epoch. Summer is no longer the neutral season.
+Nothing else here changes: the rates still accrue piecewise, and no
+duration follows the season while the work runs.
