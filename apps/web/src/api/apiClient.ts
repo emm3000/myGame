@@ -18,6 +18,7 @@ import {
   PlayerSchema,
   type ProvinceMap,
   ProvinceMapSchema,
+  type RecallMarchRequest,
   type ResetPasswordRequest,
   type SignInRequest,
   type SignUpRequest,
@@ -45,6 +46,7 @@ export interface ApiClient {
   placeRecruitOrder(request: PlaceRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
   cancelRecruitOrder(target: CancelRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
   dispatchMarch(request: DispatchMarchRequest): Promise<ApiOutcome<FiefOverview>>
+  recallMarch(target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
@@ -157,6 +159,12 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     dispatchMarch: async ({ province, plot, infantry, stayHours }) => {
       const request: DispatchMarchRequest = { province, plot, infantry, stayHours }
       const response = await postJson('/fief/marches', request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    recallMarch: async ({ departedAt }) => {
+      const response = await send(`/fief/marches/${encodeURIComponent(departedAt)}/recall`, {
+        method: 'POST',
+      })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
     chronicle: async () => {

@@ -24,6 +24,7 @@ import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import type { Cancel } from './useCancel'
+import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
 import type { Study } from './useStudy'
 import type { Upgrade } from './useUpgrade'
@@ -34,6 +35,7 @@ export interface FiefScreenProps {
   readonly cancel: Cancel
   readonly study: Study
   readonly recruit: Recruit
+  readonly recall: Recall
 }
 
 const { names } = copy
@@ -156,6 +158,7 @@ export function FiefScreen({
   cancel,
   study,
   recruit,
+  recall,
 }: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
   const buildingsHeadingId = useId()
@@ -210,7 +213,9 @@ export function FiefScreen({
         </section>
       </div>
       {overview.buildings.library.level >= 1 && <LibrarySection fief={fief} study={study} />}
-      {overview.buildings.barracks.level >= 1 && <ArmySection fief={fief} recruit={recruit} />}
+      {overview.buildings.barracks.level >= 1 && (
+        <ArmySection fief={fief} recruit={recruit} recall={recall} />
+      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { act, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { ApiClient } from '../api/apiClient'
+import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
@@ -231,4 +231,159 @@ it('waits for the minute re-read when the march returns past the longest timeout
   await passSeconds(1)
 
   expect(fief).toHaveBeenCalledTimes(2)
+})
+
+const recallButton = (): HTMLElement | null =>
+  within(armySection()).queryByRole('button', { name: 'Retirar la marcha: 10 infantes' })
+
+it('offers the recall on the way out', async () => {
+  await showFief({})
+
+  expect(recallButton()).not.toBeNull()
+  expect(recallButton()?.textContent).toBe('Retirar la marcha')
+})
+
+it('offers the recall while foraging', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: answeredNow(twoHourForageDeparted(900)) }),
+  })
+
+  expect(phaseLine('Forrajeo: 10 infantes en provincia 2, parcela 5')).not.toBeNull()
+  expect(recallButton()).not.toBeNull()
+})
+
+it('offers no recall on the way back', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: answeredNow(twoHourForageDeparted(8100)) }),
+  })
+
+  expect(phaseLine('Marcha de vuelta: 10 infantes desde provincia 2, parcela 5')).not.toBeNull()
+  expect(recallButton()).toBeNull()
+})
+
+it('withdraws the recall when the stay ends between reads', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: answeredNow(marchLeavingInFortySeconds) }),
+  })
+  await passSeconds(39)
+  expect(recallButton()).not.toBeNull()
+
+  await passSeconds(1)
+
+  expect(recallButton()).toBeNull()
+})
+
+it('recalls the march named by its departure', async () => {
+  const recallMarch = vi.fn(async () => ({ ok: true as const, value: barracksBuilt }))
+  await showFief({ recallMarch })
+
+  fireEvent.click(recallButton() as HTMLElement)
+  await passSeconds(0)
+
+  expect(recallMarch).toHaveBeenCalledWith({ departedAt: instantAfterRead(-30) })
+})
+
+const recalledAtThePlot = (): FiefOverview => {
+  const foraging = twoHourForageDeparted(2640)
+  const now = new Date(Date.now()).toISOString()
+  return {
+    ...foraging,
+    march: {
+      ...(foraging.march as NonNullable<FiefOverview['march']>),
+      loot: { wood: 15, stone: 15, iron: 0, gold: 0, food: 0 },
+      leavesAt: now,
+      returnsAt: new Date(Date.now() + 840_000).toISOString(),
+      recalledAt: now,
+    },
+    readAt: now,
+  }
+}
+
+it('shows the march returning with its new countdown after the recall', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: answeredNow(twoHourForageDeparted(2640)) }),
+    recallMarch: async () => ({ ok: true, value: recalledAtThePlot() }),
+  })
+
+  fireEvent.click(recallButton() as HTMLElement)
+  await passSeconds(0)
+
+  expect(phaseLine('Marcha de vuelta: 10 infantes desde provincia 2, parcela 5')).not.toBeNull()
+  expect(within(returnCountdown()).getByText('14:00')).toBeDefined()
+  expect(phaseLine('Botín: 15 de madera y 15 de piedra')).not.toBeNull()
+  expect(recallButton()).toBeNull()
+})
+
+it('leaves the loot out after a recall on the road', async () => {
+  const now = new Date(Date.now()).toISOString()
+  const recalledOnTheRoad: FiefOverview = {
+    ...marchUnderway,
+    march: {
+      ...(marchUnderway.march as NonNullable<FiefOverview['march']>),
+      loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+      arrivesAt: now,
+      leavesAt: now,
+      returnsAt: instantAfterRead(30),
+      recalledAt: now,
+    },
+    readAt: now,
+  }
+  await showFief({ recallMarch: async () => ({ ok: true, value: recalledOnTheRoad }) })
+
+  fireEvent.click(recallButton() as HTMLElement)
+  await passSeconds(0)
+
+  expect(within(returnCountdown()).getByText('0:30')).toBeDefined()
+  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+})
+
+it('shows the refusal the api answered', async () => {
+  const alreadyReturning = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: false,
+    refusal: 'MarchAlreadyReturning',
+  })
+  await showFief({ recallMarch: alreadyReturning })
+
+  fireEvent.click(recallButton() as HTMLElement)
+  await passSeconds(0)
+
+  expect(within(armySection()).getByRole('alert').textContent).toBe(
+    'Esa marcha ya viene de vuelta. Espera a que llegue.',
+  )
+
+  cleanup()
+  const notFound = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: false,
+    refusal: 'MarchNotFound',
+  })
+  await showFief({ recallMarch: notFound })
+
+  fireEvent.click(recallButton() as HTMLElement)
+  await passSeconds(0)
+
+  expect(within(armySection()).getByRole('alert').textContent).toBe(
+    'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
+  )
+})
+
+it('sends one recall on a double click', async () => {
+  let answer: (outcome: ApiOutcome<FiefOverview>) => void = () => undefined
+  const recallMarch = vi.fn(
+    () =>
+      new Promise<ApiOutcome<FiefOverview>>((settle) => {
+        answer = settle
+      }),
+  )
+  await showFief({ recallMarch })
+
+  const button = recallButton() as HTMLElement
+  act(() => {
+    button.click()
+    button.click()
+  })
+  expect(recallButton()?.hasAttribute('disabled')).toBe(true)
+  answer({ ok: true, value: barracksBuilt })
+  await passSeconds(0)
+
+  expect(recallMarch).toHaveBeenCalledTimes(1)
 })

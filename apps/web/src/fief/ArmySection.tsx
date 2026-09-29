@@ -1,9 +1,11 @@
 import { type UnitKind, UnitKindSchema } from '@mygame/contracts'
 import { type ReactElement, useId, useState } from 'react'
 import { copy } from '../copy'
+import type { CancelAction } from '../design-system/CancelAction'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { MarchSlot, type MarchSlotState } from '../design-system/MarchSlot'
+import type { PreviewLine } from '../design-system/PreviewLines'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
 import { quantitiesOf } from '../resources/quantitiesOf'
@@ -11,6 +13,7 @@ import type { LiveFief, LiveRecruitOrder } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import { recruitCountOf, unitCardOf } from './unitCardOf'
+import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
 
 const { army, march } = copy
@@ -52,7 +55,26 @@ function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState 
   }
 }
 
-function marchSlotStateOf(fief: LiveFief): MarchSlotState {
+function lootOf(answered: NonNullable<LiveFief['overview']['march']>): PreviewLine | null {
+  const loot = quantitiesOf(answered.loot)
+  return loot.length === 0
+    ? null
+    : { heading: march.lootHeading, value: march.loot(loot), isNumeral: false }
+}
+
+function recallOf(
+  answered: NonNullable<LiveFief['overview']['march']>,
+  recall: Recall,
+): CancelAction {
+  return {
+    label: march.recall,
+    accessibleName: march.recallOf(answered.infantry),
+    isWaiting: recall.isWaiting,
+    onCancel: () => recall.start({ departedAt: answered.departedAt }),
+  }
+}
+
+function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   const live = fief.march
   const answered = fief.overview.march
   if (live === null || answered === null) {
@@ -67,14 +89,11 @@ function marchSlotStateOf(fief: LiveFief): MarchSlotState {
       isNumeral: false,
     },
     countdown: { words: march.returnHeading, remainingSeconds: live.remainingSeconds },
-    loot: {
-      heading: march.lootHeading,
-      value: march.loot(quantitiesOf(answered.loot)),
-      isNumeral: false,
-    },
+    loot: lootOf(answered),
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,
     marks: [live.arrivalSeconds, live.leavingSeconds],
+    recall: live.phase === 'returning' ? null : recallOf(answered, recall),
   }
 }
 
@@ -111,9 +130,11 @@ function UnitItem({
 export function ArmySection({
   fief,
   recruit,
+  recall,
 }: {
   readonly fief: LiveFief
   readonly recruit: Recruit
+  readonly recall: Recall
 }): ReactElement {
   const headingId = useId()
   return (
@@ -126,7 +147,7 @@ export function ArmySection({
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-3">
           <RecruitSlot state={recruitSlotStateOf(fief, recruit)} />
-          <MarchSlot state={marchSlotStateOf(fief)} />
+          <MarchSlot state={marchSlotStateOf(fief, recall)} />
         </div>
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
           {UnitKindSchema.options.map((unit) => (
@@ -135,6 +156,7 @@ export function ArmySection({
         </ul>
       </div>
       {recruit.refusal !== undefined && <FormAlert message={copy.refusals[recruit.refusal]} />}
+      {recall.refusal !== undefined && <FormAlert message={copy.refusals[recall.refusal]} />}
     </section>
   )
 }

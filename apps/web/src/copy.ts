@@ -328,6 +328,9 @@ export const copy = {
     roadHeading: 'Camino de ida:',
     returnHeading: 'Vuelta en',
     lootHeading: 'Botín:',
+    recall: 'Retirar la marcha',
+    recallOf: (infantry: number): string =>
+      `Retirar la marcha: ${countedUnits('infantry', infantry)}`,
     loot: (loot: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(loot),
     slot: 'la marcha',
     busySlot: 'una marcha en curso',
