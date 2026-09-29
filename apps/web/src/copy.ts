@@ -369,14 +369,24 @@ export const copy = {
       recruitsDelivered: 'Leva terminada:',
       recruitsCancelled: 'Leva cancelada:',
       marchReturned: 'Marcha terminada:',
+      battleFought: 'Batalla ganada:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
     marchRecalled: 'Marcha retirada:',
+    battleLost: 'Batalla perdida:',
     subject: (label: string, level: number): string => `${label}, ${names.level(level)}.`,
     recruits: (unit: UnitKind, count: number): string => `${countedUnits(unit, count)}.`,
     recruitsCancelled: (unit: UnitKind, delivered: number, cancelled: number): string =>
       `${countedUnits(unit, delivered)} en filas, ${countedUnits(unit, cancelled)} de vuelta al campo.`,
     march: (province: number, plot: number, infantry: number): string =>
       `provincia ${province}, parcela ${plot}, ${countedUnits('infantry', infantry)}.`,
+    battle: (
+      province: number,
+      plot: number,
+      tier: number,
+      infantryLost: number,
+      campLost: number,
+    ): string =>
+      `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. Pierdes ${countedUnits('infantry', infantryLost)} y los bandidos pierden ${campLost} de fuerza.`,
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,

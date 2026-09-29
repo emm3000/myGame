@@ -336,6 +336,69 @@ it('shows an unrecalled march as before', async () => {
   expect(row?.textContent).not.toContain('Marcha retirada')
 })
 
+it('shows a won battle with the losses on each side', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        infantryLost: 3,
+        campLost: 6,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Batalla ganada: provincia 2, parcela 7, campamento de nivel 1. Pierdes 3 infantes y los bandidos pierden 6 de fuerza.',
+  )
+  expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+})
+
+it('shows a lost battle', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 2,
+        won: false,
+        infantryLost: 12,
+        campLost: 10,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Batalla perdida: provincia 2, parcela 7, campamento de nivel 2. Pierdes 12 infantes y los bandidos pierden 10 de fuerza.',
+  )
+  expect(row?.textContent).not.toContain('Batalla ganada')
+})
+
+it('agrees the unit label with one infantry lost', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 3,
+        won: true,
+        infantryLost: 1,
+        campLost: 40,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Pierdes 1 infante y los bandidos pierden 40 de fuerza.')
+})
+
 it('shows each event at the instant it happened', async () => {
   const occurredAt = new Date(2025, 8, 12, 9, 15).toISOString()
   const [row] = await showChronicle({
