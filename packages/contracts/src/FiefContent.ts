@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
 import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
@@ -8,11 +9,6 @@ import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
 const TerrainBonusSchema = z.object({
   resource: ResourceKindSchema,
   ratePerHour: QuantitySchema,
-})
-
-const SeasonDurationPercentSchema = z.strictObject({
-  build: WholeCountSchema.positive(),
-  study: WholeCountSchema.positive(),
 })
 
 const SeasonCalendarSchema = z.strictObject({

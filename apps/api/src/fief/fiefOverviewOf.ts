@@ -135,6 +135,7 @@ const seasonOf = (fief: Fief, catalog: BuildingCatalog): FiefOverview['season'] 
     year: season.year,
     endsAt: isoOf(season.endsAt),
     multiplierPercent: { ...settings.seasons.multiplierPercent[season.kind] },
+    durationPercent: { ...durationPercentAt(fief.storedAt, settings) },
   }
 }
 
