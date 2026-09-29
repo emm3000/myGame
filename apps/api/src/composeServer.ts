@@ -3,6 +3,7 @@ import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
+import { DrizzleCampRegistry } from './adapters/postgres/DrizzleCampRegistry'
 import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
 import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
@@ -17,6 +18,7 @@ import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
 import type { ChronicleReader } from './fief/ChronicleReader'
 import type { FiefReader } from './fief/FiefReader'
+import type { CampReader } from './kingdom/CampReader'
 
 const highestPort = 65535
 
@@ -71,6 +73,7 @@ export type ComposedServer = MailSettings & {
   readonly fiefs: FiefReader
   readonly chronicle: ChronicleReader
   readonly map: KingdomMapReader
+  readonly camps: CampReader
   readonly accounts: Accounts
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
@@ -107,6 +110,7 @@ export function composeServer(
     fiefs: new DrizzleFiefRepository(database, 'lockFree'),
     chronicle: new DrizzleChronicle(database),
     map: new DrizzleKingdomMapReader(database),
+    camps: new DrizzleCampRegistry(database),
     isSessionCookieSecure,
     ...mail,
   }

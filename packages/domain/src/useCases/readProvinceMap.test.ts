@@ -1,11 +1,15 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { CampBattle } from '../camp/CampBattle'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
+import type { Clock } from '../ports/Clock'
+import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
 import { type HeldPlot, inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
 import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
-import { readProvinceMap } from './readProvinceMap'
+import { Instant } from '../time/Instant'
+import { type ReadProvinceMapDependencies, readProvinceMap } from './readProvinceMap'
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
@@ -69,9 +73,27 @@ const kingdomMap = inMemoryKingdomMap([
   deepForeignFief,
 ])
 
+const readInstant = Instant.fromEpochMilliseconds(86_400_000)
+
+const hoursBeforeRead = (hours: number): Instant =>
+  Instant.fromEpochMilliseconds(readInstant.epochMilliseconds - hours * 3_600_000)
+
+const frozenClock = (instant: Instant): Clock => ({ now: () => instant })
+
+const dependenciesOf = (battles: ReadonlyArray<CampBattle> = []): ReadProvinceMapDependencies => ({
+  map: kingdomMap,
+  catalog,
+  camps: inMemoryCampRegistry(battles),
+  clock: frozenClock(readInstant),
+})
+
+const tierTwoCampPlot = { kingdom: 1, province: 3, plot: 1 }
+
+const plotTheHashPassesOver = { kingdom: 1, province: 3, plot: 2 }
+
 describe('readProvinceMap', () => {
   it('opens the province of the viewer fief when none is named', async () => {
-    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.kingdom).toBe(1)
@@ -79,14 +101,14 @@ describe('readProvinceMap', () => {
   })
 
   it('lists every plot of the province in order', async () => {
-    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.plots.map(({ plot }) => plot)).toEqual([1, 2, 3, 4])
   })
 
   it('marks the fief of the viewer and no other', async () => {
-    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.plots[2]?.fief).toEqual({ name: 'Vado Viejo', isOwn: true })
@@ -94,7 +116,7 @@ describe('readProvinceMap', () => {
   })
 
   it('leaves a plot no fief holds free', async () => {
-    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.plots[1]?.fief).toBeUndefined()
@@ -102,11 +124,8 @@ describe('readProvinceMap', () => {
   })
 
   it('gives every plot the terrain of its province', async () => {
-    const uplands = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
-    const ridges = await readProvinceMap(
-      { playerId: 'viewer', province: 3 },
-      { map: kingdomMap, catalog },
-    )
+    const uplands = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
+    const ridges = await readProvinceMap({ playerId: 'viewer', province: 3 }, dependenciesOf())
 
     assert(uplands.ok)
     assert(ridges.ok)
@@ -115,27 +134,21 @@ describe('readProvinceMap', () => {
   })
 
   it('bounds the map one province past the last one holding a fief', async () => {
-    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.lastProvince).toBe(6)
   })
 
   it('opens the province at the bound, which no fief holds yet', async () => {
-    const read = await readProvinceMap(
-      { playerId: 'viewer', province: 6 },
-      { map: kingdomMap, catalog },
-    )
+    const read = await readProvinceMap({ playerId: 'viewer', province: 6 }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.plots.every(({ fief }) => fief === undefined)).toBe(true)
   })
 
   it('refuses a province beyond the bound', async () => {
-    const read = await readProvinceMap(
-      { playerId: 'viewer', province: 7 },
-      { map: kingdomMap, catalog },
-    )
+    const read = await readProvinceMap({ playerId: 'viewer', province: 7 }, dependenciesOf())
 
     expect(read).toEqual({
       ok: false,
@@ -144,10 +157,7 @@ describe('readProvinceMap', () => {
   })
 
   it('refuses a province below one', async () => {
-    const read = await readProvinceMap(
-      { playerId: 'viewer', province: 0 },
-      { map: kingdomMap, catalog },
-    )
+    const read = await readProvinceMap({ playerId: 'viewer', province: 0 }, dependenciesOf())
 
     expect(read).toEqual({
       ok: false,
@@ -156,10 +166,7 @@ describe('readProvinceMap', () => {
   })
 
   it('refuses a province that is not a whole number', async () => {
-    const read = await readProvinceMap(
-      { playerId: 'viewer', province: 2.5 },
-      { map: kingdomMap, catalog },
-    )
+    const read = await readProvinceMap({ playerId: 'viewer', province: 2.5 }, dependenciesOf())
 
     expect(read).toEqual({
       ok: false,
@@ -168,13 +175,13 @@ describe('readProvinceMap', () => {
   })
 
   it('refuses a viewer without a fief', async () => {
-    const read = await readProvinceMap({ playerId: 'landless' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'landless' }, dependenciesOf())
 
     expect(read).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
   })
 
   it('bounds and lists only the kingdom of the viewer', async () => {
-    const read = await readProvinceMap({ playerId: 'viewer' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.kingdom).toBe(1)
@@ -183,7 +190,7 @@ describe('readProvinceMap', () => {
   })
 
   it('opens the kingdom of a viewer outside the first one', async () => {
-    const read = await readProvinceMap({ playerId: 'foreigner' }, { map: kingdomMap, catalog })
+    const read = await readProvinceMap({ playerId: 'foreigner' }, dependenciesOf())
 
     assert(read.ok)
     expect(read.value.kingdom).toBe(2)
@@ -194,5 +201,38 @@ describe('readProvinceMap', () => {
       undefined,
       undefined,
     ])
+  })
+
+  it('answers a camp at its max on a plot never fought', async () => {
+    const read = await readProvinceMap({ playerId: 'viewer', province: 3 }, dependenciesOf())
+
+    assert(read.ok)
+    expect(read.value.plots[tierTwoCampPlot.plot - 1]?.camp).toEqual({ tier: 2, strength: 15 })
+  })
+
+  it('answers a beaten camp regrown by the read', async () => {
+    const beatenFourHoursAgo = { ...tierTwoCampPlot, strength: 0, foughtAt: hoursBeforeRead(4) }
+
+    const read = await readProvinceMap(
+      { playerId: 'viewer', province: 3 },
+      dependenciesOf([beatenFourHoursAgo]),
+    )
+
+    assert(read.ok)
+    expect(read.value.plots[tierTwoCampPlot.plot - 1]?.camp).toEqual({ tier: 2, strength: 5 })
+  })
+
+  it('answers no camp on a held plot', async () => {
+    const read = await readProvinceMap({ playerId: 'viewer' }, dependenciesOf())
+
+    assert(read.ok)
+    expect(read.value.plots[neighbourFief.address.plot - 1]?.camp).toBeUndefined()
+  })
+
+  it('answers no camp on a plot the hash passes over', async () => {
+    const read = await readProvinceMap({ playerId: 'viewer', province: 3 }, dependenciesOf())
+
+    assert(read.ok)
+    expect(read.value.plots[plotTheHashPassesOver.plot - 1]?.camp).toBeUndefined()
   })
 })

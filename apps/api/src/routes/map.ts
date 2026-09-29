@@ -1,6 +1,7 @@
 import { type ProvinceMap, ProvinceMapRequestSchema } from '@mygame/contracts'
 import {
   type BuildingCatalog,
+  type Clock,
   type KingdomMapReader,
   type ReadProvinceMapCommand,
   readProvinceMap,
@@ -8,11 +9,14 @@ import {
 import { type Context, Hono } from 'hono'
 import { answerRefusal } from '../http/answerRefusal'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import type { CampReader } from '../kingdom/CampReader'
 import { provinceMapOf } from '../kingdom/provinceMapOf'
 
 export type MapDependencies = RequirePlayerDependencies & {
   readonly map: KingdomMapReader
   readonly buildingCatalog: BuildingCatalog
+  readonly camps: CampReader
+  readonly clock: Clock
 }
 
 export const mapRoutes = (dependencies: MapDependencies): Hono => {
@@ -20,6 +24,8 @@ export const mapRoutes = (dependencies: MapDependencies): Hono => {
     const map = await readProvinceMap(command, {
       map: dependencies.map,
       catalog: dependencies.buildingCatalog,
+      camps: dependencies.camps,
+      clock: dependencies.clock,
     })
     if (!map.ok) {
       return answerRefusal(c, map.error)
