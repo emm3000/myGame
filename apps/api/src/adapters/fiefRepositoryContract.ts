@@ -6,8 +6,10 @@ import {
   FiefName,
   type FiefRepository,
   Instant,
+  type OpenRecruitOrder,
   ok,
   type PlayerId,
+  type RecruitOrder,
   type Result,
   type StudySlot,
 } from '@mygame/domain'
@@ -62,6 +64,17 @@ const masonryStudy: StudySlot = {
   cost: { wood: 80, stone: 120, iron: 0, gold: 35, food: 0 },
 }
 
+const trainedInfantry = 12
+
+const infantryOrder: OpenRecruitOrder = {
+  kind: 'open',
+  unit: 'infantry',
+  count: 4,
+  cost: { wood: 80, stone: 0, iron: 40, gold: 0, food: 120 },
+  perUnitSeconds: 300,
+  startedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:50:00Z')),
+}
+
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const stranger = '00000000-0000-4000-8000-0000000000ff'
@@ -78,7 +91,7 @@ const newFief = (id: string, playerId: PlayerId, plot: number): Fief =>
 
 const anasFief = newFief('00000000-0000-4000-8000-00000000000a', ana, 7)
 
-const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
+const developedFiefWith = (buildQueue: BuildQueue, recruitOrder: RecruitOrder): Fief =>
   accepted(
     Fief.restore({
       id: '00000000-0000-4000-8000-00000000000b',
@@ -97,7 +110,7 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
         barracks: 1,
       },
       artLevels: studiedArts,
-      units: { infantry: 0 },
+      units: { infantry: trainedInfantry },
       slot: {
         kind: 'busy',
         building: 'ironMine',
@@ -108,11 +121,11 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
       },
       buildQueue,
       studySlot: masonryStudy,
-      recruitOrder: { kind: 'idle' },
+      recruitOrder,
     }),
   )
 
-const developedFief = developedFiefWaiting(waitingEntries)
+const developedFief = developedFiefWith(waitingEntries, infantryOrder)
 
 const upgradedFief = (fief: Fief): Fief =>
   accepted(
@@ -219,6 +232,47 @@ export const fiefRepositoryContract = (
       expect(restored.ok && restored.value?.studySlot).toEqual(masonryStudy)
     })
 
+    it('restores the unit counts', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.units.countOf('infantry')).toBe(trainedInfantry)
+    })
+
+    it('restores every unit of a founded fief at zero', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+
+      await fiefs.save(anasFief)
+
+      const restored = await fiefs.fiefOf(ana)
+      expect(restored.ok && restored.value?.units.countOf('infantry')).toBe(0)
+    })
+
+    it('restores an open recruit order with its cost', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.recruitOrder).toEqual(infantryOrder)
+    })
+
+    it('restores an idle recruit slot after the order closes', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(developedFief)
+
+      await fiefs.save(developedFiefWith(waitingEntries, { kind: 'idle' }))
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.recruitOrder).toEqual({ kind: 'idle' })
+    })
+
     it('restores every art of a founded fief at level zero', async () => {
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([ana])
@@ -233,7 +287,7 @@ export const fiefRepositoryContract = (
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([bruno])
       await fiefs.save(developedFief)
-      const shortened = developedFiefWaiting(waitingEntries.slice(0, 1))
+      const shortened = developedFiefWith(waitingEntries.slice(0, 1), infantryOrder)
 
       await fiefs.save(shortened)
 

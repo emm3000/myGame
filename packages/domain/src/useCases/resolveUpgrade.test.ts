@@ -1190,10 +1190,69 @@ describe('resolveUpgrade with a recruit order', () => {
 
     assert(result.ok)
     expect(result.value.hasChanged).toBe(true)
-    expect(result.value.events).toEqual([])
     const stored = fiefs.storedFiefOf('lord')
     expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
     expect(stored?.units.countOf('infantry')).toBe(5)
+  })
+
+  it('records the units an order delivered when it closes', async () => {
+    const recruitingFief = storedFief({ recruitOrder: fiveInfantryAtSixtySeconds })
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([recruitingFief]),
+        chronicle,
+        catalog,
+        clock: frozenClock(secondsAfterStored(300)),
+      },
+    )
+
+    assert(result.ok)
+    const delivered = { kind: 'recruitsDelivered', unit: 'infantry', count: 5 }
+    expect(result.value.events).toMatchObject([delivered])
+    expect(chronicle.recordedEventsOf('fief-1')).toMatchObject([delivered])
+  })
+
+  it('stamps the delivery event with the last delivery instant', async () => {
+    const recruitingFief = storedFief({ recruitOrder: fiveInfantryAtSixtySeconds })
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([recruitingFief]),
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.events.map(({ occurredAt }) => occurredAt)).toEqual([
+      secondsAfterStored(300),
+    ])
+  })
+
+  it('records no delivery event while the order delivers', async () => {
+    const buildingAndRecruitingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      recruitOrder: orderEndingAfterHours(2),
+    })
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([buildingAndRecruitingFief]),
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(secondsAfterStored(5_400)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.recruitOrder).toEqual(orderEndingAfterHours(2))
+    expect(result.value.events.map(({ kind }) => kind)).toEqual(['upgradeFinished'])
   })
 
   it('closes an order that ends before an upgrade finishes', async () => {
@@ -1246,7 +1305,11 @@ describe('resolveUpgrade with a recruit order', () => {
       stocks: { wood: 150, stone: 120, iron: 145, gold: 104, food: 120 },
     })
     expect(result.value.fief.units.countOf('infantry')).toBe(5)
-    expect(result.value.events.map(({ kind }) => kind)).toEqual(['upgradeFinished', 'artLearned'])
+    expect(result.value.events.map(({ kind }) => kind)).toEqual([
+      'upgradeFinished',
+      'artLearned',
+      'recruitsDelivered',
+    ])
   })
 
   it('leaves an order still delivering untouched', async () => {

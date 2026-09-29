@@ -1,9 +1,11 @@
-import type { ArtKind, BuildingKind } from '@mygame/domain'
-import type { art, building } from './schema'
+import type { ArtKind, BuildingKind, UnitKind } from '@mygame/domain'
+import type { art, building, unit } from './schema'
 
 export type StoredBuilding = (typeof building.enumValues)[number]
 
 export type StoredArt = (typeof art.enumValues)[number]
+
+export type StoredUnit = (typeof unit.enumValues)[number]
 
 export const storedArts: Readonly<Record<ArtKind, StoredArt>> = {
   smithing: 'smithing',
@@ -33,4 +35,12 @@ export const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
   warehouse: 'warehouse',
   library: 'library',
   barracks: 'barracks',
+}
+
+export const storedUnits: Readonly<Record<UnitKind, StoredUnit>> = {
+  infantry: 'infantry',
+}
+
+export const unitKinds: Readonly<Record<StoredUnit, UnitKind>> = {
+  infantry: 'infantry',
 }

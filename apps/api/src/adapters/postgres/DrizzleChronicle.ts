@@ -12,7 +12,14 @@ import { and, desc, eq, notInArray } from 'drizzle-orm'
 import { type ChronicleReader, keptEventsPerFief } from '../../fief/ChronicleReader'
 import type { PostgresSession } from './connectPostgres'
 import { fiefEvents } from './schema'
-import { artKinds, buildingKinds, storedArts, storedBuildings } from './storedKinds'
+import {
+  artKinds,
+  buildingKinds,
+  storedArts,
+  storedBuildings,
+  storedUnits,
+  unitKinds,
+} from './storedKinds'
 
 type EventRow = typeof fiefEvents.$inferSelect
 
@@ -37,17 +44,14 @@ const refundOf = (row: EventRow): Stocks => ({
 })
 
 const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
-  const common = {
-    fiefId,
-    level: event.level,
-    occurredAt: new Date(event.occurredAt.epochMilliseconds),
-  }
+  const common = { fiefId, occurredAt: new Date(event.occurredAt.epochMilliseconds) }
   switch (event.kind) {
     case 'upgradeFinished':
       return {
         ...common,
         kind: 'upgrade_finished',
         building: storedBuildings[event.building],
+        level: event.level,
         ...refundColumnsOf(noRefund),
       }
     case 'artLearned':
@@ -55,6 +59,7 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         ...common,
         kind: 'art_learned',
         art: storedArts[event.art],
+        level: event.level,
         ...refundColumnsOf(noRefund),
       }
     case 'upgradeCancelled':
@@ -62,6 +67,7 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         ...common,
         kind: 'upgrade_cancelled',
         building: storedBuildings[event.building],
+        level: event.level,
         ...refundColumnsOf(event.refund),
       }
     case 'studyCancelled':
@@ -69,7 +75,16 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         ...common,
         kind: 'study_cancelled',
         art: storedArts[event.art],
+        level: event.level,
         ...refundColumnsOf(event.refund),
+      }
+    case 'recruitsDelivered':
+      return {
+        ...common,
+        kind: 'recruits_delivered',
+        unit: storedUnits[event.unit],
+        count: event.count,
+        ...refundColumnsOf(noRefund),
       }
     default: {
       const unreachable: never = event
@@ -92,18 +107,44 @@ const artOf = (row: EventRow) => {
   return artKinds[row.art]
 }
 
+const levelOf = (row: EventRow): number => {
+  if (row.level === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no level`)
+  }
+  return row.level
+}
+
+const unitOf = (row: EventRow) => {
+  if (row.unit === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no unit`)
+  }
+  return unitKinds[row.unit]
+}
+
+const countOf = (row: EventRow): number => {
+  if (row.count === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no count`)
+  }
+  return row.count
+}
+
 const eventOf = (row: EventRow): FiefEvent => {
   const occurredAt = Instant.fromEpochMilliseconds(row.occurredAt.getTime())
   switch (row.kind) {
     case 'upgrade_finished':
-      return { kind: 'upgradeFinished', building: buildingOf(row), level: row.level, occurredAt }
+      return {
+        kind: 'upgradeFinished',
+        building: buildingOf(row),
+        level: levelOf(row),
+        occurredAt,
+      }
     case 'art_learned':
-      return { kind: 'artLearned', art: artOf(row), level: row.level, occurredAt }
+      return { kind: 'artLearned', art: artOf(row), level: levelOf(row), occurredAt }
     case 'upgrade_cancelled':
       return {
         kind: 'upgradeCancelled',
         building: buildingOf(row),
-        level: row.level,
+        level: levelOf(row),
         occurredAt,
         refund: refundOf(row),
       }
@@ -111,10 +152,12 @@ const eventOf = (row: EventRow): FiefEvent => {
       return {
         kind: 'studyCancelled',
         art: artOf(row),
-        level: row.level,
+        level: levelOf(row),
         occurredAt,
         refund: refundOf(row),
       }
+    case 'recruits_delivered':
+      return { kind: 'recruitsDelivered', unit: unitOf(row), count: countOf(row), occurredAt }
     default: {
       const unreachable: never = row.kind
       return unreachable

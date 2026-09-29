@@ -14,7 +14,9 @@ import {
   fiefBuildings,
   fiefEvents,
   fiefQueueEntries,
+  fiefRecruitOrders,
   fiefs,
+  fiefUnits,
   players,
   sessions,
 } from './schema'
@@ -52,6 +54,21 @@ function aFief(id: string, playerId: string): typeof fiefs.$inferInsert {
     gold: 0,
     food: 200,
     storedAt: new Date('2026-09-22T08:00:00Z'),
+  }
+}
+
+function infantryOrderOf(fiefId: string): typeof fiefRecruitOrders.$inferInsert {
+  return {
+    fiefId,
+    kind: 'infantry',
+    count: 5,
+    costWood: 100,
+    costStone: 0,
+    costIron: 50,
+    costGold: 0,
+    costFood: 150,
+    perUnitSeconds: 90,
+    startedAt: new Date('2026-09-22T08:00:00Z'),
   }
 }
 
@@ -110,6 +127,8 @@ describe('the migrations', () => {
       'fief_buildings',
       'fief_events',
       'fief_queue_entries',
+      'fief_recruit_orders',
+      'fief_units',
       'fiefs',
       'players',
       'sessions',
@@ -247,6 +266,132 @@ describe('the migrations', () => {
     expect(await db.select().from(fiefArts)).toEqual([])
   })
 
+  it('refuses an event that names a building and a unit', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'recruits_delivered',
+        building: 'barracks',
+        unit: 'infantry',
+        count: 5,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
+  it('refuses a unit event that carries a level', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'recruits_delivered',
+        unit: 'infantry',
+        level: 1,
+        count: 5,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
+  it('refuses a building event that carries a count', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        building: 'sawmill',
+        level: 1,
+        count: 5,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
+  it('refuses a second row for one unit of one fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefUnits).values({ fiefId: anasFief.id, kind: 'infantry', count: 3 })
+
+    await expect(
+      db.insert(fiefUnits).values({ fiefId: anasFief.id, kind: 'infantry', count: 4 }),
+    ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'fief_units_pkey' } })
+  })
+
+  it('refuses a negative unit count', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefUnits).values({ fiefId: anasFief.id, kind: 'infantry', count: -1 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_units_count_whole' },
+    })
+  })
+
+  it('refuses a second recruit order for one fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefRecruitOrders).values(infantryOrderOf(anasFief.id))
+
+    await expect(
+      db.insert(fiefRecruitOrders).values({ ...infantryOrderOf(anasFief.id), count: 2 }),
+    ).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'fief_recruit_orders_pkey' },
+    })
+  })
+
+  it('refuses a recruit order of no unit', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefRecruitOrders).values({ ...infantryOrderOf(anasFief.id), count: 0 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_recruit_orders_count_positive' },
+    })
+  })
+
+  it('refuses a recruit order that delivers in no time', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefRecruitOrders).values({ ...infantryOrderOf(anasFief.id), perUnitSeconds: 0 }),
+    ).rejects.toMatchObject({
+      cause: {
+        code: checkViolation,
+        constraint: 'fief_recruit_orders_per_unit_seconds_positive',
+      },
+    })
+  })
+
+  it('drops the units and the recruit order of a deleted fief', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefUnits).values({ fiefId: anasFief.id, kind: 'infantry', count: 3 })
+    await db.insert(fiefRecruitOrders).values(infantryOrderOf(anasFief.id))
+
+    await db.delete(fiefs)
+
+    expect({
+      units: await db.select().from(fiefUnits),
+      orders: await db.select().from(fiefRecruitOrders),
+    }).toEqual({ units: [], orders: [] })
+  })
+
   it('refuses an event that names both a building and an art', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -261,7 +406,7 @@ describe('the migrations', () => {
         occurredAt: new Date('2026-09-22T09:00:00Z'),
       }),
     ).rejects.toMatchObject({
-      cause: { code: checkViolation, constraint: 'fief_events_building_or_art' },
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
     })
   })
 
@@ -277,7 +422,7 @@ describe('the migrations', () => {
         occurredAt: new Date('2026-09-22T09:00:00Z'),
       }),
     ).rejects.toMatchObject({
-      cause: { code: checkViolation, constraint: 'fief_events_building_or_art' },
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
     })
   })
 
@@ -681,5 +826,62 @@ describe('the barracks building migration', () => {
       library: 1,
       barracks: 0,
     })
+  })
+})
+
+describe('the units and recruit orders migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the chronicle rows stored before the migration', async () => {
+    await migratedFrom(client, 12, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_events (fief_id, kind, building, art, level, refund_wood, refund_stone, occurred_at)
+         VALUES ($1, 'upgrade_finished', 'sawmill', NULL, 2, 0, 0, '2026-09-22T09:00:00Z'),
+                ($1, 'study_cancelled', NULL, 'masonry', 1, 80, 120, '2026-09-22T09:30:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
+      {
+        kind: 'studyCancelled',
+        art: 'masonry',
+        level: 1,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:30:00Z')),
+        refund: { wood: 80, stone: 120, iron: 0, gold: 0, food: 0 },
+      },
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
+      },
+    ])
+  })
+
+  it('reads no unit and an idle recruit slot on a fief stored by the previous version', async () => {
+    await migratedFrom(client, 12, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(
+      restored.ok && {
+        infantry: restored.value?.units.countOf('infantry'),
+        recruitOrder: restored.value?.recruitOrder,
+      },
+    ).toEqual({ infantry: 0, recruitOrder: { kind: 'idle' } })
   })
 })
