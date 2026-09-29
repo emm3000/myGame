@@ -36,8 +36,8 @@ mockup of #213 draws it.
   or fractional count. One kind in this slice, `infantry`; archers, cavalry
   and rams are content of a later slice. Content gives each kind, in the
   `units` record of `apps/api/content/fief.json` parsed by
-  `FiefContentSchema` and handed to the domain in `FiefSettings` (ADR 008),
-  a `cost` in the five resources, a `durationSeconds` and a
+  `FiefContentSchema` and handed to the domain in `FiefSettings` (ADR 008,
+  N5), a `cost` in the five resources, a `durationSeconds` and a
   `peasantOccupancy`, the last two whole counts from 1; a missing kind, a
   missing field or a 0 fails the api at start-up. The shipped infantry costs
   20 wood, 10 iron and 30 food, trains in 90 seconds and occupies 1 peasant.
@@ -86,7 +86,7 @@ mockup of #213 draws it.
   drive the projected trio negative (a waiting upgrade's increase), one
   bounded by the projected free alone can drive the built trio negative (a
   queued farm's supply), and `derivePeasantCounts` answers
-  `NegativeFreePeasants` for either. The owner confirmed the lesser on
+  `NegativeFreePeasants` for either (M7). The owner confirmed the lesser on
   2026-09-29.
 - **The order's occupancy is charged when it is placed and moves into the
   units at the close, with no change to the occupied total.**
@@ -133,7 +133,7 @@ mockup of #213 draws it.
   no level and no refund. The resolve answers it beside the events of the
   same walk, after the upgrade and the study of a tied instant, and the api
   writes it in the transaction that closes the order.
-- **Persistence: two tables and three event columns, one migration**
+- **Persistence: two tables and two event columns, one migration**
   (0012, ADR 006). Enum `unit` (`infantry`). `fief_units`, one row per fief
   and kind with a `count` from 0, keyed by `(fief_id, kind)`; a kind without
   a row counts 0, and `save` writes only the counts above 0.
