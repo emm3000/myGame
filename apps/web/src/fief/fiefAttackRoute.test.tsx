@@ -195,3 +195,23 @@ it('shows a forage march as before', async () => {
   expect(line('Forrajeo: 12 infantes en provincia 2, parcela 7')).not.toBeNull()
   expect(fief).toHaveBeenCalledTimes(1)
 })
+
+it('shows a recalled attack as a march on its way back', async () => {
+  const recalledAt = instantAfterRead(-60)
+  const recalledOnTheRoad: FiefOverview = {
+    ...barracksBuilt,
+    march: {
+      ...attackDeparted(300),
+      loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+      arrivesAt: recalledAt,
+      leavesAt: recalledAt,
+      returnsAt: instantAfterRead(180),
+      recalledAt,
+    },
+  }
+  await showFief(answering(recalledOnTheRoad))
+
+  expect(line('Marcha de vuelta: 12 infantes desde provincia 2, parcela 7')).not.toBeNull()
+  expect(within(armySection()).queryByText(/Vuelta del ataque/)).toBeNull()
+  expect(within(armySection()).queryByText(/Campamento/)).toBeNull()
+})

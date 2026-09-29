@@ -129,7 +129,7 @@ export function marchRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: 
 
 export function battleRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
   const march = overview.march
-  return march === null || march.order !== 'attack' || march.fought
+  return march === null || march.order !== 'attack'
     ? 0
     : remainingSecondsAt(march.arrivesAt, overview, elapsedSeconds)
 }
