@@ -1,4 +1,5 @@
 import {
+  CancelRecruitOrderRequestSchema,
   CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
   EnqueueBuildingRequestSchema,
@@ -10,6 +11,10 @@ import {
 import type { DomainError, Fief, Result } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
 import type { ChronicleReader } from '../fief/ChronicleReader'
+import {
+  type CancelRecruitOrderDependencies,
+  cancelRecruitOrderOf,
+} from '../fief/cancelRecruitOrderOf'
 import { type CancelStudyDependencies, cancelStudyOf } from '../fief/cancelStudyOf'
 import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
@@ -31,6 +36,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   EnqueueUpgradeDependencies &
   StartStudyDependencies &
   PlaceRecruitOrderDependencies &
+  CancelRecruitOrderDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
   }
@@ -99,5 +105,12 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await placeRecruitOrderOf(c.var.playerId, request.data, dependencies))
+    })
+    .delete('/recruit-orders/:unit/:startedAt', signedInPlayer, async (c) => {
+      const request = CancelRecruitOrderRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await cancelRecruitOrderOf(c.var.playerId, request.data, dependencies))
     })
 }

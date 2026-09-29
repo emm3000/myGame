@@ -4,6 +4,10 @@ export { type ArtContent, ArtContentSchema } from './ArtContent'
 export { type ArtKind, ArtKindSchema } from './ArtKind'
 export { type BuildingContent, BuildingContentSchema } from './BuildingContent'
 export { type BuildingKind, BuildingKindSchema } from './BuildingKind'
+export {
+  type CancelRecruitOrderRequest,
+  CancelRecruitOrderRequestSchema,
+} from './CancelRecruitOrderRequest'
 export { type CancelStudyRequest, CancelStudyRequestSchema } from './CancelStudyRequest'
 export { type CancelUpgradeRequest, CancelUpgradeRequestSchema } from './CancelUpgradeRequest'
 export { type EnqueueBuildingRequest, EnqueueBuildingRequestSchema } from './EnqueueBuildingRequest'

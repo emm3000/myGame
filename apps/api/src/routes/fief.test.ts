@@ -1423,6 +1423,147 @@ describe('the fief route', () => {
     })
   })
 
+  describe('the recruit cancel route', () => {
+    const cancelRecruit = async (
+      cookie: string,
+      unit: string,
+      startedAt: string,
+    ): Promise<Response> =>
+      app.request(`/fief/recruit-orders/${unit}/${encodeURIComponent(startedAt)}`, {
+        method: 'DELETE',
+        headers: { cookie },
+      })
+
+    const recruitThreeInfantryAtMinuteTen = async (cookie: string): Promise<string> => {
+      await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, 'barracks'::building, 1 FROM fiefs`)
+      clock.advanceMinutes(10)
+      const placed = await app.request('/fief/recruit-orders', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify({ unit: 'infantry', count: 3 }),
+      })
+      expect(placed.status).toBe(200)
+      const { recruitOrder } = FiefOverviewSchema.parse(await placed.json())
+      return recruitOrder?.startedAt ?? ''
+    }
+
+    const recruitOrderNotFound = {
+      kind: 'RecruitOrderNotFound',
+      message: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
+    }
+
+    it('cancels the order and answers the delivered units in the counts', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(1.5)
+
+      const response = await cancelRecruit(ana.cookie, 'infantry', startedAt)
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.recruitOrder).toBeNull()
+      expect(overview.units).toEqual({ infantry: 2 })
+      expect(overview.readAt).toBe('2026-09-22T08:11:30.000Z')
+    })
+
+    it('answers the undelivered units refunded and their peasants free', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(1)
+
+      const response = await cancelRecruit(ana.cookie, 'infantry', startedAt)
+
+      const { resources, peasants, units } = FiefOverviewSchema.parse(await response.json())
+      expect(units).toEqual({ infantry: 1 })
+      expect(resources.iron.amount).toBe(190)
+      expect(peasants.free).toBe(8)
+    })
+
+    it('records the cancel in the chronicle with its refund', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(1)
+      expect((await cancelRecruit(ana.cookie, 'infantry', startedAt)).status).toBe(200)
+
+      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'recruitsCancelled',
+          unit: 'infantry',
+          delivered: 1,
+          cancelled: 2,
+          occurredAt: '2026-09-22T08:11:00.000Z',
+          refund: { wood: 40, stone: 0, iron: 20, gold: 0, food: 60 },
+        },
+      ])
+    })
+
+    it('refuses to cancel an order that ended before the cancel', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(5)
+
+      const response = await cancelRecruit(ana.cookie, 'infantry', startedAt)
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual(recruitOrderNotFound)
+    })
+
+    it('shows the ended order delivered on the read after a refused cancel', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(5)
+      expect((await cancelRecruit(ana.cookie, 'infantry', startedAt)).status).toBe(409)
+
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+
+      expect(overview.units).toEqual({ infantry: 3 })
+      expect(overview.recruitOrder).toBeNull()
+      const chronicle = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      expect(FiefChronicleSchema.parse(await chronicle.json()).events).toEqual([
+        {
+          kind: 'recruitsDelivered',
+          unit: 'infantry',
+          count: 3,
+          occurredAt: '2026-09-22T08:12:15.000Z',
+        },
+      ])
+    })
+
+    it('refuses a cancel that names another start', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(1)
+
+      const response = await cancelRecruit(ana.cookie, 'infantry', '2026-09-22T08:09:00.000Z')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual(recruitOrderNotFound)
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(overview.recruitOrder?.startedAt).toBe('2026-09-22T08:10:00.000Z')
+      expect(overview.units).toEqual({ infantry: 1 })
+    })
+
+    it('answers 400 for a malformed start', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+
+      const response = await cancelRecruit(ana.cookie, 'infantry', 'ayer')
+
+      expect(response.status).toBe(400)
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request(
+        `/fief/recruit-orders/infantry/${encodeURIComponent('2026-09-22T08:10:00.000Z')}`,
+        { method: 'DELETE' },
+      )
+
+      expect(response.status).toBe(401)
+    })
+  })
+
   describe('the study cancel route', () => {
     const cancelStudy = async (
       cookie: string,
