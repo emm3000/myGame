@@ -29,7 +29,7 @@ import { FiefUnitCounts, type UnitCountsByKind } from './FiefUnitCounts'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
-import type { OpenRecruitOrder, RecruitOrder } from './RecruitOrder'
+import type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './RecruitOrder'
 import { recruitOrderEndsAt } from './recruitOrderEndsAt'
 import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import type { Terrain } from './Terrain'
@@ -217,6 +217,14 @@ const timesCount = (cost: Stocks, count: number): Stocks => ({
   iron: cost.iron * count,
   gold: cost.gold * count,
   food: cost.food * count,
+})
+
+const shareOf = (cost: Stocks, part: number, whole: number): Stocks => ({
+  wood: (cost.wood * part) / whole,
+  stone: (cost.stone * part) / whole,
+  iron: (cost.iron * part) / whole,
+  gold: (cost.gold * part) / whole,
+  food: (cost.food * part) / whole,
 })
 
 const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
@@ -577,6 +585,33 @@ export class Fief {
           refund: studySlot.cost,
         },
       ],
+    })
+  }
+
+  cancelRecruitOrder(
+    target: RecruitOrderTarget,
+    stocksAtNow: Stocks,
+    now: Instant,
+  ): Result<ChangedFief, DomainError> {
+    const { recruitOrder } = this
+    if (
+      recruitOrder.kind === 'idle' ||
+      recruitOrder.unit !== target.unit ||
+      recruitOrder.startedAt.epochMilliseconds !== target.startedAt.epochMilliseconds ||
+      recruitOrderEndsAt(recruitOrder).epochMilliseconds <= now.epochMilliseconds
+    ) {
+      return err({ kind: 'RecruitOrderNotFound', unit: target.unit, startedAt: target.startedAt })
+    }
+    const delivered = deliveredUnitsOf(recruitOrder, now)
+    const undelivered = recruitOrder.count - delivered
+    return ok({
+      fief: this.changed({
+        units: this.units.plus(recruitOrder.unit, delivered),
+        recruitOrder: { kind: 'idle' },
+        stocks: credit(stocksAtNow, shareOf(recruitOrder.cost, undelivered, recruitOrder.count)),
+        storedAt: now,
+      }),
+      events: [],
     })
   }
 

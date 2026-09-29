@@ -23,7 +23,7 @@ export type { FiefId } from './fief/FiefId'
 export { FiefName } from './fief/FiefName'
 export { nextArtLevelOf } from './fief/nextArtLevelOf'
 export type { PlotAddress } from './fief/PlotAddress'
-export type { OpenRecruitOrder, RecruitOrder } from './fief/RecruitOrder'
+export type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './fief/RecruitOrder'
 export { recruitOrderEndsAt } from './fief/recruitOrderEndsAt'
 export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
@@ -58,6 +58,11 @@ export type { SeasonKind } from './season/SeasonKind'
 export { type Season, seasonAt } from './season/seasonAt'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
+export {
+  type CancelRecruitOrderCommand,
+  type CancelRecruitOrderDependencies,
+  cancelRecruitOrder,
+} from './useCases/cancelRecruitOrder'
 export {
   type CancelStudyCommand,
   type CancelStudyDependencies,
