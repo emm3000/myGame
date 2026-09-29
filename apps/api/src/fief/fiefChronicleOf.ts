@@ -47,7 +47,7 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
         infantry: event.infantry,
         loot: event.loot,
         occurredAt,
-        recalled: false,
+        recalled: event.recalled,
       }
     default: {
       const unreachable: never = event

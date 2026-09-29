@@ -136,6 +136,7 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           plot: finished.march.plot,
           infantry: finished.march.infantry,
           loot: finished.march.loot,
+          recalled: finished.march.recalledAt !== undefined,
           occurredAt: finished.finishedAt,
         },
       ]

@@ -49,5 +49,6 @@ export type FiefEvent =
       readonly plot: number
       readonly infantry: number
       readonly loot: Stocks
+      readonly recalled: boolean
       readonly occurredAt: Instant
     }

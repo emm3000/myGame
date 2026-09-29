@@ -301,6 +301,21 @@ export const fiefRepositoryContract = (
       expect(restored.ok && restored.value?.march).toEqual(tenInfantryForaging)
     })
 
+    it('reads back a recalled march with its partial loot', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      const recalledMarch: AwayMarch = {
+        ...tenInfantryForaging,
+        recalledAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:27:00Z')),
+        loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
+      }
+
+      await fiefs.save(developedFiefWith(waitingEntries, infantryOrder, recalledMarch))
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.march).toEqual(recalledMarch)
+    })
+
     it('restores an idle march slot after the return', async () => {
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([bruno])

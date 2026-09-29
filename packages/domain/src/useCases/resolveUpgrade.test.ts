@@ -1456,6 +1456,55 @@ describe('resolveUpgrade with a march', () => {
     ])
   })
 
+  it('records a recalled march as recalled at its return', async () => {
+    const recalledFief = marchingFief({
+      march: {
+        ...tenInfantryForTwoHoursDepartedAt(storedInstant),
+        recalledAt: secondsAfterStored(2_640),
+        loot: { wood: 15, stone: 15, iron: 0, gold: 0, food: 0 },
+      },
+    })
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([recalledFief]),
+        chronicle,
+        catalog,
+        clock: frozenClock(secondsAfterStored(3_480)),
+      },
+    )
+
+    assert(result.ok)
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 5,
+      infantry: 10,
+      loot: { wood: 15, stone: 15, iron: 0, gold: 0, food: 0 },
+      recalled: true,
+      occurredAt: secondsAfterStored(3_480),
+    }
+    expect(result.value.events).toEqual([returned])
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([returned])
+  })
+
+  it('records an unrecalled march as not recalled', async () => {
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs: inMemoryFiefRepository([marchingFief({})]),
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(secondsAfterStored(8_880)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toMatchObject([{ kind: 'marchReturned', recalled: false }])
+  })
+
   it('records no return event while the march is away', async () => {
     const chronicle = inMemoryChronicle()
 

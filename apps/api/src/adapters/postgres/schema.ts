@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm'
 import {
   type AnyPgColumn,
   bigint,
+  boolean,
   check,
   doublePrecision,
   index,
@@ -234,6 +235,7 @@ export const fiefMarches = pgTable(
     lootIron: doublePrecision('loot_iron').notNull(),
     lootGold: doublePrecision('loot_gold').notNull(),
     lootFood: doublePrecision('loot_food').notNull(),
+    recalledAt: timestamp('recalled_at', { withTimezone: true }),
   },
   (table) => [
     check('fief_marches_province_positive', sql`${table.province} >= 1`),
@@ -246,6 +248,10 @@ export const fiefMarches = pgTable(
     wholeAmount('fief_marches_loot_iron_whole', table.lootIron),
     wholeAmount('fief_marches_loot_gold_whole', table.lootGold),
     wholeAmount('fief_marches_loot_food_whole', table.lootFood),
+    check(
+      'fief_marches_recalled_after_departure',
+      sql`${table.recalledAt} IS NULL OR ${table.recalledAt} >= ${table.departedAt}`,
+    ),
   ],
 )
 
@@ -270,12 +276,17 @@ export const fiefEvents = pgTable(
     refundIron: doublePrecision('refund_iron').notNull().default(0),
     refundGold: doublePrecision('refund_gold').notNull().default(0),
     refundFood: doublePrecision('refund_food').notNull().default(0),
+    recalled: boolean('recalled').notNull().default(false),
     occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
   },
   (table) => [
     check(
       'fief_events_one_subject',
       sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}) = 1 AND (${table.level} IS NULL) = (${table.unit} IS NOT NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.plot} IS NULL) AND (${table.province} IS NULL OR (${table.unit} IS NOT NULL AND ${table.province} >= 1 AND ${table.plot} >= 1))`,
+    ),
+    check(
+      'fief_events_recalled_only_march',
+      sql`NOT ${table.recalled} OR ${table.kind}::text = 'march_returned'`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],

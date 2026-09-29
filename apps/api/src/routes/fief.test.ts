@@ -1843,6 +1843,29 @@ describe('the fief route', () => {
       ])
     })
 
+    it('records a recalled march in the chronicle as recalled', async () => {
+      const ana = await signUpWithFiveInfantry()
+      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      await runSql(
+        `UPDATE fief_marches SET recalled_at = '2026-09-22T08:44:00Z', loot_wood = 7, loot_stone = 7`,
+      )
+      clock.advanceMinutes(58)
+
+      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'marchReturned',
+          province: 2,
+          plot: 5,
+          infantry: 5,
+          loot: { wood: 7, stone: 7, iron: 0, gold: 0, food: 0 },
+          occurredAt: '2026-09-22T08:58:00.000Z',
+          recalled: true,
+        },
+      ])
+    })
+
     it('refuses a march to a held plot', async () => {
       const ana = await signUpWithFiveInfantry()
       await signUp('bea@example.com', 'Vado Gris')
