@@ -1,6 +1,7 @@
 import { BuildingKindSchema, type FiefOverview } from '@mygame/contracts'
 import {
   type ArtKind,
+  type AwayMarch,
   artLevelInForce,
   artResourceOf,
   type BuildingCatalog,
@@ -20,6 +21,8 @@ import {
   type Fief,
   type FiefBuildingLevels,
   type Instant,
+  type March,
+  marchInstantsOf,
   nextArtLevelOf,
   ok,
   type RecruitOrder,
@@ -30,6 +33,8 @@ import {
   type StudySlot,
   scheduleBuildQueue,
   seasonAt,
+  type Terrain,
+  terrainOf,
   type UnitKind,
 } from '@mygame/domain'
 
@@ -97,6 +102,45 @@ const recruitTermsOf = (
     }
   }
   return { infantry: termsOf('infantry') }
+}
+
+const awayMarchOf = (march: AwayMarch): NonNullable<FiefOverview['march']> => {
+  const { arrivesAt, leavesAt, returnsAt } = marchInstantsOf(march)
+  return {
+    province: march.province,
+    plot: march.plot,
+    terrain: terrainOf(march.province),
+    infantry: march.infantry,
+    stayHours: march.stayHours,
+    departedAt: isoOf(march.departedAt),
+    oneWaySeconds: march.oneWaySeconds,
+    loot: { ...march.loot },
+    arrivesAt: isoOf(arrivesAt),
+    leavesAt: isoOf(leavesAt),
+    returnsAt: isoOf(returnsAt),
+  }
+}
+
+const marchOf = (march: March): FiefOverview['march'] =>
+  march.kind === 'idle' ? null : awayMarchOf(march)
+
+type ForageYield = FiefOverview['forageTerms']['yieldPerHour'][Terrain]
+
+const forageTermsOf = (catalog: BuildingCatalog): FiefOverview['forageTerms'] => {
+  const { secondsPerProvince, secondsPerPlot, carryPerInfantry, maxStayHours, yieldPerHour } =
+    catalog.fiefSettings().forage
+  const yieldOf = (terrain: Terrain): ForageYield => ({ ...yieldPerHour[terrain], gold: 0 })
+  return {
+    secondsPerProvince,
+    secondsPerPlot,
+    carryPerInfantry,
+    maxStayHours,
+    yieldPerHour: {
+      lowlands: yieldOf('lowlands'),
+      uplands: yieldOf('uplands'),
+      ridges: yieldOf('ridges'),
+    },
+  }
 }
 
 type ArtState = FiefOverview['arts'][ArtKind]
@@ -329,6 +373,8 @@ export const fiefOverviewOf = (
     units: unitsOf(fief),
     recruitOrder: recruitOrderOf(fief.recruitOrder, fief.storedAt),
     recruitTerms: recruitTermsOf(fief, catalog, durations),
+    march: marchOf(fief.march),
+    forageTerms: forageTermsOf(catalog),
     readAt: isoOf(fief.storedAt),
   })
 }

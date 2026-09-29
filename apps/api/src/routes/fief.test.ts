@@ -1728,4 +1728,235 @@ describe('the fief route', () => {
       expect(response.status).toBe(401)
     })
   })
+
+  describe('the march route', () => {
+    const march = async (cookie: string, body: unknown): Promise<Response> =>
+      app.request('/fief/marches', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const fiveInfantryToProvinceTwoPlotFive = {
+      province: 2,
+      plot: 5,
+      infantry: 5,
+      stayHours: 2,
+    }
+
+    const signUpWithFiveInfantry = async (): Promise<SignedUpPlayer> => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'infantry'::unit, 5 FROM fiefs`)
+      return ana
+    }
+
+    const refusalOf = async (response: Response): Promise<unknown> =>
+      ApiErrorSchema.parse(await response.json())
+
+    it('answers no march and the shipped forage terms on a new fief', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await fiefOf(ana.cookie)
+
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.march).toBeNull()
+      expect(overview.forageTerms).toEqual({
+        secondsPerProvince: 600,
+        secondsPerPlot: 60,
+        carryPerInfantry: 48,
+        maxStayHours: 8,
+        yieldPerHour: {
+          lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
+          uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
+          ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
+        },
+      })
+    })
+
+    it('sends a march and answers it outbound with its instants', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+
+      expect(response.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await response.json()).march).toEqual({
+        province: 2,
+        plot: 5,
+        terrain: 'uplands',
+        infantry: 5,
+        stayHours: 2,
+        departedAt: '2026-09-22T08:00:00.000Z',
+        oneWaySeconds: 840,
+        loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
+        arrivesAt: '2026-09-22T08:14:00.000Z',
+        leavesAt: '2026-09-22T10:14:00.000Z',
+        returnsAt: '2026-09-22T10:28:00.000Z',
+      })
+    })
+
+    it('answers the infantry away still counted', async () => {
+      const ana = await signUpWithFiveInfantry()
+      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      clock.advanceMinutes(60)
+
+      const response = await fiefOf(ana.cookie)
+
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.units).toEqual({ infantry: 5 })
+      expect(overview.march?.infantry).toBe(5)
+    })
+
+    it('adds the loot and idles the march slot at the return', async () => {
+      const ana = await signUpWithFiveInfantry()
+      await runSql('UPDATE fiefs SET wood = 1000, stone = 1000')
+      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      clock.advanceMinutes(148)
+
+      const response = await fiefOf(ana.cookie)
+
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.march).toBeNull()
+      expect(overview.resources.wood.amount).toBe(1030)
+      expect(overview.resources.stone.amount).toBe(1030)
+      expect(overview.units).toEqual({ infantry: 5 })
+    })
+
+    it('records the returned march in the chronicle', async () => {
+      const ana = await signUpWithFiveInfantry()
+      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      clock.advanceMinutes(148)
+
+      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'marchReturned',
+          province: 2,
+          plot: 5,
+          infantry: 5,
+          loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
+          occurredAt: '2026-09-22T10:28:00.000Z',
+        },
+      ])
+    })
+
+    it('refuses a march to a held plot', async () => {
+      const ana = await signUpWithFiveInfantry()
+      await signUp('bea@example.com', 'Vado Gris')
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        province: 1,
+        plot: 2,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'PlotHeld',
+        message: 'Esa parcela ya tiene feudo. Elige una libre.',
+      })
+    })
+
+    it('refuses a march to the fief own plot', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        province: 1,
+        plot: 1,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'MarchToOwnPlot',
+        message: 'Esa parcela es tu feudo. Envía la marcha a otra.',
+      })
+    })
+
+    it('refuses more infantry than are at home', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        infantry: 6,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'NotEnoughInfantryAtHome',
+        message: 'No tienes infantes en casa suficientes para esa marcha.',
+      })
+    })
+
+    it('refuses a second march while one is away', async () => {
+      const ana = await signUpWithFiveInfantry()
+      await march(ana.cookie, { ...fiveInfantryToProvinceTwoPlotFive, infantry: 2 })
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        infantry: 2,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'MarchSlotBusy',
+        message: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
+      })
+    })
+
+    it('refuses a stay of nine hours', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        stayHours: 9,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'StayOutOfRange',
+        message: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
+      })
+    })
+
+    it('refuses a province past the map bound', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        province: 3,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'MarchTargetOutOfBounds',
+        message: 'Esa parcela no está en el mapa. Elige una que lo esté.',
+      })
+    })
+
+    it('answers 400 with an empty body to a fractional stay', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        stayHours: 1.5,
+      })
+
+      expect(response.status).toBe(400)
+      expect(await response.text()).toBe('')
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(overview.march).toBeNull()
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/marches', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(fiveInfantryToProvinceTwoPlotFive),
+      })
+
+      expect(response.status).toBe(401)
+    })
+  })
 })

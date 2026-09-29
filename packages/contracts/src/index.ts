@@ -10,6 +10,7 @@ export {
 } from './CancelRecruitOrderRequest'
 export { type CancelStudyRequest, CancelStudyRequestSchema } from './CancelStudyRequest'
 export { type CancelUpgradeRequest, CancelUpgradeRequestSchema } from './CancelUpgradeRequest'
+export { type DispatchMarchRequest, DispatchMarchRequestSchema } from './DispatchMarchRequest'
 export { type EnqueueBuildingRequest, EnqueueBuildingRequestSchema } from './EnqueueBuildingRequest'
 export { type FiefChronicle, FiefChronicleSchema } from './FiefChronicle'
 export { type FiefContent, FiefContentSchema } from './FiefContent'

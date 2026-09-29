@@ -91,6 +91,32 @@ const openOrder = {
   endsAt: '2026-09-22T14:01:15.000Z',
 }
 
+const awayMarch = {
+  province: 2,
+  plot: 5,
+  terrain: 'uplands',
+  infantry: 5,
+  stayHours: 2,
+  departedAt: '2026-09-22T14:00:00.000Z',
+  oneWaySeconds: 840,
+  loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
+  arrivesAt: '2026-09-22T14:14:00.000Z',
+  leavesAt: '2026-09-22T16:14:00.000Z',
+  returnsAt: '2026-09-22T16:28:00.000Z',
+}
+
+const shippedForageTerms = {
+  secondsPerProvince: 600,
+  secondsPerPlot: 60,
+  carryPerInfantry: 48,
+  maxStayHours: 8,
+  yieldPerHour: {
+    lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
+    uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
+    ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
+  },
+}
+
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 2, plot: 3 },
@@ -119,6 +145,8 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   units: { infantry: 4 },
   recruitOrder: openOrder,
   recruitTerms: { infantry: infantryTerms },
+  march: awayMarch,
+  forageTerms: shippedForageTerms,
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -321,5 +349,26 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithEmptyOrder).success).toBe(false)
+  })
+
+  it('accepts a null march', () => {
+    const overviewWithIdleMarchSlot = { ...overviewWithSlot(busySlot), march: null }
+
+    expect(FiefOverviewSchema.parse(overviewWithIdleMarchSlot)).toEqual(overviewWithIdleMarchSlot)
+  })
+
+  it('rejects a march with no infantry', () => {
+    const overviewWithEmptyMarch = {
+      ...overviewWithSlot(busySlot),
+      march: { ...awayMarch, infantry: 0 },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithEmptyMarch).success).toBe(false)
+  })
+
+  it('rejects an overview without forage terms', () => {
+    const { forageTerms: _, ...overviewWithoutForageTerms } = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutForageTerms).success).toBe(false)
   })
 })
