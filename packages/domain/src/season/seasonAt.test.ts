@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { FiefSettings } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
@@ -29,6 +30,7 @@ const weeklySettings: FiefSettings = {
   buildQueueCap: 4,
   units: plainUnits,
   forage: plainForage,
+  camps: plainCamps,
   seasons: {
     epoch,
     daysPerSeason: 7,
