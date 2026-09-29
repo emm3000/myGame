@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import type {
   BuildingCatalog,
   BuildingLevel,
@@ -7,8 +7,10 @@ import type {
   ProducerLevel,
 } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { derivePeasantCounts } from './derivePeasantCounts'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
+import { FiefUnitCounts } from './FiefUnitCounts'
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
@@ -22,6 +24,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 
@@ -54,6 +57,7 @@ const inMemoryCatalog = (levels: ReadonlyArray<BuildingLevel>): BuildingCatalog 
 const catalog = inMemoryCatalog([
   farmLevel(1, 1, 4),
   farmLevel(2, 2, 9),
+  farmLevel(3, 3, 14),
   sawmillLevel(1, 1),
   sawmillLevel(2, 20),
 ])
@@ -68,11 +72,25 @@ const levelsWith = (levels: Partial<FiefBuildingLevels>): FiefBuildingLevels => 
   ...levels,
 })
 
+const threeInfantry = (): FiefUnitCounts => {
+  const units = FiefUnitCounts.create({ infantry: 3 })
+  assert(units.ok)
+  return units.value
+}
+
 describe('derivePeasantCounts', () => {
+  it('counts the peasants the units occupy', () => {
+    const fourBuildingPeasants = levelsWith({ sawmill: 1, farm: 3 })
+
+    const result = derivePeasantCounts(fourBuildingPeasants, threeInfantry(), catalog)
+
+    expect(result).toEqual({ ok: true, value: { supplied: 20, occupied: 7, free: 13 } })
+  })
+
   it('counts supplied, occupied and free peasants at the levels a queued farm projects', () => {
     const projectedWithQueuedFarm = levelsWith({ sawmill: 1, farm: 2 })
 
-    const result = derivePeasantCounts(projectedWithQueuedFarm, catalog)
+    const result = derivePeasantCounts(projectedWithQueuedFarm, FiefUnitCounts.none, catalog)
 
     expect(result).toEqual({ ok: true, value: { supplied: 15, occupied: 3, free: 12 } })
   })
@@ -80,7 +98,7 @@ describe('derivePeasantCounts', () => {
   it('refuses levels that occupy more peasants than they supply', () => {
     const overcrowded = levelsWith({ sawmill: 2 })
 
-    const result = derivePeasantCounts(overcrowded, catalog)
+    const result = derivePeasantCounts(overcrowded, FiefUnitCounts.none, catalog)
 
     expect(result).toEqual({
       ok: false,

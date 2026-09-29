@@ -157,6 +157,7 @@ const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): Store
   storedAt: instantOf(row.storedAt),
   buildingLevels: buildingLevelsOf(joinedRows),
   artLevels: artLevelsOf(joinedRows),
+  units: { infantry: 0 },
   slot: slotOf(row),
   buildQueue: buildQueueOf(joinedRows),
   studySlot: studySlotOf(row),

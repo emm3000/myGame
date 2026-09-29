@@ -6,6 +6,7 @@ import type {
   ProducerLevel,
 } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { derivePeasantsForUpgrade } from './derivePeasantsForUpgrade'
 import type { FiefBuildingLevels } from './FiefBuildingLevels'
 
@@ -21,6 +22,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 

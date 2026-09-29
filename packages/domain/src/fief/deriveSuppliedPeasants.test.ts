@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { BuildingCatalog, FarmLevel, FiefSettings } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { deriveSuppliedPeasants } from './deriveSuppliedPeasants'
 
 const fiefSettings: FiefSettings = {
@@ -15,6 +16,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 

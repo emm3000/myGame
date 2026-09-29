@@ -8,6 +8,7 @@ import type {
 } from '../ports/BuildingCatalog'
 import type { SeasonCalendar } from '../season/SeasonCalendar'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { deriveResourceRates } from './deriveResourceRates'
 import type { FiefArtLevels } from './FiefArtLevels'
@@ -67,6 +68,7 @@ const fiefSettings = (
     ridges: { resource: bonusResource, ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: gentleSeasons,
 })
 

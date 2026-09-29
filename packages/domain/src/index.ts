@@ -36,6 +36,7 @@ export type {
   FiefSettings,
   ProducerLevel,
   TerrainBonus,
+  UnitKind,
   WarehouseLevel,
 } from './ports/BuildingCatalog'
 export type { ChronicleWriter } from './ports/ChronicleWriter'

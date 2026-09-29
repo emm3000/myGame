@@ -4,6 +4,7 @@ import { ResourceKindSchema } from './ResourceKind'
 import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
+import { UnitKindSchema } from './UnitKind'
 import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
 
 const TerrainBonusSchema = z.object({
@@ -21,6 +22,12 @@ const SeasonCalendarSchema = z.strictObject({
   durationPercent: z.record(SeasonKindSchema, SeasonDurationPercentSchema),
 })
 
+const UnitTermsSchema = z.strictObject({
+  cost: ResourceAmountsSchema,
+  durationSeconds: WholeCountSchema.positive(),
+  peasantOccupancy: WholeCountSchema.positive(),
+})
+
 export const FiefContentSchema = z.object({
   startingStocks: ResourceAmountsSchema,
   startingCapacity: WholeCountSchema,
@@ -30,6 +37,7 @@ export const FiefContentSchema = z.object({
   terrainBonus: z.record(TerrainSchema, TerrainBonusSchema),
   buildQueueCap: WholeCountSchema,
   seasons: SeasonCalendarSchema,
+  units: z.record(UnitKindSchema, UnitTermsSchema),
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>

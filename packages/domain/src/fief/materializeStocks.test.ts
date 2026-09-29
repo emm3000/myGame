@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { ArtLevel, BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { Fief, type Stocks } from './Fief'
 import { materializeStocks } from './materializeStocks'
@@ -24,6 +25,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 
@@ -56,6 +58,7 @@ const smithingFief = (): Fief => {
     storedAt: storedInstant,
     buildingLevels: { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0, library: 0 },
     artLevels: { smithing: 1, masonry: 0 },
+    units: { infantry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -102,6 +105,7 @@ const seasonalFief = (stocks: Partial<Stocks>, storedAt: Instant): Fief => {
     storedAt,
     buildingLevels: { sawmill: 0, quarry: 0, ironMine: 0, farm: 0, warehouse: 0, library: 0 },
     artLevels: { smithing: 0, masonry: 0 },
+    units: { infantry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },

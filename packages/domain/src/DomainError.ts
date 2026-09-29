@@ -1,7 +1,7 @@
 import type { Coordinates } from './fief/Coordinates'
 import type { Stocks } from './fief/Fief'
 import type { PlayerId } from './player/PlayerId'
-import type { ArtKind, BuildingKind } from './ports/BuildingCatalog'
+import type { ArtKind, BuildingKind, UnitKind } from './ports/BuildingCatalog'
 import type { Instant } from './time/Instant'
 
 export type DomainError =
@@ -17,6 +17,7 @@ export type DomainError =
     }
   | { readonly kind: 'UnknownArtLevel'; readonly art: ArtKind; readonly level: number }
   | { readonly kind: 'InvalidArtLevel'; readonly art: ArtKind; readonly level: number }
+  | { readonly kind: 'InvalidUnitCount'; readonly unit: UnitKind; readonly count: number }
   | {
       readonly kind: 'NegativeFreePeasants'
       readonly suppliedPeasants: number

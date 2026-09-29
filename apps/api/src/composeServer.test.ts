@@ -96,6 +96,13 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
         winter: { build: 100, study: 75 },
       },
     },
+    units: {
+      infantry: {
+        cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
+        durationSeconds: 90,
+        peasantOccupancy: 1,
+      },
+    },
   },
 }
 

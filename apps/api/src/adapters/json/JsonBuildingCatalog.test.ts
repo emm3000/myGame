@@ -53,6 +53,13 @@ const plainFief: FiefContent = {
       winter: { build: 100, study: 100 },
     },
   },
+  units: {
+    infantry: {
+      cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
+      durationSeconds: 90,
+      peasantOccupancy: 1,
+    },
+  },
 }
 
 const oneLevelArts: ReadonlyArray<ArtContent> = [
@@ -308,6 +315,16 @@ describe('JsonBuildingCatalog', () => {
       summer: { ...unchangedDurations, build: 75 },
       autumn: unchangedDurations,
       winter: { ...unchangedDurations, study: 75 },
+    })
+  })
+
+  it('reads the infantry terms from the shipped content', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().units).toEqual({
+      infantry: {
+        cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
+        durationSeconds: 90,
+        peasantOccupancy: 1,
+      },
     })
   })
 })

@@ -34,6 +34,7 @@ const storedBusyFief: StoredFief = {
   storedAt: foundingInstant,
   buildingLevels: { sawmill: 2, quarry: 1, ironMine: 0, farm: 1, warehouse: 0, library: 0 },
   artLevels: { smithing: 2, masonry: 0 },
+  units: { infantry: 4 },
   slot: {
     kind: 'busy',
     building: 'quarry',
@@ -87,6 +88,7 @@ describe('Fief', () => {
       storedAt,
       buildingLevels,
       artLevels,
+      units,
       slot,
       buildQueue,
       studySlot,
@@ -104,6 +106,7 @@ describe('Fief', () => {
       storedAt,
       buildingLevels,
       artLevels,
+      units: { infantry: units.countOf('infantry') },
       slot,
       buildQueue,
       studySlot,
@@ -147,6 +150,28 @@ describe('Fief', () => {
     expect(restored).toEqual({
       ok: false,
       error: { kind: 'InvalidArtLevel', art: 'smithing', level: -1 },
+    })
+  })
+
+  it('founds a fief with no units', () => {
+    expect(fiefInProvince(1).units.countOf('infantry')).toBe(0)
+  })
+
+  it('refuses a stored unit count that is not a whole count', () => {
+    const restored = Fief.restore({ ...storedBusyFief, units: { infantry: 2.5 } })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidUnitCount', unit: 'infantry', count: 2.5 },
+    })
+  })
+
+  it('refuses a stored negative unit count', () => {
+    const restored = Fief.restore({ ...storedBusyFief, units: { infantry: -1 } })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'InvalidUnitCount', unit: 'infantry', count: -1 },
     })
   })
 

@@ -16,6 +16,7 @@ import type { Clock } from '../ports/Clock'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainUnits } from '../testing/plainUnits'
 import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
 import { cancelUpgrade } from './cancelUpgrade'
@@ -41,6 +42,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  units: plainUnits,
   seasons: neutralSeasons,
 }
 
@@ -147,6 +149,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     artLevels: { smithing: 0, masonry: 0 },
+    units: { infantry: 0 },
     slot: sawmillInProgress,
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -314,6 +317,23 @@ describe('cancelUpgrade', () => {
       buildingLevels: { ...unbuiltLevels, sawmill: 3 },
       slot: warehouseInProgress,
       buildQueue: [waitingEntry('farm', 1, 10), quarryEntry],
+    })
+    const fiefs = inMemoryFiefRepository([queuedFief])
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', building: 'farm', targetLevel: 1 },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([])
+  })
+
+  it('cancels in cascade an entry the units leave too few peasants to staff', async () => {
+    const queuedFief = storedFief({
+      units: { infantry: 3 },
+      slot: warehouseInProgress,
+      buildQueue: [waitingEntry('farm', 1, 10), waitingEntry('quarry', 1, 30)],
     })
     const fiefs = inMemoryFiefRepository([queuedFief])
 

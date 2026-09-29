@@ -17,6 +17,7 @@ import type { FiefBuildingLevels } from './FiefBuildingLevels'
 import type { FiefEvent } from './FiefEvent'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
+import { FiefUnitCounts, type UnitCountsByKind } from './FiefUnitCounts'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
@@ -44,6 +45,7 @@ export type StoredFief = {
   readonly storedAt: Instant
   readonly buildingLevels: FiefBuildingLevels
   readonly artLevels: FiefArtLevels
+  readonly units: UnitCountsByKind
   readonly slot: BuildSlot
   readonly buildQueue: BuildQueue
   readonly studySlot: StudySlot
@@ -264,6 +266,7 @@ const refundOf = (dropped: BuildQueue): Stocks =>
 
 const revalidateBuildQueue = (
   buildingLevels: FiefBuildingLevels,
+  units: FiefUnitCounts,
   buildQueue: BuildQueue,
   catalog: BuildingCatalog,
 ): Result<RevalidatedQueue, DomainError> => {
@@ -271,7 +274,7 @@ const revalidateBuildQueue = (
   const kept: Array<BuildQueueEntry> = []
   const dropped: Array<BuildQueueEntry> = []
   for (const entry of buildQueue) {
-    const fits = entryFitsProjection(projected, entry, catalog)
+    const fits = entryFitsProjection(projected, units, entry, catalog)
     if (!fits.ok) {
       return fits
     }
@@ -348,6 +351,7 @@ export class Fief {
     readonly storedAt: Instant,
     readonly buildingLevels: FiefBuildingLevels,
     readonly artLevels: FiefArtLevels,
+    readonly units: FiefUnitCounts,
     readonly slot: BuildSlot,
     readonly buildQueue: BuildQueue,
     readonly studySlot: StudySlot,
@@ -363,6 +367,7 @@ export class Fief {
       founding.at,
       unbuiltLevels,
       unstudiedArts,
+      FiefUnitCounts.none,
       { kind: 'idle' },
       [],
       { kind: 'idle' },
@@ -377,6 +382,10 @@ export class Fief {
     const storedState = validateStoredState(stored)
     if (!storedState.ok) {
       return storedState
+    }
+    const units = FiefUnitCounts.create(stored.units)
+    if (!units.ok) {
+      return units
     }
     const { kingdom, province, plot } = stored.address
     const coordinates = Coordinates.create(kingdom, province, plot)
@@ -393,6 +402,7 @@ export class Fief {
         stored.storedAt,
         stored.buildingLevels,
         stored.artLevels,
+        units.value,
         stored.slot,
         stored.buildQueue,
         stored.studySlot,
@@ -451,7 +461,7 @@ export class Fief {
     }
     const { slot, buildQueue, cancelled } = cancellation.value
     const projectedFrom = levelsWithSlot(this.buildingLevels, slot)
-    const revalidated = revalidateBuildQueue(projectedFrom, buildQueue, catalog)
+    const revalidated = revalidateBuildQueue(projectedFrom, this.units, buildQueue, catalog)
     if (!revalidated.ok) {
       return revalidated
     }
@@ -554,7 +564,12 @@ export class Fief {
     if (!this.isSlotIdleWithQueue) {
       return ok(this)
     }
-    const revalidated = revalidateBuildQueue(this.buildingLevels, this.buildQueue, catalog)
+    const revalidated = revalidateBuildQueue(
+      this.buildingLevels,
+      this.units,
+      this.buildQueue,
+      catalog,
+    )
     if (!revalidated.ok) {
       return revalidated
     }
@@ -614,6 +629,7 @@ export class Fief {
       change.storedAt ?? this.storedAt,
       change.buildingLevels ?? this.buildingLevels,
       change.artLevels ?? this.artLevels,
+      this.units,
       change.slot ?? this.slot,
       change.buildQueue ?? this.buildQueue,
       change.studySlot ?? this.studySlot,

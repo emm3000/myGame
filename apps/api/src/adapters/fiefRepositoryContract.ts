@@ -89,6 +89,7 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
       storedAt: foundedAt,
       buildingLevels: { sawmill: 3, quarry: 2, ironMine: 1, farm: 2, warehouse: 1, library: 2 },
       artLevels: studiedArts,
+      units: { infantry: 0 },
       slot: {
         kind: 'busy',
         building: 'ironMine',

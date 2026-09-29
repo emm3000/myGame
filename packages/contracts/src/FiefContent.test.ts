@@ -34,6 +34,14 @@ const seasons = {
   durationPercent,
 }
 
+const infantry = {
+  cost: { wood: 0, stone: 0, iron: 20, gold: 10, food: 30 },
+  durationSeconds: 60,
+  peasantOccupancy: 1,
+}
+
+const units = { infantry }
+
 const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   startingStocks: { wood: 500, stone: 300, iron: 200, gold: 0, food: 300 },
   startingCapacity: 1000,
@@ -43,6 +51,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   terrainBonus,
   buildQueueCap: 4,
   seasons,
+  units,
   ...overrides,
 })
 
@@ -197,6 +206,26 @@ describe('FiefContentSchema', () => {
             durationPercent: { ...durationPercent, winter: { ...unchangedDurations, study: -75 } },
           },
         }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects units missing the infantry', () => {
+    expect(FiefContentSchema.safeParse(fiefContent({ units: {} })).success).toBe(false)
+  })
+
+  it('rejects a unit that occupies no peasants', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ units: { infantry: { ...infantry, peasantOccupancy: 0 } } }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a unit that trains in zero seconds', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ units: { infantry: { ...infantry, durationSeconds: 0 } } }),
       ).success,
     ).toBe(false)
   })
