@@ -181,13 +181,13 @@ The landing of the mailed link, outside the signed-in shell.
 
 ## The seasons
 
-Every line of this section is a proposal for the author, not yet accepted (`world.md`, Seasons). The English identifiers `spring`, `summer`, `autumn`, `winter`, `season`, `year`, `endsAt` and `multiplierPercent` are fixed by the S8 tickets (#182), and `durationPercent`, `build` and `study` by the S9 tickets (#198); only the Spanish is proposed here.
+Every line of this section is a proposal for the author, not yet accepted (`world.md`, Seasons). The English identifiers `spring`, `summer`, `autumn`, `winter`, `season`, `year`, `endsAt` and `multiplierPercent` are fixed by the S8 tickets (#182), `durationPercent`, `build` and `study` by the S9 tickets (#198), and `train` by the S12 tickets (#246); only the Spanish is proposed here.
 
 - A **season** is *la estación*. The four turn together over the whole land, seven days each, spring first, and no screen names one by *estación*: the season's own label carries it.
 
 | Term | Label | Article | Note |
 |---|---|---|---|
-| spring | primavera | la primavera | raises the harvest: food |
+| spring | primavera | la primavera | raises the harvest: food; shortens training |
 | summer | verano | el verano | shortens building |
 | autumn | otoño | el otoño | favours trade: gold |
 | winter | invierno | el invierno | lowers the harvest: food; shortens study |
@@ -213,9 +213,11 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 |---|---|---|
 | the buildings, *Edificios* | *El verano acorta las obras* | the season with its article, the work: *las obras* |
 | the arts, *Biblioteca* | *El invierno acorta los estudios* | the season with its article, the work: *los estudios* |
+| the army, *Cuartel* (S12, #246) | *La primavera acorta la leva* | the season with its article, the work: *la leva* |
 
-- The work is named in the plural of *la obra* and *el estudio*, so the sentence covers every card of the section; the shortened duration itself is read on each card's button, as it is today. The sentence needs the season's article, which the table carries, and no resource.
-- A section is marked only when the season's `durationPercent` for it is not `100`: summer marks the buildings section, winter marks the arts section, spring and autumn mark no section, and nothing is marked before the calendar starts (`season` null). The resource bar lines above stay as they are: winter marks *comida* on the bar and *los estudios* on its section, both at once.
+- The work of the two S9 rows is named in the plural of *la obra* and *el estudio*, so the sentence covers every card of the section; the shortened duration itself is read on each card's button, as it is today. The sentence needs the season's article, which the table carries, and no resource.
+- The **army row** (S12, #246) is a proposal for the author, not yet accepted, as the two rows above are. Its work reads in the singular, *la leva*, where the S9 marks read *las obras* and *los estudios*: the buildings and the arts sections hold one card per building or art, so their plural covers every card, while the army section holds one levy at a time, the recruit slot of The army, so a plural has nothing to cover and *las levas* would promise more than one call on the fields. *La leva* here names the levy as a kind of work, as the recruit slot is *la leva* in The army, not one order: the season shortens every man of the levy in progress and of the next one ordered in spring alike.
+- A section is marked only when the season's `durationPercent` for it is not `100`: summer marks the buildings section, winter marks the arts section, spring marks the army section (S12, #246), autumn marks no section, and nothing is marked before the calendar starts (`season` null). The resource bar lines above stay as they are: winter marks *comida* on the bar and *los estudios* on its section, both at once, and spring marks *comida* on the bar and *la leva* on its section, both at once. Summer, autumn and winter mark no army section: their `train` is `100`.
 
 ## The army
 

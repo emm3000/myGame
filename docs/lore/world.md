@@ -42,6 +42,8 @@ Proposal (S8, #183): the seasons turn together over the whole land every seven d
 
 Proposal (S9, #199): summer shortens building and winter shortens study. A building work takes the season in force when it is ordered, a study the season in force when it starts, and neither changes with the season while it runs.
 
+Proposal (S12, #247): spring shortens training. A levy takes the season in force when it is ordered, for every man of it, and does not change with the season while it runs (`names.md`, The seasons).
+
 ## Open questions
 
 - The name of the game and of the land.
