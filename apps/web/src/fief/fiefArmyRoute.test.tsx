@@ -1,5 +1,5 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { act, fireEvent, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -74,6 +74,9 @@ const countField = (): HTMLElement =>
   within(infantryCard()).getByRole('spinbutton', { name: 'Infantes a reclutar' })
 
 const recruitButton = (): HTMLElement => within(infantryCard()).getByRole('button')
+
+const cancelButton = (): HTMLElement =>
+  within(armySection()).getByRole('button', { name: 'Cancelar la leva: 12 infantes' })
 
 const unitCountOf = (card: HTMLElement, text: string): HTMLElement =>
   within(card).getByText(
@@ -207,6 +210,20 @@ it('shows the refusal the api answered', async () => {
   expect(within(armySection()).getByRole('alert').textContent).toBe(
     'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   )
+
+  cleanup()
+  const cancelRecruitOrder = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: false,
+    refusal: 'RecruitOrderNotFound',
+  })
+  await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }), cancelRecruitOrder })
+
+  fireEvent.click(cancelButton())
+  await passSeconds(0)
+
+  expect(within(armySection()).getByRole('alert').textContent).toBe(
+    'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
+  )
 })
 
 it('sends one order on a double click', async () => {
@@ -278,4 +295,63 @@ it('reads the fief again when the order ends', async () => {
   await passSeconds(1)
 
   expect(fief).toHaveBeenCalledTimes(2)
+})
+
+it('shows the cancel on the order in progress', async () => {
+  await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }) })
+
+  expect(cancelButton().textContent).toBe('Cancelar la leva')
+  expect(cancelButton().hasAttribute('disabled')).toBe(false)
+})
+
+it('shows no cancel with the recruit slot idle', async () => {
+  await showFief({})
+
+  expect(within(armySection()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
+})
+
+it('cancels the order named by its unit and start', async () => {
+  const cancelRecruitOrder = vi.fn(async () => ({ ok: true as const, value: barracksBuilt }))
+  await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }), cancelRecruitOrder })
+
+  fireEvent.click(cancelButton())
+  await passSeconds(0)
+
+  expect(cancelRecruitOrder).toHaveBeenCalledWith({
+    unit: 'infantry',
+    startedAt: '2026-09-22T11:54:00.000Z',
+  })
+})
+
+it('shows the slot idle and the delivered units after the cancel', async () => {
+  const cancelledWithFourDelivered: FiefOverview = { ...barracksBuilt, units: { infantry: 16 } }
+  const cancelRecruitOrder = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: true,
+    value: cancelledWithFourDelivered,
+  })
+  await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }), cancelRecruitOrder })
+
+  fireEvent.click(cancelButton())
+  await passSeconds(0)
+
+  expect(within(armySection()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
+  expect(unitCountOf(infantryCard(), '16 infantes')).toBeDefined()
+  expect(within(armySection()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
+})
+
+it('sends one cancel on a double click', async () => {
+  const answer = deferred<ApiOutcome<FiefOverview>>()
+  const cancelRecruitOrder = vi.fn(() => answer.promise)
+  await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }), cancelRecruitOrder })
+
+  const button = cancelButton()
+  act(() => {
+    button.click()
+    button.click()
+  })
+  expect(cancelButton().hasAttribute('disabled')).toBe(true)
+  answer.resolve({ ok: true, value: barracksBuilt })
+  await passSeconds(0)
+
+  expect(cancelRecruitOrder).toHaveBeenCalledTimes(1)
 })

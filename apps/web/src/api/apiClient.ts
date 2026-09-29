@@ -3,6 +3,7 @@ import {
   ApiErrorSchema,
   type ArtKind,
   type BuildingKind,
+  type CancelRecruitOrderRequest,
   type CancelStudyRequest,
   type CancelUpgradeRequest,
   type EnqueueBuildingRequest,
@@ -41,6 +42,7 @@ export interface ApiClient {
   startStudy(art: ArtKind): Promise<ApiOutcome<FiefOverview>>
   cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
   placeRecruitOrder(request: PlaceRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
+  cancelRecruitOrder(target: CancelRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
@@ -142,6 +144,12 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     placeRecruitOrder: async ({ unit, count }) => {
       const request: PlaceRecruitOrderRequest = { unit, count }
       const response = await postJson('/fief/recruit-orders', request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    cancelRecruitOrder: async ({ unit, startedAt }) => {
+      const response = await send(`/fief/recruit-orders/${unit}/${encodeURIComponent(startedAt)}`, {
+        method: 'DELETE',
+      })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
     chronicle: async () => {
