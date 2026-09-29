@@ -385,3 +385,21 @@ ships it: ADR 017 as amended), upkeep or famine, marches, combat and units
 on the map stay out. PRD S3 lists four
 event kinds and ADR 013 five; this amendment amends neither list, as
 Decision 8 of #231 fixes.
+
+## Second amendment (2026-09-29)
+
+S15 (ADR 020) lowers a unit count outside a recruit order for the first
+time: the infantry that fall at a battle leave the stored count at the
+arrival. A battle fought while a recruit order is still open first folds
+the delivered units into the stored count and shrinks the order to the
+remainder: `count` drops by the delivered, `startedAt` moves forward by
+`delivered × perUnitSeconds` and `cost` is scaled per unit by `shareOf`,
+so the stored count never goes negative when the dead outnumber the men
+stored before the order. As a result the order's closing
+`recruitsDelivered` line counts only the remainder, never the count
+ordered. Its peasants need no code of their own: occupancy derives from
+the counts plus the open order, so the fold moves it and the dead free
+theirs. `DrizzleFiefRepository.save` now deletes a `fief_units` row whose
+count drops to 0, the follow-up the S10 review left. Nothing else here
+changes: an order still delivers one unit at a time on read, is paid and
+staffed in full at the order and is cancelled with the delivered kept.

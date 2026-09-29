@@ -132,3 +132,22 @@ here changes: the map still shows one province at a time, bounded by
 `lastProvince`, the terrain still derives from the province number, the
 reader still reads no stock and resolves nothing, and no plot is reserved
 or depleted by a march.
+
+## Second amendment (2026-09-29)
+
+The map shows more than fiefs and takes a second order. S15 (ADR 020)
+places a bandit camp on a content fraction of the free plots by a hash of
+the coordinates, as `terrainOf` derives the terrain: `readProvinceMap`
+answers each free plot's `camp`, its tier and its strength at the read
+instant, or null on a held plot or a free plot without one, reading the
+camps' last battles through `CampRegistry` on the pool, lock-free and
+resolving nothing, as this ADR keeps the reader. The `dispatchAttack` use
+case reads `lastOccupiedProvince` and `holdersIn` as `dispatchMarch` does,
+to bound the target and refuse a held plot first, and the web offers
+*Atacar el campamento* on a camp's plot of `/mapa` in place of *Enviar una
+marcha*, never on a held one nor on the viewer's own, as Decision 4 of
+#292 fixes it (#303, not yet shipped). Nothing else here changes: the map
+still shows one province at a time, bounded by `lastProvince`, the terrain
+still derives from the province number, no plot is reserved or depleted,
+and a fief founded on a camp's plot erases the camp, since the founding
+still takes the lowest free plot.
