@@ -68,6 +68,17 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
       },
     ],
   },
+  'barracks.json': {
+    building: 'barracks',
+    levels: [
+      {
+        level: 1,
+        cost: { wood: 10, stone: 5, iron: 0, gold: 0, food: 0 },
+        durationSeconds: 60,
+        peasantOccupancy: 1,
+      },
+    ],
+  },
   'fief.json': {
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     startingCapacity: 1000,

@@ -2,7 +2,14 @@ import type { Terrain } from '../fief/Terrain'
 import type { ResourceKind } from '../resources/Resources'
 import type { SeasonCalendar } from '../season/SeasonCalendar'
 
-export type BuildingKind = 'sawmill' | 'quarry' | 'ironMine' | 'farm' | 'warehouse' | 'library'
+export type BuildingKind =
+  | 'sawmill'
+  | 'quarry'
+  | 'ironMine'
+  | 'farm'
+  | 'warehouse'
+  | 'library'
+  | 'barracks'
 
 export type ArtKind = 'smithing' | 'masonry'
 
@@ -35,7 +42,16 @@ export type LibraryLevel = BuildingLevelData & {
   readonly building: 'library'
 }
 
-export type BuildingLevel = ProducerLevel | FarmLevel | WarehouseLevel | LibraryLevel
+export type BarracksLevel = BuildingLevelData & {
+  readonly building: 'barracks'
+}
+
+export type BuildingLevel =
+  | ProducerLevel
+  | FarmLevel
+  | WarehouseLevel
+  | LibraryLevel
+  | BarracksLevel
 
 export type ArtLevel = {
   readonly art: ArtKind

@@ -1,0 +1,125 @@
+{
+  "building": "barracks",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "wood": 200,
+        "stone": 120,
+        "iron": 60,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 360,
+      "peasantOccupancy": 1
+    },
+    {
+      "level": 2,
+      "cost": {
+        "wood": 300,
+        "stone": 180,
+        "iron": 90,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 576,
+      "peasantOccupancy": 2
+    },
+    {
+      "level": 3,
+      "cost": {
+        "wood": 450,
+        "stone": 270,
+        "iron": 135,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 922,
+      "peasantOccupancy": 3
+    },
+    {
+      "level": 4,
+      "cost": {
+        "wood": 675,
+        "stone": 405,
+        "iron": 202,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 1475,
+      "peasantOccupancy": 4
+    },
+    {
+      "level": 5,
+      "cost": {
+        "wood": 1012,
+        "stone": 608,
+        "iron": 303,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 2360,
+      "peasantOccupancy": 5
+    },
+    {
+      "level": 6,
+      "cost": {
+        "wood": 1518,
+        "stone": 912,
+        "iron": 454,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 3776,
+      "peasantOccupancy": 6
+    },
+    {
+      "level": 7,
+      "cost": {
+        "wood": 2277,
+        "stone": 1368,
+        "iron": 681,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 6042,
+      "peasantOccupancy": 7
+    },
+    {
+      "level": 8,
+      "cost": {
+        "wood": 3416,
+        "stone": 2052,
+        "iron": 1022,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 9667,
+      "peasantOccupancy": 8
+    },
+    {
+      "level": 9,
+      "cost": {
+        "wood": 5124,
+        "stone": 3078,
+        "iron": 1533,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 15467,
+      "peasantOccupancy": 9
+    },
+    {
+      "level": 10,
+      "cost": {
+        "wood": 7686,
+        "stone": 4617,
+        "iron": 2300,
+        "gold": 0,
+        "food": 0
+      },
+      "durationSeconds": 24747,
+      "peasantOccupancy": 10
+    }
+  ]
+}

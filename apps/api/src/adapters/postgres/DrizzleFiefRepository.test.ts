@@ -102,6 +102,7 @@ describe('DrizzleFiefRepository reads', () => {
       farm: 0,
       warehouse: 0,
       library: 0,
+      barracks: 0,
     })
     expect(statements).toHaveLength(1)
   })
@@ -126,7 +127,7 @@ describe('DrizzleFiefRepository reads', () => {
 
     expect(read.ok && [read.value?.id, read.value?.buildingLevels]).toEqual([
       valdehierro,
-      { sawmill: 2, quarry: 0, ironMine: 1, farm: 0, warehouse: 0, library: 0 },
+      { sawmill: 2, quarry: 0, ironMine: 1, farm: 0, warehouse: 0, library: 0, barracks: 0 },
     ])
   })
 

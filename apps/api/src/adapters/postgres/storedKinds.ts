@@ -22,6 +22,7 @@ export const storedBuildings: Readonly<Record<BuildingKind, StoredBuilding>> = {
   farm: 'farm',
   warehouse: 'warehouse',
   library: 'library',
+  barracks: 'barracks',
 }
 
 export const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
@@ -31,4 +32,5 @@ export const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
   farm: 'farm',
   warehouse: 'warehouse',
   library: 'library',
+  barracks: 'barracks',
 }

@@ -25,6 +25,7 @@ const buildingFiles: Readonly<Record<BuildingKind, string>> = {
   farm: 'farm.json',
   warehouse: 'warehouse.json',
   library: 'library.json',
+  barracks: 'barracks.json',
 }
 
 const artFiles: Readonly<Record<ArtKind, string>> = {
@@ -67,6 +68,7 @@ const buildingLevelsOf = (content: BuildingContent): ReadonlyArray<BuildingLevel
         capacityUnits: effect.capacity,
       }))
     case 'library':
+    case 'barracks':
       return content.levels.map((level) => ({ ...level, building: content.building }))
     default: {
       const unreachable: never = content

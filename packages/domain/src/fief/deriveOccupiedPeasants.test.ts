@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type {
+  BarracksLevel,
   BuildingCatalog,
   BuildingLevel,
   FarmLevel,
@@ -68,6 +69,14 @@ const libraryLevelTwo: LibraryLevel = {
   peasantOccupancy: 3,
 }
 
+const barracksLevelOne: BarracksLevel = {
+  building: 'barracks',
+  level: 1,
+  cost: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  durationSeconds: 150,
+  peasantOccupancy: 4,
+}
+
 const inMemoryCatalog = (levels: Partial<Record<string, BuildingLevel>>): BuildingCatalog => ({
   levelOf: (building, buildingLevel) => levels[`${building}:${buildingLevel}`],
   artLevelOf: () => undefined,
@@ -90,6 +99,7 @@ describe('deriveOccupiedPeasants', () => {
       farm: 1,
       warehouse: 1,
       library: 0,
+      barracks: 0,
     }
 
     const result = deriveOccupiedPeasants(levels, catalog)
@@ -106,11 +116,29 @@ describe('deriveOccupiedPeasants', () => {
       farm: 0,
       warehouse: 0,
       library: 2,
+      barracks: 0,
     }
 
     const result = deriveOccupiedPeasants(levels, catalog)
 
     expect(result).toEqual({ ok: true, value: 3 })
+  })
+
+  it('counts the peasants the barracks occupies', () => {
+    const catalog = inMemoryCatalog({ 'barracks:1': barracksLevelOne })
+    const levels: FiefBuildingLevels = {
+      sawmill: 0,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 0,
+      barracks: 1,
+    }
+
+    const result = deriveOccupiedPeasants(levels, catalog)
+
+    expect(result).toEqual({ ok: true, value: 4 })
   })
 
   it('occupies no peasants with nothing built', () => {
@@ -122,6 +150,7 @@ describe('deriveOccupiedPeasants', () => {
       farm: 0,
       warehouse: 0,
       library: 0,
+      barracks: 0,
     }
 
     const result = deriveOccupiedPeasants(levels, catalog)
@@ -138,6 +167,7 @@ describe('deriveOccupiedPeasants', () => {
       farm: 0,
       warehouse: 0,
       library: 0,
+      barracks: 0,
     }
 
     const result = deriveOccupiedPeasants(levels, catalog)

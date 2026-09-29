@@ -26,6 +26,7 @@ const sixBuildings = {
   farm: building(1),
   warehouse: { level: 10, nextLevel: null },
   library: building(0),
+  barracks: building(0),
 }
 
 const busySlot = {

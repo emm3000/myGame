@@ -287,6 +287,27 @@ it('shows no art on the library card', async () => {
   expect(within(libraryCard()).queryByRole('presentation')).toBeNull()
 })
 
+const barracksCard = (): HTMLElement => screen.getByRole('listitem', { name: 'cuartel' })
+
+it('shows the barracks card with its Spanish label', async () => {
+  await showFief(signedInClientServing(() => knownFief))
+
+  expect(within(barracksCard()).getByRole('heading', { name: 'Cuartel' })).toBeDefined()
+})
+
+it('shows no art on the barracks card', async () => {
+  const barracksAtLevelOne: FiefOverview = {
+    ...knownFief,
+    buildings: {
+      ...knownFief.buildings,
+      barracks: { ...knownFief.buildings.barracks, level: 1 },
+    },
+  }
+  await showFief(signedInClientServing(() => barracksAtLevelOne))
+
+  expect(within(barracksCard()).queryByRole('presentation')).toBeNull()
+})
+
 const farmWaitingInFullQueue: FiefOverview = {
   ...knownFief,
   peasants: {

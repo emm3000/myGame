@@ -132,6 +132,7 @@ const unbuiltLevels: FiefBuildingLevels = {
   farm: 0,
   warehouse: 0,
   library: 0,
+  barracks: 0,
 }
 
 const storedFief = (overrides: Partial<StoredFief>): Fief => {
@@ -1124,7 +1125,7 @@ describe('resolveUpgrade across seasons', () => {
     const fiefs = inMemoryFiefRepository([
       storedFief({
         storedAt: lastMinutesOfWinter,
-        buildingLevels: { ...unbuiltLevels, library: 1 },
+        buildingLevels: { ...unbuiltLevels, library: 1, barracks: 0 },
       }),
     ])
     const started = await startStudy(

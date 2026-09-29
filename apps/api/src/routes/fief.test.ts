@@ -211,7 +211,7 @@ describe('the fief route', () => {
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.sawmill).toEqual({ level: 0, nextLevel: sawmillLevelOne })
     expect(Object.values(buildings).map((building) => building.nextLevel?.level)).toEqual([
-      1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1,
     ])
   })
 
@@ -654,6 +654,24 @@ describe('the fief route', () => {
           targetLevel: 1,
           startsAt: '2026-09-22T08:02:00.000Z',
           finishesAt: '2026-09-22T08:07:00.000Z',
+        },
+      ])
+    })
+
+    it('queues a barracks upgrade behind the busy slot', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+
+      const response = await enqueue(ana.cookie, 'barracks')
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.queue.entries).toEqual([
+        {
+          building: 'barracks',
+          targetLevel: 1,
+          startsAt: '2026-09-22T08:02:00.000Z',
+          finishesAt: '2026-09-22T08:08:00.000Z',
         },
       ])
     })

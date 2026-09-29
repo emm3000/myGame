@@ -90,6 +90,7 @@ const levelsWithLibrary = (library: number): FiefBuildingLevels => ({
   farm: 0,
   warehouse: 0,
   library,
+  barracks: 0,
 })
 
 const storedFief = (overrides: Partial<StoredFief>): Fief => {

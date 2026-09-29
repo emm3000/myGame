@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ArtContent, BuildingContent, FiefContent } from '@mygame/contracts'
-import { type ArtKind, type ArtLevel, type BuildingLevel, Instant } from '@mygame/domain'
+import {
+  type ArtKind,
+  type ArtLevel,
+  type BuildingKind,
+  type BuildingLevel,
+  Instant,
+} from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { JsonBuildingCatalog } from './JsonBuildingCatalog'
 
@@ -23,6 +29,7 @@ const oneLevelBuildings: ReadonlyArray<BuildingContent> = [
   { building: 'farm', levels: [{ ...levelOne, effect: { ratePerHour: 25, peasantSupply: 5 } }] },
   { building: 'warehouse', levels: [{ ...levelOne, effect: { capacity: 1500 } }] },
   { building: 'library', levels: [{ ...levelOne, peasantOccupancy: 2 }] },
+  { building: 'barracks', levels: [{ ...levelOne, peasantOccupancy: 3 }] },
 ]
 
 const plainFief: FiefContent = {
@@ -99,10 +106,13 @@ const shippedArtLevels = (art: ArtKind): ReadonlyArray<ArtLevel | undefined> => 
   return Array.from({ length: 10 }, (_, index) => catalog.artLevelOf(art, index + 1))
 }
 
-const shippedLibraryLevels = (): ReadonlyArray<BuildingLevel | undefined> => {
+const shippedLevels = (building: BuildingKind): ReadonlyArray<BuildingLevel | undefined> => {
   const catalog = JsonBuildingCatalog.fromDirectory(shippedContent)
-  return Array.from({ length: 10 }, (_, index) => catalog.levelOf('library', index + 1))
+  return Array.from({ length: 10 }, (_, index) => catalog.levelOf(building, index + 1))
 }
+
+const totalCostsOf = (levels: ReadonlyArray<BuildingLevel | undefined>): ReadonlyArray<number> =>
+  levels.map((line) => Object.values(line?.cost ?? {}).reduce((total, amount) => total + amount, 0))
 
 const strictlyRises = (values: ReadonlyArray<number>): boolean =>
   values.every((value, index) => index === 0 || value > (values[index - 1] ?? 0))
@@ -165,21 +175,41 @@ describe('JsonBuildingCatalog', () => {
   })
 
   it('ships the library at levels 1 to 10', () => {
-    expect(shippedLibraryLevels().map((line) => `${line?.building}:${line?.level}`)).toEqual(
+    expect(shippedLevels('library').map((line) => `${line?.building}:${line?.level}`)).toEqual(
       Array.from({ length: 10 }, (_, index) => `library:${index + 1}`),
     )
   })
 
   it('ships library levels whose total cost strictly rises', () => {
-    const totals = shippedLibraryLevels().map((line) =>
-      Object.values(line?.cost ?? {}).reduce((total, amount) => total + amount, 0),
-    )
-
-    expect(strictlyRises(totals)).toBe(true)
+    expect(strictlyRises(totalCostsOf(shippedLevels('library')))).toBe(true)
   })
 
   it('ships library levels whose duration strictly rises', () => {
-    expect(strictlyRises(shippedLibraryLevels().map((line) => line?.durationSeconds ?? 0))).toBe(
+    expect(strictlyRises(shippedLevels('library').map((line) => line?.durationSeconds ?? 0))).toBe(
+      true,
+    )
+  })
+
+  it('reads a barracks level as its cost, duration and occupancy alone', () => {
+    expect(oneLevelCatalog().levelOf('barracks', 1)).toEqual({
+      building: 'barracks',
+      ...levelOne,
+      peasantOccupancy: 3,
+    })
+  })
+
+  it('ships the barracks at levels 1 to 10', () => {
+    expect(shippedLevels('barracks').map((line) => `${line?.building}:${line?.level}`)).toEqual(
+      Array.from({ length: 10 }, (_, index) => `barracks:${index + 1}`),
+    )
+  })
+
+  it('ships barracks levels whose total cost strictly rises', () => {
+    expect(strictlyRises(totalCostsOf(shippedLevels('barracks')))).toBe(true)
+  })
+
+  it('ships barracks levels whose duration strictly rises', () => {
+    expect(strictlyRises(shippedLevels('barracks').map((line) => line?.durationSeconds ?? 0))).toBe(
       true,
     )
   })

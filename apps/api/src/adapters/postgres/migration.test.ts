@@ -647,3 +647,39 @@ describe('the account tokens migration', () => {
     ])
   })
 })
+
+describe('the barracks building migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the building levels stored before the barracks migration', async () => {
+    await migratedFrom(client, 11, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_buildings (fief_id, building, level)
+         VALUES ($1, 'sawmill', 2), ($1, 'library', 1)`,
+        [anasFief.id],
+      )
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(restored.ok && restored.value?.buildingLevels).toEqual({
+      sawmill: 2,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 1,
+      barracks: 0,
+    })
+  })
+})

@@ -93,6 +93,7 @@ const levelsWithLibrary: FiefBuildingLevels = {
   farm: 0,
   warehouse: 0,
   library: 1,
+  barracks: 0,
 }
 
 const studyCost: Stocks = smithingLevelOne.cost

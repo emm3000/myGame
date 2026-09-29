@@ -178,6 +178,7 @@ describe('foundFief', () => {
       farm: 0,
       warehouse: 0,
       library: 0,
+      barracks: 0,
     })
   })
 
