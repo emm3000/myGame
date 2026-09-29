@@ -119,3 +119,20 @@ them after PRs #135 to #139 shipped.
 - Events of other fiefs, notifications and filtering are out of scope of
   #128; a chronicle that records what other fiefs do to this one is an open
   question of `docs/lore/chronicle.md`, a future ADR.
+
+## Amendment (2026-09-29)
+
+The chronicle records a fifth kind of event, recruits delivered (S10, ADR
+018): the units one recruit order delivered, one event per order and never
+per unit, naming the unit and the count and stamped with the order's end,
+the instant of the last delivery, never the `now` of the read that closed
+it. It carries no level and no refund. The resolve answers it beside the
+finishes of the same walk, after the upgrade and the study of a tied
+instant, and the api writes it in the transaction that closes the order.
+`fief_events` gains a nullable `unit` and a nullable `count`, its `level`
+turns nullable, and the check `fief_events_one_subject` replaces
+`fief_events_building_or_art`: exactly one of `building`, `art` and `unit`,
+a `level` on a building or art row only, a `count` on a unit row only
+(migration 0012). Nothing else here changes: the events are still written
+in the transaction that applies them, the chronicle still records endings
+and never orders, the domain never reads it, and retention stays at 100.

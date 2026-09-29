@@ -28,12 +28,13 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015). |
 | S8 | Seasons: one global calendar in content turns spring, summer, autumn and winter over every fief; each season scales production rates by whole percents, a read accrues each season segment at its own rates, the fief header shows the season, the year and a countdown, and the resource bar marks the resource the season changes (ADR 016). |
 | S9 | Seasons on durations: content gives each season a build and a study percent, summer shortens building and winter shortens study; a duration is fixed with the season in force at the enqueue or the study start and never retimed, the overview answers the effective durations and the season's percents, and the buildings and arts section headers mark the season that shortens them (ADR 017). |
+| S10 | Units recruited in a barracks slot: the barracks is the seventh building, whose built level gates recruiting and shortens every unit's training; one order at a time of N infantry, paid and staffed in full at the order, delivered one unit at a time on read and closed at its last delivery with a chronicle line; every unit occupies peasants and eats nothing (ADR 018). |
 
 ## Won't have (this phase)
 
 | Id | Requirement | Reason |
 |---|---|---|
-| W1 | Units, armies, marches, combat | A second game system; comes after the economy is fun on its own. |
+| W1 | Armies, marches, combat. ADR 018 admits recruiting units in a barracks slot (S10); armies, marches and combat stay out. | A second game system; comes after the economy is fun on its own. |
 | W2 | Houses, messaging, diplomacy | Needs players. |
 | W3 | Trade or market | Needs more than one player and the gold economy tuned. |
 | W4 | New land (second fief) | Multiplies every screen; after the first fief is complete. |
