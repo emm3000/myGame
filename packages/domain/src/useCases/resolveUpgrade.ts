@@ -129,7 +129,16 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
         },
       ]
     case 'march':
-      return []
+      return [
+        {
+          kind: 'marchReturned',
+          province: finished.march.province,
+          plot: finished.march.plot,
+          infantry: finished.march.infantry,
+          loot: finished.march.loot,
+          occurredAt: finished.finishedAt,
+        },
+      ]
     default: {
       const unreachable: never = finished
       return unreachable

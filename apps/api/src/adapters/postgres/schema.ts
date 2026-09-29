@@ -42,6 +42,7 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'study_cancelled',
   'recruits_delivered',
   'recruits_cancelled',
+  'march_returned',
 ])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
@@ -216,6 +217,38 @@ export const fiefRecruitOrders = pgTable(
   ],
 )
 
+export const fiefMarches = pgTable(
+  'fief_marches',
+  {
+    fiefId: uuid('fief_id')
+      .primaryKey()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    province: integer('province').notNull(),
+    plot: integer('plot').notNull(),
+    infantry: integer('infantry').notNull(),
+    stayHours: integer('stay_hours').notNull(),
+    oneWaySeconds: integer('one_way_seconds').notNull(),
+    departedAt: timestamp('departed_at', { withTimezone: true }).notNull(),
+    lootWood: doublePrecision('loot_wood').notNull(),
+    lootStone: doublePrecision('loot_stone').notNull(),
+    lootIron: doublePrecision('loot_iron').notNull(),
+    lootGold: doublePrecision('loot_gold').notNull(),
+    lootFood: doublePrecision('loot_food').notNull(),
+  },
+  (table) => [
+    check('fief_marches_province_positive', sql`${table.province} >= 1`),
+    check('fief_marches_plot_positive', sql`${table.plot} >= 1`),
+    check('fief_marches_infantry_positive', sql`${table.infantry} >= 1`),
+    check('fief_marches_stay_hours_positive', sql`${table.stayHours} >= 1`),
+    check('fief_marches_one_way_seconds_positive', sql`${table.oneWaySeconds} >= 1`),
+    wholeAmount('fief_marches_loot_wood_whole', table.lootWood),
+    wholeAmount('fief_marches_loot_stone_whole', table.lootStone),
+    wholeAmount('fief_marches_loot_iron_whole', table.lootIron),
+    wholeAmount('fief_marches_loot_gold_whole', table.lootGold),
+    wholeAmount('fief_marches_loot_food_whole', table.lootFood),
+  ],
+)
+
 export const fiefEvents = pgTable(
   'fief_events',
   {
@@ -230,6 +263,8 @@ export const fiefEvents = pgTable(
     level: integer('level'),
     count: integer('count'),
     cancelledCount: integer('cancelled_count'),
+    province: integer('province'),
+    plot: integer('plot'),
     refundWood: doublePrecision('refund_wood').notNull().default(0),
     refundStone: doublePrecision('refund_stone').notNull().default(0),
     refundIron: doublePrecision('refund_iron').notNull().default(0),
@@ -240,7 +275,7 @@ export const fiefEvents = pgTable(
   (table) => [
     check(
       'fief_events_one_subject',
-      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}) = 1 AND (${table.level} IS NULL) = (${table.unit} IS NOT NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1))`,
+      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}) = 1 AND (${table.level} IS NULL) = (${table.unit} IS NOT NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.plot} IS NULL) AND (${table.province} IS NULL OR (${table.unit} IS NOT NULL AND ${table.province} >= 1 AND ${table.plot} >= 1))`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],

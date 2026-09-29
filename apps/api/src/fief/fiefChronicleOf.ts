@@ -39,6 +39,15 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
         occurredAt,
         refund: event.refund,
       }
+    case 'marchReturned':
+      return {
+        kind: event.kind,
+        province: event.province,
+        plot: event.plot,
+        infantry: event.infantry,
+        loot: event.loot,
+        occurredAt,
+      }
     default: {
       const unreachable: never = event
       return unreachable
