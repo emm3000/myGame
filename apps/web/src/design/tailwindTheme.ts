@@ -2,6 +2,7 @@ import plugin from 'tailwindcss/plugin'
 import {
   type ColorToken,
   color,
+  maxWidths,
   minHeights,
   palette,
   radii,
@@ -49,6 +50,7 @@ export default plugin(
       boxShadow: shadows,
       fontFamily: typeFamilies,
       fontSize,
+      extend: { maxWidth: maxWidths },
     },
   },
 )

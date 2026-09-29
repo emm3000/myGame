@@ -1,7 +1,15 @@
 import type { ReactElement } from 'react'
+import { Button } from './Button'
+
+export interface PlotAction {
+  readonly label: string
+  readonly accessibleName: string
+  readonly isExpanded: boolean
+  readonly onToggle: () => void
+}
 
 export type PlotHolder =
-  | { readonly kind: 'free'; readonly line: string }
+  | { readonly kind: 'free'; readonly line: string; readonly action?: PlotAction | undefined }
   | { readonly kind: 'held'; readonly name: string }
   | { readonly kind: 'own'; readonly name: string; readonly marker: string }
 
@@ -17,13 +25,39 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   own: 'border-2 border-river border-l-4 bg-surface-raised shadow-card',
 }
 
+const expandedFrameClass = 'border border-line-strong bg-surface-raised'
+
+const frameClassOf = (holder: PlotHolder): string =>
+  holder.kind === 'free' && holder.action?.isExpanded === true
+    ? expandedFrameClass
+    : frameClass[holder.kind]
+
 const nameClass = 'font-body text-heading text-ink wrap-anywhere'
+
+function PlotActionButton({ action }: { readonly action: PlotAction }): ReactElement {
+  return (
+    <span className="mt-auto flex flex-col">
+      <Button
+        type="button"
+        tone="quiet"
+        accessibleName={action.accessibleName}
+        isExpanded={action.isExpanded}
+        onClick={action.onToggle}
+      >
+        {action.label}
+      </Button>
+    </span>
+  )
+}
 
 function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
   switch (holder.kind) {
     case 'free':
       return (
-        <span className="font-body text-heading font-normal text-ink-faint">{holder.line}</span>
+        <>
+          <span className="font-body text-heading font-normal text-ink-faint">{holder.line}</span>
+          {holder.action !== undefined && <PlotActionButton action={holder.action} />}
+        </>
       )
     case 'held':
       return <span className={nameClass}>{holder.name}</span>
@@ -47,7 +81,7 @@ export function PlotTile({ plotLabel, terrainLabel, holder }: PlotTileProps): Re
   return (
     <li
       aria-current={holder.kind === 'own' ? 'true' : undefined}
-      className={`flex min-h-plot flex-col gap-2 rounded-md p-3 ${frameClass[holder.kind]}`}
+      className={`flex min-h-plot flex-col gap-2 rounded-md p-3 ${frameClassOf(holder)}`}
     >
       <span className="flex items-baseline justify-between gap-2">
         <span className="font-utility text-label uppercase text-ink-muted tabular-nums">

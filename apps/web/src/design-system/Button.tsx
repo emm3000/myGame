@@ -8,6 +8,7 @@ export interface ButtonProps {
   readonly tone: ButtonTone
   readonly disabled?: boolean
   readonly accessibleName?: string
+  readonly isExpanded?: boolean
   readonly onClick?: (() => void) | undefined
 }
 
@@ -25,6 +26,7 @@ export function Button(props: ButtonProps): ReactElement {
       type={props.type}
       disabled={props.disabled}
       aria-label={props.accessibleName}
+      aria-expanded={props.isExpanded}
       onClick={props.onClick}
       className={buttonClassOf(props.tone)}
     >
