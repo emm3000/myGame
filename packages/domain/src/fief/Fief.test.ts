@@ -185,6 +185,33 @@ describe('Fief', () => {
     expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
   })
 
+  it('refuses a stored order that ended before the fief was stored', () => {
+    const storedAt = Instant.fromEpochMilliseconds(86_626_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      storedAt,
+      slot: { kind: 'idle' },
+      studySlot: { kind: 'idle' },
+    })
+
+    expect(restored).toEqual(
+      err({
+        kind: 'SlotFinishesBeforeStored',
+        storedAt,
+        finishesAt: Instant.fromEpochMilliseconds(86_625_000),
+      }),
+    )
+  })
+
+  it('adds the delivered units to the counts read', () => {
+    const restored = Fief.restore(storedBusyFief)
+    assert(restored.ok)
+
+    const counts = restored.value.unitCountsAt(Instant.fromEpochMilliseconds(86_500_000))
+
+    expect(counts.countOf('infantry')).toBe(6)
+  })
+
   it('refuses a stored art level that is not a whole count', () => {
     const restored = Fief.restore({
       ...storedBusyFief,

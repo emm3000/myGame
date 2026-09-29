@@ -16,6 +16,7 @@ import type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './BuildQueue'
 import type { BuildSlot, BusySlot } from './BuildSlot'
 import type { ChangedFief } from './ChangedFief'
 import { Coordinates } from './Coordinates'
+import { deliveredUnitsOf } from './deliveredUnitsOf'
 import { deriveStudyDurationSeconds } from './deriveStudyDurationSeconds'
 import { deriveUnitDurationSeconds } from './deriveUnitDurationSeconds'
 import { entryFitsProjection } from './entryFitsProjection'
@@ -28,7 +29,8 @@ import { FiefUnitCounts, type UnitCountsByKind } from './FiefUnitCounts'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
-import type { RecruitOrder } from './RecruitOrder'
+import type { OpenRecruitOrder, RecruitOrder } from './RecruitOrder'
+import { recruitOrderEndsAt } from './recruitOrderEndsAt'
 import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
@@ -185,7 +187,10 @@ const validateStudySlot = (studySlot: StudySlot, storedAt: Instant): Result<void
 
 const isUnitCount = (count: number): boolean => Number.isInteger(count) && count >= 1
 
-const validateRecruitOrder = (recruitOrder: RecruitOrder): Result<void, DomainError> => {
+const validateRecruitOrder = (
+  recruitOrder: RecruitOrder,
+  storedAt: Instant,
+): Result<void, DomainError> => {
   if (recruitOrder.kind === 'idle') {
     return ok(undefined)
   }
@@ -198,6 +203,10 @@ const validateRecruitOrder = (recruitOrder: RecruitOrder): Result<void, DomainEr
       unit: recruitOrder.unit,
       seconds: recruitOrder.perUnitSeconds,
     })
+  }
+  const endsAt = recruitOrderEndsAt(recruitOrder)
+  if (endsAt.epochMilliseconds < storedAt.epochMilliseconds) {
+    return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: endsAt })
   }
   return refuseNegativeAmount(recruitOrder.cost)
 }
@@ -237,7 +246,7 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   if (!storedStudySlot.ok) {
     return storedStudySlot
   }
-  const storedRecruitOrder = validateRecruitOrder(stored.recruitOrder)
+  const storedRecruitOrder = validateRecruitOrder(stored.recruitOrder, stored.storedAt)
   if (!storedRecruitOrder.ok) {
     return storedRecruitOrder
   }
@@ -255,6 +264,7 @@ type FiefChange = Partial<
     readonly storedAt: Instant
     readonly buildingLevels: FiefBuildingLevels
     readonly artLevels: FiefArtLevels
+    readonly units: FiefUnitCounts
     readonly studySlot: StudySlot
     readonly recruitOrder: RecruitOrder
   }
@@ -707,6 +717,23 @@ export class Fief {
     })
   }
 
+  completeRecruitOrder(ended: OpenRecruitOrder, stocksAtEnd: Stocks): Fief {
+    return this.changed({
+      stocks: stocksAtEnd,
+      storedAt: recruitOrderEndsAt(ended),
+      units: this.units.plus(ended.unit, ended.count),
+      recruitOrder: { kind: 'idle' },
+    })
+  }
+
+  unitCountsAt(at: Instant): FiefUnitCounts {
+    const { recruitOrder } = this
+    if (recruitOrder.kind === 'idle') {
+      return this.units
+    }
+    return this.units.plus(recruitOrder.unit, deliveredUnitsOf(recruitOrder, at))
+  }
+
   accruedTo(catalog: BuildingCatalog, now: Instant): Result<Fief, DomainError> {
     const stocksAtNow = materializeStocks(this, catalog, now)
     if (!stocksAtNow.ok) {
@@ -725,7 +752,7 @@ export class Fief {
       change.storedAt ?? this.storedAt,
       change.buildingLevels ?? this.buildingLevels,
       change.artLevels ?? this.artLevels,
-      this.units,
+      change.units ?? this.units,
       change.slot ?? this.slot,
       change.buildQueue ?? this.buildQueue,
       change.studySlot ?? this.studySlot,
