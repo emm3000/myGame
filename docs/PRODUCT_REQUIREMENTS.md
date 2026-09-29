@@ -31,12 +31,13 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | S10 | Units recruited in a barracks slot: the barracks is the seventh building, whose built level gates recruiting and shortens every unit's training; one order at a time of N infantry, paid and staffed in full at the order, delivered one unit at a time on read and closed at its last delivery with a chronicle line; every unit occupies peasants and eats nothing (ADR 018). |
 | S11 | Cancelling the recruit order in progress: the lord keeps the units delivered by the cancel instant, the undelivered units are refunded in full and their peasants freed, an order named by its unit and start so a stale tab is refused, and the chronicle records one line with the delivered and cancelled counts (ADR 018 as amended). |
 | S12 | A season on unit training: content gives each season a train percent, spring shortens training; a unit's duration is fixed with the season in force at the recruit order for all its units and never retimed, and the overview answers the scaled terms and the season's train percent (ADR 017 as amended). |
+| S13 | Forage marches: infantry march from the fief to a free plot of the kingdom, the road timed by the provinces and the plots crossed, forage there for a chosen whole count of hours and return with a loot fixed at dispatch from the terrain, the hours and the carry; one march at a time, the men away still counted and occupying their peasants, the phases derived on read, the loot credited at the return even above the capacity with a chronicle line; sent from a free plot on the map and shown in the army section (ADR 019). |
 
 ## Won't have (this phase)
 
 | Id | Requirement | Reason |
 |---|---|---|
-| W1 | Armies, marches, combat. ADR 018 admits recruiting units in a barracks slot (S10); armies, marches and combat stay out. | A second game system; comes after the economy is fun on its own. |
+| W1 | Armies, marches, combat. ADR 018 admits recruiting units in a barracks slot (S10) and ADR 019 forage marches to a free plot (S13); armies, marches that meet another lord and combat stay out. | A second game system; comes after the economy is fun on its own. |
 | W2 | Houses, messaging, diplomacy | Needs players. |
 | W3 | Trade or market | Needs more than one player and the gold economy tuned. |
 | W4 | New land (second fief) | Multiplies every screen; after the first fief is complete. |

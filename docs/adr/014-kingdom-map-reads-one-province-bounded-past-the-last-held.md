@@ -116,3 +116,18 @@ this ADR records the decisions and the defaults after PRs #149 to #153.
   not in `docs/lore/names.md`; the author accepts or replaces it there. The
   map's lore (`docs/lore/names.md`, The map) is a proposal until the author
   accepts it. The follow-ups of the #153 review are #154.
+
+## Amendment (2026-09-29)
+
+The map is no longer read-only. S13 (ADR 019) sends a forage march from a
+free plot: the `dispatchMarch` use case reads `lastOccupiedProvince` and
+`holdersIn` through `KingdomMapReader`, on the pool and lock-free as this
+ADR keeps it, to bound the target and refuse a held plot, and the web
+offers *Enviar una marcha* on every free plot of `/mapa`, never on a held
+one nor on the viewer's own. That lifts "Nothing is started from the map"
+and the rejection "the map is read to plan, never acted on, until a ticket
+says otherwise"; the march is the one order the map takes. Nothing else
+here changes: the map still shows one province at a time, bounded by
+`lastProvince`, the terrain still derives from the province number, the
+reader still reads no stock and resolves nothing, and no plot is reserved
+or depleted by a march.
