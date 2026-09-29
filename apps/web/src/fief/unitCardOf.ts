@@ -2,7 +2,8 @@ import type { UnitKind } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { CardCost } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
-import type { UnitCardProps, UnitCardState } from '../design-system/UnitCard'
+import type { SubmitActionState } from '../design-system/SubmitAction'
+import type { UnitCardProps } from '../design-system/UnitCard'
 import type { LiveFief } from './liveFief'
 import { resourceCostsOf } from './resourceCostsOf'
 import { type ResourceCost, shortfallsOf } from './shortfallsOf'
@@ -40,7 +41,7 @@ const costTimes = (cost: ResourceCost, count: number): ResourceCost => ({
 const freePeasantsOf = ({ peasants }: LiveFief['overview']): number =>
   Math.min(peasants.free, peasants.projectedFree)
 
-function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): UnitCardState {
+function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): SubmitActionState {
   if (fief.overview.recruitOrder !== null) {
     return { kind: 'blocked', reason: copy.army.orderRunning }
   }
