@@ -133,4 +133,42 @@ describe('FiefEventSchema', () => {
 
     expect(FiefEventSchema.safeParse(cancelled).success).toBe(false)
   })
+
+  it('accepts a march-returned event', () => {
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 7,
+      infantry: 12,
+      loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(returned)).toEqual(returned)
+  })
+
+  it('rejects a march-returned event with no infantry', () => {
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 7,
+      infantry: 0,
+      loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(returned).success).toBe(false)
+  })
+
+  it('rejects a march-returned event without its plot', () => {
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      infantry: 12,
+      loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(returned).success).toBe(false)
+  })
 })

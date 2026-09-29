@@ -51,6 +51,15 @@ const RecruitsCancelledSchema = z.strictObject({
   refund: ResourceAmountsSchema,
 })
 
+const MarchReturnedSchema = z.strictObject({
+  kind: z.literal('marchReturned'),
+  province: WholeCountSchema.positive(),
+  plot: WholeCountSchema.positive(),
+  infantry: WholeCountSchema.positive(),
+  loot: ResourceAmountsSchema,
+  occurredAt: InstantSchema,
+})
+
 export const FiefEventSchema = z.discriminatedUnion('kind', [
   UpgradeFinishedSchema,
   ArtLearnedSchema,
@@ -58,6 +67,7 @@ export const FiefEventSchema = z.discriminatedUnion('kind', [
   StudyCancelledSchema,
   RecruitsDeliveredSchema,
   RecruitsCancelledSchema,
+  MarchReturnedSchema,
 ])
 
 export type FiefEvent = z.infer<typeof FiefEventSchema>
