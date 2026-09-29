@@ -17,12 +17,14 @@ import { ResourceBar } from '../design-system/ResourceBar'
 import { SeasonLine } from '../design-system/SeasonLine'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
+import { ArmySection } from './ArmySection'
 import { buildingCardOf } from './buildingCardOf'
 import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import type { Cancel } from './useCancel'
+import type { Recruit } from './useRecruit'
 import type { Study } from './useStudy'
 import type { Upgrade } from './useUpgrade'
 
@@ -31,6 +33,7 @@ export interface FiefScreenProps {
   readonly upgrade: Upgrade
   readonly cancel: Cancel
   readonly study: Study
+  readonly recruit: Recruit
 }
 
 const { names } = copy
@@ -147,7 +150,13 @@ function BuildingItem({
   )
 }
 
-export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): ReactElement {
+export function FiefScreen({
+  fief,
+  upgrade,
+  cancel,
+  study,
+  recruit,
+}: FiefScreenProps): ReactElement {
   const { overview, amounts } = fief
   const buildingsHeadingId = useId()
   const resources = ResourceKindSchema.options.map((kind) => ({
@@ -201,6 +210,7 @@ export function FiefScreen({ fief, upgrade, cancel, study }: FiefScreenProps): R
         </section>
       </div>
       {overview.buildings.library.level >= 1 && <LibrarySection fief={fief} study={study} />}
+      {overview.buildings.barracks.level >= 1 && <ArmySection fief={fief} recruit={recruit} />}
     </div>
   )
 }

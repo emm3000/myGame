@@ -275,6 +275,24 @@ export const copy = {
     libraryTooLow: (required: number, current: number): string =>
       `Necesitas la biblioteca a ${names.level(required)} y está a ${names.level(current)}.`,
   },
+  army: {
+    section: 'Cuartel',
+    slot: 'la leva',
+    busySlot: 'una leva en marcha',
+    idleSlot: 'El cuartel no tiene leva en marcha.',
+    orderHeading: 'Leva en marcha:',
+    orderLine: (unit: UnitKind, delivered: number, count: number): string =>
+      `${delivered} de ${count} ${agreeing(count, units[unit].singular, units[unit].plural)}`,
+    nextUnitIn: (unit: UnitKind): string => `Siguiente ${units[unit].singular} en`,
+    orderCompleteIn: 'Leva completa en',
+    unitTitle: (unit: UnitKind): string => capitalize(units[unit].plural),
+    unitCount: (unit: UnitKind, count: number): string =>
+      agreeing(count, units[unit].singular, units[unit].plural),
+    countField: (unit: UnitKind): string => `${capitalize(units[unit].plural)} a reclutar`,
+    recruit: (unit: UnitKind): string => `Reclutar ${units[unit].plural}`,
+    orderRunning: 'Ya hay una leva en marcha.',
+    invalidCount: 'Un número entero, al menos 1.',
+  },
   chronicle: {
     title: 'Crónica',
     loading: 'Estamos leyendo la crónica…',

@@ -1,4 +1,4 @@
-import type { BuildingKind, FiefOverview, ResourceKind } from '@mygame/contracts'
+import type { BuildingKind, FiefOverview, ResourceKind, UnitKind } from '@mygame/contracts'
 
 export type LiveAmounts = Readonly<Record<ResourceKind, number>>
 
@@ -6,6 +6,15 @@ export interface LiveWaitingUpgrade {
   readonly building: BuildingKind
   readonly targetLevel: number
   readonly remainingSeconds: number
+}
+
+export interface LiveRecruitOrder {
+  readonly unit: UnitKind
+  readonly count: number
+  readonly delivered: number
+  readonly nextUnitRemainingSeconds: number
+  readonly remainingSeconds: number
+  readonly totalSeconds: number
 }
 
 export interface LiveFief {
@@ -17,6 +26,8 @@ export interface LiveFief {
   readonly studyTotalSeconds: number
   readonly seasonRemainingSeconds: number
   readonly waitingUpgrades: ReadonlyArray<LiveWaitingUpgrade>
+  readonly units: Readonly<Record<UnitKind, number>>
+  readonly recruitOrder: LiveRecruitOrder | null
 }
 
 const secondsPerHour = 3600
@@ -66,8 +77,51 @@ export function seasonRemainingSecondsAt(overview: FiefOverview, elapsedSeconds:
     : remainingSecondsAt(overview.season.endsAt, overview, elapsedSeconds)
 }
 
+export function recruitOrderRemainingSecondsAt(
+  overview: FiefOverview,
+  elapsedSeconds: number,
+): number {
+  return overview.recruitOrder === null
+    ? 0
+    : remainingSecondsAt(overview.recruitOrder.endsAt, overview, elapsedSeconds)
+}
+
+function recruitOrderAt(overview: FiefOverview, elapsedSeconds: number): LiveRecruitOrder | null {
+  const order = overview.recruitOrder
+  if (order === null) {
+    return null
+  }
+  const sinceStartSeconds =
+    (Date.parse(overview.readAt) - Date.parse(order.startedAt)) / 1000 + elapsedSeconds
+  const delivered = Math.min(
+    order.count,
+    Math.floor(Math.max(0, sinceStartSeconds) / order.perUnitSeconds),
+  )
+  return {
+    unit: order.unit,
+    count: order.count,
+    delivered,
+    nextUnitRemainingSeconds:
+      delivered >= order.count ? 0 : (delivered + 1) * order.perUnitSeconds - sinceStartSeconds,
+    remainingSeconds: recruitOrderRemainingSecondsAt(overview, elapsedSeconds),
+    totalSeconds: (Date.parse(order.endsAt) - Date.parse(order.startedAt)) / 1000,
+  }
+}
+
+function unitsAt(
+  overview: FiefOverview,
+  order: LiveRecruitOrder | null,
+): Readonly<Record<UnitKind, number>> {
+  if (order === null || overview.recruitOrder === null) {
+    return overview.units
+  }
+  const deliveredSinceRead = order.delivered - overview.recruitOrder.delivered
+  return { ...overview.units, [order.unit]: overview.units[order.unit] + deliveredSinceRead }
+}
+
 export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): LiveFief {
   const { wood, stone, iron, gold, food } = overview.resources
+  const recruitOrder = recruitOrderAt(overview, elapsedSeconds)
   return {
     overview,
     amounts: {
@@ -87,5 +141,7 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
       targetLevel,
       remainingSeconds: remainingSecondsAt(finishesAt, overview, elapsedSeconds),
     })),
+    units: unitsAt(overview, recruitOrder),
+    recruitOrder,
   }
 }

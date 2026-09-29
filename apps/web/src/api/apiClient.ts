@@ -11,6 +11,7 @@ import {
   type FiefOverview,
   FiefOverviewSchema,
   type ForgotPasswordRequest,
+  type PlaceRecruitOrderRequest,
   type Player,
   PlayerSchema,
   type ProvinceMap,
@@ -39,6 +40,7 @@ export interface ApiClient {
   cancelUpgrade(target: CancelUpgradeRequest): Promise<ApiOutcome<FiefOverview>>
   startStudy(art: ArtKind): Promise<ApiOutcome<FiefOverview>>
   cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
+  placeRecruitOrder(request: PlaceRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
@@ -135,6 +137,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     },
     cancelStudy: async ({ art, targetLevel }) => {
       const response = await send(`/fief/studies/${art}/${targetLevel}`, { method: 'DELETE' })
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    placeRecruitOrder: async ({ unit, count }) => {
+      const request: PlaceRecruitOrderRequest = { unit, count }
+      const response = await postJson('/fief/recruit-orders', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
     chronicle: async () => {

@@ -122,6 +122,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   cancelUpgrade: async () => ({ ok: true, value: knownFief }),
   startStudy: async () => ({ ok: true, value: knownFief }),
   cancelStudy: async () => ({ ok: true, value: knownFief }),
+  placeRecruitOrder: async () => ({ ok: true, value: knownFief }),
   chronicle: async () => ({ ok: true, value: { events: [] } }),
   provinceMap: async () => ({ ok: true, value: knownProvinceMap }),
   verifyEmail: async () => undefined,
