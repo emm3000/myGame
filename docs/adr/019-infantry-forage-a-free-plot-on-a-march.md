@@ -337,7 +337,7 @@ S14 (#277) supersedes "There is no recall in this slice" in the decision
 march, ..." and the out-of-scope line of the Consequences: a march is now
 recalled on its way out or at the plot. Combat and seasons stay out. The
 owner grilled it on 2026-09-29 and took the recommended option on every
-question; this records what S14 has shipped so far, PRs #285 to #289 and the lore
+question; this records what S14 shipped, PRs #285 to #291 and the lore
 proposals of #278 (PR #286), where the code stands over the tickets.
 
 - **A march is recalled while outbound or foraging, never while returning.**
@@ -422,11 +422,11 @@ proposals of #278 (PR #286), where the code stands over the tickets.
   `recalledAt`, an instant or `null` when not recalled; its `arrivesAt`,
   `leavesAt` and `returnsAt` are those `marchInstantsOf` derives, so a
   client reads the phase from them and no phase field is added.
-- **Screen (Decision 8 of #277, recorded as it fixes it and not as
-  shipped: #283 is open).** One direct button on the army section's march
+- **Screen (Decision 8 of #277, shipped in PR #291).** One direct button on the army section's march
   slot, shown outbound and foraging only, with no confirmation dialog, as
   *Cancelar la leva* has none; after the recall the card shows the returning
-  countdown to the new `returnsAt`. No design ticket. The button's copy is a
+  countdown to the new `returnsAt`, and a march recalled on the road shows no
+  *Botín* line. No design ticket. The button's copy is a
   lore proposal of #278 that waits for the author.
 
 Nothing else here changes: one march at a time, the road, the terms and the
