@@ -37,7 +37,7 @@ recorded as Decision 4 fixes them and the mockup of #295 draws them.
   `kingdom`, `province` and `plot` through a fixed integer hash and places
   a camp when the high bits of the hash fall under
   `campFraction × 2^24`; the low byte modulo 3 gives the tier, 1, 2 or 3,
-  uniform over the hash. Two calls for one plot answer the same camp, and
+  near-uniform over the hash (256 values split 86/85/85). Two calls for one plot answer the same camp, and
   no row anywhere says where a camp is, as `terrainOf` derives the terrain
   (ADR 014). A camp stands on a free plot only: a fief founded on its
   plot erases it, since the map answers a camp on a free plot alone and
@@ -137,8 +137,8 @@ recorded as Decision 4 fixes them and the mockup of #295 draws them.
   before `now`, placed between the recruit order and the march in the tie
   order: the upgrade first, then the study, then the order, then the
   battle, then the march. It reads the infantry strength from the content
-  in force and `Fief.completeBattle` materializes the stocks to
-  `arrivesAt`, stores it as `storedAt`, lowers the stored infantry count by
+  in force and `Fief.completeBattle` stores the stocks the resolve
+  materialized to `arrivesAt`, stores that instant as `storedAt`, lowers the stored infantry count by
   the infantry lost and, when won, keeps the march with `infantry` at the
   survivors and `fought` true; when lost, it idles the march slot at the
   arrival and no `marchReturned` follows. The resolve answers the camp's

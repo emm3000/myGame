@@ -164,8 +164,8 @@ The chronicle records an eighth kind of event, battle fought (S15, ADR
 attack, naming the plot (province and plot), the camp's tier, the infantry
 lost and the strength the camp lost, both counts written even when one is
 0, and stamped with the attack's arrival, `arrivesAt`, never the `now` of
-the read that fought it. It carries no level, no unit count of its own on
-the wire and no refund. The resolve answers it beside the finishes of the
+the read that fought it. It carries no level, no `unit` field (the infantry
+lost is stored in `count`) and no refund. The resolve answers it beside the finishes of the
 same walk, after the upgrade, the study and the recruits delivered of a
 tied instant and before the march returned, and the api writes it in the
 transaction that fights the battle. A won attack goes on to write a march
