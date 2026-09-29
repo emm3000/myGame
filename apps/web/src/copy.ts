@@ -281,6 +281,8 @@ export const copy = {
   },
   army: {
     section: 'Cuartel',
+    seasonMark: (season: SeasonKind): string =>
+      `${capitalize(seasonsWithArticle[season])} acorta la leva`,
     slot: 'la leva',
     busySlot: 'una leva en marcha',
     idleSlot: 'El cuartel no tiene leva en marcha.',

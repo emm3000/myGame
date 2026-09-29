@@ -316,3 +316,70 @@ it('shows the build duration the fief read answered', async () => {
   const sawmill = screen.getByRole('listitem', { name: 'aserradero' })
   expect(within(sawmill).getByRole('button', { name: /· 1:30/ })).toBeDefined()
 })
+
+const withTheBarracksBuilt = (season: FiefOverview['season']): FiefOverview => ({
+  ...knownFief,
+  buildings: {
+    ...knownFief.buildings,
+    barracks: { ...knownFief.buildings.barracks, level: 1 },
+  },
+  season,
+})
+
+const seasonOf = (
+  kind: 'spring' | 'summer' | 'autumn' | 'winter',
+  durationPercent: { build: number; study: number; train: number },
+): NonNullable<FiefOverview['season']> => ({
+  kind,
+  year: 1,
+  endsAt: '2026-09-25T12:00:00.000Z',
+  multiplierPercent: neutralPercents,
+  durationPercent,
+})
+
+const springShorteningTheLevy = withTheBarracksBuilt({
+  ...seasonOf('spring', { build: 100, study: 100, train: 75 }),
+  multiplierPercent: { ...neutralPercents, food: 125 },
+})
+
+it('marks the army section spring shortens', async () => {
+  await showFief(signedInClientServing(() => springShorteningTheLevy))
+
+  expect(sectionMarkIn('Cuartel')?.textContent).toBe('La primavera acorta la leva')
+  expect(sectionMarkIn('Edificios')).toBeNull()
+  expect(seasonMarkIn('comida')?.textContent).toBe('Primavera: +25 % de comida')
+})
+
+it('marks no army section in summer, autumn or winter', async () => {
+  const seasons = [
+    seasonOf('summer', { build: 75, study: 100, train: 100 }),
+    seasonOf('autumn', neutralDurations),
+    seasonOf('winter', { build: 100, study: 75, train: 100 }),
+  ]
+  for (const season of seasons) {
+    await showFief(signedInClientServing(() => withTheBarracksBuilt(season)))
+
+    expect(sectionMarkIn('Cuartel')).toBeNull()
+    cleanup()
+  }
+})
+
+it('marks no army section before the calendar starts', async () => {
+  await showFief(signedInClientServing(() => withTheBarracksBuilt(null)))
+
+  expect(sectionMarkIn('Cuartel')).toBeNull()
+})
+
+const springAnsweringAShorterInfantry: FiefOverview = {
+  ...springShorteningTheLevy,
+  recruitTerms: {
+    infantry: { ...knownFief.recruitTerms.infantry, perUnitSeconds: 34 },
+  },
+}
+
+it('shows the unit duration the fief read answered', async () => {
+  await showFief(signedInClientServing(() => springAnsweringAShorterInfantry))
+
+  const army = screen.getByRole('region', { name: 'Cuartel' })
+  expect(within(army).getByRole('button', { name: /· 0:34/ })).toBeDefined()
+})

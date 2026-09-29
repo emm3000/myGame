@@ -9,6 +9,8 @@ import {
 } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
 import type { LiveFief, LiveRecruitOrder } from './liveFief'
+import { SeasonSectionHeading } from './SeasonSectionHeading'
+import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import { recruitCountOf, unitCardOf } from './unitCardOf'
 import type { Recruit } from './useRecruit'
 
@@ -91,9 +93,11 @@ export function ArmySection({
   const headingId = useId()
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-3">
-      <h3 id={headingId} className="m-0 font-body text-heading text-ink">
-        {army.section}
-      </h3>
+      <SeasonSectionHeading
+        id={headingId}
+        title={army.section}
+        mark={seasonSectionMarkOf(fief.overview.season, 'train', army.seasonMark)}
+      />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <RecruitSlot state={recruitSlotStateOf(fief, recruit)} />
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
