@@ -1,6 +1,6 @@
 # Names the player reads
 
-Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account and the seasons. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
+Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account, the seasons and the army. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
 
 ## Resources
 
@@ -23,8 +23,9 @@ Status: accepted by the author on 2026-09-22, except the lines marked as a propo
 | farm | granja |
 | warehouse | almacén |
 | library | biblioteca |
+| barracks | cuartel |
 
-The *biblioteca* row is a proposal for the author, not yet accepted (`arts.md`).
+The *biblioteca* row (`arts.md`) and the *cuartel* row (The army, below) are proposals for the author, not yet accepted.
 
 ## The fief
 
@@ -32,6 +33,7 @@ The *biblioteca* row is a proposal for the author, not yet accepted (`arts.md`).
 - The **build slot** is *la obra*: a busy slot has *una obra en marcha*; a free slot *no tiene obra*.
 - The **build queue** is *las obras en espera*: the upgrades waiting behind *la obra en marcha*, listed in order. Proposal for the author, not yet accepted.
 - A **level** is *nivel*; a building at level 3 reads *nivel 3*.
+- The **buildings section** of the fief screen, the one that holds the building cards, is titled *Edificios*, as shipped. Proposal for the author, not yet accepted; the seasons section and the army section below rely on it.
 
 ## The arts
 
@@ -45,6 +47,7 @@ Every line of this section is a proposal for the author, not yet accepted (`arts
 - A **study** is *un estudio*. The button that starts one reads *Estudiar*, with the art after it where the card needs it: *Estudiar herrería*.
 - The **study slot** is *el estudio*, in the register of *la obra*: a busy slot has *un estudio en marcha*; an idle slot reads *La biblioteca no tiene estudio en marcha.*
 - Cancelling the study in progress reads *Cancelar el estudio*.
+- The **arts section** of the fief screen is titled *Biblioteca*: the library's label, capitalised as a title, since the section shows the library's work. It sits below *Edificios* and is shown from library level 1.
 - An art's **level** is *nivel*, as for buildings: an art at level 2 reads *nivel 2*; an art no one has studied yet reads *sin estudiar*.
 
 ## The chronicle
@@ -61,6 +64,9 @@ Every line of this section is a proposal for the author, not yet accepted (`chro
 | artLearned | *Estudio terminado: herrería, nivel 2.* | the art label, the level reached |
 | upgradeCancelled | *Obra cancelada: aserradero, nivel 3. Recuperas 120 de madera y 80 de piedra.* | the building label, the level cancelled, the refunded amounts |
 | studyCancelled | *Estudio cancelado: herrería, nivel 2. Recuperas 60 de hierro y 20 de oro.* | the art label, the level cancelled, the refunded amounts |
+| recruitsDelivered | *Leva terminada: 12 infantes.* | the count delivered, the unit label agreeing with it |
+
+- The **recruits delivered** line (S10, #209) is a proposal for the author, not yet accepted, as the rows above are: the heading *Leva terminada:*, then the count delivered and the unit label agreeing with it, in the register of *Obra terminada: aserradero, nivel 3*. One unit reads *Leva terminada: 1 infante.*; no level, no refund. One line per order, dated by the last unit's arrival (`chronicle.md`). The unit labels are in The army, below.
 
 - The **refunded amounts** read as *Te faltan* does on the fief screen: each as its quantity, *de* and the resource label, in the order of the Resources table, joined as a Spanish list (*120 de madera, 80 de piedra y 20 de oro*). A resource the refund does not hold is left out.
 - The **instant** each line carries is shown as the design decides (#133); it is not a lore name.
@@ -209,6 +215,34 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 - The work is named in the plural of *la obra* and *el estudio*, so the sentence covers every card of the section; the shortened duration itself is read on each card's button, as it is today. The sentence needs the season's article, which the table carries, and no resource.
 - A section is marked only when the season's `durationPercent` for it is not `100`: summer marks the buildings section, winter marks the arts section, spring and autumn mark no section, and nothing is marked before the calendar starts (`season` null). The resource bar lines above stay as they are: winter marks *comida* on the bar and *los estudios* on its section, both at once.
 
+## The army
+
+Every line of this section is a proposal for the author, not yet accepted (`world.md`, Where resources come from). The English identifiers `barracks`, `infantry`, `units`, `recruitOrder`, `recruitTerms`, `recruitsDelivered`, `BarracksNotBuilt` and `RecruitSlotBusy` are fixed by the S10 tickets (#209); only the Spanish is proposed here.
+
+- The **barracks** is *el cuartel*, the seventh building of the Buildings table: a walled yard with a drill ground and a roof for the spears, where the fief's hands learn to hold a line. Its level shortens every levy, as the library's shortens every study.
+- A **unit** is one armed hand taken from the fields (`world.md`). The **count** of a kind reads the number first and then the label, in the register of *3 días*: *12 infantes*, *0 infantes*, *1 infante*. The copy agrees the label with the numeral before it: 1 singular, every other count plural, 0 included.
+
+| Term | Singular | Plural | Note |
+|---|---|---|---|
+| infantry | infante | infantes | the foot soldier: a spear, a shield and boots; the only kind of S10 |
+
+- **Recruiting** is *reclutar*. The form's button reads *Reclutar*, with the unit after it where the card needs it: *Reclutar infantes*, in the register of *Estudiar herrería*; the plural, since no numeral precedes it.
+- A **recruit order** is *una leva*: the lord's call on the fields, paid in full the moment it is given, that hands over its men one at a time as each is armed and drilled.
+- The **army section** of the fief screen is titled *Cuartel*, as the arts section is titled *Biblioteca*: the building whose yard the section shows. It sits below *Edificios* and is shown from barracks level 1. *Ejército* is kept for the army on a march of W1 (`CONTEXT.md`, Army).
+- The **recruit slot** is *la leva*, in the register of *la obra* and *el estudio*: a busy slot has *una leva en marcha*; an idle slot reads *El cuartel no tiene leva en marcha.*
+- The **order line** puts the heading first, then a colon, the units delivered, *de*, the units ordered and the label, in the register of *Obra terminada: aserradero, nivel 3*: *Leva en marcha: 4 de 12 infantes*. Slots: the units delivered, the units ordered, the unit label agreeing with the units ordered, the numeral before it; an order of one reads *Leva en marcha: 0 de 1 infante*.
+- The two **countdowns** of the order read as *Invierno en 3 días* does: *Siguiente infante en 2:30* to the next unit and *Leva completa en 27:30* to the last. Slots: the unit label in the singular, the time to the next unit and the time to the last, formatted as `formatDuration` reads today; the unit of time is not a lore name. *Siguiente* has one form for either gender and *completa* agrees with *leva*, so neither line needs the unit's gender. When one unit remains both lines name the same instant, and whether one is shown is the design's call (#213).
+- The **form's field** reads *Infantes a reclutar*, in the register of *Nombre de tu feudo*: the unit label in the plural, since no numeral precedes it. Slot: the unit label. The cost and the peasants of the count typed read as the building cards read theirs, and a shortfall as *Te faltan* and *Necesitas 3 campesinos libres y tienes 2.* do; no new line.
+- The **form blocked by the busy slot** reads *Ya hay una leva en marcha.*, in the register of *Ya hay un estudio en marcha.*
+- The two **refusals** the server answers, in the register of *Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.* and *La biblioteca ya tiene un estudio en marcha. Espera a que termine.*:
+
+| Refusal | Line | Slots |
+|---|---|---|
+| BarracksNotBuilt | *Tu feudo aún no tiene cuartel. Levántalo primero.* | none |
+| RecruitSlotBusy | *El cuartel ya tiene una leva en marcha. Espera a que termine.* | none |
+
+- Short resources and too few peasants reuse the shipped lines of `InsufficientResources` and `NotEnoughPeasants`, unchanged in this slice.
+
 ## Open questions
 
 - The names of the second and third kingdoms, one per remaining house.
@@ -218,3 +252,6 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 - Whether *parcela* survives once a lord can choose a plot at founding, or a plainer *tierra* takes its place.
 - Whether *vega*, *páramo* and *riscos* survive once each terrain has an image (`docs/art/art-bible.md`).
 - Whether the seasons keep their plain names or the land gives each one a name of its own once summer speeds building (S9).
+- Whether *cuartel* survives once the barracks has an image (`docs/art/art-bible.md`), or the land gives it a plainer name, *la casa de armas*.
+- Whether *infante* holds beside the kinds of a later slice, and whether *leva* names an order of them all or only of foot soldiers.
+- Whether the shipped *para esa obra* of the resources and peasants refusals widens now that a study and a levy are refused for the same reasons.

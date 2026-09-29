@@ -1,12 +1,14 @@
 # The chronicle
 
-Status: proposal. Every fact below is a proposal until the author accepts it. The English terms `chronicle` and the four event kinds `upgradeFinished`, `artLearned`, `upgradeCancelled` and `studyCancelled` are fixed by the S3 tickets (#128); the Spanish labels and the sentence of each event are in `names.md`.
+Status: proposal. Every fact below is a proposal until the author accepts it. The English terms `chronicle` and the four event kinds `upgradeFinished`, `artLearned`, `upgradeCancelled` and `studyCancelled` are fixed by the S3 tickets (#128), and the fifth, `recruitsDelivered`, by the S10 tickets (#209); the Spanish labels and the sentence of each event are in `names.md`.
 
 ## What the chronicle is
 
 A lord is not always at the hall. Works finish at night, a master leaves once the treatise is copied, a recalled commission sends its materials back to the stores, and the lord hears of it on return, if anyone remembers to tell. The **chronicle** is the fief's remedy: one roll of parchment kept in the hall, on which each such happening is written as a single short line with the day and the hour it happened. It is the fief's memory of what went on while the lord looked elsewhere.
 
 The chronicle records endings, never orders. Ordering a work or commissioning a study is the lord's own act, done in the lord's presence, and the busy slot shows it; it needs no line. What ends a work or a study is what the lord may miss, so the roll holds four kinds of line: a work finished, an art learned, a work cancelled and a study cancelled. A cancelled work is written even when the lord ordered the cancel, because one cancel can drag down the works waiting behind it (`CONTEXT.md`, Cancel), and each of those is a line of its own, with what it sent back to the stores. The two cancels always say how much came back, material by material, since a lord who sees the stores full again wants to know why.
+
+Proposal (S10, #209): the roll holds a fifth kind of line, a levy complete: the units one order delivered, one line per order, written when the last of them takes up arms and dated by that hour, not by the first. Calling the levy is the lord's own act, done in the hall, and the busy yard shows it; the roll still records endings, never orders. A lord who returns to find twelve spears on the drill ground reads one line, not twelve: the scribe counts heads, not days. The heading, the count and the unit label are in `names.md` (The chronicle, The army).
 
 Each line is dated by the hour the thing happened, never by the hour it was written. The scribe does not sit by the scaffold: the line is written when the lord next asks after the fief, from the foreman's word on when the last stone went in, and that hour is the one the roll keeps.
 
