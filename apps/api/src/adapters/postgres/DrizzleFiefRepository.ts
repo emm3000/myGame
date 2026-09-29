@@ -162,6 +162,7 @@ const marchOf = (row: MarchRow | null): March => {
       gold: row.lootGold,
       food: row.lootFood,
     },
+    ...(row.recalledAt === null ? {} : { recalledAt: instantOf(row.recalledAt) }),
   }
 }
 
@@ -183,6 +184,7 @@ const marchRowOf = (fief: Fief): MarchRow | undefined => {
     lootIron: march.loot.iron,
     lootGold: march.loot.gold,
     lootFood: march.loot.food,
+    recalledAt: march.recalledAt === undefined ? null : dateOf(march.recalledAt),
   }
 }
 

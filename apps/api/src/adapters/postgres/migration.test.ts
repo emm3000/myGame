@@ -478,6 +478,38 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a recall before the departure', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({
+        ...infantryMarchOf(anasFief.id),
+        recalledAt: new Date('2026-09-22T07:59:59Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_recalled_after_departure' },
+    })
+  })
+
+  it('refuses a recalled flag on a building row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        building: 'sawmill',
+        level: 1,
+        recalled: true,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_recalled_only_march' },
+    })
+  })
+
   it('refuses a plot on a building row', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -1131,5 +1163,65 @@ describe('the marches migration', () => {
     const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
 
     expect(restored.ok && restored.value?.march).toEqual({ kind: 'idle' })
+  })
+})
+
+describe('the march recall migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the marches and the chronicle rows stored before the recall migration', async () => {
+    await migratedFrom(client, 15, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_marches (fief_id, province, plot, infantry, stay_hours, one_way_seconds, departed_at,
+           loot_wood, loot_stone, loot_iron, loot_gold, loot_food)
+         VALUES ($1, 2, 5, 10, 2, 840, '2026-09-22T08:00:00Z', 60, 60, 0, 0, 0)`,
+        [anasFief.id],
+      )
+      await client.query(
+        `INSERT INTO fief_events (fief_id, kind, building, unit, level, count, province, plot, refund_wood, refund_stone, occurred_at)
+         VALUES ($1, 'upgrade_finished', 'sawmill', NULL, 2, NULL, NULL, NULL, 0, 0, '2026-09-22T09:00:00Z'),
+                ($1, 'march_returned', NULL, 'infantry', NULL, 10, 2, 5, 240, 240, '2026-09-22T10:00:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    expect(restored.ok && restored.value?.march).toEqual({
+      kind: 'away',
+      province: 2,
+      plot: 5,
+      infantry: 10,
+      stayHours: 2,
+      departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
+      oneWaySeconds: 840,
+      loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+    })
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 5,
+        infantry: 10,
+        loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
+        recalled: false,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
+      },
+      {
+        kind: 'upgradeFinished',
+        building: 'sawmill',
+        level: 2,
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
+      },
+    ])
   })
 })

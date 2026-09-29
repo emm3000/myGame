@@ -103,6 +103,7 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         count: event.infantry,
         province: event.province,
         plot: event.plot,
+        recalled: event.recalled,
         ...refundColumnsOf(event.loot),
       }
     default: {
@@ -214,6 +215,7 @@ const eventOf = (row: EventRow): FiefEvent => {
         plot: plotOf(row),
         infantry: countOf(row),
         loot: refundOf(row),
+        recalled: row.recalled,
         occurredAt,
       }
     default: {

@@ -277,6 +277,7 @@ describe('recallMarch', () => {
         plot: 5,
         infantry: 10,
         loot: { ...noLoot, wood: 15, stone: 15 },
+        recalled: true,
         occurredAt: secondsAfterDeparture(3_480),
       },
     ])
