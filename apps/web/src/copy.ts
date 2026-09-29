@@ -33,6 +33,8 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
+  BarracksNotBuilt: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
+  RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',

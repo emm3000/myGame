@@ -76,6 +76,21 @@ const autumnOfYearOne = {
   durationPercent: { build: 100, study: 100 },
 }
 
+const infantryTerms = {
+  cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
+  peasants: 1,
+  perUnitSeconds: 45,
+}
+
+const openOrder = {
+  unit: 'infantry',
+  count: 3,
+  delivered: 1,
+  perUnitSeconds: 45,
+  startedAt: '2026-09-22T13:59:00.000Z',
+  endsAt: '2026-09-22T14:01:15.000Z',
+}
+
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 2, plot: 3 },
@@ -101,6 +116,9 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   study: { kind: 'idle' },
   arts: twoArts,
   season: autumnOfYearOne,
+  units: { infantry: 4 },
+  recruitOrder: openOrder,
+  recruitTerms: { infantry: infantryTerms },
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -273,5 +291,26 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithZeroStudyPercent).success).toBe(false)
+  })
+
+  it('rejects an overview without units', () => {
+    const { units: _, ...overviewWithoutUnits } = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutUnits).success).toBe(false)
+  })
+
+  it('accepts a null recruit order', () => {
+    const overviewWithIdleBarracks = { ...overviewWithSlot(busySlot), recruitOrder: null }
+
+    expect(FiefOverviewSchema.parse(overviewWithIdleBarracks)).toEqual(overviewWithIdleBarracks)
+  })
+
+  it('rejects a recruit order of zero units', () => {
+    const overviewWithEmptyOrder = {
+      ...overviewWithSlot(busySlot),
+      recruitOrder: { ...openOrder, count: 0, delivered: 0 },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithEmptyOrder).success).toBe(false)
   })
 })

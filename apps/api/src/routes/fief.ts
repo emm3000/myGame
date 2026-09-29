@@ -4,6 +4,7 @@ import {
   EnqueueBuildingRequestSchema,
   type FiefChronicle,
   type FiefOverview,
+  PlaceRecruitOrderRequestSchema,
   StartStudyRequestSchema,
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
@@ -15,6 +16,10 @@ import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFief
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefChronicleOf } from '../fief/fiefChronicleOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
+import {
+  type PlaceRecruitOrderDependencies,
+  placeRecruitOrderOf,
+} from '../fief/placeRecruitOrderOf'
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
@@ -25,6 +30,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   CancelStudyDependencies &
   EnqueueUpgradeDependencies &
   StartStudyDependencies &
+  PlaceRecruitOrderDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
   }
@@ -86,5 +92,12 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await cancelStudyOf(c.var.playerId, request.data, dependencies))
+    })
+    .post('/recruit-orders', signedInPlayer, async (c) => {
+      const request = PlaceRecruitOrderRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await placeRecruitOrderOf(c.var.playerId, request.data, dependencies))
     })
 }

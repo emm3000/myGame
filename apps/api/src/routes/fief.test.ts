@@ -1234,6 +1234,172 @@ describe('the fief route', () => {
     })
   })
 
+  describe('the recruit route', () => {
+    const recruit = async (cookie: string, body: unknown): Promise<Response> =>
+      app.request('/fief/recruit-orders', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const buildBarracksAt = async (level: number): Promise<void> =>
+      runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, 'barracks'::building, ${level} FROM fiefs`)
+
+    const recruitThreeInfantryAtMinuteTen = async (cookie: string): Promise<void> => {
+      await buildBarracksAt(1)
+      clock.advanceMinutes(10)
+      expect((await recruit(cookie, { unit: 'infantry', count: 3 })).status).toBe(200)
+    }
+
+    it('places an order and answers the recruit order open', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+      clock.advanceMinutes(10)
+
+      const response = await recruit(ana.cookie, { unit: 'infantry', count: 3 })
+
+      expect(response.status).toBe(200)
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.recruitOrder).toEqual({
+        unit: 'infantry',
+        count: 3,
+        delivered: 0,
+        perUnitSeconds: 45,
+        startedAt: '2026-09-22T08:10:00.000Z',
+        endsAt: '2026-09-22T08:12:15.000Z',
+      })
+      expect(overview.units).toEqual({ infantry: 0 })
+      expect(overview.resources.iron.amount).toBe(170)
+      expect(overview.peasants.free).toBe(6)
+    })
+
+    it('answers the delivered units in the counts two periods later', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(1.5)
+
+      const response = await fiefOf(ana.cookie)
+
+      const { units, recruitOrder } = FiefOverviewSchema.parse(await response.json())
+      expect(units).toEqual({ infantry: 2 })
+      expect(recruitOrder?.delivered).toBe(2)
+    })
+
+    it('answers no order and the whole count after the last delivery', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(5)
+
+      const response = await fiefOf(ana.cookie)
+
+      const { units, recruitOrder, peasants } = FiefOverviewSchema.parse(await response.json())
+      expect(units).toEqual({ infantry: 3 })
+      expect(recruitOrder).toBeNull()
+      expect(peasants.free).toBe(6)
+    })
+
+    it('records the delivered order in the chronicle', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      clock.advanceMinutes(5)
+
+      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'recruitsDelivered',
+          unit: 'infantry',
+          count: 3,
+          occurredAt: '2026-09-22T08:12:15.000Z',
+        },
+      ])
+    })
+
+    it('answers the unit duration divided by the built barracks level', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(2)
+
+      const response = await fiefOf(ana.cookie)
+
+      const { recruitTerms } = FiefOverviewSchema.parse(await response.json())
+      expect(recruitTerms).toEqual({
+        infantry: {
+          cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
+          peasants: 1,
+          perUnitSeconds: 30,
+        },
+      })
+    })
+
+    it('refuses an order without a barracks', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const before = await server.fiefs.fiefOf(ana.playerId)
+
+      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'BarracksNotBuilt',
+        message: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
+      })
+      expect(await server.fiefs.fiefOf(ana.playerId)).toEqual(before)
+    })
+
+    it('refuses a second order while one is open', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+
+      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'RecruitSlotBusy',
+        message: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
+      })
+    })
+
+    it('refuses an order the free peasants cannot staff', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+
+      const response = await recruit(ana.cookie, { unit: 'infantry', count: 10 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('NotEnoughPeasants')
+    })
+
+    it('refuses an order the stocks cannot pay', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+      await runSql('UPDATE fiefs SET food = 0')
+
+      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
+    })
+
+    it('answers 400 to a fractional count', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+
+      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1.5 })
+
+      expect(response.status).toBe(400)
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/recruit-orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ unit: 'infantry', count: 1 }),
+      })
+
+      expect(response.status).toBe(401)
+    })
+  })
+
   describe('the study cancel route', () => {
     const cancelStudy = async (
       cookie: string,

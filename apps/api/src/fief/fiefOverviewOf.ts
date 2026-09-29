@@ -7,11 +7,13 @@ import {
   type BuildingKind,
   type BuildSlot,
   type DomainError,
+  deliveredUnitsOf,
   deriveBuildDurationSeconds,
   derivePeasantCounts,
   derivePeasantsForUpgrade,
   deriveResourceRates,
   deriveStudyDurationSeconds,
+  deriveUnitDurationSeconds,
   deriveWarehouseCapacity,
   durationPercentAt,
   type Fief,
@@ -19,12 +21,15 @@ import {
   type Instant,
   nextArtLevelOf,
   ok,
+  type RecruitOrder,
   type ResourceKind,
   type Result,
+  recruitOrderEndsAt,
   type Stocks,
   type StudySlot,
   scheduleBuildQueue,
   seasonAt,
+  type UnitKind,
 } from '@mygame/domain'
 
 const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
@@ -50,6 +55,40 @@ const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
         startedAt: isoOf(studySlot.startedAt),
         finishesAt: isoOf(studySlot.finishesAt),
       }
+
+const unitsOf = (fief: Fief): FiefOverview['units'] => {
+  const counts = fief.unitCountsAt(fief.storedAt)
+  return { infantry: counts.countOf('infantry') }
+}
+
+const recruitOrderOf = (
+  recruitOrder: RecruitOrder,
+  readAt: Instant,
+): FiefOverview['recruitOrder'] =>
+  recruitOrder.kind === 'idle'
+    ? null
+    : {
+        unit: recruitOrder.unit,
+        count: recruitOrder.count,
+        delivered: deliveredUnitsOf(recruitOrder, readAt),
+        perUnitSeconds: recruitOrder.perUnitSeconds,
+        startedAt: isoOf(recruitOrder.startedAt),
+        endsAt: isoOf(recruitOrderEndsAt(recruitOrder)),
+      }
+
+type RecruitTerms = FiefOverview['recruitTerms'][UnitKind]
+
+const recruitTermsOf = (fief: Fief, catalog: BuildingCatalog): FiefOverview['recruitTerms'] => {
+  const termsOf = (unit: UnitKind): RecruitTerms => {
+    const { cost, durationSeconds, peasantOccupancy } = catalog.fiefSettings().units[unit]
+    return {
+      cost: { ...cost },
+      peasants: peasantOccupancy,
+      perUnitSeconds: deriveUnitDurationSeconds(durationSeconds, fief.buildingLevels.barracks),
+    }
+  }
+  return { infantry: termsOf('infantry') }
+}
 
 type ArtState = FiefOverview['arts'][ArtKind]
 
@@ -273,6 +312,9 @@ export const fiefOverviewOf = (
     study: studyOf(fief.studySlot),
     arts: arts.value,
     season: seasonOf(fief, catalog),
+    units: unitsOf(fief),
+    recruitOrder: recruitOrderOf(fief.recruitOrder, fief.storedAt),
+    recruitTerms: recruitTermsOf(fief, catalog),
     readAt: isoOf(fief.storedAt),
   })
 }
