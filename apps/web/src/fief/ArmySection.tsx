@@ -75,7 +75,7 @@ function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
 
 function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
   const value = march.phaseLines[live.phase](answered.infantry, answered.province, answered.plot)
-  if (answered.order === 'forage') {
+  if (answered.order === 'forage' || answered.recalledAt !== null) {
     return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
   }
   const heading = live.phase === 'outbound' ? march.attackHeading : march.attackReturningHeading
@@ -83,7 +83,7 @@ function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
 }
 
 function campLineOf(answered: AnsweredMarch): PreviewLine | null {
-  return answered.camp === null
+  return answered.camp === null || answered.recalledAt !== null
     ? null
     : {
         heading: march.campHeading,
