@@ -1,8 +1,10 @@
 import type { ReactElement } from 'react'
 
-export interface NumberFieldProps {
-  readonly id?: string | undefined
-  readonly accessibleName?: string | undefined
+type NumberFieldName =
+  | { readonly id: string; readonly accessibleName?: never }
+  | { readonly id?: never; readonly accessibleName: string }
+
+export type NumberFieldProps = NumberFieldName & {
   readonly min: number
   readonly max?: number | undefined
   readonly value: string
