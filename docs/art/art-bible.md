@@ -47,7 +47,7 @@ GPT Image at 1024×1024 for every generated family. Prompts are written by the a
 
 ## UI icons
 
-Hand-drawn SVG in the design system, never generated: resources, peasants, clock, slot, and the four seasons: a sprout for spring, a sun for summer, a leaf for autumn, a snowflake for winter, in a 24 px box with a 1.75 px stroke in the current ink (ADR 016). Crisp at 16 to 24 px and themeable. Generated images are reserved for buildings and large resource art.
+Hand-drawn SVG in the design system, never generated: resources, peasants, clock, slot, the four seasons: a sprout for spring, a sun for summer, a leaf for autumn, a snowflake for winter (ADR 016), and the infantry: a round shield beside a spear (#213, ADR 018), in a 24 px box with a 1.75 px stroke in the current ink. Crisp at 16 to 24 px and themeable. Generated images are reserved for buildings and large resource art.
 
 ## Open questions
 
