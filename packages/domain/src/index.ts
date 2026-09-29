@@ -1,4 +1,5 @@
 export type { CampTier } from './camp/CampTier'
+export { campOf } from './camp/campOf'
 export type { DomainError } from './DomainError'
 export { artLevelInForce } from './fief/artLevelInForce'
 export { artResourceOf } from './fief/artResourceOf'
