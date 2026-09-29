@@ -1,3 +1,4 @@
+export type { CampBattle } from './camp/CampBattle'
 export type { CampTier } from './camp/CampTier'
 export { campOf } from './camp/campOf'
 export type { DomainError } from './DomainError'
@@ -61,6 +62,7 @@ export type {
   UnitKind,
   WarehouseLevel,
 } from './ports/BuildingCatalog'
+export type { CampRegistry } from './ports/CampRegistry'
 export type { ChronicleWriter } from './ports/ChronicleWriter'
 export type { Clock } from './ports/Clock'
 export type { FiefRepository } from './ports/FiefRepository'

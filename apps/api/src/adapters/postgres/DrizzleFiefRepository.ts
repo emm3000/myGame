@@ -1,6 +1,8 @@
 import {
+  type AwayMarch,
   type BuildQueue,
   type BuildSlot,
+  type CampTier,
   type DomainError,
   err,
   Fief,
@@ -18,7 +20,7 @@ import {
   type StoredFief,
   type StudySlot,
 } from '@mygame/domain'
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import {
   fiefArts,
@@ -143,13 +145,25 @@ const recruitOrderRowOf = (fief: Fief): RecruitOrderRow | undefined => {
   }
 }
 
+type AttackMarch = Extract<AwayMarch, { readonly order: 'attack' }>
+
+type MarchOrderColumns = Pick<MarchRow, 'marchOrder' | 'campTier' | 'campStrength' | 'fought'>
+
+const isCampTier = (tier: number): tier is CampTier => tier === 1 || tier === 2 || tier === 3
+
+const attackedCampOf = (row: MarchRow): AttackMarch['camp'] => {
+  if (row.campTier === null || row.campStrength === null || !isCampTier(row.campTier)) {
+    throw new Error(`Fief ${row.fiefId} stores an attack march without its camp`)
+  }
+  return { tier: row.campTier, strength: row.campStrength }
+}
+
 const marchOf = (row: MarchRow | null): March => {
   if (row === null) {
     return { kind: 'idle' }
   }
-  return {
+  const road = {
     kind: 'away',
-    order: 'forage',
     province: row.province,
     plot: row.plot,
     infantry: row.infantry,
@@ -164,12 +178,28 @@ const marchOf = (row: MarchRow | null): March => {
       food: row.lootFood,
     },
     ...(row.recalledAt === null ? {} : { recalledAt: instantOf(row.recalledAt) }),
+  } satisfies Omit<AwayMarch, 'order'>
+  if (row.marchOrder === 'forage') {
+    return { ...road, order: 'forage' }
+  }
+  return { ...road, order: 'attack', camp: attackedCampOf(row), fought: row.fought }
+}
+
+const marchOrderColumnsOf = (march: AwayMarch): MarchOrderColumns => {
+  if (march.order === 'forage') {
+    return { marchOrder: 'forage', campTier: null, campStrength: null, fought: false }
+  }
+  return {
+    marchOrder: 'attack',
+    campTier: march.camp.tier,
+    campStrength: march.camp.strength,
+    fought: march.fought,
   }
 }
 
 const marchRowOf = (fief: Fief): MarchRow | undefined => {
   const { march } = fief
-  if (march.kind === 'idle' || march.order === 'attack') {
+  if (march.kind === 'idle') {
     return undefined
   }
   return {
@@ -186,6 +216,7 @@ const marchRowOf = (fief: Fief): MarchRow | undefined => {
     lootGold: march.loot.gold,
     lootFood: march.loot.food,
     recalledAt: march.recalledAt === undefined ? null : dateOf(march.recalledAt),
+    ...marchOrderColumnsOf(march),
   }
 }
 
@@ -454,9 +485,13 @@ export class DrizzleFiefRepository implements FiefRepository {
     const studiedArtRows = Object.values(storedArts)
       .map((stored) => ({ fiefId: id, art: stored, level: fief.artLevels[artKinds[stored]] }))
       .filter((row) => row.level > 0)
-    const unitRows = Object.values(storedUnits)
-      .map((stored) => ({ fiefId: id, kind: stored, count: fief.units.countOf(unitKinds[stored]) }))
-      .filter((row) => row.count > 0)
+    const unitRows = Object.values(storedUnits).map((stored) => ({
+      fiefId: id,
+      kind: stored,
+      count: fief.units.countOf(unitKinds[stored]),
+    }))
+    const countedUnitRows = unitRows.filter((row) => row.count > 0)
+    const emptiedUnits = unitRows.filter((row) => row.count === 0).map((row) => row.kind)
     const recruitOrderRow = recruitOrderRowOf(fief)
     const marchRow = marchRowOf(fief)
     const entryRows = entryRowsOf(fief)
@@ -484,14 +519,19 @@ export class DrizzleFiefRepository implements FiefRepository {
               set: { level: sql`excluded.level` },
             })
         }
-        if (unitRows.length > 0) {
+        if (countedUnitRows.length > 0) {
           await transaction
             .insert(fiefUnits)
-            .values(unitRows)
+            .values(countedUnitRows)
             .onConflictDoUpdate({
               target: [fiefUnits.fiefId, fiefUnits.kind],
               set: { count: sql`excluded.count` },
             })
+        }
+        if (emptiedUnits.length > 0) {
+          await transaction
+            .delete(fiefUnits)
+            .where(and(eq(fiefUnits.fiefId, id), inArray(fiefUnits.kind, emptiedUnits)))
         }
         await transaction.delete(fiefQueueEntries).where(eq(fiefQueueEntries.fiefId, id))
         if (entryRows.length > 0) {
