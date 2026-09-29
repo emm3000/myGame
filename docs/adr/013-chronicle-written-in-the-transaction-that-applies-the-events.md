@@ -136,3 +136,23 @@ a `level` on a building or art row only, a `count` on a unit row only
 (migration 0012). Nothing else here changes: the events are still written
 in the transaction that applies them, the chronicle still records endings
 and never orders, the domain never reads it, and retention stays at 100.
+
+## Second amendment (2026-09-29)
+
+The chronicle records a seventh kind of event, march returned (S13, ADR
+019), after the sixth, recruits cancelled, that the amendment of ADR 018
+records: the infantry one forage march brought home, one event per march,
+naming the plot (province and plot), the infantry and the loot, resource
+by resource, and stamped with the march's return, `returnsAt`, never the
+`now` of the read that closed it. It carries no level, no unit and no
+refund on the wire. The resolve answers it beside the finishes of the same
+walk, after the upgrade, the study and the recruits delivered of a tied
+instant, and the api writes it in the transaction that closes the march.
+`fief_events` gains a nullable `province` and a nullable `plot`, a
+march-returned row is stored as a unit row with the infantry in `count`
+and the loot in the `refund_*` columns, and the check
+`fief_events_one_subject` is replaced: `province` and `plot` both null, or
+both from 1 on a unit row only (migration 0014). Nothing else here
+changes: the events are still written in the transaction that applies
+them, the chronicle still records endings and never orders, the domain
+never reads it, and retention stays at 100.
