@@ -33,6 +33,7 @@ const barracksBuilt: FiefOverview = {
 const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({
   ...barracksBuilt,
   march: {
+    order: 'forage',
     province: 2,
     plot: 5,
     terrain: 'uplands',
@@ -45,6 +46,8 @@ const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({
     leavesAt: instantAfterRead(8040 - secondsBeforeRead),
     returnsAt: instantAfterRead(8880 - secondsBeforeRead),
     recalledAt: null,
+    camp: null,
+    fought: false,
   },
 })
 
@@ -55,6 +58,7 @@ const marchArrivingInFortySeconds = twoHourForageDeparted(800)
 const marchLeavingInFortySeconds = twoHourForageDeparted(8000)
 
 const hourLongForage: NonNullable<FiefOverview['march']> = {
+  order: 'forage',
   province: 2,
   plot: 5,
   terrain: 'uplands',
@@ -67,6 +71,8 @@ const hourLongForage: NonNullable<FiefOverview['march']> = {
   leavesAt: instantAfterRead(10),
   returnsAt: instantAfterRead(30),
   recalledAt: null,
+  camp: null,
+  fought: false,
 }
 
 const marchDueBack: FiefOverview = { ...barracksBuilt, march: hourLongForage }

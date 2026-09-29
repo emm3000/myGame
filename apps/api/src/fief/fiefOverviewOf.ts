@@ -104,14 +104,27 @@ const recruitTermsOf = (
   return { infantry: termsOf('infantry') }
 }
 
-const awayMarchOf = (march: AwayMarch): NonNullable<FiefOverview['march']> => {
+type MarchState = NonNullable<FiefOverview['march']>
+
+type OrderFields = 'order' | 'stayHours' | 'camp' | 'fought'
+
+type MarchOrderState =
+  | Pick<Extract<MarchState, { order: 'forage' }>, OrderFields>
+  | Pick<Extract<MarchState, { order: 'attack' }>, OrderFields>
+
+const marchOrderOf = (march: AwayMarch): MarchOrderState =>
+  march.order === 'forage'
+    ? { order: 'forage', stayHours: march.stayHours, camp: null, fought: false }
+    : { order: 'attack', stayHours: 0, camp: { ...march.camp }, fought: march.fought }
+
+const awayMarchOf = (march: AwayMarch): MarchState => {
   const { arrivesAt, leavesAt, returnsAt } = marchInstantsOf(march)
   return {
+    ...marchOrderOf(march),
     province: march.province,
     plot: march.plot,
     terrain: terrainOf(march.province),
     infantry: march.infantry,
-    stayHours: march.stayHours,
     departedAt: isoOf(march.departedAt),
     oneWaySeconds: march.oneWaySeconds,
     loot: { ...march.loot },
@@ -141,6 +154,16 @@ const forageTermsOf = (catalog: BuildingCatalog): FiefOverview['forageTerms'] =>
       uplands: yieldOf('uplands'),
       ridges: yieldOf('ridges'),
     },
+  }
+}
+
+const combatTermsOf = (catalog: BuildingCatalog): FiefOverview['combatTerms'] => {
+  const { units, camps } = catalog.fiefSettings()
+  const { 1: first, 2: second, 3: third } = camps.tiers
+  return {
+    infantryStrength: units.infantry.strength,
+    lootPerStrength: camps.lootPerStrength,
+    tiers: { 1: { ...first }, 2: { ...second }, 3: { ...third } },
   }
 }
 
@@ -376,6 +399,7 @@ export const fiefOverviewOf = (
     recruitTerms: recruitTermsOf(fief, catalog, durations),
     march: marchOf(fief.march),
     forageTerms: forageTermsOf(catalog),
+    combatTerms: combatTermsOf(catalog),
     readAt: isoOf(fief.storedAt),
   })
 }

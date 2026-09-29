@@ -2,6 +2,7 @@ import {
   CancelRecruitOrderRequestSchema,
   CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
+  DispatchAttackRequestSchema,
   DispatchMarchRequestSchema,
   EnqueueBuildingRequestSchema,
   type FiefChronicle,
@@ -20,6 +21,7 @@ import {
 import { type CancelStudyDependencies, cancelStudyOf } from '../fief/cancelStudyOf'
 import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
+import { type DispatchAttackDependencies, dispatchAttackOf } from '../fief/dispatchAttackOf'
 import { type DispatchMarchDependencies, dispatchMarchOf } from '../fief/dispatchMarchOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefChronicleOf } from '../fief/fiefChronicleOf'
@@ -42,6 +44,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   PlaceRecruitOrderDependencies &
   CancelRecruitOrderDependencies &
   DispatchMarchDependencies &
+  DispatchAttackDependencies &
   RecallMarchDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
@@ -125,6 +128,13 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchMarchOf(c.var.playerId, request.data, dependencies))
+    })
+    .post('/marches/attack', signedInPlayer, async (c) => {
+      const request = DispatchAttackRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await dispatchAttackOf(c.var.playerId, request.data, dependencies))
     })
     .post('/marches/:departedAt/recall', signedInPlayer, async (c) => {
       const request = RecallMarchRequestSchema.safeParse(c.req.param())

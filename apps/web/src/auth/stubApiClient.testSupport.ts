@@ -102,6 +102,15 @@ export const knownFief: FiefOverview = {
       ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
     },
   },
+  combatTerms: {
+    infantryStrength: 1,
+    lootPerStrength: 60,
+    tiers: {
+      1: { maxStrength: 6, regrowHours: 6 },
+      2: { maxStrength: 15, regrowHours: 12 },
+      3: { maxStrength: 40, regrowHours: 24 },
+    },
+  },
   readAt: '2026-09-22T12:00:00.000Z',
 }
 

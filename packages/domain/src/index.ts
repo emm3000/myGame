@@ -94,6 +94,11 @@ export {
   cancelUpgrade,
 } from './useCases/cancelUpgrade'
 export {
+  type DispatchAttackCommand,
+  type DispatchAttackDependencies,
+  dispatchAttack,
+} from './useCases/dispatchAttack'
+export {
   type DispatchMarchCommand,
   type DispatchMarchDependencies,
   dispatchMarch,

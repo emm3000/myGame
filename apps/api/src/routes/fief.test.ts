@@ -2,8 +2,10 @@ import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
   FiefChronicleSchema,
+  type FiefOverview,
   FiefOverviewSchema,
   PlayerSchema,
+  ProvinceMapSchema,
 } from '@mygame/contracts'
 import { type Clock, campOf, enqueueBuilding, Instant, type PlayerId } from '@mygame/domain'
 import { Client } from 'pg'
@@ -95,6 +97,13 @@ const statementTextOf = (query: unknown): string => {
   return ''
 }
 
+type AttackedMarch = Extract<NonNullable<FiefOverview['march']>, { order: 'attack' }>
+
+type SentAttack = {
+  readonly cookie: string
+  readonly sent: AttackedMarch
+}
+
 type SignedUpPlayer = {
   readonly cookie: string
   readonly playerId: PlayerId
@@ -157,6 +166,18 @@ describe('the fief route', () => {
 
   const fiefOf = async (cookie: string): Promise<Response> =>
     app.request('/fief', { headers: { cookie } })
+
+  const provinceTwoPlotWhere = (isWanted: (tier: number | undefined) => boolean): number => {
+    const { camps } = server.buildingCatalog.fiefSettings()
+    const plot = Array.from({ length: 15 }, (_, index) => index + 1).find((candidate) =>
+      isWanted(campOf({ kingdom: 1, province: 2, plot: candidate }, camps)?.tier),
+    )
+    assert(plot !== undefined)
+    return plot
+  }
+
+  const campPlotOfTier = (tier: number): number =>
+    provinceTwoPlotWhere((campTier) => campTier === tier)
 
   const enqueue = async (cookie: string, building: string): Promise<Response> =>
     app.request('/fief/upgrades', {
@@ -1775,6 +1796,22 @@ describe('the fief route', () => {
       })
     })
 
+    it('answers the shipped combat terms', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await fiefOf(ana.cookie)
+
+      expect(FiefOverviewSchema.parse(await response.json()).combatTerms).toEqual({
+        infantryStrength: 1,
+        lootPerStrength: 60,
+        tiers: {
+          1: { maxStrength: 6, regrowHours: 6 },
+          2: { maxStrength: 15, regrowHours: 12 },
+          3: { maxStrength: 40, regrowHours: 24 },
+        },
+      })
+    })
+
     it('sends a march and answers it outbound with its instants', async () => {
       const ana = await signUpWithFiveInfantry()
 
@@ -1794,6 +1831,9 @@ describe('the fief route', () => {
         leavesAt: '2026-09-22T10:14:00.000Z',
         returnsAt: '2026-09-22T10:28:00.000Z',
         recalledAt: null,
+        order: 'forage',
+        camp: null,
+        fought: false,
       })
     })
 
@@ -2052,6 +2092,9 @@ describe('the fief route', () => {
         leavesAt: '2026-09-22T08:10:00.000Z',
         returnsAt: '2026-09-22T08:20:00.000Z',
         recalledAt: '2026-09-22T08:10:00.000Z',
+        order: 'forage',
+        camp: null,
+        fought: false,
       })
     })
 
@@ -2142,6 +2185,210 @@ describe('the fief route', () => {
       expect(response.status).toBe(401)
     })
   })
+  describe('the attack route', () => {
+    const attack = async (cookie: string, body: unknown): Promise<Response> =>
+      app.request('/fief/marches/attack', {
+        method: 'POST',
+        headers: { cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const signUpWithTenInfantry = async (): Promise<SignedUpPlayer> => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'infantry'::unit, 10 FROM fiefs`)
+      return ana
+    }
+
+    const attackedMarchOf = async (response: Response): Promise<AttackedMarch> => {
+      expect(response.status).toBe(200)
+      const { march } = FiefOverviewSchema.parse(await response.json())
+      assert(march?.order === 'attack')
+      return march
+    }
+
+    const minutesOf = (seconds: number): number => seconds / 60
+
+    const sendTenInfantryToTierOneCamp = async (): Promise<SentAttack> => {
+      const { cookie } = await signUpWithTenInfantry()
+      const sent = await attackedMarchOf(
+        await attack(cookie, { province: 2, plot: campPlotOfTier(1), infantry: 10 }),
+      )
+      return { cookie, sent }
+    }
+
+    it('sends an attack and answers it outbound with the camp snapshot', async () => {
+      const plot = campPlotOfTier(1)
+      const ana = await signUpWithTenInfantry()
+
+      const sent = await attackedMarchOf(
+        await attack(ana.cookie, { province: 2, plot, infantry: 10 }),
+      )
+
+      expect(sent).toMatchObject({
+        order: 'attack',
+        province: 2,
+        plot,
+        terrain: 'uplands',
+        infantry: 10,
+        stayHours: 0,
+        departedAt: '2026-09-22T08:00:00.000Z',
+        loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+        camp: { tier: 1, strength: 6 },
+        fought: false,
+        recalledAt: null,
+      })
+      expect(sent.leavesAt).toBe(sent.arrivesAt)
+      expect(Date.parse(sent.returnsAt) - Date.parse(sent.departedAt)).toBe(
+        2 * sent.oneWaySeconds * 1000,
+      )
+    })
+
+    it('fights at the arrival and answers fewer infantry', async () => {
+      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
+
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(cookie)).json())
+
+      expect(overview.march).toMatchObject({ order: 'attack', infantry: 6, fought: true })
+      expect(overview.units).toEqual({ infantry: 6 })
+    })
+
+    it('brings the loot home at the return', async () => {
+      const ana = await signUpWithTenInfantry()
+      await runSql('UPDATE fiefs SET wood = 1000, stone = 1000, gold = 1000')
+      const sent = await attackedMarchOf(
+        await attack(ana.cookie, { province: 2, plot: campPlotOfTier(1), infantry: 10 }),
+      )
+      clock.advanceMinutes(2 * minutesOf(sent.oneWaySeconds))
+
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+
+      expect(overview.march).toBeNull()
+      expect(overview.resources.wood.amount).toBe(1096)
+      expect(overview.resources.stone.amount).toBe(1096)
+      expect(overview.resources.gold.amount).toBe(1096)
+      expect(overview.units).toEqual({ infantry: 6 })
+    })
+
+    it('records the battle and the return in the chronicle', async () => {
+      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      clock.advanceMinutes(2 * minutesOf(sent.oneWaySeconds))
+
+      const response = await app.request('/fief/events', { headers: { cookie } })
+
+      expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
+        {
+          kind: 'marchReturned',
+          province: 2,
+          plot: sent.plot,
+          infantry: 6,
+          loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+          occurredAt: sent.returnsAt,
+          recalled: false,
+        },
+        {
+          kind: 'battleFought',
+          province: 2,
+          plot: sent.plot,
+          tier: 1,
+          won: true,
+          infantryLost: 4,
+          campLost: 6,
+          occurredAt: sent.arrivesAt,
+        },
+      ])
+    })
+
+    it('loses every man sent against a stronger camp', async () => {
+      const ana = await signUpWithTenInfantry()
+      const sent = await attackedMarchOf(
+        await attack(ana.cookie, { province: 2, plot: campPlotOfTier(2), infantry: 10 }),
+      )
+      clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
+
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+
+      expect(sent.camp).toEqual({ tier: 2, strength: 15 })
+      expect(overview.march).toBeNull()
+      expect(overview.units).toEqual({ infantry: 0 })
+    })
+
+    it('fights the camp the lord beat on the read that sends again', async () => {
+      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      clock.advanceMinutes(minutesOf(sent.oneWaySeconds) + 60)
+
+      const again = await attackedMarchOf(
+        await attack(cookie, { province: 2, plot: sent.plot, infantry: 6 }),
+      )
+
+      expect(again.camp).toEqual({ tier: 1, strength: 1 })
+    })
+
+    it('shows the beaten camp on the map', async () => {
+      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
+      expect((await fiefOf(cookie)).status).toBe(200)
+
+      const response = await app.request('/map/2', { headers: { cookie } })
+
+      const { plots } = ProvinceMapSchema.parse(await response.json())
+      expect(plots.find(({ plot }) => plot === sent.plot)?.camp).toEqual({
+        tier: 1,
+        strength: 0,
+      })
+    })
+
+    it('refuses an attack on a plot without a camp', async () => {
+      const ana = await signUpWithTenInfantry()
+      const plot = provinceTwoPlotWhere((tier) => tier === undefined)
+
+      const response = await attack(ana.cookie, { province: 2, plot, infantry: 10 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'PlotHasNoCamp',
+        message: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
+      })
+    })
+
+    it('refuses a recall at the battle', async () => {
+      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
+
+      const response = await app.request(
+        `/fief/marches/${encodeURIComponent(sent.departedAt)}/recall`,
+        { method: 'POST', headers: { cookie } },
+      )
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('MarchAlreadyReturning')
+    })
+
+    it('answers 400 with an empty body to an attack with no infantry', async () => {
+      const ana = await signUpWithTenInfantry()
+
+      const response = await attack(ana.cookie, {
+        province: 2,
+        plot: campPlotOfTier(1),
+        infantry: 0,
+      })
+
+      expect(response.status).toBe(400)
+      expect(await response.text()).toBe('')
+    })
+
+    it('answers 401 without a session', async () => {
+      const response = await app.request('/fief/marches/attack', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ province: 2, plot: campPlotOfTier(1), infantry: 10 }),
+      })
+
+      expect(response.status).toBe(401)
+    })
+  })
+
   describe('the battle at the arrival', () => {
     type CampBattleRow = {
       readonly province: number
@@ -2165,15 +2412,6 @@ describe('the fief route', () => {
       }
     }
 
-    const tierOneCampPlot = (): number => {
-      const { camps } = server.buildingCatalog.fiefSettings()
-      const plot = Array.from({ length: 15 }, (_, index) => index + 1).find(
-        (candidate) => campOf({ kingdom: 1, province: 2, plot: candidate }, camps)?.tier === 1,
-      )
-      assert(plot !== undefined)
-      return plot
-    }
-
     const signUpAttackingTierOneCamp = async (plot: number): Promise<SignedUpPlayer> => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await runSql(`INSERT INTO fief_units (fief_id, kind, count)
@@ -2190,7 +2428,7 @@ describe('the fief route', () => {
     }
 
     it('stores the camp beaten to 0 with the fief that fought it', async () => {
-      const plot = tierOneCampPlot()
+      const plot = campPlotOfTier(1)
       const ana = await signUpAttackingTierOneCamp(plot)
       clock.advanceMinutes(21)
 
@@ -2206,7 +2444,7 @@ describe('the fief route', () => {
     })
 
     it('answers the battle and the return of a won attack in the chronicle', async () => {
-      const plot = tierOneCampPlot()
+      const plot = campPlotOfTier(1)
       const ana = await signUpAttackingTierOneCamp(plot)
       clock.advanceMinutes(21)
 
@@ -2236,7 +2474,7 @@ describe('the fief route', () => {
     })
 
     it('stores no camp battle when the mutation after the resolve is refused', async () => {
-      const ana = await signUpAttackingTierOneCamp(tierOneCampPlot())
+      const ana = await signUpAttackingTierOneCamp(campPlotOfTier(1))
       await runSql('UPDATE fiefs SET wood = 0')
       clock.advanceMinutes(11)
 

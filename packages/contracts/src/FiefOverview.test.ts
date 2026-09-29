@@ -104,6 +104,20 @@ const awayMarch = {
   leavesAt: '2026-09-22T16:14:00.000Z',
   returnsAt: '2026-09-22T16:28:00.000Z',
   recalledAt: null,
+  order: 'forage',
+  camp: null,
+  fought: false,
+}
+
+const attackMarch = {
+  ...awayMarch,
+  order: 'attack',
+  stayHours: 0,
+  loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+  leavesAt: '2026-09-22T14:14:00.000Z',
+  returnsAt: '2026-09-22T14:28:00.000Z',
+  camp: { tier: 1, strength: 6 },
+  fought: false,
 }
 
 const marchRecalledOnTheRoad = {
@@ -124,6 +138,16 @@ const shippedForageTerms = {
     lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
     uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
     ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
+  },
+}
+
+const shippedCombatTerms = {
+  infantryStrength: 1,
+  lootPerStrength: 60,
+  tiers: {
+    1: { maxStrength: 6, regrowHours: 6 },
+    2: { maxStrength: 15, regrowHours: 12 },
+    3: { maxStrength: 40, regrowHours: 24 },
   },
 }
 
@@ -157,6 +181,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   recruitTerms: { infantry: infantryTerms },
   march: awayMarch,
   forageTerms: shippedForageTerms,
+  combatTerms: shippedCombatTerms,
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -396,6 +421,36 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithEmptyMarch).success).toBe(false)
+  })
+
+  it('accepts an attack march', () => {
+    const overviewWithAttack = { ...overviewWithSlot(busySlot), march: attackMarch }
+
+    expect(FiefOverviewSchema.parse(overviewWithAttack)).toEqual(overviewWithAttack)
+  })
+
+  it('rejects a forage march with a camp', () => {
+    const overviewWithCampedForage = {
+      ...overviewWithSlot(busySlot),
+      march: { ...awayMarch, camp: { tier: 1, strength: 6 } },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithCampedForage).success).toBe(false)
+  })
+
+  it('rejects an attack march that stays', () => {
+    const overviewWithStayingAttack = {
+      ...overviewWithSlot(busySlot),
+      march: { ...attackMarch, stayHours: 2 },
+    }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithStayingAttack).success).toBe(false)
+  })
+
+  it('rejects an overview without combat terms', () => {
+    const { combatTerms: _, ...overviewWithoutCombatTerms } = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutCombatTerms).success).toBe(false)
   })
 
   it('rejects an overview without forage terms', () => {
