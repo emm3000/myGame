@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react'
 
 export interface IconFrameProps {
   readonly children: ReactNode
-  readonly sizeClass?: string
+  readonly sizeClass?: string | undefined
 }
 
 export function IconFrame({ children, sizeClass = 'size-4' }: IconFrameProps): ReactElement {

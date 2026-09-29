@@ -95,6 +95,12 @@ export const widths: Readonly<Record<Width, string>> = {
   numeral: '74px',
 }
 
+export type Size = 'icon'
+
+export const sizes: Readonly<Record<Size, string>> = {
+  icon: '20px',
+}
+
 export type Radius = 'sm' | 'md' | 'pill'
 
 export const radii: Readonly<Record<Radius, string>> = {
