@@ -146,17 +146,36 @@ it('blocks an order the free peasants cannot staff', async () => {
   ).toBeDefined()
 })
 
+it('blocks an order the free peasants of now cannot staff', async () => {
+  const fewerFreeNow: FiefOverview = {
+    ...barracksBuilt,
+    peasants: { ...barracksBuilt.peasants, occupied: 10, free: 2 },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: fewerFreeNow }) })
+
+  typeCount('3')
+
+  expect(recruitButton().hasAttribute('disabled')).toBe(true)
+  expect(
+    within(infantryCard()).getByText('Necesitas 3 campesinos libres y tienes 2.'),
+  ).toBeDefined()
+})
+
 it('refuses a count that is empty, below 1 or not whole', async () => {
-  await showFief({})
+  const placeRecruitOrder = vi.fn(async () => ({ ok: true as const, value: orderOfTwelve }))
+  await showFief({ placeRecruitOrder })
 
   for (const count of ['', '0', '2.5']) {
     typeCount(count)
+    fireEvent.submit(countField())
+    await passSeconds(0)
 
     expect(recruitButton().textContent).toBe('Reclutar infantes')
     expect(recruitButton().getAttribute('aria-label')).toBe(
       'Reclutar infantes. Un número entero, al menos 1.',
     )
   }
+  expect(placeRecruitOrder).not.toHaveBeenCalled()
 })
 
 it('places the order and shows it open', async () => {
