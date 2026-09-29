@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ForageTermsSchema } from './ForageTerms'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
@@ -26,22 +27,6 @@ const UnitTermsSchema = z.strictObject({
   cost: ResourceAmountsSchema,
   durationSeconds: WholeCountSchema.positive(),
   peasantOccupancy: WholeCountSchema.positive(),
-})
-
-const ForageYieldSchema = z.strictObject({
-  wood: WholeCountSchema,
-  stone: WholeCountSchema,
-  iron: WholeCountSchema,
-  gold: z.literal(0),
-  food: WholeCountSchema,
-})
-
-const ForageTermsSchema = z.strictObject({
-  secondsPerProvince: WholeCountSchema.positive(),
-  secondsPerPlot: WholeCountSchema.positive(),
-  carryPerInfantry: WholeCountSchema.positive(),
-  maxStayHours: WholeCountSchema.positive(),
-  yieldPerHour: z.record(TerrainSchema, ForageYieldSchema),
 })
 
 export const FiefContentSchema = z.object({

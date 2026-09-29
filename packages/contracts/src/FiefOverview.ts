@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
+import { ForageTermsSchema } from './ForageTerms'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
@@ -102,6 +103,20 @@ const RecruitTermsSchema = z.strictObject({
   perUnitSeconds: DurationSecondsSchema.positive(),
 })
 
+const MarchStateSchema = z.strictObject({
+  province: WholeCountSchema.positive(),
+  plot: WholeCountSchema.positive(),
+  terrain: TerrainSchema,
+  infantry: WholeCountSchema.positive(),
+  stayHours: WholeCountSchema.positive(),
+  departedAt: InstantSchema,
+  oneWaySeconds: DurationSecondsSchema.positive(),
+  loot: ResourceAmountsSchema,
+  arrivesAt: InstantSchema,
+  leavesAt: InstantSchema,
+  returnsAt: InstantSchema,
+})
+
 export const FiefOverviewSchema = z.object({
   name: z.string().min(1),
   coordinates: z.object({
@@ -137,6 +152,8 @@ export const FiefOverviewSchema = z.object({
   units: z.record(UnitKindSchema, WholeCountSchema),
   recruitOrder: RecruitOrderStateSchema.nullable(),
   recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
+  march: MarchStateSchema.nullable(),
+  forageTerms: ForageTermsSchema,
   readAt: InstantSchema,
 })
 
