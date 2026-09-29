@@ -1,4 +1,6 @@
 import type { ReactElement } from 'react'
+import { Button } from './Button'
+import type { CancelAction } from './CancelAction'
 import { CountdownLine, type SlotCountdown } from './CountdownLine'
 import { MarchIcon } from './icons/MarchIcon'
 import { type PreviewLine, PreviewLineText } from './PreviewLines'
@@ -12,10 +14,11 @@ export type MarchSlotState =
       readonly title: string
       readonly phase: PreviewLine
       readonly countdown: SlotCountdown
-      readonly loot: PreviewLine
+      readonly loot: PreviewLine | null
       readonly elapsedSeconds: number
       readonly totalSeconds: number
       readonly marks: ReadonlyArray<number>
+      readonly recall: CancelAction | null
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
@@ -40,15 +43,28 @@ export function MarchSlot({ state }: { readonly state: MarchSlotState }): ReactE
         <PreviewLineText line={state.phase} />
       </p>
       <CountdownLine {...state.countdown} />
-      <p className="m-0 font-body text-body text-ink">
-        <PreviewLineText line={state.loot} />
-      </p>
+      {state.loot !== null && (
+        <p className="m-0 font-body text-body text-ink">
+          <PreviewLineText line={state.loot} />
+        </p>
+      )}
       <Track
         value={state.elapsedSeconds}
         total={state.totalSeconds}
         fillClass="fill-slate"
         marks={state.marks}
       />
+      {state.recall !== null && (
+        <Button
+          type="button"
+          tone="quiet"
+          disabled={state.recall.isWaiting}
+          accessibleName={state.recall.accessibleName}
+          onClick={state.recall.onCancel}
+        >
+          {state.recall.label}
+        </Button>
+      )}
     </section>
   )
 }

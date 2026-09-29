@@ -5,6 +5,7 @@ import { FormAlert } from '../../design-system/FormAlert'
 import { FiefScreen } from '../../fief/FiefScreen'
 import { useCancel } from '../../fief/useCancel'
 import { useLiveFief } from '../../fief/useLiveFief'
+import { useRecall } from '../../fief/useRecall'
 import { useRecruit } from '../../fief/useRecruit'
 import { useStudy } from '../../fief/useStudy'
 import { useUpgrade } from '../../fief/useUpgrade'
@@ -17,6 +18,7 @@ function FiefOverviewPage(): ReactElement {
   const cancel = useCancel(apiClient, adopt, readAt)
   const study = useStudy(apiClient, adopt, readAt)
   const recruit = useRecruit(apiClient, adopt, readAt)
+  const recall = useRecall(apiClient, adopt, readAt)
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.fief.loading}</p>
@@ -30,6 +32,7 @@ function FiefOverviewPage(): ReactElement {
           cancel={cancel}
           study={study}
           recruit={recruit}
+          recall={recall}
         />
       )
     default: {
