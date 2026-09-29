@@ -41,18 +41,19 @@ draws them.
   and the catalog at dispatch. A target outside is refused
   `MarchTargetOutOfBounds { province, plot }`, a new member of
   `DomainError`, never the map's `ProvinceNotFound` (404): a march is a
-  mutation and its refusals answer 409 like every other. The fief's own
-  plot is refused `MarchToOwnPlot`; a plot holding a fief, listed by
-  `holdersIn`, is refused `PlotHeld { province, plot }`. Only kingdom 1
-  exists, and the march never leaves the fief's kingdom.
+  mutation and its refusals answer 409 like every other slot refusal. The
+  fief's own plot is refused `MarchToOwnPlot`; a plot holding a fief,
+  listed by `holdersIn`, is refused `PlotHeld { province, plot }`. Only
+  kingdom 1 exists, and the march never leaves the fief's kingdom.
 - **The road is timed by the map.** `marchOneWaySeconds(from, to, forage)`
   is `|Δprovince| × secondsPerProvince + |Δplot| × secondsPerPlot`, and the
   way back costs the same. No season slows the road (ADR 016, ADR 017
   untouched). The shipped content, 600 and 60 seconds, makes one province
   and five plots of road 15 minutes each way.
 - **The forage terms are content** (ADR 008, N5). `forage` in
-  `apps/api/content/fief.json`, parsed strictly by `FiefContentSchema` and
-  handed to the domain as `FiefSettings.forage` (`ForageTerms`):
+  `apps/api/content/fief.json`, parsed by the strict `ForageTermsSchema`
+  inside `FiefContentSchema` and handed to the domain as
+  `FiefSettings.forage` (`ForageTerms`):
   `secondsPerProvince`, `secondsPerPlot`, `carryPerInfantry` and
   `maxStayHours`, whole counts from 1, and `yieldPerHour`, a record over
   the three terrains of the five resources, `gold` the literal 0, so a
@@ -314,8 +315,10 @@ draws them.
   `MalformedRequest`, and the form's own line keeps it from being sent.
   The domain refusal stands for a caller that bypasses the wire.
 - Known gap: `StayOutOfRange` carries `stayHours` only, since `Fief.restore`
-  has no catalog to read `maxStayHours`; the Spanish line reads the bound
-  from `forageTerms`.
+  has no catalog to read `maxStayHours`, and both Spanish copies of its
+  line, `apps/api/src/http/answerRefusal.ts` and `apps/web/src/copy.ts`,
+  hardcode *de 1 a 8 horas enteras*: a content change to `maxStayHours`
+  leaves the refusal line wrong until both are edited.
 - Known gap: the lore proposals of #268 wait for the author; until
   accepted, `apps/web/src/copy.ts` mirrors them. The march icon is a
   hand-drawn line SVG and the march has no generated image (S4).

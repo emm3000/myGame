@@ -124,7 +124,8 @@ free plot: the `dispatchMarch` use case reads `lastOccupiedProvince` and
 `holdersIn` through `KingdomMapReader`, on the pool and lock-free as this
 ADR keeps it, to bound the target and refuse a held plot, and the web
 offers *Enviar una marcha* on every free plot of `/mapa`, never on a held
-one nor on the viewer's own. That lifts "Nothing is started from the map"
+one nor on the viewer's own, as Decision 14 of #255 fixes it (#264, not
+yet shipped). That lifts "Nothing is started from the map"
 and the rejection "the map is read to plan, never acted on, until a ticket
 says otherwise"; the march is the one order the map takes. Nothing else
 here changes: the map still shows one province at a time, bounded by
