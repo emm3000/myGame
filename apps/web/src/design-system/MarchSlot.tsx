@@ -13,6 +13,7 @@ export type MarchSlotState =
       readonly kind: 'busy'
       readonly title: string
       readonly phase: PreviewLine
+      readonly camp: PreviewLine | null
       readonly countdown: SlotCountdown
       readonly loot: PreviewLine | null
       readonly elapsedSeconds: number
@@ -42,6 +43,11 @@ export function MarchSlot({ state }: { readonly state: MarchSlotState }): ReactE
       <p className="m-0 font-body text-body text-ink">
         <PreviewLineText line={state.phase} />
       </p>
+      {state.camp !== null && (
+        <p className="m-0 font-body text-body text-ink">
+          <PreviewLineText line={state.camp} />
+        </p>
+      )}
       <CountdownLine {...state.countdown} />
       {state.loot !== null && (
         <p className="m-0 font-body text-body text-ink">

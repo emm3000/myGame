@@ -127,6 +127,13 @@ export function marchRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: 
     : remainingSecondsAt(overview.march.returnsAt, overview, elapsedSeconds)
 }
 
+export function battleRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
+  const march = overview.march
+  return march === null || march.order !== 'attack' || march.fought
+    ? 0
+    : remainingSecondsAt(march.arrivesAt, overview, elapsedSeconds)
+}
+
 function phaseOf(march: NonNullable<FiefOverview['march']>, sinceDeparture: number): MarchPhase {
   if (sinceDeparture < secondsBetween(march.departedAt, march.arrivesAt)) {
     return 'outbound'

@@ -326,6 +326,7 @@ export const copy = {
     attackTitle: (province: number, plot: number): string =>
       `Ataque a provincia ${province}, parcela ${plot}`,
     attackHeading: 'Marcha al ataque:',
+    attackReturningHeading: 'Vuelta del ataque:',
     campHeading: 'Campamento:',
     battleHeading: 'Batalla:',
     battleOutcome: (isWon: boolean): string => (isWon ? 'ganada' : 'perdida'),
