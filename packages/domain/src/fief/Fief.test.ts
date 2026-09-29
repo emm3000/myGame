@@ -232,30 +232,38 @@ describe('Fief', () => {
     expect(returningAtStored.ok).toBe(true)
   })
 
-  it('refuses a stored recall before the departure or from the end of the stay', () => {
-    const secondsAfterDeparture = (seconds: number): Instant =>
-      Instant.fromEpochMilliseconds(foundingInstant.epochMilliseconds + seconds * 1_000)
-    const recalledAt = (seconds: number) =>
-      Fief.restore({
-        ...storedBusyFief,
-        march: { ...awayMarch, recalledAt: secondsAfterDeparture(seconds) },
-      })
+  it('refuses a stored recall before the departure', () => {
+    const recalledAt = Instant.fromEpochMilliseconds(foundingInstant.epochMilliseconds - 1_000)
+    const before = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, recalledAt } })
+    const atDeparture = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, recalledAt: foundingInstant },
+    })
 
-    expect(recalledAt(-1)).toEqual(
-      err({
-        kind: 'SlotStartsAfterFinish',
-        startedAt: foundingInstant,
-        finishesAt: secondsAfterDeparture(-1),
-      }),
+    expect(before).toEqual(
+      err({ kind: 'SlotStartsAfterFinish', startedAt: foundingInstant, finishesAt: recalledAt }),
     )
-    expect(recalledAt(7_920)).toEqual(
-      err({
-        kind: 'SlotStartsAfterFinish',
-        startedAt: secondsAfterDeparture(7_920),
-        finishesAt: secondsAfterDeparture(7_920),
-      }),
+    expect(atDeparture.ok).toBe(true)
+  })
+
+  it('refuses a stored recall at or after the end of the stay', () => {
+    const leavesAt = Instant.fromEpochMilliseconds(foundingInstant.epochMilliseconds + 7_920_000)
+    const atLeave = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, recalledAt: leavesAt },
+    })
+    const justBefore = Fief.restore({
+      ...storedBusyFief,
+      march: {
+        ...awayMarch,
+        recalledAt: Instant.fromEpochMilliseconds(leavesAt.epochMilliseconds - 1_000),
+      },
+    })
+
+    expect(atLeave).toEqual(
+      err({ kind: 'SlotStartsAfterFinish', startedAt: leavesAt, finishesAt: leavesAt }),
     )
-    expect([recalledAt(0).ok, recalledAt(7_919).ok]).toEqual([true, true])
+    expect(justBefore.ok).toBe(true)
   })
 
   it('counts the infantry away out of those at home', () => {

@@ -2,12 +2,12 @@ import type { Stocks } from '../fief/Fief'
 import type { Terrain } from '../fief/Terrain'
 import type { ForageTerms } from '../ports/BuildingCatalog'
 
-const SECONDS_PER_HOUR = 3_600
+const MILLISECONDS_PER_HOUR = 3_600_000
 
-export const forageLootOfSeconds = (
+export const forageLootOfMilliseconds = (
   terrain: Terrain,
   infantry: number,
-  foragedSeconds: number,
+  foragedMilliseconds: number,
   forage: ForageTerms,
 ): Stocks => {
   const yieldPerHour = { ...forage.yieldPerHour[terrain], gold: 0 }
@@ -15,7 +15,7 @@ export const forageLootOfSeconds = (
   const lootOf = (ratePerHour: number): number =>
     ratePerHour > 0
       ? Math.min(
-          Math.floor((infantry * ratePerHour * foragedSeconds) / SECONDS_PER_HOUR),
+          Math.floor((infantry * ratePerHour * foragedMilliseconds) / MILLISECONDS_PER_HOUR),
           Math.floor((forage.carryPerInfantry * infantry) / yielded),
         )
       : 0
