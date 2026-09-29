@@ -82,4 +82,55 @@ describe('FiefEventSchema', () => {
 
     expect(FiefEventSchema.safeParse(delivered).success).toBe(false)
   })
+
+  it('accepts a recruits-cancelled event', () => {
+    const cancelled = {
+      kind: 'recruitsCancelled',
+      unit: 'infantry',
+      delivered: 4,
+      cancelled: 8,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      refund: { wood: 160, stone: 0, iron: 80, gold: 0, food: 240 },
+    }
+
+    expect(FiefEventSchema.parse(cancelled)).toEqual(cancelled)
+  })
+
+  it('accepts a recruits-cancelled event with no unit delivered', () => {
+    const cancelled = {
+      kind: 'recruitsCancelled',
+      unit: 'infantry',
+      delivered: 0,
+      cancelled: 12,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      refund: { wood: 240, stone: 0, iron: 120, gold: 0, food: 360 },
+    }
+
+    expect(FiefEventSchema.parse(cancelled)).toEqual(cancelled)
+  })
+
+  it('rejects a recruits-cancelled event that cancelled no unit', () => {
+    const cancelled = {
+      kind: 'recruitsCancelled',
+      unit: 'infantry',
+      delivered: 12,
+      cancelled: 0,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      refund,
+    }
+
+    expect(FiefEventSchema.safeParse(cancelled).success).toBe(false)
+  })
+
+  it('rejects a recruits-cancelled event without a refund', () => {
+    const cancelled = {
+      kind: 'recruitsCancelled',
+      unit: 'infantry',
+      delivered: 4,
+      cancelled: 8,
+      occurredAt: '2026-09-22T09:30:00.000Z',
+    }
+
+    expect(FiefEventSchema.safeParse(cancelled).success).toBe(false)
+  })
 })
