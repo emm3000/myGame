@@ -321,6 +321,18 @@ export const copy = {
   march: {
     send: 'Enviar una marcha',
     sendTo: (plot: number): string => `Enviar una marcha a parcela ${plot}`,
+    attack: 'Atacar el campamento',
+    attackTo: (plot: number): string => `Atacar el campamento en parcela ${plot}`,
+    attackTitle: (province: number, plot: number): string =>
+      `Ataque a provincia ${province}, parcela ${plot}`,
+    attackHeading: 'Marcha al ataque:',
+    campHeading: 'Campamento:',
+    battleHeading: 'Batalla:',
+    battleOutcome: (isWon: boolean): string => (isWon ? 'ganada' : 'perdida'),
+    lossesHeading: 'Bajas:',
+    campLossesHeading: 'Bajas de los bandidos:',
+    survivorsHeading: 'Vuelven:',
+    infantry: (count: number): string => countedUnits('infantry', count),
     title: (province: number, plot: number): string =>
       `Marcha a provincia ${province}, parcela ${plot}`,
     atHome: (count: number): string =>
@@ -401,6 +413,8 @@ export const copy = {
     terrain: (terrain: Terrain): string => `Terreno: ${terrains[terrain]}`,
     plot: (plot: number): string => `Parcela ${plot}`,
     free: 'libre',
+    camp: 'Campamento de bandidos',
+    campStrength: (tier: number, strength: number): string => `nivel ${tier}, fuerza ${strength}`,
     ownFief: 'Tu feudo',
     previous: 'Provincia anterior',
     next: 'Provincia siguiente',

@@ -4,25 +4,63 @@ import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { secondsBetween } from '../time/secondsBetween'
+import type { PlotCamp } from './marchFormOf'
 
 type SentMarch = NonNullable<FiefOverview['march']>
 
-export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArray<PreviewLine> {
+function returnLineOf(march: SentMarch, readAt: string): PreviewLine {
+  return {
+    heading: copy.march.returnHeading,
+    value: formatDuration(secondsBetween(readAt, march.returnsAt)),
+    isNumeral: true,
+  }
+}
+
+function lootLineOf(march: SentMarch): PreviewLine {
+  return {
+    heading: copy.march.lootHeading,
+    value: copy.march.loot(quantitiesOf(march.loot)),
+    isNumeral: false,
+  }
+}
+
+function attackLinesOf(
+  march: Extract<SentMarch, { readonly order: 'attack' }>,
+  readAt: string,
+  previewedCamp: PlotCamp | null,
+): ReadonlyArray<PreviewLine> {
+  const lines: ReadonlyArray<PreviewLine> = [
+    {
+      heading: copy.march.attackHeading,
+      value: copy.march.phaseLines.outbound(march.infantry, march.province, march.plot),
+      isNumeral: false,
+    },
+    {
+      heading: copy.march.campHeading,
+      value: copy.map.campStrength(march.camp.tier, march.camp.strength),
+      isNumeral: false,
+      isChanged: previewedCamp !== null && previewedCamp.strength !== march.camp.strength,
+    },
+    returnLineOf(march, readAt),
+  ]
+  return quantitiesOf(march.loot).length === 0 ? lines : [...lines, lootLineOf(march)]
+}
+
+export function marchSentLinesOf(
+  march: SentMarch,
+  readAt: string,
+  previewedCamp: PlotCamp | null,
+): ReadonlyArray<PreviewLine> {
+  if (march.order === 'attack') {
+    return attackLinesOf(march, readAt, previewedCamp)
+  }
   return [
     {
       heading: copy.march.phaseHeadings.outbound,
       value: copy.march.phaseLines.outbound(march.infantry, march.province, march.plot),
       isNumeral: false,
     },
-    {
-      heading: copy.march.returnHeading,
-      value: formatDuration(secondsBetween(readAt, march.returnsAt)),
-      isNumeral: true,
-    },
-    {
-      heading: copy.march.lootHeading,
-      value: copy.march.loot(quantitiesOf(march.loot)),
-      isNumeral: false,
-    },
+    returnLineOf(march, readAt),
+    lootLineOf(march),
   ]
 }

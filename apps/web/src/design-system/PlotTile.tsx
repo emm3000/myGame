@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { Button } from './Button'
+import { CampIcon } from './icons/CampIcon'
 
 export interface PlotAction {
   readonly label: string
@@ -10,6 +11,12 @@ export interface PlotAction {
 
 export type PlotHolder =
   | { readonly kind: 'free'; readonly line: string; readonly action?: PlotAction | undefined }
+  | {
+      readonly kind: 'camp'
+      readonly line: string
+      readonly strength: string
+      readonly action?: PlotAction | undefined
+    }
   | { readonly kind: 'held'; readonly name: string }
   | { readonly kind: 'own'; readonly name: string; readonly marker: string }
 
@@ -21,6 +28,7 @@ export interface PlotTileProps {
 
 const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   free: 'border border-line border-dashed bg-surface',
+  camp: 'border border-line border-dashed bg-surface',
   held: 'border border-line bg-surface-raised shadow-card',
   own: 'border-2 border-river border-l-4 bg-surface-raised shadow-card',
 }
@@ -28,7 +36,7 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
 const expandedFrameClass = 'border border-line-strong bg-surface-raised'
 
 const frameClassOf = (holder: PlotHolder): string =>
-  holder.kind === 'free' && holder.action?.isExpanded === true
+  (holder.kind === 'free' || holder.kind === 'camp') && holder.action?.isExpanded === true
     ? expandedFrameClass
     : frameClass[holder.kind]
 
@@ -56,6 +64,23 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
       return (
         <>
           <span className="font-body text-heading font-normal text-ink-faint">{holder.line}</span>
+          {holder.action !== undefined && <PlotActionButton action={holder.action} />}
+        </>
+      )
+    case 'camp':
+      return (
+        <>
+          <span className="flex flex-col gap-1">
+            <span className="flex items-start gap-2">
+              <span className="mt-0.5 flex text-ochre">
+                <CampIcon sizeClass="size-icon" />
+              </span>
+              <span className="font-body text-heading font-bold text-ink">{holder.line}</span>
+            </span>
+            <span className="font-body text-caption text-ink-muted tabular-nums">
+              {holder.strength}
+            </span>
+          </span>
           {holder.action !== undefined && <PlotActionButton action={holder.action} />}
         </>
       )
