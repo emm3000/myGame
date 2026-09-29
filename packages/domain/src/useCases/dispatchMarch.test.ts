@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
+import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -11,6 +12,9 @@ import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { dispatchMarch } from './dispatchMarch'
+import { enqueueBuilding } from './enqueueBuilding'
+import { placeRecruitOrder } from './placeRecruitOrder'
+import { startStudy } from './startStudy'
 
 const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
 
@@ -38,6 +42,44 @@ const fiefSettings: FiefSettings = {
 const catalog: BuildingCatalog = {
   levelOf: () => undefined,
   artLevelOf: () => undefined,
+  fiefSettings: () => fiefSettings,
+}
+
+const libraryAndBarracks: FiefBuildingLevels = {
+  sawmill: 0,
+  quarry: 0,
+  ironMine: 0,
+  farm: 0,
+  warehouse: 0,
+  library: 1,
+  barracks: 1,
+}
+
+const lineCost = { wood: 10, stone: 10, iron: 0, gold: 0, food: 0 }
+
+const workingCatalog: BuildingCatalog = {
+  levelOf: (building, level) => {
+    if (level !== 1) {
+      return undefined
+    }
+    const line = { level, cost: lineCost, durationSeconds: 60, peasantOccupancy: 1 }
+    if (building === 'sawmill') {
+      return { ...line, building, ratePerHour: 10 }
+    }
+    return building === 'library' || building === 'barracks' ? { ...line, building } : undefined
+  },
+  artLevelOf: (art, level) =>
+    art === 'smithing' && level === 1
+      ? {
+          art,
+          level,
+          cost: lineCost,
+          durationSeconds: 60,
+          requiredLibraryLevel: 1,
+          resource: 'iron',
+          ratePercent: 10,
+        }
+      : undefined,
   fiefSettings: () => fiefSettings,
 }
 
@@ -144,8 +186,59 @@ describe('dispatchMarch', () => {
     const peasantsOf = (held: Fief) =>
       derivePeasantCounts(held.buildingLevels, held.units, held.recruitOrder, catalog)
     expect(peasantsOf(away)).toEqual(peasantsOf(fief))
-    expect(away.stocks).toEqual(fief.stocks)
-    expect(away.storedAt).toBe(fief.storedAt)
+  })
+
+  it('debits nothing and keeps the stored instant', async () => {
+    const fief = storedFief({})
+    const dependencies = dependenciesOver(fief)
+
+    await dispatchMarch(tenInfantryForTwoHours, dependencies)
+
+    const away = dependencies.fiefs.storedFiefOf('lord')
+    expect(away?.stocks).toEqual(fief.stocks)
+    expect(away?.storedAt).toBe(fief.storedAt)
+  })
+
+  it('refuses a player who holds no fief', async () => {
+    const result = await dispatchMarch(
+      { ...tenInfantryForTwoHours, playerId: 'landless' },
+      dependenciesOver(storedFief({})),
+    )
+
+    expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
+  })
+
+  it('reports a fief the repository cannot read', async () => {
+    const dependencies = dependenciesOver(storedFief({}))
+    const unreadable = {
+      ...dependencies,
+      fiefs: {
+        ...dependencies.fiefs,
+        fiefOf: async () => err({ kind: 'NegativeResourceAmount', amount: -1 } as const),
+      },
+    }
+
+    const result = await dispatchMarch(tenInfantryForTwoHours, unreadable)
+
+    expect(result).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
+  })
+
+  it('reports a march the repository refuses to save', async () => {
+    const dependencies = dependenciesOver(storedFief({}))
+    const unsaveable = {
+      ...dependencies,
+      fiefs: {
+        ...dependencies.fiefs,
+        save: async (fief: Fief) =>
+          err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates } as const),
+      },
+    }
+
+    const result = await dispatchMarch(tenInfantryForTwoHours, unsaveable)
+
+    expect(result).toEqual(
+      err({ kind: 'CoordinatesTaken', coordinates: storedFief({}).coordinates }),
+    )
   })
 
   it('counts the units an open order has delivered as at home', async () => {
@@ -349,6 +442,31 @@ describe('dispatchMarch', () => {
       busy.buildQueue,
       busy.studySlot,
       busy.recruitOrder,
+    ])
+  })
+
+  it('builds, studies and recruits while the march is away', async () => {
+    const dependencies = {
+      ...dependenciesOver(storedFief({ buildingLevels: libraryAndBarracks })),
+      catalog: workingCatalog,
+    }
+    const sent = await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 4 }, dependencies)
+    assert(sent.ok)
+
+    const building = await enqueueBuilding({ playerId: 'lord', building: 'sawmill' }, dependencies)
+    const studying = await startStudy({ playerId: 'lord', art: 'smithing' }, dependencies)
+    const recruiting = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      dependencies,
+    )
+
+    assert(building.ok && studying.ok && recruiting.ok)
+    const busy = dependencies.fiefs.storedFiefOf('lord')
+    expect([busy?.slot.kind, busy?.studySlot.kind, busy?.recruitOrder.kind, busy?.march]).toEqual([
+      'busy',
+      'busy',
+      'open',
+      sent.value.march,
     ])
   })
 })
