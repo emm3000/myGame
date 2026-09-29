@@ -1,5 +1,5 @@
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { copy } from '../copy'
 import type { PlotAction } from '../design-system/PlotTile'
@@ -37,7 +37,14 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
     setIsSent(true)
   }
   const march = useMarch(apiClient, adoptSent, overview?.readAt)
-  const target = chosen?.province === map?.province ? chosen : undefined
+  const shownProvince = map?.province
+  const target = chosen?.province === shownProvince ? chosen : undefined
+
+  useEffect(() => {
+    if (shownProvince !== undefined) {
+      setChosen((open) => (open?.province === shownProvince ? open : undefined))
+    }
+  }, [shownProvince])
 
   const toggle = (map: ProvinceMap, plot: number): void => {
     setIsSent(false)
