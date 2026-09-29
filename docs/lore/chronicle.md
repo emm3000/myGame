@@ -1,6 +1,6 @@
 # The chronicle
 
-Status: proposal. Every fact below is a proposal until the author accepts it. The English terms `chronicle` and the four event kinds `upgradeFinished`, `artLearned`, `upgradeCancelled` and `studyCancelled` are fixed by the S3 tickets (#128), the fifth, `recruitsDelivered`, by the S10 tickets (#209), and the sixth, `recruitsCancelled`, by the S11 tickets (#231); the Spanish labels and the sentence of each event are in `names.md`.
+Status: proposal. Every fact below is a proposal until the author accepts it. The English terms `chronicle` and the four event kinds `upgradeFinished`, `artLearned`, `upgradeCancelled` and `studyCancelled` are fixed by the S3 tickets (#128), the fifth, `recruitsDelivered`, by the S10 tickets (#209), the sixth, `recruitsCancelled`, by the S11 tickets (#231), and the seventh, `marchReturned`, by the S13 tickets (#255); the Spanish labels and the sentence of each event are in `names.md`.
 
 ## What the chronicle is
 
@@ -11,6 +11,8 @@ The chronicle records endings, never orders. Ordering a work or commissioning a 
 Proposal (S10, #209): the roll holds a fifth kind of line, a levy complete: the units one order delivered, one line per order, written when the last of them takes up arms and dated by that hour, not by the first. Calling the levy is the lord's own act, done in the hall, and the busy yard shows it; the roll still records endings, never orders. A lord who returns to find twelve spears on the drill ground reads one line, not twelve: the scribe counts heads, not days. The heading, the count and the unit label are in `names.md` (The chronicle, The army).
 
 Proposal (S11, #231): the roll holds a sixth kind of line, a levy recalled: one line per order, dated by the hour the lord called the men back, not by the hour the levy was called. The men already drilled by that hour stay in the ranks; the rest put down the spears they had not yet earned and go back to the fields, and the stores get back what their arms would have cost, material by material, as the two other cancels say. The line is written even though the lord ordered the recall, as a cancelled work is: the stores fill again, and a lord who reads the roll wants to know why. A levy already complete when the recall reaches the yard is written as complete and the recall is refused; the roll never holds a recall with no one sent home. The heading, the two counts, the unit label and the refund are in `names.md` (The chronicle, The army).
+
+Proposal (S13, #255): the roll holds a seventh kind of line, a march back: one line per march, dated by the hour the men walked in through the gate with their loads, not by the hour they left nor by the hour they reached the plot. Sending the march is the lord's own act, done over the map in the hall, and the busy yard shows it on its way; the roll still records endings, never orders. The line names the plot the men went to, how many went and what they brought, material by material, in the words the two cancels use for what came back to the stores: a lord who finds the stores heavier wants to know from where. The march brings what was settled when it left (`world.md`, The land), so the scribe writes the loads from the foreman's tally at the gate and never from a guess. The heading, the plot, the count, the unit label and the loot are in `names.md` (The chronicle, The marches).
 
 Each line is dated by the hour the thing happened, never by the hour it was written. The scribe does not sit by the scaffold: the line is written when the lord next asks after the fief, from the foreman's word on when the last stone went in, and that hour is the one the roll keeps.
 
@@ -25,5 +27,5 @@ Parchment is dear, and a fief has better uses for a calf than its own annals. Th
 ## Open questions
 
 - Whether the scribe is ever named or shown on screen.
-- Whether the roll one day records what other fiefs do to this one: a march sighted, a scout caught. Out of scope for S3 (#128).
+- Whether the roll one day records what other fiefs do to this one: a march sighted, a scout caught. Out of scope for S3 (#128) and for S13 (#255), whose marches meet no one.
 - What the roll looks like; the chronicle has no image yet (`docs/art/art-bible.md`).

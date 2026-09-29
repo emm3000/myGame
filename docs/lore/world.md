@@ -12,8 +12,18 @@ The old crown fell a generation ago and no one has claimed it. What remains is a
 - A **province** is one stretch of a kingdom, numbered along the old crown road, and holds a fixed count of plots. A **plot** is one numbered piece of a province; it is free until a lord founds a fief on it, and one fief holds one plot.
 - **Terrain belongs to the province**, never to a single plot: every plot of a province shares its ground. **Lowlands** give food and wood. **Uplands** give stone. **Ridges** give iron. A province's terrain tilts the starting rates of every fief founded in it; it never forbids a building.
 - The crown road climbs and falls as it runs through a kingdom, so the provinces follow it in turn: lowlands, then uplands, then ridges, then down into the next lowlands (`packages/domain/src/fief/terrainOf.ts`, the code wins).
-- The **kingdom map** is the sheet in the hall that shows one province at a time: each plot with the name of the fief that holds it, or empty when no one does. It shows every province up to the last one that holds a fief and one more beyond it, the land no lord has reached yet. It is read to plan, never acted on: nothing is ordered from the map.
+- The **kingdom map** is the sheet in the hall that shows one province at a time: each plot with the name of the fief that holds it, or empty when no one does. It shows every province up to the last one that holds a fief and one more beyond it, the land no lord has reached yet. It is read to plan, and one thing alone is ordered from it: a forage march to a free plot (proposal S13, below). Nothing else is started from the map.
 - Roads are old and slow. Distance on the map is time on the road.
+
+Proposal (S13, #255): a lord may send the fief's **infantry on a forage march**: from the fief to any free plot of the kingdom, where they forage for a whole count of hours and come back with what they carry. The road time follows the map: each province crossed and each plot crossed costs its own fixed stretch of road, and the way back costs the same as the way out. A march takes any number of the infantry at home; those away stay counted among the fief's hands and keep their place at the fields' expense, so a lord cannot use their absence to feed more mouths. The march is sent from the map, the one order the map takes: the plot is checked free at the moment of dispatch and neither reserved nor depleted, so two lords may forage the same plot, and a fief founded there after the march left does not turn it back. What the march will bring is settled when it leaves: the men carry back what the terrain and the hours allow, as much as their backs can hold, and nothing on the road or at the plot changes it. One march at a time; there is no recall in this slice, and the seasons neither slow the road nor the foraging. What the foragers find is the province's terrain, never a plot's:
+
+| Terrain | Foragers bring | Note |
+|---|---|---|
+| lowlands | food and wood | the river plain: fields to glean and stands to cut |
+| uplands | wood and stone | the plateau is bare on top; its gullies hold scrub oak and loose stone from the old quarry faces |
+| ridges | stone and iron | the crags: rubble and surface ore |
+
+Gold is never foraged: it is earned, not dug (Where resources come from). The uplands give stone to a fief founded there and stone and wood to a forager: a fief's rate needs a quarry and a sawmill, and the sawmill finds no stands on the plateau, while a forager takes the scrub of the gullies that no sawmill would bother with. The Spanish names of the march, its phases and its refusals are in `names.md` (The marches).
 
 ## Where resources come from
 
