@@ -73,6 +73,7 @@ const smithingFief = (): Fief => {
     buildQueue: [],
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
+    march: { kind: 'idle' },
   })
   assert(restored.ok)
   return restored.value
@@ -129,6 +130,7 @@ const seasonalFief = (stocks: Partial<Stocks>, storedAt: Instant): Fief => {
     buildQueue: [],
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
+    march: { kind: 'idle' },
   })
   assert(restored.ok)
   return restored.value

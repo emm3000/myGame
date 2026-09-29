@@ -1,9 +1,13 @@
 import type { DomainError } from '../DomainError'
+import { forageLootOf } from '../march/forageLootOf'
+import type { March } from '../march/March'
+import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import type { PlayerId } from '../player/PlayerId'
 import type {
   ArtLevel,
   BuildingCatalog,
   BuildingKind,
+  ForageTerms,
   UnitKind,
   UnitTerms,
 } from '../ports/BuildingCatalog'
@@ -60,12 +64,20 @@ export type StoredFief = {
   readonly buildQueue: BuildQueue
   readonly studySlot: StudySlot
   readonly recruitOrder: RecruitOrder
+  readonly march: March
 }
 
 export type RecruitRequest = {
   readonly unit: UnitKind
   readonly count: number
   readonly terms: UnitTerms
+}
+
+export type MarchOrder = {
+  readonly province: number
+  readonly plot: number
+  readonly infantry: number
+  readonly stayHours: number
 }
 
 const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
@@ -211,6 +223,25 @@ const validateRecruitOrder = (
   return refuseNegativeAmount(recruitOrder.cost)
 }
 
+const validateMarch = (march: March): Result<void, DomainError> => {
+  if (march.kind === 'idle') {
+    return ok(undefined)
+  }
+  if (!isUnitCount(march.infantry)) {
+    return err({ kind: 'InvalidUnitCount', unit: 'infantry', count: march.infantry })
+  }
+  if (!isUnitCount(march.stayHours)) {
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+  }
+  if (march.oneWaySeconds < 0) {
+    return err({ kind: 'NegativeDuration', seconds: march.oneWaySeconds })
+  }
+  if (!Number.isInteger(march.oneWaySeconds)) {
+    return err({ kind: 'FractionalDuration', seconds: march.oneWaySeconds })
+  }
+  return refuseNegativeAmount(march.loot)
+}
+
 const timesCount = (cost: Stocks, count: number): Stocks => ({
   wood: cost.wood * count,
   stone: cost.stone * count,
@@ -258,6 +289,10 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   if (!storedRecruitOrder.ok) {
     return storedRecruitOrder
   }
+  const storedMarch = validateMarch(stored.march)
+  if (!storedMarch.ok) {
+    return storedMarch
+  }
   return validateBuildQueue(stored.buildQueue)
 }
 
@@ -275,6 +310,7 @@ type FiefChange = Partial<
     readonly units: FiefUnitCounts
     readonly studySlot: StudySlot
     readonly recruitOrder: RecruitOrder
+    readonly march: March
   }
 >
 
@@ -423,6 +459,7 @@ export class Fief {
     readonly buildQueue: BuildQueue,
     readonly studySlot: StudySlot,
     readonly recruitOrder: RecruitOrder,
+    readonly march: March,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -438,6 +475,7 @@ export class Fief {
       FiefUnitCounts.none,
       { kind: 'idle' },
       [],
+      { kind: 'idle' },
       { kind: 'idle' },
       { kind: 'idle' },
     )
@@ -476,6 +514,7 @@ export class Fief {
         stored.buildQueue,
         stored.studySlot,
         stored.recruitOrder,
+        stored.march,
       ),
     )
   }
@@ -711,6 +750,47 @@ export class Fief {
     )
   }
 
+  roomForMarch(order: MarchOrder, maxStayHours: number): Result<void, DomainError> {
+    const { infantry, stayHours } = order
+    if (!isUnitCount(infantry)) {
+      return err({ kind: 'InvalidUnitCount', unit: 'infantry', count: infantry })
+    }
+    if (!isUnitCount(stayHours) || stayHours > maxStayHours) {
+      return err({ kind: 'StayOutOfRange', stayHours })
+    }
+    if (this.march.kind === 'away') {
+      return err({ kind: 'MarchSlotBusy' })
+    }
+    return ok(undefined)
+  }
+
+  dispatchMarch(order: MarchOrder, now: Instant, forage: ForageTerms): Result<Fief, DomainError> {
+    const room = this.roomForMarch(order, forage.maxStayHours)
+    if (!room.ok) {
+      return room
+    }
+    const { province, plot, infantry, stayHours } = order
+    const atHome = this.unitsAtHomeAt(now).countOf('infantry')
+    if (infantry > atHome) {
+      return err({ kind: 'NotEnoughInfantryAtHome', infantry, atHome })
+    }
+    const target = { kingdom: this.coordinates.kingdom, province, plot }
+    return ok(
+      this.changed({
+        march: {
+          kind: 'away',
+          province,
+          plot,
+          infantry,
+          stayHours,
+          departedAt: now,
+          oneWaySeconds: marchOneWaySeconds(this.coordinates, target, forage),
+          loot: forageLootOf(terrainOf(province), infantry, stayHours, forage),
+        },
+      }),
+    )
+  }
+
   get isSlotIdleWithQueue(): boolean {
     return this.slot.kind === 'idle' && this.buildQueue.length > 0
   }
@@ -784,6 +864,11 @@ export class Fief {
     return this.units.plus(recruitOrder.unit, deliveredUnitsOf(recruitOrder, at))
   }
 
+  unitsAtHomeAt(at: Instant): FiefUnitCounts {
+    const units = this.unitCountsAt(at)
+    return this.march.kind === 'away' ? units.minus('infantry', this.march.infantry) : units
+  }
+
   accruedTo(catalog: BuildingCatalog, now: Instant): Result<Fief, DomainError> {
     const stocksAtNow = materializeStocks(this, catalog, now)
     if (!stocksAtNow.ok) {
@@ -807,6 +892,7 @@ export class Fief {
       change.buildQueue ?? this.buildQueue,
       change.studySlot ?? this.studySlot,
       change.recruitOrder ?? this.recruitOrder,
+      change.march ?? this.march,
     )
   }
 

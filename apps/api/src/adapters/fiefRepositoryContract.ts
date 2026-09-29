@@ -122,6 +122,7 @@ const developedFiefWith = (buildQueue: BuildQueue, recruitOrder: RecruitOrder): 
       buildQueue,
       studySlot: masonryStudy,
       recruitOrder,
+      march: { kind: 'idle' },
     }),
   )
 

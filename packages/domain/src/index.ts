@@ -15,7 +15,13 @@ export { deriveResourceRates } from './fief/deriveResourceRates'
 export { deriveStudyDurationSeconds } from './fief/deriveStudyDurationSeconds'
 export { deriveUnitDurationSeconds } from './fief/deriveUnitDurationSeconds'
 export { deriveWarehouseCapacity } from './fief/deriveWarehouseCapacity'
-export { Fief, type FiefFounding, type Stocks, type StoredFief } from './fief/Fief'
+export {
+  Fief,
+  type FiefFounding,
+  type MarchOrder,
+  type Stocks,
+  type StoredFief,
+} from './fief/Fief'
 export type { FiefArtLevels } from './fief/FiefArtLevels'
 export type { FiefBuildingLevels } from './fief/FiefBuildingLevels'
 export type { FiefEvent } from './fief/FiefEvent'
@@ -30,6 +36,7 @@ export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQ
 export type { Terrain } from './fief/Terrain'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
 export { forageLootOf } from './march/forageLootOf'
+export type { AwayMarch, March } from './march/March'
 export { marchOneWaySeconds } from './march/marchOneWaySeconds'
 export type { PlayerId } from './player/PlayerId'
 export type {
@@ -76,6 +83,11 @@ export {
   type CancelUpgradeDependencies,
   cancelUpgrade,
 } from './useCases/cancelUpgrade'
+export {
+  type DispatchMarchCommand,
+  type DispatchMarchDependencies,
+  dispatchMarch,
+} from './useCases/dispatchMarch'
 export {
   type EnqueueBuildingCommand,
   type EnqueueBuildingDependencies,

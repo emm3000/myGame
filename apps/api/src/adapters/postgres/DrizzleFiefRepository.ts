@@ -239,6 +239,7 @@ const storedFiefOf = (
   buildQueue: buildQueueOf(joinedRows),
   studySlot: studySlotOf(row),
   recruitOrder: recruitOrderOf(recruitOrder),
+  march: { kind: 'idle' },
 })
 
 type SlotCostColumns = Pick<
