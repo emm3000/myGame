@@ -169,6 +169,7 @@ const storedFiefOf = (row: FiefRow, joinedRows: ReadonlyArray<JoinedRow>): Store
   slot: slotOf(row),
   buildQueue: buildQueueOf(joinedRows),
   studySlot: studySlotOf(row),
+  recruitOrder: { kind: 'idle' },
 })
 
 type SlotCostColumns = Pick<

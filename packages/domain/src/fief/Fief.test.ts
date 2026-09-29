@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import { err } from '../Result'
 import { Instant } from '../time/Instant'
 import type { BuildQueueEntry } from './BuildQueue'
 import { Coordinates } from './Coordinates'
@@ -24,6 +25,15 @@ const farmEntry: BuildQueueEntry = {
   cost: { wood: 60, stone: 30, iron: 0, gold: 0, food: 10 },
   durationSeconds: 180,
 }
+
+const openOrder = {
+  kind: 'open',
+  unit: 'infantry',
+  count: 5,
+  cost: { wood: 100, stone: 0, iron: 50, gold: 0, food: 150 },
+  perUnitSeconds: 45,
+  startedAt: foundingInstant,
+} as const
 
 const storedBusyFief: StoredFief = {
   id: 'fief-1',
@@ -60,6 +70,7 @@ const storedBusyFief: StoredFief = {
     finishesAt: Instant.fromEpochMilliseconds(86_700_000),
     cost: smithingCost,
   },
+  recruitOrder: openOrder,
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -100,6 +111,7 @@ describe('Fief', () => {
       slot,
       buildQueue,
       studySlot,
+      recruitOrder,
     } = restored.value
     expect({
       id,
@@ -118,6 +130,7 @@ describe('Fief', () => {
       slot,
       buildQueue,
       studySlot,
+      recruitOrder,
     }).toEqual(storedBusyFief)
   })
 
@@ -139,6 +152,37 @@ describe('Fief', () => {
 
   it('founds a fief with the study slot idle', () => {
     expect(fiefInProvince(1).studySlot).toEqual({ kind: 'idle' })
+  })
+
+  it('founds a fief with the recruit slot idle', () => {
+    expect(fiefInProvince(1).recruitOrder).toEqual({ kind: 'idle' })
+  })
+
+  it('refuses a stored order with a fractional count', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      recruitOrder: { ...openOrder, count: 2.5 },
+    })
+
+    expect(restored).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 2.5 }))
+  })
+
+  it('refuses a stored order whose unit duration is not a whole count from one', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      recruitOrder: { ...openOrder, perUnitSeconds: 0 },
+    })
+
+    expect(restored).toEqual(err({ kind: 'InvalidUnitDuration', unit: 'infantry', seconds: 0 }))
+  })
+
+  it('refuses a stored order with a negative cost', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      recruitOrder: { ...openOrder, cost: { ...openOrder.cost, iron: -1 } },
+    })
+
+    expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
   })
 
   it('refuses a stored art level that is not a whole count', () => {

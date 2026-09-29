@@ -83,7 +83,12 @@ describe('derivePeasantCounts', () => {
   it('counts the peasants the units occupy', () => {
     const fourBuildingPeasants = levelsWith({ sawmill: 1, farm: 3 })
 
-    const result = derivePeasantCounts(fourBuildingPeasants, threeInfantry(), catalog)
+    const result = derivePeasantCounts(
+      fourBuildingPeasants,
+      threeInfantry(),
+      { kind: 'idle' },
+      catalog,
+    )
 
     expect(result).toEqual({ ok: true, value: { supplied: 20, occupied: 7, free: 13 } })
   })
@@ -91,7 +96,12 @@ describe('derivePeasantCounts', () => {
   it('counts supplied, occupied and free peasants at the levels a queued farm projects', () => {
     const projectedWithQueuedFarm = levelsWith({ sawmill: 1, farm: 2 })
 
-    const result = derivePeasantCounts(projectedWithQueuedFarm, FiefUnitCounts.none, catalog)
+    const result = derivePeasantCounts(
+      projectedWithQueuedFarm,
+      FiefUnitCounts.none,
+      { kind: 'idle' },
+      catalog,
+    )
 
     expect(result).toEqual({ ok: true, value: { supplied: 15, occupied: 3, free: 12 } })
   })
@@ -99,7 +109,7 @@ describe('derivePeasantCounts', () => {
   it('refuses levels that occupy more peasants than they supply', () => {
     const overcrowded = levelsWith({ sawmill: 2 })
 
-    const result = derivePeasantCounts(overcrowded, FiefUnitCounts.none, catalog)
+    const result = derivePeasantCounts(overcrowded, FiefUnitCounts.none, { kind: 'idle' }, catalog)
 
     expect(result).toEqual({
       ok: false,

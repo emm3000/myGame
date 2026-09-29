@@ -108,6 +108,7 @@ const developedFiefWaiting = (buildQueue: BuildQueue): Fief =>
       },
       buildQueue,
       studySlot: masonryStudy,
+      recruitOrder: { kind: 'idle' },
     }),
   )
 
