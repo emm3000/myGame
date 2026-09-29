@@ -5,6 +5,8 @@ import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
+import type { OpenRecruitOrder } from '../fief/RecruitOrder'
+import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
@@ -30,15 +32,16 @@ export type ResolvedFief = ChangedFief & {
 }
 
 type FinishedWork =
-  | { readonly kind: 'upgrade'; readonly slot: BusySlot }
-  | { readonly kind: 'study'; readonly slot: BusyStudySlot }
+  | { readonly kind: 'upgrade'; readonly slot: BusySlot; readonly finishedAt: Instant }
+  | { readonly kind: 'study'; readonly slot: BusyStudySlot; readonly finishedAt: Instant }
+  | { readonly kind: 'recruit'; readonly order: OpenRecruitOrder; readonly finishedAt: Instant }
 
 const finishedUpgradeOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
   const { slot } = fief
   if (slot.kind === 'idle' || !isSlotFinishedBy(slot, now)) {
     return undefined
   }
-  return { kind: 'upgrade', slot }
+  return { kind: 'upgrade', slot, finishedAt: slot.finishesAt }
 }
 
 const finishedStudyOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
@@ -46,36 +49,61 @@ const finishedStudyOf = (fief: Fief, now: Instant): FinishedWork | undefined => 
   if (studySlot.kind === 'idle' || !isSlotFinishedBy(studySlot, now)) {
     return undefined
   }
-  return { kind: 'study', slot: studySlot }
+  return { kind: 'study', slot: studySlot, finishedAt: studySlot.finishesAt }
 }
 
-const earliestFinishedOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
-  const upgrade = finishedUpgradeOf(fief, now)
-  const study = finishedStudyOf(fief, now)
-  if (upgrade === undefined || study === undefined) {
-    return upgrade ?? study
+const endedRecruitOrderOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
+  const { recruitOrder } = fief
+  if (recruitOrder.kind === 'idle') {
+    return undefined
   }
-  const studyFinishesFirst =
-    study.slot.finishesAt.epochMilliseconds < upgrade.slot.finishesAt.epochMilliseconds
-  return studyFinishesFirst ? study : upgrade
+  const endsAt = recruitOrderEndsAt(recruitOrder)
+  if (endsAt.epochMilliseconds > now.epochMilliseconds) {
+    return undefined
+  }
+  return { kind: 'recruit', order: recruitOrder, finishedAt: endsAt }
 }
 
-const eventOf = (finished: FinishedWork): FiefEvent => {
+const earlierOf = (
+  earliest: FinishedWork | undefined,
+  candidate: FinishedWork | undefined,
+): FinishedWork | undefined => {
+  if (earliest === undefined || candidate === undefined) {
+    return earliest ?? candidate
+  }
+  const candidateFinishesFirst =
+    candidate.finishedAt.epochMilliseconds < earliest.finishedAt.epochMilliseconds
+  return candidateFinishesFirst ? candidate : earliest
+}
+
+const earliestFinishedOf = (fief: Fief, now: Instant): FinishedWork | undefined =>
+  [finishedUpgradeOf(fief, now), finishedStudyOf(fief, now), endedRecruitOrderOf(fief, now)].reduce(
+    earlierOf,
+    undefined,
+  )
+
+const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
   switch (finished.kind) {
     case 'upgrade':
-      return {
-        kind: 'upgradeFinished',
-        building: finished.slot.building,
-        level: finished.slot.targetLevel,
-        occurredAt: finished.slot.finishesAt,
-      }
+      return [
+        {
+          kind: 'upgradeFinished',
+          building: finished.slot.building,
+          level: finished.slot.targetLevel,
+          occurredAt: finished.finishedAt,
+        },
+      ]
     case 'study':
-      return {
-        kind: 'artLearned',
-        art: finished.slot.art,
-        level: finished.slot.targetLevel,
-        occurredAt: finished.slot.finishesAt,
-      }
+      return [
+        {
+          kind: 'artLearned',
+          art: finished.slot.art,
+          level: finished.slot.targetLevel,
+          occurredAt: finished.finishedAt,
+        },
+      ]
+    case 'recruit':
+      return []
     default: {
       const unreachable: never = finished
       return unreachable
@@ -96,6 +124,8 @@ const applyFinished = (
       return fief.completeUpgrade(finished.slot, stocksAtFinish)
     case 'study':
       return ok(fief.completeStudy(finished.slot, stocksAtFinish))
+    case 'recruit':
+      return ok(fief.completeRecruitOrder(finished.order, stocksAtFinish))
     default: {
       const unreachable: never = finished
       return unreachable
@@ -108,7 +138,7 @@ const completeAt = (
   finished: FinishedWork,
   catalog: BuildingCatalog,
 ): Result<Fief, DomainError> => {
-  const stocksAtFinish = materializeStocks(fief, catalog, finished.slot.finishesAt)
+  const stocksAtFinish = materializeStocks(fief, catalog, finished.finishedAt)
   if (!stocksAtFinish.ok) {
     return stocksAtFinish
   }
@@ -132,7 +162,7 @@ const walkFinishedWork = (
       return completed
     }
     walked = completed.value
-    events.push(eventOf(finished))
+    events.push(...eventsOf(finished))
   }
   const accrued = walked.accruedTo(catalog, laterOf(now, walked.storedAt))
   if (!accrued.ok) {

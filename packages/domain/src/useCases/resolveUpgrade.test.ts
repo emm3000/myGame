@@ -1,8 +1,10 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { BuildQueueEntry } from '../fief/BuildQueue'
 import type { BusySlot } from '../fief/BuildSlot'
+import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type {
   ArtLevel,
@@ -1151,5 +1153,152 @@ describe('resolveUpgrade across seasons', () => {
       startedAt: lastMinutesOfWinter,
       finishesAt: secondsAfter(lastMinutesOfWinter, 375),
     })
+  })
+})
+
+const secondsAfterStored = (seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(storedInstant.epochMilliseconds + seconds * 1_000)
+
+const fiveInfantryAtSixtySeconds: OpenRecruitOrder = {
+  kind: 'open',
+  unit: 'infantry',
+  count: 5,
+  cost: { wood: 100, stone: 0, iron: 50, gold: 0, food: 150 },
+  perUnitSeconds: 60,
+  startedAt: storedInstant,
+}
+
+const orderEndingAfterHours = (hours: number): OpenRecruitOrder => ({
+  ...fiveInfantryAtSixtySeconds,
+  perUnitSeconds: (hours * SECONDS_PER_HOUR) / fiveInfantryAtSixtySeconds.count,
+})
+
+describe('resolveUpgrade with a recruit order', () => {
+  it('closes the order at its last delivery on the read', async () => {
+    const recruitingFief = storedFief({ recruitOrder: fiveInfantryAtSixtySeconds })
+    const fiefs = inMemoryFiefRepository([recruitingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(secondsAfterStored(300)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    expect(result.value.events).toEqual([])
+    const stored = fiefs.storedFiefOf('lord')
+    expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
+    expect(stored?.units.countOf('infantry')).toBe(5)
+  })
+
+  it('closes an order that ends before an upgrade finishes', async () => {
+    const recruitingAndBuildingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      recruitOrder: fiveInfantryAtSixtySeconds,
+    })
+    const fiefs = inMemoryFiefRepository([recruitingAndBuildingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(2)) },
+    )
+
+    assert(result.ok)
+    const { buildingLevels, recruitOrder, stocks, storedAt } = result.value.fief
+    expect({ buildingLevels, recruitOrder, stocks, storedAt }).toEqual({
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      recruitOrder: { kind: 'idle' },
+      stocks: { wood: 149, stone: 119, iron: 129, gold: 103, food: 119 },
+      storedAt: hoursAfterStored(2),
+    })
+    expect(result.value.fief.units.countOf('infantry')).toBe(5)
+  })
+
+  it('applies an upgrade, a study and an order ending at one instant in that order', async () => {
+    const buildingStudyingAndRecruitingFief = storedFief({
+      slot: sawmillFinishingAfterHours(1),
+      studySlot: smithingStudyFinishingAfterHours(1),
+      recruitOrder: orderEndingAfterHours(1),
+    })
+    const fiefs = inMemoryFiefRepository([buildingStudyingAndRecruitingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: studyingCatalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
+    )
+
+    assert(result.ok)
+    const { buildingLevels, artLevels, recruitOrder, stocks } = result.value.fief
+    expect({ buildingLevels, artLevels, recruitOrder, stocks }).toEqual({
+      buildingLevels: { ...unbuiltLevels, sawmill: 1 },
+      artLevels: { smithing: 1, masonry: 0 },
+      recruitOrder: { kind: 'idle' },
+      stocks: { wood: 150, stone: 120, iron: 145, gold: 104, food: 120 },
+    })
+    expect(result.value.fief.units.countOf('infantry')).toBe(5)
+    expect(result.value.events.map(({ kind }) => kind)).toEqual(['upgradeFinished', 'artLearned'])
+  })
+
+  it('leaves an order still delivering untouched', async () => {
+    const recruitingFief = storedFief({ recruitOrder: fiveInfantryAtSixtySeconds })
+    const fiefs = inMemoryFiefRepository([recruitingFief])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog,
+        clock: frozenClock(secondsAfterStored(299)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value).toEqual({ fief: recruitingFief, events: [], hasChanged: false })
+    expect(fiefs.storedFiefOf('lord')).toBe(recruitingFief)
+    expect(result.value.fief.unitCountsAt(secondsAfterStored(299)).countOf('infantry')).toBe(4)
+  })
+
+  it('keeps the occupied peasants when the order closes', async () => {
+    const staffedCatalog: BuildingCatalog = {
+      ...catalog,
+      fiefSettings: () => ({ ...fiefSettings, basePeasantSupply: 10 }),
+    }
+    const recruitingFief = storedFief({ recruitOrder: fiveInfantryAtSixtySeconds })
+    const fiefs = inMemoryFiefRepository([recruitingFief])
+    const occupiedOf = (fief: Fief): number | undefined => {
+      const counts = derivePeasantCounts(
+        fief.buildingLevels,
+        fief.units,
+        fief.recruitOrder,
+        staffedCatalog,
+      )
+      return counts.ok ? counts.value.occupied : undefined
+    }
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: staffedCatalog,
+        clock: frozenClock(secondsAfterStored(300)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.recruitOrder).toEqual({ kind: 'idle' })
+    expect(occupiedOf(result.value.fief)).toBe(5)
+    expect(occupiedOf(recruitingFief)).toBe(5)
   })
 })
