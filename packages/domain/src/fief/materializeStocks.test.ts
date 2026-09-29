@@ -87,6 +87,7 @@ const seasonalCatalog: BuildingCatalog = {
         autumn: { ...neutralPercents, gold: 125 },
         winter: { ...neutralPercents, food: 75 },
       },
+      durationPercent: neutralSeasons.durationPercent,
     },
   }),
 }

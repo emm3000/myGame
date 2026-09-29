@@ -20,7 +20,9 @@ import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
 import { refusingChronicle } from '../testing/refusingChronicle'
 import { Instant } from '../time/Instant'
+import { enqueueBuilding } from './enqueueBuilding'
 import { resolveUpgrade } from './resolveUpgrade'
+import { startStudy } from './startStudy'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 
@@ -90,6 +92,7 @@ const springDoublingWoodFrom = (epoch: Instant): BuildingCatalog => ({
         autumn: unchangedPercents,
         winter: unchangedPercents,
       },
+      durationPercent: neutralSeasons.durationPercent,
     },
   }),
 })
@@ -1035,5 +1038,113 @@ describe('resolveUpgrade', () => {
     )
 
     expect(result).toEqual({ ok: false, error: refusal })
+  })
+})
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const secondsAfter = (instant: Instant, seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
+
+const seasonalDurationsOver = (base: BuildingCatalog): BuildingCatalog => ({
+  ...base,
+  fiefSettings: () => ({
+    ...fiefSettings,
+    seasons: {
+      ...neutralSeasons,
+      epoch: seasonEpoch,
+      durationPercent: {
+        spring: { build: 100, study: 100 },
+        summer: { build: 75, study: 100 },
+        autumn: { build: 100, study: 100 },
+        winter: { build: 100, study: 75 },
+      },
+    },
+  }),
+})
+
+describe('resolveUpgrade across seasons', () => {
+  it('keeps the summer duration of an entry that starts in autumn', async () => {
+    const midSummer = daysAfterSeasonEpoch(10)
+    const firstDayOfAutumn = daysAfterSeasonEpoch(15)
+    const seasonalCatalog = seasonalDurationsOver(
+      inMemoryCatalog([sawmillLevel(1, 30), { ...sawmillLevel(2, 60), durationSeconds: 307 }]),
+    )
+    const sawmillBuildingIntoAutumn = storedFief({
+      storedAt: midSummer,
+      slot: {
+        ...sawmillFinishingAfterHours(1),
+        startedAt: midSummer,
+        finishesAt: firstDayOfAutumn,
+      },
+    })
+    const fiefs = inMemoryFiefRepository([sawmillBuildingIntoAutumn])
+    const enqueued = await enqueueBuilding(
+      { playerId: 'lord', building: 'sawmill' },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSummer) },
+    )
+    assert(enqueued.ok)
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: seasonalCatalog,
+        clock: frozenClock(secondsAfter(firstDayOfAutumn, 10)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.slot).toMatchObject({
+      kind: 'busy',
+      targetLevel: 2,
+      startedAt: firstDayOfAutumn,
+      finishesAt: secondsAfter(firstDayOfAutumn, 231),
+    })
+  })
+
+  it('keeps a study started in winter at its winter duration in spring', async () => {
+    const lastMinutesOfWinter = secondsAfter(daysAfterSeasonEpoch(28), -100)
+    const seasonalCatalog = seasonalDurationsOver({
+      ...studyingCatalog,
+      artLevelOf: (art, level) =>
+        art === 'smithing' && level === 1
+          ? { ...doublingSmithing, durationSeconds: 1000 }
+          : undefined,
+    })
+    const fiefs = inMemoryFiefRepository([
+      storedFief({
+        storedAt: lastMinutesOfWinter,
+        buildingLevels: { ...unbuiltLevels, library: 1 },
+      }),
+    ])
+    const started = await startStudy(
+      { playerId: 'lord', art: 'smithing' },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(lastMinutesOfWinter) },
+    )
+    assert(started.ok)
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        catalog: seasonalCatalog,
+        clock: frozenClock(daysAfterSeasonEpoch(28)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.studySlot).toMatchObject({
+      kind: 'busy',
+      startedAt: lastMinutesOfWinter,
+      finishesAt: secondsAfter(lastMinutesOfWinter, 375),
+    })
   })
 })

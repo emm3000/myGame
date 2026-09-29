@@ -1,4 +1,5 @@
 import type { DomainError } from '../DomainError'
+import { deriveBuildDurationSeconds } from '../fief/deriveBuildDurationSeconds'
 import { derivePeasantsForUpgrade } from '../fief/derivePeasantsForUpgrade'
 import { deriveProjectedFreePeasants } from '../fief/deriveProjectedFreePeasants'
 import type { Fief } from '../fief/Fief'
@@ -9,6 +10,7 @@ import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/Buil
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
+import { durationPercentAt } from '../season/durationPercentAt'
 import type { Instant } from '../time/Instant'
 
 export type EnqueueBuildingCommand = {
@@ -99,16 +101,20 @@ const enqueueUpgradeAt = (
   if (!stocksAtNow.ok) {
     return stocksAtNow
   }
+  const settings = catalog.fiefSettings()
   return fief.enqueueUpgrade(
     {
       building: target.building,
       targetLevel: target.level,
       cost: target.cost,
-      durationSeconds: target.durationSeconds,
+      durationSeconds: deriveBuildDurationSeconds(
+        target.durationSeconds,
+        durationPercentAt(now, settings).build,
+      ),
     },
     stocksAtNow.value,
     now,
-    catalog.fiefSettings().buildQueueCap,
+    settings.buildQueueCap,
   )
 }
 

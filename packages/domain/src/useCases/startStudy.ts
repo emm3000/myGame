@@ -7,6 +7,7 @@ import type { ArtKind, ArtLevel, BuildingCatalog } from '../ports/BuildingCatalo
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
+import { durationPercentAt } from '../season/durationPercentAt'
 
 export type StartStudyCommand = {
   readonly playerId: PlayerId
@@ -54,7 +55,12 @@ export const startStudy = async (
   if (!stocksAtNow.ok) {
     return stocksAtNow
   }
-  const studying = fief.startStudy(line.value, stocksAtNow.value, now)
+  const studying = fief.startStudy(
+    line.value,
+    stocksAtNow.value,
+    now,
+    durationPercentAt(now, catalog.fiefSettings()).study,
+  )
   if (!studying.ok) {
     return studying
   }

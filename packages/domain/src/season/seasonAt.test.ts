@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { FiefSettings } from '../ports/BuildingCatalog'
+import { neutralSeasons } from '../testing/neutralSeasons'
 import { Instant } from '../time/Instant'
 import { seasonAt } from './seasonAt'
 
@@ -33,6 +34,7 @@ const weeklySettings: FiefSettings = {
       autumn: neutralPercents,
       winter: neutralPercents,
     },
+    durationPercent: neutralSeasons.durationPercent,
   },
 }
 

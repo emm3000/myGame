@@ -502,7 +502,12 @@ export class Fief {
     })
   }
 
-  startStudy(line: ArtLevel, stocksAtNow: Stocks, now: Instant): Result<Fief, DomainError> {
+  startStudy(
+    line: ArtLevel,
+    stocksAtNow: Stocks,
+    now: Instant,
+    studyPercent: number,
+  ): Result<Fief, DomainError> {
     if (this.studySlot.kind === 'busy') {
       return err({ kind: 'StudySlotBusy', art: this.studySlot.art })
     }
@@ -519,7 +524,7 @@ export class Fief {
       return err({ kind: 'InsufficientResources', missing })
     }
     const duration = Duration.ofSeconds(
-      deriveStudyDurationSeconds(line.durationSeconds, libraryLevel),
+      deriveStudyDurationSeconds(line.durationSeconds, libraryLevel, studyPercent),
     )
     if (!duration.ok) {
       return duration
