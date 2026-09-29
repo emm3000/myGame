@@ -4,7 +4,6 @@ import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { secondsBetween } from '../time/secondsBetween'
-import type { PlotCamp } from './marchFormOf'
 
 type SentMarch = NonNullable<FiefOverview['march']>
 
@@ -27,7 +26,6 @@ function lootLineOf(march: SentMarch): PreviewLine {
 function attackLinesOf(
   march: Extract<SentMarch, { readonly order: 'attack' }>,
   readAt: string,
-  previewedCamp: PlotCamp | null,
 ): ReadonlyArray<PreviewLine> {
   const lines: ReadonlyArray<PreviewLine> = [
     {
@@ -39,20 +37,15 @@ function attackLinesOf(
       heading: copy.march.campHeading,
       value: copy.map.campStrength(march.camp.tier, march.camp.strength),
       isNumeral: false,
-      isChanged: previewedCamp !== null && previewedCamp.strength !== march.camp.strength,
     },
     returnLineOf(march, readAt),
   ]
   return quantitiesOf(march.loot).length === 0 ? lines : [...lines, lootLineOf(march)]
 }
 
-export function marchSentLinesOf(
-  march: SentMarch,
-  readAt: string,
-  previewedCamp: PlotCamp | null,
-): ReadonlyArray<PreviewLine> {
+export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArray<PreviewLine> {
   if (march.order === 'attack') {
-    return attackLinesOf(march, readAt, previewedCamp)
+    return attackLinesOf(march, readAt)
   }
   return [
     {

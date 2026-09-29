@@ -12,7 +12,7 @@ export interface MapMarch {
   readonly fiefRefusal: ApiRefusal | undefined
   readonly target: MarchTarget | undefined
   readonly entries: MarchEntries
-  readonly sentTo: MarchTarget | undefined
+  readonly isSent: boolean
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
   readonly onEntriesChange: (entries: MarchEntries) => void
@@ -30,11 +30,11 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
   const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
   const [chosen, setChosen] = useState<MarchTarget>()
   const [entries, setEntries] = useState(firstEntries)
-  const [sentTo, setSentTo] = useState<MarchTarget>()
+  const [isSent, setIsSent] = useState(false)
   const adoptSent = (answered: FiefOverview): void => {
     fief.adopt(answered)
-    setSentTo(chosen)
     setChosen(undefined)
+    setIsSent(true)
   }
   const march = useMarch(apiClient, adoptSent, overview?.readAt)
   const shownProvince = map?.province
@@ -47,7 +47,7 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
   }, [shownProvince])
 
   const toggle = (map: ProvinceMap, plot: number, camp: PlotCamp | null): void => {
-    setSentTo(undefined)
+    setIsSent(false)
     setChosen(
       isSameTarget(target, map, plot)
         ? undefined
@@ -86,7 +86,7 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
     fiefRefusal: fief.state.kind === 'refused' ? fief.state.refusal : undefined,
     target,
     entries,
-    sentTo,
+    isSent,
     isWaiting: march.isWaiting,
     refusal: march.refusal,
     onEntriesChange: setEntries,
