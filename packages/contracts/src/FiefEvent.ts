@@ -58,6 +58,7 @@ const MarchReturnedSchema = z.strictObject({
   infantry: WholeCountSchema.positive(),
   loot: ResourceAmountsSchema,
   occurredAt: InstantSchema,
+  recalled: z.boolean(),
 })
 
 export const FiefEventSchema = z.discriminatedUnion('kind', [

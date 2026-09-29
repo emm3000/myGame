@@ -207,6 +207,7 @@ it('shows the plot, the infantry and the loot of a returned march', async () => 
         infantry: 10,
         loot: { ...noRefund, wood: 200, stone: 200 },
         occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
       },
     ],
   })
@@ -229,6 +230,7 @@ it('agrees the unit label with one infantry', async () => {
         infantry: 1,
         loot: { ...noRefund, wood: 6, stone: 6 },
         occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
       },
     ],
   })
@@ -246,6 +248,7 @@ it('leaves out a resource the loot does not hold', async () => {
         infantry: 12,
         loot: { ...noRefund, wood: 72, food: 72 },
         occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
       },
     ],
   })
@@ -264,12 +267,73 @@ it('leaves out the loot sentence of a march that brought nothing', async () => {
         infantry: 12,
         loot: noRefund,
         occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
       },
     ],
   })
 
   expect(row?.textContent).toContain('Marcha terminada: provincia 1, parcela 3, 12 infantes.')
   expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+})
+
+it('shows a recalled march with the loot it brought', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        infantry: 12,
+        loot: { ...noRefund, wood: 18, stone: 18 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: true,
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha retirada: provincia 2, parcela 7, 12 infantes.')
+  expect(within(row as HTMLElement).getByText('Recibes 18 de madera y 18 de piedra.')).toBeDefined()
+  expect(within(row as HTMLElement).getByText('Recibes')).toBeDefined()
+  expect(row?.textContent).not.toContain('Marcha terminada')
+})
+
+it('shows a march recalled on the way out with no loot', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        infantry: 12,
+        loot: noRefund,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: true,
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha retirada: provincia 2, parcela 7, 12 infantes.')
+  expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+})
+
+it('shows an unrecalled march as before', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        infantry: 12,
+        loot: { ...noRefund, wood: 72, stone: 72 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha terminada: provincia 2, parcela 7, 12 infantes.')
+  expect(within(row as HTMLElement).getByText('Recibes 72 de madera y 72 de piedra.')).toBeDefined()
+  expect(row?.textContent).not.toContain('Marcha retirada')
 })
 
 it('shows each event at the instant it happened', async () => {

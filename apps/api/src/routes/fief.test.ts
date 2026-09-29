@@ -653,6 +653,7 @@ describe('the fief route', () => {
           infantry: 10,
           loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
           occurredAt: '2026-09-22T09:02:00.000Z',
+          recalled: false,
         },
       ])
     })
@@ -1837,6 +1838,7 @@ describe('the fief route', () => {
           infantry: 5,
           loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
           occurredAt: '2026-09-22T10:28:00.000Z',
+          recalled: false,
         },
       ])
     })

@@ -142,6 +142,7 @@ describe('FiefEventSchema', () => {
       infantry: 12,
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
+      recalled: false,
     }
 
     expect(FiefEventSchema.parse(returned)).toEqual(returned)
@@ -155,6 +156,7 @@ describe('FiefEventSchema', () => {
       infantry: 0,
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
+      recalled: false,
     }
 
     expect(FiefEventSchema.safeParse(returned).success).toBe(false)
@@ -164,6 +166,33 @@ describe('FiefEventSchema', () => {
     const returned = {
       kind: 'marchReturned',
       province: 2,
+      infantry: 12,
+      loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      recalled: false,
+    }
+
+    expect(FiefEventSchema.safeParse(returned).success).toBe(false)
+  })
+  it('accepts a recalled march-returned event', () => {
+    const recalled = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 7,
+      infantry: 12,
+      loot: { wood: 18, stone: 18, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      recalled: true,
+    }
+
+    expect(FiefEventSchema.parse(recalled)).toEqual(recalled)
+  })
+
+  it('rejects a march-returned event without the recalled flag', () => {
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 7,
       infantry: 12,
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
