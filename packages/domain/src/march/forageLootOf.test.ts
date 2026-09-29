@@ -7,6 +7,11 @@ const noLoot = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
 const smallCarry: ForageTerms = { ...plainForage, carryPerInfantry: 4 }
 
+const goldOnTheRidges: ForageTerms = {
+  ...plainForage,
+  yieldPerHour: { ...plainForage.yieldPerHour, ridges: { ...noLoot, stone: 3, iron: 3, gold: 3 } },
+}
+
 describe('forageLootOf', () => {
   it('forages food and wood on the lowlands', () => {
     expect(forageLootOf('lowlands', 1, 1, plainForage)).toEqual({ ...noLoot, food: 3, wood: 3 })
@@ -26,6 +31,10 @@ describe('forageLootOf', () => {
   })
 
   it('never forages gold', () => {
-    expect(forageLootOf('ridges', 10, 8, plainForage).gold).toBe(0)
+    expect(forageLootOf('ridges', 10, 8, goldOnTheRidges)).toEqual({
+      ...noLoot,
+      stone: 240,
+      iron: 240,
+    })
   })
 })
