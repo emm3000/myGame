@@ -12,5 +12,3 @@ export type RecruitOrder =
       readonly perUnitSeconds: number
       readonly startedAt: Instant
     }
-
-export type OpenRecruitOrder = Extract<RecruitOrder, { readonly kind: 'open' }>

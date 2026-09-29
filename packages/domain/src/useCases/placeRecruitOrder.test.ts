@@ -186,6 +186,52 @@ describe('placeRecruitOrder', () => {
     expect(fiefs.storedFiefOf('lord')).toBe(unarmed)
   })
 
+  it('refuses an order while the first barracks is only building', async () => {
+    const raisingBarracks = storedFief({
+      buildingLevels: levelsWithBarracks(0),
+      slot: {
+        kind: 'busy',
+        building: 'barracks',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: oneHourLater,
+        cost: barracksLevel(1).cost,
+      },
+    })
+    const fiefs = inMemoryFiefRepository([raisingBarracks])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'BarracksNotBuilt' }))
+    expect(fiefs.storedFiefOf('lord')).toBe(raisingBarracks)
+  })
+
+  it('divides the unit duration by the built barracks level while an upgrade builds', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({
+        slot: {
+          kind: 'busy',
+          building: 'barracks',
+          targetLevel: 2,
+          startedAt: storedInstant,
+          finishesAt: oneHourLater,
+          cost: barracksLevel(2).cost,
+        },
+      }),
+    ])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toMatchObject({ perUnitSeconds: 45 })
+  })
+
   it('refuses an order while another is open', async () => {
     const recruiting = storedFief({
       recruitOrder: {
@@ -227,8 +273,8 @@ describe('placeRecruitOrder', () => {
   })
 
   it('refuses an order the free peasants cannot staff', async () => {
-    const fief = storedFief({})
-    const fiefs = inMemoryFiefRepository([fief])
+    const fiveFreePeasants = storedFief({})
+    const fiefs = inMemoryFiefRepository([fiveFreePeasants])
 
     const result = await placeRecruitOrder(
       { playerId: 'lord', unit: 'infantry', count: 6 },
@@ -236,7 +282,7 @@ describe('placeRecruitOrder', () => {
     )
 
     expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 6, freePeasants: 5 }))
-    expect(fiefs.storedFiefOf('lord')).toBe(fief)
+    expect(fiefs.storedFiefOf('lord')).toBe(fiveFreePeasants)
   })
 
   it('refuses an order that takes the peasants a waiting upgrade needs', async () => {
@@ -261,9 +307,31 @@ describe('placeRecruitOrder', () => {
     expect(fiefs.storedFiefOf('lord')).toBe(upgrading)
   })
 
+  it('refuses an order the built free peasants cannot staff while a farm is building', async () => {
+    const farming = storedFief({
+      slot: {
+        kind: 'busy',
+        building: 'farm',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        finishesAt: oneHourLater,
+        cost: farmLevel(1).cost,
+      },
+    })
+    const fiefs = inMemoryFiefRepository([farming])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 7 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 7, freePeasants: 5 }))
+    expect(fiefs.storedFiefOf('lord')).toBe(farming)
+  })
+
   it('refuses an order of zero units', async () => {
-    const fief = storedFief({})
-    const fiefs = inMemoryFiefRepository([fief])
+    const armedFief = storedFief({})
+    const fiefs = inMemoryFiefRepository([armedFief])
 
     const result = await placeRecruitOrder(
       { playerId: 'lord', unit: 'infantry', count: 0 },
@@ -271,12 +339,12 @@ describe('placeRecruitOrder', () => {
     )
 
     expect(result).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 0 }))
-    expect(fiefs.storedFiefOf('lord')).toBe(fief)
+    expect(fiefs.storedFiefOf('lord')).toBe(armedFief)
   })
 
   it('refuses an order of a fractional count', async () => {
-    const fief = storedFief({})
-    const fiefs = inMemoryFiefRepository([fief])
+    const armedFief = storedFief({})
+    const fiefs = inMemoryFiefRepository([armedFief])
 
     const result = await placeRecruitOrder(
       { playerId: 'lord', unit: 'infantry', count: 1.5 },
@@ -284,7 +352,7 @@ describe('placeRecruitOrder', () => {
     )
 
     expect(result).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 1.5 }))
-    expect(fiefs.storedFiefOf('lord')).toBe(fief)
+    expect(fiefs.storedFiefOf('lord')).toBe(armedFief)
   })
 
   it('recruits while the build slot and the study slot are busy', async () => {
