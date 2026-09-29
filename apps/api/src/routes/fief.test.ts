@@ -1893,16 +1893,15 @@ describe('the fief route', () => {
       const ana = await signUpWithFiveInfantry()
       await march(ana.cookie, { ...fiveInfantryToProvinceTwoPlotFive, infantry: 2 })
 
-      const response = await march(ana.cookie, {
-        ...fiveInfantryToProvinceTwoPlotFive,
-        infantry: 2,
-      })
+      const response = await march(ana.cookie, { province: 1, plot: 3, infantry: 3, stayHours: 1 })
 
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'MarchSlotBusy',
         message: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
       })
+      const { march: stored } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      expect(stored).toMatchObject({ province: 2, plot: 5, infantry: 2, stayHours: 2 })
     })
 
     it('refuses a stay of nine hours', async () => {
