@@ -76,3 +76,9 @@ export type DomainError =
   | { readonly kind: 'BarracksNotBuilt' }
   | { readonly kind: 'RecruitSlotBusy'; readonly unit: UnitKind }
   | { readonly kind: 'RecruitOrderNotFound'; readonly unit: UnitKind; readonly startedAt: Instant }
+  | { readonly kind: 'StayOutOfRange'; readonly stayHours: number }
+  | { readonly kind: 'MarchSlotBusy' }
+  | { readonly kind: 'MarchTargetOutOfBounds'; readonly province: number; readonly plot: number }
+  | { readonly kind: 'MarchToOwnPlot' }
+  | { readonly kind: 'PlotHeld'; readonly province: number; readonly plot: number }
+  | { readonly kind: 'NotEnoughInfantryAtHome'; readonly infantry: number; readonly atHome: number }

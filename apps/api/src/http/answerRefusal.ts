@@ -76,6 +76,12 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   InvalidBuildingLevel: internalFailure,
   SlotFinishesBeforeStored: internalFailure,
   SlotStartsAfterFinish: internalFailure,
+  StayOutOfRange: internalFailure,
+  MarchSlotBusy: internalFailure,
+  MarchTargetOutOfBounds: internalFailure,
+  MarchToOwnPlot: internalFailure,
+  PlotHeld: internalFailure,
+  NotEnoughInfantryAtHome: internalFailure,
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {

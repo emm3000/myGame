@@ -35,6 +35,17 @@ const openOrder = {
   startedAt: foundingInstant,
 } as const
 
+const awayMarch = {
+  kind: 'away',
+  province: 3,
+  plot: 5,
+  infantry: 3,
+  stayHours: 2,
+  departedAt: foundingInstant,
+  oneWaySeconds: 720,
+  loot: { wood: 0, stone: 18, iron: 18, gold: 0, food: 0 },
+} as const
+
 const storedBusyFief: StoredFief = {
   id: 'fief-1',
   playerId: 'founder',
@@ -71,6 +82,7 @@ const storedBusyFief: StoredFief = {
     cost: smithingCost,
   },
   recruitOrder: openOrder,
+  march: awayMarch,
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -112,6 +124,7 @@ describe('Fief', () => {
       buildQueue,
       studySlot,
       recruitOrder,
+      march,
     } = restored.value
     expect({
       id,
@@ -131,6 +144,7 @@ describe('Fief', () => {
       buildQueue,
       studySlot,
       recruitOrder,
+      march,
     }).toEqual(storedBusyFief)
   })
 
@@ -156,6 +170,56 @@ describe('Fief', () => {
 
   it('founds a fief with the recruit slot idle', () => {
     expect(fiefInProvince(1).recruitOrder).toEqual({ kind: 'idle' })
+  })
+
+  it('founds a fief with the march slot idle', () => {
+    expect(fiefInProvince(1).march).toEqual({ kind: 'idle' })
+  })
+
+  it('refuses a stored march with a fractional infantry count', () => {
+    const fractional = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, infantry: 2.5 } })
+    const none = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, infantry: 0 } })
+
+    expect(fractional).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 2.5 }))
+    expect(none).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 0 }))
+  })
+
+  it('refuses a stored march whose stay is not a whole count of hours from one', () => {
+    const fractional = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, stayHours: 1.5 } })
+    const none = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, stayHours: 0 } })
+
+    expect(fractional).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1.5 }))
+    expect(none).toEqual(err({ kind: 'StayOutOfRange', stayHours: 0 }))
+  })
+
+  it('refuses a stored march whose road time is negative or fractional', () => {
+    const negative = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, oneWaySeconds: -1 },
+    })
+    const fractional = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, oneWaySeconds: 0.5 },
+    })
+
+    expect(negative).toEqual(err({ kind: 'NegativeDuration', seconds: -1 }))
+    expect(fractional).toEqual(err({ kind: 'FractionalDuration', seconds: 0.5 }))
+  })
+
+  it('refuses a stored march with a negative loot', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, loot: { ...awayMarch.loot, stone: -1 } },
+    })
+
+    expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
+  })
+
+  it('counts the infantry away out of those at home', () => {
+    const restored = Fief.restore({ ...storedBusyFief, recruitOrder: { kind: 'idle' } })
+
+    assert(restored.ok)
+    expect(restored.value.unitsAtHomeAt(foundingInstant).countOf('infantry')).toBe(1)
   })
 
   it('refuses a stored order with a fractional count', () => {

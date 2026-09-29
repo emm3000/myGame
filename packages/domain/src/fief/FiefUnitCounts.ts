@@ -27,4 +27,8 @@ export class FiefUnitCounts {
   plus(unit: UnitKind, count: number): FiefUnitCounts {
     return new FiefUnitCounts({ ...this.byKind, [unit]: this.byKind[unit] + count })
   }
+
+  minus(unit: UnitKind, count: number): FiefUnitCounts {
+    return this.plus(unit, -count)
+  }
 }
