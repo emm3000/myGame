@@ -78,6 +78,13 @@
       "when": 1790623571071,
       "tag": "0010_account_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790646057366,
+      "tag": "0011_barracks_building",
+      "breakpoints": true
     }
   ]
 }

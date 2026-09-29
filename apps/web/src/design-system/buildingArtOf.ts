@@ -7,6 +7,7 @@ const hasArt: Readonly<Record<BuildingKind, boolean>> = {
   farm: true,
   warehouse: true,
   library: false,
+  barracks: false,
 }
 
 export function buildingArtOf(building: BuildingKind, level: number): string | undefined {

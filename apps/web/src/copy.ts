@@ -53,6 +53,7 @@ const buildings: Readonly<Record<BuildingKind, string>> = {
   farm: 'granja',
   warehouse: 'almacén',
   library: 'biblioteca',
+  barracks: 'cuartel',
 }
 
 const arts: Readonly<Record<ArtKind, string>> = {

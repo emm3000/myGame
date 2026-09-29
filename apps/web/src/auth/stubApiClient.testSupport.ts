@@ -41,6 +41,7 @@ export const knownFief: FiefOverview = {
     farm: buildingAtLevel(1),
     warehouse: buildingAtLevel(0),
     library: buildingAtLevel(0),
+    barracks: buildingAtLevel(0),
   },
   peasants: {
     supplied: 12,

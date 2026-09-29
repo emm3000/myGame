@@ -1,0 +1,1 @@
+ALTER TYPE "public"."building" ADD VALUE 'barracks';

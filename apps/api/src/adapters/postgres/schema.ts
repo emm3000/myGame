@@ -28,6 +28,7 @@ export const building = pgEnum('building', [
   'farm',
   'warehouse',
   'library',
+  'barracks',
 ])
 
 export const art = pgEnum('art', ['smithing', 'masonry'])

@@ -32,7 +32,15 @@ const storedBusyFief: StoredFief = {
   address: { kingdom: 1, province: 2, plot: 7 },
   stocks: { wood: 120, stone: 80, iron: 20, gold: 5, food: 60 },
   storedAt: foundingInstant,
-  buildingLevels: { sawmill: 2, quarry: 1, ironMine: 0, farm: 1, warehouse: 0, library: 0 },
+  buildingLevels: {
+    sawmill: 2,
+    quarry: 1,
+    ironMine: 0,
+    farm: 1,
+    warehouse: 0,
+    library: 0,
+    barracks: 0,
+  },
   artLevels: { smithing: 2, masonry: 0 },
   units: { infantry: 4 },
   slot: {
@@ -119,6 +127,10 @@ describe('Fief', () => {
 
   it('founds a fief with the library at level zero', () => {
     expect(fiefInProvince(1).buildingLevels.library).toBe(0)
+  })
+
+  it('founds a fief with the barracks at level zero', () => {
+    expect(fiefInProvince(1).buildingLevels.barracks).toBe(0)
   })
 
   it('founds a fief with every art at level zero', () => {

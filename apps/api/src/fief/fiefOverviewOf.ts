@@ -208,6 +208,7 @@ const buildingsOf = (
     farm: { level: buildingLevels.farm, nextLevel: null },
     warehouse: { level: buildingLevels.warehouse, nextLevel: null },
     library: { level: buildingLevels.library, nextLevel: null },
+    barracks: { level: buildingLevels.barracks, nextLevel: null },
   }
   const buildPercent = durationPercentAt(fief.storedAt, catalog.fiefSettings()).build
   for (const building of BuildingKindSchema.options) {

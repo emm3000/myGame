@@ -29,6 +29,7 @@ export const deriveOccupiedPeasants = (
     farm: occupancyOf(catalog, 'farm', buildingLevels.farm),
     warehouse: occupancyOf(catalog, 'warehouse', buildingLevels.warehouse),
     library: occupancyOf(catalog, 'library', buildingLevels.library),
+    barracks: occupancyOf(catalog, 'barracks', buildingLevels.barracks),
   }
 
   let occupiedPeasants = 0

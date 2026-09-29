@@ -21,6 +21,7 @@ const noLevels: FiefBuildingLevels = {
   farm: 0,
   warehouse: 0,
   library: 0,
+  barracks: 0,
 }
 
 const noArts: FiefArtLevels = { smithing: 0, masonry: 0 }

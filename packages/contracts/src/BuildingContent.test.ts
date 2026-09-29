@@ -30,6 +30,18 @@ describe('BuildingContentSchema', () => {
     expect(BuildingContentSchema.parse(libraryContent)).toEqual(libraryContent)
   })
 
+  it('parses barracks content whose levels carry no effect', () => {
+    const barracksLevelOne = {
+      level: 1,
+      cost: { wood: 150, stone: 120, iron: 60, gold: 0, food: 40 },
+      durationSeconds: 240,
+      peasantOccupancy: 2,
+    }
+    const barracksContent = { building: 'barracks', levels: [barracksLevelOne] }
+
+    expect(BuildingContentSchema.parse(barracksContent)).toEqual(barracksContent)
+  })
+
   it('rejects a building level without a peasant occupancy', () => {
     const { peasantOccupancy: _, ...levelWithoutOccupancy } = farmLevelOne
 

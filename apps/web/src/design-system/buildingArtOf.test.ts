@@ -29,7 +29,13 @@ it('shows no library art at any level', () => {
   )
 })
 
-it('ships art for every building but the library', () => {
+it('shows no barracks art at any level', () => {
+  expect(levels.map((level) => buildingArtOf('barracks', level))).toEqual(
+    levels.map(() => undefined),
+  )
+})
+
+it('ships art for every building but the library and the barracks', () => {
   expect(buildingsWithArt).toEqual(['sawmill', 'quarry', 'ironMine', 'farm', 'warehouse'])
 })
 

@@ -7,6 +7,7 @@ export const BuildingKindSchema = z.enum([
   'farm',
   'warehouse',
   'library',
+  'barracks',
 ])
 
 export type BuildingKind = z.infer<typeof BuildingKindSchema>
