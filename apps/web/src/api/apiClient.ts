@@ -6,6 +6,7 @@ import {
   type CancelRecruitOrderRequest,
   type CancelStudyRequest,
   type CancelUpgradeRequest,
+  type DispatchAttackRequest,
   type DispatchMarchRequest,
   type EnqueueBuildingRequest,
   type FiefChronicle,
@@ -46,6 +47,7 @@ export interface ApiClient {
   placeRecruitOrder(request: PlaceRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
   cancelRecruitOrder(target: CancelRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
   dispatchMarch(request: DispatchMarchRequest): Promise<ApiOutcome<FiefOverview>>
+  dispatchAttack(request: DispatchAttackRequest): Promise<ApiOutcome<FiefOverview>>
   recallMarch(target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
@@ -159,6 +161,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     dispatchMarch: async ({ province, plot, infantry, stayHours }) => {
       const request: DispatchMarchRequest = { province, plot, infantry, stayHours }
       const response = await postJson('/fief/marches', request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    dispatchAttack: async ({ province, plot, infantry }) => {
+      const request: DispatchAttackRequest = { province, plot, infantry }
+      const response = await postJson('/fief/marches/attack', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
     recallMarch: async ({ departedAt }) => {

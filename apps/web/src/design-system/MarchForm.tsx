@@ -18,7 +18,7 @@ export interface MarchFormProps {
   readonly count: number
   readonly countLabel: string
   readonly infantry: MarchFormField
-  readonly hours: MarchFormField
+  readonly hours?: MarchFormField | undefined
   readonly isFieldDisabled: boolean
   readonly preview: ReadonlyArray<PreviewLine> | undefined
   readonly actionLabel: string
@@ -72,7 +72,9 @@ export function MarchForm(props: MarchFormProps): ReactElement {
         <form aria-labelledby={titleId} className="m-0 flex flex-col gap-3" onSubmit={submit}>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             <Field field={props.infantry} isDisabled={props.isFieldDisabled} />
-            <Field field={props.hours} isDisabled={props.isFieldDisabled} />
+            {props.hours !== undefined && (
+              <Field field={props.hours} isDisabled={props.isFieldDisabled} />
+            )}
           </div>
           {props.preview !== undefined && <PreviewLines lines={props.preview} />}
           <div className="flex flex-col items-start">

@@ -19,7 +19,15 @@ type ProvinceProps = { readonly map: ProvinceMap } & Omit<MapScreenProps, 'state
 
 type Plot = ProvinceMap['plots'][number]
 
-function holderOf({ fief }: Plot, action: PlotAction | undefined): PlotHolder {
+function holderOf({ fief, camp }: Plot, action: PlotAction | undefined): PlotHolder {
+  if (fief === null && camp !== null) {
+    return {
+      kind: 'camp',
+      line: copy.map.camp,
+      strength: copy.map.campStrength(camp.tier, camp.strength),
+      action,
+    }
+  }
   if (fief === null) {
     return { kind: 'free', line: copy.map.free, action }
   }

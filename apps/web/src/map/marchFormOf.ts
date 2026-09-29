@@ -1,4 +1,4 @@
-import type { FiefOverview, ResourceAmounts, Terrain } from '@mygame/contracts'
+import type { FiefOverview, ProvinceMap, ResourceAmounts, Terrain } from '@mygame/contracts'
 import { copy } from '../copy'
 import { formatDuration } from '../design-system/formatDuration'
 import type { MarchFormProps } from '../design-system/MarchForm'
@@ -6,11 +6,16 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { infantryAtHomeOf } from './infantryAtHomeOf'
+import { oneWaySecondsOf } from './oneWaySecondsOf'
+
+export type PlotCamp = NonNullable<ProvinceMap['plots'][number]['camp']>
 
 export interface MarchTarget {
   readonly province: number
   readonly plot: number
   readonly terrain: Terrain
+  readonly camp: PlotCamp | null
 }
 
 export interface MarchEntries {
@@ -24,14 +29,6 @@ export type MarchFormContent = Pick<
 >
 
 const secondsPerHour = 3600
-
-function oneWaySecondsOf(target: MarchTarget, fief: FiefOverview): number {
-  const { secondsPerProvince, secondsPerPlot } = fief.forageTerms
-  return (
-    Math.abs(target.province - fief.coordinates.province) * secondsPerProvince +
-    Math.abs(target.plot - fief.coordinates.plot) * secondsPerPlot
-  )
-}
 
 function lootOf(
   terrain: Terrain,
@@ -53,10 +50,6 @@ function lootOf(
     gold: carried(rates.gold),
     food: carried(rates.food),
   }
-}
-
-function infantryAtHomeOf(fief: FiefOverview): number {
-  return fief.units.infantry - (fief.march?.infantry ?? 0)
 }
 
 function hoursOf(entry: string, maxStayHours: number): number | undefined {

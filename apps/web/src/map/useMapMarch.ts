@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { copy } from '../copy'
 import type { PlotAction } from '../design-system/PlotTile'
-import type { MarchEntries, MarchTarget } from './marchFormOf'
+import type { MarchEntries, MarchTarget, PlotCamp } from './marchFormOf'
 import { useMapFief } from './useMapFief'
 import { useMarch } from './useMarch'
 
@@ -12,7 +12,7 @@ export interface MapMarch {
   readonly fiefRefusal: ApiRefusal | undefined
   readonly target: MarchTarget | undefined
   readonly entries: MarchEntries
-  readonly isSent: boolean
+  readonly sentTo: MarchTarget | undefined
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
   readonly onEntriesChange: (entries: MarchEntries) => void
@@ -30,11 +30,11 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
   const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
   const [chosen, setChosen] = useState<MarchTarget>()
   const [entries, setEntries] = useState(firstEntries)
-  const [isSent, setIsSent] = useState(false)
+  const [sentTo, setSentTo] = useState<MarchTarget>()
   const adoptSent = (answered: FiefOverview): void => {
     fief.adopt(answered)
+    setSentTo(chosen)
     setChosen(undefined)
-    setIsSent(true)
   }
   const march = useMarch(apiClient, adoptSent, overview?.readAt)
   const shownProvince = map?.province
@@ -46,13 +46,39 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
     }
   }, [shownProvince])
 
-  const toggle = (map: ProvinceMap, plot: number): void => {
-    setIsSent(false)
+  const toggle = (map: ProvinceMap, plot: number, camp: PlotCamp | null): void => {
+    setSentTo(undefined)
     setChosen(
       isSameTarget(target, map, plot)
         ? undefined
-        : { province: map.province, plot, terrain: map.terrain },
+        : { province: map.province, plot, terrain: map.terrain, camp },
     )
+  }
+
+  const onSend = (): void => {
+    if (target === undefined) {
+      return
+    }
+    const { province, plot } = target
+    const infantry = Number(entries.infantry)
+    if (target.camp === null) {
+      march.send({ province, plot, infantry, stayHours: Number(entries.hours) })
+      return
+    }
+    march.attack({ province, plot, infantry })
+  }
+
+  const plotActionOf = (shown: ProvinceMap, plot: number): PlotAction | undefined => {
+    if (overview === undefined) {
+      return undefined
+    }
+    const camp = shown.plots.find((each) => each.plot === plot)?.camp ?? null
+    return {
+      label: camp === null ? copy.march.send : copy.march.attack,
+      accessibleName: camp === null ? copy.march.sendTo(plot) : copy.march.attackTo(plot),
+      isExpanded: isSameTarget(target, shown, plot),
+      onToggle: () => toggle(shown, plot, camp),
+    }
   }
 
   return {
@@ -60,28 +86,11 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
     fiefRefusal: fief.state.kind === 'refused' ? fief.state.refusal : undefined,
     target,
     entries,
-    isSent,
+    sentTo,
     isWaiting: march.isWaiting,
     refusal: march.refusal,
     onEntriesChange: setEntries,
-    onSend: () => {
-      if (target !== undefined) {
-        march.send({
-          province: target.province,
-          plot: target.plot,
-          infantry: Number(entries.infantry),
-          stayHours: Number(entries.hours),
-        })
-      }
-    },
-    plotActionOf: (shown, plot) =>
-      overview === undefined
-        ? undefined
-        : {
-            label: copy.march.send,
-            accessibleName: copy.march.sendTo(plot),
-            isExpanded: isSameTarget(target, shown, plot),
-            onToggle: () => toggle(shown, plot),
-          },
+    onSend,
+    plotActionOf,
   }
 }

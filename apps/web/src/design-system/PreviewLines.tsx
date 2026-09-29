@@ -4,15 +4,22 @@ export interface PreviewLine {
   readonly heading: string
   readonly value: string
   readonly isNumeral: boolean
+  readonly isChanged?: boolean | undefined
 }
+
+const valueClassOf = (line: PreviewLine): string =>
+  [
+    line.isNumeral ? 'font-utility font-semibold tabular-nums' : '',
+    line.isChanged ? 'text-ochre' : '',
+  ]
+    .filter((each) => each !== '')
+    .join(' ')
 
 export function PreviewLineText({ line }: { readonly line: PreviewLine }): ReactElement {
   return (
     <>
       <b className="font-bold">{line.heading}</b>{' '}
-      <span className={line.isNumeral ? 'font-utility font-semibold tabular-nums' : ''}>
-        {line.value}
-      </span>
+      <span className={valueClassOf(line)}>{line.value}</span>
     </>
   )
 }
