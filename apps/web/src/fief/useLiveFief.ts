@@ -2,6 +2,7 @@ import type { FiefOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import {
+  battleRemainingSecondsAt,
   type LiveFief,
   liveFiefAt,
   marchRemainingSecondsAt,
@@ -57,6 +58,7 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
       seasonRemainingSecondsAt(lastRead.overview, 0),
       recruitOrderRemainingSecondsAt(lastRead.overview, 0),
       marchRemainingSecondsAt(lastRead.overview, 0),
+      battleRemainingSecondsAt(lastRead.overview, 0),
     ]
     for (const remainingSeconds of countdowns.filter((seconds) => seconds > 0)) {
       timers.push(setTimeout(read, Math.min(remainingSeconds * 1000, longestTimeoutMs)))

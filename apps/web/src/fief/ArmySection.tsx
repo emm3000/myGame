@@ -9,7 +9,7 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
 import { quantitiesOf } from '../resources/quantitiesOf'
-import type { LiveFief, LiveRecruitOrder } from './liveFief'
+import type { LiveFief, LiveMarch, LiveRecruitOrder } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import { recruitCountOf, unitCardOf } from './unitCardOf'
@@ -55,23 +55,47 @@ function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState 
   }
 }
 
-function lootOf(answered: NonNullable<LiveFief['overview']['march']>): PreviewLine | null {
+type AnsweredMarch = NonNullable<LiveFief['overview']['march']>
+
+function lootOf(answered: AnsweredMarch): PreviewLine | null {
   const loot = quantitiesOf(answered.loot)
   return loot.length === 0
     ? null
     : { heading: march.lootHeading, value: march.loot(loot), isNumeral: false }
 }
 
-function recallOf(
-  answered: NonNullable<LiveFief['overview']['march']>,
-  recall: Recall,
-): CancelAction {
+function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
   return {
     label: march.recall,
     accessibleName: march.recallOf(answered.infantry),
     isWaiting: recall.isWaiting,
     onCancel: () => recall.start({ departedAt: answered.departedAt }),
   }
+}
+
+function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
+  const value = march.phaseLines[live.phase](answered.infantry, answered.province, answered.plot)
+  if (answered.order === 'forage') {
+    return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
+  }
+  const heading = live.phase === 'outbound' ? march.attackHeading : march.attackReturningHeading
+  return { heading, value, isNumeral: false }
+}
+
+function campLineOf(answered: AnsweredMarch): PreviewLine | null {
+  return answered.camp === null
+    ? null
+    : {
+        heading: march.campHeading,
+        value: copy.map.campStrength(answered.camp.tier, answered.camp.strength),
+        isNumeral: false,
+      }
+}
+
+function marksOf(live: LiveMarch): ReadonlyArray<number> {
+  return live.arrivalSeconds === live.leavingSeconds
+    ? [live.arrivalSeconds]
+    : [live.arrivalSeconds, live.leavingSeconds]
 }
 
 function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
@@ -83,16 +107,13 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   return {
     kind: 'busy',
     title: march.busySlot,
-    phase: {
-      heading: march.phaseHeadings[live.phase],
-      value: march.phaseLines[live.phase](answered.infantry, answered.province, answered.plot),
-      isNumeral: false,
-    },
+    phase: phaseLineOf(live, answered),
+    camp: campLineOf(answered),
     countdown: { words: march.returnHeading, remainingSeconds: live.remainingSeconds },
     loot: lootOf(answered),
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,
-    marks: [live.arrivalSeconds, live.leavingSeconds],
+    marks: marksOf(live),
     recall: live.phase === 'returning' ? null : recallOf(answered, recall),
   }
 }
