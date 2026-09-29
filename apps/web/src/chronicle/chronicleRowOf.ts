@@ -1,9 +1,10 @@
-import { type FiefEvent, ResourceKindSchema } from '@mygame/contracts'
-import { copy } from '../copy'
+import { type FiefEvent, type ResourceAmounts, ResourceKindSchema } from '@mygame/contracts'
+import { copy, type ResourceQuantity } from '../copy'
 import type { CardCost } from '../design-system/CostList'
 import { formatInstant } from './formatInstant'
 
-export interface ChronicleRefund {
+export interface ChronicleAmounts {
+  readonly label: string
   readonly sentence: string
   readonly costs: ReadonlyArray<CardCost>
 }
@@ -14,10 +15,8 @@ export interface ChronicleRow {
   readonly instant: string
   readonly heading: string
   readonly subject: string
-  readonly refund: ChronicleRefund | undefined
+  readonly amounts: ChronicleAmounts | undefined
 }
-
-type Refund = Extract<FiefEvent, { readonly refund: unknown }>['refund']
 
 interface ChronicleSubject {
   readonly identity: string
@@ -48,6 +47,11 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
         identity: `${event.unit}-${event.delivered}-${event.cancelled}`,
         text: copy.chronicle.recruitsCancelled(event.unit, event.delivered, event.cancelled),
       }
+    case 'marchReturned':
+      return {
+        identity: `${event.province}-${event.plot}-${event.infantry}`,
+        text: copy.chronicle.march(event.province, event.plot, event.infantry),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -55,14 +59,32 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
   }
 }
 
-const refundOf = (refund: Refund): ChronicleRefund => {
-  const refunded = ResourceKindSchema.options
-    .filter((resource) => refund[resource] > 0)
-    .map((resource) => ({ resource, amount: refund[resource] }))
-  return {
-    sentence: copy.chronicle.refunded(refunded),
-    costs: refunded.map(({ resource, amount }) => ({ kind: resource, amount, isShort: false })),
+const listedAmounts = (
+  amounts: ResourceAmounts,
+  label: string,
+  sentenceOf: (listed: ReadonlyArray<ResourceQuantity>) => string,
+): ChronicleAmounts | undefined => {
+  const listed = ResourceKindSchema.options
+    .filter((resource) => amounts[resource] > 0)
+    .map((resource) => ({ resource, amount: amounts[resource] }))
+  if (listed.length === 0) {
+    return undefined
   }
+  return {
+    label,
+    sentence: sentenceOf(listed),
+    costs: listed.map(({ resource, amount }) => ({ kind: resource, amount, isShort: false })),
+  }
+}
+
+const amountsOf = (event: FiefEvent): ChronicleAmounts | undefined => {
+  if ('refund' in event) {
+    return listedAmounts(event.refund, copy.chronicle.recovered, copy.chronicle.refunded)
+  }
+  if ('loot' in event) {
+    return listedAmounts(event.loot, copy.chronicle.received, copy.chronicle.looted)
+  }
+  return undefined
 }
 
 export function chronicleRowOf(event: FiefEvent, readAt: Date): ChronicleRow {
@@ -73,6 +95,6 @@ export function chronicleRowOf(event: FiefEvent, readAt: Date): ChronicleRow {
     instant: formatInstant(new Date(event.occurredAt), readAt),
     heading: copy.chronicle.headings[event.kind],
     subject: subject.text,
-    refund: 'refund' in event ? refundOf(event.refund) : undefined,
+    amounts: amountsOf(event),
   }
 }

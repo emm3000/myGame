@@ -197,6 +197,81 @@ it('shows the refund of a cancelled order', async () => {
   )
 })
 
+it('shows the plot, the infantry and the loot of a returned march', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 5,
+        infantry: 10,
+        loot: { ...noRefund, wood: 200, stone: 200 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha terminada: provincia 2, parcela 5, 10 infantes.')
+  expect(
+    within(row as HTMLElement).getByText('Recibes 200 de madera y 200 de piedra.'),
+  ).toBeDefined()
+  expect(within(row as HTMLElement).getByText('Recibes')).toBeDefined()
+  expect(within(row as HTMLElement).queryByText(copy.chronicle.recovered)).toBeNull()
+})
+
+it('agrees the unit label with one infantry', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        infantry: 1,
+        loot: { ...noRefund, wood: 6, stone: 6 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha terminada: provincia 2, parcela 7, 1 infante.')
+})
+
+it('leaves out a resource the loot does not hold', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 1,
+        plot: 3,
+        infantry: 12,
+        loot: { ...noRefund, wood: 72, food: 72 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(within(row as HTMLElement).getByText('Recibes 72 de madera y 72 de comida.')).toBeDefined()
+  expect(within(row as HTMLElement).queryAllByText('0')).toEqual([])
+})
+
+it('leaves out the loot sentence of a march that brought nothing', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 1,
+        plot: 3,
+        infantry: 12,
+        loot: noRefund,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha terminada: provincia 1, parcela 3, 12 infantes.')
+  expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+})
+
 it('shows each event at the instant it happened', async () => {
   const occurredAt = new Date(2025, 8, 12, 9, 15).toISOString()
   const [row] = await showChronicle({

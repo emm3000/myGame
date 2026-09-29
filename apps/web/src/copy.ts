@@ -12,7 +12,7 @@ import { capitalize } from './design-system/capitalize'
 import { formatDuration } from './design-system/formatDuration'
 import { formatQuantity } from './design-system/formatQuantity'
 
-interface ResourceQuantity {
+export interface ResourceQuantity {
   readonly amount: number
   readonly resource: ResourceKind
 }
@@ -314,14 +314,19 @@ export const copy = {
       studyCancelled: 'Estudio cancelado:',
       recruitsDelivered: 'Leva terminada:',
       recruitsCancelled: 'Leva cancelada:',
+      marchReturned: 'Marcha terminada:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
     subject: (label: string, level: number): string => `${label}, ${names.level(level)}.`,
     recruits: (unit: UnitKind, count: number): string => `${countedUnits(unit, count)}.`,
     recruitsCancelled: (unit: UnitKind, delivered: number, cancelled: number): string =>
       `${countedUnits(unit, delivered)} en filas, ${countedUnits(unit, cancelled)} de vuelta al campo.`,
+    march: (province: number, plot: number, infantry: number): string =>
+      `provincia ${province}, parcela ${plot}, ${countedUnits('infantry', infantry)}.`,
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,
+    received: 'Recibes',
+    looted: (loot: ReadonlyArray<ResourceQuantity>): string => `Recibes ${quantitiesOf(loot)}.`,
   },
   map: {
     title: 'Mapa',
