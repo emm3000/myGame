@@ -1,4 +1,5 @@
 import type { BuildingKind, FiefOverview, ResourceKind, UnitKind } from '@mygame/contracts'
+import { secondsBetween } from '../time/secondsBetween'
 
 export type LiveAmounts = Readonly<Record<ResourceKind, number>>
 
@@ -125,9 +126,6 @@ export function marchRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: 
     ? 0
     : remainingSecondsAt(overview.march.returnsAt, overview, elapsedSeconds)
 }
-
-const secondsBetween = (from: string, to: string): number =>
-  (Date.parse(to) - Date.parse(from)) / 1000
 
 function phaseOf(march: NonNullable<FiefOverview['march']>, sinceDeparture: number): MarchPhase {
   if (sinceDeparture < secondsBetween(march.departedAt, march.arrivesAt)) {
