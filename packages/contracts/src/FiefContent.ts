@@ -28,6 +28,22 @@ const UnitTermsSchema = z.strictObject({
   peasantOccupancy: WholeCountSchema.positive(),
 })
 
+const ForageYieldSchema = z.strictObject({
+  wood: WholeCountSchema,
+  stone: WholeCountSchema,
+  iron: WholeCountSchema,
+  gold: z.literal(0),
+  food: WholeCountSchema,
+})
+
+const ForageTermsSchema = z.strictObject({
+  secondsPerProvince: WholeCountSchema.positive(),
+  secondsPerPlot: WholeCountSchema.positive(),
+  carryPerInfantry: WholeCountSchema.positive(),
+  maxStayHours: WholeCountSchema.positive(),
+  yieldPerHour: z.record(TerrainSchema, ForageYieldSchema),
+})
+
 export const FiefContentSchema = z.object({
   startingStocks: ResourceAmountsSchema,
   startingCapacity: WholeCountSchema,
@@ -38,6 +54,7 @@ export const FiefContentSchema = z.object({
   buildQueueCap: WholeCountSchema,
   seasons: SeasonCalendarSchema,
   units: z.record(UnitKindSchema, UnitTermsSchema),
+  forage: ForageTermsSchema,
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>

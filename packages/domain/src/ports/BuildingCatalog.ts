@@ -69,6 +69,14 @@ export type UnitTerms = {
   readonly peasantOccupancy: number
 }
 
+export type ForageTerms = {
+  readonly secondsPerProvince: number
+  readonly secondsPerPlot: number
+  readonly carryPerInfantry: number
+  readonly maxStayHours: number
+  readonly yieldPerHour: Readonly<Record<Terrain, Readonly<Record<ResourceKind, number>>>>
+}
+
 export type TerrainBonus = {
   readonly resource: ResourceKind
   readonly ratePerHour: number
@@ -84,6 +92,7 @@ export type FiefSettings = {
   readonly buildQueueCap: number
   readonly seasons: SeasonCalendar
   readonly units: Readonly<Record<UnitKind, UnitTerms>>
+  readonly forage: ForageTerms
 }
 
 export interface BuildingCatalog {

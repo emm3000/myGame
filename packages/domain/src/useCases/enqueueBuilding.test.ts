@@ -14,6 +14,7 @@ import type { FiefRepository } from '../ports/FiefRepository'
 import { err } from '../Result'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { neutralSeasons } from '../testing/neutralSeasons'
+import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { enqueueBuilding } from './enqueueBuilding'
@@ -37,6 +38,7 @@ const fiefSettings: FiefSettings = {
   },
   buildQueueCap: 4,
   units: plainUnits,
+  forage: plainForage,
   seasons: neutralSeasons,
 }
 
