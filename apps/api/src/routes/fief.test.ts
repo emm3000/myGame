@@ -1884,6 +1884,18 @@ describe('the fief route', () => {
       })
     })
 
+    it('refuses a forage march to a camp plot', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana.cookie, { ...fiveInfantryToProvinceTwoPlotFive, plot: 1 })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'PlotHasCamp',
+        message: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
+      })
+    })
+
     it('refuses a march to the fief own plot', async () => {
       const ana = await signUpWithFiveInfantry()
 

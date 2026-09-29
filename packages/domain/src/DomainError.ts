@@ -83,4 +83,7 @@ export type DomainError =
   | { readonly kind: 'MarchTargetOutOfBounds'; readonly province: number; readonly plot: number }
   | { readonly kind: 'MarchToOwnPlot' }
   | { readonly kind: 'PlotHeld'; readonly province: number; readonly plot: number }
+  | { readonly kind: 'PlotHasCamp'; readonly province: number; readonly plot: number }
+  | { readonly kind: 'PlotHasNoCamp'; readonly province: number; readonly plot: number }
   | { readonly kind: 'NotEnoughInfantryAtHome'; readonly infantry: number; readonly atHome: number }
+  | { readonly kind: 'InvalidCamp'; readonly tier: number; readonly strength: number }

@@ -1,5 +1,7 @@
+import { campOf } from '../camp/campOf'
 import type { DomainError } from '../DomainError'
 import type { Fief, MarchOrder } from '../fief/Fief'
+import { refuseUnreachableTarget } from '../march/refuseUnreachableTarget'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -18,36 +20,10 @@ export type DispatchMarchDependencies = {
   readonly clock: Clock
 }
 
-const isWithin = (value: number, last: number): boolean =>
-  Number.isInteger(value) && value >= 1 && value <= last
-
-const refuseUnreachableTarget = async (
-  fief: Fief,
-  order: MarchOrder,
-  { map, catalog }: DispatchMarchDependencies,
-): Promise<Result<void, DomainError>> => {
-  const { province, plot } = order
-  const { kingdom } = fief.coordinates
-  const lastProvince = (await map.lastOccupiedProvince(kingdom)) + 1
-  const { plotsPerProvince } = catalog.fiefSettings()
-  if (!isWithin(province, lastProvince) || !isWithin(plot, plotsPerProvince)) {
-    return err({ kind: 'MarchTargetOutOfBounds', province, plot })
-  }
-  if (fief.coordinates.province === province && fief.coordinates.plot === plot) {
-    return err({ kind: 'MarchToOwnPlot' })
-  }
-  const holders = await map.holdersIn(kingdom, province)
-  if (holders.some((holder) => holder.plot === plot)) {
-    return err({ kind: 'PlotHeld', province, plot })
-  }
-  return ok(undefined)
-}
-
 export const dispatchMarch = async (
   command: DispatchMarchCommand,
-  dependencies: DispatchMarchDependencies,
+  { fiefs, map, catalog, clock }: DispatchMarchDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const { fiefs, catalog, clock } = dependencies
   const stored = await fiefs.fiefOf(command.playerId)
   if (!stored.ok) {
     return stored
@@ -56,15 +32,18 @@ export const dispatchMarch = async (
   if (fief === undefined) {
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
-
-  const { forage } = catalog.fiefSettings()
+  const { forage, camps, plotsPerProvince } = catalog.fiefSettings()
   const room = fief.roomForMarch(command, forage.maxStayHours)
   if (!room.ok) {
     return room
   }
-  const reachable = await refuseUnreachableTarget(fief, command, dependencies)
+  const reachable = await refuseUnreachableTarget(fief, command, map, plotsPerProvince)
   if (!reachable.ok) {
     return reachable
+  }
+  const { province, plot } = command
+  if (campOf({ kingdom: fief.coordinates.kingdom, province, plot }, camps) !== undefined) {
+    return err({ kind: 'PlotHasCamp', province, plot })
   }
   const marching = fief.dispatchMarch(command, clock.now(), forage)
   if (!marching.ok) {

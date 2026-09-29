@@ -52,6 +52,7 @@ const smallCarry: ForageTerms = { ...plainForage, carryPerInfantry: 4 }
 
 const tenInfantryForTwoHours: AwayMarch = {
   kind: 'away',
+  order: 'forage',
   province: 2,
   plot: 5,
   infantry: 10,
@@ -59,6 +60,20 @@ const tenInfantryForTwoHours: AwayMarch = {
   departedAt,
   oneWaySeconds: 840,
   loot: { ...noLoot, wood: 60, stone: 60 },
+}
+
+const tenInfantryAttacking: AwayMarch = {
+  kind: 'away',
+  order: 'attack',
+  province: 2,
+  plot: 1,
+  infantry: 10,
+  stayHours: 0,
+  departedAt,
+  oneWaySeconds: 600,
+  loot: { ...noLoot, wood: 96, stone: 96, gold: 96 },
+  camp: { tier: 1, strength: 6 },
+  fought: false,
 }
 
 const storedFief = (overrides: Partial<StoredFief>): Fief => {
@@ -125,6 +140,26 @@ describe('recallMarch', () => {
     const recalled = recalledMarchOf(dependencies)
     expect(recalled.loot).toEqual(noLoot)
     expect(marchInstantsOf(recalled).returnsAt).toEqual(secondsAfterDeparture(1_680))
+  })
+
+  it('recalls an attack on the way out with nothing', async () => {
+    const dependencies = dependenciesAt(599, storedFief({ march: tenInfantryAttacking }))
+
+    const result = await recallMarch(recall, dependencies)
+
+    assert(result.ok)
+    const recalled = recalledMarchOf(dependencies)
+    expect(recalled).toMatchObject({ recalledAt: secondsAfterDeparture(599), loot: noLoot })
+    expect(marchInstantsOf(recalled).returnsAt).toEqual(secondsAfterDeparture(1_198))
+  })
+
+  it('refuses a recall at the battle', async () => {
+    const dependencies = dependenciesAt(600, storedFief({ march: tenInfantryAttacking }))
+
+    const result = await recallMarch(recall, dependencies)
+
+    expect(result).toEqual(err({ kind: 'MarchAlreadyReturning' }))
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual(tenInfantryAttacking)
   })
 
   it('brings the loot of the seconds foraged', async () => {

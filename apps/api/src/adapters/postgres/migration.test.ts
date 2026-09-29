@@ -1198,6 +1198,7 @@ describe('the march recall migration', () => {
     const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
     expect(restored.ok && restored.value?.march).toEqual({
       kind: 'away',
+      order: 'forage',
       province: 2,
       plot: 5,
       infantry: 10,

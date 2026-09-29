@@ -23,4 +23,8 @@ describe('campStrengthAt', () => {
     ).toEqual([1, 6, 6])
     expect(campStrengthAt(plainCamps.tiers[3], beatenToNothing, hoursAfterBeaten(3))).toBe(5)
   })
+
+  it('reads a battle stamped after the instant at its stored strength', () => {
+    expect(campStrengthAt(plainCamps.tiers[1], beatenToNothing, hoursAfterBeaten(-1))).toBe(0)
+  })
 })

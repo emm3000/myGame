@@ -1374,6 +1374,7 @@ describe('resolveUpgrade with a recruit order', () => {
 
 const tenInfantryForTwoHoursDepartedAt = (departedAt: Instant): AwayMarch => ({
   kind: 'away',
+  order: 'forage',
   province: 2,
   plot: 5,
   infantry: 10,

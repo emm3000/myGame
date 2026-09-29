@@ -1,7 +1,9 @@
+import { attackLootOf } from '../camp/attackLootOf'
+import { battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
-import type { AwayMarch, March } from '../march/March'
+import type { AttackedCamp, AwayMarch, March } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import { marchPhaseAt } from '../march/marchPhaseAt'
@@ -10,6 +12,7 @@ import type {
   ArtLevel,
   BuildingCatalog,
   BuildingKind,
+  FiefSettings,
   ForageTerms,
   UnitKind,
   UnitTerms,
@@ -86,6 +89,14 @@ export type MarchOrder = {
   readonly infantry: number
   readonly stayHours: number
 }
+
+export type AttackOrder = {
+  readonly province: number
+  readonly plot: number
+  readonly infantry: number
+}
+
+export type AttackTerms = Pick<FiefSettings, 'forage' | 'camps' | 'units'>
 
 const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
   wood: stocks.wood - cost.wood,
@@ -246,6 +257,24 @@ const validateRecall = (march: AwayMarch): Result<void, DomainError> => {
   return ok(undefined)
 }
 
+const campTiers: ReadonlyArray<number> = [1, 2, 3]
+
+const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
+  if (march.order === 'forage') {
+    return isUnitCount(march.stayHours)
+      ? ok(undefined)
+      : err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+  }
+  if (march.stayHours !== 0) {
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+  }
+  const { tier, strength } = march.camp
+  if (!campTiers.includes(tier) || !isWholeLevel(strength)) {
+    return err({ kind: 'InvalidCamp', tier, strength })
+  }
+  return ok(undefined)
+}
+
 const validateMarch = (march: March, storedAt: Instant): Result<void, DomainError> => {
   if (march.kind === 'idle') {
     return ok(undefined)
@@ -253,8 +282,9 @@ const validateMarch = (march: March, storedAt: Instant): Result<void, DomainErro
   if (!isUnitCount(march.infantry)) {
     return err({ kind: 'InvalidUnitCount', unit: 'infantry', count: march.infantry })
   }
-  if (!isUnitCount(march.stayHours)) {
-    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+  const order = validateOrder(march)
+  if (!order.ok) {
+    return order
   }
   if (march.oneWaySeconds < 0) {
     return err({ kind: 'NegativeDuration', seconds: march.oneWaySeconds })
@@ -789,10 +819,15 @@ export class Fief {
     if (!isUnitCount(stayHours) || stayHours > maxStayHours) {
       return err({ kind: 'StayOutOfRange', stayHours })
     }
-    if (this.march.kind === 'away') {
-      return err({ kind: 'MarchSlotBusy' })
+    return this.refuseBusyMarchSlot()
+  }
+
+  roomForAttack(order: AttackOrder): Result<void, DomainError> {
+    const { infantry } = order
+    if (!isUnitCount(infantry)) {
+      return err({ kind: 'InvalidUnitCount', unit: 'infantry', count: infantry })
     }
-    return ok(undefined)
+    return this.refuseBusyMarchSlot()
   }
 
   dispatchMarch(order: MarchOrder, now: Instant, forage: ForageTerms): Result<Fief, DomainError> {
@@ -801,22 +836,58 @@ export class Fief {
       return room
     }
     const { province, plot, infantry, stayHours } = order
-    const atHome = this.unitsAtHomeAt(now).countOf('infantry')
-    if (infantry > atHome) {
-      return err({ kind: 'NotEnoughInfantryAtHome', infantry, atHome })
+    const atHome = this.refuseAbsentInfantry(infantry, now)
+    if (!atHome.ok) {
+      return atHome
     }
-    const target = { kingdom: this.coordinates.kingdom, province, plot }
     return ok(
       this.changed({
         march: {
           kind: 'away',
+          order: 'forage',
           province,
           plot,
           infantry,
           stayHours,
           departedAt: now,
-          oneWaySeconds: marchOneWaySeconds(this.coordinates, target, forage),
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, forage),
           loot: forageLootOf(terrainOf(province), infantry, stayHours, forage),
+        },
+      }),
+    )
+  }
+
+  dispatchAttack(
+    order: AttackOrder,
+    camp: AttackedCamp,
+    now: Instant,
+    terms: AttackTerms,
+  ): Result<Fief, DomainError> {
+    const room = this.roomForAttack(order)
+    if (!room.ok) {
+      return room
+    }
+    const { province, plot, infantry } = order
+    const atHome = this.refuseAbsentInfantry(infantry, now)
+    if (!atHome.ok) {
+      return atHome
+    }
+    const { forage, camps, units } = terms
+    const { survivors } = battleOf(infantry, camp.strength, units.infantry.strength)
+    return ok(
+      this.changed({
+        march: {
+          kind: 'away',
+          order: 'attack',
+          province,
+          plot,
+          infantry,
+          stayHours: 0,
+          departedAt: now,
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, forage),
+          loot: attackLootOf(terrainOf(province), camp.strength, survivors, camps, forage),
+          camp,
+          fought: false,
         },
       }),
     )
@@ -930,6 +1001,25 @@ export class Fief {
       return this.units
     }
     return this.units.plus(recruitOrder.unit, deliveredUnitsOf(recruitOrder, at))
+  }
+
+  private refuseBusyMarchSlot(): Result<void, DomainError> {
+    return this.march.kind === 'away' ? err({ kind: 'MarchSlotBusy' }) : ok(undefined)
+  }
+
+  private refuseAbsentInfantry(infantry: number, now: Instant): Result<void, DomainError> {
+    const atHome = this.unitsAtHomeAt(now).countOf('infantry')
+    return infantry > atHome
+      ? err({ kind: 'NotEnoughInfantryAtHome', infantry, atHome })
+      : ok(undefined)
+  }
+
+  private oneWaySecondsTo(province: number, plot: number, forage: ForageTerms): number {
+    return marchOneWaySeconds(
+      this.coordinates,
+      { kingdom: this.coordinates.kingdom, province, plot },
+      forage,
+    )
   }
 
   unitsAtHomeAt(at: Instant): FiefUnitCounts {

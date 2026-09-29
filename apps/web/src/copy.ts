@@ -37,6 +37,8 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   RecruitOrderNotFound: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
+  PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
+  PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
   MarchToOwnPlot: 'Esa parcela es tu feudo. Envía la marcha a otra.',
   NotEnoughInfantryAtHome: 'No tienes infantes en casa suficientes para esa marcha.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
