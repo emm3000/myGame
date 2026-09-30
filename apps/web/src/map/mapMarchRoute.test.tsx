@@ -120,6 +120,12 @@ it('offers the march on a free plot only', async () => {
   expect(actionOf(plots[2] as HTMLElement)).toBeNull()
 })
 
+it('shows no art on the forage form', async () => {
+  await openMarchTo(uplands, 5)
+
+  expect(screen.queryByRole('presentation')).toBeNull()
+})
+
 it('previews the road time from the fief to the plot', async () => {
   const form = await openMarchTo(uplands, 5)
 
