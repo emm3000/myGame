@@ -1,5 +1,6 @@
 import type { FiefOverview, ResourceAmounts, Terrain } from '@mygame/contracts'
 import { copy } from '../copy'
+import { campArtOf } from '../design-system/campArtOf'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
@@ -131,6 +132,7 @@ export function attackFormOf(
   const atHome = infantryAtHomeOf(fief)
   return {
     title: copy.march.attackTitle(target.province, target.plot),
+    artSrc: campArtOf(target.camp.tier),
     count: atHome,
     countLabel: copy.march.atHome(atHome),
     isFieldDisabled: fief.march !== null,

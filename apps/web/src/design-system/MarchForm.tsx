@@ -15,6 +15,7 @@ export interface MarchFormField {
 
 export interface MarchFormProps {
   readonly title: string
+  readonly artSrc?: string | undefined
   readonly count: number
   readonly countLabel: string
   readonly infantry: MarchFormField
@@ -63,6 +64,17 @@ export function MarchForm(props: MarchFormProps): ReactElement {
   return (
     <div className="w-full max-w-form">
       <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
+        {props.artSrc !== undefined && (
+          <img
+            src={props.artSrc}
+            alt=""
+            width={1024}
+            height={1024}
+            loading="lazy"
+            decoding="async"
+            className="aspect-4/3 w-full rounded-md object-cover"
+          />
+        )}
         <header className="flex flex-wrap items-center justify-between gap-2">
           <h4 id={titleId} className="m-0 font-display text-title text-ink">
             {props.title}
