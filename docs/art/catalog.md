@@ -48,6 +48,9 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 | buildings | library | gold warm yellow |
 | buildings | barracks | iron dark blue-grey |
 | resources | wood, stone, iron, gold, food | the resource's own accent |
+| camps | camp | pennant red |
+| arts | smithing | iron dark blue-grey |
+| arts | masonry | stone pale grey |
 
 ## Family: buildings
 
@@ -141,6 +144,35 @@ no photorealism, no outlines, no text, no watermark, no people
 | `iron-1.png` | three iron ingots, dark blue-grey, one with a hammer mark | iron dark blue-grey |
 | `gold-1.png` | a small heap of worn gold coins beside an open leather toll purse | gold warm yellow |
 | `food-1.png` | a bound sheaf of ripe wheat with a round loaf beside it | food wheat green |
+
+## Family: camps
+
+3 images, one per camp tier, 1 to 3. A camp's tier never rises, so a camp shows the one image of its tier for as long as it stands. Framing follows the bible's building rule, with no people: tents, a fire pit, a palisade and the loot carry the camp. Each prompt is the Common lines above with `<resource accent>` set to `pennant red` and the tier line taken from the Camp tier lines below, never from the building Tier lines. The image is saved as `apps/web/public/art/camps/camp-<tier>.png` with `camp-<tier>.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/camp.png`.
+
+### Camp tier lines
+
+| Tier | Line |
+|---|---|
+| 1 | `tier 1: a few tents around a fire pit, small, makeshift, patched canvas, trampled bare earth` |
+| 2 | `tier 2: a palisaded camp, sharpened logs, a rough timber gate, more tents, a worn track` |
+| 3 | `tier 3: a fortified ruined tower, old stone patched with timber, a palisade, a barred gate, the largest of its kind` |
+
+### camp (campamento)
+
+| File | Subject |
+|---|---|
+| `camp-1.png` | a few patched canvas tents around a stone-ringed fire pit, a red pennant on a leaning pole, a small pile of stolen sacks and a barrel |
+| `camp-2.png` | a camp of tents inside a ring of sharpened log palisade, a rough timber gate with a red pennant above it, a fire pit, a handcart, stolen crates and barrels |
+| `camp-3.png` | a ruined stone tower patched with timber hoardings, a palisade and a barred gate closing its breach, tents at its foot, red pennants on its broken top, stacked loot chests |
+
+## Family: arts
+
+2 images, one per art and never per level: an art shows the same image at every level. Framing follows the bible's resource rule, and each prompt is the resource template block above with `<subject>` and `<accent>` from the table. Each subject is one object of the craft as `docs/lore/arts.md` tells it, never the resource's own object. The image is saved as `apps/web/public/art/arts/<term>.png` with `<term>.prompt.txt` next to it, no tier in the name; the contact sheet is `docs/art/contact-sheets/arts.png`.
+
+| File | Subject | Accent |
+|---|---|---|
+| `smithing.png` | a forge bellows of wood and leather with a dark blue-grey iron nozzle, a small heap of charcoal under it | iron dark blue-grey |
+| `masonry.png` | a rough boulder of pale grey stone split clean along its grain, an iron wedge between two feathers standing in the cleft | stone pale grey |
 
 ## Where the screen reads them
 

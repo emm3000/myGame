@@ -22,7 +22,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | S1 | The library and two arts that raise production. |
 | S2 | A kingdom map showing one province at a time and its plots, the player's own first, browsable from province 1 to one past the last province holding a fief (ADR 014). |
 | S3 | A chronicle of the fief's events, each with the instant it happened: an upgrade finished, an art learned, an upgrade cancelled and a study cancelled, the two cancels with their refund (ADR 013). |
-| S4 | Every building and resource has an image generated to `docs/art/art-bible.md`; units, camps, seasons and the march keep their hand-drawn SVG icon. |
+| S4 | Every building, resource, bandit camp tier and art has an image generated to `docs/art/art-bible.md`; units, seasons and the march keep their hand-drawn SVG icon, as the camp keeps its icon on the map's plot tile. |
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
 | S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015). |
