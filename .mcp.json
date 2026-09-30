@@ -5,6 +5,12 @@
       "command": "npx",
       "args": ["@playwright/mcp@0.0.82"],
       "env": {}
+    },
+    "engram": {
+      "type": "stdio",
+      "command": "engram",
+      "args": ["mcp", "--tools=agent", "--project", "mygame"],
+      "env": {}
     }
   }
 }
