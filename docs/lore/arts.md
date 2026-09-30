@@ -8,7 +8,7 @@ An art is craft knowledge: the way a thing is done well, written down so it outl
 
 ## Where the library's knowledge comes from
 
-When the crown fell, its scriptoria emptied. The treatises of the crown's masters, on furnaces, on mortar, on the cutting of stone, were carried off, sold by the quire or left to the damp. A **library** is a lord's attempt to gather them back: a stone room with shelves, one lectern and a few scribes who copy whatever passing masters and travelling merchants will sell. Nothing is studied without one.
+When the crown fell, its scriptoria emptied. The treatises of the crown's masters, on furnaces, on mortar, on the cutting of stone, were carried off, sold by the quire or left to the damp. A **library** is a lord's attempt to gather them back: one lectern and a few scribes who copy whatever passing masters and travelling merchants will sell. Nothing is studied without one. A library starts as a wooden shed with one lectern and grows with its levels into the stone room of shelves with a tower. Accepted by the author on 2026-09-30.
 
 Each level of the library adds shelves and scribes, so a larger library shortens every study: more hands copying, more masters willing to stay a season. The library also decides which treatises a fief can read at all. Each art level names the library level it needs, and a small library holds the primers only.
 
@@ -32,4 +32,3 @@ A commission can be recalled before it finishes. The master leaves unpaid and th
 
 - Who the masters are, and whether a named master ever appears on screen.
 - Arts for wood, food or gold, and whether an art can ever shorten a build. Out of scope for S1 (#106).
-- What the library looks like; it has no image yet (`docs/art/art-bible.md`).
