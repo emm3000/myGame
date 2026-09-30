@@ -232,9 +232,9 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 
 ## The army
 
-Every line of this section is a proposal for the author, not yet accepted (`world.md`, Where resources come from). The English identifiers `barracks`, `infantry`, `units`, `recruitOrder`, `recruitTerms`, `recruitsDelivered`, `BarracksNotBuilt` and `RecruitSlotBusy` are fixed by the S10 tickets (#209), and `recruitsCancelled`, `RecruitOrderNotFound`, `delivered` and `cancelled` by the S11 tickets (#231); only the Spanish is proposed here.
+Every line of this section is a proposal for the author, not yet accepted (`world.md`, Where resources come from), with one exception: the sentence of the barracks line that says what the barracks looks like, which carries its own mark. The English identifiers `barracks`, `infantry`, `units`, `recruitOrder`, `recruitTerms`, `recruitsDelivered`, `BarracksNotBuilt` and `RecruitSlotBusy` are fixed by the S10 tickets (#209), and `recruitsCancelled`, `RecruitOrderNotFound`, `delivered` and `cancelled` by the S11 tickets (#231); only the Spanish is proposed here.
 
-- The **barracks** is *el cuartel*, the seventh building of the Buildings table: a walled yard with a drill ground and a roof for the spears, where the fief's hands learn to hold a line. Its level shortens every levy, as the library's shortens every study.
+- The **barracks** is *el cuartel*, the seventh building of the Buildings table, where the fief's hands learn to hold a line. It starts as a fenced drill ground with a spear shed and grows into the walled yard with a drill ground and a roof for the spears at art tiers 4-5, levels 7 to 10 (`docs/art/catalog.md`). Accepted by the author on 2026-09-30. Its level shortens every levy, as the library's shortens every study.
 - A **unit** is one armed hand taken from the fields (`world.md`). The **count** of a kind reads the number first and then the label, in the register of *3 días*: *12 infantes*, *0 infantes*, *1 infante*. The copy agrees the label with the numeral before it: 1 singular, every other count plural, 0 included.
 
 | Term | Singular | Plural | Note |

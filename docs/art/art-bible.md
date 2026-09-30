@@ -43,7 +43,7 @@ Fill `<subject>` from `CONTEXT.md` and `docs/lore/`, `<kingdom terrain>` from th
 
 ## Model and size
 
-GPT Image at 1024×1024 for every generated family. Prompts are written by the agent in the ticket that delivers the family, from the template above; the author runs them and commits image and prompt together.
+GPT Image at 1024×1024 for every generated family. Prompts are written by the agent in the ticket that delivers the family, from the template above; the author or Codex runs them and commits image and prompt together. A ticket Codex runs carries `ready-for-codex` (`docs/agents/triage-labels.md`).
 
 ## UI icons
 

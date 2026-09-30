@@ -45,11 +45,13 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 | buildings | ironMine | iron dark blue-grey |
 | buildings | farm | food wheat green |
 | buildings | warehouse | ochre and umber |
+| buildings | library | gold warm yellow |
+| buildings | barracks | iron dark blue-grey |
 | resources | wood, stone, iron, gold, food | the resource's own accent |
 
 ## Family: buildings
 
-25 images. Subject per term and tier; the rest of the prompt is the common lines above.
+35 images. Subject per term and tier; the rest of the prompt is the common lines above.
 
 ### sawmill (aserradero)
 
@@ -100,6 +102,26 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 | `warehouse-3.png` | a long storehouse on a stone footing with a tiled roof, a covered loading bay, crates in rows |
 | `warehouse-4.png` | a stone warehouse with a slate roof, a walled goods yard, iron-banded doors, a hoist beam |
 | `warehouse-5.png` | a great stone warehouse with a gate tower and banners, a paved yard of carts, barrels and stone blocks |
+
+### library (biblioteca)
+
+| File | Subject |
+|---|---|
+| `library-1.png` | a small open-fronted wooden shed with one lectern, a lit candle on it, a few scrolls in a basket |
+| `library-2.png` | a wooden library hall with a copying shed beside it, open shutters on a lectern and a shelf of scrolls, a candle lantern by the door |
+| `library-3.png` | a library on a stone footing with a tiled roof, wide doors open on rows of shelves, a lectern by a window, scroll chests under the eaves |
+| `library-4.png` | a stone library with a slate roof, arched windows lit by candles, iron-banded doors open on tall shelves of books, a walled yard |
+| `library-5.png` | a great stone room of shelves with a tower, tall arched doors open on the shelves, candles in every window, banners, a paved yard |
+
+### barracks (cuartel)
+
+| File | Subject |
+|---|---|
+| `barracks-1.png` | a small fenced drill ground with a spear shed, one straw training dummy on a post, a few round shields against the fence |
+| `barracks-2.png` | a fenced drill ground with a spear shed and a store shed, a row of training dummies, spear racks, round shields hung on the fence |
+| `barracks-3.png` | a drill ground beside a timber armoury on a stone footing, a tiled roof over the spear racks, training dummies in rows, stacked shields |
+| `barracks-4.png` | a walled yard with a drill ground and a roof for the spears, a slate-roofed spear gallery along the stone wall, training dummies, iron-bossed shields |
+| `barracks-5.png` | a great walled yard with a drill ground and a roof for the spears, a stone gatehouse with banners, a paved drill ground, long spear racks, rows of training dummies and shields |
 
 ## Family: resources
 
