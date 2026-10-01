@@ -1545,7 +1545,7 @@ const tenInfantryForTwoHoursDepartedAt = (departedAt: Instant): AwayMarch => ({
   order: 'forage',
   province: 2,
   plot: 5,
-  infantry: 10,
+  units: { infantry: 10, cavalry: 0 },
   stayHours: 2,
   departedAt,
   oneWaySeconds: 840,
@@ -1605,7 +1605,7 @@ describe('resolveUpgrade with a march', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 5,
-      infantry: 10,
+      units: { infantry: 10, cavalry: 0 },
       loot: { wood: 200, stone: 200, iron: 0, gold: 0, food: 0 },
     }
     expect(result.value.events).toMatchObject([returned])
@@ -1656,7 +1656,7 @@ describe('resolveUpgrade with a march', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 5,
-      infantry: 10,
+      units: { infantry: 10, cavalry: 0 },
       loot: { wood: 15, stone: 15, iron: 0, gold: 0, food: 0 },
       recalled: true,
       occurredAt: secondsAfterStored(3_480),
@@ -1854,7 +1854,7 @@ const attackingFief = (tier: CampTier, strength: number): Fief => {
     address: { kingdom: 1, province: 1, plot: 1 },
     units: { infantry: 10, cavalry: 0 },
   }).dispatchAttack(
-    { province: 2, plot: campPlotOfProvinceTwo(tier), infantry: 10 },
+    { province: 2, plot: campPlotOfProvinceTwo(tier), units: { infantry: 10, cavalry: 0 } },
     { tier, strength },
     storedInstant,
     fiefSettings,
@@ -1925,7 +1925,7 @@ describe('resolveUpgrade with an attack', () => {
     assert(result.ok)
     const { fief } = result.value
     expect(fief.units.countOf('infantry')).toBe(6)
-    expect(fief.march).toMatchObject({ infantry: 6 })
+    expect(fief.march).toMatchObject({ units: { infantry: 6, cavalry: 0 } })
     expect(fief.unitsAtHomeAt(arrival).countOf('infantry')).toBe(0)
   })
 
@@ -2056,7 +2056,7 @@ describe('resolveUpgrade with an attack', () => {
     const { fief, events } = result.value
     expect(fief.buildingLevels.sawmill).toBe(1)
     expect(fief.units.countOf('infantry')).toBe(6)
-    expect(fief.march).toMatchObject({ fought: true, infantry: 6 })
+    expect(fief.march).toMatchObject({ fought: true, units: { infantry: 6, cavalry: 0 } })
     expect(events.map(({ kind, occurredAt }) => ({ kind, occurredAt }))).toEqual([
       { kind: 'upgradeFinished', occurredAt: arrival },
       { kind: 'battleFought', occurredAt: arrival },
@@ -2076,7 +2076,7 @@ describe('resolveUpgrade with an attack', () => {
         plot: campPlotOfProvinceTwo(1),
         tier: 1,
         won: true,
-        infantryLost: 4,
+        unitsLost: { infantry: 4, cavalry: 0 },
         campLost: 6,
         occurredAt: arrivalOf(attacking),
       },
@@ -2096,7 +2096,7 @@ describe('resolveUpgrade with an attack', () => {
         plot: campPlotOfProvinceTwo(2),
         tier: 2,
         won: false,
-        infantryLost: 10,
+        unitsLost: { infantry: 10, cavalry: 0 },
         campLost: 7,
         occurredAt: arrivalOf(attacking),
       },
@@ -2128,7 +2128,7 @@ describe('resolveUpgrade with an attack', () => {
       { kind: 'battleFought', won: true, occurredAt: arrivalOf(attacking) },
       {
         kind: 'marchReturned',
-        infantry: 6,
+        units: { infantry: 6, cavalry: 0 },
         loot: { wood: 96, stone: 96, gold: 96 },
         recalled: false,
         occurredAt: returned,
@@ -2171,7 +2171,10 @@ describe('resolveUpgrade with an attack', () => {
     assert(second.ok)
     expect(second.value.hasChanged).toBe(false)
     expect(fiefs.storedFiefOf('lord')?.units.countOf('infantry')).toBe(6)
-    expect(fiefs.storedFiefOf('lord')?.march).toMatchObject({ fought: true, infantry: 6 })
+    expect(fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      fought: true,
+      units: { infantry: 6, cavalry: 0 },
+    })
     expect(recorded).toHaveLength(1)
   })
 
@@ -2190,7 +2193,7 @@ describe('resolveUpgrade with an attack', () => {
         address: { kingdom: 1, province: 1, plot: 1 },
         recruitOrder: thirtyInfantryAtSixtySeconds,
       }).dispatchAttack(
-        { province: 2, plot: campPlotOfProvinceTwo(1), infantry: 10 },
+        { province: 2, plot: campPlotOfProvinceTwo(1), units: { infantry: 10, cavalry: 0 } },
         { tier: 1, strength: 6 },
         storedInstant,
         fiefSettings,
@@ -2272,9 +2275,65 @@ describe('resolveUpgrade with an attack', () => {
       expect(result.value.events).toMatchObject([
         { kind: 'battleFought', won: true },
         { kind: 'recruitsDelivered', unit: 'infantry', count: 10 },
-        { kind: 'marchReturned', infantry: 6 },
+        { kind: 'marchReturned', units: { infantry: 6, cavalry: 0 } },
       ])
       expect(result.value.fief.units.countOf('infantry')).toBe(26)
     })
+  })
+})
+
+const mixedAttackingFief = (): Fief => {
+  const dispatched = storedFief({
+    address: { kingdom: 1, province: 3, plot: 12 },
+    units: { infantry: 12, cavalry: 6 },
+  }).dispatchAttack(
+    { province: 2, plot: campPlotOfProvinceTwo(1), units: { infantry: 2, cavalry: 3 } },
+    { tier: 1, strength: 6 },
+    storedInstant,
+    fiefSettings,
+  )
+  assert(dispatched.ok)
+  return dispatched.value
+}
+
+describe('resolveUpgrade with a party of several kinds', () => {
+  it('takes the dead of each kind out of the count at the battle', async () => {
+    const attacking = mixedAttackingFief()
+
+    const result = await resolveAttackAt(attacking, arrivalOf(attacking), inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    const { fief } = result.value
+    expect([fief.units.countOf('infantry'), fief.units.countOf('cavalry')]).toEqual([10, 4])
+    expect(fief.march).toMatchObject({ fought: true, units: { infantry: 0, cavalry: 1 } })
+  })
+
+  it('records the losses of each kind in the battle event', async () => {
+    const attacking = mixedAttackingFief()
+
+    const result = await resolveAttackAt(attacking, arrivalOf(attacking), inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.events).toMatchObject([
+      { kind: 'battleFought', won: true, unitsLost: { infantry: 2, cavalry: 2 } },
+    ])
+  })
+
+  it('records each kind in the return event', async () => {
+    const attacking = mixedAttackingFief()
+    const returned = secondsAfterStored(2 * 1_260)
+
+    const result = await resolveAttackAt(attacking, returned, inMemoryCampRegistry([]))
+
+    assert(result.ok)
+    expect(result.value.events).toMatchObject([
+      { kind: 'battleFought' },
+      {
+        kind: 'marchReturned',
+        units: { infantry: 0, cavalry: 1 },
+        loot: { wood: 40, stone: 40, iron: 0, gold: 40, food: 0 },
+        occurredAt: returned,
+      },
+    ])
   })
 })

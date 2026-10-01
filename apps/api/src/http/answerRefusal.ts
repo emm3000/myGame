@@ -98,7 +98,7 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   PlotHasCamp: { status: 409, kind: 'PlotHasCamp' },
   PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
   InvalidCamp: internalFailure,
-  NotEnoughInfantryAtHome: { status: 409, kind: 'NotEnoughInfantryAtHome' },
+  NotEnoughUnitsAtHome: { status: 409, kind: 'NotEnoughInfantryAtHome' },
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {

@@ -59,7 +59,7 @@ const tenInfantryForTwoHours: AwayMarch = {
   order: 'forage',
   province: 2,
   plot: 5,
-  infantry: 10,
+  units: { infantry: 10, cavalry: 0 },
   stayHours: 2,
   departedAt,
   oneWaySeconds: 840,
@@ -71,7 +71,7 @@ const tenInfantryAttacking: AwayMarch = {
   order: 'attack',
   province: 2,
   plot: 1,
-  infantry: 10,
+  units: { infantry: 10, cavalry: 0 },
   stayHours: 0,
   departedAt,
   oneWaySeconds: 600,
@@ -321,11 +321,37 @@ describe('recallMarch', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 5,
-        infantry: 10,
+        units: { infantry: 10, cavalry: 0 },
         loot: { ...noLoot, wood: 15, stone: 15 },
         recalled: true,
         occurredAt: secondsAfterDeparture(3_480),
       },
     ])
+  })
+})
+
+describe('recallMarch with a party of several kinds', () => {
+  it('recalls a mixed party with the loot of its heads', async () => {
+    const mixedParty: AwayMarch = {
+      ...tenInfantryForTwoHours,
+      province: 2,
+      plot: 7,
+      units: { infantry: 12, cavalry: 6 },
+      oneWaySeconds: 900,
+      loot: { ...noLoot, wood: 108, stone: 108 },
+    }
+    const dependencies = dependenciesAt(
+      900 + 1_800,
+      storedFief({
+        address: { kingdom: 1, province: 3, plot: 12 },
+        units: { infantry: 12, cavalry: 6 },
+        march: mixedParty,
+      }),
+    )
+
+    const result = await recallMarch(recall, dependencies)
+
+    assert(result.ok)
+    expect(recalledMarchOf(dependencies).loot).toEqual({ ...noLoot, wood: 27, stone: 27 })
   })
 })

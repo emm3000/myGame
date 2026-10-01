@@ -22,7 +22,13 @@ export const dispatchMarchOf = async (
     playerId,
     ({ fiefs }, clock) =>
       dispatchMarch(
-        { playerId, ...request },
+        {
+          playerId,
+          province: request.province,
+          plot: request.plot,
+          units: { infantry: request.infantry, cavalry: 0 },
+          stayHours: request.stayHours,
+        },
         { fiefs, map: dependencies.map, catalog: dependencies.buildingCatalog, clock },
       ),
     dependencies,

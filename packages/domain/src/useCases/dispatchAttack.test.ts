@@ -126,7 +126,12 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
   return restored.value
 }
 
-const tenInfantryOn = (plot: number) => ({ playerId: 'lord', province: 2, plot, infantry: 10 })
+const tenInfantryOn = (plot: number) => ({
+  playerId: 'lord',
+  province: 2,
+  plot,
+  units: { infantry: 10, cavalry: 0 },
+})
 
 const dependenciesOver = (fief: Fief, battles: ReadonlyArray<CampBattle> = []) => {
   const fiefs = inMemoryFiefRepository([fief])
@@ -148,7 +153,7 @@ describe('dispatchAttack', () => {
       order: 'attack',
       province: 2,
       plot: tierOnePlot,
-      infantry: 10,
+      units: { infantry: 10, cavalry: 0 },
       stayHours: 0,
       departedAt: dispatchInstant,
       camp: { tier: 1, strength: 6 },
@@ -269,12 +274,18 @@ describe('dispatchAttack', () => {
   it('refuses an attack while a march is away', async () => {
     const dependencies = dependenciesOver(storedFief({}))
     await dispatchMarch(
-      { playerId: 'lord', province: 2, plot: freePlot(), infantry: 4, stayHours: 2 },
+      {
+        playerId: 'lord',
+        province: 2,
+        plot: freePlot(),
+        units: { infantry: 4, cavalry: 0 },
+        stayHours: 2,
+      },
       dependencies,
     )
 
     const result = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), infantry: 4 },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 4, cavalry: 0 } },
       dependencies,
     )
 
@@ -285,20 +296,25 @@ describe('dispatchAttack', () => {
     const dependencies = dependenciesOver(storedFief({}))
 
     const result = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), infantry: 11 },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 11, cavalry: 0 } },
       dependencies,
     )
 
-    expect(result).toEqual(err({ kind: 'NotEnoughInfantryAtHome', infantry: 11, atHome: 10 }))
+    expect(result).toEqual(
+      err({ kind: 'NotEnoughUnitsAtHome', unit: 'infantry', count: 11, atHome: 10 }),
+    )
     expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a count of infantry below one or fractional', async () => {
     const dependencies = dependenciesOver(storedFief({}))
 
-    const none = await dispatchAttack({ ...tenInfantryOn(tierOnePlot), infantry: 0 }, dependencies)
+    const none = await dispatchAttack(
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 0, cavalry: 0 } },
+      dependencies,
+    )
     const fractional = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), infantry: 1.5 },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 1.5, cavalry: 0 } },
       dependencies,
     )
 
@@ -309,14 +325,20 @@ describe('dispatchAttack', () => {
   it('refuses in order: count, slot, bounds, own plot, held plot, no camp, infantry at home', async () => {
     const away = dependenciesOver(storedFief({}))
     await dispatchMarch(
-      { playerId: 'lord', province: 2, plot: freePlot(), infantry: 4, stayHours: 2 },
+      {
+        playerId: 'lord',
+        province: 2,
+        plot: freePlot(),
+        units: { infantry: 4, cavalry: 0 },
+        stayHours: 2,
+      },
       away,
     )
     const idle = dependenciesOver(storedFief({}))
-    const tooMany = { ...tenInfantryOn(tierOnePlot), infantry: 11 }
+    const tooMany = { ...tenInfantryOn(tierOnePlot), units: { infantry: 11, cavalry: 0 } }
 
     const refusals = await Promise.all([
-      dispatchAttack({ ...tooMany, infantry: 0, province: 9 }, away),
+      dispatchAttack({ ...tooMany, units: { infantry: 0, cavalry: 0 }, province: 9 }, away),
       dispatchAttack({ ...tooMany, province: 9 }, away),
       dispatchAttack({ ...tooMany, province: 1, plot: 16 }, idle),
       dispatchAttack({ ...tooMany, province: 1, plot: 1 }, idle),
@@ -332,7 +354,29 @@ describe('dispatchAttack', () => {
       'MarchToOwnPlot',
       'PlotHeld',
       'PlotHasNoCamp',
-      'NotEnoughInfantryAtHome',
+      'NotEnoughUnitsAtHome',
     ])
+  })
+})
+
+describe('dispatchAttack with a party of several kinds', () => {
+  it('times an attack of riders alone at half the road', async () => {
+    const dependencies = dependenciesOver(
+      storedFief({
+        address: { kingdom: 1, province: 3, plot: 12 },
+        units: { infantry: 12, cavalry: 6 },
+      }),
+    )
+
+    const result = await dispatchAttack(
+      { playerId: 'lord', province: 2, plot: 1, units: { infantry: 0, cavalry: 6 } },
+      dependencies,
+    )
+
+    assert(result.ok)
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      units: { infantry: 0, cavalry: 6 },
+      oneWaySeconds: 630,
+    })
   })
 })
