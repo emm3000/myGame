@@ -39,6 +39,9 @@ const infantry = {
   durationSeconds: 60,
   peasantOccupancy: 1,
   strength: 1,
+  carry: 48,
+  roadPercent: 100,
+  barracksLevel: 1,
 }
 
 const units = { infantry }
@@ -54,7 +57,6 @@ const yieldPerHour = {
 const forage = {
   secondsPerProvince: 600,
   secondsPerPlot: 60,
-  carryPerInfantry: 48,
   maxStayHours: 8,
   yieldPerHour,
 }
@@ -330,6 +332,37 @@ describe('FiefContentSchema', () => {
       FiefContentSchema.safeParse(
         fiefContent({ units: { infantry: { ...infantry, strength: 0 } } }),
       ).success,
+    ).toBe(false)
+  })
+
+  it('rejects unit terms without a carry', () => {
+    const { carry: _, ...infantryWithoutCarry } = infantry
+
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ units: { infantry: infantryWithoutCarry } }))
+        .success,
+    ).toBe(false)
+  })
+
+  it('rejects a road percent of 0', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ units: { infantry: { ...infantry, roadPercent: 0 } } }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects a barracks level of 0', () => {
+    expect(
+      FiefContentSchema.safeParse(
+        fiefContent({ units: { infantry: { ...infantry, barracksLevel: 0 } } }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('rejects forage terms that still carry per infantry', () => {
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ forage: { ...forage, carry: 48 } })).success,
     ).toBe(false)
   })
 })

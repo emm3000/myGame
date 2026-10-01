@@ -132,7 +132,6 @@ const marchRecalledOnTheRoad = {
 const shippedForageTerms = {
   secondsPerProvince: 600,
   secondsPerPlot: 60,
-  carryPerInfantry: 48,
   maxStayHours: 8,
   yieldPerHour: {
     lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
@@ -141,8 +140,11 @@ const shippedForageTerms = {
   },
 }
 
+const shippedUnitTerms = {
+  infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
+}
+
 const shippedCombatTerms = {
-  infantryStrength: 1,
   lootPerStrength: 60,
   tiers: {
     1: { maxStrength: 6, regrowHours: 6 },
@@ -180,6 +182,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   units: { infantry: 4 },
   recruitOrder: openOrder,
   recruitTerms: { infantry: infantryTerms },
+  unitTerms: shippedUnitTerms,
   march: awayMarch,
   forageTerms: shippedForageTerms,
   combatTerms: shippedCombatTerms,
@@ -468,5 +471,37 @@ describe('FiefOverviewSchema', () => {
     const { forageTerms: _, ...overviewWithoutForageTerms } = overviewWithSlot(busySlot)
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutForageTerms).success).toBe(false)
+  })
+
+  it('accepts the unit terms of every kind', () => {
+    expect(FiefOverviewSchema.parse(overviewWithSlot(busySlot)).unitTerms).toEqual({
+      infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
+    })
+  })
+
+  it('rejects unit terms missing a kind', () => {
+    expect(
+      FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), unitTerms: {} }).success,
+    ).toBe(false)
+  })
+
+  it('rejects unit terms that carry the recruit cost', () => {
+    const infantryWithCost = { ...shippedUnitTerms.infantry, cost: infantryTerms.cost }
+
+    expect(
+      FiefOverviewSchema.safeParse({
+        ...overviewWithSlot(busySlot),
+        unitTerms: { infantry: infantryWithCost },
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects combat terms that still carry a unit strength', () => {
+    expect(
+      FiefOverviewSchema.safeParse({
+        ...overviewWithSlot(busySlot),
+        combatTerms: { ...shippedCombatTerms, strength: 1 },
+      }).success,
+    ).toBe(false)
   })
 })

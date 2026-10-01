@@ -1988,7 +1988,7 @@ describe('resolveUpgrade with an attack', () => {
     const recalled = attackingFief(1, 6).recallMarch(
       { departedAt: storedInstant },
       secondsAfterStored(300),
-      plainForage,
+      { forage: plainForage, units: plainUnits },
     )
     assert(recalled.ok)
     const { camps, recorded } = countingCamps()
@@ -2140,7 +2140,7 @@ describe('resolveUpgrade with an attack', () => {
     const recalled = attackingFief(1, 6).recallMarch(
       { departedAt: storedInstant },
       secondsAfterStored(300),
-      plainForage,
+      { forage: plainForage, units: plainUnits },
     )
     assert(recalled.ok)
 

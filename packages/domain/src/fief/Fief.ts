@@ -96,6 +96,8 @@ export type AttackOrder = {
   readonly infantry: number
 }
 
+export type MarchTerms = Pick<FiefSettings, 'forage' | 'units'>
+
 export type AttackTerms = Pick<FiefSettings, 'forage' | 'camps' | 'units'>
 
 const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
@@ -832,8 +834,8 @@ export class Fief {
     return this.refuseBusyMarchSlot()
   }
 
-  dispatchMarch(order: MarchOrder, now: Instant, forage: ForageTerms): Result<Fief, DomainError> {
-    const room = this.roomForMarch(order, forage.maxStayHours)
+  dispatchMarch(order: MarchOrder, now: Instant, terms: MarchTerms): Result<Fief, DomainError> {
+    const room = this.roomForMarch(order, terms.forage.maxStayHours)
     if (!room.ok) {
       return room
     }
@@ -852,8 +854,8 @@ export class Fief {
           infantry,
           stayHours,
           departedAt: now,
-          oneWaySeconds: this.oneWaySecondsTo(province, plot, forage),
-          loot: forageLootOf(terrainOf(province), infantry, stayHours, forage),
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, terms.forage),
+          loot: forageLootOf(terrainOf(province), infantry, stayHours, terms),
         },
       }),
     )
@@ -874,8 +876,7 @@ export class Fief {
     if (!atHome.ok) {
       return atHome
     }
-    const { forage, camps, units } = terms
-    const { survivors } = battleOf(infantry, camp.strength, units.infantry.strength)
+    const { survivors } = battleOf(infantry, camp.strength, terms.units.infantry.strength)
     return ok(
       this.changed({
         march: {
@@ -886,8 +887,8 @@ export class Fief {
           infantry,
           stayHours: 0,
           departedAt: now,
-          oneWaySeconds: this.oneWaySecondsTo(province, plot, forage),
-          loot: attackLootOf(terrainOf(province), camp.strength, survivors, camps, forage),
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, terms.forage),
+          loot: attackLootOf(terrainOf(province), camp.strength, survivors, terms),
           camp,
           fought: false,
         },
@@ -895,7 +896,7 @@ export class Fief {
     )
   }
 
-  recallMarch(target: MarchTarget, now: Instant, forage: ForageTerms): Result<Fief, DomainError> {
+  recallMarch(target: MarchTarget, now: Instant, terms: MarchTerms): Result<Fief, DomainError> {
     const { march } = this
     if (
       march.kind === 'idle' ||
@@ -917,7 +918,7 @@ export class Fief {
             terrainOf(march.province),
             march.infantry,
             foragedMilliseconds,
-            forage,
+            terms,
           ),
         },
       }),

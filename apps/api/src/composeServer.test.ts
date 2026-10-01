@@ -113,12 +113,14 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
         durationSeconds: 90,
         peasantOccupancy: 1,
         strength: 1,
+        carry: 48,
+        roadPercent: 100,
+        barracksLevel: 1,
       },
     },
     forage: {
       secondsPerProvince: 600,
       secondsPerPlot: 60,
-      carryPerInfantry: 48,
       maxStayHours: 8,
       yieldPerHour: {
         lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },

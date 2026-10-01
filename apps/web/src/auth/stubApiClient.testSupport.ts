@@ -91,11 +91,13 @@ export const knownFief: FiefOverview = {
       perUnitSeconds: 90,
     },
   },
+  unitTerms: {
+    infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
+  },
   march: null,
   forageTerms: {
     secondsPerProvince: 600,
     secondsPerPlot: 60,
-    carryPerInfantry: 48,
     maxStayHours: 8,
     yieldPerHour: {
       lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
@@ -104,7 +106,6 @@ export const knownFief: FiefOverview = {
     },
   },
   combatTerms: {
-    infantryStrength: 1,
     lootPerStrength: 60,
     tiers: {
       1: { maxStrength: 6, regrowHours: 6 },

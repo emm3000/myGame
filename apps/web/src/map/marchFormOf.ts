@@ -43,13 +43,12 @@ function lootOf(
   hours: number,
   fief: FiefOverview,
 ): ResourceAmounts {
-  const { carryPerInfantry, yieldPerHour } = fief.forageTerms
+  const { yieldPerHour } = fief.forageTerms
+  const { carry } = fief.unitTerms.infantry
   const rates = { ...yieldPerHour[terrain], gold: 0 }
   const yielded = Object.values(rates).filter((rate) => rate > 0).length
   const carried = (rate: number): number =>
-    rate > 0
-      ? Math.min(infantry * rate * hours, Math.floor((carryPerInfantry * infantry) / yielded))
-      : 0
+    rate > 0 ? Math.min(infantry * rate * hours, Math.floor((carry * infantry) / yielded)) : 0
   return {
     wood: carried(rates.wood),
     stone: carried(rates.stone),

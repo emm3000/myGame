@@ -6,5 +6,8 @@ export const plainUnits: FiefSettings['units'] = {
     durationSeconds: 90,
     peasantOccupancy: 1,
     strength: 1,
+    carry: 48,
+    roadPercent: 100,
+    barracksLevel: 1,
   },
 }

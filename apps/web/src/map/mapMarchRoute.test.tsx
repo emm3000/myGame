@@ -148,7 +148,7 @@ it('previews the loot the plot terrain yields', async () => {
 it('previews the loot capped by the carry', async () => {
   const lightCarry: FiefOverview = {
     ...fiefWithTenInfantry,
-    forageTerms: { ...fiefWithTenInfantry.forageTerms, carryPerInfantry: 4 },
+    unitTerms: { infantry: { ...fiefWithTenInfantry.unitTerms.infantry, carry: 4 } },
   }
   const form = await openMarchTo(uplands, 5, {
     fief: async () => ({ ok: true, value: lightCarry }),

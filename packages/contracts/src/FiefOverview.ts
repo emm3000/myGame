@@ -142,8 +142,14 @@ const MarchStateSchema = z.discriminatedUnion('order', [
   AttackMarchStateSchema,
 ])
 
+const UnitTermsSchema = z.strictObject({
+  strength: WholeCountSchema.positive(),
+  carry: WholeCountSchema.positive(),
+  roadPercent: WholeCountSchema.positive(),
+  barracksLevel: WholeCountSchema.positive(),
+})
+
 const CombatTermsSchema = z.strictObject({
-  infantryStrength: WholeCountSchema.positive(),
   lootPerStrength: WholeCountSchema.positive(),
   tiers: CampTiersSchema,
 })
@@ -184,6 +190,7 @@ export const FiefOverviewSchema = z.object({
   units: z.record(UnitKindSchema, WholeCountSchema),
   recruitOrder: RecruitOrderStateSchema.nullable(),
   recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
+  unitTerms: z.record(UnitKindSchema, UnitTermsSchema),
   march: MarchStateSchema.nullable(),
   forageTerms: ForageTermsSchema,
   combatTerms: CombatTermsSchema,

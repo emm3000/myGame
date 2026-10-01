@@ -66,12 +66,14 @@ const plainFief: FiefContent = {
       durationSeconds: 90,
       peasantOccupancy: 1,
       strength: 1,
+      carry: 48,
+      roadPercent: 100,
+      barracksLevel: 1,
     },
   },
   forage: {
     secondsPerProvince: 600,
     secondsPerPlot: 60,
-    carryPerInfantry: 48,
     maxStayHours: 8,
     yieldPerHour: {
       lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
@@ -149,6 +151,12 @@ const withContentDirectory = (arrange: (directory: string) => void): string => {
   arrange(directory)
   return directory
 }
+
+const withFiefContent = (change: (content: FiefContent) => Record<string, unknown>): string =>
+  withContentDirectory((copy) => {
+    const content = JSON.parse(readFileSync(join(copy, 'fief.json'), 'utf8')) as FiefContent
+    writeFileSync(join(copy, 'fief.json'), JSON.stringify(change(content)))
+  })
 
 const startingUpOn =
   (directory: string): (() => JsonBuildingCatalog) =>
@@ -383,15 +391,46 @@ describe('JsonBuildingCatalog', () => {
         durationSeconds: 90,
         peasantOccupancy: 1,
         strength: 1,
+        carry: 48,
+        roadPercent: 100,
+        barracksLevel: 1,
       },
     })
+  })
+
+  it('reads the carry, the road percent and the barracks level of the shipped infantry', () => {
+    const { carry, roadPercent, barracksLevel } =
+      JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().units.infantry
+
+    expect({ carry, roadPercent, barracksLevel }).toEqual({
+      carry: 48,
+      roadPercent: 100,
+      barracksLevel: 1,
+    })
+  })
+
+  it('fails at start-up on unit terms without a carry', () => {
+    const directory = withFiefContent((content) => {
+      const { carry: _, ...infantryWithoutCarry } = content.units.infantry
+      return { ...content, units: { infantry: infantryWithoutCarry } }
+    })
+
+    expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)
+  })
+
+  it('fails at start-up on a road percent of 0', () => {
+    const directory = withFiefContent((content) => ({
+      ...content,
+      units: { infantry: { ...content.units.infantry, roadPercent: 0 } },
+    }))
+
+    expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)
   })
 
   it('reads the forage terms from the shipped content', () => {
     expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().forage).toEqual({
       secondsPerProvince: 600,
       secondsPerPlot: 60,
-      carryPerInfantry: 48,
       maxStayHours: 8,
       yieldPerHour: {
         lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
