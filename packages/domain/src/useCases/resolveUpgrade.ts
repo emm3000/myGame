@@ -5,7 +5,6 @@ import type { BusySlot } from '../fief/BuildSlot'
 import type { ChangedFief } from '../fief/ChangedFief'
 import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
-import { infantryAlone } from '../fief/infantryAlone'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
@@ -100,7 +99,7 @@ const foughtBattleOf = (
   if (arrivesAt.epochMilliseconds > now.epochMilliseconds) {
     return undefined
   }
-  const battle = battleOf(infantryAlone(march.infantry), march.camp.strength, unitTerms)
+  const battle = battleOf(march.units, march.camp.strength, unitTerms)
   return { kind: 'battle', march, battle, finishedAt: arrivesAt }
 }
 
@@ -178,7 +177,7 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           plot: finished.march.plot,
           tier: finished.march.camp.tier,
           won: finished.battle.won,
-          infantryLost: finished.battle.unitsLost.infantry,
+          unitsLost: finished.battle.unitsLost,
           campLost: finished.battle.campLost,
           occurredAt: finished.finishedAt,
         },
@@ -189,7 +188,7 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           kind: 'marchReturned',
           province: finished.march.province,
           plot: finished.march.plot,
-          infantry: finished.march.infantry,
+          units: finished.march.units,
           loot: finished.march.loot,
           recalled: finished.march.recalledAt !== undefined,
           occurredAt: finished.finishedAt,

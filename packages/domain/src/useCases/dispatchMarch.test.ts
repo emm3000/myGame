@@ -142,7 +142,7 @@ const tenInfantryForTwoHours = {
   playerId: 'lord',
   province: 2,
   plot: 5,
-  infantry: 10,
+  units: { infantry: 10, cavalry: 0 },
   stayHours: 2,
 }
 
@@ -163,7 +163,7 @@ describe('dispatchMarch', () => {
       order: 'forage',
       province: 2,
       plot: 5,
-      infantry: 10,
+      units: { infantry: 10, cavalry: 0 },
       stayHours: 2,
       departedAt: dispatchInstant,
     })
@@ -267,23 +267,31 @@ describe('dispatchMarch', () => {
     })
 
     const tooMany = await dispatchMarch(
-      { ...tenInfantryForTwoHours, infantry: 4 },
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
       dependenciesOver(recruiting),
     )
     const delivered = await dispatchMarch(
-      { ...tenInfantryForTwoHours, infantry: 3 },
+      { ...tenInfantryForTwoHours, units: { infantry: 3, cavalry: 0 } },
       dependenciesOver(recruiting),
     )
 
-    expect(tooMany).toEqual(err({ kind: 'NotEnoughInfantryAtHome', infantry: 4, atHome: 3 }))
+    expect(tooMany).toEqual(
+      err({ kind: 'NotEnoughUnitsAtHome', unit: 'infantry', count: 4, atHome: 3 }),
+    )
     assert(delivered.ok)
   })
 
   it('refuses a march while another is away', async () => {
     const dependencies = dependenciesOver(storedFief({}))
-    await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 4 }, dependencies)
+    await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      dependencies,
+    )
 
-    const result = await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 4 }, dependencies)
+    const result = await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      dependencies,
+    )
 
     expect(result).toEqual(err({ kind: 'MarchSlotBusy' }))
   })
@@ -321,17 +329,25 @@ describe('dispatchMarch', () => {
   it('refuses more infantry than are at home', async () => {
     const dependencies = dependenciesOver(storedFief({}))
 
-    const result = await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11 }, dependencies)
+    const result = await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 } },
+      dependencies,
+    )
 
-    expect(result).toEqual(err({ kind: 'NotEnoughInfantryAtHome', infantry: 11, atHome: 10 }))
+    expect(result).toEqual(
+      err({ kind: 'NotEnoughUnitsAtHome', unit: 'infantry', count: 11, atHome: 10 }),
+    )
   })
 
   it('refuses a count of infantry below one or fractional', async () => {
     const dependencies = dependenciesOver(storedFief({}))
 
-    const none = await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 0 }, dependencies)
+    const none = await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 0, cavalry: 0 } },
+      dependencies,
+    )
     const fractional = await dispatchMarch(
-      { ...tenInfantryForTwoHours, infantry: 1.5 },
+      { ...tenInfantryForTwoHours, units: { infantry: 1.5, cavalry: 0 } },
       dependencies,
     )
 
@@ -389,21 +405,37 @@ describe('dispatchMarch', () => {
 
   it('refuses in order: count, stay, slot, bounds, own plot, held plot, camp, infantry at home', async () => {
     const away = dependenciesOver(storedFief({}))
-    await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 4 }, away)
+    await dispatchMarch({ ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } }, away)
     const idle = dependenciesOver(storedFief({}))
 
     const refusals = await Promise.all([
-      dispatchMarch({ ...tenInfantryForTwoHours, infantry: 0, stayHours: 0 }, away),
+      dispatchMarch(
+        { ...tenInfantryForTwoHours, units: { infantry: 0, cavalry: 0 }, stayHours: 0 },
+        away,
+      ),
       dispatchMarch({ ...tenInfantryForTwoHours, stayHours: 0, province: 9 }, away),
       dispatchMarch({ ...tenInfantryForTwoHours, province: 9 }, away),
-      dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11, province: 1, plot: 16 }, idle),
-      dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11, province: 1, plot: 1 }, idle),
-      dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11, plot: 9 }, idle),
       dispatchMarch(
-        { ...tenInfantryForTwoHours, infantry: 11, plot: campPlotOfProvinceTwo() },
+        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 }, province: 1, plot: 16 },
         idle,
       ),
-      dispatchMarch({ ...tenInfantryForTwoHours, infantry: 11 }, idle),
+      dispatchMarch(
+        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 }, province: 1, plot: 1 },
+        idle,
+      ),
+      dispatchMarch(
+        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 }, plot: 9 },
+        idle,
+      ),
+      dispatchMarch(
+        {
+          ...tenInfantryForTwoHours,
+          units: { infantry: 11, cavalry: 0 },
+          plot: campPlotOfProvinceTwo(),
+        },
+        idle,
+      ),
+      dispatchMarch({ ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 } }, idle),
     ])
 
     expect(refusals.map((refusal) => (refusal.ok ? 'sent' : refusal.error.kind))).toEqual([
@@ -414,7 +446,7 @@ describe('dispatchMarch', () => {
       'MarchToOwnPlot',
       'PlotHeld',
       'PlotHasCamp',
-      'NotEnoughInfantryAtHome',
+      'NotEnoughUnitsAtHome',
     ])
   })
 
@@ -482,7 +514,10 @@ describe('dispatchMarch', () => {
       ...dependenciesOver(storedFief({ buildingLevels: libraryAndBarracks })),
       catalog: workingCatalog,
     }
-    const sent = await dispatchMarch({ ...tenInfantryForTwoHours, infantry: 4 }, dependencies)
+    const sent = await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      dependencies,
+    )
     assert(sent.ok)
 
     const building = await enqueueBuilding({ playerId: 'lord', building: 'sawmill' }, dependencies)
@@ -500,5 +535,106 @@ describe('dispatchMarch', () => {
       'open',
       sent.value.march,
     ])
+  })
+})
+
+const mixedPartyFief = (): Fief =>
+  storedFief({
+    address: { kingdom: 1, province: 3, plot: 12 },
+    units: { infantry: 12, cavalry: 6 },
+  })
+
+const mixedPartyForTwoHours = {
+  playerId: 'lord',
+  province: 2,
+  plot: 7,
+  units: { infantry: 12, cavalry: 6 },
+  stayHours: 2,
+}
+
+describe('dispatchMarch with a party of several kinds', () => {
+  it('sends infantry and riders on one march', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    const result = await dispatchMarch(mixedPartyForTwoHours, dependencies)
+
+    assert(result.ok)
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      kind: 'away',
+      province: 2,
+      plot: 7,
+      units: { infantry: 12, cavalry: 6 },
+      oneWaySeconds: 900,
+    })
+  })
+
+  it('refuses a march with no unit', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 0 } },
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 0 }))
+  })
+
+  it('refuses a fractional rider count', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 12, cavalry: 1.5 } },
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'InvalidUnitCount', unit: 'cavalry', count: 1.5 }))
+  })
+
+  it('refuses more riders than are at home', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 7 } },
+      dependencies,
+    )
+
+    expect(result).toEqual(
+      err({ kind: 'NotEnoughUnitsAtHome', unit: 'cavalry', count: 7, atHome: 6 }),
+    )
+  })
+
+  it('names the first kind short', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 13, cavalry: 7 } },
+      dependencies,
+    )
+
+    expect(result).toEqual(
+      err({ kind: 'NotEnoughUnitsAtHome', unit: 'infantry', count: 13, atHome: 12 }),
+    )
+  })
+
+  it('keeps the riders away out of the units at home', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 4, cavalry: 2 } },
+      dependencies,
+    )
+
+    const atHome = dependencies.fiefs.storedFiefOf('lord')?.unitsAtHomeAt(dispatchInstant)
+    expect([atHome?.countOf('infantry'), atHome?.countOf('cavalry')]).toEqual([8, 4])
+  })
+
+  it('fixes the loot of a mixed party at dispatch', async () => {
+    const dependencies = dependenciesOver(mixedPartyFief())
+
+    await dispatchMarch(mixedPartyForTwoHours, dependencies)
+
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
+    })
   })
 })

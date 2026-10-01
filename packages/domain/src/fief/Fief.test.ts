@@ -40,7 +40,7 @@ const awayMarch = {
   order: 'forage',
   province: 3,
   plot: 5,
-  infantry: 3,
+  units: { infantry: 3, cavalry: 0 },
   stayHours: 2,
   departedAt: foundingInstant,
   oneWaySeconds: 720,
@@ -52,7 +52,7 @@ const attackMarch = {
   order: 'attack',
   province: 3,
   plot: 5,
-  infantry: 3,
+  units: { infantry: 3, cavalry: 0 },
   stayHours: 0,
   departedAt: foundingInstant,
   oneWaySeconds: 720,
@@ -192,11 +192,40 @@ describe('Fief', () => {
   })
 
   it('refuses a stored march with a fractional infantry count', () => {
-    const fractional = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, infantry: 2.5 } })
-    const none = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, infantry: 0 } })
+    const fractional = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, units: { infantry: 2.5, cavalry: 0 } },
+    })
 
     expect(fractional).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 2.5 }))
+  })
+
+  it('refuses a stored march with a negative rider count', () => {
+    const negative = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, units: { infantry: 3, cavalry: -1 } },
+    })
+
+    expect(negative).toEqual(err({ kind: 'InvalidUnitCount', unit: 'cavalry', count: -1 }))
+  })
+
+  it('refuses a stored march with no unit', () => {
+    const none = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, units: { infantry: 0, cavalry: 0 } },
+    })
+
     expect(none).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 0 }))
+  })
+
+  it('restores a stored march of riders alone', () => {
+    const riders = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, units: { infantry: 0, cavalry: 2 } },
+    })
+
+    assert(riders.ok)
+    expect(riders.value.march).toMatchObject({ units: { infantry: 0, cavalry: 2 } })
   })
 
   it('refuses a stored march whose stay is not a whole count of hours from one', () => {

@@ -2580,7 +2580,10 @@ describe('the fief route', () => {
       expect(await campBattleRows()).toEqual([])
       const stored = await server.fiefs.fiefOf(ana.playerId)
       assert(stored.ok)
-      expect(stored.value?.march).toMatchObject({ fought: false, infantry: 10 })
+      expect(stored.value?.march).toMatchObject({
+        fought: false,
+        units: { infantry: 10, cavalry: 0 },
+      })
     })
   })
 })

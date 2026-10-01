@@ -1,12 +1,13 @@
 import type { CampTier } from '../camp/CampTier'
 import type { Stocks } from '../fief/Fief'
+import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
 import type { Instant } from '../time/Instant'
 
 type MarchOnTheRoad = {
   readonly kind: 'away'
   readonly province: number
   readonly plot: number
-  readonly infantry: number
+  readonly units: UnitCountsByKind
   readonly stayHours: number
   readonly departedAt: Instant
   readonly oneWaySeconds: number
