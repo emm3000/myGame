@@ -363,9 +363,10 @@ the locked card.
   fills a rider's carry, 24 of each resource per head at the longest
   stay against a share of 60, so the carry pays on a won attack. Tuning
   it is a content edit.
-- The wire's `units` counts the units away, so a client reads the units
-  at home of a kind as `units[kind] − march.units[kind]`, before and
-  after a battle, with the one rule of ADR 020.
+- The wire's `units` counts the units at home and away, so a client
+  reads the units at home of a kind as `units[kind] −
+  march.units[kind]`, before and after a battle, with the one rule of
+  ADR 020.
 - Known gap: the forms' preview repeats the rules of `roadPercentOf`,
   `forageLootOf`, `battleOf` and `attackLootOf` in the browser, as the
   attack form repeated `battleOf` since ADR 020; a change to one must
