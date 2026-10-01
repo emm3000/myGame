@@ -79,11 +79,11 @@ mockup of #213 draws it.
   `perUnitSeconds` and `startedAt = now`. The build slot, the build queue
   and the study slot are untouched by an order, and an order by them: a
   fief recruits while both are busy.
-- **N is bounded by the lesser of the built free and the projected free
-  peasants.** The use case `placeRecruitOrder` refuses `NotEnoughPeasants`
-  when `count` times the unit's occupancy exceeds
-  `min(free, projectedFree)`. Decision 4 said "the free peasants" and the
-  overview has two counts: an order bounded by the built free alone can
+- **N is bounded by the lowest free count across the build schedule.**
+  The use case `placeRecruitOrder` refuses `NotEnoughPeasants` when
+  `count` times the unit's occupancy exceeds that count. The first bound
+  was `min(free, projectedFree)`. Decision 4 said "the free peasants" and
+  the overview has two counts: an order bounded by the built free alone can
   drive the projected trio negative (a waiting upgrade's increase), one
   bounded by the projected free alone can drive the built trio negative (a
   queued farm's supply), and `derivePeasantCounts` answers
@@ -177,7 +177,10 @@ mockup of #213 draws it.
   count, the order in progress (delivered of N, a countdown to the next unit
   and one to the last) and a form for N with its cost and its peasants from
   `recruitTerms`, the shortfalls marked as the building cards mark them
-  against `min(free, projectedFree)`. Between reads the count and the
+  against `min(free, projectedFree)`; since #339 the server bounds N by
+  the lowest free count across the build schedule, which can be lower, and
+  a follow-up ticket carries that count on the contract for the card.
+  Between reads the count and the
   delivered units rise one per `perUnitSeconds` from `startedAt`, capped at
   `count`, and the web re-reads when the order ends, never per unit: a unit
   that trains in under 60 seconds would otherwise poll faster than once a
