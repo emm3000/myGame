@@ -26,6 +26,7 @@ export interface ArtCardProps {
   readonly durationSeconds: number
   readonly state: CardActionState
   readonly titleElement: 'h3' | 'h4'
+  readonly artSrc: string
   readonly isWaiting?: boolean
   readonly onStudy?: (() => void) | undefined
 }
@@ -46,6 +47,15 @@ export function ArtCard(props: ArtCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
     <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
+      <img
+        src={props.artSrc}
+        alt=""
+        width={1024}
+        height={1024}
+        loading="lazy"
+        decoding="async"
+        className="aspect-4/3 w-full rounded-md object-cover"
+      />
       <CardHeader
         name={props.name}
         levelLabel={props.levelLabel}

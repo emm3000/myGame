@@ -87,6 +87,26 @@ it('shows the idle study slot and a card per art once the library stands', async
   expect(within(artCard('masonry')).getByText('Cantería')).toBeDefined()
 })
 
+it('shows the art of each art on its card', async () => {
+  await showFief({})
+
+  expect(within(artCard('smithing')).getByRole('presentation').getAttribute('src')).toMatch(
+    /\/art\/arts\/smithing\.png$/,
+  )
+  expect(within(artCard('masonry')).getByRole('presentation').getAttribute('src')).toMatch(
+    /\/art\/arts\/masonry\.png$/,
+  )
+})
+
+it('shows the art of an art not yet studied', async () => {
+  await showFief({})
+
+  expect(within(artCard('masonry')).getByText(copy.names.unstudied)).toBeDefined()
+  expect(within(artCard('masonry')).getByRole('presentation').getAttribute('src')).toMatch(
+    /\/masonry\.png$/,
+  )
+})
+
 it('shows on an art card its level, effect, cost, duration and library requirement', async () => {
   await showFief({})
 
@@ -292,6 +312,21 @@ it('shows an art at its top level as finished', async () => {
   expect(
     within(artCard('smithing')).getByText('+50 % de hierro / h · Ya está en su nivel más alto.'),
   ).toBeDefined()
+})
+
+it('keeps the art on a card at its top level', async () => {
+  const smithingAtTop: FiefOverview = {
+    ...libraryBuilt,
+    arts: {
+      ...libraryBuilt.arts,
+      smithing: { level: 10, resource: 'iron', ratePercent: 50, nextLevel: null },
+    },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: smithingAtTop }) })
+
+  expect(within(artCard('smithing')).getByRole('presentation').getAttribute('src')).toMatch(
+    /\/smithing\.png$/,
+  )
 })
 
 it('counts down the study in progress between reads', async () => {

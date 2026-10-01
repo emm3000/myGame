@@ -1,6 +1,7 @@
 import type { ArtKind } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { ArtCardProps } from '../design-system/ArtCard'
+import { artArtOf } from '../design-system/artArtOf'
 import type { CardActionState } from '../design-system/CardAction'
 import { capitalize } from '../design-system/capitalize'
 import type { LiveFief } from './liveFief'
@@ -37,6 +38,7 @@ export function artCardOf(art: ArtKind, fief: LiveFief): ArtCardContent {
     name: capitalize(names.arts[art]),
     levelLabel: level === 0 ? names.unstudied : names.level(level),
     actionLabel: copy.study.start,
+    artSrc: artArtOf(art),
   }
   if (nextLevel === null) {
     return {
