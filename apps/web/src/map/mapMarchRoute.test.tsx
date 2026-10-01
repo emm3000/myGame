@@ -214,15 +214,15 @@ it('counts the infantry at home without the men away', async () => {
   )
 })
 
-it('blocks an infantry count that is not a whole count from 1', async () => {
+it('blocks a count that is not a whole number from 0', async () => {
   const dispatchMarch = vi.fn(async () => ({ ok: true, value: fiefWithTenInfantry }) as const)
   const form = await openMarchTo(uplands, 5, { dispatchMarch })
 
-  type(form, 'Infantes a enviar', '0')
+  type(form, 'Infantes a enviar', '1.5')
   fireEvent.submit(form)
 
   expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Un número entero, al menos 1.',
+    'Enviar una marcha. Un número entero, 0 o más.',
   )
   expect(previewOf(form)).toEqual([])
   expect(dispatchMarch).not.toHaveBeenCalled()

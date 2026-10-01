@@ -242,6 +242,39 @@ it('waits for the minute re-read when the march returns past the longest timeout
 const recallButton = (): HTMLElement | null =>
   within(armySection()).queryByRole('button', { name: 'Retirar la marcha: 10 infantes' })
 
+const mixedMarchUnderway = (): FiefOverview => {
+  const underway = answeredNow(marchUnderway)
+  return {
+    ...underway,
+    units: { infantry: 16, cavalry: 10 },
+    march:
+      underway.march === null ? null : { ...underway.march, units: { infantry: 10, cavalry: 6 } },
+  }
+}
+
+const cavalryCard = (): HTMLElement =>
+  within(armySection()).getByRole('listitem', { name: copy.names.units.cavalry.plural })
+
+it('names both kinds on the march card', async () => {
+  await showFief({ fief: async () => ({ ok: true, value: mixedMarchUnderway() }) })
+
+  expect(
+    phaseLine('Marcha de ida: 10 infantes y 6 jinetes a provincia 2, parcela 5'),
+  ).not.toBeNull()
+  expect(
+    within(armySection()).queryByRole('button', {
+      name: 'Retirar la marcha: 10 infantes y 6 jinetes',
+    }),
+  ).not.toBeNull()
+})
+
+it('counts the riders away on their card', async () => {
+  await showFief({ fief: async () => ({ ok: true, value: mixedMarchUnderway() }) })
+
+  expect(textIn(cavalryCard(), '4 jinetes en casa, 6 jinetes de marcha')).not.toBeNull()
+  expect(textIn(infantryCard(), '6 infantes en casa, 10 infantes de marcha')).not.toBeNull()
+})
+
 it('offers the recall on the way out', async () => {
   await showFief({})
 

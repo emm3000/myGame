@@ -1,3 +1,4 @@
+import { UnitKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { FormAlert } from '../design-system/FormAlert'
@@ -13,17 +14,19 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   if (overview === undefined || target === undefined) {
     return null
   }
-  const infantry = {
-    label: copy.march.infantryField,
-    entry: entries.infantry,
-    onChange: (entry: string) => march.onEntriesChange({ ...entries, infantry: entry }),
-  }
+  const counts = UnitKindSchema.options.map((unit) => ({
+    label: copy.march.countField(unit),
+    entry: entries.units[unit],
+    min: 0,
+    onChange: (entry: string) =>
+      march.onEntriesChange({ ...entries, units: { ...entries.units, [unit]: entry } }),
+  }))
   const { camp } = target
   if (camp !== null) {
     return (
       <MarchForm
-        {...attackFormOf({ ...target, camp }, entries.infantry, overview)}
-        infantry={infantry}
+        {...attackFormOf({ ...target, camp }, entries.units, overview)}
+        counts={counts}
         isWaiting={march.isWaiting}
         onSend={march.onSend}
       />
@@ -32,10 +35,11 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   return (
     <MarchForm
       {...marchFormOf(target, entries, overview)}
-      infantry={infantry}
+      counts={counts}
       hours={{
         label: copy.march.hoursField,
         entry: entries.hours,
+        min: 1,
         max: overview.forageTerms.maxStayHours,
         onChange: (hours) => march.onEntriesChange({ ...entries, hours }),
       }}

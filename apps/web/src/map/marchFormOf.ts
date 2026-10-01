@@ -1,4 +1,5 @@
 import type { FiefOverview, ProvinceMap, ResourceAmounts, Terrain } from '@mygame/contracts'
+import { UnitKindSchema } from '@mygame/contracts'
 import { copy } from '../copy'
 import { formatDuration } from '../design-system/formatDuration'
 import type { MarchFormProps } from '../design-system/MarchForm'
@@ -6,8 +7,13 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
-import { infantryAtHomeOf } from './infantryAtHomeOf'
+import { atHomeTalliesOf } from './atHomeTalliesOf'
+import { carryOf } from './carryOf'
+import { isEmptyParty } from './isEmptyParty'
 import { oneWaySecondsOf } from './oneWaySecondsOf'
+import { type PartyEntries, partyOf } from './partyOf'
+import { partyReasonOf } from './partyReasonOf'
+import type { UnitCounts } from './unitsAtHomeOf'
 
 export type PlotCamp = NonNullable<ProvinceMap['plots'][number]['camp']>
 
@@ -19,36 +25,29 @@ export interface MarchTarget {
 }
 
 export interface MarchEntries {
-  readonly infantry: string
+  readonly units: PartyEntries
   readonly hours: string
 }
 
 export type MarchFormContent = Pick<
   MarchFormProps,
-  | 'title'
-  | 'artSrc'
-  | 'count'
-  | 'countLabel'
-  | 'isFieldDisabled'
-  | 'preview'
-  | 'actionLabel'
-  | 'state'
+  'title' | 'artSrc' | 'atHome' | 'isFieldDisabled' | 'preview' | 'actionLabel' | 'state'
 >
 
 const secondsPerHour = 3600
 
 function lootOf(
   terrain: Terrain,
-  infantry: number,
+  party: UnitCounts,
   hours: number,
   fief: FiefOverview,
 ): ResourceAmounts {
-  const { yieldPerHour } = fief.forageTerms
-  const { carry } = fief.unitTerms.infantry
-  const rates = { ...yieldPerHour[terrain], gold: 0 }
+  const rates = { ...fief.forageTerms.yieldPerHour[terrain], gold: 0 }
   const yielded = Object.values(rates).filter((rate) => rate > 0).length
+  const heads = UnitKindSchema.options.reduce((total, unit) => total + party[unit], 0)
+  const carryShare = Math.floor(carryOf(party, fief) / yielded)
   const carried = (rate: number): number =>
-    rate > 0 ? Math.min(infantry * rate * hours, Math.floor((carry * infantry) / yielded)) : 0
+    rate > 0 ? Math.min(heads * rate * hours, carryShare) : 0
   return {
     wood: carried(rates.wood),
     stone: carried(rates.stone),
@@ -65,12 +64,12 @@ function hoursOf(entry: string, maxStayHours: number): number | undefined {
 
 function previewOf(
   target: MarchTarget,
-  infantry: number,
+  party: UnitCounts,
   hours: number,
   fief: FiefOverview,
 ): ReadonlyArray<PreviewLine> {
-  const oneWaySeconds = oneWaySecondsOf(target, fief)
-  const loot = lootOf(target.terrain, infantry, hours, fief)
+  const oneWaySeconds = oneWaySecondsOf(target, party, fief)
+  const loot = lootOf(target.terrain, party, hours, fief)
   return [
     { heading: copy.march.roadHeading, value: formatDuration(oneWaySeconds), isNumeral: true },
     {
@@ -87,24 +86,21 @@ function previewOf(
 }
 
 function stateOf(
-  infantry: number | undefined,
+  party: UnitCounts | undefined,
   hours: number | undefined,
   fief: FiefOverview,
 ): SubmitActionState {
   if (fief.march !== null) {
     return { kind: 'blocked', reason: copy.march.marchAway }
   }
-  if (infantry === undefined) {
-    return { kind: 'blocked', reason: copy.march.invalidInfantry }
+  if (party === undefined) {
+    return { kind: 'blocked', reason: copy.march.invalidCount }
   }
   if (hours === undefined) {
     return { kind: 'blocked', reason: copy.march.invalidHours(fief.forageTerms.maxStayHours) }
   }
-  const atHome = infantryAtHomeOf(fief)
-  if (infantry > atHome) {
-    return { kind: 'blocked', reason: copy.march.notEnoughAtHome(infantry, atHome) }
-  }
-  return { kind: 'affordable' }
+  const reason = partyReasonOf(party, fief)
+  return reason === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason }
 }
 
 export function marchFormOf(
@@ -112,19 +108,17 @@ export function marchFormOf(
   entries: MarchEntries,
   fief: FiefOverview,
 ): MarchFormContent {
-  const infantry = recruitCountOf(entries.infantry)
+  const party = partyOf(entries.units)
   const hours = hoursOf(entries.hours, fief.forageTerms.maxStayHours)
-  const atHome = infantryAtHomeOf(fief)
   return {
     title: copy.march.title(target.province, target.plot),
-    count: atHome,
-    countLabel: copy.march.atHome(atHome),
+    atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
     preview:
-      infantry === undefined || hours === undefined
+      party === undefined || hours === undefined || isEmptyParty(party)
         ? undefined
-        : previewOf(target, infantry, hours, fief),
+        : previewOf(target, party, hours, fief),
     actionLabel: copy.march.send,
-    state: stateOf(infantry, hours, fief),
+    state: stateOf(party, hours, fief),
   }
 }
