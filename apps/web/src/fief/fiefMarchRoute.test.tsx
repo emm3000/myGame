@@ -27,7 +27,7 @@ const barracksBuilt: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 1 },
   },
-  units: { infantry: 16 },
+  units: { infantry: 16, cavalry: 0 },
 }
 
 const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({

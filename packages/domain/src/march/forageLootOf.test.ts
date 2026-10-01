@@ -10,7 +10,7 @@ const shippedTerms: MarchTerms = { forage: plainForage, units: plainUnits }
 
 const carryOf = (carry: number): MarchTerms => ({
   ...shippedTerms,
-  units: { infantry: { ...plainUnits.infantry, carry } },
+  units: { ...plainUnits, infantry: { ...plainUnits.infantry, carry } },
 })
 
 const goldOnTheRidges: MarchTerms = {

@@ -11,7 +11,7 @@ const shippedTerms: AttackTerms = { forage: plainForage, camps: plainCamps, unit
 
 const smallCarry: AttackTerms = {
   ...shippedTerms,
-  units: { infantry: { ...plainUnits.infantry, carry: 10 } },
+  units: { ...plainUnits, infantry: { ...plainUnits.infantry, carry: 10 } },
 }
 
 describe('attackLootOf', () => {

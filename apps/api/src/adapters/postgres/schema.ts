@@ -34,7 +34,7 @@ export const building = pgEnum('building', [
 
 export const art = pgEnum('art', ['smithing', 'masonry'])
 
-export const unit = pgEnum('unit', ['infantry'])
+export const unit = pgEnum('unit', ['infantry', 'cavalry'])
 
 export const marchOrder = pgEnum('march_order', ['forage', 'attack'])
 

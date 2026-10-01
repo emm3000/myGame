@@ -9,7 +9,7 @@ import { copy } from '../copy'
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
   coordinates: { kingdom: 1, province: 1, plot: 1 },
-  units: { infantry: 10 },
+  units: { infantry: 10, cavalry: 0 },
 }
 
 const uplandsWithCamps: ProvinceMap = {
@@ -180,7 +180,10 @@ it('counts the losses in integers', async () => {
     ),
   }
   const form = await openAttackOn(9, {
-    fief: async () => ({ ok: true, value: { ...fiefWithTenInfantry, units: { infantry: 25 } } }),
+    fief: async () => ({
+      ok: true,
+      value: { ...fiefWithTenInfantry, units: { infantry: 25, cavalry: 0 } },
+    }),
     provinceMap: async () => ({ ok: true, value: campAtTen }),
   })
 
@@ -191,7 +194,7 @@ it('counts the losses in integers', async () => {
 })
 
 it('blocks an attack without infantry at home', async () => {
-  const noInfantry: FiefOverview = { ...fiefWithTenInfantry, units: { infantry: 0 } }
+  const noInfantry: FiefOverview = { ...fiefWithTenInfantry, units: { infantry: 0, cavalry: 0 } }
   const dispatchAttack = vi.fn(async () => ({ ok: true, value: noInfantry }) as const)
   const form = await openAttackOn(7, {
     fief: async () => ({ ok: true, value: noInfantry }),

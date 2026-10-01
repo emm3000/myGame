@@ -39,8 +39,10 @@ export const buildingKinds: Readonly<Record<StoredBuilding, BuildingKind>> = {
 
 export const storedUnits: Readonly<Record<UnitKind, StoredUnit>> = {
   infantry: 'infantry',
+  cavalry: 'cavalry',
 }
 
 export const unitKinds: Readonly<Record<StoredUnit, UnitKind>> = {
   infantry: 'infantry',
+  cavalry: 'cavalry',
 }

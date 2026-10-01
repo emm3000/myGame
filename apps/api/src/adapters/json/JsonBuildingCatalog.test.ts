@@ -70,6 +70,15 @@ const plainFief: FiefContent = {
       roadPercent: 100,
       barracksLevel: 1,
     },
+    cavalry: {
+      cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
+      durationSeconds: 300,
+      peasantOccupancy: 2,
+      strength: 2,
+      carry: 120,
+      roadPercent: 50,
+      barracksLevel: 3,
+    },
   },
   forage: {
     secondsPerProvince: 600,
@@ -385,8 +394,8 @@ describe('JsonBuildingCatalog', () => {
   })
 
   it('reads the infantry terms from the shipped content', () => {
-    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().units).toEqual({
-      infantry: {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().units.infantry).toEqual(
+      {
         cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
         durationSeconds: 90,
         peasantOccupancy: 1,
@@ -395,7 +404,7 @@ describe('JsonBuildingCatalog', () => {
         roadPercent: 100,
         barracksLevel: 1,
       },
-    })
+    )
   })
 
   it('reads the carry, the road percent and the barracks level of the shipped infantry', () => {
@@ -409,10 +418,22 @@ describe('JsonBuildingCatalog', () => {
     })
   })
 
+  it('reads the cavalry terms from the shipped content', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().units.cavalry).toEqual({
+      cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
+      durationSeconds: 300,
+      peasantOccupancy: 2,
+      strength: 2,
+      carry: 120,
+      roadPercent: 50,
+      barracksLevel: 3,
+    })
+  })
+
   it('fails at start-up on unit terms without a carry', () => {
     const directory = withFiefContent((content) => {
       const { carry: _, ...infantryWithoutCarry } = content.units.infantry
-      return { ...content, units: { infantry: infantryWithoutCarry } }
+      return { ...content, units: { ...content.units, infantry: infantryWithoutCarry } }
     })
 
     expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)
@@ -421,7 +442,7 @@ describe('JsonBuildingCatalog', () => {
   it('fails at start-up on a road percent of 0', () => {
     const directory = withFiefContent((content) => ({
       ...content,
-      units: { infantry: { ...content.units.infantry, roadPercent: 0 } },
+      units: { ...content.units, infantry: { ...content.units.infantry, roadPercent: 0 } },
     }))
 
     expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)

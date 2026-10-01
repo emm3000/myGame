@@ -17,6 +17,7 @@ export const ApiErrorKindSchema = z.enum([
   'ArtMaxLevelReached',
   'StudyNotFound',
   'BarracksNotBuilt',
+  'BarracksTooLow',
   'RecruitSlotBusy',
   'RecruitOrderNotFound',
   'PlotHeld',

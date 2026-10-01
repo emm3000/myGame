@@ -157,7 +157,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0 },
+    units: { infantry: 0, cavalry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -1555,7 +1555,7 @@ const tenInfantryForTwoHoursDepartedAt = (departedAt: Instant): AwayMarch => ({
 const marchingFief = (overrides: Partial<StoredFief>): Fief =>
   storedFief({
     address: { kingdom: 1, province: 1, plot: 1 },
-    units: { infantry: 10 },
+    units: { infantry: 10, cavalry: 0 },
     march: tenInfantryForTwoHoursDepartedAt(storedInstant),
     ...overrides,
   })
@@ -1752,7 +1752,7 @@ describe('resolveUpgrade with a march', () => {
 
   it('applies an upgrade, a study, an order and a march ending at one instant in that order', async () => {
     const busyEverywhereFief = storedFief({
-      units: { infantry: 10 },
+      units: { infantry: 10, cavalry: 0 },
       slot: sawmillFinishingAfterHours(1),
       studySlot: smithingStudyFinishingAfterHours(1),
       recruitOrder: orderEndingAfterHours(1),
@@ -1852,7 +1852,7 @@ const campPlotOfProvinceTwo = (tier: CampTier): number => {
 const attackingFief = (tier: CampTier, strength: number): Fief => {
   const dispatched = storedFief({
     address: { kingdom: 1, province: 1, plot: 1 },
-    units: { infantry: 10 },
+    units: { infantry: 10, cavalry: 0 },
   }).dispatchAttack(
     { province: 2, plot: campPlotOfProvinceTwo(tier), infantry: 10 },
     { tier, strength },
@@ -2041,7 +2041,7 @@ describe('resolveUpgrade with an attack', () => {
       storedAt: attacking.storedAt,
       buildingLevels: unbuiltLevels,
       artLevels: { smithing: 0, masonry: 0 },
-      units: { infantry: 10 },
+      units: { infantry: 10, cavalry: 0 },
       slot: { ...sawmillFinishingAfterHours(1), finishesAt: arrival },
       buildQueue: [],
       studySlot: { kind: 'idle' },

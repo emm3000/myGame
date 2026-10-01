@@ -34,6 +34,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
   BarracksNotBuilt: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
+  BarracksTooLow: 'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
   RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   RecruitOrderNotFound: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
@@ -82,6 +83,7 @@ interface UnitLabel {
 
 const units: Readonly<Record<UnitKind, UnitLabel>> = {
   infantry: { singular: 'infante', plural: 'infantes' },
+  cavalry: { singular: 'jinete', plural: 'jinetes' },
 }
 
 const kingdoms: Readonly<Partial<Record<number, string>>> = {

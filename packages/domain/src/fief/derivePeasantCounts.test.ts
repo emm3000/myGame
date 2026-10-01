@@ -78,7 +78,7 @@ const levelsWith = (levels: Partial<FiefBuildingLevels>): FiefBuildingLevels => 
 })
 
 const threeInfantry = (): FiefUnitCounts => {
-  const units = FiefUnitCounts.create({ infantry: 3 })
+  const units = FiefUnitCounts.create({ infantry: 3, cavalry: 0 })
   assert(units.ok)
   return units.value
 }

@@ -408,6 +408,24 @@ describe('the migrations', () => {
     })
   })
 
+  it('stores a cavalry count', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefUnits).values([
+      { fiefId: anasFief.id, kind: 'infantry', count: 3 },
+      { fiefId: anasFief.id, kind: 'cavalry', count: 6 },
+    ])
+
+    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(ana.id)
+
+    expect(
+      restored.ok && {
+        infantry: restored.value?.units.countOf('infantry'),
+        cavalry: restored.value?.units.countOf('cavalry'),
+      },
+    ).toEqual({ infantry: 3, cavalry: 6 })
+  })
+
   it('refuses a second recruit order for one fief', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -1541,5 +1559,54 @@ describe('the battle event migration', () => {
         occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:00:00Z')),
       },
     ])
+  })
+})
+
+describe('the cavalry migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the unit rows stored before the cavalry migration', async () => {
+    await migratedFrom(client, 18, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_units (fief_id, kind, count) VALUES ($1, 'infantry', 12)`,
+        [anasFief.id],
+      )
+      await client.query(
+        `INSERT INTO fief_recruit_orders (fief_id, kind, count, cost_wood, cost_stone, cost_iron, cost_gold, cost_food, per_unit_seconds, started_at)
+         VALUES ($1, 'infantry', 2, 40, 0, 20, 0, 60, 45, '2026-09-22T08:00:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+
+    expect(
+      restored.ok && {
+        infantry: restored.value?.units.countOf('infantry'),
+        cavalry: restored.value?.units.countOf('cavalry'),
+        recruitOrder: restored.value?.recruitOrder,
+      },
+    ).toEqual({
+      infantry: 12,
+      cavalry: 0,
+      recruitOrder: {
+        kind: 'open',
+        unit: 'infantry',
+        count: 2,
+        cost: { wood: 40, stone: 0, iron: 20, gold: 0, food: 60 },
+        perUnitSeconds: 45,
+        startedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
+      },
+    })
   })
 })

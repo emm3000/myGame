@@ -373,6 +373,7 @@ it('marks no army section before the calendar starts', async () => {
 const springAnsweringAShorterInfantry: FiefOverview = {
   ...springShorteningTheLevy,
   recruitTerms: {
+    ...knownFief.recruitTerms,
     infantry: { ...knownFief.recruitTerms.infantry, perUnitSeconds: 34 },
   },
 }

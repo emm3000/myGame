@@ -1,0 +1,1 @@
+ALTER TYPE "public"."unit" ADD VALUE 'cavalry';

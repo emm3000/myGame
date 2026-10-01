@@ -78,7 +78,7 @@ const storedBusyFief: StoredFief = {
     barracks: 0,
   },
   artLevels: { smithing: 2, masonry: 0 },
-  units: { infantry: 4 },
+  units: { infantry: 4, cavalry: 2 },
   slot: {
     kind: 'busy',
     building: 'quarry',
@@ -154,7 +154,7 @@ describe('Fief', () => {
       storedAt,
       buildingLevels,
       artLevels,
-      units: { infantry: units.countOf('infantry') },
+      units: { infantry: units.countOf('infantry'), cavalry: units.countOf('cavalry') },
       slot,
       buildQueue,
       studySlot,
@@ -405,7 +405,7 @@ describe('Fief', () => {
   })
 
   it('refuses a stored unit count that is not a whole count', () => {
-    const restored = Fief.restore({ ...storedBusyFief, units: { infantry: 2.5 } })
+    const restored = Fief.restore({ ...storedBusyFief, units: { infantry: 2.5, cavalry: 0 } })
 
     expect(restored).toEqual({
       ok: false,
@@ -414,7 +414,7 @@ describe('Fief', () => {
   })
 
   it('refuses a stored negative unit count', () => {
-    const restored = Fief.restore({ ...storedBusyFief, units: { infantry: -1 } })
+    const restored = Fief.restore({ ...storedBusyFief, units: { infantry: -1, cavalry: 0 } })
 
     expect(restored).toEqual({
       ok: false,

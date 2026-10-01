@@ -74,6 +74,12 @@ export type DomainError =
   | { readonly kind: 'ArtMaxLevelReached'; readonly art: ArtKind; readonly level: number }
   | { readonly kind: 'StudyNotFound'; readonly art: ArtKind; readonly targetLevel: number }
   | { readonly kind: 'BarracksNotBuilt' }
+  | {
+      readonly kind: 'BarracksTooLow'
+      readonly unit: UnitKind
+      readonly requiredBarracksLevel: number
+      readonly barracksLevel: number
+    }
   | { readonly kind: 'RecruitSlotBusy'; readonly unit: UnitKind }
   | { readonly kind: 'RecruitOrderNotFound'; readonly unit: UnitKind; readonly startedAt: Instant }
   | { readonly kind: 'StayOutOfRange'; readonly stayHours: number }

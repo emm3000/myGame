@@ -44,7 +44,17 @@ const infantry = {
   barracksLevel: 1,
 }
 
-const units = { infantry }
+const cavalry = {
+  cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
+  durationSeconds: 300,
+  peasantOccupancy: 2,
+  strength: 2,
+  carry: 120,
+  roadPercent: 50,
+  barracksLevel: 3,
+}
+
+const units = { infantry, cavalry }
 
 const noYield = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
@@ -272,10 +282,14 @@ describe('FiefContentSchema', () => {
     expect(FiefContentSchema.safeParse(fiefContent({ units: {} })).success).toBe(false)
   })
 
+  it('rejects content without cavalry terms', () => {
+    expect(FiefContentSchema.safeParse(fiefContent({ units: { infantry } })).success).toBe(false)
+  })
+
   it('rejects a unit that occupies no peasants', () => {
     expect(
       FiefContentSchema.safeParse(
-        fiefContent({ units: { infantry: { ...infantry, peasantOccupancy: 0 } } }),
+        fiefContent({ units: { ...units, infantry: { ...infantry, peasantOccupancy: 0 } } }),
       ).success,
     ).toBe(false)
   })
@@ -283,7 +297,7 @@ describe('FiefContentSchema', () => {
   it('rejects a unit that trains in zero seconds', () => {
     expect(
       FiefContentSchema.safeParse(
-        fiefContent({ units: { infantry: { ...infantry, durationSeconds: 0 } } }),
+        fiefContent({ units: { ...units, infantry: { ...infantry, durationSeconds: 0 } } }),
       ).success,
     ).toBe(false)
   })
@@ -330,7 +344,7 @@ describe('FiefContentSchema', () => {
   it('rejects an infantry strength of 0', () => {
     expect(
       FiefContentSchema.safeParse(
-        fiefContent({ units: { infantry: { ...infantry, strength: 0 } } }),
+        fiefContent({ units: { ...units, infantry: { ...infantry, strength: 0 } } }),
       ).success,
     ).toBe(false)
   })
@@ -339,15 +353,16 @@ describe('FiefContentSchema', () => {
     const { carry: _, ...infantryWithoutCarry } = infantry
 
     expect(
-      FiefContentSchema.safeParse(fiefContent({ units: { infantry: infantryWithoutCarry } }))
-        .success,
+      FiefContentSchema.safeParse(
+        fiefContent({ units: { ...units, infantry: infantryWithoutCarry } }),
+      ).success,
     ).toBe(false)
   })
 
   it('rejects a road percent of 0', () => {
     expect(
       FiefContentSchema.safeParse(
-        fiefContent({ units: { infantry: { ...infantry, roadPercent: 0 } } }),
+        fiefContent({ units: { ...units, infantry: { ...infantry, roadPercent: 0 } } }),
       ).success,
     ).toBe(false)
   })
@@ -355,7 +370,7 @@ describe('FiefContentSchema', () => {
   it('rejects a barracks level of 0', () => {
     expect(
       FiefContentSchema.safeParse(
-        fiefContent({ units: { infantry: { ...infantry, barracksLevel: 0 } } }),
+        fiefContent({ units: { ...units, infantry: { ...infantry, barracksLevel: 0 } } }),
       ).success,
     ).toBe(false)
   })

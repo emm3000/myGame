@@ -49,7 +49,10 @@ const catalog: BuildingCatalog = {
 
 const noLoot = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
-const smallCarry: FiefSettings['units'] = { infantry: { ...plainUnits.infantry, carry: 4 } }
+const smallCarry: FiefSettings['units'] = {
+  ...plainUnits,
+  infantry: { ...plainUnits.infantry, carry: 4 },
+}
 
 const tenInfantryForTwoHours: AwayMarch = {
   kind: 'away',
@@ -95,7 +98,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
       barracks: 0,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 10 },
+    units: { infantry: 10, cavalry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },

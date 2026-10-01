@@ -99,7 +99,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: levelsWithBarracks(1),
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0 },
+    units: { infantry: 0, cavalry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -154,7 +154,7 @@ describe('placeRecruitOrder', () => {
       ...catalog,
       fiefSettings: () => ({
         ...fiefSettings,
-        units: { infantry: { ...plainUnits.infantry, durationSeconds: 100 } },
+        units: { ...plainUnits, infantry: { ...plainUnits.infantry, durationSeconds: 100 } },
       }),
     }
 
@@ -500,7 +500,7 @@ describe('placeRecruitOrder across seasons', () => {
       ...seasonalCatalog,
       fiefSettings: () => ({
         ...seasonalSettings,
-        units: { infantry: { ...plainUnits.infantry, durationSeconds: 100 } },
+        units: { ...plainUnits, infantry: { ...plainUnits.infantry, durationSeconds: 100 } },
       }),
     }
 
@@ -565,5 +565,117 @@ describe('placeRecruitOrder across seasons', () => {
     const stored = fiefs.storedFiefOf('lord')
     expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
     expect(stored?.units.countOf('infantry')).toBe(5)
+  })
+})
+
+describe('placeRecruitOrder for riders', () => {
+  it('refuses a rider below barracks level 3', async () => {
+    const lowBarracks = storedFief({ buildingLevels: levelsWithBarracks(2) })
+    const fiefs = inMemoryFiefRepository([lowBarracks])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'cavalry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(
+      err({ kind: 'BarracksTooLow', unit: 'cavalry', requiredBarracksLevel: 3, barracksLevel: 2 }),
+    )
+    expect(fiefs.storedFiefOf('lord')).toBe(lowBarracks)
+  })
+
+  it('refuses an unbuilt barracks before a barracks too low', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ buildingLevels: levelsWithBarracks(0) })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'cavalry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'BarracksNotBuilt' }))
+  })
+
+  it('refuses a barracks too low before a busy recruit slot', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({
+        buildingLevels: levelsWithBarracks(2),
+        recruitOrder: {
+          kind: 'open',
+          unit: 'infantry',
+          count: 1,
+          cost: plainUnits.infantry.cost,
+          perUnitSeconds: 30,
+          startedAt: storedInstant,
+        },
+      }),
+    ])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'cavalry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(
+      err({ kind: 'BarracksTooLow', unit: 'cavalry', requiredBarracksLevel: 3, barracksLevel: 2 }),
+    )
+  })
+
+  it('recruits riders at barracks level 3 in 75 seconds each', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ buildingLevels: levelsWithBarracks(3) })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'cavalry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toEqual({
+      kind: 'open',
+      unit: 'cavalry',
+      count: 1,
+      cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
+      perUnitSeconds: 75,
+      startedAt: storedInstant,
+    })
+  })
+
+  it('trains a rider in 57 seconds in a 75 % spring', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ storedAt: midSpring, buildingLevels: levelsWithBarracks(3) }),
+    ])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'cavalry', count: 1 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSpring) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toMatchObject({ perUnitSeconds: 57 })
+  })
+
+  it('occupies two peasants per rider', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({ buildingLevels: levelsWithBarracks(3) })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'cavalry', count: 2 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 4, freePeasants: 3 }))
+  })
+
+  it('recruits infantry at barracks level 1 as before', async () => {
+    const fiefs = inMemoryFiefRepository([storedFief({})])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('lord')?.recruitOrder).toMatchObject({
+      unit: 'infantry',
+      perUnitSeconds: 45,
+    })
   })
 })
