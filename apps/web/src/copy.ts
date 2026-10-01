@@ -128,19 +128,34 @@ const agreeing = (count: number, singular: string, plural: string): string =>
 const countedUnits = (unit: UnitKind, count: number): string =>
   `${count} ${agreeing(count, units[unit].singular, units[unit].plural)}`
 
-type UnitCounts = Readonly<Record<UnitKind, number>>
+export type UnitCounts = Extract<FiefEvent, { readonly kind: 'battleFought' }>['unitsLost']
 
 const listedUnitsOf = (counts: UnitCounts): ReadonlyArray<string> =>
   UnitKindSchema.options
     .filter((unit) => counts[unit] > 0)
     .map((unit) => countedUnits(unit, counts[unit]))
 
-const firstUnitKind: UnitKind = 'infantry'
-
 const partyPhrase = (counts: UnitCounts): string => {
   const listed = listedUnitsOf(counts)
-  return listed.length === 0 ? countedUnits(firstUnitKind, 0) : listFormat.format(listed)
+  return listed.length === 0
+    ? listFormat.format(UnitKindSchema.options.slice(0, 1).map((unit) => countedUnits(unit, 0)))
+    : listFormat.format(listed)
 }
+
+const sentPartyPhrase = (counts: UnitCounts, sent: UnitCounts): string => {
+  const listed = listedUnitsOf(counts)
+  return listed.length > 0
+    ? listFormat.format(listed)
+    : listFormat.format(
+        UnitKindSchema.options
+          .filter((unit) => sent[unit] > 0)
+          .map((unit) => countedUnits(unit, 0)),
+      )
+}
+
+const emptyParty = `Envía al menos ${new Intl.ListFormat('es', { type: 'disjunction' }).format(
+  UnitKindSchema.options.map((unit) => `un ${units[unit].singular}`),
+)}.`
 
 const lostBeforeCampClause = (unitsLost: UnitCounts): string =>
   listedUnitsOf(unitsLost).length > 1 ? `${partyPhrase(unitsLost)},` : partyPhrase(unitsLost)
@@ -356,19 +371,16 @@ export const copy = {
     lossesHeading: 'Bajas:',
     campLossesHeading: 'Bajas de los bandidos:',
     survivorsHeading: 'Vuelven:',
-    infantry: (count: number): string => countedUnits('infantry', count),
+    party: (counts: UnitCounts, sent: UnitCounts): string => sentPartyPhrase(counts, sent),
     title: (province: number, plot: number): string =>
       `Marcha a provincia ${province}, parcela ${plot}`,
-    atHome: (count: number): string =>
-      `${agreeing(count, units.infantry.singular, units.infantry.plural)} en casa`,
-    infantryField: `${capitalize(units.infantry.plural)} a enviar`,
+    countField: (unit: UnitKind): string => `${capitalize(units[unit].plural)} a enviar`,
     hoursField: 'Horas de forrajeo',
     roadHeading: 'Camino de ida:',
     returnHeading: 'Vuelta en',
     lootHeading: 'Botín:',
     recall: 'Retirar la marcha',
-    recallOf: (infantry: number): string =>
-      `Retirar la marcha: ${countedUnits('infantry', infantry)}`,
+    recallOf: (party: UnitCounts): string => `Retirar la marcha: ${partyPhrase(party)}`,
     loot: (loot: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(loot),
     slot: 'la marcha',
     busySlot: 'una marcha en curso',
@@ -379,18 +391,19 @@ export const copy = {
       returning: 'Marcha de vuelta:',
     },
     phaseLines: {
-      outbound: (infantry: number, province: number, plot: number): string =>
-        `${countedUnits('infantry', infantry)} a provincia ${province}, parcela ${plot}`,
-      foraging: (infantry: number, province: number, plot: number): string =>
-        `${countedUnits('infantry', infantry)} en provincia ${province}, parcela ${plot}`,
-      returning: (infantry: number, province: number, plot: number): string =>
-        `${countedUnits('infantry', infantry)} desde provincia ${province}, parcela ${plot}`,
+      outbound: (party: UnitCounts, province: number, plot: number): string =>
+        `${partyPhrase(party)} a provincia ${province}, parcela ${plot}`,
+      foraging: (party: UnitCounts, province: number, plot: number): string =>
+        `${partyPhrase(party)} en provincia ${province}, parcela ${plot}`,
+      returning: (party: UnitCounts, province: number, plot: number): string =>
+        `${partyPhrase(party)} desde provincia ${province}, parcela ${plot}`,
     },
     marchAway: 'Ya hay una marcha en curso.',
-    invalidInfantry: invalidCount,
+    invalidCount: 'Un número entero, 0 o más.',
+    emptyParty,
     invalidHours: (maxStayHours: number): string => `Un número entero, de 1 a ${maxStayHours}.`,
-    notEnoughAtHome: (needed: number, atHome: number): string =>
-      `Necesitas ${countedUnits('infantry', needed)} en casa y tienes ${atHome}.`,
+    notEnoughAtHome: (unit: UnitKind, needed: number, atHome: number): string =>
+      `Necesitas ${countedUnits(unit, needed)} en casa y tienes ${atHome}.`,
   },
   chronicle: {
     title: 'Crónica',

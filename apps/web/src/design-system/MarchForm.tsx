@@ -1,24 +1,30 @@
+import type { UnitKind } from '@mygame/contracts'
 import { type FormEvent, type ReactElement, useId } from 'react'
 import { cardToneOf } from './CardAction'
 import { NumberField } from './NumberField'
 import { Panel } from './Panel'
 import { type PreviewLine, PreviewLines } from './PreviewLines'
 import { SubmitAction, type SubmitActionState } from './SubmitAction'
-import { UnitCount } from './UnitCount'
+import { UnitCount, type UnitTally } from './UnitCount'
 
 export interface MarchFormField {
   readonly label: string
   readonly entry: string
+  readonly min: number
   readonly max?: number | undefined
   readonly onChange: (entry: string) => void
+}
+
+export interface MarchFormAtHome {
+  readonly unit: UnitKind
+  readonly tally: UnitTally
 }
 
 export interface MarchFormProps {
   readonly title: string
   readonly artSrc?: string | undefined
-  readonly count: number
-  readonly countLabel: string
-  readonly infantry: MarchFormField
+  readonly atHome: ReadonlyArray<MarchFormAtHome>
+  readonly counts: ReadonlyArray<MarchFormField>
   readonly hours?: MarchFormField | undefined
   readonly isFieldDisabled: boolean
   readonly preview: ReadonlyArray<PreviewLine> | undefined
@@ -43,7 +49,7 @@ function Field({
       </label>
       <NumberField
         id={fieldId}
-        min={1}
+        min={field.min}
         max={field.max}
         value={field.entry}
         isDisabled={isDisabled}
@@ -79,11 +85,17 @@ export function MarchForm(props: MarchFormProps): ReactElement {
           <h4 id={titleId} className="m-0 font-display text-title text-ink">
             {props.title}
           </h4>
-          <UnitCount unit="infantry" tallies={[{ count: props.count, label: props.countLabel }]} />
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            {props.atHome.map(({ unit, tally }) => (
+              <UnitCount key={unit} unit={unit} tallies={[tally]} />
+            ))}
+          </span>
         </header>
         <form aria-labelledby={titleId} className="m-0 flex flex-col gap-3" onSubmit={submit}>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
-            <Field field={props.infantry} isDisabled={props.isFieldDisabled} />
+            {props.counts.map((field) => (
+              <Field key={field.label} field={field} isDisabled={props.isFieldDisabled} />
+            ))}
             {props.hours !== undefined && (
               <Field field={props.hours} isDisabled={props.isFieldDisabled} />
             )}

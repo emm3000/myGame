@@ -225,15 +225,15 @@ it('blocks an attack while a march is away', async () => {
   expect(dispatchAttack).not.toHaveBeenCalled()
 })
 
-it('blocks an infantry count that is not a whole count from 1', async () => {
+it('blocks a count that is not a whole number from 0', async () => {
   const dispatchAttack = vi.fn(async () => ({ ok: true, value: fiefWithAttackAway }) as const)
   const form = await openAttackOn(7, { dispatchAttack })
 
-  typeInfantry(form, '0')
+  typeInfantry(form, '-1')
   fireEvent.submit(form)
 
   expect(attackButton(form).getAttribute('aria-label')).toBe(
-    'Atacar el campamento. Un número entero, al menos 1.',
+    'Atacar el campamento. Un número entero, 0 o más.',
   )
   expect(previewOf(form)).toEqual([])
   expect(dispatchAttack).not.toHaveBeenCalled()

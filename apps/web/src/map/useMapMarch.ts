@@ -1,9 +1,12 @@
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
+import { UnitKindSchema } from '@mygame/contracts'
 import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { copy } from '../copy'
 import type { PlotAction } from '../design-system/PlotTile'
+import { byUnitKind } from './byUnitKind'
 import type { MarchEntries, MarchTarget, PlotCamp } from './marchFormOf'
+import { unitsAtHomeOf } from './unitsAtHomeOf'
 import { useMapFief } from './useMapFief'
 import { useMarch } from './useMarch'
 
@@ -20,7 +23,22 @@ export interface MapMarch {
   readonly plotActionOf: (map: ProvinceMap, plot: number) => PlotAction | undefined
 }
 
-const firstEntries: MarchEntries = { infantry: '1', hours: '1' }
+const firstHours = '1'
+
+const firstEntriesOf = (fief: FiefOverview): MarchEntries => {
+  const atHome = unitsAtHomeOf(fief)
+  const kinds = UnitKindSchema.options
+  const firstSentIndex = Math.max(
+    0,
+    kinds.findIndex((unit) => atHome[unit] > 0),
+  )
+  return {
+    units: byUnitKind((unit) => (kinds.indexOf(unit) === firstSentIndex ? '1' : '0')),
+    hours: firstHours,
+  }
+}
+
+const unopenedEntries: MarchEntries = { units: byUnitKind(() => '0'), hours: firstHours }
 
 const isSameTarget = (target: MarchTarget | undefined, map: ProvinceMap, plot: number): boolean =>
   target?.province === map.province && target.plot === plot
@@ -29,7 +47,7 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
   const fief = useMapFief(apiClient)
   const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
   const [chosen, setChosen] = useState<MarchTarget>()
-  const [entries, setEntries] = useState(firstEntries)
+  const [entries, setEntries] = useState(unopenedEntries)
   const [isSent, setIsSent] = useState(false)
   const adoptSent = (answered: FiefOverview): void => {
     fief.adopt(answered)
@@ -46,13 +64,19 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
     }
   }, [shownProvince])
 
-  const toggle = (map: ProvinceMap, plot: number, camp: PlotCamp | null): void => {
+  const toggle = (
+    map: ProvinceMap,
+    plot: number,
+    camp: PlotCamp | null,
+    fiefRead: FiefOverview,
+  ): void => {
     setIsSent(false)
-    setChosen(
-      isSameTarget(target, map, plot)
-        ? undefined
-        : { province: map.province, plot, terrain: map.terrain, camp },
-    )
+    if (isSameTarget(target, map, plot)) {
+      setChosen(undefined)
+      return
+    }
+    setEntries(firstEntriesOf(fiefRead))
+    setChosen({ province: map.province, plot, terrain: map.terrain, camp })
   }
 
   const onSend = (): void => {
@@ -60,7 +84,7 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
       return
     }
     const { province, plot } = target
-    const units = { infantry: Number(entries.infantry), cavalry: 0 }
+    const units = byUnitKind((unit) => Number(entries.units[unit]))
     if (target.camp === null) {
       march.send({ province, plot, units, stayHours: Number(entries.hours) })
       return
@@ -77,7 +101,7 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
       label: camp === null ? copy.march.send : copy.march.attack,
       accessibleName: camp === null ? copy.march.sendTo(plot) : copy.march.attackTo(plot),
       isExpanded: isSameTarget(target, shown, plot),
-      onToggle: () => toggle(shown, plot, camp),
+      onToggle: () => toggle(shown, plot, camp, overview),
     }
   }
 

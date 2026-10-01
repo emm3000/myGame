@@ -1,10 +1,5 @@
-import {
-  type FiefEvent,
-  type ResourceAmounts,
-  type UnitKind,
-  UnitKindSchema,
-} from '@mygame/contracts'
-import { copy, type ResourceQuantity } from '../copy'
+import { type FiefEvent, type ResourceAmounts, UnitKindSchema } from '@mygame/contracts'
+import { copy, type ResourceQuantity, type UnitCounts } from '../copy'
 import type { CardCost } from '../design-system/CostList'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatInstant } from './formatInstant'
@@ -29,7 +24,7 @@ interface ChronicleSubject {
   readonly text: string
 }
 
-const unitCountsIdentityOf = (counts: Readonly<Record<UnitKind, number>>): string =>
+const unitCountsIdentityOf = (counts: UnitCounts): string =>
   UnitKindSchema.options.map((unit) => counts[unit]).join('-')
 
 const subjectOf = (event: FiefEvent): ChronicleSubject => {

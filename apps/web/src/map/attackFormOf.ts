@@ -4,11 +4,16 @@ import { campArtOf } from '../design-system/campArtOf'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
-import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
-import { infantryAtHomeOf } from './infantryAtHomeOf'
+import { atHomeTalliesOf } from './atHomeTalliesOf'
+import { carryOf } from './carryOf'
+import { isEmptyParty } from './isEmptyParty'
 import type { MarchFormContent, PlotCamp } from './marchFormOf'
 import { oneWaySecondsOf } from './oneWaySecondsOf'
+import { partyBattleOf } from './partyBattleOf'
+import { type PartyEntries, partyOf } from './partyOf'
+import { partyReasonOf } from './partyReasonOf'
+import type { UnitCounts } from './unitsAtHomeOf'
 
 export interface AttackTarget {
   readonly province: number
@@ -17,40 +22,16 @@ export interface AttackTarget {
   readonly camp: PlotCamp
 }
 
-interface PreviewedBattle {
-  readonly isWon: boolean
-  readonly infantryLost: number
-  readonly campLost: number
-  readonly survivors: number
-}
-
-function battleOf(infantry: number, campStrength: number, fief: FiefOverview): PreviewedBattle {
-  const { strength } = fief.unitTerms.infantry
-  const ownStrength = infantry * strength
-  if (ownStrength > campStrength) {
-    const infantryLost = Math.min(
-      infantry - 1,
-      Math.ceil((campStrength * campStrength) / (infantry * strength * strength)),
-    )
-    return { isWon: true, infantryLost, campLost: campStrength, survivors: infantry - infantryLost }
-  }
-  const campLost = Math.min(campStrength - 1, Math.ceil((ownStrength * ownStrength) / campStrength))
-  return { isWon: false, infantryLost: infantry, campLost, survivors: 0 }
-}
-
 function lootOf(
   terrain: Terrain,
   campStrength: number,
-  survivors: number,
+  survivors: UnitCounts,
   fief: FiefOverview,
 ): ResourceAmounts {
   const rates = { ...fief.forageTerms.yieldPerHour[terrain], gold: 0 }
   const yielded = Object.values(rates).filter((rate) => rate > 0).length
   const share = Math.floor(
-    Math.min(
-      fief.combatTerms.lootPerStrength * campStrength,
-      fief.unitTerms.infantry.carry * survivors,
-    ) /
+    Math.min(fief.combatTerms.lootPerStrength * campStrength, carryOf(survivors, fief)) /
       (yielded + 1),
   )
   const carried = (rate: number): number => (rate > 0 ? share : 0)
@@ -65,12 +46,12 @@ function lootOf(
 
 function previewOf(
   target: AttackTarget,
-  infantry: number,
+  party: UnitCounts,
   fief: FiefOverview,
 ): ReadonlyArray<PreviewLine> {
-  const oneWaySeconds = oneWaySecondsOf(target, fief)
+  const oneWaySeconds = oneWaySecondsOf(target, party, fief)
   const { tier, strength } = target.camp
-  const battle = battleOf(infantry, strength, fief)
+  const battle = partyBattleOf(party, strength, fief)
   const loot = quantitiesOf(lootOf(target.terrain, strength, battle.survivors, fief))
   const lines: ReadonlyArray<PreviewLine> = [
     { heading: copy.march.roadHeading, value: formatDuration(oneWaySeconds), isNumeral: true },
@@ -91,13 +72,13 @@ function previewOf(
     },
     {
       heading: copy.march.lossesHeading,
-      value: copy.march.infantry(battle.infantryLost),
+      value: copy.march.party(battle.unitsLost, party),
       isNumeral: false,
     },
     { heading: copy.march.campLossesHeading, value: String(battle.campLost), isNumeral: true },
     {
       heading: copy.march.survivorsHeading,
-      value: copy.march.infantry(battle.survivors),
+      value: copy.march.party(battle.survivors, party),
       isNumeral: false,
     },
   ]
@@ -109,35 +90,31 @@ function previewOf(
       ]
 }
 
-function stateOf(infantry: number | undefined, fief: FiefOverview): SubmitActionState {
+function stateOf(party: UnitCounts | undefined, fief: FiefOverview): SubmitActionState {
   if (fief.march !== null) {
     return { kind: 'blocked', reason: copy.march.marchAway }
   }
-  if (infantry === undefined) {
-    return { kind: 'blocked', reason: copy.march.invalidInfantry }
+  if (party === undefined) {
+    return { kind: 'blocked', reason: copy.march.invalidCount }
   }
-  const atHome = infantryAtHomeOf(fief)
-  if (infantry > atHome) {
-    return { kind: 'blocked', reason: copy.march.notEnoughAtHome(infantry, atHome) }
-  }
-  return { kind: 'affordable' }
+  const reason = partyReasonOf(party, fief)
+  return reason === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason }
 }
 
 export function attackFormOf(
   target: AttackTarget,
-  entry: string,
+  entries: PartyEntries,
   fief: FiefOverview,
 ): MarchFormContent {
-  const infantry = recruitCountOf(entry)
-  const atHome = infantryAtHomeOf(fief)
+  const party = partyOf(entries)
   return {
     title: copy.march.attackTitle(target.province, target.plot),
     artSrc: campArtOf(target.camp.tier),
-    count: atHome,
-    countLabel: copy.march.atHome(atHome),
+    atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
-    preview: infantry === undefined ? undefined : previewOf(target, infantry, fief),
+    preview:
+      party === undefined || isEmptyParty(party) ? undefined : previewOf(target, party, fief),
     actionLabel: copy.march.attack,
-    state: stateOf(infantry, fief),
+    state: stateOf(party, fief),
   }
 }

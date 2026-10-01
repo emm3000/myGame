@@ -68,18 +68,14 @@ function lootOf(answered: AnsweredMarch): PreviewLine | null {
 function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
   return {
     label: march.recall,
-    accessibleName: march.recallOf(answered.units.infantry),
+    accessibleName: march.recallOf(answered.units),
     isWaiting: recall.isWaiting,
     onCancel: () => recall.start({ departedAt: answered.departedAt }),
   }
 }
 
 function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
-  const value = march.phaseLines[live.phase](
-    answered.units.infantry,
-    answered.province,
-    answered.plot,
-  )
+  const value = march.phaseLines[live.phase](answered.units, answered.province, answered.plot)
   if (answered.order === 'forage' || answered.recalledAt !== null) {
     return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
   }
