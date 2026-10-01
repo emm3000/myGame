@@ -50,6 +50,7 @@ export const knownFief: FiefOverview = {
     projectedSupplied: 12,
     projectedOccupied: 4,
     projectedFree: 8,
+    lowestFree: 8,
   },
   slot: { kind: 'idle' },
   queue: { entries: [], cap: 4 },

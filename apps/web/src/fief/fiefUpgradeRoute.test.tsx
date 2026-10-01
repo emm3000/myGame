@@ -47,6 +47,7 @@ const sawmillUpgradeUnderWay: FiefOverview = {
     projectedSupplied: 12,
     projectedOccupied: 6,
     projectedFree: 6,
+    lowestFree: 6,
   },
   slot: {
     kind: 'busy',
@@ -216,6 +217,7 @@ it('disables a card the free peasants cannot staff', async () => {
       projectedSupplied: 12,
       projectedOccupied: 10,
       projectedFree: 2,
+      lowestFree: 2,
     },
     buildings: {
       ...knownFief.buildings,
@@ -249,6 +251,7 @@ it('checks a card against the free peasants left after the waiting upgrades', as
       projectedSupplied: 12,
       projectedOccupied: 10,
       projectedFree: 2,
+      lowestFree: 2,
     },
     buildings: {
       ...knownFief.buildings,

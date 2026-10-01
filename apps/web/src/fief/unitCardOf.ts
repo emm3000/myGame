@@ -32,9 +32,6 @@ const costTimes = (cost: ResourceCost, count: number): ResourceCost => ({
   food: cost.food * count,
 })
 
-const freePeasantsOf = ({ peasants }: LiveFief['overview']): number =>
-  Math.min(peasants.free, peasants.projectedFree)
-
 function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): SubmitActionState {
   if (fief.overview.recruitOrder !== null) {
     return { kind: 'blocked', reason: copy.army.orderRunning }
@@ -44,7 +41,7 @@ function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): Sub
   }
   const terms = fief.overview.recruitTerms[unit]
   const neededPeasants = terms.peasants * count
-  const freePeasants = freePeasantsOf(fief.overview)
+  const freePeasants = fief.overview.peasants.lowestFree
   if (neededPeasants > freePeasants) {
     return { kind: 'blocked', reason: copy.fief.notEnoughPeasants(neededPeasants, freePeasants) }
   }
@@ -70,7 +67,7 @@ function costsOf(
     {
       kind: 'peasants',
       amount: neededPeasants,
-      isShort: neededPeasants > freePeasantsOf(fief.overview),
+      isShort: neededPeasants > fief.overview.peasants.lowestFree,
     },
   ]
 }

@@ -170,6 +170,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
     projectedSupplied: 17,
     projectedOccupied: 14,
     projectedFree: 3,
+    lowestFree: 2,
   },
   slot,
   queue: { entries: [waitingQuarry], cap: 4 },
@@ -234,6 +235,16 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.safeParse(negativeOccupancyOverview).success).toBe(false)
+  })
+
+  it('rejects an overview without the lowest free peasants across the schedule', () => {
+    const busyOverview = overviewWithSlot(busySlot)
+    const { lowestFree: _, ...peasantsWithoutLowest } = busyOverview.peasants as {
+      lowestFree: number
+    }
+    const overviewWithoutLowest = { ...busyOverview, peasants: peasantsWithoutLowest }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutLowest).success).toBe(false)
   })
 
   it('rejects a negative build queue cap', () => {
