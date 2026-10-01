@@ -431,3 +431,30 @@ spans every kind's strength. Nothing else here changes: the camps, their
 hash, tiers and regrowth, the strength fixed at dispatch, the battle at
 the arrival, the recall only outbound and the eight event kinds stand,
 and no season touches combat.
+
+## Second amendment (2026-10-01)
+
+S17 (ADR 022) supersedes "the road stays as ADR 019 timed it" in the
+decision "No PvP, no scouting, no season": the road to a camp takes the
+season. `Fief.dispatchAttack` times it through the same
+`Fief.oneWaySecondsTo` a forage march uses, with the season's road
+percent in force at the one instant `dispatchAttack` takes from the
+`Clock`: `ceil(base × kindRoadPercent × road / 10 000)`, `road` 75 in
+autumn and 100 in every other season as shipped (ADR 017 as amended, ADR
+021 as amended). The road is fixed at dispatch and stored as
+`oneWaySeconds`, out and back, so an attack sent in autumn reaches its
+battle sooner and an attack that spans a season boundary keeps its road.
+
+The battle and the loot read no season, as before. `battleOf`,
+`attackLootOf` and `campStrengthAt` take none, the camp's strength is
+still the one fixed at dispatch, and autumn's gold percent does not reach
+the hoard: with the shipped content 10 infantry against a tier 1 camp at
+6 lose 4 and bring 96 of each of three resources in every season. An
+attack stores on its march the `lootPercent` a forage march stores (ADR
+019 as amended), which no attack loot reads. The attack form marks its
+road line in autumn and never its loot.
+
+Nothing else here changes: the camps, their hash, tiers and regrowth,
+the whole outcome fixed at dispatch, the battle at the arrival, the
+recall only outbound and the eight event kinds stand. "No season touches
+combat" stands, and a season on combat stays out of scope.

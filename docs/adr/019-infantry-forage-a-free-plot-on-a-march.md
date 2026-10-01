@@ -496,3 +496,54 @@ one march at a time, the reach and the target checks, the stay, the
 loot fixed at dispatch, the units away still counted and occupying their
 peasants, the three phases, the recall and the resolve's tie order
 stand, and no season slows the road.
+
+## Fourth amendment (2026-10-01)
+
+S17 (ADR 022) supersedes "No season slows the road (ADR 016, ADR 017
+untouched)" in the decision "The road is timed by the map" and "No season
+touches the road or the forage" in the decision "No combat, no recall, no
+season", and lifts "a season on the road or the forage" from the
+considered options, from the out-of-scope line of the Consequences, from
+"Combat and seasons stay out" and the closing lines of the first
+amendment and from the closing line of the third: the season in force at
+dispatch scales the road and the forage loot. The owner grilled it on
+2026-10-01 (#365); this records what S17 shipped, PRs #373 to #376.
+
+The road is `ceil(base × percent × road / 10 000)`: `base` and `percent`
+as the third amendment left them and `road` the season's road percent in
+content, 75 in autumn and 100 in every other season as shipped, in one
+`ceil`. The loot of a resource the terrain yields is `min(floor(heads ×
+rate × milliseconds × lootPercent / (3 600 000 × 100)), floor(Σ nₖ ×
+carryₖ / yielded))`: `lootPercent` the season's `multiplierPercent` for
+that resource (ADR 016), 125 for spring food and 75 for winter food as
+shipped, in one `floor`, the carry share still the cap and gold still
+never foraged. The decision's sentence that `marchOneWaySeconds` and
+`forageLootOf` read no clock and no season is left as written: they
+still read no clock and no calendar, and take the season's percents as
+arguments, which the `dispatchMarch` use case reads at its one
+`clock.now()` and hands to `Fief.dispatchMarch`.
+
+Both are fixed at dispatch and never retimed. The road is stored as
+`oneWaySeconds` and the loot as `loot`, as before, so the instants, the
+phases and the resolve read them with no change, and a march that spans
+a season boundary keeps its road, its return and its loot. `AwayMarch`
+gains `lootPercent`, the whole percent per resource the dispatch took,
+and the recall of the first amendment scales its partial loot by it: the
+percents of the dispatch, whatever season the recall falls in.
+`Fief.restore` refuses a stored percent that is fractional or below 1 as
+`InvalidLootPercent { resource, percent }`, a new member of
+`DomainError`. Migration 0020 adds `loot_percent_wood` to
+`loot_percent_food` to `fief_marches`, each checked from 1 and 100 on
+every march stored before it. With the shipped content twelve infantry on
+the lowlands for two hours bring 72 wood and 72 food in summer and
+autumn, 72 and 90 in spring and 72 and 54 in winter; on the uplands, the
+72 wood and 72 stone of the decision in every season; sent in spring and
+recalled half an hour into the stay after summer began, 18 wood and 22
+food.
+
+Nothing else here changes: one march at a time, the reach and the target
+checks, the stay of whole hours, the units away still counted, the three
+phases, the rules of the recall, the resolve's tie order and the wire's
+`march` stand. Before the calendar's epoch every percent is 100. A road
+or a loot that follows the season after dispatch, winter lengthening the
+road and a season on the stay hours stay out.
