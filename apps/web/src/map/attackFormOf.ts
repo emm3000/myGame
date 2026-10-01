@@ -14,6 +14,7 @@ import { oneWaySecondsOf } from './oneWaySecondsOf'
 import { partyBattleOf } from './partyBattleOf'
 import { type PartyEntries, partyOf } from './partyOf'
 import { partyReasonOf } from './partyReasonOf'
+import { roadMarksOf } from './roadMarksOf'
 
 export interface AttackTarget {
   readonly province: number
@@ -54,7 +55,12 @@ function previewOf(
   const battle = partyBattleOf(party, strength, fief)
   const loot = quantitiesOf(lootOf(target.terrain, strength, battle.survivors, fief))
   const lines: ReadonlyArray<PreviewLine> = [
-    { heading: copy.march.roadHeading, value: formatDuration(oneWaySeconds), isNumeral: true },
+    {
+      heading: copy.march.roadHeading,
+      value: formatDuration(oneWaySeconds),
+      isNumeral: true,
+      marks: roadMarksOf(fief),
+    },
     {
       heading: copy.march.returnHeading,
       value: formatDuration(2 * oneWaySeconds),
