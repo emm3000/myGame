@@ -546,14 +546,20 @@ describe('the migrations', () => {
     })
   })
 
-  it('refuses a loot percent of 0', async () => {
+  it.each([
+    ['wood', { lootPercentWood: 0 }],
+    ['stone', { lootPercentStone: 0 }],
+    ['iron', { lootPercentIron: 0 }],
+    ['gold', { lootPercentGold: 0 }],
+    ['food', { lootPercentFood: 0 }],
+  ])('refuses a %s loot percent of 0', async (resource, zeroPercent) => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
 
     await expect(
-      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), lootPercentFood: 0 }),
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), ...zeroPercent }),
     ).rejects.toMatchObject({
-      cause: { code: checkViolation, constraint: 'fief_marches_loot_percent_food_positive' },
+      cause: { code: checkViolation, constraint: `fief_marches_loot_percent_${resource}_positive` },
     })
   })
 

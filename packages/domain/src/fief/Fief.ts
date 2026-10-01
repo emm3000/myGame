@@ -3,7 +3,7 @@ import { type Battle, battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
-import type { AttackedCamp, AttackMarch, AwayMarch, March } from '../march/March'
+import type { AttackedCamp, AttackMarch, AwayMarch, LootPercent, March } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import { marchPhaseAt } from '../march/marchPhaseAt'
@@ -19,6 +19,7 @@ import type {
 } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
+import { resourceKinds } from '../resources/resourceKinds'
 import { Duration } from '../time/Duration'
 import { Instant } from '../time/Instant'
 import { artKinds } from './artKinds'
@@ -100,6 +101,11 @@ export type AttackOrder = {
 export type MarchTerms = Pick<FiefSettings, 'forage' | 'units'>
 
 export type AttackTerms = Pick<FiefSettings, 'forage' | 'camps' | 'units'>
+
+export type MarchSeason = {
+  readonly roadPercent: number
+  readonly lootPercent: LootPercent
+}
 
 const debit = (stocks: Stocks, cost: Stocks): Stocks => ({
   wood: stocks.wood - cost.wood,
@@ -278,6 +284,14 @@ const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
   return ok(undefined)
 }
 
+const refuseInvalidLootPercent = (lootPercent: LootPercent): Result<void, DomainError> => {
+  const resource = resourceKinds.find((kind) => !isUnitCount(lootPercent[kind]))
+  if (resource !== undefined) {
+    return err({ kind: 'InvalidLootPercent', resource, percent: lootPercent[resource] })
+  }
+  return ok(undefined)
+}
+
 const validateMarch = (march: March, storedAt: Instant): Result<void, DomainError> => {
   if (march.kind === 'idle') {
     return ok(undefined)
@@ -304,15 +318,11 @@ const validateMarch = (march: March, storedAt: Instant): Result<void, DomainErro
   if (returnsAt.epochMilliseconds < storedAt.epochMilliseconds) {
     return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: returnsAt })
   }
-  return refuseNegativeAmount(march.loot)
-}
-
-const unscaledLootPercent: Readonly<Record<ResourceKind, number>> = {
-  wood: 100,
-  stone: 100,
-  iron: 100,
-  gold: 100,
-  food: 100,
+  const loot = refuseNegativeAmount(march.loot)
+  if (!loot.ok) {
+    return loot
+  }
+  return refuseInvalidLootPercent(march.lootPercent)
 }
 
 const timesCount = (cost: Stocks, count: number): Stocks => ({
@@ -853,7 +863,12 @@ export class Fief {
     return this.refuseBusyMarchSlot()
   }
 
-  dispatchMarch(order: MarchOrder, now: Instant, terms: MarchTerms): Result<Fief, DomainError> {
+  dispatchMarch(
+    order: MarchOrder,
+    now: Instant,
+    terms: MarchTerms,
+    season: MarchSeason,
+  ): Result<Fief, DomainError> {
     const room = this.roomForMarch(order, terms.forage.maxStayHours)
     if (!room.ok) {
       return room
@@ -873,9 +888,9 @@ export class Fief {
           units,
           stayHours,
           departedAt: now,
-          oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms),
-          loot: forageLootOf(terrainOf(province), units, stayHours, terms),
-          lootPercent: unscaledLootPercent,
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms, season.roadPercent),
+          loot: forageLootOf(terrainOf(province), units, stayHours, terms, season.lootPercent),
+          lootPercent: season.lootPercent,
         },
       }),
     )
@@ -886,6 +901,7 @@ export class Fief {
     camp: AttackedCamp,
     now: Instant,
     terms: AttackTerms,
+    season: MarchSeason,
   ): Result<Fief, DomainError> {
     const room = this.roomForAttack(order)
     if (!room.ok) {
@@ -907,9 +923,9 @@ export class Fief {
           units,
           stayHours: 0,
           departedAt: now,
-          oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms),
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms, season.roadPercent),
           loot: attackLootOf(terrainOf(province), camp.strength, survivors, terms),
-          lootPercent: unscaledLootPercent,
+          lootPercent: season.lootPercent,
           camp,
           fought: false,
         },
@@ -940,6 +956,7 @@ export class Fief {
             march.units,
             foragedMilliseconds,
             terms,
+            march.lootPercent,
           ),
         },
       }),
@@ -1086,12 +1103,14 @@ export class Fief {
     plot: number,
     units: UnitCountsByKind,
     terms: MarchTerms,
+    roadPercent: number,
   ): number {
     return marchOneWaySeconds(
       this.coordinates,
       { kingdom: this.coordinates.kingdom, province, plot },
       units,
       terms,
+      roadPercent,
     )
   }
 

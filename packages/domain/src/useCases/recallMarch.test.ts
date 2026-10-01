@@ -8,11 +8,13 @@ import { err } from '../Result'
 import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
 import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
 import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
+import { dispatchMarch } from './dispatchMarch'
 import { recallMarch } from './recallMarch'
 import { resolveUpgrade } from './resolveUpgrade'
 
@@ -355,5 +357,92 @@ describe('recallMarch with a party of several kinds', () => {
 
     assert(result.ok)
     expect(recalledMarchOf(dependencies).loot).toEqual({ ...noLoot, wood: 27, stone: 27 })
+  })
+})
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const secondsAfter = (instant: Instant, seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
+
+const unscaled = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+const seasonalCatalog: BuildingCatalog = {
+  ...catalog,
+  fiefSettings: () => ({
+    ...fiefSettings,
+    seasons: {
+      ...neutralSeasons,
+      epoch: seasonEpoch,
+      multiplierPercent: {
+        spring: { ...unscaled, food: 125 },
+        summer: unscaled,
+        autumn: { ...unscaled, gold: 125 },
+        winter: { ...unscaled, food: 75 },
+      },
+    },
+  }),
+}
+
+describe('recallMarch across seasons', () => {
+  it('recalls with the loot percents of the dispatch, not of the recall', async () => {
+    const lateSpring = secondsAfter(daysAfterSeasonEpoch(7), -300)
+    const home = { kingdom: 1, province: 3, plot: 12 }
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ address: home, units: { infantry: 12, cavalry: 0 }, march: { kind: 'idle' } }),
+    ])
+    await dispatchMarch(
+      {
+        playerId: 'lord',
+        province: 4,
+        plot: 12,
+        units: { infantry: 12, cavalry: 0 },
+        stayHours: 2,
+      },
+      {
+        fiefs,
+        map: inMemoryKingdomMap([{ playerId: 'lord', name: 'Vado Viejo', address: home }]),
+        catalog: seasonalCatalog,
+        clock: frozenClock(lateSpring),
+      },
+    )
+
+    await recallMarch(
+      { playerId: 'lord', departedAt: lateSpring },
+      {
+        fiefs,
+        catalog: seasonalCatalog,
+        clock: frozenClock(secondsAfter(lateSpring, 600 + 1_800)),
+      },
+    )
+
+    const march = fiefs.storedFiefOf('lord')?.march
+    assert(march?.kind === 'away')
+    expect(march.loot).toEqual({ ...noLoot, wood: 18, food: 22 })
+  })
+
+  it('floors the scaled partial loot once', async () => {
+    const oneInfantryInSpring: AwayMarch = {
+      ...tenInfantryForTwoHours,
+      province: 4,
+      plot: 12,
+      units: { infantry: 1, cavalry: 0 },
+      oneWaySeconds: 600,
+      loot: { ...noLoot, wood: 6, food: 7 },
+      lootPercent: { ...unscaled, food: 125 },
+    }
+    const dependencies = dependenciesAt(
+      600 + 3_000,
+      storedFief({ units: { infantry: 1, cavalry: 0 }, march: oneInfantryInSpring }),
+    )
+
+    await recallMarch(recall, dependencies)
+
+    expect(recalledMarchOf(dependencies).loot).toEqual({ ...noLoot, wood: 2, food: 3 })
   })
 })

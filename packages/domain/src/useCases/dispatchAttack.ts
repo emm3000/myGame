@@ -10,6 +10,7 @@ import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import type { KingdomMapReader } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
+import { marchSeasonAt } from '../season/marchSeasonAt'
 
 export type DispatchAttackCommand = AttackOrder & {
   readonly playerId: PlayerId
@@ -53,7 +54,13 @@ export const dispatchAttack = async (
   const now = clock.now()
   const lastBattle = await camps.lastBattleOf(address)
   const strength = campStrengthAt(settings.camps.tiers[camp.tier], lastBattle, now)
-  const attacking = fief.dispatchAttack(command, { tier: camp.tier, strength }, now, settings)
+  const attacking = fief.dispatchAttack(
+    command,
+    { tier: camp.tier, strength },
+    now,
+    settings,
+    marchSeasonAt(now, settings),
+  )
   if (!attacking.ok) {
     return attacking
   }

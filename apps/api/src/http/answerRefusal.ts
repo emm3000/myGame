@@ -117,6 +117,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   PlotHasCamp: { status: 409, kind: 'PlotHasCamp' },
   PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
   InvalidCamp: internalFailure,
+  InvalidLootPercent: internalFailure,
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {

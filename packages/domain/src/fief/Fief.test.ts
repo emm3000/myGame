@@ -261,6 +261,22 @@ describe('Fief', () => {
     expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
   })
 
+  it('refuses a stored march whose loot percent is below one or fractional', () => {
+    const none = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, lootPercent: { ...awayMarch.lootPercent, iron: 0 } },
+    })
+    const fractional = Fief.restore({
+      ...storedBusyFief,
+      march: { ...awayMarch, lootPercent: { ...awayMarch.lootPercent, food: 12.5 } },
+    })
+
+    expect([none, fractional]).toEqual([
+      err({ kind: 'InvalidLootPercent', resource: 'iron', percent: 0 }),
+      err({ kind: 'InvalidLootPercent', resource: 'food', percent: 12.5 }),
+    ])
+  })
+
   it('refuses a stored march that returned before the fief was stored', () => {
     const returnsAt = Instant.fromEpochMilliseconds(86_399_000)
     const returnedBefore = Fief.restore({

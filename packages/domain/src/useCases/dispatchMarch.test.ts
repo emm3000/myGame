@@ -3,6 +3,7 @@ import { campOf } from '../camp/campOf'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -646,5 +647,106 @@ describe('dispatchMarch with a party of several kinds', () => {
     expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
       loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
     })
+  })
+})
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const secondsAfter = (instant: Instant, seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
+
+const unscaled = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+const seasonalCatalog: BuildingCatalog = {
+  ...catalog,
+  fiefSettings: () => ({
+    ...fiefSettings,
+    seasons: {
+      ...neutralSeasons,
+      epoch: seasonEpoch,
+      multiplierPercent: {
+        ...neutralSeasons.multiplierPercent,
+        spring: { ...unscaled, food: 125 },
+        autumn: { ...unscaled, gold: 125 },
+        winter: { ...unscaled, food: 75 },
+      },
+      durationPercent: {
+        ...neutralSeasons.durationPercent,
+        autumn: { ...neutralSeasons.durationPercent.autumn, road: 75 },
+      },
+    },
+  }),
+}
+
+const homeOnTheMiddleRoad: HeldPlot = {
+  ...lordPlot,
+  address: { kingdom: 1, province: 3, plot: 12 },
+}
+
+const twelveInfantryToTheLowlands = {
+  playerId: 'lord',
+  province: 4,
+  plot: 12,
+  units: { infantry: 12, cavalry: 0 },
+  stayHours: 2,
+}
+
+const seasonalDependencies = (now: Instant) => ({
+  fiefs: inMemoryFiefRepository([
+    storedFief({ address: homeOnTheMiddleRoad.address, units: { infantry: 12, cavalry: 0 } }),
+  ]),
+  map: inMemoryKingdomMap([homeOnTheMiddleRoad]),
+  catalog: seasonalCatalog,
+  clock: frozenClock(now),
+})
+
+describe('dispatchMarch across seasons', () => {
+  it('fixes the road and the loot with the season in force at dispatch', async () => {
+    const inSpring = seasonalDependencies(daysAfterSeasonEpoch(3))
+    const inAutumn = seasonalDependencies(daysAfterSeasonEpoch(17))
+
+    await dispatchMarch(twelveInfantryToTheLowlands, inSpring)
+    await dispatchMarch(twelveInfantryToTheLowlands, inAutumn)
+
+    expect(inSpring.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      oneWaySeconds: 600,
+      loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 90 },
+      lootPercent: { ...unscaled, food: 125 },
+    })
+    expect(inAutumn.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      oneWaySeconds: 450,
+      loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 72 },
+      lootPercent: { ...unscaled, gold: 125 },
+    })
+  })
+
+  it('reads every percent as 100 before the epoch', async () => {
+    const dependencies = seasonalDependencies(daysAfterSeasonEpoch(-3))
+
+    await dispatchMarch(twelveInfantryToTheLowlands, dependencies)
+
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      oneWaySeconds: 600,
+      loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 72 },
+      lootPercent: unscaled,
+    })
+  })
+
+  it('keeps the road and the return of a march across a season boundary', async () => {
+    const lateSummer = secondsAfter(daysAfterSeasonEpoch(14), -60)
+    const dependencies = seasonalDependencies(lateSummer)
+
+    await dispatchMarch(twelveInfantryToTheLowlands, dependencies)
+
+    const march = dependencies.fiefs.storedFiefOf('lord')?.march
+    assert(march !== undefined && march.kind === 'away')
+    expect(march.oneWaySeconds).toBe(600)
+    expect(march.loot).toEqual({ wood: 72, stone: 0, iron: 0, gold: 0, food: 72 })
+    expect(marchInstantsOf(march).returnsAt).toEqual(secondsAfter(lateSummer, 8_400))
   })
 })
