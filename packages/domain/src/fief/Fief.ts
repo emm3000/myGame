@@ -13,7 +13,6 @@ import type {
   BuildingCatalog,
   BuildingKind,
   FiefSettings,
-  ForageTerms,
   UnitKind,
   UnitTerms,
 } from '../ports/BuildingCatalog'
@@ -36,6 +35,7 @@ import type { FiefEvent } from './FiefEvent'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
 import { FiefUnitCounts, type UnitCountsByKind } from './FiefUnitCounts'
+import { infantryAlone } from './infantryAlone'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
@@ -44,6 +44,7 @@ import { recruitOrderEndsAt } from './recruitOrderEndsAt'
 import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
+import { unitKinds } from './unitKinds'
 
 export type Stocks = Readonly<Record<ResourceKind, number>>
 
@@ -862,8 +863,8 @@ export class Fief {
           infantry,
           stayHours,
           departedAt: now,
-          oneWaySeconds: this.oneWaySecondsTo(province, plot, terms.forage),
-          loot: forageLootOf(terrainOf(province), infantry, stayHours, terms),
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, infantryAlone(infantry), terms),
+          loot: forageLootOf(terrainOf(province), infantryAlone(infantry), stayHours, terms),
         },
       }),
     )
@@ -884,7 +885,7 @@ export class Fief {
     if (!atHome.ok) {
       return atHome
     }
-    const { survivors } = battleOf(infantry, camp.strength, terms.units.infantry.strength)
+    const { survivors } = battleOf(infantryAlone(infantry), camp.strength, terms.units)
     return ok(
       this.changed({
         march: {
@@ -895,7 +896,7 @@ export class Fief {
           infantry,
           stayHours: 0,
           departedAt: now,
-          oneWaySeconds: this.oneWaySecondsTo(province, plot, terms.forage),
+          oneWaySeconds: this.oneWaySecondsTo(province, plot, infantryAlone(infantry), terms),
           loot: attackLootOf(terrainOf(province), camp.strength, survivors, terms),
           camp,
           fought: false,
@@ -924,7 +925,7 @@ export class Fief {
           recalledAt: now,
           loot: forageLootOfMilliseconds(
             terrainOf(march.province),
-            march.infantry,
+            infantryAlone(march.infantry),
             foragedMilliseconds,
             terms,
           ),
@@ -1004,10 +1005,10 @@ export class Fief {
     return this.changed({
       stocks: stocksAtArrival,
       storedAt: arrivesAt,
-      units: units.minus('infantry', battle.infantryLost),
+      units: unitKinds.reduce((left, unit) => left.minus(unit, battle.unitsLost[unit]), units),
       recruitOrder,
       march: battle.won
-        ? { ...attack, infantry: battle.survivors, fought: true }
+        ? { ...attack, infantry: battle.survivors.infantry, fought: true }
         : { kind: 'idle' },
     })
   }
@@ -1063,11 +1064,17 @@ export class Fief {
       : ok(undefined)
   }
 
-  private oneWaySecondsTo(province: number, plot: number, forage: ForageTerms): number {
+  private oneWaySecondsTo(
+    province: number,
+    plot: number,
+    units: UnitCountsByKind,
+    terms: MarchTerms,
+  ): number {
     return marchOneWaySeconds(
       this.coordinates,
       { kingdom: this.coordinates.kingdom, province, plot },
-      forage,
+      units,
+      terms,
     )
   }
 
