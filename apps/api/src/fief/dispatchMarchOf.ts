@@ -26,7 +26,7 @@ export const dispatchMarchOf = async (
           playerId,
           province: request.province,
           plot: request.plot,
-          units: { infantry: request.infantry, cavalry: 0 },
+          units: request.units,
           stayHours: request.stayHours,
         },
         { fiefs, map: dependencies.map, catalog: dependencies.buildingCatalog, clock },

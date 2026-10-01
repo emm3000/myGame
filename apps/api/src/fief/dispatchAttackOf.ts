@@ -26,7 +26,7 @@ export const dispatchAttackOf = async (
           playerId,
           province: request.province,
           plot: request.plot,
-          units: { infantry: request.infantry, cavalry: 0 },
+          units: request.units,
         },
         { fiefs, map: dependencies.map, camps, catalog: dependencies.buildingCatalog, clock },
       ),

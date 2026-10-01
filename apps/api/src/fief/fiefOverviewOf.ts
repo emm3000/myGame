@@ -128,7 +128,7 @@ const awayMarchOf = (march: AwayMarch): MarchState => {
     province: march.province,
     plot: march.plot,
     terrain: terrainOf(march.province),
-    infantry: march.units.infantry,
+    units: { ...march.units },
     departedAt: isoOf(march.departedAt),
     oneWaySeconds: march.oneWaySeconds,
     loot: { ...march.loot },

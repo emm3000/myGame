@@ -204,7 +204,7 @@ it('shows the plot, the infantry and the loot of a returned march', async () => 
         kind: 'marchReturned',
         province: 2,
         plot: 5,
-        infantry: 10,
+        units: { infantry: 10, cavalry: 0 },
         loot: { ...noRefund, wood: 200, stone: 200 },
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: false,
@@ -227,7 +227,7 @@ it('agrees the unit label with one infantry', async () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        infantry: 1,
+        units: { infantry: 1, cavalry: 0 },
         loot: { ...noRefund, wood: 6, stone: 6 },
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: false,
@@ -245,7 +245,7 @@ it('leaves out a resource the loot does not hold', async () => {
         kind: 'marchReturned',
         province: 1,
         plot: 3,
-        infantry: 12,
+        units: { infantry: 12, cavalry: 0 },
         loot: { ...noRefund, wood: 72, food: 72 },
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: false,
@@ -264,7 +264,7 @@ it('leaves out the loot sentence of a march that brought nothing', async () => {
         kind: 'marchReturned',
         province: 1,
         plot: 3,
-        infantry: 12,
+        units: { infantry: 12, cavalry: 0 },
         loot: noRefund,
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: false,
@@ -283,7 +283,7 @@ it('shows a recalled march with the loot it brought', async () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        infantry: 12,
+        units: { infantry: 12, cavalry: 0 },
         loot: { ...noRefund, wood: 18, stone: 18 },
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: true,
@@ -304,7 +304,7 @@ it('shows a march recalled on the way out with no loot', async () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        infantry: 12,
+        units: { infantry: 12, cavalry: 0 },
         loot: noRefund,
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: true,
@@ -323,7 +323,7 @@ it('shows an unrecalled march as before', async () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        infantry: 12,
+        units: { infantry: 12, cavalry: 0 },
         loot: { ...noRefund, wood: 72, stone: 72 },
         occurredAt: '2026-09-22T11:00:00.000Z',
         recalled: false,
@@ -345,7 +345,7 @@ it('shows a won battle with the losses on each side', async () => {
         plot: 7,
         tier: 1,
         won: true,
-        infantryLost: 3,
+        unitsLost: { infantry: 3, cavalry: 0 },
         campLost: 6,
         occurredAt: '2026-09-22T11:00:00.000Z',
       },
@@ -367,7 +367,7 @@ it('shows a lost battle', async () => {
         plot: 7,
         tier: 2,
         won: false,
-        infantryLost: 12,
+        unitsLost: { infantry: 12, cavalry: 0 },
         campLost: 10,
         occurredAt: '2026-09-22T11:00:00.000Z',
       },
@@ -389,7 +389,7 @@ it('agrees the unit label with one infantry lost', async () => {
         plot: 7,
         tier: 3,
         won: true,
-        infantryLost: 1,
+        unitsLost: { infantry: 1, cavalry: 0 },
         campLost: 40,
         occurredAt: '2026-09-22T11:00:00.000Z',
       },
@@ -397,6 +397,136 @@ it('agrees the unit label with one infantry lost', async () => {
   })
 
   expect(row?.textContent).toContain('Pierdes 1 infante y los bandidos pierden 40 de fuerza.')
+})
+
+it('names infantry and riders in a return line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 12, cavalry: 6 },
+        loot: { ...noRefund, wood: 108, stone: 108 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Marcha terminada: provincia 2, parcela 7, 12 infantes y 6 jinetes.',
+  )
+})
+
+it('leaves out the infantry of a return of riders alone', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 0, cavalry: 1 },
+        loot: { ...noRefund, wood: 40, stone: 40, gold: 40 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Marcha terminada: provincia 2, parcela 7, 1 jinete.')
+})
+
+it('names the riders lost in a battle line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 2,
+        won: false,
+        unitsLost: { infantry: 0, cavalry: 7 },
+        campLost: 14,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Batalla perdida: provincia 2, parcela 7, campamento de nivel 2. Pierdes 7 jinetes y los bandidos pierden 14 de fuerza.',
+  )
+})
+
+it('sets a comma before the second y when both kinds fall', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        unitsLost: { infantry: 2, cavalry: 2 },
+        campLost: 6,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Pierdes 2 infantes y 2 jinetes, y los bandidos pierden 6 de fuerza.',
+  )
+})
+
+it('reads a battle that lost no one with the infantry at 0', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        unitsLost: { infantry: 0, cavalry: 0 },
+        campLost: 1,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Pierdes 0 infantes y los bandidos pierden 1 de fuerza.')
+})
+
+it('reads an infantry-only line as before', async () => {
+  const [returned, battle] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 9, cavalry: 0 },
+        loot: { ...noRefund, wood: 120, stone: 120, gold: 120 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
+      },
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        unitsLost: { infantry: 3, cavalry: 0 },
+        campLost: 6,
+        occurredAt: '2026-09-22T10:45:00.000Z',
+      },
+    ],
+  })
+
+  expect(returned?.textContent).toContain('Marcha terminada: provincia 2, parcela 7, 9 infantes.')
+  expect(battle?.textContent).toContain(
+    'Batalla ganada: provincia 2, parcela 7, campamento de nivel 1. Pierdes 3 infantes y los bandidos pierden 6 de fuerza.',
+  )
 })
 
 it('shows each event at the instant it happened', async () => {

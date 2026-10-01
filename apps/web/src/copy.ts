@@ -7,6 +7,7 @@ import type {
   Terrain,
   UnitKind,
 } from '@mygame/contracts'
+import { UnitKindSchema } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { capitalize } from './design-system/capitalize'
 import { formatDuration } from './design-system/formatDuration'
@@ -41,7 +42,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
   PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
   MarchToOwnPlot: 'Esa parcela es tu feudo. Envía la marcha a otra.',
-  NotEnoughInfantryAtHome: 'No tienes infantes en casa suficientes para esa marcha.',
+  NotEnoughUnitsAtHome: 'No tienes en casa los hombres que pide esa marcha. Ajusta la marcha.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
   StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
@@ -126,6 +127,23 @@ const agreeing = (count: number, singular: string, plural: string): string =>
 
 const countedUnits = (unit: UnitKind, count: number): string =>
   `${count} ${agreeing(count, units[unit].singular, units[unit].plural)}`
+
+type UnitCounts = Readonly<Record<UnitKind, number>>
+
+const listedUnitsOf = (counts: UnitCounts): ReadonlyArray<string> =>
+  UnitKindSchema.options
+    .filter((unit) => counts[unit] > 0)
+    .map((unit) => countedUnits(unit, counts[unit]))
+
+const firstUnitKind: UnitKind = 'infantry'
+
+const partyPhrase = (counts: UnitCounts): string => {
+  const listed = listedUnitsOf(counts)
+  return listed.length === 0 ? countedUnits(firstUnitKind, 0) : listFormat.format(listed)
+}
+
+const lostBeforeCampClause = (unitsLost: UnitCounts): string =>
+  listedUnitsOf(unitsLost).length > 1 ? `${partyPhrase(unitsLost)},` : partyPhrase(unitsLost)
 
 const names = {
   resources,
@@ -395,16 +413,16 @@ export const copy = {
     recruits: (unit: UnitKind, count: number): string => `${countedUnits(unit, count)}.`,
     recruitsCancelled: (unit: UnitKind, delivered: number, cancelled: number): string =>
       `${countedUnits(unit, delivered)} en filas, ${countedUnits(unit, cancelled)} de vuelta al campo.`,
-    march: (province: number, plot: number, infantry: number): string =>
-      `provincia ${province}, parcela ${plot}, ${countedUnits('infantry', infantry)}.`,
+    march: (province: number, plot: number, units: UnitCounts): string =>
+      `provincia ${province}, parcela ${plot}, ${partyPhrase(units)}.`,
     battle: (
       province: number,
       plot: number,
       tier: number,
-      infantryLost: number,
+      unitsLost: UnitCounts,
       campLost: number,
     ): string =>
-      `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. Pierdes ${countedUnits('infantry', infantryLost)} y los bandidos pierden ${campLost} de fuerza.`,
+      `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. Pierdes ${lostBeforeCampClause(unitsLost)} y los bandidos pierden ${campLost} de fuerza.`,
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,

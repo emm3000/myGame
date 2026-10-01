@@ -3,11 +3,13 @@ import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { CampTiersSchema } from './CampTiers'
 import { ForageTermsSchema } from './ForageTerms'
+import { PartySchema } from './Party'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
+import { UnitCountsSchema } from './UnitCounts'
 import { UnitKindSchema } from './UnitKind'
 import {
   BuildingLevelSchema,
@@ -108,7 +110,7 @@ const MarchOnTheRoadSchema = z.strictObject({
   province: WholeCountSchema.positive(),
   plot: WholeCountSchema.positive(),
   terrain: TerrainSchema,
-  infantry: WholeCountSchema.positive(),
+  units: PartySchema,
   departedAt: InstantSchema,
   oneWaySeconds: DurationSecondsSchema.positive(),
   loot: ResourceAmountsSchema,
@@ -187,7 +189,7 @@ export const FiefOverviewSchema = z.object({
   study: z.discriminatedUnion('kind', [IdleStudySchema, BusyStudySchema]),
   arts: z.record(ArtKindSchema, ArtStateSchema),
   season: SeasonStateSchema.nullable(),
-  units: z.record(UnitKindSchema, WholeCountSchema),
+  units: UnitCountsSchema,
   recruitOrder: RecruitOrderStateSchema.nullable(),
   recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
   unitTerms: z.record(UnitKindSchema, UnitStatsSchema),

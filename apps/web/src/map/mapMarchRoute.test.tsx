@@ -40,7 +40,7 @@ const marchAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 5,
   terrain: 'uplands',
-  infantry: 10,
+  units: { infantry: 10, cavalry: 0 },
   stayHours: 2,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 840,
@@ -203,7 +203,7 @@ it('counts the infantry at home without the men away', async () => {
   const twelveAway: FiefOverview = {
     ...fiefWithTenInfantry,
     units: { infantry: 20, cavalry: 0 },
-    march: { ...marchAway, infantry: 12 },
+    march: { ...marchAway, units: { infantry: 12, cavalry: 0 } },
   }
   const form = await openMarchTo(uplands, 7, {
     fief: async () => ({ ok: true, value: twelveAway }),
@@ -271,7 +271,12 @@ it('sends the march and shows it sent', async () => {
   fireEvent.click(sendButton(form))
 
   const sent = await screen.findByRole('status')
-  expect(dispatchMarch).toHaveBeenCalledWith({ province: 2, plot: 5, infantry: 10, stayHours: 2 })
+  expect(dispatchMarch).toHaveBeenCalledWith({
+    province: 2,
+    plot: 5,
+    units: { infantry: 10, cavalry: 0 },
+    stayHours: 2,
+  })
   expect(sent.textContent).toContain('Marcha de ida: 10 infantes a provincia 2, parcela 5')
   expect(sent.textContent).toContain('Vuelta en 2 h 28 min')
   expect(sent.textContent).toContain('Botín: 60 de madera y 60 de piedra')

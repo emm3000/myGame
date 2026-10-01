@@ -139,7 +139,7 @@ describe('FiefEventSchema', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 7,
-      infantry: 12,
+      units: { infantry: 12, cavalry: 0 },
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
       recalled: false,
@@ -148,12 +148,40 @@ describe('FiefEventSchema', () => {
     expect(FiefEventSchema.parse(returned)).toEqual(returned)
   })
 
-  it('rejects a march-returned event with no infantry', () => {
+  it('rejects a march-returned event with no unit', () => {
     const returned = {
       kind: 'marchReturned',
       province: 2,
       plot: 7,
-      infantry: 0,
+      units: { infantry: 0, cavalry: 0 },
+      loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      recalled: false,
+    }
+
+    expect(FiefEventSchema.safeParse(returned).success).toBe(false)
+  })
+
+  it('accepts a return event with riders', () => {
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 7,
+      units: { infantry: 12, cavalry: 6 },
+      loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T09:30:00.000Z',
+      recalled: false,
+    }
+
+    expect(FiefEventSchema.parse(returned)).toEqual(returned)
+  })
+
+  it('rejects a return event that still counts infantry alone', () => {
+    const returned = {
+      kind: 'marchReturned',
+      province: 2,
+      plot: 7,
+      infantry: 12,
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
       recalled: false,
@@ -166,7 +194,7 @@ describe('FiefEventSchema', () => {
     const returned = {
       kind: 'marchReturned',
       province: 2,
-      infantry: 12,
+      units: { infantry: 12, cavalry: 0 },
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
       recalled: false,
@@ -179,7 +207,7 @@ describe('FiefEventSchema', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 7,
-      infantry: 12,
+      units: { infantry: 12, cavalry: 0 },
       loot: { wood: 18, stone: 18, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
       recalled: true,
@@ -193,7 +221,7 @@ describe('FiefEventSchema', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 7,
-      infantry: 12,
+      units: { infantry: 12, cavalry: 0 },
       loot: { wood: 72, stone: 72, iron: 0, gold: 0, food: 0 },
       occurredAt: '2026-09-22T09:30:00.000Z',
     }
@@ -207,8 +235,38 @@ describe('FiefEventSchema', () => {
       plot: 7,
       tier: 1,
       won: true,
-      infantryLost: 3,
+      unitsLost: { infantry: 3, cavalry: 0 },
       campLost: 6,
+      occurredAt: '2026-09-22T09:15:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(battle)).toEqual(battle)
+  })
+
+  it('accepts a battle that lost riders beside infantry', () => {
+    const battle = {
+      kind: 'battleFought',
+      province: 2,
+      plot: 7,
+      tier: 1,
+      won: true,
+      unitsLost: { infantry: 2, cavalry: 2 },
+      campLost: 6,
+      occurredAt: '2026-09-22T09:15:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(battle)).toEqual(battle)
+  })
+
+  it('accepts a battle that lost no one', () => {
+    const battle = {
+      kind: 'battleFought',
+      province: 2,
+      plot: 7,
+      tier: 1,
+      won: true,
+      unitsLost: { infantry: 0, cavalry: 0 },
+      campLost: 0,
       occurredAt: '2026-09-22T09:15:00.000Z',
     }
 
@@ -222,7 +280,7 @@ describe('FiefEventSchema', () => {
       plot: 7,
       tier: 4,
       won: true,
-      infantryLost: 3,
+      unitsLost: { infantry: 3, cavalry: 0 },
       campLost: 6,
       occurredAt: '2026-09-22T09:15:00.000Z',
     }
@@ -236,7 +294,7 @@ describe('FiefEventSchema', () => {
       province: 2,
       plot: 7,
       tier: 2,
-      infantryLost: 12,
+      unitsLost: { infantry: 12, cavalry: 0 },
       campLost: 10,
       occurredAt: '2026-09-22T09:15:00.000Z',
     }

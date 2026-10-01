@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
+import { PartySchema } from './Party'
 import { ResourceAmountsSchema } from './ResourceAmounts'
+import { UnitCountsSchema } from './UnitCounts'
 import { UnitKindSchema } from './UnitKind'
 import { BuildingLevelSchema, InstantSchema, WholeCountSchema } from './Wire'
 
@@ -55,7 +57,7 @@ const MarchReturnedSchema = z.strictObject({
   kind: z.literal('marchReturned'),
   province: WholeCountSchema.positive(),
   plot: WholeCountSchema.positive(),
-  infantry: WholeCountSchema.positive(),
+  units: PartySchema,
   loot: ResourceAmountsSchema,
   occurredAt: InstantSchema,
   recalled: z.boolean(),
@@ -67,7 +69,7 @@ const BattleFoughtSchema = z.strictObject({
   plot: WholeCountSchema.positive(),
   tier: z.literal([1, 2, 3]),
   won: z.boolean(),
-  infantryLost: WholeCountSchema,
+  unitsLost: UnitCountsSchema,
   campLost: WholeCountSchema,
   occurredAt: InstantSchema,
 })

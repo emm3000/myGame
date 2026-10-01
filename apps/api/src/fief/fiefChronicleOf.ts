@@ -44,7 +44,7 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
         kind: event.kind,
         province: event.province,
         plot: event.plot,
-        infantry: event.units.infantry,
+        units: { ...event.units },
         loot: event.loot,
         occurredAt,
         recalled: event.recalled,
@@ -56,7 +56,7 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
         plot: event.plot,
         tier: event.tier,
         won: event.won,
-        infantryLost: event.unitsLost.infantry,
+        unitsLost: { ...event.unitsLost },
         campLost: event.campLost,
         occurredAt,
       }

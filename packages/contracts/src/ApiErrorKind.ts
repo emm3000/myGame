@@ -24,7 +24,7 @@ export const ApiErrorKindSchema = z.enum([
   'PlotHasCamp',
   'PlotHasNoCamp',
   'MarchToOwnPlot',
-  'NotEnoughInfantryAtHome',
+  'NotEnoughUnitsAtHome',
   'MarchSlotBusy',
   'StayOutOfRange',
   'MarchTargetOutOfBounds',
