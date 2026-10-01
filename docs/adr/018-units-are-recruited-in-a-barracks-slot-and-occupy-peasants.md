@@ -411,3 +411,28 @@ theirs. `DrizzleFiefRepository.save` now deletes a `fief_units` row whose
 count drops to 0, the follow-up the S10 review left. Nothing else here
 changes: an order still delivers one unit at a time on read, is paid and
 staffed in full at the order and is cancelled with the delivered kept.
+
+## Third amendment (2026-10-01)
+
+S16 (ADR 021) supersedes "One kind in this slice, `infantry`" in the
+decision "A unit is a stored count per kind on the fief" and lifts "other
+unit kinds" from the out-of-scope line as far as cavalry goes: `cavalry`
+is the second `UnitKind`, and archers and rams stay content of a later
+slice. Each kind's terms gain `carry`, `roadPercent` and `barracksLevel`,
+whole counts from 1, beside the `strength` of ADR 020; the shipped rider
+costs 30 wood, 40 iron, 20 gold and 80 food, takes 300 seconds and
+occupies 2 peasants, and the infantry's cost, duration and occupancy
+stand. The barracks gates a kind by a level of its own: after
+`BarracksNotBuilt` and before `RecruitSlotBusy`, `Fief.placeRecruitOrder`
+refuses `BarracksTooLow { unit, requiredBarracksLevel, barracksLevel }`, a
+new member of `DomainError` answered 409, when the built barracks is
+below the unit's `barracksLevel`, 1 for the infantry and 3 for the rider
+as shipped. The enum `unit` gains `cavalry` (migration 0018), and
+`fief_units`, `fief_recruit_orders` and the recruit events hold a rider
+in the columns above. The army section draws one card per kind, the
+rider's locked below its level. Nothing else here changes: one recruit
+slot and one order at a time, of one kind, paid and staffed in full at
+the order, delivered one unit at a time on read, its per-unit duration
+the content seconds over one plus the built barracks level under the
+season's train percent (ADR 017 as amended), cancelled with the delivered
+kept, and one chronicle line per order.

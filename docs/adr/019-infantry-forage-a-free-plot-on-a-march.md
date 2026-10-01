@@ -462,3 +462,37 @@ gains `march_order`, `camp_tier`, `camp_strength` and `fought` (migration
 changes: one march at a time, the road, the forage terms and its loot, the
 men away still counted and the tie order of the four earlier finishes
 stand; a march that meets another lord stays out.
+
+## Third amendment (2026-10-01)
+
+S16 (ADR 021) supersedes the march's one infantry count throughout this
+ADR and lifts "other unit kinds" from the out-of-scope line as far as
+cavalry goes: a march carries a count per unit kind, each a whole number
+from 0 and at least one unit in all. `AwayMarch.units` and
+`MarchOrder.units` replace `infantry`; `InvalidUnitCount`, still the
+first refusal, now refuses a negative or fractional count of a kind and
+a march with no unit, and `Fief.restore` refuses the same of a stored
+march. The road is `ceil(base × percent / 100)`: `base` the road timed by
+the map above and `percent` the highest `roadPercent` among the kinds
+sent, 100 for the infantry and 50 for the rider as shipped, so a march of
+infantry walks the road it walked. `forage.carryPerInfantry` is removed:
+the carry is each kind's `carry` in the unit terms, 48 and 120 as
+shipped, and the loot of a resource is `min(heads × rate × hours,
+floor(Σ nₖ × carryₖ / yielded))`, `heads` the total of the counts, at
+dispatch and, over the milliseconds foraged, at a recall. The units at
+home are the count of each kind less the march's, and
+`NotEnoughUnitsAtHome { unit, count, atHome }` replaces
+`NotEnoughInfantryAtHome { infantry, atHome }`, naming the first kind
+short, still the last refusal. `marchReturned.units` replaces
+`infantry`. Migration 0019 renames `fief_marches.infantry` to
+`infantry_count` beside a new `cavalry_count`, their sum checked at
+least 1, and moves a march-returned row's count out of the unit row
+into `infantry_count` and `cavalry_count` on `fief_events`. The wire
+follows: `DispatchMarchRequest` is `{ province, plot, units, stayHours
+}`, `FiefOverview.march.units` replaces `infantry`, `forageTerms` loses
+the carry, `unitTerms` answers each kind's, and a client reads the units
+at home as `units[kind] − march.units[kind]`. Nothing else here changes:
+one march at a time, the reach and the target checks, the stay, the
+loot fixed at dispatch, the units away still counted and occupying their
+peasants, the three phases, the recall and the resolve's tie order
+stand, and no season slows the road.
