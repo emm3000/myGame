@@ -60,12 +60,12 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
       return
     }
     const { province, plot } = target
-    const infantry = Number(entries.infantry)
+    const units = { infantry: Number(entries.infantry), cavalry: 0 }
     if (target.camp === null) {
-      march.send({ province, plot, infantry, stayHours: Number(entries.hours) })
+      march.send({ province, plot, units, stayHours: Number(entries.hours) })
       return
     }
-    march.attack({ province, plot, infantry })
+    march.attack({ province, plot, units })
   }
 
   const plotActionOf = (shown: ProvinceMap, plot: number): PlotAction | undefined => {

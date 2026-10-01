@@ -83,7 +83,7 @@ function costsOf(
 }
 
 function talliesOf(unit: UnitKind, fief: LiveFief): ReadonlyArray<UnitTally> {
-  const away = unit === 'infantry' ? (fief.overview.march?.infantry ?? 0) : 0
+  const away = fief.overview.march?.units[unit] ?? 0
   const atHome = fief.units[unit] - away
   if (away === 0) {
     return [{ count: atHome, label: copy.army.atHome(unit, atHome) }]

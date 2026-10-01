@@ -34,7 +34,7 @@ const attackAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  infantry: 10,
+  units: { infantry: 10, cavalry: 0 },
   stayHours: 0,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 960,
@@ -249,7 +249,11 @@ it('sends the attack and shows it sent', async () => {
   fireEvent.click(attackButton(form))
 
   const sent = await screen.findByRole('status')
-  expect(dispatchAttack).toHaveBeenCalledWith({ province: 2, plot: 7, infantry: 10 })
+  expect(dispatchAttack).toHaveBeenCalledWith({
+    province: 2,
+    plot: 7,
+    units: { infantry: 10, cavalry: 0 },
+  })
   expect(sent.textContent).toContain('Marcha al ataque: 10 infantes a provincia 2, parcela 7')
   expect(sent.textContent).toContain('Campamento: nivel 1, fuerza 6')
   expect(sent.textContent).toContain('Vuelta en 32:00')

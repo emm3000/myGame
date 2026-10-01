@@ -30,7 +30,7 @@ function attackLinesOf(
   const lines: ReadonlyArray<PreviewLine> = [
     {
       heading: copy.march.attackHeading,
-      value: copy.march.phaseLines.outbound(march.infantry, march.province, march.plot),
+      value: copy.march.phaseLines.outbound(march.units.infantry, march.province, march.plot),
       isNumeral: false,
     },
     {
@@ -50,7 +50,7 @@ export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArra
   return [
     {
       heading: copy.march.phaseHeadings.outbound,
-      value: copy.march.phaseLines.outbound(march.infantry, march.province, march.plot),
+      value: copy.march.phaseLines.outbound(march.units.infantry, march.province, march.plot),
       isNumeral: false,
     },
     returnLineOf(march, readAt),

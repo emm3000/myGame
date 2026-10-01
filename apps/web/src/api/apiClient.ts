@@ -158,13 +158,13 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    dispatchMarch: async ({ province, plot, infantry, stayHours }) => {
-      const request: DispatchMarchRequest = { province, plot, infantry, stayHours }
+    dispatchMarch: async ({ province, plot, units, stayHours }) => {
+      const request: DispatchMarchRequest = { province, plot, units, stayHours }
       const response = await postJson('/fief/marches', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    dispatchAttack: async ({ province, plot, infantry }) => {
-      const request: DispatchAttackRequest = { province, plot, infantry }
+    dispatchAttack: async ({ province, plot, units }) => {
+      const request: DispatchAttackRequest = { province, plot, units }
       const response = await postJson('/fief/marches/attack', request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },

@@ -101,7 +101,7 @@ const awayMarch = {
   province: 2,
   plot: 5,
   terrain: 'uplands',
-  infantry: 5,
+  units: { infantry: 5, cavalry: 0 },
   stayHours: 2,
   departedAt: '2026-09-22T14:00:00.000Z',
   oneWaySeconds: 840,
@@ -435,10 +435,10 @@ describe('FiefOverviewSchema', () => {
     expect(FiefOverviewSchema.safeParse(overviewWithoutRecall).success).toBe(false)
   })
 
-  it('rejects a march with no infantry', () => {
+  it('rejects a march with no unit', () => {
     const overviewWithEmptyMarch = {
       ...overviewWithSlot(busySlot),
-      march: { ...awayMarch, infantry: 0 },
+      march: { ...awayMarch, units: { infantry: 0, cavalry: 0 } },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithEmptyMarch).success).toBe(false)

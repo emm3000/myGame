@@ -1,24 +1,78 @@
 import { describe, expect, it } from 'vitest'
 import { DispatchMarchRequestSchema } from './index'
 
-const fiveInfantryForTwoHours = { province: 2, plot: 5, infantry: 5, stayHours: 2 }
+const fiveInfantryForTwoHours = {
+  province: 2,
+  plot: 5,
+  units: { infantry: 5, cavalry: 0 },
+  stayHours: 2,
+}
 
 describe('DispatchMarchRequestSchema', () => {
-  it('parses the target, the infantry and the stay of a march', () => {
+  it('parses the target, the party and the stay of a march', () => {
     expect(DispatchMarchRequestSchema.parse(fiveInfantryForTwoHours)).toEqual(
       fiveInfantryForTwoHours,
     )
   })
 
-  it('rejects a fractional stay', () => {
+  it('accepts a march of riders alone', () => {
+    const ridersAlone = { ...fiveInfantryForTwoHours, units: { infantry: 0, cavalry: 6 } }
+    expect(DispatchMarchRequestSchema.parse(ridersAlone)).toEqual(ridersAlone)
+  })
+
+  it('rejects a march with no unit', () => {
     expect(
-      DispatchMarchRequestSchema.safeParse({ ...fiveInfantryForTwoHours, stayHours: 1.5 }).success,
+      DispatchMarchRequestSchema.safeParse({
+        ...fiveInfantryForTwoHours,
+        units: { infantry: 0, cavalry: 0 },
+      }).success,
     ).toBe(false)
   })
 
-  it('rejects a march of zero infantry', () => {
+  it('rejects a fractional rider count', () => {
     expect(
-      DispatchMarchRequestSchema.safeParse({ ...fiveInfantryForTwoHours, infantry: 0 }).success,
+      DispatchMarchRequestSchema.safeParse({
+        ...fiveInfantryForTwoHours,
+        units: { infantry: 5, cavalry: 1.5 },
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a negative count', () => {
+    expect(
+      DispatchMarchRequestSchema.safeParse({
+        ...fiveInfantryForTwoHours,
+        units: { infantry: 6, cavalry: -1 },
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects a party that leaves a kind out', () => {
+    expect(
+      DispatchMarchRequestSchema.safeParse({ ...fiveInfantryForTwoHours, units: { infantry: 5 } })
+        .success,
+    ).toBe(false)
+  })
+
+  it('rejects a party with a kind that does not exist', () => {
+    expect(
+      DispatchMarchRequestSchema.safeParse({
+        ...fiveInfantryForTwoHours,
+        units: { infantry: 5, cavalry: 0, archers: 2 },
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects the infantry count of the single-kind wire', () => {
+    expect(
+      DispatchMarchRequestSchema.safeParse({ province: 2, plot: 5, infantry: 5, stayHours: 2 })
+        .success,
+    ).toBe(false)
+  })
+
+  it('rejects a fractional stay', () => {
+    expect(
+      DispatchMarchRequestSchema.safeParse({ ...fiveInfantryForTwoHours, stayHours: 1.5 }).success,
     ).toBe(false)
   })
 

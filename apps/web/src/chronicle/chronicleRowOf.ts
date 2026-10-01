@@ -1,4 +1,9 @@
-import type { FiefEvent, ResourceAmounts } from '@mygame/contracts'
+import {
+  type FiefEvent,
+  type ResourceAmounts,
+  type UnitKind,
+  UnitKindSchema,
+} from '@mygame/contracts'
 import { copy, type ResourceQuantity } from '../copy'
 import type { CardCost } from '../design-system/CostList'
 import { quantitiesOf } from '../resources/quantitiesOf'
@@ -23,6 +28,9 @@ interface ChronicleSubject {
   readonly identity: string
   readonly text: string
 }
+
+const unitCountsIdentityOf = (counts: Readonly<Record<UnitKind, number>>): string =>
+  UnitKindSchema.options.map((unit) => counts[unit]).join('-')
 
 const subjectOf = (event: FiefEvent): ChronicleSubject => {
   switch (event.kind) {
@@ -50,17 +58,17 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
       }
     case 'marchReturned':
       return {
-        identity: `${event.province}-${event.plot}-${event.infantry}`,
-        text: copy.chronicle.march(event.province, event.plot, event.infantry),
+        identity: `${event.province}-${event.plot}-${unitCountsIdentityOf(event.units)}`,
+        text: copy.chronicle.march(event.province, event.plot, event.units),
       }
     case 'battleFought':
       return {
-        identity: `${event.province}-${event.plot}-${event.tier}-${event.won}-${event.infantryLost}-${event.campLost}`,
+        identity: `${event.province}-${event.plot}-${event.tier}-${event.won}-${unitCountsIdentityOf(event.unitsLost)}-${event.campLost}`,
         text: copy.chronicle.battle(
           event.province,
           event.plot,
           event.tier,
-          event.infantryLost,
+          event.unitsLost,
           event.campLost,
         ),
       }

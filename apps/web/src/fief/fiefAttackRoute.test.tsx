@@ -37,7 +37,7 @@ const attackDeparted = (secondsBeforeRead: number): AttackMarch => ({
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  infantry: 12,
+  units: { infantry: 12, cavalry: 0 },
   stayHours: 0,
   departedAt: instantAfterRead(-secondsBeforeRead),
   oneWaySeconds: 900,
@@ -57,7 +57,7 @@ const attackFightingInFortySeconds: FiefOverview = { ...barracksBuilt, march: at
 const attackWon: FiefOverview = {
   ...barracksBuilt,
   units: { infantry: 17, cavalry: 0 },
-  march: { ...attackDeparted(860), infantry: 9, fought: true },
+  march: { ...attackDeparted(860), units: { infantry: 9, cavalry: 0 }, fought: true },
 }
 
 const attackLost: FiefOverview = {

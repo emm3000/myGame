@@ -1,14 +1,34 @@
 import type { ApiError, ApiErrorKind } from '@mygame/contracts'
+import type { UnitKind } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { Refusal } from './Refusal'
 
+type UnitsShortAtHome = Extract<Refusal, { readonly kind: 'NotEnoughUnitsAtHome' }>
+
+type SlotlessKind = Exclude<ApiErrorKind, UnitsShortAtHome['kind']>
+
+type SlotlessRefusalKind = Exclude<Refusal['kind'], UnitsShortAtHome['kind']>
+
 type RefusalAnswer = {
   readonly status: ContentfulStatusCode
-  readonly kind?: ApiErrorKind
+  readonly kind?: SlotlessKind
 }
 
-const messages: Readonly<Record<ApiErrorKind, string>> = {
+const unitLabels: Readonly<
+  Record<UnitKind, { readonly singular: string; readonly plural: string }>
+> = {
+  infantry: { singular: 'infante', plural: 'infantes' },
+  cavalry: { singular: 'jinete', plural: 'jinetes' },
+}
+
+const countedUnits = (unit: UnitKind, count: number): string =>
+  `${count} ${count === 1 ? unitLabels[unit].singular : unitLabels[unit].plural}`
+
+const unitsShortLineOf = ({ unit, count, atHome }: UnitsShortAtHome): string =>
+  `Necesitas ${countedUnits(unit, count)} en casa y tienes ${atHome}. Ajusta la marcha.`
+
+const messages: Readonly<Record<SlotlessKind, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
   EmailTaken: 'Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.',
   WeakPassword: 'Tu contraseña necesita al menos 8 caracteres.',
@@ -32,7 +52,6 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
   PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
   PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
   MarchToOwnPlot: 'Esa parcela es tu feudo. Envía la marcha a otra.',
-  NotEnoughInfantryAtHome: 'No tienes infantes en casa suficientes para esa marcha.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
   StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
@@ -45,7 +64,7 @@ const messages: Readonly<Record<ApiErrorKind, string>> = {
 
 const internalFailure: RefusalAnswer = { status: 500 }
 
-const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
+const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   InvalidCredentials: { status: 401, kind: 'InvalidCredentials' },
   EmailTaken: { status: 409, kind: 'EmailTaken' },
   WeakPassword: { status: 400, kind: 'WeakPassword' },
@@ -98,10 +117,13 @@ const answers: Readonly<Record<Refusal['kind'], RefusalAnswer>> = {
   PlotHasCamp: { status: 409, kind: 'PlotHasCamp' },
   PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
   InvalidCamp: internalFailure,
-  NotEnoughUnitsAtHome: { status: 409, kind: 'NotEnoughInfantryAtHome' },
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {
+  if (refusal.kind === 'NotEnoughUnitsAtHome') {
+    const body: ApiError = { kind: refusal.kind, message: unitsShortLineOf(refusal) }
+    return c.json(body, 409)
+  }
   const { status, kind } = answers[refusal.kind]
   if (kind === undefined) {
     return c.body(null, status)
