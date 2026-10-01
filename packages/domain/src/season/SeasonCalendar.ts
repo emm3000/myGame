@@ -6,6 +6,7 @@ export type DurationPercent = {
   readonly build: number
   readonly study: number
   readonly train: number
+  readonly road: number
 }
 
 export type SeasonCalendar = {

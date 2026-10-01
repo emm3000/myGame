@@ -73,7 +73,7 @@ const autumnOfYearOne = {
   year: 1,
   endsAt: '2026-10-26T00:00:00.000Z',
   multiplierPercent: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
-  durationPercent: { build: 100, study: 100, train: 100 },
+  durationPercent: { build: 100, study: 100, train: 100, road: 75 },
 }
 
 const infantryTerms = {
@@ -331,6 +331,12 @@ describe('FiefOverviewSchema', () => {
     expect(FiefOverviewSchema.parse(overviewBeforeTheEpoch)).toEqual(overviewBeforeTheEpoch)
   })
 
+  it('accepts the road percent of the season in force', () => {
+    const overviewInAutumn = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.parse(overviewInAutumn).season?.durationPercent.road).toBe(75)
+  })
+
   it('rejects a season in year 0', () => {
     const overviewInYearZero = {
       ...overviewWithSlot(busySlot),
@@ -362,7 +368,7 @@ describe('FiefOverviewSchema', () => {
   it('rejects a season missing its build percent', () => {
     const overviewWithoutBuildPercent = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, durationPercent: { study: 100, train: 100 } },
+      season: { ...autumnOfYearOne, durationPercent: { study: 100, train: 100, road: 75 } },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutBuildPercent).success).toBe(false)
@@ -371,7 +377,7 @@ describe('FiefOverviewSchema', () => {
   it('rejects a season missing its train percent', () => {
     const overviewWithoutTrainPercent = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, durationPercent: { build: 100, study: 100 } },
+      season: { ...autumnOfYearOne, durationPercent: { build: 100, study: 100, road: 75 } },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutTrainPercent).success).toBe(false)
@@ -380,7 +386,10 @@ describe('FiefOverviewSchema', () => {
   it('rejects a duration percent of zero', () => {
     const overviewWithZeroStudyPercent = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, durationPercent: { build: 100, study: 0, train: 100 } },
+      season: {
+        ...autumnOfYearOne,
+        durationPercent: { build: 100, study: 0, train: 100, road: 75 },
+      },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithZeroStudyPercent).success).toBe(false)

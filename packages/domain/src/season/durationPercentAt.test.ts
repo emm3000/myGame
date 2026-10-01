@@ -40,10 +40,10 @@ const shippedSettings: FiefSettings = {
       winter: neutralRates,
     },
     durationPercent: {
-      spring: { build: 90, study: 90, train: 75 },
-      summer: { build: 75, study: 100, train: 100 },
-      autumn: { build: 100, study: 100, train: 100 },
-      winter: { build: 100, study: 75, train: 100 },
+      spring: { build: 90, study: 90, train: 75, road: 100 },
+      summer: { build: 75, study: 100, train: 100, road: 100 },
+      autumn: { build: 100, study: 100, train: 100, road: 75 },
+      winter: { build: 100, study: 75, train: 100, road: 100 },
     },
   },
 }
@@ -54,6 +54,7 @@ describe('durationPercentAt', () => {
       build: 100,
       study: 100,
       train: 100,
+      road: 100,
     })
   })
 
@@ -61,11 +62,20 @@ describe('durationPercentAt', () => {
     expect(durationPercentAt(daysAfterEpoch(-0.001), shippedSettings).train).toBe(100)
   })
 
+  it('answers a road percent of 100 before the epoch', () => {
+    expect(durationPercentAt(daysAfterEpoch(-0.001), shippedSettings).road).toBe(100)
+  })
+
+  it('answers the road percent of the season in force', () => {
+    expect(durationPercentAt(daysAfterEpoch(14), shippedSettings).road).toBe(75)
+  })
+
   it('answers the percents of the season in force', () => {
     expect(durationPercentAt(daysAfterEpoch(7), shippedSettings)).toEqual({
       build: 75,
       study: 100,
       train: 100,
+      road: 100,
     })
   })
 })
