@@ -32,7 +32,9 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
 
 const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
-const neutralDurations = { build: 100, study: 100, train: 100 }
+const neutralDurations = { build: 100, study: 100, train: 100, road: 100 }
+
+const autumnDurations = { ...neutralDurations, road: 75 }
 
 const autumnEndingInThreeDaysAndFiveHours: FiefOverview = {
   ...knownFief,
@@ -41,7 +43,7 @@ const autumnEndingInThreeDaysAndFiveHours: FiefOverview = {
     year: 1,
     endsAt: '2026-09-25T17:00:00.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
-    durationPercent: neutralDurations,
+    durationPercent: autumnDurations,
   },
 }
 
@@ -104,7 +106,7 @@ const autumnReadWhenSummerEnded: FiefOverview = {
     year: 1,
     endsAt: '2026-09-29T12:00:30.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
-    durationPercent: neutralDurations,
+    durationPercent: autumnDurations,
   },
   readAt: '2026-09-22T12:00:30.000Z',
 }
@@ -232,7 +234,7 @@ const summerShorteningTheWorks: FiefOverview = {
     year: 1,
     endsAt: '2026-09-25T12:00:00.000Z',
     multiplierPercent: neutralPercents,
-    durationPercent: { build: 75, study: 100, train: 100 },
+    durationPercent: { build: 75, study: 100, train: 100, road: 100 },
   },
 }
 
@@ -256,7 +258,7 @@ const winterShorteningTheStudies = withTheLibraryBuilt({
   year: 1,
   endsAt: '2026-09-25T12:00:00.000Z',
   multiplierPercent: { ...neutralPercents, food: 75 },
-  durationPercent: { build: 100, study: 75, train: 100 },
+  durationPercent: { build: 100, study: 75, train: 100, road: 100 },
 })
 
 it('marks the arts section winter shortens', async () => {
@@ -276,7 +278,7 @@ it('marks no section in spring or autumn', async () => {
           year: 1,
           endsAt: '2026-09-25T12:00:00.000Z',
           multiplierPercent: neutralPercents,
-          durationPercent: neutralDurations,
+          durationPercent: kind === 'autumn' ? autumnDurations : neutralDurations,
         }),
       ),
     )
@@ -328,7 +330,7 @@ const withTheBarracksBuilt = (season: FiefOverview['season']): FiefOverview => (
 
 const seasonOf = (
   kind: 'spring' | 'summer' | 'autumn' | 'winter',
-  durationPercent: { build: number; study: number; train: number },
+  durationPercent: { build: number; study: number; train: number; road: number },
 ): NonNullable<FiefOverview['season']> => ({
   kind,
   year: 1,
@@ -338,7 +340,7 @@ const seasonOf = (
 })
 
 const springShorteningTheLevy = withTheBarracksBuilt({
-  ...seasonOf('spring', { build: 100, study: 100, train: 75 }),
+  ...seasonOf('spring', { build: 100, study: 100, train: 75, road: 100 }),
   multiplierPercent: { ...neutralPercents, food: 125 },
 })
 
@@ -352,9 +354,9 @@ it('marks the army section spring shortens', async () => {
 
 it('marks no army section in summer, autumn or winter', async () => {
   const seasons = [
-    seasonOf('summer', { build: 75, study: 100, train: 100 }),
-    seasonOf('autumn', neutralDurations),
-    seasonOf('winter', { build: 100, study: 75, train: 100 }),
+    seasonOf('summer', { build: 75, study: 100, train: 100, road: 100 }),
+    seasonOf('autumn', autumnDurations),
+    seasonOf('winter', { build: 100, study: 75, train: 100, road: 100 }),
   ]
   for (const season of seasons) {
     await showFief(signedInClientServing(() => withTheBarracksBuilt(season)))

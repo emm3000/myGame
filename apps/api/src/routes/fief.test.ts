@@ -434,7 +434,7 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('summer')
-    expect(season?.durationPercent).toEqual({ build: 75, study: 100, train: 100 })
+    expect(season?.durationPercent).toEqual({ build: 75, study: 100, train: 100, road: 100 })
   })
 
   it('answers the spring train percent', async () => {
@@ -445,7 +445,7 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('spring')
-    expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 75 })
+    expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 75, road: 100 })
   })
 
   it('answers the winter study percent', async () => {
@@ -461,10 +461,10 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('winter')
-    expect(season?.durationPercent).toEqual({ build: 100, study: 75, train: 100 })
+    expect(season?.durationPercent).toEqual({ build: 100, study: 75, train: 100, road: 100 })
   })
 
-  it('answers neutral duration percents in autumn', async () => {
+  it('answers the road percent of autumn', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(minutesToFirstAutumnRead)
 
@@ -472,7 +472,7 @@ describe('the fief route', () => {
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('autumn')
-    expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 100 })
+    expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 100, road: 75 })
   })
 
   it('answers a stock above the capacity unchanged after an hour', async () => {

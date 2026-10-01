@@ -54,10 +54,10 @@ const plainFief: FiefContent = {
       winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
     },
     durationPercent: {
-      spring: { build: 100, study: 100, train: 100 },
-      summer: { build: 100, study: 100, train: 100 },
-      autumn: { build: 100, study: 100, train: 100 },
-      winter: { build: 100, study: 100, train: 100 },
+      spring: { build: 100, study: 100, train: 100, road: 100 },
+      summer: { build: 100, study: 100, train: 100, road: 100 },
+      autumn: { build: 100, study: 100, train: 100, road: 75 },
+      winter: { build: 100, study: 100, train: 100, road: 100 },
     },
   },
   units: {
@@ -374,14 +374,14 @@ describe('JsonBuildingCatalog', () => {
   })
 
   it('reads the duration percents from the shipped content', () => {
-    const unchangedDurations = { build: 100, study: 100, train: 100 }
+    const unchangedDurations = { build: 100, study: 100, train: 100, road: 100 }
 
     expect(
       JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent,
     ).toEqual({
       spring: { ...unchangedDurations, train: 75 },
       summer: { ...unchangedDurations, build: 75 },
-      autumn: unchangedDurations,
+      autumn: { ...unchangedDurations, road: 75 },
       winter: { ...unchangedDurations, study: 75 },
     })
   })
@@ -391,6 +391,13 @@ describe('JsonBuildingCatalog', () => {
       JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent
 
     expect([spring.train, summer.train, autumn.train, winter.train]).toEqual([75, 100, 100, 100])
+  })
+
+  it('reads the shipped road percents: autumn 75, every other season 100', () => {
+    const { spring, summer, autumn, winter } =
+      JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent
+
+    expect([spring.road, summer.road, autumn.road, winter.road]).toEqual([100, 100, 75, 100])
   })
 
   it('reads the infantry terms from the shipped content', () => {
@@ -443,6 +450,36 @@ describe('JsonBuildingCatalog', () => {
     const directory = withFiefContent((content) => ({
       ...content,
       units: { ...content.units, infantry: { ...content.units.infantry, roadPercent: 0 } },
+    }))
+
+    expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)
+  })
+
+  it('fails at start-up on a season without a road percent', () => {
+    const directory = withFiefContent((content) => {
+      const { road: _, ...autumnWithoutRoad } = content.seasons.durationPercent.autumn
+      return {
+        ...content,
+        seasons: {
+          ...content.seasons,
+          durationPercent: { ...content.seasons.durationPercent, autumn: autumnWithoutRoad },
+        },
+      }
+    })
+
+    expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)
+  })
+
+  it('fails at start-up on a season road percent of 0', () => {
+    const directory = withFiefContent((content) => ({
+      ...content,
+      seasons: {
+        ...content.seasons,
+        durationPercent: {
+          ...content.seasons.durationPercent,
+          autumn: { ...content.seasons.durationPercent.autumn, road: 0 },
+        },
+      },
     }))
 
     expect(startingUpOn(directory)).toThrow(/fief\.json is malformed/)

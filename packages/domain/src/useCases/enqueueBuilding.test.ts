@@ -563,10 +563,10 @@ const seasonalSettings: FiefSettings = {
     ...neutralSeasons,
     epoch: seasonEpoch,
     durationPercent: {
-      spring: { build: 100, study: 100, train: 100 },
-      summer: { build: 75, study: 100, train: 100 },
-      autumn: { build: 100, study: 100, train: 100 },
-      winter: { build: 100, study: 75, train: 100 },
+      spring: { build: 100, study: 100, train: 100, road: 100 },
+      summer: { build: 75, study: 100, train: 100, road: 100 },
+      autumn: { build: 100, study: 100, train: 100, road: 75 },
+      winter: { build: 100, study: 75, train: 100, road: 100 },
     },
   },
 }
