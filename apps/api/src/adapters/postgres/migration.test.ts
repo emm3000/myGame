@@ -89,7 +89,8 @@ function infantryMarchOf(fiefId: string): typeof fiefMarches.$inferInsert {
     fiefId,
     province: 2,
     plot: 5,
-    infantry: 10,
+    infantryCount: 10,
+    cavalryCount: 0,
     stayHours: 2,
     oneWaySeconds: 840,
     departedAt: new Date('2026-09-22T08:00:00Z'),
@@ -469,20 +470,52 @@ describe('the migrations', () => {
     await db.insert(fiefMarches).values(infantryMarchOf(anasFief.id))
 
     await expect(
-      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), infantry: 3 }),
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), infantryCount: 3 }),
     ).rejects.toMatchObject({
       cause: { code: uniqueViolation, constraint: 'fief_marches_pkey' },
     })
   })
 
-  it('refuses a march of no infantry', async () => {
+  it('refuses a march with no unit', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
 
     await expect(
-      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), infantry: 0 }),
+      db
+        .insert(fiefMarches)
+        .values({ ...infantryMarchOf(anasFief.id), infantryCount: 0, cavalryCount: 0 }),
     ).rejects.toMatchObject({
-      cause: { code: checkViolation, constraint: 'fief_marches_infantry_positive' },
+      cause: { code: checkViolation, constraint: 'fief_marches_units_positive' },
+    })
+  })
+
+  it('refuses a negative rider count on a march', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db
+        .insert(fiefMarches)
+        .values({ ...infantryMarchOf(anasFief.id), infantryCount: 10, cavalryCount: -1 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_cavalry_count_whole' },
+    })
+  })
+
+  it('stores a march of riders alone', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await db
+      .insert(fiefMarches)
+      .values({ ...infantryMarchOf(anasFief.id), infantryCount: 0, cavalryCount: 6 })
+
+    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(ana.id)
+    expect(
+      restored.ok && restored.value?.march.kind === 'away' && restored.value.march.units,
+    ).toEqual({
+      infantry: 0,
+      cavalry: 6,
     })
   })
 
@@ -696,7 +729,7 @@ describe('the migrations', () => {
     })
   })
 
-  it('refuses a province without a plot on a unit row', async () => {
+  it('refuses a province without a plot on a march-returned row', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
 
@@ -704,8 +737,8 @@ describe('the migrations', () => {
       db.insert(fiefEvents).values({
         fiefId: anasFief.id,
         kind: 'march_returned',
-        unit: 'infantry',
-        count: 10,
+        infantryCount: 10,
+        cavalryCount: 0,
         province: 2,
         occurredAt: new Date('2026-09-22T09:00:00Z'),
       }),
@@ -722,8 +755,8 @@ describe('the migrations', () => {
       db.insert(fiefEvents).values({
         fiefId: anasFief.id,
         kind: 'march_returned',
-        unit: 'infantry',
-        count: 10,
+        infantryCount: 10,
+        cavalryCount: 0,
         province: 2,
         plot: 5,
         campTier: 1,
@@ -731,6 +764,83 @@ describe('the migrations', () => {
       }),
     ).rejects.toMatchObject({
       cause: { code: checkViolation, constraint: 'fief_events_battle_terms' },
+    })
+  })
+
+  it('refuses a return with no unit', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'march_returned',
+        infantryCount: 0,
+        cavalryCount: 0,
+        province: 2,
+        plot: 5,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_unit_counts' },
+    })
+  })
+
+  it('stores a battle that lost no unit', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await db.insert(fiefEvents).values({
+      fiefId: anasFief.id,
+      kind: 'battle_fought',
+      infantryCount: 0,
+      cavalryCount: 0,
+      province: 2,
+      plot: 5,
+      campTier: 1,
+      campLost: 0,
+      won: true,
+      occurredAt: new Date('2026-09-22T09:00:00Z'),
+    })
+
+    expect(await new DrizzleChronicle(db).eventsOf(anasFief.id)).toMatchObject([
+      { kind: 'battleFought', unitsLost: { infantry: 0, cavalry: 0 } },
+    ])
+  })
+
+  it('refuses a march-returned row that names one unit', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'march_returned',
+        unit: 'infantry',
+        count: 10,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_unit_counts' },
+    })
+  })
+
+  it('refuses unit counts on a recruit row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'recruits_delivered',
+        infantryCount: 5,
+        cavalryCount: 0,
+        province: 2,
+        plot: 5,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_unit_counts' },
     })
   })
 
@@ -760,8 +870,8 @@ describe('the migrations', () => {
       db.insert(fiefEvents).values({
         fiefId: anasFief.id,
         kind: 'battle_fought',
-        unit: 'infantry',
-        count: 4,
+        infantryCount: 4,
+        cavalryCount: 0,
         province: 2,
         plot: 5,
         campLost: 6,
@@ -1608,5 +1718,233 @@ describe('the cavalry migration', () => {
         startedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
       },
     })
+  })
+})
+
+const carla = aPlayer('00000000-0000-4000-8000-000000000003', 'carla@example.com')
+const dario = aPlayer('00000000-0000-4000-8000-000000000004', 'dario@example.com')
+
+const anasPartyFief = '00000000-0000-4000-8000-0000000000a1'
+
+const partyFiefs = [
+  { player: ana, fiefId: anasPartyFief },
+  { player: bruno, fiefId: '00000000-0000-4000-8000-0000000000a2' },
+  { player: carla, fiefId: '00000000-0000-4000-8000-0000000000a3' },
+  { player: dario, fiefId: '00000000-0000-4000-8000-0000000000a4' },
+]
+
+const insertMarchesOfPartyVersion = async (client: Client): Promise<void> => {
+  await insertPlayersOfPreviousVersion(client)
+  await client.query(
+    `INSERT INTO players (id, email, password_hash, created_at)
+     VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z'), ($3, $4, 'argon2id-hash', '2026-09-22T08:00:00Z')`,
+    [carla.id, carla.email, dario.id, dario.email],
+  )
+  for (const [plot, { player, fiefId }] of partyFiefs.entries()) {
+    await insertFiefOfPreviousVersion(client, fiefId, player.id, plot + 1, null)
+  }
+  await client.query(
+    `INSERT INTO fief_marches (fief_id, province, plot, infantry, stay_hours, one_way_seconds, departed_at,
+       loot_wood, loot_stone, loot_iron, loot_gold, loot_food, recalled_at, march_order, camp_tier, camp_strength, fought)
+     VALUES ($1, 2, 5, 10, 2, 840, '2026-09-22T08:00:00Z', 60, 60, 0, 0, 0, NULL, 'forage', NULL, NULL, false),
+            ($2, 2, 5, 8, 2, 840, '2026-09-22T08:00:00Z', 25, 25, 0, 0, 0, '2026-09-22T08:30:00Z', 'forage', NULL, NULL, false),
+            ($3, 2, 6, 12, 0, 900, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0, NULL, 'attack', 1, 6, false),
+            ($4, 2, 6, 9, 0, 900, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0, NULL, 'attack', 2, 15, true)`,
+    partyFiefs.map(({ fiefId }) => fiefId),
+  )
+}
+
+const insertEventsOfPartyVersion = async (client: Client): Promise<void> => {
+  await client.query(
+    `INSERT INTO fief_events (fief_id, kind, unit, count, cancelled_count, province, plot, refund_wood, refund_stone,
+       refund_iron, refund_gold, refund_food, recalled, camp_tier, camp_lost, won, occurred_at)
+     VALUES ($1, 'recruits_delivered', 'infantry', 4, NULL, NULL, NULL, 0, 0, 0, 0, 0, false, NULL, NULL, false, '2026-09-22T09:00:00Z'),
+            ($1, 'recruits_cancelled', 'infantry', 1, 2, NULL, NULL, 40, 0, 20, 0, 60, false, NULL, NULL, false, '2026-09-22T09:10:00Z'),
+            ($1, 'march_returned', 'infantry', 10, NULL, 2, 5, 240, 240, 0, 0, 0, false, NULL, NULL, false, '2026-09-22T09:20:00Z'),
+            ($1, 'march_returned', 'infantry', 8, NULL, 2, 5, 25, 25, 0, 0, 0, true, NULL, NULL, false, '2026-09-22T09:30:00Z'),
+            ($1, 'battle_fought', 'infantry', 4, NULL, 2, 6, 0, 0, 0, 0, 0, false, 2, 15, true, '2026-09-22T09:40:00Z'),
+            ($1, 'battle_fought', 'infantry', 3, NULL, 2, 6, 0, 0, 0, 0, 0, false, 1, 2, false, '2026-09-22T09:50:00Z')`,
+    [anasPartyFief],
+  )
+}
+
+const departedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z'))
+
+const instantAt = (iso: string): Instant => Instant.fromEpochMilliseconds(Date.parse(iso))
+
+const marchesOfPartyVersion = [
+  {
+    kind: 'away',
+    order: 'forage',
+    province: 2,
+    plot: 5,
+    units: { infantry: 10, cavalry: 0 },
+    stayHours: 2,
+    departedAt,
+    oneWaySeconds: 840,
+    loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+  },
+  {
+    kind: 'away',
+    order: 'forage',
+    province: 2,
+    plot: 5,
+    units: { infantry: 8, cavalry: 0 },
+    stayHours: 2,
+    departedAt,
+    oneWaySeconds: 840,
+    loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
+    recalledAt: instantAt('2026-09-22T08:30:00Z'),
+  },
+  {
+    kind: 'away',
+    order: 'attack',
+    province: 2,
+    plot: 6,
+    units: { infantry: 12, cavalry: 0 },
+    stayHours: 0,
+    departedAt,
+    oneWaySeconds: 900,
+    loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+    camp: { tier: 1, strength: 6 },
+    fought: false,
+  },
+  {
+    kind: 'away',
+    order: 'attack',
+    province: 2,
+    plot: 6,
+    units: { infantry: 9, cavalry: 0 },
+    stayHours: 0,
+    departedAt,
+    oneWaySeconds: 900,
+    loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+    camp: { tier: 2, strength: 15 },
+    fought: true,
+  },
+]
+
+const eventsOfPartyVersion = [
+  {
+    kind: 'battleFought',
+    province: 2,
+    plot: 6,
+    tier: 1,
+    won: false,
+    unitsLost: { infantry: 3, cavalry: 0 },
+    campLost: 2,
+    occurredAt: instantAt('2026-09-22T09:50:00Z'),
+  },
+  {
+    kind: 'battleFought',
+    province: 2,
+    plot: 6,
+    tier: 2,
+    won: true,
+    unitsLost: { infantry: 4, cavalry: 0 },
+    campLost: 15,
+    occurredAt: instantAt('2026-09-22T09:40:00Z'),
+  },
+  {
+    kind: 'marchReturned',
+    province: 2,
+    plot: 5,
+    units: { infantry: 8, cavalry: 0 },
+    loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
+    recalled: true,
+    occurredAt: instantAt('2026-09-22T09:30:00Z'),
+  },
+  {
+    kind: 'marchReturned',
+    province: 2,
+    plot: 5,
+    units: { infantry: 10, cavalry: 0 },
+    loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
+    recalled: false,
+    occurredAt: instantAt('2026-09-22T09:20:00Z'),
+  },
+  {
+    kind: 'recruitsCancelled',
+    unit: 'infantry',
+    delivered: 1,
+    cancelled: 2,
+    refund: { wood: 40, stone: 0, iron: 20, gold: 0, food: 60 },
+    occurredAt: instantAt('2026-09-22T09:10:00Z'),
+  },
+  {
+    kind: 'recruitsDelivered',
+    unit: 'infantry',
+    count: 4,
+    occurredAt: instantAt('2026-09-22T09:00:00Z'),
+  },
+]
+
+const marchesOf = async (client: Client): Promise<ReadonlyArray<unknown>> => {
+  const fiefs = new DrizzleFiefRepository(drizzle(client), 'lockFree')
+  const restored = []
+  for (const { player } of partyFiefs) {
+    const read = await fiefs.fiefOf(player.id)
+    restored.push(read.ok && read.value?.march)
+  }
+  return restored
+}
+
+describe('the march units migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the marches stored before the party migration as infantry', async () => {
+    await migratedFrom(client, 19, async () => {
+      await insertMarchesOfPartyVersion(client)
+    })
+
+    expect(await marchesOf(client)).toEqual(marchesOfPartyVersion)
+  })
+
+  it('keeps the return and battle events stored before the party migration as infantry', async () => {
+    await migratedFrom(client, 19, async () => {
+      await insertMarchesOfPartyVersion(client)
+      await insertEventsOfPartyVersion(client)
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief)).toEqual(
+      eventsOfPartyVersion,
+    )
+  })
+
+  it('carries the marches and events forward in its own transaction on a database committed at the cavalry migration', async () => {
+    const probeName = `mygame_party_probe_${process.pid}`
+    const admin = new Client({ connectionString: databaseUrl() })
+    await admin.connect()
+    await admin.query(`CREATE DATABASE ${probeName}`)
+    const probeUrl = new URL(databaseUrl())
+    probeUrl.pathname = `/${probeName}`
+    const probe = new Client({ connectionString: probeUrl.toString() })
+    try {
+      await probe.connect()
+      const migrations = readMigrationFiles({ migrationsFolder })
+      await applyMigrations(probe, migrations.slice(0, 19))
+      await insertMarchesOfPartyVersion(probe)
+      await insertEventsOfPartyVersion(probe)
+      await probe.query('BEGIN')
+      await applyMigrations(probe, migrations.slice(19))
+      await probe.query('COMMIT')
+
+      expect({
+        marches: await marchesOf(probe),
+        events: await new DrizzleChronicle(drizzle(probe)).eventsOf(anasPartyFief),
+      }).toEqual({ marches: marchesOfPartyVersion, events: eventsOfPartyVersion })
+    } finally {
+      await probe.end()
+      await admin.query(`DROP DATABASE ${probeName} WITH (FORCE)`)
+      await admin.end()
+    }
   })
 })

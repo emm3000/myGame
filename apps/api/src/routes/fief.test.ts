@@ -658,9 +658,9 @@ describe('the fief route', () => {
     it('answers a returned march with its plot, its infantry and its loot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await runSql(
-        `INSERT INTO fief_marches (fief_id, province, plot, infantry, stay_hours, one_way_seconds,
-           departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food)
-         SELECT id, 2, 7, 10, 1, 60, '2026-09-22T08:00:00Z', 30, 30, 0, 0, 0
+        `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, stay_hours,
+           one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food)
+         SELECT id, 2, 7, 10, 0, 1, 60, '2026-09-22T08:00:00Z', 30, 30, 0, 0, 0
          FROM fiefs`,
       )
       clock.advanceMinutes(62)
@@ -2512,10 +2512,10 @@ describe('the fief route', () => {
       await runSql(`INSERT INTO fief_units (fief_id, kind, count)
         SELECT id, 'infantry'::unit, 10 FROM fiefs`)
       await runSql(
-        `INSERT INTO fief_marches (fief_id, march_order, province, plot, infantry, stay_hours,
-           one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
-           camp_tier, camp_strength, fought)
-         SELECT id, 'attack', 2, ${plot}, 10, 0, 600, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0,
+        `INSERT INTO fief_marches (fief_id, march_order, province, plot, infantry_count,
+           cavalry_count, stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron,
+           loot_gold, loot_food, camp_tier, camp_strength, fought)
+         SELECT id, 'attack', 2, ${plot}, 10, 0, 0, 600, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0,
            1, 6, false
          FROM fiefs`,
       )
