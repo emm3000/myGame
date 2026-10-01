@@ -383,7 +383,8 @@ mockup of #295 draws them.
   caller passes an instant at or after it.
 - Known gap: the lore proposals of #307 wait for the author; until
   accepted, `apps/web/src/copy.ts` mirrors them. The camp icon is a
-  hand-drawn line SVG on the plot tile; `camps/camp-{1,2,3}.png` shipped in #324 (PR #332) and the attack form shows them in #326.
+  hand-drawn line SVG on the plot tile; `camps/camp-{1,2,3}.png`
+  shipped in #324 (PR #332) and the attack form shows them in #326.
 - #303 and #305 shipped as PR #316 and PR #317 after this ADR. The sent
   state dropped the mockup's ochre for the server's strength, and a
   recalled attack reads as a forage march on its way back; neither
