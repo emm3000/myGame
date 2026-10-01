@@ -1,6 +1,6 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { UnitKindSchema } from '@mygame/contracts'
-import type { UnitCounts } from './unitsAtHomeOf'
+import type { UnitCounts } from '../units/UnitCounts'
 
 export function carryOf(party: UnitCounts, fief: FiefOverview): number {
   return UnitKindSchema.options.reduce(

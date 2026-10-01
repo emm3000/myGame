@@ -7,13 +7,13 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
 import { carryOf } from './carryOf'
 import { isEmptyParty } from './isEmptyParty'
 import { oneWaySecondsOf } from './oneWaySecondsOf'
 import { type PartyEntries, partyOf } from './partyOf'
 import { partyReasonOf } from './partyReasonOf'
-import type { UnitCounts } from './unitsAtHomeOf'
 
 export type PlotCamp = NonNullable<ProvinceMap['plots'][number]['camp']>
 

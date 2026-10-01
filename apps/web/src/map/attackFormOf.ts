@@ -5,6 +5,7 @@ import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
 import { carryOf } from './carryOf'
 import { isEmptyParty } from './isEmptyParty'
@@ -13,7 +14,6 @@ import { oneWaySecondsOf } from './oneWaySecondsOf'
 import { partyBattleOf } from './partyBattleOf'
 import { type PartyEntries, partyOf } from './partyOf'
 import { partyReasonOf } from './partyReasonOf'
-import type { UnitCounts } from './unitsAtHomeOf'
 
 export interface AttackTarget {
   readonly province: number

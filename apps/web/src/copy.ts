@@ -12,6 +12,7 @@ import type { ApiRefusal } from './api/apiClient'
 import { capitalize } from './design-system/capitalize'
 import { formatDuration } from './design-system/formatDuration'
 import { formatQuantity } from './design-system/formatQuantity'
+import type { UnitCounts } from './units/UnitCounts'
 
 export interface ResourceQuantity {
   readonly amount: number
@@ -128,18 +129,19 @@ const agreeing = (count: number, singular: string, plural: string): string =>
 const countedUnits = (unit: UnitKind, count: number): string =>
   `${count} ${agreeing(count, units[unit].singular, units[unit].plural)}`
 
-export type UnitCounts = Extract<FiefEvent, { readonly kind: 'battleFought' }>['unitsLost']
-
 const listedUnitsOf = (counts: UnitCounts): ReadonlyArray<string> =>
   UnitKindSchema.options
     .filter((unit) => counts[unit] > 0)
     .map((unit) => countedUnits(unit, counts[unit]))
 
+const noOneOfTheFirstKind = UnitKindSchema.options
+  .slice(0, 1)
+  .map((unit) => countedUnits(unit, 0))
+  .join('')
+
 const partyPhrase = (counts: UnitCounts): string => {
   const listed = listedUnitsOf(counts)
-  return listed.length === 0
-    ? listFormat.format(UnitKindSchema.options.slice(0, 1).map((unit) => countedUnits(unit, 0)))
-    : listFormat.format(listed)
+  return listed.length === 0 ? noOneOfTheFirstKind : listFormat.format(listed)
 }
 
 const sentPartyPhrase = (counts: UnitCounts, sent: UnitCounts): string => {

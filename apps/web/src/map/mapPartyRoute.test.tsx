@@ -85,6 +85,36 @@ const previewLine = (form: HTMLElement, heading: string): string | undefined =>
 const sendButton = (form: HTMLElement): HTMLButtonElement =>
   within(form).getByRole('button', { name: /^Enviar una marcha/ }) as HTMLButtonElement
 
+const entryOf = (form: HTMLElement, label: string): string =>
+  (within(form).getByLabelText(label) as HTMLInputElement).value
+
+it('opens with one rider when riders alone are at home', async () => {
+  const form = await openMarchTo7({
+    fief: async () => ({
+      ok: true,
+      value: { ...fiefWithAParty, units: { infantry: 0, cavalry: 4 } },
+    }),
+  })
+
+  expect(entryOf(form, 'Jinetes a enviar')).toBe('1')
+  expect(entryOf(form, 'Infantes a enviar')).toBe('0')
+})
+
+it('opens with one infantry and blocked when nobody is at home', async () => {
+  const form = await openMarchTo7({
+    fief: async () => ({
+      ok: true,
+      value: { ...fiefWithAParty, units: { infantry: 0, cavalry: 0 } },
+    }),
+  })
+
+  expect(entryOf(form, 'Infantes a enviar')).toBe('1')
+  expect(entryOf(form, 'Jinetes a enviar')).toBe('0')
+  expect(sendButton(form).getAttribute('aria-label')).toBe(
+    'Enviar una marcha. Necesitas 1 infante en casa y tienes 0.',
+  )
+})
+
 it('times a march of riders alone at half the road', async () => {
   const form = await openMarchTo7()
 

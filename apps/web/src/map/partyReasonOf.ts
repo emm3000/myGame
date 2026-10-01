@@ -1,8 +1,9 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { UnitKindSchema } from '@mygame/contracts'
 import { copy } from '../copy'
+import type { UnitCounts } from '../units/UnitCounts'
 import { isEmptyParty } from './isEmptyParty'
-import { type UnitCounts, unitsAtHomeOf } from './unitsAtHomeOf'
+import { unitsAtHomeOf } from './unitsAtHomeOf'
 
 export function partyReasonOf(party: UnitCounts, fief: FiefOverview): string | undefined {
   if (isEmptyParty(party)) {
