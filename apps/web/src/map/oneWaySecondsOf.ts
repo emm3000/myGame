@@ -7,6 +7,11 @@ export interface RoadEnd {
   readonly plot: number
 }
 
+const neutralPercent = 100
+
+const seasonRoadPercentOf = (fief: FiefOverview): number =>
+  fief.season === null ? neutralPercent : fief.season.durationPercent.road
+
 const roadPercentOf = (party: UnitCounts, fief: FiefOverview): number =>
   UnitKindSchema.options
     .filter((unit) => party[unit] >= 1)
@@ -17,5 +22,8 @@ export function oneWaySecondsOf(target: RoadEnd, party: UnitCounts, fief: FiefOv
   const baseSeconds =
     Math.abs(target.province - fief.coordinates.province) * secondsPerProvince +
     Math.abs(target.plot - fief.coordinates.plot) * secondsPerPlot
-  return Math.ceil((baseSeconds * roadPercentOf(party, fief)) / 100)
+  return Math.ceil(
+    (baseSeconds * roadPercentOf(party, fief) * seasonRoadPercentOf(fief)) /
+      (neutralPercent * neutralPercent),
+  )
 }

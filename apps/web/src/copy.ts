@@ -379,6 +379,8 @@ export const copy = {
     countField: (unit: UnitKind): string => `${capitalize(units[unit].plural)} a enviar`,
     hoursField: 'Horas de forrajeo',
     roadHeading: 'Camino de ida:',
+    roadSeasonMark: (season: SeasonKind): string =>
+      `${capitalize(seasonsWithArticle[season])} acorta el camino`,
     returnHeading: 'Vuelta en',
     lootHeading: 'Botín:',
     recall: 'Retirar la marcha',
