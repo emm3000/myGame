@@ -8,9 +8,10 @@ export const marchOneWaySeconds = (
   to: PlotAddress,
   units: UnitCountsByKind,
   { forage, units: unitTerms }: MarchTerms,
+  seasonRoadPercent: number,
 ): number => {
   const baseSeconds =
     Math.abs(to.province - from.province) * forage.secondsPerProvince +
     Math.abs(to.plot - from.plot) * forage.secondsPerPlot
-  return Math.ceil((baseSeconds * roadPercentOf(units, unitTerms)) / 100)
+  return Math.ceil((baseSeconds * roadPercentOf(units, unitTerms) * seasonRoadPercent) / 10_000)
 }

@@ -7,6 +7,7 @@ import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
 import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
+import { inMemoryChronicle } from '../testing/inMemoryChronicle'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { type HeldPlot, inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
 import { neutralSeasons } from '../testing/neutralSeasons'
@@ -16,6 +17,7 @@ import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { dispatchAttack } from './dispatchAttack'
 import { dispatchMarch } from './dispatchMarch'
+import { resolveUpgrade } from './resolveUpgrade'
 
 const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
 
@@ -388,5 +390,79 @@ describe('dispatchAttack with a party of several kinds', () => {
       units: { infantry: 0, cavalry: 6 },
       oneWaySeconds: 630,
     })
+  })
+})
+
+const MILLISECONDS_PER_DAY = 86_400_000
+
+const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
+
+const daysAfterSeasonEpoch = (days: number): Instant =>
+  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
+
+const secondsAfter = (instant: Instant, seconds: number): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
+
+const unscaled = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
+
+const seasonalCatalog: BuildingCatalog = {
+  ...catalog,
+  fiefSettings: () => ({
+    ...fiefSettings,
+    seasons: {
+      ...neutralSeasons,
+      epoch: seasonEpoch,
+      multiplierPercent: {
+        spring: { ...unscaled, food: 125 },
+        summer: unscaled,
+        autumn: { ...unscaled, gold: 125 },
+        winter: { ...unscaled, food: 75 },
+      },
+      durationPercent: {
+        ...neutralSeasons.durationPercent,
+        autumn: { ...neutralSeasons.durationPercent.autumn, road: 75 },
+      },
+    },
+  }),
+}
+
+const seasonalDependencies = (now: Instant) => ({
+  ...dependenciesOver(storedFief({})),
+  catalog: seasonalCatalog,
+  clock: frozenClock(now),
+})
+
+describe('dispatchAttack across seasons', () => {
+  it('shortens the road to a camp in autumn', async () => {
+    const dependencies = seasonalDependencies(daysAfterSeasonEpoch(17))
+
+    await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)
+
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      oneWaySeconds: Math.ceil(((600 + (tierOnePlot - 1) * 60) * 3) / 4),
+    })
+  })
+
+  it('keeps the battle and the attack loot whatever the season', async () => {
+    for (const days of [3, 17, 24]) {
+      const dispatchedAt = daysAfterSeasonEpoch(days)
+      const dependencies = seasonalDependencies(dispatchedAt)
+      await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)
+
+      const resolved = await resolveUpgrade(
+        { playerId: 'lord' },
+        {
+          ...dependencies,
+          chronicle: inMemoryChronicle(),
+          clock: frozenClock(secondsAfter(dispatchedAt, 7_200)),
+        },
+      )
+
+      assert(resolved.ok)
+      expect(resolved.value.events).toMatchObject([
+        { kind: 'battleFought', won: true, unitsLost: { infantry: 4, cavalry: 0 } },
+        { kind: 'marchReturned', loot: { ...noLoot, wood: 96, stone: 96, gold: 96 } },
+      ])
+    }
   })
 })

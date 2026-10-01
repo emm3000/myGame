@@ -8,6 +8,7 @@ import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import type { KingdomMapReader } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
+import { marchSeasonAt } from '../season/marchSeasonAt'
 
 export type DispatchMarchCommand = MarchOrder & {
   readonly playerId: PlayerId
@@ -32,7 +33,8 @@ export const dispatchMarch = async (
   if (fief === undefined) {
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
-  const { forage, units, camps, plotsPerProvince } = catalog.fiefSettings()
+  const settings = catalog.fiefSettings()
+  const { forage, units, camps, plotsPerProvince } = settings
   const room = fief.roomForMarch(command, forage.maxStayHours)
   if (!room.ok) {
     return room
@@ -45,7 +47,8 @@ export const dispatchMarch = async (
   if (campOf({ kingdom: fief.coordinates.kingdom, province, plot }, camps) !== undefined) {
     return err({ kind: 'PlotHasCamp', province, plot })
   }
-  const marching = fief.dispatchMarch(command, clock.now(), { forage, units })
+  const now = clock.now()
+  const marching = fief.dispatchMarch(command, now, { forage, units }, marchSeasonAt(now, settings))
   if (!marching.ok) {
     return marching
   }

@@ -5,7 +5,7 @@ import { campOf } from '../camp/campOf'
 import type { BuildQueueEntry } from '../fief/BuildQueue'
 import type { BusySlot } from '../fief/BuildSlot'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
-import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
+import { Fief, type MarchSeason, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import type { BusyStudySlot } from '../fief/StudySlot'
@@ -1850,6 +1850,11 @@ const campPlotOfProvinceTwo = (tier: CampTier): number => {
   return plot
 }
 
+const unscaledMarchSeason: MarchSeason = {
+  roadPercent: 100,
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+}
+
 const attackingFief = (tier: CampTier, strength: number): Fief => {
   const dispatched = storedFief({
     address: { kingdom: 1, province: 1, plot: 1 },
@@ -1859,6 +1864,7 @@ const attackingFief = (tier: CampTier, strength: number): Fief => {
     { tier, strength },
     storedInstant,
     fiefSettings,
+    unscaledMarchSeason,
   )
   assert(dispatched.ok)
   return dispatched.value
@@ -2198,6 +2204,7 @@ describe('resolveUpgrade with an attack', () => {
         { tier: 1, strength: 6 },
         storedInstant,
         fiefSettings,
+        unscaledMarchSeason,
       )
       assert(dispatched.ok)
       return dispatched.value
@@ -2292,6 +2299,7 @@ const mixedAttackingFief = (): Fief => {
     { tier: 1, strength: 6 },
     storedInstant,
     fiefSettings,
+    unscaledMarchSeason,
   )
   assert(dispatched.ok)
   return dispatched.value

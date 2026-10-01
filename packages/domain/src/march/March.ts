@@ -4,6 +4,8 @@ import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
 import type { ResourceKind } from '../resources/Resources'
 import type { Instant } from '../time/Instant'
 
+export type LootPercent = Readonly<Record<ResourceKind, number>>
+
 type MarchOnTheRoad = {
   readonly kind: 'away'
   readonly province: number
@@ -13,7 +15,7 @@ type MarchOnTheRoad = {
   readonly departedAt: Instant
   readonly oneWaySeconds: number
   readonly loot: Stocks
-  readonly lootPercent: Readonly<Record<ResourceKind, number>>
+  readonly lootPercent: LootPercent
   readonly recalledAt?: Instant
 }
 

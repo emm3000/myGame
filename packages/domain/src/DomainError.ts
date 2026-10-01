@@ -2,6 +2,7 @@ import type { Coordinates } from './fief/Coordinates'
 import type { Stocks } from './fief/Fief'
 import type { PlayerId } from './player/PlayerId'
 import type { ArtKind, BuildingKind, UnitKind } from './ports/BuildingCatalog'
+import type { ResourceKind } from './resources/Resources'
 import type { Instant } from './time/Instant'
 
 export type DomainError =
@@ -98,3 +99,8 @@ export type DomainError =
       readonly atHome: number
     }
   | { readonly kind: 'InvalidCamp'; readonly tier: number; readonly strength: number }
+  | {
+      readonly kind: 'InvalidLootPercent'
+      readonly resource: ResourceKind
+      readonly percent: number
+    }
