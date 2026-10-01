@@ -393,3 +393,41 @@ mockup of #295 draws them.
   PvP, scouting, any march that meets another lord, a season on combat, a
   recall after the battle, a second march at a time, other unit kinds,
   camps that move or strike, units drawn on the map, generated images.
+
+## Amendment (2026-10-01)
+
+S16 (ADR 021) supersedes `battleOf(infantry, campStrength,
+infantryStrength)` in the decision "The whole outcome is fixed at
+dispatch", `carryPerInfantry × survivors` in the loot's decision and
+`infantryLost` on the battle event, and lifts "other unit kinds" from the
+out-of-scope line as far as cavalry goes: an attack sends a count per
+unit kind. The lord's strength is summed over the kinds, `S = Σ nₖ ×
+sₖ`, each `sₖ` the kind's `strength` in the unit terms, 1 for the
+infantry and 2 for the rider as shipped; the higher strength still wins
+and a tie still goes to the camp. A winning lord loses `ceil(C² / S)`
+strength points, taken from the infantry first and then from the
+cavalry: each kind loses `min(nₖ, ceil(rest / sₖ))` units, and when that
+takes every unit the last kind the losses reached loses one fewer, so
+the winner keeps at least one unit in all. With infantry alone that is
+the `min(n − 1, ceil(C² / (n × s²)))` above. A losing lord loses every
+unit of every kind, and the camp `min(C − 1, ceil(S² / C))`, unchanged.
+The loot is capped by the survivors' summed carry: `floor(min(
+lootPerStrength × campStrength, Σ survivorsₖ × carryₖ) / (yielded +
+1))`. With the shipped content 12 infantry and 6 riders against a tier 2
+camp at 15 win, lose 10 infantry and no rider and bring 272 of each of
+three resources (the survivors' carry of 816 caps 900); 2 infantry and 3
+riders against a tier 1 camp at 6 lose both infantry and 2 riders and
+bring 40 of each. `battleOf` answers `unitsLost` and `survivors` per
+kind; `Fief.completeBattle` lowers each kind by its losses and keeps the
+march at the survivors per kind; `battleFought.unitsLost` replaces
+`infantryLost`, and a battle row stores it in `infantry_count` and
+`cavalry_count`, no longer a unit row (migration 0019). `Fief.roomForAttack`
+refuses a negative or fractional count of a kind and an attack with no
+unit as `InvalidUnitCount`, still first, and `Fief.dispatchAttack`
+refuses `NotEnoughUnitsAtHome`, still last. `DispatchAttackRequest` is
+`{ province, plot, units }`, and `combatTerms` loses `infantryStrength`,
+which the form reads from `unitTerms`. The known gap of the snapshot now
+spans every kind's strength. Nothing else here changes: the camps, their
+hash, tiers and regrowth, the strength fixed at dispatch, the battle at
+the arrival, the recall only outbound and the eight event kinds stand,
+and no season touches combat.
