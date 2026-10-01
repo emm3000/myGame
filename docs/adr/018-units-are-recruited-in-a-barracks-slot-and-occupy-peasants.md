@@ -88,7 +88,13 @@ mockup of #213 draws it.
   bounded by the projected free alone can drive the built trio negative (a
   queued farm's supply), and `derivePeasantCounts` answers
   `NegativeFreePeasants` for either (M7). The owner confirmed the lesser on
-  2026-09-29.
+  2026-09-29. Amended by #339: the two ends are not enough, since a busy
+  upgrade that lands before a queued farm leaves a trough between them (an
+  order sized to both ends drove the built trio negative and `GET /fief`
+  answered 500 until the farm landed), so `deriveLowestFreePeasants`
+  bounds N by the lowest free count across the built levels and every step
+  of the slot and the queue in order; the built and the projected free are
+  its first and last steps.
 - **The order's occupancy is charged when it is placed and moves into the
   units at the close, with no change to the occupied total.**
   `derivePeasantCounts` counts an open order's `count` times its occupancy

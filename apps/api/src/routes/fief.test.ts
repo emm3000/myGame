@@ -1504,6 +1504,21 @@ describe('the fief route', () => {
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('NotEnoughPeasants')
     })
 
+    it('refuses an order the busy upgrade would leave unstaffed and keeps the fief readable', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+      expect((await enqueue(ana.cookie, 'sawmill')).status).toBe(200)
+      expect((await enqueue(ana.cookie, 'farm')).status).toBe(200)
+
+      const refused = await recruit(ana.cookie, { unit: 'infantry', count: 9 })
+      clock.advanceMinutes(2)
+      const read = await fiefOf(ana.cookie)
+
+      expect(refused.status).toBe(409)
+      expect(ApiErrorSchema.parse(await refused.json()).kind).toBe('NotEnoughPeasants')
+      expect(read.status).toBe(200)
+    })
+
     it('refuses an order the stocks cannot pay', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildBarracksAt(1)

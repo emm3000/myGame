@@ -339,6 +339,31 @@ describe('placeRecruitOrder', () => {
     expect(fiefs.storedFiefOf('lord')).toBe(farming)
   })
 
+  it('refuses an order the busy upgrade would leave unstaffed before a queued farm lands', async () => {
+    const barracksThenFarm = storedFief({
+      slot: {
+        kind: 'busy',
+        building: 'barracks',
+        targetLevel: 2,
+        startedAt: storedInstant,
+        finishesAt: oneHourLater,
+        cost: barracksLevel(2).cost,
+      },
+      buildQueue: [
+        { building: 'farm', targetLevel: 1, cost: farmLevel(1).cost, durationSeconds: 120 },
+      ],
+    })
+    const fiefs = inMemoryFiefRepository([barracksThenFarm])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', unit: 'infantry', count: 5 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 5, freePeasants: 4 }))
+    expect(fiefs.storedFiefOf('lord')).toBe(barracksThenFarm)
+  })
+
   it('refuses an order of zero units', async () => {
     const armedFief = storedFief({})
     const fiefs = inMemoryFiefRepository([armedFief])
