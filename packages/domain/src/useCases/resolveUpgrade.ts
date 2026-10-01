@@ -5,6 +5,7 @@ import type { BusySlot } from '../fief/BuildSlot'
 import type { ChangedFief } from '../fief/ChangedFief'
 import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
+import { infantryAlone } from '../fief/infantryAlone'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
@@ -13,7 +14,7 @@ import type { BusyStudySlot } from '../fief/StudySlot'
 import type { AttackMarch, AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { PlayerId } from '../player/PlayerId'
-import type { BuildingCatalog } from '../ports/BuildingCatalog'
+import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { CampRegistry } from '../ports/CampRegistry'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
@@ -84,7 +85,7 @@ const endedRecruitOrderOf = (fief: Fief, now: Instant): FinishedWork | undefined
 const foughtBattleOf = (
   fief: Fief,
   now: Instant,
-  infantryStrength: number,
+  unitTerms: FiefSettings['units'],
 ): FinishedWork | undefined => {
   const { march } = fief
   if (
@@ -99,7 +100,7 @@ const foughtBattleOf = (
   if (arrivesAt.epochMilliseconds > now.epochMilliseconds) {
     return undefined
   }
-  const battle = battleOf(march.infantry, march.camp.strength, infantryStrength)
+  const battle = battleOf(infantryAlone(march.infantry), march.camp.strength, unitTerms)
   return { kind: 'battle', march, battle, finishedAt: arrivesAt }
 }
 
@@ -130,13 +131,13 @@ const earlierOf = (
 const earliestFinishedOf = (
   fief: Fief,
   now: Instant,
-  infantryStrength: number,
+  unitTerms: FiefSettings['units'],
 ): FinishedWork | undefined =>
   [
     finishedUpgradeOf(fief, now),
     finishedStudyOf(fief, now),
     endedRecruitOrderOf(fief, now),
-    foughtBattleOf(fief, now, infantryStrength),
+    foughtBattleOf(fief, now, unitTerms),
     returnedMarchOf(fief, now),
   ].reduce(earlierOf, undefined)
 
@@ -177,7 +178,7 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           plot: finished.march.plot,
           tier: finished.march.camp.tier,
           won: finished.battle.won,
-          infantryLost: finished.battle.infantryLost,
+          infantryLost: finished.battle.unitsLost.infantry,
           campLost: finished.battle.campLost,
           occurredAt: finished.finishedAt,
         },
@@ -259,15 +260,15 @@ const walkFinishedWork = (
   fief: Fief,
   catalog: BuildingCatalog,
   now: Instant,
-  infantryStrength: number,
+  unitTerms: FiefSettings['units'],
 ): Result<WalkedFief, DomainError> => {
   let walked = fief
   const events: Array<FiefEvent> = []
   const campBattles: Array<CampBattle> = []
   for (
-    let finished = earliestFinishedOf(walked, now, infantryStrength);
+    let finished = earliestFinishedOf(walked, now, unitTerms);
     finished !== undefined;
-    finished = earliestFinishedOf(walked, now, infantryStrength)
+    finished = earliestFinishedOf(walked, now, unitTerms)
   ) {
     const completed = completeAt(walked, finished, catalog)
     if (!completed.ok) {
@@ -311,8 +312,8 @@ export const resolveUpgrade = async (
   }
 
   const now = clock.now()
-  const infantryStrength = catalog.fiefSettings().units.infantry.strength
-  if (!fief.isSlotIdleWithQueue && earliestFinishedOf(fief, now, infantryStrength) === undefined) {
+  const unitTerms = catalog.fiefSettings().units
+  if (!fief.isSlotIdleWithQueue && earliestFinishedOf(fief, now, unitTerms) === undefined) {
     return ok({ fief, events: [], hasChanged: false })
   }
 
@@ -320,7 +321,7 @@ export const resolveUpgrade = async (
   if (!resumed.ok) {
     return resumed
   }
-  const resolved = walkFinishedWork(resumed.value, catalog, now, infantryStrength)
+  const resolved = walkFinishedWork(resumed.value, catalog, now, unitTerms)
   if (!resolved.ok) {
     return resolved
   }
