@@ -7,6 +7,7 @@ import {
   type BuildingCatalog,
   type BuildingKind,
   type BuildSlot,
+  byUnitKind,
   type DomainError,
   type DurationPercent,
   deliveredUnitsOf,
@@ -65,7 +66,7 @@ const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
 
 const unitsOf = (fief: Fief): FiefOverview['units'] => {
   const counts = fief.unitCountsAt(fief.storedAt)
-  return { infantry: counts.countOf('infantry') }
+  return byUnitKind((unit) => counts.countOf(unit))
 }
 
 const recruitOrderOf = (
@@ -104,7 +105,7 @@ const recruitTermsOf = (
       ),
     }
   }
-  return { infantry: termsOf('infantry') }
+  return byUnitKind(termsOf)
 }
 
 type MarchState = NonNullable<FiefOverview['march']>
@@ -164,7 +165,7 @@ const unitTermsOf = (catalog: BuildingCatalog): FiefOverview['unitTerms'] => {
     const { strength, carry, roadPercent, barracksLevel } = catalog.fiefSettings().units[unit]
     return { strength, carry, roadPercent, barracksLevel }
   }
-  return { infantry: statsOf('infantry') }
+  return byUnitKind(statsOf)
 }
 
 const combatTermsOf = (catalog: BuildingCatalog): FiefOverview['combatTerms'] => {

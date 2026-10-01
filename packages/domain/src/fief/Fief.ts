@@ -787,6 +787,14 @@ export class Fief {
     if (barracksLevel < 1) {
       return err({ kind: 'BarracksNotBuilt' })
     }
+    if (barracksLevel < terms.barracksLevel) {
+      return err({
+        kind: 'BarracksTooLow',
+        unit,
+        requiredBarracksLevel: terms.barracksLevel,
+        barracksLevel,
+      })
+    }
     if (this.recruitOrder.kind === 'open') {
       return err({ kind: 'RecruitSlotBusy', unit: this.recruitOrder.unit })
     }

@@ -96,6 +96,29 @@ export const chronicleContract = (
       expect(await chronicle.eventsOf(valdehierro)).toEqual([delivered])
     })
 
+    it('reads back the riders a levy delivered and cancelled', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const delivered: FiefEvent = {
+        kind: 'recruitsDelivered',
+        unit: 'cavalry',
+        count: 6,
+        occurredAt: minutesAfterDawn(30),
+      }
+      const cancelled: FiefEvent = {
+        kind: 'recruitsCancelled',
+        unit: 'cavalry',
+        delivered: 1,
+        cancelled: 2,
+        occurredAt: minutesAfterDawn(20),
+        refund: { wood: 60, stone: 0, iron: 80, gold: 40, food: 160 },
+      }
+
+      await chronicle.record(valdehierro, [cancelled, delivered])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([delivered, cancelled])
+    })
+
     it('reads back a recruits-cancelled event', async () => {
       const { chronicle, registerFiefs } = await arrange()
       await registerFiefs([valdehierro])

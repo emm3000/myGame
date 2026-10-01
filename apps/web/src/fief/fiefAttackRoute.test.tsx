@@ -27,7 +27,7 @@ const barracksBuilt: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 1 },
   },
-  units: { infantry: 20 },
+  units: { infantry: 20, cavalry: 0 },
 }
 
 type AttackMarch = Extract<NonNullable<FiefOverview['march']>, { readonly order: 'attack' }>
@@ -56,11 +56,15 @@ const attackFightingInFortySeconds: FiefOverview = { ...barracksBuilt, march: at
 
 const attackWon: FiefOverview = {
   ...barracksBuilt,
-  units: { infantry: 17 },
+  units: { infantry: 17, cavalry: 0 },
   march: { ...attackDeparted(860), infantry: 9, fought: true },
 }
 
-const attackLost: FiefOverview = { ...barracksBuilt, units: { infantry: 8 }, march: null }
+const attackLost: FiefOverview = {
+  ...barracksBuilt,
+  units: { infantry: 8, cavalry: 0 },
+  march: null,
+}
 
 const forageArrivingInFortySeconds: FiefOverview = {
   ...barracksBuilt,

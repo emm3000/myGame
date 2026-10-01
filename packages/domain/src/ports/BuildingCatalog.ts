@@ -14,7 +14,7 @@ export type BuildingKind =
 
 export type ArtKind = 'smithing' | 'masonry'
 
-export type UnitKind = 'infantry'
+export type UnitKind = 'infantry' | 'cavalry'
 
 type BuildingLevelData = {
   readonly level: number

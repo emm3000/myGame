@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import type { UnitKind } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
+import { byUnitKind } from './byUnitKind'
 import { unitKinds } from './unitKinds'
 
 export type UnitCountsByKind = Readonly<Record<UnitKind, number>>
@@ -8,7 +9,7 @@ export type UnitCountsByKind = Readonly<Record<UnitKind, number>>
 const isWholeCount = (count: number): boolean => Number.isInteger(count) && count >= 0
 
 export class FiefUnitCounts {
-  static readonly none: FiefUnitCounts = new FiefUnitCounts({ infantry: 0 })
+  static readonly none: FiefUnitCounts = new FiefUnitCounts(byUnitKind(() => 0))
 
   private constructor(private readonly byKind: UnitCountsByKind) {}
 

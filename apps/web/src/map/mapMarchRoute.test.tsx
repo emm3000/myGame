@@ -9,7 +9,7 @@ import { copy } from '../copy'
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
   coordinates: { kingdom: 1, province: 1, plot: 1 },
-  units: { infantry: 10 },
+  units: { infantry: 10, cavalry: 0 },
 }
 
 const provinceOf = (
@@ -148,7 +148,10 @@ it('previews the loot the plot terrain yields', async () => {
 it('previews the loot capped by the carry', async () => {
   const lightCarry: FiefOverview = {
     ...fiefWithTenInfantry,
-    unitTerms: { infantry: { ...fiefWithTenInfantry.unitTerms.infantry, carry: 4 } },
+    unitTerms: {
+      ...fiefWithTenInfantry.unitTerms,
+      infantry: { ...fiefWithTenInfantry.unitTerms.infantry, carry: 4 },
+    },
   }
   const form = await openMarchTo(uplands, 5, {
     fief: async () => ({ ok: true, value: lightCarry }),
@@ -161,7 +164,7 @@ it('previews the loot capped by the carry', async () => {
 })
 
 it('blocks a march without infantry at home', async () => {
-  const noInfantry: FiefOverview = { ...fiefWithTenInfantry, units: { infantry: 0 } }
+  const noInfantry: FiefOverview = { ...fiefWithTenInfantry, units: { infantry: 0, cavalry: 0 } }
   const dispatchMarch = vi.fn(async () => ({ ok: true, value: noInfantry }) as const)
   const form = await openMarchTo(uplands, 5, {
     fief: async () => ({ ok: true, value: noInfantry }),
@@ -199,7 +202,7 @@ it('blocks a march while another is away', async () => {
 it('counts the infantry at home without the men away', async () => {
   const twelveAway: FiefOverview = {
     ...fiefWithTenInfantry,
-    units: { infantry: 20 },
+    units: { infantry: 20, cavalry: 0 },
     march: { ...marchAway, infantry: 12 },
   }
   const form = await openMarchTo(uplands, 7, {

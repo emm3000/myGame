@@ -118,7 +118,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
       barracks: 0,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 10 },
+    units: { infantry: 10, cavalry: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -255,7 +255,7 @@ describe('dispatchMarch', () => {
 
   it('counts the units an open order has delivered as at home', async () => {
     const recruiting = storedFief({
-      units: { infantry: 0 },
+      units: { infantry: 0, cavalry: 0 },
       recruitOrder: {
         kind: 'open',
         unit: 'infantry',

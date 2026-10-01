@@ -2,6 +2,7 @@ import {
   type AwayMarch,
   type BuildQueue,
   type BuildSlot,
+  byUnitKind,
   type DomainError,
   err,
   Fief,
@@ -97,7 +98,7 @@ const artLevelsOf = (joinedRows: ReadonlyArray<JoinedRow>): FiefArtLevels => {
 }
 
 const unitCountsOf = (joinedRows: ReadonlyArray<JoinedRow>): StoredFief['units'] => {
-  const counts = { infantry: 0 }
+  const counts = { ...byUnitKind(() => 0) }
   for (const row of joinedRows) {
     if (row.unit !== null && row.unitCount !== null) {
       counts[unitKinds[row.unit]] = row.unitCount

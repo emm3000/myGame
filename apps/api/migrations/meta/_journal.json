@@ -127,6 +127,13 @@
       "when": 1790701630389,
       "tag": "0017_battle_events",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790878607743,
+      "tag": "0018_cavalry_unit",
+      "breakpoints": true
     }
   ]
 }

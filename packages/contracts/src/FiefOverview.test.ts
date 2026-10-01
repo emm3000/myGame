@@ -82,6 +82,12 @@ const infantryTerms = {
   perUnitSeconds: 45,
 }
 
+const cavalryTerms = {
+  cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
+  peasants: 2,
+  perUnitSeconds: 150,
+}
+
 const openOrder = {
   unit: 'infantry',
   count: 3,
@@ -142,6 +148,7 @@ const shippedForageTerms = {
 
 const shippedUnitTerms = {
   infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
+  cavalry: { strength: 2, carry: 120, roadPercent: 50, barracksLevel: 3 },
 }
 
 const shippedCombatTerms = {
@@ -179,9 +186,9 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   study: { kind: 'idle' },
   arts: twoArts,
   season: autumnOfYearOne,
-  units: { infantry: 4 },
+  units: { infantry: 4, cavalry: 2 },
   recruitOrder: openOrder,
-  recruitTerms: { infantry: infantryTerms },
+  recruitTerms: { infantry: infantryTerms, cavalry: cavalryTerms },
   unitTerms: shippedUnitTerms,
   march: awayMarch,
   forageTerms: shippedForageTerms,
@@ -476,6 +483,7 @@ describe('FiefOverviewSchema', () => {
   it('accepts the unit terms of every kind', () => {
     expect(FiefOverviewSchema.parse(overviewWithSlot(busySlot)).unitTerms).toEqual({
       infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
+      cavalry: { strength: 2, carry: 120, roadPercent: 50, barracksLevel: 3 },
     })
   })
 
