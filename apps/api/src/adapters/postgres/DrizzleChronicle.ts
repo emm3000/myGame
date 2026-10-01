@@ -45,6 +45,13 @@ const refundOf = (row: EventRow): Stocks => ({
   food: row.refundFood,
 })
 
+type UnitCounts = Extract<FiefEvent, { readonly kind: 'marchReturned' }>['units']
+
+const unitCountColumnsOf = (counts: UnitCounts) => ({
+  infantryCount: counts.infantry,
+  cavalryCount: counts.cavalry,
+})
+
 const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
   const common = { fiefId, occurredAt: new Date(event.occurredAt.epochMilliseconds) }
   switch (event.kind) {
@@ -101,8 +108,7 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
       return {
         ...common,
         kind: 'march_returned',
-        unit: storedUnits.infantry,
-        count: event.units.infantry,
+        ...unitCountColumnsOf(event.units),
         province: event.province,
         plot: event.plot,
         recalled: event.recalled,
@@ -112,8 +118,7 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
       return {
         ...common,
         kind: 'battle_fought',
-        unit: storedUnits.infantry,
-        count: event.unitsLost.infantry,
+        ...unitCountColumnsOf(event.unitsLost),
         province: event.province,
         plot: event.plot,
         campTier: event.tier,
@@ -161,6 +166,13 @@ const countOf = (row: EventRow): number => {
     throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no count`)
   }
   return row.count
+}
+
+const unitCountsOf = (row: EventRow): UnitCounts => {
+  if (row.infantryCount === null || row.cavalryCount === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no unit counts`)
+  }
+  return { infantry: row.infantryCount, cavalry: row.cavalryCount }
 }
 
 const cancelledCountOf = (row: EventRow): number => {
@@ -242,7 +254,7 @@ const eventOf = (row: EventRow): FiefEvent => {
         kind: 'marchReturned',
         province: provinceOf(row),
         plot: plotOf(row),
-        units: { infantry: countOf(row), cavalry: 0 },
+        units: unitCountsOf(row),
         loot: refundOf(row),
         recalled: row.recalled,
         occurredAt,
@@ -254,7 +266,7 @@ const eventOf = (row: EventRow): FiefEvent => {
         plot: plotOf(row),
         tier: campTierOf(row),
         won: row.won,
-        unitsLost: { infantry: countOf(row), cavalry: 0 },
+        unitsLost: unitCountsOf(row),
         campLost: campLostOf(row),
         occurredAt,
       }
