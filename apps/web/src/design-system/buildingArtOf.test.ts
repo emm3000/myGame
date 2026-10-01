@@ -19,28 +19,8 @@ it('shares one image between the two levels of a tier', () => {
 
 const levels = Array.from({ length: 10 }, (_, index) => index + 1)
 
-const buildingsWithArt = BuildingKindSchema.options.filter((building) =>
-  levels.some((level) => buildingArtOf(building, level) !== undefined),
-)
-
-it('shows no library art at any level', () => {
-  expect(levels.map((level) => buildingArtOf('library', level))).toEqual(
-    levels.map(() => undefined),
-  )
-})
-
-it('shows no barracks art at any level', () => {
-  expect(levels.map((level) => buildingArtOf('barracks', level))).toEqual(
-    levels.map(() => undefined),
-  )
-})
-
-it('ships art for every building but the library and the barracks', () => {
-  expect(buildingsWithArt).toEqual(['sawmill', 'quarry', 'ironMine', 'farm', 'warehouse'])
-})
-
-it('resolves every building with art from level 1 to 10 to a file under public/art', () => {
-  const missing = buildingsWithArt
+it('resolves every building from level 1 to 10 to a file under public/art', () => {
+  const missing = BuildingKindSchema.options
     .flatMap((building) => levels.map((level) => buildingArtOf(building, level)))
     .filter((src) => src === undefined || !existsSync(join(publicDir, src)))
 

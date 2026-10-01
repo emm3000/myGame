@@ -274,7 +274,7 @@ it('shows the library card with its Spanish label', async () => {
   expect(within(libraryCard()).getByRole('heading', { name: 'Biblioteca' })).toBeDefined()
 })
 
-it('shows no art on the library card', async () => {
+it('shows the library art of its tier on the library card', async () => {
   const libraryAtLevelThree: FiefOverview = {
     ...knownFief,
     buildings: {
@@ -284,7 +284,9 @@ it('shows no art on the library card', async () => {
   }
   await showFief(signedInClientServing(() => libraryAtLevelThree))
 
-  expect(within(libraryCard()).queryByRole('presentation')).toBeNull()
+  expect(within(libraryCard()).getByRole('presentation').getAttribute('src')).toMatch(
+    /\/library-2\.png$/,
+  )
 })
 
 const barracksCard = (): HTMLElement => screen.getByRole('listitem', { name: 'cuartel' })
@@ -295,7 +297,7 @@ it('shows the barracks card with its Spanish label', async () => {
   expect(within(barracksCard()).getByRole('heading', { name: 'Cuartel' })).toBeDefined()
 })
 
-it('shows no art on the barracks card', async () => {
+it('shows the barracks art of its tier on the barracks card', async () => {
   const barracksAtLevelOne: FiefOverview = {
     ...knownFief,
     buildings: {
@@ -305,7 +307,9 @@ it('shows no art on the barracks card', async () => {
   }
   await showFief(signedInClientServing(() => barracksAtLevelOne))
 
-  expect(within(barracksCard()).queryByRole('presentation')).toBeNull()
+  expect(within(barracksCard()).getByRole('presentation').getAttribute('src')).toMatch(
+    /\/barracks-1\.png$/,
+  )
 })
 
 const farmWaitingInFullQueue: FiefOverview = {
