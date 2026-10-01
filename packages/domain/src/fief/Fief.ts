@@ -224,7 +224,7 @@ const validateStudySlot = (studySlot: StudySlot, storedAt: Instant): Result<void
   return validateTimedWork(studySlot, storedAt)
 }
 
-const isUnitCount = (count: number): boolean => Number.isInteger(count) && count >= 1
+const isWholeFromOne = (count: number): boolean => Number.isInteger(count) && count >= 1
 
 const validateRecruitOrder = (
   recruitOrder: RecruitOrder,
@@ -233,10 +233,10 @@ const validateRecruitOrder = (
   if (recruitOrder.kind === 'idle') {
     return ok(undefined)
   }
-  if (!isUnitCount(recruitOrder.count)) {
+  if (!isWholeFromOne(recruitOrder.count)) {
     return err({ kind: 'InvalidUnitCount', unit: recruitOrder.unit, count: recruitOrder.count })
   }
-  if (!isUnitCount(recruitOrder.perUnitSeconds)) {
+  if (!isWholeFromOne(recruitOrder.perUnitSeconds)) {
     return err({
       kind: 'InvalidUnitDuration',
       unit: recruitOrder.unit,
@@ -270,7 +270,7 @@ const campTiers: ReadonlyArray<number> = [1, 2, 3]
 
 const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
   if (march.order === 'forage') {
-    return isUnitCount(march.stayHours)
+    return isWholeFromOne(march.stayHours)
       ? ok(undefined)
       : err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
   }
@@ -285,7 +285,7 @@ const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
 }
 
 const refuseInvalidLootPercent = (lootPercent: LootPercent): Result<void, DomainError> => {
-  const resource = resourceKinds.find((kind) => !isUnitCount(lootPercent[kind]))
+  const resource = resourceKinds.find((kind) => !isWholeFromOne(lootPercent[kind]))
   if (resource !== undefined) {
     return err({ kind: 'InvalidLootPercent', resource, percent: lootPercent[resource] })
   }
@@ -800,7 +800,7 @@ export class Fief {
     trainPercent: number,
   ): Result<Fief, DomainError> {
     const { unit, count, terms } = request
-    if (!isUnitCount(count)) {
+    if (!isWholeFromOne(count)) {
       return err({ kind: 'InvalidUnitCount', unit, count })
     }
     const barracksLevel = this.buildingLevels.barracks
@@ -849,7 +849,7 @@ export class Fief {
     if (!party.ok) {
       return party
     }
-    if (!isUnitCount(stayHours) || stayHours > maxStayHours) {
+    if (!isWholeFromOne(stayHours) || stayHours > maxStayHours) {
       return err({ kind: 'StayOutOfRange', stayHours })
     }
     return this.refuseBusyMarchSlot()

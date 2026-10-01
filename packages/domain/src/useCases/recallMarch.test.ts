@@ -13,6 +13,7 @@ import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
+import { daysAfterSeasonEpoch, seasonalCatalogOf, secondsAfter } from '../testing/seasonalCatalogOf'
 import { Instant } from '../time/Instant'
 import { dispatchMarch } from './dispatchMarch'
 import { recallMarch } from './recallMarch'
@@ -360,34 +361,9 @@ describe('recallMarch with a party of several kinds', () => {
   })
 })
 
-const MILLISECONDS_PER_DAY = 86_400_000
-
-const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
-
-const daysAfterSeasonEpoch = (days: number): Instant =>
-  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
-
-const secondsAfter = (instant: Instant, seconds: number): Instant =>
-  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
-
 const unscaled = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
-const seasonalCatalog: BuildingCatalog = {
-  ...catalog,
-  fiefSettings: () => ({
-    ...fiefSettings,
-    seasons: {
-      ...neutralSeasons,
-      epoch: seasonEpoch,
-      multiplierPercent: {
-        spring: { ...unscaled, food: 125 },
-        summer: unscaled,
-        autumn: { ...unscaled, gold: 125 },
-        winter: { ...unscaled, food: 75 },
-      },
-    },
-  }),
-}
+const seasonalCatalog = seasonalCatalogOf(catalog)
 
 describe('recallMarch across seasons', () => {
   it('recalls with the loot percents of the dispatch, not of the recall', async () => {

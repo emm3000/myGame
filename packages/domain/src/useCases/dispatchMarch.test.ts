@@ -13,6 +13,7 @@ import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
+import { daysAfterSeasonEpoch, seasonalCatalogOf, secondsAfter } from '../testing/seasonalCatalogOf'
 import { Instant } from '../time/Instant'
 import { dispatchMarch } from './dispatchMarch'
 import { enqueueBuilding } from './enqueueBuilding'
@@ -650,38 +651,9 @@ describe('dispatchMarch with a party of several kinds', () => {
   })
 })
 
-const MILLISECONDS_PER_DAY = 86_400_000
-
-const seasonEpoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
-
-const daysAfterSeasonEpoch = (days: number): Instant =>
-  Instant.fromEpochMilliseconds(seasonEpoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
-
-const secondsAfter = (instant: Instant, seconds: number): Instant =>
-  Instant.fromEpochMilliseconds(instant.epochMilliseconds + seconds * 1000)
-
 const unscaled = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
-const seasonalCatalog: BuildingCatalog = {
-  ...catalog,
-  fiefSettings: () => ({
-    ...fiefSettings,
-    seasons: {
-      ...neutralSeasons,
-      epoch: seasonEpoch,
-      multiplierPercent: {
-        ...neutralSeasons.multiplierPercent,
-        spring: { ...unscaled, food: 125 },
-        autumn: { ...unscaled, gold: 125 },
-        winter: { ...unscaled, food: 75 },
-      },
-      durationPercent: {
-        ...neutralSeasons.durationPercent,
-        autumn: { ...neutralSeasons.durationPercent.autumn, road: 75 },
-      },
-    },
-  }),
-}
+const seasonalCatalog = seasonalCatalogOf(catalog)
 
 const homeOnTheMiddleRoad: HeldPlot = {
   ...lordPlot,
