@@ -1,6 +1,7 @@
 import type { CampTier } from '../camp/CampTier'
 import type { Stocks } from '../fief/Fief'
 import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
+import type { ResourceKind } from '../resources/Resources'
 import type { Instant } from '../time/Instant'
 
 type MarchOnTheRoad = {
@@ -12,6 +13,7 @@ type MarchOnTheRoad = {
   readonly departedAt: Instant
   readonly oneWaySeconds: number
   readonly loot: Stocks
+  readonly lootPercent: Readonly<Record<ResourceKind, number>>
   readonly recalledAt?: Instant
 }
 

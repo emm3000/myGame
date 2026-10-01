@@ -19,6 +19,7 @@ const tenInfantryForTwoHours: AwayMarch = {
   departedAt,
   oneWaySeconds: 840,
   loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
 }
 
 const tenInfantryAttacking: AwayMarch = {
@@ -31,6 +32,7 @@ const tenInfantryAttacking: AwayMarch = {
   departedAt,
   oneWaySeconds: 900,
   loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
   camp: { tier: 1, strength: 6 },
   fought: false,
 }

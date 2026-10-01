@@ -141,6 +141,13 @@
       "when": 1790882320019,
       "tag": "0019_march_units",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790893273178,
+      "tag": "0020_march_loot_percents",
+      "breakpoints": true
     }
   ]
 }

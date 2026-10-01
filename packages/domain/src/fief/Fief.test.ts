@@ -45,6 +45,7 @@ const awayMarch = {
   departedAt: foundingInstant,
   oneWaySeconds: 720,
   loot: { wood: 0, stone: 18, iron: 18, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
 } as const
 
 const attackMarch = {
@@ -57,6 +58,7 @@ const attackMarch = {
   departedAt: foundingInstant,
   oneWaySeconds: 720,
   loot: { wood: 0, stone: 16, iron: 16, gold: 16, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
   camp: { tier: 1, strength: 2 },
   fought: false,
 } as const

@@ -307,6 +307,14 @@ const validateMarch = (march: March, storedAt: Instant): Result<void, DomainErro
   return refuseNegativeAmount(march.loot)
 }
 
+const unscaledLootPercent: Readonly<Record<ResourceKind, number>> = {
+  wood: 100,
+  stone: 100,
+  iron: 100,
+  gold: 100,
+  food: 100,
+}
+
 const timesCount = (cost: Stocks, count: number): Stocks => ({
   wood: cost.wood * count,
   stone: cost.stone * count,
@@ -867,6 +875,7 @@ export class Fief {
           departedAt: now,
           oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms),
           loot: forageLootOf(terrainOf(province), units, stayHours, terms),
+          lootPercent: unscaledLootPercent,
         },
       }),
     )
@@ -900,6 +909,7 @@ export class Fief {
           departedAt: now,
           oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms),
           loot: attackLootOf(terrainOf(province), camp.strength, survivors, terms),
+          lootPercent: unscaledLootPercent,
           camp,
           fought: false,
         },

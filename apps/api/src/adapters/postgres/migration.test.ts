@@ -99,6 +99,11 @@ function infantryMarchOf(fiefId: string): typeof fiefMarches.$inferInsert {
     lootIron: 0,
     lootGold: 0,
     lootFood: 0,
+    lootPercentWood: 100,
+    lootPercentStone: 100,
+    lootPercentIron: 100,
+    lootPercentGold: 100,
+    lootPercentFood: 100,
   }
 }
 
@@ -538,6 +543,17 @@ describe('the migrations', () => {
       db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), lootIron: -1 }),
     ).rejects.toMatchObject({
       cause: { code: checkViolation, constraint: 'fief_marches_loot_iron_whole' },
+    })
+  })
+
+  it('refuses a loot percent of 0', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), lootPercentFood: 0 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_loot_percent_food_positive' },
     })
   })
 
@@ -1542,6 +1558,7 @@ describe('the march recall migration', () => {
       departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
       oneWaySeconds: 840,
       loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+      lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
     })
     expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
       {
@@ -1597,6 +1614,7 @@ describe('the attack marches migration', () => {
       departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
       oneWaySeconds: 840,
       loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
+      lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
       recalledAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:30:00Z')),
     })
   })
@@ -1783,6 +1801,7 @@ const marchesOfPartyVersion = [
     departedAt,
     oneWaySeconds: 840,
     loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+    lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
   },
   {
     kind: 'away',
@@ -1794,6 +1813,7 @@ const marchesOfPartyVersion = [
     departedAt,
     oneWaySeconds: 840,
     loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
+    lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
     recalledAt: instantAt('2026-09-22T08:30:00Z'),
   },
   {
@@ -1806,6 +1826,7 @@ const marchesOfPartyVersion = [
     departedAt,
     oneWaySeconds: 900,
     loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+    lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
     camp: { tier: 1, strength: 6 },
     fought: false,
   },
@@ -1819,6 +1840,7 @@ const marchesOfPartyVersion = [
     departedAt,
     oneWaySeconds: 900,
     loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+    lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
     camp: { tier: 2, strength: 15 },
     fought: true,
   },
@@ -1946,5 +1968,62 @@ describe('the march units migration', () => {
       await admin.query(`DROP DATABASE ${probeName} WITH (FORCE)`)
       await admin.end()
     }
+  })
+})
+
+const insertMarchesOfLootPercentVersion = async (client: Client): Promise<void> => {
+  await insertPlayersOfPreviousVersion(client)
+  await client.query(
+    `INSERT INTO players (id, email, password_hash, created_at)
+     VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z'), ($3, $4, 'argon2id-hash', '2026-09-22T08:00:00Z')`,
+    [carla.id, carla.email, dario.id, dario.email],
+  )
+  for (const [plot, { player, fiefId }] of partyFiefs.entries()) {
+    await insertFiefOfPreviousVersion(client, fiefId, player.id, plot + 1, null)
+  }
+  await client.query(
+    `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, stay_hours, one_way_seconds,
+       departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food, recalled_at, march_order, camp_tier,
+       camp_strength, fought)
+     VALUES ($1, 2, 5, 12, 6, 2, 900, '2026-09-22T08:00:00Z', 108, 108, 0, 0, 0, NULL, 'forage', NULL, NULL, false),
+            ($2, 2, 5, 8, 0, 2, 840, '2026-09-22T08:00:00Z', 25, 25, 0, 0, 0, '2026-09-22T08:30:00Z', 'forage', NULL, NULL, false),
+            ($3, 2, 6, 0, 10, 0, 450, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0, NULL, 'attack', 1, 6, false),
+            ($4, 2, 6, 9, 0, 0, 900, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0, NULL, 'attack', 2, 15, true)`,
+    partyFiefs.map(({ fiefId }) => fiefId),
+  )
+}
+
+const [forageOfPartyVersion, recallOfPartyVersion, attackOfPartyVersion, wonAttackOfPartyVersion] =
+  marchesOfPartyVersion
+
+const marchesOfLootPercentVersion = [
+  {
+    ...forageOfPartyVersion,
+    units: { infantry: 12, cavalry: 6 },
+    oneWaySeconds: 900,
+    loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
+  },
+  recallOfPartyVersion,
+  { ...attackOfPartyVersion, units: { infantry: 0, cavalry: 10 }, oneWaySeconds: 450 },
+  wonAttackOfPartyVersion,
+]
+
+describe('the march loot percents migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('reads the marches stored before the loot percents at 100', async () => {
+    await migratedFrom(client, 20, async () => {
+      await insertMarchesOfLootPercentVersion(client)
+    })
+
+    expect(await marchesOf(client)).toEqual(marchesOfLootPercentVersion)
   })
 })
