@@ -1,6 +1,5 @@
 import type { DomainError } from '../DomainError'
-import { derivePeasantCounts } from '../fief/derivePeasantCounts'
-import { deriveProjectedFreePeasants } from '../fief/deriveProjectedFreePeasants'
+import { deriveLowestFreePeasants } from '../fief/deriveLowestFreePeasants'
 import type { Fief } from '../fief/Fief'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { PlayerId } from '../player/PlayerId'
@@ -27,15 +26,11 @@ const staffOrder = (
   command: PlaceRecruitOrderCommand,
   catalog: BuildingCatalog,
 ): Result<void, DomainError> => {
-  const built = derivePeasantCounts(fief.buildingLevels, fief.units, fief.recruitOrder, catalog)
-  if (!built.ok) {
-    return built
+  const lowestFree = deriveLowestFreePeasants(fief, catalog)
+  if (!lowestFree.ok) {
+    return lowestFree
   }
-  const projectedFree = deriveProjectedFreePeasants(fief, catalog)
-  if (!projectedFree.ok) {
-    return projectedFree
-  }
-  const freePeasants = Math.min(built.value.free, projectedFree.value)
+  const freePeasants = lowestFree.value
   const requiredPeasants =
     command.count * catalog.fiefSettings().units[command.unit].peasantOccupancy
   if (requiredPeasants > freePeasants) {
