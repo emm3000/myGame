@@ -4,6 +4,7 @@ import { copy } from '../copy'
 import type { CancelAction } from '../design-system/CancelAction'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
+import { LockedUnitCard } from '../design-system/LockedUnitCard'
 import { MarchSlot, type MarchSlotState } from '../design-system/MarchSlot'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
@@ -12,7 +13,7 @@ import { quantitiesOf } from '../resources/quantitiesOf'
 import type { LiveFief, LiveMarch, LiveRecruitOrder } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
-import { recruitCountOf, unitCardOf } from './unitCardOf'
+import { recruitCountOf, type UnitCardContent, unitCardOf } from './unitCardOf'
 import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
 
@@ -118,6 +119,34 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   }
 }
 
+function unitCardElementOf(
+  card: UnitCardContent,
+  entry: string,
+  recruit: Recruit,
+  onEntryChange: (entry: string) => void,
+  onRecruit: () => void,
+): ReactElement {
+  switch (card.kind) {
+    case 'locked':
+      return <LockedUnitCard {...card} titleElement="h4" />
+    case 'open':
+      return (
+        <UnitCard
+          {...card}
+          entry={entry}
+          titleElement="h4"
+          isWaiting={recruit.isWaiting}
+          onEntryChange={onEntryChange}
+          onRecruit={onRecruit}
+        />
+      )
+    default: {
+      const unreachable: never = card
+      return unreachable
+    }
+  }
+}
+
 function UnitItem({
   unit,
   fief,
@@ -134,16 +163,10 @@ function UnitItem({
       recruit.place({ unit, count })
     }
   }
+  const card = unitCardOf(unit, entry, fief)
   return (
     <li aria-label={copy.names.units[unit].plural} className="flex flex-col">
-      <UnitCard
-        {...unitCardOf(unit, entry, fief)}
-        entry={entry}
-        titleElement="h4"
-        isWaiting={recruit.isWaiting}
-        onEntryChange={setEntry}
-        onRecruit={onRecruit}
-      />
+      {unitCardElementOf(card, entry, recruit, setEntry, onRecruit)}
     </li>
   )
 }

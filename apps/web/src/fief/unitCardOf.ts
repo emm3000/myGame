@@ -2,6 +2,7 @@ import type { UnitKind } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { CardCost } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
+import type { LockedUnitCardProps } from '../design-system/LockedUnitCard'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import type { UnitCardProps } from '../design-system/UnitCard'
 import type { UnitTally } from '../design-system/UnitCount'
@@ -9,10 +10,19 @@ import type { LiveFief } from './liveFief'
 import { resourceCostsOf } from './resourceCostsOf'
 import { type ResourceCost, shortfallsOf } from './shortfallsOf'
 
-export type UnitCardContent = Pick<
-  UnitCardProps,
-  'name' | 'tallies' | 'fieldLabel' | 'isFieldDisabled' | 'costs' | 'actionLabel' | 'state'
->
+export type UnitCardContent =
+  | ({ readonly kind: 'open' } & Pick<
+      UnitCardProps,
+      | 'unit'
+      | 'name'
+      | 'tallies'
+      | 'fieldLabel'
+      | 'isFieldDisabled'
+      | 'costs'
+      | 'actionLabel'
+      | 'state'
+    >)
+  | ({ readonly kind: 'locked' } & Omit<LockedUnitCardProps, 'titleElement'>)
 
 const wholeCountPattern = /^[0-9]+$/
 
@@ -85,9 +95,23 @@ function talliesOf(unit: UnitKind, fief: LiveFief): ReadonlyArray<UnitTally> {
 }
 
 export function unitCardOf(unit: UnitKind, entry: string, fief: LiveFief): UnitCardContent {
+  const requiredLevel = fief.overview.unitTerms[unit].barracksLevel
+  const builtLevel = fief.overview.buildings.barracks.level
+  if (builtLevel < requiredLevel) {
+    return {
+      kind: 'locked',
+      unit,
+      name: copy.army.unitTitle(unit),
+      tallies: talliesOf(unit, fief),
+      requirement: copy.army.requires(requiredLevel),
+      reason: copy.army.barracksTooLow(requiredLevel, builtLevel),
+    }
+  }
   const count = recruitCountOf(entry)
   const recruit = copy.army.recruit(unit)
   return {
+    kind: 'open',
+    unit,
     name: copy.army.unitTitle(unit),
     tallies: talliesOf(unit, fief),
     fieldLabel: copy.army.countField(unit),
