@@ -255,3 +255,62 @@ season while the work runs, an order retimed at a season boundary, a season
 on unit costs or occupancy, a per-card mark, a chronicle event per season,
 a recruit queue, other unit kinds, upkeep or famine, marches and combat stay
 out.
+
+## Second amendment (2026-10-01)
+
+S17 (ADR 022) gives `durationPercent` a fourth cell, `road`, and lifts
+"marches" from the closing line of the amendment above as far as the road
+of a march goes. The owner grilled it on 2026-10-01 (#365); this records
+what S17 shipped, PRs #373, #375 and #376. The title and the Context
+still speak of build and study only, and the file keeps its name.
+
+- **A road percent per season, in content.** `seasons.durationPercent`
+  becomes a strict `{ build, study, train, road }` per season, every cell
+  a whole percent from 1, parsed at start-up as before. The shipped
+  cells: `autumn.road` 75, every other `road` 100; `summer.build` 75,
+  `winter.study` 75 and `spring.train` 75 are unchanged. Autumn, which
+  only raised gold, gains something to do. `SeasonDurationPercentSchema`
+  in `packages/contracts` gains `road`, and `durationPercentAt` answers
+  `{ build: 100, study: 100, train: 100, road: 100 }` before the epoch.
+- **The road is fixed at dispatch, as build, study and train are fixed
+  at the order.** `dispatchMarch` and `dispatchAttack` hand the `Fief`
+  the `road` percent at their one `clock.now()`, and the `Fief` reads no
+  calendar, as `startStudy` and `placeRecruitOrder` do. A march that
+  spans a season boundary is never retimed: it keeps the `oneWaySeconds`
+  it stored, out and back, and neither `marchInstantsOf` nor the resolve
+  walk reads `durationPercent`.
+- **One division and one `ceil`, never chained roundings.**
+  `marchOneWaySeconds` gains the percent as its last argument: `ceil(base
+  × kindRoadPercent × road / 10 000)`, the road of ADR 019 and the
+  slowest kind of ADR 021 scaled together, once. 61 seconds of road for
+  riders in a 75 % autumn is 23 seconds, where a rounding per factor
+  gives 24.
+- **The wire answers the percent, and the form computes the road.**
+  `season.durationPercent` gains `road`; `season` stays `null` before the
+  epoch. Unlike the other three cells, the overview answers no scaled
+  road: a road needs a target and a party, so the map's forms compute
+  their preview from `road` beside `forageTerms` and `unitTerms`, as
+  they have previewed the road since ADR 019. The considered option "The
+  client scales the content seconds" stands for build, study and train,
+  whose effective durations the overview answers; for the road the
+  preview is display and the dispatch decides (N1).
+- **A mark on the form's road line, not on a section header.** The
+  `SeasonMark` chip of ADR 016 beside *Camino de ida:* on the march form
+  and on the attack form when `season.durationPercent.road` is not 100,
+  with the season's icon and the effect in words; no mark at 100 or for
+  `season: null`. No design ticket.
+- **Lore first.** The phrase, *El otoño acorta el camino* in the
+  register of *El verano acorta las obras*, is proposed for the author in
+  the seasons section of `docs/lore/names.md` (#366, PR #372). It waits
+  for the author; until accepted, `apps/web/src/copy.ts` mirrors the
+  proposal.
+- **No event, and no migration for the road.** `oneWaySeconds` was
+  already stored on the march (ADR 019), so the road adds no column; the
+  chronicle keeps its eight kinds (ADR 013).
+
+Nothing else here changes: a waiting entry keeps the season of its
+enqueue and no duration follows the season while the work runs. "Durations
+never read `multiplierPercent`" stands for the four durations; the forage
+loot, which is not a duration, reads it at dispatch (ADR 022). A road
+that follows the season after dispatch, winter lengthening the road, a
+season on combat and a season on the stay hours stay out.

@@ -402,3 +402,32 @@ the locked card.
   PvP, scouting, any march that meets another lord, archers, rams, a
   recall of one kind, a season on the road or on combat, a rider image,
   a change to the camps, their regrowth or the recall.
+
+## Amendment (2026-10-01)
+
+S17 (ADR 022) lifts "no season on the road" from the decision "Nothing
+else changes: no archers, no rams, no PvP, no season on the road", and
+"a season on the road" from the last considered option and from the
+out-of-scope line of the Consequences. `marchOneWaySeconds` takes the
+season's road percent as its last argument and answers `ceil(base ×
+percent × road / 10 000)`: `percent` the `roadPercentOf` above, the
+slowest kind sent, and `road` the season's road percent in content, 75 in
+autumn and 100 in every other season as shipped (ADR 017 as amended),
+still one product, one division and one `ceil`. At 100 it is the
+`ceil(base × percent / 100)` above. With the shipped content, on the
+lore's road of 900 seconds, 6 riders ride 450 each way and 338 in autumn
+(337.5 up), and 12 infantry and 6 riders 900 and 675 in autumn.
+
+`forageLootOfMilliseconds` and `forageLootOf` take a percent per
+resource and answer `min(floor(heads × rate × milliseconds × percent /
+(3 600 000 × 100)), floor(carryOf(units) / yielded))`, the season's
+percent inside the one `floor` and the summed carry still the cap; a
+recall's partial loot reads the percents the march stored at dispatch.
+The decision's sentence that `marchOneWaySeconds` reads no season now
+holds of the calendar alone: the function takes the percent the use case
+read at dispatch. `battleOf` and `attackLootOf` read no season, as
+before. The known gap of the forms' preview now spans the season.
+
+Nothing else here changes: the kinds and their order, the party, the
+road of the slowest kind, the carry, the battle, the losses and the
+attack loot stand, and a season on combat stays out.
