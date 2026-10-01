@@ -11,6 +11,7 @@ import {
   type DurationPercent,
   deliveredUnitsOf,
   deriveBuildDurationSeconds,
+  deriveLowestFreePeasants,
   derivePeasantCounts,
   derivePeasantsForUpgrade,
   deriveResourceRates,
@@ -288,11 +289,16 @@ const peasantsOf = (
   if (!projected.ok) {
     return projected
   }
+  const lowestFree = deriveLowestFreePeasants(fief, catalog)
+  if (!lowestFree.ok) {
+    return lowestFree
+  }
   return ok({
     ...built.value,
     projectedSupplied: projected.value.supplied,
     projectedOccupied: projected.value.occupied,
     projectedFree: projected.value.free,
+    lowestFree: lowestFree.value,
   })
 }
 

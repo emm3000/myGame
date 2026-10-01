@@ -121,7 +121,7 @@ it('shows the cost and the peasants of the count typed', async () => {
 it('blocks an order the stocks cannot pay', async () => {
   const manyFreeHands: FiefOverview = {
     ...barracksBuilt,
-    peasants: { ...barracksBuilt.peasants, free: 60, projectedFree: 60 },
+    peasants: { ...barracksBuilt.peasants, free: 60, projectedFree: 60, lowestFree: 60 },
   }
   await showFief({ fief: async () => ({ ok: true, value: manyFreeHands }) })
 
@@ -134,27 +134,17 @@ it('blocks an order the stocks cannot pay', async () => {
   expect(within(infantryCard()).getByText('Te faltan 100 de hierro y 600 de comida.')).toBeDefined()
 })
 
-it('blocks an order the free peasants cannot staff', async () => {
-  const fewerProjectedFree: FiefOverview = {
+it('blocks an order the lowest free peasants across the build schedule cannot staff', async () => {
+  const dipBeforeTheFarm: FiefOverview = {
     ...barracksBuilt,
-    peasants: { ...barracksBuilt.peasants, projectedOccupied: 10, projectedFree: 2 },
+    peasants: {
+      ...barracksBuilt.peasants,
+      projectedSupplied: 17,
+      projectedFree: 13,
+      lowestFree: 2,
+    },
   }
-  await showFief({ fief: async () => ({ ok: true, value: fewerProjectedFree }) })
-
-  typeCount('3')
-
-  expect(recruitButton().hasAttribute('disabled')).toBe(true)
-  expect(
-    within(infantryCard()).getByText('Necesitas 3 campesinos libres y tienes 2.'),
-  ).toBeDefined()
-})
-
-it('blocks an order the free peasants of now cannot staff', async () => {
-  const fewerFreeNow: FiefOverview = {
-    ...barracksBuilt,
-    peasants: { ...barracksBuilt.peasants, occupied: 10, free: 2 },
-  }
-  await showFief({ fief: async () => ({ ok: true, value: fewerFreeNow }) })
+  await showFief({ fief: async () => ({ ok: true, value: dipBeforeTheFarm }) })
 
   typeCount('3')
 

@@ -177,10 +177,9 @@ mockup of #213 draws it.
   count, the order in progress (delivered of N, a countdown to the next unit
   and one to the last) and a form for N with its cost and its peasants from
   `recruitTerms`, the shortfalls marked as the building cards mark them
-  against `min(free, projectedFree)`; since #339 the server bounds N by
-  the lowest free count across the build schedule, which can be lower, and
-  a follow-up ticket carries that count on the contract for the card.
-  Between reads the count and the
+  against `peasants.lowestFree`, the lowest free count across the build
+  schedule that the overview answers from `deriveLowestFreePeasants`, the
+  bound the server applies to N (#341). Between reads the count and the
   delivered units rise one per `perUnitSeconds` from `startedAt`, capped at
   `count`, and the web re-reads when the order ends, never per unit: a unit
   that trains in under 60 seconds would otherwise poll faster than once a

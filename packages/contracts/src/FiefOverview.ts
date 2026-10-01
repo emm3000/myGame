@@ -171,6 +171,7 @@ export const FiefOverviewSchema = z.object({
     projectedSupplied: WholeCountSchema,
     projectedOccupied: WholeCountSchema,
     projectedFree: WholeCountSchema,
+    lowestFree: WholeCountSchema,
   }),
   slot: z.discriminatedUnion('kind', [IdleSlotSchema, BusySlotSchema]),
   queue: z.object({

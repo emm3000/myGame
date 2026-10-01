@@ -321,6 +321,7 @@ const farmWaitingInFullQueue: FiefOverview = {
     projectedSupplied: 15,
     projectedOccupied: 9,
     projectedFree: 6,
+    lowestFree: 6,
   },
   slot: {
     kind: 'busy',

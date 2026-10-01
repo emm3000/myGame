@@ -202,6 +202,7 @@ describe('the fief route', () => {
       projectedSupplied: 10,
       projectedOccupied: 0,
       projectedFree: 10,
+      lowestFree: 10,
     })
     expect(overview.slot).toEqual({ kind: 'idle' })
     expect(overview.queue).toEqual({ entries: [], cap: 4 })
@@ -855,6 +856,7 @@ describe('the fief route', () => {
         projectedSupplied: 10,
         projectedOccupied: 2,
         projectedFree: 8,
+        lowestFree: 8,
       })
     })
 
@@ -873,7 +875,19 @@ describe('the fief route', () => {
         projectedSupplied: 15,
         projectedOccupied: 2,
         projectedFree: 13,
+        lowestFree: 9,
       })
+    })
+
+    it('answers the lowest free peasants a busy upgrade leaves before a queued farm lands', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana.cookie, 'farm')
+
+      const response = await fiefOf(ana.cookie)
+
+      const { peasants } = FiefOverviewSchema.parse(await response.json())
+      expect(peasants.lowestFree).toBe(9)
     })
 
     it('refuses an upgrade when the queue is full', async () => {
