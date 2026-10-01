@@ -10,17 +10,19 @@ export type Battle = {
   readonly survivors: UnitCountsByKind
 }
 
-type UnitTerms = FiefSettings['units']
-
 type LossTally = {
   readonly rest: number
   readonly lost: UnitCountsByKind
 }
 
-const strengthOf = (units: UnitCountsByKind, terms: UnitTerms): number =>
+const strengthOf = (units: UnitCountsByKind, terms: FiefSettings['units']): number =>
   unitKinds.reduce((strength, unit) => strength + units[unit] * terms[unit].strength, 0)
 
-const tallyLosses = (units: UnitCountsByKind, lostStrength: number, terms: UnitTerms): LossTally =>
+const tallyLosses = (
+  units: UnitCountsByKind,
+  lostStrength: number,
+  terms: FiefSettings['units'],
+): LossTally =>
   unitKinds.reduce<LossTally>(
     ({ rest, lost }, unit) => {
       const unitsLost = Math.min(units[unit], Math.ceil(rest / terms[unit].strength))
@@ -47,7 +49,7 @@ const sparingTheLastReached = (
 const winnersLossesOf = (
   units: UnitCountsByKind,
   lostStrength: number,
-  terms: UnitTerms,
+  terms: FiefSettings['units'],
 ): UnitCountsByKind => {
   const { lost } = tallyLosses(units, lostStrength, terms)
   return sparingTheLastReached(units, lost)
@@ -56,7 +58,7 @@ const winnersLossesOf = (
 export const battleOf = (
   units: UnitCountsByKind,
   campStrength: number,
-  terms: UnitTerms,
+  terms: FiefSettings['units'],
 ): Battle => {
   const ownStrength = strengthOf(units, terms)
   if (ownStrength > campStrength) {

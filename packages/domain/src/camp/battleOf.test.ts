@@ -59,6 +59,12 @@ describe('battleOf', () => {
       unitsLost: partyOf(0, 7),
       survivors: partyOf(0, 1),
     })
+    expect(battleOf(partyOf(0, 1), 1, plainUnits)).toEqual({
+      won: true,
+      unitsLost: partyOf(0, 0),
+      campLost: 1,
+      survivors: partyOf(0, 1),
+    })
   })
 
   it('sums the strength over the kinds', () => {
