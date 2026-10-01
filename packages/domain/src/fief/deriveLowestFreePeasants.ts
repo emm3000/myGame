@@ -9,14 +9,15 @@ import type { FiefBuildingLevels } from './FiefBuildingLevels'
 const upgradesOf = (fief: Fief): ReadonlyArray<UpgradeTarget> =>
   fief.slot.kind === 'busy' ? [fief.slot, ...fief.buildQueue] : fief.buildQueue
 
-const stepsOf = (fief: Fief): ReadonlyArray<FiefBuildingLevels> =>
-  upgradesOf(fief).reduce<ReadonlyArray<FiefBuildingLevels>>(
-    (steps, { building, targetLevel }) => {
-      const previous = steps.at(-1) ?? fief.buildingLevels
-      return [...steps, { ...previous, [building]: targetLevel }]
-    },
-    [fief.buildingLevels],
-  )
+const stepsOf = (fief: Fief): ReadonlyArray<FiefBuildingLevels> => {
+  let levels = fief.buildingLevels
+  const steps = [levels]
+  for (const { building, targetLevel } of upgradesOf(fief)) {
+    levels = { ...levels, [building]: targetLevel }
+    steps.push(levels)
+  }
+  return steps
+}
 
 export const deriveLowestFreePeasants = (
   fief: Fief,
