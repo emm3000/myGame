@@ -1,7 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { UnitKindSchema } from '@mygame/contracts'
+import type { UnitCounts } from '../units/UnitCounts'
 import { byUnitKind } from './byUnitKind'
-import type { UnitCounts } from './unitsAtHomeOf'
 
 export interface PartyBattle {
   readonly isWon: boolean

@@ -1,7 +1,8 @@
 import { type FiefEvent, type ResourceAmounts, UnitKindSchema } from '@mygame/contracts'
-import { copy, type ResourceQuantity, type UnitCounts } from '../copy'
+import { copy, type ResourceQuantity } from '../copy'
 import type { CardCost } from '../design-system/CostList'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import type { UnitCounts } from '../units/UnitCounts'
 import { formatInstant } from './formatInstant'
 
 export interface ChronicleAmounts {
