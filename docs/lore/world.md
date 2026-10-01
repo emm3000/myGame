@@ -25,7 +25,7 @@ Proposal (S13, #255): a lord may send the fief's **infantry on a forage march**:
 
 Gold is never foraged: it is earned, not dug (Where resources come from). The uplands give stone to a fief founded there and stone and wood to a forager: a fief's rate needs a quarry and a sawmill, and the sawmill finds no stands on the plateau, while a forager takes the scrub of the gullies that no sawmill would bother with. The Spanish names of the march, its phases and its refusals are in `names.md` (The marches).
 
-Proposal (S14, #277): a lord may **recall a march** while the men are on the road out or at the plot, never once they have turned for home. A rider carries the word from the hall and the men obey where it finds them. Turned back on the road, they walk home the way they came, so the way home is as long as the way already walked, and they bring nothing: there was nothing to forage on the road. Recalled at the plot, they take the full road home and bring what the hours foraged gave, counted to the second and rounded down, never more than their backs hold, and still no gold; a recall in the very moment they reach the plot finds nothing foraged yet, and the way home is the whole road, which is also the way walked. Men already on the road back are past recalling, and the hall is told so. The men away stay counted and keep their peasants until the gate, as any march does. The recall is the lord's own act and the roll writes nothing for it; the return is written once, by the hour the men walk in, with what they brought (`chronicle.md`). The Spanish of the recall, its two refusals and its chronicle line are in `names.md` (The marches, The chronicle).
+Proposal (S14, #277): a lord may **recall a march** while the men are on the road out or at the plot, never once they have turned for home. A messenger carries the word from the hall and the men obey where it finds them. Turned back on the road, they walk home the way they came, so the way home is as long as the way already walked, and they bring nothing: there was nothing to forage on the road. Recalled at the plot, they take the full road home and bring what the hours foraged gave, counted to the second and rounded down, never more than their backs hold, and still no gold; a recall in the very moment they reach the plot finds nothing foraged yet, and the way home is the whole road, which is also the way walked. Men already on the road back are past recalling, and the hall is told so. The men away stay counted and keep their peasants until the gate, as any march does. The recall is the lord's own act and the roll writes nothing for it; the return is written once, by the hour the men walk in, with what they brought (`chronicle.md`). The Spanish of the recall, its two refusals and its chronicle line are in `names.md` (The marches, The chronicle).
 
 Proposal (S15, #292): not every free plot is empty. **Bandits** hold **camps** on some of them, about one free plot in five, and where they are is in the lay of the land, not in any lord's gift: a plot's camp has been there since before the crown fell and is found where it always was, until a lord founds a fief on that plot and drives the bandits off, since a hall with a village at its gate is no place for a hideout; the founding takes the lowest free plot as it always has, camp or no camp. A camp is of a **tier**, one of three, that never changes, and has a **strength**, the count of the men it holds, that changes only with a fight: a tier's strength is full at six, fifteen or forty, and after a fight what is left of it grows back at an even pace, the tier's full strength in six, twelve or twenty-four hours, as stragglers drift back from the hills and new ones join, so a camp beaten to nothing is full again after those hours and a camp left with something is full sooner; a camp never fought stands at full. The map shows each camp with its tier and its strength as they stand at the hour of the read (`names.md`, The map).
 
@@ -41,6 +41,17 @@ The survivors of a won attack carry back the camp's hoard: sixty of loot for eve
 
 The Spanish of the bandits, the camp, the attack, its refusals and its battle line are in `names.md` (The map, The marches, The chronicle).
 
+Proposal (S16, #343): the yard arms a second kind of unit, the **rider**: a peasant on a horse with a lance, no knight and no lord's son. Riders are fewer and dearer than the infantry. A horse costs what a spear does not: iron for its shoes and its bit, gold for the dealer, since the land breeds few, and food to keep it through the year; and it takes two hands from the fields where a footman takes one, the one in the saddle and the one who keeps the horse. A rider is slower to train, more than three times a footman's drill, and only a barracks of level 3 has the ground to drill him, where the infantry need level 1; the level is the built one, as the library's is for a study, and spring shortens his training as it shortens any levy.
+
+A march or an attack takes any count of each kind at home, at least one man in all: a **party**. Riders ride the road in half the time a footman walks it, and a mixed party rides at the footmen's pace, since a company is as fast as its slowest man; one footman among the riders is enough to slow them all. A rider carries 120 where a footman carries 48, for the horse bears the load, and the party carries the sum. At the plot a rider gathers no faster than a footman, since hands forage and horses do not, so the forage gives the same per head and hour whatever the kind, and never more than the party carries. In a fight a rider counts as two, and the party's strength is the sum of its men's; the stronger side wins and a tie is the bandits', as before. A winning party pays its losses in strength, the camp's strength squared over the party's own, rounded up, and the infantry pay first, one point a man, since they stand in front; the riders fall only once no footman is left to pay, two points a man, rounded up, for a rider does not half fall, and one man at least always comes home. With infantry alone this is the rule above, unchanged. A losing party falls whole, riders and all, and the camp loses as it did. The survivors carry the hoard, never more than their summed loads. The recall turns back the whole party, no kind alone; the camps, their regrowth and the seasons are as the proposals above leave them, and where those say infantry, read the party.
+
+| Kind | Barracks | Peasants | Counts in a fight | Carries | Road |
+|---|---|---|---|---|---|
+| infantry | level 1 | 1 | 1 | 48 | the whole time |
+| rider | level 3 | 2 | 2 | 120 | half the time |
+
+The Spanish of the rider, the locked card, the party and its lines are in `names.md` (The army, The marches, The chronicle).
+
 ## Where resources come from
 
 - **Wood** from the pine and oak stands; the sawmill turns them into timber.
@@ -48,7 +59,7 @@ The Spanish of the bandits, the camp, the attack, its refusals and its battle li
 - **Iron** from the ridge mines; the iron mine smelts it. Iron is scarce and every tool and blade needs it.
 - **Gold** from tolls, tithes and trade; there is no gold mine. It is earned, not dug.
 - **Food** from the farms; peasants eat it, and a fief that cannot feed its people cannot grow.
-- **Peasants** are the people of the fief. Every building needs hands; every unit is a hand taken from the fields.
+- **Peasants** are the people of the fief. Every building needs hands; every unit is a hand taken from the fields, and a rider two (proposal S16, The land).
 
 ## Houses (placeholders)
 
@@ -77,3 +88,4 @@ Proposal (S12, #247): spring shortens training. A levy takes the season in force
 - What ended the crown, and whether it can be claimed.
 - Whether magic exists at all, and if so how little.
 - The unit of gold and what a peasant eats per day in game terms.
+- Where the horses come from: whether the land breeds them or a house trades them.
