@@ -5,7 +5,7 @@ Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D a
 ## How to run it
 
 1. Model: GPT Image, 1024×1024, one image per prompt. Run a whole family in one sitting so the style holds.
-2. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
+2. Codex's image tool has no size argument, so the prompts of the families it generates (library, barracks, camps, arts) end with the square output suffix under Common lines, after the tier line or the resource block. The 25 older building images and the 5 resource images keep their prompts and are not regenerated. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
 3. Save the image as `apps/web/public/art/<family>/<term>-<tier>.png` and the prompt next to it as `<term>-<tier>.prompt.txt`, byte for byte what was pasted (N7).
 4. Lay the family out as a contact sheet before committing, and check it against the bible's palette and framing. One outlier means one regeneration; three mean the template changes and the family is regenerated.
 5. Commit image and prompt together: `feat(art): <family> <term>` or `feat(art): <family>` for a whole family.
@@ -25,6 +25,14 @@ saturated but harmonious earth palette with <resource accent> as the brightest e
 three-quarter elevated view, subject centered filling 70% of frame, soft sky, ground shadow,
 no photorealism, no outlines, no text, no watermark, no people, <tier line>
 ```
+
+### Square output suffix
+
+```
+, square 1:1 composition, output image 1024 x 1024 pixels, keep the entire <framed> and ground shadow inside the square frame
+```
+
+`<framed>` is `building` for the library and `subject` for barracks, camps and arts. It follows the tier line (buildings, camps) or the resource block (arts) after `, `, and only on the families Codex generates. Closing clauses, when a prompt has any, follow it after `, `; they sit under each family heading or in its table, never in the Subject cell. The suffix is output framing, not part of the template.
 
 ### Tier lines
 
@@ -108,15 +116,19 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 
 ### library (biblioteca)
 
-| File | Subject |
-|---|---|
-| `library-1.png` | a small open-fronted wooden shed with one lectern, a lit candle on it, a few scrolls in a basket |
-| `library-2.png` | a wooden library hall with a copying shed beside it, open shutters on a lectern and a shelf of scrolls, a candle lantern by the door |
-| `library-3.png` | a library on a stone footing with a tiled roof, wide doors open on rows of shelves, a lectern by a window, scroll chests under the eaves |
-| `library-4.png` | a stone library with a slate roof, arched windows lit by candles, iron-banded doors open on tall shelves of books, a walled yard |
-| `library-5.png` | a great stone room of shelves with a tower, tall arched doors open on the shelves, candles in every window, banners, a paved yard |
+The suffix says `building` here, not `subject`. Closing clauses are per image.
+
+| File | Subject | Closing clauses |
+|---|---|---|
+| `library-1.png` | a small open-fronted wooden shed with one lectern, a lit candle on it, a few scrolls in a basket | `every parchment and scroll is blank and unmarked, no lettering or scribbles anywhere` |
+| `library-2.png` | a wooden library hall with a copying shed beside it, open shutters on a lectern and a shelf of scrolls, a candle lantern by the door |  |
+| `library-3.png` | a library on a stone footing with a tiled roof, wide doors open on rows of shelves, a lectern by a window, scroll chests under the eaves |  |
+| `library-4.png` | a stone library with a slate roof, arched windows lit by candles, iron-banded doors open on tall shelves of books, a walled yard | `a secular low rectangular stone library hall with a simple uninterrupted slate gable roof and a modest walled courtyard, no tower or turret or spire or steeple or gatehouse, plain shallow round-arched windows with no pointed arches or tracery or quatrefoils or rose windows, no cross or religious symbols or church architecture anywhere, iron-banded doors open to clearly visible tall bookshelves, absolutely no humans and no lettering anywhere` |
+| `library-5.png` | a great stone room of shelves with a tower, tall arched doors open on the shelves, candles in every window, banners, a paved yard | `one library hall with one squat tower and a small walled paved yard, human-scale medieval village building, no cathedral or sprawling castle, absolutely no humans or human silhouettes anywhere including roads gates and background, books and scrolls have no lettering, no cross or religious symbols anywhere, plain gable ends with no finials, round arches only, no pointed gothic arches, a secular civic library with a long broad slate-roofed hall and one squat square tower, no chapel or church silhouette, the tower roof has no ornament or crossbar, precise architectural correction: keep the long secular hall and the one squat square tower and the simple roofs, every single door and window has a broad perfectly semicircular Roman arch with a smooth curved crown and no apex or point, replace any pointed opening with a rounded half-circle opening, no triangular arch tops, preserve the shelves candles banners courtyard framing colors and lighting` |
 
 ### barracks (cuartel)
+
+Closing clauses: `a human-scale village training yard, the training dummies are clearly inanimate rough straw bundles on wooden posts, absolutely no living humans or human silhouettes anywhere including the background, no lettering or scribbles on shields or banners`
 
 | File | Subject |
 |---|---|
@@ -159,6 +171,8 @@ no photorealism, no outlines, no text, no watermark, no people
 
 ### camp (campamento)
 
+Closing clauses: `a modest camp at human scale, absolutely no humans or human silhouettes anywhere including the background, red pennants are solid fabric with no lettering or symbols`
+
 | File | Subject |
 |---|---|
 | `camp-1.png` | a few patched canvas tents around a stone-ringed fire pit, a red pennant on a leaning pole, a small pile of stolen sacks and a barrel |
@@ -169,10 +183,10 @@ no photorealism, no outlines, no text, no watermark, no people
 
 2 images, one per art and never per level: an art shows the same image at every level. Framing follows the bible's resource rule, and each prompt is the resource template block above with `<subject>` and `<accent>` from the table. Each subject is one object of the craft as `docs/lore/arts.md` tells it, never the resource's own object. The image is saved as `apps/web/public/art/arts/<term>.png` with `<term>.prompt.txt` next to it, no tier in the name; the contact sheet is `docs/art/contact-sheets/arts.png`.
 
-| File | Subject | Accent |
-|---|---|---|
-| `smithing.png` | a forge bellows of wood and leather with a dark blue-grey iron nozzle, a small heap of charcoal under it | iron dark blue-grey |
-| `masonry.png` | a rough boulder of pale grey stone split clean along its grain, an iron wedge between two feathers standing in the cleft | stone pale grey |
+| File | Subject | Accent | Closing clauses |
+|---|---|---|---|
+| `smithing.png` | a forge bellows of wood and leather with a dark blue-grey iron nozzle, a small heap of charcoal under it | iron dark blue-grey | |
+| `masonry.png` | a rough boulder of pale grey stone split clean along its grain, an iron wedge between two feathers standing in the cleft | stone pale grey | `the two feathers are curved dark iron shims flanking the central iron wedge, no wooden shims and no bird feathers` |
 
 ## Where the screen reads them
 
