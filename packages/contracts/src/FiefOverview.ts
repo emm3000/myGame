@@ -142,7 +142,7 @@ const MarchStateSchema = z.discriminatedUnion('order', [
   AttackMarchStateSchema,
 ])
 
-const UnitTermsSchema = z.strictObject({
+const UnitStatsSchema = z.strictObject({
   strength: WholeCountSchema.positive(),
   carry: WholeCountSchema.positive(),
   roadPercent: WholeCountSchema.positive(),
@@ -190,7 +190,7 @@ export const FiefOverviewSchema = z.object({
   units: z.record(UnitKindSchema, WholeCountSchema),
   recruitOrder: RecruitOrderStateSchema.nullable(),
   recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
-  unitTerms: z.record(UnitKindSchema, UnitTermsSchema),
+  unitTerms: z.record(UnitKindSchema, UnitStatsSchema),
   march: MarchStateSchema.nullable(),
   forageTerms: ForageTermsSchema,
   combatTerms: CombatTermsSchema,

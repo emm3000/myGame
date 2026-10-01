@@ -360,7 +360,7 @@ describe('FiefContentSchema', () => {
     ).toBe(false)
   })
 
-  it('rejects forage terms that still carry per infantry', () => {
+  it('rejects forage terms with a carry of their own', () => {
     expect(
       FiefContentSchema.safeParse(fiefContent({ forage: { ...forage, carry: 48 } })).success,
     ).toBe(false)

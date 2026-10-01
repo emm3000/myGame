@@ -85,7 +85,7 @@ const recruitOrderOf = (
 
 type RecruitTerms = FiefOverview['recruitTerms'][UnitKind]
 
-type UnitTerms = FiefOverview['unitTerms'][UnitKind]
+type UnitStats = FiefOverview['unitTerms'][UnitKind]
 
 const recruitTermsOf = (
   fief: Fief,
@@ -160,11 +160,11 @@ const forageTermsOf = (catalog: BuildingCatalog): FiefOverview['forageTerms'] =>
 }
 
 const unitTermsOf = (catalog: BuildingCatalog): FiefOverview['unitTerms'] => {
-  const termsOf = (unit: UnitKind): UnitTerms => {
+  const statsOf = (unit: UnitKind): UnitStats => {
     const { strength, carry, roadPercent, barracksLevel } = catalog.fiefSettings().units[unit]
     return { strength, carry, roadPercent, barracksLevel }
   }
-  return { infantry: termsOf('infantry') }
+  return { infantry: statsOf('infantry') }
 }
 
 const combatTermsOf = (catalog: BuildingCatalog): FiefOverview['combatTerms'] => {
