@@ -34,7 +34,7 @@ export const recallMarch = async (
   const recalled = fief.recallMarch(
     { departedAt: command.departedAt },
     clock.now(),
-    catalog.fiefSettings().forage,
+    catalog.fiefSettings(),
   )
   if (!recalled.ok) {
     return recalled

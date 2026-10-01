@@ -85,6 +85,8 @@ const recruitOrderOf = (
 
 type RecruitTerms = FiefOverview['recruitTerms'][UnitKind]
 
+type UnitTerms = FiefOverview['unitTerms'][UnitKind]
+
 const recruitTermsOf = (
   fief: Fief,
   catalog: BuildingCatalog,
@@ -142,13 +144,12 @@ const marchOf = (march: March): FiefOverview['march'] =>
 type ForageYield = FiefOverview['forageTerms']['yieldPerHour'][Terrain]
 
 const forageTermsOf = (catalog: BuildingCatalog): FiefOverview['forageTerms'] => {
-  const { secondsPerProvince, secondsPerPlot, carryPerInfantry, maxStayHours, yieldPerHour } =
+  const { secondsPerProvince, secondsPerPlot, maxStayHours, yieldPerHour } =
     catalog.fiefSettings().forage
   const yieldOf = (terrain: Terrain): ForageYield => ({ ...yieldPerHour[terrain], gold: 0 })
   return {
     secondsPerProvince,
     secondsPerPlot,
-    carryPerInfantry,
     maxStayHours,
     yieldPerHour: {
       lowlands: yieldOf('lowlands'),
@@ -158,11 +159,18 @@ const forageTermsOf = (catalog: BuildingCatalog): FiefOverview['forageTerms'] =>
   }
 }
 
+const unitTermsOf = (catalog: BuildingCatalog): FiefOverview['unitTerms'] => {
+  const termsOf = (unit: UnitKind): UnitTerms => {
+    const { strength, carry, roadPercent, barracksLevel } = catalog.fiefSettings().units[unit]
+    return { strength, carry, roadPercent, barracksLevel }
+  }
+  return { infantry: termsOf('infantry') }
+}
+
 const combatTermsOf = (catalog: BuildingCatalog): FiefOverview['combatTerms'] => {
-  const { units, camps } = catalog.fiefSettings()
+  const { camps } = catalog.fiefSettings()
   const { 1: first, 2: second, 3: third } = camps.tiers
   return {
-    infantryStrength: units.infantry.strength,
     lootPerStrength: camps.lootPerStrength,
     tiers: { 1: { ...first }, 2: { ...second }, 3: { ...third } },
   }
@@ -403,6 +411,7 @@ export const fiefOverviewOf = (
     units: unitsOf(fief),
     recruitOrder: recruitOrderOf(fief.recruitOrder, fief.storedAt),
     recruitTerms: recruitTermsOf(fief, catalog, durations),
+    unitTerms: unitTermsOf(catalog),
     march: marchOf(fief.march),
     forageTerms: forageTermsOf(catalog),
     combatTerms: combatTermsOf(catalog),

@@ -69,12 +69,14 @@ export type UnitTerms = {
   readonly durationSeconds: number
   readonly peasantOccupancy: number
   readonly strength: number
+  readonly carry: number
+  readonly roadPercent: number
+  readonly barracksLevel: number
 }
 
 export type ForageTerms = {
   readonly secondsPerProvince: number
   readonly secondsPerPlot: number
-  readonly carryPerInfantry: number
   readonly maxStayHours: number
   readonly yieldPerHour: Readonly<Record<Terrain, Readonly<Record<ResourceKind, number>>>>
 }

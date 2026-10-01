@@ -32,7 +32,7 @@ export const dispatchMarch = async (
   if (fief === undefined) {
     return err({ kind: 'FiefNotFound', playerId: command.playerId })
   }
-  const { forage, camps, plotsPerProvince } = catalog.fiefSettings()
+  const { forage, units, camps, plotsPerProvince } = catalog.fiefSettings()
   const room = fief.roomForMarch(command, forage.maxStayHours)
   if (!room.ok) {
     return room
@@ -45,7 +45,7 @@ export const dispatchMarch = async (
   if (campOf({ kingdom: fief.coordinates.kingdom, province, plot }, camps) !== undefined) {
     return err({ kind: 'PlotHasCamp', province, plot })
   }
-  const marching = fief.dispatchMarch(command, clock.now(), forage)
+  const marching = fief.dispatchMarch(command, clock.now(), { forage, units })
   if (!marching.ok) {
     return marching
   }

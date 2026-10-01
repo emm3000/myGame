@@ -29,6 +29,9 @@ const UnitTermsSchema = z.strictObject({
   durationSeconds: WholeCountSchema.positive(),
   peasantOccupancy: WholeCountSchema.positive(),
   strength: WholeCountSchema.positive(),
+  carry: WholeCountSchema.positive(),
+  roadPercent: WholeCountSchema.positive(),
+  barracksLevel: WholeCountSchema.positive(),
 })
 
 const CampTermsSchema = z.strictObject({

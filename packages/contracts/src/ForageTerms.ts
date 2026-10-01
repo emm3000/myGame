@@ -13,7 +13,6 @@ const ForageYieldSchema = z.strictObject({
 export const ForageTermsSchema = z.strictObject({
   secondsPerProvince: WholeCountSchema.positive(),
   secondsPerPlot: WholeCountSchema.positive(),
-  carryPerInfantry: WholeCountSchema.positive(),
   maxStayHours: WholeCountSchema.positive(),
   yieldPerHour: z.record(TerrainSchema, ForageYieldSchema),
 })

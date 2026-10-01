@@ -1815,7 +1815,6 @@ describe('the fief route', () => {
       expect(overview.forageTerms).toEqual({
         secondsPerProvince: 600,
         secondsPerPlot: 60,
-        carryPerInfantry: 48,
         maxStayHours: 8,
         yieldPerHour: {
           lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
@@ -1831,13 +1830,22 @@ describe('the fief route', () => {
       const response = await fiefOf(ana.cookie)
 
       expect(FiefOverviewSchema.parse(await response.json()).combatTerms).toEqual({
-        infantryStrength: 1,
         lootPerStrength: 60,
         tiers: {
           1: { maxStrength: 6, regrowHours: 6 },
           2: { maxStrength: 15, regrowHours: 12 },
           3: { maxStrength: 40, regrowHours: 24 },
         },
+      })
+    })
+
+    it('answers the shipped unit terms', async () => {
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await fiefOf(ana.cookie)
+
+      expect(FiefOverviewSchema.parse(await response.json()).unitTerms).toEqual({
+        infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
       })
     })
 

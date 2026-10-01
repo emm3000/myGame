@@ -1,13 +1,22 @@
 import { describe, expect, it } from 'vitest'
+import type { AttackTerms } from '../fief/Fief'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
+import { plainUnits } from '../testing/plainUnits'
 import { attackLootOf } from './attackLootOf'
 
 const noLoot = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
+const shippedTerms: AttackTerms = { forage: plainForage, camps: plainCamps, units: plainUnits }
+
+const smallCarry: AttackTerms = {
+  ...shippedTerms,
+  units: { infantry: { ...plainUnits.infantry, carry: 10 } },
+}
+
 describe('attackLootOf', () => {
   it('splits the loot in thirds with gold', () => {
-    expect(attackLootOf('uplands', 15, 22, plainCamps, plainForage)).toEqual({
+    expect(attackLootOf('uplands', 15, 22, shippedTerms)).toEqual({
       ...noLoot,
       wood: 300,
       stone: 300,
@@ -16,7 +25,7 @@ describe('attackLootOf', () => {
   })
 
   it('caps the loot at the survivors carry', () => {
-    expect(attackLootOf('lowlands', 6, 6, plainCamps, plainForage)).toEqual({
+    expect(attackLootOf('lowlands', 6, 6, shippedTerms)).toEqual({
       ...noLoot,
       wood: 96,
       food: 96,
@@ -24,7 +33,16 @@ describe('attackLootOf', () => {
     })
   })
 
+  it('caps the loot at the carry the unit terms give', () => {
+    expect(attackLootOf('lowlands', 6, 6, smallCarry)).toEqual({
+      ...noLoot,
+      wood: 20,
+      food: 20,
+      gold: 20,
+    })
+  })
+
   it('brings nothing from a lost battle', () => {
-    expect(attackLootOf('ridges', 15, 0, plainCamps, plainForage)).toEqual(noLoot)
+    expect(attackLootOf('ridges', 15, 0, shippedTerms)).toEqual(noLoot)
   })
 })

@@ -2,7 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
-import type { BuildingCatalog, FiefSettings, ForageTerms } from '../ports/BuildingCatalog'
+import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
 import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
@@ -49,7 +49,7 @@ const catalog: BuildingCatalog = {
 
 const noLoot = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
-const smallCarry: ForageTerms = { ...plainForage, carryPerInfantry: 4 }
+const smallCarry: FiefSettings['units'] = { infantry: { ...plainUnits.infantry, carry: 4 } }
 
 const tenInfantryForTwoHours: AwayMarch = {
   kind: 'away',
@@ -184,7 +184,7 @@ describe('recallMarch', () => {
   it('caps the partial loot at the carry share', async () => {
     const dependencies = {
       ...dependenciesAt(8_000),
-      catalog: { ...catalog, fiefSettings: () => ({ ...fiefSettings, forage: smallCarry }) },
+      catalog: { ...catalog, fiefSettings: () => ({ ...fiefSettings, units: smallCarry }) },
     }
 
     await recallMarch(recall, dependencies)

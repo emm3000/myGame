@@ -25,12 +25,12 @@ interface PreviewedBattle {
 }
 
 function battleOf(infantry: number, campStrength: number, fief: FiefOverview): PreviewedBattle {
-  const { infantryStrength } = fief.combatTerms
-  const ownStrength = infantry * infantryStrength
+  const { strength } = fief.unitTerms.infantry
+  const ownStrength = infantry * strength
   if (ownStrength > campStrength) {
     const infantryLost = Math.min(
       infantry - 1,
-      Math.ceil((campStrength * campStrength) / (infantry * infantryStrength * infantryStrength)),
+      Math.ceil((campStrength * campStrength) / (infantry * strength * strength)),
     )
     return { isWon: true, infantryLost, campLost: campStrength, survivors: infantry - infantryLost }
   }
@@ -49,7 +49,7 @@ function lootOf(
   const share = Math.floor(
     Math.min(
       fief.combatTerms.lootPerStrength * campStrength,
-      fief.forageTerms.carryPerInfantry * survivors,
+      fief.unitTerms.infantry.carry * survivors,
     ) /
       (yielded + 1),
   )
