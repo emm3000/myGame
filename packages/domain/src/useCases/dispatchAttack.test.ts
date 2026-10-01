@@ -203,6 +203,16 @@ describe('dispatchAttack', () => {
     })
   })
 
+  it('stores a whole loot percent of 100 per resource', async () => {
+    const dependencies = dependenciesOver(storedFief({}))
+
+    await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)
+
+    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+      lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+    })
+  })
+
   it('fixes no loot for a predicted loss', async () => {
     const dependencies = dependenciesOver(storedFief({}))
 

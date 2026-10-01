@@ -88,6 +88,7 @@ const tenInfantryForaging: AwayMarch = {
   departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:40:00Z')),
   oneWaySeconds: 1_020,
   loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
 }
 
 const tenInfantryAttacking: AwayMarch = {
@@ -100,6 +101,7 @@ const tenInfantryAttacking: AwayMarch = {
   departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:40:00Z')),
   oneWaySeconds: 1_020,
   loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
   camp: { tier: 1, strength: 6 },
   fought: true,
 }
@@ -378,6 +380,34 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(bruno)
       expect(restored.ok && restored.value?.march).toEqual(tenInfantryForaging)
+    })
+
+    it('restores the loot percents of a forage march', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      const springForage: AwayMarch = {
+        ...tenInfantryForaging,
+        lootPercent: { wood: 105, stone: 95, iron: 110, gold: 120, food: 125 },
+      }
+
+      await fiefs.save(developedFiefWith(waitingEntries, infantryOrder, springForage, trainedUnits))
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.march).toEqual(springForage)
+    })
+
+    it('restores the loot percents of an attack', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      const winterAttack: AwayMarch = {
+        ...tenInfantryAttacking,
+        lootPercent: { wood: 90, stone: 85, iron: 80, gold: 70, food: 75 },
+      }
+
+      await fiefs.save(developedFiefWith(waitingEntries, infantryOrder, winterAttack, trainedUnits))
+
+      const restored = await fiefs.fiefOf(bruno)
+      expect(restored.ok && restored.value?.march).toEqual(winterAttack)
     })
 
     it('reads back a recalled march with its partial loot', async () => {

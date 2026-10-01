@@ -176,6 +176,13 @@ const marchOf = (row: MarchRow | null): March => {
       gold: row.lootGold,
       food: row.lootFood,
     },
+    lootPercent: {
+      wood: row.lootPercentWood,
+      stone: row.lootPercentStone,
+      iron: row.lootPercentIron,
+      gold: row.lootPercentGold,
+      food: row.lootPercentFood,
+    },
     ...(row.recalledAt === null ? {} : { recalledAt: instantOf(row.recalledAt) }),
   } satisfies Omit<AwayMarch, 'order'>
   if (row.marchOrder === 'forage') {
@@ -215,6 +222,11 @@ const marchRowOf = (fief: Fief): MarchRow | undefined => {
     lootIron: march.loot.iron,
     lootGold: march.loot.gold,
     lootFood: march.loot.food,
+    lootPercentWood: march.lootPercent.wood,
+    lootPercentStone: march.lootPercent.stone,
+    lootPercentIron: march.lootPercent.iron,
+    lootPercentGold: march.lootPercent.gold,
+    lootPercentFood: march.lootPercent.food,
     recalledAt: march.recalledAt === undefined ? null : dateOf(march.recalledAt),
     ...marchOrderColumnsOf(march),
   }

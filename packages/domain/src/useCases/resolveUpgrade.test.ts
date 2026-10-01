@@ -1550,6 +1550,7 @@ const tenInfantryForTwoHoursDepartedAt = (departedAt: Instant): AwayMarch => ({
   departedAt,
   oneWaySeconds: 840,
   loot: { wood: 200, stone: 200, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
 })
 
 const marchingFief = (overrides: Partial<StoredFief>): Fief =>

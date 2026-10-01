@@ -1,0 +1,1483 @@
+{
+  "id": "32101538-4116-478b-8972-ecf8535ba673",
+  "prevId": "1fd5f54f-541d-4225-8e94-bb92d68502b2",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.account_tokens": {
+      "name": "account_tokens",
+      "schema": "",
+      "columns": {
+        "token_digest": {
+          "name": "token_digest",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "account_token_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "used_at": {
+          "name": "used_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "account_tokens_player_id_players_id_fk": {
+          "name": "account_tokens_player_id_players_id_fk",
+          "tableFrom": "account_tokens",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "account_tokens_token_digest_hex": {
+          "name": "account_tokens_token_digest_hex",
+          "value": "\"account_tokens\".\"token_digest\" ~ '^[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.camp_battles": {
+      "name": "camp_battles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "camp_battles_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "kingdom": {
+          "name": "kingdom",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "province": {
+          "name": "province",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plot": {
+          "name": "plot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "strength": {
+          "name": "strength",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fought_at": {
+          "name": "fought_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "camp_battles_plot_order": {
+          "name": "camp_battles_plot_order",
+          "columns": [
+            {
+              "expression": "kingdom",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "province",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "plot",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "fought_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "camp_battles_kingdom_positive": {
+          "name": "camp_battles_kingdom_positive",
+          "value": "\"camp_battles\".\"kingdom\" >= 1"
+        },
+        "camp_battles_province_positive": {
+          "name": "camp_battles_province_positive",
+          "value": "\"camp_battles\".\"province\" >= 1"
+        },
+        "camp_battles_plot_positive": {
+          "name": "camp_battles_plot_positive",
+          "value": "\"camp_battles\".\"plot\" >= 1"
+        },
+        "camp_battles_strength_whole": {
+          "name": "camp_battles_strength_whole",
+          "value": "\"camp_battles\".\"strength\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fief_arts": {
+      "name": "fief_arts",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "art": {
+          "name": "art",
+          "type": "art",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_arts_fief_id_fiefs_id_fk": {
+          "name": "fief_arts_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_arts",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "fief_arts_pkey": {
+          "name": "fief_arts_pkey",
+          "columns": [
+            "fief_id",
+            "art"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fief_buildings": {
+      "name": "fief_buildings",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_buildings_fief_id_fiefs_id_fk": {
+          "name": "fief_buildings_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_buildings",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "fief_buildings_pkey": {
+          "name": "fief_buildings_pkey",
+          "columns": [
+            "fief_id",
+            "building"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fief_events": {
+      "name": "fief_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "fief_events_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "9223372036854775807",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "fief_event_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "art": {
+          "name": "art",
+          "type": "art",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unit": {
+          "name": "unit",
+          "type": "unit",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_count": {
+          "name": "cancelled_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "infantry_count": {
+          "name": "infantry_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cavalry_count": {
+          "name": "cavalry_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "province": {
+          "name": "province",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plot": {
+          "name": "plot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refund_wood": {
+          "name": "refund_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "refund_stone": {
+          "name": "refund_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "refund_iron": {
+          "name": "refund_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "refund_gold": {
+          "name": "refund_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "refund_food": {
+          "name": "refund_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "recalled": {
+          "name": "recalled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "camp_tier": {
+          "name": "camp_tier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "camp_lost": {
+          "name": "camp_lost",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "won": {
+          "name": "won",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "fief_events_fief_order": {
+          "name": "fief_events_fief_order",
+          "columns": [
+            {
+              "expression": "fief_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fief_events_fief_id_fiefs_id_fk": {
+          "name": "fief_events_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_events",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "fief_events_one_subject": {
+          "name": "fief_events_one_subject",
+          "value": "num_nonnulls(\"fief_events\".\"building\", \"fief_events\".\"art\", \"fief_events\".\"unit\", \"fief_events\".\"infantry_count\") = 1 AND (\"fief_events\".\"infantry_count\" IS NULL) = (\"fief_events\".\"cavalry_count\" IS NULL) AND (\"fief_events\".\"level\" IS NULL) = (\"fief_events\".\"building\" IS NULL AND \"fief_events\".\"art\" IS NULL) AND (\"fief_events\".\"count\" IS NULL) = (\"fief_events\".\"unit\" IS NULL) AND (\"fief_events\".\"cancelled_count\" IS NULL OR (\"fief_events\".\"unit\" IS NOT NULL AND \"fief_events\".\"cancelled_count\" >= 1)) AND (\"fief_events\".\"province\" IS NULL) = (\"fief_events\".\"infantry_count\" IS NULL) AND (\"fief_events\".\"plot\" IS NULL) = (\"fief_events\".\"infantry_count\" IS NULL) AND (\"fief_events\".\"province\" IS NULL OR (\"fief_events\".\"province\" >= 1 AND \"fief_events\".\"plot\" >= 1))"
+        },
+        "fief_events_unit_counts": {
+          "name": "fief_events_unit_counts",
+          "value": "(\"fief_events\".\"infantry_count\" IS NOT NULL) = (\"fief_events\".\"kind\"::text IN ('march_returned', 'battle_fought')) AND (\"fief_events\".\"infantry_count\" IS NULL OR (\"fief_events\".\"infantry_count\" >= 0 AND \"fief_events\".\"cavalry_count\" >= 0)) AND (\"fief_events\".\"kind\"::text <> 'march_returned' OR \"fief_events\".\"infantry_count\" + \"fief_events\".\"cavalry_count\" >= 1)"
+        },
+        "fief_events_recalled_only_march": {
+          "name": "fief_events_recalled_only_march",
+          "value": "NOT \"fief_events\".\"recalled\" OR \"fief_events\".\"kind\"::text = 'march_returned'"
+        },
+        "fief_events_battle_terms": {
+          "name": "fief_events_battle_terms",
+          "value": "(\"fief_events\".\"kind\"::text = 'battle_fought') = (\"fief_events\".\"camp_tier\" IS NOT NULL) AND (\"fief_events\".\"camp_tier\" IS NULL) = (\"fief_events\".\"camp_lost\" IS NULL) AND (\"fief_events\".\"camp_tier\" IS NULL OR (\"fief_events\".\"camp_tier\" BETWEEN 1 AND 3 AND \"fief_events\".\"camp_lost\" >= 0 AND \"fief_events\".\"province\" IS NOT NULL)) AND (NOT \"fief_events\".\"won\" OR \"fief_events\".\"kind\"::text = 'battle_fought')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fief_marches": {
+      "name": "fief_marches",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "province": {
+          "name": "province",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plot": {
+          "name": "plot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "infantry_count": {
+          "name": "infantry_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cavalry_count": {
+          "name": "cavalry_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stay_hours": {
+          "name": "stay_hours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "one_way_seconds": {
+          "name": "one_way_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "departed_at": {
+          "name": "departed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_wood": {
+          "name": "loot_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_stone": {
+          "name": "loot_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_iron": {
+          "name": "loot_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_gold": {
+          "name": "loot_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_food": {
+          "name": "loot_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_percent_wood": {
+          "name": "loot_percent_wood",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_percent_stone": {
+          "name": "loot_percent_stone",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_percent_iron": {
+          "name": "loot_percent_iron",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_percent_gold": {
+          "name": "loot_percent_gold",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loot_percent_food": {
+          "name": "loot_percent_food",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recalled_at": {
+          "name": "recalled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "march_order": {
+          "name": "march_order",
+          "type": "march_order",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'forage'"
+        },
+        "camp_tier": {
+          "name": "camp_tier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "camp_strength": {
+          "name": "camp_strength",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fought": {
+          "name": "fought",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_marches_fief_id_fiefs_id_fk": {
+          "name": "fief_marches_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_marches",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "fief_marches_province_positive": {
+          "name": "fief_marches_province_positive",
+          "value": "\"fief_marches\".\"province\" >= 1"
+        },
+        "fief_marches_plot_positive": {
+          "name": "fief_marches_plot_positive",
+          "value": "\"fief_marches\".\"plot\" >= 1"
+        },
+        "fief_marches_infantry_count_whole": {
+          "name": "fief_marches_infantry_count_whole",
+          "value": "\"fief_marches\".\"infantry_count\" >= 0"
+        },
+        "fief_marches_cavalry_count_whole": {
+          "name": "fief_marches_cavalry_count_whole",
+          "value": "\"fief_marches\".\"cavalry_count\" >= 0"
+        },
+        "fief_marches_units_positive": {
+          "name": "fief_marches_units_positive",
+          "value": "\"fief_marches\".\"infantry_count\" + \"fief_marches\".\"cavalry_count\" >= 1"
+        },
+        "fief_marches_order_terms": {
+          "name": "fief_marches_order_terms",
+          "value": "(\"fief_marches\".\"march_order\"::text = 'forage' AND \"fief_marches\".\"stay_hours\" >= 1 AND \"fief_marches\".\"camp_tier\" IS NULL AND \"fief_marches\".\"camp_strength\" IS NULL AND NOT \"fief_marches\".\"fought\") OR (\"fief_marches\".\"march_order\"::text = 'attack' AND \"fief_marches\".\"stay_hours\" = 0 AND \"fief_marches\".\"camp_tier\" IS NOT NULL AND \"fief_marches\".\"camp_tier\" BETWEEN 1 AND 3 AND \"fief_marches\".\"camp_strength\" IS NOT NULL AND \"fief_marches\".\"camp_strength\" >= 0)"
+        },
+        "fief_marches_one_way_seconds_positive": {
+          "name": "fief_marches_one_way_seconds_positive",
+          "value": "\"fief_marches\".\"one_way_seconds\" >= 1"
+        },
+        "fief_marches_loot_wood_whole": {
+          "name": "fief_marches_loot_wood_whole",
+          "value": "\"fief_marches\".\"loot_wood\" >= 0 AND \"fief_marches\".\"loot_wood\" = trunc(\"fief_marches\".\"loot_wood\")"
+        },
+        "fief_marches_loot_stone_whole": {
+          "name": "fief_marches_loot_stone_whole",
+          "value": "\"fief_marches\".\"loot_stone\" >= 0 AND \"fief_marches\".\"loot_stone\" = trunc(\"fief_marches\".\"loot_stone\")"
+        },
+        "fief_marches_loot_iron_whole": {
+          "name": "fief_marches_loot_iron_whole",
+          "value": "\"fief_marches\".\"loot_iron\" >= 0 AND \"fief_marches\".\"loot_iron\" = trunc(\"fief_marches\".\"loot_iron\")"
+        },
+        "fief_marches_loot_gold_whole": {
+          "name": "fief_marches_loot_gold_whole",
+          "value": "\"fief_marches\".\"loot_gold\" >= 0 AND \"fief_marches\".\"loot_gold\" = trunc(\"fief_marches\".\"loot_gold\")"
+        },
+        "fief_marches_loot_food_whole": {
+          "name": "fief_marches_loot_food_whole",
+          "value": "\"fief_marches\".\"loot_food\" >= 0 AND \"fief_marches\".\"loot_food\" = trunc(\"fief_marches\".\"loot_food\")"
+        },
+        "fief_marches_loot_percent_wood_positive": {
+          "name": "fief_marches_loot_percent_wood_positive",
+          "value": "\"fief_marches\".\"loot_percent_wood\" >= 1"
+        },
+        "fief_marches_loot_percent_stone_positive": {
+          "name": "fief_marches_loot_percent_stone_positive",
+          "value": "\"fief_marches\".\"loot_percent_stone\" >= 1"
+        },
+        "fief_marches_loot_percent_iron_positive": {
+          "name": "fief_marches_loot_percent_iron_positive",
+          "value": "\"fief_marches\".\"loot_percent_iron\" >= 1"
+        },
+        "fief_marches_loot_percent_gold_positive": {
+          "name": "fief_marches_loot_percent_gold_positive",
+          "value": "\"fief_marches\".\"loot_percent_gold\" >= 1"
+        },
+        "fief_marches_loot_percent_food_positive": {
+          "name": "fief_marches_loot_percent_food_positive",
+          "value": "\"fief_marches\".\"loot_percent_food\" >= 1"
+        },
+        "fief_marches_recalled_after_departure": {
+          "name": "fief_marches_recalled_after_departure",
+          "value": "\"fief_marches\".\"recalled_at\" IS NULL OR \"fief_marches\".\"recalled_at\" >= \"fief_marches\".\"departed_at\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fief_queue_entries": {
+      "name": "fief_queue_entries",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "building": {
+          "name": "building",
+          "type": "building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_level": {
+          "name": "target_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_wood": {
+          "name": "cost_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_stone": {
+          "name": "cost_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_iron": {
+          "name": "cost_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_gold": {
+          "name": "cost_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_food": {
+          "name": "cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration_seconds": {
+          "name": "duration_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_queue_entries_fief_id_fiefs_id_fk": {
+          "name": "fief_queue_entries_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_queue_entries",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "fief_queue_entries_pkey": {
+          "name": "fief_queue_entries_pkey",
+          "columns": [
+            "fief_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fief_recruit_orders": {
+      "name": "fief_recruit_orders",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "unit",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_wood": {
+          "name": "cost_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_stone": {
+          "name": "cost_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_iron": {
+          "name": "cost_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_gold": {
+          "name": "cost_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_food": {
+          "name": "cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "per_unit_seconds": {
+          "name": "per_unit_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_recruit_orders_fief_id_fiefs_id_fk": {
+          "name": "fief_recruit_orders_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_recruit_orders",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "fief_recruit_orders_count_positive": {
+          "name": "fief_recruit_orders_count_positive",
+          "value": "\"fief_recruit_orders\".\"count\" >= 1"
+        },
+        "fief_recruit_orders_per_unit_seconds_positive": {
+          "name": "fief_recruit_orders_per_unit_seconds_positive",
+          "value": "\"fief_recruit_orders\".\"per_unit_seconds\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fief_units": {
+      "name": "fief_units",
+      "schema": "",
+      "columns": {
+        "fief_id": {
+          "name": "fief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "unit",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "fief_units_fief_id_fiefs_id_fk": {
+          "name": "fief_units_fief_id_fiefs_id_fk",
+          "tableFrom": "fief_units",
+          "tableTo": "fiefs",
+          "columnsFrom": [
+            "fief_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "fief_units_pkey": {
+          "name": "fief_units_pkey",
+          "columns": [
+            "fief_id",
+            "kind"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "fief_units_count_whole": {
+          "name": "fief_units_count_whole",
+          "value": "\"fief_units\".\"count\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fiefs": {
+      "name": "fiefs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kingdom": {
+          "name": "kingdom",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "province": {
+          "name": "province",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plot": {
+          "name": "plot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "terrain": {
+          "name": "terrain",
+          "type": "terrain",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "wood": {
+          "name": "wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stone": {
+          "name": "stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iron": {
+          "name": "iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gold": {
+          "name": "gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "food": {
+          "name": "food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stored_at": {
+          "name": "stored_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slot_building": {
+          "name": "slot_building",
+          "type": "building",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_level": {
+          "name": "slot_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_started_at": {
+          "name": "slot_started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_finishes_at": {
+          "name": "slot_finishes_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slot_cost_wood": {
+          "name": "slot_cost_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_stone": {
+          "name": "slot_cost_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_iron": {
+          "name": "slot_cost_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_gold": {
+          "name": "slot_cost_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "slot_cost_food": {
+          "name": "slot_cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "study_art": {
+          "name": "study_art",
+          "type": "art",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "study_level": {
+          "name": "study_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "study_started_at": {
+          "name": "study_started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "study_finishes_at": {
+          "name": "study_finishes_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "study_cost_wood": {
+          "name": "study_cost_wood",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "study_cost_stone": {
+          "name": "study_cost_stone",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "study_cost_iron": {
+          "name": "study_cost_iron",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "study_cost_gold": {
+          "name": "study_cost_gold",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "study_cost_food": {
+          "name": "study_cost_food",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "fiefs_player_unique": {
+          "name": "fiefs_player_unique",
+          "columns": [
+            {
+              "expression": "player_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fiefs_player_id_players_id_fk": {
+          "name": "fiefs_player_id_players_id_fk",
+          "tableFrom": "fiefs",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "fiefs_coordinates_unique": {
+          "name": "fiefs_coordinates_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kingdom",
+            "province",
+            "plot"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "fiefs_wood_whole": {
+          "name": "fiefs_wood_whole",
+          "value": "\"fiefs\".\"wood\" >= 0 AND \"fiefs\".\"wood\" = trunc(\"fiefs\".\"wood\")"
+        },
+        "fiefs_stone_whole": {
+          "name": "fiefs_stone_whole",
+          "value": "\"fiefs\".\"stone\" >= 0 AND \"fiefs\".\"stone\" = trunc(\"fiefs\".\"stone\")"
+        },
+        "fiefs_iron_whole": {
+          "name": "fiefs_iron_whole",
+          "value": "\"fiefs\".\"iron\" >= 0 AND \"fiefs\".\"iron\" = trunc(\"fiefs\".\"iron\")"
+        },
+        "fiefs_gold_whole": {
+          "name": "fiefs_gold_whole",
+          "value": "\"fiefs\".\"gold\" >= 0 AND \"fiefs\".\"gold\" = trunc(\"fiefs\".\"gold\")"
+        },
+        "fiefs_food_whole": {
+          "name": "fiefs_food_whole",
+          "value": "\"fiefs\".\"food\" >= 0 AND \"fiefs\".\"food\" = trunc(\"fiefs\".\"food\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.players": {
+      "name": "players",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified_at": {
+          "name": "email_verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "players_email_unique": {
+          "name": "players_email_unique",
+          "columns": [
+            {
+              "expression": "lower(\"email\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "token_digest": {
+          "name": "token_digest",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sessions_player_id_players_id_fk": {
+          "name": "sessions_player_id_players_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "sessions_token_digest_hex": {
+          "name": "sessions_token_digest_hex",
+          "value": "\"sessions\".\"token_digest\" ~ '^[0-9a-f]{64}$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.account_token_kind": {
+      "name": "account_token_kind",
+      "schema": "public",
+      "values": [
+        "reset",
+        "verify"
+      ]
+    },
+    "public.art": {
+      "name": "art",
+      "schema": "public",
+      "values": [
+        "smithing",
+        "masonry"
+      ]
+    },
+    "public.building": {
+      "name": "building",
+      "schema": "public",
+      "values": [
+        "sawmill",
+        "quarry",
+        "iron_mine",
+        "farm",
+        "warehouse",
+        "library",
+        "barracks"
+      ]
+    },
+    "public.fief_event_kind": {
+      "name": "fief_event_kind",
+      "schema": "public",
+      "values": [
+        "upgrade_finished",
+        "art_learned",
+        "upgrade_cancelled",
+        "study_cancelled",
+        "recruits_delivered",
+        "recruits_cancelled",
+        "march_returned",
+        "battle_fought"
+      ]
+    },
+    "public.march_order": {
+      "name": "march_order",
+      "schema": "public",
+      "values": [
+        "forage",
+        "attack"
+      ]
+    },
+    "public.terrain": {
+      "name": "terrain",
+      "schema": "public",
+      "values": [
+        "lowlands",
+        "uplands",
+        "ridges"
+      ]
+    },
+    "public.unit": {
+      "name": "unit",
+      "schema": "public",
+      "values": [
+        "infantry",
+        "cavalry"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
