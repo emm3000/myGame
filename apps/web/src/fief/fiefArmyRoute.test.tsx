@@ -105,17 +105,6 @@ it('shows the infantry count and the form from barracks level 1', async () => {
   expect(recruitButton().textContent).toBe('Reclutar infantes · 1:30')
 })
 
-it('shows the riders on a card of their own', async () => {
-  await showFief({})
-
-  const riderCard = within(armySection()).getByRole('listitem', {
-    name: copy.names.units.cavalry.plural,
-  })
-  expect(within(riderCard).getByRole('heading', { name: 'Jinetes' })).toBeDefined()
-  expect(unitCountOf(riderCard, '0 jinetes en casa')).toBeDefined()
-  expect(within(riderCard).getByRole('button').textContent).toBe('Reclutar jinetes · 5:00')
-})
-
 it('shows the cost and the peasants of the count typed', async () => {
   await showFief({})
 

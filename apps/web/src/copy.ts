@@ -319,6 +319,9 @@ export const copy = {
       `Cancelar la leva: ${countedUnits(unit, count)}`,
     orderRunning: 'Ya hay una leva en marcha.',
     invalidCount,
+    requires: (barracksLevel: number): string => `Requiere cuartel de nivel ${barracksLevel}`,
+    barracksTooLow: (required: number, built: number): string =>
+      `Necesitas un cuartel de nivel ${required} y el tuyo es de nivel ${built}.`,
   },
   march: {
     send: 'Enviar una marcha',

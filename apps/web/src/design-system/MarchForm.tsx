@@ -79,7 +79,7 @@ export function MarchForm(props: MarchFormProps): ReactElement {
           <h4 id={titleId} className="m-0 font-display text-title text-ink">
             {props.title}
           </h4>
-          <UnitCount tallies={[{ count: props.count, label: props.countLabel }]} />
+          <UnitCount unit="infantry" tallies={[{ count: props.count, label: props.countLabel }]} />
         </header>
         <form aria-labelledby={titleId} className="m-0 flex flex-col gap-3" onSubmit={submit}>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
