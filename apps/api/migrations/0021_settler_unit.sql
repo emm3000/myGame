@@ -1,0 +1,12 @@
+ALTER TYPE "public"."unit" ADD VALUE 'settler';--> statement-breakpoint
+ALTER TABLE "fief_events" DROP CONSTRAINT "fief_events_one_subject";--> statement-breakpoint
+ALTER TABLE "fief_events" DROP CONSTRAINT "fief_events_unit_counts";--> statement-breakpoint
+ALTER TABLE "fief_marches" DROP CONSTRAINT "fief_marches_units_positive";--> statement-breakpoint
+ALTER TABLE "fief_events" ADD COLUMN "settler_count" integer;--> statement-breakpoint
+UPDATE "fief_events" SET "settler_count" = 0 WHERE "infantry_count" IS NOT NULL;--> statement-breakpoint
+ALTER TABLE "fief_marches" ADD COLUMN "settler_count" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "fief_marches" ALTER COLUMN "settler_count" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "fief_events" ADD CONSTRAINT "fief_events_one_subject" CHECK (num_nonnulls("fief_events"."building", "fief_events"."art", "fief_events"."unit", "fief_events"."infantry_count") = 1 AND ("fief_events"."infantry_count" IS NULL) = ("fief_events"."cavalry_count" IS NULL) AND ("fief_events"."infantry_count" IS NULL) = ("fief_events"."settler_count" IS NULL) AND ("fief_events"."level" IS NULL) = ("fief_events"."building" IS NULL AND "fief_events"."art" IS NULL) AND ("fief_events"."count" IS NULL) = ("fief_events"."unit" IS NULL) AND ("fief_events"."cancelled_count" IS NULL OR ("fief_events"."unit" IS NOT NULL AND "fief_events"."cancelled_count" >= 1)) AND ("fief_events"."province" IS NULL) = ("fief_events"."infantry_count" IS NULL) AND ("fief_events"."plot" IS NULL) = ("fief_events"."infantry_count" IS NULL) AND ("fief_events"."province" IS NULL OR ("fief_events"."province" >= 1 AND "fief_events"."plot" >= 1)));--> statement-breakpoint
+ALTER TABLE "fief_events" ADD CONSTRAINT "fief_events_unit_counts" CHECK (("fief_events"."infantry_count" IS NOT NULL) = ("fief_events"."kind"::text IN ('march_returned', 'battle_fought')) AND ("fief_events"."infantry_count" IS NULL OR ("fief_events"."infantry_count" >= 0 AND "fief_events"."cavalry_count" >= 0 AND "fief_events"."settler_count" >= 0)) AND ("fief_events"."kind"::text <> 'march_returned' OR "fief_events"."infantry_count" + "fief_events"."cavalry_count" + "fief_events"."settler_count" >= 1));--> statement-breakpoint
+ALTER TABLE "fief_marches" ADD CONSTRAINT "fief_marches_settler_count_whole" CHECK ("fief_marches"."settler_count" >= 0);--> statement-breakpoint
+ALTER TABLE "fief_marches" ADD CONSTRAINT "fief_marches_units_positive" CHECK ("fief_marches"."infantry_count" + "fief_marches"."cavalry_count" + "fief_marches"."settler_count" >= 1);

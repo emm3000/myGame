@@ -8,7 +8,11 @@ import { marchOneWaySeconds } from './marchOneWaySeconds'
 
 const plotOf = (province: number, plot: number): PlotAddress => ({ kingdom: 1, province, plot })
 
-const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({ infantry, cavalry })
+const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
+  infantry,
+  cavalry,
+  settler: 0,
+})
 
 const shippedTerms: MarchTerms = { forage: plainForage, units: plainUnits }
 

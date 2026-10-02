@@ -67,7 +67,7 @@ const masonryStudy: StudySlot = {
   cost: { wood: 80, stone: 120, iron: 0, gold: 35, food: 0 },
 }
 
-const trainedUnits: StoredFief['units'] = { infantry: 12, cavalry: 6 }
+const trainedUnits: StoredFief['units'] = { infantry: 12, cavalry: 6, settler: 1 }
 
 const infantryOrder: OpenRecruitOrder = {
   kind: 'open',
@@ -83,7 +83,7 @@ const tenInfantryForaging: AwayMarch = {
   order: 'forage',
   province: 6,
   plot: 9,
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 2,
   departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:40:00Z')),
   oneWaySeconds: 1_020,
@@ -96,7 +96,7 @@ const tenInfantryAttacking: AwayMarch = {
   order: 'attack',
   province: 6,
   plot: 9,
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 0,
   departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:40:00Z')),
   oneWaySeconds: 1_020,
@@ -108,13 +108,13 @@ const tenInfantryAttacking: AwayMarch = {
 
 const infantryAndRidersForaging: AwayMarch = {
   ...tenInfantryForaging,
-  units: { infantry: 12, cavalry: 6 },
+  units: { infantry: 12, cavalry: 6, settler: 0 },
   loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
 }
 
 const ridersAttacking: AwayMarch = {
   ...tenInfantryAttacking,
-  units: { infantry: 0, cavalry: 10 },
+  units: { infantry: 0, cavalry: 10, settler: 0 },
   loot: { wood: 120, stone: 120, iron: 0, gold: 120, food: 0 },
 }
 
@@ -297,6 +297,7 @@ export const fiefRepositoryContract = (
         restored.ok && {
           infantry: restored.value?.units.countOf('infantry'),
           cavalry: restored.value?.units.countOf('cavalry'),
+          settler: restored.value?.units.countOf('settler'),
         },
       ).toEqual(trainedUnits)
     })
@@ -311,7 +312,7 @@ export const fiefRepositoryContract = (
           waitingEntries,
           infantryOrder,
           { kind: 'idle' },
-          { infantry: 0, cavalry: 6 },
+          { infantry: 0, cavalry: 6, settler: 0 },
         ),
       )
 
@@ -357,6 +358,26 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.recruitOrder).toEqual(riderOrder)
+    })
+
+    it('restores an open recruit order of settlers', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      const settlerOrder: OpenRecruitOrder = {
+        kind: 'open',
+        unit: 'settler',
+        count: 1,
+        cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
+        perUnitSeconds: 1200,
+        startedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:50:00Z')),
+      }
+
+      await fiefs.save(
+        developedFiefWith(waitingEntries, settlerOrder, { kind: 'idle' }, trainedUnits),
+      )
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.recruitOrder).toEqual(settlerOrder)
     })
 
     it('restores an idle recruit slot after the order closes', async () => {
@@ -461,6 +482,21 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(ridersAttacking)
+    })
+
+    it('restores the settler count of a march', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      const settlerAway: AwayMarch = {
+        ...tenInfantryForaging,
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+        loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+      }
+
+      await fiefs.save(developedFiefWith(waitingEntries, infantryOrder, settlerAway, trainedUnits))
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.march).toEqual(settlerAway)
     })
 
     it('restores a forage march over an attack stored before it', async () => {

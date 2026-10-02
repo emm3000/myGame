@@ -107,7 +107,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: levelsWithLibrary(1),
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0 },
+    units: { infantry: 0, cavalry: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },

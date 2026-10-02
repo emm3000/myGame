@@ -6,9 +6,13 @@ import type { Refusal } from './Refusal'
 
 type UnitsShortAtHome = Extract<Refusal, { readonly kind: 'NotEnoughUnitsAtHome' }>
 
-type SlotlessKind = Exclude<ApiErrorKind, UnitsShortAtHome['kind']>
+type BarracksTooLow = Extract<Refusal, { readonly kind: 'BarracksTooLow' }>
 
-type SlotlessRefusalKind = Exclude<Refusal['kind'], UnitsShortAtHome['kind']>
+type SlottedKind = UnitsShortAtHome['kind'] | BarracksTooLow['kind']
+
+type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
+
+type SlotlessRefusalKind = Exclude<Refusal['kind'], SlottedKind>
 
 type RefusalAnswer = {
   readonly status: ContentfulStatusCode
@@ -20,6 +24,7 @@ const unitLabels: Readonly<
 > = {
   infantry: { singular: 'infante', plural: 'infantes' },
   cavalry: { singular: 'jinete', plural: 'jinetes' },
+  settler: { singular: 'colono', plural: 'colonos' },
 }
 
 const countedUnits = (unit: UnitKind, count: number): string =>
@@ -27,6 +32,9 @@ const countedUnits = (unit: UnitKind, count: number): string =>
 
 const unitsShortLineOf = ({ unit, count, atHome }: UnitsShortAtHome): string =>
   `Necesitas ${countedUnits(unit, count)} en casa y tienes ${atHome}. Ajusta la marcha.`
+
+const barracksTooLowLineOf = ({ unit, requiredBarracksLevel }: BarracksTooLow): string =>
+  `Tu cuartel aún no llega al nivel ${requiredBarracksLevel} que piden los ${unitLabels[unit].plural}. Mejóralo primero.`
 
 const messages: Readonly<Record<SlotlessKind, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
@@ -45,7 +53,6 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
   BarracksNotBuilt: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
-  BarracksTooLow: 'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
   RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   RecruitOrderNotFound: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
@@ -57,6 +64,7 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
+  UnitUnfitForOrder: 'Un colono no forrajea ni ataca. Envíalo a fundar un feudo.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
@@ -98,7 +106,6 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   InvalidUnitCount: internalFailure,
   InvalidUnitDuration: internalFailure,
   BarracksNotBuilt: { status: 409, kind: 'BarracksNotBuilt' },
-  BarracksTooLow: { status: 409, kind: 'BarracksTooLow' },
   RecruitSlotBusy: { status: 409, kind: 'RecruitSlotBusy' },
   RecruitOrderNotFound: { status: 409, kind: 'RecruitOrderNotFound' },
   NegativeFreePeasants: internalFailure,
@@ -116,6 +123,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   PlotHeld: { status: 409, kind: 'PlotHeld' },
   PlotHasCamp: { status: 409, kind: 'PlotHasCamp' },
   PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
+  UnitUnfitForOrder: { status: 409, kind: 'UnitUnfitForOrder' },
   InvalidCamp: internalFailure,
   InvalidLootPercent: internalFailure,
 }
@@ -123,6 +131,10 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {
   if (refusal.kind === 'NotEnoughUnitsAtHome') {
     const body: ApiError = { kind: refusal.kind, message: unitsShortLineOf(refusal) }
+    return c.json(body, 409)
+  }
+  if (refusal.kind === 'BarracksTooLow') {
+    const body: ApiError = { kind: refusal.kind, message: barracksTooLowLineOf(refusal) }
     return c.json(body, 409)
   }
   const { status, kind } = answers[refusal.kind]

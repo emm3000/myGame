@@ -1,6 +1,7 @@
 import type { Coordinates } from './fief/Coordinates'
 import type { Stocks } from './fief/Fief'
 import type { FiefId } from './fief/FiefId'
+import type { AwayMarch } from './march/March'
 import type { PlayerId } from './player/PlayerId'
 import type { ArtKind, BuildingKind, UnitKind } from './ports/BuildingCatalog'
 import type { ResourceKind } from './resources/Resources'
@@ -98,6 +99,11 @@ export type DomainError =
       readonly unit: UnitKind
       readonly count: number
       readonly atHome: number
+    }
+  | {
+      readonly kind: 'UnitUnfitForOrder'
+      readonly unit: UnitKind
+      readonly order: AwayMarch['order']
     }
   | { readonly kind: 'InvalidCamp'; readonly tier: number; readonly strength: number }
   | {

@@ -3,12 +3,12 @@ import type {
   FiefOverview,
   PlaceRecruitOrderRequest,
 } from '@mygame/contracts'
-import type { ApiClient, ApiRefusal } from '../api/apiClient'
-import { useFiefAction } from './useFiefAction'
+import type { ApiClient } from '../api/apiClient'
+import { type RefusedAction, useFiefAction } from './useFiefAction'
 
 export interface Recruit {
   readonly isWaiting: boolean
-  readonly refusal: ApiRefusal | undefined
+  readonly refused: RefusedAction<PlaceRecruitOrderRequest | CancelRecruitOrderRequest> | undefined
   readonly place: (request: PlaceRecruitOrderRequest) => void
   readonly cancel: (target: CancelRecruitOrderRequest) => void
 }
@@ -25,7 +25,7 @@ export function useRecruit(
 
   return {
     isWaiting,
-    refusal: refused?.refusal,
+    refused,
     place: (request) => run(request, () => apiClient.placeRecruitOrder(fiefId, request)),
     cancel: (target) => run(target, () => apiClient.cancelRecruitOrder(fiefId, target)),
   }

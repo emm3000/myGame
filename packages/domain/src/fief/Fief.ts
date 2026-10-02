@@ -8,6 +8,7 @@ import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import { marchPhaseAt } from '../march/marchPhaseAt'
 import { refuseInvalidParty } from '../march/refuseInvalidParty'
+import { refuseUnfitUnits } from '../march/refuseUnfitUnits'
 import type { PlayerId } from '../player/PlayerId'
 import type {
   ArtLevel,
@@ -849,6 +850,10 @@ export class Fief {
     if (!party.ok) {
       return party
     }
+    const fit = refuseUnfitUnits(units, 'forage')
+    if (!fit.ok) {
+      return fit
+    }
     if (!isWholeFromOne(stayHours) || stayHours > maxStayHours) {
       return err({ kind: 'StayOutOfRange', stayHours })
     }
@@ -859,6 +864,10 @@ export class Fief {
     const party = refuseInvalidParty(order.units)
     if (!party.ok) {
       return party
+    }
+    const fit = refuseUnfitUnits(order.units, 'attack')
+    if (!fit.ok) {
+      return fit
     }
     return this.refuseBusyMarchSlot()
   }

@@ -148,6 +148,13 @@
       "when": 1790893273178,
       "tag": "0020_march_loot_percents",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790910037801,
+      "tag": "0021_settler_unit",
+      "breakpoints": true
     }
   ]
 }

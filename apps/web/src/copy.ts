@@ -36,7 +36,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
   StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
   BarracksNotBuilt: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
-  BarracksTooLow: 'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
+  BarracksTooLow: 'Tu cuartel aún no llega al nivel que pide esa leva. Mejóralo primero.',
   RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   RecruitOrderNotFound: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
@@ -49,6 +49,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
+  UnitUnfitForOrder: 'Un colono no forrajea ni ataca. Envíalo a fundar un feudo.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
@@ -86,6 +87,7 @@ interface UnitLabel {
 const units: Readonly<Record<UnitKind, UnitLabel>> = {
   infantry: { singular: 'infante', plural: 'infantes' },
   cavalry: { singular: 'jinete', plural: 'jinetes' },
+  settler: { singular: 'colono', plural: 'colonos' },
 }
 
 const kingdoms: Readonly<Partial<Record<number, string>>> = {
@@ -357,6 +359,8 @@ export const copy = {
     requires: (barracksLevel: number): string => `Requiere cuartel de nivel ${barracksLevel}`,
     barracksTooLow: (required: number, built: number): string =>
       `Necesitas un cuartel de nivel ${required} y el tuyo es de nivel ${built}.`,
+    barracksTooLowRefusal: (unit: UnitKind, required: number): string =>
+      `Tu cuartel aún no llega al nivel ${required} que piden los ${units[unit].plural}. Mejóralo primero.`,
   },
   march: {
     send: 'Enviar una marcha',

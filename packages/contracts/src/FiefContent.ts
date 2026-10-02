@@ -28,8 +28,8 @@ const UnitTermsSchema = z.strictObject({
   cost: ResourceAmountsSchema,
   durationSeconds: WholeCountSchema.positive(),
   peasantOccupancy: WholeCountSchema.positive(),
-  strength: WholeCountSchema.positive(),
-  carry: WholeCountSchema.positive(),
+  strength: WholeCountSchema,
+  carry: WholeCountSchema,
   roadPercent: WholeCountSchema.positive(),
   barracksLevel: WholeCountSchema.positive(),
 })

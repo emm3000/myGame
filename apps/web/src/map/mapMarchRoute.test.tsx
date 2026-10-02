@@ -14,7 +14,7 @@ import { copy } from '../copy'
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
   coordinates: { kingdom: 1, province: 1, plot: 1 },
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
 }
 
 const provinceOf = (
@@ -45,7 +45,7 @@ const marchAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 5,
   terrain: 'uplands',
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 2,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 840,
@@ -169,7 +169,10 @@ it('previews the loot capped by the carry', async () => {
 })
 
 it('blocks a march without infantry at home', async () => {
-  const noInfantry: FiefOverview = { ...fiefWithTenInfantry, units: { infantry: 0, cavalry: 0 } }
+  const noInfantry: FiefOverview = {
+    ...fiefWithTenInfantry,
+    units: { infantry: 0, cavalry: 0, settler: 0 },
+  }
   const dispatchMarch = vi.fn(async () => ({ ok: true, value: noInfantry }) as const)
   const form = await openMarchTo(uplands, 5, {
     fief: async () => ({ ok: true, value: noInfantry }),
@@ -207,8 +210,8 @@ it('blocks a march while another is away', async () => {
 it('counts the infantry at home without the men away', async () => {
   const twelveAway: FiefOverview = {
     ...fiefWithTenInfantry,
-    units: { infantry: 20, cavalry: 0 },
-    march: { ...marchAway, units: { infantry: 12, cavalry: 0 } },
+    units: { infantry: 20, cavalry: 0, settler: 0 },
+    march: { ...marchAway, units: { infantry: 12, cavalry: 0, settler: 0 } },
   }
   const form = await openMarchTo(uplands, 7, {
     fief: async () => ({ ok: true, value: twelveAway }),
@@ -279,7 +282,7 @@ it('sends the march and shows it sent', async () => {
   expect(dispatchMarch).toHaveBeenCalledWith(knownFief.id, {
     province: 2,
     plot: 5,
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
     stayHours: 2,
   })
   expect(sent.textContent).toContain('Marcha de ida: 10 infantes a provincia 2, parcela 5')

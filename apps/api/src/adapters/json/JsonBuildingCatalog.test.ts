@@ -79,6 +79,15 @@ const plainFief: FiefContent = {
       roadPercent: 50,
       barracksLevel: 3,
     },
+    settler: {
+      cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
+      durationSeconds: 7200,
+      peasantOccupancy: 4,
+      strength: 0,
+      carry: 0,
+      roadPercent: 100,
+      barracksLevel: 5,
+    },
   },
   forage: {
     secondsPerProvince: 600,
@@ -434,6 +443,18 @@ describe('JsonBuildingCatalog', () => {
       carry: 120,
       roadPercent: 50,
       barracksLevel: 3,
+    })
+  })
+
+  it('reads the settler terms from the shipped content', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().units.settler).toEqual({
+      cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
+      durationSeconds: 7200,
+      peasantOccupancy: 4,
+      strength: 0,
+      carry: 0,
+      roadPercent: 100,
+      barracksLevel: 5,
     })
   })
 

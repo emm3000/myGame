@@ -32,7 +32,7 @@ const barracksBuilt: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 1 },
   },
-  units: { infantry: 16, cavalry: 0 },
+  units: { infantry: 16, cavalry: 0, settler: 0 },
 }
 
 const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({
@@ -42,7 +42,7 @@ const twoHourForageDeparted = (secondsBeforeRead: number): FiefOverview => ({
     province: 2,
     plot: 5,
     terrain: 'uplands',
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
     stayHours: 2,
     departedAt: instantAfterRead(-secondsBeforeRead),
     oneWaySeconds: 840,
@@ -67,7 +67,7 @@ const hourLongForage: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 5,
   terrain: 'uplands',
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 1,
   departedAt: instantAfterRead(-3610),
   oneWaySeconds: 20,
@@ -251,9 +251,11 @@ const mixedMarchUnderway = (): FiefOverview => {
   const underway = answeredNow(marchUnderway)
   return {
     ...underway,
-    units: { infantry: 16, cavalry: 10 },
+    units: { infantry: 16, cavalry: 10, settler: 0 },
     march:
-      underway.march === null ? null : { ...underway.march, units: { infantry: 10, cavalry: 6 } },
+      underway.march === null
+        ? null
+        : { ...underway.march, units: { infantry: 10, cavalry: 6, settler: 0 } },
   }
 }
 

@@ -103,7 +103,7 @@ describe('entryFitsProjection', () => {
   })
 
   it('answers that an entry does not fit the peasants the units occupy', () => {
-    const nineInfantry = FiefUnitCounts.create({ infantry: 9, cavalry: 0 })
+    const nineInfantry = FiefUnitCounts.create({ infantry: 9, cavalry: 0, settler: 0 })
     assert(nineInfantry.ok)
 
     const result = entryFitsProjection(
