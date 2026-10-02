@@ -30,6 +30,7 @@ export const ApiErrorKindSchema = z.enum([
   'MarchTargetOutOfBounds',
   'MarchNotFound',
   'MarchAlreadyReturning',
+  'UnitUnfitForOrder',
   'ProvinceNotFound',
   'TokenInvalid',
   'MailNotSent',

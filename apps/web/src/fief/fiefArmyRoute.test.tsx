@@ -29,12 +29,12 @@ const barracksBuilt: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 1 },
   },
-  units: { infantry: 12, cavalry: 0 },
+  units: { infantry: 12, cavalry: 0, settler: 0 },
 }
 
 const orderOfTwelve: FiefOverview = {
   ...barracksBuilt,
-  units: { infantry: 16, cavalry: 0 },
+  units: { infantry: 16, cavalry: 0, settler: 0 },
   recruitOrder: {
     unit: 'infantry',
     count: 12,
@@ -240,7 +240,7 @@ it('sends one order on a double click', async () => {
 it('raises the count one unit per period between reads', async () => {
   const unitDueInHalfAMinute: FiefOverview = {
     ...orderOfTwelve,
-    units: { infantry: 15, cavalry: 0 },
+    units: { infantry: 15, cavalry: 0, settler: 0 },
     recruitOrder: {
       unit: 'infantry',
       count: 12,
@@ -321,7 +321,7 @@ it('cancels the order named by its unit and start', async () => {
 it('shows the slot idle and the delivered units after the cancel', async () => {
   const cancelledWithFiveDelivered: FiefOverview = {
     ...barracksBuilt,
-    units: { infantry: 17, cavalry: 0 },
+    units: { infantry: 17, cavalry: 0, settler: 0 },
   }
   const cancelRecruitOrder = async (): Promise<ApiOutcome<FiefOverview>> => ({
     ok: true,

@@ -91,6 +91,7 @@ function infantryMarchOf(fiefId: string): typeof fiefMarches.$inferInsert {
     plot: 5,
     infantryCount: 10,
     cavalryCount: 0,
+    settlerCount: 0,
     stayHours: 2,
     oneWaySeconds: 840,
     departedAt: new Date('2026-09-22T08:00:00Z'),
@@ -432,6 +433,35 @@ describe('the migrations', () => {
     ).toEqual({ infantry: 3, cavalry: 6 })
   })
 
+  it('stores a settler count', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+    await db.insert(fiefUnits).values([{ fiefId: anasFief.id, kind: 'settler', count: 1 }])
+    await db
+      .insert(fiefMarches)
+      .values({ ...infantryMarchOf(anasFief.id), infantryCount: 0, settlerCount: 1 })
+
+    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(anasFief.id)
+
+    expect(
+      restored.ok && {
+        atHome: restored.value?.units.countOf('settler'),
+        away: restored.value?.march.kind === 'away' && restored.value.march.units,
+      },
+    ).toEqual({ atHome: 1, away: { infantry: 0, cavalry: 0, settler: 1 } })
+  })
+
+  it('refuses a negative settler count on a march', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), settlerCount: -1 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_settler_count_whole' },
+    })
+  })
+
   it('refuses a second recruit order for one fief', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -521,6 +551,7 @@ describe('the migrations', () => {
     ).toEqual({
       infantry: 0,
       cavalry: 6,
+      settler: 0,
     })
   })
 
@@ -761,6 +792,7 @@ describe('the migrations', () => {
         kind: 'march_returned',
         infantryCount: 10,
         cavalryCount: 0,
+        settlerCount: 0,
         province: 2,
         occurredAt: new Date('2026-09-22T09:00:00Z'),
       }),
@@ -779,6 +811,7 @@ describe('the migrations', () => {
         kind: 'march_returned',
         infantryCount: 10,
         cavalryCount: 0,
+        settlerCount: 0,
         province: 2,
         plot: 5,
         campTier: 1,
@@ -799,6 +832,7 @@ describe('the migrations', () => {
         kind: 'march_returned',
         infantryCount: 0,
         cavalryCount: 0,
+        settlerCount: 0,
         province: 2,
         plot: 5,
         occurredAt: new Date('2026-09-22T09:00:00Z'),
@@ -817,6 +851,7 @@ describe('the migrations', () => {
       kind: 'battle_fought',
       infantryCount: 0,
       cavalryCount: 0,
+      settlerCount: 0,
       province: 2,
       plot: 5,
       campTier: 1,
@@ -826,7 +861,7 @@ describe('the migrations', () => {
     })
 
     expect(await new DrizzleChronicle(db).eventsOf(anasFief.id)).toMatchObject([
-      { kind: 'battleFought', unitsLost: { infantry: 0, cavalry: 0 } },
+      { kind: 'battleFought', unitsLost: { infantry: 0, cavalry: 0, settler: 0 } },
     ])
   })
 
@@ -857,6 +892,7 @@ describe('the migrations', () => {
         kind: 'recruits_delivered',
         infantryCount: 5,
         cavalryCount: 0,
+        settlerCount: 0,
         province: 2,
         plot: 5,
         occurredAt: new Date('2026-09-22T09:00:00Z'),
@@ -894,6 +930,7 @@ describe('the migrations', () => {
         kind: 'battle_fought',
         infantryCount: 4,
         cavalryCount: 0,
+        settlerCount: 0,
         province: 2,
         plot: 5,
         campLost: 6,
@@ -1573,7 +1610,7 @@ describe('the march recall migration', () => {
       order: 'forage',
       province: 2,
       plot: 5,
-      units: { infantry: 10, cavalry: 0 },
+      units: { infantry: 10, cavalry: 0, settler: 0 },
       stayHours: 2,
       departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
       oneWaySeconds: 840,
@@ -1585,7 +1622,7 @@ describe('the march recall migration', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 5,
-        units: { infantry: 10, cavalry: 0 },
+        units: { infantry: 10, cavalry: 0, settler: 0 },
         loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
         recalled: false,
         occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
@@ -1631,7 +1668,7 @@ describe('the attack marches migration', () => {
       order: 'forage',
       province: 2,
       plot: 5,
-      units: { infantry: 10, cavalry: 0 },
+      units: { infantry: 10, cavalry: 0, settler: 0 },
       stayHours: 2,
       departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
       oneWaySeconds: 840,
@@ -1697,7 +1734,7 @@ describe('the battle event migration', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 5,
-        units: { infantry: 10, cavalry: 0 },
+        units: { infantry: 10, cavalry: 0, settler: 0 },
         loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
         recalled: true,
         occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
@@ -1820,7 +1857,7 @@ const marchesOfPartyVersion = [
     order: 'forage',
     province: 2,
     plot: 5,
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
     stayHours: 2,
     departedAt,
     oneWaySeconds: 840,
@@ -1832,7 +1869,7 @@ const marchesOfPartyVersion = [
     order: 'forage',
     province: 2,
     plot: 5,
-    units: { infantry: 8, cavalry: 0 },
+    units: { infantry: 8, cavalry: 0, settler: 0 },
     stayHours: 2,
     departedAt,
     oneWaySeconds: 840,
@@ -1845,7 +1882,7 @@ const marchesOfPartyVersion = [
     order: 'attack',
     province: 2,
     plot: 6,
-    units: { infantry: 12, cavalry: 0 },
+    units: { infantry: 12, cavalry: 0, settler: 0 },
     stayHours: 0,
     departedAt,
     oneWaySeconds: 900,
@@ -1859,7 +1896,7 @@ const marchesOfPartyVersion = [
     order: 'attack',
     province: 2,
     plot: 6,
-    units: { infantry: 9, cavalry: 0 },
+    units: { infantry: 9, cavalry: 0, settler: 0 },
     stayHours: 0,
     departedAt,
     oneWaySeconds: 900,
@@ -1877,7 +1914,7 @@ const eventsOfPartyVersion = [
     plot: 6,
     tier: 1,
     won: false,
-    unitsLost: { infantry: 3, cavalry: 0 },
+    unitsLost: { infantry: 3, cavalry: 0, settler: 0 },
     campLost: 2,
     occurredAt: instantAt('2026-09-22T09:50:00Z'),
   },
@@ -1887,7 +1924,7 @@ const eventsOfPartyVersion = [
     plot: 6,
     tier: 2,
     won: true,
-    unitsLost: { infantry: 4, cavalry: 0 },
+    unitsLost: { infantry: 4, cavalry: 0, settler: 0 },
     campLost: 15,
     occurredAt: instantAt('2026-09-22T09:40:00Z'),
   },
@@ -1895,7 +1932,7 @@ const eventsOfPartyVersion = [
     kind: 'marchReturned',
     province: 2,
     plot: 5,
-    units: { infantry: 8, cavalry: 0 },
+    units: { infantry: 8, cavalry: 0, settler: 0 },
     loot: { wood: 25, stone: 25, iron: 0, gold: 0, food: 0 },
     recalled: true,
     occurredAt: instantAt('2026-09-22T09:30:00Z'),
@@ -1904,7 +1941,7 @@ const eventsOfPartyVersion = [
     kind: 'marchReturned',
     province: 2,
     plot: 5,
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
     loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
     recalled: false,
     occurredAt: instantAt('2026-09-22T09:20:00Z'),
@@ -2023,12 +2060,12 @@ const [forageOfPartyVersion, recallOfPartyVersion, attackOfPartyVersion, wonAtta
 const marchesOfLootPercentVersion = [
   {
     ...forageOfPartyVersion,
-    units: { infantry: 12, cavalry: 6 },
+    units: { infantry: 12, cavalry: 6, settler: 0 },
     oneWaySeconds: 900,
     loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
   },
   recallOfPartyVersion,
-  { ...attackOfPartyVersion, units: { infantry: 0, cavalry: 10 }, oneWaySeconds: 450 },
+  { ...attackOfPartyVersion, units: { infantry: 0, cavalry: 10, settler: 0 }, oneWaySeconds: 450 },
   wonAttackOfPartyVersion,
 ]
 
@@ -2049,5 +2086,66 @@ describe('the march loot percents migration', () => {
     })
 
     expect(await marchesOf(client)).toEqual(marchesOfLootPercentVersion)
+  })
+})
+
+const insertMarchesOfSettlerVersion = async (client: Client): Promise<void> => {
+  await insertPlayersOfPreviousVersion(client)
+  await client.query(
+    `INSERT INTO players (id, email, password_hash, created_at)
+     VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z'), ($3, $4, 'argon2id-hash', '2026-09-22T08:00:00Z')`,
+    [carla.id, carla.email, dario.id, dario.email],
+  )
+  for (const [plot, { player, fiefId }] of partyFiefs.entries()) {
+    await insertFiefOfPreviousVersion(client, fiefId, player.id, plot + 1, null)
+  }
+  await client.query(
+    `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, stay_hours, one_way_seconds,
+       departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food, loot_percent_wood, loot_percent_stone,
+       loot_percent_iron, loot_percent_gold, loot_percent_food, recalled_at, march_order, camp_tier, camp_strength,
+       fought)
+     VALUES ($1, 2, 5, 12, 6, 2, 900, '2026-09-22T08:00:00Z', 108, 108, 0, 0, 0, 100, 100, 100, 100, 100, NULL, 'forage', NULL, NULL, false),
+            ($2, 2, 5, 8, 0, 2, 840, '2026-09-22T08:00:00Z', 25, 25, 0, 0, 0, 100, 100, 100, 100, 100, '2026-09-22T08:30:00Z', 'forage', NULL, NULL, false),
+            ($3, 2, 6, 0, 10, 0, 450, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, NULL, 'attack', 1, 6, false),
+            ($4, 2, 6, 9, 0, 0, 900, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0, 100, 100, 100, 100, 100, NULL, 'attack', 2, 15, true)`,
+    partyFiefs.map(({ fiefId }) => fiefId),
+  )
+}
+
+const insertEventsOfSettlerVersion = async (client: Client): Promise<void> => {
+  await client.query(
+    `INSERT INTO fief_events (fief_id, kind, unit, count, cancelled_count, infantry_count, cavalry_count, province, plot,
+       refund_wood, refund_stone, refund_iron, refund_gold, refund_food, recalled, camp_tier, camp_lost, won, occurred_at)
+     VALUES ($1, 'recruits_delivered', 'infantry', 4, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, false, NULL, NULL, false, '2026-09-22T09:00:00Z'),
+            ($1, 'recruits_cancelled', 'infantry', 1, 2, NULL, NULL, NULL, NULL, 40, 0, 20, 0, 60, false, NULL, NULL, false, '2026-09-22T09:10:00Z'),
+            ($1, 'march_returned', NULL, NULL, NULL, 10, 0, 2, 5, 240, 240, 0, 0, 0, false, NULL, NULL, false, '2026-09-22T09:20:00Z'),
+            ($1, 'march_returned', NULL, NULL, NULL, 8, 0, 2, 5, 25, 25, 0, 0, 0, true, NULL, NULL, false, '2026-09-22T09:30:00Z'),
+            ($1, 'battle_fought', NULL, NULL, NULL, 4, 0, 2, 6, 0, 0, 0, 0, 0, false, 2, 15, true, '2026-09-22T09:40:00Z'),
+            ($1, 'battle_fought', NULL, NULL, NULL, 3, 0, 2, 6, 0, 0, 0, 0, 0, false, 1, 2, false, '2026-09-22T09:50:00Z')`,
+    [anasPartyFief],
+  )
+}
+
+describe('the settler migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the marches and events stored before the settler migration', async () => {
+    await migratedFrom(client, 21, async () => {
+      await insertMarchesOfSettlerVersion(client)
+      await insertEventsOfSettlerVersion(client)
+    })
+
+    expect({
+      marches: await marchesOf(client),
+      events: await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief),
+    }).toEqual({ marches: marchesOfLootPercentVersion, events: eventsOfPartyVersion })
   })
 })

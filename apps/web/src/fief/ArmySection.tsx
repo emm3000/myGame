@@ -21,6 +21,17 @@ const { army, march } = copy
 
 const firstEntry = '1'
 
+function recruitRefusalLineOf(refused: NonNullable<Recruit['refused']>, fief: LiveFief): string {
+  const { subject, refusal } = refused
+  if (refusal === 'BarracksTooLow') {
+    return army.barracksTooLowRefusal(
+      subject.unit,
+      fief.overview.unitTerms[subject.unit].barracksLevel,
+    )
+  }
+  return copy.refusals[refusal]
+}
+
 function countdownsOf(order: LiveRecruitOrder): ReadonlyArray<SlotCountdown> {
   const orderComplete = { words: army.orderCompleteIn, remainingSeconds: order.remainingSeconds }
   if (order.count - order.delivered <= 1) {
@@ -199,7 +210,9 @@ export function ArmySection({
           ))}
         </ul>
       </div>
-      {recruit.refusal !== undefined && <FormAlert message={copy.refusals[recruit.refusal]} />}
+      {recruit.refused !== undefined && (
+        <FormAlert message={recruitRefusalLineOf(recruit.refused, fief)} />
+      )}
       {recall.refusal !== undefined && <FormAlert message={copy.refusals[recall.refusal]} />}
     </section>
   )

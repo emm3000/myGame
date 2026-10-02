@@ -32,7 +32,7 @@ const barracksAt = (level: number): FiefOverview => ({
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level },
   },
-  units: { infantry: 12, cavalry: 0 },
+  units: { infantry: 12, cavalry: 0, settler: 0 },
 })
 
 const barracksAtThree: FiefOverview = {
@@ -90,7 +90,7 @@ it('shows a card per unit kind', async () => {
   const titles = within(armySection())
     .getAllByRole('heading', { level: 4 })
     .map((heading) => heading.textContent)
-  expect(titles).toEqual(['Infantes', 'Jinetes'])
+  expect(titles).toEqual(['Infantes', 'Jinetes', 'Colonos'])
 })
 
 it('draws each kind with its own icon', async () => {
@@ -163,4 +163,53 @@ it('previews a rider order with its cost, peasants and duration', async () => {
   const button = within(riderCard()).getByRole('button')
   expect(button.textContent).toBe('Reclutar jinetes · 5:00')
   expect(button.hasAttribute('disabled')).toBe(false)
+})
+
+const barracksAtFiveWithSettlerStocks: FiefOverview = {
+  ...barracksAt(5),
+  resources: {
+    ...knownFief.resources,
+    wood: { ...knownFief.resources.wood, amount: 1000 },
+    stone: { ...knownFief.resources.stone, amount: 1000 },
+    iron: { ...knownFief.resources.iron, amount: 600 },
+    gold: { ...knownFief.resources.gold, amount: 100 },
+    food: { ...knownFief.resources.food, amount: 1000 },
+  },
+}
+
+const settlerCard = (): HTMLElement => unitCard('colonos')
+
+it('locks the settler card below barracks level 5 and names the level', async () => {
+  await showFief(barracksAt(4))
+
+  expect(within(settlerCard()).getByText('Requiere cuartel de nivel 5')).toBeDefined()
+  expect(unitCountOf(settlerCard(), '0 colonos en casa')).toBeDefined()
+})
+
+it('names the riders and their level when the api refuses a rider levy below its barracks', async () => {
+  const placeRecruitOrder = async () => ({ ok: false as const, refusal: 'BarracksTooLow' as const })
+  await showFief(barracksAtThree, { placeRecruitOrder })
+
+  fireEvent.change(riderCountField(), { target: { value: '1' } })
+  fireEvent.click(within(riderCard()).getByRole('button'))
+  await passSeconds(0)
+
+  expect(within(armySection()).getByRole('alert').textContent).toBe(
+    'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
+  )
+})
+
+it('names the settlers and their level when the api refuses a settler levy below its barracks', async () => {
+  const placeRecruitOrder = async () => ({ ok: false as const, refusal: 'BarracksTooLow' as const })
+  await showFief(barracksAtFiveWithSettlerStocks, { placeRecruitOrder })
+
+  fireEvent.change(within(settlerCard()).getByRole('spinbutton', { name: 'Colonos a reclutar' }), {
+    target: { value: '1' },
+  })
+  fireEvent.click(within(settlerCard()).getByRole('button'))
+  await passSeconds(0)
+
+  expect(within(armySection()).getByRole('alert').textContent).toBe(
+    'Tu cuartel aún no llega al nivel 5 que piden los colonos. Mejóralo primero.',
+  )
 })

@@ -8,7 +8,11 @@ import { attackLootOf } from './attackLootOf'
 
 const noLoot = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
-const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({ infantry, cavalry })
+const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
+  infantry,
+  cavalry,
+  settler: 0,
+})
 
 const shippedTerms: AttackTerms = { forage: plainForage, camps: plainCamps, units: plainUnits }
 

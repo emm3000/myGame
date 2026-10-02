@@ -145,8 +145,8 @@ const MarchStateSchema = z.discriminatedUnion('order', [
 ])
 
 const UnitStatsSchema = z.strictObject({
-  strength: WholeCountSchema.positive(),
-  carry: WholeCountSchema.positive(),
+  strength: WholeCountSchema,
+  carry: WholeCountSchema,
   roadPercent: WholeCountSchema.positive(),
   barracksLevel: WholeCountSchema.positive(),
 })

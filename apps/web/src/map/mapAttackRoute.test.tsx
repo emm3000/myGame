@@ -14,7 +14,7 @@ import { copy } from '../copy'
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
   coordinates: { kingdom: 1, province: 1, plot: 1 },
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
 }
 
 const uplandsWithCamps: ProvinceMap = {
@@ -39,7 +39,7 @@ const attackAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 0,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 960,
@@ -187,7 +187,7 @@ it('counts the losses in integers', async () => {
   const form = await openAttackOn(9, {
     fief: async () => ({
       ok: true,
-      value: { ...fiefWithTenInfantry, units: { infantry: 25, cavalry: 0 } },
+      value: { ...fiefWithTenInfantry, units: { infantry: 25, cavalry: 0, settler: 0 } },
     }),
     provinceMap: async () => ({ ok: true, value: campAtTen }),
   })
@@ -199,7 +199,10 @@ it('counts the losses in integers', async () => {
 })
 
 it('blocks an attack without infantry at home', async () => {
-  const noInfantry: FiefOverview = { ...fiefWithTenInfantry, units: { infantry: 0, cavalry: 0 } }
+  const noInfantry: FiefOverview = {
+    ...fiefWithTenInfantry,
+    units: { infantry: 0, cavalry: 0, settler: 0 },
+  }
   const dispatchAttack = vi.fn(async () => ({ ok: true, value: noInfantry }) as const)
   const form = await openAttackOn(7, {
     fief: async () => ({ ok: true, value: noInfantry }),
@@ -258,7 +261,7 @@ it('sends the attack and shows it sent', async () => {
   expect(dispatchAttack).toHaveBeenCalledWith(knownFief.id, {
     province: 2,
     plot: 7,
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
   })
   expect(sent.textContent).toContain('Marcha al ataque: 10 infantes a provincia 2, parcela 7')
   expect(sent.textContent).toContain('Campamento: nivel 1, fuerza 6')

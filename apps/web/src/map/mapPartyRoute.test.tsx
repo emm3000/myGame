@@ -14,7 +14,7 @@ import { copy } from '../copy'
 const fiefWithAParty: FiefOverview = {
   ...knownFief,
   coordinates: { kingdom: 1, province: 3, plot: 12 },
-  units: { infantry: 12, cavalry: 10 },
+  units: { infantry: 12, cavalry: 10, settler: 0 },
 }
 
 const uplandsWithACamp: ProvinceMap = {
@@ -34,7 +34,7 @@ const mixedMarchAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  units: { infantry: 12, cavalry: 6 },
+  units: { infantry: 12, cavalry: 6, settler: 0 },
   stayHours: 2,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 900,
@@ -97,7 +97,7 @@ it('opens with one rider when riders alone are at home', async () => {
   const form = await openMarchTo7({
     fief: async () => ({
       ok: true,
-      value: { ...fiefWithAParty, units: { infantry: 0, cavalry: 4 } },
+      value: { ...fiefWithAParty, units: { infantry: 0, cavalry: 4, settler: 0 } },
     }),
   })
 
@@ -109,7 +109,7 @@ it('opens with one infantry and blocked when nobody is at home', async () => {
   const form = await openMarchTo7({
     fief: async () => ({
       ok: true,
-      value: { ...fiefWithAParty, units: { infantry: 0, cavalry: 0 } },
+      value: { ...fiefWithAParty, units: { infantry: 0, cavalry: 0, settler: 0 } },
     }),
   })
 
@@ -176,7 +176,7 @@ it('blocks a march with every count at 0', async () => {
 
   expect(sendButton(form).disabled).toBe(true)
   expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Envía al menos un infante o un jinete.',
+    'Enviar una marcha. Envía al menos un infante, un jinete o un colono.',
   )
   expect(previewLine(form, 'Camino de ida:')).toBeUndefined()
   expect(send).not.toHaveBeenCalled()
@@ -210,7 +210,7 @@ it('sends both counts and shows them sent', async () => {
   expect(dispatchMarch).toHaveBeenCalledWith(knownFief.id, {
     province: 2,
     plot: 7,
-    units: { infantry: 12, cavalry: 6 },
+    units: { infantry: 12, cavalry: 6, settler: 0 },
     stayHours: 2,
   })
   expect(sent.textContent).toContain(

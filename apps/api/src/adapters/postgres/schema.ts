@@ -34,7 +34,7 @@ export const building = pgEnum('building', [
 
 export const art = pgEnum('art', ['smithing', 'masonry'])
 
-export const unit = pgEnum('unit', ['infantry', 'cavalry'])
+export const unit = pgEnum('unit', ['infantry', 'cavalry', 'settler'])
 
 export const marchOrder = pgEnum('march_order', ['forage', 'attack'])
 
@@ -231,6 +231,7 @@ export const fiefMarches = pgTable(
     plot: integer('plot').notNull(),
     infantryCount: integer('infantry_count').notNull(),
     cavalryCount: integer('cavalry_count').notNull(),
+    settlerCount: integer('settler_count').notNull(),
     stayHours: integer('stay_hours').notNull(),
     oneWaySeconds: integer('one_way_seconds').notNull(),
     departedAt: timestamp('departed_at', { withTimezone: true }).notNull(),
@@ -255,7 +256,11 @@ export const fiefMarches = pgTable(
     check('fief_marches_plot_positive', sql`${table.plot} >= 1`),
     check('fief_marches_infantry_count_whole', sql`${table.infantryCount} >= 0`),
     check('fief_marches_cavalry_count_whole', sql`${table.cavalryCount} >= 0`),
-    check('fief_marches_units_positive', sql`${table.infantryCount} + ${table.cavalryCount} >= 1`),
+    check('fief_marches_settler_count_whole', sql`${table.settlerCount} >= 0`),
+    check(
+      'fief_marches_units_positive',
+      sql`${table.infantryCount} + ${table.cavalryCount} + ${table.settlerCount} >= 1`,
+    ),
     check(
       'fief_marches_order_terms',
       sql`(${table.marchOrder}::text = 'forage' AND ${table.stayHours} >= 1 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought}) OR (${table.marchOrder}::text = 'attack' AND ${table.stayHours} = 0 AND ${table.campTier} IS NOT NULL AND ${table.campTier} BETWEEN 1 AND 3 AND ${table.campStrength} IS NOT NULL AND ${table.campStrength} >= 0)`,
@@ -319,6 +324,7 @@ export const fiefEvents = pgTable(
     cancelledCount: integer('cancelled_count'),
     infantryCount: integer('infantry_count'),
     cavalryCount: integer('cavalry_count'),
+    settlerCount: integer('settler_count'),
     province: integer('province'),
     plot: integer('plot'),
     refundWood: doublePrecision('refund_wood').notNull().default(0),
@@ -335,11 +341,11 @@ export const fiefEvents = pgTable(
   (table) => [
     check(
       'fief_events_one_subject',
-      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}, ${table.infantryCount}) = 1 AND (${table.infantryCount} IS NULL) = (${table.cavalryCount} IS NULL) AND (${table.level} IS NULL) = (${table.building} IS NULL AND ${table.art} IS NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.infantryCount} IS NULL) AND (${table.plot} IS NULL) = (${table.infantryCount} IS NULL) AND (${table.province} IS NULL OR (${table.province} >= 1 AND ${table.plot} >= 1))`,
+      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}, ${table.infantryCount}) = 1 AND (${table.infantryCount} IS NULL) = (${table.cavalryCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.settlerCount} IS NULL) AND (${table.level} IS NULL) = (${table.building} IS NULL AND ${table.art} IS NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.infantryCount} IS NULL) AND (${table.plot} IS NULL) = (${table.infantryCount} IS NULL) AND (${table.province} IS NULL OR (${table.province} >= 1 AND ${table.plot} >= 1))`,
     ),
     check(
       'fief_events_unit_counts',
-      sql`(${table.infantryCount} IS NOT NULL) = (${table.kind}::text IN ('march_returned', 'battle_fought')) AND (${table.infantryCount} IS NULL OR (${table.infantryCount} >= 0 AND ${table.cavalryCount} >= 0)) AND (${table.kind}::text <> 'march_returned' OR ${table.infantryCount} + ${table.cavalryCount} >= 1)`,
+      sql`(${table.infantryCount} IS NOT NULL) = (${table.kind}::text IN ('march_returned', 'battle_fought')) AND (${table.infantryCount} IS NULL OR (${table.infantryCount} >= 0 AND ${table.cavalryCount} >= 0 AND ${table.settlerCount} >= 0)) AND (${table.kind}::text <> 'march_returned' OR ${table.infantryCount} + ${table.cavalryCount} + ${table.settlerCount} >= 1)`,
     ),
     check(
       'fief_events_recalled_only_march',

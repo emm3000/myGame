@@ -24,7 +24,11 @@ const tallyLosses = (
   terms: FiefSettings['units'],
 ): LossTally =>
   unitKinds.reduce<LossTally>(
-    ({ rest, lost }, unit) => {
+    (tally, unit) => {
+      if (units[unit] === 0) {
+        return tally
+      }
+      const { rest, lost } = tally
       const unitsLost = Math.min(units[unit], Math.ceil(rest / terms[unit].strength))
       return {
         rest: Math.max(0, rest - unitsLost * terms[unit].strength),

@@ -62,7 +62,7 @@ const tenInfantryForTwoHours: AwayMarch = {
   order: 'forage',
   province: 2,
   plot: 5,
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 2,
   departedAt,
   oneWaySeconds: 840,
@@ -75,7 +75,7 @@ const tenInfantryAttacking: AwayMarch = {
   order: 'attack',
   province: 2,
   plot: 1,
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 0,
   departedAt,
   oneWaySeconds: 600,
@@ -103,7 +103,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
       barracks: 0,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -326,7 +326,7 @@ describe('recallMarch', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 5,
-        units: { infantry: 10, cavalry: 0 },
+        units: { infantry: 10, cavalry: 0, settler: 0 },
         loot: { ...noLoot, wood: 15, stone: 15 },
         recalled: true,
         occurredAt: secondsAfterDeparture(3_480),
@@ -341,7 +341,7 @@ describe('recallMarch with a party of several kinds', () => {
       ...tenInfantryForTwoHours,
       province: 2,
       plot: 7,
-      units: { infantry: 12, cavalry: 6 },
+      units: { infantry: 12, cavalry: 6, settler: 0 },
       oneWaySeconds: 900,
       loot: { ...noLoot, wood: 108, stone: 108 },
     }
@@ -349,7 +349,7 @@ describe('recallMarch with a party of several kinds', () => {
       900 + 1_800,
       storedFief({
         address: { kingdom: 1, province: 3, plot: 12 },
-        units: { infantry: 12, cavalry: 6 },
+        units: { infantry: 12, cavalry: 6, settler: 0 },
         march: mixedParty,
       }),
     )
@@ -370,7 +370,11 @@ describe('recallMarch across seasons', () => {
     const lateSpring = secondsAfter(daysAfterSeasonEpoch(7), -300)
     const home = { kingdom: 1, province: 3, plot: 12 }
     const fiefs = inMemoryFiefRepository([
-      storedFief({ address: home, units: { infantry: 12, cavalry: 0 }, march: { kind: 'idle' } }),
+      storedFief({
+        address: home,
+        units: { infantry: 12, cavalry: 0, settler: 0 },
+        march: { kind: 'idle' },
+      }),
     ])
     await dispatchMarch(
       {
@@ -378,7 +382,7 @@ describe('recallMarch across seasons', () => {
         fiefId: 'fief-1',
         province: 4,
         plot: 12,
-        units: { infantry: 12, cavalry: 0 },
+        units: { infantry: 12, cavalry: 0, settler: 0 },
         stayHours: 2,
       },
       {
@@ -410,14 +414,14 @@ describe('recallMarch across seasons', () => {
       ...tenInfantryForTwoHours,
       province: 4,
       plot: 12,
-      units: { infantry: 1, cavalry: 0 },
+      units: { infantry: 1, cavalry: 0, settler: 0 },
       oneWaySeconds: 600,
       loot: { ...noLoot, wood: 6, food: 7 },
       lootPercent: { ...unscaled, food: 125 },
     }
     const dependencies = dependenciesAt(
       600 + 3_000,
-      storedFief({ units: { infantry: 1, cavalry: 0 }, march: oneInfantryInSpring }),
+      storedFief({ units: { infantry: 1, cavalry: 0, settler: 0 }, march: oneInfantryInSpring }),
     )
 
     await recallMarch(recall, dependencies)

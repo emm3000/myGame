@@ -154,7 +154,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0 },
+    units: { infantry: 0, cavalry: 0, settler: 0 },
     slot: sawmillInProgress,
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -338,7 +338,7 @@ describe('cancelUpgrade', () => {
 
   it('cancels in cascade an entry the units leave too few peasants to staff', async () => {
     const queuedFief = storedFief({
-      units: { infantry: 3, cavalry: 0 },
+      units: { infantry: 3, cavalry: 0, settler: 0 },
       slot: warehouseInProgress,
       buildQueue: [waitingEntry('farm', 1, 10), waitingEntry('quarry', 1, 30)],
     })

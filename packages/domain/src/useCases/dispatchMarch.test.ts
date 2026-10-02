@@ -122,7 +122,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
       barracks: 0,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 10, cavalry: 0 },
+    units: { infantry: 10, cavalry: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -147,7 +147,7 @@ const tenInfantryForTwoHours = {
   fiefId: 'fief-1',
   province: 2,
   plot: 5,
-  units: { infantry: 10, cavalry: 0 },
+  units: { infantry: 10, cavalry: 0, settler: 0 },
   stayHours: 2,
 }
 
@@ -168,7 +168,7 @@ describe('dispatchMarch', () => {
       order: 'forage',
       province: 2,
       plot: 5,
-      units: { infantry: 10, cavalry: 0 },
+      units: { infantry: 10, cavalry: 0, settler: 0 },
       stayHours: 2,
       departedAt: dispatchInstant,
     })
@@ -287,7 +287,7 @@ describe('dispatchMarch', () => {
 
   it('counts the units an open order has delivered as at home', async () => {
     const recruiting = storedFief({
-      units: { infantry: 0, cavalry: 0 },
+      units: { infantry: 0, cavalry: 0, settler: 0 },
       recruitOrder: {
         kind: 'open',
         unit: 'infantry',
@@ -299,11 +299,11 @@ describe('dispatchMarch', () => {
     })
 
     const tooMany = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0, settler: 0 } },
       dependenciesOver(recruiting),
     )
     const delivered = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 3, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 3, cavalry: 0, settler: 0 } },
       dependenciesOver(recruiting),
     )
 
@@ -316,12 +316,12 @@ describe('dispatchMarch', () => {
   it('refuses a march while another is away', async () => {
     const dependencies = dependenciesOver(storedFief({}))
     await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0, settler: 0 } },
       dependencies,
     )
 
     const result = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0, settler: 0 } },
       dependencies,
     )
 
@@ -362,7 +362,7 @@ describe('dispatchMarch', () => {
     const dependencies = dependenciesOver(storedFief({}))
 
     const result = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0, settler: 0 } },
       dependencies,
     )
 
@@ -375,11 +375,11 @@ describe('dispatchMarch', () => {
     const dependencies = dependenciesOver(storedFief({}))
 
     const none = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 0, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 0, cavalry: 0, settler: 0 } },
       dependencies,
     )
     const fractional = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 1.5, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 1.5, cavalry: 0, settler: 0 } },
       dependencies,
     )
 
@@ -437,37 +437,53 @@ describe('dispatchMarch', () => {
 
   it('refuses in order: count, stay, slot, bounds, own plot, held plot, camp, infantry at home', async () => {
     const away = dependenciesOver(storedFief({}))
-    await dispatchMarch({ ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } }, away)
+    await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0, settler: 0 } },
+      away,
+    )
     const idle = dependenciesOver(storedFief({}))
 
     const refusals = await Promise.all([
       dispatchMarch(
-        { ...tenInfantryForTwoHours, units: { infantry: 0, cavalry: 0 }, stayHours: 0 },
+        { ...tenInfantryForTwoHours, units: { infantry: 0, cavalry: 0, settler: 0 }, stayHours: 0 },
         away,
       ),
       dispatchMarch({ ...tenInfantryForTwoHours, stayHours: 0, province: 9 }, away),
       dispatchMarch({ ...tenInfantryForTwoHours, province: 9 }, away),
       dispatchMarch(
-        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 }, province: 1, plot: 16 },
-        idle,
-      ),
-      dispatchMarch(
-        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 }, province: 1, plot: 1 },
-        idle,
-      ),
-      dispatchMarch(
-        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 }, plot: 9 },
+        {
+          ...tenInfantryForTwoHours,
+          units: { infantry: 11, cavalry: 0, settler: 0 },
+          province: 1,
+          plot: 16,
+        },
         idle,
       ),
       dispatchMarch(
         {
           ...tenInfantryForTwoHours,
-          units: { infantry: 11, cavalry: 0 },
+          units: { infantry: 11, cavalry: 0, settler: 0 },
+          province: 1,
+          plot: 1,
+        },
+        idle,
+      ),
+      dispatchMarch(
+        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0, settler: 0 }, plot: 9 },
+        idle,
+      ),
+      dispatchMarch(
+        {
+          ...tenInfantryForTwoHours,
+          units: { infantry: 11, cavalry: 0, settler: 0 },
           plot: campPlotOfProvinceTwo(),
         },
         idle,
       ),
-      dispatchMarch({ ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0 } }, idle),
+      dispatchMarch(
+        { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0, settler: 0 } },
+        idle,
+      ),
     ])
 
     expect(refusals.map((refusal) => (refusal.ok ? 'sent' : refusal.error.kind))).toEqual([
@@ -547,7 +563,7 @@ describe('dispatchMarch', () => {
       catalog: workingCatalog,
     }
     const sent = await dispatchMarch(
-      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0 } },
+      { ...tenInfantryForTwoHours, units: { infantry: 4, cavalry: 0, settler: 0 } },
       dependencies,
     )
     assert(sent.ok)
@@ -579,7 +595,7 @@ describe('dispatchMarch', () => {
 const mixedPartyFief = (): Fief =>
   storedFief({
     address: { kingdom: 1, province: 3, plot: 12 },
-    units: { infantry: 12, cavalry: 6 },
+    units: { infantry: 12, cavalry: 6, settler: 0 },
   })
 
 const mixedPartyForTwoHours = {
@@ -587,7 +603,7 @@ const mixedPartyForTwoHours = {
   fiefId: 'fief-1',
   province: 2,
   plot: 7,
-  units: { infantry: 12, cavalry: 6 },
+  units: { infantry: 12, cavalry: 6, settler: 0 },
   stayHours: 2,
 }
 
@@ -602,7 +618,7 @@ describe('dispatchMarch with a party of several kinds', () => {
       kind: 'away',
       province: 2,
       plot: 7,
-      units: { infantry: 12, cavalry: 6 },
+      units: { infantry: 12, cavalry: 6, settler: 0 },
       oneWaySeconds: 900,
     })
   })
@@ -611,7 +627,7 @@ describe('dispatchMarch with a party of several kinds', () => {
     const dependencies = dependenciesOver(mixedPartyFief())
 
     const result = await dispatchMarch(
-      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 0 } },
+      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 0, settler: 0 } },
       dependencies,
     )
 
@@ -622,7 +638,7 @@ describe('dispatchMarch with a party of several kinds', () => {
     const dependencies = dependenciesOver(mixedPartyFief())
 
     const result = await dispatchMarch(
-      { ...mixedPartyForTwoHours, units: { infantry: 12, cavalry: 1.5 } },
+      { ...mixedPartyForTwoHours, units: { infantry: 12, cavalry: 1.5, settler: 0 } },
       dependencies,
     )
 
@@ -633,7 +649,7 @@ describe('dispatchMarch with a party of several kinds', () => {
     const dependencies = dependenciesOver(mixedPartyFief())
 
     const result = await dispatchMarch(
-      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 7 } },
+      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 7, settler: 0 } },
       dependencies,
     )
 
@@ -646,7 +662,7 @@ describe('dispatchMarch with a party of several kinds', () => {
     const dependencies = dependenciesOver(mixedPartyFief())
 
     const result = await dispatchMarch(
-      { ...mixedPartyForTwoHours, units: { infantry: 13, cavalry: 7 } },
+      { ...mixedPartyForTwoHours, units: { infantry: 13, cavalry: 7, settler: 0 } },
       dependencies,
     )
 
@@ -659,7 +675,7 @@ describe('dispatchMarch with a party of several kinds', () => {
     const dependencies = dependenciesOver(mixedPartyFief())
 
     await dispatchMarch(
-      { ...mixedPartyForTwoHours, units: { infantry: 4, cavalry: 2 } },
+      { ...mixedPartyForTwoHours, units: { infantry: 4, cavalry: 2, settler: 0 } },
       dependencies,
     )
 
@@ -692,13 +708,16 @@ const twelveInfantryToTheLowlands = {
   fiefId: 'fief-1',
   province: 4,
   plot: 12,
-  units: { infantry: 12, cavalry: 0 },
+  units: { infantry: 12, cavalry: 0, settler: 0 },
   stayHours: 2,
 }
 
 const seasonalDependencies = (now: Instant) => ({
   fiefs: inMemoryFiefRepository([
-    storedFief({ address: homeOnTheMiddleRoad.address, units: { infantry: 12, cavalry: 0 } }),
+    storedFief({
+      address: homeOnTheMiddleRoad.address,
+      units: { infantry: 12, cavalry: 0, settler: 0 },
+    }),
   ]),
   map: inMemoryKingdomMap([homeOnTheMiddleRoad]),
   catalog: seasonalCatalog,
@@ -748,5 +767,48 @@ describe('dispatchMarch across seasons', () => {
     expect(march.oneWaySeconds).toBe(600)
     expect(march.loot).toEqual({ wood: 72, stone: 0, iron: 0, gold: 0, food: 72 })
     expect(marchInstantsOf(march).returnsAt).toEqual(secondsAfter(lateSummer, 8_400))
+  })
+})
+
+const settlerFief = (): Fief =>
+  storedFief({
+    address: { kingdom: 1, province: 3, plot: 12 },
+    units: { infantry: 12, cavalry: 0, settler: 1 },
+  })
+
+describe('dispatchMarch with a settler', () => {
+  it('refuses a forage party with a settler', async () => {
+    const lord = settlerFief()
+    const dependencies = dependenciesOver(lord)
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 12, cavalry: 0, settler: 1 } },
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'UnitUnfitForOrder', unit: 'settler', order: 'forage' }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')).toBe(lord)
+  })
+
+  it('refuses an invalid count before a settler on a forage', async () => {
+    const dependencies = dependenciesOver(settlerFief())
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 1.5, cavalry: 0, settler: 1 } },
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 1.5 }))
+  })
+
+  it('refuses a settler before a stay out of range', async () => {
+    const dependencies = dependenciesOver(settlerFief())
+
+    const result = await dispatchMarch(
+      { ...mixedPartyForTwoHours, units: { infantry: 0, cavalry: 0, settler: 1 }, stayHours: 0 },
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'UnitUnfitForOrder', unit: 'settler', order: 'forage' }))
   })
 })

@@ -3,7 +3,11 @@ import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
 import { plainUnits } from '../testing/plainUnits'
 import { battleOf } from './battleOf'
 
-const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({ infantry, cavalry })
+const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
+  infantry,
+  cavalry,
+  settler: 0,
+})
 
 describe('battleOf', () => {
   it('wins when the infantry are stronger', () => {

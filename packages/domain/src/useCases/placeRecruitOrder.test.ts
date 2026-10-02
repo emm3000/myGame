@@ -67,7 +67,7 @@ const farmLevel = (level: number): FarmLevel => ({
 
 const catalog: BuildingCatalog = {
   levelOf: (building, level) => {
-    if (level < 1 || level > 3) {
+    if (level < 1 || level > 5) {
       return undefined
     }
     if (building === 'barracks') {
@@ -99,7 +99,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: levelsWithBarracks(1),
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0 },
+    units: { infantry: 0, cavalry: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -677,5 +677,73 @@ describe('placeRecruitOrder for riders', () => {
       unit: 'infantry',
       perUnitSeconds: 45,
     })
+  })
+})
+
+const settlerStocks = { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 }
+
+const settlerFief = (overrides: Partial<StoredFief>): Fief =>
+  storedFief({
+    stocks: settlerStocks,
+    buildingLevels: { ...levelsWithBarracks(5), farm: 1 },
+    ...overrides,
+  })
+
+describe('placeRecruitOrder for settlers', () => {
+  it('refuses a settler below barracks level 5', async () => {
+    const lowBarracks = settlerFief({ buildingLevels: { ...levelsWithBarracks(4), farm: 1 } })
+    const fiefs = inMemoryFiefRepository([lowBarracks])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'settler', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(
+      err({ kind: 'BarracksTooLow', unit: 'settler', requiredBarracksLevel: 5, barracksLevel: 4 }),
+    )
+    expect(fiefs.storedFiefOf('fief-1')).toBe(lowBarracks)
+  })
+
+  it('recruits a settler at barracks level 5 in 1200 seconds', async () => {
+    const fiefs = inMemoryFiefRepository([settlerFief({})])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'settler', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.recruitOrder).toEqual({
+      kind: 'open',
+      unit: 'settler',
+      count: 1,
+      cost: settlerStocks,
+      perUnitSeconds: 1200,
+      startedAt: storedInstant,
+    })
+  })
+
+  it('trains a settler in 900 seconds in a 75 % spring', async () => {
+    const fiefs = inMemoryFiefRepository([settlerFief({ storedAt: midSpring })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'settler', count: 1 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSpring) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.recruitOrder).toMatchObject({ perUnitSeconds: 900 })
+  })
+
+  it('occupies four peasants per settler', async () => {
+    const fiefs = inMemoryFiefRepository([settlerFief({ buildingLevels: levelsWithBarracks(5) })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'settler', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 4, freePeasants: 1 }))
   })
 })
