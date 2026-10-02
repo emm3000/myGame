@@ -10,14 +10,19 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
 import { quantitiesOf } from '../resources/quantitiesOf'
-import type { LiveFief, LiveMarch, LiveRecruitOrder } from './liveFief'
+import {
+  isFoundingOnTheWay,
+  type LiveFief,
+  type LiveMarch,
+  type LiveRecruitOrder,
+} from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import { recruitCountOf, type UnitCardContent, unitCardOf } from './unitCardOf'
 import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
 
-const { army, march } = copy
+const { army, march, founding } = copy
 
 const firstEntry = '1'
 
@@ -87,6 +92,9 @@ function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
 
 function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
   const value = march.phaseLines[live.phase](answered.units, answered.province, answered.plot)
+  if (isFoundingOnTheWay(answered)) {
+    return { heading: founding.outboundHeading, value, isNumeral: false }
+  }
   if (answered.order !== 'attack' || answered.recalledAt !== null) {
     return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
   }
@@ -94,7 +102,12 @@ function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
   return { heading, value, isNumeral: false }
 }
 
-function campLineOf(answered: AnsweredMarch): PreviewLine | null {
+function detailLineOf(answered: AnsweredMarch): PreviewLine | null {
+  if (answered.order === 'found') {
+    return answered.recalledAt === null
+      ? { heading: founding.newFiefHeading, value: answered.name, isNumeral: false }
+      : null
+  }
   return answered.camp === null || answered.recalledAt !== null
     ? null
     : {
@@ -104,7 +117,10 @@ function campLineOf(answered: AnsweredMarch): PreviewLine | null {
       }
 }
 
-function marksOf(live: LiveMarch): ReadonlyArray<number> {
+function marksOf(live: LiveMarch, answered: AnsweredMarch): ReadonlyArray<number> {
+  if (isFoundingOnTheWay(answered)) {
+    return []
+  }
   return live.arrivalSeconds === live.leavingSeconds
     ? [live.arrivalSeconds]
     : [live.arrivalSeconds, live.leavingSeconds]
@@ -120,12 +136,15 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
     kind: 'busy',
     title: march.busySlot,
     phase: phaseLineOf(live, answered),
-    camp: campLineOf(answered),
-    countdown: { words: march.returnHeading, remainingSeconds: live.remainingSeconds },
+    detail: detailLineOf(answered),
+    countdown: {
+      words: isFoundingOnTheWay(answered) ? founding.arrivalHeading : march.returnHeading,
+      remainingSeconds: live.remainingSeconds,
+    },
     loot: lootOf(answered),
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,
-    marks: marksOf(live),
+    marks: marksOf(live, answered),
     recall: live.phase === 'returning' ? null : recallOf(answered, recall),
   }
 }

@@ -5,6 +5,7 @@ import type { ApiOutcome, ApiRefusal } from '../api/apiClient'
 export interface RefusedAction<Subject> {
   readonly subject: Subject
   readonly refusal: ApiRefusal
+  readonly message: string | undefined
 }
 
 export interface FiefAction<Subject> {
@@ -40,7 +41,7 @@ export function useFiefAction<Subject>(
         adopt(outcome.value)
         return
       }
-      setRefused({ subject, refusal: outcome.refusal, readAt })
+      setRefused({ subject, refusal: outcome.refusal, message: outcome.message, readAt })
     },
     [adopt, readAt],
   )

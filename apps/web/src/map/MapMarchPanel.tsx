@@ -5,6 +5,7 @@ import { MarchForm } from '../design-system/MarchForm'
 import { MarchSent } from '../design-system/MarchSent'
 import { partyKinds } from '../units/partyKinds'
 import { attackFormOf } from './attackFormOf'
+import { foundingFormOf } from './foundingFormOf'
 import { marchFormOf } from './marchFormOf'
 import { marchSentLinesOf } from './marchSentLinesOf'
 import type { MapMarch } from './useMapMarch'
@@ -13,6 +14,17 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   const { overview, target, entries } = march
   if (overview === undefined || target === undefined) {
     return null
+  }
+  if (march.isFounding) {
+    return (
+      <MarchForm
+        {...foundingFormOf(target, march.name, overview)}
+        counts={[]}
+        name={{ label: copy.founding.nameField, entry: march.name, onChange: march.onNameChange }}
+        isWaiting={march.isWaiting}
+        onSend={march.onSend}
+      />
+    )
   }
   const counts = partyKinds.map((unit) => ({
     label: copy.march.countField(unit),
@@ -51,14 +63,16 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
 
 export function MapMarchPanel({ march }: { readonly march: MapMarch }): ReactElement {
   const sent = march.isSent ? march.overview?.march : undefined
-  const refusal = march.refusal ?? march.fiefRefusal
+  const refusalLine =
+    march.refusalLine ??
+    (march.fiefRefusal === undefined ? undefined : copy.refusals[march.fiefRefusal])
   return (
     <div className="flex flex-col gap-3">
       <OpenForm march={march} />
       {sent !== undefined && sent !== null && march.overview !== undefined && (
         <MarchSent lines={marchSentLinesOf(sent, march.overview.readAt)} />
       )}
-      {refusal !== undefined && <FormAlert message={copy.refusals[refusal]} />}
+      {refusalLine !== undefined && <FormAlert message={refusalLine} />}
     </div>
   )
 }

@@ -11,12 +11,12 @@ export interface PlotAction {
 }
 
 export type PlotHolder =
-  | { readonly kind: 'free'; readonly line: string; readonly action?: PlotAction | undefined }
+  | { readonly kind: 'free'; readonly line: string; readonly actions: ReadonlyArray<PlotAction> }
   | {
       readonly kind: 'camp'
       readonly line: string
       readonly strength: string
-      readonly action?: PlotAction | undefined
+      readonly actions: ReadonlyArray<PlotAction>
     }
   | { readonly kind: 'reserved'; readonly line: string; readonly marker?: string | undefined }
   | { readonly kind: 'held'; readonly name: string }
@@ -39,7 +39,8 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
 const expandedFrameClass = 'border border-line-strong bg-surface-raised'
 
 const frameClassOf = (holder: PlotHolder): string =>
-  (holder.kind === 'free' || holder.kind === 'camp') && holder.action?.isExpanded === true
+  (holder.kind === 'free' || holder.kind === 'camp') &&
+  holder.actions.some((action) => action.isExpanded)
     ? expandedFrameClass
     : frameClass[holder.kind]
 
@@ -48,18 +49,28 @@ const nameClass = 'font-body text-heading text-ink wrap-anywhere'
 const markerClass =
   'self-start rounded-sm bg-umber px-2 font-utility text-label uppercase text-on-umber'
 
-function PlotActionButton({ action }: { readonly action: PlotAction }): ReactElement {
+function PlotActionButtons({
+  actions,
+}: {
+  readonly actions: ReadonlyArray<PlotAction>
+}): ReactElement | null {
+  if (actions.length === 0) {
+    return null
+  }
   return (
-    <span className="mt-auto flex flex-col">
-      <Button
-        type="button"
-        tone="quiet"
-        accessibleName={action.accessibleName}
-        isExpanded={action.isExpanded}
-        onClick={action.onToggle}
-      >
-        {action.label}
-      </Button>
+    <span className="mt-auto flex flex-col gap-2">
+      {actions.map((action) => (
+        <Button
+          key={action.accessibleName}
+          type="button"
+          tone="quiet"
+          accessibleName={action.accessibleName}
+          isExpanded={action.isExpanded}
+          onClick={action.onToggle}
+        >
+          {action.label}
+        </Button>
+      ))}
     </span>
   )
 }
@@ -70,7 +81,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
       return (
         <>
           <span className="font-body text-heading font-normal text-ink-faint">{holder.line}</span>
-          {holder.action !== undefined && <PlotActionButton action={holder.action} />}
+          <PlotActionButtons actions={holder.actions} />
         </>
       )
     case 'camp':
@@ -87,7 +98,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
               {holder.strength}
             </span>
           </span>
-          {holder.action !== undefined && <PlotActionButton action={holder.action} />}
+          <PlotActionButtons actions={holder.actions} />
         </>
       )
     case 'reserved':

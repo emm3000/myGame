@@ -121,10 +121,18 @@ function recruitOrderAt(overview: FiefOverview, elapsedSeconds: number): LiveRec
   }
 }
 
+type AnsweredMarch = NonNullable<FiefOverview['march']>
+
+export const isFoundingOnTheWay = (march: AnsweredMarch): boolean =>
+  march.order === 'found' && march.recalledAt === null
+
+const marchEndOf = (march: AnsweredMarch): string =>
+  isFoundingOnTheWay(march) ? march.arrivesAt : march.returnsAt
+
 export function marchRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
   return overview.march === null
     ? 0
-    : remainingSecondsAt(overview.march.returnsAt, overview, elapsedSeconds)
+    : remainingSecondsAt(marchEndOf(overview.march), overview, elapsedSeconds)
 }
 
 export function battleRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {
@@ -134,7 +142,7 @@ export function battleRemainingSecondsAt(overview: FiefOverview, elapsedSeconds:
     : remainingSecondsAt(march.arrivesAt, overview, elapsedSeconds)
 }
 
-function phaseOf(march: NonNullable<FiefOverview['march']>, sinceDeparture: number): MarchPhase {
+function phaseOf(march: AnsweredMarch, sinceDeparture: number): MarchPhase {
   if (sinceDeparture < secondsBetween(march.departedAt, march.arrivesAt)) {
     return 'outbound'
   }
@@ -153,7 +161,7 @@ function marchAt(overview: FiefOverview, elapsedSeconds: number): LiveMarch | nu
     phase: phaseOf(march, sinceDeparture),
     remainingSeconds: marchRemainingSecondsAt(overview, elapsedSeconds),
     elapsedSeconds: sinceDeparture,
-    totalSeconds: secondsBetween(march.departedAt, march.returnsAt),
+    totalSeconds: secondsBetween(march.departedAt, marchEndOf(march)),
     arrivalSeconds: secondsBetween(march.departedAt, march.arrivesAt),
     leavingSeconds: secondsBetween(march.departedAt, march.leavesAt),
   }

@@ -33,7 +33,7 @@ export function ProvinceMapPage({
       fiefId={fiefId}
       state={state}
       onBrowse={browse}
-      plotActionOf={march.plotActionOf}
+      plotActionsOf={march.plotActionsOf}
       marchPanel={<MapMarchPanel march={march} />}
     />
   )

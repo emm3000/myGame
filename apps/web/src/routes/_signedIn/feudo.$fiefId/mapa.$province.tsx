@@ -6,7 +6,7 @@ import { ProvinceMapPage } from '../../../map/ProvinceMapPage'
 
 const ignoreBrowse = (): void => undefined
 
-const noPlotAction = (): undefined => undefined
+const noPlotActions = (): ReadonlyArray<never> => []
 
 function NumberedProvincePage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
@@ -18,7 +18,7 @@ function NumberedProvincePage(): ReactElement {
         fiefId={params.fiefId}
         state={{ kind: 'refused', refusal: 'ProvinceNotFound' }}
         onBrowse={ignoreBrowse}
-        plotActionOf={noPlotAction}
+        plotActionsOf={noPlotActions}
         marchPanel={null}
       />
     )
