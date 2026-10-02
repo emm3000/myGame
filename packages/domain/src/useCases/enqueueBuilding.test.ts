@@ -156,12 +156,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.slot).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.slot).toEqual({
       kind: 'busy',
       building: 'sawmill',
       targetLevel: 1,
@@ -176,12 +176,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([quarryWorkingFief])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.stocks).toEqual({ wood: 50, stone: 115, iron: 115, gold: 102, food: 100 })
     expect(stored?.storedAt).toBe(oneHourLater)
   })
@@ -190,12 +190,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.slot).toMatchObject({
       kind: 'busy',
       startedAt: oneHourLater,
     })
@@ -205,12 +205,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'quarry' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.stocks).toEqual({ wood: 50, stone: 80, iron: 100, gold: 100, food: 100 })
     expect(stored?.slot).toMatchObject({
       kind: 'busy',
@@ -222,12 +222,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'quarry' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 1 })
     expect(
       stored?.buildQueue.map(({ building, targetLevel }) => ({ building, targetLevel })),
@@ -238,12 +238,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'quarry' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.stocks).toEqual({ wood: 60, stone: 90, iron: 115, gold: 102, food: 110 })
     expect(stored?.storedAt).toBe(oneHourLater)
   })
@@ -252,12 +252,12 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'quarry' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([
+    expect(fiefs.storedFiefOf('fief-1')?.buildQueue).toEqual([
       {
         building: 'quarry',
         targetLevel: 1,
@@ -283,7 +283,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: [sawmillEntry] })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: threeLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -316,7 +316,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([farmWaitingFief])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: handHungryCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -329,7 +329,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: [quarryEntry] })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'ironMine' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'ironMine' },
       { fiefs, catalog: minedCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -344,7 +344,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ units: { infantry: 2, cavalry: 0 } })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'ironMine' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'ironMine' },
       { fiefs, catalog: minedCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -364,7 +364,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: [sawmillEntry] })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -379,7 +379,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: fullQueue })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'farm' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'farm' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -391,7 +391,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([busySawmillFief({ buildQueue: fullQueue })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'quarry' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -402,7 +402,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ buildQueue: [quarryEntry] })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -419,7 +419,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([poorFief])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -438,7 +438,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([quarryWorkingFief])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: handHungryCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -452,7 +452,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'warehouse' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'warehouse' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -464,7 +464,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([cappedSawmillFief])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -477,26 +477,43 @@ describe('enqueueBuilding', () => {
   it('writes nothing when it refuses', async () => {
     const poorFief = storedFief({ stocks: { wood: 20, stone: 100, iron: 0, gold: 0, food: 4 } })
     const fiefs = inMemoryFiefRepository([poorFief])
-    const before = JSON.stringify(fiefs.storedFiefOf('lord'))
+    const before = JSON.stringify(fiefs.storedFiefOf('fief-1'))
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
     )
 
     assert(!result.ok)
-    expect(JSON.stringify(fiefs.storedFiefOf('lord'))).toBe(before)
+    expect(JSON.stringify(fiefs.storedFiefOf('fief-1'))).toBe(before)
   })
 
-  it('refuses a player who holds no fief', async () => {
+  it('refuses an unknown fief', async () => {
     const fiefs = inMemoryFiefRepository([])
 
     const result = await enqueueBuilding(
-      { playerId: 'landless', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'unknown-fief', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
-    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', fiefId: 'unknown-fief' } })
+  })
+
+  it('refuses an upgrade on a fief of another player', async () => {
+    const rivalFief = storedFief({
+      id: 'fief-2',
+      playerId: 'rival',
+      address: { kingdom: 1, province: 3, plot: 2 },
+    })
+    const fiefs = inMemoryFiefRepository([storedFief({}), rivalFief])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', fiefId: 'fief-2', building: 'sawmill' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', fiefId: 'fief-2' } })
+    expect(fiefs.storedFiefOf('fief-2')).toBe(rivalFief)
   })
 
   it('reports a stored fief the repository cannot restore', async () => {
@@ -506,7 +523,7 @@ describe('enqueueBuilding', () => {
     }
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs: corruptFiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -517,7 +534,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: twoLevelCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -534,7 +551,7 @@ describe('enqueueBuilding', () => {
     const fiefs = inMemoryFiefRepository([workingFief])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: handHungryLevelTwoCatalog, clock: frozenClock(storedInstant) },
     )
 
@@ -581,12 +598,12 @@ describe('enqueueBuilding across seasons', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSummer })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: seasonalSawmillCatalog(307), clock: frozenClock(midSummer) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.slot).toMatchObject({
       kind: 'busy',
       finishesAt: secondsAfter(midSummer, 231),
     })
@@ -596,12 +613,12 @@ describe('enqueueBuilding across seasons', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midWinter })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: seasonalSawmillCatalog(307), clock: frozenClock(midWinter) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.slot).toMatchObject({
       kind: 'busy',
       finishesAt: secondsAfter(midWinter, 307),
     })
@@ -611,12 +628,12 @@ describe('enqueueBuilding across seasons', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ storedAt: midSummer })])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: seasonalSawmillCatalog(1), clock: frozenClock(midSummer) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.slot).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.slot).toMatchObject({
       kind: 'busy',
       finishesAt: secondsAfter(midSummer, 1),
     })
@@ -637,12 +654,12 @@ describe('enqueueBuilding across seasons', () => {
     const fiefs = inMemoryFiefRepository([busyUntilAutumn])
 
     const result = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: seasonalSawmillCatalog(307), clock: frozenClock(midSummer) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([
+    expect(fiefs.storedFiefOf('fief-1')?.buildQueue).toEqual([
       { building: 'sawmill', targetLevel: 1, cost: sawmillCost, durationSeconds: 231 },
     ])
   })

@@ -94,7 +94,8 @@ const waitingAfterFirstPlotRead = (
       return plots
     },
     holdsFief: (playerId) => fiefs.holdsFief(playerId),
-    fiefOf: (playerId) => fiefs.fiefOf(playerId),
+    fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
+    fiefOf: (fiefId) => fiefs.fiefOf(fiefId),
     save: (fief) => fiefs.save(fief),
   }
 }

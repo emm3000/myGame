@@ -2,6 +2,8 @@ import { campOf } from '../camp/campOf'
 import { campStrengthAt } from '../camp/campStrengthAt'
 import type { DomainError } from '../DomainError'
 import type { AttackOrder, Fief } from '../fief/Fief'
+import type { FiefId } from '../fief/FiefId'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import { refuseUnreachableTarget } from '../march/refuseUnreachableTarget'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
@@ -14,6 +16,7 @@ import { marchSeasonAt } from '../season/marchSeasonAt'
 
 export type DispatchAttackCommand = AttackOrder & {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
 }
 
 export type DispatchAttackDependencies = {
@@ -28,14 +31,15 @@ export const dispatchAttack = async (
   command: DispatchAttackCommand,
   { fiefs, map, camps, catalog, clock }: DispatchAttackDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
   const room = fief.roomForAttack(command)
   if (!room.ok) {
     return room

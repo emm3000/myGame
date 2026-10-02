@@ -64,7 +64,7 @@ export const kingdomMapReaderContract = (
   arrange: () => Promise<KingdomMapReaderFixture>,
 ): void => {
   describe(`${adapter} as a kingdom map reader`, () => {
-    it('answers the address of the fief a player holds', async () => {
+    it('answers the address of a fief by its id', async () => {
       const fixture = await arrange()
       await seed(fixture, [
         {
@@ -77,10 +77,13 @@ export const kingdomMapReaderContract = (
         },
       ])
 
-      expect(await fixture.map.addressOf(ana)).toEqual({ kingdom: 1, province: 3, plot: 7 })
+      expect(await fixture.map.addressOf('00000000-0000-4000-8000-00000000000a')).toEqual({
+        address: { kingdom: 1, province: 3, plot: 7 },
+        playerId: ana,
+      })
     })
 
-    it('answers no address for a player without a fief', async () => {
+    it('answers no address for an unknown fief', async () => {
       const fixture = await arrange()
       await seed(fixture, [
         {
@@ -93,7 +96,7 @@ export const kingdomMapReaderContract = (
         },
       ])
 
-      expect(await fixture.map.addressOf(bruno)).toBeUndefined()
+      expect(await fixture.map.addressOf('00000000-0000-4000-8000-0000000000ff')).toBeUndefined()
     })
 
     it('answers the highest province holding a fief in the kingdom', async () => {

@@ -1,7 +1,7 @@
 import {
   type DomainError,
   type Fief,
-  type PlayerId,
+  type FiefOfPlayer,
   placeRecruitOrder,
   type Result,
   type UnitKind,
@@ -16,15 +16,15 @@ export type RecruitOrderRequest = {
 }
 
 export const placeRecruitOrderOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   { unit, count }: RecruitOrderRequest,
   dependencies: PlaceRecruitOrderDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     ({ fiefs }, clock) =>
       placeRecruitOrder(
-        { playerId, unit, count },
+        { ...fiefOfPlayer, unit, count },
         { fiefs, catalog: dependencies.buildingCatalog, clock },
       ),
     dependencies,

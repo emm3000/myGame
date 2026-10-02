@@ -1,15 +1,18 @@
 import type { DomainError } from '../DomainError'
 import type { ChangedFief } from '../fief/ChangedFief'
+import type { FiefId } from '../fief/FiefId'
 import { materializeStocks } from '../fief/materializeStocks'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
-import { err, ok, type Result } from '../Result'
+import { ok, type Result } from '../Result'
 
 export type CancelUpgradeCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
   readonly building: BuildingKind
   readonly targetLevel: number
 }
@@ -25,14 +28,15 @@ export const cancelUpgrade = async (
   command: CancelUpgradeCommand,
   { fiefs, chronicle, catalog, clock }: CancelUpgradeDependencies,
 ): Promise<Result<ChangedFief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
 
   const now = clock.now()
   const stocksAtNow = materializeStocks(fief, catalog, now)

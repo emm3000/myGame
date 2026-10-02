@@ -1,7 +1,9 @@
 import type { DomainError } from '../DomainError'
 import { deriveLowestFreePeasants } from '../fief/deriveLowestFreePeasants'
 import type { Fief } from '../fief/Fief'
+import type { FiefId } from '../fief/FiefId'
 import { materializeStocks } from '../fief/materializeStocks'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, UnitKind } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -11,6 +13,7 @@ import { durationPercentAt } from '../season/durationPercentAt'
 
 export type PlaceRecruitOrderCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
   readonly unit: UnitKind
   readonly count: number
 }
@@ -43,14 +46,15 @@ export const placeRecruitOrder = async (
   command: PlaceRecruitOrderCommand,
   { fiefs, catalog, clock }: PlaceRecruitOrderDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
 
   const now = clock.now()
   const stocksAtNow = materializeStocks(fief, catalog, now)

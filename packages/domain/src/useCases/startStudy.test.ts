@@ -124,12 +124,12 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.studySlot).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.studySlot).toEqual({
       kind: 'busy',
       art: 'smithing',
       targetLevel: 1,
@@ -143,12 +143,12 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(oneHourLater) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.stocks).toEqual({ wood: 70, stone: 80, iron: 65, gold: 82, food: 110 })
     expect(stored?.storedAt).toBe(oneHourLater)
   })
@@ -169,12 +169,12 @@ describe('startStudy', () => {
     }
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog: catalogWithReachableSecondLevel, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.studySlot).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.studySlot).toMatchObject({
       kind: 'busy',
       targetLevel: 2,
       finishesAt: Instant.fromEpochMilliseconds(86_400_000 + 334_000),
@@ -195,12 +195,12 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([studyingFief])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'StudySlotBusy', art: 'masonry' }))
-    expect(fiefs.storedFiefOf('lord')).toBe(studyingFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(studyingFief)
   })
 
   it('refuses a study without the library level it requires', async () => {
@@ -208,14 +208,14 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([unlettered])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(
       err({ kind: 'LibraryLevelTooLow', requiredLibraryLevel: 1, libraryLevel: 0 }),
     )
-    expect(fiefs.storedFiefOf('lord')).toBe(unlettered)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(unlettered)
   })
 
   it('refuses a study beyond the last level of the art', async () => {
@@ -223,12 +223,12 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([mastered])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'masonry' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'masonry' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
     expect(result).toEqual(err({ kind: 'ArtMaxLevelReached', art: 'masonry', level: 1 }))
-    expect(fiefs.storedFiefOf('lord')).toBe(mastered)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(mastered)
   })
 
   it('refuses a study the stocks cannot pay', async () => {
@@ -236,7 +236,7 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([poor])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -246,7 +246,7 @@ describe('startStudy', () => {
         missing: { wood: 0, stone: 0, iron: 5, gold: 15, food: 0 },
       }),
     )
-    expect(fiefs.storedFiefOf('lord')).toBe(poor)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(poor)
   })
 
   it('studies while the build slot is busy', async () => {
@@ -261,12 +261,12 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: buildingSlot })])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual(buildingSlot)
     expect(stored?.buildQueue).toEqual([])
     expect(stored?.studySlot.kind).toBe('busy')
@@ -276,7 +276,7 @@ describe('startStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -320,12 +320,12 @@ describe('startStudy across seasons', () => {
     ])
 
     const result = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog: seasonalCatalog, clock: frozenClock(midWinter) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.studySlot).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.studySlot).toMatchObject({
       kind: 'busy',
       finishesAt: Instant.fromEpochMilliseconds(midWinter.epochMilliseconds + 250_000),
     })

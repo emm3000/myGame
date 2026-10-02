@@ -69,6 +69,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   EmailTaken: { status: 409, kind: 'EmailTaken' },
   WeakPassword: { status: 400, kind: 'WeakPassword' },
   FiefNotFound: { status: 404, kind: 'FiefNotFound' },
+  NoFiefHeld: { status: 404, kind: 'FiefNotFound' },
   UnknownBuilding: { status: 400, kind: 'UnknownBuilding' },
   MaxLevelReached: { status: 409, kind: 'MaxLevelReached' },
   QueueFull: { status: 409, kind: 'QueueFull' },

@@ -3,8 +3,8 @@ import {
   type DomainError,
   dispatchMarch,
   type Fief,
+  type FiefOfPlayer,
   type KingdomMapReader,
-  type PlayerId,
   type Result,
 } from '@mygame/domain'
 import { type MutateAfterResolveDependencies, mutateAfterResolve } from './mutateAfterResolve'
@@ -14,16 +14,16 @@ export type DispatchMarchDependencies = MutateAfterResolveDependencies & {
 }
 
 export const dispatchMarchOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   request: DispatchMarchRequest,
   dependencies: DispatchMarchDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     ({ fiefs }, clock) =>
       dispatchMarch(
         {
-          playerId,
+          ...fiefOfPlayer,
           province: request.province,
           plot: request.plot,
           units: request.units,

@@ -1,5 +1,6 @@
 import type { Coordinates } from './fief/Coordinates'
 import type { Stocks } from './fief/Fief'
+import type { FiefId } from './fief/FiefId'
 import type { PlayerId } from './player/PlayerId'
 import type { ArtKind, BuildingKind, UnitKind } from './ports/BuildingCatalog'
 import type { ResourceKind } from './resources/Resources'
@@ -62,7 +63,7 @@ export type DomainError =
       readonly startedAt: Instant
       readonly finishesAt: Instant
     }
-  | { readonly kind: 'FiefNotFound'; readonly playerId: PlayerId }
+  | { readonly kind: 'FiefNotFound'; readonly fiefId: FiefId }
   | { readonly kind: 'ProvinceNotFound'; readonly province: number; readonly lastProvince: number }
   | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
   | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }

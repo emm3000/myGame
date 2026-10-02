@@ -93,7 +93,7 @@ describe('DrizzleFiefRepository reads', () => {
       logger: { logQuery: (statement) => statements.push(statement) },
     })
 
-    const read = await new DrizzleFiefRepository(countingDatabase, 'lockFree').fiefOf(ana)
+    const read = await new DrizzleFiefRepository(countingDatabase, 'lockFree').fiefOf(valdehierro)
 
     expect(read.ok && read.value?.buildingLevels).toEqual({
       sawmill: 2,
@@ -111,8 +111,8 @@ describe('DrizzleFiefRepository reads', () => {
     await anasFiefWithTwoBuildings()
 
     const read = await drizzle(pool).transaction(async (transaction) => {
-      await new DrizzleFiefRepository(transaction, 'lockedForUpdate').fiefOf(ana)
-      return new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)
+      await new DrizzleFiefRepository(transaction, 'lockedForUpdate').fiefOf(valdehierro)
+      return new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(valdehierro)
     })
 
     expect(read.ok && read.value?.id).toBe(valdehierro)
@@ -123,7 +123,7 @@ describe('DrizzleFiefRepository reads', () => {
     await insertFief(robledal, bruno, 8, 'Robledal')
     await insertLevel(robledal, 'quarry', 3)
 
-    const read = await new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)
+    const read = await new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(valdehierro)
 
     expect(read.ok && [read.value?.id, read.value?.buildingLevels]).toEqual([
       valdehierro,
@@ -139,9 +139,9 @@ describe('DrizzleFiefRepository reads', () => {
       [valdehierro],
     )
 
-    await expect(new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(ana)).rejects.toThrow(
-      'half-written build slot',
-    )
+    await expect(
+      new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(valdehierro),
+    ).rejects.toThrow('half-written build slot')
   })
 })
 

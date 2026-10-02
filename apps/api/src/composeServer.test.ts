@@ -7,6 +7,7 @@ import {
   enqueueBuilding,
   err,
   type Fief,
+  type FiefId,
   type FiefRepository,
   foundFief,
   Instant,
@@ -360,7 +361,7 @@ const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z
 const frozenClock = { now: (): Instant => foundedAt }
 const ana: PlayerId = '00000000-0000-4000-8000-000000000001'
 
-const foundAnasFief = async (server: ComposedServer): Promise<void> => {
+const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
@@ -374,12 +375,14 @@ const foundAnasFief = async (server: ComposedServer): Promise<void> => {
   } finally {
     await client.end()
   }
-  await server.inTransaction(({ fiefs }) =>
+  const founded = await server.inTransaction(({ fiefs }) =>
     foundFief(
       { playerId: ana, name: 'Valdehierro' },
       { fiefs, catalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },
     ),
   )
+  assert(founded.ok)
+  return founded.value.id
 }
 
 type Outcome = 'enqueued' | DomainError['kind']
@@ -390,18 +393,20 @@ const outcomeOf = (enqueued: Result<unknown, DomainError>): Outcome =>
 const enqueueSawmill = (
   fiefs: FiefRepository,
   server: ComposedServer,
+  fiefId: FiefId,
 ): Promise<Result<Fief, DomainError>> =>
   enqueueBuilding(
-    { playerId: ana, building: 'sawmill' },
+    { playerId: ana, fiefId, building: 'sawmill' },
     { fiefs, catalog: server.buildingCatalog, clock: frozenClock },
   )
 
 const withRead = (
   fiefs: FiefRepository,
-  read: (playerId: PlayerId) => Promise<Result<Fief | undefined, DomainError>>,
+  read: (fiefId: FiefId) => Promise<Result<Fief | undefined, DomainError>>,
 ): FiefRepository => ({
   occupiedPlots: () => fiefs.occupiedPlots(),
   holdsFief: (playerId) => fiefs.holdsFief(playerId),
+  fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
   fiefOf: read,
   save: (fief) => fiefs.save(fief),
 })
@@ -448,30 +453,35 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
   return { promise, resolve }
 }
 
-const raceTwoEnqueues = async (server: ComposedServer): Promise<ReadonlyArray<Outcome>> => {
+const raceTwoEnqueues = async (
+  server: ComposedServer,
+  fiefId: FiefId,
+): Promise<ReadonlyArray<Outcome>> => {
   const firstHasRead = signal()
   const secondHasRead = signal()
   const secondIsBlockedOrHasRead = untilBlockedOrRead(secondHasRead.promise)
   const first = server.inTransaction(({ fiefs }) =>
     enqueueSawmill(
-      withRead(fiefs, async (playerId) => {
-        const read = await fiefs.fiefOf(playerId)
+      withRead(fiefs, async (readId) => {
+        const read = await fiefs.fiefOf(readId)
         firstHasRead.resolve()
         await secondIsBlockedOrHasRead
         return read
       }),
       server,
+      fiefId,
     ),
   )
   await firstHasRead.promise
   const second = server.inTransaction(({ fiefs }) =>
     enqueueSawmill(
-      withRead(fiefs, async (playerId) => {
-        const read = await fiefs.fiefOf(playerId)
+      withRead(fiefs, async (readId) => {
+        const read = await fiefs.fiefOf(readId)
         secondHasRead.resolve()
         return read
       }),
       server,
+      fiefId,
     ),
   )
   return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
@@ -492,23 +502,23 @@ describe('a fief transaction from the composed server', () => {
   })
 
   it('queues the second of two concurrent enqueues behind the first', async () => {
-    await foundAnasFief(server)
+    const fiefId = await foundAnasFief(server)
 
-    const outcomes = await raceTwoEnqueues(server)
+    const outcomes = await raceTwoEnqueues(server, fiefId)
 
     expect(outcomes).toEqual(['enqueued', 'enqueued'])
-    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(ana))
+    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(fiefId))
     assert(stored.ok)
     expect(stored.value?.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 1 })
     expect(stored.value?.buildQueue).toMatchObject([{ building: 'sawmill', targetLevel: 2 }])
   })
 
   it('debits both costs when two enqueues race', async () => {
-    await foundAnasFief(server)
+    const fiefId = await foundAnasFief(server)
 
-    await raceTwoEnqueues(server)
+    await raceTwoEnqueues(server, fiefId)
 
-    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(ana))
+    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(fiefId))
     expect(stored.ok && stored.value?.stocks).toEqual({
       wood: 350,
       stone: 462,

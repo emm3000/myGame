@@ -1,7 +1,9 @@
 import type { DomainError } from '../DomainError'
 import type { Fief } from '../fief/Fief'
+import type { FiefId } from '../fief/FiefId'
 import { materializeStocks } from '../fief/materializeStocks'
 import { nextArtLevelOf } from '../fief/nextArtLevelOf'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { ArtKind, ArtLevel, BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -11,6 +13,7 @@ import { durationPercentAt } from '../season/durationPercentAt'
 
 export type StartStudyCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
   readonly art: ArtKind
 }
 
@@ -37,14 +40,15 @@ export const startStudy = async (
   command: StartStudyCommand,
   { fiefs, catalog, clock }: StartStudyDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
 
   const line = admitStudy(fief, command.art, catalog)
   if (!line.ok) {

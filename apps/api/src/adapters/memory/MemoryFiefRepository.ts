@@ -2,6 +2,7 @@ import {
   type DomainError,
   err,
   type Fief,
+  type FiefId,
   type FiefRepository,
   ok,
   type PlayerId,
@@ -13,6 +14,10 @@ const sharesPlot = (left: Fief, right: Fief): boolean =>
   left.coordinates.kingdom === right.coordinates.kingdom &&
   left.coordinates.province === right.coordinates.province &&
   left.coordinates.plot === right.coordinates.plot
+
+const byProvinceThenPlot = (left: Fief, right: Fief): number =>
+  left.coordinates.province - right.coordinates.province ||
+  left.coordinates.plot - right.coordinates.plot
 
 export class MemoryFiefRepository implements FiefRepository {
   private readonly fiefs = new Map<string, Fief>()
@@ -33,8 +38,15 @@ export class MemoryFiefRepository implements FiefRepository {
     return [...this.fiefs.values()].some((fief) => fief.playerId === playerId)
   }
 
-  async fiefOf(playerId: PlayerId): Promise<Result<Fief | undefined, DomainError>> {
-    return ok([...this.fiefs.values()].find((fief) => fief.playerId === playerId))
+  async fiefsOf(playerId: PlayerId): Promise<ReadonlyArray<FiefId>> {
+    return [...this.fiefs.values()]
+      .filter((fief) => fief.playerId === playerId)
+      .sort(byProvinceThenPlot)
+      .map((fief) => fief.id)
+  }
+
+  async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
+    return ok(this.fiefs.get(fiefId))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {

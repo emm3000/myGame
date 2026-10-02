@@ -5,8 +5,10 @@ import type { BusySlot } from '../fief/BuildSlot'
 import type { ChangedFief } from '../fief/ChangedFief'
 import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
+import type { FiefId } from '../fief/FiefId'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
@@ -18,11 +20,12 @@ import type { CampRegistry } from '../ports/CampRegistry'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
-import { err, ok, type Result } from '../Result'
+import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
 export type ResolveUpgradeCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
 }
 
 export type ResolveUpgradeDependencies = {
@@ -301,14 +304,15 @@ export const resolveUpgrade = async (
   command: ResolveUpgradeCommand,
   { fiefs, chronicle, camps, catalog, clock }: ResolveUpgradeDependencies,
 ): Promise<Result<ResolvedFief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
 
   const now = clock.now()
   const unitTerms = catalog.fiefSettings().units

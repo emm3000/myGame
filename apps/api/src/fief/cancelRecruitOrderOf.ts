@@ -2,9 +2,9 @@ import {
   cancelRecruitOrder,
   type DomainError,
   type Fief,
+  type FiefOfPlayer,
   Instant,
   ok,
-  type PlayerId,
   type Result,
   type UnitKind,
 } from '@mygame/domain'
@@ -18,15 +18,15 @@ export type RecruitOrderCancelRequest = {
 }
 
 export const cancelRecruitOrderOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   { unit, startedAt }: RecruitOrderCancelRequest,
   dependencies: CancelRecruitOrderDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     async ({ fiefs, chronicle }, clock) => {
       const cancelled = await cancelRecruitOrder(
-        { playerId, unit, startedAt: Instant.fromEpochMilliseconds(Date.parse(startedAt)) },
+        { ...fiefOfPlayer, unit, startedAt: Instant.fromEpochMilliseconds(Date.parse(startedAt)) },
         { fiefs, chronicle, catalog: dependencies.buildingCatalog, clock },
       )
       return cancelled.ok ? ok(cancelled.value.fief) : cancelled

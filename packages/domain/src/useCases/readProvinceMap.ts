@@ -2,6 +2,7 @@ import type { CampBattle } from '../camp/CampBattle'
 import { campOf } from '../camp/campOf'
 import { campStrengthAt } from '../camp/campStrengthAt'
 import type { DomainError } from '../DomainError'
+import type { FiefId } from '../fief/FiefId'
 import { terrainOf } from '../fief/terrainOf'
 import type { ProvinceMap, ProvincePlot } from '../kingdom/ProvinceMap'
 import type { PlayerId } from '../player/PlayerId'
@@ -14,6 +15,7 @@ import type { Instant } from '../time/Instant'
 
 export type ReadProvinceMapCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
   readonly province?: number
 }
 
@@ -63,10 +65,11 @@ export const readProvinceMap = async (
   command: ReadProvinceMapCommand,
   { map, catalog, camps, clock }: ReadProvinceMapDependencies,
 ): Promise<Result<ProvinceMap, DomainError>> => {
-  const address = await map.addressOf(command.playerId)
-  if (address === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const held = await map.addressOf(command.fiefId)
+  if (held === undefined || held.playerId !== command.playerId) {
+    return err({ kind: 'FiefNotFound', fiefId: command.fiefId })
   }
+  const { address } = held
   const province = command.province ?? address.province
   const lastProvince = (await map.lastOccupiedProvince(address.kingdom)) + 1
   if (!Number.isInteger(province) || province < 1 || province > lastProvince) {

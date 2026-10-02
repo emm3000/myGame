@@ -171,12 +171,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 100,
       stone: 100,
       iron: 100,
@@ -189,12 +189,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 110,
       stone: 110,
       iron: 115,
@@ -208,12 +208,12 @@ describe('cancelUpgrade', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual({ kind: 'idle' })
     expect(stored?.storedAt).toBe(cancelInstant)
     expect(stored?.buildingLevels).toEqual(unbuiltLevels)
@@ -226,12 +226,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([nearlyFullFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 1050,
       stone: 1010,
       iron: 100,
@@ -249,12 +249,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'warehouse', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'warehouse', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual(sawmillInProgress)
     expect(stored?.buildQueue).toEqual([sawmillLevelTwo, farmEntry])
     expect(stored?.stocks.wood).toBe(50)
@@ -267,12 +267,12 @@ describe('cancelUpgrade', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual({
       kind: 'busy',
       building: 'warehouse',
@@ -293,12 +293,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual(warehouseInProgress)
     expect(stored?.buildQueue).toEqual([quarryEntry])
   })
@@ -308,12 +308,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual({ kind: 'idle' })
     expect(stored?.buildQueue).toEqual([])
   })
@@ -328,12 +328,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'farm', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'farm', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([])
+    expect(fiefs.storedFiefOf('fief-1')?.buildQueue).toEqual([])
   })
 
   it('cancels in cascade an entry the units leave too few peasants to staff', async () => {
@@ -345,12 +345,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'farm', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'farm', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([])
+    expect(fiefs.storedFiefOf('fief-1')?.buildQueue).toEqual([])
   })
 
   it('refunds every cascaded entry its full stored cost', async () => {
@@ -365,12 +365,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks.wood).toBe(370)
+    expect(fiefs.storedFiefOf('fief-1')?.stocks.wood).toBe(370)
   })
 
   it('cancels the waiting level it names and keeps the lower one of the same building', async () => {
@@ -382,12 +382,12 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 2 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 2 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.buildQueue).toEqual([sawmillLevelOne])
+    expect(fiefs.storedFiefOf('fief-1')?.buildQueue).toEqual([sawmillLevelOne])
   })
 
   it('refuses an entry that neither the slot nor the queue holds', async () => {
@@ -395,7 +395,7 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'farm', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'farm', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -409,7 +409,7 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: { kind: 'idle' } })])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -423,7 +423,7 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -443,7 +443,7 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'warehouse', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'warehouse', targetLevel: 1 },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -460,26 +460,26 @@ describe('cancelUpgrade', () => {
 
   it('writes nothing when it refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: { kind: 'idle' } })])
-    const before = JSON.stringify(fiefs.storedFiefOf('lord'))
+    const before = JSON.stringify(fiefs.storedFiefOf('fief-1'))
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(!result.ok)
-    expect(JSON.stringify(fiefs.storedFiefOf('lord'))).toBe(before)
+    expect(JSON.stringify(fiefs.storedFiefOf('fief-1'))).toBe(before)
   })
 
-  it('refuses a player who holds no fief', async () => {
+  it('refuses an unknown fief', async () => {
     const fiefs = inMemoryFiefRepository([])
 
     const result = await cancelUpgrade(
-      { playerId: 'landless', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'unknown-fief', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
-    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', fiefId: 'unknown-fief' } })
   })
 
   it('answers the cancelled upgrade with the cost it stored', async () => {
@@ -487,7 +487,7 @@ describe('cancelUpgrade', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
@@ -517,7 +517,7 @@ describe('cancelUpgrade', () => {
     const cancelInstant = hoursAfterStored(0.5)
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
@@ -552,7 +552,7 @@ describe('cancelUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'quarry', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -568,7 +568,7 @@ describe('cancelUpgrade', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       { fiefs, chronicle, catalog, clock: frozenClock(cancelInstant) },
     )
 
@@ -589,7 +589,7 @@ describe('cancelUpgrade', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'quarry', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'quarry', targetLevel: 1 },
       { fiefs, chronicle, catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -599,10 +599,10 @@ describe('cancelUpgrade', () => {
 
   it('reports a record the chronicle refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
-    const refusal = { kind: 'FiefNotFound', playerId: 'lord' } as const
+    const refusal = { kind: 'FiefNotFound', fiefId: 'fief-1' } as const
 
     const result = await cancelUpgrade(
-      { playerId: 'lord', building: 'sawmill', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
       {
         fiefs,
         chronicle: refusingChronicle(refusal),

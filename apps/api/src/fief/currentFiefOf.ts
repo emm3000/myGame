@@ -5,9 +5,9 @@ import {
   type Clock,
   type DomainError,
   type Fief,
+  type FiefOfPlayer,
   type FiefRepository,
   ok,
-  type PlayerId,
   type Result,
   resolveUpgrade,
 } from '@mygame/domain'
@@ -25,7 +25,8 @@ export type CurrentFiefDependencies = {
 const dryRunOver = (fiefs: FiefReader): FiefRepository => ({
   occupiedPlots: () => fiefs.occupiedPlots(),
   holdsFief: (playerId) => fiefs.holdsFief(playerId),
-  fiefOf: (playerId) => fiefs.fiefOf(playerId),
+  fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
+  fiefOf: (fiefId) => fiefs.fiefOf(fiefId),
   save: async () => ok(undefined),
 })
 
@@ -40,34 +41,28 @@ const discardingCamps: CampRegistry = {
 }
 
 export const currentFiefOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   { fiefs, inTransaction, buildingCatalog, clock }: CurrentFiefDependencies,
 ): Promise<Result<Fief, DomainError>> => {
   const now = clock.now()
   const readClock: Clock = { now: () => now }
-  const preview = await resolveUpgrade(
-    { playerId },
-    {
-      fiefs: dryRunOver(fiefs),
-      chronicle: discardingChronicle,
-      camps: discardingCamps,
-      catalog: buildingCatalog,
-      clock: readClock,
-    },
-  )
+  const preview = await resolveUpgrade(fiefOfPlayer, {
+    fiefs: dryRunOver(fiefs),
+    chronicle: discardingChronicle,
+    camps: discardingCamps,
+    catalog: buildingCatalog,
+    clock: readClock,
+  })
   const resolved =
     preview.ok && preview.value.hasChanged
       ? await inTransaction((stores) =>
-          resolveUpgrade(
-            { playerId },
-            {
-              fiefs: stores.fiefs,
-              chronicle: stores.chronicle,
-              camps: stores.camps,
-              catalog: buildingCatalog,
-              clock: readClock,
-            },
-          ),
+          resolveUpgrade(fiefOfPlayer, {
+            fiefs: stores.fiefs,
+            chronicle: stores.chronicle,
+            camps: stores.camps,
+            catalog: buildingCatalog,
+            clock: readClock,
+          }),
         )
       : preview
   if (!resolved.ok) {

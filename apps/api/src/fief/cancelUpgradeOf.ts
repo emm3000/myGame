@@ -2,8 +2,8 @@ import {
   cancelUpgrade,
   type DomainError,
   type Fief,
+  type FiefOfPlayer,
   ok,
-  type PlayerId,
   type Result,
   type UpgradeTarget,
 } from '@mygame/domain'
@@ -12,15 +12,15 @@ import { type MutateAfterResolveDependencies, mutateAfterResolve } from './mutat
 export type CancelUpgradeDependencies = MutateAfterResolveDependencies
 
 export const cancelUpgradeOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   target: UpgradeTarget,
   dependencies: CancelUpgradeDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     async ({ fiefs, chronicle }, clock) => {
       const cancelled = await cancelUpgrade(
-        { playerId, ...target },
+        { ...fiefOfPlayer, ...target },
         { fiefs, chronicle, catalog: dependencies.buildingCatalog, clock },
       )
       return cancelled.ok ? ok(cancelled.value.fief) : cancelled

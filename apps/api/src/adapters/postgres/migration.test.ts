@@ -422,7 +422,7 @@ describe('the migrations', () => {
       { fiefId: anasFief.id, kind: 'cavalry', count: 6 },
     ])
 
-    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(anasFief.id)
 
     expect(
       restored.ok && {
@@ -515,7 +515,7 @@ describe('the migrations', () => {
       .insert(fiefMarches)
       .values({ ...infantryMarchOf(anasFief.id), infantryCount: 0, cavalryCount: 6 })
 
-    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(db, 'lockFree').fiefOf(anasFief.id)
     expect(
       restored.ok && restored.value?.march.kind === 'away' && restored.value.march.units,
     ).toEqual({
@@ -1203,7 +1203,9 @@ describe('the fief arts migration', () => {
       await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(restored.ok && restored.value?.artLevels).toEqual({ smithing: 0, masonry: 0 })
   })
@@ -1230,7 +1232,9 @@ describe('the library building migration', () => {
       [anasFief.id],
     )
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(restored.ok && restored.value?.buildingLevels.library).toBe(1)
   })
@@ -1253,7 +1257,9 @@ describe('the study slot migration', () => {
       await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(restored.ok && restored.value?.studySlot).toEqual({ kind: 'idle' })
   })
@@ -1352,7 +1358,9 @@ describe('the barracks building migration', () => {
       )
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(restored.ok && restored.value?.buildingLevels).toEqual({
       sawmill: 2,
@@ -1412,7 +1420,9 @@ describe('the units and recruit orders migration', () => {
       await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(
       restored.ok && {
@@ -1518,7 +1528,9 @@ describe('the marches migration', () => {
       await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(restored.ok && restored.value?.march).toEqual({ kind: 'idle' })
   })
@@ -1553,7 +1565,9 @@ describe('the march recall migration', () => {
       )
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
     expect(restored.ok && restored.value?.march).toEqual({
       kind: 'away',
       order: 'forage',
@@ -1609,7 +1623,9 @@ describe('the attack marches migration', () => {
       )
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
     expect(restored.ok && restored.value?.march).toEqual({
       kind: 'away',
       order: 'forage',
@@ -1722,7 +1738,9 @@ describe('the cavalry migration', () => {
       )
     })
 
-    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(ana.id)
+    const restored = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(
+      anasFief.id,
+    )
 
     expect(
       restored.ok && {
@@ -1910,8 +1928,8 @@ const eventsOfPartyVersion = [
 const marchesOf = async (client: Client): Promise<ReadonlyArray<unknown>> => {
   const fiefs = new DrizzleFiefRepository(drizzle(client), 'lockFree')
   const restored = []
-  for (const { player } of partyFiefs) {
-    const read = await fiefs.fiefOf(player.id)
+  for (const { fiefId } of partyFiefs) {
+    const read = await fiefs.fiefOf(fiefId)
     restored.push(read.ok && read.value?.march)
   }
   return restored

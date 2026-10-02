@@ -1,16 +1,16 @@
-import type { KingdomMapReader, PlayerId, PlotAddress, PlotHolder } from '@mygame/domain'
+import type { FiefId, HeldAddress, KingdomMapReader, PlotHolder } from '@mygame/domain'
 import type { MemoryFiefRepository } from './MemoryFiefRepository'
 
 export class MemoryKingdomMapReader implements KingdomMapReader {
   constructor(private readonly fiefs: MemoryFiefRepository) {}
 
-  async addressOf(playerId: PlayerId): Promise<PlotAddress | undefined> {
-    const held = this.fiefs.heldFiefs().find((fief) => fief.playerId === playerId)
+  async addressOf(fiefId: FiefId): Promise<HeldAddress | undefined> {
+    const held = this.fiefs.heldFiefs().find((fief) => fief.id === fiefId)
     if (held === undefined) {
       return undefined
     }
     const { kingdom, province, plot } = held.coordinates
-    return { kingdom, province, plot }
+    return { address: { kingdom, province, plot }, playerId: held.playerId }
   }
 
   async lastOccupiedProvince(kingdom: number): Promise<number> {

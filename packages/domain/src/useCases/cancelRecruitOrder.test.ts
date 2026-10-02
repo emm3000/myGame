@@ -128,7 +128,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
 
 const cancelFiveInfantryAt = (fiefs: InMemoryFiefRepository, now: Instant) =>
   cancelRecruitOrder(
-    { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+    { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: storedInstant },
     { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(now) },
   )
 
@@ -139,7 +139,7 @@ describe('cancelRecruitOrder', () => {
     const result = await cancelFiveInfantryAt(fiefs, secondsAfterStored(100))
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.units.countOf('infantry')).toBe(2)
     expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
     expect(stored?.storedAt).toEqual(secondsAfterStored(100))
@@ -151,7 +151,7 @@ describe('cancelRecruitOrder', () => {
     const result = await cancelFiveInfantryAt(fiefs, secondsAfterStored(90))
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.units.countOf('infantry')).toBe(2)
+    expect(fiefs.storedFiefOf('fief-1')?.units.countOf('infantry')).toBe(2)
   })
 
   it('refunds the cost of the undelivered units only', async () => {
@@ -160,7 +160,7 @@ describe('cancelRecruitOrder', () => {
     const result = await cancelFiveInfantryAt(fiefs, secondsAfterStored(90))
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 160,
       stone: 100,
       iron: 130,
@@ -175,7 +175,7 @@ describe('cancelRecruitOrder', () => {
     const result = await cancelFiveInfantryAt(fiefs, secondsAfterStored(44))
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.units.countOf('infantry')).toBe(0)
     expect(stored?.stocks).toEqual({ wood: 200, stone: 100, iron: 150, gold: 100, food: 250 })
   })
@@ -189,7 +189,7 @@ describe('cancelRecruitOrder', () => {
     const result = await cancelFiveInfantryAt(fiefs, storedInstant)
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 1100,
       stone: 1000,
       iron: 1040,
@@ -245,7 +245,7 @@ describe('cancelRecruitOrder', () => {
     const result = await cancelFiveInfantryAt(fiefs, secondsAfterStored(90))
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual(farmInProgress)
     expect(stored?.buildQueue).toEqual([farmLevelTwoWaiting])
     expect(stored?.studySlot).toEqual(smithingInProgress)
@@ -268,7 +268,7 @@ describe('cancelRecruitOrder', () => {
     const otherInstant = secondsAfterStored(1)
 
     const result = await cancelRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', startedAt: otherInstant },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: otherInstant },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -295,15 +295,15 @@ describe('cancelRecruitOrder', () => {
   it('writes nothing when it refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
     const chronicle = inMemoryChronicle()
-    const before = JSON.stringify(fiefs.storedFiefOf('lord'))
+    const before = JSON.stringify(fiefs.storedFiefOf('fief-1'))
 
     const result = await cancelRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', startedAt: secondsAfterStored(1) },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: secondsAfterStored(1) },
       { fiefs, chronicle, catalog, clock: frozenClock(secondsAfterStored(90)) },
     )
 
     assert(!result.ok)
-    expect(JSON.stringify(fiefs.storedFiefOf('lord'))).toBe(before)
+    expect(JSON.stringify(fiefs.storedFiefOf('fief-1'))).toBe(before)
     expect(chronicle.recordedEventsOf('fief-1')).toEqual([])
   })
 
@@ -312,7 +312,7 @@ describe('cancelRecruitOrder', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await cancelRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: storedInstant },
       { fiefs, chronicle, catalog, clock: frozenClock(secondsAfterStored(90)) },
     )
 
@@ -336,7 +336,7 @@ describe('cancelRecruitOrder', () => {
     const cancelInstant = secondsAfterStored(100)
 
     const result = await cancelRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: storedInstant },
       { fiefs, chronicle, catalog, clock: frozenClock(cancelInstant) },
     )
 
@@ -351,7 +351,7 @@ describe('cancelRecruitOrder', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await cancelRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: storedInstant },
       { fiefs, chronicle, catalog, clock: frozenClock(secondsAfterStored(225)) },
     )
 
@@ -361,10 +361,10 @@ describe('cancelRecruitOrder', () => {
 
   it('reports a record the chronicle refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
-    const refusal = { kind: 'FiefNotFound', playerId: 'lord' } as const
+    const refusal = { kind: 'FiefNotFound', fiefId: 'fief-1' } as const
 
     const result = await cancelRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', startedAt: storedInstant },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', startedAt: storedInstant },
       {
         fiefs,
         chronicle: refusingChronicle(refusal),
@@ -376,14 +376,14 @@ describe('cancelRecruitOrder', () => {
     expect(result).toEqual({ ok: false, error: refusal })
   })
 
-  it('refuses a player who holds no fief', async () => {
+  it('refuses an unknown fief', async () => {
     const fiefs = inMemoryFiefRepository([])
 
     const result = await cancelRecruitOrder(
-      { playerId: 'landless', unit: 'infantry', startedAt: storedInstant },
+      { playerId: 'lord', fiefId: 'unknown-fief', unit: 'infantry', startedAt: storedInstant },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
-    expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
+    expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'unknown-fief' }))
   })
 })

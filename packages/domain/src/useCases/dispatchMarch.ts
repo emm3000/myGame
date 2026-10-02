@@ -1,6 +1,8 @@
 import { campOf } from '../camp/campOf'
 import type { DomainError } from '../DomainError'
 import type { Fief, MarchOrder } from '../fief/Fief'
+import type { FiefId } from '../fief/FiefId'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import { refuseUnreachableTarget } from '../march/refuseUnreachableTarget'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
@@ -12,6 +14,7 @@ import { marchSeasonAt } from '../season/marchSeasonAt'
 
 export type DispatchMarchCommand = MarchOrder & {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
 }
 
 export type DispatchMarchDependencies = {
@@ -25,14 +28,15 @@ export const dispatchMarch = async (
   command: DispatchMarchCommand,
   { fiefs, map, catalog, clock }: DispatchMarchDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
   const settings = catalog.fiefSettings()
   const { forage, units, camps, plotsPerProvince } = settings
   const room = fief.roomForMarch(command, forage.maxStayHours)
