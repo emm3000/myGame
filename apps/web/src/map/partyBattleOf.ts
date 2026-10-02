@@ -22,7 +22,7 @@ const tallyLosses = (party: UnitCounts, lostStrength: number, fief: FiefOverview
   partyKinds.reduce<LossTally>(
     (tally, unit) => {
       const { strength } = fief.unitTerms[unit]
-      if (party[unit] === 0 || strength === 0) {
+      if (party[unit] === 0) {
         return tally
       }
       const { rest, lost } = tally
