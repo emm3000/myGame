@@ -1,4 +1,3 @@
-import { Coordinates, type DomainError, Fief, FiefName, Instant, type Result } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -142,49 +141,5 @@ describe('DrizzleFiefRepository reads', () => {
     await expect(
       new DrizzleFiefRepository(drizzle(pool), 'lockFree').fiefOf(valdehierro),
     ).rejects.toThrow('half-written build slot')
-  })
-})
-
-const accepted = <T>(result: Result<T, DomainError>): T => {
-  if (!result.ok) {
-    throw new Error(`Fixture refused: ${result.error.kind}`)
-  }
-  return result.value
-}
-
-const anasFoundingOn = (id: string, plot: number): Fief =>
-  Fief.found({
-    id,
-    playerId: ana,
-    name: accepted(FiefName.create('Valdehierro')),
-    coordinates: accepted(Coordinates.create(1, 4, plot)),
-    startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
-    at: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z')),
-  })
-
-const foundInItsOwnTransaction = (fief: Fief): Promise<string> =>
-  drizzle(pool).transaction(async (transaction) => {
-    const saved = await new DrizzleFiefRepository(transaction, 'lockedForUpdate').save(fief)
-    return saved.ok ? 'founded' : saved.error.kind
-  })
-
-describe('DrizzleFiefRepository writes', () => {
-  it('seats one fief when two foundings for one player race', async () => {
-    await emptyDatabase()
-    await registerPlayers([ana])
-
-    const outcomes = await Promise.all([
-      foundInItsOwnTransaction(anasFoundingOn(valdehierro, 7)),
-      foundInItsOwnTransaction(anasFoundingOn(robledal, 8)),
-    ])
-
-    const held = await pool.query<{ count: number }>(
-      'SELECT count(*)::int AS count FROM fiefs WHERE player_id = $1',
-      [ana],
-    )
-    expect([[...outcomes].sort(), held.rows[0]?.count]).toEqual([
-      ['PlayerAlreadyHoldsFief', 'founded'],
-      1,
-    ])
   })
 })

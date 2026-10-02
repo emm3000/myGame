@@ -19,6 +19,7 @@ import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
+import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { placeRecruitOrder } from './placeRecruitOrder'
 import { resolveUpgrade } from './resolveUpgrade'
@@ -558,6 +559,7 @@ describe('placeRecruitOrder across seasons', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfter(lateSpring, 170)),
       },
     )

@@ -3070,6 +3070,119 @@ describe('the fief route', () => {
       expect(stored.value?.coordinates).toMatchObject({ kingdom: 1, province: 1, plot: 3 })
     })
 
+    const minutesToArrivalAt = (plot: number): number => 10 + (plot - 1)
+
+    const foundedFiefOf = async (lord: Lord): Promise<Lord> => {
+      const response = await app.request('/fiefs', { headers: { cookie: lord.cookie } })
+      const founded = FiefListSchema.parse(await response.json()).fiefs.find(
+        ({ id }) => id !== lord.fiefId,
+      )
+      assert(founded !== undefined)
+      return { cookie: lord.cookie, fiefId: founded.id }
+    }
+
+    it('lists both fiefs after a read past the arrival', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()))
+
+      const response = await app.request('/fiefs', { headers: { cookie: ana.cookie } })
+
+      expect(response.status).toBe(200)
+      const { fiefs } = FiefListSchema.parse(await response.json())
+      expect(fiefs.map(({ name, coordinates }) => ({ name, coordinates }))).toEqual([
+        { name: 'Valdehierro', coordinates: { kingdom: 1, province: 1, plot: 1 } },
+        {
+          name: 'Sotoverde del Páramo',
+          coordinates: { kingdom: 1, province: 2, plot: freePlot() },
+        },
+      ])
+    })
+
+    it('reads the new fief by its id', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()) + 60)
+      const founded = await foundedFiefOf(ana)
+
+      const response = await fiefOf(founded)
+
+      expect(response.status).toBe(200)
+      const { resources, buildings, arts, units, march } = FiefOverviewSchema.parse(
+        await response.json(),
+      )
+      expect({
+        amounts: Object.values(resources).map(({ amount }) => amount),
+        levels: [...new Set(Object.values(buildings).map(({ level }) => level))],
+        artLevels: [...new Set(Object.values(arts).map(({ level }) => level))],
+        units,
+        march,
+      }).toEqual({
+        amounts: [510, 514, 205, 52, 310],
+        levels: [0],
+        artLevels: [0],
+        units: { infantry: 0, cavalry: 0, settler: 0 },
+        march: null,
+      })
+    })
+
+    it('frees the settler and its peasants at the origin after the founding', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      const before = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()))
+
+      const { units, peasants, march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+
+      expect({ units, free: peasants.free - before.peasants.free, march }).toEqual({
+        units: { infantry: 0, cavalry: 0, settler: 0 },
+        free: 4,
+        march: null,
+      })
+    })
+
+    it('turns the settler home when a fief holds the plot at the arrival', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+      await signUp('bruno@example.com', 'Robledal')
+      await runSql(`UPDATE fiefs SET province = 2, plot = ${freePlot()} WHERE name = 'Robledal'`)
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()))
+
+      const atArrival = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()))
+      const home = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+
+      expect({
+        recalledAt: atArrival.march?.recalledAt,
+        fiefs: await server.fiefs.fiefsOf(ana.playerId),
+        march: home.march,
+        units: home.units,
+      }).toEqual({
+        recalledAt: new Date(
+          signedUpAt + minutesToArrivalAt(freePlot()) * millisecondsPerMinute,
+        ).toISOString(),
+        fiefs: [ana.fiefId],
+        march: null,
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+      })
+    })
+
+    it('refuses a founding from a lord of two fiefs', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()))
+      await foundedFiefOf(ana)
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'settler'::unit, 1 FROM fiefs WHERE name = 'Valdehierro'`)
+
+      const response = await found(ana, { ...foundingOnFreePlot(), plot: freePlot() + 1 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toMatchObject({
+        kind: 'FiefCapReached',
+      })
+    })
+
     it('answers 400 for a founding without a name', async () => {
       const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
 

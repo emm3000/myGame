@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { Instant } from '@mygame/domain'
+import { eq } from 'drizzle-orm'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
@@ -1106,17 +1107,27 @@ describe('the migrations', () => {
     expect(await db.select().from(fiefEvents)).toEqual([])
   })
 
-  it('refuses a second fief for the same player', async () => {
+  it('stores two fiefs for one player', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
 
-    await expect(
-      db
-        .insert(fiefs)
-        .values({ ...aFief('00000000-0000-4000-8000-00000000000b', ana.id), plot: 8 }),
-    ).rejects.toMatchObject({
-      cause: { code: uniqueViolation, constraint: 'fiefs_player_unique' },
-    })
+    await db
+      .insert(fiefs)
+      .values({ ...aFief('00000000-0000-4000-8000-00000000000b', ana.id), plot: 8 })
+
+    expect(
+      await db.select({ id: fiefs.id }).from(fiefs).where(eq(fiefs.playerId, ana.id)),
+    ).toHaveLength(2)
+  })
+
+  it('indexes the fiefs by player without refusing a second one', async () => {
+    const indexes = await client.query<{ definition: string }>(
+      "SELECT indexdef AS definition FROM pg_indexes WHERE tablename = 'fiefs' AND indexdef LIKE '%(player_id)%'",
+    )
+
+    expect(indexes.rows.map(({ definition }) => definition)).toEqual([
+      'CREATE INDEX fiefs_player_id_index ON public.fiefs USING btree (player_id)',
+    ])
   })
 
   it('refuses a fractional stored amount', async () => {
@@ -2280,5 +2291,36 @@ describe('the founding march migration', () => {
     })
 
     expect(await marchesOf(client)).toEqual(marchesOfLootPercentVersion)
+  })
+})
+
+describe('the second fief migration', () => {
+  const brunosFiefId = '00000000-0000-4000-8000-00000000000b'
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the fiefs stored before the migration', async () => {
+    await migratedFrom(client, 23, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await insertFiefOfPreviousVersion(client, brunosFiefId, bruno.id, 8, null)
+    })
+
+    expect(
+      await drizzle(client)
+        .select({ id: fiefs.id, playerId: fiefs.playerId, plot: fiefs.plot })
+        .from(fiefs)
+        .orderBy(fiefs.plot),
+    ).toEqual([
+      { id: anasFief.id, playerId: ana.id, plot: 7 },
+      { id: brunosFiefId, playerId: bruno.id, plot: 8 },
+    ])
   })
 })

@@ -141,15 +141,18 @@ const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const unknownFiefId = '00000000-0000-4000-8000-0000000000ff'
 
-const newFief = (id: string, playerId: PlayerId, plot: number): Fief =>
+const newFiefIn = (id: string, playerId: PlayerId, province: number, plot: number): Fief =>
   Fief.found({
     id,
     playerId,
     name: accepted(FiefName.create('Valdehierro')),
-    coordinates: accepted(Coordinates.create(1, 4, plot)),
+    coordinates: accepted(Coordinates.create(1, province, plot)),
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     at: foundedAt,
   })
+
+const newFief = (id: string, playerId: PlayerId, plot: number): Fief =>
+  newFiefIn(id, playerId, 4, plot)
 
 const anasFief = newFief('00000000-0000-4000-8000-00000000000a', ana, 7)
 
@@ -735,17 +738,17 @@ export const fiefRepositoryContract = (
       })
     })
 
-    it('refuses a second fief for a player who holds one', async () => {
+    it('lists the fiefs of a player by province then plot', async () => {
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([ana])
-      await fiefs.save(anasFief)
+      const furthest = newFiefIn('00000000-0000-4000-8000-00000000000d', ana, 5, 2)
+      const higherPlot = newFiefIn('00000000-0000-4000-8000-00000000000e', ana, 4, 9)
+      const nearest = newFiefIn('00000000-0000-4000-8000-00000000000f', ana, 4, 3)
+      await fiefs.save(furthest)
+      await fiefs.save(higherPlot)
+      await fiefs.save(nearest)
 
-      const saved = await fiefs.save(newFief('00000000-0000-4000-8000-00000000000c', ana, 8))
-
-      expect([saved, await fiefs.fiefOf(anasFief.id)]).toEqual([
-        { ok: false, error: { kind: 'PlayerAlreadyHoldsFief', playerId: ana } },
-        ok(anasFief),
-      ])
+      expect(await fiefs.fiefsOf(ana)).toEqual([nearest.id, higherPlot.id, furthest.id])
     })
 
     it('keeps the first fief when a rival loses the plot', async () => {

@@ -130,7 +130,7 @@ export const fiefs = pgTable(
   },
   (table) => [
     unique('fiefs_coordinates_unique').on(table.kingdom, table.province, table.plot),
-    uniqueIndex('fiefs_player_unique').on(table.playerId),
+    index('fiefs_player_id_index').on(table.playerId),
     wholeAmount('fiefs_wood_whole', table.wood),
     wholeAmount('fiefs_stone_whole', table.stone),
     wholeAmount('fiefs_iron_whole', table.iron),

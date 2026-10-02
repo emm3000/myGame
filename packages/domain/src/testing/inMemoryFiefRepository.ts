@@ -2,7 +2,7 @@ import type { Fief } from '../fief/Fief'
 import type { FiefId } from '../fief/FiefId'
 import type { PlotAddress } from '../fief/PlotAddress'
 import type { FiefRepository } from '../ports/FiefRepository'
-import { ok } from '../Result'
+import { err, ok } from '../Result'
 
 export type InMemoryFiefRepository = FiefRepository & {
   savedFiefs(): ReadonlyArray<Fief>
@@ -17,6 +17,12 @@ const reservedPlotOf = ({ coordinates, march }: Fief): PlotAddress | undefined =
   march.kind === 'away' && march.order === 'found' && march.recalledAt === undefined
     ? { kingdom: coordinates.kingdom, province: march.province, plot: march.plot }
     : undefined
+
+const holdsThePlotOf = (held: Fief, fief: Fief): boolean =>
+  held.id !== fief.id &&
+  held.coordinates.kingdom === fief.coordinates.kingdom &&
+  held.coordinates.province === fief.coordinates.province &&
+  held.coordinates.plot === fief.coordinates.plot
 
 export const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryFiefRepository => {
   const fiefs = new Map(existing.map((fief) => [fief.id, fief]))
@@ -43,6 +49,10 @@ export const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryF
       ).length,
     fiefOf: async (fiefId) => ok(fiefs.get(fiefId)),
     save: async (fief) => {
+      const holder = [...fiefs.values()].find((held) => holdsThePlotOf(held, fief))
+      if (holder !== undefined) {
+        return err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates })
+      }
       fiefs.set(fief.id, fief)
       return ok(undefined)
     },

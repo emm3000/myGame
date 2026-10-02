@@ -629,9 +629,6 @@ export class DrizzleFiefRepository implements FiefRepository {
       if (constraint === 'fiefs_coordinates_unique') {
         return err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates })
       }
-      if (constraint === 'fiefs_player_unique') {
-        return err({ kind: 'PlayerAlreadyHoldsFief', playerId: fief.playerId })
-      }
       if (constraint === 'fief_marches_founding_plot_unique' && marchRow !== undefined) {
         return err({ kind: 'PlotReserved', province: marchRow.province, plot: marchRow.plot })
       }

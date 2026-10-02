@@ -6,6 +6,7 @@ import {
   type DomainError,
   type Fief,
   type FiefOfPlayer,
+  type IdGenerator,
   ok,
   type ResolveUpgradeDependencies,
   type Result,
@@ -20,6 +21,7 @@ export type CurrentFiefDependencies = {
   readonly inTransaction: Transaction
   readonly buildingCatalog: BuildingCatalog
   readonly clock: Clock
+  readonly ids: IdGenerator
 }
 
 const dryRunOver = (fiefs: FiefReader): ResolveUpgradeDependencies['fiefs'] => ({
@@ -39,7 +41,7 @@ const discardingCamps: CampRegistry = {
 
 export const currentFiefOf = async (
   fiefOfPlayer: FiefOfPlayer,
-  { fiefs, inTransaction, buildingCatalog, clock }: CurrentFiefDependencies,
+  { fiefs, inTransaction, buildingCatalog, clock, ids }: CurrentFiefDependencies,
 ): Promise<Result<Fief, DomainError>> => {
   const now = clock.now()
   const readClock: Clock = { now: () => now }
@@ -49,6 +51,7 @@ export const currentFiefOf = async (
     camps: discardingCamps,
     catalog: buildingCatalog,
     clock: readClock,
+    ids,
   })
   const resolved =
     preview.ok && preview.value.hasChanged
@@ -59,6 +62,7 @@ export const currentFiefOf = async (
             camps: stores.camps,
             catalog: buildingCatalog,
             clock: readClock,
+            ids,
           }),
         )
       : preview

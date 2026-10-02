@@ -4,7 +4,6 @@ import { Fief, type StoredFief } from '../fief/Fief'
 import { FiefName } from '../fief/FiefName'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
-import type { IdGenerator } from '../ports/IdGenerator'
 import { err, ok } from '../Result'
 import {
   type InMemoryFiefRepository,
@@ -14,6 +13,7 @@ import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
+import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { foundFief } from './foundFief'
 
@@ -45,16 +45,6 @@ const inMemoryCatalog = (settings: FiefSettings): BuildingCatalog => ({
   artLevelOf: () => undefined,
   fiefSettings: () => settings,
 })
-
-const sequentialIds = (): IdGenerator => {
-  let issued = 0
-  return {
-    newId: () => {
-      issued += 1
-      return `fief-${issued}`
-    },
-  }
-}
 
 const raceLostFiefRepository = (): InMemoryFiefRepository => ({
   savedFiefs: () => [],

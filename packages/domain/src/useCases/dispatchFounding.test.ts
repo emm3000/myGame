@@ -13,6 +13,7 @@ import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { daysAfterSeasonEpoch, seasonalCatalogOf, secondsAfter } from '../testing/seasonalCatalogOf'
+import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { dispatchFounding } from './dispatchFounding'
 import { recallMarch } from './recallMarch'
@@ -367,6 +368,7 @@ describe('recalling a founding', () => {
         ...dependencies,
         camps: inMemoryCampRegistry([]),
         chronicle: inMemoryChronicle(),
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfter(dispatchInstant, 1_200)),
       },
     )
@@ -397,5 +399,216 @@ describe('recalling a founding', () => {
     )
 
     expect(result).toEqual(err({ kind: 'MarchAlreadyReturning' }))
+  })
+})
+
+describe('founding at the arrival', () => {
+  const arrival = secondsAfter(dispatchInstant, 900)
+
+  const rivalOnTheTarget = storedFief({
+    id: 'fief-9',
+    playerId: 'rival',
+    name: 'Torre Parda',
+    address: { kingdom: 1, province: 2, plot: 7 },
+    units: { infantry: 0, cavalry: 0, settler: 0 },
+  })
+
+  const sentFoundingFrom = async (origin: Fief, others: ReadonlyArray<Fief> = []) => {
+    const dependencies = dependenciesOver([origin, ...others])
+    const sent = await dispatchFounding(foundingOn(2, 7), dependencies)
+    assert(sent.ok)
+    return dependencies
+  }
+
+  const resolveAt = (dependencies: ReturnType<typeof dependenciesOver>, now: Instant) =>
+    resolveUpgrade(
+      { playerId: 'lord', fiefId: 'fief-1' },
+      {
+        ...dependencies,
+        camps: inMemoryCampRegistry([]),
+        chronicle: inMemoryChronicle(),
+        ids: sequentialIds('founded'),
+        clock: frozenClock(now),
+      },
+    )
+
+  const foundedFiefOf = (dependencies: ReturnType<typeof dependenciesOver>) =>
+    dependencies.fiefs.storedFiefOf('founded-1')
+
+  it('founds the fief at the arrival of the settler', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+
+    const result = await resolveAt(dependencies, arrival)
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(true)
+    expect(await dependencies.fiefs.fiefsOf('lord')).toEqual(['founded-1', 'fief-1'])
+    const founded = foundedFiefOf(dependencies)
+    expect({
+      playerId: founded?.playerId,
+      name: founded?.name.value,
+      coordinates: founded?.coordinates,
+    }).toEqual({
+      playerId: 'lord',
+      name: 'Sotoverde del Páramo',
+      coordinates: { kingdom: 1, province: 2, plot: 7 },
+    })
+  })
+
+  it('starts the new fief with the starting stocks and nothing built', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+
+    await resolveAt(dependencies, arrival)
+
+    const founded = foundedFiefOf(dependencies)
+    assert(founded !== undefined)
+    expect({
+      stocks: founded.stocks,
+      buildingLevels: founded.buildingLevels,
+      artLevels: founded.artLevels,
+      settlers: founded.units.countOf('settler'),
+      slot: founded.slot,
+      studySlot: founded.studySlot,
+      recruitOrder: founded.recruitOrder,
+      march: founded.march,
+    }).toEqual({
+      stocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+      buildingLevels: {
+        sawmill: 0,
+        quarry: 0,
+        ironMine: 0,
+        farm: 0,
+        warehouse: 0,
+        library: 0,
+        barracks: 0,
+      },
+      artLevels: { smithing: 0, masonry: 0 },
+      settlers: 0,
+      slot: { kind: 'idle' },
+      studySlot: { kind: 'idle' },
+      recruitOrder: { kind: 'idle' },
+      march: { kind: 'idle' },
+    })
+  })
+
+  it('accrues the new fief from the arrival instant', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+
+    await resolveAt(dependencies, secondsAfter(arrival, 3_600))
+
+    const founded = foundedFiefOf(dependencies)
+    assert(founded !== undefined)
+    expect(founded.storedAt).toEqual(arrival)
+    const accrued = founded.accruedTo(catalog, secondsAfter(arrival, 3_600))
+    assert(accrued.ok)
+    expect(accrued.value.stocks).toEqual({ wood: 510, stone: 520, iron: 205, gold: 52, food: 310 })
+  })
+
+  it('takes the settler out of the origin fief at the founding', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+
+    const result = await resolveAt(dependencies, arrival)
+
+    assert(result.ok)
+    expect(result.value.fief.units.countOf('settler')).toBe(0)
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.units.countOf('settler')).toBe(0)
+  })
+
+  it('frees the march slot at the founding', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+
+    const result = await resolveAt(dependencies, secondsAfter(arrival, 60))
+
+    assert(result.ok)
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
+    expect(result.value.events).toEqual([])
+  })
+
+  it('founds nothing before the arrival', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+
+    const result = await resolveAt(dependencies, secondsAfter(arrival, -1))
+
+    assert(result.ok)
+    expect(result.value.hasChanged).toBe(false)
+    expect(await dependencies.fiefs.fiefsOf('lord')).toEqual(['fief-1'])
+    expect(result.value.fief.march).toMatchObject({ kind: 'away', order: 'found' })
+  })
+
+  it('founds nothing on a recalled founding', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+    await recallMarch(
+      { playerId: 'lord', fiefId: 'fief-1', departedAt: dispatchInstant },
+      { ...dependencies, clock: frozenClock(secondsAfter(dispatchInstant, 600)) },
+    )
+
+    const result = await resolveAt(dependencies, secondsAfter(dispatchInstant, 1_200))
+
+    assert(result.ok)
+    expect(await dependencies.fiefs.fiefsOf('lord')).toEqual(['fief-1'])
+    expect(result.value.fief.units.countOf('settler')).toBe(1)
+  })
+
+  it('turns the settler home when the plot is held at the arrival', async () => {
+    const dependencies = await sentFoundingFrom(storedFief({}))
+    await dependencies.fiefs.save(rivalOnTheTarget)
+
+    const atArrival = await resolveAt(dependencies, arrival)
+
+    assert(atArrival.ok)
+    expect(atArrival.value.hasChanged).toBe(true)
+    expect(atArrival.value.fief.march).toMatchObject({ kind: 'away', recalledAt: arrival })
+    expect(await dependencies.fiefs.fiefsOf('lord')).toEqual(['fief-1'])
+    const home = await resolveAt(dependencies, secondsAfter(arrival, 900))
+    assert(home.ok)
+    expect(home.value.events).toEqual([
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+        loot: noLoot,
+        recalled: true,
+        occurredAt: secondsAfter(arrival, 900),
+      },
+    ])
+    expect(home.value.fief.units.countOf('settler')).toBe(1)
+    expect(home.value.fief.march).toEqual({ kind: 'idle' })
+  })
+
+  it('settles a running levy before the founding', async () => {
+    const dependencies = await sentFoundingFrom(
+      storedFief({
+        recruitOrder: {
+          kind: 'open',
+          unit: 'infantry',
+          count: 10,
+          cost: { wood: 200, stone: 0, iron: 100, gold: 0, food: 300 },
+          perUnitSeconds: 120,
+          startedAt: dispatchInstant,
+        },
+      }),
+    )
+
+    const result = await resolveAt(dependencies, arrival)
+
+    assert(result.ok)
+    const { units, recruitOrder } = result.value.fief
+    expect({
+      infantry: units.countOf('infantry'),
+      settlers: units.countOf('settler'),
+      recruitOrder,
+    }).toEqual({
+      infantry: 7,
+      settlers: 0,
+      recruitOrder: {
+        kind: 'open',
+        unit: 'infantry',
+        count: 3,
+        cost: { wood: 60, stone: 0, iron: 30, gold: 0, food: 90 },
+        perUnitSeconds: 120,
+        startedAt: secondsAfter(dispatchInstant, 840),
+      },
+    })
   })
 })

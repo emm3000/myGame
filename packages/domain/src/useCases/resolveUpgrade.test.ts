@@ -30,6 +30,7 @@ import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { refusingChronicle } from '../testing/refusingChronicle'
+import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { enqueueBuilding } from './enqueueBuilding'
 import { resolveUpgrade } from './resolveUpgrade'
@@ -213,6 +214,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -244,6 +246,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -275,6 +278,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(now),
       },
     )
@@ -301,6 +305,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: springDoublingWoodFrom(hoursAfterStored(2)),
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -319,6 +324,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: springDoublingWoodFrom(hoursAfterStored(1)),
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -347,6 +353,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -381,6 +388,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -412,6 +420,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(100)),
       },
     )
@@ -441,6 +450,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -463,6 +473,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(5)),
       },
     )
@@ -489,6 +500,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -519,6 +531,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -549,6 +562,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(now),
       },
     )
@@ -584,6 +598,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(12)),
       },
     )
@@ -606,6 +621,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -637,6 +653,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -666,6 +683,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: handHungryCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -695,6 +713,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: overcrowdingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(storedInstant),
       },
     )
@@ -720,6 +739,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -765,6 +785,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: threeLevelCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(0.5)),
       },
     )
@@ -786,6 +807,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(-1)),
       },
     )
@@ -806,6 +828,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(5)),
       },
     )
@@ -833,6 +856,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -860,6 +884,7 @@ describe('resolveUpgrade', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -877,6 +902,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(storedInstant),
       },
     )
@@ -904,6 +930,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -938,6 +965,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -959,6 +987,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -981,6 +1010,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1003,6 +1033,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1031,6 +1062,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1057,6 +1089,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -1076,6 +1109,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1106,6 +1140,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1142,6 +1177,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1165,6 +1201,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1185,6 +1222,7 @@ describe('resolveUpgrade', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -1208,6 +1246,7 @@ describe('resolveUpgrade', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1235,6 +1274,7 @@ describe('resolveUpgrade', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(1)),
       },
     )
@@ -1254,6 +1294,7 @@ describe('resolveUpgrade', () => {
         chronicle: refusingChronicle(refusal),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1318,6 +1359,7 @@ describe('resolveUpgrade across seasons', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfter(firstDayOfAutumn, 10)),
       },
     )
@@ -1359,6 +1401,7 @@ describe('resolveUpgrade across seasons', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(daysAfterSeasonEpoch(28)),
       },
     )
@@ -1401,6 +1444,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(300)),
       },
     )
@@ -1423,6 +1467,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(300)),
       },
     )
@@ -1443,6 +1488,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1466,6 +1512,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(5_400)),
       },
     )
@@ -1489,6 +1536,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1519,6 +1567,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1550,6 +1599,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(299)),
       },
     )
@@ -1584,6 +1634,7 @@ describe('resolveUpgrade with a recruit order', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: staffedCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(300)),
       },
     )
@@ -1627,6 +1678,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(8_880)),
       },
     )
@@ -1652,6 +1704,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1676,6 +1729,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(3)),
       },
     )
@@ -1703,6 +1757,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(3_480)),
       },
     )
@@ -1729,6 +1784,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(8_880)),
       },
     )
@@ -1747,6 +1803,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle,
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(8_879)),
       },
     )
@@ -1772,6 +1829,7 @@ describe('resolveUpgrade with a march', () => {
           chronicle: inMemoryChronicle(),
           camps: inMemoryCampRegistry([]),
           catalog,
+          ids: sequentialIds(),
           clock: frozenClock(at),
         },
       )
@@ -1792,6 +1850,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(4)),
       },
     )
@@ -1823,6 +1882,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: studyingCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(hoursAfterStored(2)),
       },
     )
@@ -1856,6 +1916,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog,
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterStored(8_879)),
       },
     )
@@ -1882,6 +1943,7 @@ describe('resolveUpgrade with a march', () => {
         chronicle: inMemoryChronicle(),
         camps: inMemoryCampRegistry([]),
         catalog: staffedCatalog,
+        ids: sequentialIds(),
         clock: frozenClock(returned),
       },
     )
@@ -1947,6 +2009,7 @@ const resolveAttackAt = (
       chronicle: inMemoryChronicle(),
       camps,
       catalog: catalogInForce,
+      ids: sequentialIds(),
       clock: frozenClock(now),
     },
   )
@@ -2231,7 +2294,14 @@ describe('resolveUpgrade with an attack', () => {
     const readAt = (now: Instant): ReturnType<typeof resolveUpgrade> =>
       resolveUpgrade(
         { playerId: 'lord', fiefId: 'fief-1' },
-        { fiefs, chronicle: inMemoryChronicle(), camps, catalog, clock: frozenClock(now) },
+        {
+          fiefs,
+          chronicle: inMemoryChronicle(),
+          camps,
+          catalog,
+          clock: frozenClock(now),
+          ids: sequentialIds(),
+        },
       )
 
     await readAt(arrival)

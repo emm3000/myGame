@@ -14,6 +14,7 @@ import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { daysAfterSeasonEpoch, seasonalCatalogOf, secondsAfter } from '../testing/seasonalCatalogOf'
+import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { dispatchMarch } from './dispatchMarch'
 import { recallMarch } from './recallMarch'
@@ -315,6 +316,7 @@ describe('recallMarch', () => {
         ...dependencies,
         chronicle,
         camps: inMemoryCampRegistry([]),
+        ids: sequentialIds(),
         clock: frozenClock(secondsAfterDeparture(3_480)),
       },
     )
