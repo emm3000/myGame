@@ -1,5 +1,5 @@
 import type { UnitKind } from '@mygame/contracts'
-import { UnitKindSchema } from '@mygame/contracts'
+import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 import { byUnitKind } from './byUnitKind'
 
@@ -15,6 +15,6 @@ const countOf = (entry: string): number | undefined => {
 }
 
 export function partyOf(entries: PartyEntries): UnitCounts | undefined {
-  const isWhole = UnitKindSchema.options.every((unit) => countOf(entries[unit]) !== undefined)
+  const isWhole = partyKinds.every((unit) => countOf(entries[unit]) !== undefined)
   return isWhole ? byUnitKind((unit) => countOf(entries[unit]) ?? 0) : undefined
 }

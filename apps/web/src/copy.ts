@@ -12,6 +12,7 @@ import type { ApiRefusal } from './api/apiClient'
 import { capitalize } from './design-system/capitalize'
 import { formatDuration } from './design-system/formatDuration'
 import { formatQuantity } from './design-system/formatQuantity'
+import { partyKinds } from './units/partyKinds'
 import type { UnitCounts } from './units/UnitCounts'
 
 export interface ResourceQuantity {
@@ -160,7 +161,7 @@ const sentPartyPhrase = (counts: UnitCounts, sent: UnitCounts): string => {
 }
 
 const emptyParty = `Envía al menos ${new Intl.ListFormat('es', { type: 'disjunction' }).format(
-  UnitKindSchema.options.map((unit) => `un ${units[unit].singular}`),
+  partyKinds.map((unit) => `un ${units[unit].singular}`),
 )}.`
 
 const lostBeforeCampClause = (unitsLost: UnitCounts): string =>

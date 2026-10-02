@@ -151,29 +151,6 @@ it('previews a win with the losses and the loot', async () => {
   ])
 })
 
-it('previews a win with a settler in the party, who fights and carries nothing', async () => {
-  const form = await openAttackOn(7, {
-    fief: async () => ({
-      ok: true,
-      value: { ...fiefWithTenInfantry, units: { infantry: 10, cavalry: 0, settler: 1 } },
-    }),
-  })
-
-  typeInfantry(form, '10')
-  fireEvent.change(within(form).getByLabelText('Colonos a enviar'), { target: { value: '1' } })
-
-  expect(previewOf(form)).toEqual([
-    'Camino de ida: 16:00',
-    'Vuelta en 32:00',
-    'Campamento: nivel 1, fuerza 6',
-    'Batalla: ganada',
-    'Bajas: 4 infantes',
-    'Bajas de los bandidos: 6',
-    'Vuelven: 6 infantes y 1 colono',
-    'Botín: 96 de madera, 96 de piedra y 96 de oro',
-  ])
-})
-
 it('previews the loss of every man', async () => {
   const form = await openAttackOn(9)
 

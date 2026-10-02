@@ -66,8 +66,8 @@ const openMarchTo7 = async (overrides: Partial<ApiClient> = {}): Promise<HTMLEle
   return screen.getByRole('form', { name: 'Marcha a provincia 2, parcela 7' })
 }
 
-const openAttackOn9 = async (): Promise<HTMLElement> => {
-  await showMap({})
+const openAttackOn9 = async (overrides: Partial<ApiClient> = {}): Promise<HTMLElement> => {
+  await showMap(overrides)
   fireEvent.click(screen.getByRole('button', { name: 'Atacar el campamento en parcela 9' }))
   return screen.getByRole('form', { name: 'Ataque a provincia 2, parcela 9' })
 }
@@ -176,7 +176,7 @@ it('blocks a march with every count at 0', async () => {
 
   expect(sendButton(form).disabled).toBe(true)
   expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Envía al menos un infante, un jinete o un colono.',
+    'Enviar una marcha. Envía al menos un infante o un jinete.',
   )
   expect(previewLine(form, 'Camino de ida:')).toBeUndefined()
   expect(send).not.toHaveBeenCalled()
@@ -217,4 +217,62 @@ it('sends both counts and shows them sent', async () => {
     'Marcha de ida: 12 infantes y 6 jinetes a provincia 2, parcela 7',
   )
   expect(screen.queryByRole('form', { name: copy.march.title(2, 7) })).toBeNull()
+})
+
+const fiefWithASettler = async () =>
+  ({
+    ok: true,
+    value: { ...fiefWithAParty, units: { infantry: 12, cavalry: 10, settler: 1 } },
+  }) as const
+
+const settlerTalliesIn = (form: HTMLElement): ReadonlyArray<string> =>
+  within(form)
+    .queryAllByText(/colonos? en casa/)
+    .map((tally) => tally.textContent ?? '')
+
+it('offers no settler field on the forage form', async () => {
+  const form = await openMarchTo7({ fief: fiefWithASettler })
+
+  expect(within(form).queryByLabelText('Colonos a enviar')).toBeNull()
+  expect(within(form).getAllByRole('spinbutton')).toEqual([
+    within(form).getByLabelText('Infantes a enviar'),
+    within(form).getByLabelText('Jinetes a enviar'),
+    within(form).getByLabelText('Horas de forrajeo'),
+  ])
+  expect(settlerTalliesIn(form)).toEqual([])
+})
+
+it('offers no settler field on the attack form', async () => {
+  const form = await openAttackOn9({ fief: fiefWithASettler })
+
+  expect(within(form).queryByLabelText('Colonos a enviar')).toBeNull()
+  expect(within(form).getAllByRole('spinbutton')).toEqual([
+    within(form).getByLabelText('Infantes a enviar'),
+    within(form).getByLabelText('Jinetes a enviar'),
+  ])
+  expect(settlerTalliesIn(form)).toEqual([])
+})
+
+it('sends no settler on a forage', async () => {
+  const dispatchMarch = vi.fn(
+    async (_fiefId: string, _request: DispatchMarchRequest) =>
+      ({ ok: true, value: { ...fiefWithAParty, march: mixedMarchAway } }) as const,
+  )
+  const form = await openMarchTo7({ fief: fiefWithASettler, dispatchMarch })
+
+  typeParty(form, '0', '0')
+
+  expect(sendButton(form).getAttribute('aria-label')).toBe(
+    'Enviar una marcha. Envía al menos un infante o un jinete.',
+  )
+  typeParty(form, '12', '6')
+  type(form, 'Horas de forrajeo', '2')
+  fireEvent.click(sendButton(form))
+
+  expect(dispatchMarch).toHaveBeenCalledWith(knownFief.id, {
+    province: 2,
+    plot: 7,
+    units: { infantry: 12, cavalry: 6, settler: 0 },
+    stayHours: 2,
+  })
 })

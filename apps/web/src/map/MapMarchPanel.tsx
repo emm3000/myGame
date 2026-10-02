@@ -1,9 +1,9 @@
-import { UnitKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { FormAlert } from '../design-system/FormAlert'
 import { MarchForm } from '../design-system/MarchForm'
 import { MarchSent } from '../design-system/MarchSent'
+import { partyKinds } from '../units/partyKinds'
 import { attackFormOf } from './attackFormOf'
 import { marchFormOf } from './marchFormOf'
 import { marchSentLinesOf } from './marchSentLinesOf'
@@ -14,7 +14,7 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   if (overview === undefined || target === undefined) {
     return null
   }
-  const counts = UnitKindSchema.options.map((unit) => ({
+  const counts = partyKinds.map((unit) => ({
     label: copy.march.countField(unit),
     entry: entries.units[unit],
     min: 0,

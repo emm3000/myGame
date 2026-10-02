@@ -1,6 +1,6 @@
-import { UnitKindSchema } from '@mygame/contracts'
+import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 
 export function isEmptyParty(party: UnitCounts): boolean {
-  return UnitKindSchema.options.every((unit) => party[unit] === 0)
+  return partyKinds.every((unit) => party[unit] === 0)
 }

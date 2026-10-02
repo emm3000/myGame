@@ -5,7 +5,7 @@ import type {
   ResourceKind,
   Terrain,
 } from '@mygame/contracts'
-import { ResourceKindSchema, UnitKindSchema } from '@mygame/contracts'
+import { ResourceKindSchema } from '@mygame/contracts'
 import { copy } from '../copy'
 import { formatDuration } from '../design-system/formatDuration'
 import type { MarchFormProps } from '../design-system/MarchForm'
@@ -14,6 +14,7 @@ import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import type { SubmitActionState } from '../design-system/SubmitAction'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
 import { carryOf } from './carryOf'
@@ -62,7 +63,7 @@ function lootOf(
 ): ResourceAmounts {
   const rates = yieldRatesOf(terrain, fief)
   const yielded = Object.values(rates).filter((rate) => rate > 0).length
-  const heads = UnitKindSchema.options.reduce((total, unit) => total + party[unit], 0)
+  const heads = partyKinds.reduce((total, unit) => total + party[unit], 0)
   const carryShare = Math.floor(carryOf(party, fief) / yielded)
   const carried = (resource: ResourceKind): number =>
     rates[resource] > 0
