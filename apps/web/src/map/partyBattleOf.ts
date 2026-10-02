@@ -24,11 +24,11 @@ const strengthOf = (party: UnitCounts, fief: FiefOverview): number =>
 const tallyLosses = (party: UnitCounts, lostStrength: number, fief: FiefOverview): UnitCounts =>
   UnitKindSchema.options.reduce<LossTally>(
     (tally, unit) => {
-      if (party[unit] === 0) {
+      const { strength } = fief.unitTerms[unit]
+      if (party[unit] === 0 || strength === 0) {
         return tally
       }
       const { rest, lost } = tally
-      const { strength } = fief.unitTerms[unit]
       const unitsLost = Math.min(party[unit], Math.ceil(rest / strength))
       return {
         rest: Math.max(0, rest - unitsLost * strength),
