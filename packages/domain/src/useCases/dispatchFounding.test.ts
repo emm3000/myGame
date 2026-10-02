@@ -73,7 +73,19 @@ const secondLordPlot: HeldPlot = {
   address: { kingdom: 1, province: 1, plot: 4 },
 }
 
-const map = inMemoryKingdomMap([lordPlot, secondLordPlot])
+const rivalPlot: HeldPlot = {
+  fiefId: 'fief-9',
+  playerId: 'rival',
+  name: 'Torre Parda',
+  address: { kingdom: 1, province: 2, plot: 9 },
+}
+
+const map = inMemoryKingdomMap([lordPlot, secondLordPlot, rivalPlot])
+
+const reservedMap = inMemoryKingdomMap(
+  [lordPlot, secondLordPlot, rivalPlot],
+  [{ playerId: 'rival', address: { kingdom: 1, province: 2, plot: 7 } }],
+)
 
 const storedFief = (overrides: Partial<StoredFief>): Fief => {
   const restored = Fief.restore({
@@ -287,9 +299,18 @@ describe('dispatchFounding', () => {
   it('refuses a founding to a held plot', async () => {
     const dependencies = dependenciesOver([storedFief({})])
 
-    const result = await dispatchFounding(foundingOn(1, 4), dependencies)
+    const result = await dispatchFounding(foundingOn(2, 9), dependencies)
 
-    expect(result).toEqual(err({ kind: 'PlotHeld', province: 1, plot: 4 }))
+    expect(result).toEqual(err({ kind: 'PlotHeld', province: 2, plot: 9 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
+  })
+
+  it('refuses a founding on a reserved plot before the index does', async () => {
+    const dependencies = { ...dependenciesOver([storedFief({})]), map: reservedMap }
+
+    const result = await dispatchFounding(foundingOn(2, 7), dependencies)
+
+    expect(result).toEqual(err({ kind: 'PlotReserved', province: 2, plot: 7 }))
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 

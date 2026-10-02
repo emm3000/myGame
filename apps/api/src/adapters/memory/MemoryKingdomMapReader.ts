@@ -1,5 +1,12 @@
-import type { FiefId, HeldAddress, KingdomMapReader, PlotHolder } from '@mygame/domain'
+import type {
+  FiefId,
+  HeldAddress,
+  KingdomMapReader,
+  PlotHolder,
+  PlotReservation,
+} from '@mygame/domain'
 import type { MemoryFiefRepository } from './MemoryFiefRepository'
+import { reservedPlotOf } from './reservedPlotOf'
 
 export class MemoryKingdomMapReader implements KingdomMapReader {
   constructor(private readonly fiefs: MemoryFiefRepository) {}
@@ -34,6 +41,18 @@ export class MemoryKingdomMapReader implements KingdomMapReader {
         name: name.value,
         playerId,
       }))
+      .sort((left, right) => left.plot - right.plot)
+  }
+
+  async reservationsIn(kingdom: number, province: number): Promise<ReadonlyArray<PlotReservation>> {
+    return this.fiefs
+      .heldFiefs()
+      .flatMap((fief) => {
+        const reserved = reservedPlotOf(fief)
+        return reserved?.kingdom === kingdom && reserved.province === province
+          ? [{ plot: reserved.plot, playerId: fief.playerId }]
+          : []
+      })
       .sort((left, right) => left.plot - right.plot)
   }
 }

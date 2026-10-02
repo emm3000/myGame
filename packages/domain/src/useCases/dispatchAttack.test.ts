@@ -281,6 +281,22 @@ describe('dispatchAttack', () => {
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
+  it('refuses an attack on a reserved plot', async () => {
+    const plot = freePlot()
+    const dependencies = {
+      ...dependenciesOver(storedFief({})),
+      map: inMemoryKingdomMap(
+        [lordPlot, neighbourPlot, settlerPlot],
+        [{ playerId: 'neighbour', address: { kingdom: 1, province: 2, plot } }],
+      ),
+    }
+
+    const result = await dispatchAttack(tenInfantryOn(plot), dependencies)
+
+    expect(result).toEqual(err({ kind: 'PlotReserved', province: 2, plot }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
+  })
+
   it('refuses an attack on a held plot', async () => {
     const dependencies = dependenciesOver(storedFief({}))
 

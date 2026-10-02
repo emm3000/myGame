@@ -10,7 +10,15 @@ export type HeldPlot = {
   readonly address: PlotAddress
 }
 
-export const inMemoryKingdomMap = (heldPlots: ReadonlyArray<HeldPlot>): KingdomMapReader => ({
+export type ReservedPlot = {
+  readonly playerId: PlayerId
+  readonly address: PlotAddress
+}
+
+export const inMemoryKingdomMap = (
+  heldPlots: ReadonlyArray<HeldPlot>,
+  reservedPlots: ReadonlyArray<ReservedPlot> = [],
+): KingdomMapReader => ({
   addressOf: async (fiefId) => {
     const held = heldPlots.find((plot) => plot.fiefId === fiefId)
     return held === undefined ? undefined : { address: held.address, playerId: held.playerId }
@@ -26,4 +34,11 @@ export const inMemoryKingdomMap = (heldPlots: ReadonlyArray<HeldPlot>): KingdomM
     heldPlots
       .filter((held) => held.address.kingdom === kingdom && held.address.province === province)
       .map(({ playerId, name, address }) => ({ plot: address.plot, name, playerId })),
+  reservationsIn: async (kingdom, province) =>
+    reservedPlots
+      .filter(
+        (reserved) =>
+          reserved.address.kingdom === kingdom && reserved.address.province === province,
+      )
+      .map(({ playerId, address }) => ({ plot: address.plot, playerId })),
 })

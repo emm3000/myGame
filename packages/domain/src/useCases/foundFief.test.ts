@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Coordinates } from '../fief/Coordinates'
-import { Fief } from '../fief/Fief'
+import { Fief, type StoredFief } from '../fief/Fief'
 import { FiefName } from '../fief/FiefName'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -86,6 +86,50 @@ const neighbourFief = (playerId: string, coordinates: Coordinates): Fief => {
   })
 }
 
+const founderOnTheRoad = (recalledAt: Instant | undefined): Fief => {
+  const departedAt = Instant.fromEpochMilliseconds(86_000_000)
+  const founder: StoredFief = {
+    id: 'founder-fief',
+    playerId: 'founder',
+    name: 'Peña Alta',
+    address: { kingdom: 1, province: 1, plot: 1 },
+    stocks: { wood: 40, stone: 30, iron: 20, gold: 5, food: 35 },
+    storedAt: departedAt,
+    buildingLevels: {
+      sawmill: 0,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 0,
+      barracks: 5,
+    },
+    artLevels: { smithing: 0, masonry: 0 },
+    units: { infantry: 0, cavalry: 0, settler: 1 },
+    slot: { kind: 'idle' },
+    buildQueue: [],
+    studySlot: { kind: 'idle' },
+    recruitOrder: { kind: 'idle' },
+    march: {
+      kind: 'away',
+      order: 'found',
+      name: 'Sotoverde',
+      province: 1,
+      plot: 2,
+      units: { infantry: 0, cavalry: 0, settler: 1 },
+      stayHours: 0,
+      departedAt,
+      oneWaySeconds: 900,
+      loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+      lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+      ...(recalledAt === undefined ? {} : { recalledAt }),
+    },
+  }
+  const restored = Fief.restore(founder)
+  assert(restored.ok)
+  return restored.value
+}
+
 describe('foundFief', () => {
   it('takes the lowest free plot', async () => {
     const fiefs = inMemoryFiefRepository([
@@ -97,6 +141,38 @@ describe('foundFief', () => {
       { playerId: 'newcomer', name: 'Vado Viejo' },
       {
         fiefs,
+        catalog: inMemoryCatalog(fiefSettings(3)),
+        clock: frozenClock,
+        ids: sequentialIds(),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.coordinates).toEqual(coordinatesAt(1, 1, 2))
+  })
+
+  it('skips a reserved plot when founding a fief at sign-up', async () => {
+    const result = await foundFief(
+      { playerId: 'newcomer', name: 'Vado Viejo' },
+      {
+        fiefs: inMemoryFiefRepository([founderOnTheRoad(undefined)]),
+        catalog: inMemoryCatalog(fiefSettings(3)),
+        clock: frozenClock,
+        ids: sequentialIds(),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.coordinates).toEqual(coordinatesAt(1, 1, 3))
+  })
+
+  it('offers a plot again once its founding is recalled', async () => {
+    const result = await foundFief(
+      { playerId: 'newcomer', name: 'Vado Viejo' },
+      {
+        fiefs: inMemoryFiefRepository([
+          founderOnTheRoad(Instant.fromEpochMilliseconds(86_300_000)),
+        ]),
         catalog: inMemoryCatalog(fiefSettings(3)),
         clock: frozenClock,
         ids: sequentialIds(),

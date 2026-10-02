@@ -3059,6 +3059,17 @@ describe('the fief route', () => {
       expect(response.status).toBe(200)
     })
 
+    it('signs up a new lord past a reserved plot', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, { province: 1, plot: 2, name: 'Sotoverde del Páramo' })
+
+      const carla = await signUp('carla@example.com', 'Pedregal')
+
+      const stored = await storedFiefOf(carla)
+      assert(stored.ok)
+      expect(stored.value?.coordinates).toMatchObject({ kingdom: 1, province: 1, plot: 3 })
+    })
+
     it('answers 400 for a founding without a name', async () => {
       const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
 

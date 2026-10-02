@@ -9,21 +9,12 @@ import {
   type PlotAddress,
   type Result,
 } from '@mygame/domain'
-
-type PlotOfMarch = {
-  readonly province: number
-  readonly plot: number
-}
+import { reservedPlotOf } from './reservedPlotOf'
 
 const sharesPlot = (left: Fief, right: Fief): boolean =>
   left.coordinates.kingdom === right.coordinates.kingdom &&
   left.coordinates.province === right.coordinates.province &&
   left.coordinates.plot === right.coordinates.plot
-
-const reservedPlotOf = ({ march }: Fief): PlotOfMarch | undefined =>
-  march.kind === 'away' && march.order === 'found' && march.recalledAt === undefined
-    ? { province: march.province, plot: march.plot }
-    : undefined
 
 const byProvinceThenPlot = (left: Fief, right: Fief): number =>
   left.coordinates.province - right.coordinates.province ||
@@ -37,11 +28,13 @@ export class MemoryFiefRepository implements FiefRepository {
   }
 
   async occupiedPlots(): Promise<ReadonlyArray<PlotAddress>> {
-    return [...this.fiefs.values()].map(({ coordinates: { kingdom, province, plot } }) => ({
+    const held = [...this.fiefs.values()].map(({ coordinates: { kingdom, province, plot } }) => ({
       kingdom,
       province,
       plot,
     }))
+    const reserved = [...this.fiefs.values()].flatMap((fief) => reservedPlotOf(fief) ?? [])
+    return [...held, ...reserved]
   }
 
   async holdsFief(playerId: PlayerId): Promise<boolean> {

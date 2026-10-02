@@ -473,9 +473,15 @@ export class DrizzleFiefRepository implements FiefRepository {
   ) {}
 
   async occupiedPlots(): Promise<ReadonlyArray<PlotAddress>> {
-    return this.database
+    const held = await this.database
       .select({ kingdom: fiefs.kingdom, province: fiefs.province, plot: fiefs.plot })
       .from(fiefs)
+    const reserved = await this.database
+      .select({ kingdom: fiefs.kingdom, province: fiefMarches.province, plot: fiefMarches.plot })
+      .from(fiefMarches)
+      .innerJoin(fiefs, eq(fiefs.id, fiefMarches.fiefId))
+      .where(and(isNotNull(fiefMarches.foundingName), isNull(fiefMarches.recalledAt)))
+    return [...held, ...reserved]
   }
 
   async holdsFief(playerId: PlayerId): Promise<boolean> {
