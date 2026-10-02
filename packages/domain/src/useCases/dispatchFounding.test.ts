@@ -134,6 +134,7 @@ const dependenciesOver = (fiefs: ReadonlyArray<Fief>, fiefCatalog = catalog) => 
   fiefs: inMemoryFiefRepository(fiefs),
   map,
   catalog: fiefCatalog,
+  chronicle: inMemoryChronicle(),
   clock: frozenClock(dispatchInstant),
 })
 
@@ -521,7 +522,6 @@ describe('founding at the arrival', () => {
 
     assert(result.ok)
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
-    expect(result.value.events).toEqual([])
   })
 
   it('founds nothing before the arrival', async () => {
@@ -610,5 +610,127 @@ describe('founding at the arrival', () => {
         startedAt: secondsAfter(dispatchInstant, 840),
       },
     })
+  })
+})
+
+describe('the founding in the chronicle', () => {
+  const arrival = secondsAfter(dispatchInstant, 900)
+
+  const founding = {
+    province: 2,
+    plot: 7,
+    name: 'Sotoverde del Páramo',
+  }
+
+  const sentFounding = async () => {
+    const dependencies = dependenciesOver([storedFief({})])
+    const sent = await dispatchFounding(foundingOn(2, 7), dependencies)
+    assert(sent.ok)
+    return dependencies
+  }
+
+  const resolveAt = (dependencies: ReturnType<typeof dependenciesOver>, now: Instant) =>
+    resolveUpgrade(
+      { playerId: 'lord', fiefId: 'fief-1' },
+      {
+        ...dependencies,
+        camps: inMemoryCampRegistry([]),
+        ids: sequentialIds('founded'),
+        clock: frozenClock(now),
+      },
+    )
+
+  it('records the founding march sent on the origin', async () => {
+    const dependencies = await sentFounding()
+
+    expect(dependencies.chronicle.recordedEventsOf('fief-1')).toEqual([
+      { kind: 'foundingSent', ...founding, occurredAt: dispatchInstant },
+    ])
+  })
+
+  it('records nothing for a refused founding', async () => {
+    const dependencies = dependenciesOver([
+      storedFief({ units: { infantry: 4, cavalry: 0, settler: 0 } }),
+    ])
+
+    const result = await dispatchFounding(foundingOn(2, 7), dependencies)
+
+    assert(!result.ok)
+    expect(dependencies.chronicle.recordedEventsOf('fief-1')).toEqual([])
+  })
+
+  it('records the fief founded on the origin at the arrival', async () => {
+    const dependencies = dependenciesOver([
+      storedFief({
+        recruitOrder: {
+          kind: 'open',
+          unit: 'infantry',
+          count: 2,
+          cost: { wood: 40, stone: 0, iron: 20, gold: 0, food: 60 },
+          perUnitSeconds: 600,
+          startedAt: dispatchInstant,
+        },
+      }),
+    ])
+    const sent = await dispatchFounding(foundingOn(2, 7), dependencies)
+    assert(sent.ok)
+
+    const result = await resolveAt(dependencies, secondsAfter(arrival, 3_600))
+
+    assert(result.ok)
+    const fiefFounded = { kind: 'fiefFounded', ...founding, occurredAt: arrival }
+    expect(result.value.events).toEqual([
+      fiefFounded,
+      {
+        kind: 'recruitsDelivered',
+        unit: 'infantry',
+        count: 1,
+        occurredAt: secondsAfter(dispatchInstant, 1_200),
+      },
+    ])
+    expect(dependencies.chronicle.recordedEventsOf('fief-1')).toEqual([
+      { kind: 'foundingSent', ...founding, occurredAt: dispatchInstant },
+      ...result.value.events,
+    ])
+  })
+
+  it('starts the new fief chronicle with its founding', async () => {
+    const dependencies = await sentFounding()
+
+    await resolveAt(dependencies, secondsAfter(arrival, 60))
+
+    expect(dependencies.chronicle.recordedEventsOf('founded-1')).toEqual([
+      { kind: 'fiefFounded', ...founding, occurredAt: arrival },
+    ])
+  })
+
+  it('records no founding for a founding that turns home', async () => {
+    const dependencies = await sentFounding()
+    await dependencies.fiefs.save(
+      storedFief({
+        id: 'fief-9',
+        playerId: 'rival',
+        name: 'Torre Parda',
+        address: { kingdom: 1, province: 2, plot: 7 },
+        units: { infantry: 0, cavalry: 0, settler: 0 },
+      }),
+    )
+
+    await resolveAt(dependencies, arrival)
+    await resolveAt(dependencies, secondsAfter(arrival, 900))
+
+    expect(dependencies.chronicle.recordedEventsOf('fief-1')).toEqual([
+      { kind: 'foundingSent', ...founding, occurredAt: dispatchInstant },
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+        loot: noLoot,
+        recalled: true,
+        occurredAt: secondsAfter(arrival, 900),
+      },
+    ])
+    expect(dependencies.chronicle.recordedEventsOf('fief-9')).toEqual([])
   })
 })

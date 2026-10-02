@@ -20,7 +20,7 @@ export const dispatchFoundingOf = async (
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
     fiefOfPlayer,
-    ({ fiefs }, clock) =>
+    ({ fiefs, chronicle }, clock) =>
       dispatchFounding(
         {
           ...fiefOfPlayer,
@@ -28,7 +28,7 @@ export const dispatchFoundingOf = async (
           plot: request.plot,
           name: request.name,
         },
-        { fiefs, map: dependencies.map, catalog: dependencies.buildingCatalog, clock },
+        { fiefs, map: dependencies.map, catalog: dependencies.buildingCatalog, chronicle, clock },
       ),
     dependencies,
   )

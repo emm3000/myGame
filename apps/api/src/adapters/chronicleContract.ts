@@ -227,6 +227,42 @@ export const chronicleContract = (
       expect(await chronicle.eventsOf(valdehierro)).toEqual([returned])
     })
 
+    it('stores and reads a founding sent', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const sent: FiefEvent = {
+        kind: 'foundingSent',
+        province: 2,
+        plot: 7,
+        name: 'Sotoverde del Páramo',
+        occurredAt: minutesAfterDawn(25),
+      }
+
+      await chronicle.record(valdehierro, [sent])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([sent])
+    })
+
+    it('stores and reads a fief founded', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro, robledal])
+      const founded: FiefEvent = {
+        kind: 'fiefFounded',
+        province: 2,
+        plot: 7,
+        name: 'Sotoverde del Páramo',
+        occurredAt: minutesAfterDawn(40),
+      }
+
+      await chronicle.record(valdehierro, [founded])
+      await chronicle.record(robledal, [founded])
+
+      expect([await chronicle.eventsOf(valdehierro), await chronicle.eventsOf(robledal)]).toEqual([
+        [founded],
+        [founded],
+      ])
+    })
+
     it('reads back a battle that lost riders', async () => {
       const { chronicle, registerFiefs } = await arrange()
       await registerFiefs([valdehierro])

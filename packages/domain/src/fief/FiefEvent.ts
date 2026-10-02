@@ -64,3 +64,17 @@ export type FiefEvent =
       readonly campLost: number
       readonly occurredAt: Instant
     }
+  | {
+      readonly kind: 'foundingSent'
+      readonly province: number
+      readonly plot: number
+      readonly name: string
+      readonly occurredAt: Instant
+    }
+  | {
+      readonly kind: 'fiefFounded'
+      readonly province: number
+      readonly plot: number
+      readonly name: string
+      readonly occurredAt: Instant
+    }

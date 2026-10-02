@@ -3167,6 +3167,34 @@ describe('the fief route', () => {
       })
     })
 
+    it('stores the founding in both chronicles and keeps it off the wire', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()))
+      const founded = await foundedFiefOf(ana)
+
+      const answered = await Promise.all(
+        [ana, founded].map(async (lord) =>
+          FiefChronicleSchema.parse(
+            await (
+              await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
+            ).json(),
+          ),
+        ),
+      )
+
+      expect({
+        answered: answered.map(({ events }) => events),
+        stored: [
+          (await server.chronicle.eventsOf(ana.fiefId)).map(({ kind }) => kind),
+          (await server.chronicle.eventsOf(founded.fiefId)).map(({ kind }) => kind),
+        ],
+      }).toEqual({
+        answered: [[], []],
+        stored: [['fiefFounded', 'foundingSent'], ['fiefFounded']],
+      })
+    })
+
     it('refuses a founding from a lord of two fiefs', async () => {
       const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
       await found(ana, foundingOnFreePlot())

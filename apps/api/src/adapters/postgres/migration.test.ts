@@ -1091,6 +1091,60 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a fief founded without a name', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'fief_founded',
+        province: 2,
+        plot: 7,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_founding_name' },
+    })
+  })
+
+  it('refuses a fief name on a march-returned row', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'march_returned',
+        infantryCount: 4,
+        cavalryCount: 0,
+        settlerCount: 0,
+        province: 2,
+        plot: 7,
+        fiefName: 'Sotoverde del Páramo',
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_founding_name' },
+    })
+  })
+
+  it('refuses a founding sent without its plot', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'founding_sent',
+        fiefName: 'Sotoverde del Páramo',
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
   it('drops the events of a deleted fief', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -2322,5 +2376,43 @@ describe('the second fief migration', () => {
       { id: anasFief.id, playerId: ana.id, plot: 7 },
       { id: brunosFiefId, playerId: bruno.id, plot: 8 },
     ])
+  })
+})
+
+const insertEventsOfFoundingEventsVersion = async (client: Client): Promise<void> => {
+  await client.query(
+    `INSERT INTO fief_events (fief_id, kind, unit, count, cancelled_count, infantry_count, cavalry_count, settler_count,
+       province, plot, refund_wood, refund_stone, refund_iron, refund_gold, refund_food, recalled, camp_tier, camp_lost,
+       won, occurred_at)
+     VALUES ($1, 'recruits_delivered', 'infantry', 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, false, NULL, NULL, false, '2026-09-22T09:00:00Z'),
+            ($1, 'recruits_cancelled', 'infantry', 1, 2, NULL, NULL, NULL, NULL, NULL, 40, 0, 20, 0, 60, false, NULL, NULL, false, '2026-09-22T09:10:00Z'),
+            ($1, 'march_returned', NULL, NULL, NULL, 10, 0, 0, 2, 5, 240, 240, 0, 0, 0, false, NULL, NULL, false, '2026-09-22T09:20:00Z'),
+            ($1, 'march_returned', NULL, NULL, NULL, 8, 0, 0, 2, 5, 25, 25, 0, 0, 0, true, NULL, NULL, false, '2026-09-22T09:30:00Z'),
+            ($1, 'battle_fought', NULL, NULL, NULL, 4, 0, 0, 2, 6, 0, 0, 0, 0, 0, false, 2, 15, true, '2026-09-22T09:40:00Z'),
+            ($1, 'battle_fought', NULL, NULL, NULL, 3, 0, 0, 2, 6, 0, 0, 0, 0, 0, false, 1, 2, false, '2026-09-22T09:50:00Z')`,
+    [anasPartyFief],
+  )
+}
+
+describe('the founding events migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the events stored before the founding events migration', async () => {
+    await migratedFrom(client, 24, async () => {
+      await insertMarchesOfFoundingVersion(client)
+      await insertEventsOfFoundingEventsVersion(client)
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief)).toEqual(
+      eventsOfPartyVersion,
+    )
   })
 })

@@ -47,6 +47,8 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'recruits_cancelled',
   'march_returned',
   'battle_fought',
+  'founding_sent',
+  'fief_founded',
 ])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
@@ -331,6 +333,7 @@ export const fiefEvents = pgTable(
     settlerCount: integer('settler_count'),
     province: integer('province'),
     plot: integer('plot'),
+    fiefName: text('fief_name'),
     refundWood: doublePrecision('refund_wood').notNull().default(0),
     refundStone: doublePrecision('refund_stone').notNull().default(0),
     refundIron: doublePrecision('refund_iron').notNull().default(0),
@@ -345,7 +348,7 @@ export const fiefEvents = pgTable(
   (table) => [
     check(
       'fief_events_one_subject',
-      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}, ${table.infantryCount}) = 1 AND (${table.infantryCount} IS NULL) = (${table.cavalryCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.settlerCount} IS NULL) AND (${table.level} IS NULL) = (${table.building} IS NULL AND ${table.art} IS NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.infantryCount} IS NULL) AND (${table.plot} IS NULL) = (${table.infantryCount} IS NULL) AND (${table.province} IS NULL OR (${table.province} >= 1 AND ${table.plot} >= 1))`,
+      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}, ${table.infantryCount}, ${table.fiefName}) = 1 AND (${table.infantryCount} IS NULL) = (${table.cavalryCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.settlerCount} IS NULL) AND (${table.level} IS NULL) = (${table.building} IS NULL AND ${table.art} IS NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.infantryCount} IS NULL AND ${table.fiefName} IS NULL) AND (${table.plot} IS NULL) = (${table.infantryCount} IS NULL AND ${table.fiefName} IS NULL) AND (${table.province} IS NULL OR (${table.province} >= 1 AND ${table.plot} >= 1))`,
     ),
     check(
       'fief_events_unit_counts',
@@ -358,6 +361,10 @@ export const fiefEvents = pgTable(
     check(
       'fief_events_battle_terms',
       sql`(${table.kind}::text = 'battle_fought') = (${table.campTier} IS NOT NULL) AND (${table.campTier} IS NULL) = (${table.campLost} IS NULL) AND (${table.campTier} IS NULL OR (${table.campTier} BETWEEN 1 AND 3 AND ${table.campLost} >= 0 AND ${table.province} IS NOT NULL)) AND (NOT ${table.won} OR ${table.kind}::text = 'battle_fought')`,
+    ),
+    check(
+      'fief_events_founding_name',
+      sql`(${table.fiefName} IS NOT NULL) = (${table.kind}::text IN ('founding_sent', 'fief_founded'))`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],
