@@ -1,5 +1,5 @@
 import type { DispatchFoundingRequest, FiefOverview, ProvinceMap } from '@mygame/contracts'
-import { fireEvent, screen, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -253,4 +253,31 @@ it('sends the founding with the name typed', async () => {
   expect(sent.textContent).toContain('Llegada en 15:00')
   expect(sent.textContent).not.toContain('Botín')
   expect(screen.queryByRole('form', { name: 'Fundación en provincia 2, parcela 7' })).toBeNull()
+})
+
+it('reads the target plot reserved once the founding is sent', async () => {
+  const reservedForTheFounder: ProvinceMap = {
+    ...uplands,
+    plots: uplands.plots.map((plot) =>
+      plot.plot === 7 ? { ...plot, reservation: { isOwn: true } } : plot,
+    ),
+  }
+  const provinceMap = vi
+    .fn<ApiClient['provinceMap']>()
+    .mockResolvedValueOnce({ ok: true, value: uplands })
+    .mockResolvedValue({ ok: true, value: reservedForTheFounder })
+  const form = await openFoundingOn(7, {
+    provinceMap,
+    dispatchFounding: async () => ({ ok: true, value: sotoverdeWithFoundingAway }),
+  })
+
+  fireEvent.click(foundButton(form))
+  await screen.findByRole('status')
+
+  const list = screen.getByRole('list', { name: 'Vadoalto, provincia 2' })
+  const target = within(list).getAllByRole('listitem')[6] as HTMLElement
+  await waitFor(() => expect(target.textContent).toContain('Tu fundación'))
+  expect(target.textContent).toContain('reservada')
+  expect(within(target).queryByRole('button')).toBeNull()
+  expect(screen.getByRole('status').textContent).toContain('Nuevo feudo: Villanueva')
 })

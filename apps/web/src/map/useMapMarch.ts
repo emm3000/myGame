@@ -59,6 +59,7 @@ export function useMapMarch(
   apiClient: ApiClient,
   fiefId: string,
   map: ProvinceMap | undefined,
+  onFoundingSent: () => void,
 ): MapMarch {
   const fief = useMapFief(apiClient, fiefId)
   const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
@@ -70,6 +71,9 @@ export function useMapMarch(
     fief.adopt(answered)
     setChosen(undefined)
     setIsSent(true)
+    if (answered.march?.order === 'found') {
+      onFoundingSent()
+    }
   }
   const march = useMarch(apiClient, fiefId, adoptSent, overview?.readAt)
   const shownProvince = map?.province

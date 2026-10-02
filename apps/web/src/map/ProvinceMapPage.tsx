@@ -18,8 +18,13 @@ export function ProvinceMapPage({
   province,
 }: ProvinceMapPageProps): ReactElement {
   const navigate = useNavigate()
-  const state = useProvinceMap(apiClient, fiefId, province)
-  const march = useMapMarch(apiClient, fiefId, state.kind === 'read' ? state.map : undefined)
+  const { state, reread } = useProvinceMap(apiClient, fiefId, province)
+  const march = useMapMarch(
+    apiClient,
+    fiefId,
+    state.kind === 'read' ? state.map : undefined,
+    reread,
+  )
 
   const browse = (target: number): void => {
     void navigate({
