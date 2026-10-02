@@ -9,6 +9,7 @@ import { TextLink } from '../design-system/TextLink'
 import type { ProvinceMapState } from './useProvinceMap'
 
 export interface MapScreenProps {
+  readonly fiefId: string
   readonly state: ProvinceMapState
   readonly onBrowse: (province: number) => void
   readonly plotActionOf: (map: ProvinceMap, plot: number) => PlotAction | undefined
@@ -117,7 +118,9 @@ function MapBody({ state, ...province }: MapScreenProps): ReactElement {
       return state.refusal === 'ProvinceNotFound' ? (
         <div className="flex flex-col items-start gap-3">
           <FormAlert message={copy.refusals.ProvinceNotFound} />
-          <TextLink to="/mapa">{copy.map.backToOwnProvince}</TextLink>
+          <TextLink to="/feudo/$fiefId/mapa" params={{ fiefId: province.fiefId }}>
+            {copy.map.backToOwnProvince}
+          </TextLink>
         </div>
       ) : (
         <FormAlert message={copy.refusals[state.refusal]} />

@@ -3,7 +3,12 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 import { slotTrackFill } from './slotTrackFill.testSupport'
 
@@ -23,7 +28,7 @@ const signedInClient = (overrides: Partial<ApiClient>): ApiClient =>
   stubApiClient({ currentPlayer: async () => knownPlayer, ...overrides })
 
 const showFief = async (apiClient: ApiClient): Promise<void> => {
-  renderAppAt('/', apiClient)
+  renderAppAt(knownFiefPath, apiClient)
   await passSeconds(0)
 }
 
@@ -65,7 +70,7 @@ it('starts an upgrade and shows the slot busy', async () => {
   fireEvent.click(upgradeButtonOf('sawmill'))
   await passSeconds(0)
 
-  expect(enqueueUpgrade).toHaveBeenCalledWith('sawmill')
+  expect(enqueueUpgrade).toHaveBeenCalledWith(knownFief.id, 'sawmill')
   expect(screen.getByText(copy.names.busySlot)).toBeDefined()
   expect(screen.getByRole('timer').textContent).toContain('3:12')
   await passSeconds(2)

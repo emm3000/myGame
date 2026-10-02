@@ -3,7 +3,12 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 const fiefWithTenInfantry: FiefOverview = {
@@ -71,7 +76,7 @@ const showMap = async (
   overrides: Partial<ApiClient> = {},
 ): Promise<HTMLElement[]> => {
   renderAppAt(
-    `/mapa/${map.province}`,
+    `${knownFiefPath}/mapa/${map.province}`,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: fiefWithTenInfantry }),
@@ -230,7 +235,7 @@ it('blocks a count that is not a whole number from 0', async () => {
 
 it('closes the march form when browsing to another province', async () => {
   const form = await openMarchTo(uplands, 7, {
-    provinceMap: async (province) => ({
+    provinceMap: async (_fiefId, province) => ({
       ok: true,
       value: provinceOf(province ?? 2, 'uplands', {}),
     }),
@@ -261,7 +266,7 @@ it('blocks a stay past the longest', async () => {
 
 it('sends the march and shows it sent', async () => {
   const dispatchMarch = vi.fn(
-    async (_request: DispatchMarchRequest) =>
+    async (_fiefId: string, _request: DispatchMarchRequest) =>
       ({ ok: true, value: { ...fiefWithTenInfantry, march: marchAway } }) as const,
   )
   const form = await openMarchTo(uplands, 5, { dispatchMarch })
@@ -271,7 +276,7 @@ it('sends the march and shows it sent', async () => {
   fireEvent.click(sendButton(form))
 
   const sent = await screen.findByRole('status')
-  expect(dispatchMarch).toHaveBeenCalledWith({
+  expect(dispatchMarch).toHaveBeenCalledWith(knownFief.id, {
     province: 2,
     plot: 5,
     units: { infantry: 10, cavalry: 0 },

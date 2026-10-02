@@ -3,7 +3,12 @@ import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 beforeEach(() => {
@@ -94,7 +99,7 @@ const answeredNow = (overview: FiefOverview): FiefOverview => ({
 
 const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: answeredNow(marchUnderway) }),
@@ -319,7 +324,7 @@ it('recalls the march named by its departure', async () => {
   fireEvent.click(recallButton() as HTMLElement)
   await passSeconds(0)
 
-  expect(recallMarch).toHaveBeenCalledWith({ departedAt: instantAfterRead(-30) })
+  expect(recallMarch).toHaveBeenCalledWith(knownFief.id, { departedAt: instantAfterRead(-30) })
 })
 
 const recalledAtThePlot = (): FiefOverview => {

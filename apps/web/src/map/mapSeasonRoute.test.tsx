@@ -2,7 +2,12 @@ import type { FiefOverview, ProvinceMap, SeasonKind } from '@mygame/contracts'
 import { fireEvent, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 import type { PlotCamp } from './marchFormOf'
 
@@ -70,7 +75,7 @@ const uplandsWithCamp = provinceOf(2, 'uplands', { 7: { tier: 1, strength: 6 } }
 
 const showMap = async (map: ProvinceMap, fief: FiefOverview): Promise<void> => {
   renderAppAt(
-    `/mapa/${map.province}`,
+    `${knownFiefPath}/mapa/${map.province}`,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: fief }),

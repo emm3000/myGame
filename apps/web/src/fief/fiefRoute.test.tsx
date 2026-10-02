@@ -3,7 +3,13 @@ import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefList,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 import { busySlot, slotTrackFill } from './slotTrackFill.testSupport'
 
@@ -28,7 +34,7 @@ const signedInClientServing = (fief: () => FiefOverview): ApiClient =>
   })
 
 const showFief = async (apiClient: ApiClient): Promise<void> => {
-  renderAppAt('/', apiClient)
+  renderAppAt(knownFiefPath, apiClient)
   await passSeconds(0)
 }
 
@@ -373,4 +379,59 @@ it('shows in the peasant cell the peasants the waiting upgrades will occupy', as
   await showFief(signedInClientServing(() => farmWaitingInFullQueue))
 
   expect(peasantCell().textContent).toMatch(/(?<!\d)9 ocupados/)
+})
+
+const robledal = {
+  id: '3e8d6f2b-1c4a-4b7e-9d5f-6a0b2c8e4f71',
+  name: 'Robledal',
+  coordinates: { kingdom: 1, province: 4, plot: 2 },
+}
+
+const signedInClientReading = (readFiefIds: Array<string>): ApiClient =>
+  stubApiClient({
+    currentPlayer: async () => knownPlayer,
+    fiefs: async () => ({ ok: true, value: { fiefs: [...knownFiefList.fiefs, robledal] } }),
+    fief: async (fiefId) => {
+      readFiefIds.push(fiefId)
+      return { ok: true, value: fiefId === robledal.id ? { ...knownFief, ...robledal } : knownFief }
+    },
+  })
+
+it('opens the first fief from the root', async () => {
+  const readFiefIds: Array<string> = []
+  renderAppAt('/', signedInClientReading(readFiefIds))
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 2, name: knownFief.name })).toBeDefined()
+  expect(readFiefIds).toEqual([knownFief.id])
+})
+
+it('reads the fief named in the URL', async () => {
+  const readFiefIds: Array<string> = []
+  renderAppAt(`/feudo/${robledal.id}`, signedInClientReading(readFiefIds))
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 2, name: robledal.name })).toBeDefined()
+  expect(readFiefIds).toEqual([robledal.id])
+})
+
+it('shows the fief not found line for an unknown id', async () => {
+  const unknownFiefId = '6d1f0c3a-2b4e-4c5d-9e8f-7a6b5c4d3e2f'
+  const apiClient = stubApiClient({
+    currentPlayer: async () => knownPlayer,
+    fief: async () => ({ ok: false, refusal: 'FiefNotFound' }),
+  })
+  renderAppAt(`/feudo/${unknownFiefId}`, apiClient)
+  await passSeconds(0)
+
+  expect(screen.getByText(copy.refusals.FiefNotFound)).toBeDefined()
+})
+
+it('shows the fief not found line for an id that is not a uuid', async () => {
+  const readFiefIds: Array<string> = []
+  renderAppAt('/feudo/robledal', signedInClientReading(readFiefIds))
+  await passSeconds(0)
+
+  expect(screen.getByText(copy.refusals.FiefNotFound)).toBeDefined()
+  expect(readFiefIds).toEqual([])
 })

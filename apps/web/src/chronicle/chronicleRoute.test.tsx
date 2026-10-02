@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 const noRefund = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
@@ -13,7 +13,7 @@ const signedInClientServing = (chronicle: ApiClient['chronicle']): ApiClient =>
 
 const showChronicle = async (chronicle: FiefChronicle): Promise<HTMLElement[]> => {
   renderAppAt(
-    '/cronica',
+    `${knownFiefPath}/cronica`,
     signedInClientServing(async () => ({ ok: true, value: chronicle })),
   )
   const list = await screen.findByRole('list', { name: copy.chronicle.title })
@@ -541,7 +541,7 @@ it('shows each event at the instant it happened', async () => {
 
 it('shows the empty chronicle of a new fief', async () => {
   renderAppAt(
-    '/cronica',
+    `${knownFiefPath}/cronica`,
     signedInClientServing(async () => ({ ok: true, value: { events: [] } })),
   )
 
@@ -550,7 +550,7 @@ it('shows the empty chronicle of a new fief', async () => {
 
 it('shows the Spanish refusal when the chronicle cannot be read', async () => {
   renderAppAt(
-    '/cronica',
+    `${knownFiefPath}/cronica`,
     signedInClientServing(async () => ({ ok: false, refusal: 'Unexpected' })),
   )
 
@@ -559,7 +559,7 @@ it('shows the Spanish refusal when the chronicle cannot be read', async () => {
 
 it('shows the loading line while the chronicle is being read', async () => {
   renderAppAt(
-    '/cronica',
+    `${knownFiefPath}/cronica`,
     signedInClientServing(() => new Promise(() => undefined)),
   )
 
@@ -569,7 +569,7 @@ it('shows the loading line while the chronicle is being read', async () => {
 it('reads the chronicle once when the screen opens', async () => {
   let reads = 0
   renderAppAt(
-    '/cronica',
+    `${knownFiefPath}/cronica`,
     signedInClientServing(async () => {
       reads += 1
       return { ok: true, value: { events: [] } }

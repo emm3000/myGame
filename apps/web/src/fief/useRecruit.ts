@@ -15,6 +15,7 @@ export interface Recruit {
 
 export function useRecruit(
   apiClient: ApiClient,
+  fiefId: string,
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): Recruit {
@@ -25,7 +26,7 @@ export function useRecruit(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    place: (request) => run(request, () => apiClient.placeRecruitOrder(request)),
-    cancel: (target) => run(target, () => apiClient.cancelRecruitOrder(target)),
+    place: (request) => run(request, () => apiClient.placeRecruitOrder(fiefId, request)),
+    cancel: (target) => run(target, () => apiClient.cancelRecruitOrder(fiefId, target)),
   }
 }

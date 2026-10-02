@@ -3,7 +3,12 @@ import { act, cleanup, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 
 const readAt = new Date(knownFief.readAt)
 
@@ -26,7 +31,7 @@ const signedInClientServing = (fief: () => FiefOverview): ApiClient =>
   })
 
 const showFief = async (apiClient: ApiClient): Promise<void> => {
-  renderAppAt('/', apiClient)
+  renderAppAt(knownFiefPath, apiClient)
   await passSeconds(0)
 }
 

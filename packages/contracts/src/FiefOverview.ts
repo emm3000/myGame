@@ -157,6 +157,7 @@ const CombatTermsSchema = z.strictObject({
 })
 
 export const FiefOverviewSchema = z.object({
+  id: z.uuid(),
   name: z.string().min(1),
   coordinates: z.object({
     kingdom: z.number().int().positive(),

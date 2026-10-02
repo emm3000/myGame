@@ -3,7 +3,12 @@ import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 beforeEach(() => {
@@ -55,7 +60,7 @@ const deferred = <T,>(): Deferred<T> => {
 
 const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: barracksBuilt }),
@@ -179,7 +184,7 @@ it('places the order and shows it open', async () => {
   fireEvent.click(recruitButton())
   await passSeconds(0)
 
-  expect(placeRecruitOrder).toHaveBeenCalledWith({ unit: 'infantry', count: 8 })
+  expect(placeRecruitOrder).toHaveBeenCalledWith(knownFief.id, { unit: 'infantry', count: 8 })
   expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
   expect(recruitButton().getAttribute('aria-label')).toBe(
     'Reclutar infantes · 12:00. Ya hay una leva en marcha.',
@@ -307,7 +312,7 @@ it('cancels the order named by its unit and start', async () => {
   fireEvent.click(cancelButton())
   await passSeconds(0)
 
-  expect(cancelRecruitOrder).toHaveBeenCalledWith({
+  expect(cancelRecruitOrder).toHaveBeenCalledWith(knownFief.id, {
     unit: 'infantry',
     startedAt: '2026-09-22T11:54:00.000Z',
   })

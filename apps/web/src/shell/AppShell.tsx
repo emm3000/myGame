@@ -8,6 +8,7 @@ import { VerificationBanner } from '../verification/VerificationBanner'
 
 export interface AppShellProps {
   readonly player: Player
+  readonly fiefId: string | undefined
   readonly verification: ResendVerification
   readonly onSignOut: () => void
   readonly children: ReactNode
@@ -20,18 +21,24 @@ interface Screen {
 }
 
 const screens: ReadonlyArray<Screen> = [
-  { to: '/', label: copy.shell.navigation.fief, isExact: true },
-  { to: '/mapa', label: copy.shell.navigation.map, isExact: false },
-  { to: '/cronica', label: copy.shell.navigation.chronicle, isExact: true },
+  { to: '/feudo/$fiefId', label: copy.shell.navigation.fief, isExact: true },
+  { to: '/feudo/$fiefId/mapa', label: copy.shell.navigation.map, isExact: false },
+  { to: '/feudo/$fiefId/cronica', label: copy.shell.navigation.chronicle, isExact: true },
 ]
 
 const linkClass =
   'flex items-center border-b-3 px-3 py-3 font-utility text-button no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
 
-function ScreenLink({ to, label, isExact }: Screen): ReactElement {
+function ScreenLink({
+  to,
+  label,
+  isExact,
+  fiefId,
+}: Screen & { readonly fiefId: string }): ReactElement {
   return (
     <Link
       to={to}
+      params={{ fiefId }}
       activeOptions={{ exact: isExact }}
       className={linkClass}
       activeProps={{ className: 'border-river font-bold text-river' }}
@@ -44,6 +51,7 @@ function ScreenLink({ to, label, isExact }: Screen): ReactElement {
 
 export function AppShell({
   player,
+  fiefId,
   verification,
   onSignOut,
   children,
@@ -53,15 +61,17 @@ export function AppShell({
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
         <h1 className="m-0 font-display text-display-xl text-umber">{copy.shell.title}</h1>
         <div className="flex grow items-center gap-4 md:grow-0">
-          <nav className="flex">
-            <ul className="m-0 flex list-none gap-1 p-0">
-              {screens.map((screen) => (
-                <li key={screen.to} className="flex">
-                  <ScreenLink {...screen} />
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {fiefId === undefined ? null : (
+            <nav className="flex">
+              <ul className="m-0 flex list-none gap-1 p-0">
+                {screens.map((screen) => (
+                  <li key={screen.to} className="flex">
+                    <ScreenLink {...screen} fiefId={fiefId} />
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
           <span className="ml-auto flex">
             <Button type="button" tone="quiet" onClick={onSignOut}>
               {copy.shell.signOut}

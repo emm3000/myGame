@@ -3,7 +3,12 @@ import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 beforeEach(() => {
@@ -98,7 +103,7 @@ const answering = (...overviews: ReadonlyArray<FiefOverview>) => {
 }
 
 const showFief = async (fief: ApiClient['fief']): Promise<void> => {
-  renderAppAt('/', stubApiClient({ currentPlayer: async () => knownPlayer, fief }))
+  renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => knownPlayer, fief }))
   await passSeconds(0)
 }
 

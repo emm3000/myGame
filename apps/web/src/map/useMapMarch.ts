@@ -43,8 +43,12 @@ const unopenedEntries: MarchEntries = { units: byUnitKind(() => '0'), hours: fir
 const isSameTarget = (target: MarchTarget | undefined, map: ProvinceMap, plot: number): boolean =>
   target?.province === map.province && target.plot === plot
 
-export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined): MapMarch {
-  const fief = useMapFief(apiClient)
+export function useMapMarch(
+  apiClient: ApiClient,
+  fiefId: string,
+  map: ProvinceMap | undefined,
+): MapMarch {
+  const fief = useMapFief(apiClient, fiefId)
   const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
   const [chosen, setChosen] = useState<MarchTarget>()
   const [entries, setEntries] = useState(unopenedEntries)
@@ -54,7 +58,7 @@ export function useMapMarch(apiClient: ApiClient, map: ProvinceMap | undefined):
     setChosen(undefined)
     setIsSent(true)
   }
-  const march = useMarch(apiClient, adoptSent, overview?.readAt)
+  const march = useMarch(apiClient, fiefId, adoptSent, overview?.readAt)
   const shownProvince = map?.province
   const target = chosen?.province === shownProvince ? chosen : undefined
 

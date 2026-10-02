@@ -11,6 +11,7 @@ export interface Study {
 
 export function useStudy(
   apiClient: ApiClient,
+  fiefId: string,
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): Study {
@@ -19,7 +20,7 @@ export function useStudy(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    start: (art) => run(art, () => apiClient.startStudy(art)),
-    cancel: (target) => run(target, () => apiClient.cancelStudy(target)),
+    start: (art) => run(art, () => apiClient.startStudy(fiefId, art)),
+    cancel: (target) => run(target, () => apiClient.cancelStudy(fiefId, target)),
   }
 }

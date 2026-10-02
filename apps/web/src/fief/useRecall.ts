@@ -10,6 +10,7 @@ export interface Recall {
 
 export function useRecall(
   apiClient: ApiClient,
+  fiefId: string,
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): Recall {
@@ -18,6 +19,6 @@ export function useRecall(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    start: (target) => run(target, () => apiClient.recallMarch(target)),
+    start: (target) => run(target, () => apiClient.recallMarch(fiefId, target)),
   }
 }

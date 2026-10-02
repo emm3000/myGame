@@ -8,20 +8,29 @@ import { useProvinceMap } from './useProvinceMap'
 
 export interface ProvinceMapPageProps {
   readonly apiClient: ApiClient
+  readonly fiefId: string
   readonly province: number | undefined
 }
 
-export function ProvinceMapPage({ apiClient, province }: ProvinceMapPageProps): ReactElement {
+export function ProvinceMapPage({
+  apiClient,
+  fiefId,
+  province,
+}: ProvinceMapPageProps): ReactElement {
   const navigate = useNavigate()
-  const state = useProvinceMap(apiClient, province)
-  const march = useMapMarch(apiClient, state.kind === 'read' ? state.map : undefined)
+  const state = useProvinceMap(apiClient, fiefId, province)
+  const march = useMapMarch(apiClient, fiefId, state.kind === 'read' ? state.map : undefined)
 
   const browse = (target: number): void => {
-    void navigate({ to: '/mapa/$province', params: { province: String(target) } })
+    void navigate({
+      to: '/feudo/$fiefId/mapa/$province',
+      params: { fiefId, province: String(target) },
+    })
   }
 
   return (
     <MapScreen
+      fiefId={fiefId}
       state={state}
       onBrowse={browse}
       plotActionOf={march.plotActionOf}

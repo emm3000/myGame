@@ -34,8 +34,8 @@ import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarch
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
+import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { type RequireSoleFiefDependencies, requireSoleFief } from '../http/requireSoleFief'
 
 export type FiefDependencies = CurrentFiefDependencies &
   CancelUpgradeDependencies &
@@ -47,8 +47,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   DispatchMarchDependencies &
   DispatchAttackDependencies &
   RecallMarchDependencies &
-  RequirePlayerDependencies &
-  RequireSoleFiefDependencies & {
+  RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
   }
 
@@ -65,12 +64,11 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
     return c.json(body)
   }
   const signedInPlayer = requirePlayer(dependencies)
-  const soleFief = requireSoleFief(dependencies)
   return new Hono()
-    .get('/', signedInPlayer, soleFief, async (c) =>
+    .get('/', signedInPlayer, requireNamedFief, async (c) =>
       answerFief(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
     )
-    .get('/events', signedInPlayer, soleFief, async (c) => {
+    .get('/events', signedInPlayer, requireNamedFief, async (c) => {
       const fief = await currentFiefOf(c.var.fiefOfPlayer, dependencies)
       if (!fief.ok) {
         return answerRefusal(c, fief.error)
@@ -80,7 +78,7 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
       )
       return c.json(body)
     })
-    .post('/upgrades', signedInPlayer, soleFief, async (c) => {
+    .post('/upgrades', signedInPlayer, requireNamedFief, async (c) => {
       const request = EnqueueBuildingRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -90,28 +88,28 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         await enqueueUpgradeOf(c.var.fiefOfPlayer, request.data.building, dependencies),
       )
     })
-    .delete('/upgrades/:building/:targetLevel', signedInPlayer, soleFief, async (c) => {
+    .delete('/upgrades/:building/:targetLevel', signedInPlayer, requireNamedFief, async (c) => {
       const request = CancelUpgradeRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await cancelUpgradeOf(c.var.fiefOfPlayer, request.data, dependencies))
     })
-    .post('/studies', signedInPlayer, soleFief, async (c) => {
+    .post('/studies', signedInPlayer, requireNamedFief, async (c) => {
       const request = StartStudyRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await startStudyOf(c.var.fiefOfPlayer, request.data.art, dependencies))
     })
-    .delete('/studies/:art/:targetLevel', signedInPlayer, soleFief, async (c) => {
+    .delete('/studies/:art/:targetLevel', signedInPlayer, requireNamedFief, async (c) => {
       const request = CancelStudyRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await cancelStudyOf(c.var.fiefOfPlayer, request.data, dependencies))
     })
-    .post('/recruit-orders', signedInPlayer, soleFief, async (c) => {
+    .post('/recruit-orders', signedInPlayer, requireNamedFief, async (c) => {
       const request = PlaceRecruitOrderRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -121,7 +119,7 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         await placeRecruitOrderOf(c.var.fiefOfPlayer, request.data, dependencies),
       )
     })
-    .delete('/recruit-orders/:unit/:startedAt', signedInPlayer, soleFief, async (c) => {
+    .delete('/recruit-orders/:unit/:startedAt', signedInPlayer, requireNamedFief, async (c) => {
       const request = CancelRecruitOrderRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -131,21 +129,21 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         await cancelRecruitOrderOf(c.var.fiefOfPlayer, request.data, dependencies),
       )
     })
-    .post('/marches', signedInPlayer, soleFief, async (c) => {
+    .post('/marches', signedInPlayer, requireNamedFief, async (c) => {
       const request = DispatchMarchRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchMarchOf(c.var.fiefOfPlayer, request.data, dependencies))
     })
-    .post('/marches/attack', signedInPlayer, soleFief, async (c) => {
+    .post('/marches/attack', signedInPlayer, requireNamedFief, async (c) => {
       const request = DispatchAttackRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchAttackOf(c.var.fiefOfPlayer, request.data, dependencies))
     })
-    .post('/marches/:departedAt/recall', signedInPlayer, soleFief, async (c) => {
+    .post('/marches/:departedAt/recall', signedInPlayer, requireNamedFief, async (c) => {
       const request = RecallMarchRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })

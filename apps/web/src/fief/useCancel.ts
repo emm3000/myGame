@@ -10,6 +10,7 @@ export interface Cancel {
 
 export function useCancel(
   apiClient: ApiClient,
+  fiefId: string,
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): Cancel {
@@ -18,6 +19,6 @@ export function useCancel(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    start: (target) => run(target, () => apiClient.cancelUpgrade(target)),
+    start: (target) => run(target, () => apiClient.cancelUpgrade(fiefId, target)),
   }
 }

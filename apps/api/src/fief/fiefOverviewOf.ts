@@ -398,6 +398,7 @@ export const fiefOverviewOf = (
   const durations = durationPercentAt(fief.storedAt, catalog.fiefSettings())
   const { kingdom, province, plot } = fief.coordinates
   return ok({
+    id: fief.id,
     name: fief.name.value,
     coordinates: { kingdom, province, plot },
     terrain: fief.terrain,

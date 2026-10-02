@@ -15,6 +15,7 @@ export interface Upgrade {
 
 export function useUpgrade(
   apiClient: ApiClient,
+  fiefId: string,
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): Upgrade {
@@ -23,6 +24,6 @@ export function useUpgrade(
   return {
     isWaiting,
     refused: refused && { building: refused.subject, refusal: refused.refusal },
-    start: (building) => run(building, () => apiClient.enqueueUpgrade(building)),
+    start: (building) => run(building, () => apiClient.enqueueUpgrade(fiefId, building)),
   }
 }

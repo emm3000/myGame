@@ -174,8 +174,8 @@ export function FiefScreen({
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <Link
-          to="/mapa/$province"
-          params={{ province: String(overview.coordinates.province) }}
+          to="/feudo/$fiefId/mapa/$province"
+          params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}
           className="self-start font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
         >
           {addressOf(overview)}

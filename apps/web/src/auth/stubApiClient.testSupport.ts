@@ -1,4 +1,4 @@
-import type { FiefOverview, Player, ProvinceMap } from '@mygame/contracts'
+import type { FiefList, FiefOverview, Player, ProvinceMap } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 
 export const knownPlayer: Player = {
@@ -24,6 +24,7 @@ const buildingAtLevel = (level: number): FiefOverview['buildings']['sawmill'] =>
 })
 
 export const knownFief: FiefOverview = {
+  id: '9c2b7e1a-5d3f-4a8c-b6e0-1f2d3c4b5a69',
   name: 'Fuenteclara',
   coordinates: { kingdom: 1, province: 3, plot: 12 },
   terrain: 'uplands',
@@ -129,6 +130,12 @@ const heldPlots: Readonly<Record<number, string>> = {
   12: 'Fuenteclara',
 }
 
+export const knownFiefPath = `/feudo/${knownFief.id}`
+
+export const knownFiefList: FiefList = {
+  fiefs: [{ id: knownFief.id, name: knownFief.name, coordinates: knownFief.coordinates }],
+}
+
 export const knownProvinceMap: ProvinceMap = {
   kingdom: 1,
   province: 3,
@@ -146,6 +153,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   signIn: async () => ({ ok: true, value: knownPlayer }),
   signOut: async () => ({ ok: true, value: undefined }),
   currentPlayer: async () => undefined,
+  fiefs: async () => ({ ok: true, value: knownFiefList }),
   fief: async () => ({ ok: true, value: knownFief }),
   enqueueUpgrade: async () => ({ ok: true, value: knownFief }),
   cancelUpgrade: async () => ({ ok: true, value: knownFief }),

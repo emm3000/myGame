@@ -3,7 +3,12 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 beforeEach(() => {
@@ -43,7 +48,7 @@ const smithingUnderWay: FiefOverview = {
 
 const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: libraryBuilt }),
@@ -138,7 +143,7 @@ it('starts a study from an art card', async () => {
   fireEvent.click(studyButtonOf('smithing'))
   await passSeconds(0)
 
-  expect(startStudy).toHaveBeenCalledWith('smithing')
+  expect(startStudy).toHaveBeenCalledWith(knownFief.id, 'smithing')
   expect(
     within(librarySection()).getByRole('button', { name: copy.study.cancelOf('smithing', 1) }),
   ).toBeDefined()
@@ -367,7 +372,7 @@ it('cancels the study in progress', async () => {
   )
   await passSeconds(0)
 
-  expect(cancelStudy).toHaveBeenCalledWith({ art: 'smithing', targetLevel: 1 })
+  expect(cancelStudy).toHaveBeenCalledWith(knownFief.id, { art: 'smithing', targetLevel: 1 })
   expect(within(librarySection()).getByText(copy.names.idleStudy)).toBeDefined()
 })
 

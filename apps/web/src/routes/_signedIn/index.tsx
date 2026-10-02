@@ -1,47 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
-import { FiefScreen } from '../../fief/FiefScreen'
-import { useCancel } from '../../fief/useCancel'
-import { useLiveFief } from '../../fief/useLiveFief'
-import { useRecall } from '../../fief/useRecall'
-import { useRecruit } from '../../fief/useRecruit'
-import { useStudy } from '../../fief/useStudy'
-import { useUpgrade } from '../../fief/useUpgrade'
 
-function FiefOverviewPage(): ReactElement {
-  const { apiClient } = Route.useRouteContext()
-  const { state, adopt } = useLiveFief(apiClient)
-  const readAt = state.kind === 'live' ? state.fief.overview.readAt : undefined
-  const upgrade = useUpgrade(apiClient, adopt, readAt)
-  const cancel = useCancel(apiClient, adopt, readAt)
-  const study = useStudy(apiClient, adopt, readAt)
-  const recruit = useRecruit(apiClient, adopt, readAt)
-  const recall = useRecall(apiClient, adopt, readAt)
-  switch (state.kind) {
-    case 'loading':
-      return <p className="m-0">{copy.fief.loading}</p>
-    case 'refused':
-      return <FormAlert message={copy.refusals[state.refusal]} />
-    case 'live':
-      return (
-        <FiefScreen
-          fief={state.fief}
-          upgrade={upgrade}
-          cancel={cancel}
-          study={study}
-          recruit={recruit}
-          recall={recall}
-        />
-      )
-    default: {
-      const unreachable: never = state
-      return unreachable
-    }
-  }
+function FirstFiefRefusal(): ReactElement {
+  const refusal = Route.useLoaderData()
+  return <FormAlert message={copy.refusals[refusal]} />
 }
 
 export const Route = createFileRoute('/_signedIn/')({
-  component: FiefOverviewPage,
+  loader: async ({ context }) => {
+    const fiefs = await context.apiClient.fiefs()
+    if (!fiefs.ok) {
+      return fiefs.refusal
+    }
+    const [firstFief] = fiefs.value.fiefs
+    if (firstFief === undefined) {
+      return 'FiefNotFound'
+    }
+    throw redirect({ to: '/feudo/$fiefId', params: { fiefId: firstFief.id } })
+  },
+  component: FirstFiefRefusal,
 })

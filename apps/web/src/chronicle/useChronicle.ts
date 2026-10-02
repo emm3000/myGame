@@ -7,12 +7,12 @@ export type ChronicleState =
   | { readonly kind: 'refused'; readonly refusal: ApiRefusal }
   | { readonly kind: 'read'; readonly chronicle: FiefChronicle; readonly readAt: Date }
 
-export function useChronicle(apiClient: ApiClient): ChronicleState {
+export function useChronicle(apiClient: ApiClient, fiefId: string): ChronicleState {
   const [state, setState] = useState<ChronicleState>({ kind: 'loading' })
 
   useEffect(() => {
     let isCurrent = true
-    void apiClient.chronicle().then((outcome) => {
+    void apiClient.chronicle(fiefId).then((outcome) => {
       if (!isCurrent) {
         return
       }
@@ -25,7 +25,7 @@ export function useChronicle(apiClient: ApiClient): ChronicleState {
     return () => {
       isCurrent = false
     }
-  }, [apiClient])
+  }, [apiClient, fiefId])
 
   return state
 }

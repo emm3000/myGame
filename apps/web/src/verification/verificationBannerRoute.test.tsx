@@ -2,7 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 const unverifiedPlayer = { ...knownPlayer, emailVerified: false }
@@ -15,14 +15,14 @@ const resendButton = (): Promise<HTMLElement> =>
   screen.findByRole('button', { name: copy.verification.banner.resend })
 
 it('shows the banner to a player whose email is not verified', async () => {
-  renderAppAt('/', stubApiClient({ currentPlayer: async () => unverifiedPlayer }))
+  renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => unverifiedPlayer }))
 
   expect(await screen.findByText(copy.verification.banner.line)).toBeDefined()
   expect(await resendButton()).toBeDefined()
 })
 
 it('shows no banner once the email is verified', async () => {
-  renderAppAt('/', stubApiClient({ currentPlayer: async () => knownPlayer }))
+  renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => knownPlayer }))
 
   await screen.findByRole('heading', { level: 1, name: copy.shell.title })
 
@@ -33,7 +33,7 @@ it('shows no banner once the email is verified', async () => {
 it('sends one resend per click', async () => {
   let resends = 0
   renderAppAt(
-    '/',
+    knownFiefPath,
     unverifiedClientResending(() => {
       resends += 1
       return new Promise<ApiRefusal | undefined>(() => {})
@@ -52,7 +52,7 @@ it('sends one resend per click', async () => {
 
 it('confirms a resend the api accepted', async () => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     unverifiedClientResending(async () => undefined),
   )
 
@@ -64,7 +64,7 @@ it('confirms a resend the api accepted', async () => {
 
 it('shows the Spanish refusal when the new link cannot be sent', async () => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     unverifiedClientResending(async () => 'MailNotSent'),
   )
 
