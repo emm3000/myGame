@@ -1,10 +1,9 @@
 import { campOf } from '../camp/campOf'
 import type { DomainError } from '../DomainError'
 import type { Fief, MarchOrder } from '../fief/Fief'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { ownFiefOf } from '../fief/ownFiefOf'
 import { refuseUnreachableTarget } from '../march/refuseUnreachableTarget'
-import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
@@ -12,10 +11,7 @@ import type { KingdomMapReader } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
 import { marchSeasonAt } from '../season/marchSeasonAt'
 
-export type DispatchMarchCommand = MarchOrder & {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
-}
+export type DispatchMarchCommand = MarchOrder & FiefOfPlayer
 
 export type DispatchMarchDependencies = {
   readonly fiefs: FiefRepository

@@ -4,10 +4,9 @@ import { derivePeasantsForUpgrade } from '../fief/derivePeasantsForUpgrade'
 import { deriveProjectedFreePeasants } from '../fief/deriveProjectedFreePeasants'
 import type { Fief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
-import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
@@ -15,9 +14,7 @@ import { err, ok, type Result } from '../Result'
 import { durationPercentAt } from '../season/durationPercentAt'
 import type { Instant } from '../time/Instant'
 
-export type EnqueueBuildingCommand = {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
+export type EnqueueBuildingCommand = FiefOfPlayer & {
   readonly building: BuildingKind
 }
 

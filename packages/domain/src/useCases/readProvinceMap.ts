@@ -2,7 +2,7 @@ import type { CampBattle } from '../camp/CampBattle'
 import { campOf } from '../camp/campOf'
 import { campStrengthAt } from '../camp/campStrengthAt'
 import type { DomainError } from '../DomainError'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { terrainOf } from '../fief/terrainOf'
 import type { ProvinceMap, ProvincePlot } from '../kingdom/ProvinceMap'
 import type { PlayerId } from '../player/PlayerId'
@@ -13,9 +13,7 @@ import type { KingdomMapReader, PlotHolder } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
-export type ReadProvinceMapCommand = {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
+export type ReadProvinceMapCommand = FiefOfPlayer & {
   readonly province?: number
 }
 

@@ -1,18 +1,15 @@
 import type { DomainError } from '../DomainError'
 import type { ChangedFief } from '../fief/ChangedFief'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
-import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { ok, type Result } from '../Result'
 
-export type CancelUpgradeCommand = {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
+export type CancelUpgradeCommand = FiefOfPlayer & {
   readonly building: BuildingKind
   readonly targetLevel: number
 }

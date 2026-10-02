@@ -5,7 +5,7 @@ import type { BusySlot } from '../fief/BuildSlot'
 import type { ChangedFief } from '../fief/ChangedFief'
 import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
@@ -14,7 +14,6 @@ import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type { AttackMarch, AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
-import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { CampRegistry } from '../ports/CampRegistry'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
@@ -23,10 +22,7 @@ import type { FiefRepository } from '../ports/FiefRepository'
 import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
-export type ResolveUpgradeCommand = {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
-}
+export type ResolveUpgradeCommand = FiefOfPlayer
 
 export type ResolveUpgradeDependencies = {
   readonly fiefs: FiefRepository
