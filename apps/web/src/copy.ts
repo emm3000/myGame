@@ -456,6 +456,8 @@ export const copy = {
       recruitsCancelled: 'Leva cancelada:',
       marchReturned: 'Marcha terminada:',
       battleFought: 'Batalla ganada:',
+      foundingSent: 'Fundación enviada:',
+      fiefFounded: 'Feudo fundado:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
     marchRecalled: 'Marcha retirada:',
     battleLost: 'Batalla perdida:',
@@ -473,6 +475,8 @@ export const copy = {
       campLost: number,
     ): string =>
       `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. Pierdes ${lostBeforeCampClause(unitsLost)} y los bandidos pierden ${campLost} de fuerza.`,
+    founding: (name: string, province: number, plot: number): string =>
+      `${name}, provincia ${province}, parcela ${plot}.`,
     recovered: 'Recuperas',
     refunded: (refund: ReadonlyArray<ResourceQuantity>): string =>
       `Recuperas ${quantitiesOf(refund)}.`,

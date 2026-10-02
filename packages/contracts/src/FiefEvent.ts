@@ -74,6 +74,22 @@ const BattleFoughtSchema = z.strictObject({
   occurredAt: InstantSchema,
 })
 
+const FoundingSentSchema = z.strictObject({
+  kind: z.literal('foundingSent'),
+  province: WholeCountSchema.positive(),
+  plot: WholeCountSchema.positive(),
+  name: z.string().min(1),
+  occurredAt: InstantSchema,
+})
+
+const FiefFoundedSchema = z.strictObject({
+  kind: z.literal('fiefFounded'),
+  province: WholeCountSchema.positive(),
+  plot: WholeCountSchema.positive(),
+  name: z.string().min(1),
+  occurredAt: InstantSchema,
+})
+
 export const FiefEventSchema = z.discriminatedUnion('kind', [
   UpgradeFinishedSchema,
   ArtLearnedSchema,
@@ -83,6 +99,8 @@ export const FiefEventSchema = z.discriminatedUnion('kind', [
   RecruitsCancelledSchema,
   MarchReturnedSchema,
   BattleFoughtSchema,
+  FoundingSentSchema,
+  FiefFoundedSchema,
 ])
 
 export type FiefEvent = z.infer<typeof FiefEventSchema>

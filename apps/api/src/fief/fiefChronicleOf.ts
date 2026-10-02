@@ -3,14 +3,9 @@ import type { FiefEvent, Instant } from '@mygame/domain'
 
 type WireEvent = FiefChronicle['events'][number]
 
-type WiredEvent = Exclude<FiefEvent, { readonly kind: 'foundingSent' | 'fiefFounded' }>
-
-const isWired = (event: FiefEvent): event is WiredEvent =>
-  event.kind !== 'foundingSent' && event.kind !== 'fiefFounded'
-
 const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
 
-const wireEventOf = (event: WiredEvent): WireEvent => {
+const wireEventOf = (event: FiefEvent): WireEvent => {
   const occurredAt = isoOf(event.occurredAt)
   switch (event.kind) {
     case 'upgradeFinished':
@@ -65,6 +60,15 @@ const wireEventOf = (event: WiredEvent): WireEvent => {
         campLost: event.campLost,
         occurredAt,
       }
+    case 'foundingSent':
+    case 'fiefFounded':
+      return {
+        kind: event.kind,
+        province: event.province,
+        plot: event.plot,
+        name: event.name,
+        occurredAt,
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -73,5 +77,5 @@ const wireEventOf = (event: WiredEvent): WireEvent => {
 }
 
 export const fiefChronicleOf = (events: ReadonlyArray<FiefEvent>): FiefChronicle => ({
-  events: events.filter(isWired).map(wireEventOf),
+  events: events.map(wireEventOf),
 })

@@ -301,4 +301,30 @@ describe('FiefEventSchema', () => {
 
     expect(FiefEventSchema.safeParse(battle).success).toBe(false)
   })
+  it('accepts a fief founded event', () => {
+    const founded = {
+      kind: 'fiefFounded',
+      province: 2,
+      plot: 7,
+      name: 'Sotoverde del Páramo',
+      occurredAt: '2026-09-22T18:40:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(founded)).toEqual(founded)
+  })
+
+  it('rejects a founding sent without a name', () => {
+    const sents = [
+      { kind: 'foundingSent', province: 2, plot: 7, occurredAt: '2026-09-22T18:25:00.000Z' },
+      {
+        kind: 'foundingSent',
+        province: 2,
+        plot: 7,
+        name: '',
+        occurredAt: '2026-09-22T18:25:00.000Z',
+      },
+    ]
+
+    expect(sents.map((sent) => FiefEventSchema.safeParse(sent).success)).toEqual([false, false])
+  })
 })

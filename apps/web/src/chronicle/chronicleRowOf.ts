@@ -68,6 +68,12 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
           event.campLost,
         ),
       }
+    case 'foundingSent':
+    case 'fiefFounded':
+      return {
+        identity: `${event.province}-${event.plot}-${event.name}`,
+        text: copy.chronicle.founding(event.name, event.province, event.plot),
+      }
     default: {
       const unreachable: never = event
       return unreachable
