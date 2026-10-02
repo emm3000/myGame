@@ -15,6 +15,7 @@ import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
 import { plainUnits } from '../testing/plainUnits'
 import { daysAfterSeasonEpoch, seasonalCatalogOf, secondsAfter } from '../testing/seasonalCatalogOf'
+import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { dispatchAttack } from './dispatchAttack'
 import { dispatchMarch } from './dispatchMarch'
@@ -459,6 +460,7 @@ describe('dispatchAttack across seasons', () => {
         {
           ...dependencies,
           chronicle: inMemoryChronicle(),
+          ids: sequentialIds(),
           clock: frozenClock(secondsAfter(dispatchedAt, 7_200)),
         },
       )

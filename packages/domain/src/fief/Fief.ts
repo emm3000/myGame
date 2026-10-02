@@ -265,6 +265,11 @@ const validateRecruitOrder = (
   return refuseNegativeAmount(recruitOrder.cost)
 }
 
+const isRecalledTooLate = (march: AwayMarch, recalledAt: Instant, leavesAt: Instant): boolean =>
+  march.order === 'found'
+    ? recalledAt.epochMilliseconds > leavesAt.epochMilliseconds
+    : recalledAt.epochMilliseconds >= leavesAt.epochMilliseconds
+
 const validateRecall = (march: AwayMarch): Result<void, DomainError> => {
   const { recalledAt, ...unrecalled } = march
   if (recalledAt === undefined) {
@@ -275,7 +280,7 @@ const validateRecall = (march: AwayMarch): Result<void, DomainError> => {
     return err({ kind: 'SlotStartsAfterFinish', startedAt: departedAt, finishesAt: recalledAt })
   }
   const { leavesAt } = marchInstantsOf(unrecalled)
-  if (recalledAt.epochMilliseconds >= leavesAt.epochMilliseconds) {
+  if (isRecalledTooLate(march, recalledAt, leavesAt)) {
     return err({ kind: 'SlotStartsAfterFinish', startedAt: recalledAt, finishesAt: leavesAt })
   }
   return ok(undefined)
@@ -1127,6 +1132,24 @@ export class Fief {
       units: unitKinds.reduce((left, unit) => left.minus(unit, battle.unitsLost[unit]), units),
       recruitOrder,
       march: battle.won ? { ...attack, units: battle.survivors, fought: true } : { kind: 'idle' },
+    })
+  }
+
+  completeFounding(founding: FoundingMarch, stocksAtArrival: Stocks): Fief {
+    const { arrivesAt } = marchInstantsOf(founding)
+    const { units, recruitOrder } = this.deliveriesSettledAt(arrivesAt)
+    return this.changed({
+      stocks: stocksAtArrival,
+      storedAt: arrivesAt,
+      units: unitKinds.reduce((left, unit) => left.minus(unit, founding.units[unit]), units),
+      recruitOrder,
+      march: { kind: 'idle' },
+    })
+  }
+
+  turnFoundingHome(founding: FoundingMarch): Fief {
+    return this.changed({
+      march: { ...founding, recalledAt: marchInstantsOf(founding).arrivesAt },
     })
   }
 

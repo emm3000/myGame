@@ -65,12 +65,6 @@ export class MemoryFiefRepository implements FiefRepository {
     if (rival !== undefined) {
       return err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates })
     }
-    const heldFief = [...this.fiefs.values()].find(
-      (stored) => stored.id !== fief.id && stored.playerId === fief.playerId,
-    )
-    if (heldFief !== undefined) {
-      return err({ kind: 'PlayerAlreadyHoldsFief', playerId: fief.playerId })
-    }
     const reserved = reservedPlotOf(fief)
     const reservedByRival =
       reserved !== undefined &&

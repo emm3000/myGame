@@ -6,19 +6,21 @@ import type { ChangedFief } from '../fief/ChangedFief'
 import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
+import { fiefFoundedBy } from '../fief/fiefFoundedBy'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
-import type { AttackMarch, AwayMarch } from '../march/March'
+import type { AttackMarch, AwayMarch, FoundingMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { CampRegistry } from '../ports/CampRegistry'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
+import type { IdGenerator } from '../ports/IdGenerator'
 import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
@@ -30,6 +32,7 @@ export type ResolveUpgradeDependencies = {
   readonly camps: CampRegistry
   readonly catalog: BuildingCatalog
   readonly clock: Clock
+  readonly ids: IdGenerator
 }
 
 export type ResolvedFief = ChangedFief & {
@@ -46,6 +49,7 @@ type FinishedWork =
       readonly battle: Battle
       readonly finishedAt: Instant
     }
+  | { readonly kind: 'founding'; readonly march: FoundingMarch; readonly finishedAt: Instant }
   | { readonly kind: 'march'; readonly march: AwayMarch; readonly finishedAt: Instant }
 
 type WalkedFief = ChangedFief & {
@@ -102,6 +106,23 @@ const foughtBattleOf = (
   return { kind: 'battle', march, battle, finishedAt: arrivesAt }
 }
 
+const arrivedFoundingOf = (fief: Fief, now: Instant): FoundingMarch | undefined => {
+  const { march } = fief
+  if (march.kind === 'idle' || march.order !== 'found' || march.recalledAt !== undefined) {
+    return undefined
+  }
+  const { arrivesAt } = marchInstantsOf(march)
+  return arrivesAt.epochMilliseconds > now.epochMilliseconds ? undefined : march
+}
+
+const foundingArrivalOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
+  const march = arrivedFoundingOf(fief, now)
+  if (march === undefined) {
+    return undefined
+  }
+  return { kind: 'founding', march, finishedAt: marchInstantsOf(march).arrivesAt }
+}
+
 const returnedMarchOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
   const { march } = fief
   if (march.kind === 'idle') {
@@ -136,6 +157,7 @@ const earliestFinishedOf = (
     finishedStudyOf(fief, now),
     endedRecruitOrderOf(fief, now),
     foughtBattleOf(fief, now, unitTerms),
+    foundingArrivalOf(fief, now),
     returnedMarchOf(fief, now),
   ].reduce(earlierOf, undefined)
 
@@ -181,6 +203,8 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           occurredAt: finished.finishedAt,
         },
       ]
+    case 'founding':
+      return []
     case 'march':
       return [
         {
@@ -233,6 +257,8 @@ const applyFinished = (
       return ok(fief.completeRecruitOrder(finished.order, stocksAtFinish))
     case 'battle':
       return ok(fief.completeBattle(finished.march, finished.battle, stocksAtFinish))
+    case 'founding':
+      return ok(fief.completeFounding(finished.march, stocksAtFinish))
     case 'march':
       return ok(fief.completeMarch(finished.march, stocksAtFinish))
     default: {
@@ -296,9 +322,29 @@ const recordCampBattles = async (
   return ok(undefined)
 }
 
+const settleFoundingSite = async (
+  fief: Fief,
+  now: Instant,
+  { fiefs, catalog, ids }: Pick<ResolveUpgradeDependencies, 'fiefs' | 'catalog' | 'ids'>,
+): Promise<Result<Fief, DomainError>> => {
+  const founding = arrivedFoundingOf(fief, now)
+  if (founding === undefined) {
+    return ok(fief)
+  }
+  const founded = fiefFoundedBy(fief, founding, ids.newId(), catalog.fiefSettings().startingStocks)
+  if (!founded.ok) {
+    return founded
+  }
+  const saved = await fiefs.save(founded.value)
+  if (saved.ok) {
+    return ok(fief)
+  }
+  return saved.error.kind === 'CoordinatesTaken' ? ok(fief.turnFoundingHome(founding)) : saved
+}
+
 export const resolveUpgrade = async (
   command: ResolveUpgradeCommand,
-  { fiefs, chronicle, camps, catalog, clock }: ResolveUpgradeDependencies,
+  { fiefs, chronicle, camps, catalog, clock, ids }: ResolveUpgradeDependencies,
 ): Promise<Result<ResolvedFief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
@@ -316,7 +362,11 @@ export const resolveUpgrade = async (
     return ok({ fief, events: [], hasChanged: false })
   }
 
-  const resumed = fief.resumeBuildQueue(catalog)
+  const settled = await settleFoundingSite(fief, now, { fiefs, catalog, ids })
+  if (!settled.ok) {
+    return settled
+  }
+  const resumed = settled.value.resumeBuildQueue(catalog)
   if (!resumed.ok) {
     return resumed
   }
