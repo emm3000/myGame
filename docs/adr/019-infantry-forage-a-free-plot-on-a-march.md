@@ -547,3 +547,51 @@ phases, the rules of the recall, the resolve's tie order and the wire's
 `march` stand. Before the calendar's epoch every percent is 100. A road
 or a loot that follows the season after dispatch, winter lengthening the
 road and a season on the stay hours stay out.
+
+## Fifth amendment (2026-10-02)
+
+S18 (ADR 023) gives the march slot a third order, `found`, beside
+`forage` and `attack`: `AwayMarch` gains `FoundingMarch`, one settler
+alone sent to a free plot with no camp to found the lord's second fief
+there. It holds a `name`, the new fief's, `stayHours` 0, a loot of 0
+and the party of exactly one settler, walks the road of the fourth
+amendment at the settler's 100 % and the season's road percent, and
+holds the one march slot until it founds or comes home. The use case
+`dispatchFounding` refuses, writing nothing, `FiefNotFound`,
+`BlankFiefName`, `MarchSlotBusy`, `FiefCapReached`, the target checks
+below, `PlotHasCamp` and last `NotEnoughUnitsAtHome`. Its arrival is a
+sixth finish of the resolve, between the battle and the march's return:
+the fief is founded, the settler leaves the count and the slot idles
+with no return, and when a fief holds the plot by then the settler
+turns home as if recalled at its arrival. It is recalled as any march,
+outbound alone, with no loot.
+
+"The plot is checked free at dispatch and is neither reserved nor
+depleted" still holds of a forage and of an attack, which reserve
+nothing; a founding reserves its plot from the dispatch until it is
+recalled or applied. `refuseUnreachableTarget`, the one function the
+three orders share, refuses in order `MarchTargetOutOfBounds`,
+`MarchToOwnPlot`, `PlotHeld` and `PlotReserved { province, plot }`, a
+new member of `DomainError` answered 409, read from
+`KingdomMapReader.reservationsIn`. `MarchToOwnPlot` no longer answers
+the sending fief's plot alone: it answers a plot held by any fief of
+the sending lord, so nothing is sent between a lord's own fiefs. A
+forage or an attack whose party holds a settler is refused
+`UnitUnfitForOrder { unit, order }`, right after `InvalidUnitCount` in
+`Fief.roomForMarch` and `Fief.roomForAttack`, before the stay, the slot
+and the target are checked (ADR 021 as amended). The units away are still
+the march's count of each kind, a settler on the road among them, with
+its peasants held.
+
+Migration 0021 adds `settler_count` to `fief_marches`, in the sum
+checked at least 1, and migration 0022 adds `found` to `march_order`, a
+nullable `founding_name`, the order's terms in
+`fief_marches_order_terms` and the partial unique index that keeps one
+founding per plot, whose violation `save` answers as `PlotReserved`.
+The wire's `march` gains the `found` variant with its `name`, the
+routes moved under `/fiefs/:fiefId/marches`, with `POST
+/fiefs/:fiefId/marches/found` for the founding, and every command
+carries the `fiefId` beside the `playerId`. Nothing else here changes:
+one march at a time for each fief, the road, the stay and the loot of a
+forage, the three phases, the rules of the recall and the tie order of
+the five earlier finishes stand, and no march meets another lord.

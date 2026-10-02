@@ -151,3 +151,49 @@ still shows one province at a time, bounded by `lastProvince`, the terrain
 still derives from the province number, no plot is reserved or depleted,
 and a fief founded on a camp's plot erases the camp, since the founding
 still takes the lowest free plot.
+
+## Third amendment (2026-10-02)
+
+A plot can be reserved, a lord can hold two fiefs, and the map takes a
+third order. S18 (ADR 023) lets a lord send one settler on a founding
+march to a free plot with no camp, and the founding reserves its plot
+from the dispatch until it is recalled or applied. That lifts "no plot
+is reserved or depleted" from the two amendments above as far as a
+founding goes; a forage and an attack still reserve nothing. The port
+gains `reservationsIn(kingdom, province)`, which answers each founding
+march neither recalled nor applied as `{ plot, playerId }`, on the pool
+and lock-free as this ADR keeps the reader, and `readProvinceMap`
+answers each plot's `reservation`: `{ isOwn }` on a reserved plot,
+`isOwn` true for the viewer's own founding, and nothing on a held plot;
+a reserved plot answers no camp. The wire plot is `{ plot, fief, camp,
+reservation }`, `reservation` null or a strict `{ isOwn }`: the founder
+is never named, and still no player id crosses the wire. The web shows
+the plot as *reservada*, the founder's with the marker *Tu fundación*,
+and offers no action on it to anyone; on a free plot with no camp and
+no reservation it offers *Fundar un feudo* beside *Enviar una marcha*.
+
+"A new sign-up takes the lowest free plot of kingdom 1" now skips a
+reserved plot: `FiefRepository.occupiedPlots()` answers the held plots
+and the reserved ones, so `lowestFreeCoordinates` never places a new
+lord where a settler is bound. A lord's second fief does not take the
+lowest free plot: it stands on the plot its founding was sent to, the
+first plot a lord chooses, within the bound of this ADR. A reservation
+does not move `lastProvince`, which still reads the fiefs alone; a fief
+founded on the empty province past the last held one moves it, from the
+read that applies its arrival.
+
+Every fief of the viewer is marked `isOwn`, so a lord of two fiefs reads
+both as own, in either's map, and a march to either is refused
+`MarchToOwnPlot` (ADR 019 as amended). The map is read from a fief:
+`addressOf` takes a `FiefId` and answers the address with its holder,
+`readProvinceMap({ playerId, fiefId, province? })` opens on that fief's
+province and refuses `FiefNotFound` for a fief that is not the
+viewer's, and the routes are `GET /fiefs/:fiefId/map` and
+`/map/:province` in place of `GET /map`, with the web's
+`/feudo/$fiefId/mapa` in place of `/mapa`. The read costs five queries,
+the address, the last held province, the holders, the reservations and
+the camps' last battles, where this ADR counted three and the camps of
+the second amendment added a fourth. Nothing else
+here changes: one province at a time, bounded by `lastProvince`, the
+terrain derived from the province number, the reader lock-free, reading
+no stock and resolving nothing, and only kingdom 1.

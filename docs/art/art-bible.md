@@ -50,7 +50,7 @@ GPT Image at 1024×1024 for every generated family; Codex's image tool takes no 
 
 ## UI icons
 
-Hand-drawn SVG in the design system, never generated: resources, peasants, clock, slot, the four seasons: a sprout for spring, a sun for summer, a leaf for autumn, a snowflake for winter (ADR 016), the infantry: a round shield beside a spear (#213, ADR 018), the rider: a horseshoe beside a lance (#347, ADR 021), the march: a signpost (#259, ADR 019), and the camp: a tent with a pennant (#295, ADR 020), in a 24 px box with a 1.75 px stroke in the current ink. Crisp at 16 to 24 px and themeable. Generated images are reserved for buildings, camps, arts and large resource art; the camp keeps its tent with a pennant on the map's plot tile.
+Hand-drawn SVG in the design system, never generated: resources, peasants, clock, slot, the four seasons: a sprout for spring, a sun for summer, a leaf for autumn, a snowflake for winter (ADR 016), the infantry: a round shield beside a spear (#213, ADR 018), the rider: a horseshoe beside a lance (#347, ADR 021), the settler: a loaded cart on its wheel, the shaft forward (#381, ADR 023), the march: a signpost (#259, ADR 019), and the camp: a tent with a pennant (#295, ADR 020), in a 24 px box with a 1.75 px stroke in the current ink. Crisp at 16 to 24 px and themeable. Generated images are reserved for buildings, camps, arts and large resource art; the camp keeps its tent with a pennant on the map's plot tile.
 
 ## Open questions
 
