@@ -14,15 +14,26 @@ import { copy } from '../copy'
 const signedInClientServing = (provinceMap: ApiClient['provinceMap']): ApiClient =>
   stubApiClient({ currentPlayer: async () => knownPlayer, provinceMap })
 
+type RecordingClient = {
+  readonly client: ApiClient
+  readonly requested: Array<number | undefined>
+  readonly fiefIds: Array<string>
+}
+
 const recordingClient = (
   answer: (province: number | undefined) => ProvinceMap,
-): { readonly client: ApiClient; readonly requested: Array<number | undefined> } => {
+): RecordingClient => {
   const requested: Array<number | undefined> = []
-  const client = signedInClientServing(async (_fiefId, province) => {
+  const fiefIds: Array<string> = []
+  const client = signedInClientServing(async (fiefId, province) => {
     requested.push(province)
-    return { ok: true, value: answer(province) }
+    fiefIds.push(fiefId)
+    const map = answer(province)
+    return map.province > map.lastProvince
+      ? { ok: false, refusal: 'ProvinceNotFound' }
+      : { ok: true, value: map }
   })
-  return { client, requested }
+  return { client, requested, fiefIds }
 }
 
 it('opens the province of the fief when no number is named', async () => {
@@ -243,4 +254,24 @@ it('opens the province of the fief from its address', async () => {
     await screen.findByRole('heading', { level: 3, name: 'Vadoalto, provincia 3' }),
   ).toBeDefined()
   expect(requested).toEqual([3])
+})
+
+it('asks the api with the fief id from the URL while browsing', async () => {
+  const robledalId = '3e8d6f2b-1c4a-4b7e-9d5f-6a0b2c8e4f71'
+  const { client, requested, fiefIds } = recordingClient(provinceNumbered)
+  renderAppAt(`/feudo/${robledalId}/mapa/9`, client)
+  const provinceHeading = (province: number): Promise<HTMLElement> =>
+    screen.findByRole('heading', { level: 3, name: `Vadoalto, provincia ${province}` })
+
+  fireEvent.click(await screen.findByRole('link', { name: 'Ir a tu provincia' }))
+  await provinceHeading(3)
+  fireEvent.click(await button('Provincia siguiente'))
+  await provinceHeading(4)
+  fireEvent.click(await button('Provincia anterior'))
+  await provinceHeading(3)
+  await typeProvince('1')
+  await provinceHeading(1)
+
+  expect(requested).toEqual([9, undefined, 4, 3, 1])
+  expect(fiefIds).toEqual([robledalId, robledalId, robledalId, robledalId, robledalId])
 })
