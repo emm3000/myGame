@@ -1,3 +1,4 @@
+import type { FiefId } from '../fief/FiefId'
 import type { PlotAddress } from '../fief/PlotAddress'
 import type { PlayerId } from '../player/PlayerId'
 
@@ -7,8 +8,13 @@ export type PlotHolder = {
   readonly playerId: PlayerId
 }
 
+export type HeldAddress = {
+  readonly address: PlotAddress
+  readonly playerId: PlayerId
+}
+
 export interface KingdomMapReader {
-  addressOf(playerId: PlayerId): Promise<PlotAddress | undefined>
+  addressOf(fiefId: FiefId): Promise<HeldAddress | undefined>
   lastOccupiedProvince(kingdom: number): Promise<number>
   holdersIn(kingdom: number, province: number): Promise<ReadonlyArray<PlotHolder>>
 }

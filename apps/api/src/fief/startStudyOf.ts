@@ -2,7 +2,7 @@ import {
   type ArtKind,
   type DomainError,
   type Fief,
-  type PlayerId,
+  type FiefOfPlayer,
   type Result,
   startStudy,
 } from '@mygame/domain'
@@ -11,13 +11,13 @@ import { type MutateAfterResolveDependencies, mutateAfterResolve } from './mutat
 export type StartStudyDependencies = MutateAfterResolveDependencies
 
 export const startStudyOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   art: ArtKind,
   dependencies: StartStudyDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     ({ fiefs }, clock) =>
-      startStudy({ playerId, art }, { fiefs, catalog: dependencies.buildingCatalog, clock }),
+      startStudy({ ...fiefOfPlayer, art }, { fiefs, catalog: dependencies.buildingCatalog, clock }),
     dependencies,
   )

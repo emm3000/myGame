@@ -9,3 +9,4 @@ export type Refusal =
   | { readonly kind: 'SignedOut' }
   | { readonly kind: 'TokenInvalid' }
   | { readonly kind: 'MailNotSent' }
+  | { readonly kind: 'NoFiefHeld' }

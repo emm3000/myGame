@@ -120,7 +120,7 @@ const ridersAttacking: AwayMarch = {
 
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
-const stranger = '00000000-0000-4000-8000-0000000000ff'
+const unknownFiefId = '00000000-0000-4000-8000-0000000000ff'
 
 const newFief = (id: string, playerId: PlayerId, plot: number): Fief =>
   Fief.found({
@@ -201,10 +201,10 @@ export const fiefRepositoryContract = (
   arrange: () => Promise<FiefRepositoryFixture>,
 ): void => {
   describe(`${adapter} as a FiefRepository`, () => {
-    it('reports an unknown fief instead of throwing', async () => {
+    it('answers no fief for an unknown id', async () => {
       const { fiefs } = await arrange()
 
-      expect(await fiefs.fiefOf(stranger)).toEqual(ok(undefined))
+      expect(await fiefs.fiefOf(unknownFiefId)).toEqual(ok(undefined))
     })
 
     it('restores a saved fief with every stored value', async () => {
@@ -213,7 +213,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      expect(await fiefs.fiefOf(bruno)).toEqual(ok(developedFief))
+      expect(await fiefs.fiefOf(developedFief.id)).toEqual(ok(developedFief))
     })
 
     it('restores the instant a busy slot started', async () => {
@@ -222,7 +222,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.slot).toMatchObject({ startedAt: ironMineStartedAt })
     })
 
@@ -232,7 +232,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.slot).toMatchObject({ cost: ironMineCost })
     })
 
@@ -242,7 +242,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.buildQueue).toEqual(waitingEntries)
     })
 
@@ -252,7 +252,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.buildingLevels.library).toBe(2)
     })
 
@@ -262,7 +262,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.buildingLevels.barracks).toBe(1)
     })
 
@@ -272,7 +272,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.artLevels).toEqual(studiedArts)
     })
 
@@ -282,7 +282,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.studySlot).toEqual(masonryStudy)
     })
 
@@ -292,7 +292,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(
         restored.ok && {
           infantry: restored.value?.units.countOf('infantry'),
@@ -315,7 +315,7 @@ export const fiefRepositoryContract = (
         ),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.units.countOf('infantry')).toBe(0)
     })
 
@@ -325,7 +325,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(anasFief)
 
-      const restored = await fiefs.fiefOf(ana)
+      const restored = await fiefs.fiefOf(anasFief.id)
       expect(restored.ok && restored.value?.units.countOf('infantry')).toBe(0)
     })
 
@@ -335,7 +335,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.recruitOrder).toEqual(infantryOrder)
     })
 
@@ -355,7 +355,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, riderOrder, { kind: 'idle' }, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.recruitOrder).toEqual(riderOrder)
     })
 
@@ -368,7 +368,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, { kind: 'idle' }, tenInfantryForaging, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.recruitOrder).toEqual({ kind: 'idle' })
     })
 
@@ -378,7 +378,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(tenInfantryForaging)
     })
 
@@ -392,7 +392,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFiefWith(waitingEntries, infantryOrder, springForage, trainedUnits))
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(springForage)
     })
 
@@ -406,7 +406,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFiefWith(waitingEntries, infantryOrder, winterAttack, trainedUnits))
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(winterAttack)
     })
 
@@ -423,7 +423,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, infantryOrder, recalledMarch, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(recalledMarch)
     })
 
@@ -435,7 +435,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, infantryOrder, tenInfantryAttacking, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(tenInfantryAttacking)
     })
 
@@ -447,7 +447,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, infantryOrder, infantryAndRidersForaging, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(infantryAndRidersForaging)
     })
 
@@ -459,7 +459,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, infantryOrder, ridersAttacking, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(ridersAttacking)
     })
 
@@ -472,7 +472,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(developedFief)
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(tenInfantryForaging)
     })
 
@@ -485,7 +485,7 @@ export const fiefRepositoryContract = (
         developedFiefWith(waitingEntries, infantryOrder, { kind: 'idle' }, trainedUnits),
       )
 
-      const restored = await fiefs.fiefOf(bruno)
+      const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual({ kind: 'idle' })
     })
 
@@ -495,7 +495,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(anasFief)
 
-      const restored = await fiefs.fiefOf(ana)
+      const restored = await fiefs.fiefOf(anasFief.id)
       expect(restored.ok && restored.value?.artLevels).toEqual({ smithing: 0, masonry: 0 })
     })
 
@@ -512,7 +512,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(shortened)
 
-      expect(await fiefs.fiefOf(bruno)).toEqual(ok(shortened))
+      expect(await fiefs.fiefOf(developedFief.id)).toEqual(ok(shortened))
     })
 
     it('stores the amounts with the instant they were materialized at', async () => {
@@ -523,7 +523,7 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(upgraded)
 
-      expect(await fiefs.fiefOf(ana)).toEqual(ok(upgraded))
+      expect(await fiefs.fiefOf(anasFief.id)).toEqual(ok(upgraded))
     })
 
     it('tells a player who holds a fief from one who does not', async () => {
@@ -532,6 +532,23 @@ export const fiefRepositoryContract = (
       await fiefs.save(anasFief)
 
       expect([await fiefs.holdsFief(ana), await fiefs.holdsFief(bruno)]).toEqual([true, false])
+    })
+
+    it('lists the fief a player holds and none of another lord', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana, bruno])
+      await fiefs.save(anasFief)
+      await fiefs.save(developedFief)
+
+      expect(await fiefs.fiefsOf(bruno)).toEqual([developedFief.id])
+    })
+
+    it('lists no fief for a player who holds none', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana, bruno])
+      await fiefs.save(anasFief)
+
+      expect(await fiefs.fiefsOf(bruno)).toEqual([])
     })
 
     it('lists the plot of every saved fief as occupied', async () => {
@@ -569,7 +586,7 @@ export const fiefRepositoryContract = (
 
       const saved = await fiefs.save(newFief('00000000-0000-4000-8000-00000000000c', ana, 8))
 
-      expect([saved, await fiefs.fiefOf(ana)]).toEqual([
+      expect([saved, await fiefs.fiefOf(anasFief.id)]).toEqual([
         { ok: false, error: { kind: 'PlayerAlreadyHoldsFief', playerId: ana } },
         ok(anasFief),
       ])
@@ -582,7 +599,10 @@ export const fiefRepositoryContract = (
 
       await fiefs.save(newFief('00000000-0000-4000-8000-00000000000c', bruno, 7))
 
-      expect([await fiefs.fiefOf(ana), await fiefs.holdsFief(bruno)]).toEqual([ok(anasFief), false])
+      expect([await fiefs.fiefOf(anasFief.id), await fiefs.holdsFief(bruno)]).toEqual([
+        ok(anasFief),
+        false,
+      ])
     })
   })
 }

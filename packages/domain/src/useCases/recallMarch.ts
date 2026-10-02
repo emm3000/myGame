@@ -1,14 +1,17 @@
 import type { DomainError } from '../DomainError'
 import type { Fief } from '../fief/Fief'
+import type { FiefId } from '../fief/FiefId'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
-import { err, ok, type Result } from '../Result'
+import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
 export type RecallMarchCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
   readonly departedAt: Instant
 }
 
@@ -22,14 +25,15 @@ export const recallMarch = async (
   command: RecallMarchCommand,
   { fiefs, catalog, clock }: RecallMarchDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
 
   const recalled = fief.recallMarch(
     { departedAt: command.departedAt },

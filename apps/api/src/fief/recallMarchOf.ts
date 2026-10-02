@@ -2,8 +2,8 @@ import type { RecallMarchRequest } from '@mygame/contracts'
 import {
   type DomainError,
   type Fief,
+  type FiefOfPlayer,
   Instant,
-  type PlayerId,
   type Result,
   recallMarch,
 } from '@mygame/domain'
@@ -12,15 +12,15 @@ import { type MutateAfterResolveDependencies, mutateAfterResolve } from './mutat
 export type RecallMarchDependencies = MutateAfterResolveDependencies
 
 export const recallMarchOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   { departedAt }: RecallMarchRequest,
   dependencies: RecallMarchDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     ({ fiefs }, clock) =>
       recallMarch(
-        { playerId, departedAt: Instant.fromEpochMilliseconds(Date.parse(departedAt)) },
+        { ...fiefOfPlayer, departedAt: Instant.fromEpochMilliseconds(Date.parse(departedAt)) },
         { fiefs, catalog: dependencies.buildingCatalog, clock },
       ),
     dependencies,

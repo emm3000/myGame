@@ -138,12 +138,12 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 140,
       stone: 130,
       iron: 150,
@@ -159,12 +159,12 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([nearlyFullFief])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    expect(fiefs.storedFiefOf('lord')?.stocks).toEqual({
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toEqual({
       wood: 1030,
       stone: 1025,
       iron: 1050,
@@ -178,12 +178,12 @@ describe('cancelStudy', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.studySlot).toEqual({ kind: 'idle' })
     expect(stored?.storedAt).toBe(cancelInstant)
     expect(stored?.artLevels).toEqual({ smithing: 0, masonry: 0 })
@@ -210,12 +210,12 @@ describe('cancelStudy', () => {
     ])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual(sawmillInProgress)
     expect(stored?.buildQueue).toEqual([sawmillLevelTwoWaiting])
   })
@@ -224,7 +224,7 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ studySlot: { kind: 'idle' } })])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -235,7 +235,7 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'masonry', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'masonry', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -246,7 +246,7 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 2 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 2 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -257,7 +257,7 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -271,26 +271,26 @@ describe('cancelStudy', () => {
 
   it('writes nothing when it refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
-    const before = JSON.stringify(fiefs.storedFiefOf('lord'))
+    const before = JSON.stringify(fiefs.storedFiefOf('fief-1'))
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'masonry', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'masonry', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
     )
 
     assert(!result.ok)
-    expect(JSON.stringify(fiefs.storedFiefOf('lord'))).toBe(before)
+    expect(JSON.stringify(fiefs.storedFiefOf('fief-1'))).toBe(before)
   })
 
-  it('refuses a player who holds no fief', async () => {
+  it('refuses an unknown fief', async () => {
     const fiefs = inMemoryFiefRepository([])
 
     const result = await cancelStudy(
-      { playerId: 'landless', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'unknown-fief', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
-    expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
+    expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'unknown-fief' }))
   })
 
   it('answers the cancelled study with its refund at the cancel instant', async () => {
@@ -298,7 +298,7 @@ describe('cancelStudy', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(cancelInstant) },
     )
 
@@ -318,7 +318,7 @@ describe('cancelStudy', () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'masonry', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'masonry', targetLevel: 1 },
       { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -331,7 +331,7 @@ describe('cancelStudy', () => {
     const cancelInstant = hoursAfterStored(1)
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       { fiefs, chronicle, catalog, clock: frozenClock(cancelInstant) },
     )
 
@@ -352,7 +352,7 @@ describe('cancelStudy', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'masonry', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'masonry', targetLevel: 1 },
       { fiefs, chronicle, catalog, clock: frozenClock(storedInstant) },
     )
 
@@ -362,10 +362,10 @@ describe('cancelStudy', () => {
 
   it('reports a record the chronicle refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
-    const refusal = { kind: 'FiefNotFound', playerId: 'lord' } as const
+    const refusal = { kind: 'FiefNotFound', fiefId: 'fief-1' } as const
 
     const result = await cancelStudy(
-      { playerId: 'lord', art: 'smithing', targetLevel: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
       {
         fiefs,
         chronicle: refusingChronicle(refusal),

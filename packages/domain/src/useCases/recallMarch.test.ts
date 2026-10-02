@@ -121,10 +121,10 @@ const dependenciesAt = (seconds: number, fief: Fief = storedFief({})) => ({
   clock: frozenClock(secondsAfterDeparture(seconds)),
 })
 
-const recall = { playerId: 'lord', departedAt }
+const recall = { playerId: 'lord', fiefId: 'fief-1', departedAt }
 
 const recalledMarchOf = (dependencies: ReturnType<typeof dependenciesAt>): AwayMarch => {
-  const march = dependencies.fiefs.storedFiefOf('lord')?.march
+  const march = dependencies.fiefs.storedFiefOf('fief-1')?.march
   assert(march?.kind === 'away')
   return march
 }
@@ -168,7 +168,7 @@ describe('recallMarch', () => {
     const result = await recallMarch(recall, dependencies)
 
     expect(result).toEqual(err({ kind: 'MarchAlreadyReturning' }))
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual(tenInfantryAttacking)
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual(tenInfantryAttacking)
   })
 
   it('brings the loot of the seconds foraged', async () => {
@@ -206,7 +206,7 @@ describe('recallMarch', () => {
 
     await recallMarch(recall, dependencies)
 
-    const recalled = dependencies.fiefs.storedFiefOf('lord')
+    const recalled = dependencies.fiefs.storedFiefOf('fief-1')
     assert(recalled !== undefined)
     const { stocks, storedAt, units, slot, buildQueue, studySlot, recruitOrder } = recalled
     expect({ stocks, storedAt, units, slot, buildQueue, studySlot, recruitOrder }).toEqual({
@@ -239,7 +239,7 @@ describe('recallMarch', () => {
     const otherDeparture = secondsAfterDeparture(-60)
 
     const result = await recallMarch(
-      { playerId: 'lord', departedAt: otherDeparture },
+      { playerId: 'lord', fiefId: 'fief-1', departedAt: otherDeparture },
       dependenciesAt(2_640),
     )
 
@@ -261,13 +261,13 @@ describe('recallMarch', () => {
 
     await recallMarch(recall, dependencies)
 
-    expect(dependencies.fiefs.storedFiefOf('lord')).toBe(fief)
+    expect(dependencies.fiefs.storedFiefOf('fief-1')).toBe(fief)
   })
 
-  it('refuses a player who holds no fief', async () => {
-    const result = await recallMarch({ ...recall, playerId: 'landless' }, dependenciesAt(2_640))
+  it('refuses an unknown fief', async () => {
+    const result = await recallMarch({ ...recall, fiefId: 'unknown-fief' }, dependenciesAt(2_640))
 
-    expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
+    expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'unknown-fief' }))
   })
 
   it('reports a fief the repository cannot read', async () => {
@@ -309,7 +309,7 @@ describe('recallMarch', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         ...dependencies,
         chronicle,
@@ -375,6 +375,7 @@ describe('recallMarch across seasons', () => {
     await dispatchMarch(
       {
         playerId: 'lord',
+        fiefId: 'fief-1',
         province: 4,
         plot: 12,
         units: { infantry: 12, cavalry: 0 },
@@ -382,14 +383,16 @@ describe('recallMarch across seasons', () => {
       },
       {
         fiefs,
-        map: inMemoryKingdomMap([{ playerId: 'lord', name: 'Vado Viejo', address: home }]),
+        map: inMemoryKingdomMap([
+          { playerId: 'lord', fiefId: 'fief-1', name: 'Vado Viejo', address: home },
+        ]),
         catalog: seasonalCatalog,
         clock: frozenClock(lateSpring),
       },
     )
 
     await recallMarch(
-      { playerId: 'lord', departedAt: lateSpring },
+      { playerId: 'lord', fiefId: 'fief-1', departedAt: lateSpring },
       {
         fiefs,
         catalog: seasonalCatalog,
@@ -397,7 +400,7 @@ describe('recallMarch across seasons', () => {
       },
     )
 
-    const march = fiefs.storedFiefOf('lord')?.march
+    const march = fiefs.storedFiefOf('fief-1')?.march
     assert(march?.kind === 'away')
     expect(march.loot).toEqual({ ...noLoot, wood: 18, food: 22 })
   })

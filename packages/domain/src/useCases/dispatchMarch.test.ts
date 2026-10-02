@@ -89,12 +89,14 @@ const workingCatalog: BuildingCatalog = {
 }
 
 const lordPlot: HeldPlot = {
+  fiefId: 'fief-1',
   playerId: 'lord',
   name: 'Vado Viejo',
   address: { kingdom: 1, province: 1, plot: 1 },
 }
 
 const neighbourPlot: HeldPlot = {
+  fiefId: 'neighbour-fief',
   playerId: 'neighbour',
   name: 'Peña Alta',
   address: { kingdom: 1, province: 2, plot: 9 },
@@ -142,6 +144,7 @@ const campPlotOfProvinceTwo = (): number => {
 
 const tenInfantryForTwoHours = {
   playerId: 'lord',
+  fiefId: 'fief-1',
   province: 2,
   plot: 5,
   units: { infantry: 10, cavalry: 0 },
@@ -160,7 +163,7 @@ describe('dispatchMarch', () => {
     const result = await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
     assert(result.ok)
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       kind: 'away',
       order: 'forage',
       province: 2,
@@ -176,7 +179,7 @@ describe('dispatchMarch', () => {
 
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({ oneWaySeconds: 840 })
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({ oneWaySeconds: 840 })
   })
 
   it('fixes the loot at dispatch from the plot terrain', async () => {
@@ -184,7 +187,7 @@ describe('dispatchMarch', () => {
 
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
     })
   })
@@ -194,7 +197,7 @@ describe('dispatchMarch', () => {
 
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
     })
   })
@@ -205,7 +208,7 @@ describe('dispatchMarch', () => {
 
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
-    const away = dependencies.fiefs.storedFiefOf('lord')
+    const away = dependencies.fiefs.storedFiefOf('fief-1')
     assert(away !== undefined)
     const peasantsOf = (held: Fief) =>
       derivePeasantCounts(held.buildingLevels, held.units, held.recruitOrder, catalog)
@@ -218,18 +221,35 @@ describe('dispatchMarch', () => {
 
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
-    const away = dependencies.fiefs.storedFiefOf('lord')
+    const away = dependencies.fiefs.storedFiefOf('fief-1')
     expect(away?.stocks).toEqual(fief.stocks)
     expect(away?.storedAt).toBe(fief.storedAt)
   })
 
-  it('refuses a player who holds no fief', async () => {
+  it('refuses an unknown fief', async () => {
     const result = await dispatchMarch(
-      { ...tenInfantryForTwoHours, playerId: 'landless' },
+      { ...tenInfantryForTwoHours, fiefId: 'unknown-fief' },
       dependenciesOver(storedFief({})),
     )
 
-    expect(result).toEqual(err({ kind: 'FiefNotFound', playerId: 'landless' }))
+    expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'unknown-fief' }))
+  })
+
+  it('refuses a march from a fief of another player', async () => {
+    const neighbourFief = storedFief({
+      id: 'neighbour-fief',
+      playerId: 'neighbour',
+      address: neighbourPlot.address,
+    })
+    const fiefs = inMemoryFiefRepository([storedFief({}), neighbourFief])
+
+    const result = await dispatchMarch(
+      { ...tenInfantryForTwoHours, fiefId: 'neighbour-fief' },
+      { fiefs, map, catalog, clock: frozenClock(dispatchInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'neighbour-fief' }))
+    expect(fiefs.storedFiefOf('neighbour-fief')).toBe(neighbourFief)
   })
 
   it('reports a fief the repository cannot read', async () => {
@@ -314,7 +334,7 @@ describe('dispatchMarch', () => {
     const result = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 9 }, dependencies)
 
     expect(result).toEqual(err({ kind: 'PlotHeld', province: 2, plot: 9 }))
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a forage march to a camp plot', async () => {
@@ -324,7 +344,7 @@ describe('dispatchMarch', () => {
     const result = await dispatchMarch({ ...tenInfantryForTwoHours, plot: campPlot }, dependencies)
 
     expect(result).toEqual(err({ kind: 'PlotHasCamp', province: 2, plot: campPlot }))
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a march to the fief own plot', async () => {
@@ -511,7 +531,7 @@ describe('dispatchMarch', () => {
     const result = await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
     assert(result.ok)
-    const away = dependencies.fiefs.storedFiefOf('lord')
+    const away = dependencies.fiefs.storedFiefOf('fief-1')
     expect(away?.march.kind).toBe('away')
     expect([away?.slot, away?.buildQueue, away?.studySlot, away?.recruitOrder]).toEqual([
       busy.slot,
@@ -532,15 +552,21 @@ describe('dispatchMarch', () => {
     )
     assert(sent.ok)
 
-    const building = await enqueueBuilding({ playerId: 'lord', building: 'sawmill' }, dependencies)
-    const studying = await startStudy({ playerId: 'lord', art: 'smithing' }, dependencies)
+    const building = await enqueueBuilding(
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
+      dependencies,
+    )
+    const studying = await startStudy(
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
+      dependencies,
+    )
     const recruiting = await placeRecruitOrder(
-      { playerId: 'lord', unit: 'infantry', count: 1 },
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', count: 1 },
       dependencies,
     )
 
     assert(building.ok && studying.ok && recruiting.ok)
-    const busy = dependencies.fiefs.storedFiefOf('lord')
+    const busy = dependencies.fiefs.storedFiefOf('fief-1')
     expect([busy?.slot.kind, busy?.studySlot.kind, busy?.recruitOrder.kind, busy?.march]).toEqual([
       'busy',
       'busy',
@@ -558,6 +584,7 @@ const mixedPartyFief = (): Fief =>
 
 const mixedPartyForTwoHours = {
   playerId: 'lord',
+  fiefId: 'fief-1',
   province: 2,
   plot: 7,
   units: { infantry: 12, cavalry: 6 },
@@ -571,7 +598,7 @@ describe('dispatchMarch with a party of several kinds', () => {
     const result = await dispatchMarch(mixedPartyForTwoHours, dependencies)
 
     assert(result.ok)
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       kind: 'away',
       province: 2,
       plot: 7,
@@ -636,7 +663,7 @@ describe('dispatchMarch with a party of several kinds', () => {
       dependencies,
     )
 
-    const atHome = dependencies.fiefs.storedFiefOf('lord')?.unitsAtHomeAt(dispatchInstant)
+    const atHome = dependencies.fiefs.storedFiefOf('fief-1')?.unitsAtHomeAt(dispatchInstant)
     expect([atHome?.countOf('infantry'), atHome?.countOf('cavalry')]).toEqual([8, 4])
   })
 
@@ -645,7 +672,7 @@ describe('dispatchMarch with a party of several kinds', () => {
 
     await dispatchMarch(mixedPartyForTwoHours, dependencies)
 
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
     })
   })
@@ -662,6 +689,7 @@ const homeOnTheMiddleRoad: HeldPlot = {
 
 const twelveInfantryToTheLowlands = {
   playerId: 'lord',
+  fiefId: 'fief-1',
   province: 4,
   plot: 12,
   units: { infantry: 12, cavalry: 0 },
@@ -685,12 +713,12 @@ describe('dispatchMarch across seasons', () => {
     await dispatchMarch(twelveInfantryToTheLowlands, inSpring)
     await dispatchMarch(twelveInfantryToTheLowlands, inAutumn)
 
-    expect(inSpring.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(inSpring.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       oneWaySeconds: 600,
       loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 90 },
       lootPercent: { ...unscaled, food: 125 },
     })
-    expect(inAutumn.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(inAutumn.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       oneWaySeconds: 450,
       loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 72 },
       lootPercent: { ...unscaled, gold: 125 },
@@ -702,7 +730,7 @@ describe('dispatchMarch across seasons', () => {
 
     await dispatchMarch(twelveInfantryToTheLowlands, dependencies)
 
-    expect(dependencies.fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       oneWaySeconds: 600,
       loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 72 },
       lootPercent: unscaled,
@@ -715,7 +743,7 @@ describe('dispatchMarch across seasons', () => {
 
     await dispatchMarch(twelveInfantryToTheLowlands, dependencies)
 
-    const march = dependencies.fiefs.storedFiefOf('lord')?.march
+    const march = dependencies.fiefs.storedFiefOf('fief-1')?.march
     assert(march !== undefined && march.kind === 'away')
     expect(march.oneWaySeconds).toBe(600)
     expect(march.loot).toEqual({ wood: 72, stone: 0, iron: 0, gold: 0, food: 72 })

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { ApiErrorSchema, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
@@ -164,7 +164,9 @@ describe('the auth routes', () => {
 
     expect(response.status).toBe(201)
     const player = PlayerSchema.parse(await response.json())
-    const fief = await server.fiefs.fiefOf(player.id)
+    const [fiefId] = await server.fiefs.fiefsOf(player.id)
+    assert(fiefId !== undefined)
+    const fief = await server.fiefs.fiefOf(fiefId)
     expect(fief.ok && fief.value?.name.value).toBe('Valdehierro')
   })
 

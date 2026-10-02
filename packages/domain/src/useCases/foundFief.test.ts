@@ -59,6 +59,7 @@ const raceLostFiefRepository = (): InMemoryFiefRepository => ({
   savedFiefs: () => [],
   occupiedPlots: async () => [],
   holdsFief: async () => false,
+  fiefsOf: async () => [],
   storedFiefOf: () => undefined,
   fiefOf: async () => ok(undefined),
   save: async (fief) => err({ kind: 'CoordinatesTaken', coordinates: fief.coordinates }),

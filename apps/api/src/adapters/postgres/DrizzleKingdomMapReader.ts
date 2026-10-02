@@ -1,4 +1,4 @@
-import type { KingdomMapReader, PlayerId, PlotAddress, PlotHolder } from '@mygame/domain'
+import type { FiefId, HeldAddress, KingdomMapReader, PlotHolder } from '@mygame/domain'
 import { and, asc, eq, max } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { fiefs } from './schema'
@@ -6,12 +6,21 @@ import { fiefs } from './schema'
 export class DrizzleKingdomMapReader implements KingdomMapReader {
   constructor(private readonly database: PostgresSession) {}
 
-  async addressOf(playerId: PlayerId): Promise<PlotAddress | undefined> {
-    const [address] = await this.database
-      .select({ kingdom: fiefs.kingdom, province: fiefs.province, plot: fiefs.plot })
+  async addressOf(fiefId: FiefId): Promise<HeldAddress | undefined> {
+    const [held] = await this.database
+      .select({
+        kingdom: fiefs.kingdom,
+        province: fiefs.province,
+        plot: fiefs.plot,
+        playerId: fiefs.playerId,
+      })
       .from(fiefs)
-      .where(eq(fiefs.playerId, playerId))
-    return address
+      .where(eq(fiefs.id, fiefId))
+    if (held === undefined) {
+      return undefined
+    }
+    const { kingdom, province, plot, playerId } = held
+    return { address: { kingdom, province, plot }, playerId }
   }
 
   async lastOccupiedProvince(kingdom: number): Promise<number> {

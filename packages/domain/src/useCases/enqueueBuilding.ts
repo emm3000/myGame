@@ -4,7 +4,9 @@ import { derivePeasantsForUpgrade } from '../fief/derivePeasantsForUpgrade'
 import { deriveProjectedFreePeasants } from '../fief/deriveProjectedFreePeasants'
 import type { Fief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import type { FiefId } from '../fief/FiefId'
 import { materializeStocks } from '../fief/materializeStocks'
+import { ownFiefOf } from '../fief/ownFiefOf'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -15,6 +17,7 @@ import type { Instant } from '../time/Instant'
 
 export type EnqueueBuildingCommand = {
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
   readonly building: BuildingKind
 }
 
@@ -122,14 +125,15 @@ export const enqueueBuilding = async (
   command: EnqueueBuildingCommand,
   { fiefs, catalog, clock }: EnqueueBuildingDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const stored = await fiefs.fiefOf(command.playerId)
+  const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
     return stored
   }
-  const fief = stored.value
-  if (fief === undefined) {
-    return err({ kind: 'FiefNotFound', playerId: command.playerId })
+  const owned = ownFiefOf(stored.value, command)
+  if (!owned.ok) {
+    return owned
   }
+  const fief = owned.value
 
   const target = admitUpgrade(fief, command.building, catalog)
   if (!target.ok) {

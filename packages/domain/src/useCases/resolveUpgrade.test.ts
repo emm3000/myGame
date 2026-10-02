@@ -206,7 +206,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([sawmillBuildingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -218,7 +218,7 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value.hasChanged).toBe(true)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.buildingLevels).toEqual({ ...unbuiltLevels, sawmill: 1 })
     expect(stored?.slot).toEqual({ kind: 'idle' })
   })
@@ -237,7 +237,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([sawmillFinishingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -268,7 +268,7 @@ describe('resolveUpgrade', () => {
     const now = hoursAfterStored(2)
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -287,14 +287,14 @@ describe('resolveUpgrade', () => {
       food: 120,
     })
     expect(result.value.fief.storedAt).toBe(now)
-    expect(fiefs.storedFiefOf('lord')).toBe(result.value.fief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(result.value.fief)
   })
 
   it('applies a finish that comes before a season change at the old season rates', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(1) })])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -312,7 +312,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(2) })])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -340,7 +340,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([firstSawmillFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -374,7 +374,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([sawmillBuildingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -386,7 +386,7 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value).toEqual({ fief: sawmillBuildingFief, events: [], hasChanged: false })
-    expect(fiefs.storedFiefOf('lord')).toBe(sawmillBuildingFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(sawmillBuildingFief)
   })
 
   it('caps the amounts at the capacity the new warehouse level sets', async () => {
@@ -405,7 +405,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([warehouseBuildingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -434,7 +434,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([overfilledFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -456,7 +456,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -468,7 +468,7 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value.hasChanged).toBe(true)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.buildingLevels).toEqual({ ...unbuiltLevels, sawmill: 2, warehouse: 1 })
     expect(stored?.slot).toEqual({ kind: 'idle' })
     expect(stored?.buildQueue).toEqual([])
@@ -482,7 +482,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -512,7 +512,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -542,7 +542,7 @@ describe('resolveUpgrade', () => {
     const now = hoursAfterStored(2)
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -553,7 +553,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.buildingLevels).toEqual({ ...unbuiltLevels, sawmill: 1 })
     expect(stored?.slot).toMatchObject({ building: 'sawmill', finishesAt: hoursAfterStored(3) })
     expect(stored?.buildQueue).toEqual([warehouseEntry])
@@ -577,7 +577,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([queuedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -599,7 +599,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([stalledFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -611,7 +611,7 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value.hasChanged).toBe(true)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual({
       kind: 'busy',
       building: 'sawmill',
@@ -630,7 +630,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([orphanedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -641,7 +641,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toMatchObject({ building: 'warehouse', startedAt: storedInstant })
     expect(stored?.buildQueue).toEqual([])
     expect(stored?.buildingLevels.sawmill).toBe(0)
@@ -659,7 +659,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([understaffedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -670,7 +670,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toMatchObject({ building: 'sawmill', startedAt: storedInstant })
     expect(stored?.buildQueue).toEqual([])
     expect(stored?.stocks.wood).toBe(210)
@@ -688,7 +688,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([overcrowdedFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -699,7 +699,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toEqual({ kind: 'idle' })
     expect(stored?.buildQueue).toEqual([])
     expect(stored?.stocks).toEqual({ wood: 200, stone: 150, iron: 100, gold: 100, food: 100 })
@@ -713,7 +713,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([stalledFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -724,7 +724,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toMatchObject({ building: 'sawmill', targetLevel: 1 })
     expect(stored?.buildQueue).toEqual([sawmillLevelTwo])
   })
@@ -758,7 +758,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([stalledFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -769,7 +769,7 @@ describe('resolveUpgrade', () => {
     )
 
     assert(result.ok)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.slot).toMatchObject({ building: 'sawmill', targetLevel: 2 })
     expect(stored?.buildQueue).toEqual([quarryEntry, sawmillLevelThree])
   })
@@ -779,7 +779,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([waitingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -799,7 +799,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([idleFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -811,12 +811,40 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value).toEqual({ fief: idleFief, events: [], hasChanged: false })
-    expect(fiefs.storedFiefOf('lord')).toBe(idleFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(idleFief)
   })
 
-  it('refuses a player who holds no fief', async () => {
+  it('resolves the fief it is given and no other', async () => {
+    const sawmillFinishing = sawmillFinishingAfterHours(1)
+    const lordFief = storedFief({ slot: sawmillFinishing })
+    const rivalFief = storedFief({
+      id: 'fief-2',
+      playerId: 'rival',
+      address: { kingdom: 1, province: 3, plot: 2 },
+      slot: sawmillFinishing,
+    })
+    const fiefs = inMemoryFiefRepository([lordFief, rivalFief])
+
     const result = await resolveUpgrade(
-      { playerId: 'landless' },
+      { playerId: 'rival', fiefId: 'fief-2' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.fief.id).toBe('fief-2')
+    expect(fiefs.storedFiefOf('fief-2')?.buildingLevels.sawmill).toBe(1)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(lordFief)
+  })
+
+  it('refuses an unknown fief', async () => {
+    const result = await resolveUpgrade(
+      { playerId: 'lord', fiefId: 'unknown-fief' },
       {
         fiefs: inMemoryFiefRepository([]),
         chronicle: inMemoryChronicle(),
@@ -826,7 +854,7 @@ describe('resolveUpgrade', () => {
       },
     )
 
-    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', playerId: 'landless' } })
+    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', fiefId: 'unknown-fief' } })
   })
 
   it('reports a finished level the catalog does not know', async () => {
@@ -843,7 +871,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([unknownLevelFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -857,7 +885,7 @@ describe('resolveUpgrade', () => {
       ok: false,
       error: { kind: 'UnknownBuildingLevel', building: 'sawmill', level: 3 },
     })
-    expect(fiefs.storedFiefOf('lord')).toBe(unknownLevelFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(unknownLevelFief)
   })
 
   it('reports a save the repository refuses', async () => {
@@ -877,7 +905,7 @@ describe('resolveUpgrade', () => {
     }
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: refusingFiefs,
         chronicle: inMemoryChronicle(),
@@ -898,7 +926,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([studyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -910,7 +938,7 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value.hasChanged).toBe(true)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.artLevels).toEqual({ smithing: 1, masonry: 0 })
     expect(stored?.studySlot).toEqual({ kind: 'idle' })
   })
@@ -920,7 +948,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([studyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -942,7 +970,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -970,7 +998,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -996,7 +1024,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([studyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1008,14 +1036,14 @@ describe('resolveUpgrade', () => {
 
     assert(result.ok)
     expect(result.value).toEqual({ fief: studyingFief, events: [], hasChanged: false })
-    expect(fiefs.storedFiefOf('lord')).toBe(studyingFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(studyingFief)
   })
 
   it('answers a finished upgrade at the instant it finished', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(1) })])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1045,7 +1073,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1081,7 +1109,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([buildingAndStudyingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1104,7 +1132,7 @@ describe('resolveUpgrade', () => {
     ])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1124,7 +1152,7 @@ describe('resolveUpgrade', () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(2) })])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1147,7 +1175,7 @@ describe('resolveUpgrade', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle,
@@ -1174,7 +1202,7 @@ describe('resolveUpgrade', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle,
@@ -1190,10 +1218,10 @@ describe('resolveUpgrade', () => {
 
   it('reports a record the chronicle refuses', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(1) })])
-    const refusal = { kind: 'FiefNotFound', playerId: 'lord' } as const
+    const refusal = { kind: 'FiefNotFound', fiefId: 'fief-1' } as const
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: refusingChronicle(refusal),
@@ -1251,13 +1279,13 @@ describe('resolveUpgrade across seasons', () => {
     })
     const fiefs = inMemoryFiefRepository([sawmillBuildingIntoAutumn])
     const enqueued = await enqueueBuilding(
-      { playerId: 'lord', building: 'sawmill' },
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSummer) },
     )
     assert(enqueued.ok)
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1292,13 +1320,13 @@ describe('resolveUpgrade across seasons', () => {
       }),
     ])
     const started = await startStudy(
-      { playerId: 'lord', art: 'smithing' },
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
       { fiefs, catalog: seasonalCatalog, clock: frozenClock(lastMinutesOfWinter) },
     )
     assert(started.ok)
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1340,7 +1368,7 @@ describe('resolveUpgrade with a recruit order', () => {
     const fiefs = inMemoryFiefRepository([recruitingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1352,7 +1380,7 @@ describe('resolveUpgrade with a recruit order', () => {
 
     assert(result.ok)
     expect(result.value.hasChanged).toBe(true)
-    const stored = fiefs.storedFiefOf('lord')
+    const stored = fiefs.storedFiefOf('fief-1')
     expect(stored?.recruitOrder).toEqual({ kind: 'idle' })
     expect(stored?.units.countOf('infantry')).toBe(5)
   })
@@ -1362,7 +1390,7 @@ describe('resolveUpgrade with a recruit order', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([recruitingFief]),
         chronicle,
@@ -1382,7 +1410,7 @@ describe('resolveUpgrade with a recruit order', () => {
     const recruitingFief = storedFief({ recruitOrder: fiveInfantryAtSixtySeconds })
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([recruitingFief]),
         chronicle: inMemoryChronicle(),
@@ -1405,7 +1433,7 @@ describe('resolveUpgrade with a recruit order', () => {
     })
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([buildingAndRecruitingFief]),
         chronicle: inMemoryChronicle(),
@@ -1428,7 +1456,7 @@ describe('resolveUpgrade with a recruit order', () => {
     const fiefs = inMemoryFiefRepository([recruitingAndBuildingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1458,7 +1486,7 @@ describe('resolveUpgrade with a recruit order', () => {
     const fiefs = inMemoryFiefRepository([buildingStudyingAndRecruitingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1489,7 +1517,7 @@ describe('resolveUpgrade with a recruit order', () => {
     const fiefs = inMemoryFiefRepository([recruitingFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1501,7 +1529,7 @@ describe('resolveUpgrade with a recruit order', () => {
 
     assert(result.ok)
     expect(result.value).toEqual({ fief: recruitingFief, events: [], hasChanged: false })
-    expect(fiefs.storedFiefOf('lord')).toBe(recruitingFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(recruitingFief)
     expect(result.value.fief.unitCountsAt(secondsAfterStored(299)).countOf('infantry')).toBe(4)
   })
 
@@ -1523,7 +1551,7 @@ describe('resolveUpgrade with a recruit order', () => {
     }
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1566,7 +1594,7 @@ describe('resolveUpgrade with a march', () => {
     const fiefs = inMemoryFiefRepository([marchingFief({})])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1584,14 +1612,14 @@ describe('resolveUpgrade with a march', () => {
       stocks: { wood: 324, stone: 324, iron: 112, gold: 104, food: 149 },
       storedAt: secondsAfterStored(8_880),
     })
-    expect(fiefs.storedFiefOf('lord')?.march).toEqual({ kind: 'idle' })
+    expect(fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('records the plot, the infantry and the loot when the march returns', async () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([marchingFief({})]),
         chronicle,
@@ -1615,7 +1643,7 @@ describe('resolveUpgrade with a march', () => {
 
   it('stamps the return event with the return instant', async () => {
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([marchingFief({})]),
         chronicle: inMemoryChronicle(),
@@ -1642,7 +1670,7 @@ describe('resolveUpgrade with a march', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([recalledFief]),
         chronicle,
@@ -1668,7 +1696,7 @@ describe('resolveUpgrade with a march', () => {
 
   it('records an unrecalled march as not recalled', async () => {
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([marchingFief({})]),
         chronicle: inMemoryChronicle(),
@@ -1686,7 +1714,7 @@ describe('resolveUpgrade with a march', () => {
     const chronicle = inMemoryChronicle()
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([marchingFief({ slot: sawmillFinishingAfterHours(1) })]),
         chronicle,
@@ -1711,7 +1739,7 @@ describe('resolveUpgrade with a march', () => {
       })
     const readAt = async (at: Instant): Promise<number | undefined> => {
       const result = await resolveUpgrade(
-        { playerId: 'lord' },
+        { playerId: 'lord', fiefId: 'fief-1' },
         {
           fiefs: inMemoryFiefRepository([returningAtStored()]),
           chronicle: inMemoryChronicle(),
@@ -1731,7 +1759,7 @@ describe('resolveUpgrade with a march', () => {
     const fiefs = inMemoryFiefRepository([marchingFief({ slot: sawmillFinishingAfterHours(3) })])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1762,7 +1790,7 @@ describe('resolveUpgrade with a march', () => {
     const fiefs = inMemoryFiefRepository([busyEverywhereFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1795,7 +1823,7 @@ describe('resolveUpgrade with a march', () => {
     const fiefs = inMemoryFiefRepository([awayFief])
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs,
         chronicle: inMemoryChronicle(),
@@ -1807,7 +1835,7 @@ describe('resolveUpgrade with a march', () => {
 
     assert(result.ok)
     expect(result.value).toEqual({ fief: awayFief, events: [], hasChanged: false })
-    expect(fiefs.storedFiefOf('lord')).toBe(awayFief)
+    expect(fiefs.storedFiefOf('fief-1')).toBe(awayFief)
   })
 
   it('keeps the unit counts and the peasants when the march returns', async () => {
@@ -1821,7 +1849,7 @@ describe('resolveUpgrade with a march', () => {
     const returned = secondsAfterStored(8_880)
 
     const result = await resolveUpgrade(
-      { playerId: 'lord' },
+      { playerId: 'lord', fiefId: 'fief-1' },
       {
         fiefs: inMemoryFiefRepository([awayFief]),
         chronicle: inMemoryChronicle(),
@@ -1882,7 +1910,7 @@ const resolveAttackAt = (
   catalogInForce: BuildingCatalog = catalog,
 ): ReturnType<typeof resolveUpgrade> =>
   resolveUpgrade(
-    { playerId: 'lord' },
+    { playerId: 'lord', fiefId: 'fief-1' },
     {
       fiefs: inMemoryFiefRepository([attacking]),
       chronicle: inMemoryChronicle(),
@@ -2168,7 +2196,7 @@ describe('resolveUpgrade with an attack', () => {
     const { camps, recorded } = countingCamps()
     const readAt = (now: Instant): ReturnType<typeof resolveUpgrade> =>
       resolveUpgrade(
-        { playerId: 'lord' },
+        { playerId: 'lord', fiefId: 'fief-1' },
         { fiefs, chronicle: inMemoryChronicle(), camps, catalog, clock: frozenClock(now) },
       )
 
@@ -2177,8 +2205,8 @@ describe('resolveUpgrade with an attack', () => {
 
     assert(second.ok)
     expect(second.value.hasChanged).toBe(false)
-    expect(fiefs.storedFiefOf('lord')?.units.countOf('infantry')).toBe(6)
-    expect(fiefs.storedFiefOf('lord')?.march).toMatchObject({
+    expect(fiefs.storedFiefOf('fief-1')?.units.countOf('infantry')).toBe(6)
+    expect(fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       fought: true,
       units: { infantry: 6, cavalry: 0 },
     })

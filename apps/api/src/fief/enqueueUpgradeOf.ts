@@ -3,7 +3,7 @@ import {
   type DomainError,
   enqueueBuilding,
   type Fief,
-  type PlayerId,
+  type FiefOfPlayer,
   type Result,
 } from '@mygame/domain'
 import { type MutateAfterResolveDependencies, mutateAfterResolve } from './mutateAfterResolve'
@@ -11,15 +11,15 @@ import { type MutateAfterResolveDependencies, mutateAfterResolve } from './mutat
 export type EnqueueUpgradeDependencies = MutateAfterResolveDependencies
 
 export const enqueueUpgradeOf = async (
-  playerId: PlayerId,
+  fiefOfPlayer: FiefOfPlayer,
   building: BuildingKind,
   dependencies: EnqueueUpgradeDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   mutateAfterResolve(
-    playerId,
+    fiefOfPlayer,
     ({ fiefs }, clock) =>
       enqueueBuilding(
-        { playerId, building },
+        { ...fiefOfPlayer, building },
         { fiefs, catalog: dependencies.buildingCatalog, clock },
       ),
     dependencies,

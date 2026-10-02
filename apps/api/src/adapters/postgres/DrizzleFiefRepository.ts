@@ -8,6 +8,7 @@ import {
   Fief,
   type FiefArtLevels,
   type FiefBuildingLevels,
+  type FiefId,
   type FiefRepository,
   Instant,
   type March,
@@ -20,7 +21,7 @@ import {
   type StoredFief,
   type StudySlot,
 } from '@mygame/domain'
-import { and, eq, inArray, sql } from 'drizzle-orm'
+import { and, asc, eq, inArray, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
 import {
@@ -452,7 +453,16 @@ export class DrizzleFiefRepository implements FiefRepository {
     return held.length > 0
   }
 
-  async fiefOf(playerId: PlayerId): Promise<Result<Fief | undefined, DomainError>> {
+  async fiefsOf(playerId: PlayerId): Promise<ReadonlyArray<FiefId>> {
+    const held = await this.database
+      .select({ id: fiefs.id })
+      .from(fiefs)
+      .where(eq(fiefs.playerId, playerId))
+      .orderBy(asc(fiefs.province), asc(fiefs.plot))
+    return held.map(({ id }) => id)
+  }
+
+  async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
     const query = this.database
       .select({
         fief: fiefs,
@@ -473,7 +483,7 @@ export class DrizzleFiefRepository implements FiefRepository {
       .leftJoin(fiefUnits, eq(fiefUnits.fiefId, fiefs.id))
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
       .leftJoin(fiefMarches, eq(fiefMarches.fiefId, fiefs.id))
-      .where(eq(fiefs.playerId, playerId))
+      .where(eq(fiefs.id, fiefId))
       .$dynamic()
     const rows = await (this.read === 'lockedForUpdate'
       ? query.for('update', { of: fiefs })

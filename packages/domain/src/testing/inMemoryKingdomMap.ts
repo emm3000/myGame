@@ -1,15 +1,20 @@
+import type { FiefId } from '../fief/FiefId'
 import type { PlotAddress } from '../fief/PlotAddress'
 import type { PlayerId } from '../player/PlayerId'
 import type { KingdomMapReader } from '../ports/KingdomMapReader'
 
 export type HeldPlot = {
+  readonly fiefId: FiefId
   readonly playerId: PlayerId
   readonly name: string
   readonly address: PlotAddress
 }
 
 export const inMemoryKingdomMap = (heldPlots: ReadonlyArray<HeldPlot>): KingdomMapReader => ({
-  addressOf: async (playerId) => heldPlots.find((held) => held.playerId === playerId)?.address,
+  addressOf: async (fiefId) => {
+    const held = heldPlots.find((plot) => plot.fiefId === fiefId)
+    return held === undefined ? undefined : { address: held.address, playerId: held.playerId }
+  },
   lastOccupiedProvince: async (kingdom) =>
     Math.max(
       0,
