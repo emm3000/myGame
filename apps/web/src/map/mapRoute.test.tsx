@@ -80,13 +80,20 @@ it('names the fief that holds a plot', async () => {
   expect(within(plots[6] as HTMLElement).getByText('Castrofrio')).toBeDefined()
 })
 
-it('marks the fief of the viewer', async () => {
+it('marks the fief of the viewer as own', async () => {
   const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
-  const marked = plots.filter((plot) => plot.getAttribute('aria-current') === 'true')
-  expect(marked).toHaveLength(1)
-  expect(within(marked[0] as HTMLElement).getByText('Fuenteclara')).toBeDefined()
-  expect(within(marked[0] as HTMLElement).getByText('Tu feudo')).toBeDefined()
+  expect(within(plots[11] as HTMLElement).getByText('Fuenteclara')).toBeDefined()
+  expect(within(plots[11] as HTMLElement).getByText('Tu feudo')).toBeDefined()
+})
+
+it('marks no own fief as the one the map is read from', async () => {
+  const plots = await showPlots(
+    `${knownFiefPath}/mapa`,
+    plotsWith({ 7: { fief: { name: 'Sotoverde del Páramo', isOwn: true } } }),
+  )
+
+  expect(plots.filter((plot) => plot.hasAttribute('aria-current'))).toEqual([])
 })
 
 it('shows a free plot with the free line', async () => {
@@ -302,6 +309,13 @@ it('reads a plot the lord reserved', async () => {
 
 it('offers no action on a reserved plot', async () => {
   const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(true))
+
+  expect(await screen.findByRole('button', { name: copy.march.sendTo(6) })).toBeDefined()
+  expect(within(plots[4] as HTMLElement).queryByRole('button')).toBeNull()
+})
+
+it('offers no action on a plot another lord reserved', async () => {
+  const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(false))
 
   expect(await screen.findByRole('button', { name: copy.march.sendTo(6) })).toBeDefined()
   expect(within(plots[4] as HTMLElement).queryByRole('button')).toBeNull()
