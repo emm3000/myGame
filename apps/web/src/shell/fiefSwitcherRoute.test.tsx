@@ -1,5 +1,5 @@
 import type { FiefList } from '@mygame/contracts'
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -145,11 +145,23 @@ it('reads one fief as the design draws it', async () => {
 })
 
 it('keeps the navigation when the list fails', async () => {
+  const refusedList: ReturnType<ApiClient['fiefs']> = Promise.resolve({
+    ok: false,
+    refusal: 'Unexpected',
+  })
+  const reads: Array<string> = []
   renderAppAt(
     knownFiefPath,
-    signedInClient(async () => ({ ok: false, refusal: 'Unexpected' })),
+    signedInClient(() => {
+      reads.push('fiefs')
+      return refusedList
+    }),
   )
 
+  await waitFor(() => expect(reads).toHaveLength(1))
+  await act(async () => {
+    await refusedList
+  })
   const screens = await screen.findByRole('navigation')
 
   expect(
