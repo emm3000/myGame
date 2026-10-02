@@ -19,7 +19,9 @@ export { type EnqueueBuildingRequest, EnqueueBuildingRequestSchema } from './Enq
 export { type FiefChronicle, FiefChronicleSchema } from './FiefChronicle'
 export { type FiefContent, FiefContentSchema } from './FiefContent'
 export { type FiefEvent, FiefEventSchema } from './FiefEvent'
+export { type FiefList, FiefListSchema } from './FiefList'
 export { type FiefOverview, FiefOverviewSchema } from './FiefOverview'
+export { type FiefRequest, FiefRequestSchema } from './FiefRequest'
 export { type ForgotPasswordRequest, ForgotPasswordRequestSchema } from './ForgotPasswordRequest'
 export { type HealthResponse, HealthResponseSchema } from './HealthResponse'
 export {

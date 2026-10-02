@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, PlayerSchema } from '@mygame/contracts'
+import { ApiErrorSchema, FiefListSchema, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
-import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
@@ -163,11 +163,11 @@ describe('the auth routes', () => {
     const response = await signUpAna()
 
     expect(response.status).toBe(201)
-    const player = PlayerSchema.parse(await response.json())
-    const [fiefId] = await server.fiefs.fiefsOf(player.id)
-    assert(fiefId !== undefined)
-    const fief = await server.fiefs.fiefOf(fiefId)
-    expect(fief.ok && fief.value?.name.value).toBe('Valdehierro')
+    PlayerSchema.parse(await response.json())
+    const fiefs = await app.request('/fiefs', { headers: { cookie: sessionCookieOf(response) } })
+    expect(FiefListSchema.parse(await fiefs.json()).fiefs.map(({ name }) => name)).toEqual([
+      'Valdehierro',
+    ])
   })
 
   it('keeps no player when founding the fief fails', async () => {

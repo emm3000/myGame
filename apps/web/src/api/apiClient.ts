@@ -11,6 +11,8 @@ import {
   type EnqueueBuildingRequest,
   type FiefChronicle,
   FiefChronicleSchema,
+  type FiefList,
+  FiefListSchema,
   type FiefOverview,
   FiefOverviewSchema,
   type ForgotPasswordRequest,
@@ -39,18 +41,25 @@ export interface ApiClient {
   signIn(request: SignInRequest): Promise<ApiOutcome<Player>>
   signOut(): Promise<ApiOutcome<undefined>>
   currentPlayer(): Promise<Player | undefined>
-  fief(): Promise<ApiOutcome<FiefOverview>>
-  enqueueUpgrade(building: BuildingKind): Promise<ApiOutcome<FiefOverview>>
-  cancelUpgrade(target: CancelUpgradeRequest): Promise<ApiOutcome<FiefOverview>>
-  startStudy(art: ArtKind): Promise<ApiOutcome<FiefOverview>>
-  cancelStudy(target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
-  placeRecruitOrder(request: PlaceRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
-  cancelRecruitOrder(target: CancelRecruitOrderRequest): Promise<ApiOutcome<FiefOverview>>
-  dispatchMarch(request: DispatchMarchRequest): Promise<ApiOutcome<FiefOverview>>
-  dispatchAttack(request: DispatchAttackRequest): Promise<ApiOutcome<FiefOverview>>
-  recallMarch(target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
-  chronicle(): Promise<ApiOutcome<FiefChronicle>>
-  provinceMap(province?: number): Promise<ApiOutcome<ProvinceMap>>
+  fiefs(): Promise<ApiOutcome<FiefList>>
+  fief(fiefId: string): Promise<ApiOutcome<FiefOverview>>
+  enqueueUpgrade(fiefId: string, building: BuildingKind): Promise<ApiOutcome<FiefOverview>>
+  cancelUpgrade(fiefId: string, target: CancelUpgradeRequest): Promise<ApiOutcome<FiefOverview>>
+  startStudy(fiefId: string, art: ArtKind): Promise<ApiOutcome<FiefOverview>>
+  cancelStudy(fiefId: string, target: CancelStudyRequest): Promise<ApiOutcome<FiefOverview>>
+  placeRecruitOrder(
+    fiefId: string,
+    request: PlaceRecruitOrderRequest,
+  ): Promise<ApiOutcome<FiefOverview>>
+  cancelRecruitOrder(
+    fiefId: string,
+    target: CancelRecruitOrderRequest,
+  ): Promise<ApiOutcome<FiefOverview>>
+  dispatchMarch(fiefId: string, request: DispatchMarchRequest): Promise<ApiOutcome<FiefOverview>>
+  dispatchAttack(fiefId: string, request: DispatchAttackRequest): Promise<ApiOutcome<FiefOverview>>
+  recallMarch(fiefId: string, target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
+  chronicle(fiefId: string): Promise<ApiOutcome<FiefChronicle>>
+  provinceMap(fiefId: string, province?: number): Promise<ApiOutcome<ProvinceMap>>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
   resendVerification(): Promise<ApiRefusal | undefined>
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
@@ -85,6 +94,9 @@ const refusalOrNothing = async (
   }
   return response.ok ? undefined : refusalKindOf(response)
 }
+
+const fiefPathOf = (fiefId: string, path: string): string =>
+  `/fiefs/${encodeURIComponent(fiefId)}${path}`
 
 const playerOf = (response: Response): Promise<ApiOutcome<Player>> => bodyOf(response, PlayerSchema)
 
@@ -123,64 +135,76 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const outcome = await playerOf(response)
       return outcome.ok ? outcome.value : undefined
     },
-    fief: async () => {
-      const response = await send('/fief', { method: 'GET' })
+    fiefs: async () => {
+      const response = await send('/fiefs', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, FiefListSchema)
+    },
+    fief: async (fiefId) => {
+      const response = await send(fiefPathOf(fiefId, ''), { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    enqueueUpgrade: async (building) => {
+    enqueueUpgrade: async (fiefId, building) => {
       const request: EnqueueBuildingRequest = { building }
-      const response = await postJson('/fief/upgrades', request)
+      const response = await postJson(fiefPathOf(fiefId, '/upgrades'), request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    cancelUpgrade: async ({ building, targetLevel }) => {
-      const response = await send(`/fief/upgrades/${building}/${targetLevel}`, {
+    cancelUpgrade: async (fiefId, { building, targetLevel }) => {
+      const response = await send(fiefPathOf(fiefId, `/upgrades/${building}/${targetLevel}`), {
         method: 'DELETE',
       })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    startStudy: async (art) => {
+    startStudy: async (fiefId, art) => {
       const request: StartStudyRequest = { art }
-      const response = await postJson('/fief/studies', request)
+      const response = await postJson(fiefPathOf(fiefId, '/studies'), request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    cancelStudy: async ({ art, targetLevel }) => {
-      const response = await send(`/fief/studies/${art}/${targetLevel}`, { method: 'DELETE' })
-      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
-    },
-    placeRecruitOrder: async ({ unit, count }) => {
-      const request: PlaceRecruitOrderRequest = { unit, count }
-      const response = await postJson('/fief/recruit-orders', request)
-      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
-    },
-    cancelRecruitOrder: async ({ unit, startedAt }) => {
-      const response = await send(`/fief/recruit-orders/${unit}/${encodeURIComponent(startedAt)}`, {
+    cancelStudy: async (fiefId, { art, targetLevel }) => {
+      const response = await send(fiefPathOf(fiefId, `/studies/${art}/${targetLevel}`), {
         method: 'DELETE',
       })
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    dispatchMarch: async ({ province, plot, units, stayHours }) => {
+    placeRecruitOrder: async (fiefId, { unit, count }) => {
+      const request: PlaceRecruitOrderRequest = { unit, count }
+      const response = await postJson(fiefPathOf(fiefId, '/recruit-orders'), request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    cancelRecruitOrder: async (fiefId, { unit, startedAt }) => {
+      const response = await send(
+        fiefPathOf(fiefId, `/recruit-orders/${unit}/${encodeURIComponent(startedAt)}`),
+        {
+          method: 'DELETE',
+        },
+      )
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    dispatchMarch: async (fiefId, { province, plot, units, stayHours }) => {
       const request: DispatchMarchRequest = { province, plot, units, stayHours }
-      const response = await postJson('/fief/marches', request)
+      const response = await postJson(fiefPathOf(fiefId, '/marches'), request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    dispatchAttack: async ({ province, plot, units }) => {
+    dispatchAttack: async (fiefId, { province, plot, units }) => {
       const request: DispatchAttackRequest = { province, plot, units }
-      const response = await postJson('/fief/marches/attack', request)
+      const response = await postJson(fiefPathOf(fiefId, '/marches/attack'), request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    recallMarch: async ({ departedAt }) => {
-      const response = await send(`/fief/marches/${encodeURIComponent(departedAt)}/recall`, {
-        method: 'POST',
-      })
+    recallMarch: async (fiefId, { departedAt }) => {
+      const response = await send(
+        fiefPathOf(fiefId, `/marches/${encodeURIComponent(departedAt)}/recall`),
+        {
+          method: 'POST',
+        },
+      )
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    chronicle: async () => {
-      const response = await send('/fief/events', { method: 'GET' })
+    chronicle: async (fiefId) => {
+      const response = await send(fiefPathOf(fiefId, '/events'), { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, FiefChronicleSchema)
     },
-    provinceMap: async (province) => {
-      const path = province === undefined ? '/map' : `/map/${province}`
-      const response = await send(path, { method: 'GET' })
+    provinceMap: async (fiefId, province) => {
+      const provincePath = province === undefined ? '' : `/${province}`
+      const response = await send(fiefPathOf(fiefId, `/map${provincePath}`), { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, ProvinceMapSchema)
     },
     verifyEmail: async (token) => {

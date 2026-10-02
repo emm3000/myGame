@@ -8,18 +8,17 @@ import {
 } from '@mygame/domain'
 import { type Context, Hono } from 'hono'
 import { answerRefusal } from '../http/answerRefusal'
+import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { type RequireSoleFiefDependencies, requireSoleFief } from '../http/requireSoleFief'
 import type { CampReader } from '../kingdom/CampReader'
 import { provinceMapOf } from '../kingdom/provinceMapOf'
 
-export type MapDependencies = RequirePlayerDependencies &
-  RequireSoleFiefDependencies & {
-    readonly map: KingdomMapReader
-    readonly buildingCatalog: BuildingCatalog
-    readonly camps: CampReader
-    readonly clock: Clock
-  }
+export type MapDependencies = RequirePlayerDependencies & {
+  readonly map: KingdomMapReader
+  readonly buildingCatalog: BuildingCatalog
+  readonly camps: CampReader
+  readonly clock: Clock
+}
 
 export const mapRoutes = (dependencies: MapDependencies): Hono => {
   const answerProvince = async (c: Context, command: ReadProvinceMapCommand): Promise<Response> => {
@@ -36,10 +35,9 @@ export const mapRoutes = (dependencies: MapDependencies): Hono => {
     return c.json(body)
   }
   const signedInPlayer = requirePlayer(dependencies)
-  const soleFief = requireSoleFief(dependencies)
   return new Hono()
-    .get('/', signedInPlayer, soleFief, async (c) => answerProvince(c, c.var.fiefOfPlayer))
-    .get('/:province', signedInPlayer, soleFief, async (c) => {
+    .get('/', signedInPlayer, requireNamedFief, async (c) => answerProvince(c, c.var.fiefOfPlayer))
+    .get('/:province', signedInPlayer, requireNamedFief, async (c) => {
       const request = ProvinceMapRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })

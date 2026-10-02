@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, ProvinceMapSchema } from '@mygame/contracts'
-import { type Clock, Instant, ok } from '@mygame/domain'
+import { ApiErrorSchema, FiefListSchema, ProvinceMapSchema } from '@mygame/contracts'
+import { type Clock, type FiefId, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -47,6 +47,13 @@ const runSql = async (statement: string): Promise<void> => {
   }
 }
 
+type Lord = {
+  readonly cookie: string
+  readonly fiefId: FiefId
+}
+
+const unknownFiefId = '6d1f0c3a-2b4e-4c5d-9e8f-7a6b5c4d3e2f'
+
 const sessionCookieOf = (response: Response): string => {
   const [pair = ''] = (response.headers.get('set-cookie') ?? '').split(';')
   return pair
@@ -76,26 +83,31 @@ describe('the map route', () => {
     app = createApp({ ...server, clock })
   })
 
-  const signUp = async (email: string, fiefName: string): Promise<string> => {
+  const signUp = async (email: string, fiefName: string): Promise<Lord> => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email, password: 'hierro-y-lana', fiefName }),
     })
     expect(response.status).toBe(201)
-    return sessionCookieOf(response)
+    const cookie = sessionCookieOf(response)
+    const fiefs = await app.request('/fiefs', { headers: { cookie } })
+    const [fief] = FiefListSchema.parse(await fiefs.json()).fiefs
+    assert(fief !== undefined)
+    return { cookie, fiefId: fief.id }
   }
 
-  const mapOf = async (cookie: string, path = '/map'): Promise<Response> =>
-    app.request(path, { headers: { cookie } })
+  const mapOf = async (lord: Lord, path = ''): Promise<Response> =>
+    app.request(`/fiefs/${lord.fiefId}/map${path}`, { headers: { cookie: lord.cookie } })
 
-  it('opens the province of the signed-in fief', async () => {
-    for (let plot = 1; plot <= plotsPerProvince; plot += 1) {
+  it('opens the map on the province of the fief named in the path', async () => {
+    await signUp('bruno@example.com', 'Robledal')
+    for (let plot = 2; plot <= plotsPerProvince; plot += 1) {
       await signUp(`vecino-${plot}@example.com`, `Vecino ${plot}`)
     }
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await mapOf(cookie)
+    const response = await mapOf(ana)
 
     expect(response.status).toBe(200)
     const map = ProvinceMapSchema.parse(await response.json())
@@ -115,7 +127,7 @@ describe('the map route', () => {
     await signUp('ana@example.com', 'Valdehierro')
     const bruno = await signUp('bruno@example.com', 'Robledal')
 
-    const response = await mapOf(bruno, '/map/1')
+    const response = await mapOf(bruno, '/1')
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.plots.slice(0, 3)).toEqual([
@@ -126,9 +138,9 @@ describe('the map route', () => {
   })
 
   it('answers every plot of the province with its terrain', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await mapOf(cookie)
+    const response = await mapOf(ana)
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.terrain).toBe('lowlands')
@@ -138,9 +150,9 @@ describe('the map route', () => {
   })
 
   it('answers the province past the last held one with every plot free', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await mapOf(cookie, '/map/2')
+    const response = await mapOf(ana, '/2')
 
     expect(response.status).toBe(200)
     const map = ProvinceMapSchema.parse(await response.json())
@@ -153,9 +165,9 @@ describe('the map route', () => {
   })
 
   it('answers 404 for a province beyond the map', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await mapOf(cookie, '/map/3')
+    const response = await mapOf(ana, '/3')
 
     expect(response.status).toBe(404)
     expect(ApiErrorSchema.parse(await response.json())).toEqual({
@@ -165,31 +177,27 @@ describe('the map route', () => {
   })
 
   it('answers 400 for a province that is not a number', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const responses = await Promise.all(
-      ['/map/tres', '/map/0', '/map/1.5'].map((path) => mapOf(cookie, path)),
-    )
+    const responses = await Promise.all(['/tres', '/0', '/1.5'].map((path) => mapOf(ana, path)))
 
     expect(responses.map(({ status }) => status)).toEqual([400, 400, 400])
   })
 
-  it('answers 404 with FiefNotFound when the player holds no fief', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
-    await runSql(
-      'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
-    )
+  it('answers 404 with FiefNotFound for the fief of another player', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    const bruno = await signUp('bruno@example.com', 'Robledal')
 
-    const response = await mapOf(cookie)
+    const response = await mapOf({ cookie: bruno.cookie, fiefId: ana.fiefId })
 
     expect(response.status).toBe(404)
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
   })
 
   it('answers the camps of a province', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await mapOf(cookie, '/map/1')
+    const response = await mapOf(ana, '/1')
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.plots.filter(({ camp }) => camp !== null)).toEqual([
@@ -199,7 +207,7 @@ describe('the map route', () => {
   })
 
   it('answers a camp recorded beaten regrown an hour later', async () => {
-    const cookie = await signUp('ana@example.com', 'Valdehierro')
+    const ana = await signUp('ana@example.com', 'Valdehierro')
     const beatenTierOneCamp = {
       kingdom: 1,
       province: 1,
@@ -212,14 +220,16 @@ describe('the map route', () => {
     )
     clock.advanceMinutes(60)
 
-    const response = await mapOf(cookie, '/map/1')
+    const response = await mapOf(ana, '/1')
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.plots[11]).toEqual({ plot: 12, fief: null, camp: { tier: 1, strength: 1 } })
   })
 
   it('answers 401 without a session', async () => {
-    const responses = await Promise.all(['/map', '/map/1'].map((path) => app.request(path)))
+    const responses = await Promise.all(
+      ['', '/1'].map((path) => app.request(`/fiefs/${unknownFiefId}/map${path}`)),
+    )
 
     expect(responses.map(({ status }) => status)).toEqual([401, 401])
   })

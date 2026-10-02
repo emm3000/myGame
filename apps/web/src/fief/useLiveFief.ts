@@ -83,7 +83,7 @@ function useDisplayClock(isLive: boolean): number {
   return nowMs
 }
 
-export function useLiveFief(apiClient: ApiClient): LiveFiefHandle {
+export function useLiveFief(apiClient: ApiClient, fiefId: string): LiveFiefHandle {
   const [lastRead, setLastRead] = useState<LastRead>()
   const [refusal, setRefusal] = useState<ApiRefusal>()
   const isReading = useRef(false)
@@ -93,7 +93,7 @@ export function useLiveFief(apiClient: ApiClient): LiveFiefHandle {
       return
     }
     isReading.current = true
-    const outcome = await apiClient.fief()
+    const outcome = await apiClient.fief(fiefId)
     isReading.current = false
     if (outcome.ok) {
       setLastRead({ overview: outcome.value, receivedAtMs: Date.now() })
@@ -101,7 +101,7 @@ export function useLiveFief(apiClient: ApiClient): LiveFiefHandle {
       return
     }
     setRefusal(outcome.refusal)
-  }, [apiClient])
+  }, [apiClient, fiefId])
 
   const adopt = useCallback((overview: FiefOverview): void => {
     setLastRead({ overview, receivedAtMs: Date.now() })

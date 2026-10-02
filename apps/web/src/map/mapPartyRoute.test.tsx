@@ -3,7 +3,12 @@ import { fireEvent, screen, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 const fiefWithAParty: FiefOverview = {
@@ -44,7 +49,7 @@ const mixedMarchAway: NonNullable<FiefOverview['march']> = {
 
 const showMap = async (overrides: Partial<ApiClient>): Promise<void> => {
   renderAppAt(
-    `/mapa/${uplandsWithACamp.province}`,
+    `${knownFiefPath}/mapa/${uplandsWithACamp.province}`,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: fiefWithAParty }),
@@ -192,7 +197,7 @@ it('blocks more riders than are at home', async () => {
 
 it('sends both counts and shows them sent', async () => {
   const dispatchMarch = vi.fn(
-    async (_request: DispatchMarchRequest) =>
+    async (_fiefId: string, _request: DispatchMarchRequest) =>
       ({ ok: true, value: { ...fiefWithAParty, march: mixedMarchAway } }) as const,
   )
   const form = await openMarchTo7({ dispatchMarch })
@@ -202,7 +207,7 @@ it('sends both counts and shows them sent', async () => {
   fireEvent.click(sendButton(form))
 
   const sent = await screen.findByRole('status')
-  expect(dispatchMarch).toHaveBeenCalledWith({
+  expect(dispatchMarch).toHaveBeenCalledWith(knownFief.id, {
     province: 2,
     plot: 7,
     units: { infantry: 12, cavalry: 6 },

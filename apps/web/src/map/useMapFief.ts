@@ -12,12 +12,12 @@ export interface MapFief {
   readonly adopt: (overview: FiefOverview) => void
 }
 
-export function useMapFief(apiClient: ApiClient): MapFief {
+export function useMapFief(apiClient: ApiClient, fiefId: string): MapFief {
   const [state, setState] = useState<MapFiefState>({ kind: 'loading' })
 
   useEffect(() => {
     let isCurrent = true
-    void apiClient.fief().then((outcome) => {
+    void apiClient.fief(fiefId).then((outcome) => {
       if (!isCurrent) {
         return
       }
@@ -30,7 +30,7 @@ export function useMapFief(apiClient: ApiClient): MapFief {
     return () => {
       isCurrent = false
     }
-  }, [apiClient])
+  }, [apiClient, fiefId])
 
   return { state, adopt: (overview) => setState({ kind: 'read', overview }) }
 }

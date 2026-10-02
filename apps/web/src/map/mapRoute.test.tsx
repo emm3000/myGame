@@ -3,7 +3,12 @@ import { fireEvent, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownPlayer, knownProvinceMap, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFiefPath,
+  knownPlayer,
+  knownProvinceMap,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 const signedInClientServing = (provinceMap: ApiClient['provinceMap']): ApiClient =>
@@ -13,7 +18,7 @@ const recordingClient = (
   answer: (province: number | undefined) => ProvinceMap,
 ): { readonly client: ApiClient; readonly requested: Array<number | undefined> } => {
   const requested: Array<number | undefined> = []
-  const client = signedInClientServing(async (province) => {
+  const client = signedInClientServing(async (_fiefId, province) => {
     requested.push(province)
     return { ok: true, value: answer(province) }
   })
@@ -23,7 +28,7 @@ const recordingClient = (
 it('opens the province of the fief when no number is named', async () => {
   const { client, requested } = recordingClient(() => knownProvinceMap)
 
-  renderAppAt('/mapa', client)
+  renderAppAt(`${knownFiefPath}/mapa`, client)
 
   expect(
     await screen.findByRole('heading', { level: 3, name: 'Vadoalto, provincia 3' }),
@@ -48,7 +53,7 @@ const button = async (name: string): Promise<HTMLButtonElement> =>
   (await screen.findByRole('button', { name })) as HTMLButtonElement
 
 it('lists every plot the api answered with its terrain', async () => {
-  const plots = await showPlots('/mapa', knownProvinceMap)
+  const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
   expect(plots).toHaveLength(15)
   plots.forEach((plot, index) => {
@@ -59,13 +64,13 @@ it('lists every plot the api answered with its terrain', async () => {
 })
 
 it('names the fief that holds a plot', async () => {
-  const plots = await showPlots('/mapa', knownProvinceMap)
+  const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
   expect(within(plots[6] as HTMLElement).getByText('Castrofrio')).toBeDefined()
 })
 
 it('marks the fief of the viewer', async () => {
-  const plots = await showPlots('/mapa', knownProvinceMap)
+  const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
   const marked = plots.filter((plot) => plot.getAttribute('aria-current') === 'true')
   expect(marked).toHaveLength(1)
@@ -74,27 +79,31 @@ it('marks the fief of the viewer', async () => {
 })
 
 it('shows a free plot with the free line', async () => {
-  const plots = await showPlots('/mapa', knownProvinceMap)
+  const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
   expect(within(plots[1] as HTMLElement).getByText('libre')).toBeDefined()
   expect(within(plots[1] as HTMLElement).queryByText('Tu feudo')).toBeNull()
 })
 
 it('names the terrain of the province the api answered', async () => {
-  await showPlots('/mapa/1', { ...knownProvinceMap, province: 1, terrain: 'lowlands' })
+  await showPlots(`${knownFiefPath}/mapa/1`, {
+    ...knownProvinceMap,
+    province: 1,
+    terrain: 'lowlands',
+  })
 
   expect(screen.getByText('Terreno: vega')).toBeDefined()
 })
 
 it('disables previous on the first province', async () => {
-  await showPlots('/mapa/1', { ...knownProvinceMap, province: 1 })
+  await showPlots(`${knownFiefPath}/mapa/1`, { ...knownProvinceMap, province: 1 })
 
   expect((await button('Provincia anterior')).disabled).toBe(true)
   expect((await button('Provincia siguiente')).disabled).toBe(false)
 })
 
 it('disables next on the last province of the map', async () => {
-  await showPlots('/mapa/4', { ...knownProvinceMap, province: 4, lastProvince: 4 })
+  await showPlots(`${knownFiefPath}/mapa/4`, { ...knownProvinceMap, province: 4, lastProvince: 4 })
 
   expect((await button('Provincia siguiente')).disabled).toBe(true)
   expect((await button('Provincia anterior')).disabled).toBe(false)
@@ -102,7 +111,7 @@ it('disables next on the last province of the map', async () => {
 
 it('moves to the previous province', async () => {
   const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt('/mapa', client)
+  renderAppAt(`${knownFiefPath}/mapa`, client)
 
   fireEvent.click(await button('Provincia anterior'))
 
@@ -114,7 +123,7 @@ it('moves to the previous province', async () => {
 
 it('moves to the next province', async () => {
   const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt('/mapa/2', client)
+  renderAppAt(`${knownFiefPath}/mapa/2`, client)
 
   fireEvent.click(await button('Provincia siguiente'))
 
@@ -133,7 +142,7 @@ const typeProvince = async (typed: string): Promise<void> => {
 
 it('jumps to the province typed', async () => {
   const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt('/mapa', client)
+  renderAppAt(`${knownFiefPath}/mapa`, client)
 
   await typeProvince('1')
 
@@ -145,7 +154,7 @@ it('jumps to the province typed', async () => {
 
 it('sends no request for a typed province beyond the map', async () => {
   const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt('/mapa', client)
+  renderAppAt(`${knownFiefPath}/mapa`, client)
 
   await typeProvince('5')
 
@@ -155,7 +164,7 @@ it('sends no request for a typed province beyond the map', async () => {
 
 it('shows the Spanish refusal for a province beyond the map', async () => {
   renderAppAt(
-    '/mapa/9',
+    `${knownFiefPath}/mapa/9`,
     signedInClientServing(async () => ({ ok: false, refusal: 'ProvinceNotFound' })),
   )
 
@@ -167,8 +176,8 @@ it('shows the Spanish refusal for a province beyond the map', async () => {
 it("leads back from a province beyond the map to the viewer's own province", async () => {
   const requested: Array<number | undefined> = []
   renderAppAt(
-    '/mapa/9',
-    signedInClientServing(async (province) => {
+    `${knownFiefPath}/mapa/9`,
+    signedInClientServing(async (_fiefId, province) => {
       requested.push(province)
       return province === undefined
         ? { ok: true, value: knownProvinceMap }
@@ -184,18 +193,21 @@ it("leads back from a province beyond the map to the viewer's own province", asy
   expect(requested).toEqual([9, undefined])
 })
 
-it.each(['/mapa/0', '/mapa/abc'])('refuses %s without asking the api', async (path) => {
-  const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt(path, client)
+it.each([`${knownFiefPath}/mapa/0`, `${knownFiefPath}/mapa/abc`])(
+  'refuses %s without asking the api',
+  async (path) => {
+    const { client, requested } = recordingClient(provinceNumbered)
+    renderAppAt(path, client)
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.ProvinceNotFound)
-  expect(screen.getByRole('link', { name: 'Ir a tu provincia' })).toBeDefined()
-  expect(requested).toEqual([])
-})
+    expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.ProvinceNotFound)
+    expect(screen.getByRole('link', { name: 'Ir a tu provincia' })).toBeDefined()
+    expect(requested).toEqual([])
+  },
+)
 
 it('shows the Spanish refusal when the map cannot be read', async () => {
   renderAppAt(
-    '/mapa',
+    `${knownFiefPath}/mapa`,
     signedInClientServing(async () => ({ ok: false, refusal: 'Unexpected' })),
   )
 
@@ -205,7 +217,7 @@ it('shows the Spanish refusal when the map cannot be read', async () => {
 
 it('shows the loading line while the map is being read', async () => {
   renderAppAt(
-    '/mapa',
+    `${knownFiefPath}/mapa`,
     signedInClientServing(() => new Promise(() => undefined)),
   )
 
@@ -214,7 +226,7 @@ it('shows the loading line while the map is being read', async () => {
 
 it('reads the map once when the screen opens', async () => {
   const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt('/mapa/3', client)
+  renderAppAt(`${knownFiefPath}/mapa/3`, client)
 
   await screen.findByRole('heading', { level: 3, name: 'Vadoalto, provincia 3' })
 
@@ -223,7 +235,7 @@ it('reads the map once when the screen opens', async () => {
 
 it('opens the province of the fief from its address', async () => {
   const { client, requested } = recordingClient(provinceNumbered)
-  renderAppAt('/', client)
+  renderAppAt(knownFiefPath, client)
 
   fireEvent.click(await screen.findByRole('link', { name: 'Vadoalto 3:12' }))
 

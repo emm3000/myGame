@@ -3,7 +3,12 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 const fiefWithTenInfantry: FiefOverview = {
@@ -64,7 +69,7 @@ const deferred = <T,>(): Deferred<T> => {
 
 const showMap = async (overrides: Partial<ApiClient> = {}): Promise<HTMLElement[]> => {
   renderAppAt(
-    `/mapa/${uplandsWithCamps.province}`,
+    `${knownFiefPath}/mapa/${uplandsWithCamps.province}`,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: fiefWithTenInfantry }),
@@ -241,7 +246,8 @@ it('blocks a count that is not a whole number from 0', async () => {
 
 it('sends the attack and shows it sent', async () => {
   const dispatchAttack = vi.fn(
-    async (_request: DispatchAttackRequest) => ({ ok: true, value: fiefWithAttackAway }) as const,
+    async (_fiefId: string, _request: DispatchAttackRequest) =>
+      ({ ok: true, value: fiefWithAttackAway }) as const,
   )
   const form = await openAttackOn(7, { dispatchAttack })
 
@@ -249,7 +255,7 @@ it('sends the attack and shows it sent', async () => {
   fireEvent.click(attackButton(form))
 
   const sent = await screen.findByRole('status')
-  expect(dispatchAttack).toHaveBeenCalledWith({
+  expect(dispatchAttack).toHaveBeenCalledWith(knownFief.id, {
     province: 2,
     plot: 7,
     units: { infantry: 10, cavalry: 0 },

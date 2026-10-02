@@ -6,8 +6,8 @@ import {
   type DomainError,
   type Fief,
   type FiefOfPlayer,
-  type FiefRepository,
   ok,
+  type ResolveUpgradeDependencies,
   type Result,
   resolveUpgrade,
 } from '@mygame/domain'
@@ -22,10 +22,7 @@ export type CurrentFiefDependencies = {
   readonly clock: Clock
 }
 
-const dryRunOver = (fiefs: FiefReader): FiefRepository => ({
-  occupiedPlots: () => fiefs.occupiedPlots(),
-  holdsFief: (playerId) => fiefs.holdsFief(playerId),
-  fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
+const dryRunOver = (fiefs: FiefReader): ResolveUpgradeDependencies['fiefs'] => ({
   fiefOf: (fiefId) => fiefs.fiefOf(fiefId),
   save: async () => ok(undefined),
 })

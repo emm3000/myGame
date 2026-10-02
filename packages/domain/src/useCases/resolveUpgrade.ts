@@ -25,7 +25,7 @@ import type { Instant } from '../time/Instant'
 export type ResolveUpgradeCommand = FiefOfPlayer
 
 export type ResolveUpgradeDependencies = {
-  readonly fiefs: FiefRepository
+  readonly fiefs: Pick<FiefRepository, 'fiefOf' | 'save'>
   readonly chronicle: ChronicleWriter
   readonly camps: CampRegistry
   readonly catalog: BuildingCatalog

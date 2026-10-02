@@ -3,7 +3,12 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 
 beforeEach(() => {
@@ -56,7 +61,7 @@ const sawmillWithTwoWaiting: FiefOverview = {
 
 const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: sawmillUpgradeUnderWay }),
@@ -95,7 +100,7 @@ it('cancels the upgrade in progress from the slot', async () => {
   await passSeconds(0)
 
   expect(cancelUpgrade).toHaveBeenCalledTimes(1)
-  expect(cancelUpgrade).toHaveBeenCalledWith({ building: 'sawmill', targetLevel: 2 })
+  expect(cancelUpgrade).toHaveBeenCalledWith(knownFief.id, { building: 'sawmill', targetLevel: 2 })
   expect(screen.getByText(copy.names.idleSlot)).toBeDefined()
   expect(screen.queryByRole('button', { name: copy.fief.cancelOf('sawmill', 2) })).toBeNull()
 })
@@ -116,7 +121,7 @@ it('cancels a waiting upgrade from its row', async () => {
   fireEvent.click(within(farmRow).getByRole('button', { name: copy.fief.cancelOf('farm', 2) }))
   await passSeconds(0)
 
-  expect(cancelUpgrade).toHaveBeenCalledWith({ building: 'farm', targetLevel: 2 })
+  expect(cancelUpgrade).toHaveBeenCalledWith(knownFief.id, { building: 'farm', targetLevel: 2 })
   expect(waitingRows()).toHaveLength(1)
 })
 
@@ -129,7 +134,7 @@ it('names in each cancel the entry its row shows', async () => {
   fireEvent.click(within(quarryRow).getByRole('button'))
   await passSeconds(0)
 
-  expect(cancelUpgrade).toHaveBeenCalledWith({ building: 'quarry', targetLevel: 2 })
+  expect(cancelUpgrade).toHaveBeenCalledWith(knownFief.id, { building: 'quarry', targetLevel: 2 })
   expect(within(quarryRow).getByRole('button').getAttribute('aria-label')).toBe(
     copy.fief.cancelOf('quarry', 2),
   )

@@ -4,7 +4,12 @@ import type { ReactElement } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
 import { CavalryIcon } from '../design-system/icons/CavalryIcon'
 import { InfantryIcon } from '../design-system/icons/InfantryIcon'
@@ -43,7 +48,7 @@ const showFief = async (
   overrides: Partial<ApiClient> = {},
 ): Promise<void> => {
   renderAppAt(
-    '/',
+    knownFiefPath,
     stubApiClient({
       currentPlayer: async () => knownPlayer,
       fief: async () => ({ ok: true, value: overview }),
@@ -142,7 +147,7 @@ it('recruits riders at barracks level 3', async () => {
   fireEvent.click(within(riderCard()).getByRole('button', { name: 'Reclutar jinetes · 2:30' }))
   await passSeconds(0)
 
-  expect(placeRecruitOrder).toHaveBeenCalledWith({ unit: 'cavalry', count: 2 })
+  expect(placeRecruitOrder).toHaveBeenCalledWith(knownFief.id, { unit: 'cavalry', count: 2 })
   expect(within(riderCard()).queryByText('Requiere cuartel de nivel 3')).toBeNull()
 })
 

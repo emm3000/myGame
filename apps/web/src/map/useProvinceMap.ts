@@ -9,6 +9,7 @@ export type ProvinceMapState =
 
 export function useProvinceMap(
   apiClient: ApiClient,
+  fiefId: string,
   province: number | undefined,
 ): ProvinceMapState {
   const [state, setState] = useState<ProvinceMapState>({ kind: 'loading' })
@@ -16,7 +17,7 @@ export function useProvinceMap(
   useEffect(() => {
     let isCurrent = true
     setState({ kind: 'loading' })
-    void apiClient.provinceMap(province).then((outcome) => {
+    void apiClient.provinceMap(fiefId, province).then((outcome) => {
       if (!isCurrent) {
         return
       }
@@ -29,7 +30,7 @@ export function useProvinceMap(
     return () => {
       isCurrent = false
     }
-  }, [apiClient, province])
+  }, [apiClient, fiefId, province])
 
   return state
 }

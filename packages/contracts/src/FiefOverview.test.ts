@@ -161,6 +161,7 @@ const shippedCombatTerms = {
 }
 
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
+  id: '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a',
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 2, plot: 3 },
   terrain: 'uplands',
@@ -207,6 +208,12 @@ describe('FiefOverviewSchema', () => {
     const idleOverview = overviewWithSlot({ kind: 'idle' })
 
     expect(FiefOverviewSchema.parse(idleOverview)).toEqual(idleOverview)
+  })
+
+  it('rejects a fief overview without its fief id', () => {
+    const { id: _id, ...withoutId } = overviewWithSlot({ kind: 'idle' })
+
+    expect(FiefOverviewSchema.safeParse(withoutId).success).toBe(false)
   })
 
   it('rejects a finish instant that is not an ISO 8601 string', () => {

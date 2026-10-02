@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
   FiefChronicleSchema,
+  FiefListSchema,
   type FiefOverview,
   FiefOverviewSchema,
   PlayerSchema,
@@ -107,14 +108,21 @@ const statementTextOf = (query: unknown): string => {
 type AttackedMarch = Extract<NonNullable<FiefOverview['march']>, { order: 'attack' }>
 
 type SentAttack = {
-  readonly cookie: string
+  readonly lord: Lord
   readonly sent: AttackedMarch
 }
 
 type SignedUpPlayer = {
   readonly cookie: string
   readonly playerId: PlayerId
+  readonly fiefId: FiefId
 }
+
+type Lord = Pick<SignedUpPlayer, 'cookie' | 'fiefId'>
+
+const unknownFiefId = '6d1f0c3a-2b4e-4c5d-9e8f-7a6b5c4d3e2f'
+
+const pathOf = (lord: Lord, path: string): string => `/fiefs/${lord.fiefId}${path}`
 
 const signUpRequest = (email: string, fiefName: string): RequestInit => ({
   method: 'POST',
@@ -158,20 +166,16 @@ describe('the fief route', () => {
   const signUp = async (email: string, fiefName: string): Promise<SignedUpPlayer> => {
     const response = await app.request('/auth/sign-up', signUpRequest(email, fiefName))
     const player = PlayerSchema.parse(await response.json())
-    return { cookie: sessionCookieOf(response), playerId: player.id }
+    const cookie = sessionCookieOf(response)
+    const fiefs = await app.request('/fiefs', { headers: { cookie } })
+    const [fief] = FiefListSchema.parse(await fiefs.json()).fiefs
+    assert(fief !== undefined)
+    return { cookie, playerId: player.id, fiefId: fief.id }
   }
 
-  const soleFiefIdOf = async (playerId: PlayerId): Promise<FiefId> => {
-    const [fiefId] = await server.fiefs.fiefsOf(playerId)
-    assert(fiefId !== undefined)
-    return fiefId
-  }
+  const storedFiefOf = async ({ fiefId }: SignedUpPlayer) => server.fiefs.fiefOf(fiefId)
 
-  const storedFiefOf = async (playerId: PlayerId) =>
-    server.fiefs.fiefOf(await soleFiefIdOf(playerId))
-
-  const enqueueSawmill = async (playerId: PlayerId): Promise<void> => {
-    const fiefId = await soleFiefIdOf(playerId)
+  const enqueueSawmill = async ({ playerId, fiefId }: SignedUpPlayer): Promise<void> => {
     const enqueued = await server.inTransaction(({ fiefs }) =>
       enqueueBuilding(
         { playerId, fiefId, building: 'sawmill' },
@@ -181,8 +185,8 @@ describe('the fief route', () => {
     expect(enqueued.ok).toBe(true)
   }
 
-  const fiefOf = async (cookie: string): Promise<Response> =>
-    app.request('/fief', { headers: { cookie } })
+  const fiefOf = async (lord: Lord): Promise<Response> =>
+    app.request(pathOf(lord, ''), { headers: { cookie: lord.cookie } })
 
   const provinceTwoPlotWhere = (isWanted: (tier: number | undefined) => boolean): number => {
     const { camps } = server.buildingCatalog.fiefSettings()
@@ -196,17 +200,17 @@ describe('the fief route', () => {
   const campPlotOfTier = (tier: number): number =>
     provinceTwoPlotWhere((campTier) => campTier === tier)
 
-  const enqueue = async (cookie: string, building: string): Promise<Response> =>
-    app.request('/fief/upgrades', {
+  const enqueue = async (lord: Lord, building: string): Promise<Response> =>
+    app.request(pathOf(lord, '/upgrades'), {
       method: 'POST',
-      headers: { cookie, 'content-type': 'application/json' },
+      headers: { cookie: lord.cookie, 'content-type': 'application/json' },
       body: JSON.stringify({ building }),
     })
 
   it('answers the fief of the signed-in player', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     expect(response.status).toBe(200)
     const overview = FiefOverviewSchema.parse(await response.json())
@@ -229,7 +233,7 @@ describe('the fief route', () => {
   it('answers the base rate of every resource on a new lowlands fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
     expect({
@@ -255,7 +259,7 @@ describe('the fief route', () => {
   it('answers each building with the cost, duration and peasants of its next level', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.sawmill).toEqual({ level: 0, nextLevel: sawmillLevelOne })
@@ -267,7 +271,7 @@ describe('the fief route', () => {
   it('answers the library at level zero with the cost of its first level', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.library).toEqual({
@@ -285,7 +289,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await buildSawmillAt(10)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.sawmill).toEqual({ level: 10, nextLevel: null })
@@ -295,7 +299,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await buildSawmillAt(1)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.sawmill.nextLevel).toEqual({
@@ -306,31 +310,50 @@ describe('the fief route', () => {
     })
   })
 
-  it('refuses to answer another player fief', async () => {
-    const ana = await signUp('ana@example.com', 'Valdehierro')
+  it('answers the overview of a fief by its id', async () => {
+    await signUp('ana@example.com', 'Valdehierro')
     const bruno = await signUp('bruno@example.com', 'Robledal')
 
-    const response = await app.request(`/fief?playerId=${ana.playerId}`, {
-      headers: { cookie: bruno.cookie },
-    })
+    const response = await fiefOf(bruno)
 
+    expect(response.status).toBe(200)
     const overview = FiefOverviewSchema.parse(await response.json())
+    expect(overview.id).toBe(bruno.fiefId)
     expect(overview.name).toBe('Robledal')
     expect(overview.coordinates).toEqual({ kingdom: 1, province: 1, plot: 2 })
   })
 
+  it('refuses the fief of another player with 404', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    const bruno = await signUp('bruno@example.com', 'Robledal')
+
+    const response = await fiefOf({ cookie: bruno.cookie, fiefId: ana.fiefId })
+
+    expect(response.status).toBe(404)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
+  })
+
+  it('answers 400 for a fief id that is not a uuid', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await fiefOf({ cookie: ana.cookie, fiefId: 'valdehierro' })
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
   it('applies a finished upgrade on the read and persists it', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await enqueueSawmill(ana.playerId)
+    await enqueueSawmill(ana)
     clock.advanceMinutes(3)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.buildings.sawmill.level).toBe(1)
     expect(overview.resources.wood.ratePerHour).toBe(40)
     expect(overview.slot).toEqual({ kind: 'idle' })
-    const stored = await storedFiefOf(ana.playerId)
+    const stored = await storedFiefOf(ana)
     expect(stored.ok && stored.value?.buildingLevels.sawmill).toBe(1)
     expect(stored.ok && stored.value?.slot).toEqual({ kind: 'idle' })
   })
@@ -344,21 +367,21 @@ describe('the fief route', () => {
     )
     clock.advanceMinutes(60)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.resources.iron.ratePerHour).toBe(5.25)
-    const stored = await storedFiefOf(ana.playerId)
+    const stored = await storedFiefOf(ana)
     expect(stored.ok && stored.value?.artLevels).toEqual({ smithing: 1, masonry: 0 })
     expect(stored.ok && stored.value?.studySlot).toEqual({ kind: 'idle' })
   })
 
   it('writes the finish a read applied at its finish instant', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await enqueueSawmill(ana.playerId)
+    await enqueueSawmill(ana)
     clock.advanceMinutes(3)
 
-    await fiefOf(ana.cookie)
+    await fiefOf(ana)
 
     expect(await storedEvents()).toEqual([
       {
@@ -376,7 +399,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(90)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
     expect(resources.food).toEqual({ amount: 322, ratePerHour: 15, capacity: 1000 })
@@ -386,7 +409,7 @@ describe('the fief route', () => {
   it('answers no season before the epoch', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season).toBeNull()
@@ -399,7 +422,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(minutesToFirstAutumnRead)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season).toMatchObject({ kind: 'autumn', year: 1, endsAt: '2026-10-26T00:00:00.000Z' })
@@ -409,7 +432,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(minutesToFirstAutumnRead)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { resources, season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.multiplierPercent.gold).toBe(125)
@@ -422,10 +445,10 @@ describe('the fief route', () => {
       (Date.parse('2026-10-26T00:00:00Z') - signedUpAt) / millisecondsPerMinute
     const minutesWithinTheSession = 20 * 24 * 60
     clock.advanceMinutes(minutesWithinTheSession)
-    await fiefOf(ana.cookie)
+    await fiefOf(ana)
     clock.advanceMinutes(minutesToFirstWinter - minutesWithinTheSession + 60)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { resources, season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('winter')
@@ -437,7 +460,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes((Date.parse('2026-10-13T08:00:00Z') - signedUpAt) / millisecondsPerMinute)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { buildings } = FiefOverviewSchema.parse(await response.json())
     expect(buildings.sawmill.nextLevel?.durationSeconds).toBe(90)
@@ -447,7 +470,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes((Date.parse('2026-10-14T08:00:00Z') - signedUpAt) / millisecondsPerMinute)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('summer')
@@ -458,7 +481,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes((Date.parse('2026-10-07T08:00:00Z') - signedUpAt) / millisecondsPerMinute)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('spring')
@@ -471,10 +494,10 @@ describe('the fief route', () => {
       (Date.parse('2026-10-28T08:00:00Z') - signedUpAt) / millisecondsPerMinute
     const minutesWithinTheSession = 20 * 24 * 60
     clock.advanceMinutes(minutesWithinTheSession)
-    await fiefOf(ana.cookie)
+    await fiefOf(ana)
     clock.advanceMinutes(minutesToWinterRead - minutesWithinTheSession)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('winter')
@@ -485,7 +508,7 @@ describe('the fief route', () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     clock.advanceMinutes(minutesToFirstAutumnRead)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
     expect(season?.kind).toBe('autumn')
@@ -497,7 +520,7 @@ describe('the fief route', () => {
     await runSql('UPDATE fiefs SET wood = 1200')
     clock.advanceMinutes(60)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
     expect(resources.wood).toEqual({ amount: 1200, ratePerHour: 10, capacity: 1000 })
@@ -505,10 +528,10 @@ describe('the fief route', () => {
 
   it('answers a finished upgrade with the amounts accrued at the old rate then the new one', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await enqueueSawmill(ana.playerId)
+    await enqueueSawmill(ana)
     clock.advanceMinutes(90)
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
     expect(resources.wood.amount).toBe(498)
@@ -516,14 +539,14 @@ describe('the fief route', () => {
 
   it('answers the stored fief to a read whose instant is earlier than the stored one', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await enqueueSawmill(ana.playerId)
+    await enqueueSawmill(ana)
     const laggingClock = movableClock()
     const laggingApp = createApp({ ...server, clock: laggingClock })
     clock.advanceMinutes(5)
     laggingClock.advanceMinutes(3)
-    await fiefOf(ana.cookie)
+    await fiefOf(ana)
 
-    const response = await laggingApp.request('/fief', { headers: { cookie: ana.cookie } })
+    const response = await laggingApp.request(pathOf(ana, ''), { headers: { cookie: ana.cookie } })
 
     expect(response.status).toBe(200)
     const overview = FiefOverviewSchema.parse(await response.json())
@@ -531,21 +554,18 @@ describe('the fief route', () => {
     expect(overview.resources.wood.amount).toBe(442)
   })
 
-  it('answers 404 with FiefNotFound when the player holds no fief', async () => {
+  it('answers 404 with FiefNotFound for an unknown fief id', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await runSql(
-      'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
-    )
 
-    const response = await fiefOf(ana.cookie)
+    const response = await fiefOf({ cookie: ana.cookie, fiefId: unknownFiefId })
 
     expect(response.status).toBe(404)
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
   })
 
-  it('reads a fief with nothing to resolve in one read after the lookup of its id', async () => {
+  it('reads a fief with nothing to resolve in one round trip to the store', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    await enqueueSawmill(ana.playerId)
+    await enqueueSawmill(ana)
     clock.advanceMinutes(1)
     const statements: Array<string> = []
     const query = Client.prototype.query
@@ -557,30 +577,49 @@ describe('the fief route', () => {
       return Reflect.apply(query, this, parameters)
     })
 
-    await fiefOf(ana.cookie)
+    await fiefOf(ana)
 
     const fiefStatements = statements.filter((statement) => statement.includes('from "fiefs"'))
-    expect(fiefStatements).toHaveLength(2)
-    expect(fiefStatements.filter((statement) => statement.includes('left join'))).toHaveLength(1)
+    expect(fiefStatements).toHaveLength(1)
     expect(statements.filter((statement) => !statement.includes('"sessions"'))).toEqual(
       fiefStatements,
     )
   })
 
   it('answers 401 without a session', async () => {
-    const response = await app.request('/fief')
+    const response = await app.request(`/fiefs/${unknownFiefId}`)
 
     expect(response.status).toBe(401)
   })
 
   describe('the chronicle route', () => {
-    const chronicleOf = async (cookie: string): Promise<Response> =>
-      app.request('/fief/events', { headers: { cookie } })
+    const chronicleOf = async (lord: Lord): Promise<Response> =>
+      app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
+
+    it('lists the chronicle of the fief named in the path', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+      await enqueue(bruno, 'sawmill')
+      clock.advanceMinutes(3)
+
+      const anaChronicle = await chronicleOf(ana)
+      const brunoChronicle = await chronicleOf(bruno)
+
+      expect(FiefChronicleSchema.parse(await anaChronicle.json()).events).toEqual([])
+      expect(FiefChronicleSchema.parse(await brunoChronicle.json()).events).toEqual([
+        {
+          kind: 'upgradeFinished',
+          building: 'sawmill',
+          level: 1,
+          occurredAt: '2026-09-22T08:02:00.000Z',
+        },
+      ])
+    })
 
     it('answers an empty chronicle for a new fief', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       expect(response.status).toBe(200)
       expect(FiefChronicleSchema.parse(await response.json())).toEqual({ events: [] })
@@ -595,7 +634,7 @@ describe('the fief route', () => {
       )
       clock.advanceMinutes(3)
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -616,7 +655,7 @@ describe('the fief route', () => {
       )
       clock.advanceMinutes(5)
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -630,14 +669,14 @@ describe('the fief route', () => {
 
     it('answers a cancel with the cost it refunded', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'ironMine')
+      await enqueue(ana, 'ironMine')
       clock.advanceMinutes(1)
-      await app.request('/fief/upgrades/ironMine/1', {
+      await app.request(pathOf(ana, '/upgrades/ironMine/1'), {
         method: 'DELETE',
         headers: { cookie: ana.cookie },
       })
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -659,7 +698,7 @@ describe('the fief route', () => {
          FROM fiefs`,
       )
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -684,7 +723,7 @@ describe('the fief route', () => {
       )
       clock.advanceMinutes(62)
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -701,16 +740,16 @@ describe('the fief route', () => {
 
     it('answers the chronicle newest first', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
       clock.advanceMinutes(3)
-      await enqueue(ana.cookie, 'quarry')
+      await enqueue(ana, 'quarry')
       clock.advanceMinutes(1)
-      await app.request('/fief/upgrades/quarry/1', {
+      await app.request(pathOf(ana, '/upgrades/quarry/1'), {
         method: 'DELETE',
         headers: { cookie: ana.cookie },
       })
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf(ana)
 
       const events = FiefChronicleSchema.parse(await response.json()).events
       expect(events.map(({ kind, occurredAt }) => ({ kind, occurredAt }))).toEqual([
@@ -719,31 +758,42 @@ describe('the fief route', () => {
       ])
     })
 
-    it('answers 404 with FiefNotFound when the player holds no fief', async () => {
+    it('answers 404 with FiefNotFound for an unknown fief id', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await runSql(
-        'TRUNCATE fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
-      )
 
-      const response = await chronicleOf(ana.cookie)
+      const response = await chronicleOf({ cookie: ana.cookie, fiefId: unknownFiefId })
 
       expect(response.status).toBe(404)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/events')
+      const response = await app.request(`/fiefs/${unknownFiefId}/events`)
 
       expect(response.status).toBe(401)
     })
   })
 
   describe('the enqueue route', () => {
+    it('enqueues an upgrade on the fief named in the path', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+
+      const response = await enqueue(bruno, 'sawmill')
+
+      const overview = FiefOverviewSchema.parse(await response.json())
+      expect(overview.id).toBe(bruno.fiefId)
+      const brunoFief = await server.fiefs.fiefOf(bruno.fiefId)
+      const anaFief = await server.fiefs.fiefOf(ana.fiefId)
+      expect(brunoFief.ok && brunoFief.value?.slot.kind).toBe('busy')
+      expect(anaFief.ok && anaFief.value?.slot.kind).toBe('idle')
+    })
+
     it('starts an upgrade and answers the fief with a busy slot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       clock.advanceMinutes(10)
 
-      const response = await enqueue(ana.cookie, 'sawmill')
+      const response = await enqueue(ana, 'sawmill')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -762,7 +812,7 @@ describe('the fief route', () => {
     it('starts a library upgrade in the idle slot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await enqueue(ana.cookie, 'library')
+      const response = await enqueue(ana, 'library')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -777,9 +827,9 @@ describe('the fief route', () => {
 
     it('queues a library upgrade behind the busy slot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
 
-      const response = await enqueue(ana.cookie, 'library')
+      const response = await enqueue(ana, 'library')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -795,9 +845,9 @@ describe('the fief route', () => {
 
     it('queues a barracks upgrade behind the busy slot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
 
-      const response = await enqueue(ana.cookie, 'barracks')
+      const response = await enqueue(ana, 'barracks')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -814,10 +864,10 @@ describe('the fief route', () => {
     it('answers the instant the upgrade started on a later read', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       clock.advanceMinutes(10)
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
       clock.advanceMinutes(1)
 
-      const response = await app.request('/fief', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, ''), { headers: { cookie: ana.cookie } })
 
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.readAt).toBe('2026-09-22T08:11:00.000Z')
@@ -828,10 +878,10 @@ describe('the fief route', () => {
 
     it('chains each waiting upgrade after the one before it', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'sawmill')
 
-      const response = await enqueue(ana.cookie, 'quarry')
+      const response = await enqueue(ana, 'quarry')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -853,10 +903,10 @@ describe('the fief route', () => {
 
     it('answers the next level of a building after its waiting upgrades', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'sawmill')
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { buildings, peasants } = FiefOverviewSchema.parse(await response.json())
       expect(buildings.sawmill).toEqual({
@@ -881,10 +931,10 @@ describe('the fief route', () => {
 
     it('answers the peasants a waiting farm will supply', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'farm')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'farm')
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { peasants } = FiefOverviewSchema.parse(await response.json())
       expect(peasants).toEqual({
@@ -900,10 +950,10 @@ describe('the fief route', () => {
 
     it('answers the lowest free peasants a busy upgrade leaves before a queued farm lands', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'farm')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'farm')
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { peasants } = FiefOverviewSchema.parse(await response.json())
       expect(peasants.lowestFree).toBe(9)
@@ -912,24 +962,24 @@ describe('the fief route', () => {
     it('refuses an upgrade when the queue is full', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       for (const building of ['sawmill', 'sawmill', 'quarry', 'farm', 'ironMine']) {
-        expect((await enqueue(ana.cookie, building)).status).toBe(200)
+        expect((await enqueue(ana, building)).status).toBe(200)
       }
-      const before = await storedFiefOf(ana.playerId)
+      const before = await storedFiefOf(ana)
 
-      const response = await enqueue(ana.cookie, 'warehouse')
+      const response = await enqueue(ana, 'warehouse')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'QueueFull',
         message: 'Ya no caben más obras en espera. Espera a que avance alguna.',
       })
-      expect(await storedFiefOf(ana.playerId)).toEqual(before)
+      expect(await storedFiefOf(ana)).toEqual(before)
     })
 
     it('applies three queued upgrades on the first read after they all finished', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       for (const building of ['sawmill', 'quarry', 'farm']) {
-        expect((await enqueue(ana.cookie, building)).status).toBe(200)
+        expect((await enqueue(ana, building)).status).toBe(200)
       }
       const statements: Array<string> = []
       const query = Client.prototype.query
@@ -943,7 +993,7 @@ describe('the fief route', () => {
       clock.advanceMinutes(7.5)
       const statementsBeforeRead = [...statements]
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       expect(statementsBeforeRead).toEqual([])
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -966,7 +1016,7 @@ describe('the fief route', () => {
         SELECT id, building, level FROM fiefs,
         (VALUES ('sawmill'::building, 4), ('quarry'::building, 3), ('iron_mine'::building, 3)) AS levels (building, level)`)
 
-      const response = await enqueue(ana.cookie, 'warehouse')
+      const response = await enqueue(ana, 'warehouse')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
@@ -977,24 +1027,24 @@ describe('the fief route', () => {
 
     it('leaves the stored fief unchanged when it refuses', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
       await runSql('UPDATE fiefs SET wood = 0')
-      const before = await storedFiefOf(ana.playerId)
+      const before = await storedFiefOf(ana)
       clock.advanceMinutes(3)
 
-      const response = await enqueue(ana.cookie, 'quarry')
+      const response = await enqueue(ana, 'quarry')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
-      expect(await storedFiefOf(ana.playerId)).toEqual(before)
+      expect(await storedFiefOf(ana)).toEqual(before)
     })
 
     it('completes a finished upgrade and starts the next one in the same call', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
       clock.advanceMinutes(3)
 
-      const response = await enqueue(ana.cookie, 'quarry')
+      const response = await enqueue(ana, 'quarry')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1006,7 +1056,7 @@ describe('the fief route', () => {
         startedAt: '2026-09-22T08:03:00.000Z',
         finishesAt: '2026-09-22T08:05:30.000Z',
       })
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       expect(stored.ok && stored.value?.buildingLevels.sawmill).toBe(1)
       expect(stored.ok && stored.value?.slot.kind).toBe('busy')
     })
@@ -1017,10 +1067,10 @@ describe('the fief route', () => {
       const laggingApp = createApp({ ...server, clock: laggingClock })
       clock.advanceMinutes(5)
       laggingClock.advanceMinutes(3)
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'sawmill')
       await runSql('UPDATE fiefs SET wood = 0')
 
-      const response = await laggingApp.request('/fief/upgrades', {
+      const response = await laggingApp.request(pathOf(ana, '/upgrades'), {
         method: 'POST',
         headers: { cookie: ana.cookie, 'content-type': 'application/json' },
         body: JSON.stringify({ building: 'quarry' }),
@@ -1033,13 +1083,13 @@ describe('the fief route', () => {
     it('answers 400 to a building the wire does not name', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await enqueue(ana.cookie, 'castle')
+      const response = await enqueue(ana, 'castle')
 
       expect(response.status).toBe(400)
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/upgrades', {
+      const response = await app.request(`/fiefs/${unknownFiefId}/upgrades`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ building: 'sawmill' }),
@@ -1051,21 +1101,21 @@ describe('the fief route', () => {
 
   describe('the cancel route', () => {
     const cancel = async (
-      cookie: string,
+      lord: Lord,
       building: string,
       targetLevel: string | number,
     ): Promise<Response> =>
-      app.request(`/fief/upgrades/${building}/${targetLevel}`, {
+      app.request(`/fiefs/${lord.fiefId}/upgrades/${building}/${targetLevel}`, {
         method: 'DELETE',
-        headers: { cookie },
+        headers: { cookie: lord.cookie },
       })
 
     it('cancels the upgrade in progress and answers the fief with the slot idle', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueueSawmill(ana.playerId)
+      await enqueueSawmill(ana)
       clock.advanceMinutes(1)
 
-      const response = await cancel(ana.cookie, 'sawmill', 1)
+      const response = await cancel(ana, 'sawmill', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1074,17 +1124,17 @@ describe('the fief route', () => {
       expect(overview.resources.wood.amount).toBe(500)
       expect(overview.resources.stone.amount).toBe(500)
       expect(overview.readAt).toBe('2026-09-22T08:01:00.000Z')
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       expect(stored.ok && stored.value?.slot).toEqual({ kind: 'idle' })
       expect(stored.ok && stored.value?.stocks.wood).toBe(500)
     })
 
     it('writes the cancel with its refund', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueueSawmill(ana.playerId)
+      await enqueueSawmill(ana)
       clock.advanceMinutes(1)
 
-      await cancel(ana.cookie, 'sawmill', 1)
+      await cancel(ana, 'sawmill', 1)
 
       expect(await storedEvents()).toEqual([
         {
@@ -1100,10 +1150,10 @@ describe('the fief route', () => {
 
     it('writes no event when the cancel is refused', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueueSawmill(ana.playerId)
+      await enqueueSawmill(ana)
       clock.advanceMinutes(3)
 
-      const response = await cancel(ana.cookie, 'sawmill', 1)
+      const response = await cancel(ana, 'sawmill', 1)
 
       expect(response.status).toBe(409)
       expect(await storedEvents()).toEqual([])
@@ -1111,11 +1161,11 @@ describe('the fief route', () => {
 
     it('cancels the upgrade in progress and answers the next one started at the cancel instant', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'quarry')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'quarry')
       clock.advanceMinutes(1)
 
-      const response = await cancel(ana.cookie, 'sawmill', 1)
+      const response = await cancel(ana, 'sawmill', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1131,11 +1181,11 @@ describe('the fief route', () => {
 
     it('cancels a waiting entry and answers the queue with the gap closed', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'quarry')
-      await enqueue(ana.cookie, 'farm')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'quarry')
+      await enqueue(ana, 'farm')
 
-      const response = await cancel(ana.cookie, 'quarry', 1)
+      const response = await cancel(ana, 'quarry', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1152,11 +1202,11 @@ describe('the fief route', () => {
 
     it('cancels in cascade the waiting level above a cancelled waiting one', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'quarry')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'sawmill')
+      await enqueue(ana, 'quarry')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'sawmill')
 
-      const response = await cancel(ana.cookie, 'sawmill', 1)
+      const response = await cancel(ana, 'sawmill', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1165,25 +1215,25 @@ describe('the fief route', () => {
       expect(overview.buildings.sawmill.nextLevel?.level).toBe(1)
       expect(overview.resources.wood.amount).toBe(450)
       expect(overview.resources.stone.amount).toBe(475)
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       expect(stored.ok && stored.value?.buildQueue).toEqual([])
     })
 
     it('answers 409 with UpgradeNotFound to an upgrade that finished before the cancel', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'quarry')
-      await enqueue(ana.cookie, 'farm')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'quarry')
+      await enqueue(ana, 'farm')
       clock.advanceMinutes(3)
 
-      const response = await cancel(ana.cookie, 'sawmill', 1)
+      const response = await cancel(ana, 'sawmill', 1)
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'UpgradeNotFound',
         message: 'Esa obra ya no está en tu cola. No queda nada que cancelar.',
       })
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.buildings.sawmill.level).toBe(1)
       expect(overview.slot).toMatchObject({ building: 'quarry', targetLevel: 1 })
       expect(overview.queue.entries).toMatchObject([{ building: 'farm', targetLevel: 1 }])
@@ -1191,12 +1241,12 @@ describe('the fief route', () => {
 
     it('cancels by name the upgrade that moved into the slot before the cancel', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueue(ana.cookie, 'sawmill')
-      await enqueue(ana.cookie, 'quarry')
-      await enqueue(ana.cookie, 'farm')
+      await enqueue(ana, 'sawmill')
+      await enqueue(ana, 'quarry')
+      await enqueue(ana, 'farm')
       clock.advanceMinutes(3)
 
-      const response = await cancel(ana.cookie, 'quarry', 1)
+      const response = await cancel(ana, 'quarry', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1214,28 +1264,30 @@ describe('the fief route', () => {
 
     it('answers 400 to an entry the wire does not name', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await enqueueSawmill(ana.playerId)
+      await enqueueSawmill(ana)
 
       const responses = await Promise.all([
-        cancel(ana.cookie, 'castle', 1),
-        cancel(ana.cookie, 'sawmill', 0),
-        cancel(ana.cookie, 'sawmill', 'uno'),
+        cancel(ana, 'castle', 1),
+        cancel(ana, 'sawmill', 0),
+        cancel(ana, 'sawmill', 'uno'),
       ])
 
       expect(responses.map(({ status }) => status)).toEqual([400, 400, 400])
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/upgrades/sawmill/1', { method: 'DELETE' })
+      const response = await app.request(`/fiefs/${unknownFiefId}/upgrades/sawmill/1`, {
+        method: 'DELETE',
+      })
 
       expect(response.status).toBe(401)
     })
   })
   describe('the study route', () => {
-    const study = async (cookie: string, art: string): Promise<Response> =>
-      app.request('/fief/studies', {
+    const study = async (lord: Lord, art: string): Promise<Response> =>
+      app.request(pathOf(lord, '/studies'), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify({ art }),
       })
 
@@ -1249,7 +1301,7 @@ describe('the fief route', () => {
       await runSql('UPDATE fiefs SET gold = 100')
       clock.advanceMinutes(10)
 
-      const response = await study(ana.cookie, 'smithing')
+      const response = await study(ana, 'smithing')
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1262,29 +1314,29 @@ describe('the fief route', () => {
       })
       expect(overview.resources.gold.amount).toBe(40)
       expect(overview.slot).toEqual({ kind: 'idle' })
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       expect(stored.ok && stored.value?.studySlot.kind).toBe('busy')
     })
 
     it('refuses a study without a library', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await runSql('UPDATE fiefs SET gold = 100')
-      const before = await storedFiefOf(ana.playerId)
+      const before = await storedFiefOf(ana)
 
-      const response = await study(ana.cookie, 'smithing')
+      const response = await study(ana, 'smithing')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('LibraryLevelTooLow')
-      expect(await storedFiefOf(ana.playerId)).toEqual(before)
+      expect(await storedFiefOf(ana)).toEqual(before)
     })
 
     it('refuses a second study while one runs', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildLibraryAt(1)
       await runSql('UPDATE fiefs SET gold = 1000')
-      expect((await study(ana.cookie, 'smithing')).status).toBe(200)
+      expect((await study(ana, 'smithing')).status).toBe(200)
 
-      const response = await study(ana.cookie, 'masonry')
+      const response = await study(ana, 'masonry')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('StudySlotBusy')
@@ -1294,7 +1346,7 @@ describe('the fief route', () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildLibraryAt(2)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { arts, study: studySlot } = FiefOverviewSchema.parse(await response.json())
       expect(studySlot).toEqual({ kind: 'idle' })
@@ -1319,10 +1371,10 @@ describe('the fief route', () => {
         (Date.parse('2026-10-26T00:00:00Z') - signedUpAt) / millisecondsPerMinute
       const minutesWithinTheSession = 20 * 24 * 60
       clock.advanceMinutes(minutesWithinTheSession)
-      await fiefOf(ana.cookie)
+      await fiefOf(ana)
       clock.advanceMinutes(minutesToFirstWinter - minutesWithinTheSession + 60)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { arts } = FiefOverviewSchema.parse(await response.json())
       expect(arts.smithing.nextLevel?.durationSeconds).toBe(450)
@@ -1331,7 +1383,7 @@ describe('the fief route', () => {
     it('names the resource each art raises', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { arts } = FiefOverviewSchema.parse(await response.json())
       expect(arts.smithing.resource).toBe('iron')
@@ -1341,13 +1393,13 @@ describe('the fief route', () => {
     it('answers 400 to an art the wire does not name', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await study(ana.cookie, 'alchemy')
+      const response = await study(ana, 'alchemy')
 
       expect(response.status).toBe(400)
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/studies', {
+      const response = await app.request(`/fiefs/${unknownFiefId}/studies`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ art: 'smithing' }),
@@ -1358,10 +1410,10 @@ describe('the fief route', () => {
   })
 
   describe('the recruit route', () => {
-    const recruit = async (cookie: string, body: unknown): Promise<Response> =>
-      app.request('/fief/recruit-orders', {
+    const recruit = async (lord: Lord, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, '/recruit-orders'), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify(body),
       })
 
@@ -1369,10 +1421,10 @@ describe('the fief route', () => {
       runSql(`INSERT INTO fief_buildings (fief_id, building, level)
         SELECT id, 'barracks'::building, ${level} FROM fiefs`)
 
-    const recruitThreeInfantryAtMinuteTen = async (cookie: string): Promise<void> => {
+    const recruitThreeInfantryAtMinuteTen = async (lord: Lord): Promise<void> => {
       await buildBarracksAt(1)
       clock.advanceMinutes(10)
-      expect((await recruit(cookie, { unit: 'infantry', count: 3 })).status).toBe(200)
+      expect((await recruit(lord, { unit: 'infantry', count: 3 })).status).toBe(200)
     }
 
     it('places an order and answers the recruit order open', async () => {
@@ -1380,7 +1432,7 @@ describe('the fief route', () => {
       await buildBarracksAt(1)
       clock.advanceMinutes(10)
 
-      const response = await recruit(ana.cookie, { unit: 'infantry', count: 3 })
+      const response = await recruit(ana, { unit: 'infantry', count: 3 })
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1399,10 +1451,10 @@ describe('the fief route', () => {
 
     it('answers the delivered units in the counts two periods later', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(1.5)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { units, recruitOrder } = FiefOverviewSchema.parse(await response.json())
       expect(units).toEqual({ infantry: 2, cavalry: 0 })
@@ -1411,10 +1463,10 @@ describe('the fief route', () => {
 
     it('answers no order and the whole count after the last delivery', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(5)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { units, recruitOrder, peasants } = FiefOverviewSchema.parse(await response.json())
       expect(units).toEqual({ infantry: 3, cavalry: 0 })
@@ -1424,10 +1476,12 @@ describe('the fief route', () => {
 
     it('records the delivered order in the chronicle', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(5)
 
-      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -1443,7 +1497,7 @@ describe('the fief route', () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildBarracksAt(2)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { recruitTerms } = FiefOverviewSchema.parse(await response.json())
       expect(recruitTerms).toEqual({
@@ -1467,7 +1521,7 @@ describe('the fief route', () => {
         (Date.parse('2026-10-07T08:00:00Z') - signedUpAt) / millisecondsPerMinute,
       )
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { recruitTerms } = FiefOverviewSchema.parse(await response.json())
       expect(recruitTerms.infantry.perUnitSeconds).toBe(23)
@@ -1480,9 +1534,9 @@ describe('the fief route', () => {
         (Date.parse('2026-10-07T08:00:00Z') - signedUpAt) / millisecondsPerMinute,
       )
 
-      expect((await recruit(ana.cookie, { unit: 'infantry', count: 3 })).status).toBe(200)
+      expect((await recruit(ana, { unit: 'infantry', count: 3 })).status).toBe(200)
 
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       assert(stored.ok)
       expect(stored.value?.recruitOrder).toMatchObject({ kind: 'open', perUnitSeconds: 34 })
     })
@@ -1493,10 +1547,10 @@ describe('the fief route', () => {
       clock.advanceMinutes(
         (Date.parse('2026-10-11T23:59:00Z') - signedUpAt) / millisecondsPerMinute,
       )
-      expect((await recruit(ana.cookie, { unit: 'infantry', count: 5 })).status).toBe(200)
+      expect((await recruit(ana, { unit: 'infantry', count: 5 })).status).toBe(200)
       clock.advanceMinutes(2)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const { season, recruitOrder, recruitTerms } = FiefOverviewSchema.parse(await response.json())
       expect(season?.kind).toBe('summer')
@@ -1507,16 +1561,16 @@ describe('the fief route', () => {
 
     it('refuses an order without a barracks', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      const before = await storedFiefOf(ana.playerId)
+      const before = await storedFiefOf(ana)
 
-      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1 })
+      const response = await recruit(ana, { unit: 'infantry', count: 1 })
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksNotBuilt',
         message: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
       })
-      expect(await storedFiefOf(ana.playerId)).toEqual(before)
+      expect(await storedFiefOf(ana)).toEqual(before)
     })
 
     it('recruits riders at barracks level 3 and counts them in the overview', async () => {
@@ -1524,9 +1578,9 @@ describe('the fief route', () => {
       await buildBarracksAt(3)
       clock.advanceMinutes(10)
 
-      const placed = await recruit(ana.cookie, { unit: 'cavalry', count: 2 })
+      const placed = await recruit(ana, { unit: 'cavalry', count: 2 })
       clock.advanceMinutes(2.5)
-      const read = await fiefOf(ana.cookie)
+      const read = await fiefOf(ana)
 
       expect(placed.status).toBe(200)
       expect(FiefOverviewSchema.parse(await placed.json()).recruitOrder).toEqual({
@@ -1559,23 +1613,23 @@ describe('the fief route', () => {
     it('refuses riders below barracks level 3', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildBarracksAt(2)
-      const before = await storedFiefOf(ana.playerId)
+      const before = await storedFiefOf(ana)
 
-      const response = await recruit(ana.cookie, { unit: 'cavalry', count: 1 })
+      const response = await recruit(ana, { unit: 'cavalry', count: 1 })
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksTooLow',
         message: 'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
       })
-      expect(await storedFiefOf(ana.playerId)).toEqual(before)
+      expect(await storedFiefOf(ana)).toEqual(before)
     })
 
     it('refuses a second order while one is open', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      await recruitThreeInfantryAtMinuteTen(ana)
 
-      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1 })
+      const response = await recruit(ana, { unit: 'infantry', count: 1 })
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
@@ -1588,7 +1642,7 @@ describe('the fief route', () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildBarracksAt(1)
 
-      const response = await recruit(ana.cookie, { unit: 'infantry', count: 10 })
+      const response = await recruit(ana, { unit: 'infantry', count: 10 })
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('NotEnoughPeasants')
@@ -1597,12 +1651,12 @@ describe('the fief route', () => {
     it('refuses an order the busy upgrade would leave unstaffed and keeps the fief readable', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildBarracksAt(1)
-      expect((await enqueue(ana.cookie, 'sawmill')).status).toBe(200)
-      expect((await enqueue(ana.cookie, 'farm')).status).toBe(200)
+      expect((await enqueue(ana, 'sawmill')).status).toBe(200)
+      expect((await enqueue(ana, 'farm')).status).toBe(200)
 
-      const refused = await recruit(ana.cookie, { unit: 'infantry', count: 9 })
+      const refused = await recruit(ana, { unit: 'infantry', count: 9 })
       clock.advanceMinutes(2)
-      const read = await fiefOf(ana.cookie)
+      const read = await fiefOf(ana)
 
       expect(refused.status).toBe(409)
       expect(ApiErrorSchema.parse(await refused.json()).kind).toBe('NotEnoughPeasants')
@@ -1614,7 +1668,7 @@ describe('the fief route', () => {
       await buildBarracksAt(1)
       await runSql('UPDATE fiefs SET food = 0')
 
-      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1 })
+      const response = await recruit(ana, { unit: 'infantry', count: 1 })
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
@@ -1624,13 +1678,13 @@ describe('the fief route', () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await buildBarracksAt(1)
 
-      const response = await recruit(ana.cookie, { unit: 'infantry', count: 1.5 })
+      const response = await recruit(ana, { unit: 'infantry', count: 1.5 })
 
       expect(response.status).toBe(400)
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/recruit-orders', {
+      const response = await app.request(`/fiefs/${unknownFiefId}/recruit-orders`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ unit: 'infantry', count: 1 }),
@@ -1641,23 +1695,19 @@ describe('the fief route', () => {
   })
 
   describe('the recruit cancel route', () => {
-    const cancelRecruit = async (
-      cookie: string,
-      unit: string,
-      startedAt: string,
-    ): Promise<Response> =>
-      app.request(`/fief/recruit-orders/${unit}/${encodeURIComponent(startedAt)}`, {
+    const cancelRecruit = async (lord: Lord, unit: string, startedAt: string): Promise<Response> =>
+      app.request(`/fiefs/${lord.fiefId}/recruit-orders/${unit}/${encodeURIComponent(startedAt)}`, {
         method: 'DELETE',
-        headers: { cookie },
+        headers: { cookie: lord.cookie },
       })
 
-    const recruitThreeInfantryAtMinuteTen = async (cookie: string): Promise<string> => {
+    const recruitThreeInfantryAtMinuteTen = async (lord: Lord): Promise<string> => {
       await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
         SELECT id, 'barracks'::building, 1 FROM fiefs`)
       clock.advanceMinutes(10)
-      const placed = await app.request('/fief/recruit-orders', {
+      const placed = await app.request(pathOf(lord, '/recruit-orders'), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify({ unit: 'infantry', count: 3 }),
       })
       expect(placed.status).toBe(200)
@@ -1672,10 +1722,10 @@ describe('the fief route', () => {
 
     it('cancels the order and answers the delivered units in the counts', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(1.5)
 
-      const response = await cancelRecruit(ana.cookie, 'infantry', startedAt)
+      const response = await cancelRecruit(ana, 'infantry', startedAt)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1686,10 +1736,10 @@ describe('the fief route', () => {
 
     it('answers the undelivered units refunded and their peasants free', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(1)
 
-      const response = await cancelRecruit(ana.cookie, 'infantry', startedAt)
+      const response = await cancelRecruit(ana, 'infantry', startedAt)
 
       const { resources, peasants, units } = FiefOverviewSchema.parse(await response.json())
       expect(units).toEqual({ infantry: 1, cavalry: 0 })
@@ -1699,11 +1749,13 @@ describe('the fief route', () => {
 
     it('records the cancel in the chronicle with its refund', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(1)
-      expect((await cancelRecruit(ana.cookie, 'infantry', startedAt)).status).toBe(200)
+      expect((await cancelRecruit(ana, 'infantry', startedAt)).status).toBe(200)
 
-      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -1719,10 +1771,10 @@ describe('the fief route', () => {
 
     it('refuses to cancel an order that ended before the cancel', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(5)
 
-      const response = await cancelRecruit(ana.cookie, 'infantry', startedAt)
+      const response = await cancelRecruit(ana, 'infantry', startedAt)
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual(recruitOrderNotFound)
@@ -1730,15 +1782,17 @@ describe('the fief route', () => {
 
     it('shows the ended order delivered on the read after a refused cancel', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      const startedAt = await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      const startedAt = await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(5)
-      expect((await cancelRecruit(ana.cookie, 'infantry', startedAt)).status).toBe(409)
+      expect((await cancelRecruit(ana, 'infantry', startedAt)).status).toBe(409)
 
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
       expect(overview.units).toEqual({ infantry: 3, cavalry: 0 })
       expect(overview.recruitOrder).toBeNull()
-      const chronicle = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const chronicle = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
       expect(FiefChronicleSchema.parse(await chronicle.json()).events).toEqual([
         {
           kind: 'recruitsDelivered',
@@ -1751,14 +1805,14 @@ describe('the fief route', () => {
 
     it('refuses a cancel that names another start', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await recruitThreeInfantryAtMinuteTen(ana.cookie)
+      await recruitThreeInfantryAtMinuteTen(ana)
       clock.advanceMinutes(1)
 
-      const response = await cancelRecruit(ana.cookie, 'infantry', '2026-09-22T08:09:00.000Z')
+      const response = await cancelRecruit(ana, 'infantry', '2026-09-22T08:09:00.000Z')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual(recruitOrderNotFound)
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.recruitOrder?.startedAt).toBe('2026-09-22T08:10:00.000Z')
       expect(overview.units).toEqual({ infantry: 1, cavalry: 0 })
     })
@@ -1766,14 +1820,14 @@ describe('the fief route', () => {
     it('answers 400 for a malformed start', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await cancelRecruit(ana.cookie, 'infantry', 'ayer')
+      const response = await cancelRecruit(ana, 'infantry', 'ayer')
 
       expect(response.status).toBe(400)
     })
 
     it('answers 401 without a session', async () => {
       const response = await app.request(
-        `/fief/recruit-orders/infantry/${encodeURIComponent('2026-09-22T08:10:00.000Z')}`,
+        `/fiefs/${unknownFiefId}/recruit-orders/infantry/${encodeURIComponent('2026-09-22T08:10:00.000Z')}`,
         { method: 'DELETE' },
       )
 
@@ -1783,23 +1837,23 @@ describe('the fief route', () => {
 
   describe('the study cancel route', () => {
     const cancelStudy = async (
-      cookie: string,
+      lord: Lord,
       art: string,
       targetLevel: string | number,
     ): Promise<Response> =>
-      app.request(`/fief/studies/${art}/${targetLevel}`, {
+      app.request(`/fiefs/${lord.fiefId}/studies/${art}/${targetLevel}`, {
         method: 'DELETE',
-        headers: { cookie },
+        headers: { cookie: lord.cookie },
       })
 
-    const studySmithingAtMinuteTen = async (cookie: string): Promise<void> => {
+    const studySmithingAtMinuteTen = async (lord: Lord): Promise<void> => {
       await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
         SELECT id, 'library'::building, 1 FROM fiefs`)
       await runSql('UPDATE fiefs SET gold = 100')
       clock.advanceMinutes(10)
-      const started = await app.request('/fief/studies', {
+      const started = await app.request(pathOf(lord, '/studies'), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify({ art: 'smithing' }),
       })
       expect(started.status).toBe(200)
@@ -1807,10 +1861,10 @@ describe('the fief route', () => {
 
     it('cancels the study and answers the fief with the study slot idle', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await studySmithingAtMinuteTen(ana.cookie)
+      await studySmithingAtMinuteTen(ana)
       clock.advanceMinutes(1)
 
-      const response = await cancelStudy(ana.cookie, 'smithing', 1)
+      const response = await cancelStudy(ana, 'smithing', 1)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -1818,25 +1872,25 @@ describe('the fief route', () => {
       expect(overview.arts.smithing.level).toBe(0)
       expect(overview.resources.gold.amount).toBe(100)
       expect(overview.readAt).toBe('2026-09-22T08:11:00.000Z')
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       expect(stored.ok && stored.value?.studySlot).toEqual({ kind: 'idle' })
       expect(stored.ok && stored.value?.stocks.gold).toBe(100)
     })
 
     it('applies a study that finished before the cancel and refuses with StudyNotFound', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
-      await studySmithingAtMinuteTen(ana.cookie)
+      await studySmithingAtMinuteTen(ana)
       await runSql(`UPDATE fiefs SET study_finishes_at = '2026-09-22T08:12:00Z'`)
       clock.advanceMinutes(3)
 
-      const response = await cancelStudy(ana.cookie, 'smithing', 1)
+      const response = await cancelStudy(ana, 'smithing', 1)
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'StudyNotFound',
         message: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
       })
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.arts.smithing.level).toBe(1)
       expect(overview.study).toEqual({ kind: 'idle' })
     })
@@ -1844,23 +1898,25 @@ describe('the fief route', () => {
     it('answers 400 to a target level that is not a whole count from one', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
 
-      const response = await cancelStudy(ana.cookie, 'smithing', 0)
+      const response = await cancelStudy(ana, 'smithing', 0)
 
       expect(response.status).toBe(400)
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/studies/smithing/1', { method: 'DELETE' })
+      const response = await app.request(`/fiefs/${unknownFiefId}/studies/smithing/1`, {
+        method: 'DELETE',
+      })
 
       expect(response.status).toBe(401)
     })
   })
 
   describe('the march route', () => {
-    const march = async (cookie: string, body: unknown): Promise<Response> =>
-      app.request('/fief/marches', {
+    const march = async (lord: Lord, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, '/marches'), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify(body),
       })
 
@@ -1884,7 +1940,7 @@ describe('the fief route', () => {
     it('answers no march and the shipped forage terms on a new fief', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.march).toBeNull()
@@ -1903,7 +1959,7 @@ describe('the fief route', () => {
     it('answers the shipped combat terms', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       expect(FiefOverviewSchema.parse(await response.json()).combatTerms).toEqual({
         lootPerStrength: 60,
@@ -1918,7 +1974,7 @@ describe('the fief route', () => {
     it('answers the shipped unit terms', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       expect(FiefOverviewSchema.parse(await response.json()).unitTerms).toEqual({
         infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
@@ -1929,7 +1985,7 @@ describe('the fief route', () => {
     it('sends a march and answers it outbound with its instants', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      const response = await march(ana, fiveInfantryToProvinceTwoPlotFive)
 
       expect(response.status).toBe(200)
       expect(FiefOverviewSchema.parse(await response.json()).march).toEqual({
@@ -1953,10 +2009,10 @@ describe('the fief route', () => {
 
     it('answers the infantry away still counted', async () => {
       const ana = await signUpWithFiveInfantry()
-      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      await march(ana, fiveInfantryToProvinceTwoPlotFive)
       clock.advanceMinutes(60)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.units).toEqual({ infantry: 5, cavalry: 0 })
@@ -1966,10 +2022,10 @@ describe('the fief route', () => {
     it('adds the loot and idles the march slot at the return', async () => {
       const ana = await signUpWithFiveInfantry()
       await runSql('UPDATE fiefs SET wood = 1000, stone = 1000')
-      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      await march(ana, fiveInfantryToProvinceTwoPlotFive)
       clock.advanceMinutes(148)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.march).toBeNull()
@@ -1980,10 +2036,12 @@ describe('the fief route', () => {
 
     it('records the returned march in the chronicle', async () => {
       const ana = await signUpWithFiveInfantry()
-      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      await march(ana, fiveInfantryToProvinceTwoPlotFive)
       clock.advanceMinutes(148)
 
-      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -2000,13 +2058,15 @@ describe('the fief route', () => {
 
     it('records a recalled march in the chronicle as recalled', async () => {
       const ana = await signUpWithFiveInfantry()
-      await march(ana.cookie, fiveInfantryToProvinceTwoPlotFive)
+      await march(ana, fiveInfantryToProvinceTwoPlotFive)
       await runSql(
         `UPDATE fief_marches SET recalled_at = '2026-09-22T08:44:00Z', loot_wood = 7, loot_stone = 7`,
       )
       clock.advanceMinutes(58)
 
-      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -2025,7 +2085,7 @@ describe('the fief route', () => {
       const ana = await signUpWithFiveInfantry()
       await signUp('bea@example.com', 'Vado Gris')
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         province: 1,
         plot: 2,
@@ -2046,7 +2106,7 @@ describe('the fief route', () => {
         (plot) => campOf({ kingdom: 1, province: 2, plot }, camps) !== undefined,
       )
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         plot: campPlot,
       })
@@ -2061,7 +2121,7 @@ describe('the fief route', () => {
     it('refuses a march to the fief own plot', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         province: 1,
         plot: 1,
@@ -2077,7 +2137,7 @@ describe('the fief route', () => {
     it('refuses more infantry than are at home', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         units: { infantry: 6, cavalry: 0 },
       })
@@ -2091,12 +2151,12 @@ describe('the fief route', () => {
 
     it('refuses a second march while one is away', async () => {
       const ana = await signUpWithFiveInfantry()
-      await march(ana.cookie, {
+      await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         units: { infantry: 2, cavalry: 0 },
       })
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         province: 1,
         plot: 3,
         units: { infantry: 3, cavalry: 0 },
@@ -2108,7 +2168,7 @@ describe('the fief route', () => {
         kind: 'MarchSlotBusy',
         message: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
       })
-      const { march: stored } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const { march: stored } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(stored).toMatchObject({
         province: 2,
         plot: 5,
@@ -2120,7 +2180,7 @@ describe('the fief route', () => {
     it('refuses a stay of nine hours', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         stayHours: 9,
       })
@@ -2135,7 +2195,7 @@ describe('the fief route', () => {
     it('refuses a province past the map bound', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         province: 3,
       })
@@ -2150,19 +2210,19 @@ describe('the fief route', () => {
     it('answers 400 with an empty body to a fractional stay', async () => {
       const ana = await signUpWithFiveInfantry()
 
-      const response = await march(ana.cookie, {
+      const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
         stayHours: 1.5,
       })
 
       expect(response.status).toBe(400)
       expect(await response.text()).toBe('')
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.march).toBeNull()
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/marches', {
+      const response = await app.request(`/fiefs/${unknownFiefId}/marches`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(fiveInfantryToProvinceTwoPlotFive),
@@ -2173,10 +2233,10 @@ describe('the fief route', () => {
   })
 
   describe('the march recall route', () => {
-    const recall = async (cookie: string, departedAt: string): Promise<Response> =>
-      app.request(`/fief/marches/${encodeURIComponent(departedAt)}/recall`, {
+    const recall = async (lord: Lord, departedAt: string): Promise<Response> =>
+      app.request(`/fiefs/${lord.fiefId}/marches/${encodeURIComponent(departedAt)}/recall`, {
         method: 'POST',
-        headers: { cookie },
+        headers: { cookie: lord.cookie },
       })
 
     const departedAt = '2026-09-22T08:00:00.000Z'
@@ -2185,7 +2245,7 @@ describe('the fief route', () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await runSql(`INSERT INTO fief_units (fief_id, kind, count)
         SELECT id, 'infantry'::unit, 5 FROM fiefs`)
-      const sent = await app.request('/fief/marches', {
+      const sent = await app.request(pathOf(ana, '/marches'), {
         method: 'POST',
         headers: { cookie: ana.cookie, 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -2208,7 +2268,7 @@ describe('the fief route', () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
       clock.advanceMinutes(10)
 
-      const response = await recall(ana.cookie, departedAt)
+      const response = await recall(ana, departedAt)
 
       expect(response.status).toBe(200)
       expect(FiefOverviewSchema.parse(await response.json()).march).toEqual({
@@ -2234,7 +2294,7 @@ describe('the fief route', () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
       clock.advanceMinutes(44)
 
-      const response = await recall(ana.cookie, departedAt)
+      const response = await recall(ana, departedAt)
 
       expect(response.status).toBe(200)
       expect(FiefOverviewSchema.parse(await response.json()).march).toMatchObject({
@@ -2250,10 +2310,10 @@ describe('the fief route', () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
       await runSql('UPDATE fiefs SET wood = 1000, stone = 1000')
       clock.advanceMinutes(44)
-      expect((await recall(ana.cookie, departedAt)).status).toBe(200)
+      expect((await recall(ana, departedAt)).status).toBe(200)
       clock.advanceMinutes(14)
 
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
       expect(overview.march).toBeNull()
       expect(overview.resources.wood.amount).toBe(1007)
@@ -2265,14 +2325,14 @@ describe('the fief route', () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
       clock.advanceMinutes(140)
 
-      const response = await recall(ana.cookie, departedAt)
+      const response = await recall(ana, departedAt)
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'MarchAlreadyReturning',
         message: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
       })
-      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(march).toMatchObject({ recalledAt: null, returnsAt: '2026-09-22T10:28:00.000Z' })
     })
 
@@ -2280,11 +2340,11 @@ describe('the fief route', () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
       clock.advanceMinutes(10)
 
-      const response = await recall(ana.cookie, '2026-09-22T07:59:00.000Z')
+      const response = await recall(ana, '2026-09-22T07:59:00.000Z')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual(marchNotFound)
-      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(march).toMatchObject({ departedAt, recalledAt: null })
     })
 
@@ -2292,36 +2352,39 @@ describe('the fief route', () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
       clock.advanceMinutes(148)
 
-      const response = await recall(ana.cookie, departedAt)
+      const response = await recall(ana, departedAt)
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual(marchNotFound)
-      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(march).toBeNull()
     })
 
     it('answers 400 for a malformed departure', async () => {
       const ana = await sendFiveInfantryToProvinceTwoPlotFive()
 
-      const response = await recall(ana.cookie, 'ayer')
+      const response = await recall(ana, 'ayer')
 
       expect(response.status).toBe(400)
       expect(await response.text()).toBe('')
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request(`/fief/marches/${encodeURIComponent(departedAt)}/recall`, {
-        method: 'POST',
-      })
+      const response = await app.request(
+        `/fiefs/${unknownFiefId}/marches/${encodeURIComponent(departedAt)}/recall`,
+        {
+          method: 'POST',
+        },
+      )
 
       expect(response.status).toBe(401)
     })
   })
   describe('the attack route', () => {
-    const attack = async (cookie: string, body: unknown): Promise<Response> =>
-      app.request('/fief/marches/attack', {
+    const attack = async (lord: Lord, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, '/marches/attack'), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify(body),
       })
 
@@ -2342,15 +2405,15 @@ describe('the fief route', () => {
     const minutesOf = (seconds: number): number => seconds / 60
 
     const sendTenInfantryToTierOneCamp = async (): Promise<SentAttack> => {
-      const { cookie } = await signUpWithTenInfantry()
+      const lord = await signUpWithTenInfantry()
       const sent = await attackedMarchOf(
-        await attack(cookie, {
+        await attack(lord, {
           province: 2,
           plot: campPlotOfTier(1),
           units: { infantry: 10, cavalry: 0 },
         }),
       )
-      return { cookie, sent }
+      return { lord, sent }
     }
 
     it('sends an attack and answers it outbound with the camp snapshot', async () => {
@@ -2358,7 +2421,7 @@ describe('the fief route', () => {
       const ana = await signUpWithTenInfantry()
 
       const sent = await attackedMarchOf(
-        await attack(ana.cookie, { province: 2, plot, units: { infantry: 10, cavalry: 0 } }),
+        await attack(ana, { province: 2, plot, units: { infantry: 10, cavalry: 0 } }),
       )
 
       expect(sent).toMatchObject({
@@ -2381,10 +2444,10 @@ describe('the fief route', () => {
     })
 
     it('fights at the arrival and answers fewer infantry', async () => {
-      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      const { lord, sent } = await sendTenInfantryToTierOneCamp()
       clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
 
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(lord)).json())
 
       expect(overview.march).toMatchObject({
         order: 'attack',
@@ -2398,7 +2461,7 @@ describe('the fief route', () => {
       const ana = await signUpWithTenInfantry()
       await runSql('UPDATE fiefs SET wood = 1000, stone = 1000, gold = 1000')
       const sent = await attackedMarchOf(
-        await attack(ana.cookie, {
+        await attack(ana, {
           province: 2,
           plot: campPlotOfTier(1),
           units: { infantry: 10, cavalry: 0 },
@@ -2406,7 +2469,7 @@ describe('the fief route', () => {
       )
       clock.advanceMinutes(2 * minutesOf(sent.oneWaySeconds))
 
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
       expect(overview.march).toBeNull()
       expect(overview.resources.wood.amount).toBe(1096)
@@ -2416,10 +2479,12 @@ describe('the fief route', () => {
     })
 
     it('records the battle and the return in the chronicle', async () => {
-      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      const { lord, sent } = await sendTenInfantryToTierOneCamp()
       clock.advanceMinutes(2 * minutesOf(sent.oneWaySeconds))
 
-      const response = await app.request('/fief/events', { headers: { cookie } })
+      const response = await app.request(pathOf(lord, '/events'), {
+        headers: { cookie: lord.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -2447,7 +2512,7 @@ describe('the fief route', () => {
     it('loses every man sent against a stronger camp', async () => {
       const ana = await signUpWithTenInfantry()
       const sent = await attackedMarchOf(
-        await attack(ana.cookie, {
+        await attack(ana, {
           province: 2,
           plot: campPlotOfTier(2),
           units: { infantry: 10, cavalry: 0 },
@@ -2455,7 +2520,7 @@ describe('the fief route', () => {
       )
       clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
 
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
       expect(sent.camp).toEqual({ tier: 2, strength: 15 })
       expect(overview.march).toBeNull()
@@ -2463,22 +2528,24 @@ describe('the fief route', () => {
     })
 
     it('fights the camp the lord beat on the read that sends again', async () => {
-      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      const { lord, sent } = await sendTenInfantryToTierOneCamp()
       clock.advanceMinutes(minutesOf(sent.oneWaySeconds) + 60)
 
       const again = await attackedMarchOf(
-        await attack(cookie, { province: 2, plot: sent.plot, units: { infantry: 6, cavalry: 0 } }),
+        await attack(lord, { province: 2, plot: sent.plot, units: { infantry: 6, cavalry: 0 } }),
       )
 
       expect(again.camp).toEqual({ tier: 1, strength: 1 })
     })
 
     it('shows the beaten camp on the map', async () => {
-      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      const { lord, sent } = await sendTenInfantryToTierOneCamp()
       clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
-      expect((await fiefOf(cookie)).status).toBe(200)
+      expect((await fiefOf(lord)).status).toBe(200)
 
-      const response = await app.request('/map/2', { headers: { cookie } })
+      const response = await app.request(pathOf(lord, '/map/2'), {
+        headers: { cookie: lord.cookie },
+      })
 
       const { plots } = ProvinceMapSchema.parse(await response.json())
       expect(plots.find(({ plot }) => plot === sent.plot)?.camp).toEqual({
@@ -2491,7 +2558,7 @@ describe('the fief route', () => {
       const ana = await signUpWithTenInfantry()
       const plot = provinceTwoPlotWhere((tier) => tier === undefined)
 
-      const response = await attack(ana.cookie, {
+      const response = await attack(ana, {
         province: 2,
         plot,
         units: { infantry: 10, cavalry: 0 },
@@ -2505,12 +2572,12 @@ describe('the fief route', () => {
     })
 
     it('refuses a recall at the battle', async () => {
-      const { cookie, sent } = await sendTenInfantryToTierOneCamp()
+      const { lord, sent } = await sendTenInfantryToTierOneCamp()
       clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
 
       const response = await app.request(
-        `/fief/marches/${encodeURIComponent(sent.departedAt)}/recall`,
-        { method: 'POST', headers: { cookie } },
+        `/fiefs/${lord.fiefId}/marches/${encodeURIComponent(sent.departedAt)}/recall`,
+        { method: 'POST', headers: { cookie: lord.cookie } },
       )
 
       expect(response.status).toBe(409)
@@ -2520,7 +2587,7 @@ describe('the fief route', () => {
     it('answers 400 with an empty body to an attack with no unit', async () => {
       const ana = await signUpWithTenInfantry()
 
-      const response = await attack(ana.cookie, {
+      const response = await attack(ana, {
         province: 2,
         plot: campPlotOfTier(1),
         units: { infantry: 0, cavalry: 0 },
@@ -2531,7 +2598,7 @@ describe('the fief route', () => {
     })
 
     it('answers 401 without a session', async () => {
-      const response = await app.request('/fief/marches/attack', {
+      const response = await app.request(`/fiefs/${unknownFiefId}/marches/attack`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -2546,10 +2613,10 @@ describe('the fief route', () => {
   })
 
   describe('a party of infantry and riders', () => {
-    const post = async (path: string, cookie: string, body: unknown): Promise<Response> =>
-      app.request(path, {
+    const post = async (lord: Lord, path: string, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, path), {
         method: 'POST',
-        headers: { cookie, 'content-type': 'application/json' },
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
         body: JSON.stringify(body),
       })
 
@@ -2573,9 +2640,9 @@ describe('the fief route', () => {
       return march
     }
 
-    const attackFiveAndFiveOnTierOneCamp = async (cookie: string): Promise<AttackedMarch> => {
+    const attackFiveAndFiveOnTierOneCamp = async (lord: Lord): Promise<AttackedMarch> => {
       const sent = await awayMarchOf(
-        await post('/fief/marches/attack', cookie, {
+        await post(lord, '/marches/attack', {
           province: 2,
           plot: campPlotOfTier(1),
           units: { infantry: 5, cavalry: 5 },
@@ -2589,7 +2656,7 @@ describe('the fief route', () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
 
       const sent = await awayMarchOf(
-        await post('/fief/marches', ana.cookie, {
+        await post(ana, '/marches', {
           province: 2,
           plot: 5,
           units: { infantry: 12, cavalry: 6 },
@@ -2611,7 +2678,7 @@ describe('the fief route', () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
 
       const sent = await awayMarchOf(
-        await post('/fief/marches', ana.cookie, {
+        await post(ana, '/marches', {
           province: 2,
           plot: 5,
           units: { infantry: 0, cavalry: 6 },
@@ -2625,10 +2692,10 @@ describe('the fief route', () => {
 
     it('fights with both kinds and answers the survivors per kind', async () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
-      const sent = await attackFiveAndFiveOnTierOneCamp(ana.cookie)
+      const sent = await attackFiveAndFiveOnTierOneCamp(ana)
       clock.advanceMinutes(sent.oneWaySeconds / 60)
 
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
       expect(overview.march).toMatchObject({ fought: true, units: { infantry: 2, cavalry: 5 } })
       expect(overview.units).toEqual({ infantry: 9, cavalry: 6 })
@@ -2636,10 +2703,12 @@ describe('the fief route', () => {
 
     it('records each kind in the chronicle', async () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
-      const sent = await attackFiveAndFiveOnTierOneCamp(ana.cookie)
+      const sent = await attackFiveAndFiveOnTierOneCamp(ana)
       clock.advanceMinutes((2 * sent.oneWaySeconds) / 60)
 
-      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -2667,7 +2736,7 @@ describe('the fief route', () => {
     it('refuses more riders than are at home', async () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
 
-      const response = await post('/fief/marches', ana.cookie, {
+      const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
         units: { infantry: 12, cavalry: 7 },
@@ -2685,7 +2754,7 @@ describe('the fief route', () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
       await runSql(`UPDATE fief_units SET count = 0 WHERE kind = 'cavalry'`)
 
-      const response = await post('/fief/marches', ana.cookie, {
+      const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
         units: { infantry: 0, cavalry: 1 },
@@ -2700,7 +2769,7 @@ describe('the fief route', () => {
     it('answers 400 for a march with no unit', async () => {
       const ana = await signUpAtBarracksThreeWithTwelveInfantryAndSixRiders()
 
-      const response = await post('/fief/marches', ana.cookie, {
+      const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
         units: { infantry: 0, cavalry: 0 },
@@ -2709,7 +2778,7 @@ describe('the fief route', () => {
 
       expect(response.status).toBe(400)
       expect(await response.text()).toBe('')
-      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana.cookie)).json())
+      const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.march).toBeNull()
     })
   })
@@ -2758,7 +2827,7 @@ describe('the fief route', () => {
       const ana = await signUpAttackingTierOneCamp(plot)
       clock.advanceMinutes(21)
 
-      const response = await fiefOf(ana.cookie)
+      const response = await fiefOf(ana)
 
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
@@ -2774,7 +2843,9 @@ describe('the fief route', () => {
       const ana = await signUpAttackingTierOneCamp(plot)
       clock.advanceMinutes(21)
 
-      const response = await app.request('/fief/events', { headers: { cookie: ana.cookie } })
+      const response = await app.request(pathOf(ana, '/events'), {
+        headers: { cookie: ana.cookie },
+      })
 
       expect(FiefChronicleSchema.parse(await response.json()).events).toEqual([
         {
@@ -2804,12 +2875,12 @@ describe('the fief route', () => {
       await runSql('UPDATE fiefs SET wood = 0')
       clock.advanceMinutes(11)
 
-      const response = await enqueue(ana.cookie, 'sawmill')
+      const response = await enqueue(ana, 'sawmill')
 
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InsufficientResources')
       expect(await campBattleRows()).toEqual([])
-      const stored = await storedFiefOf(ana.playerId)
+      const stored = await storedFiefOf(ana)
       assert(stored.ok)
       expect(stored.value?.march).toMatchObject({
         fought: false,

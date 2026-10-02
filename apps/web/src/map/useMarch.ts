@@ -11,6 +11,7 @@ export interface March {
 
 export function useMarch(
   apiClient: ApiClient,
+  fiefId: string,
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): March {
@@ -22,7 +23,7 @@ export function useMarch(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    send: (request) => run(request, () => apiClient.dispatchMarch(request)),
-    attack: (request) => run(request, () => apiClient.dispatchAttack(request)),
+    send: (request) => run(request, () => apiClient.dispatchMarch(fiefId, request)),
+    attack: (request) => run(request, () => apiClient.dispatchAttack(fiefId, request)),
   }
 }
