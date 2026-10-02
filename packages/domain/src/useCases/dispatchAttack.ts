@@ -2,10 +2,9 @@ import { campOf } from '../camp/campOf'
 import { campStrengthAt } from '../camp/campStrengthAt'
 import type { DomainError } from '../DomainError'
 import type { AttackOrder, Fief } from '../fief/Fief'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { ownFiefOf } from '../fief/ownFiefOf'
 import { refuseUnreachableTarget } from '../march/refuseUnreachableTarget'
-import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { CampRegistry } from '../ports/CampRegistry'
 import type { Clock } from '../ports/Clock'
@@ -14,10 +13,7 @@ import type { KingdomMapReader } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
 import { marchSeasonAt } from '../season/marchSeasonAt'
 
-export type DispatchAttackCommand = AttackOrder & {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
-}
+export type DispatchAttackCommand = AttackOrder & FiefOfPlayer
 
 export type DispatchAttackDependencies = {
   readonly fiefs: FiefRepository

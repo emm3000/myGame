@@ -842,6 +842,32 @@ describe('resolveUpgrade', () => {
     expect(fiefs.storedFiefOf('fief-1')).toBe(lordFief)
   })
 
+  it('refuses a fief of another player', async () => {
+    const rivalFief = storedFief({
+      id: 'fief-2',
+      playerId: 'rival',
+      address: { kingdom: 1, province: 3, plot: 2 },
+      slot: sawmillFinishingAfterHours(1),
+    })
+    const fiefs = inMemoryFiefRepository([rivalFief])
+    const chronicle = inMemoryChronicle()
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord', fiefId: 'fief-2' },
+      {
+        fiefs,
+        chronicle,
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        clock: frozenClock(hoursAfterStored(2)),
+      },
+    )
+
+    expect(result).toEqual({ ok: false, error: { kind: 'FiefNotFound', fiefId: 'fief-2' } })
+    expect(fiefs.storedFiefOf('fief-2')).toBe(rivalFief)
+    expect(chronicle.recordedEventsOf('fief-2')).toEqual([])
+  })
+
   it('refuses an unknown fief', async () => {
     const result = await resolveUpgrade(
       { playerId: 'lord', fiefId: 'unknown-fief' },

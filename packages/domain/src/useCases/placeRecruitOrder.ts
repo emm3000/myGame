@@ -1,19 +1,16 @@
 import type { DomainError } from '../DomainError'
 import { deriveLowestFreePeasants } from '../fief/deriveLowestFreePeasants'
 import type { Fief } from '../fief/Fief'
-import type { FiefId } from '../fief/FiefId'
+import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
-import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, UnitKind } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
 import { durationPercentAt } from '../season/durationPercentAt'
 
-export type PlaceRecruitOrderCommand = {
-  readonly playerId: PlayerId
-  readonly fiefId: FiefId
+export type PlaceRecruitOrderCommand = FiefOfPlayer & {
   readonly unit: UnitKind
   readonly count: number
 }
