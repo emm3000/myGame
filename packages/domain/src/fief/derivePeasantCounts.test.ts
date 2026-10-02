@@ -26,6 +26,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  fiefCap: 2,
   units: plainUnits,
   forage: plainForage,
   camps: plainCamps,

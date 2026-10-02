@@ -31,6 +31,7 @@
     }
   },
   "buildQueueCap": 4,
+  "fiefCap": 2,
   "seasons": {
     "epoch": "2026-10-05T00:00:00Z",
     "daysPerSeason": 7,

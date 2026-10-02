@@ -118,6 +118,25 @@ const ridersAttacking: AwayMarch = {
   loot: { wood: 120, stone: 120, iron: 0, gold: 120, food: 0 },
 }
 
+const settlerFounding: AwayMarch = {
+  kind: 'away',
+  order: 'found',
+  name: 'Sotoverde del Páramo',
+  province: 6,
+  plot: 9,
+  units: { infantry: 0, cavalry: 0, settler: 1 },
+  stayHours: 0,
+  departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:40:00Z')),
+  oneWaySeconds: 900,
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+}
+
+const recalledFounding: AwayMarch = {
+  ...settlerFounding,
+  recalledAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:50:00Z')),
+}
+
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const unknownFiefId = '00000000-0000-4000-8000-0000000000ff'
@@ -173,6 +192,38 @@ const developedFiefWith = (
       march,
     }),
   )
+
+const settlerFiefWith = (id: string, playerId: PlayerId, plot: number, march: March): Fief =>
+  accepted(
+    Fief.restore({
+      id,
+      playerId,
+      name: 'Valdehierro',
+      address: { kingdom: 1, province: 4, plot },
+      stocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+      storedAt: foundedAt,
+      buildingLevels: {
+        sawmill: 0,
+        quarry: 0,
+        ironMine: 0,
+        farm: 0,
+        warehouse: 0,
+        library: 0,
+        barracks: 5,
+      },
+      artLevels: { smithing: 0, masonry: 0 },
+      units: { infantry: 0, cavalry: 0, settler: 1 },
+      slot: { kind: 'idle' },
+      buildQueue: [],
+      studySlot: { kind: 'idle' },
+      recruitOrder: { kind: 'idle' },
+      march,
+    }),
+  )
+
+const anasFounding = settlerFiefWith(anasFief.id, ana, 7, settlerFounding)
+
+const brunosFiefId = '00000000-0000-4000-8000-00000000000c'
 
 const developedFief = developedFiefWith(
   waitingEntries,
@@ -497,6 +548,56 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.march).toEqual(settlerAway)
+    })
+
+    it('restores a founding march with its name', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+
+      await fiefs.save(anasFounding)
+
+      const restored = await fiefs.fiefOf(anasFief.id)
+      expect(restored.ok && restored.value?.march).toEqual(settlerFounding)
+    })
+
+    it('refuses a founding to a plot another founding reserves', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana, bruno])
+      await fiefs.save(anasFounding)
+
+      const saved = await fiefs.save(settlerFiefWith(brunosFiefId, bruno, 8, settlerFounding))
+
+      expect(saved).toEqual({ ok: false, error: { kind: 'PlotReserved', province: 6, plot: 9 } })
+    })
+
+    it('frees the plot of a recalled founding', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana, bruno])
+      await fiefs.save(settlerFiefWith(anasFief.id, ana, 7, recalledFounding))
+
+      const saved = await fiefs.save(settlerFiefWith(brunosFiefId, bruno, 8, settlerFounding))
+
+      expect(saved).toEqual(ok(undefined))
+    })
+
+    it('counts the foundings a player has on the road', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana, bruno])
+      await fiefs.save(anasFounding)
+      await fiefs.save(developedFief)
+
+      expect([
+        await fiefs.foundingsOnTheRoadOf(ana),
+        await fiefs.foundingsOnTheRoadOf(bruno),
+      ]).toEqual([1, 0])
+    })
+
+    it('counts no recalled founding on the road', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await fiefs.save(settlerFiefWith(anasFief.id, ana, 7, recalledFounding))
+
+      expect(await fiefs.foundingsOnTheRoadOf(ana)).toBe(0)
     })
 
     it('restores a forage march over an attack stored before it', async () => {

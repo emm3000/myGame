@@ -95,6 +95,7 @@ const waitingAfterFirstPlotRead = (
     },
     holdsFief: (playerId) => fiefs.holdsFief(playerId),
     fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
+    foundingsOnTheRoadOf: (playerId) => fiefs.foundingsOnTheRoadOf(playerId),
     fiefOf: (fiefId) => fiefs.fiefOf(fiefId),
     save: (fief) => fiefs.save(fief),
   }

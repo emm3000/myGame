@@ -87,7 +87,7 @@ function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
 
 function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
   const value = march.phaseLines[live.phase](answered.units, answered.province, answered.plot)
-  if (answered.order === 'forage' || answered.recalledAt !== null) {
+  if (answered.order !== 'attack' || answered.recalledAt !== null) {
     return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
   }
   const heading = live.phase === 'outbound' ? march.attackHeading : march.attackReturningHeading

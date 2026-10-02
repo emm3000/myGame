@@ -132,6 +132,16 @@ const attackMarch = {
   fought: false,
 }
 
+const foundingMarch = {
+  ...attackMarch,
+  order: 'found',
+  name: 'Sotoverde del Páramo',
+  units: { infantry: 0, cavalry: 0, settler: 1 },
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  camp: null,
+  fought: false,
+}
+
 const marchRecalledOnTheRoad = {
   ...awayMarch,
   loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
@@ -471,6 +481,21 @@ describe('FiefOverviewSchema', () => {
     const overviewWithAttack = { ...overviewWithSlot(busySlot), march: attackMarch }
 
     expect(FiefOverviewSchema.parse(overviewWithAttack)).toEqual(overviewWithAttack)
+  })
+
+  it('accepts a founding march with the name of the new fief', () => {
+    const overviewWithFounding = { ...overviewWithSlot(busySlot), march: foundingMarch }
+
+    expect(FiefOverviewSchema.parse(overviewWithFounding)).toEqual(overviewWithFounding)
+  })
+
+  it('rejects a founding march without its name', () => {
+    const { name: _, ...namelessFounding } = foundingMarch
+
+    expect(
+      FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), march: namelessFounding })
+        .success,
+    ).toBe(false)
   })
 
   it('rejects a forage march with a camp', () => {

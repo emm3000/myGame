@@ -32,6 +32,11 @@ export type AttackMarch = MarchOnTheRoad & {
   readonly fought: boolean
 }
 
-export type AwayMarch = ForageMarch | AttackMarch
+export type FoundingMarch = MarchOnTheRoad & {
+  readonly order: 'found'
+  readonly name: string
+}
+
+export type AwayMarch = ForageMarch | AttackMarch | FoundingMarch
 
 export type March = { readonly kind: 'idle' } | AwayMarch

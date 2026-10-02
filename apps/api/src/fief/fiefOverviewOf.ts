@@ -115,11 +115,22 @@ type OrderFields = 'order' | 'stayHours' | 'camp' | 'fought'
 type MarchOrderState =
   | Pick<Extract<MarchState, { order: 'forage' }>, OrderFields>
   | Pick<Extract<MarchState, { order: 'attack' }>, OrderFields>
+  | Pick<Extract<MarchState, { order: 'found' }>, OrderFields | 'name'>
 
-const marchOrderOf = (march: AwayMarch): MarchOrderState =>
-  march.order === 'forage'
-    ? { order: 'forage', stayHours: march.stayHours, camp: null, fought: false }
-    : { order: 'attack', stayHours: 0, camp: { ...march.camp }, fought: march.fought }
+const marchOrderOf = (march: AwayMarch): MarchOrderState => {
+  switch (march.order) {
+    case 'forage':
+      return { order: 'forage', stayHours: march.stayHours, camp: null, fought: false }
+    case 'attack':
+      return { order: 'attack', stayHours: 0, camp: { ...march.camp }, fought: march.fought }
+    case 'found':
+      return { order: 'found', name: march.name, stayHours: 0, camp: null, fought: false }
+    default: {
+      const unreachable: never = march
+      return unreachable
+    }
+  }
+}
 
 const awayMarchOf = (march: AwayMarch): MarchState => {
   const { arrivesAt, leavesAt, returnsAt } = marchInstantsOf(march)

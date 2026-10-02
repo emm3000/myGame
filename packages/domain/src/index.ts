@@ -102,6 +102,11 @@ export {
   dispatchAttack,
 } from './useCases/dispatchAttack'
 export {
+  type DispatchFoundingCommand,
+  type DispatchFoundingDependencies,
+  dispatchFounding,
+} from './useCases/dispatchFounding'
+export {
   type DispatchMarchCommand,
   type DispatchMarchDependencies,
   dispatchMarch,

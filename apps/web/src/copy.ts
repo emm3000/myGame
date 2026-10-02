@@ -50,6 +50,8 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
   UnitUnfitForOrder: 'Un colono no forrajea ni ataca. Envíalo a fundar un feudo.',
+  FiefCapReached: 'Solo puedes tener 2 feudos. Deja al colono en casa.',
+  PlotReserved: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',

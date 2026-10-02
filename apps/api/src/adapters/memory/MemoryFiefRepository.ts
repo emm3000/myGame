@@ -10,10 +10,20 @@ import {
   type Result,
 } from '@mygame/domain'
 
+type PlotOfMarch = {
+  readonly province: number
+  readonly plot: number
+}
+
 const sharesPlot = (left: Fief, right: Fief): boolean =>
   left.coordinates.kingdom === right.coordinates.kingdom &&
   left.coordinates.province === right.coordinates.province &&
   left.coordinates.plot === right.coordinates.plot
+
+const reservedPlotOf = ({ march }: Fief): PlotOfMarch | undefined =>
+  march.kind === 'away' && march.order === 'found' && march.recalledAt === undefined
+    ? { province: march.province, plot: march.plot }
+    : undefined
 
 const byProvinceThenPlot = (left: Fief, right: Fief): number =>
   left.coordinates.province - right.coordinates.province ||
@@ -45,6 +55,12 @@ export class MemoryFiefRepository implements FiefRepository {
       .map((fief) => fief.id)
   }
 
+  async foundingsOnTheRoadOf(playerId: PlayerId): Promise<number> {
+    return [...this.fiefs.values()].filter(
+      (fief) => fief.playerId === playerId && reservedPlotOf(fief) !== undefined,
+    ).length
+  }
+
   async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
     return ok(this.fiefs.get(fiefId))
   }
@@ -61,6 +77,20 @@ export class MemoryFiefRepository implements FiefRepository {
     )
     if (heldFief !== undefined) {
       return err({ kind: 'PlayerAlreadyHoldsFief', playerId: fief.playerId })
+    }
+    const reserved = reservedPlotOf(fief)
+    const reservedByRival =
+      reserved !== undefined &&
+      [...this.fiefs.values()].some((stored) => {
+        const rivalPlot = reservedPlotOf(stored)
+        return (
+          stored.id !== fief.id &&
+          rivalPlot?.province === reserved.province &&
+          rivalPlot.plot === reserved.plot
+        )
+      })
+    if (reserved !== undefined && reservedByRival) {
+      return err({ kind: 'PlotReserved', province: reserved.province, plot: reserved.plot })
     }
     this.fiefs.set(fief.id, fief)
     return ok(undefined)

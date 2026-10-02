@@ -3,6 +3,7 @@ import {
   CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
   DispatchAttackRequestSchema,
+  DispatchFoundingRequestSchema,
   DispatchMarchRequestSchema,
   EnqueueBuildingRequestSchema,
   type FiefChronicle,
@@ -22,6 +23,7 @@ import { type CancelStudyDependencies, cancelStudyOf } from '../fief/cancelStudy
 import { type CancelUpgradeDependencies, cancelUpgradeOf } from '../fief/cancelUpgradeOf'
 import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFiefOf'
 import { type DispatchAttackDependencies, dispatchAttackOf } from '../fief/dispatchAttackOf'
+import { type DispatchFoundingDependencies, dispatchFoundingOf } from '../fief/dispatchFoundingOf'
 import { type DispatchMarchDependencies, dispatchMarchOf } from '../fief/dispatchMarchOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefChronicleOf } from '../fief/fiefChronicleOf'
@@ -46,6 +48,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   CancelRecruitOrderDependencies &
   DispatchMarchDependencies &
   DispatchAttackDependencies &
+  DispatchFoundingDependencies &
   RecallMarchDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
@@ -142,6 +145,13 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchAttackOf(c.var.fiefOfPlayer, request.data, dependencies))
+    })
+    .post('/marches/found', signedInPlayer, requireNamedFief, async (c) => {
+      const request = DispatchFoundingRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(c, await dispatchFoundingOf(c.var.fiefOfPlayer, request.data, dependencies))
     })
     .post('/marches/:departedAt/recall', signedInPlayer, requireNamedFief, async (c) => {
       const request = RecallMarchRequestSchema.safeParse(c.req.param())

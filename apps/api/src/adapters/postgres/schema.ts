@@ -36,7 +36,7 @@ export const art = pgEnum('art', ['smithing', 'masonry'])
 
 export const unit = pgEnum('unit', ['infantry', 'cavalry', 'settler'])
 
-export const marchOrder = pgEnum('march_order', ['forage', 'attack'])
+export const marchOrder = pgEnum('march_order', ['forage', 'attack', 'found'])
 
 export const fiefEventKind = pgEnum('fief_event_kind', [
   'upgrade_finished',
@@ -250,6 +250,7 @@ export const fiefMarches = pgTable(
     campTier: integer('camp_tier'),
     campStrength: integer('camp_strength'),
     fought: boolean('fought').notNull().default(false),
+    foundingName: text('founding_name'),
   },
   (table) => [
     check('fief_marches_province_positive', sql`${table.province} >= 1`),
@@ -263,7 +264,7 @@ export const fiefMarches = pgTable(
     ),
     check(
       'fief_marches_order_terms',
-      sql`(${table.marchOrder}::text = 'forage' AND ${table.stayHours} >= 1 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought}) OR (${table.marchOrder}::text = 'attack' AND ${table.stayHours} = 0 AND ${table.campTier} IS NOT NULL AND ${table.campTier} BETWEEN 1 AND 3 AND ${table.campStrength} IS NOT NULL AND ${table.campStrength} >= 0)`,
+      sql`(${table.marchOrder}::text = 'forage' AND ${table.stayHours} >= 1 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NULL) OR (${table.marchOrder}::text = 'attack' AND ${table.stayHours} = 0 AND ${table.campTier} IS NOT NULL AND ${table.campTier} BETWEEN 1 AND 3 AND ${table.campStrength} IS NOT NULL AND ${table.campStrength} >= 0 AND ${table.foundingName} IS NULL) OR (${table.marchOrder}::text = 'found' AND ${table.stayHours} = 0 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NOT NULL AND ${table.settlerCount} = 1 AND ${table.infantryCount} = 0 AND ${table.cavalryCount} = 0)`,
     ),
     check('fief_marches_one_way_seconds_positive', sql`${table.oneWaySeconds} >= 1`),
     wholeAmount('fief_marches_loot_wood_whole', table.lootWood),
@@ -280,6 +281,9 @@ export const fiefMarches = pgTable(
       'fief_marches_recalled_after_departure',
       sql`${table.recalledAt} IS NULL OR ${table.recalledAt} >= ${table.departedAt}`,
     ),
+    uniqueIndex('fief_marches_founding_plot_unique')
+      .on(table.province, table.plot)
+      .where(sql`${table.foundingName} IS NOT NULL AND ${table.recalledAt} IS NULL`),
   ],
 )
 
