@@ -6,8 +6,11 @@ import { copy } from '../copy'
 
 const signedInClient = stubApiClient({ currentPlayer: async () => knownPlayer })
 
+const screensNavigation = async (): Promise<HTMLElement> =>
+  screen.findByRole('navigation', { name: (accessibleName) => accessibleName === '' })
+
 const navigationLink = async (name: string): Promise<HTMLElement> =>
-  within(await screen.findByRole('navigation')).getByRole('link', { name })
+  within(await screensNavigation()).getByRole('link', { name })
 
 it('marks the current screen in the navigation', async () => {
   renderAppAt(knownFiefPath, signedInClient)
@@ -24,7 +27,7 @@ it('marks the current screen in the navigation', async () => {
 it('lists the fief, the map and the chronicle in the navigation', async () => {
   renderAppAt(knownFiefPath, signedInClient)
 
-  const links = within(await screen.findByRole('navigation')).getAllByRole('link')
+  const links = within(await screensNavigation()).getAllByRole('link')
 
   expect(links.map((link) => link.textContent)).toEqual(['Feudo', 'Mapa', 'Crónica'])
 })
@@ -63,7 +66,7 @@ it('opens the chronicle from the fief screen', async () => {
 it('keeps the fief id in the navigation', async () => {
   renderAppAt(`${knownFiefPath}/cronica`, signedInClient)
 
-  const links = within(await screen.findByRole('navigation')).getAllByRole('link')
+  const links = within(await screensNavigation()).getAllByRole('link')
 
   expect(links.map((link) => link.getAttribute('href'))).toEqual([
     knownFiefPath,

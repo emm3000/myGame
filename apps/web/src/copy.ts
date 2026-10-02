@@ -2,6 +2,7 @@ import type {
   ArtKind,
   BuildingKind,
   FiefEvent,
+  FiefOverview,
   ResourceKind,
   SeasonKind,
   Terrain,
@@ -190,6 +191,8 @@ const names = {
   studySlot: 'el estudio',
   busyStudy: 'un estudio en marcha',
   idleStudy: 'La biblioteca no tiene estudio en marcha.',
+  address: ({ kingdom, province, plot }: FiefOverview['coordinates']): string =>
+    `${kingdoms[kingdom] ?? String(kingdom)} ${province}:${plot}`,
   units,
 } as const
 
@@ -230,6 +233,10 @@ export const copy = {
       fief: 'Feudo',
       map: 'Mapa',
       chronicle: 'Crónica',
+    },
+    fiefSwitcher: {
+      label: 'Tus feudos',
+      separator: ',',
     },
   },
   auth: {

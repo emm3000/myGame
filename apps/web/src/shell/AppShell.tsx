@@ -5,10 +5,13 @@ import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
+import { FiefSwitcher } from './FiefSwitcher'
+import type { FiefEntries } from './useFiefList'
 
 export interface AppShellProps {
   readonly player: Player
   readonly fiefId: string | undefined
+  readonly fiefs: FiefEntries | undefined
   readonly verification: ResendVerification
   readonly onSignOut: () => void
   readonly children: ReactNode
@@ -52,6 +55,7 @@ function ScreenLink({
 export function AppShell({
   player,
   fiefId,
+  fiefs,
   verification,
   onSignOut,
   children,
@@ -60,6 +64,7 @@ export function AppShell({
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
         <h1 className="m-0 font-display text-display-xl text-umber">{copy.shell.title}</h1>
+        {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
           {fiefId === undefined ? null : (
             <nav className="flex">

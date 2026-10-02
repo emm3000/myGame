@@ -40,11 +40,6 @@ export interface FiefScreenProps {
 
 const { names } = copy
 
-function addressOf({ coordinates }: LiveFief['overview']): string {
-  const kingdom = names.kingdoms[coordinates.kingdom] ?? String(coordinates.kingdom)
-  return `${kingdom} ${coordinates.province}:${coordinates.plot}`
-}
-
 function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
   const { season } = fief.overview
   if (season === null) {
@@ -178,7 +173,7 @@ export function FiefScreen({
           params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}
           className="self-start font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
         >
-          {addressOf(overview)}
+          {names.address(overview.coordinates)}
         </Link>
         <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
         <SeasonLineOf fief={fief} />
