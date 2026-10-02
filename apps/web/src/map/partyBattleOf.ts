@@ -1,5 +1,5 @@
 import type { FiefOverview } from '@mygame/contracts'
-import { UnitKindSchema } from '@mygame/contracts'
+import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 import { byUnitKind } from './byUnitKind'
 
@@ -16,13 +16,10 @@ interface LossTally {
 }
 
 const strengthOf = (party: UnitCounts, fief: FiefOverview): number =>
-  UnitKindSchema.options.reduce(
-    (strength, unit) => strength + party[unit] * fief.unitTerms[unit].strength,
-    0,
-  )
+  partyKinds.reduce((strength, unit) => strength + party[unit] * fief.unitTerms[unit].strength, 0)
 
 const tallyLosses = (party: UnitCounts, lostStrength: number, fief: FiefOverview): UnitCounts =>
-  UnitKindSchema.options.reduce<LossTally>(
+  partyKinds.reduce<LossTally>(
     (tally, unit) => {
       const { strength } = fief.unitTerms[unit]
       if (party[unit] === 0 || strength === 0) {
@@ -39,8 +36,8 @@ const tallyLosses = (party: UnitCounts, lostStrength: number, fief: FiefOverview
   ).lost
 
 const sparingTheLastReached = (party: UnitCounts, lost: UnitCounts): UnitCounts => {
-  const isEveryUnitLost = UnitKindSchema.options.every((unit) => lost[unit] === party[unit])
-  const lastReached = UnitKindSchema.options.findLast((unit) => lost[unit] > 0)
+  const isEveryUnitLost = partyKinds.every((unit) => lost[unit] === party[unit])
+  const lastReached = partyKinds.findLast((unit) => lost[unit] > 0)
   if (!isEveryUnitLost || lastReached === undefined) {
     return lost
   }

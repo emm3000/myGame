@@ -1,9 +1,9 @@
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
-import { UnitKindSchema } from '@mygame/contracts'
 import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { copy } from '../copy'
 import type { PlotAction } from '../design-system/PlotTile'
+import { partyKinds } from '../units/partyKinds'
 import { byUnitKind } from './byUnitKind'
 import type { MarchEntries, MarchTarget, PlotCamp } from './marchFormOf'
 import { unitsAtHomeOf } from './unitsAtHomeOf'
@@ -27,13 +27,12 @@ const firstHours = '1'
 
 const firstEntriesOf = (fief: FiefOverview): MarchEntries => {
   const atHome = unitsAtHomeOf(fief)
-  const kinds = UnitKindSchema.options
   const firstSentIndex = Math.max(
     0,
-    kinds.findIndex((unit) => atHome[unit] > 0),
+    partyKinds.findIndex((unit) => atHome[unit] > 0),
   )
   return {
-    units: byUnitKind((unit) => (kinds.indexOf(unit) === firstSentIndex ? '1' : '0')),
+    units: byUnitKind((unit) => (partyKinds.indexOf(unit) === firstSentIndex ? '1' : '0')),
     hours: firstHours,
   }
 }
