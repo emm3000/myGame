@@ -1,16 +1,12 @@
 import type { FiefList } from '@mygame/contracts'
 import { Hono } from 'hono'
-import type { CurrentFiefDependencies } from '../fief/currentFiefOf'
 import { fiefListOf } from '../fief/fiefListOf'
 import { answerRefusal } from '../http/answerRefusal'
-import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import { requirePlayer } from '../http/requirePlayer'
 import { type FiefDependencies, fiefRoutes } from './fief'
 import { type MapDependencies, mapRoutes } from './map'
 
-export type FiefsDependencies = CurrentFiefDependencies &
-  RequirePlayerDependencies &
-  FiefDependencies &
-  MapDependencies
+export type FiefsDependencies = FiefDependencies & MapDependencies
 
 export const fiefsRoutes = (dependencies: FiefsDependencies): Hono =>
   new Hono()
