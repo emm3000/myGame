@@ -176,6 +176,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(2, 7), dependencies)
 
     expect(result).toEqual(err({ kind: 'FiefCapReached', cap: 2 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('counts a founding march in flight toward the cap', async () => {
@@ -207,6 +208,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(2, 7), dependencies)
 
     expect(result).toEqual(err({ kind: 'FiefCapReached', cap: 3 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a founding on a plot with a camp', async () => {
@@ -216,6 +218,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(2, plot), dependencies)
 
     expect(result).toEqual(err({ kind: 'PlotHasCamp', province: 2, plot }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a founding with a blank name', async () => {
@@ -224,6 +227,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(2, 7, '   '), dependencies)
 
     expect(result).toEqual(err({ kind: 'BlankFiefName' }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('stores the name trimmed', async () => {
@@ -243,6 +247,32 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(2, 8), dependencies)
 
     expect(result).toEqual(err({ kind: 'MarchSlotBusy' }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({ plot: 7 })
+  })
+
+  it('answers a busy march slot before the fief cap', async () => {
+    const dependencies = dependenciesOver([
+      storedFief({}),
+      storedFief({ id: 'fief-2', name: 'Peña Alta', address: secondLordPlot.address }),
+    ])
+    await dispatchFounding(foundingOn(2, 7), { ...dependencies, catalog: catalogWithCap(3) })
+
+    const result = await dispatchFounding(foundingOn(2, 8), dependencies)
+
+    expect(result).toEqual(err({ kind: 'MarchSlotBusy' }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({ plot: 7 })
+  })
+
+  it('answers the fief cap before a target out of bounds', async () => {
+    const dependencies = dependenciesOver([
+      storedFief({}),
+      storedFief({ id: 'fief-2', name: 'Peña Alta', address: secondLordPlot.address }),
+    ])
+
+    const result = await dispatchFounding(foundingOn(5, 7), dependencies)
+
+    expect(result).toEqual(err({ kind: 'FiefCapReached', cap: 2 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a founding to the own plot', async () => {
@@ -251,6 +281,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(3, 12), dependencies)
 
     expect(result).toEqual(err({ kind: 'MarchToOwnPlot' }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a founding to a held plot', async () => {
@@ -259,6 +290,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(1, 4), dependencies)
 
     expect(result).toEqual(err({ kind: 'PlotHeld', province: 1, plot: 4 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a founding beyond the last province', async () => {
@@ -267,6 +299,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(5, 7), dependencies)
 
     expect(result).toEqual(err({ kind: 'MarchTargetOutOfBounds', province: 5, plot: 7 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a founding from a fief of another lord', async () => {
@@ -275,6 +308,7 @@ describe('dispatchFounding', () => {
     const result = await dispatchFounding(foundingOn(2, 7), dependencies)
 
     expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'fief-1' }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 })
 
