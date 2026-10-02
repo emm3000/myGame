@@ -169,6 +169,13 @@
       "when": 1790913594301,
       "tag": "0023_second_fief",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790914314480,
+      "tag": "0024_founding_events",
+      "breakpoints": true
     }
   ]
 }

@@ -127,6 +127,24 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         won: event.won,
         ...refundColumnsOf(noRefund),
       }
+    case 'foundingSent':
+      return {
+        ...common,
+        kind: 'founding_sent',
+        province: event.province,
+        plot: event.plot,
+        fiefName: event.name,
+        ...refundColumnsOf(noRefund),
+      }
+    case 'fiefFounded':
+      return {
+        ...common,
+        kind: 'fief_founded',
+        province: event.province,
+        plot: event.plot,
+        fiefName: event.name,
+        ...refundColumnsOf(noRefund),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -211,6 +229,13 @@ const campLostOf = (row: EventRow): number => {
   return row.campLost
 }
 
+const fiefNameOf = (row: EventRow): string => {
+  if (row.fiefName === null) {
+    throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no fief`)
+  }
+  return row.fiefName
+}
+
 const eventOf = (row: EventRow): FiefEvent => {
   const occurredAt = Instant.fromEpochMilliseconds(row.occurredAt.getTime())
   switch (row.kind) {
@@ -269,6 +294,22 @@ const eventOf = (row: EventRow): FiefEvent => {
         won: row.won,
         unitsLost: unitCountsOf(row),
         campLost: campLostOf(row),
+        occurredAt,
+      }
+    case 'founding_sent':
+      return {
+        kind: 'foundingSent',
+        province: provinceOf(row),
+        plot: plotOf(row),
+        name: fiefNameOf(row),
+        occurredAt,
+      }
+    case 'fief_founded':
+      return {
+        kind: 'fiefFounded',
+        province: provinceOf(row),
+        plot: plotOf(row),
+        name: fiefNameOf(row),
         occurredAt,
       }
     default: {

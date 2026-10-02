@@ -161,6 +161,14 @@ const earliestFinishedOf = (
     returnedMarchOf(fief, now),
   ].reduce(earlierOf, undefined)
 
+const fiefFoundedEventOf = (founding: FoundingMarch): FiefEvent => ({
+  kind: 'fiefFounded',
+  province: founding.province,
+  plot: founding.plot,
+  name: founding.name,
+  occurredAt: marchInstantsOf(founding).arrivesAt,
+})
+
 const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
   switch (finished.kind) {
     case 'upgrade':
@@ -204,7 +212,7 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
         },
       ]
     case 'founding':
-      return []
+      return [fiefFoundedEventOf(finished.march)]
     case 'march':
       return [
         {
@@ -322,14 +330,19 @@ const recordCampBattles = async (
   return ok(undefined)
 }
 
+type SettledSite = {
+  readonly fief: Fief
+  readonly founded: ChangedFief | undefined
+}
+
 const settleFoundingSite = async (
   fief: Fief,
   now: Instant,
   { fiefs, catalog, ids }: Pick<ResolveUpgradeDependencies, 'fiefs' | 'catalog' | 'ids'>,
-): Promise<Result<Fief, DomainError>> => {
+): Promise<Result<SettledSite, DomainError>> => {
   const founding = arrivedFoundingOf(fief, now)
   if (founding === undefined) {
-    return ok(fief)
+    return ok({ fief, founded: undefined })
   }
   const founded = fiefFoundedBy(fief, founding, ids.newId(), catalog.fiefSettings().startingStocks)
   if (!founded.ok) {
@@ -337,10 +350,21 @@ const settleFoundingSite = async (
   }
   const saved = await fiefs.save(founded.value)
   if (saved.ok) {
-    return ok(fief)
+    return ok({
+      fief,
+      founded: { fief: founded.value, events: [fiefFoundedEventOf(founding)] },
+    })
   }
-  return saved.error.kind === 'CoordinatesTaken' ? ok(fief.turnFoundingHome(founding)) : saved
+  return saved.error.kind === 'CoordinatesTaken'
+    ? ok({ fief: fief.turnFoundingHome(founding), founded: undefined })
+    : saved
 }
+
+const recordFounding = async (
+  chronicle: ChronicleWriter,
+  founded: ChangedFief | undefined,
+): Promise<Result<void, DomainError>> =>
+  founded === undefined ? ok(undefined) : chronicle.record(founded.fief.id, founded.events)
 
 export const resolveUpgrade = async (
   command: ResolveUpgradeCommand,
@@ -366,7 +390,7 @@ export const resolveUpgrade = async (
   if (!settled.ok) {
     return settled
   }
-  const resumed = settled.value.resumeBuildQueue(catalog)
+  const resumed = settled.value.fief.resumeBuildQueue(catalog)
   if (!resumed.ok) {
     return resumed
   }
@@ -386,6 +410,10 @@ export const resolveUpgrade = async (
   const recorded = await chronicle.record(resolvedFief.id, events)
   if (!recorded.ok) {
     return recorded
+  }
+  const foundingRecorded = await recordFounding(chronicle, settled.value.founded)
+  if (!foundingRecorded.ok) {
+    return foundingRecorded
   }
   return ok({ fief: resolvedFief, events, hasChanged: true })
 }

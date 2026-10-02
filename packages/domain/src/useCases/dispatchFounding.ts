@@ -7,6 +7,7 @@ import { ownFiefOf } from '../fief/ownFiefOf'
 import { refuseUnreachableTarget } from '../march/refuseUnreachableTarget'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
+import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import type { KingdomMapReader } from '../ports/KingdomMapReader'
@@ -23,6 +24,7 @@ export type DispatchFoundingDependencies = {
   readonly fiefs: FiefRepository
   readonly map: KingdomMapReader
   readonly catalog: BuildingCatalog
+  readonly chronicle: ChronicleWriter
   readonly clock: Clock
 }
 
@@ -40,7 +42,7 @@ const refuseFiefCap = async (
 
 export const dispatchFounding = async (
   command: DispatchFoundingCommand,
-  { fiefs, map, catalog, clock }: DispatchFoundingDependencies,
+  { fiefs, map, catalog, chronicle, clock }: DispatchFoundingDependencies,
 ): Promise<Result<Fief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
@@ -85,6 +87,12 @@ export const dispatchFounding = async (
   const saved = await fiefs.save(founding.value)
   if (!saved.ok) {
     return saved
+  }
+  const recorded = await chronicle.record(fief.id, [
+    { kind: 'foundingSent', province, plot, name: name.value.value, occurredAt: now },
+  ])
+  if (!recorded.ok) {
+    return recorded
   }
   return ok(founding.value)
 }
