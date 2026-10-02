@@ -178,3 +178,32 @@ three columns to `battle_fought` by `kind::text` (migration 0017). Nothing
 else here changes: the events are still written in the transaction that
 applies them, the chronicle still records endings and never orders, the
 domain never reads it, and retention stays at 100.
+
+## Fourth amendment (2026-10-02)
+
+The chronicle records a ninth and a tenth kind of event, founding sent
+and fief founded (S18, ADR 023), and the first lifts "the chronicle
+still records endings and never orders" for one order. `foundingSent`
+is written when a founding march is dispatched, on the fief the settler
+leaves, stamped with the dispatch instant: the plot is reserved from
+that instant, and the line is the record of the claim. `dispatchFounding`
+records it right after `fiefs.save`, in the transaction of the
+dispatch, and a refusal records nothing. A forage and an attack still
+write nothing when they leave. `fiefFounded` is stamped with the
+founding's arrival, `arrivesAt`, never the `now` of the read that
+applied it; the resolve answers it among the origin's events, after the
+upgrade, the study, the recruits delivered and the battle of a tied
+instant and before the march returned, and records the same event on
+the new fief's id, its first, in the same transaction. Each names the
+new fief, by the name its lord gave it, and its plot (province and
+plot), with no level, no unit, no count and no refund. A founding
+recalled, or turned home at a held plot, writes the march returned of
+its return with one settler and no fief founded, and its founding sent
+stays. `fief_events` gains a nullable `settler_count` (migration 0021)
+and a nullable `fief_name`, the check `fief_events_founding_name` ties
+`fief_name` to the two kinds by `kind::text`, and
+`fief_events_one_subject` is rewritten to count `fief_name` as a
+subject that carries `province` and `plot` (migration 0024). Nothing
+else here changes: the events are still written in the transaction
+that applies them, the domain never reads the chronicle, each fief has
+its own, and retention stays at 100.

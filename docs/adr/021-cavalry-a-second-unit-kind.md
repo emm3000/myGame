@@ -431,3 +431,41 @@ before. The known gap of the forms' preview now spans the season.
 Nothing else here changes: the kinds and their order, the party, the
 road of the slowest kind, the carry, the battle, the losses and the
 attack loot stand, and a season on combat stays out.
+
+## Second amendment (2026-10-02)
+
+S18 (ADR 023) adds the third kind, `settler`, last in the kinds' order:
+`UnitKind` is `infantry | cavalry | settler`. The consequence "A third
+kind touches no formula and no wire shape" held of the shapes and of
+the list it gave, an entry in `byUnitKind` and in `UnitKindSchema`, a
+value in the enum `unit`, a `settler_count` on `fief_marches` and on
+`fief_events` with their checks (migration 0021), its label and its
+icon. It did not hold of the terms: the settler's `strength` and
+`carry` are 0, so "each a whole count from 1" in the decision "Each
+kind's carry, road percent and barracks level are content" now holds
+for `durationSeconds`, `peasantOccupancy`, `roadPercent` and
+`barracksLevel`, while `UnitTermsSchema` and the overview's `unitTerms`
+take `strength` and `carry` as whole counts from 0.
+
+A kind of strength 0 and carry 0 joins no party of a forage or of an
+attack. `refuseUnfitUnits` refuses `UnitUnfitForOrder { unit:
+'settler', order }`, a new member of `DomainError` answered 409, in
+`Fief.roomForMarch` and `Fief.roomForAttack`, right after
+`refuseInvalidParty` and before every other check, so no forage loot,
+no battle and no attack loot of this ADR is computed over a settler.
+`battleOf` skips a kind the party holds none of, since `ceil(rest /
+sₖ)` over a strength of 0 is no number for a winning party; with the
+shipped
+infantry and cavalry every result above stands. The map's forage and
+attack forms offer no settler field and send `settler: 0`. A settler is
+sent alone, on the founding march of ADR 023, at its `roadPercent` of
+100.
+
+The known gap of the static `BarracksTooLow` line is closed: the api
+builds it from the refusal's `unit` and `requiredBarracksLevel`, and
+the army section from the refused order and `unitTerms`, so the rider
+reads level 3 and the settler level 5. The web's `copy.refusals` keeps
+a line with no level and no unit that no screen shows. Nothing else
+here changes: the party, the road of the slowest kind, the carry, the
+battle, the losses infantry first and the attack loot stand, and
+archers and rams stay content of a later slice.

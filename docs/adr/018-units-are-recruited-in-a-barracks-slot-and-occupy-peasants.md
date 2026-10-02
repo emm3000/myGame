@@ -436,3 +436,35 @@ the order, delivered one unit at a time on read, its per-unit duration
 the content seconds over one plus the built barracks level under the
 season's train percent (ADR 017 as amended), cancelled with the delivered
 kept, and one chronicle line per order.
+
+## Fourth amendment (2026-10-02)
+
+S18 (ADR 023) adds a third kind, `settler`, the unit that founds a
+lord's second fief, and lifts "other unit kinds" from the out-of-scope
+line one kind further; archers and rams stay content of a later slice.
+The settler is recruited through the recruit slot above like any kind,
+gated by the level of the third amendment: `Fief.placeRecruitOrder`
+refuses `BarracksTooLow { unit: 'settler', requiredBarracksLevel: 5,
+barracksLevel }` at built barracks 1 to 4, after `BarracksNotBuilt` at
+0. As shipped it costs 1000 wood,
+1000 stone, 600 iron, 100 gold and 1000 food, the first kind to cost
+stone, takes 7200 content seconds and occupies 4 peasants from the
+instant the order is placed: 1 200 seconds a settler at barracks 5, 900
+ordered in a spring that trains at 75 %, and 1 029 at barracks 6. Its
+`strength` and `carry` are 0, so the third amendment's "whole counts
+from 1" now holds for `roadPercent` and `barracksLevel` alone, and
+`strength` and `carry` are whole counts from 0 (ADR 021 as amended).
+The enum `unit` gains `settler` (migration 0021), and `fief_units`,
+`fief_recruit_orders` and the recruit events hold a settler in the
+columns above. A unit count is lowered outside a battle for the first
+time: a settler that founds leaves the stored count at its arrival and
+frees its peasants, an open recruit order being settled first as the
+second amendment settles it at a battle. The army section draws the
+settler's card third, locked below barracks 5 in the lines of the
+rider's lock. The `BarracksTooLow` line names the kind and the level it
+needs, in the api from the refusal and in the army section from the
+refused order and `unitTerms`, where it was written for the rider
+alone. Nothing else here changes: one recruit slot and one order at a
+time, of one kind, paid and staffed in full at the order, delivered one
+unit at a time on read, cancelled with the delivered kept, and one
+chronicle line per order.
