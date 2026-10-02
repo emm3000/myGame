@@ -1,5 +1,10 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, FiefListSchema, ProvinceMapSchema } from '@mygame/contracts'
+import {
+  ApiErrorSchema,
+  FiefListSchema,
+  type ProvinceMap,
+  ProvinceMapSchema,
+} from '@mygame/contracts'
 import { type Clock, type FiefId, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -100,6 +105,34 @@ describe('the map route', () => {
   const mapOf = async (lord: Lord, path = ''): Promise<Response> =>
     app.request(`/fiefs/${lord.fiefId}/map${path}`, { headers: { cookie: lord.cookie } })
 
+  const provinceTwoOf = async (lord: Lord): Promise<ProvinceMap> =>
+    ProvinceMapSchema.parse(await (await mapOf(lord, '/2')).json())
+
+  const signUpWithASettler = async (email: string, fiefName: string): Promise<Lord> => {
+    const lord = await signUp(email, fiefName)
+    await runSql(
+      `INSERT INTO fief_units (fief_id, kind, count) VALUES ('${lord.fiefId}', 'settler', 1)`,
+    )
+    return lord
+  }
+
+  const sendFounding = async (lord: Lord, plot: number): Promise<void> => {
+    const response = await app.request(`/fiefs/${lord.fiefId}/marches/found`, {
+      method: 'POST',
+      headers: { cookie: lord.cookie, 'content-type': 'application/json' },
+      body: JSON.stringify({ province: 2, plot, name: 'Sotoverde del Páramo' }),
+    })
+    expect(response.status).toBe(200)
+  }
+
+  const freePlotWithoutCampOf = async (lord: Lord): Promise<number> => {
+    const free = (await provinceTwoOf(lord)).plots.find(
+      ({ fief, camp }) => fief === null && camp === null,
+    )
+    assert(free !== undefined)
+    return free.plot
+  }
+
   it('opens the map on the province of the fief named in the path', async () => {
     await signUp('bruno@example.com', 'Robledal')
     for (let plot = 2; plot <= plotsPerProvince; plot += 1) {
@@ -120,6 +153,7 @@ describe('the map route', () => {
       plot: 1,
       fief: { name: 'Valdehierro', isOwn: true },
       camp: null,
+      reservation: null,
     })
   })
 
@@ -131,9 +165,9 @@ describe('the map route', () => {
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.plots.slice(0, 3)).toEqual([
-      { plot: 1, fief: { name: 'Valdehierro', isOwn: false }, camp: null },
-      { plot: 2, fief: { name: 'Robledal', isOwn: true }, camp: null },
-      { plot: 3, fief: null, camp: null },
+      { plot: 1, fief: { name: 'Valdehierro', isOwn: false }, camp: null, reservation: null },
+      { plot: 2, fief: { name: 'Robledal', isOwn: true }, camp: null, reservation: null },
+      { plot: 3, fief: null, camp: null, reservation: null },
     ])
   })
 
@@ -201,8 +235,8 @@ describe('the map route', () => {
 
     const map = ProvinceMapSchema.parse(await response.json())
     expect(map.plots.filter(({ camp }) => camp !== null)).toEqual([
-      { plot: 9, fief: null, camp: { tier: 3, strength: 40 } },
-      { plot: 12, fief: null, camp: { tier: 1, strength: 6 } },
+      { plot: 9, fief: null, camp: { tier: 3, strength: 40 }, reservation: null },
+      { plot: 12, fief: null, camp: { tier: 1, strength: 6 }, reservation: null },
     ])
   })
 
@@ -223,7 +257,45 @@ describe('the map route', () => {
     const response = await mapOf(ana, '/1')
 
     const map = ProvinceMapSchema.parse(await response.json())
-    expect(map.plots[11]).toEqual({ plot: 12, fief: null, camp: { tier: 1, strength: 1 } })
+    expect(map.plots[11]).toEqual({
+      plot: 12,
+      fief: null,
+      camp: { tier: 1, strength: 1 },
+      reservation: null,
+    })
+  })
+
+  it('shows the plot of a founding in flight as reserved to another lord', async () => {
+    const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+    const bruno = await signUp('bruno@example.com', 'Robledal')
+    const plot = await freePlotWithoutCampOf(ana)
+    await sendFounding(ana, plot)
+
+    const map = await provinceTwoOf(bruno)
+
+    expect(map.plots[plot - 1]).toEqual({
+      plot,
+      fief: null,
+      camp: null,
+      reservation: { isOwn: false },
+    })
+  })
+
+  it('shows the plot free again after a recall', async () => {
+    const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+    const bruno = await signUp('bruno@example.com', 'Robledal')
+    const plot = await freePlotWithoutCampOf(ana)
+    await sendFounding(ana, plot)
+    clock.advanceMinutes(5)
+    const recall = await app.request(
+      `/fiefs/${ana.fiefId}/marches/${encodeURIComponent('2026-09-22T08:00:00.000Z')}/recall`,
+      { method: 'POST', headers: { cookie: ana.cookie } },
+    )
+    expect(recall.status).toBe(200)
+
+    const map = await provinceTwoOf(bruno)
+
+    expect(map.plots[plot - 1]).toEqual({ plot, fief: null, camp: null, reservation: null })
   })
 
   it('answers 401 without a session', async () => {

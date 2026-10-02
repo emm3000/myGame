@@ -3,7 +3,7 @@ import type { CampBattle } from '../camp/CampBattle'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
-import { type HeldPlot, inMemoryKingdomMap } from '../testing/inMemoryKingdomMap'
+import { type HeldPlot, inMemoryKingdomMap, type ReservedPlot } from '../testing/inMemoryKingdomMap'
 import { neutralSeasons } from '../testing/neutralSeasons'
 import { plainCamps } from '../testing/plainCamps'
 import { plainForage } from '../testing/plainForage'
@@ -94,6 +94,26 @@ const dependenciesOf = (battles: ReadonlyArray<CampBattle> = []): ReadProvinceMa
 })
 
 const tierTwoCampPlot = { kingdom: 1, province: 3, plot: 1 }
+
+const reservedByNeighbour: ReservedPlot = {
+  playerId: 'neighbour',
+  address: { kingdom: 1, province: 2, plot: 4 },
+}
+
+const reservedByViewer: ReservedPlot = {
+  playerId: 'viewer',
+  address: { kingdom: 1, province: 2, plot: 2 },
+}
+
+const dependenciesWithReservations = (
+  reservedPlots: ReadonlyArray<ReservedPlot>,
+): ReadProvinceMapDependencies => ({
+  ...dependenciesOf(),
+  map: inMemoryKingdomMap(
+    [viewerFief, neighbourFief, farFief, foreignFief, deepForeignFief],
+    reservedPlots,
+  ),
+})
 
 const plotTheHashPassesOver = { kingdom: 1, province: 3, plot: 2 }
 
@@ -321,5 +341,79 @@ describe('readProvinceMap', () => {
 
     assert(read.ok)
     expect(read.value.plots[plotTheHashPassesOver.plot - 1]?.camp).toBeUndefined()
+  })
+
+  it('answers a reserved plot with its reservation', async () => {
+    const read = await readProvinceMap(
+      { playerId: 'viewer', fiefId: 'viewer-fief' },
+      dependenciesWithReservations([reservedByNeighbour]),
+    )
+
+    assert(read.ok)
+    expect(read.value.plots[3]).toEqual({
+      plot: 4,
+      fief: undefined,
+      camp: undefined,
+      reservation: { isOwn: false },
+    })
+  })
+
+  it('answers no camp on a reserved plot', async () => {
+    const reservedOnCamp: ReservedPlot = { playerId: 'neighbour', address: tierTwoCampPlot }
+
+    const read = await readProvinceMap(
+      { playerId: 'viewer', fiefId: 'viewer-fief', province: 3 },
+      dependenciesWithReservations([reservedOnCamp]),
+    )
+
+    assert(read.ok)
+    expect(read.value.plots[tierTwoCampPlot.plot - 1]?.camp).toBeUndefined()
+  })
+
+  it('marks a reservation of the viewer as own', async () => {
+    const read = await readProvinceMap(
+      { playerId: 'viewer', fiefId: 'viewer-fief' },
+      dependenciesWithReservations([reservedByViewer, reservedByNeighbour]),
+    )
+
+    assert(read.ok)
+    expect(read.value.plots[1]?.reservation).toEqual({ isOwn: true })
+    expect(read.value.plots[3]?.reservation).toEqual({ isOwn: false })
+  })
+
+  it('marks both fiefs of the viewer as own', async () => {
+    const viewerSecondFief: HeldPlot = {
+      fiefId: 'viewer-second-fief',
+      playerId: 'viewer',
+      name: 'Sotoverde del Páramo',
+      address: { kingdom: 1, province: 2, plot: 4 },
+    }
+    const dependencies = {
+      ...dependenciesOf(),
+      map: inMemoryKingdomMap([viewerFief, viewerSecondFief, neighbourFief]),
+    }
+
+    const read = await readProvinceMap(
+      { playerId: 'viewer', fiefId: 'viewer-second-fief' },
+      dependencies,
+    )
+
+    assert(read.ok)
+    expect(read.value.plots.map(({ fief }) => fief)).toEqual([
+      { name: 'Peña Alta', isOwn: false },
+      undefined,
+      { name: 'Vado Viejo', isOwn: true },
+      { name: 'Sotoverde del Páramo', isOwn: true },
+    ])
+  })
+
+  it('answers no reservation on a plot no founding is sent to', async () => {
+    const read = await readProvinceMap(
+      { playerId: 'viewer', fiefId: 'viewer-fief' },
+      dependenciesWithReservations([reservedByNeighbour]),
+    )
+
+    assert(read.ok)
+    expect(read.value.plots[1]?.reservation).toBeUndefined()
   })
 })

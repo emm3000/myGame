@@ -5,6 +5,7 @@ export type ProvincePlot = {
   readonly plot: number
   readonly fief: { readonly name: string; readonly isOwn: boolean } | undefined
   readonly camp: { readonly tier: CampTier; readonly strength: number } | undefined
+  readonly reservation: { readonly isOwn: boolean } | undefined
 }
 
 export type ProvinceMap = {

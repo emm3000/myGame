@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { Button } from './Button'
 import { CampIcon } from './icons/CampIcon'
+import { SettlerIcon } from './icons/SettlerIcon'
 
 export interface PlotAction {
   readonly label: string
@@ -17,6 +18,7 @@ export type PlotHolder =
       readonly strength: string
       readonly action?: PlotAction | undefined
     }
+  | { readonly kind: 'reserved'; readonly line: string; readonly marker?: string | undefined }
   | { readonly kind: 'held'; readonly name: string }
   | { readonly kind: 'own'; readonly name: string; readonly marker: string }
 
@@ -29,6 +31,7 @@ export interface PlotTileProps {
 const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   free: 'border border-line border-dashed bg-surface',
   camp: 'border border-line border-dashed bg-surface',
+  reserved: 'border border-line-strong border-dashed bg-surface-sunken',
   held: 'border border-line bg-surface-raised shadow-card',
   own: 'border-2 border-river border-l-4 bg-surface-raised shadow-card',
 }
@@ -41,6 +44,9 @@ const frameClassOf = (holder: PlotHolder): string =>
     : frameClass[holder.kind]
 
 const nameClass = 'font-body text-heading text-ink wrap-anywhere'
+
+const markerClass =
+  'self-start rounded-sm bg-umber px-2 font-utility text-label uppercase text-on-umber'
 
 function PlotActionButton({ action }: { readonly action: PlotAction }): ReactElement {
   return (
@@ -84,15 +90,25 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
           {holder.action !== undefined && <PlotActionButton action={holder.action} />}
         </>
       )
+    case 'reserved':
+      return (
+        <>
+          <span className="flex items-start gap-2 text-ink-muted">
+            <span className="mt-0.5 flex">
+              <SettlerIcon />
+            </span>
+            <span className="font-body text-heading font-normal">{holder.line}</span>
+          </span>
+          {holder.marker !== undefined && <span className={markerClass}>{holder.marker}</span>}
+        </>
+      )
     case 'held':
       return <span className={nameClass}>{holder.name}</span>
     case 'own':
       return (
         <>
           <span className={nameClass}>{holder.name}</span>
-          <span className="self-start rounded-sm bg-umber px-2 font-utility text-label uppercase text-on-umber">
-            {holder.marker}
-          </span>
+          <span className={markerClass}>{holder.marker}</span>
         </>
       )
     default: {

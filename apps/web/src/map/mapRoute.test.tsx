@@ -275,3 +275,44 @@ it('asks the api with the fief id from the URL while browsing', async () => {
   expect(requested).toEqual([9, undefined, 4, 3, 1])
   expect(fiefIds).toEqual([robledalId, robledalId, robledalId, robledalId, robledalId])
 })
+
+const plotsWith = (changed: Partial<Record<number, Partial<ProvinceMap['plots'][number]>>>) => ({
+  ...knownProvinceMap,
+  plots: knownProvinceMap.plots.map((plot) => ({ ...plot, ...changed[plot.plot] })),
+})
+
+const reservedBy = (isOwn: boolean): ProvinceMap => plotsWith({ 5: { reservation: { isOwn } } })
+
+it('reads a plot reserved by another lord', async () => {
+  const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(false))
+
+  const reserved = plots[4] as HTMLElement
+  expect(within(reserved).getByText('reservada')).toBeDefined()
+  expect(within(reserved).queryByText('Tu fundación')).toBeNull()
+  expect(within(reserved).queryByText('libre')).toBeNull()
+})
+
+it('reads a plot the lord reserved', async () => {
+  const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(true))
+
+  const reserved = plots[4] as HTMLElement
+  expect(within(reserved).getByText('reservada')).toBeDefined()
+  expect(within(reserved).getByText('Tu fundación')).toBeDefined()
+})
+
+it('offers no action on a reserved plot', async () => {
+  const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(true))
+
+  expect(await screen.findByRole('button', { name: copy.march.sendTo(6) })).toBeDefined()
+  expect(within(plots[4] as HTMLElement).queryByRole('button')).toBeNull()
+})
+
+it('marks both own fiefs', async () => {
+  const plots = await showPlots(
+    `${knownFiefPath}/mapa`,
+    plotsWith({ 7: { fief: { name: 'Sotoverde del Páramo', isOwn: true } } }),
+  )
+
+  expect(within(plots[6] as HTMLElement).getByText('Tu feudo')).toBeDefined()
+  expect(within(plots[11] as HTMLElement).getByText('Tu feudo')).toBeDefined()
+})

@@ -150,7 +150,12 @@ export const knownProvinceMap: ProvinceMap = {
   plots: Array.from({ length: 15 }, (_, index) => {
     const plot = index + 1
     const name = heldPlots[plot]
-    return { plot, fief: name === undefined ? null : { name, isOwn: plot === 12 }, camp: null }
+    return {
+      plot,
+      fief: name === undefined ? null : { name, isOwn: plot === 12 },
+      camp: null,
+      reservation: null,
+    }
   }),
 }
 

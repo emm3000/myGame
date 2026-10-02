@@ -9,7 +9,7 @@ import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog, CampTerms } from '../ports/BuildingCatalog'
 import type { CampRegistry } from '../ports/CampRegistry'
 import type { Clock } from '../ports/Clock'
-import type { KingdomMapReader, PlotHolder } from '../ports/KingdomMapReader'
+import type { KingdomMapReader, PlotHolder, PlotReservation } from '../ports/KingdomMapReader'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
@@ -44,20 +44,29 @@ const campOnFreePlot = (plot: number, camps: ProvinceCamps): ProvincePlot['camp'
   }
 }
 
-const plotsOf = (
-  plotsPerProvince: number,
-  holders: ReadonlyArray<PlotHolder>,
-  viewer: PlayerId,
+type ProvinceOccupants = {
+  readonly holders: ReadonlyArray<PlotHolder>
+  readonly reservations: ReadonlyArray<PlotReservation>
+  readonly viewer: PlayerId
+}
+
+const plotOf = (
+  plot: number,
+  { holders, reservations, viewer }: ProvinceOccupants,
   camps: ProvinceCamps,
-): ReadonlyArray<ProvincePlot> =>
-  Array.from({ length: plotsPerProvince }, (_, index) => {
-    const plot = index + 1
-    const holder = holders.find((held) => held.plot === plot)
-    if (holder === undefined) {
-      return { plot, fief: undefined, camp: campOnFreePlot(plot, camps) }
-    }
-    return { plot, fief: { name: holder.name, isOwn: holder.playerId === viewer }, camp: undefined }
-  })
+): ProvincePlot => {
+  const holder = holders.find((held) => held.plot === plot)
+  if (holder !== undefined) {
+    const fief = { name: holder.name, isOwn: holder.playerId === viewer }
+    return { plot, fief, camp: undefined, reservation: undefined }
+  }
+  const reserved = reservations.find((reservation) => reservation.plot === plot)
+  if (reserved !== undefined) {
+    const reservation = { isOwn: reserved.playerId === viewer }
+    return { plot, fief: undefined, camp: undefined, reservation }
+  }
+  return { plot, fief: undefined, camp: campOnFreePlot(plot, camps), reservation: undefined }
+}
 
 export const readProvinceMap = async (
   command: ReadProvinceMapCommand,
@@ -73,20 +82,26 @@ export const readProvinceMap = async (
   if (!Number.isInteger(province) || province < 1 || province > lastProvince) {
     return err({ kind: 'ProvinceNotFound', province, lastProvince })
   }
-  const holders = await map.holdersIn(address.kingdom, province)
-  const lastBattles = await camps.lastBattlesIn(address.kingdom, province)
+  const occupants = {
+    holders: await map.holdersIn(address.kingdom, province),
+    reservations: await map.reservationsIn(address.kingdom, province),
+    viewer: command.playerId,
+  }
   const settings = catalog.fiefSettings()
+  const provinceCamps = {
+    kingdom: address.kingdom,
+    province,
+    terms: settings.camps,
+    lastBattles: await camps.lastBattlesIn(address.kingdom, province),
+    now: clock.now(),
+  }
   return ok({
     kingdom: address.kingdom,
     province,
     lastProvince,
     terrain: terrainOf(province),
-    plots: plotsOf(settings.plotsPerProvince, holders, command.playerId, {
-      kingdom: address.kingdom,
-      province,
-      terms: settings.camps,
-      lastBattles,
-      now: clock.now(),
-    }),
+    plots: Array.from({ length: settings.plotsPerProvince }, (_, index) =>
+      plotOf(index + 1, occupants, provinceCamps),
+    ),
   })
 }

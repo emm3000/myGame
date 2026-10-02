@@ -31,6 +31,7 @@ const uplandsWithCamps: ProvinceMap = {
         : index + 1 === 9
           ? { tier: 2, strength: 15 }
           : null,
+    reservation: null,
   })),
 }
 

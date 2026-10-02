@@ -26,6 +26,7 @@ const uplandsWithACamp: ProvinceMap = {
     plot: index + 1,
     fief: null,
     camp: index + 1 === 9 ? { tier: 2, strength: 15 } : null,
+    reservation: null,
   })),
 }
 

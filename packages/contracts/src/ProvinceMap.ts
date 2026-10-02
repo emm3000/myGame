@@ -11,6 +11,7 @@ const ProvincePlotSchema = z.strictObject({
   plot: z.number().int().min(1),
   fief: z.strictObject({ name: z.string(), isOwn: z.boolean() }).nullable(),
   camp: PlotCampSchema.nullable(),
+  reservation: z.strictObject({ isOwn: z.boolean() }).nullable(),
 })
 
 export const ProvinceMapSchema = z.strictObject({
