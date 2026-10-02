@@ -234,7 +234,7 @@ export const chronicleContract = (
         kind: 'foundingSent',
         province: 2,
         plot: 7,
-        name: 'Sotoverde del Páramo',
+        name: 'Fuentesauce',
         occurredAt: minutesAfterDawn(25),
       }
 
@@ -250,7 +250,7 @@ export const chronicleContract = (
         kind: 'fiefFounded',
         province: 2,
         plot: 7,
-        name: 'Sotoverde del Páramo',
+        name: 'Fuentesauce',
         occurredAt: minutesAfterDawn(40),
       }
 

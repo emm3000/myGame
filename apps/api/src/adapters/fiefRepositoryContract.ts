@@ -121,7 +121,7 @@ const ridersAttacking: AwayMarch = {
 const settlerFounding: AwayMarch = {
   kind: 'away',
   order: 'found',
-  name: 'Sotoverde del Páramo',
+  name: 'Fuentesauce',
   province: 6,
   plot: 9,
   units: { infantry: 0, cavalry: 0, settler: 1 },

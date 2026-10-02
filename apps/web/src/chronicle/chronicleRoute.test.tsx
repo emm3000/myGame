@@ -529,6 +529,69 @@ it('reads an infantry-only line as before', async () => {
   )
 })
 
+it('names the new fief and its plot in the founding sent line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'foundingSent',
+        province: 2,
+        plot: 7,
+        name: 'Sotoverde del Páramo',
+        occurredAt: '2026-09-22T18:25:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Fundación enviada: Sotoverde del Páramo, provincia 2, parcela 7.',
+  )
+})
+
+it('reads the fief founded line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'fiefFounded',
+        province: 2,
+        plot: 7,
+        name: 'Sotoverde del Páramo',
+        occurredAt: '2026-09-22T18:40:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Feudo fundado: Sotoverde del Páramo, provincia 2, parcela 7.')
+})
+
+it('reads a recalled founding as a return with one settler', async () => {
+  const [returnRow, sentRow] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+        loot: noRefund,
+        occurredAt: '2026-09-22T18:45:00.000Z',
+        recalled: true,
+      },
+      {
+        kind: 'foundingSent',
+        province: 2,
+        plot: 7,
+        name: 'Sotoverde del Páramo',
+        occurredAt: '2026-09-22T18:25:00.000Z',
+      },
+    ],
+  })
+
+  expect(returnRow?.textContent).toContain('Marcha retirada: provincia 2, parcela 7, 1 colono.')
+  expect(returnRow?.textContent).not.toContain(copy.chronicle.received)
+  expect(sentRow?.textContent).toContain(
+    'Fundación enviada: Sotoverde del Páramo, provincia 2, parcela 7.',
+  )
+})
+
 it('shows each event at the instant it happened', async () => {
   const occurredAt = new Date(2025, 8, 12, 9, 15).toISOString()
   const [row] = await showChronicle({

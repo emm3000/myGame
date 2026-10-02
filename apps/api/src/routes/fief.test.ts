@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
+  type FiefChronicle,
   FiefChronicleSchema,
   FiefListSchema,
   type FiefOverview,
@@ -3167,32 +3168,59 @@ describe('the fief route', () => {
       })
     })
 
-    it('stores the founding in both chronicles and keeps it off the wire', async () => {
+    const chronicleEventsOf = async (lord: Lord): Promise<FiefChronicle['events']> =>
+      FiefChronicleSchema.parse(
+        await (
+          await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
+        ).json(),
+      ).events
+
+    const fiefFoundedAtTheArrival = () => ({
+      kind: 'fiefFounded',
+      province: 2,
+      plot: freePlot(),
+      name: 'Sotoverde del Páramo',
+      occurredAt: new Date(
+        signedUpAt + minutesToArrivalAt(freePlot()) * millisecondsPerMinute,
+      ).toISOString(),
+    })
+
+    it('lists the founding march sent in the origin chronicle', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+
+      expect(await chronicleEventsOf(ana)).toEqual([
+        {
+          kind: 'foundingSent',
+          province: 2,
+          plot: freePlot(),
+          name: 'Sotoverde del Páramo',
+          occurredAt: '2026-09-22T08:00:00.000Z',
+        },
+      ])
+    })
+
+    it('lists the fief founded in both chronicles at the arrival', async () => {
       const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
       await found(ana, foundingOnFreePlot())
       clock.advanceMinutes(minutesToArrivalAt(freePlot()))
       const founded = await foundedFiefOf(ana)
 
-      const answered = await Promise.all(
-        [ana, founded].map(async (lord) =>
-          FiefChronicleSchema.parse(
-            await (
-              await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
-            ).json(),
-          ),
-        ),
-      )
+      const origin = await chronicleEventsOf(ana)
+      const newFief = await chronicleEventsOf(founded)
 
-      expect({
-        answered: answered.map(({ events }) => events),
-        stored: [
-          (await server.chronicle.eventsOf(ana.fiefId)).map(({ kind }) => kind),
-          (await server.chronicle.eventsOf(founded.fiefId)).map(({ kind }) => kind),
-        ],
-      }).toEqual({
-        answered: [[], []],
-        stored: [['fiefFounded', 'foundingSent'], ['fiefFounded']],
-      })
+      expect(origin.map(({ kind }) => kind)).toEqual(['fiefFounded', 'foundingSent'])
+      expect(origin[0]).toEqual(fiefFoundedAtTheArrival())
+      expect(newFief).toContainEqual(fiefFoundedAtTheArrival())
+    })
+
+    it('opens the new fief chronicle with its founding alone', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(minutesToArrivalAt(freePlot()) + 60)
+      const founded = await foundedFiefOf(ana)
+
+      expect(await chronicleEventsOf(founded)).toEqual([fiefFoundedAtTheArrival()])
     })
 
     it('refuses a founding from a lord of two fiefs', async () => {

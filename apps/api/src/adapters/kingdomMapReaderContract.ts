@@ -94,7 +94,7 @@ const fiefSendingSettler = ({
       march: {
         kind: 'away',
         order: 'found',
-        name: 'Sotoverde del Páramo',
+        name: 'Fuentesauce',
         province: target.province,
         plot: target.plot,
         units: { infantry: 0, cavalry: 0, settler: 1 },
