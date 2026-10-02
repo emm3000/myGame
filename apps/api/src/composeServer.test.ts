@@ -92,6 +92,7 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
       ridges: { resource: 'iron', ratePerHour: 2 },
     },
     buildQueueCap: 4,
+    fiefCap: 2,
     seasons: {
       epoch: '2026-10-05T00:00:00Z',
       daysPerSeason: 7,
@@ -416,6 +417,7 @@ const withRead = (
   occupiedPlots: () => fiefs.occupiedPlots(),
   holdsFief: (playerId) => fiefs.holdsFief(playerId),
   fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
+  foundingsOnTheRoadOf: (playerId) => fiefs.foundingsOnTheRoadOf(playerId),
   fiefOf: read,
   save: (fief) => fiefs.save(fief),
 })

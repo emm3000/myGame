@@ -48,6 +48,7 @@ export const FiefContentSchema = z.object({
   baseRates: ResourceAmountsSchema,
   terrainBonus: z.record(TerrainSchema, TerrainBonusSchema),
   buildQueueCap: WholeCountSchema,
+  fiefCap: WholeCountSchema.positive(),
   seasons: SeasonCalendarSchema,
   units: z.record(UnitKindSchema, UnitTermsSchema),
   forage: ForageTermsSchema,

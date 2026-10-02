@@ -29,6 +29,14 @@ export const inMemoryFiefRepository = (existing: ReadonlyArray<Fief>): InMemoryF
         .filter((fief) => fief.playerId === playerId)
         .sort(byProvinceThenPlot)
         .map((fief) => fief.id),
+    foundingsOnTheRoadOf: async (playerId) =>
+      [...fiefs.values()].filter(
+        ({ playerId: holder, march }) =>
+          holder === playerId &&
+          march.kind === 'away' &&
+          march.order === 'found' &&
+          march.recalledAt === undefined,
+      ).length,
     fiefOf: async (fiefId) => ok(fiefs.get(fiefId)),
     save: async (fief) => {
       fiefs.set(fief.id, fief)

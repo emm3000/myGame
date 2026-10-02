@@ -63,6 +63,20 @@ const attackMarch = {
   fought: false,
 } as const
 
+const foundingMarch = {
+  kind: 'away',
+  order: 'found',
+  name: 'Sotoverde del Páramo',
+  province: 3,
+  plot: 5,
+  units: { infantry: 0, cavalry: 0, settler: 1 },
+  stayHours: 0,
+  departedAt: foundingInstant,
+  oneWaySeconds: 720,
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+} as const
+
 const storedBusyFief: StoredFief = {
   id: 'fief-1',
   playerId: 'founder',
@@ -299,6 +313,37 @@ describe('Fief', () => {
 
     assert(restored.ok)
     expect(restored.value.march).toEqual(attackMarch)
+  })
+
+  it('restores a founding march with its name', () => {
+    const restored = Fief.restore({ ...storedBusyFief, march: foundingMarch })
+
+    assert(restored.ok)
+    expect(restored.value.march).toEqual(foundingMarch)
+  })
+
+  it('refuses a stored founding with two settlers', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      march: { ...foundingMarch, units: { infantry: 0, cavalry: 0, settler: 2 } },
+    })
+
+    expect(restored).toEqual(err({ kind: 'InvalidUnitCount', unit: 'settler', count: 2 }))
+  })
+
+  it('refuses a stored founding with a footman beside the settler', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      march: { ...foundingMarch, units: { infantry: 1, cavalry: 0, settler: 1 } },
+    })
+
+    expect(restored).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 1 }))
+  })
+
+  it('refuses a stored founding with a stay', () => {
+    const restored = Fief.restore({ ...storedBusyFief, march: { ...foundingMarch, stayHours: 1 } })
+
+    expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
   })
 
   it('refuses a stored attack with a stay', () => {

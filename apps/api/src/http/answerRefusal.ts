@@ -8,7 +8,9 @@ type UnitsShortAtHome = Extract<Refusal, { readonly kind: 'NotEnoughUnitsAtHome'
 
 type BarracksTooLow = Extract<Refusal, { readonly kind: 'BarracksTooLow' }>
 
-type SlottedKind = UnitsShortAtHome['kind'] | BarracksTooLow['kind']
+type FiefCapReached = Extract<Refusal, { readonly kind: 'FiefCapReached' }>
+
+type SlottedKind = UnitsShortAtHome['kind'] | BarracksTooLow['kind'] | FiefCapReached['kind']
 
 type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
 
@@ -35,6 +37,9 @@ const unitsShortLineOf = ({ unit, count, atHome }: UnitsShortAtHome): string =>
 
 const barracksTooLowLineOf = ({ unit, requiredBarracksLevel }: BarracksTooLow): string =>
   `Tu cuartel aún no llega al nivel ${requiredBarracksLevel} que piden los ${unitLabels[unit].plural}. Mejóralo primero.`
+
+const fiefCapReachedLineOf = ({ cap }: FiefCapReached): string =>
+  `Solo puedes tener ${cap} feudos. Deja al colono en casa.`
 
 const messages: Readonly<Record<SlotlessKind, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
@@ -65,6 +70,7 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
   UnitUnfitForOrder: 'Un colono no forrajea ni ataca. Envíalo a fundar un feudo.',
+  PlotReserved: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
@@ -124,6 +130,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   PlotHasCamp: { status: 409, kind: 'PlotHasCamp' },
   PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
   UnitUnfitForOrder: { status: 409, kind: 'UnitUnfitForOrder' },
+  PlotReserved: { status: 409, kind: 'PlotReserved' },
   InvalidCamp: internalFailure,
   InvalidLootPercent: internalFailure,
 }
@@ -135,6 +142,10 @@ export const answerRefusal = (c: Context, refusal: Refusal): Response => {
   }
   if (refusal.kind === 'BarracksTooLow') {
     const body: ApiError = { kind: refusal.kind, message: barracksTooLowLineOf(refusal) }
+    return c.json(body, 409)
+  }
+  if (refusal.kind === 'FiefCapReached') {
+    const body: ApiError = { kind: refusal.kind, message: fiefCapReachedLineOf(refusal) }
     return c.json(body, 409)
   }
   const { status, kind } = answers[refusal.kind]

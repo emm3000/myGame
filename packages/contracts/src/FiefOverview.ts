@@ -139,9 +139,18 @@ const AttackMarchStateSchema = MarchOnTheRoadSchema.extend({
   fought: z.boolean(),
 })
 
+const FoundingMarchStateSchema = MarchOnTheRoadSchema.extend({
+  order: z.literal('found'),
+  name: z.string().min(1),
+  stayHours: z.literal(0),
+  camp: z.null(),
+  fought: z.literal(false),
+})
+
 const MarchStateSchema = z.discriminatedUnion('order', [
   ForageMarchStateSchema,
   AttackMarchStateSchema,
+  FoundingMarchStateSchema,
 ])
 
 const UnitStatsSchema = z.strictObject({

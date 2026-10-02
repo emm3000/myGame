@@ -21,7 +21,7 @@ import {
   type StoredFief,
   type StudySlot,
 } from '@mygame/domain'
-import { and, asc, eq, inArray, sql } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
 import {
@@ -149,13 +149,23 @@ const recruitOrderRowOf = (fief: Fief): RecruitOrderRow | undefined => {
 
 type AttackMarch = Extract<AwayMarch, { readonly order: 'attack' }>
 
-type MarchOrderColumns = Pick<MarchRow, 'marchOrder' | 'campTier' | 'campStrength' | 'fought'>
+type MarchOrderColumns = Pick<
+  MarchRow,
+  'marchOrder' | 'campTier' | 'campStrength' | 'fought' | 'foundingName'
+>
 
 const attackedCampOf = (row: MarchRow): AttackMarch['camp'] => {
   if (row.campTier === null || row.campStrength === null || !isCampTier(row.campTier)) {
     throw new Error(`Fief ${row.fiefId} stores an attack march without its camp`)
   }
   return { tier: row.campTier, strength: row.campStrength }
+}
+
+const foundingNameOf = (row: MarchRow): string => {
+  if (row.foundingName === null) {
+    throw new Error(`Fief ${row.fiefId} stores a founding march without its name`)
+  }
+  return row.foundingName
 }
 
 const marchOf = (row: MarchRow | null): March => {
@@ -186,21 +196,44 @@ const marchOf = (row: MarchRow | null): March => {
     },
     ...(row.recalledAt === null ? {} : { recalledAt: instantOf(row.recalledAt) }),
   } satisfies Omit<AwayMarch, 'order'>
-  if (row.marchOrder === 'forage') {
-    return { ...road, order: 'forage' }
+  switch (row.marchOrder) {
+    case 'forage':
+      return { ...road, order: 'forage' }
+    case 'attack':
+      return { ...road, order: 'attack', camp: attackedCampOf(row), fought: row.fought }
+    case 'found':
+      return { ...road, order: 'found', name: foundingNameOf(row) }
+    default: {
+      const unreachable: never = row.marchOrder
+      return unreachable
+    }
   }
-  return { ...road, order: 'attack', camp: attackedCampOf(row), fought: row.fought }
+}
+
+const unfoughtColumns: Pick<MarchRow, 'campTier' | 'campStrength' | 'fought'> = {
+  campTier: null,
+  campStrength: null,
+  fought: false,
 }
 
 const marchOrderColumnsOf = (march: AwayMarch): MarchOrderColumns => {
-  if (march.order === 'forage') {
-    return { marchOrder: 'forage', campTier: null, campStrength: null, fought: false }
-  }
-  return {
-    marchOrder: 'attack',
-    campTier: march.camp.tier,
-    campStrength: march.camp.strength,
-    fought: march.fought,
+  switch (march.order) {
+    case 'forage':
+      return { marchOrder: 'forage', ...unfoughtColumns, foundingName: null }
+    case 'attack':
+      return {
+        marchOrder: 'attack',
+        campTier: march.camp.tier,
+        campStrength: march.camp.strength,
+        fought: march.fought,
+        foundingName: null,
+      }
+    case 'found':
+      return { marchOrder: 'found', ...unfoughtColumns, foundingName: march.name }
+    default: {
+      const unreachable: never = march
+      return unreachable
+    }
   }
 }
 
@@ -463,6 +496,21 @@ export class DrizzleFiefRepository implements FiefRepository {
     return held.map(({ id }) => id)
   }
 
+  async foundingsOnTheRoadOf(playerId: PlayerId): Promise<number> {
+    const foundings = await this.database
+      .select({ fiefId: fiefMarches.fiefId })
+      .from(fiefMarches)
+      .innerJoin(fiefs, eq(fiefs.id, fiefMarches.fiefId))
+      .where(
+        and(
+          eq(fiefs.playerId, playerId),
+          isNotNull(fiefMarches.foundingName),
+          isNull(fiefMarches.recalledAt),
+        ),
+      )
+    return foundings.length
+  }
+
   async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
     const query = this.database
       .select({
@@ -577,6 +625,9 @@ export class DrizzleFiefRepository implements FiefRepository {
       }
       if (constraint === 'fiefs_player_unique') {
         return err({ kind: 'PlayerAlreadyHoldsFief', playerId: fief.playerId })
+      }
+      if (constraint === 'fief_marches_founding_plot_unique' && marchRow !== undefined) {
+        return err({ kind: 'PlotReserved', province: marchRow.province, plot: marchRow.plot })
       }
       throw failure
     }

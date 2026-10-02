@@ -3,7 +3,15 @@ import { type Battle, battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
-import type { AttackedCamp, AttackMarch, AwayMarch, LootPercent, March } from '../march/March'
+import { foundingParty } from '../march/foundingParty'
+import type {
+  AttackedCamp,
+  AttackMarch,
+  AwayMarch,
+  FoundingMarch,
+  LootPercent,
+  March,
+} from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
 import { marchPhaseAt } from '../march/marchPhaseAt'
@@ -97,6 +105,12 @@ export type AttackOrder = {
   readonly province: number
   readonly plot: number
   readonly units: UnitCountsByKind
+}
+
+export type FoundingOrder = {
+  readonly province: number
+  readonly plot: number
+  readonly name: FiefName
 }
 
 export type MarchTerms = Pick<FiefSettings, 'forage' | 'units'>
@@ -269,12 +283,7 @@ const validateRecall = (march: AwayMarch): Result<void, DomainError> => {
 
 const campTiers: ReadonlyArray<number> = [1, 2, 3]
 
-const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
-  if (march.order === 'forage') {
-    return isWholeFromOne(march.stayHours)
-      ? ok(undefined)
-      : err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
-  }
+const validateAttack = (march: AttackMarch): Result<void, DomainError> => {
   if (march.stayHours !== 0) {
     return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
   }
@@ -283,6 +292,34 @@ const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
     return err({ kind: 'InvalidCamp', tier, strength })
   }
   return ok(undefined)
+}
+
+const validateFounding = (march: FoundingMarch): Result<void, DomainError> => {
+  if (march.stayHours !== 0) {
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+  }
+  const strayUnit = unitKinds.find((unit) => march.units[unit] !== foundingParty[unit])
+  if (strayUnit !== undefined) {
+    return err({ kind: 'InvalidUnitCount', unit: strayUnit, count: march.units[strayUnit] })
+  }
+  return ok(undefined)
+}
+
+const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
+  switch (march.order) {
+    case 'forage':
+      return isWholeFromOne(march.stayHours)
+        ? ok(undefined)
+        : err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+    case 'attack':
+      return validateAttack(march)
+    case 'found':
+      return validateFounding(march)
+    default: {
+      const unreachable: never = march
+      return unreachable
+    }
+  }
 }
 
 const refuseInvalidLootPercent = (lootPercent: LootPercent): Result<void, DomainError> => {
@@ -937,6 +974,50 @@ export class Fief {
           lootPercent: season.lootPercent,
           camp,
           fought: false,
+        },
+      }),
+    )
+  }
+
+  roomForFounding(): Result<void, DomainError> {
+    return this.refuseBusyMarchSlot()
+  }
+
+  dispatchFounding(
+    order: FoundingOrder,
+    now: Instant,
+    terms: MarchTerms,
+    season: MarchSeason,
+  ): Result<Fief, DomainError> {
+    const room = this.roomForFounding()
+    if (!room.ok) {
+      return room
+    }
+    const atHome = this.refuseAbsentUnits(foundingParty, now)
+    if (!atHome.ok) {
+      return atHome
+    }
+    const { province, plot, name } = order
+    return ok(
+      this.changed({
+        march: {
+          kind: 'away',
+          order: 'found',
+          name: name.value,
+          province,
+          plot,
+          units: foundingParty,
+          stayHours: 0,
+          departedAt: now,
+          oneWaySeconds: this.oneWaySecondsTo(
+            province,
+            plot,
+            foundingParty,
+            terms,
+            season.roadPercent,
+          ),
+          loot: noStocks,
+          lootPercent: season.lootPercent,
         },
       }),
     )

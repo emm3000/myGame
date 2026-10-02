@@ -105,6 +105,8 @@ export type DomainError =
       readonly unit: UnitKind
       readonly order: AwayMarch['order']
     }
+  | { readonly kind: 'FiefCapReached'; readonly cap: number }
+  | { readonly kind: 'PlotReserved'; readonly province: number; readonly plot: number }
   | { readonly kind: 'InvalidCamp'; readonly tier: number; readonly strength: number }
   | {
       readonly kind: 'InvalidLootPercent'

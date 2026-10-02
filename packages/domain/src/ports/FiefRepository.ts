@@ -9,6 +9,7 @@ export interface FiefRepository {
   occupiedPlots(): Promise<ReadonlyArray<PlotAddress>>
   holdsFief(playerId: PlayerId): Promise<boolean>
   fiefsOf(playerId: PlayerId): Promise<ReadonlyArray<FiefId>>
+  foundingsOnTheRoadOf(playerId: PlayerId): Promise<number>
   fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>>
   save(fief: Fief): Promise<Result<void, DomainError>>
 }

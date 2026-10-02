@@ -44,6 +44,7 @@ const plainFief: FiefContent = {
     ridges: { resource: 'iron', ratePerHour: 2 },
   },
   buildQueueCap: 4,
+  fiefCap: 2,
   seasons: {
     epoch: '2026-10-05T00:00:00Z',
     daysPerSeason: 7,
@@ -278,6 +279,10 @@ describe('JsonBuildingCatalog', () => {
 
   it('serves a build queue cap of four from the shipped content', () => {
     expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().buildQueueCap).toBe(4)
+  })
+
+  it('ships a cap of 2 fiefs per lord', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().fiefCap).toBe(2)
   })
 
   it('reads a smithing level as an iron percent with its library requirement', () => {

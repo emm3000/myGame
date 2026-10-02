@@ -105,6 +105,7 @@ export type FiefSettings = {
   readonly baseRates: Readonly<Record<ResourceKind, number>>
   readonly terrainBonus: Readonly<Record<Terrain, TerrainBonus>>
   readonly buildQueueCap: number
+  readonly fiefCap: number
   readonly seasons: SeasonCalendar
   readonly units: Readonly<Record<UnitKind, UnitTerms>>
   readonly forage: ForageTerms

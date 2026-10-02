@@ -71,6 +71,7 @@ const fiefSettings = (
     ridges: { resource: bonusResource, ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  fiefCap: 2,
   units: plainUnits,
   forage: plainForage,
   camps: plainCamps,
@@ -173,6 +174,7 @@ describe('deriveResourceRates', () => {
           ridges: { resource: 'iron', ratePerHour: 2 },
         },
         buildQueueCap: 4,
+        fiefCap: 2,
       },
       {},
     )

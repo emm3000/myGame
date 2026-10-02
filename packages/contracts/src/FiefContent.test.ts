@@ -97,6 +97,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   baseRates,
   terrainBonus,
   buildQueueCap: 4,
+  fiefCap: 2,
   seasons,
   units,
   forage,
@@ -116,6 +117,14 @@ describe('FiefContentSchema', () => {
 
   it('reads how many entries may wait in the build queue', () => {
     expect(FiefContentSchema.parse(fiefContent({ buildQueueCap: 4 })).buildQueueCap).toBe(4)
+  })
+
+  it('reads how many fiefs a lord may hold', () => {
+    expect(FiefContentSchema.parse(fiefContent({ fiefCap: 2 })).fiefCap).toBe(2)
+  })
+
+  it('rejects a fief cap of 0', () => {
+    expect(FiefContentSchema.safeParse(fiefContent({ fiefCap: 0 })).success).toBe(false)
   })
 
   it('parses fief settings with a bonus for every terrain', () => {

@@ -700,6 +700,96 @@ describe('the migrations', () => {
     })
   })
 
+  const settlerFoundingOf = (fiefId: string): typeof fiefMarches.$inferInsert => ({
+    ...infantryMarchOf(fiefId),
+    infantryCount: 0,
+    settlerCount: 1,
+    stayHours: 0,
+    oneWaySeconds: 900,
+    lootWood: 0,
+    lootStone: 0,
+    marchOrder: 'found',
+    foundingName: 'Sotoverde del Páramo',
+  })
+
+  const brunosFief = {
+    ...aFief('00000000-0000-4000-8000-00000000000b', bruno.id),
+    plot: 8,
+    name: 'Robledal',
+  }
+
+  it('stores a founding march', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await db.insert(fiefMarches).values(settlerFoundingOf(anasFief.id))
+
+    expect(
+      await db
+        .select({ order: fiefMarches.marchOrder, name: fiefMarches.foundingName })
+        .from(fiefMarches),
+    ).toEqual([{ order: 'found', name: 'Sotoverde del Páramo' }])
+  })
+
+  it('refuses two foundings to one plot', async () => {
+    await db.insert(players).values([ana, bruno])
+    await db.insert(fiefs).values([anasFief, brunosFief])
+    await db.insert(fiefMarches).values(settlerFoundingOf(anasFief.id))
+
+    await expect(
+      db.insert(fiefMarches).values(settlerFoundingOf(brunosFief.id)),
+    ).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'fief_marches_founding_plot_unique' },
+    })
+  })
+
+  it('stores a founding to a plot whose founding was recalled', async () => {
+    await db.insert(players).values([ana, bruno])
+    await db.insert(fiefs).values([anasFief, brunosFief])
+    await db
+      .insert(fiefMarches)
+      .values({ ...settlerFoundingOf(anasFief.id), recalledAt: new Date('2026-09-22T08:05:00Z') })
+
+    await db.insert(fiefMarches).values(settlerFoundingOf(brunosFief.id))
+
+    expect(await db.select({ fiefId: fiefMarches.fiefId }).from(fiefMarches)).toHaveLength(2)
+  })
+
+  it('refuses a founding march without its name', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...settlerFoundingOf(anasFief.id), foundingName: null }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_order_terms' },
+    })
+  })
+
+  it('refuses a founding march with a footman beside the settler', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefMarches).values({ ...settlerFoundingOf(anasFief.id), infantryCount: 1 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_order_terms' },
+    })
+  })
+
+  it('refuses a forage march with a founding name', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db
+        .insert(fiefMarches)
+        .values({ ...infantryMarchOf(anasFief.id), foundingName: 'Sotoverde del Páramo' }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_order_terms' },
+    })
+  })
+
   it('stores an attack march on a camp at strength 0', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -2147,5 +2237,48 @@ describe('the settler migration', () => {
       marches: await marchesOf(client),
       events: await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief),
     }).toEqual({ marches: marchesOfLootPercentVersion, events: eventsOfPartyVersion })
+  })
+})
+
+const insertMarchesOfFoundingVersion = async (client: Client): Promise<void> => {
+  await insertPlayersOfPreviousVersion(client)
+  await client.query(
+    `INSERT INTO players (id, email, password_hash, created_at)
+     VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z'), ($3, $4, 'argon2id-hash', '2026-09-22T08:00:00Z')`,
+    [carla.id, carla.email, dario.id, dario.email],
+  )
+  for (const [plot, { player, fiefId }] of partyFiefs.entries()) {
+    await insertFiefOfPreviousVersion(client, fiefId, player.id, plot + 1, null)
+  }
+  await client.query(
+    `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, settler_count, stay_hours,
+       one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food, loot_percent_wood,
+       loot_percent_stone, loot_percent_iron, loot_percent_gold, loot_percent_food, recalled_at, march_order,
+       camp_tier, camp_strength, fought)
+     VALUES ($1, 2, 5, 12, 6, 0, 2, 900, '2026-09-22T08:00:00Z', 108, 108, 0, 0, 0, 100, 100, 100, 100, 100, NULL, 'forage', NULL, NULL, false),
+            ($2, 2, 5, 8, 0, 0, 2, 840, '2026-09-22T08:00:00Z', 25, 25, 0, 0, 0, 100, 100, 100, 100, 100, '2026-09-22T08:30:00Z', 'forage', NULL, NULL, false),
+            ($3, 2, 6, 0, 10, 0, 0, 450, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0, 100, 100, 100, 100, 100, NULL, 'attack', 1, 6, false),
+            ($4, 2, 6, 9, 0, 0, 0, 900, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0, 100, 100, 100, 100, 100, NULL, 'attack', 2, 15, true)`,
+    partyFiefs.map(({ fiefId }) => fiefId),
+  )
+}
+
+describe('the founding march migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the marches stored before the founding migration', async () => {
+    await migratedFrom(client, 22, async () => {
+      await insertMarchesOfFoundingVersion(client)
+    })
+
+    expect(await marchesOf(client)).toEqual(marchesOfLootPercentVersion)
   })
 })

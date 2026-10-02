@@ -2980,4 +2980,92 @@ describe('the fief route', () => {
       })
     })
   })
+
+  describe('the founding route', () => {
+    const found = async (lord: Lord, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, '/marches/found'), {
+        method: 'POST',
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const signUpWithASettler = async (email: string, fiefName: string): Promise<SignedUpPlayer> => {
+      const lord = await signUp(email, fiefName)
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'settler'::unit, 1 FROM fiefs WHERE name = '${fiefName}'`)
+      return lord
+    }
+
+    const freePlot = (): number => provinceTwoPlotWhere((tier) => tier === undefined)
+
+    const foundingOnFreePlot = () => ({
+      province: 2,
+      plot: freePlot(),
+      name: 'Sotoverde del Páramo',
+    })
+
+    it('sends a founding march and answers it outbound', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+
+      const response = await found(ana, foundingOnFreePlot())
+
+      expect(response.status).toBe(200)
+      const { march, units } = FiefOverviewSchema.parse(await response.json())
+      expect(march).toMatchObject({
+        order: 'found',
+        name: 'Sotoverde del Páramo',
+        province: 2,
+        plot: freePlot(),
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+        stayHours: 0,
+        departedAt: '2026-09-22T08:00:00.000Z',
+        oneWaySeconds: 600 + (freePlot() - 1) * 60,
+        loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+        recalledAt: null,
+        camp: null,
+        fought: false,
+      })
+      expect(units).toEqual({ infantry: 0, cavalry: 0, settler: 1 })
+    })
+
+    it('refuses a second founding to a reserved plot', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      const bruno = await signUpWithASettler('bruno@example.com', 'Robledal')
+      await found(ana, foundingOnFreePlot())
+
+      const response = await found(bruno, foundingOnFreePlot())
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'PlotReserved',
+        message: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
+      })
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(bruno)).json())
+      expect(march).toBeNull()
+    })
+
+    it('frees the plot when the founding is recalled', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+      const bruno = await signUpWithASettler('bruno@example.com', 'Robledal')
+      await found(ana, foundingOnFreePlot())
+      clock.advanceMinutes(5)
+      await app.request(
+        pathOf(ana, `/marches/${encodeURIComponent('2026-09-22T08:00:00.000Z')}/recall`),
+        { method: 'POST', headers: { cookie: ana.cookie } },
+      )
+
+      const response = await found(bruno, foundingOnFreePlot())
+
+      expect(response.status).toBe(200)
+    })
+
+    it('answers 400 for a founding without a name', async () => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+
+      const response = await found(ana, { province: 2, plot: freePlot() })
+
+      expect(response.status).toBe(400)
+      expect(await response.text()).toBe('')
+    })
+  })
 })

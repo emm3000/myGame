@@ -14,6 +14,10 @@ export {
   type DispatchAttackRequest,
   DispatchAttackRequestSchema,
 } from './DispatchAttackRequest'
+export {
+  type DispatchFoundingRequest,
+  DispatchFoundingRequestSchema,
+} from './DispatchFoundingRequest'
 export { type DispatchMarchRequest, DispatchMarchRequestSchema } from './DispatchMarchRequest'
 export { type EnqueueBuildingRequest, EnqueueBuildingRequestSchema } from './EnqueueBuildingRequest'
 export { type FiefChronicle, FiefChronicleSchema } from './FiefChronicle'
