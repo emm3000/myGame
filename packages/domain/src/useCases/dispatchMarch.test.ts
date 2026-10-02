@@ -368,6 +368,7 @@ describe('dispatchMarch', () => {
     const result = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 9 }, dependencies)
 
     expect(result).toEqual(err({ kind: 'PlotHeld', province: 2, plot: 9 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 
   it('refuses a march to the other fief of the same lord as its own plot', async () => {
