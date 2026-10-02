@@ -22,12 +22,16 @@ export const refuseUnreachableTarget = async (
   if (!isWithin(province, lastProvince) || !isWithin(plot, plotsPerProvince)) {
     return err({ kind: 'MarchTargetOutOfBounds', province, plot })
   }
-  if (fief.coordinates.province === province && fief.coordinates.plot === plot) {
+  const holder = (await map.holdersIn(kingdom, province)).find((held) => held.plot === plot)
+  if (holder?.playerId === fief.playerId) {
     return err({ kind: 'MarchToOwnPlot' })
   }
-  const holders = await map.holdersIn(kingdom, province)
-  if (holders.some((holder) => holder.plot === plot)) {
+  if (holder !== undefined) {
     return err({ kind: 'PlotHeld', province, plot })
+  }
+  const reservations = await map.reservationsIn(kingdom, province)
+  if (reservations.some((reservation) => reservation.plot === plot)) {
+    return err({ kind: 'PlotReserved', province, plot })
   }
   return ok(undefined)
 }

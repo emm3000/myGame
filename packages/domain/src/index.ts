@@ -70,7 +70,12 @@ export type { ChronicleWriter } from './ports/ChronicleWriter'
 export type { Clock } from './ports/Clock'
 export type { FiefRepository } from './ports/FiefRepository'
 export type { IdGenerator } from './ports/IdGenerator'
-export type { HeldAddress, KingdomMapReader, PlotHolder } from './ports/KingdomMapReader'
+export type {
+  HeldAddress,
+  KingdomMapReader,
+  PlotHolder,
+  PlotReservation,
+} from './ports/KingdomMapReader'
 export { err, ok, type Result } from './Result'
 export { type MaterializedResources, materializeResources } from './resources/materializeResources'
 export type { ResourceKind, Resources } from './resources/Resources'

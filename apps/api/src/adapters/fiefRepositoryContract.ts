@@ -702,6 +702,25 @@ export const fiefRepositoryContract = (
       ])
     })
 
+    it('counts a reserved plot as occupied', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([ana, bruno])
+      await fiefs.save(anasFounding)
+      await fiefs.save(settlerFiefWith(brunosFiefId, bruno, 8, recalledFounding))
+
+      const occupied = await fiefs.occupiedPlots()
+
+      expect(
+        [...occupied].sort(
+          (left, right) => left.province - right.province || left.plot - right.plot,
+        ),
+      ).toEqual([
+        { kingdom: 1, province: 4, plot: 7 },
+        { kingdom: 1, province: 4, plot: 8 },
+        { kingdom: 1, province: 6, plot: 9 },
+      ])
+    })
+
     it('refuses a second fief on a taken plot', async () => {
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([ana, bruno])

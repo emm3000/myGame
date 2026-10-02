@@ -105,6 +105,21 @@ const neighbourPlot: HeldPlot = {
 
 const map = inMemoryKingdomMap([lordPlot, neighbourPlot])
 
+const secondLordPlot: HeldPlot = {
+  fiefId: 'fief-2',
+  playerId: 'lord',
+  name: 'Sotoverde',
+  address: { kingdom: 1, province: 1, plot: 3 },
+}
+
+const reservedMap = inMemoryKingdomMap(
+  [lordPlot, secondLordPlot, neighbourPlot],
+  [
+    { playerId: 'neighbour', address: { kingdom: 1, province: 2, plot: 5 } },
+    { playerId: 'neighbour', address: { kingdom: 1, province: 2, plot: 9 } },
+  ],
+)
+
 const storedFief = (overrides: Partial<StoredFief>): Fief => {
   const restored = Fief.restore({
     id: 'fief-1',
@@ -335,6 +350,35 @@ describe('dispatchMarch', () => {
     const result = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 9 }, dependencies)
 
     expect(result).toEqual(err({ kind: 'PlotHeld', province: 2, plot: 9 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
+  })
+
+  it('refuses a forage to a reserved plot', async () => {
+    const dependencies = { ...dependenciesOver(storedFief({})), map: reservedMap }
+
+    const result = await dispatchMarch(tenInfantryForTwoHours, dependencies)
+
+    expect(result).toEqual(err({ kind: 'PlotReserved', province: 2, plot: 5 }))
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
+  })
+
+  it('refuses a held plot before a reserved one', async () => {
+    const dependencies = { ...dependenciesOver(storedFief({})), map: reservedMap }
+
+    const result = await dispatchMarch({ ...tenInfantryForTwoHours, plot: 9 }, dependencies)
+
+    expect(result).toEqual(err({ kind: 'PlotHeld', province: 2, plot: 9 }))
+  })
+
+  it('refuses a march to the other fief of the same lord as its own plot', async () => {
+    const dependencies = { ...dependenciesOver(storedFief({})), map: reservedMap }
+
+    const result = await dispatchMarch(
+      { ...tenInfantryForTwoHours, province: 1, plot: 3 },
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'MarchToOwnPlot' }))
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
   })
 

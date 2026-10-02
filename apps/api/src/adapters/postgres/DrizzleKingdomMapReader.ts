@@ -1,7 +1,13 @@
-import type { FiefId, HeldAddress, KingdomMapReader, PlotHolder } from '@mygame/domain'
-import { and, asc, eq, max } from 'drizzle-orm'
+import type {
+  FiefId,
+  HeldAddress,
+  KingdomMapReader,
+  PlotHolder,
+  PlotReservation,
+} from '@mygame/domain'
+import { and, asc, eq, isNotNull, isNull, max } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
-import { fiefs } from './schema'
+import { fiefMarches, fiefs } from './schema'
 
 export class DrizzleKingdomMapReader implements KingdomMapReader {
   constructor(private readonly database: PostgresSession) {}
@@ -37,5 +43,21 @@ export class DrizzleKingdomMapReader implements KingdomMapReader {
       .from(fiefs)
       .where(and(eq(fiefs.kingdom, kingdom), eq(fiefs.province, province)))
       .orderBy(asc(fiefs.plot))
+  }
+
+  async reservationsIn(kingdom: number, province: number): Promise<ReadonlyArray<PlotReservation>> {
+    return this.database
+      .select({ plot: fiefMarches.plot, playerId: fiefs.playerId })
+      .from(fiefMarches)
+      .innerJoin(fiefs, eq(fiefs.id, fiefMarches.fiefId))
+      .where(
+        and(
+          eq(fiefs.kingdom, kingdom),
+          eq(fiefMarches.province, province),
+          isNotNull(fiefMarches.foundingName),
+          isNull(fiefMarches.recalledAt),
+        ),
+      )
+      .orderBy(asc(fiefMarches.plot))
   }
 }

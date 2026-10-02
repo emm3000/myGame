@@ -7,6 +7,7 @@ import {
   Instant,
   type KingdomMapReader,
   type PlayerId,
+  type PlotAddress,
   type Result,
 } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
@@ -48,6 +49,75 @@ const fiefFounded = ({ id, playerId, name, kingdom, province, plot }: Founding):
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     at: foundedAt,
   })
+
+type FoundingOnTheRoad = Founding & {
+  readonly target: { readonly province: number; readonly plot: number }
+  readonly recalledAt?: Instant
+}
+
+const departedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:10:00Z'))
+
+const fiefSendingSettler = ({
+  id,
+  playerId,
+  name,
+  kingdom,
+  province,
+  plot,
+  target,
+  recalledAt,
+}: FoundingOnTheRoad): Fief => {
+  const address: PlotAddress = { kingdom, province, plot }
+  return accepted(
+    Fief.restore({
+      id,
+      playerId,
+      name,
+      address,
+      stocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+      storedAt: departedAt,
+      buildingLevels: {
+        sawmill: 0,
+        quarry: 0,
+        ironMine: 0,
+        farm: 0,
+        warehouse: 0,
+        library: 0,
+        barracks: 5,
+      },
+      artLevels: { smithing: 0, masonry: 0 },
+      units: { infantry: 0, cavalry: 0, settler: 1 },
+      slot: { kind: 'idle' },
+      buildQueue: [],
+      studySlot: { kind: 'idle' },
+      recruitOrder: { kind: 'idle' },
+      march: {
+        kind: 'away',
+        order: 'found',
+        name: 'Sotoverde del Páramo',
+        province: target.province,
+        plot: target.plot,
+        units: { infantry: 0, cavalry: 0, settler: 1 },
+        stayHours: 0,
+        departedAt,
+        oneWaySeconds: 900,
+        loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+        lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+        ...(recalledAt === undefined ? {} : { recalledAt }),
+      },
+    }),
+  )
+}
+
+const seedFoundings = async (
+  { fiefs, registerPlayers }: KingdomMapReaderFixture,
+  foundings: ReadonlyArray<FoundingOnTheRoad>,
+): Promise<void> => {
+  await registerPlayers(foundings.map((founding) => founding.playerId))
+  for (const founding of foundings) {
+    accepted(await fiefs.save(fiefSendingSettler(founding)))
+  }
+}
 
 const seed = async (
   { fiefs, registerPlayers }: KingdomMapReaderFixture,
@@ -215,6 +285,71 @@ export const kingdomMapReaderContract = (
       expect(await fixture.map.holdersIn(1, 3)).toEqual([
         { plot: 4, name: 'Valdehierro', playerId: ana },
       ])
+    })
+
+    it('lists the founding marches in flight of a province', async () => {
+      const fixture = await arrange()
+      await seedFoundings(fixture, [
+        {
+          id: '00000000-0000-4000-8000-00000000000a',
+          playerId: ana,
+          name: 'Valdehierro',
+          kingdom: 1,
+          province: 3,
+          plot: 7,
+          target: { province: 4, plot: 5 },
+        },
+        {
+          id: '00000000-0000-4000-8000-00000000000b',
+          playerId: bruno,
+          name: 'Robledal',
+          kingdom: 1,
+          province: 3,
+          plot: 9,
+          target: { province: 4, plot: 2 },
+        },
+        {
+          id: '00000000-0000-4000-8000-00000000000c',
+          playerId: carla,
+          name: 'Pedregal',
+          kingdom: 2,
+          province: 3,
+          plot: 1,
+          target: { province: 4, plot: 8 },
+        },
+      ])
+
+      expect(await fixture.map.reservationsIn(1, 4)).toEqual([
+        { plot: 2, playerId: bruno },
+        { plot: 5, playerId: ana },
+      ])
+    })
+
+    it('leaves out a recalled founding', async () => {
+      const fixture = await arrange()
+      await seedFoundings(fixture, [
+        {
+          id: '00000000-0000-4000-8000-00000000000a',
+          playerId: ana,
+          name: 'Valdehierro',
+          kingdom: 1,
+          province: 3,
+          plot: 7,
+          target: { province: 4, plot: 2 },
+          recalledAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:15:00Z')),
+        },
+        {
+          id: '00000000-0000-4000-8000-00000000000b',
+          playerId: bruno,
+          name: 'Robledal',
+          kingdom: 1,
+          province: 3,
+          plot: 9,
+          target: { province: 4, plot: 5 },
+        },
+      ])
+
+      expect(await fixture.map.reservationsIn(1, 4)).toEqual([{ plot: 5, playerId: bruno }])
     })
   })
 }
