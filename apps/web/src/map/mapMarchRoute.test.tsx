@@ -30,6 +30,7 @@ const provinceOf = (
     plot: index + 1,
     fief: held[index + 1] ?? null,
     camp: null,
+    reservation: null,
   })),
 })
 

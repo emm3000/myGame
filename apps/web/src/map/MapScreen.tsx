@@ -20,7 +20,14 @@ type ProvinceProps = { readonly map: ProvinceMap } & Omit<MapScreenProps, 'state
 
 type Plot = ProvinceMap['plots'][number]
 
-function holderOf({ fief, camp }: Plot, action: PlotAction | undefined): PlotHolder {
+function holderOf({ fief, camp, reservation }: Plot, action: PlotAction | undefined): PlotHolder {
+  if (fief === null && reservation !== null) {
+    return {
+      kind: 'reserved',
+      line: copy.map.reserved,
+      marker: reservation.isOwn ? copy.map.ownFounding : undefined,
+    }
+  }
   if (fief === null && camp !== null) {
     return {
       kind: 'camp',

@@ -464,6 +464,8 @@ export const copy = {
     camp: 'Campamento de bandidos',
     campStrength: (tier: number, strength: number): string => `nivel ${tier}, fuerza ${strength}`,
     ownFief: 'Tu feudo',
+    reserved: 'reservada',
+    ownFounding: 'Tu fundación',
     previous: 'Provincia anterior',
     next: 'Provincia siguiente',
     jump: 'Ir a la provincia',
