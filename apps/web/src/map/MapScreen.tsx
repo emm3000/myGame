@@ -12,7 +12,7 @@ export interface MapScreenProps {
   readonly fiefId: string
   readonly state: ProvinceMapState
   readonly onBrowse: (province: number) => void
-  readonly plotActionOf: (map: ProvinceMap, plot: number) => PlotAction | undefined
+  readonly plotActionsOf: (map: ProvinceMap, plot: number) => ReadonlyArray<PlotAction>
   readonly marchPanel: ReactNode
 }
 
@@ -20,7 +20,10 @@ type ProvinceProps = { readonly map: ProvinceMap } & Omit<MapScreenProps, 'state
 
 type Plot = ProvinceMap['plots'][number]
 
-function holderOf({ fief, camp, reservation }: Plot, action: PlotAction | undefined): PlotHolder {
+function holderOf(
+  { fief, camp, reservation }: Plot,
+  actions: ReadonlyArray<PlotAction>,
+): PlotHolder {
   if (fief === null && reservation !== null) {
     return {
       kind: 'reserved',
@@ -33,11 +36,11 @@ function holderOf({ fief, camp, reservation }: Plot, action: PlotAction | undefi
       kind: 'camp',
       line: copy.map.camp,
       strength: copy.map.campStrength(camp.tier, camp.strength),
-      action,
+      actions,
     }
   }
   if (fief === null) {
-    return { kind: 'free', line: copy.map.free, action }
+    return { kind: 'free', line: copy.map.free, actions }
   }
   return fief.isOwn
     ? { kind: 'own', name: fief.name, marker: copy.map.ownFief }
@@ -74,7 +77,7 @@ function JumpControl({
   )
 }
 
-function Province({ map, onBrowse, plotActionOf, marchPanel }: ProvinceProps): ReactElement {
+function Province({ map, onBrowse, plotActionsOf, marchPanel }: ProvinceProps): ReactElement {
   const heading = copy.map.heading(map.kingdom, map.province)
   const terrainLabel = copy.names.terrains[map.terrain]
   return (
@@ -108,7 +111,7 @@ function Province({ map, onBrowse, plotActionOf, marchPanel }: ProvinceProps): R
             key={plot.plot}
             plotLabel={copy.map.plot(plot.plot)}
             terrainLabel={terrainLabel}
-            holder={holderOf(plot, plotActionOf(map, plot.plot))}
+            holder={holderOf(plot, plotActionsOf(map, plot.plot))}
           />
         ))}
       </ul>

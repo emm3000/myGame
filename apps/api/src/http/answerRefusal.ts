@@ -63,7 +63,7 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
   PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
   PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
-  MarchToOwnPlot: 'Esa parcela es tu feudo. Envía la marcha a otra.',
+  MarchToOwnPlot: 'Esa parcela tiene un feudo tuyo. Envía la marcha a otra.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
   StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',

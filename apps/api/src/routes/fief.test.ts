@@ -2193,7 +2193,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'MarchToOwnPlot',
-        message: 'Esa parcela es tu feudo. Envía la marcha a otra.',
+        message: 'Esa parcela tiene un feudo tuyo. Envía la marcha a otra.',
       })
     })
 

@@ -1,12 +1,20 @@
-import type { DispatchAttackRequest, DispatchMarchRequest, FiefOverview } from '@mygame/contracts'
-import type { ApiClient, ApiRefusal } from '../api/apiClient'
-import { useFiefAction } from '../fief/useFiefAction'
+import type {
+  DispatchAttackRequest,
+  DispatchFoundingRequest,
+  DispatchMarchRequest,
+  FiefOverview,
+} from '@mygame/contracts'
+import type { ApiClient } from '../api/apiClient'
+import { type RefusedAction, useFiefAction } from '../fief/useFiefAction'
+
+type MarchRequest = DispatchMarchRequest | DispatchAttackRequest | DispatchFoundingRequest
 
 export interface March {
   readonly isWaiting: boolean
-  readonly refusal: ApiRefusal | undefined
+  readonly refused: RefusedAction<MarchRequest> | undefined
   readonly send: (request: DispatchMarchRequest) => void
   readonly attack: (request: DispatchAttackRequest) => void
+  readonly found: (request: DispatchFoundingRequest) => void
 }
 
 export function useMarch(
@@ -15,15 +23,13 @@ export function useMarch(
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): March {
-  const { isWaiting, refused, run } = useFiefAction<DispatchMarchRequest | DispatchAttackRequest>(
-    adopt,
-    readAt,
-  )
+  const { isWaiting, refused, run } = useFiefAction<MarchRequest>(adopt, readAt)
 
   return {
     isWaiting,
-    refusal: refused?.refusal,
+    refused,
     send: (request) => run(request, () => apiClient.dispatchMarch(fiefId, request)),
     attack: (request) => run(request, () => apiClient.dispatchAttack(fiefId, request)),
+    found: (request) => run(request, () => apiClient.dispatchFounding(fiefId, request)),
   }
 }

@@ -43,7 +43,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
   PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
   PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
-  MarchToOwnPlot: 'Esa parcela es tu feudo. Envía la marcha a otra.',
+  MarchToOwnPlot: 'Esa parcela tiene un feudo tuyo. Envía la marcha a otra.',
   NotEnoughUnitsAtHome: 'No tienes en casa los hombres que pide esa marcha. Ajusta la marcha.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
   StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
@@ -101,6 +101,12 @@ const terrains: Readonly<Record<Terrain, string>> = {
   lowlands: 'vega',
   uplands: 'páramo',
   ridges: 'riscos',
+}
+
+const terrainSurnames: Readonly<Record<Terrain, string>> = {
+  lowlands: 'de la Vega',
+  uplands: 'del Páramo',
+  ridges: 'de los Riscos',
 }
 
 const seasons: Readonly<Record<SeasonKind, string>> = {
@@ -415,6 +421,19 @@ export const copy = {
     invalidHours: (maxStayHours: number): string => `Un número entero, de 1 a ${maxStayHours}.`,
     notEnoughAtHome: (unit: UnitKind, needed: number, atHome: number): string =>
       `Necesitas ${countedUnits(unit, needed)} en casa y tienes ${atHome}.`,
+  },
+  founding: {
+    found: 'Fundar un feudo',
+    foundOn: (plot: number): string => `Fundar un feudo en parcela ${plot}`,
+    title: (province: number, plot: number): string =>
+      `Fundación en provincia ${province}, parcela ${plot}`,
+    nameField: 'Nombre del nuevo feudo',
+    proposedName: (fiefName: string, terrain: Terrain): string =>
+      `${fiefName} ${terrainSurnames[terrain]}`,
+    arrivalHeading: 'Llegada en',
+    outboundHeading: 'Marcha de fundación:',
+    newFiefHeading: 'Nuevo feudo:',
+    blankName: refusals.BlankFiefName,
   },
   chronicle: {
     title: 'Crónica',

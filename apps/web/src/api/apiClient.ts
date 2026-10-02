@@ -7,6 +7,7 @@ import {
   type CancelStudyRequest,
   type CancelUpgradeRequest,
   type DispatchAttackRequest,
+  type DispatchFoundingRequest,
   type DispatchMarchRequest,
   type EnqueueBuildingRequest,
   type FiefChronicle,
@@ -34,7 +35,7 @@ export type ApiRefusal = ApiErrorKind | 'Unexpected'
 
 export type ApiOutcome<T> =
   | { readonly ok: true; readonly value: T }
-  | { readonly ok: false; readonly refusal: ApiRefusal }
+  | { readonly ok: false; readonly refusal: ApiRefusal; readonly message?: string | undefined }
 
 export interface ApiClient {
   signUp(request: SignUpRequest): Promise<ApiOutcome<Player>>
@@ -57,6 +58,10 @@ export interface ApiClient {
   ): Promise<ApiOutcome<FiefOverview>>
   dispatchMarch(fiefId: string, request: DispatchMarchRequest): Promise<ApiOutcome<FiefOverview>>
   dispatchAttack(fiefId: string, request: DispatchAttackRequest): Promise<ApiOutcome<FiefOverview>>
+  dispatchFounding(
+    fiefId: string,
+    request: DispatchFoundingRequest,
+  ): Promise<ApiOutcome<FiefOverview>>
   recallMarch(fiefId: string, target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(fiefId: string): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(fiefId: string, province?: number): Promise<ApiOutcome<ProvinceMap>>
@@ -68,15 +73,17 @@ export interface ApiClient {
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
 
-const refusalKindOf = async (response: Response): Promise<ApiRefusal> => {
+const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => {
   const parsed = ApiErrorSchema.safeParse(await response.json().catch(() => undefined))
-  return parsed.success ? parsed.data.kind : 'Unexpected'
+  return parsed.success
+    ? { ok: false, refusal: parsed.data.kind, message: parsed.data.message }
+    : unexpected
 }
 
-const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => ({
-  ok: false,
-  refusal: await refusalKindOf(response),
-})
+const refusalKindOf = async (response: Response): Promise<ApiRefusal> => {
+  const outcome = await refusalOf(response)
+  return outcome.ok ? 'Unexpected' : outcome.refusal
+}
 
 const bodyOf = async <T>(response: Response, schema: ZodType<T>): Promise<ApiOutcome<T>> => {
   if (!response.ok) {
@@ -187,6 +194,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     dispatchAttack: async (fiefId, { province, plot, units }) => {
       const request: DispatchAttackRequest = { province, plot, units }
       const response = await postJson(fiefPathOf(fiefId, '/marches/attack'), request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    dispatchFounding: async (fiefId, { province, plot, name }) => {
+      const request: DispatchFoundingRequest = { province, plot, name }
+      const response = await postJson(fiefPathOf(fiefId, '/marches/found'), request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
     recallMarch: async (fiefId, { departedAt }) => {

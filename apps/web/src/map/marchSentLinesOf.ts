@@ -43,9 +43,31 @@ function attackLinesOf(
   return quantitiesOf(march.loot).length === 0 ? lines : [...lines, lootLineOf(march)]
 }
 
+function foundingLinesOf(
+  march: Extract<SentMarch, { readonly order: 'found' }>,
+  readAt: string,
+): ReadonlyArray<PreviewLine> {
+  return [
+    {
+      heading: copy.founding.outboundHeading,
+      value: copy.march.phaseLines.outbound(march.units, march.province, march.plot),
+      isNumeral: false,
+    },
+    { heading: copy.founding.newFiefHeading, value: march.name, isNumeral: false },
+    {
+      heading: copy.founding.arrivalHeading,
+      value: formatDuration(secondsBetween(readAt, march.arrivesAt)),
+      isNumeral: true,
+    },
+  ]
+}
+
 export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArray<PreviewLine> {
   if (march.order === 'attack') {
     return attackLinesOf(march, readAt)
+  }
+  if (march.order === 'found') {
+    return foundingLinesOf(march, readAt)
   }
   return [
     {

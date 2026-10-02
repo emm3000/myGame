@@ -1,5 +1,4 @@
-import type { FiefOverview } from '@mygame/contracts'
-import { partyKinds } from '../units/partyKinds'
+import { type FiefOverview, UnitKindSchema } from '@mygame/contracts'
 import type { UnitCounts } from '../units/UnitCounts'
 
 export interface RoadEnd {
@@ -13,7 +12,7 @@ const seasonRoadPercentOf = (fief: FiefOverview): number =>
   fief.season === null ? neutralPercent : fief.season.durationPercent.road
 
 const roadPercentOf = (party: UnitCounts, fief: FiefOverview): number =>
-  partyKinds
+  UnitKindSchema.options
     .filter((unit) => party[unit] >= 1)
     .reduce((slowest, unit) => Math.max(slowest, fief.unitTerms[unit].roadPercent), 0)
 

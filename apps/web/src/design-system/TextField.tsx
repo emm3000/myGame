@@ -9,6 +9,7 @@ export interface TextFieldProps {
   readonly onChange: (value: string) => void
   readonly hint?: string | undefined
   readonly error?: string | undefined
+  readonly isDisabled?: boolean | undefined
 }
 
 export function TextField(props: TextFieldProps): ReactElement {
@@ -28,6 +29,7 @@ export function TextField(props: TextFieldProps): ReactElement {
         type={props.type}
         autoComplete={props.autoComplete}
         value={props.value}
+        disabled={props.isDisabled}
         onChange={(event) => props.onChange(event.target.value)}
         aria-invalid={hasError}
         aria-describedby={describedBy === '' ? undefined : describedBy}

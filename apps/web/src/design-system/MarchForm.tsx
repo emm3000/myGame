@@ -5,6 +5,7 @@ import { NumberField } from './NumberField'
 import { Panel } from './Panel'
 import { type PreviewLine, PreviewLines } from './PreviewLines'
 import { SubmitAction, type SubmitActionState } from './SubmitAction'
+import { TextField } from './TextField'
 import { UnitCount, type UnitTally } from './UnitCount'
 
 export interface MarchFormField {
@@ -12,6 +13,12 @@ export interface MarchFormField {
   readonly entry: string
   readonly min: number
   readonly max?: number | undefined
+  readonly onChange: (entry: string) => void
+}
+
+export interface MarchFormTextField {
+  readonly label: string
+  readonly entry: string
   readonly onChange: (entry: string) => void
 }
 
@@ -26,6 +33,7 @@ export interface MarchFormProps {
   readonly atHome: ReadonlyArray<MarchFormAtHome>
   readonly counts: ReadonlyArray<MarchFormField>
   readonly hours?: MarchFormField | undefined
+  readonly name?: MarchFormTextField | undefined
   readonly isFieldDisabled: boolean
   readonly preview: ReadonlyArray<PreviewLine> | undefined
   readonly actionLabel: string
@@ -98,6 +106,19 @@ export function MarchForm(props: MarchFormProps): ReactElement {
             ))}
             {props.hours !== undefined && (
               <Field field={props.hours} isDisabled={props.isFieldDisabled} />
+            )}
+            {props.name !== undefined && (
+              <div className="flex w-full flex-col">
+                <TextField
+                  label={props.name.label}
+                  name="name"
+                  type="text"
+                  autoComplete="off"
+                  value={props.name.entry}
+                  isDisabled={props.isFieldDisabled}
+                  onChange={props.name.onChange}
+                />
+              </div>
             )}
           </div>
           {props.preview !== undefined && <PreviewLines lines={props.preview} />}
