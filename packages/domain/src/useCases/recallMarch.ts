@@ -18,6 +18,22 @@ export type RecallMarchDependencies = {
   readonly clock: Clock
 }
 
+const destinationOf = async (
+  recalled: Fief,
+  { playerId }: FiefOfPlayer,
+  fiefs: FiefRepository,
+): Promise<Result<Fief | undefined, DomainError>> => {
+  const { march } = recalled
+  if (march.kind !== 'away' || march.order !== 'transport') {
+    return ok(undefined)
+  }
+  const stored = await fiefs.fiefOf(march.toFiefId)
+  if (!stored.ok) {
+    return stored
+  }
+  return ownFiefOf(stored.value, { playerId, fiefId: march.toFiefId })
+}
+
 export const recallMarch = async (
   command: RecallMarchCommand,
   { fiefs, catalog, clock }: RecallMarchDependencies,
@@ -40,9 +56,19 @@ export const recallMarch = async (
   if (!recalled.ok) {
     return recalled
   }
+  const destination = await destinationOf(recalled.value, command, fiefs)
+  if (!destination.ok) {
+    return destination
+  }
   const saved = await fiefs.save(recalled.value)
   if (!saved.ok) {
     return saved
+  }
+  if (destination.value !== undefined) {
+    const savedDestination = await fiefs.save(destination.value.dropCargoFrom(fief.id))
+    if (!savedDestination.ok) {
+      return savedDestination
+    }
   }
   return ok(recalled.value)
 }

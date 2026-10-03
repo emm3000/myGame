@@ -3406,6 +3406,24 @@ describe('the fief route', () => {
       })
     })
 
+    it('recalls a transport and the other fief reads no cargo', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(2)
+
+      const recalled = await app.request(
+        pathOf(ana, `/marches/${encodeURIComponent('2026-09-22T08:00:00.000Z')}/recall`),
+        { method: 'POST', headers: { cookie: ana.cookie } },
+      )
+
+      expect(recalled.status).toBe(200)
+      clock.advanceMinutes(5)
+      expect(await stocksOf(otherFiefOf(ana))).toMatchObject(fullStores)
+      const stored = await server.fiefs.fiefOf(otherFiefId)
+      assert(stored.ok)
+      expect(stored.value?.incomingCargo).toBeUndefined()
+    })
+
     it('answers a cargo above the stores with the line of the cargo', async () => {
       const ana = await signUpWithSixRidersAndAFullFief()
 

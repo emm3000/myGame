@@ -425,6 +425,21 @@ const shareOf = (cost: Stocks, part: number, whole: number): Stocks => ({
   food: (cost.food * part) / whole,
 })
 
+const recalledLootOf = (march: AwayMarch, now: Instant, terms: MarchTerms): Stocks => {
+  if (march.order === 'transport') {
+    return march.cargo
+  }
+  const { arrivesAt } = marchInstantsOf(march)
+  const foragedMilliseconds = Math.max(0, now.epochMilliseconds - arrivesAt.epochMilliseconds)
+  return forageLootOfMilliseconds(
+    terrainOf(march.province),
+    march.units,
+    foragedMilliseconds,
+    terms,
+    march.lootPercent,
+  )
+}
+
 const validateIncomingCargo = (
   incomingCargo: IncomingCargo | undefined,
   storedAt: Instant,
@@ -1170,21 +1185,9 @@ export class Fief {
     if (marchPhaseAt(march, now) === 'returning') {
       return err({ kind: 'MarchAlreadyReturning' })
     }
-    const { arrivesAt } = marchInstantsOf(march)
-    const foragedMilliseconds = Math.max(0, now.epochMilliseconds - arrivesAt.epochMilliseconds)
     return ok(
       this.changed({
-        march: {
-          ...march,
-          recalledAt: now,
-          loot: forageLootOfMilliseconds(
-            terrainOf(march.province),
-            march.units,
-            foragedMilliseconds,
-            terms,
-            march.lootPercent,
-          ),
-        },
+        march: { ...march, recalledAt: now, loot: recalledLootOf(march, now, terms) },
       }),
     )
   }
@@ -1282,6 +1285,12 @@ export class Fief {
     return this.changed({
       march: { ...founding, recalledAt: marchInstantsOf(founding).arrivesAt },
     })
+  }
+
+  dropCargoFrom(origin: FiefId): Fief {
+    return this.incomingCargo?.fromFiefId === origin
+      ? this.changed({ incomingCargo: undefined })
+      : this
   }
 
   completeCargo(arrived: IncomingCargo, stocksAtArrival: Stocks): Fief {

@@ -24,6 +24,7 @@ import type { AccountToken } from './auth/AccountTokens'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
 import { dispatchTransportOf } from './fief/dispatchTransportOf'
+import { recallMarchOf } from './fief/recallMarchOf'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -594,6 +595,41 @@ const raceTwoTransportsEachWay = async (
   return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
 }
 
+const raceARecallAndATransportFromTheOtherFief = async (
+  server: ComposedServer,
+  recallingFiefId: FiefId,
+  sendingFiefId: FiefId,
+): Promise<ReadonlyArray<Outcome>> => {
+  const sent = await transportBetween(server, server.inTransaction, recallingFiefId, sendingFiefId)
+  assert(sent.ok)
+  const recallHasLocked = signal()
+  const transportHasLocked = signal()
+  const transportIsBlockedOrHasLocked = untilBlockedOrRead(transportHasLocked.promise)
+  const recall = recallMarchOf(
+    { playerId: ana, fiefId: recallingFiefId },
+    { departedAt: '2026-09-22T08:00:00.000Z' },
+    {
+      inTransaction: pausingAfterFirstLock(server, async () => {
+        recallHasLocked.resolve()
+        await transportIsBlockedOrHasLocked
+      }),
+      buildingCatalog: server.buildingCatalog,
+      clock: frozenClock,
+      ids: server.ids,
+    },
+  )
+  await recallHasLocked.promise
+  const transport = transportBetween(
+    server,
+    pausingAfterFirstLock(server, async () => {
+      transportHasLocked.resolve()
+    }),
+    sendingFiefId,
+    recallingFiefId,
+  )
+  return Promise.all([recall.then(outcomeOf), transport.then(outcomeOf)])
+}
+
 describe('a fief transaction from the composed server', () => {
   let server: ComposedServer
 
@@ -633,6 +669,27 @@ describe('a fief transaction from the composed server', () => {
     expect(stored.map((read) => read.ok && read.value?.incomingCargo?.fromFiefId)).toEqual([
       secondFiefId,
       firstFiefId,
+    ])
+  })
+
+  it('races a recall and a transport from the other fief without a deadlock', async () => {
+    const fiefIds = [await foundAnasFief(server), await foundAnasSecondFief(server)]
+    const [sendingFiefId, recallingFiefId] = [...fiefIds].sort()
+    assert(sendingFiefId !== undefined && recallingFiefId !== undefined)
+
+    const outcomes = await raceARecallAndATransportFromTheOtherFief(
+      server,
+      recallingFiefId,
+      sendingFiefId,
+    )
+
+    expect(outcomes).toEqual(['enqueued', 'enqueued'])
+    const stored = await Promise.all(
+      [sendingFiefId, recallingFiefId].map((fiefId) => server.fiefs.fiefOf(fiefId)),
+    )
+    expect(stored.map((read) => read.ok && read.value?.incomingCargo?.fromFiefId)).toEqual([
+      undefined,
+      sendingFiefId,
     ])
   })
 

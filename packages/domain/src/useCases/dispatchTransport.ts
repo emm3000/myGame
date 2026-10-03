@@ -12,7 +12,7 @@ import { marchSeasonAt } from '../season/marchSeasonAt'
 export type DispatchTransportCommand = TransportOrder & FiefOfPlayer
 
 export type DispatchTransportDependencies = {
-  readonly fiefs: Pick<FiefRepository, 'fiefOf' | 'save'>
+  readonly fiefs: Pick<FiefRepository, 'fiefsOf' | 'fiefOf' | 'save'>
   readonly catalog: BuildingCatalog
   readonly clock: Clock
 }
@@ -23,6 +23,10 @@ const destinationOf = async (
 ): Promise<Result<Fief, DomainError>> => {
   if (command.toFiefId === command.fiefId) {
     return err({ kind: 'MarchToOwnPlot' })
+  }
+  const lordsFiefs = await fiefs.fiefsOf(command.playerId)
+  if (!lordsFiefs.includes(command.toFiefId)) {
+    return err({ kind: 'FiefNotFound', fiefId: command.toFiefId })
   }
   const stored = await fiefs.fiefOf(command.toFiefId)
   if (!stored.ok) {
