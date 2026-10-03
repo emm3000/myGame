@@ -478,9 +478,21 @@ describe('the recall of a transport', () => {
     expect(fiefs.storedFiefOf('fief-2')?.incomingCargo).toMatchObject({ cargo: fullCargo })
   })
 
+  it('writes nothing when the other fief is missing', async () => {
+    const sent = (await sentTransport()).storedFiefOf('fief-1')
+    assert(sent !== undefined)
+    const fiefs = inMemoryFiefRepository([sent])
+
+    const result = await recallAt(fiefs, secondsAfter(dispatchInstant, 300))
+
+    expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'fief-2' }))
+    expect(fiefs.storedFiefOf('fief-1')).toBe(sent)
+  })
+
   it('keeps one incoming cargo per fief', async () => {
     const fiefs = await sentTransport()
     await recallAt(fiefs, secondsAfter(dispatchInstant, 100))
+    expect(fiefs.storedFiefOf('fief-2')?.incomingCargo).toBeUndefined()
     await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 200))
     const resent = await dispatchTransport(transportOf({ cargo: { ...still, wood: 100 } }), {
       fiefs,
