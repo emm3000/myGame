@@ -77,6 +77,30 @@ const foundingMarch = {
   lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
 } as const
 
+const transportMarch = {
+  kind: 'away',
+  order: 'transport',
+  toFiefId: 'fief-2',
+  cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  province: 3,
+  plot: 5,
+  units: { infantry: 0, cavalry: 6, settler: 0 },
+  stayHours: 0,
+  departedAt: foundingInstant,
+  oneWaySeconds: 360,
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+} as const
+
+const incomingCargo = {
+  fromFiefId: 'fief-2',
+  name: 'Peña Alta',
+  province: 3,
+  plot: 5,
+  cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  arrivesAt: Instant.fromEpochMilliseconds(86_400_000 + 360_000),
+} as const
+
 const storedBusyFief: StoredFief = {
   id: 'fief-1',
   playerId: 'founder',
@@ -344,6 +368,74 @@ describe('Fief', () => {
     const restored = Fief.restore({ ...storedBusyFief, march: { ...foundingMarch, stayHours: 1 } })
 
     expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
+  })
+
+  it('restores a transport march with its cargo', () => {
+    const restored = Fief.restore({ ...storedBusyFief, march: transportMarch })
+
+    assert(restored.ok)
+    expect(restored.value.march).toEqual(transportMarch)
+  })
+
+  it('refuses a stored transport holding a settler', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      march: { ...transportMarch, units: { infantry: 0, cavalry: 6, settler: 1 } },
+    })
+
+    expect(restored).toEqual(
+      err({ kind: 'UnitUnfitForOrder', unit: 'settler', order: 'transport' }),
+    )
+  })
+
+  it('refuses a stored transport with a stay', () => {
+    const restored = Fief.restore({ ...storedBusyFief, march: { ...transportMarch, stayHours: 1 } })
+
+    expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
+  })
+
+  it('refuses a stored transport with an empty cargo', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      march: { ...transportMarch, cargo: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 } },
+    })
+
+    expect(restored).toEqual(err({ kind: 'EmptyCargo' }))
+  })
+
+  it('restores the cargo on its way to the fief', () => {
+    const restored = Fief.restore({ ...storedBusyFief, incomingCargo })
+
+    assert(restored.ok)
+    expect(restored.value.incomingCargo).toEqual(incomingCargo)
+  })
+
+  it('restores no cargo on its way when none is stored', () => {
+    const restored = Fief.restore(storedBusyFief)
+
+    assert(restored.ok)
+    expect(restored.value.incomingCargo).toBeUndefined()
+  })
+
+  it('refuses a negative amount of a cargo on its way', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      incomingCargo: { ...incomingCargo, cargo: { ...incomingCargo.cargo, food: -1 } },
+    })
+
+    expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
+  })
+
+  it('refuses a cargo on its way that arrived before the fief was stored', () => {
+    const arrivesAt = Instant.fromEpochMilliseconds(86_400_000 - 1_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      incomingCargo: { ...incomingCargo, arrivesAt },
+    })
+
+    expect(restored).toEqual(
+      err({ kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt: arrivesAt }),
+    )
   })
 
   it('refuses a stored attack with a stay', () => {

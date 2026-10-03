@@ -113,3 +113,5 @@ export type DomainError =
       readonly resource: ResourceKind
       readonly percent: number
     }
+  | { readonly kind: 'EmptyCargo' }
+  | { readonly kind: 'CargoAboveCarry'; readonly cargo: number; readonly carry: number }

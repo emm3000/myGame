@@ -15,6 +15,7 @@ import {
   fiefArts,
   fiefBuildings,
   fiefEvents,
+  fiefIncomingCargo,
   fiefMarches,
   fiefQueueEntries,
   fiefRecruitOrders,
@@ -164,6 +165,7 @@ describe('the migrations', () => {
       'fief_arts',
       'fief_buildings',
       'fief_events',
+      'fief_incoming_cargo',
       'fief_marches',
       'fief_queue_entries',
       'fief_recruit_orders',
@@ -788,6 +790,106 @@ describe('the migrations', () => {
         .values({ ...infantryMarchOf(anasFief.id), foundingName: 'Sotoverde del Páramo' }),
     ).rejects.toMatchObject({
       cause: { code: checkViolation, constraint: 'fief_marches_order_terms' },
+    })
+  })
+
+  const anasSecondFief = {
+    ...aFief('00000000-0000-4000-8000-00000000000c', ana.id),
+    plot: 9,
+    name: 'Peña Alta',
+  }
+
+  const ridersCarryingOf = (fiefId: string): typeof fiefMarches.$inferInsert => ({
+    ...infantryMarchOf(fiefId),
+    infantryCount: 0,
+    cavalryCount: 6,
+    stayHours: 0,
+    oneWaySeconds: 450,
+    lootWood: 0,
+    lootStone: 0,
+    marchOrder: 'transport',
+    toFiefId: anasSecondFief.id,
+    cargoWood: 300,
+    cargoStone: 200,
+    cargoIron: 220,
+    cargoGold: 0,
+    cargoFood: 0,
+  })
+
+  it('stores a transport march and its incoming cargo', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values([anasFief, anasSecondFief])
+
+    await db.insert(fiefMarches).values(ridersCarryingOf(anasFief.id))
+    await db.insert(fiefIncomingCargo).values({
+      fiefId: anasSecondFief.id,
+      fromFiefId: anasFief.id,
+      fromName: 'Valdehierro',
+      fromProvince: 4,
+      fromPlot: 7,
+      cargoWood: 300,
+      cargoStone: 200,
+      cargoIron: 220,
+      cargoGold: 0,
+      cargoFood: 0,
+      arrivesAt: new Date('2026-09-22T08:07:30Z'),
+    })
+
+    expect(
+      await db
+        .select({ order: fiefMarches.marchOrder, to: fiefMarches.toFiefId })
+        .from(fiefMarches)
+        .innerJoin(fiefIncomingCargo, eq(fiefIncomingCargo.fiefId, fiefMarches.toFiefId)),
+    ).toEqual([{ order: 'transport', to: anasSecondFief.id }])
+  })
+
+  it('refuses a transport march without a cargo', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values([anasFief, anasSecondFief])
+
+    await expect(
+      db.insert(fiefMarches).values({
+        ...ridersCarryingOf(anasFief.id),
+        cargoWood: 0,
+        cargoStone: 0,
+        cargoIron: 0,
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_transport_cargo' },
+    })
+  })
+
+  it('refuses a cargo on a forage march', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values([anasFief, anasSecondFief])
+
+    await expect(
+      db.insert(fiefMarches).values({ ...infantryMarchOf(anasFief.id), cargoWood: 10 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_marches_transport_cargo' },
+    })
+  })
+
+  it('refuses a fractional amount on a cargo on its way', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefIncomingCargo).values({
+        fiefId: anasFief.id,
+        fromFiefId: anasSecondFief.id,
+        fromName: 'Peña Alta',
+        fromProvince: 4,
+        fromPlot: 9,
+        cargoWood: 0.5,
+        cargoStone: 0,
+        cargoIron: 0,
+        cargoGold: 0,
+        cargoFood: 0,
+        arrivesAt: new Date('2026-09-22T08:07:30Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_incoming_cargo_cargo_wood_whole' },
     })
   })
 
@@ -2414,5 +2516,25 @@ describe('the founding events migration', () => {
     expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief)).toEqual(
       eventsOfPartyVersion,
     )
+  })
+})
+
+describe('the transport march migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the marches stored before the transport migration', async () => {
+    await migratedFrom(client, 25, async () => {
+      await insertMarchesOfFoundingVersion(client)
+    })
+
+    expect(await marchesOf(client)).toEqual(marchesOfLootPercentVersion)
   })
 })

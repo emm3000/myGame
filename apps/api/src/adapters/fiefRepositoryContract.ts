@@ -6,6 +6,7 @@ import {
   Fief,
   FiefName,
   type FiefRepository,
+  type IncomingCargo,
   Instant,
   type March,
   type OpenRecruitOrder,
@@ -137,6 +138,30 @@ const recalledFounding: AwayMarch = {
   recalledAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:50:00Z')),
 }
 
+const ridersCarrying: AwayMarch = {
+  kind: 'away',
+  order: 'transport',
+  toFiefId: '00000000-0000-4000-8000-0000000000aa',
+  cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  province: 4,
+  plot: 9,
+  units: { infantry: 0, cavalry: 6, settler: 0 },
+  stayHours: 0,
+  departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:40:00Z')),
+  oneWaySeconds: 900,
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+}
+
+const cargoFromTheOtherFief: IncomingCargo = {
+  fromFiefId: '00000000-0000-4000-8000-0000000000aa',
+  name: 'Peña Alta',
+  province: 4,
+  plot: 9,
+  cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  arrivesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:05:00Z')),
+}
+
 const ana = '00000000-0000-4000-8000-000000000001'
 const bruno = '00000000-0000-4000-8000-000000000002'
 const unknownFiefId = '00000000-0000-4000-8000-0000000000ff'
@@ -234,6 +259,35 @@ const developedFief = developedFiefWith(
   tenInfantryForaging,
   trainedUnits,
 )
+
+const withIncomingCargo = (fief: Fief, incomingCargo: IncomingCargo): Fief =>
+  accepted(
+    Fief.restore({
+      id: fief.id,
+      playerId: fief.playerId,
+      name: fief.name.value,
+      address: {
+        kingdom: fief.coordinates.kingdom,
+        province: fief.coordinates.province,
+        plot: fief.coordinates.plot,
+      },
+      stocks: fief.stocks,
+      storedAt: fief.storedAt,
+      buildingLevels: fief.buildingLevels,
+      artLevels: fief.artLevels,
+      units: {
+        infantry: fief.units.countOf('infantry'),
+        cavalry: fief.units.countOf('cavalry'),
+        settler: fief.units.countOf('settler'),
+      },
+      slot: fief.slot,
+      buildQueue: fief.buildQueue,
+      studySlot: fief.studySlot,
+      recruitOrder: fief.recruitOrder,
+      march: fief.march,
+      incomingCargo,
+    }),
+  )
 
 const upgradedFief = (fief: Fief): Fief =>
   accepted(
@@ -601,6 +655,52 @@ export const fiefRepositoryContract = (
       await fiefs.save(settlerFiefWith(anasFief.id, ana, 7, recalledFounding))
 
       expect(await fiefs.foundingsOnTheRoadOf(ana)).toBe(0)
+    })
+
+    it('restores a transport march with its destination and its cargo', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(
+        developedFiefWith(waitingEntries, infantryOrder, ridersCarrying, trainedUnits),
+      )
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.march).toEqual(ridersCarrying)
+    })
+
+    it('restores a forage march over a transport stored before it', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(
+        developedFiefWith(waitingEntries, infantryOrder, ridersCarrying, trainedUnits),
+      )
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.march).toEqual(tenInfantryForaging)
+    })
+
+    it('restores the cargo on its way to a fief', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(withIncomingCargo(developedFief, cargoFromTheOtherFief))
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.incomingCargo).toEqual(cargoFromTheOtherFief)
+    })
+
+    it('restores no cargo on its way once a later save drops it', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(withIncomingCargo(developedFief, cargoFromTheOtherFief))
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value).toMatchObject({ incomingCargo: undefined })
     })
 
     it('restores a forage march over an attack stored before it', async () => {

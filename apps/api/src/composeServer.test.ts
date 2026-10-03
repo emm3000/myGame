@@ -3,11 +3,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  Coordinates,
   type DomainError,
   enqueueBuilding,
   err,
-  type Fief,
+  Fief,
   type FiefId,
+  FiefName,
   type FiefRepository,
   foundFief,
   Instant,
@@ -17,9 +19,11 @@ import {
 } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
+import type { Transaction } from './adapters/postgres/postgresTransaction'
 import type { AccountToken } from './auth/AccountTokens'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
+import { dispatchTransportOf } from './fief/dispatchTransportOf'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -376,7 +380,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2)",
@@ -498,6 +502,98 @@ const raceTwoEnqueues = async (
   return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
 }
 
+const runSql = async (statement: string): Promise<void> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    await client.query(statement)
+  } finally {
+    await client.end()
+  }
+}
+
+const foundAnasSecondFief = async (server: ComposedServer): Promise<FiefId> => {
+  const name = FiefName.create('Peña Alta')
+  const coordinates = Coordinates.create(1, 2, 1)
+  assert(name.ok && coordinates.ok)
+  const second = Fief.found({
+    id: server.ids.newId(),
+    playerId: ana,
+    name: name.value,
+    coordinates: coordinates.value,
+    startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
+    at: foundedAt,
+  })
+  const saved = await server.inTransaction(({ fiefs }) => fiefs.save(second))
+  assert(saved.ok)
+  await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+    SELECT id, 'cavalry'::unit, 6 FROM fiefs`)
+  return second.id
+}
+
+const pausingAfterFirstLock =
+  (server: ComposedServer, afterFirstLock: () => Promise<void>): Transaction =>
+  (work) =>
+    server.inTransaction((stores) => {
+      let hasLocked = false
+      return work({
+        ...stores,
+        fiefs: withRead(stores.fiefs, async (fiefId) => {
+          const read = await stores.fiefs.fiefOf(fiefId)
+          if (!hasLocked) {
+            hasLocked = true
+            await afterFirstLock()
+          }
+          return read
+        }),
+      })
+    })
+
+const transportBetween = (
+  server: ComposedServer,
+  inTransaction: Transaction,
+  fiefId: FiefId,
+  toFiefId: FiefId,
+): Promise<Result<Fief, DomainError>> =>
+  dispatchTransportOf(
+    { playerId: ana, fiefId },
+    {
+      toFiefId,
+      units: { infantry: 0, cavalry: 6, settler: 0 },
+      cargo: { wood: 100, stone: 0, iron: 0, gold: 0, food: 0 },
+    },
+    { inTransaction, buildingCatalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },
+  )
+
+const raceTwoTransportsEachWay = async (
+  server: ComposedServer,
+  firstFiefId: FiefId,
+  secondFiefId: FiefId,
+): Promise<ReadonlyArray<Outcome>> => {
+  const firstHasLocked = signal()
+  const secondHasLocked = signal()
+  const secondIsBlockedOrHasLocked = untilBlockedOrRead(secondHasLocked.promise)
+  const first = transportBetween(
+    server,
+    pausingAfterFirstLock(server, async () => {
+      firstHasLocked.resolve()
+      await secondIsBlockedOrHasLocked
+    }),
+    firstFiefId,
+    secondFiefId,
+  )
+  await firstHasLocked.promise
+  const second = transportBetween(
+    server,
+    pausingAfterFirstLock(server, async () => {
+      secondHasLocked.resolve()
+    }),
+    secondFiefId,
+    firstFiefId,
+  )
+  return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
+}
+
 describe('a fief transaction from the composed server', () => {
   let server: ComposedServer
 
@@ -522,6 +618,22 @@ describe('a fief transaction from the composed server', () => {
     assert(stored.ok)
     expect(stored.value?.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 1 })
     expect(stored.value?.buildQueue).toMatchObject([{ building: 'sawmill', targetLevel: 2 }])
+  })
+
+  it('sends a transport each way at once without a deadlock', async () => {
+    const firstFiefId = await foundAnasFief(server)
+    const secondFiefId = await foundAnasSecondFief(server)
+
+    const outcomes = await raceTwoTransportsEachWay(server, firstFiefId, secondFiefId)
+
+    expect(outcomes).toEqual(['enqueued', 'enqueued'])
+    const stored = await Promise.all(
+      [firstFiefId, secondFiefId].map((fiefId) => server.fiefs.fiefOf(fiefId)),
+    )
+    expect(stored.map((read) => read.ok && read.value?.incomingCargo?.fromFiefId)).toEqual([
+      secondFiefId,
+      firstFiefId,
+    ])
   })
 
   it('debits both costs when two enqueues race', async () => {

@@ -1,6 +1,7 @@
 import { attackLootOf } from '../camp/attackLootOf'
 import { type Battle, battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
+import { carryOf } from '../march/carryOf'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
 import { foundingParty } from '../march/foundingParty'
@@ -11,6 +12,7 @@ import type {
   FoundingMarch,
   LootPercent,
   March,
+  TransportMarch,
 } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import { marchOneWaySeconds } from '../march/marchOneWaySeconds'
@@ -46,6 +48,7 @@ import type { FiefEvent } from './FiefEvent'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
 import { FiefUnitCounts, type UnitCountsByKind } from './FiefUnitCounts'
+import type { IncomingCargo } from './IncomingCargo'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
@@ -82,6 +85,7 @@ export type StoredFief = {
   readonly studySlot: StudySlot
   readonly recruitOrder: RecruitOrder
   readonly march: March
+  readonly incomingCargo?: IncomingCargo
 }
 
 export type RecruitRequest = {
@@ -111,6 +115,17 @@ export type FoundingOrder = {
   readonly province: number
   readonly plot: number
   readonly name: FiefName
+}
+
+export type TransportOrder = {
+  readonly toFiefId: FiefId
+  readonly units: UnitCountsByKind
+  readonly cargo: Stocks
+}
+
+export type TransportDispatch = {
+  readonly origin: Fief
+  readonly destination: Fief
 }
 
 export type MarchTerms = Pick<FiefSettings, 'forage' | 'units'>
@@ -147,6 +162,9 @@ const shortfall = (stocks: Stocks, cost: Stocks): Stocks => ({
 })
 
 const isShort = (missing: Stocks): boolean => Object.values(missing).some((amount) => amount > 0)
+
+const totalOf = (stocks: Stocks): number =>
+  resourceKinds.reduce((total, resource) => total + stocks[resource], 0)
 
 const unbuiltLevels: FiefBuildingLevels = {
   sawmill: 0,
@@ -310,6 +328,25 @@ const validateFounding = (march: FoundingMarch): Result<void, DomainError> => {
   return ok(undefined)
 }
 
+const refuseInvalidCargo = (cargo: Stocks): Result<void, DomainError> => {
+  const negative = refuseNegativeAmount(cargo)
+  if (!negative.ok) {
+    return negative
+  }
+  return totalOf(cargo) === 0 ? err({ kind: 'EmptyCargo' }) : ok(undefined)
+}
+
+const validateTransport = (march: TransportMarch): Result<void, DomainError> => {
+  if (march.stayHours !== 0) {
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+  }
+  const fit = refuseUnfitUnits(march.units, 'transport')
+  if (!fit.ok) {
+    return fit
+  }
+  return refuseInvalidCargo(march.cargo)
+}
+
 const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
   switch (march.order) {
     case 'forage':
@@ -320,6 +357,8 @@ const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
       return validateAttack(march)
     case 'found':
       return validateFounding(march)
+    case 'transport':
+      return validateTransport(march)
     default: {
       const unreachable: never = march
       return unreachable
@@ -386,6 +425,19 @@ const shareOf = (cost: Stocks, part: number, whole: number): Stocks => ({
   food: (cost.food * part) / whole,
 })
 
+const validateIncomingCargo = (
+  incomingCargo: IncomingCargo | undefined,
+  storedAt: Instant,
+): Result<void, DomainError> => {
+  if (incomingCargo === undefined) {
+    return ok(undefined)
+  }
+  if (incomingCargo.arrivesAt.epochMilliseconds < storedAt.epochMilliseconds) {
+    return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: incomingCargo.arrivesAt })
+  }
+  return refuseNegativeAmount(incomingCargo.cargo)
+}
+
 const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   const storedStocks = refuseNegativeAmount(stored.stocks)
   if (!storedStocks.ok) {
@@ -421,6 +473,10 @@ const validateStoredState = (stored: StoredFief): Result<void, DomainError> => {
   if (!storedMarch.ok) {
     return storedMarch
   }
+  const storedCargo = validateIncomingCargo(stored.incomingCargo, stored.storedAt)
+  if (!storedCargo.ok) {
+    return storedCargo
+  }
   return validateBuildQueue(stored.buildQueue)
 }
 
@@ -439,6 +495,7 @@ type FiefChange = Partial<
     readonly studySlot: StudySlot
     readonly recruitOrder: RecruitOrder
     readonly march: March
+    readonly incomingCargo: IncomingCargo | undefined
   }
 >
 
@@ -588,6 +645,7 @@ export class Fief {
     readonly studySlot: StudySlot,
     readonly recruitOrder: RecruitOrder,
     readonly march: March,
+    readonly incomingCargo: IncomingCargo | undefined,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -606,6 +664,7 @@ export class Fief {
       { kind: 'idle' },
       { kind: 'idle' },
       { kind: 'idle' },
+      undefined,
     )
   }
 
@@ -643,6 +702,7 @@ export class Fief {
         stored.studySlot,
         stored.recruitOrder,
         stored.march,
+        stored.incomingCargo,
       ),
     )
   }
@@ -1028,6 +1088,77 @@ export class Fief {
     )
   }
 
+  roomForTransport(order: TransportOrder): Result<void, DomainError> {
+    const party = refuseInvalidParty(order.units)
+    if (!party.ok) {
+      return party
+    }
+    const fit = refuseUnfitUnits(order.units, 'transport')
+    if (!fit.ok) {
+      return fit
+    }
+    const cargo = refuseInvalidCargo(order.cargo)
+    if (!cargo.ok) {
+      return cargo
+    }
+    return this.refuseBusyMarchSlot()
+  }
+
+  dispatchTransport(
+    order: TransportOrder,
+    destination: Fief,
+    stocksAtNow: Stocks,
+    now: Instant,
+    terms: MarchTerms,
+    season: MarchSeason,
+  ): Result<TransportDispatch, DomainError> {
+    const room = this.roomForTransport(order)
+    if (!room.ok) {
+      return room
+    }
+    const { units, cargo } = order
+    const atHome = this.refuseAbsentUnits(units, now)
+    if (!atHome.ok) {
+      return atHome
+    }
+    const carry = carryOf(units, terms.units)
+    if (totalOf(cargo) > carry) {
+      return err({ kind: 'CargoAboveCarry', cargo: totalOf(cargo), carry })
+    }
+    const missing = shortfall(stocksAtNow, cargo)
+    if (isShort(missing)) {
+      return err({ kind: 'InsufficientResources', missing })
+    }
+    const { province, plot } = destination.coordinates
+    const march: TransportMarch = {
+      kind: 'away',
+      order: 'transport',
+      toFiefId: destination.id,
+      cargo,
+      province,
+      plot,
+      units,
+      stayHours: 0,
+      departedAt: now,
+      oneWaySeconds: this.oneWaySecondsTo(province, plot, units, terms, season.roadPercent),
+      loot: noStocks,
+      lootPercent: season.lootPercent,
+    }
+    return ok({
+      origin: this.changed({ march, stocks: debit(stocksAtNow, cargo), storedAt: now }),
+      destination: destination.changed({
+        incomingCargo: {
+          fromFiefId: this.id,
+          name: this.name.value,
+          province: this.coordinates.province,
+          plot: this.coordinates.plot,
+          cargo,
+          arrivesAt: marchInstantsOf(march).arrivesAt,
+        },
+      }),
+    })
+  }
+
   recallMarch(target: MarchTarget, now: Instant, terms: MarchTerms): Result<Fief, DomainError> {
     const { march } = this
     if (
@@ -1153,6 +1284,14 @@ export class Fief {
     })
   }
 
+  completeCargo(arrived: IncomingCargo, stocksAtArrival: Stocks): Fief {
+    return this.changed({
+      stocks: credit(stocksAtArrival, arrived.cargo),
+      storedAt: arrived.arrivesAt,
+      incomingCargo: undefined,
+    })
+  }
+
   completeMarch(returned: AwayMarch, stocksAtReturn: Stocks): Fief {
     return this.changed({
       stocks: credit(stocksAtReturn, returned.loot),
@@ -1260,6 +1399,7 @@ export class Fief {
       change.studySlot ?? this.studySlot,
       change.recruitOrder ?? this.recruitOrder,
       change.march ?? this.march,
+      'incomingCargo' in change ? change.incomingCargo : this.incomingCargo,
     )
   }
 

@@ -7,6 +7,7 @@ import type { Fief, Stocks } from '../fief/Fief'
 import type { FiefEvent } from '../fief/FiefEvent'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { fiefFoundedBy } from '../fief/fiefFoundedBy'
+import type { IncomingCargo } from '../fief/IncomingCargo'
 import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
@@ -51,6 +52,7 @@ type FinishedWork =
     }
   | { readonly kind: 'founding'; readonly march: FoundingMarch; readonly finishedAt: Instant }
   | { readonly kind: 'march'; readonly march: AwayMarch; readonly finishedAt: Instant }
+  | { readonly kind: 'cargo'; readonly cargo: IncomingCargo; readonly finishedAt: Instant }
 
 type WalkedFief = ChangedFief & {
   readonly campBattles: ReadonlyArray<CampBattle>
@@ -135,6 +137,17 @@ const returnedMarchOf = (fief: Fief, now: Instant): FinishedWork | undefined => 
   return { kind: 'march', march, finishedAt: returnsAt }
 }
 
+const arrivedCargoOf = (fief: Fief, now: Instant): FinishedWork | undefined => {
+  const { incomingCargo } = fief
+  if (
+    incomingCargo === undefined ||
+    incomingCargo.arrivesAt.epochMilliseconds > now.epochMilliseconds
+  ) {
+    return undefined
+  }
+  return { kind: 'cargo', cargo: incomingCargo, finishedAt: incomingCargo.arrivesAt }
+}
+
 const earlierOf = (
   earliest: FinishedWork | undefined,
   candidate: FinishedWork | undefined,
@@ -159,6 +172,7 @@ const earliestFinishedOf = (
     foughtBattleOf(fief, now, unitTerms),
     foundingArrivalOf(fief, now),
     returnedMarchOf(fief, now),
+    arrivedCargoOf(fief, now),
   ].reduce(earlierOf, undefined)
 
 const fiefFoundedEventOf = (founding: FoundingMarch): FiefEvent => ({
@@ -225,6 +239,8 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           occurredAt: finished.finishedAt,
         },
       ]
+    case 'cargo':
+      return []
     default: {
       const unreachable: never = finished
       return unreachable
@@ -269,6 +285,8 @@ const applyFinished = (
       return ok(fief.completeFounding(finished.march, stocksAtFinish))
     case 'march':
       return ok(fief.completeMarch(finished.march, stocksAtFinish))
+    case 'cargo':
+      return ok(fief.completeCargo(finished.cargo, stocksAtFinish))
     default: {
       const unreachable: never = finished
       return unreachable

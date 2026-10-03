@@ -27,6 +27,7 @@ export {
   type MarchTarget,
   type Stocks,
   type StoredFief,
+  type TransportOrder,
 } from './fief/Fief'
 export type { FiefArtLevels } from './fief/FiefArtLevels'
 export type { FiefBuildingLevels } from './fief/FiefBuildingLevels'
@@ -34,6 +35,7 @@ export type { FiefEvent } from './fief/FiefEvent'
 export type { FiefId } from './fief/FiefId'
 export { FiefName } from './fief/FiefName'
 export type { FiefOfPlayer } from './fief/FiefOfPlayer'
+export type { IncomingCargo } from './fief/IncomingCargo'
 export { nextArtLevelOf } from './fief/nextArtLevelOf'
 export type { PlotAddress } from './fief/PlotAddress'
 export type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './fief/RecruitOrder'
@@ -44,7 +46,7 @@ export type { Terrain } from './fief/Terrain'
 export { terrainOf } from './fief/terrainOf'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
 export { forageLootOf } from './march/forageLootOf'
-export type { AwayMarch, March } from './march/March'
+export type { AwayMarch, March, TransportMarch } from './march/March'
 export { type MarchInstants, marchInstantsOf } from './march/marchInstantsOf'
 export { marchOneWaySeconds } from './march/marchOneWaySeconds'
 export { type MarchPhase, marchPhaseAt } from './march/marchPhaseAt'
@@ -116,6 +118,11 @@ export {
   type DispatchMarchDependencies,
   dispatchMarch,
 } from './useCases/dispatchMarch'
+export {
+  type DispatchTransportCommand,
+  type DispatchTransportDependencies,
+  dispatchTransport,
+} from './useCases/dispatchTransport'
 export {
   type EnqueueBuildingCommand,
   type EnqueueBuildingDependencies,

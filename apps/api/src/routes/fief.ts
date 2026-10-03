@@ -5,6 +5,7 @@ import {
   DispatchAttackRequestSchema,
   DispatchFoundingRequestSchema,
   DispatchMarchRequestSchema,
+  DispatchTransportRequestSchema,
   EnqueueBuildingRequestSchema,
   type FiefChronicle,
   type FiefOverview,
@@ -25,6 +26,10 @@ import { type CurrentFiefDependencies, currentFiefOf } from '../fief/currentFief
 import { type DispatchAttackDependencies, dispatchAttackOf } from '../fief/dispatchAttackOf'
 import { type DispatchFoundingDependencies, dispatchFoundingOf } from '../fief/dispatchFoundingOf'
 import { type DispatchMarchDependencies, dispatchMarchOf } from '../fief/dispatchMarchOf'
+import {
+  type DispatchTransportDependencies,
+  dispatchTransportOf,
+} from '../fief/dispatchTransportOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
 import { fiefChronicleOf } from '../fief/fiefChronicleOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
@@ -34,7 +39,7 @@ import {
 } from '../fief/placeRecruitOrderOf'
 import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarchOf'
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
-import { answerRefusal } from '../http/answerRefusal'
+import { answerRefusal, type RefusalLines, transportLines } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
@@ -49,15 +54,20 @@ export type FiefDependencies = CurrentFiefDependencies &
   DispatchMarchDependencies &
   DispatchAttackDependencies &
   DispatchFoundingDependencies &
+  DispatchTransportDependencies &
   RecallMarchDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
   }
 
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
-  const answerFief = (c: Context, fief: Result<Fief, DomainError>): Response => {
+  const answerFief = (
+    c: Context,
+    fief: Result<Fief, DomainError>,
+    lines: RefusalLines = {},
+  ): Response => {
     if (!fief.ok) {
-      return answerRefusal(c, fief.error)
+      return answerRefusal(c, fief.error, lines)
     }
     const overview = fiefOverviewOf(fief.value, dependencies.buildingCatalog)
     if (!overview.ok) {
@@ -152,6 +162,17 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchFoundingOf(c.var.fiefOfPlayer, request.data, dependencies))
+    })
+    .post('/marches/transport', signedInPlayer, requireNamedFief, async (c) => {
+      const request = DispatchTransportRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      return answerFief(
+        c,
+        await dispatchTransportOf(c.var.fiefOfPlayer, request.data, dependencies),
+        transportLines,
+      )
     })
     .post('/marches/:departedAt/recall', signedInPlayer, requireNamedFief, async (c) => {
       const request = RecallMarchRequestSchema.safeParse(c.req.param())

@@ -36,7 +36,7 @@ export const art = pgEnum('art', ['smithing', 'masonry'])
 
 export const unit = pgEnum('unit', ['infantry', 'cavalry', 'settler'])
 
-export const marchOrder = pgEnum('march_order', ['forage', 'attack', 'found'])
+export const marchOrder = pgEnum('march_order', ['forage', 'attack', 'found', 'transport'])
 
 export const fiefEventKind = pgEnum('fief_event_kind', [
   'upgrade_finished',
@@ -253,6 +253,12 @@ export const fiefMarches = pgTable(
     campStrength: integer('camp_strength'),
     fought: boolean('fought').notNull().default(false),
     foundingName: text('founding_name'),
+    toFiefId: uuid('to_fief_id'),
+    cargoWood: doublePrecision('cargo_wood'),
+    cargoStone: doublePrecision('cargo_stone'),
+    cargoIron: doublePrecision('cargo_iron'),
+    cargoGold: doublePrecision('cargo_gold'),
+    cargoFood: doublePrecision('cargo_food'),
   },
   (table) => [
     check('fief_marches_province_positive', sql`${table.province} >= 1`),
@@ -266,8 +272,17 @@ export const fiefMarches = pgTable(
     ),
     check(
       'fief_marches_order_terms',
-      sql`(${table.marchOrder}::text = 'forage' AND ${table.stayHours} >= 1 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NULL) OR (${table.marchOrder}::text = 'attack' AND ${table.stayHours} = 0 AND ${table.campTier} IS NOT NULL AND ${table.campTier} BETWEEN 1 AND 3 AND ${table.campStrength} IS NOT NULL AND ${table.campStrength} >= 0 AND ${table.foundingName} IS NULL) OR (${table.marchOrder}::text = 'found' AND ${table.stayHours} = 0 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NOT NULL AND ${table.settlerCount} = 1 AND ${table.infantryCount} = 0 AND ${table.cavalryCount} = 0)`,
+      sql`(${table.marchOrder}::text = 'forage' AND ${table.stayHours} >= 1 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NULL) OR (${table.marchOrder}::text = 'attack' AND ${table.stayHours} = 0 AND ${table.campTier} IS NOT NULL AND ${table.campTier} BETWEEN 1 AND 3 AND ${table.campStrength} IS NOT NULL AND ${table.campStrength} >= 0 AND ${table.foundingName} IS NULL) OR (${table.marchOrder}::text = 'found' AND ${table.stayHours} = 0 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NOT NULL AND ${table.settlerCount} = 1 AND ${table.infantryCount} = 0 AND ${table.cavalryCount} = 0) OR (${table.marchOrder}::text = 'transport' AND ${table.stayHours} = 0 AND ${table.campTier} IS NULL AND ${table.campStrength} IS NULL AND NOT ${table.fought} AND ${table.foundingName} IS NULL AND ${table.settlerCount} = 0)`,
     ),
+    check(
+      'fief_marches_transport_cargo',
+      sql`(${table.marchOrder}::text = 'transport' AND ${table.toFiefId} IS NOT NULL AND ${table.cargoWood} IS NOT NULL AND ${table.cargoStone} IS NOT NULL AND ${table.cargoIron} IS NOT NULL AND ${table.cargoGold} IS NOT NULL AND ${table.cargoFood} IS NOT NULL AND ${table.cargoWood} + ${table.cargoStone} + ${table.cargoIron} + ${table.cargoGold} + ${table.cargoFood} >= 1) OR (${table.marchOrder}::text <> 'transport' AND ${table.toFiefId} IS NULL AND ${table.cargoWood} IS NULL AND ${table.cargoStone} IS NULL AND ${table.cargoIron} IS NULL AND ${table.cargoGold} IS NULL AND ${table.cargoFood} IS NULL)`,
+    ),
+    wholeAmount('fief_marches_cargo_wood_whole', table.cargoWood),
+    wholeAmount('fief_marches_cargo_stone_whole', table.cargoStone),
+    wholeAmount('fief_marches_cargo_iron_whole', table.cargoIron),
+    wholeAmount('fief_marches_cargo_gold_whole', table.cargoGold),
+    wholeAmount('fief_marches_cargo_food_whole', table.cargoFood),
     check('fief_marches_one_way_seconds_positive', sql`${table.oneWaySeconds} >= 1`),
     wholeAmount('fief_marches_loot_wood_whole', table.lootWood),
     wholeAmount('fief_marches_loot_stone_whole', table.lootStone),
@@ -286,6 +301,34 @@ export const fiefMarches = pgTable(
     uniqueIndex('fief_marches_founding_plot_unique')
       .on(table.province, table.plot)
       .where(sql`${table.foundingName} IS NOT NULL AND ${table.recalledAt} IS NULL`),
+  ],
+)
+
+export const fiefIncomingCargo = pgTable(
+  'fief_incoming_cargo',
+  {
+    fiefId: uuid('fief_id')
+      .primaryKey()
+      .references(() => fiefs.id, { onDelete: 'cascade' }),
+    fromFiefId: uuid('from_fief_id').notNull(),
+    fromName: text('from_name').notNull(),
+    fromProvince: integer('from_province').notNull(),
+    fromPlot: integer('from_plot').notNull(),
+    cargoWood: doublePrecision('cargo_wood').notNull(),
+    cargoStone: doublePrecision('cargo_stone').notNull(),
+    cargoIron: doublePrecision('cargo_iron').notNull(),
+    cargoGold: doublePrecision('cargo_gold').notNull(),
+    cargoFood: doublePrecision('cargo_food').notNull(),
+    arrivesAt: timestamp('arrives_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check('fief_incoming_cargo_from_province_positive', sql`${table.fromProvince} >= 1`),
+    check('fief_incoming_cargo_from_plot_positive', sql`${table.fromPlot} >= 1`),
+    wholeAmount('fief_incoming_cargo_cargo_wood_whole', table.cargoWood),
+    wholeAmount('fief_incoming_cargo_cargo_stone_whole', table.cargoStone),
+    wholeAmount('fief_incoming_cargo_cargo_iron_whole', table.cargoIron),
+    wholeAmount('fief_incoming_cargo_cargo_gold_whole', table.cargoGold),
+    wholeAmount('fief_incoming_cargo_cargo_food_whole', table.cargoFood),
   ],
 )
 
