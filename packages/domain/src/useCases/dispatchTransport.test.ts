@@ -19,6 +19,7 @@ import { daysAfterSeasonEpoch, seasonalCatalogOf, secondsAfter } from '../testin
 import { sequentialIds } from '../testing/sequentialIds'
 import { Instant } from '../time/Instant'
 import { dispatchTransport } from './dispatchTransport'
+import { recallMarch } from './recallMarch'
 import { resolveUpgrade } from './resolveUpgrade'
 
 const dispatchInstant = Instant.fromEpochMilliseconds(86_400_000)
@@ -264,6 +265,22 @@ describe('dispatchTransport', () => {
     expect(result).toEqual(err({ kind: 'FiefNotFound', fiefId: 'fief-9' }))
   })
 
+  it('reads no fief of another lord', async () => {
+    const dependencies = dependenciesOver(lordsFiefs())
+    const read: Array<string> = []
+    const fiefs = {
+      ...dependencies.fiefs,
+      fiefOf: (fiefId: string) => {
+        read.push(fiefId)
+        return dependencies.fiefs.fiefOf(fiefId)
+      },
+    }
+
+    await dispatchTransport(transportOf({ toFiefId: 'fief-9' }), { ...dependencies, fiefs })
+
+    expect(read).not.toContain('fief-9')
+  })
+
   it('refuses a negative amount of the cargo', async () => {
     const dependencies = dependenciesOver(lordsFiefs())
 
@@ -310,14 +327,17 @@ describe('dispatchTransport', () => {
   })
 })
 
-describe('the arrival of a transport', () => {
-  const sentTransport = async (other: FiefEntity = otherFief()) => {
-    const dependencies = dependenciesOver([sendingFief(), other, rivalFief()])
-    const sent = await dispatchTransport(transportOf(), dependencies)
-    assert(sent.ok)
-    return dependencies.fiefs
-  }
+const sentTransport = async (
+  other: FiefEntity = otherFief(),
+  sending: FiefEntity = sendingFief(),
+): Promise<InMemoryFiefRepository> => {
+  const dependencies = dependenciesOver([sending, other, rivalFief()])
+  const sent = await dispatchTransport(transportOf(), dependencies)
+  assert(sent.ok)
+  return dependencies.fiefs
+}
 
+describe('the arrival of a transport', () => {
   it('credits the cargo to the other fief at the arrival', async () => {
     const fiefs = await sentTransport()
 
@@ -387,5 +407,92 @@ describe('the arrival of a transport', () => {
       gold: 100,
       food: 500,
     })
+  })
+})
+
+describe('the recall of a transport', () => {
+  const recallAt = (fiefs: InMemoryFiefRepository, instant: Instant) =>
+    recallMarch(
+      { playerId: 'lord', fiefId: 'fief-1', departedAt: dispatchInstant },
+      { fiefs, catalog, clock: frozenClock(instant) },
+    )
+
+  it('recalls a transport and drops the cargo of the other fief', async () => {
+    const fiefs = await sentTransport()
+
+    const recalled = await recallAt(fiefs, secondsAfter(dispatchInstant, 300))
+
+    assert(recalled.ok)
+    expect(fiefs.storedFiefOf('fief-2')?.incomingCargo).toBeUndefined()
+  })
+  it('carries the cargo home at the return of a recall', async () => {
+    const fiefs = await sentTransport()
+    await recallAt(fiefs, secondsAfter(dispatchInstant, 300))
+
+    const resolved = await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 600))
+
+    assert(resolved.ok)
+    expect(resolved.value.fief.march).toEqual({ kind: 'idle' })
+    expect(resolved.value.fief.stocks).toEqual({
+      wood: 500,
+      stone: 300,
+      iron: 300,
+      gold: 100,
+      food: 500,
+    })
+  })
+  it('credits the returned cargo above the capacity', async () => {
+    const fiefs = await sentTransport(
+      otherFief(),
+      sendingFief({ stocks: { wood: 1200, stone: 1200, iron: 1200, gold: 1200, food: 1200 } }),
+    )
+    await recallAt(fiefs, secondsAfter(dispatchInstant, 300))
+
+    const resolved = await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 600))
+
+    assert(resolved.ok)
+    expect(resolved.value.fief.stocks).toEqual({
+      wood: 1200,
+      stone: 1200,
+      iron: 1200,
+      gold: 1200,
+      food: 1200,
+    })
+  })
+
+  it('refuses the recall of a transport at its arrival', async () => {
+    const fiefs = await sentTransport()
+
+    const result = await recallAt(fiefs, secondsAfter(dispatchInstant, 450))
+
+    expect(result).toEqual(err({ kind: 'MarchAlreadyReturning' }))
+  })
+
+  it('writes nothing on a refused recall', async () => {
+    const fiefs = await sentTransport()
+
+    await recallAt(fiefs, secondsAfter(dispatchInstant, 450))
+
+    expect(fiefs.storedFiefOf('fief-1')?.march).toMatchObject({ loot: still })
+    expect(fiefs.storedFiefOf('fief-1')?.march).not.toHaveProperty('recalledAt')
+    expect(fiefs.storedFiefOf('fief-2')?.incomingCargo).toMatchObject({ cargo: fullCargo })
+  })
+
+  it('keeps one incoming cargo per fief', async () => {
+    const fiefs = await sentTransport()
+    await recallAt(fiefs, secondsAfter(dispatchInstant, 100))
+    await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 200))
+    const resent = await dispatchTransport(transportOf({ cargo: { ...still, wood: 100 } }), {
+      fiefs,
+      catalog,
+      clock: frozenClock(secondsAfter(dispatchInstant, 200)),
+    })
+    assert(resent.ok)
+
+    const arrived = await resolveAt(fiefs, 'fief-2', secondsAfter(dispatchInstant, 650))
+
+    assert(arrived.ok)
+    expect(arrived.value.fief.stocks).toMatchObject({ wood: 200, stone: 100, iron: 100 })
+    expect(fiefs.storedFiefOf('fief-1')?.stocks).toMatchObject({ wood: 400, stone: 300, iron: 300 })
   })
 })
