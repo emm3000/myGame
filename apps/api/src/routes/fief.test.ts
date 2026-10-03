@@ -2986,6 +2986,13 @@ describe('the fief route', () => {
     })
   })
 
+  const chronicleEventsOf = async (lord: Lord): Promise<FiefChronicle['events']> =>
+    FiefChronicleSchema.parse(
+      await (
+        await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
+      ).json(),
+    ).events
+
   describe('the founding route', () => {
     const found = async (lord: Lord, body: unknown): Promise<Response> =>
       app.request(pathOf(lord, '/marches/found'), {
@@ -3171,13 +3178,6 @@ describe('the fief route', () => {
         units: { infantry: 0, cavalry: 0, settler: 1 },
       })
     })
-
-    const chronicleEventsOf = async (lord: Lord): Promise<FiefChronicle['events']> =>
-      FiefChronicleSchema.parse(
-        await (
-          await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
-        ).json(),
-      ).events
 
     const fiefFoundedAtTheArrival = () => ({
       kind: 'fiefFounded',
@@ -3367,31 +3367,37 @@ describe('the fief route', () => {
       })
     })
 
-    it('stores the transport in both chronicles and keeps it off the wire', async () => {
+    it('lists the transport sent in the origin chronicle', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+
+      expect(await chronicleEventsOf(ana)).toEqual([
+        {
+          kind: 'transportSent',
+          province: 2,
+          plot: 1,
+          name: 'Peña Alta',
+          cargo: woodAndStone,
+          occurredAt: '2026-09-22T08:00:00.000Z',
+        },
+      ])
+    })
+
+    it('lists the cargo arrived in the destination chronicle at the arrival', async () => {
       const ana = await signUpWithSixRidersAndAFullFief()
       await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
       clock.advanceMinutes(10)
 
-      const answered = await Promise.all(
-        [ana, otherFiefOf(ana)].map(async (lord) =>
-          FiefChronicleSchema.parse(
-            await (
-              await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
-            ).json(),
-          ),
-        ),
-      )
-
-      expect({
-        answered: answered.map(({ events }) => events.map(({ kind }) => kind)),
-        stored: [
-          (await server.chronicle.eventsOf(ana.fiefId)).map(({ kind }) => kind),
-          (await server.chronicle.eventsOf(otherFiefId)).map(({ kind }) => kind),
-        ],
-      }).toEqual({
-        answered: [['marchReturned'], []],
-        stored: [['marchReturned', 'transportSent'], ['transportArrived']],
-      })
+      expect(await chronicleEventsOf(otherFiefOf(ana))).toEqual([
+        {
+          kind: 'transportArrived',
+          province: 1,
+          plot: 1,
+          name: 'Valdehierro',
+          cargo: woodAndStone,
+          occurredAt: '2026-09-22T08:05:00.000Z',
+        },
+      ])
     })
 
     it('reads no cargo in the other fief before the arrival', async () => {

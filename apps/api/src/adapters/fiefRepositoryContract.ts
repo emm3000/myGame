@@ -155,7 +155,7 @@ const ridersCarrying: AwayMarch = {
 
 const cargoFromTheOtherFief: IncomingCargo = {
   fromFiefId: '00000000-0000-4000-8000-0000000000aa',
-  name: 'Peña Alta',
+  name: 'Penalta',
   province: 4,
   plot: 9,
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },

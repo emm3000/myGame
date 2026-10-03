@@ -327,4 +327,42 @@ describe('FiefEventSchema', () => {
 
     expect(sents.map((sent) => FiefEventSchema.safeParse(sent).success)).toEqual([false, false])
   })
+
+  it('accepts a transport sent event', () => {
+    const sent = {
+      kind: 'transportSent',
+      province: 2,
+      plot: 7,
+      name: 'Sotoverde del Páramo',
+      cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+      occurredAt: '2026-09-22T18:40:00.000Z',
+    }
+
+    expect(FiefEventSchema.parse(sent)).toEqual(sent)
+  })
+
+  it('rejects a cargo arrived without its cargo', () => {
+    const arrivals = [
+      {
+        kind: 'transportArrived',
+        province: 3,
+        plot: 12,
+        name: 'Sotoverde',
+        occurredAt: '2026-09-22T18:47:30.000Z',
+      },
+      {
+        kind: 'transportArrived',
+        province: 3,
+        plot: 12,
+        name: 'Sotoverde',
+        loot: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+        occurredAt: '2026-09-22T18:47:30.000Z',
+      },
+    ]
+
+    expect(arrivals.map((arrival) => FiefEventSchema.safeParse(arrival).success)).toEqual([
+      false,
+      false,
+    ])
+  })
 })

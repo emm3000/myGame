@@ -90,6 +90,24 @@ const FiefFoundedSchema = z.strictObject({
   occurredAt: InstantSchema,
 })
 
+const TransportSentSchema = z.strictObject({
+  kind: z.literal('transportSent'),
+  province: WholeCountSchema.positive(),
+  plot: WholeCountSchema.positive(),
+  name: z.string().min(1),
+  cargo: ResourceAmountsSchema,
+  occurredAt: InstantSchema,
+})
+
+const TransportArrivedSchema = z.strictObject({
+  kind: z.literal('transportArrived'),
+  province: WholeCountSchema.positive(),
+  plot: WholeCountSchema.positive(),
+  name: z.string().min(1),
+  cargo: ResourceAmountsSchema,
+  occurredAt: InstantSchema,
+})
+
 export const FiefEventSchema = z.discriminatedUnion('kind', [
   UpgradeFinishedSchema,
   ArtLearnedSchema,
@@ -101,6 +119,8 @@ export const FiefEventSchema = z.discriminatedUnion('kind', [
   BattleFoughtSchema,
   FoundingSentSchema,
   FiefFoundedSchema,
+  TransportSentSchema,
+  TransportArrivedSchema,
 ])
 
 export type FiefEvent = z.infer<typeof FiefEventSchema>
