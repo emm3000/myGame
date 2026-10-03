@@ -592,6 +592,99 @@ it('reads a recalled founding as a return with one settler', async () => {
   )
 })
 
+const transportCargo = { ...noRefund, wood: 300, stone: 200, iron: 220 }
+
+const transportSentToTheOtherFief = {
+  kind: 'transportSent',
+  province: 2,
+  plot: 7,
+  name: 'Sotoverde del Páramo',
+  cargo: transportCargo,
+  occurredAt: '2026-09-22T18:40:00.000Z',
+} as const
+
+const sixRiders = { infantry: 0, cavalry: 6, settler: 0 }
+
+it('names the other fief and the amounts in the transport sent line', async () => {
+  const [row] = await showChronicle({ events: [transportSentToTheOtherFief] })
+
+  expect(row?.textContent).toContain(
+    'Transporte enviado: Sotoverde del Páramo, provincia 2, parcela 7.',
+  )
+  expect(
+    within(row as HTMLElement).getByText('Envías 300 de madera, 200 de piedra y 220 de hierro.'),
+  ).toBeDefined()
+  expect(within(row as HTMLElement).getByText('Envías')).toBeDefined()
+})
+
+it('reads the cargo arrived line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'transportArrived',
+        province: 3,
+        plot: 12,
+        name: 'Sotoverde',
+        cargo: transportCargo,
+        occurredAt: '2026-09-22T18:47:30.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('Transporte recibido: Sotoverde, provincia 3, parcela 12.')
+  expect(
+    within(row as HTMLElement).getByText('Recibes 300 de madera, 200 de piedra y 220 de hierro.'),
+  ).toBeDefined()
+})
+
+it('reads the return of a transport with no loot', async () => {
+  const [returnRow, sentRow] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: sixRiders,
+        loot: noRefund,
+        occurredAt: '2026-09-22T18:55:00.000Z',
+        recalled: false,
+      },
+      transportSentToTheOtherFief,
+    ],
+  })
+
+  expect(returnRow?.textContent).toContain('Marcha terminada: provincia 2, parcela 7, 6 jinetes.')
+  expect(within(returnRow as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+  expect(sentRow?.textContent).toContain('Transporte enviado:')
+})
+
+it('reads a recalled transport returned with its cargo', async () => {
+  const [returnRow, sentRow] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: sixRiders,
+        loot: transportCargo,
+        occurredAt: '2026-09-22T18:50:00.000Z',
+        recalled: true,
+      },
+      transportSentToTheOtherFief,
+    ],
+  })
+
+  expect(returnRow?.textContent).toContain('Marcha retirada: provincia 2, parcela 7, 6 jinetes.')
+  expect(
+    within(returnRow as HTMLElement).getByText(
+      'Recibes 300 de madera, 200 de piedra y 220 de hierro.',
+    ),
+  ).toBeDefined()
+  expect(sentRow?.textContent).toContain(
+    'Transporte enviado: Sotoverde del Páramo, provincia 2, parcela 7.',
+  )
+})
+
 it('shows each event at the instant it happened', async () => {
   const occurredAt = new Date(2025, 8, 12, 9, 15).toISOString()
   const [row] = await showChronicle({

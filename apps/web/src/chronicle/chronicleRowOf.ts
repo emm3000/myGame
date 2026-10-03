@@ -70,9 +70,11 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
       }
     case 'foundingSent':
     case 'fiefFounded':
+    case 'transportSent':
+    case 'transportArrived':
       return {
         identity: `${event.province}-${event.plot}-${event.name}`,
-        text: copy.chronicle.founding(event.name, event.province, event.plot),
+        text: copy.chronicle.fiefAtPlot(event.name, event.province, event.plot),
       }
     default: {
       const unreachable: never = event
@@ -102,7 +104,13 @@ const amountsOf = (event: FiefEvent): ChronicleAmounts | undefined => {
     return listedAmounts(event.refund, copy.chronicle.recovered, copy.chronicle.refunded)
   }
   if ('loot' in event) {
-    return listedAmounts(event.loot, copy.chronicle.received, copy.chronicle.looted)
+    return listedAmounts(event.loot, copy.chronicle.received, copy.chronicle.receivedAmounts)
+  }
+  if (event.kind === 'transportSent') {
+    return listedAmounts(event.cargo, copy.chronicle.sent, copy.chronicle.sentAmounts)
+  }
+  if (event.kind === 'transportArrived') {
+    return listedAmounts(event.cargo, copy.chronicle.received, copy.chronicle.receivedAmounts)
   }
   return undefined
 }

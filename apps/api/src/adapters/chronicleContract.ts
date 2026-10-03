@@ -250,7 +250,7 @@ export const chronicleContract = (
         kind: 'transportSent',
         province: 2,
         plot: 7,
-        name: 'Peña Alta',
+        name: 'Penalta',
         cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
         occurredAt: minutesAfterDawn(25),
       }
