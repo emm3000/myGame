@@ -49,6 +49,8 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'battle_fought',
   'founding_sent',
   'fief_founded',
+  'transport_sent',
+  'transport_arrived',
 ])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
@@ -407,7 +409,7 @@ export const fiefEvents = pgTable(
     ),
     check(
       'fief_events_founding_name',
-      sql`(${table.fiefName} IS NOT NULL) = (${table.kind}::text IN ('founding_sent', 'fief_founded'))`,
+      sql`(${table.fiefName} IS NOT NULL) = (${table.kind}::text IN ('founding_sent', 'fief_founded', 'transport_sent', 'transport_arrived'))`,
     ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
   ],

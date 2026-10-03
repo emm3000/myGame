@@ -6,7 +6,7 @@ import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
 import { inMemoryCampRegistry } from '../testing/inMemoryCampRegistry'
-import { inMemoryChronicle } from '../testing/inMemoryChronicle'
+import { type InMemoryChronicle, inMemoryChronicle } from '../testing/inMemoryChronicle'
 import {
   type InMemoryFiefRepository,
   inMemoryFiefRepository,
@@ -124,16 +124,22 @@ const dependenciesOver = (
   fiefCatalog: BuildingCatalog = catalog,
 ) => ({
   fiefs: inMemoryFiefRepository(fiefs),
+  chronicle: inMemoryChronicle(),
   catalog: fiefCatalog,
   clock: frozenClock(instant),
 })
 
-const resolveAt = (fiefs: InMemoryFiefRepository, fiefId: string, instant: Instant) =>
+const resolveAt = (
+  fiefs: InMemoryFiefRepository,
+  fiefId: string,
+  instant: Instant,
+  chronicle: InMemoryChronicle = inMemoryChronicle(),
+) =>
   resolveUpgrade(
     { playerId: 'lord', fiefId },
     {
       fiefs,
-      chronicle: inMemoryChronicle(),
+      chronicle,
       camps: inMemoryCampRegistry([]),
       catalog,
       clock: frozenClock(instant),
@@ -325,6 +331,32 @@ describe('dispatchTransport', () => {
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
     expect(dependencies.fiefs.storedFiefOf('fief-2')?.incomingCargo).toBeUndefined()
   })
+
+  it('records the transport sent on the origin', async () => {
+    const dependencies = dependenciesOver(lordsFiefs())
+
+    await dispatchTransport(transportOf(), dependencies)
+
+    expect(dependencies.chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'transportSent',
+        province: 2,
+        plot: 7,
+        name: 'Peña Alta',
+        cargo: fullCargo,
+        occurredAt: dispatchInstant,
+      },
+    ])
+  })
+
+  it('records nothing for a refused transport', async () => {
+    const dependencies = dependenciesOver(lordsFiefs())
+
+    await dispatchTransport(transportOf({ cargo: { ...fullCargo, iron: 221 } }), dependencies)
+
+    expect(dependencies.chronicle.recordedEventsOf('fief-1')).toEqual([])
+    expect(dependencies.chronicle.recordedEventsOf('fief-2')).toEqual([])
+  })
 })
 
 const sentTransport = async (
@@ -391,6 +423,67 @@ describe('the arrival of a transport', () => {
       gold: 100,
       food: 100,
     })
+  })
+
+  it('records the cargo arrived on the other fief at the arrival', async () => {
+    const fiefs = await sentTransport()
+    const chronicle = inMemoryChronicle()
+
+    await resolveAt(fiefs, 'fief-2', secondsAfter(dispatchInstant, 600), chronicle)
+
+    expect(chronicle.recordedEventsOf('fief-2')).toEqual([
+      {
+        kind: 'transportArrived',
+        province: 3,
+        plot: 12,
+        name: 'Vado Viejo',
+        cargo: fullCargo,
+        occurredAt: secondsAfter(dispatchInstant, 450),
+      },
+    ])
+  })
+
+  it('credits the cargo after every other finish of its instant', async () => {
+    const fiefs = await sentTransport(
+      otherFief({
+        units: { infantry: 0, cavalry: 0, settler: 0 },
+        recruitOrder: {
+          kind: 'open',
+          unit: 'infantry',
+          count: 1,
+          cost: still,
+          perUnitSeconds: 450,
+          startedAt: dispatchInstant,
+        },
+      }),
+    )
+    const chronicle = inMemoryChronicle()
+
+    await resolveAt(fiefs, 'fief-2', secondsAfter(dispatchInstant, 450), chronicle)
+
+    expect(chronicle.recordedEventsOf('fief-2').map((event) => event.kind)).toEqual([
+      'recruitsDelivered',
+      'transportArrived',
+    ])
+  })
+
+  it('records the return of a transport with no loot', async () => {
+    const fiefs = await sentTransport()
+    const chronicle = inMemoryChronicle()
+
+    await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 900), chronicle)
+
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: sixRiders,
+        loot: still,
+        recalled: false,
+        occurredAt: secondsAfter(dispatchInstant, 900),
+      },
+    ])
   })
 
   it('returns the party empty', async () => {
@@ -460,6 +553,36 @@ describe('the recall of a transport', () => {
     })
   })
 
+  it('records no arrival for a recalled transport', async () => {
+    const fiefs = await sentTransport()
+    await recallAt(fiefs, secondsAfter(dispatchInstant, 300))
+    const chronicle = inMemoryChronicle()
+
+    await resolveAt(fiefs, 'fief-2', secondsAfter(dispatchInstant, 600), chronicle)
+
+    expect(chronicle.recordedEventsOf('fief-2')).toEqual([])
+  })
+
+  it('records a recalled transport returned with its cargo', async () => {
+    const fiefs = await sentTransport()
+    await recallAt(fiefs, secondsAfter(dispatchInstant, 300))
+    const chronicle = inMemoryChronicle()
+
+    await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 600), chronicle)
+
+    expect(chronicle.recordedEventsOf('fief-1')).toEqual([
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: sixRiders,
+        loot: fullCargo,
+        recalled: true,
+        occurredAt: secondsAfter(dispatchInstant, 600),
+      },
+    ])
+  })
+
   it('refuses the recall of a transport at its arrival', async () => {
     const fiefs = await sentTransport()
 
@@ -496,6 +619,7 @@ describe('the recall of a transport', () => {
     await resolveAt(fiefs, 'fief-1', secondsAfter(dispatchInstant, 200))
     const resent = await dispatchTransport(transportOf({ cargo: { ...still, wood: 100 } }), {
       fiefs,
+      chronicle: inMemoryChronicle(),
       catalog,
       clock: frozenClock(secondsAfter(dispatchInstant, 200)),
     })

@@ -243,6 +243,40 @@ export const chronicleContract = (
       expect(await chronicle.eventsOf(valdehierro)).toEqual([sent])
     })
 
+    it('stores and reads a transport sent', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const sent: FiefEvent = {
+        kind: 'transportSent',
+        province: 2,
+        plot: 7,
+        name: 'Peña Alta',
+        cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+        occurredAt: minutesAfterDawn(25),
+      }
+
+      await chronicle.record(valdehierro, [sent])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([sent])
+    })
+
+    it('stores and reads a cargo arrived', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([robledal])
+      const arrived: FiefEvent = {
+        kind: 'transportArrived',
+        province: 3,
+        plot: 12,
+        name: 'Vado Viejo',
+        cargo: { wood: 0, stone: 0, iron: 0, gold: 40, food: 160 },
+        occurredAt: minutesAfterDawn(33),
+      }
+
+      await chronicle.record(robledal, [arrived])
+
+      expect(await chronicle.eventsOf(robledal)).toEqual([arrived])
+    })
+
     it('stores and reads a fief founded', async () => {
       const { chronicle, registerFiefs } = await arrange()
       await registerFiefs([valdehierro, robledal])
