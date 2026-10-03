@@ -21,6 +21,7 @@ Status: stub. Style set to stylized 3D animation on 2026-09-22, before any image
 - Buildings: 1:1, subject centered, occupying 70% of the frame, neutral sky, ground shadow, no people unless the building is about people.
 - Resources: 1:1 icon, single object on a plain parchment background, thick silhouette readable at 48 px.
 - Bandit camps take the building rule, always with no people; arts take the resource rule, one object of the craft.
+- Convoys take the building rule, always with no people; the escort is implied by its arms on the carts.
 - Portraits (later): 3:4, bust, three-quarter turn, plain background in the house colour.
 - Map tiles (later): top-down, 1:1, seamless edges.
 
@@ -41,8 +42,8 @@ Fill `<subject>` from `CONTEXT.md` and `docs/lore/`, `<kingdom terrain>` from th
 - One model and one template per asset family; a template change regenerates the whole family.
 - The square output suffix (`docs/art/catalog.md`, Common lines) is output framing for Codex's image tool, which has no size argument, not a template change; it does not regenerate a family.
 - Every asset is checked against a contact sheet of its family before commit; an outlier is regenerated, never kept.
-- File name: `<family>/<term>-<level>.png`, the term as in `CONTEXT.md`, or `arts/<term>.png` for an art, which has one image and no level in its name.
-- The prompt used is stored next to the image as `<term>-<level>.prompt.txt`, or `<term>.prompt.txt` for an art.
+- File name: `<family>/<term>-<level>.png`, the term as in `CONTEXT.md`, or `arts/<term>.png` for an art or `convoys/<term>.png` for a convoy, each with one image and no level in its name.
+- The prompt used is stored next to the image as `<term>-<level>.prompt.txt`, or `<term>.prompt.txt` for an art or convoy.
 
 ## Model and size
 
@@ -50,7 +51,7 @@ GPT Image at 1024×1024 for every generated family; Codex's image tool takes no 
 
 ## UI icons
 
-Hand-drawn SVG in the design system, never generated: resources, peasants, clock, slot, the four seasons: a sprout for spring, a sun for summer, a leaf for autumn, a snowflake for winter (ADR 016), the infantry: a round shield beside a spear (#213, ADR 018), the rider: a horseshoe beside a lance (#347, ADR 021), the settler: a loaded cart on its wheel, the shaft forward (#381, ADR 023), the march: a signpost (#259, ADR 019), and the camp: a tent with a pennant (#295, ADR 020), in a 24 px box with a 1.75 px stroke in the current ink. Crisp at 16 to 24 px and themeable. Generated images are reserved for buildings, camps, arts and large resource art; the camp keeps its tent with a pennant on the map's plot tile.
+Hand-drawn SVG in the design system, never generated: resources, peasants, clock, slot, the four seasons: a sprout for spring, a sun for summer, a leaf for autumn, a snowflake for winter (ADR 016), the infantry: a round shield beside a spear (#213, ADR 018), the rider: a horseshoe beside a lance (#347, ADR 021), the settler: a loaded cart on its wheel, the shaft forward (#381, ADR 023), the march: a signpost (#259, ADR 019), and the camp: a tent with a pennant (#295, ADR 020), in a 24 px box with a 1.75 px stroke in the current ink. Crisp at 16 to 24 px and themeable. Generated images are reserved for buildings, camps, arts, convoys and large resource art; the camp keeps its tent with a pennant on the map's plot tile.
 
 ## Open questions
 
