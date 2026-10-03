@@ -5,7 +5,7 @@ Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D a
 ## How to run it
 
 1. Model: GPT Image, 1024×1024, one image per prompt. Run a whole family in one sitting so the style holds.
-2. Codex's image tool has no size argument, so the prompts of the families it generates (library, barracks, camps, arts) end with the square output suffix under Common lines, after the tier line or the resource block. The 25 older building images and the 5 resource images keep their prompts and are not regenerated. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
+2. Codex's image tool has no size argument, so the prompts of the families it generates (library, barracks, camps, arts, convoys) end with the square output suffix under Common lines, after the tier line or the resource block. The 25 older building images and the 5 resource images keep their prompts and are not regenerated. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
 3. Save the image as `apps/web/public/art/<family>/<term>-<tier>.png` and the prompt next to it as `<term>-<tier>.prompt.txt`, byte for byte what was pasted (N7).
 4. Lay the family out as a contact sheet before committing, and check it against the bible's palette and framing. One outlier means one regeneration; three mean the template changes and the family is regenerated.
 5. Commit image and prompt together: `feat(art): <family> <term>` or `feat(art): <family>` for a whole family.
@@ -59,6 +59,7 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 | camps | camp | pennant red |
 | arts | smithing | iron dark blue-grey |
 | arts | masonry | stone pale grey |
+| convoys | convoy | ochre and umber |
 
 ## Family: buildings
 
@@ -187,6 +188,18 @@ Closing clauses: `a modest camp at human scale, absolutely no humans or human si
 |---|---|---|---|
 | `smithing.png` | a forge bellows of wood and leather with a dark blue-grey iron nozzle, a small heap of charcoal under it | iron dark blue-grey | |
 | `masonry.png` | a rough boulder of pale grey stone split clean along its grain, an iron wedge between two feathers standing in the cleft | stone pale grey | `the two feathers are curved dark iron shims flanking the central iron wedge, no wooden shims and no bird feathers` |
+
+## Family: convoys
+
+1 image, no tiers. Framing follows the bible's building rule, always with no people; the escort is implied by its arms on the carts. The image is saved as `apps/web/public/art/convoys/convoy.png` with `convoy.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/convoy.png`.
+
+The prompt is the subject, `, `, the Common lines above with their line breaks turned into single spaces and `<resource accent>` set to `ochre and umber`, without a tier line, then the square output suffix with `<framed>` set to `subject`, then `, ` and the closing clauses.
+
+### convoy (transporte)
+
+| File | Subject | Closing clauses |
+|---|---|---|
+| `convoy.png` | a small convoy of two laden ox carts on a dirt road, one heaped with fresh-cut timber and dressed pale stone blocks, the other with dark iron ingots, a small iron-bound chest of gold coins and grain sacks, spears and two lances lashed upright to the carts, a plain round shield hung on each cart side, the oxen yoked and standing on the road | `a modest convoy at human scale, absolutely no humans or human silhouettes anywhere including the background, shields are plain and unpainted, any pennant is solid ochre fabric with no lettering or symbols, no cross or religious symbols anywhere including pennants, shields, carts and pole tops, plain pole tops with no finials or crossbars, no lettering on chests or sacks` |
 
 ## Where the screen reads them
 
