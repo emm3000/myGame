@@ -240,7 +240,16 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
         },
       ]
     case 'cargo':
-      return []
+      return [
+        {
+          kind: 'transportArrived',
+          province: finished.cargo.province,
+          plot: finished.cargo.plot,
+          name: finished.cargo.name,
+          cargo: finished.cargo.cargo,
+          occurredAt: finished.finishedAt,
+        },
+      ]
     default: {
       const unreachable: never = finished
       return unreachable

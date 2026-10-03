@@ -3367,6 +3367,33 @@ describe('the fief route', () => {
       })
     })
 
+    it('stores the transport in both chronicles and keeps it off the wire', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(10)
+
+      const answered = await Promise.all(
+        [ana, otherFiefOf(ana)].map(async (lord) =>
+          FiefChronicleSchema.parse(
+            await (
+              await app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })
+            ).json(),
+          ),
+        ),
+      )
+
+      expect({
+        answered: answered.map(({ events }) => events.map(({ kind }) => kind)),
+        stored: [
+          (await server.chronicle.eventsOf(ana.fiefId)).map(({ kind }) => kind),
+          (await server.chronicle.eventsOf(otherFiefId)).map(({ kind }) => kind),
+        ],
+      }).toEqual({
+        answered: [['marchReturned'], []],
+        stored: [['marchReturned', 'transportSent'], ['transportArrived']],
+      })
+    })
+
     it('reads no cargo in the other fief before the arrival', async () => {
       const ana = await signUpWithSixRidersAndAFullFief()
       await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })

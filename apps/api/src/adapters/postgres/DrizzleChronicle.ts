@@ -145,6 +145,24 @@ const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
         fiefName: event.name,
         ...refundColumnsOf(noRefund),
       }
+    case 'transportSent':
+      return {
+        ...common,
+        kind: 'transport_sent',
+        province: event.province,
+        plot: event.plot,
+        fiefName: event.name,
+        ...refundColumnsOf(event.cargo),
+      }
+    case 'transportArrived':
+      return {
+        ...common,
+        kind: 'transport_arrived',
+        province: event.province,
+        plot: event.plot,
+        fiefName: event.name,
+        ...refundColumnsOf(event.cargo),
+      }
     default: {
       const unreachable: never = event
       return unreachable
@@ -310,6 +328,24 @@ const eventOf = (row: EventRow): FiefEvent => {
         province: provinceOf(row),
         plot: plotOf(row),
         name: fiefNameOf(row),
+        occurredAt,
+      }
+    case 'transport_sent':
+      return {
+        kind: 'transportSent',
+        province: provinceOf(row),
+        plot: plotOf(row),
+        name: fiefNameOf(row),
+        cargo: refundOf(row),
+        occurredAt,
+      }
+    case 'transport_arrived':
+      return {
+        kind: 'transportArrived',
+        province: provinceOf(row),
+        plot: plotOf(row),
+        name: fiefNameOf(row),
+        cargo: refundOf(row),
         occurredAt,
       }
     default: {

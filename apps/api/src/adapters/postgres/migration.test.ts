@@ -1231,6 +1231,41 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a transport sent without a name', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'transport_sent',
+        province: 2,
+        plot: 7,
+        refundWood: 300,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_founding_name' },
+    })
+  })
+
+  it('refuses a cargo arrived without its plot', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'transport_arrived',
+        fiefName: 'Vado Viejo',
+        refundWood: 300,
+        occurredAt: new Date('2026-09-22T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
   it('refuses a founding sent without its plot', async () => {
     await db.insert(players).values(ana)
     await db.insert(fiefs).values(anasFief)
@@ -2536,5 +2571,52 @@ describe('the transport march migration', () => {
     })
 
     expect(await marchesOf(client)).toEqual(marchesOfLootPercentVersion)
+  })
+})
+
+const insertFoundingEventsOfTransportVersion = async (client: Client): Promise<void> => {
+  await client.query(
+    `INSERT INTO fief_events (fief_id, kind, province, plot, fief_name, occurred_at)
+     VALUES ($1, 'founding_sent', 2, 7, 'Fuentesauce', '2026-09-22T10:00:00Z'),
+            ($1, 'fief_founded', 2, 7, 'Fuentesauce', '2026-09-22T10:10:00Z')`,
+    [anasPartyFief],
+  )
+}
+
+describe('the transport events migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps the events stored before the transport events migration', async () => {
+    await migratedFrom(client, 26, async () => {
+      await insertMarchesOfFoundingVersion(client)
+      await insertEventsOfFoundingEventsVersion(client)
+      await insertFoundingEventsOfTransportVersion(client)
+    })
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief)).toEqual([
+      {
+        kind: 'fiefFounded',
+        province: 2,
+        plot: 7,
+        name: 'Fuentesauce',
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:10:00Z')),
+      },
+      {
+        kind: 'foundingSent',
+        province: 2,
+        plot: 7,
+        name: 'Fuentesauce',
+        occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T10:00:00Z')),
+      },
+      ...eventsOfPartyVersion,
+    ])
   })
 })

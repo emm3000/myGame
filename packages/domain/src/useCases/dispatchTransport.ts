@@ -4,6 +4,7 @@ import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
+import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
@@ -14,6 +15,7 @@ export type DispatchTransportCommand = TransportOrder & FiefOfPlayer
 export type DispatchTransportDependencies = {
   readonly fiefs: Pick<FiefRepository, 'fiefsOf' | 'fiefOf' | 'save'>
   readonly catalog: BuildingCatalog
+  readonly chronicle: ChronicleWriter
   readonly clock: Clock
 }
 
@@ -37,7 +39,7 @@ const destinationOf = async (
 
 export const dispatchTransport = async (
   command: DispatchTransportCommand,
-  { fiefs, catalog, clock }: DispatchTransportDependencies,
+  { fiefs, catalog, chronicle, clock }: DispatchTransportDependencies,
 ): Promise<Result<Fief, DomainError>> => {
   const stored = await fiefs.fiefOf(command.fiefId)
   if (!stored.ok) {
@@ -81,6 +83,20 @@ export const dispatchTransport = async (
   const savedDestination = await fiefs.save(transport.value.destination)
   if (!savedDestination.ok) {
     return savedDestination
+  }
+  const { province, plot } = destination.value.coordinates
+  const recorded = await chronicle.record(origin.id, [
+    {
+      kind: 'transportSent',
+      province,
+      plot,
+      name: destination.value.name.value,
+      cargo: command.cargo,
+      occurredAt: now,
+    },
+  ])
+  if (!recorded.ok) {
+    return recorded
   }
   return ok(origin)
 }

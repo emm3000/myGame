@@ -18,7 +18,7 @@ export const dispatchTransportOf = async (
 ): Promise<Result<Fief, DomainError>> =>
   mutateFiefPairAfterResolve(
     fiefOfPlayer,
-    ({ fiefs }, clock) =>
+    ({ fiefs, chronicle }, clock) =>
       dispatchTransport(
         {
           ...fiefOfPlayer,
@@ -26,7 +26,7 @@ export const dispatchTransportOf = async (
           units: request.units,
           cargo: request.cargo,
         },
-        { fiefs, catalog: dependencies.buildingCatalog, clock },
+        { fiefs, catalog: dependencies.buildingCatalog, chronicle, clock },
       ),
     dependencies,
   )

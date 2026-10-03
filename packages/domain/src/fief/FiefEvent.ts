@@ -78,3 +78,19 @@ export type FiefEvent =
       readonly name: string
       readonly occurredAt: Instant
     }
+  | {
+      readonly kind: 'transportSent'
+      readonly province: number
+      readonly plot: number
+      readonly name: string
+      readonly cargo: Stocks
+      readonly occurredAt: Instant
+    }
+  | {
+      readonly kind: 'transportArrived'
+      readonly province: number
+      readonly plot: number
+      readonly name: string
+      readonly cargo: Stocks
+      readonly occurredAt: Instant
+    }
