@@ -10,6 +10,7 @@ import {
   type FiefBuildingLevels,
   type FiefId,
   type FiefRepository,
+  type IncomingCargo,
   Instant,
   type March,
   ok,
@@ -27,6 +28,7 @@ import { isCampTier } from './isCampTier'
 import {
   fiefArts,
   fiefBuildings,
+  fiefIncomingCargo,
   fiefMarches,
   fiefQueueEntries,
   fiefRecruitOrders,
@@ -54,6 +56,8 @@ type RecruitOrderRow = typeof fiefRecruitOrders.$inferSelect
 
 type MarchRow = typeof fiefMarches.$inferSelect
 
+type IncomingCargoRow = typeof fiefIncomingCargo.$inferSelect
+
 type JoinedRow = {
   readonly building: StoredBuilding | null
   readonly level: number | null
@@ -64,6 +68,7 @@ type JoinedRow = {
   readonly unitCount: number | null
   readonly recruitOrder: RecruitOrderRow | null
   readonly march: MarchRow | null
+  readonly incomingCargo: IncomingCargoRow | null
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
@@ -149,10 +154,18 @@ const recruitOrderRowOf = (fief: Fief): RecruitOrderRow | undefined => {
 
 type AttackMarch = Extract<AwayMarch, { readonly order: 'attack' }>
 
+type CargoColumns = Pick<
+  MarchRow,
+  'toFiefId' | 'cargoWood' | 'cargoStone' | 'cargoIron' | 'cargoGold' | 'cargoFood'
+>
+
 type MarchOrderColumns = Pick<
   MarchRow,
   'marchOrder' | 'campTier' | 'campStrength' | 'fought' | 'foundingName'
->
+> &
+  CargoColumns
+
+type TransportMarch = Extract<AwayMarch, { readonly order: 'transport' }>
 
 const attackedCampOf = (row: MarchRow): AttackMarch['camp'] => {
   if (row.campTier === null || row.campStrength === null || !isCampTier(row.campTier)) {
@@ -166,6 +179,30 @@ const foundingNameOf = (row: MarchRow): string => {
     throw new Error(`Fief ${row.fiefId} stores a founding march without its name`)
   }
   return row.foundingName
+}
+
+const transportOf = (row: MarchRow): Pick<TransportMarch, 'toFiefId' | 'cargo'> => {
+  const { toFiefId, cargoWood, cargoStone, cargoIron, cargoGold, cargoFood } = row
+  if (
+    toFiefId === null ||
+    cargoWood === null ||
+    cargoStone === null ||
+    cargoIron === null ||
+    cargoGold === null ||
+    cargoFood === null
+  ) {
+    throw new Error(`Fief ${row.fiefId} stores a transport march without its cargo`)
+  }
+  return {
+    toFiefId,
+    cargo: {
+      wood: cargoWood,
+      stone: cargoStone,
+      iron: cargoIron,
+      gold: cargoGold,
+      food: cargoFood,
+    },
+  }
 }
 
 const marchOf = (row: MarchRow | null): March => {
@@ -203,6 +240,8 @@ const marchOf = (row: MarchRow | null): March => {
       return { ...road, order: 'attack', camp: attackedCampOf(row), fought: row.fought }
     case 'found':
       return { ...road, order: 'found', name: foundingNameOf(row) }
+    case 'transport':
+      return { ...road, order: 'transport', ...transportOf(row) }
     default: {
       const unreachable: never = row.marchOrder
       return unreachable
@@ -216,10 +255,19 @@ const unfoughtColumns: Pick<MarchRow, 'campTier' | 'campStrength' | 'fought'> = 
   fought: false,
 }
 
+const noCargoColumns: CargoColumns = {
+  toFiefId: null,
+  cargoWood: null,
+  cargoStone: null,
+  cargoIron: null,
+  cargoGold: null,
+  cargoFood: null,
+}
+
 const marchOrderColumnsOf = (march: AwayMarch): MarchOrderColumns => {
   switch (march.order) {
     case 'forage':
-      return { marchOrder: 'forage', ...unfoughtColumns, foundingName: null }
+      return { marchOrder: 'forage', ...unfoughtColumns, foundingName: null, ...noCargoColumns }
     case 'attack':
       return {
         marchOrder: 'attack',
@@ -227,9 +275,27 @@ const marchOrderColumnsOf = (march: AwayMarch): MarchOrderColumns => {
         campStrength: march.camp.strength,
         fought: march.fought,
         foundingName: null,
+        ...noCargoColumns,
       }
     case 'found':
-      return { marchOrder: 'found', ...unfoughtColumns, foundingName: march.name }
+      return {
+        marchOrder: 'found',
+        ...unfoughtColumns,
+        foundingName: march.name,
+        ...noCargoColumns,
+      }
+    case 'transport':
+      return {
+        marchOrder: 'transport',
+        ...unfoughtColumns,
+        foundingName: null,
+        toFiefId: march.toFiefId,
+        cargoWood: march.cargo.wood,
+        cargoStone: march.cargo.stone,
+        cargoIron: march.cargo.iron,
+        cargoGold: march.cargo.gold,
+        cargoFood: march.cargo.food,
+      }
     default: {
       const unreachable: never = march
       return unreachable
@@ -264,6 +330,41 @@ const marchRowOf = (fief: Fief): MarchRow | undefined => {
     lootPercentFood: march.lootPercent.food,
     recalledAt: march.recalledAt === undefined ? null : dateOf(march.recalledAt),
     ...marchOrderColumnsOf(march),
+  }
+}
+
+const incomingCargoOf = (row: IncomingCargoRow): IncomingCargo => ({
+  fromFiefId: row.fromFiefId,
+  name: row.fromName,
+  province: row.fromProvince,
+  plot: row.fromPlot,
+  cargo: {
+    wood: row.cargoWood,
+    stone: row.cargoStone,
+    iron: row.cargoIron,
+    gold: row.cargoGold,
+    food: row.cargoFood,
+  },
+  arrivesAt: instantOf(row.arrivesAt),
+})
+
+const incomingCargoRowOf = (fief: Fief): IncomingCargoRow | undefined => {
+  const { incomingCargo } = fief
+  if (incomingCargo === undefined) {
+    return undefined
+  }
+  return {
+    fiefId: fief.id,
+    fromFiefId: incomingCargo.fromFiefId,
+    fromName: incomingCargo.name,
+    fromProvince: incomingCargo.province,
+    fromPlot: incomingCargo.plot,
+    cargoWood: incomingCargo.cargo.wood,
+    cargoStone: incomingCargo.cargo.stone,
+    cargoIron: incomingCargo.cargo.iron,
+    cargoGold: incomingCargo.cargo.gold,
+    cargoFood: incomingCargo.cargo.food,
+    arrivesAt: dateOf(incomingCargo.arrivesAt),
   }
 }
 
@@ -354,6 +455,7 @@ const storedFiefOf = (
   row: FiefRow,
   recruitOrder: RecruitOrderRow | null,
   march: MarchRow | null,
+  incomingCargo: IncomingCargoRow | null,
   joinedRows: ReadonlyArray<JoinedRow>,
 ): StoredFief => ({
   id: row.id,
@@ -370,6 +472,7 @@ const storedFiefOf = (
   studySlot: studySlotOf(row),
   recruitOrder: recruitOrderOf(recruitOrder),
   march: marchOf(march),
+  ...(incomingCargo === null ? {} : { incomingCargo: incomingCargoOf(incomingCargo) }),
 })
 
 type SlotCostColumns = Pick<
@@ -530,6 +633,7 @@ export class DrizzleFiefRepository implements FiefRepository {
         unitCount: fiefUnits.count,
         recruitOrder: fiefRecruitOrders,
         march: fiefMarches,
+        incomingCargo: fiefIncomingCargo,
       })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
@@ -538,6 +642,7 @@ export class DrizzleFiefRepository implements FiefRepository {
       .leftJoin(fiefUnits, eq(fiefUnits.fiefId, fiefs.id))
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
       .leftJoin(fiefMarches, eq(fiefMarches.fiefId, fiefs.id))
+      .leftJoin(fiefIncomingCargo, eq(fiefIncomingCargo.fiefId, fiefs.id))
       .where(eq(fiefs.id, fiefId))
       .$dynamic()
     const rows = await (this.read === 'lockedForUpdate'
@@ -547,7 +652,9 @@ export class DrizzleFiefRepository implements FiefRepository {
     if (first === undefined) {
       return ok(undefined)
     }
-    return Fief.restore(storedFiefOf(first.fief, first.recruitOrder, first.march, rows))
+    return Fief.restore(
+      storedFiefOf(first.fief, first.recruitOrder, first.march, first.incomingCargo, rows),
+    )
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
@@ -571,6 +678,7 @@ export class DrizzleFiefRepository implements FiefRepository {
     const emptiedUnits = unitRows.filter((row) => row.count === 0).map((row) => row.kind)
     const recruitOrderRow = recruitOrderRowOf(fief)
     const marchRow = marchRowOf(fief)
+    const incomingCargoRow = incomingCargoRowOf(fief)
     const entryRows = entryRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
@@ -621,6 +729,10 @@ export class DrizzleFiefRepository implements FiefRepository {
         await transaction.delete(fiefMarches).where(eq(fiefMarches.fiefId, id))
         if (marchRow !== undefined) {
           await transaction.insert(fiefMarches).values(marchRow)
+        }
+        await transaction.delete(fiefIncomingCargo).where(eq(fiefIncomingCargo.fiefId, id))
+        if (incomingCargoRow !== undefined) {
+          await transaction.insert(fiefIncomingCargo).values(incomingCargoRow)
         }
       })
       return ok(undefined)

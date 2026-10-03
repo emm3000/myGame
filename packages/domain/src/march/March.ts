@@ -1,5 +1,6 @@
 import type { CampTier } from '../camp/CampTier'
 import type { Stocks } from '../fief/Fief'
+import type { FiefId } from '../fief/FiefId'
 import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
 import type { ResourceKind } from '../resources/Resources'
 import type { Instant } from '../time/Instant'
@@ -37,6 +38,12 @@ export type FoundingMarch = MarchOnTheRoad & {
   readonly name: string
 }
 
-export type AwayMarch = ForageMarch | AttackMarch | FoundingMarch
+export type TransportMarch = MarchOnTheRoad & {
+  readonly order: 'transport'
+  readonly toFiefId: FiefId
+  readonly cargo: Stocks
+}
+
+export type AwayMarch = ForageMarch | AttackMarch | FoundingMarch | TransportMarch
 
 export type March = { readonly kind: 'idle' } | AwayMarch

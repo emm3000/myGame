@@ -33,6 +33,8 @@ export const ApiErrorKindSchema = z.enum([
   'UnitUnfitForOrder',
   'FiefCapReached',
   'PlotReserved',
+  'EmptyCargo',
+  'CargoAboveCarry',
   'ProvinceNotFound',
   'TokenInvalid',
   'MailNotSent',

@@ -142,6 +142,17 @@ const foundingMarch = {
   fought: false,
 }
 
+const transportMarch = {
+  ...attackMarch,
+  order: 'transport',
+  toFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
+  cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  units: { infantry: 0, cavalry: 6, settler: 0 },
+  loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+  camp: null,
+  fought: false,
+}
+
 const marchRecalledOnTheRoad = {
   ...awayMarch,
   loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
@@ -494,6 +505,21 @@ describe('FiefOverviewSchema', () => {
 
     expect(
       FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), march: namelessFounding })
+        .success,
+    ).toBe(false)
+  })
+
+  it('accepts a transport march with its destination and its cargo', () => {
+    const overviewWithTransport = { ...overviewWithSlot(busySlot), march: transportMarch }
+
+    expect(FiefOverviewSchema.parse(overviewWithTransport)).toEqual(overviewWithTransport)
+  })
+
+  it('rejects a transport march without its cargo', () => {
+    const { cargo: _, ...emptyHandedTransport } = transportMarch
+
+    expect(
+      FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), march: emptyHandedTransport })
         .success,
     ).toBe(false)
   })

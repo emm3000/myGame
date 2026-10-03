@@ -11,9 +11,12 @@ import {
 } from '@mygame/contracts'
 import {
   type Clock,
+  Coordinates,
   campOf,
   enqueueBuilding,
+  Fief,
   type FiefId,
+  FiefName,
   Instant,
   type PlayerId,
 } from '@mygame/domain'
@@ -154,7 +157,7 @@ describe('the fief route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, camp_battles',
+      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
@@ -2194,7 +2197,8 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'MarchToOwnPlot',
-        message: 'Esa parcela tiene un feudo tuyo. Envía la marcha a otra.',
+        message:
+          'A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.',
       })
     })
 
@@ -2759,7 +2763,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'UnitUnfitForOrder',
-        message: 'Un colono no forrajea ni ataca. Envíalo a fundar un feudo.',
+        message: 'Un colono no forrajea, no ataca ni lleva carga. Envíalo a fundar un feudo.',
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -3243,6 +3247,236 @@ describe('the fief route', () => {
       const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
 
       const response = await found(ana, { province: 2, plot: freePlot() })
+
+      expect(response.status).toBe(400)
+      expect(await response.text()).toBe('')
+    })
+  })
+
+  describe('the transport route', () => {
+    const otherFiefId = '00000000-0000-4000-8000-0000000000f2'
+
+    const transport = async (lord: Lord, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, '/marches/transport'), {
+        method: 'POST',
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const fullStores = { wood: 1000, stone: 1000, iron: 1000, gold: 1000, food: 1000 }
+
+    const signUpWithSixRidersAndAFullFief = async (): Promise<SignedUpPlayer> => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, 'farm'::building, 8 FROM fiefs`)
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'cavalry'::unit, 6 FROM fiefs`)
+      const name = FiefName.create('Peña Alta')
+      const coordinates = Coordinates.create(1, 2, 1)
+      assert(name.ok && coordinates.ok)
+      const saved = await server.inTransaction(({ fiefs }) =>
+        fiefs.save(
+          Fief.found({
+            id: otherFiefId,
+            playerId: ana.playerId,
+            name: name.value,
+            coordinates: coordinates.value,
+            startingStocks: fullStores,
+            at: Instant.fromEpochMilliseconds(signedUpAt),
+          }),
+        ),
+      )
+      assert(saved.ok)
+      return ana
+    }
+
+    const otherFiefOf = (lord: Lord): Lord => ({ cookie: lord.cookie, fiefId: otherFiefId })
+
+    const woodAndStone = { wood: 300, stone: 200, iron: 0, gold: 0, food: 0 }
+
+    const sixRiders = { infantry: 0, cavalry: 6, settler: 0 }
+
+    const amountsOf = ({ resources }: FiefOverview) => ({
+      wood: resources.wood.amount,
+      stone: resources.stone.amount,
+      iron: resources.iron.amount,
+      gold: resources.gold.amount,
+      food: resources.food.amount,
+    })
+
+    const stocksOf = async (lord: Lord) => {
+      const response = await fiefOf(lord)
+      expect(response.status).toBe(200)
+      return amountsOf(FiefOverviewSchema.parse(await response.json()))
+    }
+
+    it('sends a transport and answers it outbound', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: woodAndStone,
+      })
+
+      expect(response.status).toBe(200)
+      const { march } = FiefOverviewSchema.parse(await response.json())
+      expect(march).toMatchObject({
+        order: 'transport',
+        toFiefId: otherFiefId,
+        cargo: woodAndStone,
+        province: 2,
+        plot: 1,
+        units: sixRiders,
+        stayHours: 0,
+        oneWaySeconds: 300,
+        arrivesAt: '2026-09-22T08:05:00.000Z',
+        returnsAt: '2026-09-22T08:10:00.000Z',
+      })
+    })
+
+    it('debits the cargo from the stores it leaves', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: woodAndStone,
+      })
+
+      expect(amountsOf(FiefOverviewSchema.parse(await response.json()))).toEqual({
+        wood: 200,
+        stone: 300,
+        iron: 200,
+        gold: 50,
+        food: 300,
+      })
+    })
+
+    it('reads the cargo in the other fief after the arrival', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(5)
+
+      expect(await stocksOf(otherFiefOf(ana))).toMatchObject({
+        wood: 1300,
+        stone: 1200,
+        iron: 1000,
+        gold: 1000,
+        food: 1000,
+      })
+    })
+
+    it('reads no cargo in the other fief before the arrival', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(4)
+
+      expect(await stocksOf(otherFiefOf(ana))).toMatchObject(fullStores)
+    })
+
+    it('credits an arrived cargo before storing the next one', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(10)
+      const next = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: { wood: 100, stone: 0, iron: 0, gold: 0, food: 0 },
+      })
+      expect(next.status).toBe(200)
+      clock.advanceMinutes(5)
+
+      expect(await stocksOf(otherFiefOf(ana))).toMatchObject({ wood: 1400, stone: 1200 })
+    })
+
+    it('stores the cargo of the other fief until its arrival', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+
+      const stored = await server.fiefs.fiefOf(otherFiefId)
+      assert(stored.ok)
+      expect(stored.value?.incomingCargo).toMatchObject({
+        fromFiefId: ana.fiefId,
+        name: 'Valdehierro',
+        province: 1,
+        plot: 1,
+        cargo: woodAndStone,
+      })
+    })
+
+    it('answers a cargo above the stores with the line of the cargo', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: { wood: 600, stone: 0, iron: 0, gold: 0, food: 0 },
+      })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'InsufficientResources',
+        message: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
+      })
+    })
+
+    it('answers a cargo above the carry with both figures', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: { wood: 300, stone: 300, iron: 121, gold: 0, food: 0 },
+      })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'CargoAboveCarry',
+        message:
+          'La carga suma 721 y tus hombres llevan hasta 720. Quita carga o envía más hombres.',
+      })
+    })
+
+    it('answers an empty cargo', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+      })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'EmptyCargo',
+        message: 'Un transporte no sale de vacío. Carga al menos un recurso.',
+      })
+    })
+
+    it('answers a transport to the fief of another lord as no fief', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+
+      const response = await transport(ana, {
+        toFiefId: bruno.fiefId,
+        units: sixRiders,
+        cargo: woodAndStone,
+      })
+
+      expect(response.status).toBe(404)
+    })
+
+    it('refuses a transport that names a plot', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: sixRiders,
+        cargo: woodAndStone,
+        province: 2,
+      })
 
       expect(response.status).toBe(400)
       expect(await response.text()).toBe('')

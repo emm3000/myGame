@@ -147,10 +147,20 @@ const FoundingMarchStateSchema = MarchOnTheRoadSchema.extend({
   fought: z.literal(false),
 })
 
+const TransportMarchStateSchema = MarchOnTheRoadSchema.extend({
+  order: z.literal('transport'),
+  toFiefId: z.uuid(),
+  cargo: ResourceAmountsSchema,
+  stayHours: z.literal(0),
+  camp: z.null(),
+  fought: z.literal(false),
+})
+
 const MarchStateSchema = z.discriminatedUnion('order', [
   ForageMarchStateSchema,
   AttackMarchStateSchema,
   FoundingMarchStateSchema,
+  TransportMarchStateSchema,
 ])
 
 const UnitStatsSchema = z.strictObject({

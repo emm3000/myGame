@@ -10,11 +10,19 @@ type BarracksTooLow = Extract<Refusal, { readonly kind: 'BarracksTooLow' }>
 
 type FiefCapReached = Extract<Refusal, { readonly kind: 'FiefCapReached' }>
 
-type SlottedKind = UnitsShortAtHome['kind'] | BarracksTooLow['kind'] | FiefCapReached['kind']
+type CargoAboveCarry = Extract<Refusal, { readonly kind: 'CargoAboveCarry' }>
+
+type SlottedKind =
+  | UnitsShortAtHome['kind']
+  | BarracksTooLow['kind']
+  | FiefCapReached['kind']
+  | CargoAboveCarry['kind']
 
 type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
 
 type SlotlessRefusalKind = Exclude<Refusal['kind'], SlottedKind>
+
+export type RefusalLines = Partial<Readonly<Record<SlotlessKind, string>>>
 
 type RefusalAnswer = {
   readonly status: ContentfulStatusCode
@@ -41,6 +49,13 @@ const barracksTooLowLineOf = ({ unit, requiredBarracksLevel }: BarracksTooLow): 
 const fiefCapReachedLineOf = ({ cap }: FiefCapReached): string =>
   `Solo puedes tener ${cap} feudos. Deja al colono en casa.`
 
+const cargoAboveCarryLineOf = ({ cargo, carry }: CargoAboveCarry): string =>
+  `La carga suma ${cargo} y tus hombres llevan hasta ${carry}. Quita carga o envía más hombres.`
+
+export const transportLines: RefusalLines = {
+  InsufficientResources: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
+}
+
 const messages: Readonly<Record<SlotlessKind, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
   EmailTaken: 'Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.',
@@ -63,14 +78,16 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
   PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
   PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
-  MarchToOwnPlot: 'Esa parcela tiene un feudo tuyo. Envía la marcha a otra.',
+  MarchToOwnPlot:
+    'A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
   StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
-  UnitUnfitForOrder: 'Un colono no forrajea ni ataca. Envíalo a fundar un feudo.',
+  UnitUnfitForOrder: 'Un colono no forrajea, no ataca ni lleva carga. Envíalo a fundar un feudo.',
   PlotReserved: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
+  EmptyCargo: 'Un transporte no sale de vacío. Carga al menos un recurso.',
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
@@ -131,11 +148,12 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   PlotHasNoCamp: { status: 409, kind: 'PlotHasNoCamp' },
   UnitUnfitForOrder: { status: 409, kind: 'UnitUnfitForOrder' },
   PlotReserved: { status: 409, kind: 'PlotReserved' },
+  EmptyCargo: { status: 409, kind: 'EmptyCargo' },
   InvalidCamp: internalFailure,
   InvalidLootPercent: internalFailure,
 }
 
-export const answerRefusal = (c: Context, refusal: Refusal): Response => {
+export const answerRefusal = (c: Context, refusal: Refusal, lines: RefusalLines = {}): Response => {
   if (refusal.kind === 'NotEnoughUnitsAtHome') {
     const body: ApiError = { kind: refusal.kind, message: unitsShortLineOf(refusal) }
     return c.json(body, 409)
@@ -148,10 +166,14 @@ export const answerRefusal = (c: Context, refusal: Refusal): Response => {
     const body: ApiError = { kind: refusal.kind, message: fiefCapReachedLineOf(refusal) }
     return c.json(body, 409)
   }
+  if (refusal.kind === 'CargoAboveCarry') {
+    const body: ApiError = { kind: refusal.kind, message: cargoAboveCarryLineOf(refusal) }
+    return c.json(body, 409)
+  }
   const { status, kind } = answers[refusal.kind]
   if (kind === undefined) {
     return c.body(null, status)
   }
-  const body: ApiError = { kind, message: messages[kind] }
+  const body: ApiError = { kind, message: lines[kind] ?? messages[kind] }
   return c.json(body, status)
 }
