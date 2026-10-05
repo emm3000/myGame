@@ -22,7 +22,7 @@ import { recruitCountOf, type UnitCardContent, unitCardOf } from './unitCardOf'
 import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
 
-const { army, march, founding } = copy
+const { army, march, founding, transport } = copy
 
 const firstEntry = '1'
 
@@ -95,6 +95,11 @@ function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
   if (isFoundingOnTheWay(answered)) {
     return { heading: founding.outboundHeading, value, isNumeral: false }
   }
+  if (answered.order === 'transport') {
+    const heading =
+      live.phase === 'outbound' ? transport.outboundHeading : transport.returningHeading
+    return { heading, value, isNumeral: false }
+  }
   if (answered.order !== 'attack' || answered.recalledAt !== null) {
     return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
   }
@@ -102,7 +107,17 @@ function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
   return { heading, value, isNumeral: false }
 }
 
-function detailLineOf(answered: AnsweredMarch): PreviewLine | null {
+function detailLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine | null {
+  if (answered.order === 'transport') {
+    const isCarrying = live.phase === 'outbound' || answered.recalledAt !== null
+    return isCarrying
+      ? {
+          heading: transport.cargoHeading,
+          value: transport.cargo(quantitiesOf(answered.cargo)),
+          isNumeral: false,
+        }
+      : null
+  }
   if (answered.order === 'found') {
     return answered.recalledAt === null
       ? { heading: founding.newFiefHeading, value: answered.name, isNumeral: false }
@@ -126,6 +141,19 @@ function marksOf(live: LiveMarch, answered: AnsweredMarch): ReadonlyArray<number
     : [live.arrivalSeconds, live.leavingSeconds]
 }
 
+function countdownOf(live: LiveMarch, answered: AnsweredMarch): SlotCountdown {
+  if (isFoundingOnTheWay(answered)) {
+    return { words: founding.arrivalHeading, remainingSeconds: live.remainingSeconds }
+  }
+  if (answered.order === 'transport' && live.phase === 'outbound') {
+    return {
+      words: founding.arrivalHeading,
+      remainingSeconds: live.arrivalSeconds - live.elapsedSeconds,
+    }
+  }
+  return { words: march.returnHeading, remainingSeconds: live.remainingSeconds }
+}
+
 function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   const live = fief.march
   const answered = fief.overview.march
@@ -136,11 +164,8 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
     kind: 'busy',
     title: march.busySlot,
     phase: phaseLineOf(live, answered),
-    detail: detailLineOf(answered),
-    countdown: {
-      words: isFoundingOnTheWay(answered) ? founding.arrivalHeading : march.returnHeading,
-      remainingSeconds: live.remainingSeconds,
-    },
+    detail: detailLineOf(live, answered),
+    countdown: countdownOf(live, answered),
     loot: lootOf(answered),
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,

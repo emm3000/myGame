@@ -20,7 +20,12 @@ export type PlotHolder =
     }
   | { readonly kind: 'reserved'; readonly line: string; readonly marker?: string | undefined }
   | { readonly kind: 'held'; readonly name: string }
-  | { readonly kind: 'own'; readonly name: string; readonly marker: string }
+  | {
+      readonly kind: 'own'
+      readonly name: string
+      readonly marker: string
+      readonly actions: ReadonlyArray<PlotAction>
+    }
 
 export interface PlotTileProps {
   readonly plotLabel: string
@@ -120,6 +125,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
         <>
           <span className={nameClass}>{holder.name}</span>
           <span className={markerClass}>{holder.marker}</span>
+          <PlotActionButtons actions={holder.actions} />
         </>
       )
     default: {

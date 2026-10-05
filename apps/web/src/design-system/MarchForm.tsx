@@ -32,6 +32,7 @@ export interface MarchFormProps {
   readonly artSrc?: string | undefined
   readonly atHome: ReadonlyArray<MarchFormAtHome>
   readonly counts: ReadonlyArray<MarchFormField>
+  readonly amounts?: ReadonlyArray<MarchFormField> | undefined
   readonly hours?: MarchFormField | undefined
   readonly name?: MarchFormTextField | undefined
   readonly isFieldDisabled: boolean
@@ -121,6 +122,13 @@ export function MarchForm(props: MarchFormProps): ReactElement {
               </div>
             )}
           </div>
+          {props.amounts !== undefined && (
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              {props.amounts.map((field) => (
+                <Field key={field.label} field={field} isDisabled={props.isFieldDisabled} />
+              ))}
+            </div>
+          )}
           {props.preview !== undefined && <PreviewLines lines={props.preview} />}
           <div className="flex flex-col items-start">
             <SubmitAction

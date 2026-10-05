@@ -62,12 +62,38 @@ function foundingLinesOf(
   ]
 }
 
+function transportLinesOf(
+  march: Extract<SentMarch, { readonly order: 'transport' }>,
+  readAt: string,
+): ReadonlyArray<PreviewLine> {
+  return [
+    {
+      heading: copy.transport.outboundHeading,
+      value: copy.march.phaseLines.outbound(march.units, march.province, march.plot),
+      isNumeral: false,
+    },
+    {
+      heading: copy.transport.cargoHeading,
+      value: copy.transport.cargo(quantitiesOf(march.cargo)),
+      isNumeral: false,
+    },
+    {
+      heading: copy.founding.arrivalHeading,
+      value: formatDuration(secondsBetween(readAt, march.arrivesAt)),
+      isNumeral: true,
+    },
+  ]
+}
+
 export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArray<PreviewLine> {
   if (march.order === 'attack') {
     return attackLinesOf(march, readAt)
   }
   if (march.order === 'found') {
     return foundingLinesOf(march, readAt)
+  }
+  if (march.order === 'transport') {
+    return transportLinesOf(march, readAt)
   }
   return [
     {

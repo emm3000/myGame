@@ -17,6 +17,7 @@ import { quantitiesOf } from '../resources/quantitiesOf'
 import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
+import type { CargoEntries } from './cargoOf'
 import { carryOf } from './carryOf'
 import { isEmptyParty } from './isEmptyParty'
 import { oneWaySecondsOf } from './oneWaySecondsOf'
@@ -36,6 +37,7 @@ export interface MarchTarget {
 export interface MarchEntries {
   readonly units: PartyEntries
   readonly hours: string
+  readonly cargo: CargoEntries
 }
 
 export type MarchFormContent = Pick<

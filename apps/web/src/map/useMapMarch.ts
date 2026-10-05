@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { copy } from '../copy'
 import type { PlotAction } from '../design-system/PlotTile'
+import { useFiefList } from '../shell/useFiefList'
 import { partyKinds } from '../units/partyKinds'
 import { byUnitKind } from './byUnitKind'
+import { cargoOf } from './cargoOf'
 import type { MarchEntries, MarchTarget, PlotCamp } from './marchFormOf'
 import { marchRefusalLineOf } from './marchRefusalLineOf'
 import { unitsAtHomeOf } from './unitsAtHomeOf'
@@ -14,8 +16,7 @@ import { useMarch } from './useMarch'
 export interface MapMarch {
   readonly overview: FiefOverview | undefined
   readonly fiefRefusal: ApiRefusal | undefined
-  readonly target: MarchTarget | undefined
-  readonly isFounding: boolean
+  readonly target: OpenTarget | undefined
   readonly entries: MarchEntries
   readonly name: string
   readonly isSent: boolean
@@ -27,11 +28,26 @@ export interface MapMarch {
   readonly plotActionsOf: (map: ProvinceMap, plot: number) => ReadonlyArray<PlotAction>
 }
 
-interface ChosenMarch extends MarchTarget {
-  readonly isFounding: boolean
+export type PlotOrder =
+  | { readonly kind: 'party' }
+  | { readonly kind: 'found' }
+  | { readonly kind: 'transport'; readonly toFiefId: string }
+
+export interface OpenTarget extends MarchTarget {
+  readonly order: PlotOrder
 }
 
+type Plot = ProvinceMap['plots'][number]
+
 const firstHours = '1'
+
+const unloadedCargo: MarchEntries['cargo'] = {
+  wood: '0',
+  stone: '0',
+  iron: '0',
+  gold: '0',
+  food: '0',
+}
 
 const firstEntriesOf = (fief: FiefOverview): MarchEntries => {
   const atHome = unitsAtHomeOf(fief)
@@ -42,18 +58,35 @@ const firstEntriesOf = (fief: FiefOverview): MarchEntries => {
   return {
     units: byUnitKind((unit) => (partyKinds.indexOf(unit) === firstSentIndex ? '1' : '0')),
     hours: firstHours,
+    cargo: unloadedCargo,
   }
 }
 
-const unopenedEntries: MarchEntries = { units: byUnitKind(() => '0'), hours: firstHours }
+const unopenedEntries: MarchEntries = {
+  units: byUnitKind(() => '0'),
+  hours: firstHours,
+  cargo: unloadedCargo,
+}
 
 const isSameChoice = (
-  chosen: ChosenMarch | undefined,
+  chosen: OpenTarget | undefined,
   map: ProvinceMap,
   plot: number,
-  isFounding: boolean,
+  order: PlotOrder,
 ): boolean =>
-  chosen?.province === map.province && chosen.plot === plot && chosen.isFounding === isFounding
+  chosen?.province === map.province && chosen.plot === plot && chosen.order.kind === order.kind
+
+const labelsOf = (order: PlotOrder, plot: number, camp: PlotCamp | null): [string, string] => {
+  if (order.kind === 'found') {
+    return [copy.founding.found, copy.founding.foundOn(plot)]
+  }
+  if (order.kind === 'transport') {
+    return [copy.transport.send, copy.transport.sendTo(plot)]
+  }
+  return camp === null
+    ? [copy.march.send, copy.march.sendTo(plot)]
+    : [copy.march.attack, copy.march.attackTo(plot)]
+}
 
 export function useMapMarch(
   apiClient: ApiClient,
@@ -62,8 +95,9 @@ export function useMapMarch(
   onFoundingSent: () => void,
 ): MapMarch {
   const fief = useMapFief(apiClient, fiefId)
+  const fiefs = useFiefList(apiClient)
   const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
-  const [chosen, setChosen] = useState<ChosenMarch>()
+  const [chosen, setChosen] = useState<OpenTarget>()
   const [entries, setEntries] = useState(unopenedEntries)
   const [name, setName] = useState('')
   const [isSent, setIsSent] = useState(false)
@@ -89,29 +123,36 @@ export function useMapMarch(
     map: ProvinceMap,
     plot: number,
     camp: PlotCamp | null,
-    isFounding: boolean,
+    order: PlotOrder,
     fiefRead: FiefOverview,
   ): void => {
     setIsSent(false)
-    if (isSameChoice(target, map, plot, isFounding)) {
+    if (isSameChoice(target, map, plot, order)) {
       setChosen(undefined)
       return
     }
     setEntries(firstEntriesOf(fiefRead))
     setName(copy.founding.proposedName(fiefRead.name, map.terrain))
-    setChosen({ province: map.province, plot, terrain: map.terrain, camp, isFounding })
+    setChosen({ province: map.province, plot, terrain: map.terrain, camp, order })
   }
 
   const onSend = (): void => {
     if (target === undefined) {
       return
     }
-    const { province, plot } = target
-    if (target.isFounding) {
+    const { province, plot, order } = target
+    if (order.kind === 'found') {
       march.found({ province, plot, name: name.trim() })
       return
     }
     const units = byUnitKind((unit) => Number(entries.units[unit]))
+    if (order.kind === 'transport') {
+      const cargo = cargoOf(entries.cargo)
+      if (cargo !== undefined) {
+        march.transport({ toFiefId: order.toFiefId, units, cargo })
+      }
+      return
+    }
     if (target.camp === null) {
       march.send({ province, plot, units, stayHours: Number(entries.hours) })
       return
@@ -123,36 +164,50 @@ export function useMapMarch(
     shown: ProvinceMap,
     plot: number,
     camp: PlotCamp | null,
-    isFounding: boolean,
+    order: PlotOrder,
     fiefRead: FiefOverview,
   ): PlotAction => {
-    const [label, accessibleName] = isFounding
-      ? [copy.founding.found, copy.founding.foundOn(plot)]
-      : camp === null
-        ? [copy.march.send, copy.march.sendTo(plot)]
-        : [copy.march.attack, copy.march.attackTo(plot)]
+    const [label, accessibleName] = labelsOf(order, plot, camp)
     return {
       label,
       accessibleName,
-      isExpanded: isSameChoice(target, shown, plot, isFounding),
-      onToggle: () => toggle(shown, plot, camp, isFounding, fiefRead),
+      isExpanded: isSameChoice(target, shown, plot, order),
+      onToggle: () => toggle(shown, plot, camp, order, fiefRead),
     }
   }
 
-  const plotActionsOf = (shown: ProvinceMap, plot: number): ReadonlyArray<PlotAction> => {
-    if (overview === undefined) {
+  const otherFiefIdAt = (shown: ProvinceMap, { plot, fief: holder }: Plot): string | undefined =>
+    holder?.isOwn === true
+      ? fiefs?.find(
+          ({ id, coordinates }) =>
+            id !== fiefId &&
+            coordinates.kingdom === shown.kingdom &&
+            coordinates.province === shown.province &&
+            coordinates.plot === plot,
+        )?.id
+      : undefined
+
+  const plotActionsOf = (shown: ProvinceMap, plotNumber: number): ReadonlyArray<PlotAction> => {
+    const plot = shown.plots.find((each) => each.plot === plotNumber)
+    if (overview === undefined || plot === undefined) {
       return []
     }
-    const camp = shown.plots.find((each) => each.plot === plot)?.camp ?? null
-    const party = actionOf(shown, plot, camp, false, overview)
-    return camp === null ? [party, actionOf(shown, plot, camp, true, overview)] : [party]
+    if (plot.fief !== null) {
+      const toFiefId = otherFiefIdAt(shown, plot)
+      return toFiefId === undefined
+        ? []
+        : [actionOf(shown, plotNumber, null, { kind: 'transport', toFiefId }, overview)]
+    }
+    const party = actionOf(shown, plotNumber, plot.camp, { kind: 'party' }, overview)
+    return plot.camp === null
+      ? [party, actionOf(shown, plotNumber, null, { kind: 'found' }, overview)]
+      : [party]
   }
 
   return {
     overview,
     fiefRefusal: fief.state.kind === 'refused' ? fief.state.refusal : undefined,
     target,
-    isFounding: target?.isFounding === true,
     entries,
     name,
     isSent,

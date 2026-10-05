@@ -43,7 +43,7 @@ function holderOf(
     return { kind: 'free', line: copy.map.free, actions }
   }
   return fief.isOwn
-    ? { kind: 'own', name: fief.name, marker: copy.map.ownFief }
+    ? { kind: 'own', name: fief.name, marker: copy.map.ownFief, actions }
     : { kind: 'held', name: fief.name }
 }
 
