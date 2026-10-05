@@ -4,6 +4,7 @@ export interface PanelProps {
   readonly element: 'article' | 'section'
   readonly toneClass: string
   readonly spacingClass: string
+  readonly labelledBy?: string
   readonly children: ReactNode
 }
 
@@ -11,10 +12,14 @@ export function Panel({
   element: Element,
   toneClass,
   spacingClass,
+  labelledBy,
   children,
 }: PanelProps): ReactElement {
   return (
-    <Element className={`flex flex-col rounded-md border shadow-card ${spacingClass} ${toneClass}`}>
+    <Element
+      aria-labelledby={labelledBy}
+      className={`flex flex-col rounded-md border shadow-card ${spacingClass} ${toneClass}`}
+    >
       {children}
     </Element>
   )

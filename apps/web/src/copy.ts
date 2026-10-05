@@ -325,6 +325,11 @@ export const copy = {
       `${capitalize(seasonsWithArticle[season])} acorta las obras`,
     notEnoughPeasants: (needed: number, free: number): string =>
       `Necesitas ${needed} ${agreeing(needed, 'campesino libre', 'campesinos libres')} y tienes ${free}.`,
+    incomingCargo: 'Carga en camino',
+    cargoOrigin: (name: string, province: number, plot: number): string =>
+      `Desde ${name}, provincia ${province}, parcela ${plot}`,
+    cargoAmounts: (cargo: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(cargo),
+    cargoArrivalHeading: 'Llegada en',
   },
   study: {
     section: 'Biblioteca',

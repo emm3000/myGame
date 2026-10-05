@@ -11,12 +11,15 @@ import { copy } from '../copy'
 import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
+import { CargoCard } from '../design-system/CargoCard'
 import { capitalize } from '../design-system/capitalize'
+import { convoyArtOf } from '../design-system/convoyArtOf'
 import { FormAlert } from '../design-system/FormAlert'
 import { ResourceBar } from '../design-system/ResourceBar'
 import { SeasonLine } from '../design-system/SeasonLine'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
+import { quantitiesOf } from '../resources/quantitiesOf'
 import { ArmySection } from './ArmySection'
 import { buildingCardOf } from './buildingCardOf'
 import { LibrarySection } from './LibrarySection'
@@ -65,6 +68,26 @@ function seasonMarkOf(
     season: season.kind,
     words: copy.fief.seasonMark(season.kind, resource, season.multiplierPercent[resource]),
   }
+}
+
+function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
+  const { incomingCargo } = fief.overview
+  if (incomingCargo === null) {
+    return null
+  }
+  const { from, cargo } = incomingCargo
+  return (
+    <CargoCard
+      title={copy.fief.incomingCargo}
+      artSrc={convoyArtOf()}
+      origin={copy.fief.cargoOrigin(from.name, from.province, from.plot)}
+      amounts={copy.fief.cargoAmounts(quantitiesOf(cargo))}
+      countdown={{
+        words: copy.fief.cargoArrivalHeading,
+        remainingSeconds: fief.incomingCargoRemainingSeconds,
+      }}
+    />
+  )
 }
 
 function cancelActionOf(cancel: Cancel, target: CancelUpgradeRequest): CancelAction {
@@ -190,6 +213,7 @@ export function FiefScreen({
       />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-2">
+          <IncomingCargoOf fief={fief} />
           <BuildSlot state={slotStateOf(fief, cancel)} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
           <WaitingUpgradesOf fief={fief} cancel={cancel} />

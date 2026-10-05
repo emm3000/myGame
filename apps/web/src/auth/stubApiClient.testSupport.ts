@@ -126,6 +126,7 @@ export const knownFief: FiefOverview = {
       3: { maxStrength: 40, regrowHours: 24 },
     },
   },
+  incomingCargo: null,
   readAt: '2026-09-22T12:00:00.000Z',
 }
 
