@@ -62,7 +62,7 @@ ADRs amend this table by row id.
 |---|---|
 | N1 | The server is the only source of truth; the client never computes a value the server did not sign off on, except display interpolation (M8). |
 | N2 | Resource-lean: the api idles at zero CPU with no requests; a fief read is one round trip to the store; no process advances state on a timer. |
-| N3 | A fief read answers in under 100 ms on the reference host, excluding network. |
+| N3 | A fief read answers in under 100 ms on the reference host, the production server (ADR 026), excluding network. |
 | N4 | Every mutation on a fief is one transaction; two concurrent mutations serialize. |
 | N5 | Content (buildings, costs, durations) is data the domain reads, changeable without a code deploy; display names are copy under N6 (ADR 010). |
 | N6 | UI copy is Spanish, tú, and lives in one copy layer; identifiers are English. |
