@@ -1,15 +1,20 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+usage="usage: scripts/mygame-wave [--terminal herdr|warp|manual] <name>:<model>:<effort> [...]"
+
+terminal=""
+if [[ "${1:-}" == --terminal ]]; then
+  terminal="${2:-}"
+  shift $(( $# < 2 ? $# : 2 ))
+fi
+
 if (( $# == 0 )); then
-  echo "usage: scripts/mygame-wave <name>:<model>:<effort> [...]" >&2
+  echo "$usage" >&2
   exit 64
 fi
 
 repo="${0:A:h:h}"
-config_dir="$HOME/.warp/tab_configs"
-config="$config_dir/mygame-wave.toml"
-mkdir -p "$config_dir"
 
 names=()
 for spec in "$@"; do
@@ -21,25 +26,80 @@ for spec in "$@"; do
   names+=("$name")
 done
 
-{
-  echo 'name = "mygame-wave"'
-  echo
-  if (( ${#names[@]} > 1 )); then
-    echo '[[panes]]'
-    echo 'id = "root"'
-    echo 'split = "horizontal"'
-    printf 'children = [%s]\n' "$(printf '"%s", ' "${names[@]}" | sd ', $' '')"
-    echo
-  fi
-  for spec in "$@"; do
-    IFS=':' read -r name model effort <<< "$spec"
-    echo '[[panes]]'
-    echo "id = \"$name\""
-    echo 'type = "terminal"'
-    echo "directory = \"$repo\""
-    echo "commands = [\"scripts/mygame-session $name $model $effort; exit\"]"
-    echo
-  done
-} > "$config"
+if [[ -z "$terminal" ]]; then
+  case "${TERM_PROGRAM:-}" in
+    herdr) terminal=herdr ;;
+    WarpTerminal) terminal=warp ;;
+    *) terminal=manual ;;
+  esac
+fi
 
-open "warp://tab_config/mygame-wave"
+session_command() {
+  local name model effort
+  IFS=':' read -r name model effort <<< "$1"
+  echo "scripts/mygame-session $name $model $effort; exit"
+}
+
+open_warp() {
+  local config_dir="$HOME/.warp/tab_configs"
+  local config="$config_dir/mygame-wave.toml"
+  mkdir -p "$config_dir"
+  {
+    echo 'name = "mygame-wave"'
+    echo
+    if (( ${#names[@]} > 1 )); then
+      echo '[[panes]]'
+      echo 'id = "root"'
+      echo 'split = "horizontal"'
+      printf 'children = [%s]\n' "$(printf '"%s", ' "${names[@]}" | sd ', $' '')"
+      echo
+    fi
+    for spec in "$@"; do
+      echo '[[panes]]'
+      echo "id = \"${spec%%:*}\""
+      echo 'type = "terminal"'
+      echo "directory = \"$repo\""
+      echo "commands = [\"$(session_command "$spec")\"]"
+      echo
+    done
+  } > "$config"
+  open "warp://tab_config/mygame-wave"
+}
+
+open_herdr() {
+  if ! command -v herdr > /dev/null || ! herdr status server > /dev/null 2>&1; then
+    echo "herdr is not running: start herdr or pass --terminal warp|manual" >&2
+    exit 69
+  fi
+  local pane
+  local workspace=()
+  [[ -n "${HERDR_WORKSPACE_ID:-}" ]] && workspace=(--workspace "$HERDR_WORKSPACE_ID")
+  pane="$(herdr tab create "${workspace[@]}" --cwd "$repo" --label mygame-wave --no-focus | jq -r '.result.root_pane.pane_id')"
+  local panes=("$pane")
+  local i
+  for (( i = 2; i <= $#; i++ )); do
+    pane="$(herdr pane split "$pane" --direction right --ratio "$(( 1.0 / ($# - i + 2) ))" --cwd "$repo" --no-focus | jq -r '.result.pane.pane_id')"
+    panes+=("$pane")
+  done
+  for (( i = 1; i <= $#; i++ )); do
+    herdr pane rename "${panes[$i]}" "${names[$i]}" > /dev/null
+    herdr pane run "${panes[$i]}" "$(session_command "${@[$i]}")" > /dev/null
+  done
+}
+
+print_manual() {
+  echo "Run each line in its own terminal, from $repo:"
+  for spec in "$@"; do
+    echo "  $(session_command "$spec")"
+  done
+}
+
+case "$terminal" in
+  herdr) open_herdr "$@" ;;
+  warp) open_warp "$@" ;;
+  manual) print_manual "$@" ;;
+  *)
+    echo "unknown terminal: $terminal (expected herdr, warp or manual)" >&2
+    exit 64
+    ;;
+esac
