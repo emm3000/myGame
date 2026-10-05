@@ -153,6 +153,13 @@ const transportMarch = {
   fought: false,
 }
 
+const cargoFromSotoverde = {
+  fromFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
+  from: { name: 'Sotoverde', province: 3, plot: 12 },
+  cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  arrivesAt: '2026-09-22T14:07:30.000Z',
+}
+
 const marchRecalledOnTheRoad = {
   ...awayMarch,
   loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
@@ -222,6 +229,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   march: awayMarch,
   forageTerms: shippedForageTerms,
   combatTerms: shippedCombatTerms,
+  incomingCargo: null,
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -521,6 +529,26 @@ describe('FiefOverviewSchema', () => {
     expect(
       FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), march: emptyHandedTransport })
         .success,
+    ).toBe(false)
+  })
+
+  it('accepts an overview with a cargo on its way', () => {
+    const overviewAwaitingCargo = {
+      ...overviewWithSlot(busySlot),
+      incomingCargo: cargoFromSotoverde,
+    }
+
+    expect(FiefOverviewSchema.parse(overviewAwaitingCargo)).toEqual(overviewAwaitingCargo)
+  })
+
+  it('rejects an incoming cargo without its arrival', () => {
+    const { arrivesAt: _, ...cargoWithoutArrival } = cargoFromSotoverde
+
+    expect(
+      FiefOverviewSchema.safeParse({
+        ...overviewWithSlot(busySlot),
+        incomingCargo: cargoWithoutArrival,
+      }).success,
     ).toBe(false)
   })
 

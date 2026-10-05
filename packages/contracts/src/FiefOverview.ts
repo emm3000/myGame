@@ -163,6 +163,17 @@ const MarchStateSchema = z.discriminatedUnion('order', [
   TransportMarchStateSchema,
 ])
 
+const IncomingCargoSchema = z.strictObject({
+  fromFiefId: z.uuid(),
+  from: z.strictObject({
+    name: z.string().min(1),
+    province: WholeCountSchema.positive(),
+    plot: WholeCountSchema.positive(),
+  }),
+  cargo: ResourceAmountsSchema,
+  arrivesAt: InstantSchema,
+})
+
 const UnitStatsSchema = z.strictObject({
   strength: WholeCountSchema,
   carry: WholeCountSchema,
@@ -216,6 +227,7 @@ export const FiefOverviewSchema = z.object({
   march: MarchStateSchema.nullable(),
   forageTerms: ForageTermsSchema,
   combatTerms: CombatTermsSchema,
+  incomingCargo: IncomingCargoSchema.nullable(),
   readAt: InstantSchema,
 })
 

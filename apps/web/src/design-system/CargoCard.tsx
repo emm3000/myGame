@@ -1,0 +1,49 @@
+import { type ReactElement, useId } from 'react'
+import { CountdownLine, type SlotCountdown } from './CountdownLine'
+import { MarchIcon } from './icons/MarchIcon'
+import { Panel } from './Panel'
+
+export interface CargoCardProps {
+  readonly title: string
+  readonly artSrc: string
+  readonly origin: string
+  readonly amounts: string
+  readonly countdown: SlotCountdown
+}
+
+export function CargoCard({
+  title,
+  artSrc,
+  origin,
+  amounts,
+  countdown,
+}: CargoCardProps): ReactElement {
+  const titleId = useId()
+  return (
+    <Panel
+      element="article"
+      labelledBy={titleId}
+      toneClass="border-line-strong bg-surface-raised"
+      spacingClass="gap-3 p-4"
+    >
+      <img
+        src={artSrc}
+        alt=""
+        width={1024}
+        height={1024}
+        loading="lazy"
+        decoding="async"
+        className="aspect-4/3 w-full rounded-md object-cover"
+      />
+      <span className="flex items-center gap-2 text-ink-muted">
+        <MarchIcon sizeClass="size-icon" />
+        <h3 id={titleId} className="m-0 font-display text-title text-ink">
+          {title}
+        </h3>
+      </span>
+      <p className="m-0 font-body text-body text-ink">{origin}</p>
+      <p className="m-0 font-body text-body text-ink">{amounts}</p>
+      <CountdownLine {...countdown} />
+    </Panel>
+  )
+}

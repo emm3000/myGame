@@ -22,6 +22,7 @@ import {
   durationPercentAt,
   type Fief,
   type FiefBuildingLevels,
+  type IncomingCargo,
   type Instant,
   type March,
   marchInstantsOf,
@@ -162,6 +163,16 @@ const awayMarchOf = (march: AwayMarch): MarchState => {
 
 const marchOf = (march: March): FiefOverview['march'] =>
   march.kind === 'idle' ? null : awayMarchOf(march)
+
+const incomingCargoOf = (cargo: IncomingCargo | undefined): FiefOverview['incomingCargo'] =>
+  cargo === undefined
+    ? null
+    : {
+        fromFiefId: cargo.fromFiefId,
+        from: { name: cargo.name, province: cargo.province, plot: cargo.plot },
+        cargo: { ...cargo.cargo },
+        arrivesAt: isoOf(cargo.arrivesAt),
+      }
 
 type ForageYield = FiefOverview['forageTerms']['yieldPerHour'][Terrain]
 
@@ -438,6 +449,7 @@ export const fiefOverviewOf = (
     march: marchOf(fief.march),
     forageTerms: forageTermsOf(catalog),
     combatTerms: combatTermsOf(catalog),
+    incomingCargo: incomingCargoOf(fief.incomingCargo),
     readAt: isoOf(fief.storedAt),
   })
 }

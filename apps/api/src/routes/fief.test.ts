@@ -3400,6 +3400,33 @@ describe('the fief route', () => {
       ])
     })
 
+    const incomingCargoOf = async (lord: Lord): Promise<FiefOverview['incomingCargo']> => {
+      const response = await fiefOf(lord)
+      expect(response.status).toBe(200)
+      return FiefOverviewSchema.parse(await response.json()).incomingCargo
+    }
+
+    it('answers the cargo on its way to the other fief', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(4)
+
+      expect(await incomingCargoOf(otherFiefOf(ana))).toEqual({
+        fromFiefId: ana.fiefId,
+        from: { name: 'Valdehierro', province: 1, plot: 1 },
+        cargo: woodAndStone,
+        arrivesAt: '2026-09-22T08:05:00.000Z',
+      })
+    })
+
+    it('answers no cargo after the arrival', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(5)
+
+      expect(await incomingCargoOf(otherFiefOf(ana))).toBeNull()
+    })
+
     it('reads no cargo in the other fief before the arrival', async () => {
       const ana = await signUpWithSixRidersAndAFullFief()
       await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
