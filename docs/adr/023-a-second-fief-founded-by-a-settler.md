@@ -554,3 +554,24 @@ a phone.
   transport between a lord's fiefs, more than two fiefs, another
   kingdom, taking a held plot, PvP, renaming a fief, an image for the
   settler.
+
+## Amendment (2026-10-05)
+
+S19 (ADR 024) supersedes "nothing travels between a lord's two fiefs",
+"There is no transport between a lord's own fiefs" and "Nothing moves
+between a lord's fiefs, neither stocks nor units" for stocks alone: a
+transport, the fourth march order, carries resources from one of a
+lord's fiefs to the other. A transport to the lord's other fief is not
+`MarchToOwnPlot` (Decision 8 of #378): it names its destination by fief
+id and never passes `refuseUnreachableTarget`, and it is answered
+`MarchToOwnPlot` only toward the fief it leaves. A forage, an attack
+and a founding still are, for any fief of the sending lord, as this ADR
+left them. A party that holds a settler is refused on a transport as on
+a forage and an attack, `UnitUnfitForOrder { unit: 'settler', order:
+'transport' }`. The chronicle's kinds are twelve, and a transport sent
+is the second event written at a dispatch. "The two fiefs share nothing
+but their lord" holds of their slots, arts, units and chronicles; their
+stocks now meet through a transport. Nothing else here changes: the cap
+is 2, units never move between the fiefs, and the two gaps on the cap
+count and on the lock stand before a cap above 2, with ADR 024's
+two-fief lock beside them.
