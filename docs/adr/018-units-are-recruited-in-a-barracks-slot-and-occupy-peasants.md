@@ -468,3 +468,22 @@ alone. Nothing else here changes: one recruit slot and one order at a
 time, of one kind, paid and staffed in full at the order, delivered one
 unit at a time on read, cancelled with the delivered kept, and one
 chronicle line per order.
+
+## Fifth amendment (2026-10-05)
+
+S20 (ADR 025) adds a fourth kind, `archer`, third in the kinds' order
+before the settler, and lifts archers from "archers and rams stay
+content of a later slice" in the third and the fourth amendments; rams
+stay deferred. The archer is recruited through the recruit slot above
+like any kind, gated by the level of the third amendment:
+`Fief.placeRecruitOrder` refuses `BarracksTooLow { unit: 'archer',
+requiredBarracksLevel: 2, barracksLevel }` at built barracks 1, after
+`BarracksNotBuilt` at 0. As shipped it costs 40 wood, 10 iron, 5 gold
+and 40 food, takes 150 content seconds and occupies 1 peasant from the
+instant the order is placed: 50 seconds an archer at barracks 2, and 38
+ordered in a spring that trains at 75 %. The enum `unit` gains `archer`
+(migration 0027), and `fief_units`, `fief_recruit_orders` and the
+recruit events hold an archer in the columns above. The army section
+draws four cards, the archer's third, locked below barracks 2, and the
+settler's fourth, where the fourth amendment drew it third. Nothing
+else here changes.
