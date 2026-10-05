@@ -225,6 +225,21 @@ describe('dispatchTransport', () => {
     expect(result).toEqual(err({ kind: 'CargoAboveCarry', cargo: 721, carry: 720 }))
   })
 
+  it('refuses a cargo above the carry of the archers sent', async () => {
+    const tenArchers: UnitCountsByKind = { infantry: 0, cavalry: 0, archer: 10, settler: 0 }
+    const dependencies = dependenciesOver([
+      sendingFief({ units: { infantry: 12, cavalry: 6, archer: 10, settler: 1 } }),
+      otherFief(),
+    ])
+
+    const result = await dispatchTransport(
+      transportOf({ units: tenArchers, cargo: { ...still, wood: 241 } }),
+      dependencies,
+    )
+
+    expect(result).toEqual(err({ kind: 'CargoAboveCarry', cargo: 241, carry: 240 }))
+  })
+
   it('refuses an empty cargo', async () => {
     const dependencies = dependenciesOver(lordsFiefs())
 

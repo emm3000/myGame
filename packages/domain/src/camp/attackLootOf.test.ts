@@ -22,6 +22,13 @@ const smallCarry: AttackTerms = {
   units: { ...plainUnits, infantry: { ...plainUnits.infantry, carry: 10 } },
 }
 
+const armyOf = (infantry: number, cavalry: number, archer: number): UnitCountsByKind => ({
+  infantry,
+  cavalry,
+  archer,
+  settler: 0,
+})
+
 describe('attackLootOf', () => {
   it('splits the loot in thirds with gold', () => {
     expect(attackLootOf('uplands', 15, partyOf(22, 0), shippedTerms)).toEqual({
@@ -72,6 +79,21 @@ describe('attackLootOf', () => {
       wood: 120,
       stone: 120,
       gold: 120,
+    })
+  })
+
+  it('caps the attack loot at the carry of the surviving archers', () => {
+    expect(attackLootOf('uplands', 6, armyOf(0, 0, 1), shippedTerms)).toEqual({
+      ...noLoot,
+      wood: 8,
+      stone: 8,
+      gold: 8,
+    })
+    expect(attackLootOf('uplands', 6, armyOf(0, 0, 6), shippedTerms)).toEqual({
+      ...noLoot,
+      wood: 48,
+      stone: 48,
+      gold: 48,
     })
   })
 })

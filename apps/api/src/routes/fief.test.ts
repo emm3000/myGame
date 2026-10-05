@@ -2942,6 +2942,89 @@ describe('the fief route', () => {
     })
   })
 
+  describe('a party with archers', () => {
+    const post = async (lord: Lord, path: string, body: unknown): Promise<Response> =>
+      app.request(pathOf(lord, path), {
+        method: 'POST',
+        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+    const signUpWithTwoInfantryTwoRidersAndTenArchers = async (): Promise<SignedUpPlayer> => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+        SELECT id, 'farm'::building, 8 FROM fiefs`)
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'infantry'::unit, 2 FROM fiefs
+        UNION ALL SELECT id, 'cavalry'::unit, 2 FROM fiefs
+        UNION ALL SELECT id, 'archer'::unit, 10 FROM fiefs`)
+      return ana
+    }
+
+    const awayMarchOf = async (response: Response): Promise<NonNullable<FiefOverview['march']>> => {
+      expect(response.status).toBe(200)
+      const { march } = FiefOverviewSchema.parse(await response.json())
+      assert(march !== null)
+      return march
+    }
+
+    it('sends archers on a forage and brings their loot', async () => {
+      const ana = await signUpWithTwoInfantryTwoRidersAndTenArchers()
+      const tenArchers = { infantry: 0, cavalry: 0, archer: 10, settler: 0 }
+      const sent = await awayMarchOf(
+        await post(ana, '/marches', { province: 2, plot: 5, units: tenArchers, stayHours: 2 }),
+      )
+      clock.advanceMinutes((2 * sent.oneWaySeconds) / 60 + 120)
+
+      expect(await chronicleEventsOf(ana)).toEqual([
+        {
+          kind: 'marchReturned',
+          province: 2,
+          plot: 5,
+          units: tenArchers,
+          loot: { wood: 60, stone: 60, iron: 0, gold: 0, food: 0 },
+          occurredAt: sent.returnsAt,
+          recalled: false,
+        },
+      ])
+    })
+
+    it('fights with archers and answers them lost last', async () => {
+      const ana = await signUpWithTwoInfantryTwoRidersAndTenArchers()
+      const sent = await awayMarchOf(
+        await post(ana, '/marches/attack', {
+          province: 2,
+          plot: campPlotOfTier(1),
+          units: { infantry: 2, cavalry: 2, archer: 3, settler: 0 },
+        }),
+      )
+      assert(sent.order === 'attack')
+      clock.advanceMinutes((2 * sent.oneWaySeconds) / 60)
+
+      expect(await chronicleEventsOf(ana)).toEqual([
+        {
+          kind: 'marchReturned',
+          province: 2,
+          plot: sent.plot,
+          units: { infantry: 0, cavalry: 1, archer: 3, settler: 0 },
+          loot: { wood: 64, stone: 64, iron: 0, gold: 64, food: 0 },
+          occurredAt: sent.returnsAt,
+          recalled: false,
+        },
+        {
+          kind: 'battleFought',
+          province: 2,
+          plot: sent.plot,
+          tier: 1,
+          won: true,
+          unitsLost: { infantry: 2, cavalry: 1, archer: 0, settler: 0 },
+          campLost: 6,
+          occurredAt: sent.arrivesAt,
+        },
+      ])
+    })
+  })
+
   describe('the battle at the arrival', () => {
     type CampBattleRow = {
       readonly province: number
@@ -3423,6 +3506,36 @@ describe('the fief route', () => {
       expect(await stocksOf(otherFiefOf(ana))).toMatchObject({
         wood: 1300,
         stone: 1200,
+        iron: 1000,
+        gold: 1000,
+        food: 1000,
+      })
+    })
+
+    it('carries a transport with archers', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, 'archer'::unit, 10 FROM fiefs WHERE id <> '${otherFiefId}'`)
+      const tenArchers = { infantry: 0, cavalry: 0, archer: 10, settler: 0 }
+      const fullArcherCarry = { wood: 240, stone: 0, iron: 0, gold: 0, food: 0 }
+
+      const response = await transport(ana, {
+        toFiefId: otherFiefId,
+        units: tenArchers,
+        cargo: fullArcherCarry,
+      })
+      expect(response.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await response.json()).march).toMatchObject({
+        order: 'transport',
+        units: tenArchers,
+        cargo: fullArcherCarry,
+        oneWaySeconds: 600,
+      })
+      clock.advanceMinutes(10)
+
+      expect(await stocksOf(otherFiefOf(ana))).toMatchObject({
+        wood: 1240,
+        stone: 1000,
         iron: 1000,
         gold: 1000,
         food: 1000,

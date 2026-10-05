@@ -10,6 +10,13 @@ const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
   settler: 0,
 })
 
+const armyOf = (infantry: number, cavalry: number, archer: number): UnitCountsByKind => ({
+  infantry,
+  cavalry,
+  archer,
+  settler: 0,
+})
+
 describe('battleOf', () => {
   it('wins when the infantry are stronger', () => {
     expect(battleOf(partyOf(10, 0), 6, plainUnits)).toEqual({
@@ -87,6 +94,40 @@ describe('battleOf', () => {
       unitsLost: partyOf(0, 7),
       campLost: 14,
       survivors: partyOf(0, 0),
+    })
+  })
+
+  it('takes the losses from the archers last', () => {
+    expect(battleOf(armyOf(2, 2, 3), 6, plainUnits)).toMatchObject({
+      won: true,
+      unitsLost: armyOf(2, 1, 0),
+      survivors: armyOf(0, 1, 3),
+    })
+  })
+
+  it('takes the rest from the archers at 1 per point', () => {
+    expect(battleOf(armyOf(1, 1, 4), 6, plainUnits)).toMatchObject({
+      won: true,
+      unitsLost: armyOf(1, 1, 3),
+      survivors: armyOf(0, 0, 1),
+    })
+  })
+
+  it('brings an archer home from every won battle that sent archers', () => {
+    expect(battleOf(armyOf(0, 0, 3), 2, plainUnits)).toEqual({
+      won: true,
+      unitsLost: armyOf(0, 0, 2),
+      campLost: 2,
+      survivors: armyOf(0, 0, 1),
+    })
+  })
+
+  it('loses every archer against a stronger camp', () => {
+    expect(battleOf(armyOf(0, 0, 5), 6, plainUnits)).toEqual({
+      won: false,
+      unitsLost: armyOf(0, 0, 5),
+      campLost: 5,
+      survivors: armyOf(0, 0, 0),
     })
   })
 })
