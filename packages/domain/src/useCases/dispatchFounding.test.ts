@@ -106,7 +106,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
       barracks: 5,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0, settler: 1 },
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -151,7 +151,7 @@ describe('dispatchFounding', () => {
       name: 'Sotoverde del Páramo',
       province: 2,
       plot: 7,
-      units: { infantry: 0, cavalry: 0, settler: 1 },
+      units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
       stayHours: 0,
       departedAt: dispatchInstant,
       oneWaySeconds: 900,
@@ -170,7 +170,7 @@ describe('dispatchFounding', () => {
 
   it('refuses a founding without a settler at home', async () => {
     const dependencies = dependenciesOver([
-      storedFief({ units: { infantry: 4, cavalry: 0, settler: 0 } }),
+      storedFief({ units: { infantry: 4, cavalry: 0, archer: 0, settler: 0 } }),
     ])
 
     const result = await dispatchFounding(foundingOn(2, 7), dependencies)
@@ -207,7 +207,7 @@ describe('dispatchFounding', () => {
             name: 'Sotoverde del Páramo',
             province: 2,
             plot: 3,
-            units: { infantry: 0, cavalry: 0, settler: 1 },
+            units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
             stayHours: 0,
             departedAt: storedInstant,
             oneWaySeconds: 900,
@@ -380,7 +380,7 @@ describe('recalling a founding', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
         loot: noLoot,
         recalled: true,
         occurredAt: secondsAfter(dispatchInstant, 1_200),
@@ -411,7 +411,7 @@ describe('founding at the arrival', () => {
     playerId: 'rival',
     name: 'Torre Parda',
     address: { kingdom: 1, province: 2, plot: 7 },
-    units: { infantry: 0, cavalry: 0, settler: 0 },
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
   })
 
   const sentFoundingFrom = async (origin: Fief, others: ReadonlyArray<Fief> = []) => {
@@ -566,7 +566,7 @@ describe('founding at the arrival', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
         loot: noLoot,
         recalled: true,
         occurredAt: secondsAfter(arrival, 900),
@@ -650,7 +650,7 @@ describe('the founding in the chronicle', () => {
 
   it('records nothing for a refused founding', async () => {
     const dependencies = dependenciesOver([
-      storedFief({ units: { infantry: 4, cavalry: 0, settler: 0 } }),
+      storedFief({ units: { infantry: 4, cavalry: 0, archer: 0, settler: 0 } }),
     ])
 
     const result = await dispatchFounding(foundingOn(2, 7), dependencies)
@@ -712,7 +712,7 @@ describe('the founding in the chronicle', () => {
         playerId: 'rival',
         name: 'Torre Parda',
         address: { kingdom: 1, province: 2, plot: 7 },
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
       }),
     )
 
@@ -725,7 +725,7 @@ describe('the founding in the chronicle', () => {
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
         loot: noLoot,
         recalled: true,
         occurredAt: secondsAfter(arrival, 900),

@@ -4,6 +4,7 @@ export function byUnitKind<T>(valueFor: (unit: UnitKind) => T): Readonly<Record<
   return {
     infantry: valueFor('infantry'),
     cavalry: valueFor('cavalry'),
+    archer: valueFor('archer'),
     settler: valueFor('settler'),
   }
 }

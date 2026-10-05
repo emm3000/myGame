@@ -6,6 +6,7 @@ import { battleOf } from './battleOf'
 const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
   infantry,
   cavalry,
+  archer: 0,
   settler: 0,
 })
 

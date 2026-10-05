@@ -83,7 +83,7 @@ export const knownFief: FiefOverview = {
     },
   },
   season: null,
-  units: { infantry: 0, cavalry: 0, settler: 0 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
   recruitOrder: null,
   recruitTerms: {
     infantry: {
@@ -96,6 +96,11 @@ export const knownFief: FiefOverview = {
       peasants: 2,
       perUnitSeconds: 300,
     },
+    archer: {
+      cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+      peasants: 1,
+      perUnitSeconds: 150,
+    },
     settler: {
       cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
       peasants: 4,
@@ -105,6 +110,7 @@ export const knownFief: FiefOverview = {
   unitTerms: {
     infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
     cavalry: { strength: 2, carry: 120, roadPercent: 50, barracksLevel: 3 },
+    archer: { strength: 1, carry: 24, roadPercent: 100, barracksLevel: 2 },
     settler: { strength: 0, carry: 0, roadPercent: 100, barracksLevel: 5 },
   },
   march: null,

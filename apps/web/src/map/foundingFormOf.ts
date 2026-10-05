@@ -9,7 +9,7 @@ import { oneWaySecondsOf } from './oneWaySecondsOf'
 import { roadMarksOf } from './roadMarksOf'
 import { unitsAtHomeOf } from './unitsAtHomeOf'
 
-const oneSettler: UnitCounts = { infantry: 0, cavalry: 0, settler: 1 }
+const oneSettler: UnitCounts = { infantry: 0, cavalry: 0, archer: 0, settler: 1 }
 
 function previewOf(target: MarchTarget, fief: FiefOverview): ReadonlyArray<PreviewLine> {
   const oneWay = formatDuration(oneWaySecondsOf(target, oneSettler, fief))

@@ -32,7 +32,7 @@ const barracksFive: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 5 },
   },
-  units: { infantry: 0, cavalry: 0, settler: 1 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
 }
 
 type FoundingMarch = Extract<NonNullable<FiefOverview['march']>, { readonly order: 'found' }>
@@ -43,7 +43,7 @@ const foundingDeparted = (secondsBeforeRead: number): FoundingMarch => ({
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  units: { infantry: 0, cavalry: 0, settler: 1 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
   stayHours: 0,
   departedAt: instantAfterRead(-secondsBeforeRead),
   oneWaySeconds: 900,
@@ -131,7 +131,10 @@ it('shows a recalled founding returning with its settler', async () => {
 })
 
 it('reads the founded fief at the arrival', async () => {
-  const founded: FiefOverview = { ...barracksFive, units: { infantry: 0, cavalry: 0, settler: 0 } }
+  const founded: FiefOverview = {
+    ...barracksFive,
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
+  }
   const fief = vi
     .fn<ApiClient['fief']>()
     .mockImplementationOnce(async () => ({

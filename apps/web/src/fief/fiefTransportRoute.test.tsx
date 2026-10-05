@@ -32,7 +32,7 @@ const barracksThree: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 3 },
   },
-  units: { infantry: 12, cavalry: 6, settler: 0 },
+  units: { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
 }
 
 type TransportMarch = Extract<NonNullable<FiefOverview['march']>, { readonly order: 'transport' }>
@@ -44,7 +44,7 @@ const transportDeparted = (secondsBeforeRead: number): TransportMarch => ({
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  units: { infantry: 0, cavalry: 6, settler: 0 },
+  units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
   stayHours: 0,
   departedAt: instantAfterRead(-secondsBeforeRead),
   oneWaySeconds: 450,

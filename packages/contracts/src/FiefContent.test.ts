@@ -54,6 +54,16 @@ const cavalry = {
   barracksLevel: 3,
 }
 
+const archer = {
+  cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+  durationSeconds: 150,
+  peasantOccupancy: 1,
+  strength: 1,
+  carry: 24,
+  roadPercent: 100,
+  barracksLevel: 2,
+}
+
 const settler = {
   cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
   durationSeconds: 7200,
@@ -64,7 +74,7 @@ const settler = {
   barracksLevel: 5,
 }
 
-const units = { infantry, cavalry, settler }
+const units = { infantry, cavalry, archer, settler }
 
 const noYield = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
@@ -328,15 +338,21 @@ describe('FiefContentSchema', () => {
   })
 
   it('rejects content without cavalry terms', () => {
-    expect(FiefContentSchema.safeParse(fiefContent({ units: { infantry, settler } })).success).toBe(
-      false,
-    )
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ units: { infantry, archer, settler } })).success,
+    ).toBe(false)
+  })
+
+  it('rejects content without archer terms', () => {
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ units: { infantry, cavalry, settler } })).success,
+    ).toBe(false)
   })
 
   it('rejects content without settler terms', () => {
-    expect(FiefContentSchema.safeParse(fiefContent({ units: { infantry, cavalry } })).success).toBe(
-      false,
-    )
+    expect(
+      FiefContentSchema.safeParse(fiefContent({ units: { infantry, cavalry, archer } })).success,
+    ).toBe(false)
   })
 
   it('rejects a unit that occupies no peasants', () => {

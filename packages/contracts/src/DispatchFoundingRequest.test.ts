@@ -18,7 +18,7 @@ describe('DispatchFoundingRequestSchema', () => {
     expect(
       DispatchFoundingRequestSchema.safeParse({
         ...foundingOnProvinceTwo,
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
       }).success,
     ).toBe(false)
   })

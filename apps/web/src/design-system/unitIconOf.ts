@@ -7,5 +7,6 @@ import { SettlerIcon } from './icons/SettlerIcon'
 export const unitIconOf: Readonly<Record<UnitKind, () => ReactElement>> = {
   infantry: InfantryIcon,
   cavalry: CavalryIcon,
+  archer: InfantryIcon,
   settler: SettlerIcon,
 }

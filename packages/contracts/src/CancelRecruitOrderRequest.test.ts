@@ -24,7 +24,7 @@ describe('CancelRecruitOrderRequestSchema', () => {
   it('rejects an unknown unit', () => {
     expect(
       CancelRecruitOrderRequestSchema.safeParse({
-        unit: 'archer',
+        unit: 'crossbowman',
         startedAt: '2026-09-22T08:10:00.000Z',
       }).success,
     ).toBe(false)
