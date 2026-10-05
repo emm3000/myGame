@@ -61,6 +61,7 @@ const transportRecalled: FiefOverview = {
   ...barracksThree,
   march: {
     ...transportDeparted(300),
+    loot: transportDeparted(300).cargo,
     arrivesAt: instantAfterRead(0),
     leavesAt: instantAfterRead(0),
     returnsAt: instantAfterRead(300),
@@ -150,4 +151,12 @@ it('shows a recalled transport returning with its cargo', async () => {
   expect(within(countdown()).getByText('Vuelta en')).toBeDefined()
   expect(within(countdown()).getByText('5:00')).toBeDefined()
   expect(recallButton()).toBeNull()
+  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+})
+
+it('reads the cargo once on a recalled transport', async () => {
+  await showFief({ fief: async () => ({ ok: true, value: answeredNow(transportRecalled) }) })
+
+  expect(within(armySection()).getAllByText(/Carga:/)).toHaveLength(1)
+  expect(within(armySection()).queryByText(/Botín:/)).toBeNull()
 })
