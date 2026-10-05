@@ -34,6 +34,13 @@ const goldOnTheRidges: MarchTerms = {
   },
 }
 
+const armyOf = (infantry: number, cavalry: number, archer: number): UnitCountsByKind => ({
+  infantry,
+  cavalry,
+  archer,
+  settler: 0,
+})
+
 describe('forageLootOf', () => {
   it('forages food and wood on the lowlands', () => {
     expect(forageLootOf('lowlands', partyOf(1, 0), 1, shippedTerms, unscaled)).toEqual({
@@ -125,5 +132,26 @@ describe('forageLootOf', () => {
     expect(
       forageLootOf('ridges', partyOf(10, 0), 1, goldOnTheRidges, { ...unscaled, gold: 125 }),
     ).toEqual({ ...noLoot, stone: 30, iron: 30 })
+  })
+
+  it('forages one rate per archer', () => {
+    expect(forageLootOf('uplands', armyOf(0, 0, 10), 2, shippedTerms, unscaled)).toEqual({
+      ...noLoot,
+      wood: 60,
+      stone: 60,
+    })
+  })
+
+  it('caps the forage at the archers carry', () => {
+    expect(forageLootOf('uplands', armyOf(0, 0, 10), 8, shippedTerms, unscaled)).toEqual({
+      ...noLoot,
+      wood: 120,
+      stone: 120,
+    })
+    expect(forageLootOf('uplands', armyOf(12, 0, 10), 8, shippedTerms, unscaled)).toEqual({
+      ...noLoot,
+      wood: 408,
+      stone: 408,
+    })
   })
 })
