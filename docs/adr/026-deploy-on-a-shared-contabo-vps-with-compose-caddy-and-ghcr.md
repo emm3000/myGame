@@ -34,8 +34,9 @@ for them is listed under Pending, never claimed here.
 - **The host is one Contabo Cloud VPS 4, shared by the owner's MVPs**
   (Decision 1 of #444 as changed by the owner). 4 vCPU, 8 GB of memory,
   100 GB of SSD, x86, an EU region, Ubuntu 24.04 LTS, at USD 6.60 a
-  month on a monthly term (the owner's comment on #444 quoted about EUR
-  5.50 a month on the 24-month term). It is twice the memory the
+  month on the monthly term, with no surcharge for the EU region; the
+  24-month term is USD 5.28 a month and needs 24 months prepaid, and
+  was not taken. It is twice the memory the
   Hetzner plan asked for at under a third of the price Hetzner had on
   offer for 4 GB. Nothing in either repo names the provider except
   comments and READMEs of `emm3000/infra`'s `server/`; `deploy.yml`
@@ -86,7 +87,10 @@ for them is listed under Pending, never claimed here.
   `linux/amd64` on every pull request, and on a push to `trunk` pushes
   `ghcr.io/emm3000/mygame-api`, `mygame-migrate` and `mygame-web`, each
   tagged with the full commit SHA and nothing else. A tag never moves,
-  so the server reuses an image it already holds. The api and the web
+  so the server reuses an image it already holds. The three packages
+  are public, as the repo is, so the server pulls them anonymously and
+  holds no registry credential (an anonymous read of the three answered
+  on 2026-10-05). The api and the web
   run as the `node` user, carry a `HEALTHCHECK` (`/health` every 10 s,
   `/sign-in` every 30 s) and end on `SIGTERM` without waiting out the
   grace period (#446 and #447, PRs #458 and #459). Nothing secret is
@@ -124,7 +128,7 @@ for them is listed under Pending, never claimed here.
   Contabo as the submission port Brevo documents, and no ticket checked
   which ports Contabo blocks. Brevo is a third party, and W8 does not
   forbid one: W8 is OAuth or magic-link sign-in. ADR 015 cited it
-  loosely three times and is amended here.
+  for mail twice and is amended here.
 - **Backups: a daily `pg_dump` to Cloudflare R2, keeping 7 daily and 4
   weekly** (Decision 6; #453, infra PR #4). The systemd timer
   `pg-backup@mygame.timer` runs `backup/pg-backup.sh mygame` as
@@ -222,21 +226,24 @@ Recorded as open, to be written into this ADR when they close:
   rules that the wizard covers the Contabo order and the first SSH.
 - The first deploy has not run (#456). Until it does, nothing here is
   proven on the server: the certificate, the mail with `spf=pass` and
-  `dkim=pass`, the ports that answer from outside, the nightly object
-  in R2 and the skipped docs-only run are that ticket's checks.
+  `dkim=pass`, the ports that answer from outside and the skipped
+  docs-only run are that ticket's checks.
 - **N3 is not measured.** #456 times ten fief reads on the server
   through Caddy; the times go here as an amendment.
-- The backup's production path was never exercised: its harness ran
-  under another compose project name (review of infra PR #4). #456
-  starts `pg-backup@mygame` once on the server.
+- The backup's production path was never exercised: the body of infra
+  PR #4 says its harness ran under another compose project name, with
+  MinIO standing in for R2. #456 waits for the first nightly object,
+  `mygame/daily/<date>.sql.gz`, in R2, and a comment on #456 asks for
+  one manual `systemctl start pg-backup@mygame` on the server before
+  it.
 
 ## Considered options
 
 - **Hetzner Cloud, 4 GB**, the grilled host. Overturned by the owner:
   the cheap types could not be ordered in any region, and the ones on
   offer cost from twice to more than three times the Contabo plan for
-  half the memory or less. It would have brought a cloud firewall in front of the server;
-  ufw on the host is what replaces it.
+  half the memory or less. It would have brought a cloud firewall in
+  front of the server; ufw on the host is what replaces it.
 - **An Arm server.** Considered while Hetzner's CAX was the fallback:
   the images would have been built for `linux/arm64`. Dropped with the
   host; the Contabo plan is x86 and the images stay `linux/amd64`.
@@ -293,21 +300,30 @@ Recorded as open, to be written into this ADR when they close:
 - The api and the web deploy together at one SHA, as ADR 001 expected
   of coupled deploys. No path filter narrows a deploy; the docs-only
   rule is the only one.
-- Content ships inside the api image (`apps/api/content/`), so a
-  content change deploys as any push does, with no code change. N5's
-  "changeable without a code deploy" is read that way and is not
-  amended here.
-- Docker probes the api's `/health` every 10 s and the web's
-  `/sign-in` every 30 s, and `pg_isready` every 10 s. `/health` answers
-  without the database and no probe advances game state, so N2's "no
-  process advances state on a timer" holds. N2's "idles at zero CPU
-  with no requests" and the acceptance criterion's "zero requests to
-  itself" are read as the game's own requests: the probes are the
-  host's, as the backup is. #456 reads the api's CPU at idle; if the
-  probes show there, the interval is what changes.
-- ADR 015 is amended: its three W8 citations for mail now point to its
-  own choice of SMTP and to this ADR's relay. W8 is untouched, and so
-  are N2 and W7.
+- **A regression against N5 as ADR 008 reads it, pending the owner.**
+  ADR 008 reads N5's "changeable without a code deploy" as "a file
+  change and a process restart, no build and no migration".
+  `apps/api/Dockerfile` copies `apps/api/content` into the api image,
+  so in production a content change now takes a full CI build and a
+  deploy. Two remedies stand, and this ADR chooses neither: amend N5
+  and ADR 008 to mean "no code change", or mount the content read-only
+  from the host over `/repo/apps/api/content` and restart the api.
+  Neither N5 nor ADR 008 is amended here.
+- **An accepted exception to the acceptance criterion's "zero
+  requests".** The api's `HEALTHCHECK` is a `node -e` process Docker
+  starts inside the api container every 10 s, which requests `/health`
+  on the loopback; the web's does the same against `/sign-in` every 30
+  s, and Postgres runs `pg_isready` every 10 s. These are requests the
+  server makes to itself while the browser is closed. They are accepted
+  as liveness probes that change no state: `/health` answers without
+  the database, and no probe writes. N2 is not breached, since no
+  process advances state on a timer and a fief read is still one round
+  trip, so the PRD is not amended. #456 reads the api's CPU at idle.
+- ADR 015 is amended: its two W8 citations for mail, the SMTP bullet
+  and the rejected mail service, now point to its own choice of SMTP
+  and to this ADR's relay. Its Context cited W8 correctly, for the only
+  sign-in, and lost the citation only so that one line of ADR 015 names
+  the row. W8 is untouched, and so are N2 and W7.
 - ADR 006's "trivial backups" argument for SQLite is answered by the
   timer and the drill; Postgres stays one extra process on the box.
 - The PRD's N3 names this ADR for the reference host. No Won't-have

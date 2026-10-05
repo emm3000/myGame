@@ -197,8 +197,10 @@ decisions after PRs #166 to #175 shipped.
 
 ## Amendment (2026-10-05)
 
-ADR 026 corrects three citations: the Context, the SMTP bullet and the
-"third-party mail service" option cited the PRD's sign-in row for mail,
-and that row is OAuth or magic-link sign-in. Plain SMTP is this ADR's own
-choice, and the relay it reaches in production, Brevo, is ADR 026's.
-Nothing else here changes.
+ADR 026 corrects two citations: the SMTP bullet and the "third-party mail
+service" option cited the PRD's sign-in row for mail, and that row is
+OAuth or magic-link sign-in. Plain SMTP is this ADR's own choice, and the
+relay it reaches in production, Brevo, is ADR 026's. The Context cited the
+row correctly, for email and password as the only sign-in; that citation
+was dropped only so that one line of this ADR names the row, the
+out-of-scope line. Nothing else here changes.
