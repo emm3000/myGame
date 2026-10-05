@@ -20,7 +20,7 @@ const sotoverde: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 3 },
   },
-  units: { infantry: 12, cavalry: 6, settler: 1 },
+  units: { infantry: 12, cavalry: 6, archer: 0, settler: 1 },
 }
 
 const provinceWithPlots = (
@@ -67,7 +67,7 @@ const transportAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  units: { infantry: 0, cavalry: 6, settler: 0 },
+  units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
   stayHours: 0,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 450,
@@ -276,7 +276,7 @@ it('blocks a transport with no unit', async () => {
 
   expect(linesOf(form)).toEqual(['Carga: 300 de 0'])
   expect(sendButton(form).disabled).toBe(true)
-  expect(within(form).getByText('Envía al menos un infante o un jinete.')).toBeDefined()
+  expect(within(form).getByText('Envía al menos un infante, un jinete o un arquero.')).toBeDefined()
 })
 
 it('blocks a transport while a march is away', async () => {
@@ -308,7 +308,7 @@ it('sends the transport with the units and amounts typed', async () => {
   expect(dispatchTransport).toHaveBeenCalledTimes(1)
   expect(dispatchTransport).toHaveBeenCalledWith(sotoverde.id, {
     toFiefId: otherFiefId,
-    units: { infantry: 0, cavalry: 6, settler: 0 },
+    units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
     cargo: sentCargo,
   })
   expect(sent.textContent).toContain('Marcha de transporte: 6 jinetes a provincia 2, parcela 7')

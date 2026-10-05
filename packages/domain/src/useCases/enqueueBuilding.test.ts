@@ -125,7 +125,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0, settler: 0 },
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -343,7 +343,7 @@ describe('enqueueBuilding', () => {
   it('refuses an enqueue the units leave too few peasants to staff', async () => {
     const minedCatalog = inMemoryCatalog([quarryLevelOne, ironMineLevelOne])
     const fiefs = inMemoryFiefRepository([
-      storedFief({ units: { infantry: 2, cavalry: 0, settler: 0 } }),
+      storedFief({ units: { infantry: 2, cavalry: 0, archer: 0, settler: 0 } }),
     ])
 
     const result = await enqueueBuilding(

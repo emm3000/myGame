@@ -71,7 +71,7 @@ const storedFief = (
       barracks: 3,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 12, cavalry: 6, settler: 1 },
+    units: { infantry: 12, cavalry: 6, archer: 0, settler: 1 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -103,7 +103,7 @@ const rivalFief = (): FiefEntity =>
     address: { kingdom: 1, province: 2, plot: 9 },
   })
 
-const sixRiders: UnitCountsByKind = { infantry: 0, cavalry: 6, settler: 0 }
+const sixRiders: UnitCountsByKind = { infantry: 0, cavalry: 6, archer: 0, settler: 0 }
 
 const fullCargo: Stocks = { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 }
 
@@ -446,7 +446,7 @@ describe('the arrival of a transport', () => {
   it('credits the cargo after every other finish of its instant', async () => {
     const fiefs = await sentTransport(
       otherFief({
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
         recruitOrder: {
           kind: 'open',
           unit: 'infantry',

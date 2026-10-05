@@ -143,7 +143,7 @@ export const chronicleContract = (
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 10, cavalry: 0, settler: 0 },
+        units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         loot: { wood: 240, stone: 240, iron: 0, gold: 0, food: 0 },
         recalled: false,
         occurredAt: minutesAfterDawn(40),
@@ -161,7 +161,7 @@ export const chronicleContract = (
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 12, cavalry: 0, settler: 0 },
+        units: { infantry: 12, cavalry: 0, archer: 0, settler: 0 },
         loot: { wood: 11, stone: 11, iron: 0, gold: 0, food: 0 },
         recalled: true,
         occurredAt: minutesAfterDawn(55),
@@ -181,7 +181,7 @@ export const chronicleContract = (
         plot: 7,
         tier: 2,
         won: true,
-        unitsLost: { infantry: 4, cavalry: 0, settler: 0 },
+        unitsLost: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
         campLost: 15,
         occurredAt: minutesAfterDawn(20),
       }
@@ -198,7 +198,7 @@ export const chronicleContract = (
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 12, cavalry: 6, settler: 0 },
+        units: { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
         loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
         recalled: false,
         occurredAt: minutesAfterDawn(40),
@@ -216,7 +216,7 @@ export const chronicleContract = (
         kind: 'marchReturned',
         province: 2,
         plot: 7,
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
         loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
         recalled: true,
         occurredAt: minutesAfterDawn(40),
@@ -306,7 +306,7 @@ export const chronicleContract = (
         plot: 7,
         tier: 1,
         won: true,
-        unitsLost: { infantry: 2, cavalry: 2, settler: 0 },
+        unitsLost: { infantry: 2, cavalry: 2, archer: 0, settler: 0 },
         campLost: 6,
         occurredAt: minutesAfterDawn(20),
       }
@@ -314,6 +314,43 @@ export const chronicleContract = (
       await chronicle.record(valdehierro, [fought])
 
       expect(await chronicle.eventsOf(valdehierro)).toEqual([fought])
+    })
+
+    it('reads back a battle that lost archers', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const fought: FiefEvent = {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        unitsLost: { infantry: 2, cavalry: 1, archer: 3, settler: 0 },
+        campLost: 6,
+        occurredAt: minutesAfterDawn(20),
+      }
+
+      await chronicle.record(valdehierro, [fought])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([fought])
+    })
+
+    it('reads back a return with archers', async () => {
+      const { chronicle, registerFiefs } = await arrange()
+      await registerFiefs([valdehierro])
+      const returned: FiefEvent = {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 0, cavalry: 1, archer: 1, settler: 0 },
+        loot: { wood: 64, stone: 64, iron: 0, gold: 64, food: 0 },
+        recalled: false,
+        occurredAt: minutesAfterDawn(40),
+      }
+
+      await chronicle.record(valdehierro, [returned])
+
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([returned])
     })
 
     it('reads back a recruits-cancelled event with no unit delivered', async () => {

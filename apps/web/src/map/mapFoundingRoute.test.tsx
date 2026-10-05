@@ -18,7 +18,7 @@ const sotoverdeWithASettler: FiefOverview = {
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level: 5 },
   },
-  units: { infantry: 0, cavalry: 0, settler: 1 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
 }
 
 const uplands: ProvinceMap = {
@@ -48,7 +48,7 @@ const foundingAway: NonNullable<FiefOverview['march']> = {
   province: 2,
   plot: 7,
   terrain: 'uplands',
-  units: { infantry: 0, cavalry: 0, settler: 1 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
   stayHours: 0,
   departedAt: '2026-09-22T12:00:00.000Z',
   oneWaySeconds: 900,
@@ -63,7 +63,7 @@ const foundingAway: NonNullable<FiefOverview['march']> = {
 
 const sotoverdeWithFoundingAway: FiefOverview = {
   ...sotoverdeWithASettler,
-  units: { infantry: 0, cavalry: 0, settler: 1 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
   march: foundingAway,
 }
 
@@ -159,7 +159,10 @@ it('blocks the founding without a settler at home', async () => {
   const form = await openFoundingOn(7, {
     fief: async () => ({
       ok: true,
-      value: { ...sotoverdeWithASettler, units: { infantry: 0, cavalry: 0, settler: 0 } },
+      value: {
+        ...sotoverdeWithASettler,
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
+      },
     }),
     dispatchFounding,
   })

@@ -34,6 +34,7 @@ const unitLabels: Readonly<
 > = {
   infantry: { singular: 'infante', plural: 'infantes' },
   cavalry: { singular: 'jinete', plural: 'jinetes' },
+  archer: { singular: 'arquero', plural: 'arqueros' },
   settler: { singular: 'colono', plural: 'colonos' },
 }
 

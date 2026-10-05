@@ -101,7 +101,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: levelsWithBarracks(1),
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0, settler: 0 },
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -748,5 +748,76 @@ describe('placeRecruitOrder for settlers', () => {
     )
 
     expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 4, freePeasants: 1 }))
+  })
+})
+
+const archerCost = { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 }
+
+const archerFief = (overrides: Partial<StoredFief>): Fief =>
+  storedFief({
+    stocks: { wood: 400, stone: 0, iron: 100, gold: 50, food: 400 },
+    buildingLevels: levelsWithBarracks(2),
+    ...overrides,
+  })
+
+describe('placeRecruitOrder for archers', () => {
+  it('refuses an archer below barracks level 2', async () => {
+    const lowBarracks = archerFief({ buildingLevels: levelsWithBarracks(1) })
+    const fiefs = inMemoryFiefRepository([lowBarracks])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'archer', count: 1 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(
+      err({ kind: 'BarracksTooLow', unit: 'archer', requiredBarracksLevel: 2, barracksLevel: 1 }),
+    )
+    expect(fiefs.storedFiefOf('fief-1')).toBe(lowBarracks)
+  })
+
+  it('recruits archers at barracks level 2 in 50 seconds each', async () => {
+    const fiefs = inMemoryFiefRepository([archerFief({})])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'archer', count: 4 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.recruitOrder).toEqual({
+      kind: 'open',
+      unit: 'archer',
+      count: 4,
+      cost: { wood: 160, stone: 0, iron: 40, gold: 20, food: 160 },
+      perUnitSeconds: 50,
+      startedAt: storedInstant,
+    })
+  })
+
+  it('trains an archer in 38 seconds in a 75 % spring', async () => {
+    const fiefs = inMemoryFiefRepository([archerFief({ storedAt: midSpring })])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'archer', count: 1 },
+      { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSpring) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.recruitOrder).toMatchObject({
+      cost: archerCost,
+      perUnitSeconds: 38,
+    })
+  })
+
+  it('occupies one peasant per archer', async () => {
+    const fiefs = inMemoryFiefRepository([archerFief({})])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'archer', count: 5 },
+      { fiefs, catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'NotEnoughPeasants', requiredPeasants: 5, freePeasants: 4 }))
   })
 })

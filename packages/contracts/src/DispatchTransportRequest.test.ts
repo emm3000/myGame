@@ -3,7 +3,7 @@ import { DispatchTransportRequestSchema } from './index'
 
 const transportToTheOtherFief = {
   toFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
-  units: { infantry: 0, cavalry: 6, settler: 0 },
+  units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
 }
 
@@ -40,7 +40,7 @@ describe('DispatchTransportRequestSchema', () => {
     expect(
       DispatchTransportRequestSchema.safeParse({
         ...transportToTheOtherFief,
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
       }).success,
     ).toBe(false)
   })

@@ -11,6 +11,7 @@ const noLoot = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
   infantry,
   cavalry,
+  archer: 0,
   settler: 0,
 })
 

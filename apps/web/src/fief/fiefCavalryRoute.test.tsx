@@ -32,7 +32,7 @@ const barracksAt = (level: number): FiefOverview => ({
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level },
   },
-  units: { infantry: 12, cavalry: 0, settler: 0 },
+  units: { infantry: 12, cavalry: 0, archer: 0, settler: 0 },
 })
 
 const barracksAtThree: FiefOverview = {
@@ -90,7 +90,7 @@ it('shows a card per unit kind', async () => {
   const titles = within(armySection())
     .getAllByRole('heading', { level: 4 })
     .map((heading) => heading.textContent)
-  expect(titles).toEqual(['Infantes', 'Jinetes', 'Colonos'])
+  expect(titles).toEqual(['Infantes', 'Jinetes', 'Arqueros', 'Colonos'])
 })
 
 it('draws each kind with its own icon', async () => {

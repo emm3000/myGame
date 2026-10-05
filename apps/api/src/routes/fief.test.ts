@@ -719,10 +719,10 @@ describe('the fief route', () => {
     it('answers a returned march with its plot, its infantry and its loot', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       await runSql(
-        `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, settler_count,
-           stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
+        `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, archer_count,
+           settler_count, stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
            loot_percent_wood, loot_percent_stone, loot_percent_iron, loot_percent_gold, loot_percent_food)
-         SELECT id, 2, 7, 10, 0, 0, 1, 60, '2026-09-22T08:00:00Z', 30, 30, 0, 0, 0, 100, 100, 100, 100, 100
+         SELECT id, 2, 7, 10, 0, 0, 0, 1, 60, '2026-09-22T08:00:00Z', 30, 30, 0, 0, 0, 100, 100, 100, 100, 100
          FROM fiefs`,
       )
       clock.advanceMinutes(62)
@@ -734,7 +734,7 @@ describe('the fief route', () => {
           kind: 'marchReturned',
           province: 2,
           plot: 7,
-          units: { infantry: 10, cavalry: 0, settler: 0 },
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
           loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
           occurredAt: '2026-09-22T09:02:00.000Z',
           recalled: false,
@@ -1448,7 +1448,7 @@ describe('the fief route', () => {
         startedAt: '2026-09-22T08:10:00.000Z',
         endsAt: '2026-09-22T08:12:15.000Z',
       })
-      expect(overview.units).toEqual({ infantry: 0, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 0, cavalry: 0, archer: 0, settler: 0 })
       expect(overview.resources.iron.amount).toBe(170)
       expect(overview.peasants.free).toBe(6)
     })
@@ -1461,7 +1461,7 @@ describe('the fief route', () => {
       const response = await fiefOf(ana)
 
       const { units, recruitOrder } = FiefOverviewSchema.parse(await response.json())
-      expect(units).toEqual({ infantry: 2, cavalry: 0, settler: 0 })
+      expect(units).toEqual({ infantry: 2, cavalry: 0, archer: 0, settler: 0 })
       expect(recruitOrder?.delivered).toBe(2)
     })
 
@@ -1473,7 +1473,7 @@ describe('the fief route', () => {
       const response = await fiefOf(ana)
 
       const { units, recruitOrder, peasants } = FiefOverviewSchema.parse(await response.json())
-      expect(units).toEqual({ infantry: 3, cavalry: 0, settler: 0 })
+      expect(units).toEqual({ infantry: 3, cavalry: 0, archer: 0, settler: 0 })
       expect(recruitOrder).toBeNull()
       expect(peasants.free).toBe(6)
     })
@@ -1514,6 +1514,11 @@ describe('the fief route', () => {
           cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
           peasants: 2,
           perUnitSeconds: 100,
+        },
+        archer: {
+          cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+          peasants: 1,
+          perUnitSeconds: 50,
         },
         settler: {
           cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
@@ -1603,7 +1608,7 @@ describe('the fief route', () => {
       const { units, recruitOrder, recruitTerms, unitTerms, peasants } = FiefOverviewSchema.parse(
         await read.json(),
       )
-      expect(units).toEqual({ infantry: 0, cavalry: 2, settler: 0 })
+      expect(units).toEqual({ infantry: 0, cavalry: 2, archer: 0, settler: 0 })
       expect(recruitOrder).toBeNull()
       expect(peasants.free).toBe(3)
       expect(recruitTerms.cavalry).toEqual({
@@ -1630,6 +1635,58 @@ describe('the fief route', () => {
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksTooLow',
         message: 'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
+      })
+      expect(await storedFiefOf(ana)).toEqual(before)
+    })
+
+    it('recruits archers at barracks level 2 and counts them in the overview', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(2)
+      clock.advanceMinutes(10)
+
+      const placed = await recruit(ana, { unit: 'archer', count: 4 })
+      clock.advanceMinutes(3.5)
+      const read = await fiefOf(ana)
+
+      expect(placed.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await placed.json()).recruitOrder).toEqual({
+        unit: 'archer',
+        count: 4,
+        delivered: 0,
+        perUnitSeconds: 50,
+        startedAt: '2026-09-22T08:10:00.000Z',
+        endsAt: '2026-09-22T08:13:20.000Z',
+      })
+      const { units, recruitOrder, recruitTerms, unitTerms, peasants } = FiefOverviewSchema.parse(
+        await read.json(),
+      )
+      expect(units).toEqual({ infantry: 0, cavalry: 0, archer: 4, settler: 0 })
+      expect(recruitOrder).toBeNull()
+      expect(peasants.free).toBe(4)
+      expect(recruitTerms.archer).toEqual({
+        cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+        peasants: 1,
+        perUnitSeconds: 50,
+      })
+      expect(unitTerms.archer).toEqual({
+        strength: 1,
+        carry: 24,
+        roadPercent: 100,
+        barracksLevel: 2,
+      })
+    })
+
+    it('refuses archers below barracks level 2', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await buildBarracksAt(1)
+      const before = await storedFiefOf(ana)
+
+      const response = await recruit(ana, { unit: 'archer', count: 1 })
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'BarracksTooLow',
+        message: 'Tu cuartel aún no llega al nivel 2 que piden los arqueros. Mejóralo primero.',
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -1661,7 +1718,7 @@ describe('the fief route', () => {
       const { units, recruitOrder, recruitTerms, unitTerms } = FiefOverviewSchema.parse(
         await read.json(),
       )
-      expect(units).toEqual({ infantry: 0, cavalry: 0, settler: 1 })
+      expect(units).toEqual({ infantry: 0, cavalry: 0, archer: 0, settler: 1 })
       expect(recruitOrder).toBeNull()
       expect(recruitTerms.settler).toEqual({
         cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
@@ -1796,7 +1853,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.recruitOrder).toBeNull()
-      expect(overview.units).toEqual({ infantry: 2, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 2, cavalry: 0, archer: 0, settler: 0 })
       expect(overview.readAt).toBe('2026-09-22T08:11:30.000Z')
     })
 
@@ -1808,7 +1865,7 @@ describe('the fief route', () => {
       const response = await cancelRecruit(ana, 'infantry', startedAt)
 
       const { resources, peasants, units } = FiefOverviewSchema.parse(await response.json())
-      expect(units).toEqual({ infantry: 1, cavalry: 0, settler: 0 })
+      expect(units).toEqual({ infantry: 1, cavalry: 0, archer: 0, settler: 0 })
       expect(resources.iron.amount).toBe(190)
       expect(peasants.free).toBe(8)
     })
@@ -1854,7 +1911,7 @@ describe('the fief route', () => {
 
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
-      expect(overview.units).toEqual({ infantry: 3, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 3, cavalry: 0, archer: 0, settler: 0 })
       expect(overview.recruitOrder).toBeNull()
       const chronicle = await app.request(pathOf(ana, '/events'), {
         headers: { cookie: ana.cookie },
@@ -1880,7 +1937,7 @@ describe('the fief route', () => {
       expect(ApiErrorSchema.parse(await response.json())).toEqual(recruitOrderNotFound)
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.recruitOrder?.startedAt).toBe('2026-09-22T08:10:00.000Z')
-      expect(overview.units).toEqual({ infantry: 1, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 1, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('answers 400 for a malformed start', async () => {
@@ -1989,7 +2046,7 @@ describe('the fief route', () => {
     const fiveInfantryToProvinceTwoPlotFive = {
       province: 2,
       plot: 5,
-      units: { infantry: 5, cavalry: 0, settler: 0 },
+      units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
       stayHours: 2,
     }
 
@@ -2045,6 +2102,7 @@ describe('the fief route', () => {
       expect(FiefOverviewSchema.parse(await response.json()).unitTerms).toEqual({
         infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
         cavalry: { strength: 2, carry: 120, roadPercent: 50, barracksLevel: 3 },
+        archer: { strength: 1, carry: 24, roadPercent: 100, barracksLevel: 2 },
         settler: { strength: 0, carry: 0, roadPercent: 100, barracksLevel: 5 },
       })
     })
@@ -2059,7 +2117,7 @@ describe('the fief route', () => {
         province: 2,
         plot: 5,
         terrain: 'uplands',
-        units: { infantry: 5, cavalry: 0, settler: 0 },
+        units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 2,
         departedAt: '2026-09-22T08:00:00.000Z',
         oneWaySeconds: 840,
@@ -2082,8 +2140,8 @@ describe('the fief route', () => {
       const response = await fiefOf(ana)
 
       const overview = FiefOverviewSchema.parse(await response.json())
-      expect(overview.units).toEqual({ infantry: 5, cavalry: 0, settler: 0 })
-      expect(overview.march?.units).toEqual({ infantry: 5, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 5, cavalry: 0, archer: 0, settler: 0 })
+      expect(overview.march?.units).toEqual({ infantry: 5, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('adds the loot and idles the march slot at the return', async () => {
@@ -2098,7 +2156,7 @@ describe('the fief route', () => {
       expect(overview.march).toBeNull()
       expect(overview.resources.wood.amount).toBe(1030)
       expect(overview.resources.stone.amount).toBe(1030)
-      expect(overview.units).toEqual({ infantry: 5, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 5, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('records the returned march in the chronicle', async () => {
@@ -2115,7 +2173,7 @@ describe('the fief route', () => {
           kind: 'marchReturned',
           province: 2,
           plot: 5,
-          units: { infantry: 5, cavalry: 0, settler: 0 },
+          units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
           loot: { wood: 30, stone: 30, iron: 0, gold: 0, food: 0 },
           occurredAt: '2026-09-22T10:28:00.000Z',
           recalled: false,
@@ -2140,7 +2198,7 @@ describe('the fief route', () => {
           kind: 'marchReturned',
           province: 2,
           plot: 5,
-          units: { infantry: 5, cavalry: 0, settler: 0 },
+          units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
           loot: { wood: 7, stone: 7, iron: 0, gold: 0, food: 0 },
           occurredAt: '2026-09-22T08:58:00.000Z',
           recalled: true,
@@ -2207,7 +2265,7 @@ describe('the fief route', () => {
 
       const response = await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
-        units: { infantry: 6, cavalry: 0, settler: 0 },
+        units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
       })
 
       expect(response.status).toBe(409)
@@ -2221,13 +2279,13 @@ describe('the fief route', () => {
       const ana = await signUpWithFiveInfantry()
       await march(ana, {
         ...fiveInfantryToProvinceTwoPlotFive,
-        units: { infantry: 2, cavalry: 0, settler: 0 },
+        units: { infantry: 2, cavalry: 0, archer: 0, settler: 0 },
       })
 
       const response = await march(ana, {
         province: 1,
         plot: 3,
-        units: { infantry: 3, cavalry: 0, settler: 0 },
+        units: { infantry: 3, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 1,
       })
 
@@ -2240,7 +2298,7 @@ describe('the fief route', () => {
       expect(stored).toMatchObject({
         province: 2,
         plot: 5,
-        units: { infantry: 2, cavalry: 0, settler: 0 },
+        units: { infantry: 2, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 2,
       })
     })
@@ -2319,7 +2377,7 @@ describe('the fief route', () => {
         body: JSON.stringify({
           province: 2,
           plot: 5,
-          units: { infantry: 5, cavalry: 0, settler: 0 },
+          units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
           stayHours: 2,
         }),
       })
@@ -2343,7 +2401,7 @@ describe('the fief route', () => {
         province: 2,
         plot: 5,
         terrain: 'uplands',
-        units: { infantry: 5, cavalry: 0, settler: 0 },
+        units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 2,
         departedAt,
         oneWaySeconds: 840,
@@ -2386,7 +2444,7 @@ describe('the fief route', () => {
       expect(overview.march).toBeNull()
       expect(overview.resources.wood.amount).toBe(1007)
       expect(overview.resources.stone.amount).toBe(1007)
-      expect(overview.units).toEqual({ infantry: 5, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 5, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('refuses a recall once the march is returning', async () => {
@@ -2478,7 +2536,7 @@ describe('the fief route', () => {
         await attack(lord, {
           province: 2,
           plot: campPlotOfTier(1),
-          units: { infantry: 10, cavalry: 0, settler: 0 },
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         }),
       )
       return { lord, sent }
@@ -2489,7 +2547,11 @@ describe('the fief route', () => {
       const ana = await signUpWithTenInfantry()
 
       const sent = await attackedMarchOf(
-        await attack(ana, { province: 2, plot, units: { infantry: 10, cavalry: 0, settler: 0 } }),
+        await attack(ana, {
+          province: 2,
+          plot,
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
+        }),
       )
 
       expect(sent).toMatchObject({
@@ -2497,7 +2559,7 @@ describe('the fief route', () => {
         province: 2,
         plot,
         terrain: 'uplands',
-        units: { infantry: 10, cavalry: 0, settler: 0 },
+        units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 0,
         departedAt: '2026-09-22T08:00:00.000Z',
         loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
@@ -2519,10 +2581,10 @@ describe('the fief route', () => {
 
       expect(overview.march).toMatchObject({
         order: 'attack',
-        units: { infantry: 6, cavalry: 0, settler: 0 },
+        units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
         fought: true,
       })
-      expect(overview.units).toEqual({ infantry: 6, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 6, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('brings the loot home at the return', async () => {
@@ -2532,7 +2594,7 @@ describe('the fief route', () => {
         await attack(ana, {
           province: 2,
           plot: campPlotOfTier(1),
-          units: { infantry: 10, cavalry: 0, settler: 0 },
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         }),
       )
       clock.advanceMinutes(2 * minutesOf(sent.oneWaySeconds))
@@ -2543,7 +2605,7 @@ describe('the fief route', () => {
       expect(overview.resources.wood.amount).toBe(1096)
       expect(overview.resources.stone.amount).toBe(1096)
       expect(overview.resources.gold.amount).toBe(1096)
-      expect(overview.units).toEqual({ infantry: 6, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 6, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('records the battle and the return in the chronicle', async () => {
@@ -2559,7 +2621,7 @@ describe('the fief route', () => {
           kind: 'marchReturned',
           province: 2,
           plot: sent.plot,
-          units: { infantry: 6, cavalry: 0, settler: 0 },
+          units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
           loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
           occurredAt: sent.returnsAt,
           recalled: false,
@@ -2570,7 +2632,7 @@ describe('the fief route', () => {
           plot: sent.plot,
           tier: 1,
           won: true,
-          unitsLost: { infantry: 4, cavalry: 0, settler: 0 },
+          unitsLost: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
           campLost: 6,
           occurredAt: sent.arrivesAt,
         },
@@ -2583,7 +2645,7 @@ describe('the fief route', () => {
         await attack(ana, {
           province: 2,
           plot: campPlotOfTier(2),
-          units: { infantry: 10, cavalry: 0, settler: 0 },
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         }),
       )
       clock.advanceMinutes(minutesOf(sent.oneWaySeconds))
@@ -2592,7 +2654,7 @@ describe('the fief route', () => {
 
       expect(sent.camp).toEqual({ tier: 2, strength: 15 })
       expect(overview.march).toBeNull()
-      expect(overview.units).toEqual({ infantry: 0, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 0, cavalry: 0, archer: 0, settler: 0 })
     })
 
     it('fights the camp the lord beat on the read that sends again', async () => {
@@ -2603,7 +2665,7 @@ describe('the fief route', () => {
         await attack(lord, {
           province: 2,
           plot: sent.plot,
-          units: { infantry: 6, cavalry: 0, settler: 0 },
+          units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
         }),
       )
 
@@ -2633,7 +2695,7 @@ describe('the fief route', () => {
       const response = await attack(ana, {
         province: 2,
         plot,
-        units: { infantry: 10, cavalry: 0, settler: 0 },
+        units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       })
 
       expect(response.status).toBe(409)
@@ -2662,7 +2724,7 @@ describe('the fief route', () => {
       const response = await attack(ana, {
         province: 2,
         plot: campPlotOfTier(1),
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
       })
 
       expect(response.status).toBe(400)
@@ -2676,7 +2738,7 @@ describe('the fief route', () => {
         body: JSON.stringify({
           province: 2,
           plot: campPlotOfTier(1),
-          units: { infantry: 10, cavalry: 0, settler: 0 },
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         }),
       })
 
@@ -2717,7 +2779,7 @@ describe('the fief route', () => {
         await post(lord, '/marches/attack', {
           province: 2,
           plot: campPlotOfTier(1),
-          units: { infantry: 5, cavalry: 5, settler: 0 },
+          units: { infantry: 5, cavalry: 5, archer: 0, settler: 0 },
         }),
       )
       assert(sent.order === 'attack')
@@ -2731,7 +2793,7 @@ describe('the fief route', () => {
         await post(ana, '/marches', {
           province: 2,
           plot: 5,
-          units: { infantry: 12, cavalry: 6, settler: 0 },
+          units: { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
           stayHours: 2,
         }),
       )
@@ -2740,7 +2802,7 @@ describe('the fief route', () => {
         order: 'forage',
         province: 2,
         plot: 5,
-        units: { infantry: 12, cavalry: 6, settler: 0 },
+        units: { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
         oneWaySeconds: 840,
         loot: { wood: 108, stone: 108, iron: 0, gold: 0, food: 0 },
       })
@@ -2756,7 +2818,7 @@ describe('the fief route', () => {
       const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
-        units: { infantry: 12, cavalry: 0, settler: 1 },
+        units: { infantry: 12, cavalry: 0, archer: 0, settler: 1 },
         stayHours: 2,
       })
 
@@ -2775,12 +2837,12 @@ describe('the fief route', () => {
         await post(ana, '/marches', {
           province: 2,
           plot: 5,
-          units: { infantry: 0, cavalry: 6, settler: 0 },
+          units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
           stayHours: 2,
         }),
       )
 
-      expect(sent.units).toEqual({ infantry: 0, cavalry: 6, settler: 0 })
+      expect(sent.units).toEqual({ infantry: 0, cavalry: 6, archer: 0, settler: 0 })
       expect(sent.oneWaySeconds).toBe(420)
     })
 
@@ -2793,9 +2855,9 @@ describe('the fief route', () => {
 
       expect(overview.march).toMatchObject({
         fought: true,
-        units: { infantry: 2, cavalry: 5, settler: 0 },
+        units: { infantry: 2, cavalry: 5, archer: 0, settler: 0 },
       })
-      expect(overview.units).toEqual({ infantry: 9, cavalry: 6, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 9, cavalry: 6, archer: 0, settler: 0 })
     })
 
     it('records each kind in the chronicle', async () => {
@@ -2812,7 +2874,7 @@ describe('the fief route', () => {
           kind: 'marchReturned',
           province: 2,
           plot: sent.plot,
-          units: { infantry: 2, cavalry: 5, settler: 0 },
+          units: { infantry: 2, cavalry: 5, archer: 0, settler: 0 },
           loot: { wood: 120, stone: 120, iron: 0, gold: 120, food: 0 },
           occurredAt: sent.returnsAt,
           recalled: false,
@@ -2823,7 +2885,7 @@ describe('the fief route', () => {
           plot: sent.plot,
           tier: 1,
           won: true,
-          unitsLost: { infantry: 3, cavalry: 0, settler: 0 },
+          unitsLost: { infantry: 3, cavalry: 0, archer: 0, settler: 0 },
           campLost: 6,
           occurredAt: sent.arrivesAt,
         },
@@ -2836,7 +2898,7 @@ describe('the fief route', () => {
       const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
-        units: { infantry: 12, cavalry: 7, settler: 0 },
+        units: { infantry: 12, cavalry: 7, archer: 0, settler: 0 },
         stayHours: 2,
       })
 
@@ -2854,7 +2916,7 @@ describe('the fief route', () => {
       const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
-        units: { infantry: 0, cavalry: 1, settler: 0 },
+        units: { infantry: 0, cavalry: 1, archer: 0, settler: 0 },
         stayHours: 2,
       })
 
@@ -2869,7 +2931,7 @@ describe('the fief route', () => {
       const response = await post(ana, '/marches', {
         province: 2,
         plot: 5,
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 2,
       })
 
@@ -2909,10 +2971,10 @@ describe('the fief route', () => {
         SELECT id, 'infantry'::unit, 10 FROM fiefs`)
       await runSql(
         `INSERT INTO fief_marches (fief_id, march_order, province, plot, infantry_count,
-           cavalry_count, settler_count, stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone,
+           cavalry_count, archer_count, settler_count, stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone,
            loot_iron, loot_gold, loot_food, loot_percent_wood, loot_percent_stone, loot_percent_iron,
            loot_percent_gold, loot_percent_food, camp_tier, camp_strength, fought)
-         SELECT id, 'attack', 2, ${plot}, 10, 0, 0, 0, 600, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0,
+         SELECT id, 'attack', 2, ${plot}, 10, 0, 0, 0, 0, 600, '2026-09-22T08:00:00Z', 96, 96, 0, 96, 0,
            100, 100, 100, 100, 100, 1, 6, false
          FROM fiefs`,
       )
@@ -2929,7 +2991,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(200)
       const overview = FiefOverviewSchema.parse(await response.json())
       expect(overview.march).toBeNull()
-      expect(overview.units).toEqual({ infantry: 6, cavalry: 0, settler: 0 })
+      expect(overview.units).toEqual({ infantry: 6, cavalry: 0, archer: 0, settler: 0 })
       expect(await campBattleRows()).toEqual([
         { province: 2, plot, strength: 0, foughtAt: '2026-09-22T08:10:00Z' },
       ])
@@ -2949,7 +3011,7 @@ describe('the fief route', () => {
           kind: 'marchReturned',
           province: 2,
           plot,
-          units: { infantry: 6, cavalry: 0, settler: 0 },
+          units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
           loot: { wood: 96, stone: 96, iron: 0, gold: 96, food: 0 },
           occurredAt: '2026-09-22T08:20:00.000Z',
           recalled: false,
@@ -2960,7 +3022,7 @@ describe('the fief route', () => {
           plot,
           tier: 1,
           won: true,
-          unitsLost: { infantry: 4, cavalry: 0, settler: 0 },
+          unitsLost: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
           campLost: 6,
           occurredAt: '2026-09-22T08:10:00.000Z',
         },
@@ -2981,7 +3043,7 @@ describe('the fief route', () => {
       assert(stored.ok)
       expect(stored.value?.march).toMatchObject({
         fought: false,
-        units: { infantry: 10, cavalry: 0, settler: 0 },
+        units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       })
     })
   })
@@ -3028,7 +3090,7 @@ describe('the fief route', () => {
         name: 'Sotoverde del Páramo',
         province: 2,
         plot: freePlot(),
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
         stayHours: 0,
         departedAt: '2026-09-22T08:00:00.000Z',
         oneWaySeconds: 600 + (freePlot() - 1) * 60,
@@ -3037,7 +3099,7 @@ describe('the fief route', () => {
         camp: null,
         fought: false,
       })
-      expect(units).toEqual({ infantry: 0, cavalry: 0, settler: 1 })
+      expect(units).toEqual({ infantry: 0, cavalry: 0, archer: 0, settler: 1 })
     })
 
     it('refuses a second founding to a reserved plot', async () => {
@@ -3133,7 +3195,7 @@ describe('the fief route', () => {
         amounts: [510, 514, 205, 52, 310],
         levels: [0],
         artLevels: [0],
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
         march: null,
       })
     })
@@ -3147,7 +3209,7 @@ describe('the fief route', () => {
       const { units, peasants, march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
 
       expect({ units, free: peasants.free - before.peasants.free, march }).toEqual({
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
         free: 4,
         march: null,
       })
@@ -3175,7 +3237,7 @@ describe('the fief route', () => {
         ).toISOString(),
         fiefs: [ana.fiefId],
         march: null,
-        units: { infantry: 0, cavalry: 0, settler: 1 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
       })
     })
 
@@ -3294,7 +3356,7 @@ describe('the fief route', () => {
 
     const woodAndStone = { wood: 300, stone: 200, iron: 0, gold: 0, food: 0 }
 
-    const sixRiders = { infantry: 0, cavalry: 6, settler: 0 }
+    const sixRiders = { infantry: 0, cavalry: 6, archer: 0, settler: 0 }
 
     const amountsOf = ({ resources }: FiefOverview) => ({
       wood: resources.wood.amount,

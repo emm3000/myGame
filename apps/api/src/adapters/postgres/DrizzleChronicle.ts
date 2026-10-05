@@ -50,6 +50,7 @@ type UnitCounts = Extract<FiefEvent, { readonly kind: 'marchReturned' }>['units'
 const unitCountColumnsOf = (counts: UnitCounts) => ({
   infantryCount: counts.infantry,
   cavalryCount: counts.cavalry,
+  archerCount: counts.archer,
   settlerCount: counts.settler,
 })
 
@@ -206,10 +207,20 @@ const countOf = (row: EventRow): number => {
 }
 
 const unitCountsOf = (row: EventRow): UnitCounts => {
-  if (row.infantryCount === null || row.cavalryCount === null || row.settlerCount === null) {
+  if (
+    row.infantryCount === null ||
+    row.cavalryCount === null ||
+    row.archerCount === null ||
+    row.settlerCount === null
+  ) {
     throw new Error(`Chronicle event ${row.id} of kind ${row.kind} names no unit counts`)
   }
-  return { infantry: row.infantryCount, cavalry: row.cavalryCount, settler: row.settlerCount }
+  return {
+    infantry: row.infantryCount,
+    cavalry: row.cavalryCount,
+    archer: row.archerCount,
+    settler: row.settlerCount,
+  }
 }
 
 const cancelledCountOf = (row: EventRow): number => {

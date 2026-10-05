@@ -4,7 +4,7 @@ import { DispatchMarchRequestSchema } from './index'
 const fiveInfantryForTwoHours = {
   province: 2,
   plot: 5,
-  units: { infantry: 5, cavalry: 0, settler: 0 },
+  units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
   stayHours: 2,
 }
 
@@ -18,7 +18,7 @@ describe('DispatchMarchRequestSchema', () => {
   it('accepts a march of riders alone', () => {
     const ridersAlone = {
       ...fiveInfantryForTwoHours,
-      units: { infantry: 0, cavalry: 6, settler: 0 },
+      units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
     }
     expect(DispatchMarchRequestSchema.parse(ridersAlone)).toEqual(ridersAlone)
   })
@@ -27,7 +27,7 @@ describe('DispatchMarchRequestSchema', () => {
     expect(
       DispatchMarchRequestSchema.safeParse({
         ...fiveInfantryForTwoHours,
-        units: { infantry: 0, cavalry: 0, settler: 0 },
+        units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
       }).success,
     ).toBe(false)
   })
@@ -36,7 +36,7 @@ describe('DispatchMarchRequestSchema', () => {
     expect(
       DispatchMarchRequestSchema.safeParse({
         ...fiveInfantryForTwoHours,
-        units: { infantry: 5, cavalry: 1.5, settler: 0 },
+        units: { infantry: 5, cavalry: 1.5, archer: 0, settler: 0 },
       }).success,
     ).toBe(false)
   })
@@ -45,7 +45,7 @@ describe('DispatchMarchRequestSchema', () => {
     expect(
       DispatchMarchRequestSchema.safeParse({
         ...fiveInfantryForTwoHours,
-        units: { infantry: 6, cavalry: -1, settler: 0 },
+        units: { infantry: 6, cavalry: -1, archer: 0, settler: 0 },
       }).success,
     ).toBe(false)
   })

@@ -133,6 +133,15 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
         roadPercent: 50,
         barracksLevel: 3,
       },
+      archer: {
+        cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+        durationSeconds: 150,
+        peasantOccupancy: 1,
+        strength: 1,
+        carry: 24,
+        roadPercent: 100,
+        barracksLevel: 2,
+      },
       settler: {
         cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
         durationSeconds: 7200,
@@ -560,7 +569,7 @@ const transportBetween = (
     { playerId: ana, fiefId },
     {
       toFiefId,
-      units: { infantry: 0, cavalry: 6, settler: 0 },
+      units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
       cargo: { wood: 100, stone: 0, iron: 0, gold: 0, food: 0 },
     },
     { inTransaction, buildingCatalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },

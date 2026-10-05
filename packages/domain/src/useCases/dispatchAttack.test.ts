@@ -122,7 +122,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
       barracks: 0,
     },
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 10, cavalry: 0, settler: 0 },
+    units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -139,7 +139,7 @@ const tenInfantryOn = (plot: number) => ({
   fiefId: 'fief-1',
   province: 2,
   plot,
-  units: { infantry: 10, cavalry: 0, settler: 0 },
+  units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
 })
 
 const dependenciesOver = (fief: Fief, battles: ReadonlyArray<CampBattle> = []) => {
@@ -162,7 +162,7 @@ describe('dispatchAttack', () => {
       order: 'attack',
       province: 2,
       plot: tierOnePlot,
-      units: { infantry: 10, cavalry: 0, settler: 0 },
+      units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       stayHours: 0,
       departedAt: dispatchInstant,
       camp: { tier: 1, strength: 6 },
@@ -314,14 +314,14 @@ describe('dispatchAttack', () => {
         fiefId: 'fief-1',
         province: 2,
         plot: freePlot(),
-        units: { infantry: 4, cavalry: 0, settler: 0 },
+        units: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 2,
       },
       dependencies,
     )
 
     const result = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), units: { infantry: 4, cavalry: 0, settler: 0 } },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 4, cavalry: 0, archer: 0, settler: 0 } },
       dependencies,
     )
 
@@ -332,7 +332,7 @@ describe('dispatchAttack', () => {
     const dependencies = dependenciesOver(storedFief({}))
 
     const result = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), units: { infantry: 11, cavalry: 0, settler: 0 } },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 11, cavalry: 0, archer: 0, settler: 0 } },
       dependencies,
     )
 
@@ -346,11 +346,14 @@ describe('dispatchAttack', () => {
     const dependencies = dependenciesOver(storedFief({}))
 
     const none = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), units: { infantry: 0, cavalry: 0, settler: 0 } },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 } },
       dependencies,
     )
     const fractional = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), units: { infantry: 1.5, cavalry: 0, settler: 0 } },
+      {
+        ...tenInfantryOn(tierOnePlot),
+        units: { infantry: 1.5, cavalry: 0, archer: 0, settler: 0 },
+      },
       dependencies,
     )
 
@@ -366,7 +369,7 @@ describe('dispatchAttack', () => {
         fiefId: 'fief-1',
         province: 2,
         plot: freePlot(),
-        units: { infantry: 4, cavalry: 0, settler: 0 },
+        units: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
         stayHours: 2,
       },
       away,
@@ -374,12 +377,12 @@ describe('dispatchAttack', () => {
     const idle = dependenciesOver(storedFief({}))
     const tooMany = {
       ...tenInfantryOn(tierOnePlot),
-      units: { infantry: 11, cavalry: 0, settler: 0 },
+      units: { infantry: 11, cavalry: 0, archer: 0, settler: 0 },
     }
 
     const refusals = await Promise.all([
       dispatchAttack(
-        { ...tooMany, units: { infantry: 0, cavalry: 0, settler: 0 }, province: 9 },
+        { ...tooMany, units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 }, province: 9 },
         away,
       ),
       dispatchAttack({ ...tooMany, province: 9 }, away),
@@ -407,7 +410,7 @@ describe('dispatchAttack with a party of several kinds', () => {
     const dependencies = dependenciesOver(
       storedFief({
         address: { kingdom: 1, province: 3, plot: 12 },
-        units: { infantry: 12, cavalry: 6, settler: 0 },
+        units: { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
       }),
     )
 
@@ -417,14 +420,14 @@ describe('dispatchAttack with a party of several kinds', () => {
         fiefId: 'fief-1',
         province: 2,
         plot: 1,
-        units: { infantry: 0, cavalry: 6, settler: 0 },
+        units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
       },
       dependencies,
     )
 
     assert(result.ok)
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
-      units: { infantry: 0, cavalry: 6, settler: 0 },
+      units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
       oneWaySeconds: 630,
     })
   })
@@ -467,7 +470,11 @@ describe('dispatchAttack across seasons', () => {
 
       assert(resolved.ok)
       expect(resolved.value.events).toMatchObject([
-        { kind: 'battleFought', won: true, unitsLost: { infantry: 4, cavalry: 0, settler: 0 } },
+        {
+          kind: 'battleFought',
+          won: true,
+          unitsLost: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
+        },
         { kind: 'marchReturned', loot: { ...noLoot, wood: 96, stone: 96, gold: 96 } },
       ])
     }
@@ -476,11 +483,11 @@ describe('dispatchAttack across seasons', () => {
 
 describe('dispatchAttack with a settler', () => {
   it('refuses an attack party with a settler', async () => {
-    const lord = storedFief({ units: { infantry: 10, cavalry: 0, settler: 1 } })
+    const lord = storedFief({ units: { infantry: 10, cavalry: 0, archer: 0, settler: 1 } })
     const dependencies = dependenciesOver(lord)
 
     const result = await dispatchAttack(
-      { ...tenInfantryOn(tierOnePlot), units: { infantry: 10, cavalry: 0, settler: 1 } },
+      { ...tenInfantryOn(tierOnePlot), units: { infantry: 10, cavalry: 0, archer: 0, settler: 1 } },
       dependencies,
     )
 

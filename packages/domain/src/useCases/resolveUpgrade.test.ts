@@ -159,7 +159,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     storedAt: storedInstant,
     buildingLevels: unbuiltLevels,
     artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0, settler: 0 },
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
     studySlot: { kind: 'idle' },
@@ -1651,7 +1651,7 @@ const tenInfantryForTwoHoursDepartedAt = (departedAt: Instant): AwayMarch => ({
   order: 'forage',
   province: 2,
   plot: 5,
-  units: { infantry: 10, cavalry: 0, settler: 0 },
+  units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
   stayHours: 2,
   departedAt,
   oneWaySeconds: 840,
@@ -1662,7 +1662,7 @@ const tenInfantryForTwoHoursDepartedAt = (departedAt: Instant): AwayMarch => ({
 const marchingFief = (overrides: Partial<StoredFief>): Fief =>
   storedFief({
     address: { kingdom: 1, province: 1, plot: 1 },
-    units: { infantry: 10, cavalry: 0, settler: 0 },
+    units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
     march: tenInfantryForTwoHoursDepartedAt(storedInstant),
     ...overrides,
   })
@@ -1714,7 +1714,7 @@ describe('resolveUpgrade with a march', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 5,
-      units: { infantry: 10, cavalry: 0, settler: 0 },
+      units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       loot: { wood: 200, stone: 200, iron: 0, gold: 0, food: 0 },
     }
     expect(result.value.events).toMatchObject([returned])
@@ -1767,7 +1767,7 @@ describe('resolveUpgrade with a march', () => {
       kind: 'marchReturned',
       province: 2,
       plot: 5,
-      units: { infantry: 10, cavalry: 0, settler: 0 },
+      units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       loot: { wood: 15, stone: 15, iron: 0, gold: 0, food: 0 },
       recalled: true,
       occurredAt: secondsAfterStored(3_480),
@@ -1867,7 +1867,7 @@ describe('resolveUpgrade with a march', () => {
 
   it('applies an upgrade, a study, an order and a march ending at one instant in that order', async () => {
     const busyEverywhereFief = storedFief({
-      units: { infantry: 10, cavalry: 0, settler: 0 },
+      units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       slot: sawmillFinishingAfterHours(1),
       studySlot: smithingStudyFinishingAfterHours(1),
       recruitOrder: orderEndingAfterHours(1),
@@ -1975,12 +1975,12 @@ const unscaledMarchSeason: MarchSeason = {
 const attackingFief = (tier: CampTier, strength: number): Fief => {
   const dispatched = storedFief({
     address: { kingdom: 1, province: 1, plot: 1 },
-    units: { infantry: 10, cavalry: 0, settler: 0 },
+    units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
   }).dispatchAttack(
     {
       province: 2,
       plot: campPlotOfProvinceTwo(tier),
-      units: { infantry: 10, cavalry: 0, settler: 0 },
+      units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
     },
     { tier, strength },
     storedInstant,
@@ -2054,7 +2054,7 @@ describe('resolveUpgrade with an attack', () => {
     assert(result.ok)
     const { fief } = result.value
     expect(fief.units.countOf('infantry')).toBe(6)
-    expect(fief.march).toMatchObject({ units: { infantry: 6, cavalry: 0, settler: 0 } })
+    expect(fief.march).toMatchObject({ units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 } })
     expect(fief.unitsAtHomeAt(arrival).countOf('infantry')).toBe(0)
   })
 
@@ -2170,7 +2170,7 @@ describe('resolveUpgrade with an attack', () => {
       storedAt: attacking.storedAt,
       buildingLevels: unbuiltLevels,
       artLevels: { smithing: 0, masonry: 0 },
-      units: { infantry: 10, cavalry: 0, settler: 0 },
+      units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       slot: { ...sawmillFinishingAfterHours(1), finishesAt: arrival },
       buildQueue: [],
       studySlot: { kind: 'idle' },
@@ -2187,7 +2187,7 @@ describe('resolveUpgrade with an attack', () => {
     expect(fief.units.countOf('infantry')).toBe(6)
     expect(fief.march).toMatchObject({
       fought: true,
-      units: { infantry: 6, cavalry: 0, settler: 0 },
+      units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
     })
     expect(events.map(({ kind, occurredAt }) => ({ kind, occurredAt }))).toEqual([
       { kind: 'upgradeFinished', occurredAt: arrival },
@@ -2208,7 +2208,7 @@ describe('resolveUpgrade with an attack', () => {
         plot: campPlotOfProvinceTwo(1),
         tier: 1,
         won: true,
-        unitsLost: { infantry: 4, cavalry: 0, settler: 0 },
+        unitsLost: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
         campLost: 6,
         occurredAt: arrivalOf(attacking),
       },
@@ -2228,7 +2228,7 @@ describe('resolveUpgrade with an attack', () => {
         plot: campPlotOfProvinceTwo(2),
         tier: 2,
         won: false,
-        unitsLost: { infantry: 10, cavalry: 0, settler: 0 },
+        unitsLost: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         campLost: 7,
         occurredAt: arrivalOf(attacking),
       },
@@ -2260,7 +2260,7 @@ describe('resolveUpgrade with an attack', () => {
       { kind: 'battleFought', won: true, occurredAt: arrivalOf(attacking) },
       {
         kind: 'marchReturned',
-        units: { infantry: 6, cavalry: 0, settler: 0 },
+        units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
         loot: { wood: 96, stone: 96, gold: 96 },
         recalled: false,
         occurredAt: returned,
@@ -2312,7 +2312,7 @@ describe('resolveUpgrade with an attack', () => {
     expect(fiefs.storedFiefOf('fief-1')?.units.countOf('infantry')).toBe(6)
     expect(fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       fought: true,
-      units: { infantry: 6, cavalry: 0, settler: 0 },
+      units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 },
     })
     expect(recorded).toHaveLength(1)
   })
@@ -2335,7 +2335,7 @@ describe('resolveUpgrade with an attack', () => {
         {
           province: 2,
           plot: campPlotOfProvinceTwo(1),
-          units: { infantry: 10, cavalry: 0, settler: 0 },
+          units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
         },
         { tier: 1, strength: 6 },
         storedInstant,
@@ -2419,7 +2419,7 @@ describe('resolveUpgrade with an attack', () => {
       expect(result.value.events).toMatchObject([
         { kind: 'battleFought', won: true },
         { kind: 'recruitsDelivered', unit: 'infantry', count: 10 },
-        { kind: 'marchReturned', units: { infantry: 6, cavalry: 0, settler: 0 } },
+        { kind: 'marchReturned', units: { infantry: 6, cavalry: 0, archer: 0, settler: 0 } },
       ])
       expect(result.value.fief.units.countOf('infantry')).toBe(26)
     })
@@ -2429,9 +2429,13 @@ describe('resolveUpgrade with an attack', () => {
 const mixedAttackingFief = (): Fief => {
   const dispatched = storedFief({
     address: { kingdom: 1, province: 3, plot: 12 },
-    units: { infantry: 12, cavalry: 6, settler: 0 },
+    units: { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
   }).dispatchAttack(
-    { province: 2, plot: campPlotOfProvinceTwo(1), units: { infantry: 2, cavalry: 3, settler: 0 } },
+    {
+      province: 2,
+      plot: campPlotOfProvinceTwo(1),
+      units: { infantry: 2, cavalry: 3, archer: 0, settler: 0 },
+    },
     { tier: 1, strength: 6 },
     storedInstant,
     fiefSettings,
@@ -2452,7 +2456,7 @@ describe('resolveUpgrade with a party of several kinds', () => {
     expect([fief.units.countOf('infantry'), fief.units.countOf('cavalry')]).toEqual([10, 4])
     expect(fief.march).toMatchObject({
       fought: true,
-      units: { infantry: 0, cavalry: 1, settler: 0 },
+      units: { infantry: 0, cavalry: 1, archer: 0, settler: 0 },
     })
   })
 
@@ -2463,7 +2467,11 @@ describe('resolveUpgrade with a party of several kinds', () => {
 
     assert(result.ok)
     expect(result.value.events).toMatchObject([
-      { kind: 'battleFought', won: true, unitsLost: { infantry: 2, cavalry: 2, settler: 0 } },
+      {
+        kind: 'battleFought',
+        won: true,
+        unitsLost: { infantry: 2, cavalry: 2, archer: 0, settler: 0 },
+      },
     ])
   })
 
@@ -2478,7 +2486,7 @@ describe('resolveUpgrade with a party of several kinds', () => {
       { kind: 'battleFought' },
       {
         kind: 'marchReturned',
-        units: { infantry: 0, cavalry: 1, settler: 0 },
+        units: { infantry: 0, cavalry: 1, archer: 0, settler: 0 },
         loot: { wood: 40, stone: 40, iron: 0, gold: 40, food: 0 },
         occurredAt: returned,
       },

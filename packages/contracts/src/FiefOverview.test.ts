@@ -88,6 +88,12 @@ const cavalryTerms = {
   perUnitSeconds: 150,
 }
 
+const archerTerms = {
+  cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+  peasants: 1,
+  perUnitSeconds: 75,
+}
+
 const settlerTerms = {
   cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
   peasants: 4,
@@ -107,7 +113,7 @@ const awayMarch = {
   province: 2,
   plot: 5,
   terrain: 'uplands',
-  units: { infantry: 5, cavalry: 0, settler: 0 },
+  units: { infantry: 5, cavalry: 0, archer: 0, settler: 0 },
   stayHours: 2,
   departedAt: '2026-09-22T14:00:00.000Z',
   oneWaySeconds: 840,
@@ -136,7 +142,7 @@ const foundingMarch = {
   ...attackMarch,
   order: 'found',
   name: 'Sotoverde del Páramo',
-  units: { infantry: 0, cavalry: 0, settler: 1 },
+  units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
   loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
   camp: null,
   fought: false,
@@ -147,7 +153,7 @@ const transportMarch = {
   order: 'transport',
   toFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
-  units: { infantry: 0, cavalry: 6, settler: 0 },
+  units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
   loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
   camp: null,
   fought: false,
@@ -183,6 +189,7 @@ const shippedForageTerms = {
 const shippedUnitTerms = {
   infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
   cavalry: { strength: 2, carry: 120, roadPercent: 50, barracksLevel: 3 },
+  archer: { strength: 1, carry: 24, roadPercent: 100, barracksLevel: 2 },
   settler: { strength: 0, carry: 0, roadPercent: 100, barracksLevel: 5 },
 }
 
@@ -222,9 +229,14 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   study: { kind: 'idle' },
   arts: twoArts,
   season: autumnOfYearOne,
-  units: { infantry: 4, cavalry: 2, settler: 0 },
+  units: { infantry: 4, cavalry: 2, archer: 0, settler: 0 },
   recruitOrder: openOrder,
-  recruitTerms: { infantry: infantryTerms, cavalry: cavalryTerms, settler: settlerTerms },
+  recruitTerms: {
+    infantry: infantryTerms,
+    cavalry: cavalryTerms,
+    archer: archerTerms,
+    settler: settlerTerms,
+  },
   unitTerms: shippedUnitTerms,
   march: awayMarch,
   forageTerms: shippedForageTerms,
@@ -490,7 +502,7 @@ describe('FiefOverviewSchema', () => {
   it('rejects a march with no unit', () => {
     const overviewWithEmptyMarch = {
       ...overviewWithSlot(busySlot),
-      march: { ...awayMarch, units: { infantry: 0, cavalry: 0, settler: 0 } },
+      march: { ...awayMarch, units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 } },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithEmptyMarch).success).toBe(false)
@@ -586,6 +598,7 @@ describe('FiefOverviewSchema', () => {
     expect(FiefOverviewSchema.parse(overviewWithSlot(busySlot)).unitTerms).toEqual({
       infantry: { strength: 1, carry: 48, roadPercent: 100, barracksLevel: 1 },
       cavalry: { strength: 2, carry: 120, roadPercent: 50, barracksLevel: 3 },
+      archer: { strength: 1, carry: 24, roadPercent: 100, barracksLevel: 2 },
       settler: { strength: 0, carry: 0, roadPercent: 100, barracksLevel: 5 },
     })
   })

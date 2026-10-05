@@ -33,7 +33,7 @@ const barracksAt = (level: number): FiefOverview => ({
     ...knownFief.buildings,
     barracks: { ...knownFief.buildings.barracks, level },
   },
-  units: { infantry: 12, cavalry: 0, settler: 0 },
+  units: { infantry: 12, cavalry: 0, archer: 0, settler: 0 },
 })
 
 const barracksAtFiveWithSettlerStocks: FiefOverview = {

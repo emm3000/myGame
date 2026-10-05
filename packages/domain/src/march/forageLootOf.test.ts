@@ -12,6 +12,7 @@ const unscaled = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
   infantry,
   cavalry,
+  archer: 0,
   settler: 0,
 })
 

@@ -48,7 +48,7 @@ const seasons: Readonly<Record<SeasonKind, NonNullable<FiefOverview['season']>>>
 
 const fiefIn = (
   season: FiefOverview['season'],
-  units: FiefOverview['units'] = { infantry: 12, cavalry: 6, settler: 0 },
+  units: FiefOverview['units'] = { infantry: 12, cavalry: 6, archer: 0, settler: 0 },
 ): FiefOverview => ({ ...knownFief, season, units })
 
 const provinceOf = (
@@ -198,7 +198,7 @@ it('shortens the attack road and keeps its loot', async () => {
   const form = await openAttackOn(
     uplandsWithCamp,
     7,
-    fiefIn(seasons.autumn, { infantry: 10, cavalry: 0, settler: 0 }),
+    fiefIn(seasons.autumn, { infantry: 10, cavalry: 0, archer: 0, settler: 0 }),
   )
 
   type(form, 'Infantes a enviar', '10')

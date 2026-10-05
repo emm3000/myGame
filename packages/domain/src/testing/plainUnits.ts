@@ -19,6 +19,15 @@ export const plainUnits: FiefSettings['units'] = {
     roadPercent: 50,
     barracksLevel: 3,
   },
+  archer: {
+    cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
+    durationSeconds: 150,
+    peasantOccupancy: 1,
+    strength: 1,
+    carry: 24,
+    roadPercent: 100,
+    barracksLevel: 2,
+  },
   settler: {
     cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
     durationSeconds: 7200,
