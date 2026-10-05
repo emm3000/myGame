@@ -275,6 +275,31 @@ it('names both kinds on the march card', async () => {
   ).not.toBeNull()
 })
 
+const threeKindMarchUnderway = (): FiefOverview => {
+  const underway = answeredNow(marchUnderway)
+  return {
+    ...underway,
+    units: { infantry: 16, cavalry: 10, archer: 10, settler: 0 },
+    march:
+      underway.march === null
+        ? null
+        : { ...underway.march, units: { infantry: 12, cavalry: 6, archer: 10, settler: 0 } },
+  }
+}
+
+it('names three kinds on the march card', async () => {
+  await showFief({ fief: async () => ({ ok: true, value: threeKindMarchUnderway() }) })
+
+  expect(
+    phaseLine('Marcha de ida: 12 infantes, 6 jinetes y 10 arqueros a provincia 2, parcela 5'),
+  ).not.toBeNull()
+  expect(
+    within(armySection()).queryByRole('button', {
+      name: 'Retirar la marcha: 12 infantes, 6 jinetes y 10 arqueros',
+    }),
+  ).not.toBeNull()
+})
+
 it('counts the riders away on their card', async () => {
   await showFief({ fief: async () => ({ ok: true, value: mixedMarchUnderway() }) })
 

@@ -1,5 +1,6 @@
 import type { UnitKind } from '@mygame/contracts'
 import type { ReactElement } from 'react'
+import { ArcherIcon } from './icons/ArcherIcon'
 import { CavalryIcon } from './icons/CavalryIcon'
 import { InfantryIcon } from './icons/InfantryIcon'
 import { SettlerIcon } from './icons/SettlerIcon'
@@ -7,6 +8,6 @@ import { SettlerIcon } from './icons/SettlerIcon'
 export const unitIconOf: Readonly<Record<UnitKind, () => ReactElement>> = {
   infantry: InfantryIcon,
   cavalry: CavalryIcon,
-  archer: InfantryIcon,
+  archer: ArcherIcon,
   settler: SettlerIcon,
 }
