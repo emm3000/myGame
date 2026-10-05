@@ -16,6 +16,7 @@ WORKDIR /app
 COPY --from=build /deploy/package.json ./
 COPY --from=build /deploy/node_modules ./node_modules
 COPY --from=build /repo/apps/web/server.ts ./
+COPY --from=build /repo/apps/web/src/production/webServerOptionsOf.ts ./src/production/
 COPY --from=build /repo/apps/web/dist ./dist
 USER node
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD ["node", "-e", "fetch(`http://127.0.0.1:${process.env.WEB_PORT}/sign-in`).then((response) => process.exit(response.ok ? 0 : 1), () => process.exit(1))"]
