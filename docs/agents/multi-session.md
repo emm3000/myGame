@@ -49,6 +49,7 @@ Every dispatch to a peer session must include:
 - The line: *"The issue's acceptance criteria are the contract and win over any file list here; run every criterion check before opening the PR."* Prefer criteria phrased as a command with expected empty output.
 - The file list (`fd -e ts`) and their tests, plus the pre-scoped blockers. For a move or refactor, a dependency-closure directive: transitive imports mapped from the consuming layer, non-platform dependencies co-moved.
 - Gates: `pnpm gate` green before every commit; conventional commits; no `Co-Authored-By` (a PreToolUse hook in `.claude/settings.json` blocks it); English code and docs, Spanish only for UI copy; `rg` / `fd` / `bat` / `sd` / `eza`; gotchas saved to engram.
+- For an infra ticket, the gate is the ticket's own checks, named in the dispatch, since `emm3000/infra` has no `pnpm gate`. Its peer runs outside this repo, so myGame's `.claude/settings.json` and its `Co-Authored-By` hook do not load there: the dispatch states the no-trailer rule in its own words.
 - For any ticket that adds or changes behavior (a use case, a route, a derived state, a component rule), an instruction to load `mattpocock-skills:tdd` and work red, green, refactor, writing the failing behavior test before the code. Pure layout, copy or restyle tickets skip it.
 - For any screen-touching ticket, a visual check: run the web app locally, capture every changed screen and state with the `playwright` MCP server declared in `.mcp.json` (its `browser_take_screenshot` tool, headless, works in any worktree) and publish the images on a branch named `assets/<N>-visual-check`, with the PR head short SHA in every file name (`fief-<sha>.png`), linked in the PR body with `raw.githubusercontent.com` URLs; the `gh` CLI cannot attach images to a PR. Add the image files explicitly, never `git add -A`: `git checkout --orphan` leaves the previous branch's working files on disk. The assets branch is deleted when the cycle closes. Evidence a criterion turns on goes in the PR body in full: the reviewer reads the PR. When a criterion is a measurement, quote the lines rather than the conclusion drawn from them.
 - An instruction to keep the slice small and stop and report instead of expanding scope.
@@ -72,7 +73,7 @@ Every dispatch to a peer session must include:
 ## Isolation: the infra repo
 
 - A ticket whose first line is `Target repo: emm3000/infra` boots with `name:model:effort:infra`, so its peer works in `../infra-<name>`, a worktree of the `../infra` clone.
-- Its branch and PR live in `emm3000/infra`: the peer runs `git switch -c <branch> origin/main` there and opens the PR against `main`.
+- Its branch and PR live in `emm3000/infra`: the peer runs `git fetch` + `git switch -c <branch> origin/main` there and opens the PR against `main`.
 - The ticket stays an issue in `emm3000/myGame`, so the PR body says `Closes emm3000/myGame#<n>`.
 - Cleanup runs the Between tickets steps against the clone: `git -C ../infra worktree remove ../infra-<name>`, `git -C ../infra branch -D <branch>`, `git -C ../infra worktree prune`.
 
