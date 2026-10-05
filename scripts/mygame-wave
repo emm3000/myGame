@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-usage="usage: scripts/mygame-wave [--terminal herdr|warp|manual] <name>:<model>:<effort> [...]"
+usage="usage: scripts/mygame-wave [--terminal herdr|warp|manual] <name>:<model>:<effort>[:infra] [...]"
 
 terminal=""
 if [[ "${1:-}" == --terminal ]]; then
@@ -18,9 +18,9 @@ repo="${0:A:h:h}"
 
 names=()
 for spec in "$@"; do
-  IFS=':' read -r name model effort <<< "$spec"
-  if [[ -z "${name:-}" || -z "${model:-}" || -z "${effort:-}" ]]; then
-    echo "bad spec: $spec (expected name:model:effort)" >&2
+  IFS=':' read -r name model effort target <<< "$spec"
+  if [[ -z "${name:-}" || -z "${model:-}" || -z "${effort:-}" || ! "${target:-}" =~ ^(infra)?$ ]]; then
+    echo "bad spec: $spec (expected name:model:effort[:infra])" >&2
     exit 64
   fi
   names+=("$name")
@@ -35,9 +35,9 @@ if [[ -z "$terminal" ]]; then
 fi
 
 session_command() {
-  local name model effort
-  IFS=':' read -r name model effort <<< "$1"
-  echo "scripts/mygame-session $name $model $effort; exit"
+  local name model effort target
+  IFS=':' read -r name model effort target <<< "$1"
+  echo "scripts/mygame-session $name $model $effort${target:+ $target}; exit"
 }
 
 open_warp() {

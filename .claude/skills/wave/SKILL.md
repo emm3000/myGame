@@ -46,11 +46,11 @@ Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a ro
 
 ## Execution Steps
 
-1. For each issue run `gh issue view <n> --json title,labels,body`. Confirm the label and derive a short lowercase pane name from the title (one word, no digits).
+1. For each issue run `gh issue view <n> --json title,labels,body`. Confirm the label and derive a short lowercase pane name from the title (one word, no digits). A body whose first line is `Target repo: emm3000/infra` marks an infra ticket.
 2. Classify each ticket with the table. The table binds: deviate only with a one-line reason stated in the plan, never silently. Tell the owner the plan in one line per ticket: `@<name> #<n> <model>:<effort>`, before booting anything.
-3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
+3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket, appending `:infra` to the spec of an infra ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
 4. Poll `ListAgents` until every pane name is listed, at most 60 seconds.
-5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
+5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>` (`../infra-<name>` for an infra ticket), its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. An infra ticket's branch and PR live in `emm3000/infra`, branched from `origin/main`, and its PR body says `Closes emm3000/myGame#<n>`; at cycle close its cleanup is `git -C ../infra worktree remove ../infra-<name>`. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
 6. Report to the owner in one or two lines: peers booted, tickets dispatched.
 
 ## Output Contract
@@ -62,4 +62,4 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 - `docs/agents/multi-session.md` — dispatch checklist, isolation, review cycle.
 - `docs/agents/dispatch-log.md` — the outcomes per table row.
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
-- `scripts/mygame-session` — worktree plus `claude` launcher.
+- `scripts/mygame-session` — worktree plus `claude` launcher; `infra` as the fourth argument for a worktree of `emm3000/infra`.

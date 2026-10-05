@@ -1,22 +1,37 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-if (( $# != 3 )); then
-  echo "usage: scripts/mygame-session <name> <model> <effort>" >&2
+if (( $# < 3 || $# > 4 )) || [[ $# == 4 && "$4" != infra ]]; then
+  echo "usage: scripts/mygame-session <name> <model> <effort> [infra]" >&2
   exit 64
 fi
 
 name="$1"
 model="$2"
 effort="$3"
+target="${4:-}"
 repo="${0:A:h:h}"
-worktree="${repo:h}/mygame-$name"
+
+if [[ "$target" == infra ]]; then
+  main_repo="${repo:h}/infra"
+  worktree="${repo:h}/infra-$name"
+  base=origin/main
+  if [[ ! -d "$main_repo" ]]; then
+    gh repo clone emm3000/infra "$main_repo"
+  fi
+else
+  main_repo="$repo"
+  worktree="${repo:h}/mygame-$name"
+  base=origin/trunk
+fi
 
 if [[ ! -d "$worktree" ]]; then
-  git -C "$repo" fetch -q origin
-  git -C "$repo" worktree add --detach "$worktree" origin/trunk
+  git -C "$main_repo" fetch -q origin
+  git -C "$main_repo" worktree add --detach "$worktree" "$base"
 fi
 
 cd "$worktree"
-pnpm install --frozen-lockfile --silent
+if [[ "$target" != infra ]]; then
+  pnpm install --frozen-lockfile --silent
+fi
 exec claude -n "$name" --model "$model" --effort "$effort" --permission-mode bypassPermissions

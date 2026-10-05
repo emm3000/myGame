@@ -57,8 +57,8 @@ Every dispatch to a peer session must include:
 ## Launching peers
 
 - `/wave <issue numbers>` is the only entry point, whether the owner types it or the orchestrator invokes it for the next wave: it classifies each ticket with the skill table, states `@<name> #<n> <model>:<effort>` to the owner before booting (deviations from the table carry a one-line reason), runs `scripts/mygame-wave`, waits for the peers in `ListAgents` and dispatches. The skill lives in `.claude/skills/wave/SKILL.md`.
-- `scripts/mygame-wave name:model:effort [...]` opens one pane per peer, side by side, each running `scripts/mygame-session`. The terminal comes from `--terminal herdr|warp|manual` as the first argument and otherwise from `TERM_PROGRAM`. herdr: a `mygame-wave` tab in the orchestrator's workspace, panes split right at equal widths and labelled by peer name; the herdr server must be running. Warp: writes `~/.warp/tab_configs/mygame-wave.toml` and opens it with `open "warp://tab_config/mygame-wave"`, a new tab in the active Warp window. Any other terminal: `manual`, which prints the launch lines instead of opening anything. Peers are found by `ListAgents` either way: the `claude -n <name>` session name, not the terminal, is the address.
-- `scripts/mygame-session name model effort` creates the detached worktree `../mygame-<name>` from `origin/trunk` when missing, runs `pnpm install --frozen-lockfile` there, then runs `claude -n <name> --model <model> --effort <effort> --permission-mode bypassPermissions` inside it. The peer creates its ticket branch with `git switch -c`.
+- `scripts/mygame-wave name:model:effort[:infra] [...]` opens one pane per peer, side by side, each running `scripts/mygame-session`. The terminal comes from `--terminal herdr|warp|manual` as the first argument and otherwise from `TERM_PROGRAM`. herdr: a `mygame-wave` tab in the orchestrator's workspace, panes split right at equal widths and labelled by peer name; the herdr server must be running. Warp: writes `~/.warp/tab_configs/mygame-wave.toml` and opens it with `open "warp://tab_config/mygame-wave"`, a new tab in the active Warp window. Any other terminal: `manual`, which prints the launch lines instead of opening anything. Peers are found by `ListAgents` either way: the `claude -n <name>` session name, not the terminal, is the address.
+- `scripts/mygame-session name model effort [infra]` creates the detached worktree `../mygame-<name>` from `origin/trunk` when missing, runs `pnpm install --frozen-lockfile` there, then runs `claude -n <name> --model <model> --effort <effort> --permission-mode bypassPermissions` inside it. The peer creates its ticket branch with `git switch -c`. With `infra` it clones `emm3000/infra` to `../infra` once if missing, creates the detached worktree `../infra-<name>` from `origin/main` instead and skips `pnpm install` (see Isolation: the infra repo).
 
 ## Isolation: worktrees
 
@@ -68,6 +68,13 @@ Every dispatch to a peer session must include:
 - Review and verification prompts are read-only on every existing checkout. If a build must run on a branch, or a red/green check needs a source edit, use a throwaway worktree under the session scratchpad and remove it afterward.
 - `git checkout trunk` fails inside a worktree while the primary worktree is already on `trunk`; use `git fetch` + `git switch -c <branch> origin/trunk` instead.
 - Cleanup is part of closing the cycle, not a later chore (see Between tickets).
+
+## Isolation: the infra repo
+
+- A ticket whose first line is `Target repo: emm3000/infra` boots with `name:model:effort:infra`, so its peer works in `../infra-<name>`, a worktree of the `../infra` clone.
+- Its branch and PR live in `emm3000/infra`: the peer runs `git switch -c <branch> origin/main` there and opens the PR against `main`.
+- The ticket stays an issue in `emm3000/myGame`, so the PR body says `Closes emm3000/myGame#<n>`.
+- Cleanup runs the Between tickets steps against the clone: `git -C ../infra worktree remove ../infra-<name>`, `git -C ../infra branch -D <branch>`, `git -C ../infra worktree prune`.
 
 ## Isolation: ports and databases
 
