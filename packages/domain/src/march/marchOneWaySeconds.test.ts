@@ -21,7 +21,11 @@ const homePlot = plotOf(3, 12)
 
 const uplandsPlot = plotOf(2, 7)
 
-const armyOf = (infantry: number, cavalry: number, archer: number): UnitCountsByKind => ({
+const partyWithArchersOf = (
+  infantry: number,
+  cavalry: number,
+  archer: number,
+): UnitCountsByKind => ({
   infantry,
   cavalry,
   archer,
@@ -76,7 +80,11 @@ describe('marchOneWaySeconds', () => {
   })
 
   it('times archers at the infantry pace', () => {
-    expect(marchOneWaySeconds(homePlot, uplandsPlot, armyOf(0, 0, 10), shippedTerms, 100)).toBe(900)
-    expect(marchOneWaySeconds(homePlot, uplandsPlot, armyOf(0, 6, 4), shippedTerms, 100)).toBe(900)
+    expect(
+      marchOneWaySeconds(homePlot, uplandsPlot, partyWithArchersOf(0, 0, 10), shippedTerms, 100),
+    ).toBe(900)
+    expect(
+      marchOneWaySeconds(homePlot, uplandsPlot, partyWithArchersOf(0, 6, 4), shippedTerms, 100),
+    ).toBe(900)
   })
 })

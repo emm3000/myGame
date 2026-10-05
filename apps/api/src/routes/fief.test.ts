@@ -2940,15 +2940,6 @@ describe('the fief route', () => {
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.march).toBeNull()
     })
-  })
-
-  describe('a party with archers', () => {
-    const post = async (lord: Lord, path: string, body: unknown): Promise<Response> =>
-      app.request(pathOf(lord, path), {
-        method: 'POST',
-        headers: { cookie: lord.cookie, 'content-type': 'application/json' },
-        body: JSON.stringify(body),
-      })
 
     const signUpWithTwoInfantryTwoRidersAndTenArchers = async (): Promise<SignedUpPlayer> => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
@@ -2959,13 +2950,6 @@ describe('the fief route', () => {
         UNION ALL SELECT id, 'cavalry'::unit, 2 FROM fiefs
         UNION ALL SELECT id, 'archer'::unit, 10 FROM fiefs`)
       return ana
-    }
-
-    const awayMarchOf = async (response: Response): Promise<NonNullable<FiefOverview['march']>> => {
-      expect(response.status).toBe(200)
-      const { march } = FiefOverviewSchema.parse(await response.json())
-      assert(march !== null)
-      return march
     }
 
     it('sends archers on a forage and brings their loot', async () => {
