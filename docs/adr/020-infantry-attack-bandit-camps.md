@@ -458,3 +458,22 @@ Nothing else here changes: the camps, their hash, tiers and regrowth,
 the whole outcome fixed at dispatch, the battle at the arrival, the
 recall only outbound and the eight event kinds stand. "No season touches
 combat" stands, and a season on combat stays out of scope.
+
+## Third amendment (2026-10-05)
+
+S20 (ADR 025) sends a third fighting kind on an attack, the archer, of
+strength 1 and carry 24 as shipped. The first amendment's "taken from
+the infantry first and then from the cavalry" gains a third step: the
+points left after the infantry and the cavalry are taken from the
+archers, `min(nₖ, ceil(rest / sₖ))` as for any kind, and `battleOf` is
+unedited. With the shipped content 2 infantry, 2 riders and 3 archers
+against a tier 1 camp at 6 lose 2 infantry and 1 rider and bring 64 of
+each of three resources; 1 infantry, 1 rider and 4 archers lose the
+infantry, the rider and 3 archers and bring 8 of each; 10 archers alone
+lose 4 and bring 48 of each; 5 archers alone all fall and the camp
+keeps 1. A battle row stores its losses in `archer_count` beside the
+other counts (migration 0027). Every outcome without archers stands,
+10 infantry against 6 still losing 4 and bringing 96 of each. Nothing
+else here changes: the camps, their hash, tiers and regrowth, the
+strength fixed at dispatch, the battle at the arrival and the recall
+only outbound stand, and no season touches combat.

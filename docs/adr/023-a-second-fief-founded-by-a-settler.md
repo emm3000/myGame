@@ -575,3 +575,16 @@ stocks now meet through a transport. Nothing else here changes: the cap
 is 2, units never move between the fiefs, and the two gaps on the cap
 count and on the lock stand before a cap above 2, with ADR 024's
 two-fief lock beside them.
+
+## Second amendment (2026-10-05)
+
+S20 (ADR 025) puts the archer before the settler in the kinds' order:
+`UnitKind` is `infantry | cavalry | archer | settler`. "The settler is
+the third unit kind, last in the kinds' order" now reads the fourth kind
+in the order, still the last, and the army section draws "the settler's
+card third" as the fourth of four. The settler is still the third kind
+that joined, in S18. Its terms, its barracks level 5 and the founding of
+one settler alone stand: `fief_marches_order_terms` holds a founding at
+`archer_count` 0 beside the infantry's and the cavalry's (migration
+0027), and `refuseUnfitUnits` still refuses a settler, and no other
+kind, on a forage, an attack and a transport. Nothing else here changes.

@@ -408,3 +408,16 @@ time.
   more than two fiefs, stationing or moving units between fiefs,
   transport to another lord, a market, a carry bonus from an art or a
   season, any image but the convoy.
+
+## Amendment (2026-10-05)
+
+S20 (ADR 025) adds a third carrier: "The carriers are the infantry,
+carry 48, and the cavalry, carry 120" in the decision "The transport is
+the fourth march order" now counts the archer, carry 24. "There is no
+new unit kind" stands of the transport, which has no carrier kind of
+its own. `carryOf` and `refuseUnfitUnits` are unedited: 10 archers carry a cargo
+of 240, and 241 is refused `CargoAboveCarry { cargo: 241, carry: 240
+}`; a settler is still refused. The store's check on a transport still
+holds `settler_count` at 0 alone (migration 0027). The form's archer
+count is drawn in the mockup of #433 and is to be pinned by #436. Nothing else
+here changes.

@@ -469,3 +469,36 @@ a line with no level and no unit that no screen shows. Nothing else
 here changes: the party, the road of the slowest kind, the carry, the
 battle, the losses infantry first and the attack loot stand, and
 archers and rams stay content of a later slice.
+
+## Third amendment (2026-10-05)
+
+S20 (ADR 025) adds the fourth kind, `archer`, third in the kinds' order:
+`UnitKind` is `infantry | cavalry | archer | settler`, and the settler
+stays last. The consequence "A third kind touches no formula and no wire
+shape" held again, of the terms too: the archer took its content, an
+entry in `byUnitKind` and in `UnitKindSchema`, a value in the enum
+`unit`, an `archer_count` on `fief_marches` and on `fief_events` with
+their checks (migration 0027), its label and its icon, and `battleOf`,
+`attackLootOf`, `carryOf`, `forageLootOfMilliseconds`,
+`marchOneWaySeconds` and `refuseUnfitUnits` are unedited.
+
+Its place in the order fixes when its units fall, as that consequence
+said: the decision "The battle sums the strength, and the infantry fall
+first" now walks three fighting kinds, and a winner's losses fall on the
+infantry, then on the cavalry, then on the archers, who pay the points
+left at 1 an archer as shipped. Every result above stands. With archers
+sent, a won battle always brings an archer home, and with the shipped
+strength of 1 the rule that spares the last kind reached fires only for
+a party without them (ADR 025).
+
+Archers leave the later-slice list: "Archers and rams stay content of a
+later slice" in the decision "Nothing else changes", "archers and rams
+stay content of a later slice" in the second amendment and "archers,
+rams" in the out-of-scope line of the Consequences now hold of rams
+alone, which stay deferred. The first considered option stands for
+rams, PvP, scouting and a march that meets another lord. The army
+section draws four cards, the archer's third and locked below barracks
+2 in the lines of the rider's lock. Nothing else here changes: the
+party, the road of the slowest kind, the forage per head, the summed
+carry and strength, the units away per kind and the wire's shapes
+stand.
