@@ -7,7 +7,9 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - `WEB_PORT=<port> API_PORT=<port> pnpm --filter @mygame/web dev` — dev server on `WEB_PORT`. The port has no default and `strictPort` is on: an unset or busy port fails instead of drifting. `/api/*` is proxied to the api on `API_PORT` with the `/api` prefix stripped, so the session cookie is same-origin.
 - `pnpm --filter @mygame/web test` — Vitest in jsdom, `src/**/*.test.{ts,tsx}`; `vitest.setup.ts` runs Testing Library cleanup after each test.
 - `pnpm --filter @mygame/web typecheck` — `tsc --noEmit`.
-- `pnpm --filter @mygame/web build` — production build into `dist/`.
+- `pnpm --filter @mygame/web build` — production build into `dist/`: `dist/client/` holds the static files (`assets/` with hashed names, `art/` from `public/`), and `dist/server/server.js` default-exports a `{ fetch }` handler with no listener. `WEB_PORT` and `API_PORT` are not read.
+- `WEB_PORT=<port> pnpm --filter @mygame/web start` — the production entry, `server.ts`, run by Node's type stripping: srvx on `WEB_PORT` (no default, an unset port fails at start-up) serves `dist/client`, with a one-year `immutable` `cache-control` on `/assets/`, and hands every other request to `dist/server/server.js`. It never proxies `/api`; Caddy routes it to the api in production (#444).
+- `docker build -f apps/web/Dockerfile -t mygame-web .` from the repo root, with `apps/web/Dockerfile.dockerignore` — the production image: `pnpm deploy --prod` carries only the `dependencies` `dist/server/server.js` imports (react, react-dom, `@tanstack/react-router`, zod) and srvx, so a package the bundle inlines (`@tanstack/react-start`, `@mygame/contracts`) stays in `devDependencies`. It runs as `node` and fails without `WEB_PORT`.
 
 ## Layout
 
@@ -43,6 +45,7 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - Tailwind's default colours and spacing multiplier are replaced by the tokens, so `bg-red-500` or `p-5` emit nothing; breakpoints stay Tailwind's defaults.
 - `src/design/tailwindTheme.ts` has a default export, the single exception to "named exports only": Tailwind's `@plugin` reads `module.default ?? module` and needs the plugin object there (ADR 009).
 - `tailwindcss()` is the first Vite plugin, before `tanstackStart()`.
+- Tailwind's source detection skips what the root `.gitignore` names. Without it the server build scans the `dist/client/` the client build just wrote, emits a stylesheet with another hash, and the SSR head links a `/assets/styles-*.css` that answers 404. The image's build context carries `.gitignore` for that reason.
 - pnpm refuses packages younger than its minimum release age. Pin the newest version old enough instead of adding a `minimumReleaseAgeExclude` entry.
 - `copy.refusals.FiefCapReached` keeps the shipped cap written in, *Solo puedes tener 2 feudos. Deja al colono en casa.*, only because the record is keyed by every `ApiRefusal`; the map reads the api's `message` for that kind instead (`marchRefusalLineOf`). `PlotReserved` reads *Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.*
 - A founding fixture carries `order: 'found'`, a `name`, one settler, `stayHours: 0`, `arrivesAt` equal to `leavesAt`, `returnsAt` one more way after, `camp: null` and `fought: false`; a recalled one carries `arrivesAt` and `leavesAt` at `recalledAt` and `returnsAt` as long after as the settler walked, as the domain's `marchInstantsOf` answers.
