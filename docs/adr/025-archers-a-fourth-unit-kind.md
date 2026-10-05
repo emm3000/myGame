@@ -8,30 +8,31 @@ date: 2026-10-05
 
 PRD W1 kept armies, marches and combat out of the phase. ADR 018 to ADR
 021 reopened it for recruiting, forage marches, attacks on bandit camps
-and a second unit kind, and ADR 018 and ADR 021 left archers and rams
-as content of a later slice. ADR 021 rebuilt every single-kind shape into a
+and a second unit kind, and ADR 018 and ADR 021 left archers and rams as
+content of a later slice. ADR 021 rebuilt every single-kind shape into a
 record over `UnitKind` and closed with a recipe: a new kind touches no
-formula and no wire shape; it needs its content, an entry in `byUnitKind`
-and in `UnitKindSchema`, a value in the enum `unit`, a count column on
-`fief_marches` and on `fief_events` with their checks, its label and its
-icon, and its "place in the order is a decision: it fixes when its units
-fall". ADR 023 then added the settler as the third kind, last in the
-order, of strength 0 and in no fighting party, and ADR 024 let the
-infantry and the cavalry carry a transport. With two fighting kinds a
-won battle has one shape: the infantry pay first and the riders after
-them. S20 reopens W1 one step further, for a third fighting kind whose
-one role is where it stands in that order. The obvious designs pull in
-what the earlier ADRs ruled out: a volley before the lines meet or kinds
-that counter each other, when ADR 020 fixed the whole outcome at dispatch
-from one deterministic function the form previews; a loss order kept
-apart from the kinds' order, when ADR 021 gave the kinds one order; a
-strength, a pace or a barracks gate written in code, when N5 and ADR 008
-keep every term in content; a reset of the stored marches and events,
-when a schema change is a migration. The owner grilled and confirmed the
-slice on 2026-10-05 (#430), and its seven decisions bound the tickets;
-the ticketing wrote three defaults into #430, and the owner confirmed
-the kinds' order and the icon's drawing the same day. This ADR records
-what S20 shipped by PRs #439 to #441, the lore proposals of #431 (PR
+formula and no wire shape; it needs its content, an entry in
+`byUnitKind` and in `UnitKindSchema`, a value in the enum `unit`, a
+count column on `fief_marches` and on `fief_events` with their checks,
+its label and its icon, and its "place in the order is a decision: it
+fixes when its units fall". ADR 023 then added the settler as the third
+kind, last in the order, of strength 0 and in no fighting party, and ADR
+024 let the infantry and the cavalry carry a transport. With two
+fighting kinds a won battle has one shape: the infantry pay first and
+the riders after them. S20 reopens W1 one step further, for a third
+fighting kind whose one role is where it stands in that order. The
+obvious designs pull in what the earlier ADRs ruled out: a volley before
+the lines meet or kinds that counter each other, when ADR 020 fixed the
+whole outcome at dispatch from one deterministic function the form
+previews; a loss order kept apart from the kinds' order, when ADR 021
+gave the kinds one order; a strength, a pace or a barracks gate written
+in code, when N5 and ADR 008 keep every term in content; a reset of the
+stored marches and events, when a schema change is a migration. The
+owner grilled and confirmed the slice on 2026-10-05 (#430), and its
+seven decisions bound the tickets; the ticketing wrote three defaults
+into #430, and the owner confirmed the kinds' order and the icon's
+drawing the same day. This ADR records what S20 shipped by PRs #439 to
+#441, the lore proposals of #431 (PR
 #438) and the design of #433; the map's forms and the chronicle with
 three kinds are the work of #436, not merged when this was written, and
 are recorded from the mockup of #433, not as shipped.
@@ -80,34 +81,35 @@ are recorded from the mockup of #433, not as shipped.
   order is its one edge.
 - **An archer is recruited from built barracks level 2.** The recruit
   slot, the order, its delivery, its cancel and its events are those of
-  ADR 018 for any kind, and the gate is ADR 021's: `Fief.placeRecruitOrder`
-  refuses `BarracksTooLow { unit: 'archer', requiredBarracksLevel: 2,
-  barracksLevel }` at built barracks 1, after `BarracksNotBuilt` at 0,
-  and the api builds its line from the refusal's unit and level (ADR 021
-  as amended). The order occupies 1 peasant an archer from the instant
-  it is placed. The shipped `deriveUnitDurationSeconds` trains an archer
-  in 50 seconds at barracks 2 and in 38 ordered in a spring that trains
-  at 75 % (37.5 up), under the season train percent every kind takes
-  (ADR 017 as amended); 4 archers cost 160 wood, 40 iron, 20 gold and
-  160 food, occupy 4 peasants and are delivered over 200 seconds.
-- **Archers forage, attack and carry a transport** (Decision 4). A
-  party counts archers beside the infantry and the riders on those three
+  ADR 018 for any kind, and the gate is ADR 021's:
+  `Fief.placeRecruitOrder` refuses `BarracksTooLow { unit: 'archer',
+  requiredBarracksLevel: 2, barracksLevel }` at built barracks 1, after
+  `BarracksNotBuilt` at 0, and the api builds its line from the
+  refusal's unit and level (ADR 021 as amended). The order occupies 1
+  peasant an archer from the instant it is placed. The shipped
+  `deriveUnitDurationSeconds` trains an archer in 50 seconds at barracks
+  2 and in 38 ordered in a spring that trains at 75 % (37.5 up), under
+  the season train percent every kind takes (ADR 017 as amended); 4
+  archers cost 160 wood, 40 iron, 20 gold and 160 food, occupy 4
+  peasants and are delivered over 200 seconds.
+- **Archers forage, attack and carry a transport** (Decision 4). A party
+  counts archers beside the infantry and the riders on those three
   orders, and `refuseUnfitUnits` is unchanged: it refuses a settler and
-  nothing else, so a founding is still one settler alone. `roadPercentOf`,
-  `marchOneWaySeconds`, `forageLootOfMilliseconds`, `carryOf` and
-  `attackLootOf` already run over every kind and are unedited. With the
-  shipped content, from 3:12 to 2:7 on the uplands, a base road of 900
-  seconds, with the season's road and loot percents at 100: 10 archers
-  walk 900 seconds each way, and 6 riders with 4 archers 900, where the
-  6 riders alone ride 450; 10 archers forage 60 wood and 60 stone in 2
-  hours and 120 of each in 8, the share of their carry of 240; 12
-  infantry and 10 archers forage 408 of each in 8 hours, the share of a
-  carry of 816; 1 infantry, 1 rider and 4 archers who beat a camp at 6
-  bring 8 of each of three resources, the one archer's 24; 2 infantry, 2
-  riders and 3 archers bring 64 of each, a survivors' carry of 192; 10
-  archers alone bring 48 of each. On a transport 10 archers carry a
-  cargo of 240, and 241 is refused `CargoAboveCarry { cargo: 241, carry:
-  240 }`. The units away, the dead leaving the count and
+  nothing else, so a founding is still one settler alone.
+  `roadPercentOf`, `marchOneWaySeconds`, `forageLootOfMilliseconds`,
+  `carryOf` and `attackLootOf` already run over every kind and are
+  unedited. With the shipped content, from 3:12 to 2:7 on the uplands, a
+  base road of 900 seconds, with the season's road and loot percents at
+  100: 10 archers walk 900 seconds each way, and 6 riders with 4 archers
+  900, where the 6 riders alone ride 450; 10 archers forage 60 wood and
+  60 stone in 2 hours and 120 of each in 8, the share of their carry of
+  240; 12 infantry and 10 archers forage 408 of each in 8 hours, the
+  share of a carry of 816; 1 infantry, 1 rider and 4 archers who beat a
+  camp at 6 bring 8 of each of three resources, the one archer's 24; 2
+  infantry, 2 riders and 3 archers bring 64 of each, a survivors' carry
+  of 192; 10 archers alone bring 48 of each. On a transport 10 archers
+  carry a cargo of 240, and 241 is refused `CargoAboveCarry { cargo:
+  241, carry: 240 }`. The units away, the dead leaving the count and
   `NotEnoughUnitsAtHome` are ADR 021's per kind: the refusal names the
   first kind short in the kinds' order, so the archers only when neither
   the infantry nor the riders are short.
@@ -172,9 +174,9 @@ are recorded from the mockup of #433, not as shipped.
   the locked card's lines, the `BarracksTooLow` line for archers, the
   party phrase and the empty line with three kinds, the forms' lines and
   the chronicle lines are proposals for the author in
-  `docs/lore/names.md`, `docs/lore/world.md` and `docs/lore/chronicle.md`
-  (#431); `apps/web/src/copy.ts` and `apps/api/src/http/answerRefusal.ts`
-  mirror them until accepted.
+  `docs/lore/names.md`, `docs/lore/world.md` and
+  `docs/lore/chronicle.md` (#431); `apps/web/src/copy.ts` and
+  `apps/api/src/http/answerRefusal.ts` mirror them until accepted.
 - **Nothing else changes: no rams, no PvP, no scouting** (Decision 6
   and the Out of scope of #430). The camps, their strengths and their
   regrowth, the recall, which turns the whole party back, and the
@@ -252,8 +254,9 @@ are recorded from the mockup of #433, not as shipped.
   count column on two tables with their checks, the adapters' mapping,
   its label and its icon; no formula and no wire shape changed. The
   recipe's "three checks" are four since the founding of ADR 023 made
-  `fief_marches_order_terms` name each kind's count. A fifth kind, rams among them, follows the
-  same list, and its place in the order is again the decision.
+  `fief_marches_order_terms` name each kind's count. A fifth kind, rams
+  among them, follows the same list, and its place in the order is again
+  the decision.
 - With the shipped content an archer is an infantry in strength, pace
   and peasants with half its carry, dearer by 35 resources, 5 of them
   gold, and by 60 content seconds. A party of archers alone fights as
