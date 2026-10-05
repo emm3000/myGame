@@ -202,6 +202,22 @@ it('counts the carry as units are picked', async () => {
   expect(linesOf(form)[0]).toBe('Carga: 720 de 720')
 })
 
+it('counts the archers in the live carry', async () => {
+  const form = await openTransport({
+    fief: async () => ({
+      ok: true,
+      value: { ...sotoverde, units: { ...sotoverde.units, archer: 10 } },
+    }),
+  })
+
+  type(form, 'Infantes a enviar', '0')
+  type(form, 'Arqueros a enviar', '10')
+
+  expect(linesOf(form)[0]).toBe('Carga: 0 de 240')
+  loadCargo(form, '100', '80', '60')
+  expect(linesOf(form)[0]).toBe('Carga: 240 de 240')
+})
+
 it('previews the road of the slowest kind', async () => {
   const form = await openTransport()
 
