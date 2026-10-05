@@ -420,4 +420,4 @@ cargo of 240, and 241 is refused `CargoAboveCarry { cargo: 241, carry:
 240 }`; a settler is still refused. The store's check on a transport
 still holds `settler_count` at 0 alone (migration 0027). The form's
 archer count ships since PR #439, which maps the kinds a party takes,
-and #436 pins it. Nothing else here changes.
+and #436 (PR #442) pinned it. Nothing else here changes.

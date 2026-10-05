@@ -31,11 +31,11 @@ stored marches and events, when a schema change is a migration. The
 owner grilled and confirmed the slice on 2026-10-05 (#430), and its
 seven decisions bound the tickets; the ticketing wrote three defaults
 into #430, and the owner confirmed the kinds' order and the icon's
-drawing the same day. This ADR records what S20 shipped by PRs #439 to
-#441, the lore proposals of #431 (PR
-#438) and the design of #433; the map's forms and the chronicle with
-three kinds are the work of #436, not merged when this was written, and
-are recorded from the mockup of #433, not as shipped.
+drawing the same day. This ADR records what S20 shipped, PRs #439 to
+#442, the lore proposals of #431 (PR #438) and the design of #433; where
+the code stands over a ticket it records the code: the map's forms and
+the chronicle took the archer with the kind, in PR #439, and #436 (PR
+#442) pinned them with tests and changed no production code.
 
 ## Decision
 
@@ -141,35 +141,40 @@ are recorded from the mockup of #433, not as shipped.
   request's `units` needs the `archer` key, a body without it answering
   400 `MalformedRequest` as any incomplete party does (ADR 021). No kind
   joins `ApiErrorKindSchema`.
-- **Screens: the archer's card and icon are shipped; the forms and the
-  chronicle are drawn** (Decision 5; #433, PR #441, #436). `ArcherIcon`,
-  a strung bow beside an arrow, hand-drawn in a 24 px box with a 1.75 px
-  stroke in the current ink, joins the Design System between the rider's
-  and the settler's (`docs/art/art-bible.md`, UI icons). The army
-  section draws the cards in the kinds' order, infantry, riders, archers
-  and settlers, so the settler's card is the fourth and still the last.
-  Below built barracks 2 the archer's card is locked in the lines of the
-  rider's lock, *Requiere cuartel de nivel 2* and a reason naming the
-  built level, with the count at home and no form; a lord at barracks 1
-  reads three locked cards. From level 2 it recruits as the other cards
-  do. The card says nothing of strength, carry or pace, as no kind's
-  card does. The march card and its recall's accessible name read the
-  party with three kinds, *12 infantes, 6 jinetes y 10 arqueros*, a kind
-  at 0 left out. The lock reads `unitTerms.archer.barracksLevel` against
-  the built level and is display: the server refuses (N1). On `/mapa`,
-  the forage, attack and transport forms and the lines map `partyKinds`,
-  every kind but the settler, so since PR #439 each form holds an archer
-  field the server accepts and its empty party reads *Envía al menos un
-  infante, un jinete o un arquero.* The mockup of #433 draws the rest,
-  which #436 is to pin and to fit at 390 px: the archer's field third on
-  each form and no settler field; the road of 6 riders and 4 archers at
-  15:00; the forage of 10 archers for 8 hours at 120 and 120; the attack
-  preview of 1, 1 and 4 against a tier 1 camp losing 1 infantry, 1 rider
-  and 3 archers; the transport's carry of 10 archers at 240; the blocked
-  states with every count at 0 and with archers short at home; the sent
-  state and the chronicle's return and battle lines with three kinds and
-  with archers alone. The mockup stands at version 27 and the Design
-  System at 22.
+- **Screens: the archer's card and icon, the forms with three counts and
+  the lines that name them** (Decision 5; #433, PR #441, PR #442).
+  `ArcherIcon`, a strung bow beside an arrow, hand-drawn in a 24 px box
+  with a 1.75 px stroke in the current ink, joins the Design System
+  between the rider's and the settler's (`docs/art/art-bible.md`, UI
+  icons). The army section draws the cards in the kinds' order,
+  infantry, riders, archers and settlers, so the settler's card is the
+  fourth and still the last. Below built barracks 2 the archer's card is
+  locked in the lines of the rider's lock, *Requiere cuartel de nivel 2*
+  and a reason naming the built level, with the count at home and no
+  form; a lord at barracks 1 reads three locked cards. From level 2 it
+  recruits as the other cards do. The card says nothing of strength,
+  carry or pace, as no kind's card does. The march card and its recall's
+  accessible name read the party with three kinds, *12 infantes, 6
+  jinetes y 10 arqueros*, a kind at 0 left out. The lock reads
+  `unitTerms.archer.barracksLevel` against the built level and is
+  display: the server refuses (N1). On `/mapa`, the forage, attack and
+  transport forms and the lines map `partyKinds`, every kind but the
+  settler, so they took the archer with the kind (PR #439), and PR #442
+  pinned them with tests and changed no production code. Each form holds
+  the archer's count third, after the riders', and no settler field,
+  under a header counting each kind at home, and sends `units` with
+  every kind. Its empty party reads *Envía al menos un infante, un
+  jinete o un arquero.* The previews are ADR 021's over three kinds: 6
+  riders and 4 archers read a road of 15:00; 10 archers for 8 hours a
+  forage of 120 wood and 120 stone; 1 infantry, 1 rider and 4 archers
+  against a tier 1 camp at 6 read *Bajas: 1 infante, 1 jinete y 3
+  arqueros*, *Vuelven: 1 arquero* and 8 of each of three resources; the
+  transport's carry line counts 10 archers at 240. A form is blocked
+  with archers short at home, named with their count at home, after the
+  infantry and the riders in the kinds' order. The sent state and the
+  chronicle's return and battle lines name three kinds, a kind at 0 left
+  out, so a line without archers reads as it did. The screens follow the
+  mockup of #433, which stands at version 27, the Design System at 22.
 - **Lore first** (ADR 010). The archer and its label, what it carries,
   the locked card's lines, the `BarracksTooLow` line for archers, the
   party phrase and the empty line with three kinds, the forms' lines and
@@ -289,10 +294,11 @@ are recorded from the mockup of #433, not as shipped.
 - Known gap: `partyBattleOf` and the forms' previews repeat `battleOf`,
   `carryOf` and the road in the browser (ADR 021); they walk the same
   kinds' order, and the server's answer wins (N1).
-- Known gap: #436 is in flight. Until it merges no web test pins the
-  three forms, their previews, their blocked states or the chronicle's
-  lines with archers, and the three count fields are not fitted at 390
-  px. Its screens here are the mockup's.
+- Known gap: the tests of PR #442 pin the archer on the forage and
+  attack previews, the transport's carry, one shortfall and the lines
+  with three kinds. The transport's blocked states with archers and a
+  chronicle line of archers alone rest on its visual check at 1280 and
+  390 px and on the code that maps every kind.
 - Known gap: the open question on *Pierdes 0 infantes* widens
   (`docs/lore/names.md`, The chronicle). A battle that lost no one
   writes every kind at 0 and its line names the first kind of the order,
