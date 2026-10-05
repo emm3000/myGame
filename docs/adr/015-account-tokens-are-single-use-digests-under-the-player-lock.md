@@ -7,7 +7,7 @@ date: 2026-09-28
 ## Context
 
 PRD S7 gives the player a password reset and an email verification, with
-email and password as the only sign-in (W8) and nothing sent or pruned on a
+email and password as the only sign-in and nothing sent or pruned on a
 timer (W7, ADR 005). Nothing shipped before S7 could send a mail, prove that
 an address receives one, or let a player back in without the password. The
 obvious designs pull in more than S7 asks: a mail service with an API key, a
@@ -27,8 +27,10 @@ decisions after PRs #166 to #175 shipped.
   a domain caller; auth already keeps its ports beside the flows that use
   them. The port carries a `Mail` (`to`, `subject`, `text`) and answers a
   `MailDelivery`, `sent` or `failed`; it never throws.
-- The adapter is **SMTP over `nodemailer` at an exact version**, no
-  third-party service (W8), through a plain `SMTPTransport`, never the pool,
+- The adapter is **SMTP over `nodemailer` at an exact version**, with no
+  mail service's API or SDK: plain SMTP to the relay `SMTP_URL` names is
+  this ADR's own choice, and the relay production reaches is ADR 026's. It
+  goes through a plain `SMTPTransport`, never the pool,
   so the api keeps no idle socket and no timer (N2). It times out at 3 s on
   the connection, 2 s on the greeting and 3 s on the socket, so a server
   that accepts and stays silent cannot hold a request for nodemailer's
@@ -94,8 +96,10 @@ decisions after PRs #166 to #175 shipped.
   Overturned by the owner on 2026-09-28: no use case of the domain sends a
   mail, and a port with no domain caller is ceremony (ADR 004, ADR 013). The
   contract and the adapters are the same either side of the boundary.
-- **A third-party mail service** with an API key. Rejected by W8: SMTP to
-  the deployment's own relay needs no third party, and a Mailpit container
+- **A third-party mail service** with an API key. Rejected by this ADR's
+  choice of plain SMTP: the api speaks SMTP to whatever relay `SMTP_URL`
+  names, with no key or SDK of a provider in the code, the relay production
+  reaches is ADR 026's, and a Mailpit container
   proves the flow end to end on every peer and in CI.
 - **nodemailer's pooled transport, or its default timeouts.** Rejected: the
   pool keeps a socket and a timer open between sends (N2), and the default
@@ -190,3 +194,11 @@ decisions after PRs #166 to #175 shipped.
   verification, OAuth or magic links (W8), a job that sends or prunes (W7)
   and rate limiting are out of scope of #157; each is a future ADR or a
   ticket of its own.
+
+## Amendment (2026-10-05)
+
+ADR 026 corrects three citations: the Context, the SMTP bullet and the
+"third-party mail service" option cited the PRD's sign-in row for mail,
+and that row is OAuth or magic-link sign-in. Plain SMTP is this ADR's own
+choice, and the relay it reaches in production, Brevo, is ADR 026's.
+Nothing else here changes.
