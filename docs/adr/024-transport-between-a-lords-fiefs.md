@@ -371,10 +371,12 @@ time.
   `incomingCargo` carries no `departedAt` and the card has no span to
   draw (PR #425). Whether the wire gains the departure waits for the
   owner.
-- Known gap: after a recall the march card reads the cargo twice, under
-  *Carga:* and under *Botín:*, since a recalled transport's `loot` is
-  its cargo and the card draws any loot; the lore reads *Carga:* alone,
-  and no test covers the recalled card.
+- Closed gap (#428): after a recall the march card read the cargo twice,
+  under *Carga:* and under *Botín:*, since a recalled transport's `loot`
+  is its cargo and the card drew any loot; the recalled-card test used a
+  zero loot the api never answers. #428 fixed the card, which never draws
+  *Botín:* for a transport, and the fixture, whose `loot` now equals its
+  cargo; the domain and the wire stay as they are.
 - Known gap: no test ties a march's return with an arrived cargo at one
   instant; the tie test pins the recruit order before the cargo, and
   the order after the return rests on `earliestFinishedOf`.

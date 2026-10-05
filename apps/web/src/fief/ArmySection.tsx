@@ -75,6 +75,9 @@ function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState 
 type AnsweredMarch = NonNullable<LiveFief['overview']['march']>
 
 function lootOf(answered: AnsweredMarch): PreviewLine | null {
+  if (answered.order === 'transport') {
+    return null
+  }
   const loot = quantitiesOf(answered.loot)
   return loot.length === 0
     ? null
