@@ -1,0 +1,89 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [trunk]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: changes
+    if: >-
+      vars.DEPLOY_ENABLED == 'true'
+      && github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'push'
+      && github.event.workflow_run.head_branch == 'trunk'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      deployments: read
+    outputs:
+      deploy: ${{ steps.rule.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: find the last successful production deployment
+        id: last
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          base=""
+          for id in $(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=production&per_page=100" --jq '.[].id'); do
+            if [ "$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=100" --jq 'any(.[]; .state == "success")')" = true ]; then
+              base="$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id" --jq '.sha')"
+              break
+            fi
+          done
+          echo "sha=$base" >> "$GITHUB_OUTPUT"
+      - name: skip a docs-only push
+        id: rule
+        env:
+          BASE_SHA: ${{ steps.last.outputs.sha }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          deploy="$(bash .github/scripts/needs-deploy.sh "$BASE_SHA" "$HEAD_SHA")"
+          echo "base=${BASE_SHA:-none} head=$HEAD_SHA deploy=$deploy"
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: deploy
+    needs: changes
+    if: needs.changes.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: install the deploy key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: run deploy.sh on the server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: >-
+          ssh
+          -i "$HOME/.ssh/deploy_key"
+          -o IdentitiesOnly=yes
+          -o BatchMode=yes
+          -o StrictHostKeyChecking=yes
+          -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
+          "deploy@$DEPLOY_HOST"
+          /srv/infra/apps/mygame/deploy.sh "$HEAD_SHA"
