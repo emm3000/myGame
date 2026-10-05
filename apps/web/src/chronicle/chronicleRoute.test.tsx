@@ -458,6 +458,47 @@ it('names the riders lost in a battle line', async () => {
   )
 })
 
+it('names three kinds in a return line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'marchReturned',
+        province: 2,
+        plot: 7,
+        units: { infantry: 12, cavalry: 6, archer: 10, settler: 0 },
+        loot: { ...noRefund, wood: 168, stone: 168 },
+        occurredAt: '2026-09-22T11:00:00.000Z',
+        recalled: false,
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Marcha terminada: provincia 2, parcela 7, 12 infantes, 6 jinetes y 10 arqueros.',
+  )
+})
+
+it('names the archers lost in a battle line', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        unitsLost: { infantry: 1, cavalry: 1, archer: 3, settler: 0 },
+        campLost: 6,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain(
+    'Batalla ganada: provincia 2, parcela 7, campamento de nivel 1. Pierdes 1 infante, 1 jinete y 3 arqueros, y los bandidos pierden 6 de fuerza.',
+  )
+})
+
 it('sets a comma before the second y when both kinds fall', async () => {
   const [row] = await showChronicle({
     events: [
