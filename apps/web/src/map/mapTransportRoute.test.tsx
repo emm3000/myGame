@@ -179,6 +179,11 @@ it('offers no settler field', async () => {
 
   expect(within(form).getByLabelText('Infantes a enviar')).toBeDefined()
   expect(within(form).getByLabelText('Jinetes a enviar')).toBeDefined()
+  expect(within(form).getAllByRole('spinbutton').slice(0, 3)).toEqual([
+    within(form).getByLabelText('Infantes a enviar'),
+    within(form).getByLabelText('Jinetes a enviar'),
+    within(form).getByLabelText('Arqueros a enviar'),
+  ])
   expect(within(form).queryByLabelText('Colonos a enviar')).toBeNull()
   expect(within(form).queryByLabelText('Horas de forrajeo')).toBeNull()
   for (const label of [

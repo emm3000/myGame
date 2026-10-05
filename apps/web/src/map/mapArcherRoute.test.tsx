@@ -105,6 +105,15 @@ it('offers the archer field third and no settler field', async () => {
   expect(tallies).toMatch(/12 infantes en casa.*6 jinetes en casa.*10 arqueros en casa/)
   expect(tallies).not.toMatch(/colonos? en casa/)
   expect(within(form).queryByLabelText('Colonos a enviar')).toBeNull()
+
+  fireEvent.click(screen.getByRole('button', { name: 'Atacar el campamento en parcela 9' }))
+  const attackForm = screen.getByRole('form', { name: 'Ataque a provincia 2, parcela 9' })
+  expect(within(attackForm).getAllByRole('spinbutton')).toEqual([
+    within(attackForm).getByLabelText('Infantes a enviar'),
+    within(attackForm).getByLabelText('Jinetes a enviar'),
+    within(attackForm).getByLabelText('Arqueros a enviar'),
+  ])
+  expect(within(attackForm).queryByLabelText('Colonos a enviar')).toBeNull()
 })
 
 it('times archers beside riders at the archers pace', async () => {
