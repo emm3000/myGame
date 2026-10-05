@@ -450,6 +450,23 @@ export const copy = {
     newFiefHeading: 'Nuevo feudo:',
     blankName: refusals.BlankFiefName,
   },
+  transport: {
+    send: 'Enviar un transporte',
+    sendTo: (plot: number): string => `Enviar un transporte a parcela ${plot}`,
+    title: (province: number, plot: number): string =>
+      `Transporte a provincia ${province}, parcela ${plot}`,
+    amountField: (resource: ResourceKind): string => `${capitalize(resources[resource])} a enviar`,
+    cargoHeading: 'Carga:',
+    carry: (cargo: number, carry: number): string =>
+      `${formatQuantity(cargo)} de ${formatQuantity(carry)}`,
+    cargo: (cargo: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(cargo),
+    outboundHeading: 'Marcha de transporte:',
+    returningHeading: 'Vuelta del transporte:',
+    emptyCargo: refusals.EmptyCargo,
+    cargoAboveCarry: (cargo: number, carry: number): string =>
+      `La carga suma ${formatQuantity(cargo)} y tus hombres llevan hasta ${formatQuantity(carry)}.`,
+    insufficientResources: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
+  },
   chronicle: {
     title: 'Crónica',
     loading: 'Estamos leyendo la crónica…',

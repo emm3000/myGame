@@ -9,6 +9,7 @@ import {
   type DispatchAttackRequest,
   type DispatchFoundingRequest,
   type DispatchMarchRequest,
+  type DispatchTransportRequest,
   type EnqueueBuildingRequest,
   type FiefChronicle,
   FiefChronicleSchema,
@@ -61,6 +62,10 @@ export interface ApiClient {
   dispatchFounding(
     fiefId: string,
     request: DispatchFoundingRequest,
+  ): Promise<ApiOutcome<FiefOverview>>
+  dispatchTransport(
+    fiefId: string,
+    request: DispatchTransportRequest,
   ): Promise<ApiOutcome<FiefOverview>>
   recallMarch(fiefId: string, target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
   chronicle(fiefId: string): Promise<ApiOutcome<FiefChronicle>>
@@ -199,6 +204,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     dispatchFounding: async (fiefId, { province, plot, name }) => {
       const request: DispatchFoundingRequest = { province, plot, name }
       const response = await postJson(fiefPathOf(fiefId, '/marches/found'), request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    dispatchTransport: async (fiefId, { toFiefId, units, cargo }) => {
+      const request: DispatchTransportRequest = { toFiefId, units, cargo }
+      const response = await postJson(fiefPathOf(fiefId, '/marches/transport'), request)
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
     recallMarch: async (fiefId, { departedAt }) => {

@@ -98,12 +98,15 @@ it('reads the overview again at the arrival', async () => {
       },
     }))
   await showFief(fief)
+  const woodCell = (): HTMLElement =>
+    screen.getByRole('listitem', { name: copy.names.resources.wood })
+  expect(cargoCard()).not.toBeNull()
+  expect(within(woodCell()).getByText('1 000')).toBeDefined()
 
   await passSeconds(40)
 
   expect(cargoCard()).toBeNull()
-  const woodCell = screen.getByRole('listitem', { name: copy.names.resources.wood })
-  expect(within(woodCell).getByText('1 300')).toBeDefined()
+  expect(within(woodCell()).getByText('1 300')).toBeDefined()
 })
 
 it('shows no cargo card without a cargo on its way', async () => {

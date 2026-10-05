@@ -35,12 +35,12 @@ export function CargoCard({
         decoding="async"
         className="aspect-4/3 w-full rounded-md object-cover"
       />
-      <span className="flex items-center gap-2 text-ink-muted">
+      <div className="flex items-center gap-2 text-ink-muted">
         <MarchIcon sizeClass="size-icon" />
         <h3 id={titleId} className="m-0 font-display text-title text-ink">
           {title}
         </h3>
-      </span>
+      </div>
       <p className="m-0 font-body text-body text-ink">{origin}</p>
       <p className="m-0 font-body text-body text-ink">{amounts}</p>
       <CountdownLine {...countdown} />

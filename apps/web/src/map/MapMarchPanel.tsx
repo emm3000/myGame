@@ -1,3 +1,4 @@
+import { ResourceKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { FormAlert } from '../design-system/FormAlert'
@@ -8,6 +9,7 @@ import { attackFormOf } from './attackFormOf'
 import { foundingFormOf } from './foundingFormOf'
 import { marchFormOf } from './marchFormOf'
 import { marchSentLinesOf } from './marchSentLinesOf'
+import { transportFormOf } from './transportFormOf'
 import type { MapMarch } from './useMapMarch'
 
 function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null {
@@ -15,7 +17,7 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   if (overview === undefined || target === undefined) {
     return null
   }
-  if (march.isFounding) {
+  if (target.order.kind === 'found') {
     return (
       <MarchForm
         {...foundingFormOf(target, march.name, overview)}
@@ -33,6 +35,24 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
     onChange: (entry: string) =>
       march.onEntriesChange({ ...entries, units: { ...entries.units, [unit]: entry } }),
   }))
+  if (target.order.kind === 'transport') {
+    const amounts = ResourceKindSchema.options.map((resource) => ({
+      label: copy.transport.amountField(resource),
+      entry: entries.cargo[resource],
+      min: 0,
+      onChange: (entry: string) =>
+        march.onEntriesChange({ ...entries, cargo: { ...entries.cargo, [resource]: entry } }),
+    }))
+    return (
+      <MarchForm
+        {...transportFormOf(target, entries, overview)}
+        counts={counts}
+        amounts={amounts}
+        isWaiting={march.isWaiting}
+        onSend={march.onSend}
+      />
+    )
+  }
   const { camp } = target
   if (camp !== null) {
     return (

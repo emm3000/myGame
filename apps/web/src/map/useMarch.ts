@@ -2,12 +2,17 @@ import type {
   DispatchAttackRequest,
   DispatchFoundingRequest,
   DispatchMarchRequest,
+  DispatchTransportRequest,
   FiefOverview,
 } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 import { type RefusedAction, useFiefAction } from '../fief/useFiefAction'
 
-type MarchRequest = DispatchMarchRequest | DispatchAttackRequest | DispatchFoundingRequest
+type MarchRequest =
+  | DispatchMarchRequest
+  | DispatchAttackRequest
+  | DispatchFoundingRequest
+  | DispatchTransportRequest
 
 export interface March {
   readonly isWaiting: boolean
@@ -15,6 +20,7 @@ export interface March {
   readonly send: (request: DispatchMarchRequest) => void
   readonly attack: (request: DispatchAttackRequest) => void
   readonly found: (request: DispatchFoundingRequest) => void
+  readonly transport: (request: DispatchTransportRequest) => void
 }
 
 export function useMarch(
@@ -31,5 +37,6 @@ export function useMarch(
     send: (request) => run(request, () => apiClient.dispatchMarch(fiefId, request)),
     attack: (request) => run(request, () => apiClient.dispatchAttack(fiefId, request)),
     found: (request) => run(request, () => apiClient.dispatchFounding(fiefId, request)),
+    transport: (request) => run(request, () => apiClient.dispatchTransport(fiefId, request)),
   }
 }

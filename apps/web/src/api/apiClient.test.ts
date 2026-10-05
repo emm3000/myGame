@@ -32,6 +32,23 @@ it('posts the founding to the founding route of the fief', async () => {
   })
 })
 
+it('posts the transport to the transport route of the fief', async () => {
+  const fetch = answeringFetch(201, knownFief)
+  const transport = {
+    toFiefId: '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a',
+    units: { infantry: 0, cavalry: 6, settler: 0 },
+    cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  }
+
+  const outcome = await createApiClient('/api').dispatchTransport(knownFief.id, transport)
+
+  expect(outcome).toEqual({ ok: true, value: knownFief })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe(`/api/fiefs/${knownFief.id}/marches/transport`)
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual(transport)
+})
+
 it('answers a refusal with the line the server wrote', async () => {
   answeringFetch(409, {
     kind: 'FiefCapReached',
