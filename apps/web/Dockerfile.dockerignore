@@ -1,0 +1,11 @@
+**
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!.npmrc
+!.gitignore
+!tsconfig.base.json
+!apps/web/**
+!packages/contracts/**
+**/node_modules
+**/dist

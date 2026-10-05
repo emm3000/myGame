@@ -81,28 +81,34 @@ importers:
 
   apps/web:
     dependencies:
-      '@mygame/contracts':
-        specifier: workspace:*
-        version: link:../../packages/contracts
       '@tanstack/react-router':
         specifier: 1.170.38
         version: 1.170.38(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tanstack/react-start':
-        specifier: 1.168.56
-        version: 1.168.56(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.9)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
       react:
         specifier: 19.3.0
         version: 19.3.0
       react-dom:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
+      srvx:
+        specifier: 0.11.22
+        version: 0.11.22
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.5
     devDependencies:
+      '@mygame/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@tailwindcss/node':
         specifier: 4.3.3
         version: 4.3.3
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
+      '@tanstack/react-start':
+        specifier: 1.168.56
+        version: 1.168.56(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.9)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -136,9 +142,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.0.1(@types/node@24.13.6)(jsdom@30.1.0)(vite@8.3.0(@types/node@24.13.6)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.5
 
   packages/contracts:
     dependencies:
