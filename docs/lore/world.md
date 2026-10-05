@@ -74,6 +74,18 @@ Proposal (S19, #408): a lord of two fiefs may send **resources from one fief to 
 
 **A recall on the way out brings the load home** (proposal S14, above): the party turns back where the word finds it, walks home the way already walked, and the load goes back into the stores it was drawn from at the hour the party walks in, even above what they hold; the other fief, which was waiting for the load, is told in the hour of the recall that nothing is coming. Once the load is in the other fief's stores the party is on its way home and past recalling. A transport meets no one and fights no one. Men and arts still do not travel between a lord's fiefs, no transport goes to another lord's fief, and a third fief stays out of this slice. The Spanish of the transport, its form, its card, the load on its way, the refusals and the roll's lines are in `names.md` (The fief, The map, The marches, The chronicle).
 
+Proposal (S20, #430): the yard arms a third fighting kind, the **archer**: a peasant with a bow of his own cutting and a sheaf of arrows, a hunter of the commons and no guildsman. An archer is dearer than a footman and far cheaper than a rider: wood for the stave and the shafts, twice what a spear takes; iron for the heads, as much as a spear's point; a little gold for string and feathers, which are bought and not grown; and food for a longer drill. He takes one hand from the fields, as a footman does. The bow is slower to learn than the spear, a drill two thirds longer than a footman's and half a rider's, and only a barracks of level 2 has the butts to shoot at, where the infantry need level 1 and the riders level 3; the level is the built one, as for every kind, and spring shortens his training as it shortens any levy.
+
+Archers go where the infantry go: on a forage, on an attack and on a transport, any count of them beside the other two kinds, and never on a founding. An archer **walks at a footman's pace**, the whole road, so riders who take archers along ride at the archers' pace, as one footman slows them. He **carries half a footman's load**, 24 where a footman carries 48, for the bow and the sheaf take the half of his back a sack would, and the party carries the sum. At the plot he gathers as any man does, the same per head and hour, and never more than the party carries. **In a fight he counts as one**, as a footman does, and the party's strength is still the sum of its men's; the stronger side wins and a tie is the bandits'.
+
+His one edge is where he stands: **archers stand behind the line and fall last**. A winning party still pays its losses in strength, the camp's strength squared over the party's own, rounded up, and pays them from the front: the infantry first, one point a man; then the riders, two points a man, rounded up; and the archers last, one point a man, only for what is left once no footman and no rider stands before them. A win never costs a party its whole strength, so where archers went and the day was won, one archer at least comes home, and the rule that spares the last man is needed only by a party that took none. A losing party falls whole, archers and all, and the camp loses as it did. Every fight without archers ends as it did before them. The camps and their regrowth, the recall, which turns back the whole party, and the seasons' reach on a march are as the proposals above leave them; and where those proposals count the infantry and the riders of a party, of its load or of its losses, read the archers beside them.
+
+| Kind | Barracks | Peasants | Counts in a fight | Carries | Road |
+|---|---|---|---|---|---|
+| archer | level 2 | 1 | 1 | 24 | the whole time |
+
+The Spanish of the archer, the locked card, the party of three kinds and its lines are in `names.md` (The army, The marches, The chronicle).
+
 ## Where resources come from
 
 - **Wood** from the pine and oak stands; the sawmill turns them into timber.
@@ -116,4 +128,5 @@ Both are fixed when the men leave, with the season in force at that hour, as a b
 - The unit of gold and what a peasant eats per day in game terms.
 - Where the horses come from: whether the land breeds them or a house trades them.
 - Whether a lord ever holds more than two fiefs (S18). S19 settles what travels between the two: resources, by a transport; whether men or arts ever do stays open.
+- Whether archers ever loose before the lines meet and thin a camp before the infantry pay, or stay a kind whose one edge is to fall last (S20).
 - Who a settler's household is, and why the hands it held go back to the old fief's fields once the new hall stands.
