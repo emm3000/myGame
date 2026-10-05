@@ -595,3 +595,35 @@ carries the `fiefId` beside the `playerId`. Nothing else here changes:
 one march at a time for each fief, the road, the stay and the loot of a
 forage, the three phases, the rules of the recall and the tie order of
 the five earlier finishes stand, and no march meets another lord.
+
+## Sixth amendment (2026-10-05)
+
+S19 (ADR 024) gives the march slot a fourth order, `transport`, beside
+`forage`, `attack` and `found`: `AwayMarch` gains `TransportMarch`, a
+party of infantry and cavalry that carries a `cargo` of resources to
+the lord's other fief, named by `toFiefId`. It holds `stayHours` 0 and
+a loot of 0, walks the road of the fourth amendment between the two
+plots, and holds the one march slot until the party is home. It is the
+first order that debits a stock at dispatch, where a forage, an attack
+and a founding debit none: the cargo leaves the fief's stocks at
+dispatch, refused `EmptyCargo` at 0, `CargoAboveCarry { cargo, carry }`
+above the party's summed carry and `InsufficientResources` above the
+stocks, the first two new members of `DomainError` answered 409. The
+cargo is credited to the other fief at the arrival by that fief's own
+resolve, a seventh finish applied last at a tied instant, and the party
+turns home there and returns empty: its `marchReturned` holds no loot.
+
+A transport is recalled outbound alone, as an attack and a founding
+are. Recalled, it is the one march turned back on the road that brings
+something: its loot becomes its cargo, the other fief loses the cargo
+on its way at the recall instant, and the return credits it to the fief
+it left even above the capacity. Every recall, whatever the order, now
+runs under the lock of every fief of the lord, taken in ascending id
+(ADR 024). `MarchToOwnPlot` still refuses a forage, an attack and a
+founding to any own fief, and answers a transport only toward the fief
+it leaves. Migration 0025 adds `transport` to `march_order`, the
+nullable `to_fief_id` and `cargo_*` columns and the order's terms in
+`fief_marches_order_terms`; the wire's `march` gains the `transport`
+variant, sent by `POST /fiefs/:fiefId/marches/transport`. Nothing else
+here changes: one march at a time for each fief, the road, the stay and
+the loot of a forage, the phases, and no march meets another lord.

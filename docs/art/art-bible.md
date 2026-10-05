@@ -42,7 +42,7 @@ Fill `<subject>` from `CONTEXT.md` and `docs/lore/`, `<kingdom terrain>` from th
 - One model and one template per asset family; a template change regenerates the whole family.
 - The square output suffix (`docs/art/catalog.md`, Common lines) is output framing for Codex's image tool, which has no size argument, not a template change; it does not regenerate a family.
 - Every asset is checked against a contact sheet of its family before commit; an outlier is regenerated, never kept.
-- File name: `<family>/<term>-<level>.png`, the term as in `CONTEXT.md`, or `arts/<term>.png` for an art or `convoys/<term>.png` for a convoy, each with one image and no level in its name.
+- File name: `<family>/<term>-<level>.png`, the term as in `CONTEXT.md`, or `arts/<term>.png` for an art or `convoys/<term>.png` for a convoy, each with one image and no level in its name. The convoy's file name, `convoy`, is the family's own word and not a `CONTEXT.md` term: the glossary names the transport and its cargo, never the carts (#411, ADR 024).
 - The prompt used is stored next to the image as `<term>-<level>.prompt.txt`, or `<term>.prompt.txt` for an art or convoy.
 
 ## Model and size
