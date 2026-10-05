@@ -10,7 +10,11 @@ const partyOf = (infantry: number, cavalry: number): UnitCountsByKind => ({
   settler: 0,
 })
 
-const armyOf = (infantry: number, cavalry: number, archer: number): UnitCountsByKind => ({
+const partyWithArchersOf = (
+  infantry: number,
+  cavalry: number,
+  archer: number,
+): UnitCountsByKind => ({
   infantry,
   cavalry,
   archer,
@@ -98,36 +102,38 @@ describe('battleOf', () => {
   })
 
   it('takes the losses from the archers last', () => {
-    expect(battleOf(armyOf(2, 2, 3), 6, plainUnits)).toMatchObject({
+    expect(battleOf(partyWithArchersOf(2, 2, 3), 6, plainUnits)).toEqual({
       won: true,
-      unitsLost: armyOf(2, 1, 0),
-      survivors: armyOf(0, 1, 3),
+      unitsLost: partyWithArchersOf(2, 1, 0),
+      campLost: 6,
+      survivors: partyWithArchersOf(0, 1, 3),
     })
   })
 
   it('takes the rest from the archers at 1 per point', () => {
-    expect(battleOf(armyOf(1, 1, 4), 6, plainUnits)).toMatchObject({
+    expect(battleOf(partyWithArchersOf(1, 1, 4), 6, plainUnits)).toEqual({
       won: true,
-      unitsLost: armyOf(1, 1, 3),
-      survivors: armyOf(0, 0, 1),
+      unitsLost: partyWithArchersOf(1, 1, 3),
+      campLost: 6,
+      survivors: partyWithArchersOf(0, 0, 1),
     })
   })
 
   it('brings an archer home from every won battle that sent archers', () => {
-    expect(battleOf(armyOf(0, 0, 3), 2, plainUnits)).toEqual({
+    expect(battleOf(partyWithArchersOf(0, 0, 3), 2, plainUnits)).toEqual({
       won: true,
-      unitsLost: armyOf(0, 0, 2),
+      unitsLost: partyWithArchersOf(0, 0, 2),
       campLost: 2,
-      survivors: armyOf(0, 0, 1),
+      survivors: partyWithArchersOf(0, 0, 1),
     })
   })
 
   it('loses every archer against a stronger camp', () => {
-    expect(battleOf(armyOf(0, 0, 5), 6, plainUnits)).toEqual({
+    expect(battleOf(partyWithArchersOf(0, 0, 5), 6, plainUnits)).toEqual({
       won: false,
-      unitsLost: armyOf(0, 0, 5),
+      unitsLost: partyWithArchersOf(0, 0, 5),
       campLost: 5,
-      survivors: armyOf(0, 0, 0),
+      survivors: partyWithArchersOf(0, 0, 0),
     })
   })
 })
