@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { Fief as FiefEntity, Stocks, StoredFief } from '../fief/Fief'
 import { Fief } from '../fief/Fief'
 import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
+import { noStoreFull } from '../fief/FullSince'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -77,6 +78,7 @@ const storedFief = (
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
+    fullSince: noStoreFull,
     ...stored,
   })
   assert(restored.ok)
@@ -150,6 +152,27 @@ const resolveAt = (
 const lordsFiefs = (): ReadonlyArray<FiefEntity> => [sendingFief(), otherFief(), rivalFief()]
 
 describe('dispatchTransport', () => {
+  it('takes the stored instant for a store that stays full through a dispatch', async () => {
+    const oneHourLater = Instant.fromEpochMilliseconds(
+      dispatchInstant.epochMilliseconds + 3_600_000,
+    )
+    const dependencies = dependenciesOver(
+      [
+        sendingFief({ stocks: { wood: 500, stone: 300, iron: 300, gold: 1000, food: 500 } }),
+        otherFief(),
+      ],
+      oneHourLater,
+    )
+
+    const result = await dispatchTransport(transportOf(), dependencies)
+
+    assert(result.ok)
+    expect(dependencies.fiefs.storedFiefOf('fief-1')?.fullSince).toEqual({
+      ...noStoreFull,
+      gold: dispatchInstant,
+    })
+  })
+
   it('debits the cargo from the origin at dispatch', async () => {
     const dependencies = dependenciesOver(lordsFiefs())
 

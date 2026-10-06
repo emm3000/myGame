@@ -3,6 +3,7 @@ import type { BusySlot } from '../fief/BuildSlot'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type {
@@ -121,6 +122,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     studySlot: { kind: 'idle' },
     recruitOrder: fiveInfantry,
     march: { kind: 'idle' },
+    fullSince: noStoreFull,
     ...overrides,
   })
   assert(restored.ok)
@@ -134,6 +136,17 @@ const cancelFiveInfantryAt = (fiefs: InMemoryFiefRepository, now: Instant) =>
   )
 
 describe('cancelRecruitOrder', () => {
+  it('takes the stored instant for a store that stays full through a cancel', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ stocks: { wood: 100, stone: 100, iron: 100, gold: 1000, food: 100 } }),
+    ])
+
+    const result = await cancelFiveInfantryAt(fiefs, secondsAfterStored(100))
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.fullSince).toEqual({ ...noStoreFull, gold: storedInstant })
+  })
+
   it('keeps the units delivered by the cancel', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 

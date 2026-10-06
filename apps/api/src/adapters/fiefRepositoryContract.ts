@@ -9,6 +9,7 @@ import {
   type IncomingCargo,
   Instant,
   type March,
+  noStoreFull,
   type OpenRecruitOrder,
   ok,
   type PlayerId,
@@ -226,6 +227,7 @@ const developedFiefWith = (
       studySlot: masonryStudy,
       recruitOrder,
       march,
+      fullSince: noStoreFull,
     }),
   )
 
@@ -254,6 +256,7 @@ const settlerFiefWith = (id: string, playerId: PlayerId, plot: number, march: Ma
       studySlot: { kind: 'idle' },
       recruitOrder: { kind: 'idle' },
       march,
+      fullSince: noStoreFull,
     }),
   )
 
@@ -295,6 +298,7 @@ const withIncomingCargo = (fief: Fief, incomingCargo: IncomingCargo): Fief =>
       recruitOrder: fief.recruitOrder,
       march: fief.march,
       incomingCargo,
+      fullSince: fief.fullSince,
     }),
   )
 

@@ -7,6 +7,7 @@ import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
 import { deriveFullAt } from './deriveFullAt'
 import { Fief, type Stocks } from './Fief'
+import { noStoreFull } from './FullSince'
 import { materializeStocks } from './materializeStocks'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
@@ -87,6 +88,7 @@ const fiefStoredWith = (stocks: Partial<Stocks>, storedAt: Instant): Fief => {
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
+    fullSince: noStoreFull,
   })
   assert(restored.ok)
   return restored.value

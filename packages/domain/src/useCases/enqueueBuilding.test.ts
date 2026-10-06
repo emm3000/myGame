@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { BuildQueueEntry } from '../fief/BuildQueue'
 import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import type {
   BuildingCatalog,
   BuildingLevel,
@@ -131,6 +132,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
+    fullSince: noStoreFull,
     ...overrides,
   })
   assert(restored.ok)
