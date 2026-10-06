@@ -110,6 +110,7 @@ describe('the hints route', () => {
     const response = await markSeen(cookie, 'dragons')
 
     expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
     expect(await seenHintsOf(cookie)).toEqual([])
   })
 
