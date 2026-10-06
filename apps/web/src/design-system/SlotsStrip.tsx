@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, type LinkProps } from '@tanstack/react-router'
 import { type ReactElement, useId } from 'react'
 import { formatDuration } from './formatDuration'
 import { MarchIcon } from './icons/MarchIcon'
@@ -37,7 +37,7 @@ export type StripCell =
 
 export interface SlotsStripProps {
   readonly label: string
-  readonly fiefId: string
+  readonly link: Pick<LinkProps, 'to' | 'params'>
   readonly cells: ReadonlyArray<StripCell>
   readonly finishedLabel: string
 }
@@ -101,19 +101,18 @@ function CellContent({
   )
 }
 
-export function SlotsStrip({ label, fiefId, cells, finishedLabel }: SlotsStripProps): ReactElement {
+export function SlotsStrip({ label, link, cells, finishedLabel }: SlotsStripProps): ReactElement {
   const labelId = useId()
   return (
     <section aria-labelledby={labelId} className="flex flex-col gap-2">
       <span id={labelId} className="font-utility text-label text-ink-muted uppercase">
         {label}
       </span>
-      <ul className="m-0 grid list-none gap-2 p-0 md:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none">
+      <ul className="m-0 grid list-none gap-2 p-0 md:auto-cols-fr md:grid-flow-col">
         {cells.map((cell) => (
           <li key={cell.id} className="flex min-w-0 flex-col">
             <Link
-              to="/feudo/$fiefId"
-              params={{ fiefId }}
+              {...link}
               hash={cell.section}
               className={`${cellClass} ${cell.kind === 'idle' ? 'border-dashed border-line bg-surface' : 'border-line-strong bg-surface-raised'}`}
             >

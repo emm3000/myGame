@@ -46,7 +46,7 @@ export function FiefStatus({ fief }: { readonly fief: LiveFief }): ReactElement 
       />
       <SlotsStrip
         label={copy.status.label}
-        fiefId={overview.id}
+        link={{ to: '/feudo/$fiefId', params: { fiefId: overview.id } }}
         cells={slotsStripCellsOf(fief)}
         finishedLabel={copy.fief.finished}
       />
