@@ -116,8 +116,10 @@ describe('the digest acknowledgement route', () => {
     const ana = await signUpAna()
     clock.advanceHours(5)
 
-    await app.request('/auth/session', { headers: { cookie: ana.cookie } })
+    const session = await app.request('/auth/session', { headers: { cookie: ana.cookie } })
 
+    expect(session.status).toBe(200)
+    PlayerSchema.parse(await session.json())
     expect(await server.digestAcknowledgements.acknowledgedAt(ana.playerId)).toEqual(
       Instant.fromEpochMilliseconds(signedUpAt),
     )
