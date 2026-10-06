@@ -216,7 +216,7 @@ export function ArmySection({
     <section
       id={sectionAnchors.barracks}
       aria-labelledby={headingId}
-      className="flex flex-col gap-3 md:scroll-mt-status"
+      className="flex flex-col gap-3 md:scroll-mt-status lg:scroll-mt-status-wide"
     >
       <SeasonSectionHeading
         id={headingId}
