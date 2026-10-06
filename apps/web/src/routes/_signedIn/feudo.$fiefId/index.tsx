@@ -4,7 +4,7 @@ import { copy } from '../../../copy'
 import { FormAlert } from '../../../design-system/FormAlert'
 import { FiefScreen } from '../../../fief/FiefScreen'
 import { useCancel } from '../../../fief/useCancel'
-import { useLiveFief } from '../../../fief/useLiveFief'
+import { useLayoutFief } from '../../../fief/useLayoutFief'
 import { useRecall } from '../../../fief/useRecall'
 import { useRecruit } from '../../../fief/useRecruit'
 import { useStudy } from '../../../fief/useStudy'
@@ -13,7 +13,7 @@ import { useUpgrade } from '../../../fief/useUpgrade'
 function FiefOverviewPage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { fiefId } = Route.useParams()
-  const { state, adopt } = useLiveFief(apiClient, fiefId)
+  const { state, adopt } = useLayoutFief()
   const readAt = state.kind === 'live' ? state.fief.overview.readAt : undefined
   const upgrade = useUpgrade(apiClient, fiefId, adopt, readAt)
   const cancel = useCancel(apiClient, fiefId, adopt, readAt)

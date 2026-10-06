@@ -1,0 +1,127 @@
+import { Link } from '@tanstack/react-router'
+import { type ReactElement, useId } from 'react'
+import { formatDuration } from './formatDuration'
+import { MarchIcon } from './icons/MarchIcon'
+import { SlotIcon } from './icons/SlotIcon'
+import { Track } from './Track'
+
+export type StripIcon = 'slot' | 'march'
+
+export interface StripLine {
+  readonly heading: string
+  readonly value: string
+  readonly remainingSeconds: number
+}
+
+export interface StripProgress {
+  readonly value: number
+  readonly total: number
+}
+
+export type StripCell =
+  | {
+      readonly kind: 'idle'
+      readonly id: string
+      readonly icon: StripIcon
+      readonly section: string
+      readonly label: string
+    }
+  | {
+      readonly kind: 'busy'
+      readonly id: string
+      readonly icon: StripIcon
+      readonly section: string
+      readonly lines: ReadonlyArray<StripLine>
+      readonly progress: StripProgress | null
+    }
+
+export interface SlotsStripProps {
+  readonly label: string
+  readonly fiefId: string
+  readonly cells: ReadonlyArray<StripCell>
+  readonly finishedLabel: string
+}
+
+const cellClass =
+  'flex h-full flex-col gap-2 rounded-md border p-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
+
+function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
+  return icon === 'march' ? <MarchIcon sizeClass="size-icon" /> : <SlotIcon sizeClass="size-icon" />
+}
+
+function BusyLine({
+  line,
+  finishedLabel,
+}: {
+  readonly line: StripLine
+  readonly finishedLabel: string
+}): ReactElement {
+  const finish = line.remainingSeconds <= 0 ? finishedLabel : formatDuration(line.remainingSeconds)
+  return (
+    <span className="font-body text-body text-ink">
+      <b className="font-bold underline underline-offset-2">{line.heading}</b> {line.value}
+      <span className="whitespace-nowrap font-utility text-numeral text-ink-muted tabular-nums">
+        {` · ${finish}`}
+      </span>
+    </span>
+  )
+}
+
+function CellContent({
+  cell,
+  finishedLabel,
+}: {
+  readonly cell: StripCell
+  readonly finishedLabel: string
+}): ReactElement {
+  if (cell.kind === 'idle') {
+    return (
+      <span className="flex items-center gap-2 text-ink-muted">
+        <CellIcon icon={cell.icon} />
+        <span className="font-body text-body font-bold text-umber underline underline-offset-2">
+          {cell.label}
+        </span>
+      </span>
+    )
+  }
+  return (
+    <>
+      <span className="flex items-start gap-2 text-ink-muted">
+        <CellIcon icon={cell.icon} />
+        <span className="flex min-w-0 flex-col gap-1">
+          {cell.lines.map((line) => (
+            <BusyLine key={line.heading} line={line} finishedLabel={finishedLabel} />
+          ))}
+        </span>
+      </span>
+      {cell.progress !== null && (
+        <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-slate" />
+      )}
+    </>
+  )
+}
+
+export function SlotsStrip({ label, fiefId, cells, finishedLabel }: SlotsStripProps): ReactElement {
+  const labelId = useId()
+  return (
+    <section aria-labelledby={labelId} className="flex flex-col gap-2">
+      <span id={labelId} className="font-utility text-label text-ink-muted uppercase">
+        {label}
+      </span>
+      <ul className="m-0 grid list-none gap-2 p-0 md:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none">
+        {cells.map((cell) => (
+          <li key={cell.id} className="flex min-w-0 flex-col">
+            <Link
+              to="/feudo/$fiefId"
+              params={{ fiefId }}
+              hash={cell.section}
+              className={`${cellClass} ${cell.kind === 'idle' ? 'border-dashed border-line bg-surface' : 'border-line-strong bg-surface-raised'}`}
+            >
+              <CellContent cell={cell} finishedLabel={finishedLabel} />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

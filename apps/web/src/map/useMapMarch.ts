@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { copy } from '../copy'
 import type { PlotAction } from '../design-system/PlotTile'
+import { useLayoutFief } from '../fief/useLayoutFief'
 import { useFiefList } from '../shell/useFiefList'
 import { partyKinds } from '../units/partyKinds'
 import { byUnitKind } from './byUnitKind'
@@ -10,7 +11,6 @@ import { cargoOf } from './cargoOf'
 import type { MarchEntries, MarchTarget, PlotCamp } from './marchFormOf'
 import { marchRefusalLineOf } from './marchRefusalLineOf'
 import { unitsAtHomeOf } from './unitsAtHomeOf'
-import { useMapFief } from './useMapFief'
 import { useMarch } from './useMarch'
 
 export interface MapMarch {
@@ -94,9 +94,9 @@ export function useMapMarch(
   map: ProvinceMap | undefined,
   onFoundingSent: () => void,
 ): MapMarch {
-  const fief = useMapFief(apiClient, fiefId)
+  const fief = useLayoutFief()
   const fiefs = useFiefList(apiClient)
-  const overview = fief.state.kind === 'read' ? fief.state.overview : undefined
+  const overview = fief.state.kind === 'live' ? fief.state.fief.overview : undefined
   const [chosen, setChosen] = useState<OpenTarget>()
   const [entries, setEntries] = useState(unopenedEntries)
   const [name, setName] = useState('')
