@@ -16,8 +16,11 @@ import {
   type LiveMarch,
   type LiveRecruitOrder,
 } from './liveFief'
+import { marchCountdownOf } from './marchCountdownOf'
+import { marchPhaseLineOf } from './marchPhaseLineOf'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
+import { sectionAnchors } from './sectionAnchors'
 import { recruitCountOf, type UnitCardContent, unitCardOf } from './unitCardOf'
 import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
@@ -93,23 +96,6 @@ function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
   }
 }
 
-function phaseLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine {
-  const value = march.phaseLines[live.phase](answered.units, answered.province, answered.plot)
-  if (isFoundingOnTheWay(answered)) {
-    return { heading: founding.outboundHeading, value, isNumeral: false }
-  }
-  if (answered.order === 'transport') {
-    const heading =
-      live.phase === 'outbound' ? transport.outboundHeading : transport.returningHeading
-    return { heading, value, isNumeral: false }
-  }
-  if (answered.order !== 'attack' || answered.recalledAt !== null) {
-    return { heading: march.phaseHeadings[live.phase], value, isNumeral: false }
-  }
-  const heading = live.phase === 'outbound' ? march.attackHeading : march.attackReturningHeading
-  return { heading, value, isNumeral: false }
-}
-
 function detailLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine | null {
   if (answered.order === 'transport') {
     const isCarrying = live.phase === 'outbound' || answered.recalledAt !== null
@@ -144,19 +130,6 @@ function marksOf(live: LiveMarch, answered: AnsweredMarch): ReadonlyArray<number
     : [live.arrivalSeconds, live.leavingSeconds]
 }
 
-function countdownOf(live: LiveMarch, answered: AnsweredMarch): SlotCountdown {
-  if (isFoundingOnTheWay(answered)) {
-    return { words: founding.arrivalHeading, remainingSeconds: live.remainingSeconds }
-  }
-  if (answered.order === 'transport' && live.phase === 'outbound') {
-    return {
-      words: founding.arrivalHeading,
-      remainingSeconds: live.arrivalSeconds - live.elapsedSeconds,
-    }
-  }
-  return { words: march.returnHeading, remainingSeconds: live.remainingSeconds }
-}
-
 function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   const live = fief.march
   const answered = fief.overview.march
@@ -166,9 +139,9 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   return {
     kind: 'busy',
     title: march.busySlot,
-    phase: phaseLineOf(live, answered),
+    phase: marchPhaseLineOf(live, answered),
     detail: detailLineOf(live, answered),
-    countdown: countdownOf(live, answered),
+    countdown: marchCountdownOf(live, answered),
     loot: lootOf(answered),
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,
@@ -240,7 +213,11 @@ export function ArmySection({
 }): ReactElement {
   const headingId = useId()
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+    <section
+      id={sectionAnchors.barracks}
+      aria-labelledby={headingId}
+      className="flex flex-col gap-3"
+    >
       <SeasonSectionHeading
         id={headingId}
         title={army.section}

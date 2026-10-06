@@ -1,10 +1,4 @@
-import {
-  type BuildingKind,
-  BuildingKindSchema,
-  type CancelUpgradeRequest,
-  type ResourceKind,
-  ResourceKindSchema,
-} from '@mygame/contracts'
+import { type BuildingKind, BuildingKindSchema, type CancelUpgradeRequest } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
 import { type ReactElement, useId } from 'react'
 import { copy } from '../copy'
@@ -15,9 +9,7 @@ import { CargoCard } from '../design-system/CargoCard'
 import { capitalize } from '../design-system/capitalize'
 import { convoyArtOf } from '../design-system/convoyArtOf'
 import { FormAlert } from '../design-system/FormAlert'
-import { ResourceBar } from '../design-system/ResourceBar'
 import { SeasonLine } from '../design-system/SeasonLine'
-import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { ArmySection } from './ArmySection'
@@ -26,6 +18,7 @@ import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
+import { sectionAnchors } from './sectionAnchors'
 import type { Cancel } from './useCancel'
 import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
@@ -57,19 +50,6 @@ function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | nul
   )
 }
 
-function seasonMarkOf(
-  season: LiveFief['overview']['season'],
-  resource: ResourceKind,
-): SeasonMarkProps | undefined {
-  if (season === null || season.multiplierPercent[resource] === 100) {
-    return undefined
-  }
-  return {
-    season: season.kind,
-    words: copy.fief.seasonMark(season.kind, resource, season.multiplierPercent[resource]),
-  }
-}
-
 function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
   const { incomingCargo } = fief.overview
   if (incomingCargo === null) {
@@ -77,16 +57,18 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
   }
   const { from, cargo } = incomingCargo
   return (
-    <CargoCard
-      title={copy.fief.incomingCargo}
-      artSrc={convoyArtOf()}
-      origin={copy.fief.cargoOrigin(from.name, from.province, from.plot)}
-      amounts={copy.fief.cargoAmounts(quantitiesOf(cargo))}
-      countdown={{
-        words: copy.fief.cargoArrivalHeading,
-        remainingSeconds: fief.incomingCargoRemainingSeconds,
-      }}
-    />
+    <div id={sectionAnchors.incomingCargo} className="flex flex-col">
+      <CargoCard
+        title={copy.fief.incomingCargo}
+        artSrc={convoyArtOf()}
+        origin={copy.fief.cargoOrigin(from.name, from.province, from.plot)}
+        amounts={copy.fief.cargoAmounts(quantitiesOf(cargo))}
+        countdown={{
+          words: copy.fief.cargoArrivalHeading,
+          remainingSeconds: fief.incomingCargoRemainingSeconds,
+        }}
+      />
+    </div>
   )
 }
 
@@ -178,16 +160,8 @@ export function FiefScreen({
   recruit,
   recall,
 }: FiefScreenProps): ReactElement {
-  const { overview, amounts } = fief
+  const { overview } = fief
   const buildingsHeadingId = useId()
-  const resources = ResourceKindSchema.options.map((kind) => ({
-    kind,
-    label: names.resources[kind],
-    amount: amounts[kind],
-    ratePerHour: overview.resources[kind].ratePerHour,
-    capacity: overview.resources[kind].capacity,
-    mark: seasonMarkOf(overview.season, kind),
-  }))
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
@@ -201,18 +175,8 @@ export function FiefScreen({
         <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
         <SeasonLineOf fief={fief} />
       </header>
-      <ResourceBar
-        resources={resources}
-        peasants={{
-          label: names.peasants,
-          supplied: overview.peasants.projectedSupplied,
-          occupied: overview.peasants.projectedOccupied,
-          free: overview.peasants.projectedFree,
-        }}
-        labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
-      />
       <div className="grid items-start gap-6 lg:grid-cols-3">
-        <div className="flex flex-col gap-2">
+        <div id={sectionAnchors.build} className="flex flex-col gap-2">
           <IncomingCargoOf fief={fief} />
           <BuildSlot state={slotStateOf(fief, cancel)} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}

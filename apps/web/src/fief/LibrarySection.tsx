@@ -9,6 +9,7 @@ import { artCardOf } from './artCardOf'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
+import { sectionAnchors } from './sectionAnchors'
 import type { Study } from './useStudy'
 
 const { names } = copy
@@ -76,7 +77,11 @@ export function LibrarySection({
 }): ReactElement {
   const headingId = useId()
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+    <section
+      id={sectionAnchors.library}
+      aria-labelledby={headingId}
+      className="flex flex-col gap-3"
+    >
       <SeasonSectionHeading
         id={headingId}
         title={copy.study.section}

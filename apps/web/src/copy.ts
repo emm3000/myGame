@@ -332,6 +332,20 @@ export const copy = {
     cargoAmounts: (cargo: ReadonlyArray<ResourceQuantity>): string => quantitiesOf(cargo),
     cargoArrivalHeading: 'Llegada en',
   },
+  status: {
+    label: 'En curso',
+    idleBuild: 'Sin obra',
+    idleStudy: 'Sin estudio',
+    idleRecruit: 'Sin leva',
+    idleMarch: 'Sin marcha',
+    buildHeading: 'Obra:',
+    waitingHeading: 'Obras en espera:',
+    studyHeading: 'Estudio:',
+    recruitHeading: 'Leva:',
+    cargoHeading: 'Carga en camino:',
+    work: (label: string, level: number): string => `${label}, ${names.level(level)}`,
+    cargoFrom: (name: string): string => `desde ${name}`,
+  },
   study: {
     section: 'Biblioteca',
     seasonMark: (season: SeasonKind): string =>
