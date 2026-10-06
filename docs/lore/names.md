@@ -1,6 +1,6 @@
 # Names the player reads
 
-Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account, the seasons, the army, the marches and the bandit camps. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
+Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account, the seasons, the army, the marches, the bandit camps and the fief's status. The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
 
 ## Resources
 
@@ -39,6 +39,139 @@ The *biblioteca* row (`arts.md`) and the *cuartel* row (The army, below) are pro
 - The **URL segment** of a fief (S18, #378) is `feudo`, the label of the thing in the singular, since the address names one fief: `/feudo/<id>` for the fief screen, `/feudo/<id>/mapa` for its map and `/feudo/<id>/cronica` for its chronicle, the two shipped segments unchanged and without accents, as a URL wants. The `<id>` is the fief's identifier, never its name, and is not a lore name.
 - The **navigation** keeps its three labels, *Feudo*, *Mapa* and *Crónica* (The map, below): each leads to that screen of the fief the lord is reading. The screen title stays the fief's name.
 - The **incoming cargo** (S19, #408) is the load a transport is bringing from the lord's other fief (`world.md`, The land), and its card on the fief screen is titled *Carga en camino*, the owner's words. Under the title it reads three lines: where the load comes from, *Desde Sotoverde, provincia 3, parcela 12*, the other fief's name, as its lord gave it, a comma and its plot as the map reads it; the amounts, as the *Recuperas* sentence reads them, *300 de madera, 200 de piedra y 220 de hierro*, in the order of the Resources table, a resource the load does not hold left out; and the countdown to the arrival, *Llegada en 7:30*, the line of the founding's card. Slots: the origin fief's name, its province, its plot, the amounts, the time left until the arrival. The card shows on the fief that receives the load, from the hour the transport leaves until the hour it arrives, when the amounts are in the stores, even above what they hold, and the card is gone; it is gone at once if the lord recalls the transport, since nothing is coming. A fief has at most one load on its way: the other fief is the only one that can send it, and it sends one march at a time. A fief with no load on its way shows no card and no line in its place. Where the card sits and how it shares the screen with the image of the convoy is the design's call (#410). The English identifiers `transport`, `cargo`, `incomingCargo`, `transportSent`, `transportArrived`, `EmptyCargo` and `CargoAboveCarry` are fixed by the S19 tickets (#408); only the Spanish is proposed here. Proposal for the author, not yet accepted, except *Carga en camino*, which is the owner's.
+
+## The fief's status
+
+Every line of this section is a proposal for the author, not yet accepted (S22, #463, Decisions 2 to 13 and the Defaults). The English identifiers `digest`, `acknowledgement`, `acknowledgedAt`, `isDue`, `absenceSeconds`, `fullAt`, `fullSince`, `freeSlots`, `fullStores`, `goals`, `goal`, `guidance`, `position`, `count`, `underway`, `missing`, `hint`, `seenHints` and the hint kinds `peasants`, `seasons`, `queue`, `library`, `barracks`, `marches` and `fullStore` are fixed by the S22 tickets (#463); only the Spanish is proposed here. The resource bar and the slots strip read on every signed-in screen of a fief, the fief, its map and its chronicle; the digest, the goal and the hints read on the fief screen, the marches hint on the map. Every worked example below names the instant it is read at; the instants are the browser's local clock, and the day is 6 October 2026, the spring of *año 1*, unless the line says otherwise.
+
+### The time of a finish
+
+- Every **finish** a screen counts to, the build slot, a waiting upgrade, the study, the levy, the march, the cargo, the goal and the *lista* line below, reads one way: the **time left** always, and when the finish is more than an hour away ` · ` and the **clock** too. The time left reads minutes under an hour, *14 min*, and seconds alone in the last minute, *0:42*; from an hour on, the hours and the minutes as `formatDuration` reads them today, *2 h 14 min*, *2 h* on the hour, and never days, since the clock end names the day. Exactly an hour away reads *1 h* alone. The minutes are the whole minutes left: a finish 14 minutes and 30 seconds away reads *14 min*.
+- The **clock** is the finish converted to the browser's local time: *14:32* when the finish falls today, *mañana 04:10* when it falls tomorrow, and the day, the month as `formatInstant` abbreviates it and the hour when it falls later, *8 oct 08:10*. *Mañana* is written in lower case after the dot, as *vega* and *otoño* are. The clock end carries no comma, where the chronicle's instant keeps its own, *8 oct, 08:10* (Open questions).
+
+| Read at | Finish | Line |
+|---|---|---|
+| 13:50 | 14:04 | *14 min* |
+| 14:03:18 | 14:04:00 | *0:42* |
+| 13:50 | 14:50 | *1 h* |
+| 13:50 | 16:04 | *2 h 14 min · 16:04* |
+| 13:50 | 04:10, 7 oct | *14 h 20 min · mañana 04:10* |
+| 12:05 | 08:10, 8 oct | *44 h 5 min · 8 oct 08:10* |
+
+- The browser counts the time left between reads and re-reads the fief at every finish and once a minute (M8); nothing in the lore names *terminando*, the shipped *Terminada* of a countdown at zero stays as it is.
+
+### The bar
+
+- The **resource bar** keeps the shipped cell of each resource, its label, its amount over what the stores hold, its rate, *+34 / h*, and *lleno* in rust when full (ADR 005), and the peasants cell, *5 / 12 libres*, *7 ocupados*. It gains one line.
+- A cell **about to fill** reads *lleno* and the clock of the instant the store fills, in place of its rate line, when that instant is within eight hours of the read: *lleno 19:00*, and across midnight *lleno mañana 03:00*. The clock alone, with no time left before it: the cell is narrow, and what the lord asks of a store is at what hour to be back. Slot: the fill instant (`fullAt`), which the server derives from the stored amount, the rate in force in each season segment and the capacity, as the accrual walks them (ADR 005, ADR 016); the eight hours are the web's constant. A store already full reads *lleno*, as shipped; one that fills later than eight hours, or never, keeps its rate.
+- **Worked**: *Sotoverde*, on the *páramo*, quarry at level 1, sawmill at level 1, no warehouse, so its stores hold 1 000, read at 14:00 in spring, with the content's terms. Stone accrues at the base 10, plus 20 from the quarry, plus 4 from the uplands, 34 an hour, spring leaving stone at 100 %; at 830 of stone the store fills in 170 / 34 = 5 h, so the cell reads *830 / 1 000* and *lleno 19:00*. Wood accrues at 10 plus 30, 40 an hour; at 520 it fills in 480 / 40 = 12 h, past the eight, so its cell keeps *+40 / h*. The same stone read at 22:00 fills at 03:00 of the next day and reads *lleno mañana 03:00*.
+
+### The strip
+
+- The **slots strip** is labelled *En curso*: what the fief has under way. The phrase holds for a work, a study, a levy, a march in any of its phases and a load on the road, as *en curso* already holds for the march slot through its three phases (The marches, below), where *en marcha* would trip on the march itself.
+- The strip holds one **cell per slot**, the build slot, the study slot, the recruit slot and the march slot, in that order, and a fifth for the incoming cargo. The study cell shows from library level 1 and the recruit and march cells from barracks level 1, as their sections do; the cargo cell shows only while a load is on its way to this fief. A slot the fief does not have yet has no cell and no line. Each cell links to its section, which keeps the detail, the cancel and the recall.
+- An **idle cell** reads *Sin obra*, *Sin estudio*, *Sin leva*, *Sin marcha*: the slot's noun after *sin*, with no colon, since an idle slot has nothing to list, and without *libre*, which the bar keeps for the peasants and the map for a plot.
+- A **busy cell** reads a heading, a colon, what the slot holds, ` · ` and the time of the finish as the rule above gives it. The heading is the slot's noun for the three works of the fief, and for a march the heading of its phase on the card, letter for letter, so a lord reads the same words in the strip and in *Cuartel*:
+
+| Slot | Read at | Line | Slots |
+|---|---|---|---|
+| build, busy | 13:50 | *Obra: aserradero, nivel 3 · 14 min* | the building label, the level under way, the time of the finish |
+| build, two waiting | 13:50 | *Obras en espera: 2 · 1 h 20 min · 15:10* | the count waiting, the time of the last waiting upgrade's finish |
+| study | 13:57 | *Estudio: herrería, nivel 1 · 8 min* | the art label, the level, the time of the finish |
+| recruit | 14:00 | *Leva: 5 de 12 infantes · 3 min* | the units delivered, the units ordered with the label agreeing, the time of the last delivery |
+| march, forage, outbound | 13:50 | *Marcha de ida: 12 infantes a provincia 2, parcela 7 · 2 h 30 min · 16:20* | the party phrase, the plot, the time of the return |
+| march, forage, foraging | 14:30 | *Forrajeo: 12 infantes en provincia 2, parcela 7 · 1 h 50 min · 16:20* | the same |
+| march, forage, returning | 16:10 | *Marcha de vuelta: 12 infantes desde provincia 2, parcela 7 · 10 min* | the same |
+| march, attack, outbound | 13:50 | *Marcha al ataque: 10 infantes a provincia 2, parcela 7 · 30 min* | the party sent, the plot, the time of the return |
+| march, attack, returning | 14:08 | *Vuelta del ataque: 6 infantes desde provincia 2, parcela 7 · 12 min* | the survivors, the plot, the time of the return |
+| march, founding | 13:50 | *Marcha de fundación: 1 colono a provincia 2, parcela 7 · 15 min* | one settler, the plot, the time of the arrival |
+| march, founding recalled | 14:00 | *Marcha de vuelta: 1 colono desde provincia 2, parcela 7 · 10 min* | one settler, the plot, the time of the return |
+| march, transport, outbound | 13:50 | *Marcha de transporte: 6 jinetes a provincia 2, parcela 7 · 7 min* | the party phrase, the plot, the time of the arrival |
+| march, transport, returning | 13:58 | *Vuelta del transporte: 6 jinetes desde provincia 2, parcela 7 · 7 min* | the same, the time of the return |
+| cargo | 13:50 | *Carga en camino: desde Sotoverde · 7 min* | the name of the fief the load comes from, the time of the arrival |
+
+- The **build cell** counts to the finish of the upgrade in the slot; when upgrades wait behind it, a second line reads *Obras en espera:*, the shipped name of the queue capitalised as a heading, the count waiting and the time of the last waiting upgrade's finish, when the queue empties. With nothing waiting there is no second line. The queue section reads the same instant beside its title.
+- The **recruit cell** counts to the last delivery, when the slot frees, the card's *Leva completa en*; the card keeps *Siguiente infante en*. The **march cell** counts to the return in every phase of a forage and of an attack, as the card's *Vuelta en* does, and to the arrival of a founding and of an outbound transport, as the card's *Llegada en* does, since that is the hour the lord waits for. The **cargo cell** reads the card's title as its heading and the name of the fief the load left, as its lord gave it; the amounts stay on the card. Whether a narrow strip shortens the party phrase to its counts, drops the plot or keeps a progress track beside the line is the design's call (#466, #469).
+- **Worked**: the forage is the twelve infantry of The marches, sent at 13:50 from *provincia 1, parcela 12* to *provincia 2, parcela 7*, 900 s of road each way and two hours at the plot, so at the plot at 14:05, leaving it at 16:05 and home at 16:20; the study is *herrería* to level 1 started at 13:50, 1 800 s over one plus the library's level 1, 900 s; the levy is twelve infantry ordered at 13:57 at barracks 1 in a spring that trains at 75 %, 90 s at that percent over one plus the level, 33,75 s rounded up to 34 a man, five delivered by 14:00 and seven to come, 228 s; the attack is the ten infantry of the worked battles, 900 s each way and no stay; the transport is the six riders of The marches, 450 s each way.
+
+### The reasons and the ready hour
+
+- Every **blocked action**, the upgrade of a building, the study of an art, a levy and the four orders of the map, keeps its button in reach and reads its **reason** beside it, the line the card already names, unchanged and in the order the card already checks them:
+
+| Card | Reasons, in order | Lines |
+|---|---|---|
+| a building | the queue full, the peasants, the resources | *Ya no caben más obras en espera. Espera a que avance alguna.*, *Necesitas 1 campesino libre y tienes 0.*, *Te faltan 30 de hierro.* |
+| an art | the study slot busy, the library's level, the resources | *Ya hay un estudio en marcha.*, *Necesitas la biblioteca a nivel 2 y está a nivel 1.*, *Te faltan 150 de hierro.* |
+| a unit | the levy under way, the count typed, the peasants, the resources | *Ya hay una leva en marcha.*, *Un número entero, al menos 1.*, *Necesitas 3 campesinos libres y tienes 2.*, *Te faltan 40 de madera.* |
+| a unit locked | the barracks' level | *Necesitas un cuartel de nivel 3 y el tuyo es de nivel 1.* |
+| a march form | the march slot busy, the party, the men, the hours, the cargo | the lines of The marches, below, unchanged |
+
+- The **ready hour** reads beside the reason when the one thing short is a resource and the hours will bring it: *lista 16:00*, and *lista en 48 min* when it comes within the hour. *Lista* agrees with what the lord waits for on the card: *la obra* of a building, *la leva* of a unit, and on an art card the art itself, *la herrería*, *la cantería*, both feminine, so one word serves the three cards (Open questions). The line reads the clock of the rule above, *lista 16:00*, *lista mañana 04:10*, *lista 8 oct 08:10*, and within the hour *en* and the time left, *lista en 48 min*; in the last minute *lista en 1 min*, since the card is no slot and shows no seconds (#463, Decision 5). Slot: the ready instant, the latest instant at which a short resource reaches its cost at the read's rate, derived in the browser from the read (M8, N1).
+- **When it shows**: only when every reason left is a resource short, each with a rate above 0 and each cost at or below what the stores hold, so that waiting alone solves it. A queue full, peasants short, a library or a barracks level, a locked card or a cost above the capacity read their reason alone, since no hour brings peasants, a level or room in the stores. The march forms read their reason alone, never *lista*: men and cargo are not accrued.
+- **Worked**, *Sotoverde* read at 14:00, iron at the base 5 an hour with no mine: the barracks at level 1 costs *200 de madera, 120 de piedra y 60 de hierro* and one peasant; with 30 of iron and the rest in the stores the card reads *Te faltan 30 de hierro.* and *lista 20:00*, six hours on; with 56 of iron, *Te faltan 4 de hierro.* and *lista en 48 min*. With 150 of wood as well, at 40 an hour, the wood is in by 15:15 and the iron by 20:00, and the card reads *Te faltan 50 de madera y 30 de hierro.* and *lista 20:00*, the later of the two. With no free peasant the card reads *Necesitas 1 campesino libre y tienes 0.* and no *lista*, whatever the iron.
+
+### The digest
+
+- The **digest** is titled *Mientras no estabas*, the owner's words: what happened in the lord's fiefs since the last time the lord said so. Its button reads *Entendido*: pressing it stores that instant on the server (`acknowledgedAt`), and the next digest starts there. A read never moves it.
+- **When it shows**: as a card on the fief screen, never a modal, when something happened after the last *Entendido* and that instant is at least `absenceSeconds` before the read, 3 600 s in the content. Nothing happened, or the lord was here within the hour: no card and no line.
+- The digest lists **each fief** of the lord under a heading that reads the fief's name, as its lord gave it, *Sotoverde*, then *Sotoverde del Páramo*, in the order of the switcher. Whether the heading shows for a lord of one fief is the design's call (#466, #473).
+- Under each heading the digest reads the fief's **events** after the last *Entendido* in the chronicle's lines, letter for letter, each with the chronicle's instant (The chronicle, above), and one row for each **store that filled** after it, in the same shape: the instant it filled, then *Almacén lleno:*, a colon and the resource label, *Almacén lleno: piedra.*, in the register of *Obra terminada: aserradero, nivel 3.* The row names the store, *el almacén*, so *lleno* agrees as the bar's *lleno* does and no resource's gender is needed. Slots: the fill instant (`fullSince`), the resource label. A store already full at the last *Entendido* is not news and has no row: the bar reads *lleno*. The chronicle itself writes no such line: the row is derived from the stores and read here alone.
+- **Worked**: the lord pressed *Entendido* at 13:00 on 5 October and reads the fief at 09:00 on 6 October. The stone of *Sotoverde* filled at 19:00 the day before and the sawmill reached level 3 at 20:10; *Sotoverde del Páramo* had a levy end at 22:30. The card reads *Mientras no estabas*; *Sotoverde*: *5 oct, 20:10 Obra terminada: aserradero, nivel 3.* and *5 oct, 19:00 Almacén lleno: piedra.*; *Sotoverde del Páramo*: *5 oct, 22:30 Leva terminada: 12 infantes.*; *Entendido*. Read at 13:30 instead, half an hour after a fresh *Entendido* at 13:00, it shows nothing, whatever happened.
+
+### The goal
+
+- The **next goal** is a card titled *Siguiente meta*: the first thing of an ordered list the fief has not done yet. *Meta* is the plain word for a mark to reach; *misión* is not used, since `mission` is an avoided word (`CONTEXT.md`). Its button reads *Descartar*: pressing it turns the guidance off for that fief for good, stored on the server. The hints below keep *Entendido*, a lighter act.
+- The card reads four lines: the **position**, *Meta 2 de 9*, in the register of *4 de 12 infantes* (slots: the position, the count of goals); the **goal**; its **state**; and the digest's rule of silence, nothing when every goal is met or the guidance is dismissed.
+- Each **goal** is a building at a level, and reads as an order to the lord, in the register of the refusals' remedies, *Levántalo primero* and *Mejórala primero*: *Levanta* and the building with its article for a level 1, since to build is to raise, and *Sube* the building *a nivel 2* for a later level, the shipped *Sube a nivel 3.* with its subject. The line needs the building's article, which the Buildings table does not carry: *el aserradero*, *la cantera*, *la mina de hierro*, *la granja*, *el almacén*, *la biblioteca*, *el cuartel*. With the content's defaults (#463):
+
+| Position | Goal | Line |
+|---|---|---|
+| 1 | sawmill 1 | *Levanta un aserradero.* |
+| 2 | farm 1 | *Levanta una granja.* |
+| 3 | quarry 1 | *Levanta una cantera.* |
+| 4 | warehouse 1 | *Levanta un almacén.* |
+| 5 | iron mine 1 | *Levanta una mina de hierro.* |
+| 6 | sawmill 2 | *Sube el aserradero a nivel 2.* |
+| 7 | farm 2 | *Sube la granja a nivel 2.* |
+| 8 | library 1 | *Levanta una biblioteca.* |
+| 9 | barracks 1 | *Levanta un cuartel.* |
+
+- The **state** reads one of three. **Underway**, while the build slot or the queue holds that building's next level: *Ya está encargada.*, agreeing with *la obra*, and true in the slot and in the queue alike, since the overview says only that the level is ordered; the strip reads its hour. **Ready**, when the level can be ordered now: *Tienes lo que hace falta.* **Missing**, otherwise: the resources short, in the shipped *Te faltan* line, *Te faltan 30 de hierro.*, and the free peasants short, in the same register, *Te falta 1 campesino libre.*, *Te faltan 3 campesinos libres.*, both lines when both are short, the resources first, as the card lists its costs. The peasants line counts the shortfall, which is what the server answers (`missing`), where the card's *Necesitas 1 campesino libre y tienes 0.* counts the need and the free; the card keeps its own line.
+- A goal is **met** at the built level, never the projected one: the card moves on when the work ends, not when it is ordered, so *Ya está encargada.* is read until then.
+- **Worked**: a new fief read at 14:00 the day it was founded, with the content's starting stocks, *500 de madera, 500 de piedra, 200 de hierro, 50 de oro y 300 de comida* and ten peasants, reads *Siguiente meta*, *Meta 1 de 9*, *Levanta un aserradero.*, *Tienes lo que hace falta.*, since the sawmill's first level costs *60 de madera y 15 de piedra* and one peasant. Ordered at 14:01, 120 s of work, it reads *Ya está encargada.* at 14:02, and at 14:04, the work done, *Meta 2 de 9*, *Levanta una granja.* A fief at goal 9 read at 14:00 with 30 of iron reads *Levanta un cuartel.* and *Te faltan 30 de hierro.*; the same fief with twelve infantry on twenty peasants, eight of them held by its buildings, has no free peasant and reads *Te faltan 30 de hierro.* and *Te falta 1 campesino libre.*
+
+### The hints
+
+- A **hint** is one line beside the thing it speaks of, the first time that thing matters to the lord, with a control that reads *Entendido*: pressing it stores the hint as seen for the player, and it never shows again, on any fief. One hint at a time, in the order of the table, never a modal, never a cheer: the line says what the thing is and what to do about it, in the voice of the refusals, and no line praises the lord (`docs/research/engaging-strategy-ui.md`, principle 1).
+
+| Hint | Shows when | Beside | Line |
+|---|---|---|---|
+| peasants | a building card is blocked by the peasants | the peasants cell | *Cada nivel de un edificio y cada hombre de armas ocupa campesinos. Una granja trae más.* |
+| seasons | a season in force changes some rate, with the content's terms spring, autumn and winter | the season line | *Cada estación dura siete días y cambia alguna cosecha o algún trabajo. Las marcas dicen cuál.* |
+| queue | the build slot is busy | the build slot | *Mientras una obra avanza puedes encargar otras: esperan en orden y empiezan solas.* |
+| library | the library is at level 1 | the *Biblioteca* heading | *La biblioteca estudia un arte cada vez. Cada nivel de un arte sube lo que rinde un recurso por hora.* |
+| barracks | the barracks is at level 1 | the *Cuartel* heading | *El cuartel recluta una leva cada vez. Cada hombre sale de los campos y sigue ocupando campesinos mientras sirve.* |
+| marches | the map is read with units at home | the map's march panel | *Tus hombres salen desde el mapa: elige una parcela y verás qué puedes mandar allí. Una marcha cada vez.* |
+| fullStore | a store is full | the resource cell | *Un almacén lleno no guarda más y lo que rinde de más se pierde. Gasta o mejora el almacén.* |
+
+- Each line is checked against the rules it names: a building level and a unit occupy peasants and a farm level supplies more (`CONTEXT.md`, Peasants), the rider two and the settler four, so the barracks line says *campesinos* with no count and leaves the counts to the cards; a season lasts seven days in the content and spring, autumn and winter each change a rate while every season but autumn shortens a work, so the seasons line says *alguna* twice and sends the lord to the marks (The seasons, above); the queue starts each waiting upgrade when the one before it finishes (`CONTEXT.md`, Build queue), and the line names no cap; the library holds one study at a time and each art level raises one resource's rate (`CONTEXT.md`, Art); a fief sends one march at a time, from the map alone (`CONTEXT.md`, March); a full store accrues nothing until something is spent or the warehouse grows (ADR 005). The summer, which changes no rate, shows no seasons hint; a lord who first meets a season in summer reads it in the autumn.
+
+### Avisarme
+
+- The **notice toggle** in the strip reads *Avisarme*, the owner's word, in both of its states: the control carries whether it is on, and the word does not change. Where the design writes the state in words beside it, *activado* and *desactivado*, agreeing with *el aviso*. Under it, one line says what it promises and no more: *Solo mientras esta pestaña siga abierta.*, since the browser notifies only while the tab is open and the server pushes nothing (W7, N2).
+- **Turning it on** asks the browser's leave; when the browser **denies** it, the toggle stays off and reads, in the register of *No hemos podido enviar el correo. Vuelve a intentarlo en un momento.*: *Tu navegador no permite los avisos. Permítelos en sus ajustes y vuelve a activarlo.*
+- One **notice** per finish, sent once the fief's re-read shows it applied, never at the countdown's zero. Its title is the fief's name, as its lord gave it, so a lord of two fiefs reads which; its body is the roll's line for that finish up to its first full stop, the heading, a colon and the subject, letter for letter as The chronicle writes it, and the amounts stay on the roll:
+
+| Finish | Notice |
+|---|---|
+| an upgrade | *Obra terminada: aserradero, nivel 3.* |
+| a study | *Estudio terminado: herrería, nivel 2.* |
+| a levy | *Leva terminada: 12 infantes.* |
+| a march back | *Marcha terminada: provincia 2, parcela 7, 12 infantes.*, and *Marcha retirada: provincia 2, parcela 7, 12 infantes.* when the lord recalled it |
+| a founding | *Feudo fundado: Sotoverde del Páramo, provincia 2, parcela 7.* |
+| a cargo arrived | *Transporte recibido: Sotoverde, provincia 3, parcela 12.* |
+
+- No notice for a cancel or a recall the lord made, nor on the first read of a visit: the lord was there. A recalled march's return is a march back and reads its notice. A lost attack frees the march slot at the battle with no one coming back, and the six finishes above name no line for it (Open questions).
 
 ## The arts
 
@@ -647,3 +780,8 @@ Every line of this section is a proposal for the author, not yet accepted (`worl
 - Whether *transporte* holds for the order that carries resources between a lord's fiefs, or the land gives it an older word, *acarreo*, the hauling of loads by cart. *Transporte* is plain and reads at once; it is also the newest-sounding word of the yard (The marches, A transport).
 - Whether `InsufficientResources` keeps a line per thing refused, *para esa obra* and *para esa carga*, or one line that reads true of a work, a study, a levy and a transport alike. The refusal carries no word of what was ordered, so two lines need the answer to know which order it refuses (#412).
 - Whether `NotEnoughUnitsAtHome` keeps *Ajusta la marcha.* when a transport is refused, and whether the transport's card should count to the return as well as to the arrival while outbound (#410).
+- Whether the strip's clock end, *8 oct 08:10*, and the chronicle's instant, *8 oct, 08:10*, keep their two shapes, or one takes the other's (The fief's status, The chronicle).
+- Whether *lista* holds on the art card once an art takes a masculine label, or the ready hour takes a line with no gender (The fief's status).
+- Whether *Sin obra*, *Sin estudio*, *Sin leva* and *Sin marcha* hold in the strip beside the sections' *Tu feudo no tiene obra.* and its three siblings, or the strip reads the sections' lines (The fief's status).
+- Whether *Siguiente meta* holds, or the land gives the goal a plainer *Lo siguiente* (The fief's status).
+- Whether a lost attack, which frees the march slot at the battle with no march back, sends a notice, *Batalla perdida: provincia 2, parcela 7, campamento de nivel 2.*, where the six finishes of *Avisarme* name none (The fief's status).
