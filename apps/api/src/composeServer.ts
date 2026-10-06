@@ -5,8 +5,11 @@ import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleCampRegistry } from './adapters/postgres/DrizzleCampRegistry'
 import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
+import { DrizzleDigestAcknowledgements } from './adapters/postgres/DrizzleDigestAcknowledgements'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
+import { DrizzleGuidanceDismissals } from './adapters/postgres/DrizzleGuidanceDismissals'
 import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
+import { DrizzleSeenHints } from './adapters/postgres/DrizzleSeenHints'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
 import { SmtpMailer } from './adapters/smtp/SmtpMailer'
 import { Argon2Passwords } from './adapters/system/Argon2Passwords'
@@ -16,8 +19,11 @@ import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
+import type { DigestAcknowledgements } from './digest/DigestAcknowledgements'
 import type { ChronicleReader } from './fief/ChronicleReader'
 import type { FiefReader } from './fief/FiefReader'
+import type { GuidanceDismissals } from './guidance/GuidanceDismissals'
+import type { SeenHints } from './hint/SeenHints'
 import type { CampReader } from './kingdom/CampReader'
 
 const highestPort = 65535
@@ -75,6 +81,9 @@ export type ComposedServer = MailSettings & {
   readonly map: KingdomMapReader
   readonly camps: CampReader
   readonly accounts: Accounts
+  readonly digestAcknowledgements: DigestAcknowledgements
+  readonly guidanceDismissals: GuidanceDismissals
+  readonly seenHints: SeenHints
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
   readonly inTransaction: Transaction
@@ -104,6 +113,9 @@ export function composeServer(
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     accounts: new DrizzleAccounts(database),
+    digestAcknowledgements: new DrizzleDigestAcknowledgements(database),
+    guidanceDismissals: new DrizzleGuidanceDismissals(database),
+    seenHints: new DrizzleSeenHints(database),
     passwords: new Argon2Passwords(),
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database),

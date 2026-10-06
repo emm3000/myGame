@@ -39,6 +39,7 @@ import {
 } from '../fief/placeRecruitOrderOf'
 import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarchOf'
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
+import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
 import { answerRefusal, type RefusalLines, transportLines } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { requireNamedFief } from '../http/requireNamedFief'
@@ -58,6 +59,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   RecallMarchDependencies &
   RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
+    readonly guidanceDismissals: GuidanceDismissals
   }
 
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
@@ -180,5 +182,16 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await recallMarchOf(c.var.fiefOfPlayer, request.data, dependencies))
+    })
+    .post('/guidance/dismissal', signedInPlayer, requireNamedFief, async (c) => {
+      const { fiefOfPlayer } = c.var
+      const dismissal = await dependencies.guidanceDismissals.dismiss(
+        fiefOfPlayer,
+        dependencies.clock.now(),
+      )
+      if (dismissal === 'fiefNotFound') {
+        return answerRefusal(c, { kind: 'FiefNotFound', fiefId: fiefOfPlayer.fiefId })
+      }
+      return c.body(null, 204)
     })
 }
