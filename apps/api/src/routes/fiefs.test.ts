@@ -122,6 +122,65 @@ describe('the fief list route', () => {
     expect(listed?.freeSlots).toEqual(['build', 'recruit', 'march'])
   })
 
+  it('leaves the recruit and march slots out below barracks level 1', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await app.request('/fiefs', { headers: { cookie: ana } })
+
+    const [listed] = FiefListSchema.parse(await response.json()).fiefs
+    expect(listed?.freeSlots).toEqual(['build'])
+  })
+
+  const buildLibraryAndBarracks = async (): Promise<void> =>
+    runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+      SELECT id, unnest(ARRAY['library', 'barracks']::building[]), 1 FROM fiefs`)
+
+  const freeSlotsOf = async (cookie: string): Promise<ReadonlyArray<string> | undefined> => {
+    const response = await app.request('/fiefs', { headers: { cookie } })
+    const [listed] = FiefListSchema.parse(await response.json()).fiefs
+    return listed?.freeSlots
+  }
+
+  it('leaves out the study slot while a study runs', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await buildLibraryAndBarracks()
+    await runSql(
+      `UPDATE fiefs SET study_art = 'smithing', study_level = 1,
+         study_started_at = '2026-09-22T08:00:00Z', study_finishes_at = '2026-09-22T08:30:00Z',
+         study_cost_wood = 120, study_cost_stone = 80, study_cost_iron = 150, study_cost_gold = 60`,
+    )
+
+    expect(await freeSlotsOf(ana)).toEqual(['build', 'recruit', 'march'])
+  })
+
+  it('leaves out the recruit slot while an order is open', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await buildLibraryAndBarracks()
+    await runSql(
+      `INSERT INTO fief_recruit_orders (fief_id, kind, count, cost_wood, cost_stone, cost_iron,
+         cost_gold, cost_food, per_unit_seconds, started_at)
+       SELECT id, 'infantry', 3, 60, 0, 30, 0, 90, 60, '2026-09-22T08:00:00Z' FROM fiefs`,
+    )
+
+    expect(await freeSlotsOf(ana)).toEqual(['build', 'study', 'march'])
+  })
+
+  it('leaves out the march slot while a march is away', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await buildLibraryAndBarracks()
+    await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+      SELECT id, 'infantry'::unit, 10 FROM fiefs`)
+    await runSql(
+      `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, archer_count,
+         settler_count, stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
+         loot_percent_wood, loot_percent_stone, loot_percent_iron, loot_percent_gold, loot_percent_food)
+       SELECT id, 2, 7, 10, 0, 0, 0, 1, 60, '2026-09-22T08:00:00Z', 30, 30, 0, 0, 0, 100, 100, 100, 100, 100
+       FROM fiefs`,
+    )
+
+    expect(await freeSlotsOf(ana)).toEqual(['build', 'study', 'recruit'])
+  })
+
   it('answers 401 without a session', async () => {
     const response = await app.request('/fiefs')
 

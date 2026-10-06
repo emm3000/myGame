@@ -61,28 +61,57 @@ const storeAfter = (
   return { kind: 'filling', amount, unchangedSegments: unchangedSegments + 1 }
 }
 
+type Stores = Record<ResourceKind, Store>
+
 const storedStoreOf = (fief: Fief, kind: ResourceKind, capacityUnits: number): Store =>
   fief.stocks[kind] >= capacityUnits
     ? { kind: 'settled', fullAt: fief.storedAt }
     : { kind: 'filling', amount: fief.stocks[kind], unchangedSegments: 0 }
 
-const fullAtOf = (store: Store): Instant | null => (store.kind === 'settled' ? store.fullAt : null)
+const storedStoresOf = (fief: Fief, capacityUnits: number): Stores => ({
+  wood: storedStoreOf(fief, 'wood', capacityUnits),
+  stone: storedStoreOf(fief, 'stone', capacityUnits),
+  iron: storedStoreOf(fief, 'iron', capacityUnits),
+  gold: storedStoreOf(fief, 'gold', capacityUnits),
+  food: storedStoreOf(fief, 'food', capacityUnits),
+})
 
-export const deriveFullAt = (fief: Fief, catalog: BuildingCatalog): Result<FullAt, DomainError> => {
-  const capacityUnits = deriveWarehouseCapacity(fief.buildingLevels.warehouse, catalog)
-  if (!capacityUnits.ok) {
-    return capacityUnits
+const storesAfterSegment = (
+  stores: Stores,
+  rates: Readonly<Record<ResourceKind, number>>,
+  capacityUnits: number,
+  from: Instant,
+  to: Instant,
+): Stores => {
+  const next = { ...stores }
+  for (const kind of resourceKinds) {
+    const store = stores[kind]
+    if (store.kind === 'filling') {
+      next[kind] = storeAfter(
+        store.amount,
+        store.unchangedSegments,
+        rates[kind],
+        capacityUnits,
+        from,
+        to,
+      )
+    }
   }
+  return next
+}
+
+const isAnyFilling = (stores: Stores): boolean =>
+  resourceKinds.some((kind) => stores[kind].kind === 'filling')
+
+const settledStoresOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+  capacityUnits: number,
+): Result<Stores, DomainError> => {
   const settings = catalog.fiefSettings()
-  const stores: Record<ResourceKind, Store> = {
-    wood: storedStoreOf(fief, 'wood', capacityUnits.value),
-    stone: storedStoreOf(fief, 'stone', capacityUnits.value),
-    iron: storedStoreOf(fief, 'iron', capacityUnits.value),
-    gold: storedStoreOf(fief, 'gold', capacityUnits.value),
-    food: storedStoreOf(fief, 'food', capacityUnits.value),
-  }
+  let stores = storedStoresOf(fief, capacityUnits)
   let segmentStart = fief.storedAt
-  while (resourceKinds.some((kind) => stores[kind].kind === 'filling')) {
+  while (isAnyFilling(stores)) {
     const segmentEnd = nextSeasonBoundaryAfter(segmentStart, settings)
     const rates = deriveResourceRates(
       fief.buildingLevels,
@@ -94,26 +123,28 @@ export const deriveFullAt = (fief: Fief, catalog: BuildingCatalog): Result<FullA
     if (!rates.ok) {
       return rates
     }
-    for (const kind of resourceKinds) {
-      const store = stores[kind]
-      if (store.kind === 'filling') {
-        stores[kind] = storeAfter(
-          store.amount,
-          store.unchangedSegments,
-          rates.value[kind],
-          capacityUnits.value,
-          segmentStart,
-          segmentEnd,
-        )
-      }
-    }
+    stores = storesAfterSegment(stores, rates.value, capacityUnits, segmentStart, segmentEnd)
     segmentStart = segmentEnd
   }
+  return ok(stores)
+}
+
+const fullAtOf = (store: Store): Instant | null => (store.kind === 'settled' ? store.fullAt : null)
+
+export const deriveFullAt = (fief: Fief, catalog: BuildingCatalog): Result<FullAt, DomainError> => {
+  const capacityUnits = deriveWarehouseCapacity(fief.buildingLevels.warehouse, catalog)
+  if (!capacityUnits.ok) {
+    return capacityUnits
+  }
+  const stores = settledStoresOf(fief, catalog, capacityUnits.value)
+  if (!stores.ok) {
+    return stores
+  }
   return ok({
-    wood: fullAtOf(stores.wood),
-    stone: fullAtOf(stores.stone),
-    iron: fullAtOf(stores.iron),
-    gold: fullAtOf(stores.gold),
-    food: fullAtOf(stores.food),
+    wood: fullAtOf(stores.value.wood),
+    stone: fullAtOf(stores.value.stone),
+    iron: fullAtOf(stores.value.iron),
+    gold: fullAtOf(stores.value.gold),
+    food: fullAtOf(stores.value.food),
   })
 }
