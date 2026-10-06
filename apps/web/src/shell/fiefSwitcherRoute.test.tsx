@@ -4,7 +4,6 @@ import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import {
-  knownFief,
   knownFiefList,
   knownFiefPath,
   knownPlayer,
@@ -21,8 +20,10 @@ const bothFiefs: FiefList = {
       id: secondFiefId,
       name: 'Sotoverde del Páramo',
       coordinates: { kingdom: 1, province: 2, plot: 7 },
+      freeSlots: [],
+      fullStores: [],
     },
-    { id: knownFief.id, name: knownFief.name, coordinates: knownFief.coordinates },
+    ...knownFiefList.fiefs,
   ],
 }
 

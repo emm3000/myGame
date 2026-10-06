@@ -5,6 +5,8 @@ const vadoGris = {
   id: '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a',
   name: 'Vado Gris',
   coordinates: { kingdom: 1, province: 3, plot: 12 },
+  freeSlots: ['build', 'study'],
+  fullStores: ['gold'],
 }
 
 describe('FiefListSchema', () => {

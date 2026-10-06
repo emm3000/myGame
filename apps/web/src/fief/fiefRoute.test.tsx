@@ -46,7 +46,7 @@ it('advances the wood amount between reads from the server rate', async () => {
     ...knownFief,
     resources: {
       ...knownFief.resources,
-      wood: { amount: 1000, ratePerHour: 3600, capacity: 20000 },
+      wood: { amount: 1000, ratePerHour: 3600, capacity: 20000, fullAt: null },
     },
   }
   await showFief(signedInClientServing(() => woodAtOnePerSecond))
@@ -61,7 +61,7 @@ it('stops the interpolated amount at the capacity', async () => {
     ...knownFief,
     resources: {
       ...knownFief.resources,
-      wood: { amount: 19990, ratePerHour: 3600, capacity: 20000 },
+      wood: { amount: 19990, ratePerHour: 3600, capacity: 20000, fullAt: null },
     },
   }
   await showFief(signedInClientServing(() => woodTenSecondsFromFull))
@@ -76,7 +76,7 @@ it('keeps an amount above the capacity where the read left it', async () => {
     ...knownFief,
     resources: {
       ...knownFief.resources,
-      wood: { amount: 1200, ratePerHour: 3600, capacity: 1000 },
+      wood: { amount: 1200, ratePerHour: 3600, capacity: 1000, fullAt: null },
     },
   }
   await showFief(signedInClientServing(() => woodAboveCapacity))
@@ -390,7 +390,12 @@ const robledal = {
 const signedInClientReading = (readFiefIds: Array<string>): ApiClient =>
   stubApiClient({
     currentPlayer: async () => knownPlayer,
-    fiefs: async () => ({ ok: true, value: { fiefs: [...knownFiefList.fiefs, robledal] } }),
+    fiefs: async () => ({
+      ok: true,
+      value: {
+        fiefs: [...knownFiefList.fiefs, { ...robledal, freeSlots: [], fullStores: [] }],
+      },
+    }),
     fief: async (fiefId) => {
       readFiefIds.push(fiefId)
       return { ok: true, value: fiefId === robledal.id ? { ...knownFief, ...robledal } : knownFief }

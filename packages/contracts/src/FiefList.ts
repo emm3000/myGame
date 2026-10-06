@@ -1,4 +1,7 @@
 import { z } from 'zod'
+import { ResourceKindSchema } from './ResourceKind'
+
+const FiefSlotKindSchema = z.enum(['build', 'study', 'recruit', 'march'])
 
 const FiefListEntrySchema = z.strictObject({
   id: z.uuid(),
@@ -8,6 +11,8 @@ const FiefListEntrySchema = z.strictObject({
     province: z.number().int().positive(),
     plot: z.number().int().positive(),
   }),
+  freeSlots: z.array(FiefSlotKindSchema),
+  fullStores: z.array(ResourceKindSchema),
 })
 
 export const FiefListSchema = z.strictObject({
