@@ -23,6 +23,7 @@ const ResourceStateSchema = z.object({
   amount: QuantitySchema,
   ratePerHour: QuantitySchema,
   capacity: WholeCountSchema,
+  fullAt: InstantSchema.nullable(),
 })
 
 const NextLevelSchema = z.object({

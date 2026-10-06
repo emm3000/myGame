@@ -92,6 +92,36 @@ describe('the fief list route', () => {
     expect(overview.status).toBe(200)
   })
 
+  it('lists each fief with its free slots and full stores', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+      SELECT id, unnest(ARRAY['library', 'barracks']::building[]), 1 FROM fiefs`)
+    await runSql(
+      `UPDATE fiefs SET stone = 1000, food = 1200, slot_building = 'sawmill', slot_level = 1,
+         slot_started_at = '2026-09-22T08:00:00Z', slot_finishes_at = '2026-09-22T08:02:00Z',
+         slot_cost_wood = 60, slot_cost_stone = 15`,
+    )
+
+    const response = await app.request('/fiefs', { headers: { cookie: ana } })
+
+    const [listed] = FiefListSchema.parse(await response.json()).fiefs
+    expect({ freeSlots: listed?.freeSlots, fullStores: listed?.fullStores }).toEqual({
+      freeSlots: ['study', 'recruit', 'march'],
+      fullStores: ['stone', 'food'],
+    })
+  })
+
+  it('leaves the study slot out below library level 1', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
+      SELECT id, 'barracks'::building, 1 FROM fiefs`)
+
+    const response = await app.request('/fiefs', { headers: { cookie: ana } })
+
+    const [listed] = FiefListSchema.parse(await response.json()).fiefs
+    expect(listed?.freeSlots).toEqual(['build', 'recruit', 'march'])
+  })
+
   it('answers 401 without a session', async () => {
     const response = await app.request('/fiefs')
 

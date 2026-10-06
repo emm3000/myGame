@@ -219,7 +219,7 @@ const winterWithAFractionalFoodRate: FiefOverview = {
   ...winterEndingInADayAndHalfAMinute,
   resources: {
     ...knownFief.resources,
-    food: { amount: 1000, ratePerHour: 11.25, capacity: 20000 },
+    food: { amount: 1000, ratePerHour: 11.25, capacity: 20000, fullAt: null },
   },
 }
 

@@ -35,7 +35,7 @@ const cargoArrivingIn = (seconds: number): FiefOverview['incomingCargo'] => ({
 
 const steadyWood = (amount: number): FiefOverview['resources'] => ({
   ...knownFief.resources,
-  wood: { amount, ratePerHour: 0, capacity: 20000 },
+  wood: { amount, ratePerHour: 0, capacity: 20000, fullAt: null },
 })
 
 const awaitingCargo: FiefOverview = { ...knownFief, incomingCargo: cargoArrivingIn(450) }

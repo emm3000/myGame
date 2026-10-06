@@ -219,7 +219,12 @@ describe('the fief route', () => {
     expect(response.status).toBe(200)
     const overview = FiefOverviewSchema.parse(await response.json())
     expect(overview.name).toBe('Valdehierro')
-    expect(overview.resources.wood).toEqual({ amount: 500, ratePerHour: 10, capacity: 1000 })
+    expect(overview.resources.wood).toEqual({
+      amount: 500,
+      ratePerHour: 10,
+      capacity: 1000,
+      fullAt: '2026-09-24T10:00:00.000Z',
+    })
     expect(overview.peasants).toEqual({
       supplied: 10,
       occupied: 0,
@@ -406,8 +411,40 @@ describe('the fief route', () => {
     const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
-    expect(resources.food).toEqual({ amount: 322, ratePerHour: 15, capacity: 1000 })
-    expect(resources.wood).toEqual({ amount: 515, ratePerHour: 10, capacity: 1000 })
+    expect(resources.food).toEqual({
+      amount: 322,
+      ratePerHour: 15,
+      capacity: 1000,
+      fullAt: '2026-09-24T06:42:00.000Z',
+    })
+    expect(resources.wood).toEqual({
+      amount: 515,
+      ratePerHour: 10,
+      capacity: 1000,
+      fullAt: '2026-09-24T10:00:00.000Z',
+    })
+  })
+
+  it('answers when each store fills on the overview', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql('UPDATE fiefs SET wood = 500, stone = 1000, iron = 995, gold = 998, food = 970')
+
+    const response = await fiefOf(ana)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect({
+      wood: resources.wood.fullAt,
+      stone: resources.stone.fullAt,
+      iron: resources.iron.fullAt,
+      gold: resources.gold.fullAt,
+      food: resources.food.fullAt,
+    }).toEqual({
+      wood: '2026-09-24T10:00:00.000Z',
+      stone: '2026-09-22T08:00:00.000Z',
+      iron: '2026-09-22T09:00:00.000Z',
+      gold: '2026-09-22T09:00:00.000Z',
+      food: '2026-09-22T10:00:00.000Z',
+    })
   })
 
   it('answers no season before the epoch', async () => {
@@ -527,7 +564,12 @@ describe('the fief route', () => {
     const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
-    expect(resources.wood).toEqual({ amount: 1200, ratePerHour: 10, capacity: 1000 })
+    expect(resources.wood).toEqual({
+      amount: 1200,
+      ratePerHour: 10,
+      capacity: 1000,
+      fullAt: '2026-09-22T09:00:00.000Z',
+    })
   })
 
   it('answers a finished upgrade with the amounts accrued at the old rate then the new one', async () => {

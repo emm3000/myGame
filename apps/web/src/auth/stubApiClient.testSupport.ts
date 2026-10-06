@@ -11,6 +11,7 @@ const resource = (amount: number): FiefOverview['resources']['wood'] => ({
   amount,
   ratePerHour: 360,
   capacity: 20000,
+  fullAt: null,
 })
 
 const buildingAtLevel = (level: number): FiefOverview['buildings']['sawmill'] => ({
@@ -146,7 +147,15 @@ const heldPlots: Readonly<Record<number, string>> = {
 export const knownFiefPath = `/feudo/${knownFief.id}`
 
 export const knownFiefList: FiefList = {
-  fiefs: [{ id: knownFief.id, name: knownFief.name, coordinates: knownFief.coordinates }],
+  fiefs: [
+    {
+      id: knownFief.id,
+      name: knownFief.name,
+      coordinates: knownFief.coordinates,
+      freeSlots: ['build'],
+      fullStores: [],
+    },
+  ],
 }
 
 export const knownProvinceMap: ProvinceMap = {

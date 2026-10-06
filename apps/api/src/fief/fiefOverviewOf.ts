@@ -12,6 +12,7 @@ import {
   type DurationPercent,
   deliveredUnitsOf,
   deriveBuildDurationSeconds,
+  deriveFullAt,
   deriveLowestFreePeasants,
   derivePeasantCounts,
   derivePeasantsForUpgrade,
@@ -22,6 +23,7 @@ import {
   durationPercentAt,
   type Fief,
   type FiefBuildingLevels,
+  type FullAt,
   type IncomingCargo,
   type Instant,
   type March,
@@ -301,17 +303,31 @@ const seasonOf = (
   }
 }
 
+type ResourceState = FiefOverview['resources'][ResourceKind]
+
 const resourcesOf = (
   stocks: Stocks,
   rates: Readonly<Record<ResourceKind, number>>,
   capacity: number,
-): FiefOverview['resources'] => ({
-  wood: { amount: stocks.wood, ratePerHour: rates.wood, capacity },
-  stone: { amount: stocks.stone, ratePerHour: rates.stone, capacity },
-  iron: { amount: stocks.iron, ratePerHour: rates.iron, capacity },
-  gold: { amount: stocks.gold, ratePerHour: rates.gold, capacity },
-  food: { amount: stocks.food, ratePerHour: rates.food, capacity },
-})
+  fullAt: FullAt,
+): FiefOverview['resources'] => {
+  const stateOf = (kind: ResourceKind): ResourceState => {
+    const filledAt = fullAt[kind]
+    return {
+      amount: stocks[kind],
+      ratePerHour: rates[kind],
+      capacity,
+      fullAt: filledAt === null ? null : isoOf(filledAt),
+    }
+  }
+  return {
+    wood: stateOf('wood'),
+    stone: stateOf('stone'),
+    iron: stateOf('iron'),
+    gold: stateOf('gold'),
+    food: stateOf('food'),
+  }
+}
 
 const peasantsOf = (
   fief: Fief,
@@ -411,6 +427,10 @@ export const fiefOverviewOf = (
   if (!capacity.ok) {
     return capacity
   }
+  const fullAt = deriveFullAt(fief, catalog)
+  if (!fullAt.ok) {
+    return fullAt
+  }
   const peasants = peasantsOf(fief, catalog)
   if (!peasants.ok) {
     return peasants
@@ -434,7 +454,7 @@ export const fiefOverviewOf = (
     name: fief.name.value,
     coordinates: { kingdom, province, plot },
     terrain: fief.terrain,
-    resources: resourcesOf(fief.stocks, rates.value, capacity.value),
+    resources: resourcesOf(fief.stocks, rates.value, capacity.value, fullAt.value),
     buildings: buildings.value,
     peasants: peasants.value,
     slot: slotOf(fief.slot),

@@ -7,6 +7,7 @@ const resource = (amount: number): ResourceState => ({
   amount,
   ratePerHour: 30,
   capacity: 1000,
+  fullAt: null,
 })
 
 const building = (level: number): FiefOverview['buildings']['sawmill'] => ({
