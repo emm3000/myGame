@@ -3,6 +3,7 @@ import type { Fief, TransportOrder } from '../fief/Fief'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
+import { rebaseFullSince } from '../fief/rebaseFullSince'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
@@ -75,8 +76,11 @@ export const dispatchTransport = async (
   if (!transport.ok) {
     return transport
   }
-  const { origin } = transport.value
-  const savedOrigin = await fiefs.save(origin)
+  const origin = rebaseFullSince(fief, transport.value.origin, catalog)
+  if (!origin.ok) {
+    return origin
+  }
+  const savedOrigin = await fiefs.save(origin.value)
   if (!savedOrigin.ok) {
     return savedOrigin
   }
@@ -85,7 +89,7 @@ export const dispatchTransport = async (
     return savedDestination
   }
   const { province, plot } = destination.value.coordinates
-  const recorded = await chronicle.record(origin.id, [
+  const recorded = await chronicle.record(origin.value.id, [
     {
       kind: 'transportSent',
       province,
@@ -98,5 +102,5 @@ export const dispatchTransport = async (
   if (!recorded.ok) {
     return recorded
   }
-  return ok(origin)
+  return ok(origin.value)
 }

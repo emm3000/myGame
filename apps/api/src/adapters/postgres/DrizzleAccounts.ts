@@ -22,7 +22,11 @@ export class DrizzleAccounts implements Accounts {
 
   async addPlayer(player: NewPlayer): Promise<PlayerAdded> {
     try {
-      await this.database.insert(players).values({ ...player, createdAt: dateOf(player.createdAt) })
+      await this.database.insert(players).values({
+        ...player,
+        createdAt: dateOf(player.createdAt),
+        digestAcknowledgedAt: dateOf(player.createdAt),
+      })
       return 'added'
     } catch (failure) {
       if (violatedUniqueConstraint(failure) === 'players_email_unique') {

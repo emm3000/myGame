@@ -140,6 +140,22 @@ describe('deriveFullAt', () => {
     expect(fullAt.value.stone).toEqual(storedInstant)
   })
 
+  it('answers the full-since a store already full holds', () => {
+    const filledEarlier = hoursAfter(storedInstant, -5)
+    const fief = fiefStoredWith({ stone: 1000 }, storedInstant).withFullSince({
+      wood: null,
+      stone: filledEarlier,
+      iron: null,
+      gold: null,
+      food: null,
+    })
+
+    const fullAt = deriveFullAt(fief, neutralCatalog)
+
+    assert(fullAt.ok)
+    expect(fullAt.value.stone).toEqual(filledEarlier)
+  })
+
   it('answers no instant for a rate of 0', () => {
     const fief = fiefStoredWith({ gold: 10 }, storedInstant)
 

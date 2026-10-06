@@ -33,11 +33,11 @@ const withSignedUpPlayers = async (playerIds: ReadonlyArray<PlayerId>): Promise<
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, player_seen_hints, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     for (const playerId of playerIds) {
       await client.query(
-        'INSERT INTO players (id, email, password_hash, created_at) VALUES ($1, $2, $3, $4)',
+        'INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at) VALUES ($1, $2, $3, $4, $4)',
         [playerId, `${playerId}@example.com`, 'argon2id-hash', new Date('2026-09-22T08:00:00Z')],
       )
     }

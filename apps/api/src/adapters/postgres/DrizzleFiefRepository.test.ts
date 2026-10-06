@@ -25,7 +25,7 @@ afterAll(async () => {
 
 const emptyDatabase = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+    'TRUNCATE players, player_seen_hints, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
   )
 }
 
@@ -41,6 +41,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
         email: `${id}@example.com`,
         passwordHash: 'argon2id-hash',
         createdAt: new Date('2026-09-22T08:00:00Z'),
+        digestAcknowledgedAt: new Date('2026-09-22T08:00:00Z'),
       })),
     )
 }

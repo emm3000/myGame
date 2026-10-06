@@ -157,7 +157,7 @@ describe('the fief route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, player_seen_hints, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
@@ -556,7 +556,7 @@ describe('the fief route', () => {
     expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 100, road: 75 })
   })
 
-  it('answers a stock above the capacity unchanged after an hour', async () => {
+  it('answers a stock above the capacity unchanged and full since it was stored after an hour', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await runSql('UPDATE fiefs SET wood = 1200')
     clock.advanceMinutes(60)
@@ -568,7 +568,7 @@ describe('the fief route', () => {
       amount: 1200,
       ratePerHour: 10,
       capacity: 1000,
-      fullAt: '2026-09-22T09:00:00.000Z',
+      fullAt: '2026-09-22T08:00:00.000Z',
     })
   })
 

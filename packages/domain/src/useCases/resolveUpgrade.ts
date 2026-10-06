@@ -12,6 +12,7 @@ import { isSlotFinishedBy } from '../fief/isSlotFinishedBy'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
+import { rebaseFullSince } from '../fief/rebaseFullSince'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type { AttackMarch, AwayMarch, FoundingMarch } from '../march/March'
@@ -312,7 +313,11 @@ const completeAt = (
   if (!stocksAtFinish.ok) {
     return stocksAtFinish
   }
-  return applyFinished(fief, finished, stocksAtFinish.value)
+  const applied = applyFinished(fief, finished, stocksAtFinish.value)
+  if (!applied.ok) {
+    return applied
+  }
+  return rebaseFullSince(fief, applied.value, catalog)
 }
 
 const walkFinishedWork = (

@@ -4,6 +4,7 @@ import type { Fief } from '../fief/Fief'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
+import { rebaseFullSince } from '../fief/rebaseFullSince'
 import type { BuildingCatalog, UnitKind } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
@@ -72,9 +73,13 @@ export const placeRecruitOrder = async (
   if (!staffed.ok) {
     return staffed
   }
-  const saved = await fiefs.save(recruiting.value)
+  const rebased = rebaseFullSince(fief, recruiting.value, catalog)
+  if (!rebased.ok) {
+    return rebased
+  }
+  const saved = await fiefs.save(rebased.value)
   if (!saved.ok) {
     return saved
   }
-  return ok(recruiting.value)
+  return ok(rebased.value)
 }
