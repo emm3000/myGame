@@ -226,9 +226,14 @@ it('enables a study once the interpolated amounts cover its cost', async () => {
       gold: { ...libraryBuilt.resources.gold, amount: 59, ratePerHour: 3600 },
     },
   }
-  await showFief({ fief: async () => ({ ok: true, value: goldArriving }) })
+  await showFief({
+    fief: vi
+      .fn<ApiClient['fief']>()
+      .mockResolvedValueOnce({ ok: true, value: goldArriving })
+      .mockReturnValue(new Promise(() => undefined)),
+  })
 
-  await passSeconds(1)
+  await passSeconds(60)
 
   expect(studyButtonOf('smithing').hasAttribute('disabled')).toBe(false)
 })
@@ -335,11 +340,16 @@ it('keeps the art on a card at its top level', async () => {
 })
 
 it('counts down the study in progress between reads', async () => {
-  await showFief({ fief: async () => ({ ok: true, value: smithingUnderWay }) })
+  await showFief({
+    fief: async () => ({
+      ok: true,
+      value: { ...smithingUnderWay, readAt: new Date(Date.now()).toISOString() },
+    }),
+  })
 
-  await passSeconds(5)
+  await passSeconds(60)
 
-  expect(within(librarySection()).getByRole('timer').textContent).toBe('19:55')
+  expect(within(librarySection()).getByRole('timer').textContent).toBe('19 min')
 })
 
 it('re-reads the fief when the study finishes', async () => {

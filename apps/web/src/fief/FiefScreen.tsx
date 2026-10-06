@@ -12,6 +12,7 @@ import { FormAlert } from '../design-system/FormAlert'
 import { SeasonLine } from '../design-system/SeasonLine'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { formatFinish } from '../time/formatFinish'
 import { ArmySection } from './ArmySection'
 import { buildingCardOf } from './buildingCardOf'
 import { LibrarySection } from './LibrarySection'
@@ -68,7 +69,7 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
         amounts={copy.fief.cargoAmounts(quantitiesOf(cargo))}
         countdown={{
           words: copy.fief.cargoArrivalHeading,
-          remainingSeconds: fief.incomingCargoRemainingSeconds,
+          time: formatFinish(fief.incomingCargoRemainingSeconds, fief.at),
         }}
       />
     </div>
@@ -100,6 +101,7 @@ function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
     kind: 'busy',
     title: names.busySlot,
     remainingSeconds: fief.slotRemainingSeconds,
+    time: formatFinish(fief.slotRemainingSeconds, fief.at),
     totalSeconds: fief.slotTotalSeconds,
     finishedLabel: copy.fief.finished,
     cancel: cancelActionOf(cancel, { building: slot.building, targetLevel: slot.targetLevel }),
@@ -114,18 +116,21 @@ function WaitingUpgradesOf({
   readonly fief: LiveFief
   readonly cancel: Cancel
 }): ReactElement | null {
-  if (fief.waitingUpgrades.length === 0) {
+  const last = fief.waitingUpgrades.at(-1)
+  if (last === undefined) {
     return null
   }
   const upgrades = fief.waitingUpgrades.map(({ building, targetLevel, remainingSeconds }) => ({
     buildingName: capitalize(names.buildings[building]),
     levelLabel: names.level(targetLevel),
     remainingSeconds,
+    time: formatFinish(remainingSeconds, fief.at),
     cancel: cancelActionOf(cancel, { building, targetLevel }),
   }))
   return (
     <WaitingUpgrades
       title={names.buildQueue}
+      emptiesAt={formatFinish(last.remainingSeconds, fief.at)}
       upgrades={upgrades}
       finishedLabel={copy.fief.finished}
     />

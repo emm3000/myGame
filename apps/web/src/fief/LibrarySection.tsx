@@ -5,6 +5,7 @@ import { ArtCard } from '../design-system/ArtCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
+import { formatFinish } from '../time/formatFinish'
 import { artCardOf } from './artCardOf'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
@@ -35,6 +36,7 @@ function studySlotStateOf(fief: LiveFief, study: Study): BuildSlotState {
     kind: 'busy',
     title: names.busyStudy,
     remainingSeconds: fief.studyRemainingSeconds,
+    time: formatFinish(fief.studyRemainingSeconds, fief.at),
     totalSeconds: fief.studyTotalSeconds,
     finishedLabel: copy.fief.finished,
     cancel: {

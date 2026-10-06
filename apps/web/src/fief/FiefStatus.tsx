@@ -4,10 +4,23 @@ import { copy } from '../copy'
 import { ResourceBar } from '../design-system/ResourceBar'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { SlotsStrip } from '../design-system/SlotsStrip'
+import { formatClock } from '../time/formatClock'
 import type { LiveFief } from './liveFief'
 import { slotsStripCellsOf } from './slotsStripCellsOf'
 
 const { names } = copy
+
+const fillingWindowMs = 8 * 3600 * 1000
+
+function fillingLineOf(fief: LiveFief, resource: ResourceKind): string | undefined {
+  const { fullAt } = fief.overview.resources[resource]
+  if (fullAt === null) {
+    return undefined
+  }
+  const fillsAt = new Date(fullAt)
+  const isWithinWindow = fillsAt.getTime() - Date.parse(fief.overview.readAt) <= fillingWindowMs
+  return isWithinWindow ? copy.fief.fillsAt(formatClock(fillsAt, fief.at)) : undefined
+}
 
 function seasonMarkOf(
   season: LiveFief['overview']['season'],
@@ -30,6 +43,7 @@ export function FiefStatus({ fief }: { readonly fief: LiveFief }): ReactElement 
     amount: amounts[kind],
     ratePerHour: overview.resources[kind].ratePerHour,
     capacity: overview.resources[kind].capacity,
+    fillingLine: fillingLineOf(fief, kind),
     mark: seasonMarkOf(overview.season, kind),
   }))
   return (
@@ -48,7 +62,6 @@ export function FiefStatus({ fief }: { readonly fief: LiveFief }): ReactElement 
         label={copy.status.label}
         link={{ to: '/feudo/$fiefId', params: { fiefId: overview.id } }}
         cells={slotsStripCellsOf(fief)}
-        finishedLabel={copy.fief.finished}
       />
     </div>
   )

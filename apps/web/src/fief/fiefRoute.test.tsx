@@ -1,7 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { ApiClient } from '../api/apiClient'
+import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import {
   knownFief,
@@ -41,19 +41,86 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
 const woodCell = (): HTMLElement =>
   screen.getByRole('listitem', { name: copy.names.resources.wood })
 
-it('advances the wood amount between reads from the server rate', async () => {
-  const woodAtOnePerSecond: FiefOverview = {
+const woodAtOnePerSecond: FiefOverview = {
+  ...knownFief,
+  resources: {
+    ...knownFief.resources,
+    wood: { amount: 1000, ratePerHour: 3600, capacity: 20000, fullAt: null },
+  },
+}
+
+const servingOnceThenHolding = (overview: FiefOverview): ApiClient => {
+  const reads = [overview]
+  return stubApiClient({
+    currentPlayer: async () => knownPlayer,
+    fief: (): Promise<ApiOutcome<FiefOverview>> => {
+      const next = reads.shift()
+      return next === undefined
+        ? new Promise(() => undefined)
+        : Promise.resolve({ ok: true, value: next })
+    },
+  })
+}
+
+const sawmillFortyFiveSecondsFromFinish: FiefOverview = {
+  ...woodAtOnePerSecond,
+  slot: {
+    kind: 'busy',
+    building: 'sawmill',
+    targetLevel: 2,
+    startedAt: '2026-09-22T11:58:00.000Z',
+    finishesAt: '2026-09-22T12:00:45.000Z',
+  },
+}
+
+it('keeps the amounts unchanged within a minute', async () => {
+  await showFief(servingOnceThenHolding(woodAtOnePerSecond))
+
+  await passSeconds(59)
+
+  expect(within(woodCell()).getByText('1 000')).toBeDefined()
+})
+
+it('repaints every second in a slot last minute', async () => {
+  await showFief(servingOnceThenHolding(sawmillFortyFiveSecondsFromFinish))
+
+  await passSeconds(1)
+
+  expect(within(busySlot()).getByRole('timer').textContent).toBe('0:44')
+})
+
+it('keeps the amounts unchanged while a slot ticks its last minute', async () => {
+  await showFief(servingOnceThenHolding(sawmillFortyFiveSecondsFromFinish))
+
+  await passSeconds(30)
+
+  expect(within(woodCell()).getByText('1 000')).toBeDefined()
+})
+
+it('starts the seconds when a slot enters its last minute', async () => {
+  const sawmillTwoMinutesFromFinish: FiefOverview = {
     ...knownFief,
-    resources: {
-      ...knownFief.resources,
-      wood: { amount: 1000, ratePerHour: 3600, capacity: 20000, fullAt: null },
+    slot: {
+      kind: 'busy',
+      building: 'sawmill',
+      targetLevel: 2,
+      startedAt: '2026-09-22T11:58:00.000Z',
+      finishesAt: '2026-09-22T12:02:00.000Z',
     },
   }
-  await showFief(signedInClientServing(() => woodAtOnePerSecond))
+  await showFief(servingOnceThenHolding(sawmillTwoMinutesFromFinish))
 
-  await passSeconds(10)
+  await passSeconds(61)
 
-  expect(woodCell().textContent).toContain('1 010')
+  expect(within(busySlot()).getByRole('timer').textContent).toBe('0:59')
+})
+
+it('advances the wood amount between reads from the server rate', async () => {
+  await showFief(servingOnceThenHolding(woodAtOnePerSecond))
+
+  await passSeconds(60)
+
+  expect(woodCell().textContent).toContain('1 060')
 })
 
 it('stops the interpolated amount at the capacity', async () => {
@@ -64,9 +131,9 @@ it('stops the interpolated amount at the capacity', async () => {
       wood: { amount: 19990, ratePerHour: 3600, capacity: 20000, fullAt: null },
     },
   }
-  await showFief(signedInClientServing(() => woodTenSecondsFromFull))
+  await showFief(servingOnceThenHolding(woodTenSecondsFromFull))
 
-  await passSeconds(30)
+  await passSeconds(60)
 
   expect(within(woodCell()).getByText('20 000')).toBeDefined()
 })
@@ -143,13 +210,13 @@ it('lists the waiting upgrades under the one in progress', async () => {
 })
 
 it('counts down each waiting upgrade between reads', async () => {
-  await showFief(signedInClientServing(() => sawmillWithTwoWaiting))
+  await showFief(servingOnceThenHolding(sawmillWithTwoWaiting))
 
-  await passSeconds(2)
+  await passSeconds(60)
 
   expect(waitingUpgrades().map((entry) => within(entry).getByRole('timer').textContent)).toEqual([
-    '5:40',
-    '10:47',
+    '4 min',
+    '9 min',
   ])
 })
 
@@ -190,10 +257,10 @@ it('shows the next waiting upgrade in progress after the slot finishes', async (
   const reads = [sawmillWithTwoWaiting, quarryStartedWhenSawmillFinished]
   await showFief(signedInClientServing(() => reads.shift() ?? quarryStartedWhenSawmillFinished))
 
-  await passSeconds(192 + 15)
+  await passSeconds(192)
 
   expect(within(busySlot()).getByText('Cantera')).toBeDefined()
-  expect(slotTrackFill()).toBe('12')
+  expect(slotTrackFill()).toBe('2')
   expect(waitingUpgrades()).toHaveLength(1)
 })
 

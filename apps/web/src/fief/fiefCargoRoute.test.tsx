@@ -71,14 +71,17 @@ it('shows the convoy art on the cargo card', async () => {
 })
 
 it('counts down to the arrival', async () => {
-  await showFief(async () => ({ ok: true, value: awaitingCargo }))
+  await showFief(async () => ({
+    ok: true,
+    value: { ...awaitingCargo, readAt: new Date(Date.now()).toISOString() },
+  }))
   const countdown = within(presentCargoCard()).getByRole('timer')
   expect(within(countdown).getByText('Llegada en')).toBeDefined()
-  expect(within(countdown).getByText('7:30')).toBeDefined()
+  expect(within(countdown).getByText('7 min')).toBeDefined()
 
-  await passSeconds(30)
+  await passSeconds(60)
 
-  expect(within(within(presentCargoCard()).getByRole('timer')).getByText('7:00')).toBeDefined()
+  expect(within(within(presentCargoCard()).getByRole('timer')).getByText('6 min')).toBeDefined()
 })
 
 it('reads the overview again at the arrival', async () => {

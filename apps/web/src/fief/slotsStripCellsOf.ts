@@ -1,11 +1,15 @@
 import { copy } from '../copy'
 import type { StripCell, StripLine } from '../design-system/SlotsStrip'
+import { formatFinish } from '../time/formatFinish'
 import type { LiveFief } from './liveFief'
 import { marchCountdownOf } from './marchCountdownOf'
 import { marchPhaseLineOf } from './marchPhaseLineOf'
 import { sectionAnchors } from './sectionAnchors'
 
 const { status, names } = copy
+
+const finishOf = (fief: LiveFief, remainingSeconds: number): string =>
+  remainingSeconds <= 0 ? copy.fief.finished : formatFinish(remainingSeconds, fief.at)
 
 function waitingLineOf(fief: LiveFief): ReadonlyArray<StripLine> {
   const last = fief.waitingUpgrades.at(-1)
@@ -15,7 +19,7 @@ function waitingLineOf(fief: LiveFief): ReadonlyArray<StripLine> {
         {
           heading: status.waitingHeading,
           value: String(fief.waitingUpgrades.length),
-          remainingSeconds: last.remainingSeconds,
+          time: finishOf(fief, last.remainingSeconds),
         },
       ]
 }
@@ -29,7 +33,7 @@ function buildCellOf(fief: LiveFief): StripCell {
   const work = {
     heading: status.buildHeading,
     value: status.work(names.buildings[slot.building], slot.targetLevel),
-    remainingSeconds: fief.slotRemainingSeconds,
+    time: finishOf(fief, fief.slotRemainingSeconds),
   }
   return {
     ...cell,
@@ -55,7 +59,7 @@ function studyCellOf(fief: LiveFief): StripCell {
       {
         heading: status.studyHeading,
         value: status.work(names.arts[study.art], study.targetLevel),
-        remainingSeconds: fief.studyRemainingSeconds,
+        time: finishOf(fief, fief.studyRemainingSeconds),
       },
     ],
     progress: {
@@ -78,7 +82,7 @@ function recruitCellOf(fief: LiveFief): StripCell {
       {
         heading: status.recruitHeading,
         value: copy.army.orderLine(order.unit, order.delivered, order.count),
-        remainingSeconds: order.remainingSeconds,
+        time: finishOf(fief, order.remainingSeconds),
       },
     ],
     progress: { value: order.totalSeconds - order.remainingSeconds, total: order.totalSeconds },
@@ -100,7 +104,7 @@ function marchCellOf(fief: LiveFief): StripCell {
       {
         heading: phase.heading,
         value: phase.value,
-        remainingSeconds: marchCountdownOf(live, answered).remainingSeconds,
+        time: finishOf(fief, marchCountdownOf(live, answered).remainingSeconds),
       },
     ],
     progress: { value: live.elapsedSeconds, total: live.totalSeconds },
@@ -122,7 +126,7 @@ function cargoCellsOf(fief: LiveFief): ReadonlyArray<StripCell> {
         {
           heading: status.cargoHeading,
           value: status.cargoFrom(incomingCargo.from.name),
-          remainingSeconds: fief.incomingCargoRemainingSeconds,
+          time: finishOf(fief, fief.incomingCargoRemainingSeconds),
         },
       ],
       progress: null,

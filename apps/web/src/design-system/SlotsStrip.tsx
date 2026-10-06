@@ -1,6 +1,5 @@
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { type ReactElement, useId } from 'react'
-import { formatDuration } from './formatDuration'
 import { MarchIcon } from './icons/MarchIcon'
 import { SlotIcon } from './icons/SlotIcon'
 import { Track } from './Track'
@@ -10,7 +9,7 @@ export type StripIcon = 'slot' | 'march'
 export interface StripLine {
   readonly heading: string
   readonly value: string
-  readonly remainingSeconds: number
+  readonly time: string
 }
 
 export interface StripProgress {
@@ -39,7 +38,6 @@ export interface SlotsStripProps {
   readonly label: string
   readonly link: Pick<LinkProps, 'to' | 'params'>
   readonly cells: ReadonlyArray<StripCell>
-  readonly finishedLabel: string
 }
 
 const cellClass =
@@ -49,31 +47,18 @@ function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
   return icon === 'march' ? <MarchIcon sizeClass="size-icon" /> : <SlotIcon sizeClass="size-icon" />
 }
 
-function BusyLine({
-  line,
-  finishedLabel,
-}: {
-  readonly line: StripLine
-  readonly finishedLabel: string
-}): ReactElement {
-  const finish = line.remainingSeconds <= 0 ? finishedLabel : formatDuration(line.remainingSeconds)
+function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
   return (
     <span className="font-body text-body text-ink">
       <b className="font-bold underline underline-offset-2">{line.heading}</b> {line.value}
       <span className="whitespace-nowrap font-utility text-numeral text-ink-muted tabular-nums">
-        {` · ${finish}`}
+        {` · ${line.time}`}
       </span>
     </span>
   )
 }
 
-function CellContent({
-  cell,
-  finishedLabel,
-}: {
-  readonly cell: StripCell
-  readonly finishedLabel: string
-}): ReactElement {
+function CellContent({ cell }: { readonly cell: StripCell }): ReactElement {
   if (cell.kind === 'idle') {
     return (
       <span className="flex items-center gap-2 text-ink-muted">
@@ -90,7 +75,7 @@ function CellContent({
         <CellIcon icon={cell.icon} />
         <span className="flex min-w-0 flex-col gap-1">
           {cell.lines.map((line) => (
-            <BusyLine key={line.heading} line={line} finishedLabel={finishedLabel} />
+            <BusyLine key={line.heading} line={line} />
           ))}
         </span>
       </span>
@@ -101,7 +86,7 @@ function CellContent({
   )
 }
 
-export function SlotsStrip({ label, link, cells, finishedLabel }: SlotsStripProps): ReactElement {
+export function SlotsStrip({ label, link, cells }: SlotsStripProps): ReactElement {
   const labelId = useId()
   return (
     <section aria-labelledby={labelId} className="flex flex-col gap-2">
@@ -116,7 +101,7 @@ export function SlotsStrip({ label, link, cells, finishedLabel }: SlotsStripProp
               hash={cell.section}
               className={`${cellClass} ${cell.kind === 'idle' ? 'border-dashed border-line bg-surface' : 'border-line-strong bg-surface-raised'}`}
             >
-              <CellContent cell={cell} finishedLabel={finishedLabel} />
+              <CellContent cell={cell} />
             </Link>
           </li>
         ))}

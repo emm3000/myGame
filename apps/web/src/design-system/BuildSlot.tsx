@@ -13,6 +13,7 @@ export type BuildSlotState =
       readonly buildingName: string
       readonly levelLabel: string
       readonly remainingSeconds: number
+      readonly time: string
       readonly totalSeconds: number
       readonly finishedLabel: string
       readonly cancel: CancelAction
@@ -74,6 +75,7 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
           />
           <Countdown
             remainingSeconds={state.remainingSeconds}
+            time={state.time}
             finishedLabel={state.finishedLabel}
           />
           <Track

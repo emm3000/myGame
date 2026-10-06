@@ -136,7 +136,7 @@ it('shows an attack outbound with the camp it marches on', async () => {
   expect(line('Marcha al ataque: 12 infantes a provincia 2, parcela 7')).not.toBeNull()
   expect(line('Campamento: nivel 1, fuerza 6')).not.toBeNull()
   expect(within(returnCountdown()).getByText('Vuelta en')).toBeDefined()
-  expect(within(returnCountdown()).getByText('29:30')).toBeDefined()
+  expect(within(returnCountdown()).getByText('29 min')).toBeDefined()
   expect(line('Botín: 120 de madera, 120 de piedra y 120 de oro')).not.toBeNull()
   expect(textIn(infantryCard(), '8 infantes en casa, 12 infantes de marcha')).not.toBeNull()
 })
@@ -151,7 +151,7 @@ it('turns an attack to returning at the battle with no foraging phase', async ()
   expect(line('Vuelta del ataque: 12 infantes desde provincia 2, parcela 7')).not.toBeNull()
   expect(line('Marcha al ataque: 12 infantes a provincia 2, parcela 7')).toBeNull()
   expect(within(armySection()).queryByText(/Forrajeo/)).toBeNull()
-  expect(within(returnCountdown()).getByText('15:00')).toBeDefined()
+  expect(within(returnCountdown()).getByText('15 min')).toBeDefined()
 })
 
 it('reads the fief again at the battle', async () => {

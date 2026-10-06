@@ -142,7 +142,7 @@ it('shows the march outbound with its countdown to the return', async () => {
   expect(within(armySection()).getByText('una marcha en curso')).toBeDefined()
   expect(phaseLine('Marcha de ida: 10 infantes a provincia 2, parcela 5')).not.toBeNull()
   expect(within(returnCountdown()).getByText('Vuelta en')).toBeDefined()
-  expect(within(returnCountdown()).getByText('2 h 27 min')).toBeDefined()
+  expect(within(returnCountdown()).getByText('2 h 27 min · 16:27')).toBeDefined()
 })
 
 it('turns the march to foraging at its arrival without a read', async () => {
@@ -159,7 +159,7 @@ it('turns the march to foraging at its arrival without a read', async () => {
 
   expect(phaseLine('Forrajeo: 10 infantes en provincia 2, parcela 5')).not.toBeNull()
   expect(phaseLine('Marcha de ida: 10 infantes a provincia 2, parcela 5')).toBeNull()
-  expect(within(returnCountdown()).getByText('2 h 14 min')).toBeDefined()
+  expect(within(returnCountdown()).getByText('2 h 14 min · 16:14')).toBeDefined()
   expect(fief).toHaveBeenCalledTimes(readsBeforeArrival)
 })
 
@@ -177,7 +177,7 @@ it('turns the march to returning when the stay ends', async () => {
 
   expect(phaseLine('Marcha de vuelta: 10 infantes desde provincia 2, parcela 5')).not.toBeNull()
   expect(phaseLine('Forrajeo: 10 infantes en provincia 2, parcela 5')).toBeNull()
-  expect(within(returnCountdown()).getByText('14:00')).toBeDefined()
+  expect(within(returnCountdown()).getByText('14 min')).toBeDefined()
   expect(fief).toHaveBeenCalledTimes(readsBeforeLeaving)
 })
 
@@ -220,7 +220,7 @@ it('shows the loot in the stocks after the return read', async () => {
     .mockResolvedValue({ ok: true, value: marchHome })
   await showFief({ fief })
   await passSeconds(29)
-  expect(within(woodCell()).getByText('1 002')).toBeDefined()
+  expect(within(woodCell()).getByText('1 000')).toBeDefined()
 
   await passSeconds(1)
 
@@ -380,7 +380,7 @@ it('shows the march returning with its new countdown after the recall', async ()
   await passSeconds(0)
 
   expect(phaseLine('Marcha de vuelta: 10 infantes desde provincia 2, parcela 5')).not.toBeNull()
-  expect(within(returnCountdown()).getByText('14:00')).toBeDefined()
+  expect(within(returnCountdown()).getByText('14 min')).toBeDefined()
   expect(phaseLine('Botín: 15 de madera y 15 de piedra')).not.toBeNull()
   expect(recallButton()).toBeNull()
 })
