@@ -72,9 +72,7 @@ it('starts an upgrade and shows the slot busy', async () => {
 
   expect(enqueueUpgrade).toHaveBeenCalledWith(knownFief.id, 'sawmill')
   expect(screen.getByText(copy.names.busySlot)).toBeDefined()
-  expect(screen.getByRole('timer').textContent).toContain('3:12')
-  await passSeconds(2)
-  expect(screen.getByRole('timer').textContent).toContain('3:10')
+  expect(screen.getByRole('timer').textContent).toContain('3 min')
 })
 
 it('starts the track empty on the overview an enqueue answers', async () => {

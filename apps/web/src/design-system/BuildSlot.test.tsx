@@ -22,6 +22,7 @@ it('shows the busy slot with its countdown', () => {
         buildingName: 'Sawmill',
         levelLabel: 'Lv. 4 → 5',
         remainingSeconds: 5880,
+        time: '1 h 38 min · 13:38',
         totalSeconds: 20000,
         finishedLabel: 'Done',
         cancel: {

@@ -113,7 +113,7 @@ it('shows the transport outbound with its cargo and recall', async () => {
   expect(line('Marcha de transporte: 6 jinetes a provincia 2, parcela 7')).not.toBeNull()
   expect(line(cargoLine)).not.toBeNull()
   expect(within(countdown()).getByText('Llegada en')).toBeDefined()
-  expect(within(countdown()).getByText('5:00')).toBeDefined()
+  expect(within(countdown()).getByText('5 min')).toBeDefined()
   expect(within(armySection()).queryByText(/Botín/)).toBeNull()
 
   fireEvent.click(recallButton() as HTMLElement)
@@ -139,7 +139,7 @@ it('turns the transport home empty at the arrival', async () => {
   expect(line('Vuelta del transporte: 6 jinetes desde provincia 2, parcela 7')).not.toBeNull()
   expect(line(cargoLine)).toBeNull()
   expect(within(countdown()).getByText('Vuelta en')).toBeDefined()
-  expect(within(countdown()).getByText('7:30')).toBeDefined()
+  expect(within(countdown()).getByText('7 min')).toBeDefined()
   expect(recallButton()).toBeNull()
 })
 
@@ -149,7 +149,7 @@ it('shows a recalled transport returning with its cargo', async () => {
   expect(line('Vuelta del transporte: 6 jinetes desde provincia 2, parcela 7')).not.toBeNull()
   expect(line(cargoLine)).not.toBeNull()
   expect(within(countdown()).getByText('Vuelta en')).toBeDefined()
-  expect(within(countdown()).getByText('5:00')).toBeDefined()
+  expect(within(countdown()).getByText('5 min')).toBeDefined()
   expect(recallButton()).toBeNull()
   expect(within(armySection()).queryByText(/Botín/)).toBeNull()
 })

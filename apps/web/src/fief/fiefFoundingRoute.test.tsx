@@ -108,7 +108,7 @@ it('shows the founding march outbound with its recall', async () => {
   expect(line('Marcha de fundación: 1 colono a provincia 2, parcela 7')).not.toBeNull()
   expect(line('Nuevo feudo: Sotoverde del Páramo')).not.toBeNull()
   expect(within(countdown()).getByText('Llegada en')).toBeDefined()
-  expect(within(countdown()).getByText('12:30')).toBeDefined()
+  expect(within(countdown()).getByText('12 min')).toBeDefined()
   expect(within(armySection()).queryByText(/Botín/)).toBeNull()
 
   fireEvent.click(recallButton() as HTMLElement)
@@ -124,7 +124,7 @@ it('shows a recalled founding returning with its settler', async () => {
 
   expect(line('Marcha de vuelta: 1 colono desde provincia 2, parcela 7')).not.toBeNull()
   expect(within(countdown()).getByText('Vuelta en')).toBeDefined()
-  expect(within(countdown()).getByText('10:00')).toBeDefined()
+  expect(within(countdown()).getByText('10 min')).toBeDefined()
   expect(within(armySection()).queryByText(/Nuevo feudo/)).toBeNull()
   expect(within(armySection()).queryByText(/Botín/)).toBeNull()
   expect(recallButton()).toBeNull()

@@ -12,6 +12,7 @@ import {
   slotRemainingSecondsAt,
   studyRemainingSecondsAt,
 } from './liveFief'
+import { repaintDelayMsOf } from './repaintDelayMsOf'
 
 export type LiveFiefState =
   | { readonly kind: 'loading' }
@@ -29,7 +30,6 @@ interface LastRead {
 }
 
 const rereadIntervalMs = 60_000
-const displayTickMs = 1000
 const focusFloorMs = 1000
 const longestTimeoutMs = 2_147_483_647
 
@@ -73,15 +73,26 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
   }, [lastRead, read])
 }
 
-function useDisplayClock(isLive: boolean): number {
+function useDisplayClock(lastRead: LastRead | undefined): number {
   const [nowMs, setNowMs] = useState(Date.now)
   useEffect(() => {
-    if (!isLive) {
+    if (lastRead === undefined) {
       return
     }
-    const ticker = setInterval(() => setNowMs(Date.now()), displayTickMs)
-    return () => clearInterval(ticker)
-  }, [isLive])
+    let repaint: ReturnType<typeof setTimeout>
+    const scheduleRepaint = (): void => {
+      const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, Date.now())
+      repaint = setTimeout(
+        () => {
+          setNowMs(Date.now())
+          scheduleRepaint()
+        },
+        repaintDelayMsOf(liveFiefAt(lastRead.overview, elapsedSeconds)),
+      )
+    }
+    scheduleRepaint()
+    return () => clearTimeout(repaint)
+  }, [lastRead])
   return nowMs
 }
 
@@ -114,7 +125,7 @@ export function useLiveFief(apiClient: ApiClient, fiefId: string): LiveFiefHandl
     void read()
   }, [read])
   useRereadPolicy(lastRead, read)
-  const nowMs = useDisplayClock(lastRead !== undefined)
+  const nowMs = useDisplayClock(lastRead)
 
   if (lastRead !== undefined) {
     const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, nowMs)

@@ -10,6 +10,7 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { formatFinish } from '../time/formatFinish'
 import {
   isFoundingOnTheWay,
   type LiveFief,
@@ -40,14 +41,17 @@ function recruitRefusalLineOf(refused: NonNullable<Recruit['refused']>, fief: Li
   return copy.refusals[refusal]
 }
 
-function countdownsOf(order: LiveRecruitOrder): ReadonlyArray<SlotCountdown> {
-  const orderComplete = { words: army.orderCompleteIn, remainingSeconds: order.remainingSeconds }
+function countdownsOf(order: LiveRecruitOrder, at: Date): ReadonlyArray<SlotCountdown> {
+  const orderComplete = {
+    words: army.orderCompleteIn,
+    time: formatFinish(order.remainingSeconds, at),
+  }
   if (order.count - order.delivered <= 1) {
     return [orderComplete]
   }
   const nextUnit = {
     words: army.nextUnitIn(order.unit),
-    remainingSeconds: order.nextUnitRemainingSeconds,
+    time: formatFinish(order.nextUnitRemainingSeconds, at),
   }
   return [nextUnit, orderComplete]
 }
@@ -63,7 +67,7 @@ function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState 
     title: army.busySlot,
     orderHeading: army.orderHeading,
     orderLine: army.orderLine(order.unit, order.delivered, order.count),
-    countdowns: countdownsOf(order),
+    countdowns: countdownsOf(order, fief.at),
     remainingSeconds: order.remainingSeconds,
     totalSeconds: order.totalSeconds,
     cancel: {
@@ -136,12 +140,16 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
   if (live === null || answered === null) {
     return { kind: 'idle', title: march.slot, invitation: march.idleSlot }
   }
+  const countdown = marchCountdownOf(live, answered)
   return {
     kind: 'busy',
     title: march.busySlot,
     phase: marchPhaseLineOf(live, answered),
     detail: detailLineOf(live, answered),
-    countdown: marchCountdownOf(live, answered),
+    countdown: {
+      words: countdown.words,
+      time: formatFinish(countdown.remainingSeconds, fief.at),
+    },
     loot: lootOf(answered),
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,

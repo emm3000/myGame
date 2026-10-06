@@ -1,12 +1,16 @@
 import { copy } from '../copy'
-import type { SlotCountdown } from '../design-system/CountdownLine'
 import { isFoundingOnTheWay, type LiveFief, type LiveMarch } from './liveFief'
 
 const { march, founding } = copy
 
 type AnsweredMarch = NonNullable<LiveFief['overview']['march']>
 
-export function marchCountdownOf(live: LiveMarch, answered: AnsweredMarch): SlotCountdown {
+export interface MarchCountdown {
+  readonly words: string
+  readonly remainingSeconds: number
+}
+
+export function marchCountdownOf(live: LiveMarch, answered: AnsweredMarch): MarchCountdown {
   if (isFoundingOnTheWay(answered)) {
     return { words: founding.arrivalHeading, remainingSeconds: live.remainingSeconds }
   }

@@ -1,13 +1,12 @@
 import type { ReactElement } from 'react'
-import { formatDuration } from './formatDuration'
 import { ClockIcon } from './icons/ClockIcon'
 
 export interface SlotCountdown {
   readonly words: string
-  readonly remainingSeconds: number
+  readonly time: string
 }
 
-export function CountdownLine({ words, remainingSeconds }: SlotCountdown): ReactElement {
+export function CountdownLine({ words, time }: SlotCountdown): ReactElement {
   return (
     <span
       role="timer"
@@ -15,7 +14,7 @@ export function CountdownLine({ words, remainingSeconds }: SlotCountdown): React
     >
       <ClockIcon sizeClass="size-icon" />
       <span className="text-numeral">{words}</span>
-      <span className="text-numeral-lg text-ink">{formatDuration(remainingSeconds)}</span>
+      <span className="text-numeral-lg text-ink">{time}</span>
     </span>
   )
 }

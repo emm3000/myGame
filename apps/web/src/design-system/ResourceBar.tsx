@@ -11,6 +11,7 @@ export interface ResourceCell {
   readonly amount: number
   readonly ratePerHour: number
   readonly capacity: number
+  readonly fillingLine?: string | undefined
   readonly mark?: SeasonMarkProps | undefined
 }
 
@@ -60,7 +61,7 @@ function ResourceItem({
         </span>
       </span>
       <span className={`${numeralClass} text-numeral ${isFull ? 'text-rust' : 'text-ink-muted'}`}>
-        {isFull ? fullLabel : `+${formatQuantity(cell.ratePerHour)} / h`}
+        {isFull ? fullLabel : (cell.fillingLine ?? `+${formatQuantity(cell.ratePerHour)} / h`)}
       </span>
       {cell.mark !== undefined && <SeasonMark {...cell.mark} />}
       <Track

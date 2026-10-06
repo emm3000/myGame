@@ -170,43 +170,54 @@ it('links each slot to its section', async () => {
   }
 })
 
+const sawmillWithTwoWaiting: FiefOverview = {
+  ...knownFief,
+  slot: {
+    kind: 'busy',
+    building: 'sawmill',
+    targetLevel: 2,
+    startedAt: instantAfterRead(-100),
+    finishesAt: instantAfterRead(900),
+  },
+  queue: {
+    entries: [
+      {
+        building: 'quarry',
+        targetLevel: 2,
+        startsAt: instantAfterRead(900),
+        finishesAt: instantAfterRead(2040),
+      },
+      {
+        building: 'farm',
+        targetLevel: 2,
+        startsAt: instantAfterRead(2040),
+        finishesAt: instantAfterRead(4800),
+      },
+    ],
+    cap: 4,
+  },
+}
+
 it('counts the build slot down with the length of the queue', async () => {
-  await showFief({
-    ...knownFief,
-    slot: {
-      kind: 'busy',
-      building: 'sawmill',
-      targetLevel: 2,
-      startedAt: instantAfterRead(-100),
-      finishesAt: instantAfterRead(900),
-    },
-    queue: {
-      entries: [
-        {
-          building: 'quarry',
-          targetLevel: 2,
-          startsAt: instantAfterRead(900),
-          finishesAt: instantAfterRead(2040),
-        },
-        {
-          building: 'farm',
-          targetLevel: 2,
-          startsAt: instantAfterRead(2040),
-          finishesAt: instantAfterRead(4800),
-        },
-      ],
-      cap: 4,
-    },
-  })
+  await showFief(sawmillWithTwoWaiting)
 
   const build = slotLink(/^Obra:/)
-  expect(build?.textContent).toContain('Obra: aserradero, nivel 2 · 15:00')
-  expect(build?.textContent).toContain('Obras en espera: 2 · 1 h 20 min')
+  expect(build?.textContent).toContain('Obra: aserradero, nivel 2 · 15 min')
+  expect(build?.textContent).toContain('Obras en espera: 2')
   expect(
     within(build as HTMLElement)
       .getByRole('progressbar')
       .getAttribute('aria-valuenow'),
   ).toBe('10')
+})
+
+it('shows when the build queue empties', async () => {
+  await showFief(sawmillWithTwoWaiting)
+
+  expect(slotLink(/^Obra:/)?.textContent).toContain('Obras en espera: 2 · 1 h 20 min · 15:20')
+  expect(screen.getByText(copy.names.buildQueue).parentElement?.textContent).toBe(
+    'obras en espera · 1 h 20 min · 15:20',
+  )
 })
 
 it('counts down and tracks the study, the levy and the march', async () => {
@@ -251,9 +262,9 @@ it('counts down and tracks the study, the levy and the march', async () => {
     (name) => slotLink(name)?.textContent ?? '',
   )
   expect(lines).toEqual([
-    'Estudio: herrería, nivel 1 · 8:00',
-    'Leva: 5 de 12 infantes · 3:58',
-    'Marcha de ida: 12 infantes a provincia 2, parcela 7 · 2 h 20 min',
+    'Estudio: herrería, nivel 1 · 8 min',
+    'Leva: 5 de 12 infantes · 3 min',
+    'Marcha de ida: 12 infantes a provincia 2, parcela 7 · 2 h 20 min · 16:20',
   ])
   const tracks = [/^Estudio:/, /^Leva:/, /^Marcha de ida:/].map((name) =>
     within(slotLink(name) as HTMLElement)
@@ -261,4 +272,54 @@ it('counts down and tracks the study, the levy and the march', async () => {
       .getAttribute('aria-valuenow'),
   )
   expect(tracks).toEqual(['47', '42', '7'])
+})
+
+const stoneFillingAt = (secondsAfterRead: number): FiefOverview => ({
+  ...knownFief,
+  resources: {
+    ...knownFief.resources,
+    stone: {
+      amount: 830,
+      ratePerHour: 34,
+      capacity: 1000,
+      fullAt: instantAfterRead(secondsAfterRead),
+    },
+  },
+})
+
+const stoneCell = (): HTMLElement =>
+  screen.getByRole('listitem', { name: copy.names.resources.stone })
+
+it('reads lleno with the clock when the store fills within 8 hours', async () => {
+  await showFief(stoneFillingAt(5 * 3600))
+
+  expect(within(stoneCell()).getByText('lleno 19:00')).toBeDefined()
+})
+
+it('keeps the rate when the store fills later than 8 hours', async () => {
+  await showFief(stoneFillingAt(8 * 3600 + 60))
+
+  expect(within(stoneCell()).getByText('+34 / h')).toBeDefined()
+})
+
+it('keeps the amounts on the map unchanged within a minute', async () => {
+  const woodAtOnePerSecond: FiefOverview = {
+    ...knownFief,
+    resources: {
+      ...knownFief.resources,
+      wood: { amount: 1000, ratePerHour: 3600, capacity: 20000, fullAt: null },
+    },
+  }
+  await showAt(`${knownFiefPath}/mapa`, {
+    fief: vi
+      .fn<ApiClient['fief']>()
+      .mockResolvedValueOnce({ ok: true, value: woodAtOnePerSecond })
+      .mockReturnValue(new Promise(() => undefined)),
+  })
+
+  await passSeconds(59)
+  expect(within(woodCell() as HTMLElement).getByText('1 000')).toBeDefined()
+  await passSeconds(1)
+
+  expect(within(woodCell() as HTMLElement).getByText('1 060')).toBeDefined()
 })

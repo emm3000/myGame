@@ -31,6 +31,7 @@ export interface LiveMarch {
 
 export interface LiveFief {
   readonly overview: FiefOverview
+  readonly at: Date
   readonly amounts: LiveAmounts
   readonly slotRemainingSeconds: number
   readonly slotTotalSeconds: number
@@ -45,6 +46,10 @@ export interface LiveFief {
 }
 
 const secondsPerHour = 3600
+const secondsPerMinute = 60
+
+const wholeMinutesOf = (elapsedSeconds: number): number =>
+  Math.floor(elapsedSeconds / secondsPerMinute) * secondsPerMinute
 
 const amountAfter = (
   { amount, ratePerHour, capacity }: FiefOverview['resources']['wood'],
@@ -191,14 +196,16 @@ function unitsAt(
 export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): LiveFief {
   const { wood, stone, iron, gold, food } = overview.resources
   const recruitOrder = recruitOrderAt(overview, elapsedSeconds)
+  const amountsElapsedSeconds = wholeMinutesOf(elapsedSeconds)
   return {
     overview,
+    at: new Date(Date.parse(overview.readAt) + elapsedSeconds * 1000),
     amounts: {
-      wood: amountAfter(wood, elapsedSeconds),
-      stone: amountAfter(stone, elapsedSeconds),
-      iron: amountAfter(iron, elapsedSeconds),
-      gold: amountAfter(gold, elapsedSeconds),
-      food: amountAfter(food, elapsedSeconds),
+      wood: amountAfter(wood, amountsElapsedSeconds),
+      stone: amountAfter(stone, amountsElapsedSeconds),
+      iron: amountAfter(iron, amountsElapsedSeconds),
+      gold: amountAfter(gold, amountsElapsedSeconds),
+      food: amountAfter(food, amountsElapsedSeconds),
     },
     slotRemainingSeconds: slotRemainingSecondsAt(overview, elapsedSeconds),
     slotTotalSeconds: totalSecondsOf(overview.slot),

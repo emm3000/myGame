@@ -263,11 +263,11 @@ it('raises the count one unit per period between reads', async () => {
 it('counts down to the next unit and to the last', async () => {
   await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }) })
 
-  await passSeconds(5)
+  await passSeconds(35)
 
   const [nextUnit, lastUnit] = within(armySection()).getAllByRole('timer')
-  expect(nextUnit?.textContent).toBe('Siguiente infante en1:25')
-  expect(lastUnit?.textContent).toBe('Leva completa en11:55')
+  expect(nextUnit?.textContent).toBe('Siguiente infante en0:55')
+  expect(lastUnit?.textContent).toBe('Leva completa en11 min')
 })
 
 it('reads the fief again when the order ends', async () => {

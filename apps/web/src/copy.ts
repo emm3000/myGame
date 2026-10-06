@@ -11,8 +11,8 @@ import type {
 import { UnitKindSchema } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { capitalize } from './design-system/capitalize'
-import { formatDuration } from './design-system/formatDuration'
 import { formatQuantity } from './design-system/formatQuantity'
+import { formatTimeLeft } from './time/formatTimeLeft'
 import { partyKinds } from './units/partyKinds'
 import type { UnitCounts } from './units/UnitCounts'
 
@@ -202,7 +202,7 @@ const names = {
 
 const seasonTimeLeft = (seconds: number): string => {
   const days = Math.floor(seconds / secondsPerDay)
-  return days >= 1 ? `${days} ${agreeing(days, 'día', 'días')}` : formatDuration(seconds)
+  return days >= 1 ? `${days} ${agreeing(days, 'día', 'días')}` : formatTimeLeft(seconds)
 }
 
 const quantitiesOf = (quantities: ReadonlyArray<ResourceQuantity>): string =>
@@ -300,6 +300,7 @@ export const copy = {
     loading: 'Estamos leyendo tu feudo…',
     buildings: 'Edificios',
     full: 'lleno',
+    fillsAt: (clock: string): string => `lleno ${clock}`,
     free: (supplied: number): string => agreeing(supplied, 'libre', 'libres'),
     occupied: (occupied: number): string => agreeing(occupied, 'ocupado', 'ocupados'),
     finished: 'Terminada',
@@ -345,6 +346,7 @@ export const copy = {
     cargoHeading: 'Carga en camino:',
     work: (label: string, level: number): string => `${label}, ${names.level(level)}`,
     cargoFrom: (name: string): string => `desde ${name}`,
+    tomorrow: (time: string): string => `mañana ${time}`,
   },
   study: {
     section: 'Biblioteca',

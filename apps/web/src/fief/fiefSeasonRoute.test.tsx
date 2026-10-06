@@ -74,10 +74,15 @@ const seasonCountdown = (): string | null =>
   screen.getByText(/^Primavera en/, { selector: '[role="timer"]' }).textContent
 
 it('counts down to the end of the season', async () => {
-  await showFief(signedInClientServing(() => winterEndingInADayAndHalfAMinute))
+  await showFief(
+    signedInClientServing(() => ({
+      ...winterEndingInADayAndHalfAMinute,
+      readAt: new Date(Date.now()).toISOString(),
+    })),
+  )
   expect(seasonCountdown()).toBe('Primavera en 1 día')
 
-  await passSeconds(31)
+  await passSeconds(60)
 
   expect(seasonCountdown()).toBe('Primavera en 23 h 59 min')
 })
