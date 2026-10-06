@@ -3,6 +3,7 @@ import type { ChangedFief } from '../fief/ChangedFief'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
+import { rebaseFullSince } from '../fief/rebaseFullSince'
 import type { BuildingCatalog, BuildingKind } from '../ports/BuildingCatalog'
 import type { ChronicleWriter } from '../ports/ChronicleWriter'
 import type { Clock } from '../ports/Clock'
@@ -49,13 +50,17 @@ export const cancelUpgrade = async (
   if (!cancelled.ok) {
     return cancelled
   }
-  const saved = await fiefs.save(cancelled.value.fief)
+  const rebased = rebaseFullSince(fief, cancelled.value.fief, catalog)
+  if (!rebased.ok) {
+    return rebased
+  }
+  const saved = await fiefs.save(rebased.value)
   if (!saved.ok) {
     return saved
   }
-  const recorded = await chronicle.record(cancelled.value.fief.id, cancelled.value.events)
+  const recorded = await chronicle.record(rebased.value.id, cancelled.value.events)
   if (!recorded.ok) {
     return recorded
   }
-  return ok(cancelled.value)
+  return ok({ fief: rebased.value, events: cancelled.value.events })
 }

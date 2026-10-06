@@ -187,6 +187,35 @@ describe('enqueueBuilding', () => {
     expect(stored?.storedAt).toBe(oneHourLater)
   })
 
+  it('clears the full-since when a store drops below capacity', async () => {
+    const filledBeforeStored = Instant.fromEpochMilliseconds(86_400_000 - 3_600_000)
+    const fullOfWoodAndIron = storedFief({
+      stocks: { wood: 1000, stone: 100, iron: 1000, gold: 100, food: 100 },
+      fullSince: {
+        wood: filledBeforeStored,
+        stone: null,
+        iron: filledBeforeStored,
+        gold: null,
+        food: null,
+      },
+    })
+    const fiefs = inMemoryFiefRepository([fullOfWoodAndIron])
+
+    const result = await enqueueBuilding(
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
+      { fiefs, catalog: twoLevelCatalog, clock: frozenClock(oneHourLater) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.fullSince).toEqual({
+      wood: null,
+      stone: null,
+      iron: filledBeforeStored,
+      gold: null,
+      food: null,
+    })
+  })
+
   it('stamps the busy slot with the instant the upgrade started', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 

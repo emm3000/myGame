@@ -75,6 +75,12 @@ const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.ge
 
 const dateOf = (instant: Instant): Date => new Date(instant.epochMilliseconds)
 
+const instantOrNullOf = (date: Date | null): Instant | null =>
+  date === null ? null : instantOf(date)
+
+const dateOrNullOf = (instant: Instant | null): Date | null =>
+  instant === null ? null : dateOf(instant)
+
 const buildingLevelsOf = (builtRows: ReadonlyArray<JoinedRow>): FiefBuildingLevels => {
   const levels = {
     sawmill: 0,
@@ -479,6 +485,13 @@ const storedFiefOf = (
   recruitOrder: recruitOrderOf(recruitOrder),
   march: marchOf(march),
   ...(incomingCargo === null ? {} : { incomingCargo: incomingCargoOf(incomingCargo) }),
+  fullSince: {
+    wood: instantOrNullOf(row.fullSinceWood),
+    stone: instantOrNullOf(row.fullSinceStone),
+    iron: instantOrNullOf(row.fullSinceIron),
+    gold: instantOrNullOf(row.fullSinceGold),
+    food: instantOrNullOf(row.fullSinceFood),
+  },
 })
 
 type SlotCostColumns = Pick<
@@ -559,7 +572,9 @@ const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
   }
 }
 
-const fiefRowOf = (fief: Fief): FiefRow => ({
+type SavedFiefRow = Omit<FiefRow, 'guidanceDismissedAt'>
+
+const fiefRowOf = (fief: Fief): SavedFiefRow => ({
   id: fief.id,
   playerId: fief.playerId,
   kingdom: fief.coordinates.kingdom,
@@ -571,6 +586,11 @@ const fiefRowOf = (fief: Fief): FiefRow => ({
   storedAt: dateOf(fief.storedAt),
   ...slotColumnsOf(fief.slot),
   ...studyColumnsOf(fief.studySlot),
+  fullSinceWood: dateOrNullOf(fief.fullSince.wood),
+  fullSinceStone: dateOrNullOf(fief.fullSince.stone),
+  fullSinceIron: dateOrNullOf(fief.fullSince.iron),
+  fullSinceGold: dateOrNullOf(fief.fullSince.gold),
+  fullSinceFood: dateOrNullOf(fief.fullSince.food),
 })
 
 export type FiefRead = 'lockedForUpdate' | 'lockFree'

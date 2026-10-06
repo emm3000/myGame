@@ -2493,3 +2493,91 @@ describe('resolveUpgrade with a party of several kinds', () => {
     ])
   })
 })
+
+describe('resolveUpgrade full-since', () => {
+  const noStoreFull = { wood: null, stone: null, iron: null, gold: null, food: null }
+
+  const filledAtOneHourBeforeStored = Instant.fromEpochMilliseconds(
+    storedInstant.epochMilliseconds - MILLISECONDS_PER_HOUR,
+  )
+
+  const resolvedAt = async (
+    fief: Fief,
+    now: Instant,
+  ): Promise<{ readonly resolved: Fief; readonly saved: Fief | undefined }> => {
+    const fiefs = inMemoryFiefRepository([fief])
+    const result = await resolveUpgrade(
+      { playerId: 'lord', fiefId: 'fief-1' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog,
+        ids: sequentialIds(),
+        clock: frozenClock(now),
+      },
+    )
+    assert(result.ok)
+    return { resolved: result.value.fief, saved: fiefs.storedFiefOf('fief-1') }
+  }
+
+  it('keeps the full-since of a store filled at T1 through a read applying an upgrade at T2', async () => {
+    const fullOfWood = storedFief({
+      stocks: { wood: 1000, stone: 100, iron: 100, gold: 100, food: 100 },
+      fullSince: { ...noStoreFull, wood: filledAtOneHourBeforeStored },
+      slot: sawmillFinishingAfterHours(1),
+    })
+
+    const { resolved, saved } = await resolvedAt(fullOfWood, hoursAfterStored(2))
+
+    expect(resolved.fullSince).toEqual({ ...noStoreFull, wood: filledAtOneHourBeforeStored })
+    expect(saved?.fullSince).toEqual(resolved.fullSince)
+  })
+
+  it('takes the crossing instant for a store that fills before a finish', async () => {
+    const fillingWithWood = storedFief({
+      stocks: { wood: 990, stone: 100, iron: 100, gold: 100, food: 100 },
+      slot: sawmillFinishingAfterHours(2),
+    })
+
+    const { resolved } = await resolvedAt(fillingWithWood, hoursAfterStored(3))
+
+    expect(resolved.fullSince).toEqual({ ...noStoreFull, wood: hoursAfterStored(1) })
+  })
+
+  it('clears the full-since when a warehouse level raises the capacity', async () => {
+    const fullOfWood = storedFief({
+      stocks: { wood: 1000, stone: 100, iron: 100, gold: 100, food: 100 },
+      fullSince: { ...noStoreFull, wood: filledAtOneHourBeforeStored },
+      slot: {
+        kind: 'busy',
+        building: 'warehouse',
+        targetLevel: 1,
+        startedAt: storedInstant,
+        cost: warehouseLevelOne.cost,
+        finishesAt: hoursAfterStored(1),
+      },
+    })
+
+    const { resolved } = await resolvedAt(fullOfWood, hoursAfterStored(2))
+
+    expect(resolved.fullSince).toEqual(noStoreFull)
+  })
+
+  it('takes the arrival instant for a store a cargo fills above the capacity', async () => {
+    const awaitingWood = storedFief({
+      incomingCargo: {
+        fromFiefId: 'fief-2',
+        name: 'Roca Alta',
+        province: 3,
+        plot: 2,
+        cargo: { wood: 1000, stone: 0, iron: 0, gold: 0, food: 0 },
+        arrivesAt: hoursAfterStored(1),
+      },
+    })
+
+    const { resolved } = await resolvedAt(awaitingWood, hoursAfterStored(2))
+
+    expect(resolved.fullSince).toEqual({ ...noStoreFull, wood: hoursAfterStored(1) })
+  })
+})

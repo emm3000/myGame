@@ -49,7 +49,7 @@ const truncateAccounts = async (): Promise<void> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, player_seen_hints, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
   } finally {
     await client.end()
@@ -86,6 +86,20 @@ const storedResetTokens = async (): Promise<number> => {
   try {
     const found = await client.query("SELECT token_digest FROM account_tokens WHERE kind = 'reset'")
     return found.rowCount ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
+const acknowledgementsOf = async (email: string): Promise<ReadonlyArray<Date>> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ acknowledgedAt: Date }>(
+      'SELECT digest_acknowledged_at AS "acknowledgedAt" FROM players WHERE lower(email) = lower($1)',
+      [email],
+    )
+    return found.rows.map((row) => row.acknowledgedAt)
   } finally {
     await client.end()
   }
@@ -167,6 +181,16 @@ describe('the auth routes', () => {
     const fiefs = await app.request('/fiefs', { headers: { cookie: sessionCookieOf(response) } })
     expect(FiefListSchema.parse(await fiefs.json()).fiefs.map(({ name }) => name)).toEqual([
       'Valdehierro',
+    ])
+  })
+
+  it('stores the sign-up instant as the acknowledgement', async () => {
+    clock.advanceHours(3)
+
+    await signUpAna()
+
+    expect(await acknowledgementsOf(anasSignUp.email)).toEqual([
+      new Date(signedUpAt + 3 * millisecondsPerHour),
     ])
   })
 

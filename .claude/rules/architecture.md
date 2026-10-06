@@ -55,7 +55,7 @@ A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `k
 
 ## Lazy evaluation
 
-Resource state is `(amount, at, ratePerHour, capacity)`. Reading a fief's resources computes `max(amount, min(capacity, amount + rate * elapsed(at, now)))` and never writes: a stock under the capacity accrues up to it, a stock at or above it (a refund may exceed it) stays frozen until spending brings it under (ADR 005, amendment). A mutation (spend, upgrade finished) first materializes the current amount at `now`, then applies the change, then stores `(newAmount, now)`. Finished queue items are resolved the same way, on read, for the fief being read only. Nothing scans all fiefs.
+Resource state is `(amount, at, ratePerHour, capacity, fullSince)`, `fullSince` the instant the store reached the capacity, null while it is under it. Reading a fief's resources computes `max(amount, min(capacity, amount + rate * elapsed(at, now)))` and never writes: a stock under the capacity accrues up to it, a stock at or above it (a refund may exceed it) stays frozen until spending brings it under (ADR 005, amendment). A mutation (spend, upgrade finished) first materializes the current amount at `now`, then applies the change, then stores `(newAmount, now, fullSince)`: a store at or above the capacity after the change keeps the `fullSince` it held, or takes the instant it crossed the capacity before the change (the change's own instant when a credit pushed it over); a store under the capacity clears it. Finished queue items are resolved the same way, on read, for the fief being read only. Nothing scans all fiefs.
 
 ## `packages/contracts`
 

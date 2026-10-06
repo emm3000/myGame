@@ -63,8 +63,22 @@ export const players = pgTable(
     passwordHash: text('password_hash').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
     emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
+    digestAcknowledgedAt: timestamp('digest_acknowledged_at', { withTimezone: true }).notNull(),
   },
   (table) => [uniqueIndex('players_email_unique').on(sql`lower(${table.email})`)],
+)
+
+export const playerSeenHints = pgTable(
+  'player_seen_hints',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    hint: text('hint').notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'player_seen_hints_pkey', columns: [table.playerId, table.hint] }),
+  ],
 )
 
 export const sessions = pgTable(
@@ -131,6 +145,12 @@ export const fiefs = pgTable(
     studyCostIron: doublePrecision('study_cost_iron').notNull().default(0),
     studyCostGold: doublePrecision('study_cost_gold').notNull().default(0),
     studyCostFood: doublePrecision('study_cost_food').notNull().default(0),
+    fullSinceWood: timestamp('full_since_wood', { withTimezone: true }),
+    fullSinceStone: timestamp('full_since_stone', { withTimezone: true }),
+    fullSinceIron: timestamp('full_since_iron', { withTimezone: true }),
+    fullSinceGold: timestamp('full_since_gold', { withTimezone: true }),
+    fullSinceFood: timestamp('full_since_food', { withTimezone: true }),
+    guidanceDismissedAt: timestamp('guidance_dismissed_at', { withTimezone: true }),
   },
   (table) => [
     unique('fiefs_coordinates_unique').on(table.kingdom, table.province, table.plot),

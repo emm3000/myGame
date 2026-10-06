@@ -65,7 +65,7 @@ type Stores = Record<ResourceKind, Store>
 
 const storedStoreOf = (fief: Fief, kind: ResourceKind, capacityUnits: number): Store =>
   fief.stocks[kind] >= capacityUnits
-    ? { kind: 'settled', fullAt: fief.storedAt }
+    ? { kind: 'settled', fullAt: fief.fullSince[kind] ?? fief.storedAt }
     : { kind: 'filling', amount: fief.stocks[kind], unchangedSegments: 0 }
 
 const storedStoresOf = (fief: Fief, capacityUnits: number): Stores => ({

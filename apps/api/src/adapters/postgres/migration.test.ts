@@ -21,6 +21,7 @@ import {
   fiefRecruitOrders,
   fiefs,
   fiefUnits,
+  playerSeenHints,
   players,
   sessions,
 } from './schema'
@@ -40,7 +41,13 @@ function databaseUrl(): string {
 }
 
 function aPlayer(id: string, email: string): typeof players.$inferInsert {
-  return { id, email, passwordHash: 'argon2id-hash', createdAt: new Date('2026-09-22T08:00:00Z') }
+  return {
+    id,
+    email,
+    passwordHash: 'argon2id-hash',
+    createdAt: new Date('2026-09-22T08:00:00Z'),
+    digestAcknowledgedAt: new Date('2026-09-22T08:00:00Z'),
+  }
 }
 
 function aFief(id: string, playerId: string): typeof fiefs.$inferInsert {
@@ -172,9 +179,35 @@ describe('the migrations', () => {
       'fief_recruit_orders',
       'fief_units',
       'fiefs',
+      'player_seen_hints',
       'players',
       'sessions',
     ])
+  })
+
+  it('drops the seen hints of a deleted player', async () => {
+    await db.insert(players).values([ana, bruno])
+    await db.insert(playerSeenHints).values([
+      { playerId: ana.id, hint: 'peasants' },
+      { playerId: bruno.id, hint: 'peasants' },
+    ])
+
+    await db.delete(players).where(eq(players.id, ana.id))
+
+    expect(await db.select().from(playerSeenHints)).toEqual([
+      { playerId: bruno.id, hint: 'peasants' },
+    ])
+  })
+
+  it('refuses a hint seen twice by the same player', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(playerSeenHints).values({ playerId: ana.id, hint: 'queue' })
+
+    await expect(
+      db.insert(playerSeenHints).values({ playerId: ana.id, hint: 'queue' }),
+    ).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'player_seen_hints_pkey' },
+    })
   })
 
   it('refuses two players with the same email in different case', async () => {
@@ -2695,5 +2728,46 @@ describe('the archer migration', () => {
       marches: await marchesOf(client),
       events: await new DrizzleChronicle(drizzle(client)).eventsOf(anasPartyFief),
     }).toEqual({ marches: marchesOfLootPercentVersion, events: eventsOfPartyVersion })
+  })
+})
+
+describe('the full-since migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('acknowledges every player at the migration instant and leaves every store not full', async () => {
+    await migratedFrom(client, 28, async () => {
+      await insertPlayersOfPreviousVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+
+    const acknowledged = await client.query<{ id: string; atMigration: boolean }>(
+      'SELECT id, digest_acknowledged_at = now() AS "atMigration" FROM players ORDER BY id',
+    )
+    const stores = await client.query(
+      `SELECT full_since_wood, full_since_stone, full_since_iron, full_since_gold, full_since_food,
+         guidance_dismissed_at FROM fiefs`,
+    )
+    expect(acknowledged.rows).toEqual([
+      { id: ana.id, atMigration: true },
+      { id: bruno.id, atMigration: true },
+    ])
+    expect(stores.rows).toEqual([
+      {
+        full_since_wood: null,
+        full_since_stone: null,
+        full_since_iron: null,
+        full_since_gold: null,
+        full_since_food: null,
+        guidance_dismissed_at: null,
+      },
+    ])
   })
 })

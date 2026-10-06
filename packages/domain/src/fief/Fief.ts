@@ -48,11 +48,13 @@ import type { FiefEvent } from './FiefEvent'
 import type { FiefId } from './FiefId'
 import { FiefName } from './FiefName'
 import { FiefUnitCounts, type UnitCountsByKind } from './FiefUnitCounts'
+import { type FullSince, noStoreFull } from './FullSince'
 import type { IncomingCargo } from './IncomingCargo'
 import { isSlotFinishedBy } from './isSlotFinishedBy'
 import { materializeStocks } from './materializeStocks'
 import type { PlotAddress } from './PlotAddress'
 import type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './RecruitOrder'
+import { rebaseFullSince } from './rebaseFullSince'
 import { recruitOrderEndsAt } from './recruitOrderEndsAt'
 import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import type { Terrain } from './Terrain'
@@ -86,6 +88,7 @@ export type StoredFief = {
   readonly recruitOrder: RecruitOrder
   readonly march: March
   readonly incomingCargo?: IncomingCargo
+  readonly fullSince?: FullSince
 }
 
 export type RecruitRequest = {
@@ -511,6 +514,7 @@ type FiefChange = Partial<
     readonly recruitOrder: RecruitOrder
     readonly march: March
     readonly incomingCargo: IncomingCargo | undefined
+    readonly fullSince: FullSince
   }
 >
 
@@ -661,6 +665,7 @@ export class Fief {
     readonly recruitOrder: RecruitOrder,
     readonly march: March,
     readonly incomingCargo: IncomingCargo | undefined,
+    readonly fullSince: FullSince,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -680,6 +685,7 @@ export class Fief {
       { kind: 'idle' },
       { kind: 'idle' },
       undefined,
+      noStoreFull,
     )
   }
 
@@ -718,6 +724,7 @@ export class Fief {
         stored.recruitOrder,
         stored.march,
         stored.incomingCargo,
+        stored.fullSince ?? noStoreFull,
       ),
     )
   }
@@ -1389,7 +1396,15 @@ export class Fief {
     if (!stocksAtNow.ok) {
       return stocksAtNow
     }
-    return ok(this.changed({ stocks: stocksAtNow.value, storedAt: now }))
+    return rebaseFullSince(
+      this,
+      this.changed({ stocks: stocksAtNow.value, storedAt: now }),
+      catalog,
+    )
+  }
+
+  withFullSince(fullSince: FullSince): Fief {
+    return this.changed({ fullSince })
   }
 
   private changed(change: FiefChange): Fief {
@@ -1409,6 +1424,7 @@ export class Fief {
       change.recruitOrder ?? this.recruitOrder,
       change.march ?? this.march,
       'incomingCargo' in change ? change.incomingCargo : this.incomingCargo,
+      change.fullSince ?? this.fullSince,
     )
   }
 

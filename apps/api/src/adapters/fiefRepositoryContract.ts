@@ -33,6 +33,8 @@ const accepted = <T>(result: Result<T, DomainError>): T => {
 
 const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z'))
 const upgradedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:30:00Z'))
+const woodFilledAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T06:12:00Z'))
+const goldFilledAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:59:30Z'))
 const ironMineStartedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:45:00Z'))
 const ironMineCost = { wood: 240, stone: 180, iron: 60, gold: 15, food: 30 }
 
@@ -329,6 +331,23 @@ export const fiefRepositoryContract = (
       await fiefs.save(developedFief)
 
       expect(await fiefs.fiefOf(developedFief.id)).toEqual(ok(developedFief))
+    })
+
+    it('restores the full-since a save stored', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      const fullSince = {
+        wood: woodFilledAt,
+        stone: null,
+        iron: null,
+        gold: goldFilledAt,
+        food: null,
+      }
+
+      await fiefs.save(developedFief.withFullSince(fullSince))
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.fullSince).toEqual(fullSince)
     })
 
     it('restores the instant a busy slot started', async () => {

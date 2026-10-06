@@ -7,6 +7,7 @@ import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { ownFiefOf } from '../fief/ownFiefOf'
+import { rebaseFullSince } from '../fief/rebaseFullSince'
 import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
@@ -102,7 +103,7 @@ const enqueueUpgradeAt = (
     return stocksAtNow
   }
   const settings = catalog.fiefSettings()
-  return fief.enqueueUpgrade(
+  const upgraded = fief.enqueueUpgrade(
     {
       building: target.building,
       targetLevel: target.level,
@@ -116,6 +117,10 @@ const enqueueUpgradeAt = (
     now,
     settings.buildQueueCap,
   )
+  if (!upgraded.ok) {
+    return upgraded
+  }
+  return rebaseFullSince(fief, upgraded.value, catalog)
 }
 
 export const enqueueBuilding = async (

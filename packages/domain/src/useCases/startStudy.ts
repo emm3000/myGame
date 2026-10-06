@@ -4,6 +4,7 @@ import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { materializeStocks } from '../fief/materializeStocks'
 import { nextArtLevelOf } from '../fief/nextArtLevelOf'
 import { ownFiefOf } from '../fief/ownFiefOf'
+import { rebaseFullSince } from '../fief/rebaseFullSince'
 import type { ArtKind, ArtLevel, BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
@@ -65,9 +66,13 @@ export const startStudy = async (
   if (!studying.ok) {
     return studying
   }
-  const saved = await fiefs.save(studying.value)
+  const rebased = rebaseFullSince(fief, studying.value, catalog)
+  if (!rebased.ok) {
+    return rebased
+  }
+  const saved = await fiefs.save(rebased.value)
   if (!saved.ok) {
     return saved
   }
-  return ok(studying.value)
+  return ok(rebased.value)
 }
