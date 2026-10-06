@@ -644,6 +644,35 @@ describe('the fief route', () => {
     expect(response.status).toBe(401)
   })
 
+  describe('the guidance dismissal route', () => {
+    const dismissGuidance = async (lord: Lord, cookie: string): Promise<Response> =>
+      app.request(pathOf(lord, '/guidance/dismissal'), { method: 'POST', headers: { cookie } })
+
+    it('dismisses guidance for one fief and not the other', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+
+      const response = await dismissGuidance(ana, ana.cookie)
+
+      expect(response.status).toBe(204)
+      expect([
+        await server.guidanceDismissals.isDismissed(ana.fiefId),
+        await server.guidanceDismissals.isDismissed(bruno.fiefId),
+      ]).toEqual([true, false])
+    })
+
+    it('refuses to dismiss guidance on another lord fief', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+
+      const response = await dismissGuidance(ana, bruno.cookie)
+
+      expect(response.status).toBe(404)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
+      expect(await server.guidanceDismissals.isDismissed(ana.fiefId)).toBe(false)
+    })
+  })
+
   describe('the chronicle route', () => {
     const chronicleOf = async (lord: Lord): Promise<Response> =>
       app.request(pathOf(lord, '/events'), { headers: { cookie: lord.cookie } })

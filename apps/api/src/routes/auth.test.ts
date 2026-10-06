@@ -91,20 +91,6 @@ const storedResetTokens = async (): Promise<number> => {
   }
 }
 
-const acknowledgementsOf = async (email: string): Promise<ReadonlyArray<Date>> => {
-  const client = new Client({ connectionString: databaseUrl() })
-  await client.connect()
-  try {
-    const found = await client.query<{ acknowledgedAt: Date }>(
-      'SELECT digest_acknowledged_at AS "acknowledgedAt" FROM players WHERE lower(email) = lower($1)',
-      [email],
-    )
-    return found.rows.map((row) => row.acknowledgedAt)
-  } finally {
-    await client.end()
-  }
-}
-
 const post = (body: object, cookie?: string): RequestInit => ({
   method: 'POST',
   headers: {
@@ -184,14 +170,13 @@ describe('the auth routes', () => {
     ])
   })
 
-  it('stores the sign-up instant as the acknowledgement', async () => {
+  it('acknowledges a new player at sign-up', async () => {
     clock.advanceHours(3)
 
-    await signUpAna()
+    const response = await signUpAna()
 
-    expect(await acknowledgementsOf(anasSignUp.email)).toEqual([
-      new Date(signedUpAt + 3 * millisecondsPerHour),
-    ])
+    const player = PlayerSchema.parse(await response.json())
+    expect(await server.digestAcknowledgements.acknowledgedAt(player.id)).toEqual(clock.now())
   })
 
   it('keeps no player when founding the fief fails', async () => {

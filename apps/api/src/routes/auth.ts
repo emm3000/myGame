@@ -23,6 +23,7 @@ import type { SignedIn } from '../auth/SignedIn'
 import { type SignInDependencies, signIn } from '../auth/signIn'
 import { type SignUpDependencies, signUp } from '../auth/signUp'
 import { type VerifyEmailDependencies, verifyEmail } from '../auth/verifyEmail'
+import type { SeenHints } from '../hint/SeenHints'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import type { Refusal } from '../http/Refusal'
@@ -35,12 +36,15 @@ export type AuthDependencies = SignUpDependencies &
   ResendVerificationMailDependencies &
   RequestPasswordResetDependencies &
   ResetPasswordDependencies &
-  RequirePlayerDependencies
+  RequirePlayerDependencies & {
+    readonly seenHints: SeenHints
+  }
 
-const playerOf = (stored: StoredPlayer): Player => ({
+const playerOf = async (stored: StoredPlayer, seenHints: SeenHints): Promise<Player> => ({
   id: stored.id,
   email: stored.email,
   emailVerified: stored.emailVerified,
+  seenHints: [...(await seenHints.seenHintsOf(stored.id))],
 })
 
 const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
@@ -56,17 +60,17 @@ const passwordRequestRefusalOf = (issues: ReadonlyArray<ParseIssue>): Refusal =>
     ? { kind: 'WeakPassword' }
     : { kind: 'MalformedRequest' }
 
-const answerSignedIn = (
+const answerSignedIn = async (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
-  isSessionCookieSecure: boolean,
-): Response => {
+  { isSessionCookieSecure, seenHints }: AuthDependencies,
+): Promise<Response> => {
   if (!signedIn.ok) {
     return answerRefusal(c, signedIn.error)
   }
   writeSessionCookie(c, signedIn.value.session, isSessionCookieSecure)
-  return c.json(playerOf(signedIn.value.player), status)
+  return c.json(await playerOf(signedIn.value.player, seenHints), status)
 }
 
 export const authRoutes = (dependencies: AuthDependencies): Hono => {
@@ -77,24 +81,14 @@ export const authRoutes = (dependencies: AuthDependencies): Hono => {
       if (!request.success) {
         return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
       }
-      return answerSignedIn(
-        c,
-        await signUp(request.data, dependencies),
-        201,
-        dependencies.isSessionCookieSecure,
-      )
+      return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
     })
     .post('/sign-in', async (c) => {
       const request = SignInRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'InvalidCredentials' })
       }
-      return answerSignedIn(
-        c,
-        await signIn(request.data, dependencies),
-        200,
-        dependencies.isSessionCookieSecure,
-      )
+      return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
     })
     .post('/sign-out', signedInPlayer, async (c) => {
       await dependencies.accounts.closeSession(c.var.sessionToken)
@@ -106,7 +100,7 @@ export const authRoutes = (dependencies: AuthDependencies): Hono => {
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
-      return c.json(playerOf(player))
+      return c.json(await playerOf(player, dependencies.seenHints))
     })
     .post('/verify-email', async (c) => {
       const request = VerifyEmailRequestSchema.safeParse(await bodyOf(c))
