@@ -57,7 +57,7 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
   }
   const { from, cargo } = incomingCargo
   return (
-    <div id={sectionAnchors.incomingCargo} className="flex flex-col">
+    <div id={sectionAnchors.incomingCargo} className="flex flex-col md:scroll-mt-status">
       <CargoCard
         title={copy.fief.incomingCargo}
         artSrc={convoyArtOf()}
@@ -176,7 +176,7 @@ export function FiefScreen({
         <SeasonLineOf fief={fief} />
       </header>
       <div className="grid items-start gap-6 lg:grid-cols-3">
-        <div id={sectionAnchors.build} className="flex flex-col gap-2">
+        <div id={sectionAnchors.build} className="flex flex-col gap-2 md:scroll-mt-status">
           <IncomingCargoOf fief={fief} />
           <BuildSlot state={slotStateOf(fief, cancel)} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}

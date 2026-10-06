@@ -101,6 +101,12 @@ export const maxWidths: Readonly<Record<MaxWidth, string>> = {
   form: '640px',
 }
 
+export type ScrollMargin = 'status'
+
+export const scrollMargins: Readonly<Record<ScrollMargin, string>> = {
+  status: '336px',
+}
+
 export type Size = 'icon'
 
 export const sizes: Readonly<Record<Size, string>> = {

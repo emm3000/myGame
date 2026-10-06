@@ -6,6 +6,7 @@ import {
   minHeights,
   palette,
   radii,
+  scrollMargins,
   shadows,
   sizes,
   spacing,
@@ -50,7 +51,7 @@ export default plugin(
       boxShadow: shadows,
       fontFamily: typeFamilies,
       fontSize,
-      extend: { maxWidth: maxWidths },
+      extend: { maxWidth: maxWidths, scrollMargin: scrollMargins },
     },
   },
 )
