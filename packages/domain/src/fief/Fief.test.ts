@@ -5,6 +5,7 @@ import type { BuildQueueEntry } from './BuildQueue'
 import { Coordinates } from './Coordinates'
 import { Fief, type Stocks, type StoredFief } from './Fief'
 import { FiefName } from './FiefName'
+import { noStoreFull } from './FullSince'
 
 const foundingInstant = Instant.fromEpochMilliseconds(86_400_000)
 
@@ -138,6 +139,7 @@ const storedBusyFief: StoredFief = {
   },
   recruitOrder: openOrder,
   march: awayMarch,
+  fullSince: noStoreFull,
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -180,6 +182,7 @@ describe('Fief', () => {
       studySlot,
       recruitOrder,
       march,
+      fullSince,
     } = restored.value
     expect({
       id,
@@ -205,6 +208,7 @@ describe('Fief', () => {
       studySlot,
       recruitOrder,
       march,
+      fullSince,
     }).toEqual(storedBusyFief)
   })
 

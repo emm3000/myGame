@@ -3,6 +3,7 @@ import { campOf } from '../camp/campOf'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -144,6 +145,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
+    fullSince: noStoreFull,
     ...overrides,
   })
   assert(restored.ok)

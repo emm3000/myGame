@@ -6,6 +6,7 @@ import {
   type FiefRepository,
   Instant,
   type KingdomMapReader,
+  noStoreFull,
   type PlayerId,
   type PlotAddress,
   type Result,
@@ -105,6 +106,7 @@ const fiefSendingSettler = ({
         lootPercent: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
         ...(recalledAt === undefined ? {} : { recalledAt }),
       },
+      fullSince: noStoreFull,
     }),
   )
 }

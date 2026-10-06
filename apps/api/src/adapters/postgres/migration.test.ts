@@ -2742,23 +2742,30 @@ describe('the full-since migration', () => {
     await closeWithoutChanges(client)
   })
 
-  it('acknowledges every player at the migration instant and leaves every store not full', async () => {
-    await migratedFrom(client, 28, async () => {
+  const migratedWithAnasFief = async (): Promise<void> =>
+    migratedFrom(client, 28, async () => {
       await insertPlayersOfPreviousVersion(client)
       await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
     })
 
+  it('acknowledges every player at the migration instant', async () => {
+    await migratedWithAnasFief()
+
     const acknowledged = await client.query<{ id: string; atMigration: boolean }>(
       'SELECT id, digest_acknowledged_at = now() AS "atMigration" FROM players ORDER BY id',
-    )
-    const stores = await client.query(
-      `SELECT full_since_wood, full_since_stone, full_since_iron, full_since_gold, full_since_food,
-         guidance_dismissed_at FROM fiefs`,
     )
     expect(acknowledged.rows).toEqual([
       { id: ana.id, atMigration: true },
       { id: bruno.id, atMigration: true },
     ])
+  })
+
+  it('reads no full-since on any store of a stored fief', async () => {
+    await migratedWithAnasFief()
+
+    const stores = await client.query(
+      'SELECT full_since_wood, full_since_stone, full_since_iron, full_since_gold, full_since_food FROM fiefs',
+    )
     expect(stores.rows).toEqual([
       {
         full_since_wood: null,
@@ -2766,8 +2773,14 @@ describe('the full-since migration', () => {
         full_since_iron: null,
         full_since_gold: null,
         full_since_food: null,
-        guidance_dismissed_at: null,
       },
     ])
+  })
+
+  it('keeps the guidance of a stored fief on', async () => {
+    await migratedWithAnasFief()
+
+    const guidance = await client.query('SELECT guidance_dismissed_at FROM fiefs')
+    expect(guidance.rows).toEqual([{ guidance_dismissed_at: null }])
   })
 })

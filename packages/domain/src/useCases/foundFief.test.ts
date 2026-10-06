@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { Coordinates } from '../fief/Coordinates'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { FiefName } from '../fief/FiefName'
+import { noStoreFull } from '../fief/FullSince'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err, ok } from '../Result'
@@ -98,6 +99,7 @@ const founderOnTheRoad = (recalledAt: Instant | undefined): Fief => {
     units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    fullSince: noStoreFull,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: {

@@ -88,7 +88,7 @@ export type StoredFief = {
   readonly recruitOrder: RecruitOrder
   readonly march: March
   readonly incomingCargo?: IncomingCargo
-  readonly fullSince?: FullSince
+  readonly fullSince: FullSince
 }
 
 export type RecruitRequest = {
@@ -724,7 +724,7 @@ export class Fief {
         stored.recruitOrder,
         stored.march,
         stored.incomingCargo,
-        stored.fullSince ?? noStoreFull,
+        stored.fullSince,
       ),
     )
   }

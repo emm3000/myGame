@@ -3,6 +3,7 @@ import type { BuildQueueEntry } from '../fief/BuildQueue'
 import type { BusySlot } from '../fief/BuildSlot'
 import { Fief, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import type {
   BuildingCatalog,
   BuildingKind,
@@ -161,6 +162,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
+    fullSince: noStoreFull,
     ...overrides,
   })
   assert(restored.ok)
@@ -168,6 +170,24 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
 }
 
 describe('cancelUpgrade', () => {
+  it('takes the crossing instant for a store still full after a cancel', async () => {
+    const filledHalfAnHourIn = Instant.fromEpochMilliseconds(86_400_000 + 1_800_000)
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ stocks: { wood: 40, stone: 85, iron: 100, gold: 999, food: 90 } }),
+    ])
+
+    const result = await cancelUpgrade(
+      { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill', targetLevel: 1 },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(hoursAfterStored(1)) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.fullSince).toEqual({
+      ...noStoreFull,
+      gold: filledHalfAnHourIn,
+    })
+  })
+
   it('refunds the full cost the busy slot stored', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 

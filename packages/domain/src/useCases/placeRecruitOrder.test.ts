@@ -3,6 +3,7 @@ import { deliveredUnitsOf } from '../fief/deliveredUnitsOf'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
 import type {
   BarracksLevel,
@@ -104,6 +105,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    fullSince: noStoreFull,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
@@ -114,6 +116,24 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
 }
 
 describe('placeRecruitOrder', () => {
+  it('takes the crossing instant for a store still full after an order', async () => {
+    const filledHalfAnHourIn = Instant.fromEpochMilliseconds(86_400_000 + 1_800_000)
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ stocks: { wood: 500, stone: 100, iron: 300, gold: 999, food: 500 } }),
+    ])
+
+    const result = await placeRecruitOrder(
+      { playerId: 'lord', fiefId: 'fief-1', unit: 'infantry', count: 4 },
+      { fiefs, catalog, clock: frozenClock(oneHourLater) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.fullSince).toEqual({
+      ...noStoreFull,
+      gold: filledHalfAnHourIn,
+    })
+  })
+
   it('opens an order for N infantry in the idle recruit slot', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 

@@ -556,7 +556,7 @@ describe('the fief route', () => {
     expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 100, road: 75 })
   })
 
-  it('answers a stock above the capacity unchanged and full since it was stored after an hour', async () => {
+  it('answers a stock above the capacity unchanged after an hour', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await runSql('UPDATE fiefs SET wood = 1200')
     clock.advanceMinutes(60)
@@ -564,12 +564,18 @@ describe('the fief route', () => {
     const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
-    expect(resources.wood).toEqual({
-      amount: 1200,
-      ratePerHour: 10,
-      capacity: 1000,
-      fullAt: '2026-09-22T08:00:00.000Z',
-    })
+    expect(resources.wood).toMatchObject({ amount: 1200, ratePerHour: 10, capacity: 1000 })
+  })
+
+  it('answers a store full when stored as full since the stored instant', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql('UPDATE fiefs SET wood = 1200')
+    clock.advanceMinutes(60)
+
+    const response = await fiefOf(ana)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect(resources.wood.fullAt).toBe('2026-09-22T08:00:00.000Z')
   })
 
   it('answers a finished upgrade with the amounts accrued at the old rate then the new one', async () => {

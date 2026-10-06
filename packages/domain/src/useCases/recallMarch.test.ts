@@ -1,5 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Fief, type StoredFief } from '../fief/Fief'
+import { noStoreFull } from '../fief/FullSince'
 import type { AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
@@ -108,6 +109,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    fullSince: noStoreFull,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: tenInfantryForTwoHours,

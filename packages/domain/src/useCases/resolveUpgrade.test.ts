@@ -7,6 +7,7 @@ import type { BusySlot } from '../fief/BuildSlot'
 import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type MarchSeason, type Stocks, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import type { BusyStudySlot } from '../fief/StudySlot'
 import type { AwayMarch } from '../march/March'
@@ -162,6 +163,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    fullSince: noStoreFull,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
@@ -2173,6 +2175,7 @@ describe('resolveUpgrade with an attack', () => {
       units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
       slot: { ...sawmillFinishingAfterHours(1), finishesAt: arrival },
       buildQueue: [],
+      fullSince: noStoreFull,
       studySlot: { kind: 'idle' },
       recruitOrder: { kind: 'idle' },
       march: attacking.march,
@@ -2495,8 +2498,6 @@ describe('resolveUpgrade with a party of several kinds', () => {
 })
 
 describe('resolveUpgrade full-since', () => {
-  const noStoreFull = { wood: null, stone: null, iron: null, gold: null, food: null }
-
   const filledAtOneHourBeforeStored = Instant.fromEpochMilliseconds(
     storedInstant.epochMilliseconds - MILLISECONDS_PER_HOUR,
   )

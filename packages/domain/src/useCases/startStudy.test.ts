@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
+import { noStoreFull } from '../fief/FullSince'
 import type {
   ArtLevel,
   BuildingCatalog,
@@ -111,6 +112,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
     slot: { kind: 'idle' },
     buildQueue: [],
+    fullSince: noStoreFull,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
@@ -121,6 +123,24 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
 }
 
 describe('startStudy', () => {
+  it('takes the crossing instant for a store still full after a study starts', async () => {
+    const filledHalfAnHourIn = Instant.fromEpochMilliseconds(86_400_000 + 1_800_000)
+    const fiefs = inMemoryFiefRepository([
+      storedFief({ stocks: { wood: 100, stone: 100, iron: 100, gold: 100, food: 995 } }),
+    ])
+
+    const result = await startStudy(
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
+      { fiefs, catalog, clock: frozenClock(oneHourLater) },
+    )
+
+    assert(result.ok)
+    expect(fiefs.storedFiefOf('fief-1')?.fullSince).toEqual({
+      ...noStoreFull,
+      food: filledHalfAnHourIn,
+    })
+  })
+
   it('starts the next level of an art in the idle study slot', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 
