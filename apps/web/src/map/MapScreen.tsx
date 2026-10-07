@@ -107,7 +107,7 @@ function Province({ map, onBrowse, plotActionsOf, marchPanel, hint }: ProvincePr
         <h3 className="m-0 font-display text-title text-ink">{heading}</h3>
         <p className="m-0 font-body text-caption text-ink-muted">{copy.map.terrain(map.terrain)}</p>
       </div>
-      {hint !== undefined && <Hint {...hint} placement="standalone" />}
+      {hint !== undefined && <Hint {...hint} />}
       <ul aria-label={heading} className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-5">
         {map.plots.map((plot) => (
           <PlotTile

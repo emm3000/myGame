@@ -50,7 +50,7 @@ const hintAt = (hint: ScreenHint | undefined, kind: ScreenHint['kind']): HintPro
   hint?.kind === kind ? hint.props : undefined
 
 function StandaloneHint({ hint }: { readonly hint: HintProps | undefined }): ReactElement | null {
-  return hint === undefined ? null : <Hint {...hint} placement="standalone" />
+  return hint === undefined ? null : <Hint {...hint} />
 }
 
 const { names } = copy

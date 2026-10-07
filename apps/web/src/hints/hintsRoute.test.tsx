@@ -1,10 +1,11 @@
-import type { FiefOverview, HintKind } from '@mygame/contracts'
+import type { FiefList, FiefOverview, HintKind } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import {
   knownFief,
+  knownFiefList,
   knownFiefPath,
   knownPlayer,
   stubApiClient,
@@ -137,6 +138,25 @@ it('shows one hint at a time in order', async () => {
   expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.peasants)
 })
 
+it('shows no peasants hint while the queue is full', async () => {
+  await showAt(knownFiefPath, {
+    ...peasantsShortWithSlotBusy,
+    queue: {
+      entries: [
+        {
+          building: 'quarry',
+          targetLevel: 2,
+          startsAt: '2026-09-22T12:30:00.000Z',
+          finishesAt: '2026-09-22T12:40:00.000Z',
+        },
+      ],
+      cap: 1,
+    },
+  })
+
+  expect(screen.queryByText(copy.hints.lines.peasants)).toBeNull()
+})
+
 it('shows the next hint of the order once the first is seen', async () => {
   await showAt(knownFiefPath, peasantsShortWithSlotBusy, ['peasants'])
 
@@ -166,6 +186,20 @@ it('shows the library hint under the library heading at level 1', async () => {
 
   const library = screen.getByRole('region', { name: copy.study.section })
   expect(within(library).getByRole('note').textContent).toContain(copy.hints.lines.library)
+})
+
+it('shows no library hint at level 2', async () => {
+  await showAt(
+    knownFiefPath,
+    fiefOf({
+      buildings: {
+        ...knownFief.buildings,
+        library: { ...knownFief.buildings.library, level: 2 },
+      },
+    }),
+  )
+
+  expect(screen.queryByRole('note')).toBeNull()
 })
 
 it('shows the barracks hint under the barracks heading at level 1', async () => {
@@ -211,19 +245,61 @@ it('hides the hint at once when dismissed', async () => {
   expect(markHintSeen).toHaveBeenCalledWith('peasants')
 })
 
-it('keeps a dismissed hint hidden on later screens without reading the session again', async () => {
-  const currentPlayer = vi.fn(async () => knownPlayer)
-  await showAt(knownFiefPath, peasantsShort, [], { currentPlayer })
+const dismissHint = async (): Promise<void> => {
   fireEvent.click(
     within(screen.getByRole('note')).getByRole('button', { name: copy.hints.dismiss }),
   )
   await passSeconds(0)
+}
+
+it('keeps a dismissed hint hidden on later screens while the session still answers it unseen', async () => {
+  const currentPlayer = vi.fn(async () => knownPlayer)
+  await showAt(knownFiefPath, peasantsShort, [], { currentPlayer })
+  const sessionReads = currentPlayer.mock.calls.length
+  await dismissHint()
+  expect(currentPlayer).toHaveBeenCalledTimes(sessionReads)
 
   fireEvent.click(screen.getByRole('link', { name: copy.shell.navigation.map }))
   await passSeconds(0)
   fireEvent.click(screen.getByRole('link', { name: copy.shell.navigation.fief }))
   await passSeconds(0)
 
+  expect(currentPlayer.mock.calls.length).toBeGreaterThan(sessionReads)
+  expect(screen.queryByRole('note')).toBeNull()
+})
+
+const secondFiefId = '4f1e2d3c-6b5a-4978-8a1b-2c3d4e5f6a7b'
+
+const bothFiefs: FiefList = {
+  fiefs: [
+    ...knownFiefList.fiefs,
+    {
+      id: secondFiefId,
+      name: 'Sotoverde del Páramo',
+      coordinates: { kingdom: 1, province: 2, plot: 7 },
+      freeSlots: [],
+      fullStores: [],
+    },
+  ],
+}
+
+it('keeps a dismissed hint hidden on the other fief while the session still answers it unseen', async () => {
+  const currentPlayer = vi.fn(async () => knownPlayer)
+  await showAt(knownFiefPath, peasantsShort, [], {
+    currentPlayer,
+    fiefs: async () => ({ ok: true, value: bothFiefs }),
+    fief: async (fiefId) => ({ ok: true, value: { ...peasantsShort, id: fiefId } }),
+  })
+  const sessionReads = currentPlayer.mock.calls.length
+  await dismissHint()
+  expect(currentPlayer).toHaveBeenCalledTimes(sessionReads)
+
+  const switcher = screen.getByRole('navigation', { name: copy.shell.fiefSwitcher.label })
+  fireEvent.click(within(switcher).getByRole('link', { name: /Sotoverde del Páramo/ }))
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 2, name: peasantsShort.name })).toBeDefined()
+  expect(currentPlayer.mock.calls.length).toBeGreaterThan(sessionReads)
   expect(screen.queryByRole('note')).toBeNull()
 })
 
@@ -231,10 +307,7 @@ it('hides a hint whose dismissal was refused for the rest of the visit', async (
   const markHintSeen = vi.fn(async () => 'Unexpected' as const)
   await showAt(knownFiefPath, peasantsShort, [], { markHintSeen })
 
-  fireEvent.click(
-    within(screen.getByRole('note')).getByRole('button', { name: copy.hints.dismiss }),
-  )
-  await passSeconds(0)
+  await dismissHint()
 
   expect(screen.queryByRole('note')).toBeNull()
 })

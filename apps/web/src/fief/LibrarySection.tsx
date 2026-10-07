@@ -92,7 +92,7 @@ export function LibrarySection({
         title={copy.study.section}
         mark={seasonSectionMarkOf(fief.overview.season, 'study', copy.study.seasonMark)}
       />
-      {hint !== undefined && <Hint {...hint} placement="standalone" />}
+      {hint !== undefined && <Hint {...hint} />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <BuildSlot state={studySlotStateOf(fief, study)} />
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
