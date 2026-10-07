@@ -506,10 +506,10 @@ slice (Decision 1).
   edge.
 - Known gap: a goal two levels away names the next level's shortfall,
   not the goal level's; `missing` does not report a full queue, which
-  the card covers by reading the refusal instead; and
-  `JsonBuildingCatalog` does not check each goal against `levelOf`, so
-  a goal naming a missing level fails `GET /fiefs/:id` with
-  `UnknownBuildingLevel`.
+  the card covers by reading the refusal instead. A goal naming a
+  building level the content lacks, or any level from 1 up to it, no
+  longer reaches a read: `JsonBuildingCatalog.fromDirectory` refuses
+  such content at start-up (#501), so the api does not boot on it.
 - Known gap: *lista* reads the rates of the read, so a season that
   turns first moves the instant only at the next read.
 - Known gap: the free-slot rules and the "at or above capacity" check

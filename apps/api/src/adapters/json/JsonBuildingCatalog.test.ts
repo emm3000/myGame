@@ -363,6 +363,36 @@ describe('JsonBuildingCatalog', () => {
     expect(startingUpOn(directory)).toThrow(/smithing\.json is malformed/)
   })
 
+  it('fails at start-up on a goal naming a building level the content lacks', () => {
+    const directory = withFiefContent((content) => ({
+      ...content,
+      goals: [...content.goals, { building: 'sawmill', level: 11 }],
+    }))
+
+    expect(startingUpOn(directory)).toThrow(/fief\.json names a goal at sawmill level 11/)
+  })
+
+  it('fails at start-up on a goal whose building skips a level below it', () => {
+    const directory = withContentDirectory((copy) => {
+      const sawmill = JSON.parse(
+        readFileSync(join(copy, 'sawmill.json'), 'utf8'),
+      ) as BuildingContent
+      writeFileSync(
+        join(copy, 'sawmill.json'),
+        JSON.stringify({ ...sawmill, levels: sawmill.levels.filter(({ level }) => level !== 1) }),
+      )
+      const fief = JSON.parse(readFileSync(join(copy, 'fief.json'), 'utf8')) as FiefContent
+      writeFileSync(
+        join(copy, 'fief.json'),
+        JSON.stringify({ ...fief, goals: [{ building: 'sawmill', level: 2 }] }),
+      )
+    })
+
+    expect(startingUpOn(directory)).toThrow(
+      /fief\.json names a goal at sawmill level 2, but sawmill level 1 is missing/,
+    )
+  })
+
   it('ships smithing raising iron at levels 1 to 10', () => {
     expect(shippedArtLevels('smithing').map((line) => `${line?.resource}:${line?.level}`)).toEqual(
       Array.from({ length: 10 }, (_, index) => `iron:${index + 1}`),
