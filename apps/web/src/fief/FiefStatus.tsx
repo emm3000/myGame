@@ -1,7 +1,7 @@
 import { type ResourceKind, ResourceKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
-import type { HintProps } from '../design-system/Hint'
+import { Hint, type HintProps } from '../design-system/Hint'
 import { ResourceBar } from '../design-system/ResourceBar'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { SlotsStrip } from '../design-system/SlotsStrip'
@@ -54,23 +54,25 @@ export function FiefStatus({
     mark: seasonMarkOf(overview.season, kind),
   }))
   return (
-    <div className="flex flex-col gap-3 border-b border-line bg-surface pb-3 md:sticky md:top-0 md:z-10 md:pt-3">
-      <ResourceBar
-        resources={resources}
-        peasants={{
-          label: names.peasants,
-          supplied: overview.peasants.projectedSupplied,
-          occupied: overview.peasants.projectedOccupied,
-          free: overview.peasants.projectedFree,
-        }}
-        labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
-        hint={hint}
-      />
-      <SlotsStrip
-        label={copy.status.label}
-        link={{ to: '/feudo/$fiefId', params: { fiefId: overview.id } }}
-        cells={slotsStripCellsOf(fief)}
-      />
-    </div>
+    <>
+      <div className="flex flex-col gap-3 border-b border-line bg-surface pb-3 md:sticky md:top-0 md:z-10 md:pt-3">
+        <ResourceBar
+          resources={resources}
+          peasants={{
+            label: names.peasants,
+            supplied: overview.peasants.projectedSupplied,
+            occupied: overview.peasants.projectedOccupied,
+            free: overview.peasants.projectedFree,
+          }}
+          labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
+        />
+        <SlotsStrip
+          label={copy.status.label}
+          link={{ to: '/feudo/$fiefId', params: { fiefId: overview.id } }}
+          cells={slotsStripCellsOf(fief)}
+        />
+      </div>
+      {hint !== undefined && <Hint {...hint} />}
+    </>
   )
 }

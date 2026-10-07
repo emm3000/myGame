@@ -223,7 +223,7 @@ export function ArmySection({
         title={army.section}
         mark={seasonSectionMarkOf(fief.overview.season, 'train', army.seasonMark)}
       />
-      {hint !== undefined && <Hint {...hint} placement="standalone" />}
+      {hint !== undefined && <Hint {...hint} />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-3">
           <RecruitSlot state={recruitSlotStateOf(fief, recruit)} />
