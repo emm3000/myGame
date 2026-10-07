@@ -131,11 +131,13 @@ export class JsonBuildingCatalog implements BuildingCatalog {
       }
       return content
     })
-    return new JsonBuildingCatalog(
+    const catalog = new JsonBuildingCatalog(
       buildings,
       arts,
       parseFile(directory, fiefFile, FiefContentSchema),
     )
+    catalog.refuseGoalsBeyondLevels(join(directory, fiefFile))
+    return catalog
   }
 
   levelOf(building: BuildingKind, level: number): BuildingLevel | undefined {
@@ -152,6 +154,19 @@ export class JsonBuildingCatalog implements BuildingCatalog {
 
   digestTerms(): FiefContent['digest'] {
     return this.digest
+  }
+
+  private refuseGoalsBeyondLevels(path: string): void {
+    for (const goal of this.settings.goals) {
+      const missing = Array.from({ length: goal.level }, (_, index) => index + 1).find(
+        (level) => this.levelOf(goal.building, level) === undefined,
+      )
+      if (missing !== undefined) {
+        throw new Error(
+          `Content file ${path} names a goal at ${goal.building} level ${goal.level}, but ${goal.building} level ${missing} is missing`,
+        )
+      }
+    }
   }
 
   private static keyOf(kind: BuildingKind | ArtKind, level: number): string {
