@@ -1,6 +1,7 @@
 import type { ResourceKind } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
 import { formatQuantity } from './formatQuantity'
+import { Hint, type HintProps } from './Hint'
 import { resourceAccent } from './resourceAccent'
 import { SeasonMark, type SeasonMarkProps } from './SeasonMark'
 import { Track } from './Track'
@@ -30,6 +31,7 @@ export interface ResourceBarProps {
     readonly free: (supplied: number) => string
     readonly occupied: (occupied: number) => string
   }
+  readonly hint?: HintProps | undefined
 }
 
 const numeralClass = 'font-utility tabular-nums'
@@ -103,13 +105,16 @@ function PeasantItem({
   )
 }
 
-export function ResourceBar({ resources, peasants, labels }: ResourceBarProps): ReactElement {
+export function ResourceBar({ resources, peasants, labels, hint }: ResourceBarProps): ReactElement {
   return (
-    <ul className="m-0 grid list-none grid-cols-3 gap-3 rounded-md border border-line bg-surface-raised p-3 shadow-card md:grid-cols-6">
-      {resources.map((cell) => (
-        <ResourceItem key={cell.kind} cell={cell} fullLabel={labels.full} />
-      ))}
-      <PeasantItem cell={peasants} labels={labels} />
-    </ul>
+    <div className="flex flex-col gap-3 rounded-md border border-line bg-surface-raised p-3 shadow-card">
+      <ul className="m-0 grid list-none grid-cols-3 gap-3 p-0 md:grid-cols-6">
+        {resources.map((cell) => (
+          <ResourceItem key={cell.kind} cell={cell} fullLabel={labels.full} />
+        ))}
+        <PeasantItem cell={peasants} labels={labels} />
+      </ul>
+      {hint !== undefined && <Hint {...hint} placement="inBar" />}
+    </div>
   )
 }

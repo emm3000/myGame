@@ -4,6 +4,7 @@ import { copy } from '../copy'
 import type { CancelAction } from '../design-system/CancelAction'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
+import { Hint, type HintProps } from '../design-system/Hint'
 import { LockedUnitCard } from '../design-system/LockedUnitCard'
 import { MarchSlot, type MarchSlotState } from '../design-system/MarchSlot'
 import type { PreviewLine } from '../design-system/PreviewLines'
@@ -203,10 +204,12 @@ export function ArmySection({
   fief,
   recruit,
   recall,
+  hint,
 }: {
   readonly fief: LiveFief
   readonly recruit: Recruit
   readonly recall: Recall
+  readonly hint: HintProps | undefined
 }): ReactElement {
   const headingId = useId()
   return (
@@ -220,6 +223,7 @@ export function ArmySection({
         title={army.section}
         mark={seasonSectionMarkOf(fief.overview.season, 'train', army.seasonMark)}
       />
+      {hint !== undefined && <Hint {...hint} placement="standalone" />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-3">
           <RecruitSlot state={recruitSlotStateOf(fief, recruit)} />

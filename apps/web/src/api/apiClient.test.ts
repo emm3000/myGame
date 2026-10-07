@@ -122,6 +122,24 @@ it('posts the dismissal of the guidance to the fief', async () => {
   expect(init?.method).toBe('POST')
 })
 
+it('posts the hint the player has seen', async () => {
+  const fetch = vi.fn(
+    async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+
+  expect(await createApiClient('/api').markHintSeen('peasants')).toBeUndefined()
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/hints/peasants')
+  expect(init?.method).toBe('POST')
+})
+
+it('answers a refused hint as unexpected when the body names no kind', async () => {
+  answeringFetch(401, { error: 'unauthorized' })
+
+  expect(await createApiClient('/api').markHintSeen('queue')).toBe('Unexpected')
+})
+
 it('answers a refused dismissal by its kind', async () => {
   answeringFetch(404, { kind: 'FiefNotFound', message: 'No encontramos tus tierras.' })
 

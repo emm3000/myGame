@@ -206,6 +206,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   digest: async () => ({ ok: true, value: quietDigest }),
   acknowledgeDigest: async () => undefined,
   dismissGuidance: async () => undefined,
+  markHintSeen: async () => undefined,
   verifyEmail: async () => undefined,
   resendVerification: async () => undefined,
   forgotPassword: async () => undefined,

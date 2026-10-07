@@ -11,6 +11,7 @@ import { convoyArtOf } from '../design-system/convoyArtOf'
 import { DigestCard, type DigestCardProps } from '../design-system/DigestCard'
 import { FormAlert } from '../design-system/FormAlert'
 import { GoalCard, type GoalCardProps } from '../design-system/GoalCard'
+import { Hint, type HintProps } from '../design-system/Hint'
 import { SeasonLine } from '../design-system/SeasonLine'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { quantitiesOf } from '../resources/quantitiesOf'
@@ -37,6 +38,19 @@ export interface FiefScreenProps {
   readonly recall: Recall
   readonly digest: DigestCardProps | undefined
   readonly goal: GoalCardProps | undefined
+  readonly hint: ScreenHint | undefined
+}
+
+export interface ScreenHint {
+  readonly kind: 'seasons' | 'queue' | 'library' | 'barracks'
+  readonly props: HintProps
+}
+
+const hintAt = (hint: ScreenHint | undefined, kind: ScreenHint['kind']): HintProps | undefined =>
+  hint?.kind === kind ? hint.props : undefined
+
+function StandaloneHint({ hint }: { readonly hint: HintProps | undefined }): ReactElement | null {
+  return hint === undefined ? null : <Hint {...hint} placement="standalone" />
 }
 
 const { names } = copy
@@ -195,6 +209,7 @@ export function FiefScreen({
   recall,
   digest,
   goal,
+  hint,
 }: FiefScreenProps): ReactElement {
   const { overview } = fief
   const buildingsHeadingId = useId()
@@ -210,6 +225,7 @@ export function FiefScreen({
         </Link>
         <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
         <SeasonLineOf fief={fief} />
+        <StandaloneHint hint={hintAt(hint, 'seasons')} />
       </header>
       <NoticesRow digest={digest} goal={goal} />
       <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -219,6 +235,7 @@ export function FiefScreen({
         >
           <IncomingCargoOf fief={fief} />
           <BuildSlot state={slotStateOf(fief, cancel)} />
+          <StandaloneHint hint={hintAt(hint, 'queue')} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
           <WaitingUpgradesOf fief={fief} cancel={cancel} />
         </div>
@@ -235,9 +252,16 @@ export function FiefScreen({
           </ul>
         </section>
       </div>
-      {overview.buildings.library.level >= 1 && <LibrarySection fief={fief} study={study} />}
+      {overview.buildings.library.level >= 1 && (
+        <LibrarySection fief={fief} study={study} hint={hintAt(hint, 'library')} />
+      )}
       {overview.buildings.barracks.level >= 1 && (
-        <ArmySection fief={fief} recruit={recruit} recall={recall} />
+        <ArmySection
+          fief={fief}
+          recruit={recruit}
+          recall={recall}
+          hint={hintAt(hint, 'barracks')}
+        />
       )}
     </div>
   )

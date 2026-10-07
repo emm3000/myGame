@@ -3,6 +3,7 @@ import type {
   BuildingKind,
   FiefEvent,
   FiefOverview,
+  HintKind,
   ResourceKind,
   SeasonKind,
   Terrain,
@@ -569,6 +570,24 @@ export const copy = {
     ready: 'Tienes lo que hace falta.',
     missingPeasants: (count: number): string =>
       `Te ${agreeing(count, 'falta', 'faltan')} ${count} ${agreeing(count, 'campesino libre', 'campesinos libres')}.`,
+  },
+  hints: {
+    dismiss: 'Entendido',
+    lines: {
+      peasants:
+        'Cada nivel de un edificio y cada hombre de armas ocupa campesinos. Una granja trae más.',
+      seasons:
+        'Cada estación dura siete días y cambia alguna cosecha o algún trabajo. Las marcas dicen cuál.',
+      queue: 'Mientras una obra avanza puedes encargar otras: esperan en orden y empiezan solas.',
+      library:
+        'La biblioteca estudia un arte cada vez. Cada nivel de un arte sube lo que rinde un recurso por hora.',
+      barracks:
+        'El cuartel recluta una leva cada vez. Cada hombre sale de los campos y sigue ocupando campesinos mientras sirve.',
+      marches:
+        'Tus hombres salen desde el mapa: elige una parcela y verás qué puedes mandar allí. Una marcha cada vez.',
+      fullStore:
+        'Un almacén lleno no guarda más y lo que rinde de más se pierde. Gasta o amplía el almacén.',
+    } satisfies Record<HintKind, string>,
   },
   map: {
     title: 'Mapa',
