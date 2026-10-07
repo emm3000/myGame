@@ -1,4 +1,4 @@
-import type { FiefEvent, FiefOverview } from '@mygame/contracts'
+import { type FiefEvent, type FiefOverview, ResourceKindSchema } from '@mygame/contracts'
 import { chronicleRowOf } from '../chronicle/chronicleRowOf'
 import { isFoundingOnTheWay, marchEndOf } from '../fief/liveFief'
 
@@ -48,7 +48,8 @@ const leviesFinished: FinishOf = (previous, next) => {
   if (
     order === null ||
     !hasPassed(order.endsAt, next) ||
-    next.recruitOrder?.startedAt === order.startedAt
+    next.recruitOrder?.startedAt === order.startedAt ||
+    next.units[order.unit] < previous.units[order.unit] + order.count - order.delivered
   ) {
     return []
   }
@@ -57,12 +58,20 @@ const leviesFinished: FinishOf = (previous, next) => {
   ]
 }
 
+type AnsweredMarch = NonNullable<FiefOverview['march']>
+
+const isOutcomeUnread = (march: AnsweredMarch, next: FiefOverview): boolean => {
+  const isUnsettled = (march.order === 'attack' && !march.fought) || isFoundingOnTheWay(march)
+  return isUnsettled && hasPassed(march.returnsAt, next)
+}
+
 const marchesFinished: FinishOf = (previous, next) => {
   const march = previous.march
   if (
     march === null ||
     !hasPassed(marchEndOf(march), next) ||
-    next.march?.departedAt === march.departedAt
+    next.march?.departedAt === march.departedAt ||
+    isOutcomeUnread(march, next)
   ) {
     return []
   }
@@ -88,7 +97,12 @@ const cargoesArrived: FinishOf = (previous, next) => {
   if (
     cargo === null ||
     !hasPassed(cargo.arrivesAt, next) ||
-    next.incomingCargo?.arrivesAt === cargo.arrivesAt
+    next.incomingCargo?.arrivesAt === cargo.arrivesAt ||
+    ResourceKindSchema.options.some(
+      (resource) =>
+        next.resources[resource].amount <
+        previous.resources[resource].amount + cargo.cargo[resource],
+    )
   ) {
     return []
   }

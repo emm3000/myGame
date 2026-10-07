@@ -64,7 +64,26 @@ it('reads a finished levy as the roll does', () => {
     },
   }
 
-  expect(bodiesBetween(levying, rereadOf(knownFief))).toEqual(['Leva terminada: 12 infantes.'])
+  const delivered = rereadOf({ ...knownFief, units: { ...knownFief.units, infantry: 2 } })
+
+  expect(bodiesBetween(levying, delivered)).toEqual(['Leva terminada: 12 infantes.'])
+})
+
+it('sends nothing for a levy cancelled elsewhere just before its end', () => {
+  const levying: FiefOverview = {
+    ...knownFief,
+    recruitOrder: {
+      unit: 'infantry',
+      count: 12,
+      delivered: 10,
+      perUnitSeconds: 30,
+      startedAt: '2026-09-22T11:59:00.000Z',
+      endsAt: '2026-09-22T12:05:00.000Z',
+    },
+  }
+  const cancelled = rereadOf({ ...knownFief, units: { ...knownFief.units, infantry: 1 } })
+
+  expect(bodiesBetween(levying, cancelled)).toEqual([])
 })
 
 it('reads a march back as the roll does', () => {
@@ -112,34 +131,68 @@ it('reads a founding as the roll does', () => {
   ])
 })
 
-it('sends nothing for a lost attack, which no one comes back from', () => {
-  const attacking = withMarch({
-    ...forageAway,
-    order: 'attack',
-    stayHours: 0,
-    camp: { tier: 2, strength: 40 },
-    arrivesAt: '2026-09-22T12:05:00.000Z',
-    leavesAt: '2026-09-22T12:05:00.000Z',
-    returnsAt: '2026-09-22T12:19:00.000Z',
-  })
-
-  expect(bodiesBetween(attacking, rereadOf(knownFief))).toEqual([])
+const attackOnTheWay = withMarch({
+  ...forageAway,
+  order: 'attack',
+  stayHours: 0,
+  camp: { tier: 2, strength: 40 },
+  arrivesAt: '2026-09-22T12:05:00.000Z',
+  leavesAt: '2026-09-22T12:05:00.000Z',
+  returnsAt: '2026-09-22T12:08:00.000Z',
 })
 
-it('reads a cargo arrived as the roll does', () => {
-  const awaitingCargo: FiefOverview = {
-    ...knownFief,
-    incomingCargo: {
-      fromFiefId: '7f1c0a52-4a35-4c3e-9d55-2b9c5f0e8a11',
-      from: { name: 'Sotoverde', province: 3, plot: 12 },
-      cargo: { wood: 300, stone: 0, iron: 0, gold: 0, food: 0 },
-      arrivesAt: '2026-09-22T12:05:00.000Z',
-    },
-  }
+it('sends nothing for a lost attack, which no one comes back from', () => {
+  const beforeTheReturn = { ...knownFief, readAt: '2026-09-22T12:06:00.000Z' }
 
-  expect(bodiesBetween(awaitingCargo, rereadOf(knownFief))).toEqual([
+  expect(bodiesBetween(attackOnTheWay, beforeTheReturn)).toEqual([])
+})
+
+it('sends nothing for an attack whose battle and return fall between two reads', () => {
+  expect(bodiesBetween(attackOnTheWay, rereadOf(knownFief))).toEqual([])
+})
+
+it('sends nothing for a founding whose arrival and return fall between two reads', () => {
+  const foundingOnTheWay = withMarch({
+    ...forageAway,
+    order: 'found',
+    name: 'Sotoverde del Páramo',
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 1 },
+    stayHours: 0,
+    loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+    arrivesAt: '2026-09-22T12:02:00.000Z',
+    leavesAt: '2026-09-22T12:02:00.000Z',
+    returnsAt: '2026-09-22T12:08:00.000Z',
+  })
+
+  expect(bodiesBetween(foundingOnTheWay, rereadOf(knownFief))).toEqual([])
+})
+
+const awaitingCargo: FiefOverview = {
+  ...knownFief,
+  incomingCargo: {
+    fromFiefId: '7f1c0a52-4a35-4c3e-9d55-2b9c5f0e8a11',
+    from: { name: 'Sotoverde', province: 3, plot: 12 },
+    cargo: { wood: 300, stone: 0, iron: 0, gold: 0, food: 0 },
+    arrivesAt: '2026-09-22T12:05:00.000Z',
+  },
+}
+
+it('reads a cargo arrived as the roll does', () => {
+  const credited = rereadOf({
+    ...knownFief,
+    resources: {
+      ...knownFief.resources,
+      wood: { ...knownFief.resources.wood, amount: knownFief.resources.wood.amount + 300 },
+    },
+  })
+
+  expect(bodiesBetween(awaitingCargo, credited)).toEqual([
     'Transporte recibido: Sotoverde, provincia 3, parcela 12.',
   ])
+})
+
+it('sends nothing for a cargo recalled elsewhere just before its arrival', () => {
+  expect(bodiesBetween(awaitingCargo, rereadOf(knownFief))).toEqual([])
 })
 
 it('reads every upgrade the queue finished between two reads', () => {

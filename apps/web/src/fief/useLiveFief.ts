@@ -119,6 +119,12 @@ export function useLiveFief(
     isReading.current = false
     if (outcome.ok) {
       const previous = lastOverview.current
+      if (
+        previous !== undefined &&
+        Date.parse(outcome.value.readAt) < Date.parse(previous.readAt)
+      ) {
+        return
+      }
       lastOverview.current = outcome.value
       if (previous !== undefined) {
         rereadListener.current(previous, outcome.value)
