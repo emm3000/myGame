@@ -7,10 +7,7 @@ import type { DigestFief, DigestRow } from '../design-system/DigestCard'
 type DigestFiefEntry = Digest['fiefs'][number]
 
 const eventRowsOf = (fief: DigestFiefEntry, readAt: Date): ReadonlyArray<DigestRow> =>
-  fief.events.map((event) => {
-    const { key, occurredAt, instant, heading, subject } = chronicleRowOf(event, readAt)
-    return { key, occurredAt, instant, heading, subject }
-  })
+  fief.events.map((event) => chronicleRowOf(event, readAt))
 
 const storeRowsOf = (fief: DigestFiefEntry, readAt: Date): ReadonlyArray<DigestRow> =>
   fief.stores.map(({ resource, fullSince }) => ({
@@ -19,15 +16,18 @@ const storeRowsOf = (fief: DigestFiefEntry, readAt: Date): ReadonlyArray<DigestR
     instant: formatInstant(new Date(fullSince), readAt),
     heading: copy.digest.storeFull,
     subject: copy.digest.storeSubject(resource),
+    amounts: undefined,
   }))
 
 const newestFirst = (left: DigestRow, right: DigestRow): number =>
   Date.parse(right.occurredAt) - Date.parse(left.occurredAt)
 
 export function digestFiefsOf(digest: Digest, readAt: Date): ReadonlyArray<DigestFief> {
-  return digest.fiefs.map((fief) => ({
-    key: fief.id,
-    name: fief.name,
-    rows: [...eventRowsOf(fief, readAt), ...storeRowsOf(fief, readAt)].sort(newestFirst),
-  }))
+  return digest.fiefs
+    .filter((fief) => fief.events.length > 0 || fief.stores.length > 0)
+    .map((fief) => ({
+      key: fief.id,
+      name: fief.name,
+      rows: [...eventRowsOf(fief, readAt), ...storeRowsOf(fief, readAt)].sort(newestFirst),
+    }))
 }

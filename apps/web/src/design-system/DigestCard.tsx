@@ -1,7 +1,14 @@
 import { type ReactElement, useId } from 'react'
 import { Button } from './Button'
+import { type CardCost, CostList } from './CostList'
 import { FormAlert } from './FormAlert'
 import { Panel } from './Panel'
+
+export interface DigestAmounts {
+  readonly label: string
+  readonly sentence: string
+  readonly costs: ReadonlyArray<CardCost>
+}
 
 export interface DigestRow {
   readonly key: string
@@ -9,6 +16,7 @@ export interface DigestRow {
   readonly instant: string
   readonly heading: string
   readonly subject: string
+  readonly amounts: DigestAmounts | undefined
 }
 
 export interface DigestFief {
@@ -38,6 +46,17 @@ function DigestEntry({ row }: { readonly row: DigestRow }): ReactElement {
       <p className="m-0 font-body text-body text-ink">
         <b className="font-bold">{row.heading}</b> {row.subject}
       </p>
+      {row.amounts === undefined ? null : (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span aria-hidden="true" className="font-body text-body text-ink-muted">
+            {row.amounts.label}
+          </span>
+          <span className="sr-only">{row.amounts.sentence}</span>
+          <span aria-hidden="true" className="flex">
+            <CostList costs={row.amounts.costs} />
+          </span>
+        </div>
+      )}
     </li>
   )
 }
