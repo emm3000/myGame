@@ -375,7 +375,7 @@ evidence is #516's checklist.
   in the host's namespaces. The Consequences already hold `deploy` as
   root-equivalent through that group, so this turns the one-time root
   steps into code and grants nothing new. Root login stays off, and
-  `bootstrap.sh` stays the one run as root.
+  `bootstrap.sh` stays the one run from a root login.
 - **`converge.sh` converges three things and nothing else**, under a
   host lock, in `bootstrap.sh`'s `ok:`/`changed:` style, so a second run
   reports 0 changes: the 2 GB swap file and `vm.swappiness = 10`
@@ -408,7 +408,9 @@ evidence is #516's checklist.
   and exits non-zero when any fails: `postgres`, `api` and `web`
   healthy, `api` and `web` on the `MYGAME_TAG` of `apps/mygame/.env`,
   `/swapfile` active, the backup timer enabled with `Result=success`
-  and the newest local daily dump under 26 h old, and the drill timer
+  (a backup that never ran reads `ok` there, and the dump age fails it
+  instead) and the newest local daily dump under 26 h old, and the drill
+  timer
   enabled with its last `Result=success` (a warning until its first
   run); then `free -m` and each container's memory limit.
   `.github/workflows/health.yml` runs it over SSH with `deploy.yml`'s
