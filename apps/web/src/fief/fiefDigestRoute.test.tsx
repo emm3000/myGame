@@ -101,6 +101,44 @@ it('names each fief and its full stores in the digest', async () => {
   expect(within(digestCard()).getByText('Leva terminada:')).toBeDefined()
 })
 
+it('leaves a fief with no news out of the digest', async () => {
+  const quietFief = { id: secondFiefId, name: 'Sotoverde del Páramo', events: [], stores: [] }
+  const withQuietFief: Digest = { ...dueDigest, fiefs: [quietFief, ...dueDigest.fiefs.slice(1)] }
+  await showFief({ digest: async () => ({ ok: true, value: withQuietFief }) })
+
+  const fiefHeadings = within(digestCard()).getAllByRole('heading', { level: 4 })
+  expect(fiefHeadings.map((heading) => heading.textContent)).toEqual([knownFief.name])
+})
+
+it('reads an event with its amounts as the chronicle does', async () => {
+  const withLoot: Digest = {
+    ...dueDigest,
+    fiefs: [
+      {
+        id: knownFief.id,
+        name: knownFief.name,
+        events: [
+          {
+            kind: 'marchReturned',
+            province: 2,
+            plot: 7,
+            units: { infantry: 12, cavalry: 0, archer: 0, settler: 0 },
+            loot: { wood: 120, stone: 0, iron: 0, gold: 30, food: 0 },
+            occurredAt: '2026-09-21T18:10:00.000Z',
+            recalled: false,
+          },
+        ],
+        stores: [],
+      },
+    ],
+  }
+  await showFief({ digest: async () => ({ ok: true, value: withLoot }) })
+
+  expect(within(digestCard()).getByText('Recibes 120 de madera y 30 de oro.')).toBeDefined()
+  expect(within(digestCard()).getByText('Recibes')).toBeDefined()
+  expect(within(digestCard()).getByText('120')).toBeDefined()
+})
+
 it('reads the digest once per visit, never on a timer', async () => {
   const digest = vi.fn(async () => ({ ok: true as const, value: dueDigest }))
   await showFief({ digest })
