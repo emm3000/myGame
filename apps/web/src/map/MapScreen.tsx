@@ -1,5 +1,13 @@
 import type { ProvinceMap } from '@mygame/contracts'
-import { type FormEvent, type ReactElement, type ReactNode, type Ref, useState } from 'react'
+import {
+  type FormEvent,
+  Fragment,
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+  useId,
+  useState,
+} from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
@@ -8,14 +16,22 @@ import { Hint, type HintProps } from '../design-system/Hint'
 import { NumberField } from '../design-system/NumberField'
 import { type PlotAction, type PlotHolder, PlotTile } from '../design-system/PlotTile'
 import { TextLink } from '../design-system/TextLink'
+import { panelPlaceOf } from './panelPlaceOf'
 import type { ProvinceMapState } from './useProvinceMap'
+
+export interface MarchPanelSlot {
+  readonly plot: number
+  readonly content: ReactNode
+}
 
 export interface MapScreenProps {
   readonly fiefId: string
   readonly state: ProvinceMapState
   readonly onBrowse: (province: number) => void
   readonly plotActionsOf: (map: ProvinceMap, plot: number) => ReadonlyArray<PlotAction>
-  readonly marchPanel: ReactNode
+  readonly columns: number
+  readonly marchPanel: MarchPanelSlot | undefined
+  readonly fiefRefusalLine: string | undefined
   readonly hint: HintProps | undefined
   readonly provinceHeadingRef?: Ref<HTMLHeadingElement> | undefined
 }
@@ -85,12 +101,22 @@ function Province({
   map,
   onBrowse,
   plotActionsOf,
+  columns,
   marchPanel,
+  fiefRefusalLine,
   hint,
   provinceHeadingRef,
 }: ProvinceProps): ReactElement {
+  const panelId = useId()
   const heading = copy.map.heading(map.kingdom, map.province)
   const terrainLabel = copy.names.terrains[map.terrain]
+  const panelPosition = map.plots.findIndex(({ plot }) => plot === marchPanel?.plot)
+  const panelPlace =
+    panelPosition < 0 ? undefined : panelPlaceOf(panelPosition, columns, map.plots.length)
+  const actionsOf = (plot: number): ReadonlyArray<PlotAction> =>
+    plotActionsOf(map, plot).map((action) =>
+      action.isExpanded ? { ...action, controls: panelId } : action,
+    )
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -124,16 +150,22 @@ function Province({
       </div>
       {hint !== undefined && <Hint {...hint} />}
       <ul aria-label={heading} className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-5">
-        {map.plots.map((plot) => (
-          <PlotTile
-            key={plot.plot}
-            plotLabel={copy.map.plot(plot.plot)}
-            terrainLabel={terrainLabel}
-            holder={holderOf(plot, plotActionsOf(map, plot.plot))}
-          />
+        {map.plots.map((plot, position) => (
+          <Fragment key={plot.plot}>
+            <PlotTile
+              plotLabel={copy.map.plot(plot.plot)}
+              terrainLabel={terrainLabel}
+              holder={holderOf(plot, actionsOf(plot.plot))}
+            />
+            {position === panelPlace && (
+              <li id={panelId} className="col-span-full">
+                {marchPanel?.content}
+              </li>
+            )}
+          </Fragment>
         ))}
       </ul>
-      {marchPanel}
+      {fiefRefusalLine !== undefined && <FormAlert message={fiefRefusalLine} />}
     </div>
   )
 }

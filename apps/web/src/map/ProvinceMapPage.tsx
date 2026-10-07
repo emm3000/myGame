@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../api/apiClient'
+import { copy } from '../copy'
 import { useLayoutFief } from '../fief/useLayoutFief'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
@@ -9,6 +10,7 @@ import { marchesHintOf } from '../hints/marchesHintOf'
 import { useLayoutHints } from '../hints/useLayoutHints'
 import { MapMarchPanel } from './MapMarchPanel'
 import { MapScreen } from './MapScreen'
+import { useMapColumns } from './useMapColumns'
 import { useMapMarch } from './useMapMarch'
 import { useProvinceMap } from './useProvinceMap'
 
@@ -28,6 +30,7 @@ export function ProvinceMapPage({
   const hints = useLayoutHints()
   const { state, reread } = useProvinceMap(apiClient, fiefId, province)
   const provinceHeading = useFocusTarget<HTMLHeadingElement>()
+  const columns = useMapColumns()
   const march = useMapMarch(
     apiClient,
     fiefId,
@@ -51,7 +54,15 @@ export function ProvinceMapPage({
       state={state}
       onBrowse={browse}
       plotActionsOf={march.plotActionsOf}
-      marchPanel={<MapMarchPanel march={march} />}
+      columns={columns}
+      marchPanel={
+        march.panelPlot === undefined
+          ? undefined
+          : { plot: march.panelPlot, content: <MapMarchPanel march={march} /> }
+      }
+      fiefRefusalLine={
+        march.fiefRefusal === undefined ? undefined : copy.refusals[march.fiefRefusal]
+      }
       hint={
         hint === undefined
           ? undefined

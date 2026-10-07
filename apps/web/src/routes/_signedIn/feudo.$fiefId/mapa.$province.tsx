@@ -19,7 +19,9 @@ function NumberedProvincePage(): ReactElement {
         state={{ kind: 'refused', refusal: 'ProvinceNotFound' }}
         onBrowse={ignoreBrowse}
         plotActionsOf={noPlotActions}
-        marchPanel={null}
+        columns={2}
+        marchPanel={undefined}
+        fiefRefusalLine={undefined}
         hint={undefined}
       />
     )

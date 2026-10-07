@@ -13,6 +13,7 @@ export interface ButtonProps {
   readonly accessibleName?: string
   readonly describedBy?: string | undefined
   readonly isExpanded?: boolean
+  readonly controls?: string | undefined
   readonly onClick?: (() => void) | undefined
 }
 
@@ -57,6 +58,7 @@ export function Button(props: ButtonProps): ReactElement {
       aria-label={props.accessibleName}
       aria-describedby={props.describedBy}
       aria-expanded={props.isExpanded}
+      aria-controls={props.controls}
       onClick={press}
       className={classOf(props.tone, availability)}
     >

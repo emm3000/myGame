@@ -19,7 +19,8 @@ export interface MapMarch {
   readonly target: OpenTarget | undefined
   readonly entries: MarchEntries
   readonly name: string
-  readonly isSent: boolean
+  readonly sentPlot: number | undefined
+  readonly panelPlot: number | undefined
   readonly isWaiting: boolean
   readonly refusalLine: string | undefined
   readonly onEntriesChange: (entries: MarchEntries) => void
@@ -101,23 +102,25 @@ export function useMapMarch(
   const [chosen, setChosen] = useState<OpenTarget>()
   const [entries, setEntries] = useState(unopenedEntries)
   const [name, setName] = useState('')
-  const [isSent, setIsSent] = useState(false)
+  const [sent, setSent] = useState<{ readonly province: number; readonly plot: number }>()
+  const shownProvince = map?.province
+  const target = chosen?.province === shownProvince ? chosen : undefined
   const adoptSent = (answered: FiefOverview): void => {
     fief.adopt(answered)
     setChosen(undefined)
-    setIsSent(true)
+    setSent(target === undefined ? undefined : { province: target.province, plot: target.plot })
     onSent()
     if (answered.march?.order === 'found') {
       onFoundingSent()
     }
   }
   const march = useMarch(apiClient, fiefId, adoptSent, overview?.readAt)
-  const shownProvince = map?.province
-  const target = chosen?.province === shownProvince ? chosen : undefined
+  const sentPlot = sent?.province === shownProvince ? sent?.plot : undefined
 
   useEffect(() => {
     if (shownProvince !== undefined) {
       setChosen((open) => (open?.province === shownProvince ? open : undefined))
+      setSent((done) => (done?.province === shownProvince ? done : undefined))
     }
   }, [shownProvince])
 
@@ -128,7 +131,7 @@ export function useMapMarch(
     order: PlotOrder,
     fiefRead: FiefOverview,
   ): void => {
-    setIsSent(false)
+    setSent(undefined)
     if (isSameChoice(target, map, plot, order)) {
       setChosen(undefined)
       return
@@ -212,7 +215,8 @@ export function useMapMarch(
     target,
     entries,
     name,
-    isSent,
+    sentPlot,
+    panelPlot: target?.plot ?? sentPlot,
     isWaiting: march.isWaiting,
     refusalLine:
       march.refused === undefined
