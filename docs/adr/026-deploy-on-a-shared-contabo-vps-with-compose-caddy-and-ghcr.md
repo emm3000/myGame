@@ -358,3 +358,91 @@ migration 0028 (ADR 027). This is accepted while the author is the only
 player. From the first third-party player's sign-up on, such a column
 ships expand/contract: added nullable, with its backfill, in one deploy
 whose api writes it, then `SET NOT NULL` in a later deploy.
+
+## Amendment (2026-10-07): production runs itself
+
+S24 (#516) records Decisions 1 to 4 of its parent issue, delegated to the
+orchestrator by the owner: #517 and #518 in `emm3000/infra`, and #519
+here. Until the owner's one-time `git -C /srv/infra pull --ff-only` and
+the deploy of #519's merge, none of it has run on the server; that run's
+evidence is #516's checklist.
+
+- **Root on the host through the `docker` group, no wider than today.**
+  `server/converge.sh`, run as `deploy`, starts a privileged helper
+  container in the host's PID namespace (`docker run --privileged
+  --pid=host`, Ubuntu pinned by tag and digest, like `r2.sh`'s rclone),
+  whose `nsenter --target 1 --all` runs `converge.sh --on-host` as root
+  in the host's namespaces. The Consequences already hold `deploy` as
+  root-equivalent through that group, so this turns the one-time root
+  steps into code and grants nothing new. Root login stays off, and
+  `bootstrap.sh` stays the one run as root.
+- **`converge.sh` converges three things and nothing else**, under a
+  host lock, in `bootstrap.sh`'s `ok:`/`changed:` style, so a second run
+  reports 0 changes: the 2 GB swap file and `vm.swappiness = 10`
+  through `bootstrap.sh`'s own `setup_swap`, which it sources; the four
+  units `pg-backup@.service`/`.timer` and
+  `pg-restore-drill@.service`/`.timer`, written to
+  `/etc/systemd/system/` only when they differ, then one
+  `daemon-reload`; and `pg-backup@mygame.timer` and
+  `pg-restore-drill@mygame.timer` enabled and started. The drill now
+  runs every Sunday at 04:30 UTC, an hour after that day's backup, and
+  writes its last `Result` to `/srv/backups/mygame/restore-drill.result`,
+  which outlives a reboot.
+- **The deploy syncs itself.** Before its steps, `apps/mygame/deploy.sh`
+  fetches `/srv/infra` and fast-forwards it to `origin/main`, refusing
+  a failed fetch, a modified tracked file or a non-fast-forward with
+  HEAD unchanged; when HEAD moved it re-execs the new `deploy.sh` with
+  the same argument, still holding the deploy lock, because bash reads
+  a script while it runs. The order on the server is now sync,
+  converge, `docker compose up -d` of `caddy/compose.yaml`, then pull,
+  dump, migrate, up, record as before. vitrina's and perutops'
+  `deploy.sh` share the sync alone, through `server/sync.sh`. A merged
+  infra change reaches the server with the next deploy of any app, and
+  the server's read-only key for `emm3000/infra`, set up by hand on
+  2026-10-06, is still in neither repo.
+- **A read-only `status`, and `health.yml` to run it.** The CI key's
+  forced command is unchanged and accepts `status` as its one argument,
+  so the contract between the repos is now two commands:
+  `deploy.sh <sha>` and `deploy.sh status`. `status` takes no lock and
+  changes nothing; it prints one `status: ok|warn|FAIL` line per check
+  and exits non-zero when any fails: `postgres`, `api` and `web`
+  healthy, `api` and `web` on the `MYGAME_TAG` of `apps/mygame/.env`,
+  `/swapfile` active, the backup timer enabled with `Result=success`
+  and the newest local daily dump under 26 h old, and the drill timer
+  enabled with its last `Result=success` (a warning until its first
+  run); then `free -m` and each container's memory limit.
+  `.github/workflows/health.yml` runs it over SSH with `deploy.yml`'s
+  secrets daily at 06:00 UTC and on `workflow_dispatch`, while
+  `DEPLOY_ENABLED` is `true`, and fails when it fails, so GitHub's
+  failed-run mail is the alert, with no new service, key or secret. It
+  holds no `environment`, which would record a `production` deployment
+  that the docs-only rule reads as the last deploy, and a concurrency
+  group of its own, since one pending run per group would let it cancel
+  a queued deploy (`.claude/rules/github-workflows.md`).
+
+The Known gap on alerting now reads: a failed backup, a stale dump, a
+failed drill, a missing swap, or an unhealthy or wrong-SHA container
+reaches the owner by mail within a day, from the next 06:00 UTC run. A
+failed deploy still alerts by its own red run. Nothing watches the disk,
+the certificate, mail delivery or the api from outside the server: a
+`status` that is green from inside says nothing of what a player
+reaches. `status` fails on the dump age until the first 03:30 UTC backup
+after the first converge, a run during a deploy may catch a container
+being replaced, and GitHub turns a public repo's schedules off after 60
+days without activity.
+
+Neither the drill timer nor the health run breaches N2 or W7, for the
+reason the backup timer does not. The drill is a systemd timer of the
+host that downloads the newest R2 object, restores it into a throwaway
+container with no network and only reads the running database's
+migration count. The health run is started by GitHub's clock outside
+the server and reads Docker, systemd and the backup directory. Neither
+runs in the game's processes, the api holds no timer, and neither
+writes a resource, a queue or an instant of the game. No PRD row
+changes.
+
+Considered and rejected: a root login or `sudo` for `deploy`, which
+would widen access the `docker` group already gives; a one-time root
+session per host change, which leaves the host's state outside git; and
+an outside monitoring service, which brings a new account and secret
+for what GitHub's mail already delivers.
