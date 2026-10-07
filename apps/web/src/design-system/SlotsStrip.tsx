@@ -2,6 +2,7 @@ import { Link, type LinkProps } from '@tanstack/react-router'
 import { type ReactElement, useId } from 'react'
 import { MarchIcon } from './icons/MarchIcon'
 import { SlotIcon } from './icons/SlotIcon'
+import { NoticeToggle, type NoticeToggleProps } from './NoticeToggle'
 import { Track } from './Track'
 
 export type StripIcon = 'slot' | 'march'
@@ -38,6 +39,7 @@ export interface SlotsStripProps {
   readonly label: string
   readonly link: Pick<LinkProps, 'to' | 'params'>
   readonly cells: ReadonlyArray<StripCell>
+  readonly notices: NoticeToggleProps
 }
 
 const cellClass =
@@ -86,14 +88,18 @@ function CellContent({ cell }: { readonly cell: StripCell }): ReactElement {
   )
 }
 
-export function SlotsStrip({ label, link, cells }: SlotsStripProps): ReactElement {
+export function SlotsStrip({ label, link, cells, notices }: SlotsStripProps): ReactElement {
   const labelId = useId()
   return (
-    <section aria-labelledby={labelId} className="flex flex-col gap-2">
-      <span id={labelId} className="font-utility text-label text-ink-muted uppercase">
+    <section
+      aria-labelledby={labelId}
+      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2"
+    >
+      <span id={labelId} className="order-1 font-utility text-label text-ink-muted uppercase">
         {label}
       </span>
-      <ul className="m-0 grid list-none gap-2 p-0 md:auto-cols-fr md:grid-flow-col">
+      <NoticeToggle {...notices} />
+      <ul className="order-2 m-0 grid basis-full list-none gap-2 p-0 md:order-4 md:auto-cols-fr md:grid-flow-col">
         {cells.map((cell) => (
           <li key={cell.id} className="flex min-w-0 flex-col">
             <Link

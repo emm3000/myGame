@@ -96,10 +96,19 @@ function useDisplayClock(lastRead: LastRead | undefined): number {
   return nowMs
 }
 
-export function useLiveFief(apiClient: ApiClient, fiefId: string): LiveFiefHandle {
+export type Reread = (previous: FiefOverview, next: FiefOverview) => void
+
+export function useLiveFief(
+  apiClient: ApiClient,
+  fiefId: string,
+  onReread: Reread,
+): LiveFiefHandle {
   const [lastRead, setLastRead] = useState<LastRead>()
   const [refusal, setRefusal] = useState<ApiRefusal>()
   const isReading = useRef(false)
+  const lastOverview = useRef<FiefOverview>(undefined)
+  const rereadListener = useRef(onReread)
+  rereadListener.current = onReread
 
   const read = useCallback(async (): Promise<void> => {
     if (isReading.current) {
@@ -109,6 +118,11 @@ export function useLiveFief(apiClient: ApiClient, fiefId: string): LiveFiefHandl
     const outcome = await apiClient.fief(fiefId)
     isReading.current = false
     if (outcome.ok) {
+      const previous = lastOverview.current
+      lastOverview.current = outcome.value
+      if (previous !== undefined) {
+        rereadListener.current(previous, outcome.value)
+      }
       setLastRead({ overview: outcome.value, receivedAtMs: Date.now() })
       setRefusal(undefined)
       return
@@ -117,6 +131,7 @@ export function useLiveFief(apiClient: ApiClient, fiefId: string): LiveFiefHandl
   }, [apiClient, fiefId])
 
   const adopt = useCallback((overview: FiefOverview): void => {
+    lastOverview.current = overview
     setLastRead({ overview, receivedAtMs: Date.now() })
     setRefusal(undefined)
   }, [])
