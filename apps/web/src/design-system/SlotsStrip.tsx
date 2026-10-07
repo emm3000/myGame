@@ -81,7 +81,9 @@ function CellContent({ cell }: { readonly cell: StripCell }): ReactElement {
           ))}
         </span>
       </span>
-      <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-slate" />
+      <span className="mt-auto">
+        <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-slate" />
+      </span>
     </>
   )
 }
