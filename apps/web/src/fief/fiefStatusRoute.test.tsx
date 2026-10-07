@@ -115,6 +115,7 @@ const cargoOnItsWay: NonNullable<FiefOverview['incomingCargo']> = {
   fromFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
   from: { name: 'Sotoverde', province: 3, plot: 12 },
   cargo: { wood: 300, stone: 0, iron: 0, gold: 0, food: 0 },
+  departedAt: instantAfterRead(-60),
   arrivesAt: instantAfterRead(420),
 }
 

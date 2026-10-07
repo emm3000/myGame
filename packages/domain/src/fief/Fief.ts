@@ -1172,6 +1172,7 @@ export class Fief {
           province: this.coordinates.province,
           plot: this.coordinates.plot,
           cargo,
+          departedAt: march.departedAt,
           arrivesAt: marchInstantsOf(march).arrivesAt,
         },
       }),

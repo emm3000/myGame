@@ -2578,6 +2578,7 @@ describe('resolveUpgrade full-since', () => {
         province: 3,
         plot: 2,
         cargo: { wood: 1000, stone: 0, iron: 0, gold: 0, food: 0 },
+        departedAt: storedInstant,
         arrivesAt: hoursAfterStored(1),
       },
     })

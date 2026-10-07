@@ -164,6 +164,7 @@ const cargoFromSotoverde = {
   fromFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
   from: { name: 'Sotoverde', province: 3, plot: 12 },
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  departedAt: '2026-09-22T14:00:00.000Z',
   arrivesAt: '2026-09-22T14:07:30.000Z',
 }
 
@@ -614,6 +615,17 @@ describe('FiefOverviewSchema', () => {
       FiefOverviewSchema.safeParse({
         ...overviewWithSlot(busySlot),
         incomingCargo: cargoWithoutArrival,
+      }).success,
+    ).toBe(false)
+  })
+
+  it('rejects an incoming cargo without its departure', () => {
+    const { departedAt: _, ...cargoWithoutDeparture } = cargoFromSotoverde
+
+    expect(
+      FiefOverviewSchema.safeParse({
+        ...overviewWithSlot(busySlot),
+        incomingCargo: cargoWithoutDeparture,
       }).success,
     ).toBe(false)
   })

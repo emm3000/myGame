@@ -8,5 +8,6 @@ export type IncomingCargo = {
   readonly province: number
   readonly plot: number
   readonly cargo: Stocks
+  readonly departedAt: Instant
   readonly arrivesAt: Instant
 }

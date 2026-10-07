@@ -357,6 +357,7 @@ const incomingCargoOf = (row: IncomingCargoRow): IncomingCargo => ({
     gold: row.cargoGold,
     food: row.cargoFood,
   },
+  departedAt: instantOf(row.departedAt),
   arrivesAt: instantOf(row.arrivesAt),
 })
 
@@ -376,6 +377,7 @@ const incomingCargoRowOf = (fief: Fief): IncomingCargoRow | undefined => {
     cargoIron: incomingCargo.cargo.iron,
     cargoGold: incomingCargo.cargo.gold,
     cargoFood: incomingCargo.cargo.food,
+    departedAt: dateOf(incomingCargo.departedAt),
     arrivesAt: dateOf(incomingCargo.arrivesAt),
   }
 }

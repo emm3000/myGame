@@ -173,6 +173,7 @@ const incomingCargoOf = (cargo: IncomingCargo | undefined): FiefOverview['incomi
         fromFiefId: cargo.fromFiefId,
         from: { name: cargo.name, province: cargo.province, plot: cargo.plot },
         cargo: { ...cargo.cargo },
+        departedAt: isoOf(cargo.departedAt),
         arrivesAt: isoOf(cargo.arrivesAt),
       }
 
