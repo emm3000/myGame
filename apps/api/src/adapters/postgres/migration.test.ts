@@ -32,6 +32,8 @@ const uniqueViolation = '23505'
 
 const checkViolation = '23514'
 
+const notNullViolation = '23502'
+
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
   if (!url) {
@@ -907,6 +909,7 @@ describe('the migrations', () => {
       cargoIron: 220,
       cargoGold: 0,
       cargoFood: 0,
+      departedAt: new Date('2026-09-22T08:00:00Z'),
       arrivesAt: new Date('2026-09-22T08:07:30Z'),
     })
 
@@ -961,10 +964,49 @@ describe('the migrations', () => {
         cargoIron: 0,
         cargoGold: 0,
         cargoFood: 0,
+        departedAt: new Date('2026-09-22T08:00:00Z'),
         arrivesAt: new Date('2026-09-22T08:07:30Z'),
       }),
     ).rejects.toMatchObject({
       cause: { code: checkViolation, constraint: 'fief_incoming_cargo_cargo_wood_whole' },
+    })
+  })
+
+  it('refuses a cargo on its way without its departure', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      client.query(
+        `INSERT INTO fief_incoming_cargo (fief_id, from_fief_id, from_name, from_province, from_plot,
+           cargo_wood, cargo_stone, cargo_iron, cargo_gold, cargo_food, arrives_at)
+         VALUES ($1, $2, 'Peña Alta', 4, 9, 300, 0, 0, 0, 0, '2026-09-22T08:07:30Z')`,
+        [anasFief.id, anasSecondFief.id],
+      ),
+    ).rejects.toMatchObject({ code: notNullViolation, column: 'departed_at' })
+  })
+
+  it('refuses a cargo on its way that departs after its arrival', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefIncomingCargo).values({
+        fiefId: anasFief.id,
+        fromFiefId: anasSecondFief.id,
+        fromName: 'Peña Alta',
+        fromProvince: 4,
+        fromPlot: 9,
+        cargoWood: 300,
+        cargoStone: 0,
+        cargoIron: 0,
+        cargoGold: 0,
+        cargoFood: 0,
+        departedAt: new Date('2026-09-22T08:07:31Z'),
+        arrivesAt: new Date('2026-09-22T08:07:30Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_incoming_cargo_departed_before_arrival' },
     })
   })
 
@@ -2782,5 +2824,107 @@ describe('the full-since migration', () => {
 
     const guidance = await client.query('SELECT guidance_dismissed_at FROM fiefs')
     expect(guidance.rows).toEqual([{ guidance_dismissed_at: null }])
+  })
+})
+
+const insertPlayersOfFullSinceVersion = async (client: Client): Promise<void> => {
+  await client.query(
+    `INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at)
+     VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z', '2026-09-22T08:00:00Z'),
+            ($3, $4, 'argon2id-hash', '2026-09-22T08:00:00Z', '2026-09-22T08:00:00Z')`,
+    [ana.id, ana.email, bruno.id, bruno.email],
+  )
+}
+
+const anasOrigin = '00000000-0000-4000-8000-0000000000b1'
+const anasDestination = '00000000-0000-4000-8000-0000000000b2'
+const brunosOrigin = '00000000-0000-4000-8000-0000000000b3'
+const brunosDestination = '00000000-0000-4000-8000-0000000000b4'
+
+const insertTransportMarchOfFullSinceVersion = async (
+  client: Client,
+  origin: string,
+  destination: string,
+  recalledAt: string | null,
+): Promise<void> => {
+  await client.query(
+    `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, archer_count, settler_count,
+       stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
+       loot_percent_wood, loot_percent_stone, loot_percent_iron, loot_percent_gold, loot_percent_food,
+       recalled_at, march_order, fought, to_fief_id, cargo_wood, cargo_stone, cargo_iron, cargo_gold, cargo_food)
+     VALUES ($1, 4, 2, 0, 6, 0, 0, 0, 450, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0,
+       100, 100, 100, 100, 100, $3, 'transport', false, $2, 300, 200, 220, 0, 0)`,
+    [origin, destination, recalledAt],
+  )
+}
+
+const insertIncomingCargoOfFullSinceVersion = async (
+  client: Client,
+  destination: string,
+  origin: string,
+  arrivesAt: string,
+): Promise<void> => {
+  await client.query(
+    `INSERT INTO fief_incoming_cargo (fief_id, from_fief_id, from_name, from_province, from_plot,
+       cargo_wood, cargo_stone, cargo_iron, cargo_gold, cargo_food, arrives_at)
+     VALUES ($1, $2, 'Valdehierro', 4, 1, 300, 200, 220, 0, 0, $3)`,
+    [destination, origin, arrivesAt],
+  )
+}
+
+describe('the incoming cargo departure migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  const departureOfCargoIn = async (fiefId: string): Promise<Instant | undefined> => {
+    const read = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(fiefId)
+    return read.ok ? read.value?.incomingCargo?.departedAt : undefined
+  }
+
+  const migratedWithCargoes = async (): Promise<void> =>
+    migratedFrom(client, 29, async () => {
+      await insertPlayersOfFullSinceVersion(client)
+      await insertFiefOfPreviousVersion(client, anasOrigin, ana.id, 1, null)
+      await insertFiefOfPreviousVersion(client, anasDestination, ana.id, 2, null)
+      await insertFiefOfPreviousVersion(client, brunosOrigin, bruno.id, 3, null)
+      await insertFiefOfPreviousVersion(client, brunosDestination, bruno.id, 4, null)
+      await insertTransportMarchOfFullSinceVersion(client, anasOrigin, anasDestination, null)
+      await insertIncomingCargoOfFullSinceVersion(
+        client,
+        anasDestination,
+        anasOrigin,
+        '2026-09-22T08:07:30Z',
+      )
+      await insertTransportMarchOfFullSinceVersion(
+        client,
+        brunosOrigin,
+        brunosDestination,
+        '2026-09-22T08:03:00Z',
+      )
+      await insertIncomingCargoOfFullSinceVersion(
+        client,
+        brunosDestination,
+        brunosOrigin,
+        '2026-09-22T08:07:30Z',
+      )
+    })
+
+  it("backfills a cargo's departure from its transport march", async () => {
+    await migratedWithCargoes()
+
+    expect(await departureOfCargoIn(anasDestination)).toEqual(instantAt('2026-09-22T08:00:00Z'))
+  })
+
+  it('backfills a cargo with no transport march at its arrival', async () => {
+    await migratedWithCargoes()
+
+    expect(await departureOfCargoIn(brunosDestination)).toEqual(instantAt('2026-09-22T08:07:30Z'))
   })
 })

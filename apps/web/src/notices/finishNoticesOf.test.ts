@@ -173,6 +173,7 @@ const awaitingCargo: FiefOverview = {
     fromFiefId: '7f1c0a52-4a35-4c3e-9d55-2b9c5f0e8a11',
     from: { name: 'Sotoverde', province: 3, plot: 12 },
     cargo: { wood: 300, stone: 0, iron: 0, gold: 0, food: 0 },
+    departedAt: '2026-09-22T12:00:00.000Z',
     arrivesAt: '2026-09-22T12:05:00.000Z',
   },
 }

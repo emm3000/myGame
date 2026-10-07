@@ -171,6 +171,7 @@ const cargoFromTheOtherFief: IncomingCargo = {
   province: 4,
   plot: 9,
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  departedAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:50:00Z')),
   arrivesAt: Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:05:00Z')),
 }
 
@@ -798,6 +799,18 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.incomingCargo).toEqual(cargoFromTheOtherFief)
+    })
+
+    it('restores the departure of an incoming cargo', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      await fiefs.save(withIncomingCargo(developedFief, cargoFromTheOtherFief))
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.incomingCargo?.departedAt).toEqual(
+        Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:50:00Z')),
+      )
     })
 
     it('restores no cargo on its way once a later save drops it', async () => {

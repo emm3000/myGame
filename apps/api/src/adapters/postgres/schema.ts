@@ -343,6 +343,7 @@ export const fiefIncomingCargo = pgTable(
     cargoIron: doublePrecision('cargo_iron').notNull(),
     cargoGold: doublePrecision('cargo_gold').notNull(),
     cargoFood: doublePrecision('cargo_food').notNull(),
+    departedAt: timestamp('departed_at', { withTimezone: true }).notNull(),
     arrivesAt: timestamp('arrives_at', { withTimezone: true }).notNull(),
   },
   (table) => [
@@ -353,6 +354,10 @@ export const fiefIncomingCargo = pgTable(
     wholeAmount('fief_incoming_cargo_cargo_iron_whole', table.cargoIron),
     wholeAmount('fief_incoming_cargo_cargo_gold_whole', table.cargoGold),
     wholeAmount('fief_incoming_cargo_cargo_food_whole', table.cargoFood),
+    check(
+      'fief_incoming_cargo_departed_before_arrival',
+      sql`${table.departedAt} <= ${table.arrivesAt}`,
+    ),
   ],
 )
 

@@ -222,8 +222,21 @@ describe('dispatchTransport', () => {
       province: 3,
       plot: 12,
       cargo: fullCargo,
+      departedAt: dispatchInstant,
       arrivesAt: secondsAfter(dispatchInstant, 450),
     })
+  })
+
+  it('stamps the incoming cargo with the departure of its transport', async () => {
+    const dependencies = dependenciesOver(lordsFiefs())
+
+    await dispatchTransport(transportOf(), dependencies)
+
+    const origin = dependencies.fiefs.storedFiefOf('fief-1')
+    assert(origin?.march.kind === 'away')
+    expect(dependencies.fiefs.storedFiefOf('fief-2')?.incomingCargo?.departedAt).toEqual(
+      origin.march.departedAt,
+    )
   })
 
   it('rides 338 seconds in an autumn of 75 %', async () => {

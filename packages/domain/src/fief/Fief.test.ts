@@ -99,6 +99,7 @@ const incomingCargo = {
   province: 3,
   plot: 5,
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
+  departedAt: Instant.fromEpochMilliseconds(86_400_000 - 120_000),
   arrivesAt: Instant.fromEpochMilliseconds(86_400_000 + 360_000),
 } as const
 

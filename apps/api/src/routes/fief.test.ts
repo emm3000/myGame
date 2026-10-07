@@ -3681,7 +3681,18 @@ describe('the fief route', () => {
         fromFiefId: ana.fiefId,
         from: { name: 'Valdehierro', province: 1, plot: 1 },
         cargo: woodAndStone,
+        departedAt: '2026-09-22T08:00:00.000Z',
         arrivesAt: '2026-09-22T08:05:00.000Z',
+      })
+    })
+
+    it('answers the departure of the incoming cargo', async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      await transport(ana, { toFiefId: otherFiefId, units: sixRiders, cargo: woodAndStone })
+      clock.advanceMinutes(4)
+
+      expect(await incomingCargoOf(otherFiefOf(ana))).toMatchObject({
+        departedAt: '2026-09-22T08:00:00.000Z',
       })
     })
 

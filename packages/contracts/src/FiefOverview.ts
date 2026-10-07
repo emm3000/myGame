@@ -172,6 +172,7 @@ const IncomingCargoSchema = z.strictObject({
     plot: WholeCountSchema.positive(),
   }),
   cargo: ResourceAmountsSchema,
+  departedAt: InstantSchema,
   arrivesAt: InstantSchema,
 })
 

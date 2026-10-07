@@ -421,3 +421,27 @@ cargo of 240, and 241 is refused `CargoAboveCarry { cargo: 241, carry:
 still holds `settler_count` at 0 alone (migration 0027). The form's
 archer count ships since PR #439, which maps the kinds a party takes,
 and #436 (PR #442) pinned it. Nothing else here changes.
+
+## Amendment (2026-10-07)
+
+S23 (#497, Decision 7; #502) stores the cargo's departure, so a screen
+can draw its progress. `IncomingCargo` gains `departedAt`, which
+`Fief.dispatchTransport` sets to the march's `departedAt`;
+`fief_incoming_cargo` gains `departed_at` (migration 0029), and
+`FiefOverview.incomingCargo` answers it beside `arrivesAt`. The check
+`fief_incoming_cargo_departed_before_arrival` holds `departed_at` at or
+before `arrives_at`.
+
+Migration 0029 backfills each cargo stored before it from the march
+that carries it: the origin's `fief_marches` row of order `transport`
+to the destination, not recalled, whose `departed_at` plus
+`one_way_seconds` equals the cargo's `arrives_at`, which is what
+`marchInstantsOf` answers. A cargo with no such march (its party came
+home or left again before 0029) has already arrived and takes its
+`arrives_at` as its departure, so its track reads full until a read
+applies it. Then the column is `NOT NULL`, accepted under ADR 026's
+amendment of 2026-10-07: between `migrate` and `up` of that deploy the
+old api's insert of a cargo row fails.
+
+The wire half of the Known gap "the cargo card has no progress track"
+is closed; the track itself is #503's.
