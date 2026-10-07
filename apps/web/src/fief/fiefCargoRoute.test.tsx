@@ -67,7 +67,7 @@ it('shows the convoy art on the cargo card', async () => {
   await showFief(async () => ({ ok: true, value: awaitingCargo }))
 
   const art = within(presentCargoCard()).getByRole('presentation')
-  expect(art.getAttribute('src')).toBe('/art/convoys/convoy.png')
+  expect(art.getAttribute('src')).toBe('/art/convoys/convoy.webp')
   expect(art.getAttribute('loading')).toBe('lazy')
 })
 

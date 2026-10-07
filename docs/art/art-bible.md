@@ -42,12 +42,12 @@ Fill `<subject>` from `CONTEXT.md` and `docs/lore/`, `<kingdom terrain>` from th
 - One model and one template per asset family; a template change regenerates the whole family.
 - The square output suffix (`docs/art/catalog.md`, Common lines) is output framing for Codex's image tool, which has no size argument, not a template change; it does not regenerate a family.
 - Every asset is checked against a contact sheet of its family before commit; an outlier is regenerated, never kept.
-- File name: `<family>/<term>-<level>.png`, the term as in `CONTEXT.md`, or `arts/<term>.png` for an art or `convoys/<term>.png` for a convoy, each with one image and no level in its name. The convoy's file name, `convoy`, is the family's own word and not a `CONTEXT.md` term: the glossary names the transport and its cargo, never the carts (#411, ADR 024).
+- File name: `<family>/<term>-<level>.webp`, the term as in `CONTEXT.md`, or `arts/<term>.webp` for an art or `convoys/<term>.webp` for a convoy, each with one image and no level in its name. The convoy's file name, `convoy`, is the family's own word and not a `CONTEXT.md` term: the glossary names the transport and its cargo, never the carts (#411, ADR 024).
 - The prompt used is stored next to the image as `<term>-<level>.prompt.txt`, or `<term>.prompt.txt` for an art or convoy.
 
 ## Model and size
 
-GPT Image at 1024×1024 for every generated family; Codex's image tool takes no size argument, so a prompt it runs ends with the square output suffix. Prompts are written by the agent in the ticket that delivers the family, from the template above; the author or Codex runs them and commits image and prompt together. A ticket Codex runs carries `ready-for-codex` (`docs/agents/triage-labels.md`).
+GPT Image at 1024×1024 is the generation size of every family; the game serves a 768×768 WebP converted from that output (`docs/art/catalog.md`, How to run it). Codex's image tool takes no size argument, so a prompt it runs ends with the square output suffix. Prompts are written by the agent in the ticket that delivers the family, from the template above; the author or Codex runs them and commits image and prompt together. A ticket Codex runs carries `ready-for-codex` (`docs/agents/triage-labels.md`).
 
 ## UI icons
 

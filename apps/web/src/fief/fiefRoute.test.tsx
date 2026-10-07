@@ -327,7 +327,7 @@ it("shows the tier image on a built building's card", async () => {
 
   const farmCard = screen.getByRole('listitem', { name: copy.names.buildings.farm })
 
-  expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.png$/)
+  expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.webp$/)
 })
 
 const libraryCard = (): HTMLElement => screen.getByRole('listitem', { name: 'biblioteca' })
@@ -349,7 +349,7 @@ it('shows the library art of its tier on the library card', async () => {
   await showFief(signedInClientServing(() => libraryAtLevelThree))
 
   expect(within(libraryCard()).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/library-2\.png$/,
+    /\/library-2\.webp$/,
   )
 })
 
@@ -372,7 +372,7 @@ it('shows the barracks art of its tier on the barracks card', async () => {
   await showFief(signedInClientServing(() => barracksAtLevelOne))
 
   expect(within(barracksCard()).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/barracks-1\.png$/,
+    /\/barracks-1\.webp$/,
   )
 })
 

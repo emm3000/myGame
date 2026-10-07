@@ -11,10 +11,10 @@ it('shows no building art at level 0', () => {
 })
 
 it('shares one image between the two levels of a tier', () => {
-  expect(buildingArtOf('farm', 1)).toBe('/art/buildings/farm-1.png')
-  expect(buildingArtOf('farm', 2)).toBe('/art/buildings/farm-1.png')
-  expect(buildingArtOf('farm', 9)).toBe('/art/buildings/farm-5.png')
-  expect(buildingArtOf('farm', 10)).toBe('/art/buildings/farm-5.png')
+  expect(buildingArtOf('farm', 1)).toBe('/art/buildings/farm-1.webp')
+  expect(buildingArtOf('farm', 2)).toBe('/art/buildings/farm-1.webp')
+  expect(buildingArtOf('farm', 9)).toBe('/art/buildings/farm-5.webp')
+  expect(buildingArtOf('farm', 10)).toBe('/art/buildings/farm-5.webp')
 })
 
 const levels = Array.from({ length: 10 }, (_, index) => index + 1)

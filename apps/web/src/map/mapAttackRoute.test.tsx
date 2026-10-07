@@ -120,7 +120,7 @@ it('reads a camp tier and strength on its plot', async () => {
 it('shows the art of its tier on the attack form', async () => {
   await openAttackOn(9)
 
-  expect(screen.getByRole('presentation').getAttribute('src')).toBe('/art/camps/camp-2.png')
+  expect(screen.getByRole('presentation').getAttribute('src')).toBe('/art/camps/camp-2.webp')
 })
 
 it('offers the attack on a camp plot and no forage', async () => {

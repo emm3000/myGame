@@ -6,11 +6,11 @@ Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D a
 
 1. Model: GPT Image, 1024×1024, one image per prompt. Run a whole family in one sitting so the style holds.
 2. Codex's image tool has no size argument, so the prompts of the families it generates (library, barracks, camps, arts, convoys) end with the square output suffix under Common lines, after the tier line or the resource block. The 25 older building images and the 5 resource images keep their prompts and are not regenerated. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
-3. Save the image as `apps/web/public/art/<family>/<term>-<tier>.png` and the prompt next to it as `<term>-<tier>.prompt.txt`, byte for byte what was pasted (N7).
-4. Lay the family out as a contact sheet before committing, and check it against the bible's palette and framing. One outlier means one regeneration; three mean the template changes and the family is regenerated.
-5. Commit image and prompt together: `feat(art): <family> <term>` or `feat(art): <family>` for a whole family.
+3. Codex outputs a PNG at the generation size. Keep the prompt as `apps/web/public/art/<family>/<term>-<tier>.prompt.txt`, byte for byte what was pasted (N7).
+4. Lay the family out as a contact sheet from those PNG outputs before committing, and check it against the bible's palette and framing. One outlier means one regeneration; three mean the template changes and the family is regenerated.
+5. The PR that adds the art converts each PNG output to a 768×768 WebP with `cwebp -q 78 -m 6 -resize 768 0 <in> -o <out>` and commits the WebP as `apps/web/public/art/<family>/<term>-<tier>.webp` beside its prompt; the PNG output is never committed under `public/`. Commit image and prompt together: `feat(art): <family> <term>` or `feat(art): <family>` for a whole family.
 
-Every building has ten levels and five tiers, tier = ceil(level / 2), so a level shows the image of its tier: levels 1 and 2 share `sawmill-1.png`, levels 9 and 10 share `sawmill-5.png`. Level 0 shows no image; the screen shows the empty plot state from the design system.
+Every building has ten levels and five tiers, tier = ceil(level / 2), so a level shows the image of its tier: levels 1 and 2 share `sawmill-1.webp`, levels 9 and 10 share `sawmill-5.webp`. Level 0 shows no image; the screen shows the empty plot state from the design system.
 
 Kingdom terrain for every prompt is Vadoalto's: a wide river valley with pine hills behind, the high ford in the distance (`docs/lore/names.md`). A fief on uplands or ridges shows the same images in the MVP; terrain-specific art is a later family.
 
@@ -69,51 +69,51 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 
 | File | Subject |
 |---|---|
-| `sawmill-1.png` | a small open-sided sawmill shed by a stream, one saw pit, a few felled pine logs, sawdust on bare earth |
-| `sawmill-2.png` | a wooden sawmill with a small water wheel on a stream, a log pile under a lean-to, planks drying on racks |
-| `sawmill-3.png` | a sawmill on a stone footing with a large water wheel, a tiled roof, a mill race, stacked timber in rows |
-| `sawmill-4.png` | a stone-walled sawmill with a double water wheel, a slate roof, a walled timber yard, an iron-banded sluice |
-| `sawmill-5.png` | a great stone sawmill with two water wheels and a timber tower, banners on the gate, a paved yard of cut beams |
+| `sawmill-1.webp` | a small open-sided sawmill shed by a stream, one saw pit, a few felled pine logs, sawdust on bare earth |
+| `sawmill-2.webp` | a wooden sawmill with a small water wheel on a stream, a log pile under a lean-to, planks drying on racks |
+| `sawmill-3.webp` | a sawmill on a stone footing with a large water wheel, a tiled roof, a mill race, stacked timber in rows |
+| `sawmill-4.webp` | a stone-walled sawmill with a double water wheel, a slate roof, a walled timber yard, an iron-banded sluice |
+| `sawmill-5.webp` | a great stone sawmill with two water wheels and a timber tower, banners on the gate, a paved yard of cut beams |
 
 ### quarry (cantera)
 
 | File | Subject |
 |---|---|
-| `quarry-1.png` | a shallow cut in a pale hillside, a wooden hoist, a few split blocks, chisels on a bench |
-| `quarry-2.png` | a hillside quarry with a wooden crane, a fenced cutting floor, a sled path down the slope |
-| `quarry-3.png` | a terraced quarry with stone-footed sheds, a tiled tool house, a cart track, dressed blocks in rows |
-| `quarry-4.png` | a deep terraced quarry with stone masons' halls, a slate roof, an iron windlass, a walled block yard |
-| `quarry-5.png` | a vast terraced quarry with a stone gatehouse, banners, a paved loading yard, block stacks like walls |
+| `quarry-1.webp` | a shallow cut in a pale hillside, a wooden hoist, a few split blocks, chisels on a bench |
+| `quarry-2.webp` | a hillside quarry with a wooden crane, a fenced cutting floor, a sled path down the slope |
+| `quarry-3.webp` | a terraced quarry with stone-footed sheds, a tiled tool house, a cart track, dressed blocks in rows |
+| `quarry-4.webp` | a deep terraced quarry with stone masons' halls, a slate roof, an iron windlass, a walled block yard |
+| `quarry-5.webp` | a vast terraced quarry with a stone gatehouse, banners, a paved loading yard, block stacks like walls |
 
 ### ironMine (mina de hierro)
 
 | File | Subject |
 |---|---|
-| `ironMine-1.png` | a timber-framed mine mouth in a red-brown ridge, a wheelbarrow of ore, a small charcoal heap |
-| `ironMine-2.png` | a mine mouth with a wooden headframe and a bloomery hearth, an ore cart on wooden rails, a fence |
-| `ironMine-3.png` | a mine with a stone-footed headframe, a tiled smelting house with a chimney, ore sledges on a track |
-| `ironMine-4.png` | a stone mine entrance with an iron gate, a slate-roofed forge, a walled ore yard, a bellows house |
-| `ironMine-5.png` | a fortified mine with a stone tower over the shaft, banners, twin smelting chimneys, a paved ore yard |
+| `ironMine-1.webp` | a timber-framed mine mouth in a red-brown ridge, a wheelbarrow of ore, a small charcoal heap |
+| `ironMine-2.webp` | a mine mouth with a wooden headframe and a bloomery hearth, an ore cart on wooden rails, a fence |
+| `ironMine-3.webp` | a mine with a stone-footed headframe, a tiled smelting house with a chimney, ore sledges on a track |
+| `ironMine-4.webp` | a stone mine entrance with an iron gate, a slate-roofed forge, a walled ore yard, a bellows house |
+| `ironMine-5.webp` | a fortified mine with a stone tower over the shaft, banners, twin smelting chimneys, a paved ore yard |
 
 ### farm (granja)
 
 | File | Subject |
 |---|---|
-| `farm-1.png` | a small farmstead, a single thatched hut, a fenced strip of young wheat, a goat pen |
-| `farm-2.png` | a farmstead with a thatched house and a barn, two wheat fields, a wooden fence, a well |
-| `farm-3.png` | a farm on a stone footing with a tiled house, a large barn, ripe wheat fields, a cart track, hayricks |
-| `farm-4.png` | a stone farmhouse with a slate roof, a walled yard, a dovecote, wide golden fields, an iron-banded gate |
-| `farm-5.png` | a great stone manor farm with a gatehouse and banners, a granary tower, terraced fields to the horizon |
+| `farm-1.webp` | a small farmstead, a single thatched hut, a fenced strip of young wheat, a goat pen |
+| `farm-2.webp` | a farmstead with a thatched house and a barn, two wheat fields, a wooden fence, a well |
+| `farm-3.webp` | a farm on a stone footing with a tiled house, a large barn, ripe wheat fields, a cart track, hayricks |
+| `farm-4.webp` | a stone farmhouse with a slate roof, a walled yard, a dovecote, wide golden fields, an iron-banded gate |
+| `farm-5.webp` | a great stone manor farm with a gatehouse and banners, a granary tower, terraced fields to the horizon |
 
 ### warehouse (almacén)
 
 | File | Subject |
 |---|---|
-| `warehouse-1.png` | a small timber storehouse on stilts, a few sacks and barrels under its eaves |
-| `warehouse-2.png` | a wooden storehouse with a loading ramp, stacked barrels, sacks and logs behind a fence |
-| `warehouse-3.png` | a long storehouse on a stone footing with a tiled roof, a covered loading bay, crates in rows |
-| `warehouse-4.png` | a stone warehouse with a slate roof, a walled goods yard, iron-banded doors, a hoist beam |
-| `warehouse-5.png` | a great stone warehouse with a gate tower and banners, a paved yard of carts, barrels and stone blocks |
+| `warehouse-1.webp` | a small timber storehouse on stilts, a few sacks and barrels under its eaves |
+| `warehouse-2.webp` | a wooden storehouse with a loading ramp, stacked barrels, sacks and logs behind a fence |
+| `warehouse-3.webp` | a long storehouse on a stone footing with a tiled roof, a covered loading bay, crates in rows |
+| `warehouse-4.webp` | a stone warehouse with a slate roof, a walled goods yard, iron-banded doors, a hoist beam |
+| `warehouse-5.webp` | a great stone warehouse with a gate tower and banners, a paved yard of carts, barrels and stone blocks |
 
 ### library (biblioteca)
 
@@ -121,11 +121,11 @@ The suffix says `building` here, not `subject`. Closing clauses are per image.
 
 | File | Subject | Closing clauses |
 |---|---|---|
-| `library-1.png` | a small open-fronted wooden shed with one lectern, a lit candle on it, a few scrolls in a basket | `every parchment and scroll is blank and unmarked, no lettering or scribbles anywhere` |
-| `library-2.png` | a wooden library hall with a copying shed beside it, open shutters on a lectern and a shelf of scrolls, a candle lantern by the door |  |
-| `library-3.png` | a library on a stone footing with a tiled roof, wide doors open on rows of shelves, a lectern by a window, scroll chests under the eaves |  |
-| `library-4.png` | a stone library with a slate roof, arched windows lit by candles, iron-banded doors open on tall shelves of books, a walled yard | `a secular low rectangular stone library hall with a simple uninterrupted slate gable roof and a modest walled courtyard, no tower or turret or spire or steeple or gatehouse, plain shallow round-arched windows with no pointed arches or tracery or quatrefoils or rose windows, no cross or religious symbols or church architecture anywhere, iron-banded doors open to clearly visible tall bookshelves, absolutely no humans and no lettering anywhere` |
-| `library-5.png` | a great stone room of shelves with a tower, tall arched doors open on the shelves, candles in every window, banners, a paved yard | `one library hall with one squat tower and a small walled paved yard, human-scale medieval village building, no cathedral or sprawling castle, absolutely no humans or human silhouettes anywhere including roads gates and background, books and scrolls have no lettering, no cross or religious symbols anywhere, plain gable ends with no finials, round arches only, no pointed gothic arches, a secular civic library with a long broad slate-roofed hall and one squat square tower, no chapel or church silhouette, the tower roof has no ornament or crossbar, precise architectural correction: keep the long secular hall and the one squat square tower and the simple roofs, every single door and window has a broad perfectly semicircular Roman arch with a smooth curved crown and no apex or point, replace any pointed opening with a rounded half-circle opening, no triangular arch tops, preserve the shelves candles banners courtyard framing colors and lighting` |
+| `library-1.webp` | a small open-fronted wooden shed with one lectern, a lit candle on it, a few scrolls in a basket | `every parchment and scroll is blank and unmarked, no lettering or scribbles anywhere` |
+| `library-2.webp` | a wooden library hall with a copying shed beside it, open shutters on a lectern and a shelf of scrolls, a candle lantern by the door |  |
+| `library-3.webp` | a library on a stone footing with a tiled roof, wide doors open on rows of shelves, a lectern by a window, scroll chests under the eaves |  |
+| `library-4.webp` | a stone library with a slate roof, arched windows lit by candles, iron-banded doors open on tall shelves of books, a walled yard | `a secular low rectangular stone library hall with a simple uninterrupted slate gable roof and a modest walled courtyard, no tower or turret or spire or steeple or gatehouse, plain shallow round-arched windows with no pointed arches or tracery or quatrefoils or rose windows, no cross or religious symbols or church architecture anywhere, iron-banded doors open to clearly visible tall bookshelves, absolutely no humans and no lettering anywhere` |
+| `library-5.webp` | a great stone room of shelves with a tower, tall arched doors open on the shelves, candles in every window, banners, a paved yard | `one library hall with one squat tower and a small walled paved yard, human-scale medieval village building, no cathedral or sprawling castle, absolutely no humans or human silhouettes anywhere including roads gates and background, books and scrolls have no lettering, no cross or religious symbols anywhere, plain gable ends with no finials, round arches only, no pointed gothic arches, a secular civic library with a long broad slate-roofed hall and one squat square tower, no chapel or church silhouette, the tower roof has no ornament or crossbar, precise architectural correction: keep the long secular hall and the one squat square tower and the simple roofs, every single door and window has a broad perfectly semicircular Roman arch with a smooth curved crown and no apex or point, replace any pointed opening with a rounded half-circle opening, no triangular arch tops, preserve the shelves candles banners courtyard framing colors and lighting` |
 
 ### barracks (cuartel)
 
@@ -133,11 +133,11 @@ Closing clauses: `a human-scale village training yard, the training dummies are 
 
 | File | Subject |
 |---|---|
-| `barracks-1.png` | a small fenced drill ground with a spear shed, one straw training dummy on a post, a few round shields against the fence |
-| `barracks-2.png` | a fenced drill ground with a spear shed and a store shed, a row of training dummies, spear racks, round shields hung on the fence |
-| `barracks-3.png` | a drill ground beside a timber armoury on a stone footing, a tiled roof over the spear racks, training dummies in rows, stacked shields |
-| `barracks-4.png` | a walled yard with a drill ground and a roof for the spears, a slate-roofed spear gallery along the stone wall, training dummies, iron-bossed shields |
-| `barracks-5.png` | a great walled yard with a drill ground and a roof for the spears, a stone gatehouse with banners, a paved drill ground, long spear racks, rows of training dummies and shields |
+| `barracks-1.webp` | a small fenced drill ground with a spear shed, one straw training dummy on a post, a few round shields against the fence |
+| `barracks-2.webp` | a fenced drill ground with a spear shed and a store shed, a row of training dummies, spear racks, round shields hung on the fence |
+| `barracks-3.webp` | a drill ground beside a timber armoury on a stone footing, a tiled roof over the spear racks, training dummies in rows, stacked shields |
+| `barracks-4.webp` | a walled yard with a drill ground and a roof for the spears, a slate-roofed spear gallery along the stone wall, training dummies, iron-bossed shields |
+| `barracks-5.webp` | a great walled yard with a drill ground and a roof for the spears, a stone gatehouse with banners, a paved drill ground, long spear racks, rows of training dummies and shields |
 
 ## Family: resources
 
@@ -152,15 +152,15 @@ no photorealism, no outlines, no text, no watermark, no people
 
 | File | Subject | Accent |
 |---|---|---|
-| `wood-1.png` | three stacked pine logs with fresh-cut amber ends and rough bark | wood amber |
-| `stone-1.png` | three dressed blocks of pale grey stone, chisel marks on their faces | stone pale grey |
-| `iron-1.png` | three iron ingots, dark blue-grey, one with a hammer mark | iron dark blue-grey |
-| `gold-1.png` | a small heap of worn gold coins beside an open leather toll purse | gold warm yellow |
-| `food-1.png` | a bound sheaf of ripe wheat with a round loaf beside it | food wheat green |
+| `wood-1.webp` | three stacked pine logs with fresh-cut amber ends and rough bark | wood amber |
+| `stone-1.webp` | three dressed blocks of pale grey stone, chisel marks on their faces | stone pale grey |
+| `iron-1.webp` | three iron ingots, dark blue-grey, one with a hammer mark | iron dark blue-grey |
+| `gold-1.webp` | a small heap of worn gold coins beside an open leather toll purse | gold warm yellow |
+| `food-1.webp` | a bound sheaf of ripe wheat with a round loaf beside it | food wheat green |
 
 ## Family: camps
 
-3 images, one per camp tier, 1 to 3. A camp's tier never rises, so a camp shows the one image of its tier for as long as it stands. Framing follows the bible's building rule, with no people: tents, a fire pit, a palisade and the loot carry the camp. Each prompt is the Common lines above with `<resource accent>` set to `pennant red` and the tier line taken from the Camp tier lines below, never from the building Tier lines. The image is saved as `apps/web/public/art/camps/camp-<tier>.png` with `camp-<tier>.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/camp.png`.
+3 images, one per camp tier, 1 to 3. A camp's tier never rises, so a camp shows the one image of its tier for as long as it stands. Framing follows the bible's building rule, with no people: tents, a fire pit, a palisade and the loot carry the camp. Each prompt is the Common lines above with `<resource accent>` set to `pennant red` and the tier line taken from the Camp tier lines below, never from the building Tier lines. The image is saved as `apps/web/public/art/camps/camp-<tier>.webp` with `camp-<tier>.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/camp.png`.
 
 ### Camp tier lines
 
@@ -176,22 +176,22 @@ Closing clauses: `a modest camp at human scale, absolutely no humans or human si
 
 | File | Subject |
 |---|---|
-| `camp-1.png` | a few patched canvas tents around a stone-ringed fire pit, a red pennant on a leaning pole, a small pile of stolen sacks and a barrel |
-| `camp-2.png` | a camp of tents inside a ring of sharpened log palisade, a rough timber gate with a red pennant above it, a fire pit, a handcart, stolen crates and barrels |
-| `camp-3.png` | a ruined stone tower patched with timber hoardings, a palisade and a barred gate closing its breach, tents at its foot, red pennants on its broken top, stacked loot chests |
+| `camp-1.webp` | a few patched canvas tents around a stone-ringed fire pit, a red pennant on a leaning pole, a small pile of stolen sacks and a barrel |
+| `camp-2.webp` | a camp of tents inside a ring of sharpened log palisade, a rough timber gate with a red pennant above it, a fire pit, a handcart, stolen crates and barrels |
+| `camp-3.webp` | a ruined stone tower patched with timber hoardings, a palisade and a barred gate closing its breach, tents at its foot, red pennants on its broken top, stacked loot chests |
 
 ## Family: arts
 
-2 images, one per art and never per level: an art shows the same image at every level. Framing follows the bible's resource rule, and each prompt is the resource template block above with `<subject>` and `<accent>` from the table. Each subject is one object of the craft as `docs/lore/arts.md` tells it, never the resource's own object. The image is saved as `apps/web/public/art/arts/<term>.png` with `<term>.prompt.txt` next to it, no tier in the name; the contact sheet is `docs/art/contact-sheets/arts.png`.
+2 images, one per art and never per level: an art shows the same image at every level. Framing follows the bible's resource rule, and each prompt is the resource template block above with `<subject>` and `<accent>` from the table. Each subject is one object of the craft as `docs/lore/arts.md` tells it, never the resource's own object. The image is saved as `apps/web/public/art/arts/<term>.webp` with `<term>.prompt.txt` next to it, no tier in the name; the contact sheet is `docs/art/contact-sheets/arts.png`.
 
 | File | Subject | Accent | Closing clauses |
 |---|---|---|---|
-| `smithing.png` | a forge bellows of wood and leather with a dark blue-grey iron nozzle, a small heap of charcoal under it | iron dark blue-grey | |
-| `masonry.png` | a rough boulder of pale grey stone split clean along its grain, an iron wedge between two feathers standing in the cleft | stone pale grey | `the two feathers are curved dark iron shims flanking the central iron wedge, no wooden shims and no bird feathers` |
+| `smithing.webp` | a forge bellows of wood and leather with a dark blue-grey iron nozzle, a small heap of charcoal under it | iron dark blue-grey | |
+| `masonry.webp` | a rough boulder of pale grey stone split clean along its grain, an iron wedge between two feathers standing in the cleft | stone pale grey | `the two feathers are curved dark iron shims flanking the central iron wedge, no wooden shims and no bird feathers` |
 
 ## Family: convoys
 
-1 image, no tiers. Framing follows the bible's building rule, always with no people; the escort is implied by its arms on the carts. The image is saved as `apps/web/public/art/convoys/convoy.png` with `convoy.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/convoy.png`.
+1 image, no tiers. Framing follows the bible's building rule, always with no people; the escort is implied by its arms on the carts. The image is saved as `apps/web/public/art/convoys/convoy.webp` with `convoy.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/convoy.png`.
 
 The prompt is the subject, `, `, the Common lines above with their line breaks turned into single spaces and `<resource accent>` set to `ochre and umber`, without a tier line, then the square output suffix with `<framed>` set to `subject`, then `, ` and the closing clauses.
 
@@ -199,11 +199,11 @@ The prompt is the subject, `, `, the Common lines above with their line breaks t
 
 | File | Subject | Closing clauses |
 |---|---|---|
-| `convoy.png` | a small convoy of two laden ox carts on a dirt road, one heaped with fresh-cut timber and dressed pale stone blocks, the other with dark iron ingots, a small iron-bound chest of gold coins and grain sacks, spears and two lances lashed upright to the carts, a plain round shield hung on each cart side, the oxen yoked and standing on the road | `a modest convoy at human scale, absolutely no humans or human silhouettes anywhere including the background, shields are plain and unpainted, any pennant is solid ochre fabric with no lettering or symbols, no cross or religious symbols anywhere including pennants, shields, carts and pole tops, plain pole tops with no finials or crossbars, no lettering on chests or sacks` |
+| `convoy.webp` | a small convoy of two laden ox carts on a dirt road, one heaped with fresh-cut timber and dressed pale stone blocks, the other with dark iron ingots, a small iron-bound chest of gold coins and grain sacks, spears and two lances lashed upright to the carts, a plain round shield hung on each cart side, the oxen yoked and standing on the road | `a modest convoy at human scale, absolutely no humans or human silhouettes anywhere including the background, shields are plain and unpainted, any pennant is solid ochre fabric with no lettering or symbols, no cross or religious symbols anywhere including pennants, shields, carts and pole tops, plain pole tops with no finials or crossbars, no lettering on chests or sacks` |
 
 ## Where the screen reads them
 
-`buildingArtOf(building, level)` in `apps/web/src/design-system/buildingArtOf.ts` resolves a building image as `/art/buildings/<term>-<tier>.png` with tier = ceil(level / 2), and answers nothing at level 0, where the fief screen's building card shows no image. It is the only place a screen reads the building family from. `campArtOf(tier)` in `apps/web/src/design-system/campArtOf.ts` resolves a bandit camp image as `/art/camps/camp-<tier>.png` for tiers 1 to 3; its one consumer is `attackFormOf` in `apps/web/src/map/attackFormOf.ts`, which puts the target camp's image at the top of the attack form on `/mapa`. The forage form shows none, and the map's plot tile keeps its hand-drawn `CampIcon`. `artArtOf(art)` in `apps/web/src/design-system/artArtOf.ts` resolves an art image as `/art/arts/<art>.png`, one image per art with no tiers; its one consumer is `artCardOf` in `apps/web/src/fief/artCardOf.ts`, which puts the image at the top of every art card of the library section at every level, *sin estudiar* and the top level included. `convoyArtOf()` in `apps/web/src/design-system/convoyArtOf.ts` resolves the convoy image as `/art/convoys/convoy.png`, one image with no tiers; its first consumer is the *Carga en camino* card of the destination's fief screen (`IncomingCargoOf` in `apps/web/src/fief/FiefScreen.tsx`, #415), which puts it at the top of the card as `BuildingCard` draws its `artSrc`; its second consumer is the transport form on `/mapa` (`transportFormOf` in `apps/web/src/map/transportFormOf.ts`, #416), which puts it at the top of the form as the attack form shows its camp. The resource family (`/art/resources/<term>-1.png`) has no consumer yet: no MVP screen has a place for large resource art, and the resource bar, the build slot and the cost list keep their hand-drawn SVG icons.
+`buildingArtOf(building, level)` in `apps/web/src/design-system/buildingArtOf.ts` resolves a building image as `/art/buildings/<term>-<tier>.webp` with tier = ceil(level / 2), and answers nothing at level 0, where the fief screen's building card shows no image. It is the only place a screen reads the building family from. `campArtOf(tier)` in `apps/web/src/design-system/campArtOf.ts` resolves a bandit camp image as `/art/camps/camp-<tier>.webp` for tiers 1 to 3; its one consumer is `attackFormOf` in `apps/web/src/map/attackFormOf.ts`, which puts the target camp's image at the top of the attack form on `/mapa`. The forage form shows none, and the map's plot tile keeps its hand-drawn `CampIcon`. `artArtOf(art)` in `apps/web/src/design-system/artArtOf.ts` resolves an art image as `/art/arts/<art>.webp`, one image per art with no tiers; its one consumer is `artCardOf` in `apps/web/src/fief/artCardOf.ts`, which puts the image at the top of every art card of the library section at every level, *sin estudiar* and the top level included. `convoyArtOf()` in `apps/web/src/design-system/convoyArtOf.ts` resolves the convoy image as `/art/convoys/convoy.webp`, one image with no tiers; its first consumer is the *Carga en camino* card of the destination's fief screen (`IncomingCargoOf` in `apps/web/src/fief/FiefScreen.tsx`, #415), which puts it at the top of the card as `BuildingCard` draws its `artSrc`; its second consumer is the transport form on `/mapa` (`transportFormOf` in `apps/web/src/map/transportFormOf.ts`, #416), which puts it at the top of the form as the attack form shows its camp. The resource family (`/art/resources/<term>-1.webp`) has no consumer yet: no MVP screen has a place for large resource art, and the resource bar, the build slot and the cost list keep their hand-drawn SVG icons.
 
 ## Open questions
 

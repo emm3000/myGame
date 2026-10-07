@@ -27,8 +27,8 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
         <img
           src={props.artSrc}
           alt=""
-          width={1024}
-          height={1024}
+          width={768}
+          height={768}
           loading="lazy"
           decoding="async"
           className="aspect-4/3 w-full rounded-md object-cover"
