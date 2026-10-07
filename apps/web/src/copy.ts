@@ -225,6 +225,26 @@ const ratePercent = (percent: number, resource: ResourceKind): string =>
 
 const atMaxLevel = 'Ya está en su nivel más alto.'
 
+const buildingsWithIndefiniteArticle: Readonly<Record<BuildingKind, string>> = {
+  sawmill: 'un aserradero',
+  quarry: 'una cantera',
+  ironMine: 'una mina de hierro',
+  farm: 'una granja',
+  warehouse: 'un almacén',
+  library: 'una biblioteca',
+  barracks: 'un cuartel',
+}
+
+const buildingsWithDefiniteArticle: Readonly<Record<BuildingKind, string>> = {
+  sawmill: 'el aserradero',
+  quarry: 'la cantera',
+  ironMine: 'la mina de hierro',
+  farm: 'la granja',
+  warehouse: 'el almacén',
+  library: 'la biblioteca',
+  barracks: 'el cuartel',
+}
+
 const signInTitle = 'Entra en tu feudo'
 
 const invalidCount = 'Un número entero, al menos 1.'
@@ -530,6 +550,25 @@ export const copy = {
       `Recibes ${quantitiesOf(received)}.`,
     sent: 'Envías',
     sentAmounts: (sent: ReadonlyArray<ResourceQuantity>): string => `Envías ${quantitiesOf(sent)}.`,
+  },
+  digest: {
+    title: 'Mientras no estabas',
+    acknowledge: 'Entendido',
+    storeFull: 'Almacén lleno:',
+    storeSubject: (resource: ResourceKind): string => `${resources[resource]}.`,
+  },
+  goal: {
+    title: 'Siguiente meta',
+    dismiss: 'Descartar',
+    position: (position: number, count: number): string => `Meta ${position} de ${count}`,
+    line: (building: BuildingKind, level: number): string =>
+      level === 1
+        ? `Levanta ${buildingsWithIndefiniteArticle[building]}.`
+        : `Sube ${buildingsWithDefiniteArticle[building]} a ${names.level(level)}.`,
+    underway: 'Ya está encargada.',
+    ready: 'Tienes lo que hace falta.',
+    missingPeasants: (count: number): string =>
+      `Te ${agreeing(count, 'falta', 'faltan')} ${count} ${agreeing(count, 'campesino libre', 'campesinos libres')}.`,
   },
   map: {
     title: 'Mapa',

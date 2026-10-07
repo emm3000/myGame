@@ -67,3 +67,63 @@ it('answers a refusal with the line the server wrote', async () => {
     message: 'Solo puedes tener 2 feudos. Deja al colono en casa.',
   })
 })
+
+const dueDigest = {
+  acknowledgedAt: '2026-09-22T08:00:00.000Z',
+  isDue: true,
+  fiefs: [
+    {
+      id: knownFief.id,
+      name: knownFief.name,
+      events: [],
+      stores: [{ resource: 'stone', fullSince: '2026-09-22T10:00:00.000Z' }],
+    },
+  ],
+}
+
+it('reads the digest through its schema', async () => {
+  const fetch = answeringFetch(200, dueDigest)
+
+  const outcome = await createApiClient('/api').digest()
+
+  expect(outcome).toEqual({ ok: true, value: dueDigest })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/digest')
+  expect(init?.method).toBe('GET')
+})
+
+it('reads a digest the schema refuses as unexpected', async () => {
+  answeringFetch(200, { ...dueDigest, isDue: 'yes' })
+
+  expect(await createApiClient('/api').digest()).toEqual({ ok: false, refusal: 'Unexpected' })
+})
+
+it('posts the acknowledgement of the digest', async () => {
+  const fetch = vi.fn(
+    async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+
+  expect(await createApiClient('/api').acknowledgeDigest()).toBeUndefined()
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/digest/acknowledgement')
+  expect(init?.method).toBe('POST')
+})
+
+it('posts the dismissal of the guidance to the fief', async () => {
+  const fetch = vi.fn(
+    async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+
+  expect(await createApiClient('/api').dismissGuidance(knownFief.id)).toBeUndefined()
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe(`/api/fiefs/${knownFief.id}/guidance/dismissal`)
+  expect(init?.method).toBe('POST')
+})
+
+it('answers a refused dismissal by its kind', async () => {
+  answeringFetch(404, { kind: 'FiefNotFound', message: 'No encontramos tus tierras.' })
+
+  expect(await createApiClient('/api').dismissGuidance(knownFief.id)).toBe('FiefNotFound')
+})
