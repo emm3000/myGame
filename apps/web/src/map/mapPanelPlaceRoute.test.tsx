@@ -221,7 +221,7 @@ it('reads a fief-load refusal under the list, outside any panel', async () => {
   expect(list.children).toHaveLength(freeProvince.plots.length)
 })
 
-it('keeps focus off the form title when the screen crosses to five columns', async () => {
+it('keeps focus in the field when the screen crosses to five columns', async () => {
   const media = stubMatchMedia(false)
   const list = await showProvince()
   fireEvent.click(sendTo(3))
@@ -231,9 +231,7 @@ it('keeps focus off the form title when the screen crosses to five columns', asy
   act(() => media.matchAll(true))
 
   expect(orderOf(list)).toEqual(plotsWithPanelAfter(5))
-  expect(document.activeElement).not.toBe(
-    screen.getByRole('heading', { level: 4, name: 'Marcha a provincia 2, parcela 3' }),
-  )
+  expect(document.activeElement).toBe(field)
 })
 
 it('clears a march refusal when another form opens', async () => {
