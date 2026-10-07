@@ -34,6 +34,7 @@ const stateLinesOf = (goal: Goal, overview: FiefOverview): ReadonlyArray<GoalSta
 export function goalCardOf(
   overview: FiefOverview,
   dismissal: GuidanceDismissal,
+  onDismissed: () => void,
 ): GoalCardProps | undefined {
   const { goal } = overview
   if (goal === null || dismissal.isDismissed) {
@@ -47,6 +48,6 @@ export function goalCardOf(
     dismissLabel: copy.goal.dismiss,
     isWaiting: dismissal.isWaiting,
     refusal: dismissal.refusal === undefined ? undefined : copy.refusals[dismissal.refusal],
-    onDismiss: dismissal.dismiss,
+    onDismiss: () => dismissal.dismiss(onDismissed),
   }
 }

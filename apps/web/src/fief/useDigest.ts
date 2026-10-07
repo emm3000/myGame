@@ -10,7 +10,7 @@ export interface DigestHandle {
   readonly state: DigestState
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
-  readonly acknowledge: () => void
+  readonly acknowledge: (onAcknowledged: () => void) => void
 }
 
 export function useDigest(apiClient: ApiClient): DigestHandle {
@@ -31,23 +31,27 @@ export function useDigest(apiClient: ApiClient): DigestHandle {
     }
   }, [apiClient])
 
-  const acknowledge = useCallback((): void => {
-    if (isInFlight.current) {
-      return
-    }
-    isInFlight.current = true
-    setIsWaiting(true)
-    setRefusal(undefined)
-    void apiClient.acknowledgeDigest().then((answer) => {
-      isInFlight.current = false
-      setIsWaiting(false)
-      if (answer === undefined) {
-        setState({ kind: 'silent' })
+  const acknowledge = useCallback(
+    (onAcknowledged: () => void): void => {
+      if (isInFlight.current) {
         return
       }
-      setRefusal(answer)
-    })
-  }, [apiClient])
+      isInFlight.current = true
+      setIsWaiting(true)
+      setRefusal(undefined)
+      void apiClient.acknowledgeDigest().then((answer) => {
+        isInFlight.current = false
+        setIsWaiting(false)
+        if (answer === undefined) {
+          setState({ kind: 'silent' })
+          onAcknowledged()
+          return
+        }
+        setRefusal(answer)
+      })
+    },
+    [apiClient],
+  )
 
   return { state, isWaiting, refusal, acknowledge }
 }

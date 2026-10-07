@@ -310,3 +310,31 @@ it('sends one march on a double click', async () => {
   await waitFor(() => expect(screen.getByRole('status')).toBeDefined())
   expect(dispatchMarch).toHaveBeenCalledTimes(1)
 })
+
+it('moves focus to the province heading when a march is sent', async () => {
+  const form = await openMarchTo(uplands, 5, {
+    dispatchMarch: async () => ({ ok: true, value: { ...fiefWithTenInfantry, march: marchAway } }),
+  })
+  const button = sendButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('status')
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+  )
+})
+
+it('keeps focus on the send when the march is refused', async () => {
+  const form = await openMarchTo(uplands, 5, {
+    dispatchMarch: async () => ({ ok: false, refusal: 'PlotHeld' }),
+  })
+  const button = sendButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('alert')
+  expect(document.activeElement).toBe(button)
+})

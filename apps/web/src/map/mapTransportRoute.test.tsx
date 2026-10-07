@@ -9,6 +9,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const otherFiefId = '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a'
@@ -406,4 +407,39 @@ it('reads no lista on a march form', async () => {
 
   expect(accessibleDescriptionOf(sendButton(form))).toBe('Te faltan 20 de hierro.')
   expect(within(form).queryByText(/lista/)).toBeNull()
+})
+
+it('moves focus to the province heading when a transport is sent', async () => {
+  const form = await openTransport({
+    dispatchTransport: async () => ({
+      ok: true,
+      value: { ...sotoverde, readAt: transportAway.departedAt, march: transportAway },
+    }),
+  })
+  typeSixRiders(form)
+  loadCargo(form, '300', '200', '220')
+  const button = sendButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('status')
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+  )
+})
+
+it('keeps focus on the transport when it is refused', async () => {
+  const form = await openTransport({
+    dispatchTransport: async () => ({ ok: false, refusal: 'Unexpected' }),
+  })
+  typeSixRiders(form)
+  loadCargo(form, '300', '200', '220')
+  const button = sendButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('alert')
+  expect(document.activeElement).toBe(button)
 })

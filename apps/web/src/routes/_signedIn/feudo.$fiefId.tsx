@@ -3,11 +3,15 @@ import { createFileRoute, Outlet, useMatchRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
+import { FiefNameContext } from '../../fief/FiefNameContext'
 import { FiefStatus } from '../../fief/FiefStatus'
 import { LiveFiefContext } from '../../fief/LiveFiefContext'
 import type { LiveFief } from '../../fief/liveFief'
+import { useFiefNameTarget } from '../../fief/useFiefNameTarget'
 import { useLiveFief } from '../../fief/useLiveFief'
+import { useFocusTarget } from '../../focus/useFocusTarget'
 import { barHintOf } from '../../hints/barHintOf'
+import { hintFocusingAfterDismiss } from '../../hints/hintFocusingAfterDismiss'
 import { hintPropsOf } from '../../hints/hintPropsOf'
 import { useLayoutHints } from '../../hints/useLayoutHints'
 import { type FinishNoticesHandle, useFinishNotices } from '../../notices/useFinishNotices'
@@ -20,13 +24,18 @@ function LiveFiefStatus({
   readonly notices: FinishNoticesHandle
 }): ReactElement {
   const hints = useLayoutHints()
+  const fiefName = useFiefNameTarget()
   const matchRoute = useMatchRoute()
   const isFiefScreen = matchRoute({ to: '/feudo/$fiefId' }) !== false
   const hint = isFiefScreen ? barHintOf(fief, hints.hidden) : undefined
   return (
     <FiefStatus
       fief={fief}
-      hint={hint === undefined ? undefined : hintPropsOf(hint, hints)}
+      hint={
+        hint === undefined
+          ? undefined
+          : hintFocusingAfterDismiss(hintPropsOf(hint, hints), fiefName.focus)
+      }
       notices={notices}
     />
   )
@@ -36,12 +45,17 @@ function LiveFiefLayout({ fiefId }: { readonly fiefId: string }): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const notices = useFinishNotices()
   const live = useLiveFief(apiClient, fiefId, notices.notifyBetween)
+  const fiefName = useFocusTarget<HTMLHeadingElement>()
   return (
     <LiveFiefContext value={live}>
-      <div className="flex flex-col gap-6">
-        {live.state.kind === 'live' && <LiveFiefStatus fief={live.state.fief} notices={notices} />}
-        <Outlet />
-      </div>
+      <FiefNameContext value={fiefName}>
+        <div className="flex flex-col gap-6">
+          {live.state.kind === 'live' && (
+            <LiveFiefStatus fief={live.state.fief} notices={notices} />
+          )}
+          <Outlet />
+        </div>
+      </FiefNameContext>
     </LiveFiefContext>
   )
 }

@@ -217,3 +217,34 @@ it('never shows an acknowledged digest again on the other fief', async () => {
 
   expect(screen.queryByRole('article', { name: copy.digest.title })).toBeNull()
 })
+
+const press = async (button: HTMLElement): Promise<void> => {
+  button.focus()
+  fireEvent.click(button)
+  await passSeconds(0)
+}
+
+it('moves focus to the fief name when the digest is acknowledged', async () => {
+  await showFief({
+    digest: async () => ({ ok: true, value: dueDigest }),
+    acknowledgeDigest: async () => undefined,
+  })
+
+  await press(acknowledgeButton())
+
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 2, name: knownFief.name }),
+  )
+})
+
+it('keeps focus on Entendido when the acknowledgement is refused', async () => {
+  await showFief({
+    digest: async () => ({ ok: true, value: dueDigest }),
+    acknowledgeDigest: async () => 'Unexpected',
+  })
+  const button = acknowledgeButton()
+
+  await press(button)
+
+  expect(document.activeElement).toBe(button)
+})

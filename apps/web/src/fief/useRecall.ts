@@ -5,7 +5,7 @@ import { useFiefAction } from './useFiefAction'
 export interface Recall {
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
-  readonly start: (target: RecallMarchRequest) => void
+  readonly start: (target: RecallMarchRequest, onRecalled: () => void) => void
 }
 
 export function useRecall(
@@ -19,6 +19,7 @@ export function useRecall(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    start: (target) => run(target, () => apiClient.recallMarch(fiefId, target)),
+    start: (target, onRecalled) =>
+      run(target, () => apiClient.recallMarch(fiefId, target), onRecalled),
   }
 }

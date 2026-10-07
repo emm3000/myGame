@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react'
+import type { ReactElement, Ref } from 'react'
 import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
 import { CountdownLine, type SlotCountdown } from './CountdownLine'
@@ -24,22 +24,28 @@ export type MarchSlotState =
 
 const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
 
-const heading = (title: string): ReactElement => (
-  <SlotHeading icon={<MarchIcon sizeClass="size-icon" />} title={title} />
+const heading = (title: string, titleRef: Ref<HTMLSpanElement> | undefined): ReactElement => (
+  <SlotHeading icon={<MarchIcon sizeClass="size-icon" />} title={title} titleRef={titleRef} />
 )
 
-export function MarchSlot({ state }: { readonly state: MarchSlotState }): ReactElement {
+export function MarchSlot({
+  state,
+  titleRef,
+}: {
+  readonly state: MarchSlotState
+  readonly titleRef?: Ref<HTMLSpanElement> | undefined
+}): ReactElement {
   if (state.kind === 'idle') {
     return (
       <section className={`${frameClass} border-dashed border-line bg-surface text-ink-faint`}>
-        {heading(state.title)}
+        {heading(state.title, titleRef)}
         <p className="m-0 font-body text-caption">{state.invitation}</p>
       </section>
     )
   }
   return (
     <section className={`${frameClass} border-line-strong bg-surface-raised text-ink-muted`}>
-      {heading(state.title)}
+      {heading(state.title, titleRef)}
       <p className="m-0 font-body text-body text-ink">
         <PreviewLineText line={state.phase} />
       </p>
@@ -64,7 +70,7 @@ export function MarchSlot({ state }: { readonly state: MarchSlotState }): ReactE
         <Button
           type="button"
           tone="quiet"
-          disabled={state.recall.isWaiting}
+          availability={state.recall.isWaiting ? 'waiting' : 'available'}
           accessibleName={state.recall.accessibleName}
           onClick={state.recall.onCancel}
         >

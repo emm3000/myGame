@@ -10,6 +10,8 @@ import { MarchSlot, type MarchSlotState } from '../design-system/MarchSlot'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot'
 import { UnitCard } from '../design-system/UnitCard'
+import { useFocusTarget } from '../focus/useFocusTarget'
+import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
 import {
@@ -46,7 +48,11 @@ function orderCompleteOf(order: LiveRecruitOrder, at: Date): SlotCountdown {
   return { words: army.orderCompleteIn, time: formatFinish(order.remainingSeconds, at) }
 }
 
-function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState {
+function recruitSlotStateOf(
+  fief: LiveFief,
+  recruit: Recruit,
+  onCancelled: () => void,
+): RecruitSlotState {
   const order = fief.recruitOrder
   const answered = fief.overview.recruitOrder
   if (order === null || answered === null) {
@@ -64,7 +70,8 @@ function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState 
       label: army.cancel,
       accessibleName: army.cancelOf(answered.unit, answered.count),
       isWaiting: recruit.isWaiting,
-      onCancel: () => recruit.cancel({ unit: answered.unit, startedAt: answered.startedAt }),
+      onCancel: () =>
+        recruit.cancel({ unit: answered.unit, startedAt: answered.startedAt }, onCancelled),
     },
   }
 }
@@ -81,12 +88,12 @@ function lootOf(answered: AnsweredMarch): PreviewLine | null {
     : { heading: march.lootHeading, value: march.loot(loot), isNumeral: false }
 }
 
-function recallOf(answered: AnsweredMarch, recall: Recall): CancelAction {
+function recallOf(answered: AnsweredMarch, recall: Recall, onRecalled: () => void): CancelAction {
   return {
     label: march.recall,
     accessibleName: march.recallOf(answered.units),
     isWaiting: recall.isWaiting,
-    onCancel: () => recall.start({ departedAt: answered.departedAt }),
+    onCancel: () => recall.start({ departedAt: answered.departedAt }, onRecalled),
   }
 }
 
@@ -124,7 +131,7 @@ function marksOf(live: LiveMarch, answered: AnsweredMarch): ReadonlyArray<number
     : [live.arrivalSeconds, live.leavingSeconds]
 }
 
-function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
+function marchSlotStateOf(fief: LiveFief, recall: Recall, onRecalled: () => void): MarchSlotState {
   const live = fief.march
   const answered = fief.overview.march
   if (live === null || answered === null) {
@@ -144,7 +151,7 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall): MarchSlotState {
     elapsedSeconds: live.elapsedSeconds,
     totalSeconds: live.totalSeconds,
     marks: marksOf(live, answered),
-    recall: live.phase === 'returning' ? null : recallOf(answered, recall),
+    recall: live.phase === 'returning' ? null : recallOf(answered, recall, onRecalled),
   }
 }
 
@@ -212,6 +219,9 @@ export function ArmySection({
   readonly hint: HintProps | undefined
 }): ReactElement {
   const headingId = useId()
+  const heading = useFocusTarget<HTMLHeadingElement>()
+  const recruitTitle = useFocusTarget<HTMLSpanElement>()
+  const marchTitle = useFocusTarget<HTMLSpanElement>()
   return (
     <section
       id={sectionAnchors.barracks}
@@ -220,14 +230,21 @@ export function ArmySection({
     >
       <SeasonSectionHeading
         id={headingId}
+        headingRef={heading.ref}
         title={army.section}
         mark={seasonSectionMarkOf(fief.overview.season, 'train', army.seasonMark)}
       />
-      {hint !== undefined && <Hint {...hint} />}
+      {hint !== undefined && <Hint {...hintFocusingAfterDismiss(hint, heading.focus)} />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-3">
-          <RecruitSlot state={recruitSlotStateOf(fief, recruit)} />
-          <MarchSlot state={marchSlotStateOf(fief, recall)} />
+          <RecruitSlot
+            state={recruitSlotStateOf(fief, recruit, recruitTitle.focus)}
+            titleRef={recruitTitle.ref}
+          />
+          <MarchSlot
+            state={marchSlotStateOf(fief, recall, marchTitle.focus)}
+            titleRef={marchTitle.ref}
+          />
         </div>
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
           {UnitKindSchema.options.map((unit) => (

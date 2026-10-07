@@ -6,7 +6,7 @@ export interface Study {
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
   readonly start: (art: ArtKind) => void
-  readonly cancel: (target: CancelStudyRequest) => void
+  readonly cancel: (target: CancelStudyRequest, onCancelled: () => void) => void
 }
 
 export function useStudy(
@@ -21,6 +21,7 @@ export function useStudy(
     isWaiting,
     refusal: refused?.refusal,
     start: (art) => run(art, () => apiClient.startStudy(fiefId, art)),
-    cancel: (target) => run(target, () => apiClient.cancelStudy(fiefId, target)),
+    cancel: (target, onCancelled) =>
+      run(target, () => apiClient.cancelStudy(fiefId, target), onCancelled),
   }
 }

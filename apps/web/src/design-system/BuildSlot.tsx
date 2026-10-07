@@ -1,8 +1,9 @@
-import type { ReactElement } from 'react'
+import type { ReactElement, Ref } from 'react'
 import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
 import { Countdown } from './Countdown'
 import { SlotIcon } from './icons/SlotIcon'
+import { SlotHeading } from './SlotHeading'
 import { Track } from './Track'
 
 export type BuildSlotState =
@@ -29,15 +30,6 @@ export type BuildSlotState =
 const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
 const badgeClass = 'rounded-pill px-2 font-utility text-label tabular-nums'
 
-function SlotHeading({ title }: { readonly title: string }): ReactElement {
-  return (
-    <span className="flex items-center gap-2">
-      <SlotIcon />
-      <span className="font-utility text-label uppercase">{title}</span>
-    </span>
-  )
-}
-
 function Building({
   name,
   levelLabel,
@@ -55,19 +47,25 @@ function Building({
   )
 }
 
-export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactElement {
+export function BuildSlot({
+  state,
+  titleRef,
+}: {
+  readonly state: BuildSlotState
+  readonly titleRef?: Ref<HTMLSpanElement> | undefined
+}): ReactElement {
   switch (state.kind) {
     case 'idle':
       return (
         <section className={`${frameClass} border-dashed border-line bg-surface text-ink-faint`}>
-          <SlotHeading title={state.title} />
+          <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <p className="m-0 font-body text-caption">{state.invitation}</p>
         </section>
       )
     case 'busy':
       return (
         <section className={`${frameClass} border-line-strong bg-surface-raised text-ink-muted`}>
-          <SlotHeading title={state.title} />
+          <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
             levelLabel={state.levelLabel}
@@ -86,7 +84,7 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
           <Button
             type="button"
             tone="quiet"
-            disabled={state.cancel.isWaiting}
+            availability={state.cancel.isWaiting ? 'waiting' : 'available'}
             accessibleName={state.cancel.accessibleName}
             onClick={state.cancel.onCancel}
           >
@@ -97,7 +95,7 @@ export function BuildSlot({ state }: { readonly state: BuildSlotState }): ReactE
     case 'justFinished':
       return (
         <section className={`${frameClass} border-moss bg-moss-soft text-moss`}>
-          <SlotHeading title={state.title} />
+          <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
             levelLabel={state.levelLabel}

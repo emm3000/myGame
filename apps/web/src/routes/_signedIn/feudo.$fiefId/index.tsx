@@ -9,6 +9,7 @@ import { goalCardOf } from '../../../fief/goalCardOf'
 import type { LiveFief } from '../../../fief/liveFief'
 import { useCancel } from '../../../fief/useCancel'
 import { type DigestHandle, useDigest } from '../../../fief/useDigest'
+import { useFiefNameTarget } from '../../../fief/useFiefNameTarget'
 import { useGuidanceDismissal } from '../../../fief/useGuidanceDismissal'
 import { useLayoutFief } from '../../../fief/useLayoutFief'
 import { useRecall } from '../../../fief/useRecall'
@@ -20,7 +21,10 @@ import { hintPropsOf } from '../../../hints/hintPropsOf'
 import type { HintsHandle } from '../../../hints/useHints'
 import { useLayoutHints } from '../../../hints/useLayoutHints'
 
-function digestCardOf(digest: DigestHandle): DigestCardProps | undefined {
+function digestCardOf(
+  digest: DigestHandle,
+  onAcknowledged: () => void,
+): DigestCardProps | undefined {
   const { state } = digest
   if (state.kind === 'silent') {
     return undefined
@@ -31,7 +35,7 @@ function digestCardOf(digest: DigestHandle): DigestCardProps | undefined {
     acknowledgeLabel: copy.digest.acknowledge,
     isWaiting: digest.isWaiting,
     refusal: digest.refusal === undefined ? undefined : copy.refusals[digest.refusal],
-    onAcknowledge: digest.acknowledge,
+    onAcknowledge: () => digest.acknowledge(onAcknowledged),
   }
 }
 
@@ -56,6 +60,7 @@ function FiefOverviewPage(): ReactElement {
   const digest = useDigest(apiClient)
   const dismissal = useGuidanceDismissal(apiClient, fiefId)
   const hints = useLayoutHints()
+  const fiefName = useFiefNameTarget()
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.fief.loading}</p>
@@ -65,13 +70,14 @@ function FiefOverviewPage(): ReactElement {
       return (
         <FiefScreen
           fief={state.fief}
+          fiefName={fiefName}
           upgrade={upgrade}
           cancel={cancel}
           study={study}
           recruit={recruit}
           recall={recall}
-          digest={digestCardOf(digest)}
-          goal={goalCardOf(state.fief.overview, dismissal)}
+          digest={digestCardOf(digest, fiefName.focus)}
+          goal={goalCardOf(state.fief.overview, dismissal, fiefName.focus)}
           hint={screenHintOf(state.fief, hints)}
         />
       )

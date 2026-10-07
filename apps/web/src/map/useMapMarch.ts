@@ -93,6 +93,7 @@ export function useMapMarch(
   fiefId: string,
   map: ProvinceMap | undefined,
   onFoundingSent: () => void,
+  onSent: () => void,
 ): MapMarch {
   const fief = useLayoutFief()
   const fiefs = useFiefList(apiClient)
@@ -105,6 +106,7 @@ export function useMapMarch(
     fief.adopt(answered)
     setChosen(undefined)
     setIsSent(true)
+    onSent()
     if (answered.march?.order === 'found') {
       onFoundingSent()
     }
