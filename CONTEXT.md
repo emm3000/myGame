@@ -72,6 +72,14 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Verified email** — a player's email once proven to receive mail, by following the verify link sent to it. It gates only a password reset, never sign-in or play; until then the signed-in shell shows a banner that resends the link (ADR 015).
 - **Account token** — a single-use link token of kind `verify` or `reset`, mailed to a player and stored as a digest, never in clear. A verify token lives 24 hours, a reset token 1 hour; issuing one retires the player's earlier token of that kind, and one unknown, expired, used or of the other kind is refused as `TokenInvalid` (ADR 015).
 
+## The return
+
+- **Digest** — what happened on every fief of a player since their last acknowledgement: the chronicle events after it and the stores that filled after it, each with the instant it filled; due when there is something to tell and the acknowledgement is older than the content's absence; a card on the fief screen, never a modal, holding no resource snapshot (ADR 027).
+- **Acknowledgement** — the instant a player last pressed *Entendido* on the digest, one per player, written by that act alone and never by a read; a new player's is the sign-up instant (ADR 027).
+- **Goal** — the first entry of the content's ordered milestone list the fief has not met, a building at a level, met at the built level and evaluated by the server on read: underway while the slot or the queue holds the next level, otherwise pending with what the next level lacks (ADR 027).
+- **Guidance** — the goal a fief shows its lord; dismissed for that fief forever by *Descartar*, stored on the fief, after which the fief answers no goal (ADR 027).
+- **Hint** — one dismissible line shown the first time one of seven concepts matters, peasants, seasons, the queue, the library, the barracks, marches and a full store, at most one per screen in that order; a seen hint is stored per player and never shown again (ADR 027).
+
 ## Society
 
 - **House** — a group of players under one banner. Replaces *alliance*. Not in this phase (W2).

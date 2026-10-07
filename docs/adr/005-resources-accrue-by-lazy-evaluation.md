@@ -54,3 +54,15 @@ above it within each segment, never once for the span. A span inside one
 season accrues exactly as before. Nothing else here changes: the state stored
 is still `(amount, at, ratePerHour, capacity)`, the rates are still derived
 on read, and no process turns the season.
+
+## Amendment (2026-10-06)
+
+The stored state is `(amount, at, ratePerHour, capacity, fullSince)`:
+`fullSince` is the instant a store reached its capacity, null while it is
+under it (ADR 027). It is stored so that the instant survives the re-base a
+read performs when it applies a finish, which would otherwise read a store
+full since the read. Every re-base keeps it: a store at or above the
+capacity after the re-base keeps the instant derived from the state before
+it, capped at the re-base instant, and a store below the capacity clears it.
+It is derived from the stored state when first reached and never advanced by
+a process; the formula above is unchanged.
