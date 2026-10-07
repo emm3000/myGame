@@ -54,7 +54,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | W7 | Background job runner or scheduler | ADR 005; a job is admitted only with a measurement. |
 | W8 | OAuth or magic-link sign-in | Email and password need no third party. |
 | W9 | Population growth or famine | ADR 007; peasants are derived, food is a stock. |
-| W10 | Daily streaks and consecutive-day bonuses, daily quests, appointment rewards, click-to-collect and season-only rewards | The Hooks to avoid of `docs/research/engaging-strategy-ui.md`: each raises return rates by becoming the game's goal instead of the player's, and a player away for a week comes back to more, never to a broken streak (ADR 028). |
+| W10 | Daily streaks and consecutive-day bonuses, daily quests, appointment rewards, click-to-collect and season-only rewards | The Hooks to avoid of `docs/research/engaging-strategy-ui.md`: a streak becomes the game's goal instead of the player's, and a player away for a week comes back to more, never to a broken streak; an appointment or a season-only reward is Playing by Appointment; click-to-collect is Grinding; a daily quest list is what the note's fourth principle refuses for one goal derived from state (ADR 028). |
 
 ADRs amend this table by row id.
 
