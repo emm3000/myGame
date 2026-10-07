@@ -544,7 +544,9 @@ slice (Decision 1).
   #506: the margin is the block's measured height, so it follows a
   block of any height; a fief name has no maximum length on the wire,
   so that height has no bound either. At 768 px with five busy cells
-  the strip's time spans run past the cell edge.
+  the strip's time spans run past the cell edge. Closed by #526: each
+  piece of a line's time, the time left and the clock, is its own box,
+  so the line breaks between them and a clock wraps inside its box.
 - Known gap: a goal two levels away names the next level's shortfall,
   not the goal level's; `missing` does not report a full queue, which
   the card covers by reading the refusal instead. A goal naming a

@@ -83,7 +83,10 @@ function PeasantItem({
   const labelId = useId()
   const { Icon, textClass } = resourceAccent.peasants
   return (
-    <li aria-labelledby={labelId} className="flex min-w-0 flex-col gap-1 border-l border-line pl-3">
+    <li
+      aria-labelledby={labelId}
+      className="flex min-w-0 flex-col gap-1 border-line md:border-l md:pl-3"
+    >
       <span className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${textClass}`}>
         <Icon />
         <span id={labelId} className="font-utility text-label uppercase">
