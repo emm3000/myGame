@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -296,6 +297,22 @@ it('reads lleno with the clock when the store fills within 8 hours', async () =>
   expect(within(stoneCell()).getByText('lleno 19:00')).toBeDefined()
 })
 
+it('reads lleno with the clock when the store fills exactly 8 hours after the read', async () => {
+  await showFief(stoneFillingAt(8 * 3600))
+
+  expect(within(stoneCell()).getByText('lleno 22:00')).toBeDefined()
+})
+
+it('names tomorrow when the store fills after midnight', async () => {
+  const readAtTenAtNight = '2026-09-22T20:00:00.000Z'
+  await showFief({
+    ...stoneFillingAt(13 * 3600),
+    readAt: readAtTenAtNight,
+  })
+
+  expect(within(stoneCell()).getByText('lleno mañana 03:00')).toBeDefined()
+})
+
 it('keeps the rate when the store fills later than 8 hours', async () => {
   await showFief(stoneFillingAt(8 * 3600 + 60))
 
@@ -311,10 +328,7 @@ it('keeps the amounts on the map unchanged within a minute', async () => {
     },
   }
   await showAt(`${knownFiefPath}/mapa`, {
-    fief: vi
-      .fn<ApiClient['fief']>()
-      .mockResolvedValueOnce({ ok: true, value: woodAtOnePerSecond })
-      .mockReturnValue(new Promise(() => undefined)),
+    fief: servingOnceThenHolding(woodAtOnePerSecond),
   })
 
   await passSeconds(59)

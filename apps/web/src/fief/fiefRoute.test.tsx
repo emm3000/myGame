@@ -1,7 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { ApiClient, ApiOutcome } from '../api/apiClient'
+import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import {
   knownFief,
@@ -11,6 +11,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 import { busySlot, slotTrackFill } from './slotTrackFill.testSupport'
 
 const readAt = new Date(knownFief.readAt)
@@ -49,18 +50,8 @@ const woodAtOnePerSecond: FiefOverview = {
   },
 }
 
-const servingOnceThenHolding = (overview: FiefOverview): ApiClient => {
-  const reads = [overview]
-  return stubApiClient({
-    currentPlayer: async () => knownPlayer,
-    fief: (): Promise<ApiOutcome<FiefOverview>> => {
-      const next = reads.shift()
-      return next === undefined
-        ? new Promise(() => undefined)
-        : Promise.resolve({ ok: true, value: next })
-    },
-  })
-}
+const servingOnceThenHoldingClient = (overview: FiefOverview): ApiClient =>
+  stubApiClient({ currentPlayer: async () => knownPlayer, fief: servingOnceThenHolding(overview) })
 
 const sawmillFortyFiveSecondsFromFinish: FiefOverview = {
   ...woodAtOnePerSecond,
@@ -74,7 +65,7 @@ const sawmillFortyFiveSecondsFromFinish: FiefOverview = {
 }
 
 it('keeps the amounts unchanged within a minute', async () => {
-  await showFief(servingOnceThenHolding(woodAtOnePerSecond))
+  await showFief(servingOnceThenHoldingClient(woodAtOnePerSecond))
 
   await passSeconds(59)
 
@@ -82,7 +73,7 @@ it('keeps the amounts unchanged within a minute', async () => {
 })
 
 it('repaints every second in a slot last minute', async () => {
-  await showFief(servingOnceThenHolding(sawmillFortyFiveSecondsFromFinish))
+  await showFief(servingOnceThenHoldingClient(sawmillFortyFiveSecondsFromFinish))
 
   await passSeconds(1)
 
@@ -90,7 +81,7 @@ it('repaints every second in a slot last minute', async () => {
 })
 
 it('keeps the amounts unchanged while a slot ticks its last minute', async () => {
-  await showFief(servingOnceThenHolding(sawmillFortyFiveSecondsFromFinish))
+  await showFief(servingOnceThenHoldingClient(sawmillFortyFiveSecondsFromFinish))
 
   await passSeconds(30)
 
@@ -98,25 +89,25 @@ it('keeps the amounts unchanged while a slot ticks its last minute', async () =>
 })
 
 it('starts the seconds when a slot enters its last minute', async () => {
-  const sawmillTwoMinutesFromFinish: FiefOverview = {
+  const sawmillNinetySecondsFromFinish: FiefOverview = {
     ...knownFief,
     slot: {
       kind: 'busy',
       building: 'sawmill',
       targetLevel: 2,
       startedAt: '2026-09-22T11:58:00.000Z',
-      finishesAt: '2026-09-22T12:02:00.000Z',
+      finishesAt: '2026-09-22T12:01:30.000Z',
     },
   }
-  await showFief(servingOnceThenHolding(sawmillTwoMinutesFromFinish))
+  await showFief(servingOnceThenHoldingClient(sawmillNinetySecondsFromFinish))
 
-  await passSeconds(61)
+  await passSeconds(31)
 
   expect(within(busySlot()).getByRole('timer').textContent).toBe('0:59')
 })
 
 it('advances the wood amount between reads from the server rate', async () => {
-  await showFief(servingOnceThenHolding(woodAtOnePerSecond))
+  await showFief(servingOnceThenHoldingClient(woodAtOnePerSecond))
 
   await passSeconds(60)
 
@@ -131,7 +122,7 @@ it('stops the interpolated amount at the capacity', async () => {
       wood: { amount: 19990, ratePerHour: 3600, capacity: 20000, fullAt: null },
     },
   }
-  await showFief(servingOnceThenHolding(woodTenSecondsFromFull))
+  await showFief(servingOnceThenHoldingClient(woodTenSecondsFromFull))
 
   await passSeconds(60)
 
@@ -210,7 +201,7 @@ it('lists the waiting upgrades under the one in progress', async () => {
 })
 
 it('counts down each waiting upgrade between reads', async () => {
-  await showFief(servingOnceThenHolding(sawmillWithTwoWaiting))
+  await showFief(servingOnceThenHoldingClient(sawmillWithTwoWaiting))
 
   await passSeconds(60)
 
