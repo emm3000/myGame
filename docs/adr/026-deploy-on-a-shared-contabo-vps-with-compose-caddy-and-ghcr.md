@@ -349,3 +349,12 @@ Recorded as open, to be written into this ADR when they close:
 - Known gap: #454 and the Out of scope of #444 were written for
   Hetzner; the tickets are history and are not rewritten, and this ADR
   is the record.
+
+## Amendment (2026-10-07)
+
+`deploy.sh` runs `migrate` before `up`, so between those two steps the
+old api's inserts fail on a `NOT NULL` column it does not know, as with
+migration 0028 (ADR 027). This is accepted while the author is the only
+player. From the first third-party player's sign-up on, such a column
+ships expand/contract: added nullable, with its backfill, in one deploy
+whose api writes it, then `SET NOT NULL` in a later deploy.
