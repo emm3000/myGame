@@ -194,7 +194,7 @@ const pairs: ReadonlyArray<Pair> = [
     kind: 'nonText',
     foreground: 'slate',
     background: 'surface-sunken',
-    usedBy: 'BuildSlot, RecruitSlot, MarchSlot and SlotsStrip track',
+    usedBy: 'BuildSlot, RecruitSlot, MarchSlot, CargoCard and SlotsStrip track',
   },
   {
     kind: 'nonText',
