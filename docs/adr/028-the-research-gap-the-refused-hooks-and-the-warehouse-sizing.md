@@ -16,10 +16,10 @@ recommendations to refuse (#521). Three were accessibility gaps under
 N8: no `aria-live` region anywhere, so a finish was told only by the
 opt-in browser notice (WCAG 4.1.3); the short mark on a cost line was
 `text-rust` alone (1.4.1); and reflow at 320 px was never verified,
-only 390 px (1.4.10). Two were Fitts gaps under the note's sixth
-principle: the refund was stated only after a cancel, and the map's
-march form rendered after the whole plot grid, up to eight rows below
-the tapped plot on a phone. Two were missing rules: the hooks the note
+only 390 px (1.4.10). Two were principle-6 gaps: the refund was stated
+only after a cancel, against heuristics 3 and 5, and the map's march
+form rendered after the whole plot grid, up to eight rows below the
+tapped plot on a phone, against Fitts. Two were missing rules: the hooks the note
 refuses lived only in ADR 027's Considered options, and warehouse
 capacity had no recorded sizing although the note's eleventh principle
 and its Open questions name the capacity cap as the one Playing by
@@ -116,17 +116,23 @@ it, and changes no content.
   takes a 44 px box through negative margins, so nothing around it
   moves. No new breakpoint, no token change: breakpoints stay
   Tailwind's defaults and the Design System stays at v26.
-- **The refused hooks are a product rule** (#521, Decision 6). Streaks
-  and consecutive-day bonuses, daily quests, appointment rewards,
-  click-to-collect and season-only rewards are the Won't-have row W10
-  of the PRD, with the note's Hooks to avoid as the reason: each raises
+- **The refused hooks are a product rule** (#521, Decision 6; #527, PR
+  #532). Streaks and consecutive-day bonuses, daily quests, appointment
+  rewards, click-to-collect and season-only rewards are the Won't-have
+  row W10 of the PRD, each with the note's own reason. Streaks raise
   return rates by becoming the game's goal instead of the player's, and
-  a player away for a week comes back to more, never to a broken
-  streak. The game refuses them on purpose, as ADR 027's Considered
-  options already said of daily quests and streaks.
+  a player away for a week comes back to more, never to a broken streak
+  (Hooks to avoid, daily streaks). Appointment rewards and season-only
+  rewards tie a reward to a time the game sets, Playing by Appointment
+  by Zagal's test (Hooks to avoid, and the eleventh principle on
+  seasons). Click-to-collect is Grinding: forage hours are chosen and
+  run unattended (Hooks to avoid). Daily quests are the goal list the
+  fourth principle refuses in favour of one goal derived from state.
+  The game refuses them on purpose, as ADR 027's Considered options
+  already said of daily quests and streaks.
 - **A store fills from empty in no less than 12 h at the highest rate
   reachable with the warehouse at that level** (#521, Decision 7 and
-  the follow-up's Decision 3). *The highest rate reachable with the
+  the follow-up's Decision 3; #527, PR #532). *The highest rate reachable with the
   warehouse at that level* is read as the base rate plus the rate of
   the resource's producing building at the same level as the
   warehouse, in the neutral season, with no terrain bonus and no art: a
@@ -210,9 +216,10 @@ it, and changes no content.
 - **The note's other Open questions**: early churn, the SDT levers,
   player motivation profiles and relatedness without social features.
   They stay open with the note's own reasons: with one player nothing
-  can be measured, and W1 and W2 hold. The two the note asked an ADR
-  for are answered: live counters under WCAG 2.2.2 by ADR 027, capacity
-  sizing here.
+  can be measured, and W1 and W2 hold. The one the note asked an ADR
+  for, live counters under WCAG 2.2.2, is answered by ADR 027; capacity
+  sizing, which the note left as a content-balance question, is
+  answered here.
 - **`grid-auto-flow: row dense` on the plots' list**, as #523 drew it,
   so the tiles after the panel backfill its row. Rejected by the
   orchestrator on #525: the DOM order and the drawn order stay the
@@ -220,7 +227,7 @@ it, and changes no content.
   the eye cannot follow; the panel sits after the last tile of its row
   instead.
 - **Two columns on the bar at 320 px, or the numeral one step down**,
-  #521's recommended default and its fallback `repeat(auto-fit,
+  #521's recommended default and #523's fallback `repeat(auto-fit,
   minmax(96px, 1fr))`. Rejected by #523's measurement and confirmed by
   #526's: no value the content can show overflows a 79 px cell in
   `numeral-lg`, and the one overflow was the peasants cell's rule and
@@ -280,7 +287,8 @@ it, and changes no content.
   `SlotsStrip`'s `BusyLine`; the pieces could carry their own.
 - Known gap: between a levy's `endsAt` and the re-read that fires at
   that instant the busy slot and its cancel stay drawn, as on trunk,
-  and the refund line would read 0 units for that moment.
+  with no refund line, since `levyRefundOf` answers none at 0
+  undelivered units.
 - Known gap: a fief name has no maximum length on the wire (#506), so a
   single long word in the cargo cell's origin can still widen a strip
   cell; measured with *Sotoverde del Páramo* only.
