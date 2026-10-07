@@ -85,7 +85,12 @@ export function useFinishNotices(): FinishNoticesHandle {
 
   const notifyBetween = useCallback(
     (previous: FiefOverview, next: FiefOverview): void => {
-      if (state !== 'on' || !isGranted()) {
+      if (state !== 'on') {
+        return
+      }
+      if (!isGranted()) {
+        storePreference(false)
+        setState('off')
         return
       }
       for (const notice of finishNoticesOf(previous, next)) {
