@@ -14,12 +14,12 @@ Totals of rows already folded out of Recent.
 |---|---|---|---|---|---|---|
 | 1 | sonnet:low | 7 | 5 | 0 | 0 | 2 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
-| 2 | opus:medium | 51 | 44 | 5 | 1 | 1 |
+| 2 | opus:medium | 52 | 45 | 5 | 1 | 1 |
 | 3 | opus:medium | 24 | 16 | 3 | 4 | 1 |
-| 4 | opus:high | 46 | 41 | 1 | 2 | 2 |
-| 3 | opus:high | 35 | 31 | 2 | 2 | 0 |
-| 1 | fable:high | 33 | 28 | 1 | 3 | 1 |
-| 5 | fable:high | 13 | 13 | 0 | 0 | 0 |
+| 4 | opus:high | 48 | 43 | 1 | 2 | 2 |
+| 3 | opus:high | 45 | 35 | 4 | 6 | 0 |
+| 1 | fable:high | 35 | 28 | 1 | 5 | 1 |
+| 5 | fable:high | 14 | 14 | 0 | 0 | 0 |
 
 ## Recent
 
@@ -27,22 +27,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| infra#2 | #450 | 3 | opus:high | MERGE | |
-| #461 | #451 | 3 | opus:high | FIX FIRST | judgment |
-| infra#3 | #452 | 3 | opus:high | FIX FIRST | judgment |
-| infra#4 | #453 | 3 | opus:high | FIX FIRST | judgment |
-| #462 | #455 | 1 | fable:high | FIX FIRST | judgment |
-| #479 | #465 | 3 | opus:high | FIX FIRST | checklist |
-| #480 | #464 | 1 | fable:high | FIX FIRST | judgment |
-| #466 (artifact) | #466 | 5 | fable:high | MERGE | |
-| #481 | #467 | 4 | opus:high | MERGE | |
-| #482 | #478 | 4 | opus:high | MERGE | |
-| #483 | #469 | 3 | opus:high | FIX FIRST | judgment |
-| #485 | #468 | 3 | opus:high | MERGE | |
-| #484 | #471 | 3 | opus:high | MERGE | |
-| #486 | #470 | 3 | opus:high | MERGE | |
-| #487 | #472 | 3 | opus:high | FIX FIRST | checklist |
-| #488 | #473 | 2 | opus:medium | MERGE | |
 | #489 | #474 | 2 | opus:medium | MERGE | |
 | #490 | #475 | 2 | opus:medium | MERGE | |
 | #491 | #476 | 2 | opus:medium | FIX FIRST | judgment |
@@ -62,3 +46,5 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | infra#8 | #517 | 3 | opus:high | MERGE | |
 | infra#9 | #518 | 3 | opus:high | MERGE | |
 | #520 | #519 | 3 | opus:high | MERGE | |
+| #528 | #522 | 1 | fable:high | MERGE | |
+| #523 (artifact) | #523 | 5 | fable:high | MERGE | |
