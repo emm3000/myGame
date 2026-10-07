@@ -8,7 +8,9 @@ import type { CancelAction } from '../design-system/CancelAction'
 import { CargoCard } from '../design-system/CargoCard'
 import { capitalize } from '../design-system/capitalize'
 import { convoyArtOf } from '../design-system/convoyArtOf'
+import { DigestCard, type DigestCardProps } from '../design-system/DigestCard'
 import { FormAlert } from '../design-system/FormAlert'
+import { GoalCard, type GoalCardProps } from '../design-system/GoalCard'
 import { SeasonLine } from '../design-system/SeasonLine'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { quantitiesOf } from '../resources/quantitiesOf'
@@ -33,6 +35,8 @@ export interface FiefScreenProps {
   readonly study: Study
   readonly recruit: Recruit
   readonly recall: Recall
+  readonly digest: DigestCardProps | undefined
+  readonly goal: GoalCardProps | undefined
 }
 
 const { names } = copy
@@ -72,6 +76,28 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
           time: formatFinish(fief.incomingCargoRemainingSeconds, fief.at),
         }}
       />
+    </div>
+  )
+}
+
+function NoticesRow({
+  digest,
+  goal,
+}: {
+  readonly digest: DigestCardProps | undefined
+  readonly goal: GoalCardProps | undefined
+}): ReactElement | null {
+  if (digest === undefined && goal === undefined) {
+    return null
+  }
+  return (
+    <div className="grid items-start gap-4 lg:grid-cols-3">
+      {digest !== undefined && (
+        <div className="flex flex-col lg:col-span-2">
+          <DigestCard {...digest} />
+        </div>
+      )}
+      {goal !== undefined && <GoalCard {...goal} />}
     </div>
   )
 }
@@ -167,6 +193,8 @@ export function FiefScreen({
   study,
   recruit,
   recall,
+  digest,
+  goal,
 }: FiefScreenProps): ReactElement {
   const { overview } = fief
   const buildingsHeadingId = useId()
@@ -183,6 +211,7 @@ export function FiefScreen({
         <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
         <SeasonLineOf fief={fief} />
       </header>
+      <NoticesRow digest={digest} goal={goal} />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div
           id={sectionAnchors.build}

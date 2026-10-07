@@ -1,4 +1,4 @@
-import type { FiefList, FiefOverview, Player, ProvinceMap } from '@mygame/contracts'
+import type { Digest, FiefList, FiefOverview, Player, ProvinceMap } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 
 export const knownPlayer: Player = {
@@ -177,6 +177,12 @@ export const knownProvinceMap: ProvinceMap = {
   }),
 }
 
+export const quietDigest: Digest = {
+  acknowledgedAt: '2026-09-22T11:30:00.000Z',
+  isDue: false,
+  fiefs: [],
+}
+
 export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => ({
   signUp: async () => ({ ok: true, value: knownPlayer }),
   signIn: async () => ({ ok: true, value: knownPlayer }),
@@ -197,6 +203,9 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   recallMarch: async () => ({ ok: true, value: knownFief }),
   chronicle: async () => ({ ok: true, value: { events: [] } }),
   provinceMap: async () => ({ ok: true, value: knownProvinceMap }),
+  digest: async () => ({ ok: true, value: quietDigest }),
+  acknowledgeDigest: async () => undefined,
+  dismissGuidance: async () => undefined,
   verifyEmail: async () => undefined,
   resendVerification: async () => undefined,
   forgotPassword: async () => undefined,

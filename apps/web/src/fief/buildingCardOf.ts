@@ -5,6 +5,7 @@ import { buildingArtOf } from '../design-system/buildingArtOf'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { capitalize } from '../design-system/capitalize'
+import { isQueueFull } from './isQueueFull'
 import type { LiveFief } from './liveFief'
 import { readyLineOf } from './readyLineOf'
 import { resourceCostsOf } from './resourceCostsOf'
@@ -27,10 +28,6 @@ function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<CardCost> 
     isShort: nextLevel.peasants > fief.overview.peasants.projectedFree,
   }
   return nextLevel.peasants > 0 ? [...resourceCosts, peasantCost] : resourceCosts
-}
-
-function isQueueFull({ slot, queue }: LiveFief['overview']): boolean {
-  return slot.kind === 'busy' && queue.entries.length >= queue.cap
 }
 
 function stateOf(nextLevel: NextLevel, fief: LiveFief): CardActionState {
