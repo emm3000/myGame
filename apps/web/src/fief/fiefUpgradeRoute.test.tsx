@@ -520,3 +520,43 @@ it('reads no lista when a short resource does not accrue', async () => {
 
   expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe('Te faltan 30 de hierro.')
 })
+
+it('reads lista at the next whole minute when the ready instant falls between minutes', async () => {
+  const readBetweenMinutes: FiefOverview = {
+    ...ironMineShortOfIron(30),
+    readAt: '2026-09-22T12:00:40.000Z',
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: readBetweenMinutes }) }))
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe(
+    'Te faltan 30 de hierro. lista 20:01',
+  )
+})
+
+it('reads lista a minute later when the accrual falls just short of the cost at the computed minute', async () => {
+  const shortOfIron = ironMineShortOfIron(12.5)
+  const slowIron: FiefOverview = {
+    ...shortOfIron,
+    resources: {
+      ...shortOfIron.resources,
+      iron: { ...shortOfIron.resources.iron, ratePerHour: 0.7 },
+    },
+    buildings: {
+      ...shortOfIron.buildings,
+      ironMine: {
+        level: 0,
+        nextLevel: {
+          level: 1,
+          cost: { wood: 200, stone: 120, iron: 30, gold: 0, food: 0 },
+          durationSeconds: 1200,
+          peasants: 1,
+        },
+      },
+    },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: slowIron }) }))
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe(
+    'Te faltan 18 de hierro. lista mañana 15:01',
+  )
+})

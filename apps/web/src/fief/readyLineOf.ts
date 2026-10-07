@@ -7,6 +7,7 @@ import { type ResourceCost, shortfallOf } from './shortfallsOf'
 
 const secondsPerHour = 3600
 const secondsPerMinute = 60
+const millisecondsPerMinute = 60_000
 
 type ResourceState = FiefOverview['resources']['wood']
 
@@ -46,5 +47,8 @@ export function readyLineOf(cost: ResourceCost, fief: LiveFief): string | undefi
   if (Math.ceil(remainingSeconds) <= secondsPerHour) {
     return copy.status.readyIn(formatTimeLeft(Math.max(secondsPerMinute, remainingSeconds)))
   }
-  return copy.status.readyAt(formatClock(ready, fief.at))
+  const readyMinute = new Date(
+    Math.ceil(ready.getTime() / millisecondsPerMinute) * millisecondsPerMinute,
+  )
+  return copy.status.readyAt(formatClock(readyMinute, fief.at))
 }
