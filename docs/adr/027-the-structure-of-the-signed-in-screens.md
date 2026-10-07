@@ -491,9 +491,13 @@ slice (Decision 1).
   recall waits with `aria-disabled`, never `disabled`, which would take
   its focus. A hint still never takes focus when it appears.
 - Text contrast (WCAG 1.4.3 and 1.4.11, #500): `design/tokens.test.ts`
-  lists every text and non-text pair of the changed tokens by token
-  name and fails a text pair under 4.5:1 or a non-text pair under 3:1,
-  in Parchment and Ledger. To pass it, seven tokens kept their hue and
+  lists text and non-text pairs by token name and fails a text pair
+  under 4.5:1 or a non-text pair under 3:1, in Parchment and Ledger.
+  The non-text pairs are the `moss` frames on `moss-soft`, the
+  `NoticeToggle` knob, the `river` frames of the own plot tile and the
+  switcher's current entry, the resource icons of `CostList`, `ArtCard`
+  and the switcher's chips on `surface-raised`, and the `fill-*` bars of
+  `Track` on `surface-sunken`. All of them pass without a change. To pass it, seven tokens kept their hue and
   only their lightness moved, each to the closest value that passes on
   every background it is text on. Ledger `umber` went from `#a8784f` to
   `#b08057`, and `peasants` with it; on `surface-raised` it reads 4.53
@@ -509,11 +513,14 @@ slice (Decision 1).
   4.51 and 4.54). `ink-faint` went from `#9a8a6f` to `#736651` in
   Parchment (4.56 on `surface`, was 2.74) and from `#7f7058` to
   `#99876c` in Ledger (4.50 on `surface-raised`, was 3.25). The test
-  names two exemptions and fails if either one stops being needed.
-  First, `ink-faint` on `surface-sunken` is the text of a disabled
-  button or number field, an inactive component, so 1.4.3 does not
-  apply. Second, the `ochre` camp and mail icons are `aria-hidden`
-  beside text that carries their meaning, so 1.4.11 does not apply.
+  names three kinds of exemption and fails if any one stops being
+  needed. First, `ink-faint` on `surface-sunken` is the text of a
+  disabled button or number field, an inactive component, so 1.4.3
+  does not apply. Second, the `ochre` camp and mail icons are
+  `aria-hidden` beside text that carries their meaning, so 1.4.11 does
+  not apply. Third, the `NoticeBanner`'s `ochre` left stripe is
+  decorative, since its line says what the banner is, so 1.4.11 does not
+  apply either.
 - Known gap: `/forgot-password` and `/reset-password` replace their
   form on success, the banner's resend and the map's previous and next
   go `disabled` while busy or at an end, and a cancel or recall that
