@@ -132,7 +132,7 @@ type AnsweredMarch = NonNullable<FiefOverview['march']>
 export const isFoundingOnTheWay = (march: AnsweredMarch): boolean =>
   march.order === 'found' && march.recalledAt === null
 
-const marchEndOf = (march: AnsweredMarch): string =>
+export const marchEndOf = (march: AnsweredMarch): string =>
   isFoundingOnTheWay(march) ? march.arrivesAt : march.returnsAt
 
 export function marchRemainingSecondsAt(overview: FiefOverview, elapsedSeconds: number): number {

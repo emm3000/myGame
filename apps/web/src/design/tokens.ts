@@ -89,10 +89,11 @@ export const minHeights: Readonly<Record<MinHeight, string>> = {
   plot: '96px',
 }
 
-export type Width = 'numeral'
+export type Width = 'numeral' | 'switch'
 
 export const widths: Readonly<Record<Width, string>> = {
   numeral: '74px',
+  switch: '44px',
 }
 
 export type MaxWidth = 'form'

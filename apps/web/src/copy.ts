@@ -373,6 +373,13 @@ export const copy = {
     tomorrow: (time: string): string => `mañana ${time}`,
     readyAt: (clock: string): string => `lista ${clock}`,
     readyIn: (timeLeft: string): string => `lista en ${timeLeft}`,
+    notices: {
+      label: 'Avisarme',
+      on: 'activado',
+      off: 'desactivado',
+      promise: 'Solo mientras esta pestaña siga abierta.',
+      denied: 'Tu navegador no permite los avisos. Permítelos en sus ajustes y vuelve a activarlo.',
+    },
   },
   study: {
     section: 'Biblioteca',

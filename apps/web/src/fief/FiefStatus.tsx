@@ -2,9 +2,11 @@ import { type ResourceKind, ResourceKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
 import { Hint, type HintProps } from '../design-system/Hint'
+import type { NoticeToggleProps } from '../design-system/NoticeToggle'
 import { ResourceBar } from '../design-system/ResourceBar'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { SlotsStrip } from '../design-system/SlotsStrip'
+import type { FinishNoticesHandle } from '../notices/useFinishNotices'
 import { formatClock } from '../time/formatClock'
 import type { LiveFief } from './liveFief'
 import { slotsStripCellsOf } from './slotsStripCellsOf'
@@ -36,12 +38,27 @@ function seasonMarkOf(
   }
 }
 
+function noticeTogglePropsOf({ state, toggle }: FinishNoticesHandle): NoticeToggleProps {
+  const { notices } = copy.status
+  const isOn = state === 'on'
+  return {
+    label: notices.label,
+    stateWords: isOn ? notices.on : notices.off,
+    promise: notices.promise,
+    isOn,
+    deniedLine: state === 'denied' ? notices.denied : undefined,
+    onToggle: toggle,
+  }
+}
+
 export function FiefStatus({
   fief,
   hint,
+  notices,
 }: {
   readonly fief: LiveFief
   readonly hint: HintProps | undefined
+  readonly notices: FinishNoticesHandle
 }): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
@@ -70,6 +87,7 @@ export function FiefStatus({
           label={copy.status.label}
           link={{ to: '/feudo/$fiefId', params: { fiefId: overview.id } }}
           cells={slotsStripCellsOf(fief)}
+          notices={noticeTogglePropsOf(notices)}
         />
       </div>
       {hint !== undefined && <Hint {...hint} />}
