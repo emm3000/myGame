@@ -13,7 +13,7 @@ export type RecruitSlotState =
       readonly title: string
       readonly orderHeading: string
       readonly orderLine: string
-      readonly countdowns: ReadonlyArray<SlotCountdown>
+      readonly countdown: SlotCountdown
       readonly remainingSeconds: number
       readonly totalSeconds: number
       readonly cancel: CancelAction
@@ -36,9 +36,7 @@ export function RecruitSlot({ state }: { readonly state: RecruitSlotState }): Re
       <p className="m-0 font-body text-body text-ink">
         <b>{state.orderHeading}</b> {state.orderLine}
       </p>
-      {state.countdowns.map((countdown) => (
-        <CountdownLine key={countdown.words} {...countdown} />
-      ))}
+      <CountdownLine {...state.countdown} />
       <Track
         value={state.totalSeconds - state.remainingSeconds}
         total={state.totalSeconds}

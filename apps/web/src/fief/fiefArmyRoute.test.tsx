@@ -261,17 +261,18 @@ it('raises the count one unit per period between reads', async () => {
   expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
 })
 
-it('counts down to the next unit and to the last', async () => {
+it('reads the units delivered and when the levy ends, with no next unit countdown', async () => {
   await showFief({ fief: servingOnceThenHolding(orderOfTwelve) })
 
-  await passSeconds(60)
-
-  const [nextUnit, lastUnit] = within(armySection()).getAllByRole('timer')
-  expect(nextUnit?.textContent).toBe('Siguiente infante en0:30')
-  expect(lastUnit?.textContent).toBe('Leva completa en11 min')
+  expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
+  expect(
+    within(armySection())
+      .getAllByRole('timer')
+      .map((timer) => timer.textContent),
+  ).toEqual(['Leva completa en12 min'])
 })
 
-it('repaints the next unit only at its delivery', async () => {
+it('repaints the levy at each delivery', async () => {
   const unitDueInHalfAMinute: FiefOverview = {
     ...orderOfTwelve,
     units: { infantry: 15, cavalry: 0, archer: 0, settler: 0 },
@@ -285,14 +286,35 @@ it('repaints the next unit only at its delivery', async () => {
     },
   }
   await showFief({ fief: servingOnceThenHolding(unitDueInHalfAMinute) })
+  await passSeconds(29)
+  expect(within(armySection()).getByText('3 de 12 infantes', { exact: false })).toBeDefined()
 
-  await passSeconds(10)
-  expect(within(armySection()).getAllByRole('timer')[0]?.textContent).toBe(
-    'Siguiente infante en0:30',
-  )
-  await passSeconds(20)
+  await passSeconds(1)
 
+  expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
   expect(unitCountOf(infantryCard(), '16 infantes en casa')).toBeDefined()
+})
+
+it('ticks the seconds of the levy only in its last minute', async () => {
+  const levyEndingInFortyFiveSeconds: FiefOverview = {
+    ...orderOfTwelve,
+    units: { infantry: 23, cavalry: 0, archer: 0, settler: 0 },
+    recruitOrder: {
+      unit: 'infantry',
+      count: 12,
+      delivered: 11,
+      perUnitSeconds: 90,
+      startedAt: '2026-09-22T11:43:45.000Z',
+      endsAt: '2026-09-22T12:00:45.000Z',
+    },
+  }
+  await showFief({ fief: servingOnceThenHolding(levyEndingInFortyFiveSeconds) })
+  await passSeconds(1)
+  expect(within(armySection()).getByRole('timer').textContent).toBe('Leva completa en0:44')
+
+  await passSeconds(1)
+
+  expect(within(armySection()).getByRole('timer').textContent).toBe('Leva completa en0:43')
 })
 
 it('reads the fief again when the order ends', async () => {
