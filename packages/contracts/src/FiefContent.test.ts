@@ -113,6 +113,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   forage,
   camps,
   goals: [],
+  digest: { absenceSeconds: 3600 },
   ...overrides,
 })
 
@@ -151,6 +152,20 @@ describe('FiefContentSchema', () => {
 
   it('rejects fief content without goals', () => {
     expect(FiefContentSchema.safeParse(fiefContent({ goals: undefined })).success).toBe(false)
+  })
+
+  it('reads the absence the digest waits for', () => {
+    expect(FiefContentSchema.parse(fiefContent({})).digest).toEqual({ absenceSeconds: 3600 })
+  })
+
+  it('rejects fief content without the digest absence', () => {
+    expect(FiefContentSchema.safeParse(fiefContent({ digest: undefined })).success).toBe(false)
+  })
+
+  it('rejects a digest absence of 0 seconds', () => {
+    const digest = { absenceSeconds: 0 }
+
+    expect(FiefContentSchema.safeParse(fiefContent({ digest })).success).toBe(false)
   })
 
   it('rejects a fief cap of 0', () => {

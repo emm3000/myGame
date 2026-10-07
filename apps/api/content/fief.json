@@ -139,5 +139,8 @@
     { "building": "farm", "level": 2 },
     { "building": "library", "level": 1 },
     { "building": "barracks", "level": 1 }
-  ]
+  ],
+  "digest": {
+    "absenceSeconds": 3600
+  }
 }

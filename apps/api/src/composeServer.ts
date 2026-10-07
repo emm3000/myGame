@@ -1,3 +1,4 @@
+import type { FiefContent } from '@mygame/contracts'
 import type { BuildingCatalog, Clock, IdGenerator, KingdomMapReader } from '@mygame/domain'
 import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
@@ -74,6 +75,7 @@ export type ComposedServer = MailSettings & {
   readonly fetch: Hono['fetch']
   readonly port: number
   readonly buildingCatalog: BuildingCatalog
+  readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly fiefs: FiefReader
@@ -108,8 +110,10 @@ export function composeServer(
   const isSessionCookieSecure = isSessionCookieSecureFrom(environment.SESSION_COOKIE_SECURE)
   const mail = mailSettingsFrom(environment)
   const { database, close } = connectPostgres(databaseUrl)
+  const buildingCatalog = JsonBuildingCatalog.fromDirectory(contentDirectory)
   const dependencies = {
-    buildingCatalog: JsonBuildingCatalog.fromDirectory(contentDirectory),
+    buildingCatalog,
+    digestTerms: buildingCatalog.digestTerms(),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     accounts: new DrizzleAccounts(database),
