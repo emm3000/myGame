@@ -8,6 +8,7 @@ import { FormAlert } from '../design-system/FormAlert'
 import { Hint, type HintProps } from '../design-system/Hint'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
+import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
 import { artCardOf } from './artCardOf'
 import type { LiveFief } from './liveFief'
@@ -17,6 +18,12 @@ import { sectionAnchors } from './sectionAnchors'
 import type { Study } from './useStudy'
 
 const { names } = copy
+
+type ArtNextLevel = LiveFief['overview']['arts'][ArtKind]['nextLevel']
+
+function studyRefundOf(nextLevel: ArtNextLevel): string | undefined {
+  return nextLevel === null ? undefined : copy.study.cancelRefund(quantitiesOf(nextLevel.cost))
+}
 
 function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void): BuildSlotState {
   const { study: slot } = fief.overview
@@ -48,6 +55,7 @@ function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void)
       isWaiting: study.isWaiting,
       onCancel: () => study.cancel({ art: slot.art, targetLevel: slot.targetLevel }, onCancelled),
     },
+    refund: studyRefundOf(fief.overview.arts[slot.art].nextLevel),
     ...art,
   }
 }

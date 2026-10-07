@@ -126,7 +126,14 @@ it('previews one settler with its cost, peasants and duration', async () => {
   const costs = within(settlerCard())
     .getAllByRole('listitem')
     .map((item) => item.textContent)
-  expect(costs).toEqual([aThousand, aThousand, '600', '100', aThousand, '4'])
+  expect(costs).toEqual([
+    `${aThousand} de madera`,
+    `${aThousand} de piedra`,
+    '600 de hierro',
+    '100 de oro',
+    `${aThousand} de comida`,
+    '4 campesinos',
+  ])
   const button = within(settlerCard()).getByRole('button')
   expect(button.textContent).toBe('Reclutar colonos · 20:00')
   expect(button.hasAttribute('disabled')).toBe(false)

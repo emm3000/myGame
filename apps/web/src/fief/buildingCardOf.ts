@@ -8,6 +8,7 @@ import { capitalize } from '../design-system/capitalize'
 import { isBlockedByPeasants } from './isBlockedByPeasants'
 import { isQueueFull } from './isQueueFull'
 import type { LiveFief } from './liveFief'
+import { peasantCostOf } from './peasantCostOf'
 import { readyLineOf } from './readyLineOf'
 import { resourceCostsOf } from './resourceCostsOf'
 import { shortfallsOf } from './shortfallsOf'
@@ -23,11 +24,10 @@ type NextLevel = NonNullable<LiveFief['overview']['buildings'][BuildingKind]['ne
 
 function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<CardCost> {
   const resourceCosts = resourceCostsOf(nextLevel.cost, fief.amounts)
-  const peasantCost = {
-    kind: 'peasants' as const,
-    amount: nextLevel.peasants,
-    isShort: nextLevel.peasants > fief.overview.peasants.projectedFree,
-  }
+  const peasantCost = peasantCostOf(
+    nextLevel.peasants,
+    nextLevel.peasants > fief.overview.peasants.projectedFree,
+  )
   return nextLevel.peasants > 0 ? [...resourceCosts, peasantCost] : resourceCosts
 }
 

@@ -9,8 +9,8 @@ function quarryShortOfStone(): BuildingCardProps {
     levelLabel: 'Lv. 6',
     effect: 'Level 7: +330 stone / h',
     costs: [
-      { kind: 'wood', amount: 2900, isShort: false },
-      { kind: 'stone', amount: 1100, isShort: true },
+      { kind: 'wood', amount: 2900, spokenName: 'wood', shortMark: undefined },
+      { kind: 'stone', amount: 1100, spokenName: 'stone', shortMark: ', short' },
     ],
     actionLabel: 'Upgrade',
     durationSeconds: 11100,

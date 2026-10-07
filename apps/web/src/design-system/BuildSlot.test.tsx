@@ -31,6 +31,7 @@ it('shows the busy slot with its countdown', () => {
           isWaiting: false,
           onCancel: () => undefined,
         },
+        refund: 'Cancelling refunds the whole cost.',
       }}
     />,
   )

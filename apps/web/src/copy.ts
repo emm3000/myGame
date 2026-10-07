@@ -331,11 +331,16 @@ export const copy = {
     justFinished: 'La obra ha terminado. Estamos poniendo al día tu feudo.',
     upgrade: 'Mejorar',
     cancel: 'Cancelar la obra',
+    cancelRefund:
+      'Si la cancelas, recuperas todo lo que costó, y lo mismo por cada obra en espera que caiga con ella.',
     cancelOf: (building: BuildingKind, level: number): string =>
       `Cancelar la obra: ${buildings[building]}, ${names.level(level)}`,
     maxLevel: 'Nivel máximo',
     nextLevel: (level: number): string => `Sube a ${names.level(level)}.`,
     atMaxLevel,
+    costName: (resource: ResourceKind): string => `de ${resources[resource]}`,
+    peasantsCostName: (count: number): string => agreeing(count, 'campesino', 'campesinos'),
+    shortMark: ', falta',
     tooExpensive: (shortfalls: ReadonlyArray<ResourceQuantity>): string => {
       const isSingleOne = shortfalls.length === 1 && shortfalls[0]?.amount === 1
       const verb = isSingleOne ? 'falta' : 'faltan'
@@ -387,6 +392,8 @@ export const copy = {
       `${capitalize(seasonsWithArticle[season])} acorta los estudios`,
     start: 'Estudiar',
     cancel: 'Cancelar el estudio',
+    cancelRefund: (refund: ReadonlyArray<ResourceQuantity>): string =>
+      `Si lo cancelas, recuperas ${quantitiesOf(refund)}.`,
     cancelOf: (art: ArtKind, level: number): string =>
       `Cancelar el estudio: ${arts[art]}, ${names.level(level)}`,
     justFinished: 'El estudio ha terminado. Estamos poniendo al día tu feudo.',
@@ -425,6 +432,12 @@ export const copy = {
     countField: (unit: UnitKind): string => `${capitalize(units[unit].plural)} a reclutar`,
     recruit: (unit: UnitKind): string => `Reclutar ${units[unit].plural}`,
     cancel: 'Cancelar la leva',
+    cancelRefund: (
+      unit: UnitKind,
+      undelivered: number,
+      refund: ReadonlyArray<ResourceQuantity>,
+    ): string =>
+      `Si la cancelas, recuperas lo de ${countedUnits(unit, undelivered)} de vuelta al campo: ${quantitiesOf(refund)}.`,
     cancelOf: (unit: UnitKind, count: number): string =>
       `Cancelar la leva: ${countedUnits(unit, count)}`,
     orderRunning: 'Ya hay una leva en marcha.',

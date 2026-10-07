@@ -162,6 +162,7 @@ function slotStateOf(fief: LiveFief, cancel: Cancel, onCancelled: () => void): B
       { building: slot.building, targetLevel: slot.targetLevel },
       onCancelled,
     ),
+    refund: copy.fief.cancelRefund,
     ...building,
   }
 }
@@ -185,6 +186,7 @@ function WaitingUpgradesOf({
     remainingSeconds,
     time: formatFinish(remainingSeconds, fief.at),
     cancel: cancelActionOf(cancel, { building, targetLevel }, onCancelled),
+    refund: copy.fief.cancelRefund,
   }))
   return (
     <WaitingUpgrades

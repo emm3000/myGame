@@ -1,6 +1,6 @@
 import type { ReactElement, Ref } from 'react'
-import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
+import { CancelRow } from './CancelRow'
 import { CountdownLine, type SlotCountdown } from './CountdownLine'
 import { SlotIcon } from './icons/SlotIcon'
 import { SlotHeading } from './SlotHeading'
@@ -17,6 +17,7 @@ export type RecruitSlotState =
       readonly remainingSeconds: number
       readonly totalSeconds: number
       readonly cancel: CancelAction
+      readonly refund: string
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
@@ -56,15 +57,7 @@ export function RecruitSlot({
         total={state.totalSeconds}
         fillClass="fill-slate"
       />
-      <Button
-        type="button"
-        tone="quiet"
-        availability={state.cancel.isWaiting ? 'waiting' : 'available'}
-        accessibleName={state.cancel.accessibleName}
-        onClick={state.cancel.onCancel}
-      >
-        {state.cancel.label}
-      </Button>
+      <CancelRow cancel={state.cancel} refund={state.refund} />
     </section>
   )
 }

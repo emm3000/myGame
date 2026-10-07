@@ -159,7 +159,13 @@ it('previews a rider order with its cost, peasants and duration', async () => {
   const costs = within(riderCard())
     .getAllByRole('listitem')
     .map((item) => item.textContent)
-  expect(costs).toEqual(['120', '160', '80', '320', '8'])
+  expect(costs).toEqual([
+    '120 de madera',
+    '160 de hierro',
+    '80 de oro',
+    '320 de comida',
+    '8 campesinos',
+  ])
   const button = within(riderCard()).getByRole('button')
   expect(button.textContent).toBe('Reclutar jinetes · 5:00')
   expect(button.hasAttribute('disabled')).toBe(false)

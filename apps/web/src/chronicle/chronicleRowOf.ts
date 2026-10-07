@@ -95,7 +95,12 @@ const listedAmounts = (
   return {
     label,
     sentence: sentenceOf(listed),
-    costs: listed.map(({ resource, amount }) => ({ kind: resource, amount, isShort: false })),
+    costs: listed.map(({ resource, amount }) => ({
+      kind: resource,
+      amount,
+      spokenName: copy.fief.costName(resource),
+      shortMark: undefined,
+    })),
   }
 }
 
