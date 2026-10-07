@@ -49,8 +49,11 @@ function orderCompleteOf(order: LiveRecruitOrder, at: Date): SlotCountdown {
   return { words: army.orderCompleteIn, time: formatFinish(order.remainingSeconds, at) }
 }
 
-function levyRefundOf(order: LiveRecruitOrder, fief: LiveFief): string {
+function levyRefundOf(order: LiveRecruitOrder, fief: LiveFief): string | undefined {
   const undelivered = order.count - order.delivered
+  if (undelivered === 0) {
+    return undefined
+  }
   const refund = costTimes(fief.overview.recruitTerms[order.unit].cost, undelivered)
   return army.cancelRefund(order.unit, undelivered, quantitiesOf(refund))
 }
