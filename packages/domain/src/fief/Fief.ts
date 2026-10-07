@@ -444,6 +444,13 @@ const validateIncomingCargo = (
   if (incomingCargo === undefined) {
     return ok(undefined)
   }
+  if (incomingCargo.departedAt.epochMilliseconds > incomingCargo.arrivesAt.epochMilliseconds) {
+    return err({
+      kind: 'SlotStartsAfterFinish',
+      startedAt: incomingCargo.departedAt,
+      finishesAt: incomingCargo.arrivesAt,
+    })
+  }
   if (incomingCargo.arrivesAt.epochMilliseconds < storedAt.epochMilliseconds) {
     return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: incomingCargo.arrivesAt })
   }

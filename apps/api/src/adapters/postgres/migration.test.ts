@@ -2836,41 +2836,50 @@ const insertPlayersOfFullSinceVersion = async (client: Client): Promise<void> =>
   )
 }
 
-const anasOrigin = '00000000-0000-4000-8000-0000000000b1'
-const anasDestination = '00000000-0000-4000-8000-0000000000b2'
-const brunosOrigin = '00000000-0000-4000-8000-0000000000b3'
-const brunosDestination = '00000000-0000-4000-8000-0000000000b4'
+const fiefAt = (plot: number): string =>
+  `00000000-0000-4000-8000-0000000000${(0xb0 + plot).toString(16)}`
+
+const matchedCargo = { origin: fiefAt(1), destination: fiefAt(2) }
+const recalledCargo = { origin: fiefAt(3), destination: fiefAt(4) }
+const lateCargo = { origin: fiefAt(5), destination: fiefAt(6) }
+const strayCargo = { origin: fiefAt(7), destination: fiefAt(8) }
+const marchlessCargo = { origin: fiefAt(9), destination: fiefAt(10) }
+
+type TransportMarchOfFullSinceVersion = {
+  readonly origin: string
+  readonly to: string
+  readonly oneWaySeconds: number
+  readonly recalledAt: string | null
+}
 
 const insertTransportMarchOfFullSinceVersion = async (
   client: Client,
-  origin: string,
-  destination: string,
-  recalledAt: string | null,
+  { origin, to, oneWaySeconds, recalledAt }: TransportMarchOfFullSinceVersion,
 ): Promise<void> => {
   await client.query(
     `INSERT INTO fief_marches (fief_id, province, plot, infantry_count, cavalry_count, archer_count, settler_count,
        stay_hours, one_way_seconds, departed_at, loot_wood, loot_stone, loot_iron, loot_gold, loot_food,
        loot_percent_wood, loot_percent_stone, loot_percent_iron, loot_percent_gold, loot_percent_food,
        recalled_at, march_order, fought, to_fief_id, cargo_wood, cargo_stone, cargo_iron, cargo_gold, cargo_food)
-     VALUES ($1, 4, 2, 0, 6, 0, 0, 0, 450, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0,
-       100, 100, 100, 100, 100, $3, 'transport', false, $2, 300, 200, 220, 0, 0)`,
-    [origin, destination, recalledAt],
+     VALUES ($1, 4, 2, 0, 6, 0, 0, 0, $3, '2026-09-22T08:00:00Z', 0, 0, 0, 0, 0,
+       100, 100, 100, 100, 100, $4, 'transport', false, $2, 300, 200, 220, 0, 0)`,
+    [origin, to, oneWaySeconds, recalledAt],
   )
 }
 
 const insertIncomingCargoOfFullSinceVersion = async (
   client: Client,
-  destination: string,
-  origin: string,
-  arrivesAt: string,
+  { origin, destination }: { readonly origin: string; readonly destination: string },
 ): Promise<void> => {
   await client.query(
     `INSERT INTO fief_incoming_cargo (fief_id, from_fief_id, from_name, from_province, from_plot,
        cargo_wood, cargo_stone, cargo_iron, cargo_gold, cargo_food, arrives_at)
-     VALUES ($1, $2, 'Valdehierro', 4, 1, 300, 200, 220, 0, 0, $3)`,
-    [destination, origin, arrivesAt],
+     VALUES ($1, $2, 'Valdehierro', 4, 1, 300, 200, 220, 0, 0, '2026-09-22T08:07:30Z')`,
+    [destination, origin],
   )
 }
+
+const cargoes = [matchedCargo, recalledCargo, lateCargo, strayCargo, marchlessCargo]
 
 describe('the incoming cargo departure migration', () => {
   let client: Client
@@ -2891,40 +2900,68 @@ describe('the incoming cargo departure migration', () => {
   const migratedWithCargoes = async (): Promise<void> =>
     migratedFrom(client, 29, async () => {
       await insertPlayersOfFullSinceVersion(client)
-      await insertFiefOfPreviousVersion(client, anasOrigin, ana.id, 1, null)
-      await insertFiefOfPreviousVersion(client, anasDestination, ana.id, 2, null)
-      await insertFiefOfPreviousVersion(client, brunosOrigin, bruno.id, 3, null)
-      await insertFiefOfPreviousVersion(client, brunosDestination, bruno.id, 4, null)
-      await insertTransportMarchOfFullSinceVersion(client, anasOrigin, anasDestination, null)
-      await insertIncomingCargoOfFullSinceVersion(
-        client,
-        anasDestination,
-        anasOrigin,
-        '2026-09-22T08:07:30Z',
-      )
-      await insertTransportMarchOfFullSinceVersion(
-        client,
-        brunosOrigin,
-        brunosDestination,
-        '2026-09-22T08:03:00Z',
-      )
-      await insertIncomingCargoOfFullSinceVersion(
-        client,
-        brunosDestination,
-        brunosOrigin,
-        '2026-09-22T08:07:30Z',
-      )
+      for (const [index, { origin, destination }] of cargoes.entries()) {
+        await insertFiefOfPreviousVersion(client, origin, ana.id, 2 * index + 1, null)
+        await insertFiefOfPreviousVersion(client, destination, ana.id, 2 * index + 2, null)
+      }
+      const onTime = { oneWaySeconds: 450, recalledAt: null }
+      await insertTransportMarchOfFullSinceVersion(client, {
+        ...onTime,
+        origin: matchedCargo.origin,
+        to: matchedCargo.destination,
+      })
+      await insertTransportMarchOfFullSinceVersion(client, {
+        ...onTime,
+        origin: recalledCargo.origin,
+        to: recalledCargo.destination,
+        recalledAt: '2026-09-22T08:03:00Z',
+      })
+      await insertTransportMarchOfFullSinceVersion(client, {
+        ...onTime,
+        origin: lateCargo.origin,
+        to: lateCargo.destination,
+        oneWaySeconds: 600,
+      })
+      await insertTransportMarchOfFullSinceVersion(client, {
+        ...onTime,
+        origin: strayCargo.origin,
+        to: matchedCargo.origin,
+      })
+      for (const cargo of cargoes) {
+        await insertIncomingCargoOfFullSinceVersion(client, cargo)
+      }
     })
+
+  const departure = instantAt('2026-09-22T08:00:00Z')
+  const arrival = instantAt('2026-09-22T08:07:30Z')
 
   it("backfills a cargo's departure from its transport march", async () => {
     await migratedWithCargoes()
 
-    expect(await departureOfCargoIn(anasDestination)).toEqual(instantAt('2026-09-22T08:00:00Z'))
+    expect(await departureOfCargoIn(matchedCargo.destination)).toEqual(departure)
   })
 
   it('backfills a cargo with no transport march at its arrival', async () => {
     await migratedWithCargoes()
 
-    expect(await departureOfCargoIn(brunosDestination)).toEqual(instantAt('2026-09-22T08:07:30Z'))
+    expect(await departureOfCargoIn(marchlessCargo.destination)).toEqual(arrival)
+  })
+
+  it('backfills a cargo whose march was recalled at its arrival', async () => {
+    await migratedWithCargoes()
+
+    expect(await departureOfCargoIn(recalledCargo.destination)).toEqual(arrival)
+  })
+
+  it('backfills a cargo whose march arrives at another instant at its arrival', async () => {
+    await migratedWithCargoes()
+
+    expect(await departureOfCargoIn(lateCargo.destination)).toEqual(arrival)
+  })
+
+  it('backfills a cargo whose origin carries to another fief at its arrival', async () => {
+    await migratedWithCargoes()
+
+    expect(await departureOfCargoIn(strayCargo.destination)).toEqual(arrival)
   })
 })
