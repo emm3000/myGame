@@ -262,6 +262,7 @@ export const copy = {
     fiefSwitcher: {
       label: 'Tus feudos',
       separator: ',',
+      fullStore: (resource: ResourceKind): string => `Almacén lleno: ${resources[resource]}`,
     },
   },
   auth: {

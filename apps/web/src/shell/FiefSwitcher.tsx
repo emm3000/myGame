@@ -1,6 +1,10 @@
 import { Link, type LinkProps, useMatchRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
+import { Chip } from '../design-system/Chip'
+import { MarchIcon } from '../design-system/icons/MarchIcon'
+import { SlotIcon } from '../design-system/icons/SlotIcon'
+import { resourceAccent } from '../design-system/resourceAccent'
 import type { FiefEntries } from './useFiefList'
 
 export interface FiefSwitcherProps {
@@ -22,6 +26,54 @@ function useKeptScreen(): ScreenPath {
     return chronicleScreen
   }
   return fiefScreen
+}
+
+type FiefEntry = FiefEntries[number]
+type FreeSlot = FiefEntry['freeSlots'][number]
+
+const freeSlotLines: Readonly<Record<FreeSlot, string>> = {
+  build: copy.status.idleBuild,
+  study: copy.status.idleStudy,
+  recruit: copy.status.idleRecruit,
+  march: copy.status.idleMarch,
+}
+
+function FreeSlotIcon({ slot }: { readonly slot: FreeSlot }): ReactElement {
+  return slot === 'march' ? <MarchIcon /> : <SlotIcon />
+}
+
+function FiefBadges({ fief }: { readonly fief: FiefEntry }): ReactElement | null {
+  if (fief.freeSlots.length === 0 && fief.fullStores.length === 0) {
+    return null
+  }
+  const { separator, fullStore } = copy.shell.fiefSwitcher
+  return (
+    <span className="flex flex-wrap gap-1 pt-1 md:pt-0">
+      {fief.freeSlots.map((slot) => (
+        <Chip
+          key={slot}
+          icon={<FreeSlotIcon slot={slot} />}
+          text={freeSlotLines[slot]}
+          separator={separator}
+        />
+      ))}
+      {fief.fullStores.map((resource) => {
+        const { Icon, textClass } = resourceAccent[resource]
+        return (
+          <Chip
+            key={resource}
+            icon={
+              <span className={`flex ${textClass}`}>
+                <Icon />
+              </span>
+            }
+            text={fullStore(resource)}
+            separator={separator}
+          />
+        )
+      })}
+    </span>
+  )
 }
 
 const entryClass =
@@ -63,6 +115,7 @@ export function FiefSwitcher({ fiefs }: FiefSwitcherProps): ReactElement {
                   <span className="whitespace-nowrap font-utility text-caption font-semibold text-ink-muted tabular-nums">
                     {copy.names.address(fief.coordinates)}
                   </span>
+                  {!isActive && <FiefBadges fief={fief} />}
                 </>
               )}
             </Link>
