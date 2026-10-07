@@ -7,6 +7,7 @@ export interface PlotAction {
   readonly label: string
   readonly accessibleName: string
   readonly isExpanded: boolean
+  readonly controls?: string | undefined
   readonly onToggle: () => void
 }
 
@@ -71,6 +72,7 @@ function PlotActionButtons({
           tone="quiet"
           accessibleName={action.accessibleName}
           isExpanded={action.isExpanded}
+          controls={action.controls}
           onClick={action.onToggle}
         >
           {action.label}

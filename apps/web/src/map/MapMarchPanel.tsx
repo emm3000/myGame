@@ -1,9 +1,10 @@
 import { ResourceKindSchema } from '@mygame/contracts'
-import type { ReactElement } from 'react'
+import { type ReactElement, type Ref, useEffect } from 'react'
 import { copy } from '../copy'
 import { FormAlert } from '../design-system/FormAlert'
 import { MarchForm } from '../design-system/MarchForm'
 import { MarchSent } from '../design-system/MarchSent'
+import { useFocusTarget } from '../focus/useFocusTarget'
 import { partyKinds } from '../units/partyKinds'
 import { attackFormOf } from './attackFormOf'
 import { foundingFormOf } from './foundingFormOf'
@@ -12,7 +13,13 @@ import { marchSentLinesOf } from './marchSentLinesOf'
 import { transportFormOf } from './transportFormOf'
 import type { MapMarch } from './useMapMarch'
 
-function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null {
+function OpenForm({
+  march,
+  titleRef,
+}: {
+  readonly march: MapMarch
+  readonly titleRef: Ref<HTMLHeadingElement>
+}): ReactElement | null {
   const { overview, target, entries } = march
   if (overview === undefined || target === undefined) {
     return null
@@ -20,6 +27,7 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   if (target.order.kind === 'found') {
     return (
       <MarchForm
+        titleRef={titleRef}
         {...foundingFormOf(target, march.name, overview)}
         counts={[]}
         name={{ label: copy.founding.nameField, entry: march.name, onChange: march.onNameChange }}
@@ -45,6 +53,7 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
     }))
     return (
       <MarchForm
+        titleRef={titleRef}
         {...transportFormOf(target, entries, overview)}
         counts={counts}
         amounts={amounts}
@@ -57,6 +66,7 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   if (camp !== null) {
     return (
       <MarchForm
+        titleRef={titleRef}
         {...attackFormOf({ ...target, camp }, entries.units, overview)}
         counts={counts}
         isWaiting={march.isWaiting}
@@ -66,6 +76,7 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   }
   return (
     <MarchForm
+      titleRef={titleRef}
       {...marchFormOf(target, entries, overview)}
       counts={counts}
       hours={{
@@ -81,18 +92,25 @@ function OpenForm({ march }: { readonly march: MapMarch }): ReactElement | null 
   )
 }
 
+const openKeyOf = ({ target }: MapMarch): string | undefined =>
+  target === undefined ? undefined : `${target.province}:${target.plot}:${target.order.kind}`
+
 export function MapMarchPanel({ march }: { readonly march: MapMarch }): ReactElement {
-  const sent = march.isSent ? march.overview?.march : undefined
-  const refusalLine =
-    march.refusalLine ??
-    (march.fiefRefusal === undefined ? undefined : copy.refusals[march.fiefRefusal])
+  const title = useFocusTarget<HTMLHeadingElement>()
+  const openKey = openKeyOf(march)
+  useEffect(() => {
+    if (openKey !== undefined) {
+      title.focus()
+    }
+  }, [openKey, title.focus])
+  const sent = march.sentPlot === undefined ? undefined : march.overview?.march
   return (
     <div className="flex flex-col gap-3">
-      <OpenForm march={march} />
+      <OpenForm march={march} titleRef={title.ref} />
       {sent !== undefined && sent !== null && march.overview !== undefined && (
         <MarchSent lines={marchSentLinesOf(sent, march.overview.readAt)} />
       )}
-      {refusalLine !== undefined && <FormAlert message={refusalLine} />}
+      {march.refusalLine !== undefined && <FormAlert message={march.refusalLine} />}
     </div>
   )
 }
