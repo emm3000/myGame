@@ -1,5 +1,5 @@
 import type { FiefList, FiefOverview, HintKind } from '@mygame/contracts'
-import { act, fireEvent, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -423,5 +423,22 @@ it('adds no tab stop for a focus target', async () => {
   expect(fiefName().getAttribute('tabindex')).toBe('-1')
   expect(
     screen.getByRole('heading', { level: 3, name: copy.study.section }).getAttribute('tabindex'),
+  ).toBe('-1')
+  expect(
+    within(screen.getByRole('main'))
+      .getByText(copy.names.slot, { selector: 'span' })
+      .getAttribute('tabindex'),
+  ).toBe('-1')
+
+  cleanup()
+  await showAt(mapPath, knownFief)
+
+  expect(
+    screen
+      .getByRole('heading', {
+        level: 3,
+        name: copy.map.heading(knownFief.coordinates.kingdom, knownFief.coordinates.province),
+      })
+      .getAttribute('tabindex'),
   ).toBe('-1')
 })
