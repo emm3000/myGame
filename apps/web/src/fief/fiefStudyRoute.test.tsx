@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
@@ -169,10 +170,8 @@ it('studies at most once on a double click', async () => {
 it('disables every study button while a study runs', async () => {
   await showFief({ fief: async () => ({ ok: true, value: smithingUnderWay }) })
 
-  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
-    'Estudiar · 30:00. Ya hay un estudio en marcha.',
-  )
-  expect(studyButtonOf('masonry').hasAttribute('disabled')).toBe(true)
+  expect(accessibleDescriptionOf(studyButtonOf('smithing'))).toBe('Ya hay un estudio en marcha.')
+  expect(studyButtonOf('masonry').getAttribute('aria-disabled')).toBe('true')
   expect(within(artCard('masonry')).getByText('Ya hay un estudio en marcha.')).toBeDefined()
 })
 
@@ -197,9 +196,9 @@ it('names the library level an art still requires', async () => {
   }
   await showFief({ fief: async () => ({ ok: true, value: smithingNeedsMore }) })
 
-  expect(studyButtonOf('smithing').hasAttribute('disabled')).toBe(true)
-  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
-    'Estudiar · 19:12. Necesitas la biblioteca a nivel 2 y está a nivel 1.',
+  expect(studyButtonOf('smithing').getAttribute('aria-disabled')).toBe('true')
+  expect(accessibleDescriptionOf(studyButtonOf('smithing'))).toBe(
+    'Necesitas la biblioteca a nivel 2 y está a nivel 1.',
   )
 })
 
@@ -213,10 +212,8 @@ it('names the resources a study still lacks', async () => {
   }
   await showFief({ fief: async () => ({ ok: true, value: shortOfGold }) })
 
-  expect(studyButtonOf('smithing').hasAttribute('disabled')).toBe(true)
-  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
-    'Estudiar · 30:00. Te faltan 40 de oro.',
-  )
+  expect(studyButtonOf('smithing').getAttribute('aria-disabled')).toBe('true')
+  expect(accessibleDescriptionOf(studyButtonOf('smithing'))).toBe('Te faltan 40 de oro.')
 })
 
 it('enables a study once the interpolated amounts cover its cost', async () => {
@@ -233,7 +230,7 @@ it('enables a study once the interpolated amounts cover its cost', async () => {
 
   await passSeconds(60)
 
-  expect(studyButtonOf('smithing').hasAttribute('disabled')).toBe(false)
+  expect(studyButtonOf('smithing').hasAttribute('aria-disabled')).toBe(false)
 })
 
 const smithingNeedsLibraryTwo: FiefOverview['arts']['smithing'] = {
@@ -263,9 +260,7 @@ it('names the running study before the library an art still requires', async () 
   }
   await showFief({ fief: async () => ({ ok: true, value: masonryUnderWay }) })
 
-  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
-    'Estudiar · 19:12. Ya hay un estudio en marcha.',
-  )
+  expect(accessibleDescriptionOf(studyButtonOf('smithing'))).toBe('Ya hay un estudio en marcha.')
 })
 
 it('names the library level before the resources a study lacks', async () => {
@@ -279,8 +274,8 @@ it('names the library level before the resources a study lacks', async () => {
   }
   await showFief({ fief: async () => ({ ok: true, value: shortOfGoldAndLibrary }) })
 
-  expect(studyButtonOf('smithing').getAttribute('aria-label')).toBe(
-    'Estudiar · 19:12. Necesitas la biblioteca a nivel 2 y está a nivel 1.',
+  expect(accessibleDescriptionOf(studyButtonOf('smithing'))).toBe(
+    'Necesitas la biblioteca a nivel 2 y está a nivel 1.',
   )
 })
 
@@ -316,7 +311,7 @@ it('shows an art at its top level as finished', async () => {
   await showFief({ fief: async () => ({ ok: true, value: smithingAtTop }) })
 
   expect(studyButtonOf('smithing').textContent).toBe('Nivel máximo')
-  expect(studyButtonOf('smithing').hasAttribute('disabled')).toBe(true)
+  expect(studyButtonOf('smithing').getAttribute('aria-disabled')).toBe('true')
   expect(
     within(artCard('smithing')).getByText('+50 % de hierro / h · Ya está en su nivel más alto.'),
   ).toBeDefined()
@@ -415,4 +410,19 @@ it('clears a study refusal once a fresh read of the fief arrives', async () => {
   await passSeconds(60)
 
   expect(within(librarySection()).queryByRole('alert')).toBeNull()
+})
+
+it('reads lista with the clock on an art card when only resources are short', async () => {
+  const goldComing: FiefOverview = {
+    ...libraryBuilt,
+    resources: {
+      ...libraryBuilt.resources,
+      gold: { ...libraryBuilt.resources.gold, amount: 20, ratePerHour: 10 },
+    },
+  }
+  await showFief({ fief: async () => ({ ok: true, value: goldComing }) })
+
+  expect(accessibleDescriptionOf(studyButtonOf('smithing'))).toBe(
+    'Te faltan 40 de oro. lista 18:00',
+  )
 })

@@ -3,6 +3,7 @@ import type { ReactElement } from 'react'
 import { CardAction, type CardActionState, cardToneOf } from './CardAction'
 import { CardHeader } from './CardHeader'
 import { type CardCost, CostList } from './CostList'
+import { formatDuration } from './formatDuration'
 import { Panel } from './Panel'
 import { resourceAccent } from './resourceAccent'
 
@@ -72,9 +73,9 @@ export function ArtCard(props: ArtCardProps): ReactElement {
         </p>
       )}
       <CardAction
+        type="button"
+        label={`${props.actionLabel} · ${formatDuration(props.durationSeconds)}`}
         state={props.state}
-        actionLabel={props.actionLabel}
-        durationSeconds={props.durationSeconds}
         isWaiting={props.isWaiting ?? false}
         onAction={props.onStudy}
       />

@@ -9,6 +9,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const otherFiefId = '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a'
 
@@ -261,7 +262,7 @@ it('blocks a cargo above the carry', async () => {
   loadCargo(form, '300', '200', '221')
 
   expect(linesOf(form)[0]).toBe('Carga: 721 de 720')
-  expect(sendButton(form).disabled).toBe(true)
+  expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
   expect(within(form).getByText('La carga suma 721 y tus hombres llevan hasta 720.')).toBeDefined()
 })
 
@@ -282,7 +283,7 @@ it('blocks a cargo above the stocks', async () => {
   typeSixRiders(form)
   loadCargo(form, '300', '200', '220')
 
-  expect(sendButton(form).disabled).toBe(true)
+  expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
   expect(within(form).getByText('Te faltan 20 de hierro.')).toBeDefined()
 })
 
@@ -291,7 +292,7 @@ it('blocks an empty cargo', async () => {
 
   typeSixRiders(form)
 
-  expect(sendButton(form).disabled).toBe(true)
+  expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
   expect(
     within(form).getByText('Un transporte no sale de vacío. Carga al menos un recurso.'),
   ).toBeDefined()
@@ -304,7 +305,7 @@ it('blocks a transport with no unit', async () => {
   loadCargo(form, '300', '0', '0')
 
   expect(linesOf(form)).toEqual(['Carga: 300 de 0'])
-  expect(sendButton(form).disabled).toBe(true)
+  expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
   expect(within(form).getByText('Envía al menos un infante, un jinete o un arquero.')).toBeDefined()
 })
 
@@ -313,7 +314,7 @@ it('blocks a transport while a march is away', async () => {
     fief: async () => ({ ok: true, value: { ...sotoverde, march: transportAway } }),
   })
 
-  expect(sendButton(form).disabled).toBe(true)
+  expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
   expect(within(form).getByText('Ya hay una marcha en curso.')).toBeDefined()
   expect((within(form).getByLabelText('Madera a enviar') as HTMLInputElement).disabled).toBe(true)
 })
@@ -384,4 +385,25 @@ it('reads stocks drawn down since the read in the words of a cargo', async () =>
       'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
     ),
   ).toBeDefined()
+})
+
+it('reads no lista on a march form', async () => {
+  const form = await openTransport({
+    fief: async () => ({
+      ok: true,
+      value: {
+        ...sotoverde,
+        resources: {
+          ...sotoverde.resources,
+          iron: { ...sotoverde.resources.iron, amount: 200, ratePerHour: 360 },
+        },
+      },
+    }),
+  })
+
+  typeSixRiders(form)
+  loadCargo(form, '300', '200', '220')
+
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Te faltan 20 de hierro.')
+  expect(within(form).queryByText(/lista/)).toBeNull()
 })

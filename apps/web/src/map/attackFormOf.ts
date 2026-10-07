@@ -1,9 +1,9 @@
 import type { FiefOverview, ResourceAmounts, Terrain } from '@mygame/contracts'
 import { copy } from '../copy'
+import type { MarchActionState } from '../design-system/CardAction'
 import { campArtOf } from '../design-system/campArtOf'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
-import type { SubmitActionState } from '../design-system/SubmitAction'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
@@ -96,7 +96,7 @@ function previewOf(
       ]
 }
 
-function stateOf(party: UnitCounts | undefined, fief: FiefOverview): SubmitActionState {
+function stateOf(party: UnitCounts | undefined, fief: FiefOverview): MarchActionState {
   if (fief.march !== null) {
     return { kind: 'blocked', reason: copy.march.marchAway }
   }

@@ -1,10 +1,9 @@
 import type { UnitKind } from '@mygame/contracts'
 import { type FormEvent, type ReactElement, useId } from 'react'
-import { cardToneOf } from './CardAction'
+import { CardAction, cardToneOf, type MarchActionState } from './CardAction'
 import { NumberField } from './NumberField'
 import { Panel } from './Panel'
 import { type PreviewLine, PreviewLines } from './PreviewLines'
-import { SubmitAction, type SubmitActionState } from './SubmitAction'
 import { TextField } from './TextField'
 import { UnitCount, type UnitTally } from './UnitCount'
 
@@ -38,7 +37,7 @@ export interface MarchFormProps {
   readonly isFieldDisabled: boolean
   readonly preview: ReadonlyArray<PreviewLine> | undefined
   readonly actionLabel: string
-  readonly state: SubmitActionState
+  readonly state: MarchActionState
   readonly isWaiting: boolean
   readonly onSend: () => void
 }
@@ -131,7 +130,8 @@ export function MarchForm(props: MarchFormProps): ReactElement {
           )}
           {props.preview !== undefined && <PreviewLines lines={props.preview} />}
           <div className="flex flex-col items-start">
-            <SubmitAction
+            <CardAction
+              type="submit"
               label={props.actionLabel}
               state={props.state}
               isWaiting={props.isWaiting}

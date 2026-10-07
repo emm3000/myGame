@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import { slotTrackFill } from './slotTrackFill.testSupport'
 
 beforeEach(() => {
@@ -151,9 +152,10 @@ it('disables every upgrade button with the reason while the build queue is full'
 
   for (const building of ['sawmill', 'quarry', 'ironMine', 'farm', 'warehouse'] as const) {
     const upgradeButton = within(cardOf(building)).getByRole('button', {
-      name: 'Mejorar · 3:12. Ya no caben más obras en espera. Espera a que avance alguna.',
+      name: 'Mejorar · 3:12',
+      description: 'Ya no caben más obras en espera. Espera a que avance alguna.',
     })
-    expect(upgradeButton.hasAttribute('disabled')).toBe(true)
+    expect(upgradeButton.getAttribute('aria-disabled')).toBe('true')
   }
 })
 
@@ -181,7 +183,8 @@ it('refuses a card for the full build queue before its missing resources', async
 
   expect(
     within(cardOf('quarry')).getByRole('button', {
-      name: 'Mejorar · 3:12. Ya no caben más obras en espera. Espera a que avance alguna.',
+      name: 'Mejorar · 3:12',
+      description: 'Ya no caben más obras en espera. Espera a que avance alguna.',
     }),
   ).toBeDefined()
 })
@@ -197,7 +200,8 @@ it('refuses a card for the full build queue before its missing peasants', async 
 
   expect(
     within(cardOf('quarry')).getByRole('button', {
-      name: 'Mejorar · 3:12. Ya no caben más obras en espera. Espera a que avance alguna.',
+      name: 'Mejorar · 3:12',
+      description: 'Ya no caben más obras en espera. Espera a que avance alguna.',
     }),
   ).toBeDefined()
 })
@@ -207,7 +211,7 @@ it('keeps the upgrade buttons enabled while the build queue has room', async () 
     signedInClient({ fief: async () => ({ ok: true, value: threeWaitingBehindSawmill }) }),
   )
 
-  expect(upgradeButtonOf('quarry').hasAttribute('disabled')).toBe(false)
+  expect(upgradeButtonOf('quarry').hasAttribute('aria-disabled')).toBe(false)
 })
 
 it('disables a card the free peasants cannot staff', async () => {
@@ -238,10 +242,11 @@ it('disables a card the free peasants cannot staff', async () => {
   await showFief(signedInClient({ fief: async () => ({ ok: true, value: twoFreePeasants }) }))
 
   const farmButton = within(cardOf('farm')).getByRole('button', {
-    name: 'Mejorar · 2:00. Necesitas 3 campesinos libres y tienes 2.',
+    name: 'Mejorar · 2:00',
+    description: 'Necesitas 3 campesinos libres y tienes 2.',
   })
-  expect(farmButton.hasAttribute('disabled')).toBe(true)
-  expect(upgradeButtonOf('sawmill').hasAttribute('disabled')).toBe(false)
+  expect(farmButton.getAttribute('aria-disabled')).toBe('true')
+  expect(upgradeButtonOf('sawmill').hasAttribute('aria-disabled')).toBe(false)
 })
 
 it('checks a card against the free peasants left after the waiting upgrades', async () => {
@@ -272,9 +277,10 @@ it('checks a card against the free peasants left after the waiting upgrades', as
   await showFief(signedInClient({ fief: async () => ({ ok: true, value: twoFreeAfterQueue }) }))
 
   const farmButton = within(cardOf('farm')).getByRole('button', {
-    name: 'Mejorar · 2:00. Necesitas 3 campesinos libres y tienes 2.',
+    name: 'Mejorar · 2:00',
+    description: 'Necesitas 3 campesinos libres y tienes 2.',
   })
-  expect(farmButton.hasAttribute('disabled')).toBe(true)
+  expect(farmButton.getAttribute('aria-disabled')).toBe('true')
 })
 
 interface Deferred<T> {
@@ -310,7 +316,7 @@ it('disables every card while an upgrade is being started', async () => {
   fireEvent.click(upgradeButtonOf('sawmill'))
   await passSeconds(0)
 
-  expect(upgradeButtonOf('quarry').hasAttribute('disabled')).toBe(true)
+  expect(upgradeButtonOf('quarry').getAttribute('aria-disabled')).toBe('true')
 })
 
 it('clears a refusal once a fresh read of the fief arrives', async () => {
@@ -352,7 +358,7 @@ const shortOfStoneAndIron: FiefOverview = {
 it('disables a card the fief cannot afford', async () => {
   await showFief(signedInClient({ fief: async () => ({ ok: true, value: shortOfStoneAndIron }) }))
 
-  expect(upgradeButtonOf('ironMine').hasAttribute('disabled')).toBe(true)
+  expect(upgradeButtonOf('ironMine').getAttribute('aria-disabled')).toBe('true')
 })
 
 it('names each missing amount on the button of a card the fief cannot afford', async () => {
@@ -360,7 +366,8 @@ it('names each missing amount on the button of a card the fief cannot afford', a
 
   expect(
     within(cardOf('ironMine')).getByRole('button', {
-      name: 'Mejorar · 1:30. Te faltan 15 de piedra y 40 de hierro.',
+      name: 'Mejorar · 1:30',
+      description: 'Te faltan 15 de piedra y 40 de hierro. lista en 7 min',
     }),
   ).toBeDefined()
 })
@@ -374,5 +381,142 @@ it('shows a building at its highest level as finished', async () => {
 
   const warehouseButton = upgradeButtonOf('warehouse')
   expect(warehouseButton.textContent).toBe('Nivel máximo')
-  expect(warehouseButton.hasAttribute('disabled')).toBe(true)
+  expect(warehouseButton.getAttribute('aria-disabled')).toBe('true')
+})
+
+it('keeps a blocked action in the tab order', async () => {
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: shortOfStoneAndIron }) }))
+
+  const blockedButton = upgradeButtonOf('ironMine')
+  blockedButton.focus()
+
+  expect(document.activeElement).toBe(blockedButton)
+  expect(blockedButton.getAttribute('aria-disabled')).toBe('true')
+})
+
+it('announces a blocked action as unavailable with its reason', async () => {
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: queueFullBehindSawmill }) }),
+  )
+
+  const blockedButton = within(cardOf('quarry')).getByRole('button', {
+    name: 'Mejorar · 3:12',
+    description: copy.refusals.QueueFull,
+  })
+
+  expect(blockedButton.getAttribute('aria-disabled')).toBe('true')
+})
+
+it('sends no request when a blocked action is pressed', async () => {
+  const enqueueUpgrade = vi.fn(async () => ({ ok: true as const, value: knownFief }))
+  await showFief(
+    signedInClient({
+      fief: async () => ({ ok: true, value: shortOfStoneAndIron }),
+      enqueueUpgrade,
+    }),
+  )
+
+  fireEvent.click(upgradeButtonOf('ironMine'))
+  await passSeconds(0)
+
+  expect(enqueueUpgrade).not.toHaveBeenCalled()
+})
+
+const ironMineShortOfIron = (ironAtRead: number): FiefOverview => ({
+  ...knownFief,
+  resources: {
+    ...knownFief.resources,
+    iron: { ...knownFief.resources.iron, amount: ironAtRead, ratePerHour: 5 },
+  },
+  buildings: {
+    ...knownFief.buildings,
+    ironMine: {
+      level: 0,
+      nextLevel: {
+        level: 1,
+        cost: { wood: 200, stone: 120, iron: 60, gold: 0, food: 0 },
+        durationSeconds: 1200,
+        peasants: 1,
+      },
+    },
+  },
+})
+
+it('reads lista with the clock when only resources are short', async () => {
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: ironMineShortOfIron(30) }) }),
+  )
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe(
+    'Te faltan 30 de hierro. lista 20:00',
+  )
+  expect(within(cardOf('ironMine')).getByText('lista 20:00')).toBeDefined()
+})
+
+it('reads lista with the time left when the ready hour is within the hour', async () => {
+  await showFief(
+    signedInClient({ fief: async () => ({ ok: true, value: ironMineShortOfIron(56) }) }),
+  )
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe(
+    'Te faltan 4 de hierro. lista en 48 min',
+  )
+})
+
+it('reads the later ready hour of two short resources', async () => {
+  const shortOfIron = ironMineShortOfIron(30)
+  const shortOfWoodAndIron: FiefOverview = {
+    ...shortOfIron,
+    resources: {
+      ...shortOfIron.resources,
+      wood: { ...shortOfIron.resources.wood, amount: 150, ratePerHour: 40 },
+    },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: shortOfWoodAndIron }) }))
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe(
+    'Te faltan 50 de madera y 30 de hierro. lista 20:00',
+  )
+})
+
+it('reads no lista when peasants are short too', async () => {
+  const shortOfIron = ironMineShortOfIron(30)
+  const nobodyFree: FiefOverview = {
+    ...shortOfIron,
+    peasants: { ...shortOfIron.peasants, projectedOccupied: 12, projectedFree: 0 },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: nobodyFree }) }))
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe(
+    'Necesitas 1 campesino libre y tienes 0.',
+  )
+  expect(within(cardOf('ironMine')).queryByText(/lista/)).toBeNull()
+})
+
+it('reads no lista when the cost exceeds the capacity', async () => {
+  const shortOfIron = ironMineShortOfIron(30)
+  const ironStoreTooSmall: FiefOverview = {
+    ...shortOfIron,
+    resources: {
+      ...shortOfIron.resources,
+      iron: { ...shortOfIron.resources.iron, capacity: 50 },
+    },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: ironStoreTooSmall }) }))
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe('Te faltan 30 de hierro.')
+})
+
+it('reads no lista when a short resource does not accrue', async () => {
+  const shortOfIron = ironMineShortOfIron(30)
+  const noIronComing: FiefOverview = {
+    ...shortOfIron,
+    resources: {
+      ...shortOfIron.resources,
+      iron: { ...shortOfIron.resources.iron, ratePerHour: 0 },
+    },
+  }
+  await showFief(signedInClient({ fief: async () => ({ ok: true, value: noIronComing }) }))
+
+  expect(accessibleDescriptionOf(upgradeButtonOf('ironMine'))).toBe('Te faltan 30 de hierro.')
 })

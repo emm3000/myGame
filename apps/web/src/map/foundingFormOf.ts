@@ -1,8 +1,8 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { copy } from '../copy'
+import type { MarchActionState } from '../design-system/CardAction'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
-import type { SubmitActionState } from '../design-system/SubmitAction'
 import type { UnitCounts } from '../units/UnitCounts'
 import type { MarchFormContent, MarchTarget } from './marchFormOf'
 import { oneWaySecondsOf } from './oneWaySecondsOf'
@@ -19,7 +19,7 @@ function previewOf(target: MarchTarget, fief: FiefOverview): ReadonlyArray<Previ
   ]
 }
 
-function stateOf(name: string, settlersAtHome: number, fief: FiefOverview): SubmitActionState {
+function stateOf(name: string, settlersAtHome: number, fief: FiefOverview): MarchActionState {
   if (fief.march !== null) {
     return { kind: 'blocked', reason: copy.march.marchAway }
   }

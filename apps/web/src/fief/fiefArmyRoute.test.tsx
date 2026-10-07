@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
@@ -121,10 +122,10 @@ it('shows the cost and the peasants of the count typed', async () => {
     .map((item) => item.textContent)
   expect(costs).toEqual(['100', '50', '150', '5'])
   expect(recruitButton().textContent).toBe('Reclutar infantes · 7:30')
-  expect(recruitButton().hasAttribute('disabled')).toBe(false)
+  expect(recruitButton().hasAttribute('aria-disabled')).toBe(false)
 })
 
-it('blocks an order the stocks cannot pay', async () => {
+it('blocks an order the stocks cannot pay and reads when they will', async () => {
   const manyFreeHands: FiefOverview = {
     ...barracksBuilt,
     peasants: { ...barracksBuilt.peasants, free: 60, projectedFree: 60, lowestFree: 60 },
@@ -133,9 +134,9 @@ it('blocks an order the stocks cannot pay', async () => {
 
   typeCount('40')
 
-  expect(recruitButton().hasAttribute('disabled')).toBe(true)
-  expect(recruitButton().getAttribute('aria-label')).toBe(
-    'Reclutar infantes · 1 h. Te faltan 100 de hierro y 600 de comida.',
+  expect(recruitButton().getAttribute('aria-disabled')).toBe('true')
+  expect(accessibleDescriptionOf(recruitButton())).toBe(
+    'Te faltan 100 de hierro y 600 de comida. lista 15:40',
   )
   expect(within(infantryCard()).getByText('Te faltan 100 de hierro y 600 de comida.')).toBeDefined()
 })
@@ -154,7 +155,7 @@ it('blocks an order the lowest free peasants across the build schedule cannot st
 
   typeCount('3')
 
-  expect(recruitButton().hasAttribute('disabled')).toBe(true)
+  expect(recruitButton().getAttribute('aria-disabled')).toBe('true')
   expect(
     within(infantryCard()).getByText('Necesitas 3 campesinos libres y tienes 2.'),
   ).toBeDefined()
@@ -170,9 +171,7 @@ it('refuses a count that is empty, below 1 or not whole', async () => {
     await passSeconds(0)
 
     expect(recruitButton().textContent).toBe('Reclutar infantes')
-    expect(recruitButton().getAttribute('aria-label')).toBe(
-      'Reclutar infantes. Un número entero, al menos 1.',
-    )
+    expect(accessibleDescriptionOf(recruitButton())).toBe('Un número entero, al menos 1.')
   }
   expect(placeRecruitOrder).not.toHaveBeenCalled()
 })
@@ -187,9 +186,7 @@ it('places the order and shows it open', async () => {
 
   expect(placeRecruitOrder).toHaveBeenCalledWith(knownFief.id, { unit: 'infantry', count: 8 })
   expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
-  expect(recruitButton().getAttribute('aria-label')).toBe(
-    'Reclutar infantes · 12:00. Ya hay una leva en marcha.',
-  )
+  expect(accessibleDescriptionOf(recruitButton())).toBe('Ya hay una leva en marcha.')
   expect(countField().hasAttribute('disabled')).toBe(true)
 })
 
@@ -400,4 +397,16 @@ it('sends one cancel on a double click', async () => {
   await passSeconds(0)
 
   expect(cancelRecruitOrder).toHaveBeenCalledTimes(1)
+})
+
+it('sends no request when a blocked recruit action is pressed', async () => {
+  const placeRecruitOrder = vi.fn(async () => ({ ok: true as const, value: orderOfTwelve }))
+  await showFief({ placeRecruitOrder })
+  typeCount('0')
+
+  fireEvent.click(recruitButton())
+  await passSeconds(0)
+
+  expect(recruitButton().getAttribute('aria-disabled')).toBe('true')
+  expect(placeRecruitOrder).not.toHaveBeenCalled()
 })

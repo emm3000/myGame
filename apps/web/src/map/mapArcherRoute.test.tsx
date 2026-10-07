@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const fiefWithArchers: FiefOverview = {
   ...knownFief,
@@ -151,8 +152,8 @@ it('blocks more archers than are at home', async () => {
   typeParty(form, '12', '6', '11')
   fireEvent.submit(form)
 
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Necesitas 11 arqueros en casa y tienes 10.',
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(
+    'Necesitas 11 arqueros en casa y tienes 10.',
   )
   expect(send).not.toHaveBeenCalled()
 })

@@ -6,6 +6,7 @@ import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { capitalize } from '../design-system/capitalize'
 import type { LiveFief } from './liveFief'
+import { readyLineOf } from './readyLineOf'
 import { resourceCostsOf } from './resourceCostsOf'
 import { shortfallsOf } from './shortfallsOf'
 
@@ -45,7 +46,11 @@ function stateOf(nextLevel: NextLevel, fief: LiveFief): CardActionState {
   }
   const shortfalls = shortfallsOf(nextLevel.cost, fief.amounts)
   if (shortfalls.length > 0) {
-    return { kind: 'blocked', reason: copy.fief.tooExpensive(shortfalls) }
+    return {
+      kind: 'blocked',
+      reason: copy.fief.tooExpensive(shortfalls),
+      ready: readyLineOf(nextLevel.cost, fief),
+    }
   }
   return { kind: 'affordable' }
 }
