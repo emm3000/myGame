@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 
 export interface ResizeObserverStub {
-  readonly resizeTo: (blockSize: number) => void
+  readonly resizeTo: (isTarget: (target: Element) => boolean, blockSize: number) => void
   readonly observedCount: () => number
 }
 
@@ -45,10 +45,14 @@ export function stubResizeObserver(): ResizeObserverStub {
   }
   vi.stubGlobal('ResizeObserver', Stub)
   return {
-    resizeTo: (blockSize) => {
+    resizeTo: (isTarget, blockSize) => {
       for (const observer of observers) {
-        const entries = [...observer.targets].map((target) => entryOf(target, blockSize))
-        observer.callback(entries, observer)
+        const entries = [...observer.targets]
+          .filter(isTarget)
+          .map((target) => entryOf(target, blockSize))
+        if (entries.length > 0) {
+          observer.callback(entries, observer)
+        }
       }
     },
     observedCount: () => [...observers].reduce((count, { targets }) => count + targets.size, 0),
