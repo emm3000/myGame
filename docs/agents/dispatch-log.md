@@ -55,3 +55,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #510 | #499 | 1 | fable:high | FIX FIRST | judgment |
 | #511 | #500 | 3 | opus:high | MERGE | |
 | #512 | #502 | 4 | opus:high | MERGE | |
+| artifact | #505 | 5 | fable:high | MERGE | |
+| #513 | #503 | 2 | opus:medium | MERGE | |
+| #514 | #504 | 2 | opus:medium | FIX FIRST | judgment |
