@@ -55,10 +55,12 @@ export function FiefStatus({
   fief,
   hint,
   notices,
+  blockRef,
 }: {
   readonly fief: LiveFief
   readonly hint: HintProps | undefined
   readonly notices: FinishNoticesHandle
+  readonly blockRef: (block: HTMLElement | null) => void
 }): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
@@ -72,7 +74,10 @@ export function FiefStatus({
   }))
   return (
     <>
-      <div className="flex flex-col gap-3 border-b border-line bg-surface pb-3 md:sticky md:top-0 md:z-10 md:pt-3">
+      <div
+        ref={blockRef}
+        className="flex flex-col gap-3 border-b border-line bg-surface pb-3 md:sticky md:top-0 md:z-10 md:pt-3"
+      >
         <ResourceBar
           resources={resources}
           peasants={{

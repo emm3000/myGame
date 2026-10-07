@@ -60,10 +60,14 @@ slice (Decision 1).
   cell reads *Sin obra*, *Sin estudio*, *Sin leva* or *Sin marcha*; a
   busy one its heading, what it holds, ` · ` and the countdown, with a
   track. Each cell is a link to `/feudo/$fiefId` with the hash of its
-  section (`sectionAnchors`), and the sections carry two scroll-margin
-  tokens, `scroll-mt-status` at 448 px and `scroll-mt-status-wide` at
-  376 px, sized over the tallest busy block, so a section reached by its
-  hash lands under the block and never behind it. The sections keep the
+  section (`sectionAnchors`), and from `md` the sections take their
+  scroll margin from the measured block (#506): the fief layout observes
+  the sticky block with a `ResizeObserver`, writes its border-box height
+  to `--status-block-height` on the root element and removes it, with
+  the observer, on unmount, and `md:scroll-mt-status` reads that
+  property, so a section reached by its hash lands under the block and
+  never behind it, however tall a long origin name or a march of several
+  kinds makes it. The sections keep the
   detail and the actions: the cancel, the waiting queue, the recall.
   The design system names no route: the strip takes `to` and `params`.
 - **Live values repaint at most once a minute, seconds only in a
@@ -535,9 +539,11 @@ slice (Decision 1).
   the cell draws a `slate` track from the departure to the arrival.
 - Known gap: the scroll margins were measured on the demo fief; a long
   origin name in the cargo cell or a march of several kinds could make
-  the sticky block taller and cover the linked section again. At 768
-  px with five busy cells the strip's time spans run past the cell
-  edge.
+  the sticky block taller and cover the linked section again. Closed by
+  #506: the margin is the block's measured height, so it follows a
+  block of any height; a fief name has no maximum length on the wire,
+  so that height has no bound either. At 768 px with five busy cells
+  the strip's time spans run past the cell edge.
 - Known gap: a goal two levels away names the next level's shortfall,
   not the goal level's; `missing` does not report a full queue, which
   the card covers by reading the refusal instead. A goal naming a
