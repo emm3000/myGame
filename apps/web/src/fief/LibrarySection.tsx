@@ -5,6 +5,7 @@ import { ArtCard } from '../design-system/ArtCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
+import { Hint, type HintProps } from '../design-system/Hint'
 import { formatFinish } from '../time/formatFinish'
 import { artCardOf } from './artCardOf'
 import type { LiveFief } from './liveFief'
@@ -73,9 +74,11 @@ function ArtItem({
 export function LibrarySection({
   fief,
   study,
+  hint,
 }: {
   readonly fief: LiveFief
   readonly study: Study
+  readonly hint: HintProps | undefined
 }): ReactElement {
   const headingId = useId()
   return (
@@ -89,6 +92,7 @@ export function LibrarySection({
         title={copy.study.section}
         mark={seasonSectionMarkOf(fief.overview.season, 'study', copy.study.seasonMark)}
       />
+      {hint !== undefined && <Hint {...hint} placement="standalone" />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <BuildSlot state={studySlotStateOf(fief, study)} />
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">

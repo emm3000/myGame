@@ -3,6 +3,7 @@ import { type FormEvent, type ReactElement, type ReactNode, useState } from 'rea
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { Hint, type HintProps } from '../design-system/Hint'
 import { NumberField } from '../design-system/NumberField'
 import { type PlotAction, type PlotHolder, PlotTile } from '../design-system/PlotTile'
 import { TextLink } from '../design-system/TextLink'
@@ -14,6 +15,7 @@ export interface MapScreenProps {
   readonly onBrowse: (province: number) => void
   readonly plotActionsOf: (map: ProvinceMap, plot: number) => ReadonlyArray<PlotAction>
   readonly marchPanel: ReactNode
+  readonly hint: HintProps | undefined
 }
 
 type ProvinceProps = { readonly map: ProvinceMap } & Omit<MapScreenProps, 'state'>
@@ -77,7 +79,7 @@ function JumpControl({
   )
 }
 
-function Province({ map, onBrowse, plotActionsOf, marchPanel }: ProvinceProps): ReactElement {
+function Province({ map, onBrowse, plotActionsOf, marchPanel, hint }: ProvinceProps): ReactElement {
   const heading = copy.map.heading(map.kingdom, map.province)
   const terrainLabel = copy.names.terrains[map.terrain]
   return (
@@ -105,6 +107,7 @@ function Province({ map, onBrowse, plotActionsOf, marchPanel }: ProvinceProps): 
         <h3 className="m-0 font-display text-title text-ink">{heading}</h3>
         <p className="m-0 font-body text-caption text-ink-muted">{copy.map.terrain(map.terrain)}</p>
       </div>
+      {hint !== undefined && <Hint {...hint} placement="standalone" />}
       <ul aria-label={heading} className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-5">
         {map.plots.map((plot) => (
           <PlotTile

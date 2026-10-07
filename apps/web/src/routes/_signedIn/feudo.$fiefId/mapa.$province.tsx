@@ -20,6 +20,7 @@ function NumberedProvincePage(): ReactElement {
         onBrowse={ignoreBrowse}
         plotActionsOf={noPlotActions}
         marchPanel={null}
+        hint={undefined}
       />
     )
   }

@@ -4,8 +4,9 @@ import { copy } from '../../../copy'
 import type { DigestCardProps } from '../../../design-system/DigestCard'
 import { FormAlert } from '../../../design-system/FormAlert'
 import { digestFiefsOf } from '../../../fief/digestFiefsOf'
-import { FiefScreen } from '../../../fief/FiefScreen'
+import { FiefScreen, type ScreenHint } from '../../../fief/FiefScreen'
 import { goalCardOf } from '../../../fief/goalCardOf'
+import type { LiveFief } from '../../../fief/liveFief'
 import { useCancel } from '../../../fief/useCancel'
 import { type DigestHandle, useDigest } from '../../../fief/useDigest'
 import { useGuidanceDismissal } from '../../../fief/useGuidanceDismissal'
@@ -14,6 +15,10 @@ import { useRecall } from '../../../fief/useRecall'
 import { useRecruit } from '../../../fief/useRecruit'
 import { useStudy } from '../../../fief/useStudy'
 import { useUpgrade } from '../../../fief/useUpgrade'
+import { fiefHintOf } from '../../../hints/fiefHintOf'
+import { hintPropsOf } from '../../../hints/hintPropsOf'
+import type { HintsHandle } from '../../../hints/useHints'
+import { useLayoutHints } from '../../../hints/useLayoutHints'
 
 function digestCardOf(digest: DigestHandle): DigestCardProps | undefined {
   const { state } = digest
@@ -30,6 +35,14 @@ function digestCardOf(digest: DigestHandle): DigestCardProps | undefined {
   }
 }
 
+function screenHintOf(fief: LiveFief, hints: HintsHandle): ScreenHint | undefined {
+  const hint = fiefHintOf(fief, hints.hidden)
+  if (hint === undefined || hint.kind === 'peasants' || hint.kind === 'fullStore') {
+    return undefined
+  }
+  return { kind: hint.kind, props: hintPropsOf(hint, hints) }
+}
+
 function FiefOverviewPage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { fiefId } = Route.useParams()
@@ -42,6 +55,7 @@ function FiefOverviewPage(): ReactElement {
   const recall = useRecall(apiClient, fiefId, adopt, readAt)
   const digest = useDigest(apiClient)
   const dismissal = useGuidanceDismissal(apiClient, fiefId)
+  const hints = useLayoutHints()
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.fief.loading}</p>
@@ -58,6 +72,7 @@ function FiefOverviewPage(): ReactElement {
           recall={recall}
           digest={digestCardOf(digest)}
           goal={goalCardOf(state.fief.overview, dismissal)}
+          hint={screenHintOf(state.fief, hints)}
         />
       )
     default: {

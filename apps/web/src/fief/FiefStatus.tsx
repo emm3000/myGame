@@ -1,6 +1,7 @@
 import { type ResourceKind, ResourceKindSchema } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { copy } from '../copy'
+import type { HintProps } from '../design-system/Hint'
 import { ResourceBar } from '../design-system/ResourceBar'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { SlotsStrip } from '../design-system/SlotsStrip'
@@ -35,7 +36,13 @@ function seasonMarkOf(
   }
 }
 
-export function FiefStatus({ fief }: { readonly fief: LiveFief }): ReactElement {
+export function FiefStatus({
+  fief,
+  hint,
+}: {
+  readonly fief: LiveFief
+  readonly hint: HintProps | undefined
+}): ReactElement {
   const { overview, amounts } = fief
   const resources = ResourceKindSchema.options.map((kind) => ({
     kind,
@@ -57,6 +64,7 @@ export function FiefStatus({ fief }: { readonly fief: LiveFief }): ReactElement 
           free: overview.peasants.projectedFree,
         }}
         labels={{ full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied }}
+        hint={hint}
       />
       <SlotsStrip
         label={copy.status.label}

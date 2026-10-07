@@ -20,6 +20,7 @@ import {
   type FiefOverview,
   FiefOverviewSchema,
   type ForgotPasswordRequest,
+  type HintKind,
   type PlaceRecruitOrderRequest,
   type Player,
   PlayerSchema,
@@ -75,6 +76,7 @@ export interface ApiClient {
   digest(): Promise<ApiOutcome<Digest>>
   acknowledgeDigest(): Promise<ApiRefusal | undefined>
   dismissGuidance(fiefId: string): Promise<ApiRefusal | undefined>
+  markHintSeen(hint: HintKind): Promise<ApiRefusal | undefined>
   verifyEmail(token: string): Promise<ApiRefusal | undefined>
   resendVerification(): Promise<ApiRefusal | undefined>
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
@@ -242,6 +244,8 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       refusalOrNothing(await send('/digest/acknowledgement', { method: 'POST' })),
     dismissGuidance: async (fiefId) =>
       refusalOrNothing(await send(fiefPathOf(fiefId, '/guidance/dismissal'), { method: 'POST' })),
+    markHintSeen: async (hint) =>
+      refusalOrNothing(await send(`/hints/${hint}`, { method: 'POST' })),
     verifyEmail: async (token) => {
       const request: VerifyEmailRequest = { token }
       return refusalOrNothing(await postJson('/auth/verify-email', request))

@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect, useNavigate, useParams } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
+import { HintsContext } from '../hints/HintsContext'
+import { useHints } from '../hints/useHints'
 import { AppShell } from '../shell/AppShell'
 import { useFiefList } from '../shell/useFiefList'
 import { useResendVerification } from '../verification/useResendVerification'
@@ -10,6 +12,7 @@ function SignedInLayout(): ReactElement {
   const navigate = useNavigate()
   const { fiefId } = useParams({ strict: false })
   const fiefs = useFiefList(apiClient)
+  const hints = useHints(apiClient, player.seenHints)
 
   const signOut = async (): Promise<void> => {
     await apiClient.signOut()
@@ -17,15 +20,17 @@ function SignedInLayout(): ReactElement {
   }
 
   return (
-    <AppShell
-      player={player}
-      fiefId={fiefId}
-      fiefs={fiefs}
-      verification={verification}
-      onSignOut={signOut}
-    >
-      <Outlet />
-    </AppShell>
+    <HintsContext value={hints}>
+      <AppShell
+        player={player}
+        fiefId={fiefId}
+        fiefs={fiefs}
+        verification={verification}
+        onSignOut={signOut}
+      >
+        <Outlet />
+      </AppShell>
+    </HintsContext>
   )
 }
 

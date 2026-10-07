@@ -1,6 +1,10 @@
 import { useNavigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../api/apiClient'
+import { useLayoutFief } from '../fief/useLayoutFief'
+import { hintPropsOf } from '../hints/hintPropsOf'
+import { marchesHintOf } from '../hints/marchesHintOf'
+import { useLayoutHints } from '../hints/useLayoutHints'
 import { MapMarchPanel } from './MapMarchPanel'
 import { MapScreen } from './MapScreen'
 import { useMapMarch } from './useMapMarch'
@@ -18,6 +22,8 @@ export function ProvinceMapPage({
   province,
 }: ProvinceMapPageProps): ReactElement {
   const navigate = useNavigate()
+  const fief = useLayoutFief()
+  const hints = useLayoutHints()
   const { state, reread } = useProvinceMap(apiClient, fiefId, province)
   const march = useMapMarch(
     apiClient,
@@ -33,6 +39,8 @@ export function ProvinceMapPage({
     })
   }
 
+  const hint =
+    fief.state.kind === 'live' ? marchesHintOf(fief.state.fief.overview, hints.hidden) : undefined
   return (
     <MapScreen
       fiefId={fiefId}
@@ -40,6 +48,7 @@ export function ProvinceMapPage({
       onBrowse={browse}
       plotActionsOf={march.plotActionsOf}
       marchPanel={<MapMarchPanel march={march} />}
+      hint={hint === undefined ? undefined : hintPropsOf(hint, hints)}
     />
   )
 }

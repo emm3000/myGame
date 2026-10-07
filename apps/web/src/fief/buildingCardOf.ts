@@ -5,6 +5,7 @@ import { buildingArtOf } from '../design-system/buildingArtOf'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { capitalize } from '../design-system/capitalize'
+import { isBlockedByPeasants } from './isBlockedByPeasants'
 import { isQueueFull } from './isQueueFull'
 import type { LiveFief } from './liveFief'
 import { readyLineOf } from './readyLineOf'
@@ -30,15 +31,14 @@ function costsOf(nextLevel: NextLevel, fief: LiveFief): ReadonlyArray<CardCost> 
   return nextLevel.peasants > 0 ? [...resourceCosts, peasantCost] : resourceCosts
 }
 
-function stateOf(nextLevel: NextLevel, fief: LiveFief): CardActionState {
+function stateOf(building: BuildingKind, nextLevel: NextLevel, fief: LiveFief): CardActionState {
   if (isQueueFull(fief.overview)) {
     return { kind: 'blocked', reason: copy.refusals.QueueFull }
   }
-  const { projectedFree } = fief.overview.peasants
-  if (nextLevel.peasants > projectedFree) {
+  if (isBlockedByPeasants(building, fief.overview)) {
     return {
       kind: 'blocked',
-      reason: copy.fief.notEnoughPeasants(nextLevel.peasants, projectedFree),
+      reason: copy.fief.notEnoughPeasants(nextLevel.peasants, fief.overview.peasants.projectedFree),
     }
   }
   const shortfalls = shortfallsOf(nextLevel.cost, fief.amounts)
@@ -74,6 +74,6 @@ export function buildingCardOf(building: BuildingKind, fief: LiveFief): Building
     effect: copy.fief.nextLevel(nextLevel.level),
     costs: costsOf(nextLevel, fief),
     durationSeconds: nextLevel.durationSeconds,
-    state: stateOf(nextLevel, fief),
+    state: stateOf(building, nextLevel, fief),
   }
 }
