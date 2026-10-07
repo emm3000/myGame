@@ -120,7 +120,13 @@ it('previews an archer order with its cost, peasants and duration', async () => 
   const costs = within(archerCard())
     .getAllByRole('listitem')
     .map((item) => item.textContent)
-  expect(costs).toEqual(['160', '40', '20', '160', '4'])
+  expect(costs).toEqual([
+    '160 de madera',
+    '40 de hierro',
+    '20 de oro',
+    '160 de comida',
+    '4 campesinos',
+  ])
   const button = within(archerCard()).getByRole('button')
   expect(button.textContent).toBe('Reclutar arqueros · 3:20')
   expect(button.hasAttribute('disabled')).toBe(false)

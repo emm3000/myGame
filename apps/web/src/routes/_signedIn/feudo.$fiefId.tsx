@@ -1,8 +1,10 @@
+import type { FiefOverview } from '@mygame/contracts'
 import { FiefRequestSchema } from '@mygame/contracts'
 import { createFileRoute, Outlet, useMatchRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
+import { LiveRegion } from '../../design-system/LiveRegion'
 import { FiefNameContext } from '../../fief/FiefNameContext'
 import { FiefStatus } from '../../fief/FiefStatus'
 import { LiveFiefContext } from '../../fief/LiveFiefContext'
@@ -15,6 +17,7 @@ import { barHintOf } from '../../hints/barHintOf'
 import { hintFocusingAfterDismiss } from '../../hints/hintFocusingAfterDismiss'
 import { hintPropsOf } from '../../hints/hintPropsOf'
 import { useLayoutHints } from '../../hints/useLayoutHints'
+import { useFinishAnnouncement } from '../../notices/useFinishAnnouncement'
 import { type FinishNoticesHandle, useFinishNotices } from '../../notices/useFinishNotices'
 
 function LiveFiefStatus({
@@ -48,13 +51,18 @@ function LiveFiefStatus({
 function LiveFiefLayout({ fiefId }: { readonly fiefId: string }): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const notices = useFinishNotices()
-  const live = useLiveFief(apiClient, fiefId, notices.notifyBetween)
+  const announcement = useFinishAnnouncement()
+  const live = useLiveFief(apiClient, fiefId, (previous: FiefOverview, next: FiefOverview) => {
+    notices.notifyBetween(previous, next)
+    announcement.announceBetween(previous, next)
+  })
   const fiefName = useFocusTarget<HTMLHeadingElement>()
   const statusBlockRef = useStatusBlockMargin()
   return (
     <LiveFiefContext value={live}>
       <FiefNameContext value={fiefName}>
         <div className="flex flex-col gap-6">
+          <LiveRegion line={announcement.line} />
           {live.state.kind === 'live' && (
             <LiveFiefStatus fief={live.state.fief} notices={notices} blockRef={statusBlockRef} />
           )}

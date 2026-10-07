@@ -1,6 +1,6 @@
 import type { ReactElement, Ref } from 'react'
-import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
+import { CancelRow } from './CancelRow'
 import { Countdown } from './Countdown'
 import { SlotIcon } from './icons/SlotIcon'
 import { SlotHeading } from './SlotHeading'
@@ -18,6 +18,7 @@ export type BuildSlotState =
       readonly totalSeconds: number
       readonly finishedLabel: string
       readonly cancel: CancelAction
+      readonly refund: string | undefined
     }
   | {
       readonly kind: 'justFinished'
@@ -81,15 +82,7 @@ export function BuildSlot({
             total={state.totalSeconds}
             fillClass="fill-slate"
           />
-          <Button
-            type="button"
-            tone="quiet"
-            availability={state.cancel.isWaiting ? 'waiting' : 'available'}
-            accessibleName={state.cancel.accessibleName}
-            onClick={state.cancel.onCancel}
-          >
-            {state.cancel.label}
-          </Button>
+          <CancelRow cancel={state.cancel} refund={state.refund} />
         </section>
       )
     case 'justFinished':

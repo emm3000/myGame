@@ -5,7 +5,8 @@ import { type Accent, resourceAccent } from './resourceAccent'
 export interface CardCost {
   readonly kind: Accent
   readonly amount: number
-  readonly isShort: boolean
+  readonly spokenName: string
+  readonly shortMark: string | undefined
 }
 
 export function CostList({ costs }: { readonly costs: ReadonlyArray<CardCost> }): ReactElement {
@@ -16,12 +17,14 @@ export function CostList({ costs }: { readonly costs: ReadonlyArray<CardCost> })
         return (
           <li
             key={cost.kind}
-            className={`flex items-center gap-1 ${cost.isShort ? 'text-rust' : 'text-ink'}`}
+            className={`flex items-center gap-1 ${cost.shortMark === undefined ? 'text-ink' : 'text-rust'}`}
           >
             <span className={`flex ${textClass}`}>
               <Icon />
             </span>
             {formatQuantity(cost.amount)}
+            <span className="sr-only">{` ${cost.spokenName}`}</span>
+            {cost.shortMark !== undefined && <span className="sr-only">{cost.shortMark}</span>}
           </li>
         )
       })}

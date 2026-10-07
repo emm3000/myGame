@@ -6,10 +6,12 @@ import { formatDuration } from '../design-system/formatDuration'
 import type { LockedUnitCardProps } from '../design-system/LockedUnitCard'
 import type { UnitCardProps } from '../design-system/UnitCard'
 import type { UnitTally } from '../design-system/UnitCount'
+import { costTimes } from './costTimes'
 import type { LiveFief } from './liveFief'
+import { peasantCostOf } from './peasantCostOf'
 import { readyLineOf } from './readyLineOf'
 import { resourceCostsOf } from './resourceCostsOf'
-import { type ResourceCost, shortfallsOf } from './shortfallsOf'
+import { shortfallsOf } from './shortfallsOf'
 
 export type UnitCardContent =
   | ({ readonly kind: 'open' } & Pick<
@@ -34,14 +36,6 @@ export function recruitCountOf(entry: string): number | undefined {
   const count = Number(entry)
   return count >= 1 ? count : undefined
 }
-
-const costTimes = (cost: ResourceCost, count: number): ResourceCost => ({
-  wood: cost.wood * count,
-  stone: cost.stone * count,
-  iron: cost.iron * count,
-  gold: cost.gold * count,
-  food: cost.food * count,
-})
 
 function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): OrderActionState {
   if (fief.overview.recruitOrder !== null) {
@@ -80,11 +74,7 @@ function costsOf(
   const neededPeasants = terms.peasants * count
   return [
     ...resourceCostsOf(costTimes(terms.cost, count), fief.amounts),
-    {
-      kind: 'peasants',
-      amount: neededPeasants,
-      isShort: neededPeasants > fief.overview.peasants.lowestFree,
-    },
+    peasantCostOf(neededPeasants, neededPeasants > fief.overview.peasants.lowestFree),
   ]
 }
 

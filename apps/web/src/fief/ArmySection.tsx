@@ -14,6 +14,7 @@ import { useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
+import { costTimes } from './costTimes'
 import {
   isFoundingOnTheWay,
   type LiveFief,
@@ -48,6 +49,12 @@ function orderCompleteOf(order: LiveRecruitOrder, at: Date): SlotCountdown {
   return { words: army.orderCompleteIn, time: formatFinish(order.remainingSeconds, at) }
 }
 
+function levyRefundOf(order: LiveRecruitOrder, fief: LiveFief): string {
+  const undelivered = order.count - order.delivered
+  const refund = costTimes(fief.overview.recruitTerms[order.unit].cost, undelivered)
+  return army.cancelRefund(order.unit, undelivered, quantitiesOf(refund))
+}
+
 function recruitSlotStateOf(
   fief: LiveFief,
   recruit: Recruit,
@@ -73,6 +80,7 @@ function recruitSlotStateOf(
       onCancel: () =>
         recruit.cancel({ unit: answered.unit, startedAt: answered.startedAt }, onCancelled),
     },
+    refund: levyRefundOf(order, fief),
   }
 }
 

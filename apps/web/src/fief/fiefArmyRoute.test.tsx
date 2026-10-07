@@ -120,7 +120,7 @@ it('shows the cost and the peasants of the count typed', async () => {
   const costs = within(infantryCard())
     .getAllByRole('listitem')
     .map((item) => item.textContent)
-  expect(costs).toEqual(['100', '50', '150', '5'])
+  expect(costs).toEqual(['100 de madera', '50 de hierro', '150 de comida', '5 campesinos'])
   expect(recruitButton().textContent).toBe('Reclutar infantes · 7:30')
   expect(recruitButton().hasAttribute('aria-disabled')).toBe(false)
 })

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
-import { Button } from './Button'
 import type { CancelAction } from './CancelAction'
+import { CancelRow } from './CancelRow'
 import { Countdown } from './Countdown'
 
 export interface WaitingUpgrade {
@@ -9,6 +9,7 @@ export interface WaitingUpgrade {
   readonly remainingSeconds: number
   readonly time: string
   readonly cancel: CancelAction
+  readonly refund: string
 }
 
 interface WaitingUpgradesProps {
@@ -31,8 +32,8 @@ export function WaitingUpgrades({
         <span className="text-numeral">{` · ${emptiesAt}`}</span>
       </span>
       <ol aria-label={title} className="m-0 flex list-none flex-col gap-3 p-0">
-        {upgrades.map(({ buildingName, levelLabel, remainingSeconds, time, cancel }) => (
-          <li key={`${buildingName}-${levelLabel}`} className="flex flex-col items-end gap-2">
+        {upgrades.map(({ buildingName, levelLabel, remainingSeconds, time, cancel, refund }) => (
+          <li key={`${buildingName}-${levelLabel}`} className="flex flex-col gap-2">
             <span className="flex flex-wrap items-center justify-between gap-2 self-stretch">
               <span className="flex items-baseline gap-2">
                 <span className="font-display text-body text-ink">{buildingName}</span>
@@ -46,15 +47,7 @@ export function WaitingUpgrades({
                 finishedLabel={finishedLabel}
               />
             </span>
-            <Button
-              type="button"
-              tone="quiet"
-              availability={cancel.isWaiting ? 'waiting' : 'available'}
-              accessibleName={cancel.accessibleName}
-              onClick={cancel.onCancel}
-            >
-              {cancel.label}
-            </Button>
+            <CancelRow cancel={cancel} refund={refund} />
           </li>
         ))}
       </ol>
