@@ -1,9 +1,8 @@
 import type { FiefChronicle } from '@mygame/contracts'
-import type { FiefEvent, Instant } from '@mygame/domain'
+import type { FiefEvent } from '@mygame/domain'
+import { isoOf } from '../http/isoOf'
 
 type WireEvent = FiefChronicle['events'][number]
-
-const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
 
 const wireEventOf = (event: FiefEvent): WireEvent => {
   const occurredAt = isoOf(event.occurredAt)

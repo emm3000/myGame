@@ -89,6 +89,7 @@ export class JsonBuildingCatalog implements BuildingCatalog {
   private readonly levels: ReadonlyMap<string, BuildingLevel>
   private readonly artLevels: ReadonlyMap<string, ArtLevel>
   private readonly settings: FiefSettings
+  private readonly digest: FiefContent['digest']
 
   constructor(
     buildings: ReadonlyArray<BuildingContent>,
@@ -105,6 +106,7 @@ export class JsonBuildingCatalog implements BuildingCatalog {
         .flatMap(artLevelsOf)
         .map((level) => [JsonBuildingCatalog.keyOf(level.art, level.level), level]),
     )
+    this.digest = fief.digest
     this.settings = {
       ...fief,
       seasons: {
@@ -146,6 +148,10 @@ export class JsonBuildingCatalog implements BuildingCatalog {
 
   fiefSettings(): FiefSettings {
     return this.settings
+  }
+
+  digestTerms(): FiefContent['digest'] {
+    return this.digest
   }
 
   private static keyOf(kind: BuildingKind | ArtKind, level: number): string {

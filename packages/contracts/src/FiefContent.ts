@@ -41,6 +41,10 @@ const CampTermsSchema = z.strictObject({
   tiers: CampTiersSchema,
 })
 
+const DigestTermsSchema = z.strictObject({
+  absenceSeconds: WholeCountSchema.positive(),
+})
+
 const GoalSchema = z.strictObject({
   building: BuildingKindSchema,
   level: BuildingLevelSchema,
@@ -60,6 +64,7 @@ export const FiefContentSchema = z.object({
   forage: ForageTermsSchema,
   camps: CampTermsSchema,
   goals: z.array(GoalSchema),
+  digest: DigestTermsSchema,
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>

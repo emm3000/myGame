@@ -49,6 +49,7 @@ const plainFief: FiefContent = {
     { building: 'farm', level: 1 },
     { building: 'sawmill', level: 2 },
   ],
+  digest: { absenceSeconds: 1800 },
   seasons: {
     epoch: '2026-10-05T00:00:00Z',
     daysPerSeason: 7,
@@ -313,6 +314,16 @@ describe('JsonBuildingCatalog', () => {
       { building: 'library', level: 1 },
       { building: 'barracks', level: 1 },
     ])
+  })
+
+  it('serves the absence the digest waits for from the fief content', () => {
+    expect(oneLevelCatalog().digestTerms()).toEqual({ absenceSeconds: 1800 })
+  })
+
+  it('ships a digest that waits for an absence of one hour', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).digestTerms()).toEqual({
+      absenceSeconds: 3600,
+    })
   })
 
   it('ships a cap of 2 fiefs per lord', () => {

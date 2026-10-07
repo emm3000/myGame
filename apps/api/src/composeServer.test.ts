@@ -98,6 +98,7 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
     },
     buildQueueCap: 4,
     goals: [],
+    digest: { absenceSeconds: 3600 },
     fiefCap: 2,
     seasons: {
       epoch: '2026-10-05T00:00:00Z',

@@ -43,8 +43,7 @@ import {
   terrainOf,
   type UnitKind,
 } from '@mygame/domain'
-
-const isoOf = (instant: Instant): string => new Date(instant.epochMilliseconds).toISOString()
+import { isoOf } from '../http/isoOf'
 
 const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
   slot.kind === 'idle'

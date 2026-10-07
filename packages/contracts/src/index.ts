@@ -10,6 +10,7 @@ export {
 } from './CancelRecruitOrderRequest'
 export { type CancelStudyRequest, CancelStudyRequestSchema } from './CancelStudyRequest'
 export { type CancelUpgradeRequest, CancelUpgradeRequestSchema } from './CancelUpgradeRequest'
+export { type Digest, DigestSchema } from './Digest'
 export {
   type DispatchAttackRequest,
   DispatchAttackRequestSchema,
