@@ -1,4 +1,4 @@
-import { act, cleanup } from '@testing-library/react'
+import { act, cleanup, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import {
@@ -7,7 +7,8 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { statusBlockHeight } from '../design/tokens'
+import { copy } from '../copy'
+import { statusBlockHeightProperty } from '../design/tokens'
 import { type ResizeObserverStub, stubResizeObserver } from './stubResizeObserver.testSupport'
 
 let resizeObserver: ResizeObserverStub
@@ -27,29 +28,34 @@ const showFief = async (): Promise<void> => {
   await act(() => vi.advanceTimersByTimeAsync(0))
 }
 
+const isStatusBlock = (target: Element): boolean =>
+  target.contains(screen.getByRole('listitem', { name: copy.names.resources.wood })) &&
+  target.contains(screen.getByText(copy.status.label)) &&
+  !target.contains(screen.getByRole('heading', { level: 2, name: knownFief.name }))
+
 const scrollMargin = (): string =>
-  document.documentElement.style.getPropertyValue(statusBlockHeight)
+  document.documentElement.style.getPropertyValue(statusBlockHeightProperty)
 
 it('writes the status block height as the sections scroll margin', async () => {
   await showFief()
 
-  act(() => resizeObserver.resizeTo(431.5))
+  act(() => resizeObserver.resizeTo(isStatusBlock, 431.5))
 
   expect(scrollMargin()).toBe('431.5px')
 })
 
 it('updates the scroll margin when the status block grows', async () => {
   await showFief()
-  act(() => resizeObserver.resizeTo(359))
+  act(() => resizeObserver.resizeTo(isStatusBlock, 359))
 
-  act(() => resizeObserver.resizeTo(512))
+  act(() => resizeObserver.resizeTo(isStatusBlock, 512))
 
   expect(scrollMargin()).toBe('512px')
 })
 
 it('stops measuring the status block once the fief layout is gone', async () => {
   await showFief()
-  act(() => resizeObserver.resizeTo(431))
+  act(() => resizeObserver.resizeTo(isStatusBlock, 431))
   const measured = { observed: resizeObserver.observedCount(), margin: scrollMargin() }
 
   cleanup()
