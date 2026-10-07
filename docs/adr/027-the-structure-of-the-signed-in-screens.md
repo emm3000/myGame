@@ -490,6 +490,30 @@ slice (Decision 1).
   forms. A refusal keeps the card and focus on its button; a cancel or
   recall waits with `aria-disabled`, never `disabled`, which would take
   its focus. A hint still never takes focus when it appears.
+- Text contrast (WCAG 1.4.3 and 1.4.11, #500): `design/tokens.test.ts`
+  lists every text and non-text pair of the changed tokens by token
+  name and fails a text pair under 4.5:1 or a non-text pair under 3:1,
+  in Parchment and Ledger. To pass it, seven tokens kept their hue and
+  only their lightness moved, each to the closest value that passes on
+  every background it is text on. Ledger `umber` went from `#a8784f` to
+  `#b08057`, and `peasants` with it; on `surface-raised` it reads 4.53
+  (was 4.07). That fixes the bar's peasants label, the title, `TextLink`
+  and the fief address, and `on-umber` on it now reads 5.09. Parchment
+  `moss` went from `#5b7a3a` to `#516d34`: 4.54 on `moss-soft` (was
+  3.80), 4.76 under a zero `Countdown` on `surface` (was 3.98), and
+  5.29 under one on `surface-raised` and under `on-moss` on the
+  max-level pill (was 4.42). Parchment `wood` went from `#c4862a` to
+  `#966520`, `stone` from `#8f8a80` to `#736f67`, `gold` from `#c9a21e`
+  to `#886c14` and `food` from `#7f9a32` to `#617727`, the bar's labels
+  on `surface-raised` (were 2.79, 3.10, 2.19 and 2.89, now 4.54, 4.52,
+  4.51 and 4.54). `ink-faint` went from `#9a8a6f` to `#736651` in
+  Parchment (4.56 on `surface`, was 2.74) and from `#7f7058` to
+  `#99876c` in Ledger (4.50 on `surface-raised`, was 3.25). The test
+  names two exemptions and fails if either one stops being needed.
+  First, `ink-faint` on `surface-sunken` is the text of a disabled
+  button or number field, an inactive component, so 1.4.3 does not
+  apply. Second, the `ochre` camp and mail icons are `aria-hidden`
+  beside text that carries their meaning, so 1.4.11 does not apply.
 - Known gap: `/forgot-password` and `/reset-password` replace their
   form on success, the banner's resend and the map's previous and next
   go `disabled` while busy or at an end, and a cancel or recall that
