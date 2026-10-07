@@ -17,6 +17,7 @@ export interface MapMarch {
   readonly overview: FiefOverview | undefined
   readonly fiefRefusal: ApiRefusal | undefined
   readonly target: OpenTarget | undefined
+  readonly openKey: string | undefined
   readonly entries: MarchEntries
   readonly name: string
   readonly sentPlot: number | undefined
@@ -132,6 +133,7 @@ export function useMapMarch(
     fiefRead: FiefOverview,
   ): void => {
     setSent(undefined)
+    march.dismissRefusal()
     if (isSameChoice(target, map, plot, order)) {
       setChosen(undefined)
       return
@@ -213,6 +215,8 @@ export function useMapMarch(
     overview,
     fiefRefusal: fief.state.kind === 'refused' ? fief.state.refusal : undefined,
     target,
+    openKey:
+      target === undefined ? undefined : `${target.province}:${target.plot}:${target.order.kind}`,
     entries,
     name,
     sentPlot,

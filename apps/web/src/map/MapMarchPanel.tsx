@@ -1,10 +1,9 @@
 import { ResourceKindSchema } from '@mygame/contracts'
-import { type ReactElement, type Ref, useEffect } from 'react'
+import type { ReactElement, Ref } from 'react'
 import { copy } from '../copy'
 import { FormAlert } from '../design-system/FormAlert'
 import { MarchForm } from '../design-system/MarchForm'
 import { MarchSent } from '../design-system/MarchSent'
-import { useFocusTarget } from '../focus/useFocusTarget'
 import { partyKinds } from '../units/partyKinds'
 import { attackFormOf } from './attackFormOf'
 import { foundingFormOf } from './foundingFormOf'
@@ -92,21 +91,17 @@ function OpenForm({
   )
 }
 
-const openKeyOf = ({ target }: MapMarch): string | undefined =>
-  target === undefined ? undefined : `${target.province}:${target.plot}:${target.order.kind}`
-
-export function MapMarchPanel({ march }: { readonly march: MapMarch }): ReactElement {
-  const title = useFocusTarget<HTMLHeadingElement>()
-  const openKey = openKeyOf(march)
-  useEffect(() => {
-    if (openKey !== undefined) {
-      title.focus()
-    }
-  }, [openKey, title.focus])
+export function MapMarchPanel({
+  march,
+  titleRef,
+}: {
+  readonly march: MapMarch
+  readonly titleRef: Ref<HTMLHeadingElement>
+}): ReactElement {
   const sent = march.sentPlot === undefined ? undefined : march.overview?.march
   return (
     <div className="flex flex-col gap-3">
-      <OpenForm march={march} titleRef={title.ref} />
+      <OpenForm march={march} titleRef={titleRef} />
       {sent !== undefined && sent !== null && march.overview !== undefined && (
         <MarchSent lines={marchSentLinesOf(sent, march.overview.readAt)} />
       )}

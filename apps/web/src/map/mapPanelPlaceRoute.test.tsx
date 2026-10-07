@@ -1,5 +1,5 @@
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -98,7 +98,7 @@ it('opens the march form right after the row of the tapped plot', async () => {
 })
 
 it('places the panel after the row of five on a wide screen', async () => {
-  stubMatchMedia(() => true)
+  stubMatchMedia(true)
   const list = await showProvince()
 
   fireEvent.click(sendTo(3))
@@ -184,4 +184,69 @@ it('keeps the sent lines in the slot of the sent plot', async () => {
   expect(orderOf(list)).toEqual(plotsWithPanelAfter(4))
   expect(list.children[4]?.contains(sent)).toBe(true)
   expect(sendTo(3).getAttribute('aria-expanded')).toBe('false')
+})
+
+it('opens no panel and keeps focus while the fief is still loading', async () => {
+  renderAppAt(
+    `${knownFiefPath}/mapa/2`,
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      fief: () => new Promise(() => undefined),
+      provinceMap: async () => ({ ok: true, value: freeProvince }),
+    }),
+  )
+  const list = await screen.findByRole('list', { name: copy.map.heading(1, 2) })
+  const next = screen.getByRole('button', { name: copy.map.next })
+  next.focus()
+
+  expect(screen.queryAllByRole('button', { name: /parcela/ })).toHaveLength(0)
+  expect(list.children).toHaveLength(freeProvince.plots.length)
+  expect(document.activeElement).toBe(next)
+})
+
+it('reads a fief-load refusal under the list, outside any panel', async () => {
+  renderAppAt(
+    `${knownFiefPath}/mapa/2`,
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      fief: async () => ({ ok: false, refusal: 'Unexpected' }),
+      provinceMap: async () => ({ ok: true, value: freeProvince }),
+    }),
+  )
+  const list = await screen.findByRole('list', { name: copy.map.heading(1, 2) })
+
+  const alert = await screen.findByRole('alert')
+  expect(alert.textContent).toBe(copy.refusals.Unexpected)
+  expect(list.contains(alert)).toBe(false)
+  expect(list.children).toHaveLength(freeProvince.plots.length)
+})
+
+it('keeps focus off the form title when the screen crosses to five columns', async () => {
+  const media = stubMatchMedia(false)
+  const list = await showProvince()
+  fireEvent.click(sendTo(3))
+  const field = within(screen.getByRole('form')).getByLabelText(copy.march.countField('infantry'))
+  field.focus()
+
+  act(() => media.matchAll(true))
+
+  expect(orderOf(list)).toEqual(plotsWithPanelAfter(5))
+  expect(document.activeElement).not.toBe(
+    screen.getByRole('heading', { level: 4, name: 'Marcha a provincia 2, parcela 3' }),
+  )
+})
+
+it('clears a march refusal when another form opens', async () => {
+  await showProvince({
+    dispatchMarch: async () => ({ ok: false, refusal: 'PlotHeld' }),
+  })
+  fireEvent.click(sendTo(3))
+  fireEvent.click(
+    within(screen.getByRole('form')).getByRole('button', { name: /^Enviar una marcha/ }),
+  )
+  await screen.findByRole('alert')
+
+  fireEvent.click(sendTo(8))
+
+  expect(screen.queryByRole('alert')).toBeNull()
 })

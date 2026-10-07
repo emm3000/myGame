@@ -1,13 +1,5 @@
 import type { ProvinceMap } from '@mygame/contracts'
-import {
-  type FormEvent,
-  Fragment,
-  type ReactElement,
-  type ReactNode,
-  type Ref,
-  useId,
-  useState,
-} from 'react'
+import { type FormEvent, type ReactElement, type ReactNode, type Ref, useId, useState } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
@@ -150,20 +142,24 @@ function Province({
       </div>
       {hint !== undefined && <Hint {...hint} />}
       <ul aria-label={heading} className="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-5">
-        {map.plots.map((plot, position) => (
-          <Fragment key={plot.plot}>
+        {map.plots.flatMap((plot, position) => {
+          const tile = (
             <PlotTile
+              key={plot.plot}
               plotLabel={copy.map.plot(plot.plot)}
               terrainLabel={terrainLabel}
               holder={holderOf(plot, actionsOf(plot.plot))}
             />
-            {position === panelPlace && (
-              <li id={panelId} className="col-span-full">
-                {marchPanel?.content}
-              </li>
-            )}
-          </Fragment>
-        ))}
+          )
+          return position === panelPlace
+            ? [
+                tile,
+                <li key={panelId} id={panelId} className="col-span-full">
+                  {marchPanel?.content}
+                </li>,
+              ]
+            : [tile]
+        })}
       </ul>
       {fiefRefusalLine !== undefined && <FormAlert message={fiefRefusalLine} />}
     </div>

@@ -1,5 +1,6 @@
 import plugin from 'tailwindcss/plugin'
 import {
+  breakpoints,
   type ColorToken,
   color,
   maxWidths,
@@ -51,7 +52,7 @@ export default plugin(
       boxShadow: shadows,
       fontFamily: typeFamilies,
       fontSize,
-      extend: { maxWidth: maxWidths, scrollMargin: scrollMargins },
+      extend: { maxWidth: maxWidths, scrollMargin: scrollMargins, screens: breakpoints },
     },
   },
 )

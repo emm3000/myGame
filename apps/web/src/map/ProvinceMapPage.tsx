@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import type { ReactElement } from 'react'
+import { type ReactElement, useEffect } from 'react'
 import type { ApiClient } from '../api/apiClient'
 import { copy } from '../copy'
 import { useLayoutFief } from '../fief/useLayoutFief'
@@ -31,6 +31,7 @@ export function ProvinceMapPage({
   const { state, reread } = useProvinceMap(apiClient, fiefId, province)
   const provinceHeading = useFocusTarget<HTMLHeadingElement>()
   const columns = useMapColumns()
+  const formTitle = useFocusTarget<HTMLHeadingElement>()
   const march = useMapMarch(
     apiClient,
     fiefId,
@@ -38,6 +39,12 @@ export function ProvinceMapPage({
     reread,
     provinceHeading.focus,
   )
+
+  useEffect(() => {
+    if (march.openKey !== undefined) {
+      formTitle.focus()
+    }
+  }, [march.openKey, formTitle.focus])
 
   const browse = (target: number): void => {
     void navigate({
@@ -58,7 +65,10 @@ export function ProvinceMapPage({
       marchPanel={
         march.panelPlot === undefined
           ? undefined
-          : { plot: march.panelPlot, content: <MapMarchPanel march={march} /> }
+          : {
+              plot: march.panelPlot,
+              content: <MapMarchPanel march={march} titleRef={formTitle.ref} />,
+            }
       }
       fiefRefusalLine={
         march.fiefRefusal === undefined ? undefined : copy.refusals[march.fiefRefusal]
