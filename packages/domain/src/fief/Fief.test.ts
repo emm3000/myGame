@@ -441,6 +441,32 @@ describe('Fief', () => {
     expect(restored).toEqual(err({ kind: 'NegativeResourceAmount', amount: -1 }))
   })
 
+  it('refuses a cargo on its way that departs after its arrival', () => {
+    const departedAt = Instant.fromEpochMilliseconds(86_400_000 + 360_001)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      incomingCargo: { ...incomingCargo, departedAt },
+    })
+
+    expect(restored).toEqual(
+      err({
+        kind: 'SlotStartsAfterFinish',
+        startedAt: departedAt,
+        finishesAt: incomingCargo.arrivesAt,
+      }),
+    )
+  })
+
+  it('restores a cargo on its way that departs at its arrival', () => {
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      incomingCargo: { ...incomingCargo, departedAt: incomingCargo.arrivesAt },
+    })
+
+    assert(restored.ok)
+    expect(restored.value.incomingCargo?.departedAt).toEqual(incomingCargo.arrivesAt)
+  })
+
   it('refuses a cargo on its way that arrived before the fief was stored', () => {
     const arrivesAt = Instant.fromEpochMilliseconds(86_400_000 - 1_000)
     const restored = Fief.restore({
