@@ -9,6 +9,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 const readAt = new Date(knownFief.readAt)
 
@@ -75,10 +76,10 @@ const seasonCountdown = (): string | null =>
 
 it('counts down to the end of the season', async () => {
   await showFief(
-    signedInClientServing(() => ({
-      ...winterEndingInADayAndHalfAMinute,
-      readAt: new Date(Date.now()).toISOString(),
-    })),
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      fief: servingOnceThenHolding(winterEndingInADayAndHalfAMinute),
+    }),
   )
   expect(seasonCountdown()).toBe('Primavera en 1 día')
 

@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -261,13 +262,37 @@ it('raises the count one unit per period between reads', async () => {
 })
 
 it('counts down to the next unit and to the last', async () => {
-  await showFief({ fief: async () => ({ ok: true, value: orderOfTwelve }) })
+  await showFief({ fief: servingOnceThenHolding(orderOfTwelve) })
 
-  await passSeconds(35)
+  await passSeconds(60)
 
   const [nextUnit, lastUnit] = within(armySection()).getAllByRole('timer')
-  expect(nextUnit?.textContent).toBe('Siguiente infante en0:55')
+  expect(nextUnit?.textContent).toBe('Siguiente infante en0:30')
   expect(lastUnit?.textContent).toBe('Leva completa en11 min')
+})
+
+it('repaints the next unit only at its delivery', async () => {
+  const unitDueInHalfAMinute: FiefOverview = {
+    ...orderOfTwelve,
+    units: { infantry: 15, cavalry: 0, archer: 0, settler: 0 },
+    recruitOrder: {
+      unit: 'infantry',
+      count: 12,
+      delivered: 3,
+      perUnitSeconds: 90,
+      startedAt: '2026-09-22T11:54:30.000Z',
+      endsAt: '2026-09-22T12:12:30.000Z',
+    },
+  }
+  await showFief({ fief: servingOnceThenHolding(unitDueInHalfAMinute) })
+
+  await passSeconds(10)
+  expect(within(armySection()).getAllByRole('timer')[0]?.textContent).toBe(
+    'Siguiente infante en0:30',
+  )
+  await passSeconds(20)
+
+  expect(unitCountOf(infantryCard(), '16 infantes en casa')).toBeDefined()
 })
 
 it('reads the fief again when the order ends', async () => {

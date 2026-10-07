@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -71,10 +72,7 @@ it('shows the convoy art on the cargo card', async () => {
 })
 
 it('counts down to the arrival', async () => {
-  await showFief(async () => ({
-    ok: true,
-    value: { ...awaitingCargo, readAt: new Date(Date.now()).toISOString() },
-  }))
+  await showFief(servingOnceThenHolding(awaitingCargo))
   const countdown = within(presentCargoCard()).getByRole('timer')
   expect(within(countdown).getByText('Llegada en')).toBeDefined()
   expect(within(countdown).getByText('7 min')).toBeDefined()

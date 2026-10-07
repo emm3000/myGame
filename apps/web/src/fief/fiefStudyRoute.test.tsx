@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -227,10 +228,7 @@ it('enables a study once the interpolated amounts cover its cost', async () => {
     },
   }
   await showFief({
-    fief: vi
-      .fn<ApiClient['fief']>()
-      .mockResolvedValueOnce({ ok: true, value: goldArriving })
-      .mockReturnValue(new Promise(() => undefined)),
+    fief: servingOnceThenHolding(goldArriving),
   })
 
   await passSeconds(60)
@@ -341,10 +339,7 @@ it('keeps the art on a card at its top level', async () => {
 
 it('counts down the study in progress between reads', async () => {
   await showFief({
-    fief: async () => ({
-      ok: true,
-      value: { ...smithingUnderWay, readAt: new Date(Date.now()).toISOString() },
-    }),
+    fief: servingOnceThenHolding(smithingUnderWay),
   })
 
   await passSeconds(60)
