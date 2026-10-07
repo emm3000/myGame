@@ -66,8 +66,9 @@ slice (Decision 1).
   hash lands under the block and never behind it. The sections keep the
   detail and the actions: the cancel, the waiting queue, the recall.
   The design system names no route: the strip takes `to` and `params`.
-- **Live values repaint at most once a minute, seconds only in a slot's
-  last minute** (Decision 5; #471, PR #484). `useLiveFief` holds no
+- **Live values repaint at most once a minute, seconds only in a
+  countdown's last minute, one repaint at each levy delivery and march
+  arrival or departure** (Decision 5; #471, PR #484). `useLiveFief` holds no
   `setInterval` at one second: `repaintDelayMsOf` schedules the next
   repaint at the lesser of one minute, the delay to the nearest
   countdown's last minute, and the next discrete change of state. The
@@ -91,12 +92,12 @@ slice (Decision 1).
   stopped, hidden or slowed, unless the updating is essential to the
   activity. Its purpose, in the Understanding document, is that content
   which keeps changing does not distract a reader and can be read in
-  full before it changes. A bar and a strip whose every value holds
-  still for a whole minute are read in full many times over between two
-  changes, and nothing on screen moves in the meantime, so the page is
-  as still as a static one for 60 s at a stretch; that is the "control
-  the frequency" the criterion offers, taken once for every player in
-  place of a control each would have to find. The seconds of a
+  full before it changes. The bar's amounts and every countdown outside
+  its last minute hold still for a whole minute and are read in full
+  many times over between two changes, and nothing on screen ticks in
+  the meantime; that is the "control the frequency" the criterion
+  offers, taken once for every player in place of a control each would
+  have to find. The seconds of a
   countdown's last minute are the one ticking the slice keeps, for the
   activity where they are essential: the player who waits for a finish
   is watching that finish, the ticking is bounded at 60 s and ends when
@@ -105,7 +106,7 @@ slice (Decision 1).
   the same way, since it turns every rate and duration on the fief. A
   levy's delivery and a march's arrival or departure are not ticking:
   each is a discrete change of state painted once when it happens, as a
-  re-read's answer is, and between two of them the screen holds still.
+  re-read's answer is, and between two of them nothing ticks.
   Two gaps are accepted and recorded here. The minute repaint is
   aligned to the read instant, not to each countdown's own minute
   boundary, so a line such as *14 min* can be up to 59 s stale. And the
@@ -349,8 +350,9 @@ slice (Decision 1).
 - **A pause control for the live counters**, the second of the three
   routes the research named. Rejected by Decision 5: a control the
   player must find and press, on every visit, to make a bar readable is
-  a worse page than one whose values hold still for a minute; and the
-  minute was already the game's cadence, the ceiling M8 put on polling.
+  a worse page than one whose amounts and minute countdowns hold still
+  for a minute; and the minute was already the game's cadence, the
+  ceiling M8 put on polling.
 - **A written argument that every countdown is essential**, the third
   route. Rejected: the argument holds for the last minute of a finish
   the player is watching, and the slice keeps exactly that; it does not
