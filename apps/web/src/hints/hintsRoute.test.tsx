@@ -202,6 +202,20 @@ it('shows no library hint at level 2', async () => {
   expect(screen.queryByRole('note')).toBeNull()
 })
 
+it('shows no barracks hint at level 2', async () => {
+  await showAt(
+    knownFiefPath,
+    fiefOf({
+      buildings: {
+        ...knownFief.buildings,
+        barracks: { ...knownFief.buildings.barracks, level: 2 },
+      },
+    }),
+  )
+
+  expect(screen.queryByRole('note')).toBeNull()
+})
+
 it('shows the barracks hint under the barracks heading at level 1', async () => {
   await showAt(knownFiefPath, barracksBuilt)
 
@@ -288,7 +302,13 @@ it('keeps a dismissed hint hidden on the other fief while the session still answ
   await showAt(knownFiefPath, peasantsShort, [], {
     currentPlayer,
     fiefs: async () => ({ ok: true, value: bothFiefs }),
-    fief: async (fiefId) => ({ ok: true, value: { ...peasantsShort, id: fiefId } }),
+    fief: async (fiefId) => ({
+      ok: true,
+      value:
+        fiefId === secondFiefId
+          ? { ...peasantsShort, id: secondFiefId, name: 'Sotoverde del Páramo' }
+          : peasantsShort,
+    }),
   })
   const sessionReads = currentPlayer.mock.calls.length
   await dismissHint()
@@ -298,7 +318,7 @@ it('keeps a dismissed hint hidden on the other fief while the session still answ
   fireEvent.click(within(switcher).getByRole('link', { name: /Sotoverde del Páramo/ }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 2, name: peasantsShort.name })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 2, name: 'Sotoverde del Páramo' })).toBeDefined()
   expect(currentPlayer.mock.calls.length).toBeGreaterThan(sessionReads)
   expect(screen.queryByRole('note')).toBeNull()
 })
