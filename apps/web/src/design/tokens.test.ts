@@ -3,7 +3,10 @@ import { type ColorToken, palette, type Theme } from './tokens'
 
 type PairKind = 'text' | 'nonText'
 
-type Exemption = 'inactive component, WCAG 1.4.3' | 'decorative icon beside its text, WCAG 1.4.11'
+type Exemption =
+  | 'inactive component, WCAG 1.4.3'
+  | 'decorative icon beside its text, WCAG 1.4.11'
+  | 'decorative stripe, WCAG 1.4.11'
 
 interface Pair {
   readonly kind: PairKind
@@ -57,7 +60,7 @@ const pairs: ReadonlyArray<Pair> = [
     kind: 'text',
     foreground: 'moss',
     background: 'surface-raised',
-    usedBy: 'Countdown at zero in BuildSlot and CargoCard',
+    usedBy: 'Countdown at zero in BuildSlot',
   },
   { kind: 'text', foreground: 'moss', background: 'moss-soft', usedBy: 'BuildSlot just finished' },
   {
@@ -105,6 +108,96 @@ const pairs: ReadonlyArray<Pair> = [
   },
   {
     kind: 'nonText',
+    foreground: 'river',
+    background: 'surface',
+    usedBy: 'own PlotTile frame against the map',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'river',
+    background: 'surface-raised',
+    usedBy: 'own PlotTile frame, FiefSwitcher current entry frame',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'wood',
+    background: 'surface-raised',
+    usedBy: 'resource icon in CostList, ArtCard and FiefSwitcher chip',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'stone',
+    background: 'surface-raised',
+    usedBy: 'resource icon in CostList, ArtCard and FiefSwitcher chip',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'iron',
+    background: 'surface-raised',
+    usedBy: 'resource icon in CostList, ArtCard and FiefSwitcher chip',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'gold',
+    background: 'surface-raised',
+    usedBy: 'resource icon in CostList, ArtCard and FiefSwitcher chip',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'food',
+    background: 'surface-raised',
+    usedBy: 'resource icon in CostList, ArtCard and FiefSwitcher chip',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'peasants',
+    background: 'surface-raised',
+    usedBy: 'resource icon in CostList, ArtCard and FiefSwitcher chip',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'wood',
+    background: 'surface-sunken',
+    usedBy: 'ResourceBar track',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'stone',
+    background: 'surface-sunken',
+    usedBy: 'ResourceBar track',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'iron',
+    background: 'surface-sunken',
+    usedBy: 'ResourceBar track',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'gold',
+    background: 'surface-sunken',
+    usedBy: 'ResourceBar track',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'food',
+    background: 'surface-sunken',
+    usedBy: 'ResourceBar track',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'rust',
+    background: 'surface-sunken',
+    usedBy: 'ResourceBar track of a full store',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'slate',
+    background: 'surface-sunken',
+    usedBy: 'BuildSlot, RecruitSlot, MarchSlot and SlotsStrip track',
+  },
+  {
+    kind: 'nonText',
     foreground: 'ochre',
     background: 'surface',
     usedBy: 'PlotTile camp icon',
@@ -116,6 +209,20 @@ const pairs: ReadonlyArray<Pair> = [
     background: 'surface-raised',
     usedBy: 'NoticeBanner mail icon',
     exemption: 'decorative icon beside its text, WCAG 1.4.11',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'ochre',
+    background: 'surface',
+    usedBy: 'NoticeBanner left stripe against the page',
+    exemption: 'decorative stripe, WCAG 1.4.11',
+  },
+  {
+    kind: 'nonText',
+    foreground: 'ochre',
+    background: 'surface-raised',
+    usedBy: 'NoticeBanner left stripe against the banner',
+    exemption: 'decorative stripe, WCAG 1.4.11',
   },
 ]
 
