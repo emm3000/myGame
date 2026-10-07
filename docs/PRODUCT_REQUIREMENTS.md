@@ -68,6 +68,7 @@ ADRs amend this table by row id.
 | N5 | Content (buildings, costs, durations) is data the domain reads, changeable without a code deploy; display names are copy under N6 (ADR 010). |
 | N6 | UI copy is Spanish, tú, and lives in one copy layer; identifiers are English. |
 | N7 | Every image ships with the prompt that produced it and complies with the art bible. |
+| N8 | Every signed-in screen meets WCAG 2.2 AA (ADR 027). |
 
 ## Acceptance criterion
 
