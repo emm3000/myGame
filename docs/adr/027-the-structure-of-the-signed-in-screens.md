@@ -323,7 +323,9 @@ slice (Decision 1).
   letter for letter as the roll's line, the title the fief's name and
   the `tag` the fief id and the row key. No service worker, no push, no
   server timer (W7, N2). Only while the tab is open, and only for the
-  fief on screen.
+  fief on screen. Since #524 (ADR 028) the same re-read also writes the
+  same bodies, without the fief's name, to the fief layout's
+  `aria-live="polite"` region, with no opt-in.
 - **The three stores are api-side ports, not domain** (#478, PR #482).
   `DigestAcknowledgements`, `GuidanceDismissals` and `SeenHints` join
   `Accounts`, `AccountTokens`, `Mailer` and `ChronicleReader` as the
@@ -394,7 +396,8 @@ slice (Decision 1).
   Rejected by Decision 13: the browser knows the instant and not the
   outcome; a cancel, a recall or a lost battle makes the instant a lie.
   The same rule as the live region the research asked for: *terminado*
-  only once the server has said so.
+  only once the server has said so. That region shipped with #524 (ADR
+  028), fed by the same re-read.
 - **The dismissal read through its port.** Overturned by the owner on
   #468: it added a second statement to `GET /fiefs/:id` and broke the
   one-round-trip test (N2). The column is restored with the fief row.
@@ -417,7 +420,8 @@ slice (Decision 1).
 - **Goal kinds other than a building at a level, daily quests,
   streaks.** Out of scope of #463, and the last two are the hooks the
   research names as dark: they raise return rates by working against
-  the player, and the game refuses them on purpose.
+  the player, and the game refuses them on purpose. PRD W10 names them
+  since ADR 028.
 - **A tutorial, a modal, a hint that takes focus.** Rejected by
   Decision 12 and the research's seventh principle: teach in context,
   one line, dismissible, never in the way.
