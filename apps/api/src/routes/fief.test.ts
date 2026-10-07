@@ -239,6 +239,33 @@ describe('the fief route', () => {
     expect(overview.readAt).toBe('2026-09-22T08:00:00.000Z')
   })
 
+  it('answers the next goal on the overview', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+
+    const response = await fiefOf(ana)
+
+    expect(FiefOverviewSchema.parse(await response.json()).goal).toEqual({
+      position: 1,
+      count: 9,
+      building: 'sawmill',
+      level: 1,
+      state: 'pending',
+      missing: { resources: [], peasants: 0 },
+    })
+  })
+
+  it('answers no goal on a fief whose guidance is dismissed', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await app.request(pathOf(ana, '/guidance/dismissal'), {
+      method: 'POST',
+      headers: { cookie: ana.cookie },
+    })
+
+    const response = await fiefOf(ana)
+
+    expect(FiefOverviewSchema.parse(await response.json()).goal).toBeNull()
+  })
+
   it('answers the base rate of every resource on a new lowlands fief', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
 
@@ -648,6 +675,12 @@ describe('the fief route', () => {
     const dismissGuidance = async (lord: Lord, cookie: string): Promise<Response> =>
       app.request(pathOf(lord, '/guidance/dismissal'), { method: 'POST', headers: { cookie } })
 
+    const dismissedAtOf = async (lord: SignedUpPlayer): Promise<number | null> => {
+      const fief = await storedFiefOf(lord)
+      assert(fief.ok && fief.value !== undefined)
+      return fief.value.guidanceDismissedAt?.epochMilliseconds ?? null
+    }
+
     it('dismisses guidance for one fief and not the other', async () => {
       const ana = await signUp('ana@example.com', 'Valdehierro')
       const bruno = await signUp('bruno@example.com', 'Robledal')
@@ -655,10 +688,7 @@ describe('the fief route', () => {
       const response = await dismissGuidance(ana, ana.cookie)
 
       expect(response.status).toBe(204)
-      expect([
-        await server.guidanceDismissals.isDismissed(ana.fiefId),
-        await server.guidanceDismissals.isDismissed(bruno.fiefId),
-      ]).toEqual([true, false])
+      expect([await dismissedAtOf(ana), await dismissedAtOf(bruno)]).toEqual([signedUpAt, null])
     })
 
     it('refuses to dismiss guidance on another lord fief', async () => {
@@ -669,7 +699,7 @@ describe('the fief route', () => {
 
       expect(response.status).toBe(404)
       expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
-      expect(await server.guidanceDismissals.isDismissed(ana.fiefId)).toBe(false)
+      expect(await dismissedAtOf(ana)).toBeNull()
     })
   })
 

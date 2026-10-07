@@ -71,6 +71,7 @@ const fiefSettings = (
     ridges: { resource: bonusResource, ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  goals: [],
   fiefCap: 2,
   units: plainUnits,
   forage: plainForage,

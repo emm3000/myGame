@@ -45,6 +45,10 @@ const plainFief: FiefContent = {
   },
   buildQueueCap: 4,
   fiefCap: 2,
+  goals: [
+    { building: 'farm', level: 1 },
+    { building: 'sawmill', level: 2 },
+  ],
   seasons: {
     epoch: '2026-10-05T00:00:00Z',
     daysPerSeason: 7,
@@ -288,6 +292,27 @@ describe('JsonBuildingCatalog', () => {
 
   it('serves a build queue cap of four from the shipped content', () => {
     expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().buildQueueCap).toBe(4)
+  })
+
+  it('serves the goals of the fief content in their order', () => {
+    expect(oneLevelCatalog().fiefSettings().goals).toEqual([
+      { building: 'farm', level: 1 },
+      { building: 'sawmill', level: 2 },
+    ])
+  })
+
+  it('ships the goals a new lord follows, in order', () => {
+    expect(JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().goals).toEqual([
+      { building: 'sawmill', level: 1 },
+      { building: 'farm', level: 1 },
+      { building: 'quarry', level: 1 },
+      { building: 'warehouse', level: 1 },
+      { building: 'ironMine', level: 1 },
+      { building: 'sawmill', level: 2 },
+      { building: 'farm', level: 2 },
+      { building: 'library', level: 1 },
+      { building: 'barracks', level: 1 },
+    ])
   })
 
   it('ships a cap of 2 fiefs per lord', () => {

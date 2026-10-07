@@ -57,6 +57,7 @@ import type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './Recru
 import { rebaseFullSince } from './rebaseFullSince'
 import { recruitOrderEndsAt } from './recruitOrderEndsAt'
 import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
+import { shortfallOf } from './shortfallOf'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
 import { unitKinds } from './unitKinds'
@@ -89,6 +90,7 @@ export type StoredFief = {
   readonly march: March
   readonly incomingCargo?: IncomingCargo
   readonly fullSince: FullSince
+  readonly guidanceDismissedAt: Instant | null
 }
 
 export type RecruitRequest = {
@@ -154,14 +156,6 @@ const credit = (stocks: Stocks, refund: Stocks): Stocks => ({
   iron: stocks.iron + refund.iron,
   gold: stocks.gold + refund.gold,
   food: stocks.food + refund.food,
-})
-
-const shortfall = (stocks: Stocks, cost: Stocks): Stocks => ({
-  wood: Math.max(0, cost.wood - stocks.wood),
-  stone: Math.max(0, cost.stone - stocks.stone),
-  iron: Math.max(0, cost.iron - stocks.iron),
-  gold: Math.max(0, cost.gold - stocks.gold),
-  food: Math.max(0, cost.food - stocks.food),
 })
 
 const isShort = (missing: Stocks): boolean => Object.values(missing).some((amount) => amount > 0)
@@ -666,6 +660,7 @@ export class Fief {
     readonly march: March,
     readonly incomingCargo: IncomingCargo | undefined,
     readonly fullSince: FullSince,
+    readonly guidanceDismissedAt: Instant | null,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -686,6 +681,7 @@ export class Fief {
       { kind: 'idle' },
       undefined,
       noStoreFull,
+      null,
     )
   }
 
@@ -725,6 +721,7 @@ export class Fief {
         stored.march,
         stored.incomingCargo,
         stored.fullSince,
+        stored.guidanceDismissedAt,
       ),
     )
   }
@@ -743,7 +740,7 @@ export class Fief {
     if (!validUpgrade.ok) {
       return validUpgrade
     }
-    const missing = shortfall(stocksAtNow, upgrade.cost)
+    const missing = shortfallOf(stocksAtNow, upgrade.cost)
     if (isShort(missing)) {
       return err({ kind: 'InsufficientResources', missing })
     }
@@ -891,7 +888,7 @@ export class Fief {
         libraryLevel,
       })
     }
-    const missing = shortfall(stocksAtNow, line.cost)
+    const missing = shortfallOf(stocksAtNow, line.cost)
     if (isShort(missing)) {
       return err({ kind: 'InsufficientResources', missing })
     }
@@ -944,7 +941,7 @@ export class Fief {
       return err({ kind: 'RecruitSlotBusy', unit: this.recruitOrder.unit })
     }
     const cost = timesCount(terms.cost, count)
-    const missing = shortfall(stocksAtNow, cost)
+    const missing = shortfallOf(stocksAtNow, cost)
     if (isShort(missing)) {
       return err({ kind: 'InsufficientResources', missing })
     }
@@ -1147,7 +1144,7 @@ export class Fief {
     if (totalOf(cargo) > carry) {
       return err({ kind: 'CargoAboveCarry', cargo: totalOf(cargo), carry })
     }
-    const missing = shortfall(stocksAtNow, cargo)
+    const missing = shortfallOf(stocksAtNow, cargo)
     if (isShort(missing)) {
       return err({ kind: 'InsufficientResources', missing })
     }
@@ -1425,6 +1422,7 @@ export class Fief {
       change.march ?? this.march,
       'incomingCargo' in change ? change.incomingCargo : this.incomingCargo,
       change.fullSince ?? this.fullSince,
+      this.guidanceDismissedAt,
     )
   }
 

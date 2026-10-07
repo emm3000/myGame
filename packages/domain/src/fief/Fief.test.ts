@@ -140,6 +140,7 @@ const storedBusyFief: StoredFief = {
   recruitOrder: openOrder,
   march: awayMarch,
   fullSince: noStoreFull,
+  guidanceDismissedAt: Instant.fromEpochMilliseconds(86_400_000 + 60_000),
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -183,6 +184,7 @@ describe('Fief', () => {
       recruitOrder,
       march,
       fullSince,
+      guidanceDismissedAt,
     } = restored.value
     expect({
       id,
@@ -209,6 +211,7 @@ describe('Fief', () => {
       recruitOrder,
       march,
       fullSince,
+      guidanceDismissedAt,
     }).toEqual(storedBusyFief)
   })
 

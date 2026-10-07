@@ -135,6 +135,7 @@ export const knownFief: FiefOverview = {
     },
   },
   incomingCargo: null,
+  goal: null,
   readAt: '2026-09-22T12:00:00.000Z',
 }
 

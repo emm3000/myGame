@@ -3,6 +3,7 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { fiefRepositoryContract } from '../fiefRepositoryContract'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
+import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
 import { players } from './schema'
 
 function databaseUrl(): string {
@@ -48,7 +49,11 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
 
 fiefRepositoryContract('DrizzleFiefRepository', async () => {
   await emptyDatabase()
-  return { fiefs: new DrizzleFiefRepository(drizzle(pool), 'lockFree'), registerPlayers }
+  return {
+    fiefs: new DrizzleFiefRepository(drizzle(pool), 'lockFree'),
+    dismissals: new DrizzleGuidanceDismissals(drizzle(pool)),
+    registerPlayers,
+  }
 })
 
 const ana = '00000000-0000-4000-8000-000000000001'

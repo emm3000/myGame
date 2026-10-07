@@ -97,6 +97,7 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
       ridges: { resource: 'iron', ratePerHour: 2 },
     },
     buildQueueCap: 4,
+    goals: [],
     fiefCap: 2,
     seasons: {
       epoch: '2026-10-05T00:00:00Z',

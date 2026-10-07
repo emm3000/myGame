@@ -29,6 +29,7 @@ import {
   type March,
   marchInstantsOf,
   nextArtLevelOf,
+  nextGoalOf,
   ok,
   type RecruitOrder,
   type ResourceKind,
@@ -409,6 +410,33 @@ const buildingsOf = (
   return ok(buildings)
 }
 
+const goalOf = (
+  fief: Fief,
+  catalog: BuildingCatalog,
+): Result<FiefOverview['goal'], DomainError> => {
+  if (fief.guidanceDismissedAt !== null) {
+    return ok(null)
+  }
+  const goal = nextGoalOf(fief, catalog)
+  if (!goal.ok) {
+    return goal
+  }
+  if (goal.value === undefined) {
+    return ok(null)
+  }
+  const { position, count, building, level } = goal.value
+  const placement = { position, count, building, level }
+  if (goal.value.state === 'underway') {
+    return ok({ ...placement, state: 'underway', missing: null })
+  }
+  const { resources, peasants } = goal.value.missing
+  return ok({
+    ...placement,
+    state: 'pending',
+    missing: { resources: resources.map((shortfall) => ({ ...shortfall })), peasants },
+  })
+}
+
 export const fiefOverviewOf = (
   fief: Fief,
   catalog: BuildingCatalog,
@@ -447,6 +475,10 @@ export const fiefOverviewOf = (
   if (!arts.ok) {
     return arts
   }
+  const goal = goalOf(fief, catalog)
+  if (!goal.ok) {
+    return goal
+  }
   const durations = durationPercentAt(fief.storedAt, catalog.fiefSettings())
   const { kingdom, province, plot } = fief.coordinates
   return ok({
@@ -470,6 +502,7 @@ export const fiefOverviewOf = (
     forageTerms: forageTermsOf(catalog),
     combatTerms: combatTermsOf(catalog),
     incomingCargo: incomingCargoOf(fief.incomingCargo),
+    goal: goal.value,
     readAt: isoOf(fief.storedAt),
   })
 }

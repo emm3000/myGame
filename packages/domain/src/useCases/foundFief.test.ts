@@ -34,6 +34,7 @@ const fiefSettings = (plotsPerProvince: number): FiefSettings => ({
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  goals: [],
   fiefCap: 2,
   units: plainUnits,
   forage: plainForage,
@@ -100,6 +101,7 @@ const founderOnTheRoad = (recalledAt: Instant | undefined): Fief => {
     slot: { kind: 'idle' },
     buildQueue: [],
     fullSince: noStoreFull,
+    guidanceDismissedAt: null,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: {

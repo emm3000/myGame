@@ -492,6 +492,7 @@ const storedFiefOf = (
     gold: instantOrNullOf(row.fullSinceGold),
     food: instantOrNullOf(row.fullSinceFood),
   },
+  guidanceDismissedAt: instantOrNullOf(row.guidanceDismissedAt),
 })
 
 type SlotCostColumns = Pick<

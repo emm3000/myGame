@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { BuildingKindSchema } from './BuildingKind'
 import { CampTiersSchema } from './CampTiers'
 import { ForageTermsSchema } from './ForageTerms'
 import { ResourceAmountsSchema } from './ResourceAmounts'
@@ -7,7 +8,7 @@ import { SeasonDurationPercentSchema } from './SeasonDurationPercent'
 import { SeasonKindSchema } from './SeasonKind'
 import { TerrainSchema } from './Terrain'
 import { UnitKindSchema } from './UnitKind'
-import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
+import { BuildingLevelSchema, InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
 
 const TerrainBonusSchema = z.object({
   resource: ResourceKindSchema,
@@ -40,6 +41,11 @@ const CampTermsSchema = z.strictObject({
   tiers: CampTiersSchema,
 })
 
+const GoalSchema = z.strictObject({
+  building: BuildingKindSchema,
+  level: BuildingLevelSchema,
+})
+
 export const FiefContentSchema = z.object({
   startingStocks: ResourceAmountsSchema,
   startingCapacity: WholeCountSchema,
@@ -53,6 +59,7 @@ export const FiefContentSchema = z.object({
   units: z.record(UnitKindSchema, UnitTermsSchema),
   forage: ForageTermsSchema,
   camps: CampTermsSchema,
+  goals: z.array(GoalSchema),
 })
 
 export type FiefContent = z.infer<typeof FiefContentSchema>
