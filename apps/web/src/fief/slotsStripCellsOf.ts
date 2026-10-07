@@ -129,7 +129,10 @@ function cargoCellsOf(fief: LiveFief): ReadonlyArray<StripCell> {
           time: finishOf(fief, fief.incomingCargoRemainingSeconds),
         },
       ],
-      progress: null,
+      progress: {
+        value: fief.incomingCargoTotalSeconds - fief.incomingCargoRemainingSeconds,
+        total: fief.incomingCargoTotalSeconds,
+      },
     },
   ]
 }

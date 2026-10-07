@@ -99,6 +99,8 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
           words: copy.fief.cargoArrivalHeading,
           time: formatFinish(fief.incomingCargoRemainingSeconds, fief.at),
         }}
+        elapsedSeconds={fief.incomingCargoTotalSeconds - fief.incomingCargoRemainingSeconds}
+        totalSeconds={fief.incomingCargoTotalSeconds}
       />
     </div>
   )

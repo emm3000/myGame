@@ -43,6 +43,7 @@ export interface LiveFief {
   readonly recruitOrder: LiveRecruitOrder | null
   readonly march: LiveMarch | null
   readonly incomingCargoRemainingSeconds: number
+  readonly incomingCargoTotalSeconds: number
 }
 
 const secondsPerHour = 3600
@@ -157,6 +158,11 @@ export function incomingCargoRemainingSecondsAt(
     : remainingSecondsAt(overview.incomingCargo.arrivesAt, overview, elapsedSeconds)
 }
 
+const incomingCargoTotalSecondsOf = (overview: FiefOverview): number =>
+  overview.incomingCargo === null
+    ? 0
+    : secondsBetween(overview.incomingCargo.departedAt, overview.incomingCargo.arrivesAt)
+
 function phaseOf(march: AnsweredMarch, sinceDeparture: number): MarchPhase {
   if (sinceDeparture < secondsBetween(march.departedAt, march.arrivesAt)) {
     return 'outbound'
@@ -221,5 +227,6 @@ export function liveFiefAt(overview: FiefOverview, elapsedSeconds: number): Live
     recruitOrder,
     march: marchAt(overview, elapsedSeconds),
     incomingCargoRemainingSeconds: incomingCargoRemainingSecondsAt(overview, elapsedSeconds),
+    incomingCargoTotalSeconds: incomingCargoTotalSecondsOf(overview),
   }
 }

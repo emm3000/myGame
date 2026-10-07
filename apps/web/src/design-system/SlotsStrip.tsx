@@ -32,7 +32,7 @@ export type StripCell =
       readonly icon: StripIcon
       readonly section: string
       readonly lines: ReadonlyArray<StripLine>
-      readonly progress: StripProgress | null
+      readonly progress: StripProgress
     }
 
 export interface SlotsStripProps {
@@ -81,9 +81,7 @@ function CellContent({ cell }: { readonly cell: StripCell }): ReactElement {
           ))}
         </span>
       </span>
-      {cell.progress !== null && (
-        <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-slate" />
-      )}
+      <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-slate" />
     </>
   )
 }

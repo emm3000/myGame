@@ -27,7 +27,7 @@ const passSeconds = async (seconds: number): Promise<void> => {
 const instantAfterRead = (seconds: number): string =>
   new Date(Date.parse(knownFief.readAt) + seconds * 1000).toISOString()
 
-const cargoArrivingIn = (seconds: number): FiefOverview['incomingCargo'] => ({
+const cargoArrivingIn = (seconds: number): NonNullable<FiefOverview['incomingCargo']> => ({
   fromFiefId: '6f1c2a5e-3b7d-4c8e-9a10-2b3c4d5e6f70',
   from: { name: 'Sotoverde', province: 3, plot: 12 },
   cargo: { wood: 300, stone: 200, iron: 220, gold: 0, food: 0 },
@@ -81,6 +81,23 @@ it('counts down to the arrival', async () => {
   await passSeconds(60)
 
   expect(within(within(presentCargoCard()).getByRole('timer')).getByText('6 min')).toBeDefined()
+})
+
+it("draws the cargo's progress from its departure to its arrival", async () => {
+  await showFief(
+    servingOnceThenHolding({
+      ...knownFief,
+      incomingCargo: {
+        ...cargoArrivingIn(600),
+        departedAt: instantAfterRead(-300),
+      },
+    }),
+  )
+
+  await passSeconds(60)
+
+  const track = within(presentCargoCard()).getByRole('progressbar')
+  expect(track.getAttribute('aria-valuenow')).toBe('40')
 })
 
 it('reads the overview again at the arrival', async () => {

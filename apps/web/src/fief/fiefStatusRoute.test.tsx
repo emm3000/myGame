@@ -152,6 +152,24 @@ it('hides the recruit and march slots below barracks level 1', async () => {
   expect(slotLink(marchSlot)).not.toBeNull()
 })
 
+it("fills the strip's cargo track with the time since the departure", async () => {
+  await showAt(knownFiefPath, {
+    fief: servingOnceThenHolding({
+      ...knownFief,
+      incomingCargo: {
+        ...cargoOnItsWay,
+        departedAt: instantAfterRead(-300),
+        arrivesAt: instantAfterRead(600),
+      },
+    }),
+  })
+
+  await passSeconds(60)
+
+  const track = within(slotLink(cargoSlot) as HTMLElement).getByRole('progressbar')
+  expect(track.getAttribute('aria-valuenow')).toBe('40')
+})
+
 it('shows the cargo slot only while a cargo is on its way', async () => {
   await showFief(knownFief)
   expect(slotLink(cargoSlot)).toBeNull()
