@@ -19,9 +19,11 @@ import {
   type StudySlot,
 } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
+import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
 
 export type FiefRepositoryFixture = {
   readonly fiefs: FiefRepository
+  readonly dismissals: GuidanceDismissals
   readonly registerPlayers: (playerIds: ReadonlyArray<PlayerId>) => Promise<void>
 }
 
@@ -36,6 +38,7 @@ const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z
 const upgradedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T09:30:00Z'))
 const woodFilledAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T06:12:00Z'))
 const goldFilledAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:59:30Z'))
+const guidanceDismissedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:30:00Z'))
 const ironMineStartedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T07:45:00Z'))
 const ironMineCost = { wood: 240, stone: 180, iron: 60, gold: 15, food: 30 }
 
@@ -228,6 +231,7 @@ const developedFiefWith = (
       recruitOrder,
       march,
       fullSince: noStoreFull,
+      guidanceDismissedAt: null,
     }),
   )
 
@@ -257,6 +261,7 @@ const settlerFiefWith = (id: string, playerId: PlayerId, plot: number, march: Ma
       recruitOrder: { kind: 'idle' },
       march,
       fullSince: noStoreFull,
+      guidanceDismissedAt: null,
     }),
   )
 
@@ -299,6 +304,7 @@ const withIncomingCargo = (fief: Fief, incomingCargo: IncomingCargo): Fief =>
       march: fief.march,
       incomingCargo,
       fullSince: fief.fullSince,
+      guidanceDismissedAt: null,
     }),
   )
 
@@ -352,6 +358,45 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(developedFief.id)
       expect(restored.ok && restored.value?.fullSince).toEqual(fullSince)
+    })
+
+    it('restores no guidance dismissal on a fief never dismissed', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+
+      expect(restored.ok && restored.value?.guidanceDismissedAt).toBeNull()
+    })
+
+    it('restores the instant the guidance of a fief was dismissed', async () => {
+      const { fiefs, dismissals, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(developedFief)
+      await dismissals.dismiss(
+        { playerId: developedFief.playerId, fiefId: developedFief.id },
+        guidanceDismissedAt,
+      )
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+
+      expect(restored.ok && restored.value?.guidanceDismissedAt).toEqual(guidanceDismissedAt)
+    })
+
+    it('keeps the guidance dismissal when the fief is saved again', async () => {
+      const { fiefs, dismissals, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(developedFief)
+      await dismissals.dismiss(
+        { playerId: developedFief.playerId, fiefId: developedFief.id },
+        guidanceDismissedAt,
+      )
+
+      await fiefs.save(developedFief)
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      expect(restored.ok && restored.value?.guidanceDismissedAt).toEqual(guidanceDismissedAt)
     })
 
     it('restores the instant a busy slot started', async () => {

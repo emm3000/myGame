@@ -243,8 +243,27 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   forageTerms: shippedForageTerms,
   combatTerms: shippedCombatTerms,
   incomingCargo: null,
+  goal: null,
   readAt: '2026-09-22T14:00:00.000Z',
 })
+
+const pendingSawmill = {
+  position: 1,
+  count: 9,
+  building: 'sawmill',
+  level: 1,
+  state: 'pending',
+  missing: { resources: [{ resource: 'wood', amount: 12.5 }], peasants: 2 },
+}
+
+const underwayFarm = {
+  position: 2,
+  count: 9,
+  building: 'farm',
+  level: 1,
+  state: 'underway',
+  missing: null,
+}
 
 describe('FiefOverviewSchema', () => {
   it('parses a fief overview with a busy slot', () => {
@@ -552,6 +571,40 @@ describe('FiefOverviewSchema', () => {
     }
 
     expect(FiefOverviewSchema.parse(overviewAwaitingCargo)).toEqual(overviewAwaitingCargo)
+  })
+
+  it('accepts an overview with its next goal and what it lacks', () => {
+    const overviewWithGoal = { ...overviewWithSlot(busySlot), goal: pendingSawmill }
+
+    expect(FiefOverviewSchema.parse(overviewWithGoal)).toEqual(overviewWithGoal)
+  })
+
+  it('accepts an underway goal that lacks nothing', () => {
+    const overviewWithGoal = { ...overviewWithSlot(busySlot), goal: underwayFarm }
+
+    expect(FiefOverviewSchema.parse(overviewWithGoal)).toEqual(overviewWithGoal)
+  })
+
+  it('rejects an underway goal that names what it lacks', () => {
+    const goal = { ...underwayFarm, missing: pendingSawmill.missing }
+
+    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), goal }).success).toBe(
+      false,
+    )
+  })
+
+  it('rejects a goal with a key the wire does not know', () => {
+    const goal = { ...pendingSawmill, met: false }
+
+    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), goal }).success).toBe(
+      false,
+    )
+  })
+
+  it('rejects an overview without its goal', () => {
+    const { goal: _, ...overviewWithoutGoal } = overviewWithSlot(busySlot)
+
+    expect(FiefOverviewSchema.safeParse(overviewWithoutGoal).success).toBe(false)
   })
 
   it('rejects an incoming cargo without its arrival', () => {

@@ -128,5 +128,16 @@
       "2": { "maxStrength": 15, "regrowHours": 12 },
       "3": { "maxStrength": 40, "regrowHours": 24 }
     }
-  }
+  },
+  "goals": [
+    { "building": "sawmill", "level": 1 },
+    { "building": "farm", "level": 1 },
+    { "building": "quarry", "level": 1 },
+    { "building": "warehouse", "level": 1 },
+    { "building": "ironMine", "level": 1 },
+    { "building": "sawmill", "level": 2 },
+    { "building": "farm", "level": 2 },
+    { "building": "library", "level": 1 },
+    { "building": "barracks", "level": 1 }
+  ]
 }

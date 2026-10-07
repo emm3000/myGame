@@ -44,6 +44,14 @@ const anasFief = (id: string, plot: number): Fief =>
     at: foundedAt,
   })
 
+const dismissedAtOf = async (fiefs: FiefRepository, fiefId: string): Promise<Instant | null> => {
+  const fief = accepted(await fiefs.fiefOf(fiefId))
+  if (fief === undefined) {
+    throw new Error(`Fixture lost fief ${fiefId}`)
+  }
+  return fief.guidanceDismissedAt
+}
+
 const foundAnasFiefs = async ({
   fiefs,
   registerPlayers,
@@ -69,9 +77,9 @@ export const guidanceDismissalsContract = (
 
       expect(dismissal).toBe('dismissed')
       expect([
-        await fixture.dismissals.isDismissed(anasFirstFiefId),
-        await fixture.dismissals.isDismissed(anasSecondFiefId),
-      ]).toEqual([true, false])
+        await dismissedAtOf(fixture.fiefs, anasFirstFiefId),
+        await dismissedAtOf(fixture.fiefs, anasSecondFiefId),
+      ]).toEqual([dismissedAt, null])
     })
 
     it('refuses to dismiss guidance on another lord fief', async () => {
@@ -84,7 +92,7 @@ export const guidanceDismissalsContract = (
       )
 
       expect(dismissal).toBe('fiefNotFound')
-      expect(await fixture.dismissals.isDismissed(anasFirstFiefId)).toBe(false)
+      expect(await dismissedAtOf(fixture.fiefs, anasFirstFiefId)).toBeNull()
     })
 
     it('refuses to dismiss guidance on an unknown fief', async () => {
@@ -97,16 +105,6 @@ export const guidanceDismissalsContract = (
       )
 
       expect(dismissal).toBe('fiefNotFound')
-    })
-
-    it('keeps a dismissal when the fief is saved again', async () => {
-      const fixture = await arrange()
-      await foundAnasFiefs(fixture)
-      await fixture.dismissals.dismiss({ playerId: ana, fiefId: anasFirstFiefId }, dismissedAt)
-
-      accepted(await fixture.fiefs.save(anasFief(anasFirstFiefId, 1)))
-
-      expect(await fixture.dismissals.isDismissed(anasFirstFiefId)).toBe(true)
     })
   })
 }

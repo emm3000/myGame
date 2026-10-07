@@ -97,6 +97,11 @@ export type TerrainBonus = {
   readonly ratePerHour: number
 }
 
+export type Goal = {
+  readonly building: BuildingKind
+  readonly level: number
+}
+
 export type FiefSettings = {
   readonly startingStocks: Readonly<Record<ResourceKind, number>>
   readonly startingCapacity: number
@@ -110,6 +115,7 @@ export type FiefSettings = {
   readonly units: Readonly<Record<UnitKind, UnitTerms>>
   readonly forage: ForageTerms
   readonly camps: CampTerms
+  readonly goals: ReadonlyArray<Goal>
 }
 
 export interface BuildingCatalog {

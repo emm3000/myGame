@@ -107,6 +107,7 @@ const fiefSendingSettler = ({
         ...(recalledAt === undefined ? {} : { recalledAt }),
       },
       fullSince: noStoreFull,
+      guidanceDismissedAt: null,
     }),
   )
 }

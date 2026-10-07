@@ -58,6 +58,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 10 },
   },
   buildQueueCap: 4,
+  goals: [],
   fiefCap: 2,
   units: plainUnits,
   forage: plainForage,
@@ -164,6 +165,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     slot: { kind: 'idle' },
     buildQueue: [],
     fullSince: noStoreFull,
+    guidanceDismissedAt: null,
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
@@ -2176,6 +2178,7 @@ describe('resolveUpgrade with an attack', () => {
       slot: { ...sawmillFinishingAfterHours(1), finishesAt: arrival },
       buildQueue: [],
       fullSince: noStoreFull,
+      guidanceDismissedAt: null,
       studySlot: { kind: 'idle' },
       recruitOrder: { kind: 'idle' },
       march: attacking.march,
@@ -2526,6 +2529,7 @@ describe('resolveUpgrade full-since', () => {
     const fullOfWood = storedFief({
       stocks: { wood: 1000, stone: 100, iron: 100, gold: 100, food: 100 },
       fullSince: { ...noStoreFull, wood: filledAtOneHourBeforeStored },
+      guidanceDismissedAt: null,
       slot: sawmillFinishingAfterHours(1),
     })
 
@@ -2550,6 +2554,7 @@ describe('resolveUpgrade full-since', () => {
     const fullOfWood = storedFief({
       stocks: { wood: 1000, stone: 100, iron: 100, gold: 100, food: 100 },
       fullSince: { ...noStoreFull, wood: filledAtOneHourBeforeStored },
+      guidanceDismissedAt: null,
       slot: {
         kind: 'busy',
         building: 'warehouse',

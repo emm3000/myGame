@@ -39,6 +39,12 @@ export type { FiefOfPlayer } from './fief/FiefOfPlayer'
 export { type FullSince, noStoreFull } from './fief/FullSince'
 export type { IncomingCargo } from './fief/IncomingCargo'
 export { nextArtLevelOf } from './fief/nextArtLevelOf'
+export {
+  type GoalShortfall,
+  type NextGoal,
+  nextGoalOf,
+  type ResourceShortfall,
+} from './fief/nextGoalOf'
 export type { PlotAddress } from './fief/PlotAddress'
 export type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './fief/RecruitOrder'
 export { recruitOrderEndsAt } from './fief/recruitOrderEndsAt'
@@ -64,6 +70,7 @@ export type {
   FarmLevel,
   FiefSettings,
   ForageTerms,
+  Goal,
   ProducerLevel,
   TerrainBonus,
   UnitKind,

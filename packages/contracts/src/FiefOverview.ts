@@ -187,6 +187,33 @@ const CombatTermsSchema = z.strictObject({
   tiers: CampTiersSchema,
 })
 
+const GoalPlacementSchema = z.strictObject({
+  position: WholeCountSchema.positive(),
+  count: WholeCountSchema.positive(),
+  building: BuildingKindSchema,
+  level: BuildingLevelSchema,
+})
+
+const ResourceShortfallSchema = z.strictObject({
+  resource: ResourceKindSchema,
+  amount: QuantitySchema.positive(),
+})
+
+const PendingGoalSchema = GoalPlacementSchema.extend({
+  state: z.literal('pending'),
+  missing: z.strictObject({
+    resources: z.array(ResourceShortfallSchema),
+    peasants: WholeCountSchema,
+  }),
+})
+
+const UnderwayGoalSchema = GoalPlacementSchema.extend({
+  state: z.literal('underway'),
+  missing: z.null(),
+})
+
+const GoalSchema = z.discriminatedUnion('state', [PendingGoalSchema, UnderwayGoalSchema])
+
 export const FiefOverviewSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1),
@@ -229,6 +256,7 @@ export const FiefOverviewSchema = z.object({
   forageTerms: ForageTermsSchema,
   combatTerms: CombatTermsSchema,
   incomingCargo: IncomingCargoSchema.nullable(),
+  goal: GoalSchema.nullable(),
   readAt: InstantSchema,
 })
 

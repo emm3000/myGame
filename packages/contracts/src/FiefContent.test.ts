@@ -112,6 +112,7 @@ const fiefContent = (overrides: Record<string, unknown>): unknown => ({
   units,
   forage,
   camps,
+  goals: [],
   ...overrides,
 })
 
@@ -131,6 +132,25 @@ describe('FiefContentSchema', () => {
 
   it('reads how many fiefs a lord may hold', () => {
     expect(FiefContentSchema.parse(fiefContent({ fiefCap: 2 })).fiefCap).toBe(2)
+  })
+
+  it('reads the goals in content order', () => {
+    const goals = [
+      { building: 'sawmill', level: 1 },
+      { building: 'farm', level: 2 },
+    ]
+
+    expect(FiefContentSchema.parse(fiefContent({ goals })).goals).toEqual(goals)
+  })
+
+  it('rejects a goal at level 0', () => {
+    const goals = [{ building: 'sawmill', level: 0 }]
+
+    expect(FiefContentSchema.safeParse(fiefContent({ goals })).success).toBe(false)
+  })
+
+  it('rejects fief content without goals', () => {
+    expect(FiefContentSchema.safeParse(fiefContent({ goals: undefined })).success).toBe(false)
   })
 
   it('rejects a fief cap of 0', () => {

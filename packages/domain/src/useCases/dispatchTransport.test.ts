@@ -41,6 +41,7 @@ const fiefSettings: FiefSettings = {
     ridges: { resource: 'iron', ratePerHour: 0 },
   },
   buildQueueCap: 4,
+  goals: [],
   fiefCap: 2,
   units: plainUnits,
   forage: plainForage,
@@ -79,6 +80,7 @@ const storedFief = (
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
     fullSince: noStoreFull,
+    guidanceDismissedAt: null,
     ...stored,
   })
   assert(restored.ok)
