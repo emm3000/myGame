@@ -2,6 +2,7 @@ import { type ReactElement, useId } from 'react'
 import { CountdownLine, type SlotCountdown } from './CountdownLine'
 import { MarchIcon } from './icons/MarchIcon'
 import { Panel } from './Panel'
+import { Track } from './Track'
 
 export interface CargoCardProps {
   readonly title: string
@@ -9,6 +10,8 @@ export interface CargoCardProps {
   readonly origin: string
   readonly amounts: string
   readonly countdown: SlotCountdown
+  readonly elapsedSeconds: number
+  readonly totalSeconds: number
 }
 
 export function CargoCard({
@@ -17,6 +20,8 @@ export function CargoCard({
   origin,
   amounts,
   countdown,
+  elapsedSeconds,
+  totalSeconds,
 }: CargoCardProps): ReactElement {
   const titleId = useId()
   return (
@@ -44,6 +49,7 @@ export function CargoCard({
       <p className="m-0 font-body text-body text-ink">{origin}</p>
       <p className="m-0 font-body text-body text-ink">{amounts}</p>
       <CountdownLine {...countdown} />
+      <Track value={elapsedSeconds} total={totalSeconds} fillClass="fill-slate" />
     </Panel>
   )
 }
