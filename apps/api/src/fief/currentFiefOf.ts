@@ -4,7 +4,6 @@ import {
   type ChronicleWriter,
   type Clock,
   type DomainError,
-  type Fief,
   type FiefOfPlayer,
   type IdGenerator,
   ok,
@@ -14,7 +13,9 @@ import {
 } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { FiefReader } from './FiefReader'
+import type { FiefReading } from './FiefReading'
 import { laterOf } from './laterOf'
+import { storedFiefReadingOf } from './storedFiefReadingOf'
 
 export type CurrentFiefDependencies = {
   readonly fiefs: FiefReader
@@ -42,7 +43,7 @@ const discardingCamps: CampRegistry = {
 export const currentFiefOf = async (
   fiefOfPlayer: FiefOfPlayer,
   { fiefs, inTransaction, buildingCatalog, clock, ids }: CurrentFiefDependencies,
-): Promise<Result<Fief, DomainError>> => {
+): Promise<Result<FiefReading, DomainError>> => {
   const now = clock.now()
   const readClock: Clock = { now: () => now }
   const preview = await resolveUpgrade(fiefOfPlayer, {
@@ -69,6 +70,14 @@ export const currentFiefOf = async (
   if (!resolved.ok) {
     return resolved
   }
-  const { fief } = resolved.value
-  return fief.accruedTo(buildingCatalog, laterOf(now, fief.storedAt))
+  const stored = storedFiefReadingOf(resolved.value.fief, buildingCatalog)
+  if (!stored.ok) {
+    return stored
+  }
+  const { fief, fullAt } = stored.value
+  const accrued = fief.accruedTo(buildingCatalog, laterOf(now, fief.storedAt))
+  if (!accrued.ok) {
+    return accrued
+  }
+  return ok({ fief: accrued.value, fullAt })
 }

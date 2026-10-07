@@ -6,6 +6,7 @@ import type { Instant } from '../time/Instant'
 import { deriveFullAt, type FullAt } from './deriveFullAt'
 import { deriveWarehouseCapacity } from './deriveWarehouseCapacity'
 import type { Fief } from './Fief'
+import { isStoreFull } from './isStoreFull'
 
 const fullSinceOf = (
   kind: ResourceKind,
@@ -13,7 +14,7 @@ const fullSinceOf = (
   after: Fief,
   capacityUnits: number,
 ): Instant | null => {
-  if (after.stocks[kind] < capacityUnits) {
+  if (!isStoreFull(after.stocks, kind, capacityUnits)) {
     return null
   }
   const crossing = fullAtBefore[kind]

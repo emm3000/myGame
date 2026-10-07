@@ -438,12 +438,7 @@ describe('the fief route', () => {
     const response = await fiefOf(ana)
 
     const { resources } = FiefOverviewSchema.parse(await response.json())
-    expect(resources.food).toEqual({
-      amount: 322,
-      ratePerHour: 15,
-      capacity: 1000,
-      fullAt: '2026-09-24T06:42:00.000Z',
-    })
+    expect(resources.food).toMatchObject({ amount: 322, ratePerHour: 15, capacity: 1000 })
     expect(resources.wood).toEqual({
       amount: 515,
       ratePerHour: 10,
@@ -472,6 +467,38 @@ describe('the fief route', () => {
       gold: '2026-09-22T09:00:00.000Z',
       food: '2026-09-22T10:00:00.000Z',
     })
+  })
+
+  it('answers the same fill instant on two reads with no change between', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes(1)
+    const first = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+    clock.advanceMinutes(1)
+
+    const second = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+
+    expect(second.resources.food.fullAt).toBe(first.resources.food.fullAt)
+  })
+
+  it('answers the fill instant of the stored amount, not the floored one', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    clock.advanceMinutes(90)
+
+    const response = await fiefOf(ana)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect(resources.food.fullAt).toBe('2026-09-24T06:40:00.000Z')
+  })
+
+  it('answers the fill instant at the rate a finished upgrade set', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await enqueueSawmill(ana)
+    clock.advanceMinutes(90)
+
+    const response = await fiefOf(ana)
+
+    const { resources } = FiefOverviewSchema.parse(await response.json())
+    expect(resources.wood.fullAt).toBe('2026-09-22T22:03:00.000Z')
   })
 
   it('answers no season before the epoch', async () => {

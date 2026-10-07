@@ -31,6 +31,7 @@ import {
   dispatchTransportOf,
 } from '../fief/dispatchTransportOf'
 import { type EnqueueUpgradeDependencies, enqueueUpgradeOf } from '../fief/enqueueUpgradeOf'
+import type { FiefReading } from '../fief/FiefReading'
 import { fiefChronicleOf } from '../fief/fiefChronicleOf'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
 import {
@@ -39,6 +40,7 @@ import {
 } from '../fief/placeRecruitOrderOf'
 import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarchOf'
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
+import { storedFiefReadingOf } from '../fief/storedFiefReadingOf'
 import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
 import { answerRefusal, type RefusalLines, transportLines } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
@@ -63,33 +65,43 @@ export type FiefDependencies = CurrentFiefDependencies &
   }
 
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
-  const answerFief = (
+  const answerReading = (
     c: Context,
-    fief: Result<Fief, DomainError>,
+    reading: Result<FiefReading, DomainError>,
     lines: RefusalLines = {},
   ): Response => {
-    if (!fief.ok) {
-      return answerRefusal(c, fief.error, lines)
+    if (!reading.ok) {
+      return answerRefusal(c, reading.error, lines)
     }
-    const overview = fiefOverviewOf(fief.value, dependencies.buildingCatalog)
+    const overview = fiefOverviewOf(reading.value, dependencies.buildingCatalog)
     if (!overview.ok) {
       return answerRefusal(c, overview.error)
     }
     const body: FiefOverview = overview.value
     return c.json(body)
   }
+  const answerFief = (
+    c: Context,
+    fief: Result<Fief, DomainError>,
+    lines: RefusalLines = {},
+  ): Response =>
+    answerReading(
+      c,
+      fief.ok ? storedFiefReadingOf(fief.value, dependencies.buildingCatalog) : fief,
+      lines,
+    )
   const signedInPlayer = requirePlayer(dependencies)
   return new Hono()
     .get('/', signedInPlayer, requireNamedFief, async (c) =>
-      answerFief(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
+      answerReading(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
     )
     .get('/events', signedInPlayer, requireNamedFief, async (c) => {
-      const fief = await currentFiefOf(c.var.fiefOfPlayer, dependencies)
-      if (!fief.ok) {
-        return answerRefusal(c, fief.error)
+      const reading = await currentFiefOf(c.var.fiefOfPlayer, dependencies)
+      if (!reading.ok) {
+        return answerRefusal(c, reading.error)
       }
       const body: FiefChronicle = fiefChronicleOf(
-        await dependencies.chronicle.eventsOf(fief.value.id),
+        await dependencies.chronicle.eventsOf(reading.value.fief.id),
       )
       return c.json(body)
     })
