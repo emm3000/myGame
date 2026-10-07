@@ -250,6 +250,8 @@ const signInTitle = 'Entra en tu feudo'
 
 const invalidCount = 'Un número entero, al menos 1.'
 
+const storeFull = 'Almacén lleno:'
+
 export const copy = {
   shell: {
     title: 'myGame',
@@ -262,7 +264,7 @@ export const copy = {
     fiefSwitcher: {
       label: 'Tus feudos',
       separator: ',',
-      fullStore: (resource: ResourceKind): string => `Almacén lleno: ${resources[resource]}`,
+      fullStore: (resource: ResourceKind): string => `${storeFull} ${resources[resource]}`,
     },
   },
   auth: {
@@ -556,7 +558,7 @@ export const copy = {
   digest: {
     title: 'Mientras no estabas',
     acknowledge: 'Entendido',
-    storeFull: 'Almacén lleno:',
+    storeFull,
     storeSubject: (resource: ResourceKind): string => `${resources[resource]}.`,
   },
   goal: {
