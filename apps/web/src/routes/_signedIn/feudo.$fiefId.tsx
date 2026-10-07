@@ -9,6 +9,7 @@ import { LiveFiefContext } from '../../fief/LiveFiefContext'
 import type { LiveFief } from '../../fief/liveFief'
 import { useFiefNameTarget } from '../../fief/useFiefNameTarget'
 import { useLiveFief } from '../../fief/useLiveFief'
+import { useStatusBlockMargin } from '../../fief/useStatusBlockMargin'
 import { useFocusTarget } from '../../focus/useFocusTarget'
 import { barHintOf } from '../../hints/barHintOf'
 import { hintFocusingAfterDismiss } from '../../hints/hintFocusingAfterDismiss'
@@ -19,9 +20,11 @@ import { type FinishNoticesHandle, useFinishNotices } from '../../notices/useFin
 function LiveFiefStatus({
   fief,
   notices,
+  blockRef,
 }: {
   readonly fief: LiveFief
   readonly notices: FinishNoticesHandle
+  readonly blockRef: (block: HTMLElement | null) => void
 }): ReactElement {
   const hints = useLayoutHints()
   const fiefName = useFiefNameTarget()
@@ -37,6 +40,7 @@ function LiveFiefStatus({
           : hintFocusingAfterDismiss(hintPropsOf(hint, hints), fiefName.focus)
       }
       notices={notices}
+      blockRef={blockRef}
     />
   )
 }
@@ -46,12 +50,13 @@ function LiveFiefLayout({ fiefId }: { readonly fiefId: string }): ReactElement {
   const notices = useFinishNotices()
   const live = useLiveFief(apiClient, fiefId, notices.notifyBetween)
   const fiefName = useFocusTarget<HTMLHeadingElement>()
+  const statusBlockRef = useStatusBlockMargin()
   return (
     <LiveFiefContext value={live}>
       <FiefNameContext value={fiefName}>
         <div className="flex flex-col gap-6">
           {live.state.kind === 'live' && (
-            <LiveFiefStatus fief={live.state.fief} notices={notices} />
+            <LiveFiefStatus fief={live.state.fief} notices={notices} blockRef={statusBlockRef} />
           )}
           <Outlet />
         </div>

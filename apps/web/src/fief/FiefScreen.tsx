@@ -86,10 +86,7 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
   }
   const { from, cargo } = incomingCargo
   return (
-    <div
-      id={sectionAnchors.incomingCargo}
-      className="flex flex-col md:scroll-mt-status lg:scroll-mt-status-wide"
-    >
+    <div id={sectionAnchors.incomingCargo} className="flex flex-col md:scroll-mt-status">
       <CargoCard
         title={copy.fief.incomingCargo}
         artSrc={convoyArtOf()}
@@ -259,10 +256,7 @@ export function FiefScreen({
       </header>
       <NoticesRow digest={digest} goal={goal} />
       <div className="grid items-start gap-6 lg:grid-cols-3">
-        <div
-          id={sectionAnchors.build}
-          className="flex flex-col gap-2 md:scroll-mt-status lg:scroll-mt-status-wide"
-        >
+        <div id={sectionAnchors.build} className="flex flex-col gap-2 md:scroll-mt-status">
           <IncomingCargoOf fief={fief} />
           <BuildSlot state={slotStateOf(fief, cancel, slotTitle.focus)} titleRef={slotTitle.ref} />
           <StandaloneHint hint={hintAt(hint, 'queue')} focusAfterDismiss={slotTitle.focus} />
