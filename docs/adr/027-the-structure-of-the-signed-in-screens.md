@@ -529,7 +529,8 @@ slice (Decision 1).
 - Known gap: the strip's cargo cell has no track, because
   `IncomingCargoSchema` answers `arrivesAt` and no departure, the gap
   the S19 cargo card already had. A departure on the wire is the
-  owner's call.
+  owner's call. Closed by #503: with `departedAt` on the wire (#502)
+  the cell draws a `slate` track from the departure to the arrival.
 - Known gap: the scroll margins were measured on the demo fief; a long
   origin name in the cargo cell or a march of several kinds could make
   the sticky block taller and cover the linked section again. At 768

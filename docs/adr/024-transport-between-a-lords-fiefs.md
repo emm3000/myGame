@@ -445,3 +445,6 @@ old api's insert of a cargo row fails.
 
 The wire half of the Known gap "the cargo card has no progress track"
 is closed; the track itself is #503's.
+
+#503 draws it: the cargo card and the strip's cargo cell each draw a
+`slate` track from the departure to the arrival.
