@@ -223,7 +223,7 @@ Every line of this section is a proposal for the author, not yet accepted (`chro
 |---|---|---|
 | upgradeFinished | *Obra terminada: aserradero, nivel 3.* | the building label, the level reached |
 | artLearned | *Estudio terminado: herrería, nivel 2.* | the art label, the level reached |
-| upgradeCancelled | *Obra cancelada: aserradero, nivel 3. Recuperas 120 de madera y 80 de piedra.* | the building label, the level cancelled, the refunded amounts |
+| upgradeCancelled | *Obra cancelada: aserradero, nivel 3. Recuperas 135 de madera y 34 de piedra.* | the building label, the level cancelled, the refunded amounts |
 | studyCancelled | *Estudio cancelado: herrería, nivel 2. Recuperas 180 de madera, 120 de piedra, 225 de hierro y 90 de oro.* | the art label, the level cancelled, the refunded amounts |
 | recruitsDelivered | *Leva terminada: 12 infantes.* | the count delivered, the unit label agreeing with it |
 | recruitsCancelled | *Leva cancelada: 4 infantes en filas, 8 infantes de vuelta al campo. Recuperas 160 de madera, 80 de hierro y 240 de comida.* | the units delivered, the units cancelled, the unit label agreeing with each count, the refunded amounts |
