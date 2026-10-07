@@ -13,7 +13,7 @@ async function builtClient(): Promise<string> {
   await mkdir(join(directory, 'assets'))
   await mkdir(join(directory, 'art'))
   await writeFile(join(directory, 'assets', 'index-abc123.js'), hashedScript)
-  await writeFile(join(directory, 'art', 'barracks-1.png'), artImage)
+  await writeFile(join(directory, 'art', 'barracks-1.webp'), artImage)
   return directory
 }
 
@@ -101,9 +101,10 @@ describe('webServerOptionsOf', () => {
   it('caches an unhashed art image for a day', async () => {
     const { server } = webServerOn({ WEB_PORT: '3001' })
 
-    const response = await get(server, '/art/barracks-1.png')
+    const response = await get(server, '/art/barracks-1.webp')
 
     expect(response.headers.get('cache-control')).toBe('public, max-age=86400')
+    expect(response.headers.get('content-type')).toBe('image/webp')
   })
 
   it('leaves a missing asset uncached', async () => {

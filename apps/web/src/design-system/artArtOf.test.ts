@@ -9,6 +9,6 @@ const publicDir = join(import.meta.dirname, '../../public')
 it('resolves every art to a file under public/art', () => {
   const sources = ArtKindSchema.options.map((art) => artArtOf(art))
 
-  expect(sources).toEqual(['/art/arts/smithing.png', '/art/arts/masonry.png'])
+  expect(sources).toEqual(['/art/arts/smithing.webp', '/art/arts/masonry.webp'])
   expect(sources.filter((src) => !existsSync(join(publicDir, src)))).toEqual([])
 })

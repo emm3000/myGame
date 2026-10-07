@@ -4,5 +4,5 @@ export function buildingArtOf(building: BuildingKind, level: number): string | u
   if (level <= 0) {
     return undefined
   }
-  return `/art/buildings/${building}-${Math.ceil(level / 2)}.png`
+  return `/art/buildings/${building}-${Math.ceil(level / 2)}.webp`
 }

@@ -98,10 +98,10 @@ it('shows the art of each art on its card', async () => {
   await showFief({})
 
   expect(within(artCard('smithing')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/art\/arts\/smithing\.png$/,
+    /\/art\/arts\/smithing\.webp$/,
   )
   expect(within(artCard('masonry')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/art\/arts\/masonry\.png$/,
+    /\/art\/arts\/masonry\.webp$/,
   )
 })
 
@@ -110,7 +110,7 @@ it('shows the art of an art not yet studied', async () => {
 
   expect(within(artCard('masonry')).getByText(copy.names.unstudied)).toBeDefined()
   expect(within(artCard('masonry')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/masonry\.png$/,
+    /\/masonry\.webp$/,
   )
 })
 
@@ -328,7 +328,7 @@ it('keeps the art on a card at its top level', async () => {
   await showFief({ fief: async () => ({ ok: true, value: smithingAtTop }) })
 
   expect(within(artCard('smithing')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/smithing\.png$/,
+    /\/smithing\.webp$/,
   )
 })
 

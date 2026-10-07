@@ -9,9 +9,9 @@ it('resolves every camp tier to a file under public/art', () => {
   const sources = ([1, 2, 3] as const).map((tier) => campArtOf(tier))
 
   expect(sources).toEqual([
-    '/art/camps/camp-1.png',
-    '/art/camps/camp-2.png',
-    '/art/camps/camp-3.png',
+    '/art/camps/camp-1.webp',
+    '/art/camps/camp-2.webp',
+    '/art/camps/camp-3.webp',
   ])
   expect(sources.filter((src) => !existsSync(join(publicDir, src)))).toEqual([])
 })
