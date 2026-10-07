@@ -381,7 +381,6 @@ export const copy = {
     orderHeading: 'Leva en marcha:',
     orderLine: (unit: UnitKind, delivered: number, count: number): string =>
       `${delivered} de ${count} ${agreeing(count, units[unit].singular, units[unit].plural)}`,
-    nextUnitIn: (unit: UnitKind): string => `Siguiente ${units[unit].singular} en`,
     orderCompleteIn: 'Leva completa en',
     unitTitle: (unit: UnitKind): string => capitalize(units[unit].plural),
     atHome: (unit: UnitKind, count: number): string =>

@@ -41,19 +41,8 @@ function recruitRefusalLineOf(refused: NonNullable<Recruit['refused']>, fief: Li
   return copy.refusals[refusal]
 }
 
-function countdownsOf(order: LiveRecruitOrder, at: Date): ReadonlyArray<SlotCountdown> {
-  const orderComplete = {
-    words: army.orderCompleteIn,
-    time: formatFinish(order.remainingSeconds, at),
-  }
-  if (order.count - order.delivered <= 1) {
-    return [orderComplete]
-  }
-  const nextUnit = {
-    words: army.nextUnitIn(order.unit),
-    time: formatFinish(order.nextUnitRemainingSeconds, at),
-  }
-  return [nextUnit, orderComplete]
+function orderCompleteOf(order: LiveRecruitOrder, at: Date): SlotCountdown {
+  return { words: army.orderCompleteIn, time: formatFinish(order.remainingSeconds, at) }
 }
 
 function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState {
@@ -67,7 +56,7 @@ function recruitSlotStateOf(fief: LiveFief, recruit: Recruit): RecruitSlotState 
     title: army.busySlot,
     orderHeading: army.orderHeading,
     orderLine: army.orderLine(order.unit, order.delivered, order.count),
-    countdowns: countdownsOf(order, fief.at),
+    countdown: orderCompleteOf(order, fief.at),
     remainingSeconds: order.remainingSeconds,
     totalSeconds: order.totalSeconds,
     cancel: {
