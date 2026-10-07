@@ -65,7 +65,8 @@ slice (Decision 1).
   the sticky block with a `ResizeObserver`, writes its border-box height
   to `--status-block-height` on the root element and removes it, with
   the observer, on unmount, and `md:scroll-mt-status` reads that
-  property, so a section reached by its hash lands under the block and
+  property plus 1 px, the pixel a browser may round a fractional scroll
+  position by, so a section reached by its hash lands under the block and
   never behind it, however tall a long origin name or a march of several
   kinds makes it. The sections keep the
   detail and the actions: the cancel, the waiting queue, the recall.
