@@ -8,6 +8,7 @@ import { Instant } from '../time/Instant'
 import { deriveResourceRates } from './deriveResourceRates'
 import { deriveWarehouseCapacity } from './deriveWarehouseCapacity'
 import type { Fief } from './Fief'
+import { isStoreFull } from './isStoreFull'
 
 export type FullAt = Readonly<Record<ResourceKind, Instant | null>>
 
@@ -64,7 +65,7 @@ const storeAfter = (
 type Stores = Record<ResourceKind, Store>
 
 const storedStoreOf = (fief: Fief, kind: ResourceKind, capacityUnits: number): Store =>
-  fief.stocks[kind] >= capacityUnits
+  isStoreFull(fief.stocks, kind, capacityUnits)
     ? { kind: 'settled', fullAt: fief.fullSince[kind] ?? fief.storedAt }
     : { kind: 'filling', amount: fief.stocks[kind], unchangedSegments: 0 }
 

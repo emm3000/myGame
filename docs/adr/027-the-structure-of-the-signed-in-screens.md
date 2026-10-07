@@ -398,8 +398,9 @@ slice (Decision 1).
   read that applies a finish saves the fief at the read instant, so a
   store that filled before it read full since the read. The instant is
   stored per resource and kept across every re-base.
-- **The fill instant computed from the stored fief rather than the
-  accrued one.** Not taken; see the gap on `fullAt` below.
+- **The fill instant computed from the accrued fief rather than the
+  stored one.** Shipped by #465 and replaced by #504: the read floors
+  the stocks, so the instant came out late and moved between reads.
 - **`disabled` buttons.** Rejected by Decision 8: a disabled control
   leaves the tab order and announces nothing, so a keyboard or
   screen-reader player never learns why the action is unavailable.
@@ -460,10 +461,11 @@ slice (Decision 1).
   its fill instant falls back to the fief's last save and it can show
   once as digest news after the deploy. A one-off, accepted while the
   author is the only player.
-- Known gap: `fullAt` is computed from the fief after the read accrued
-  it, with the stocks floored at the read, so it can come out up to
-  `3_600_000 / rate` ms late and move between reads. Computing it from
-  the stored fief would fix that.
+- Closed gap (#504): `fullAt` was computed from the fief after the read
+  accrued it, with the stocks floored at the read, so it came out up to
+  `3_600_000 / rate` ms late and moved between reads. It is now derived
+  from the fief as resolved and stored, before `accruedTo`, so two reads
+  with no mutation between answer the same instant.
 - Known gap: if the player switches fief while the *Entendido* POST is
   still in flight, the new fief's screen can read the digest before the
   server stores the acknowledgement, and the card shows once more.
@@ -545,12 +547,17 @@ slice (Decision 1).
   (#501), so the api does not boot on it.
 - Known gap: *lista* reads the rates of the read, so a season that
   turns first moves the instant only at the next read.
-- Known gap: the free-slot rules and the "at or above capacity" check
-  of the list are game rules living in `apps/api/src/fief/fiefListOf.ts`
-  rather than in `packages/domain`.
-- Known gap: the lore proposals of #464 wait for the author, among them
-  the clock end's comma, *lista* on a masculine art, the idle cells'
-  words, *Siguiente meta* and a lost attack's notice.
+- Closed gap (#504): the free-slot rules and the "at or above capacity"
+  check of the list lived in `apps/api/src/fief/fiefListOf.ts`. They are
+  `freeSlotsOf` and `fullStoresOf` in `packages/domain`, over the one
+  capacity predicate `isStoreFull`, which `deriveFullAt` and
+  `rebaseFullSince` call too; the list and the digest read
+  `fullStoresOf`.
+- Closed gap (#499): the lore proposals of #464, among them the clock
+  end's comma, *lista* on a masculine art, the idle cells' words,
+  *Siguiente meta* and a lost attack's notice, were settled on
+  2026-10-07 under the owner's delegation (#497, Decisions 3 and 4):
+  #499 kept the S22 open questions as shipped (`docs/lore/names.md`).
 - Out of scope of #463, each a future ADR, an amendment of this one or
   a ticket: the visual look, server push or mail reminders, a resource
   snapshot, daily quests or streaks, a tutorial or a modal, goal kinds

@@ -12,7 +12,6 @@ import {
   type DurationPercent,
   deliveredUnitsOf,
   deriveBuildDurationSeconds,
-  deriveFullAt,
   deriveLowestFreePeasants,
   derivePeasantCounts,
   derivePeasantsForUpgrade,
@@ -44,6 +43,7 @@ import {
   type UnitKind,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
+import type { FiefReading } from './FiefReading'
 
 const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
   slot.kind === 'idle'
@@ -438,7 +438,7 @@ const goalOf = (
 }
 
 export const fiefOverviewOf = (
-  fief: Fief,
+  { fief, fullAt }: FiefReading,
   catalog: BuildingCatalog,
 ): Result<FiefOverview, DomainError> => {
   const rates = deriveResourceRates(
@@ -454,10 +454,6 @@ export const fiefOverviewOf = (
   const capacity = deriveWarehouseCapacity(fief.buildingLevels.warehouse, catalog)
   if (!capacity.ok) {
     return capacity
-  }
-  const fullAt = deriveFullAt(fief, catalog)
-  if (!fullAt.ok) {
-    return fullAt
   }
   const peasants = peasantsOf(fief, catalog)
   if (!peasants.ok) {
@@ -486,7 +482,7 @@ export const fiefOverviewOf = (
     name: fief.name.value,
     coordinates: { kingdom, province, plot },
     terrain: fief.terrain,
-    resources: resourcesOf(fief.stocks, rates.value, capacity.value, fullAt.value),
+    resources: resourcesOf(fief.stocks, rates.value, capacity.value, fullAt),
     buildings: buildings.value,
     peasants: peasants.value,
     slot: slotOf(fief.slot),

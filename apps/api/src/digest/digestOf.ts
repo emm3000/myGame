@@ -1,12 +1,10 @@
-import { type Digest, type FiefContent, ResourceKindSchema } from '@mygame/contracts'
+import type { Digest, FiefContent } from '@mygame/contracts'
 import {
   type BuildingCatalog,
   type DomainError,
-  deriveFullAt,
-  deriveWarehouseCapacity,
   err,
-  type Fief,
   type FiefEvent,
+  fullStoresOf,
   type Instant,
   ok,
   type PlayerId,
@@ -15,6 +13,7 @@ import {
 import type { ChronicleReader } from '../fief/ChronicleReader'
 import type { CurrentFiefDependencies } from '../fief/currentFiefOf'
 import { currentFiefsOfPlayer } from '../fief/currentFiefsOfPlayer'
+import type { FiefReading } from '../fief/FiefReading'
 import { fiefChronicleOf } from '../fief/fiefChronicleOf'
 import { isoOf } from '../http/isoOf'
 import type { Refusal } from '../http/Refusal'
@@ -36,23 +35,18 @@ const isAfter = (instant: Instant, threshold: Instant): boolean =>
   instant.epochMilliseconds > threshold.epochMilliseconds
 
 const filledStoresOf = (
-  fief: Fief,
+  { fief, fullAt }: FiefReading,
   catalog: BuildingCatalog,
   acknowledgedAt: Instant,
 ): Result<ReadonlyArray<FilledStore>, DomainError> => {
-  const capacityUnits = deriveWarehouseCapacity(fief.buildingLevels.warehouse, catalog)
-  if (!capacityUnits.ok) {
-    return capacityUnits
-  }
-  const fullAt = deriveFullAt(fief, catalog)
-  if (!fullAt.ok) {
-    return fullAt
+  const fullStores = fullStoresOf(fief, catalog)
+  if (!fullStores.ok) {
+    return fullStores
   }
   return ok(
-    ResourceKindSchema.options.flatMap((resource) => {
-      const fullSince = fullAt.value[resource]
-      const isFull = fief.stocks[resource] >= capacityUnits.value
-      return isFull && fullSince !== null && isAfter(fullSince, acknowledgedAt)
+    fullStores.value.flatMap((resource) => {
+      const fullSince = fullAt[resource]
+      return fullSince !== null && isAfter(fullSince, acknowledgedAt)
         ? [{ resource, fullSince: isoOf(fullSince) }]
         : []
     }),
@@ -60,15 +54,16 @@ const filledStoresOf = (
 }
 
 const digestFiefOf = (
-  fief: Fief,
+  reading: FiefReading,
   events: ReadonlyArray<FiefEvent>,
   catalog: BuildingCatalog,
   acknowledgedAt: Instant,
 ): Result<DigestFief, DomainError> => {
-  const stores = filledStoresOf(fief, catalog, acknowledgedAt)
+  const stores = filledStoresOf(reading, catalog, acknowledgedAt)
   if (!stores.ok) {
     return stores
   }
+  const { fief } = reading
   const eventsSince = events.filter(({ occurredAt }) => isAfter(occurredAt, acknowledgedAt))
   return ok({
     id: fief.id,
@@ -101,10 +96,10 @@ export const digestOf = async (
     return fiefs
   }
   const digestFiefs = await Promise.all(
-    fiefs.value.map(async (fief) =>
+    fiefs.value.map(async (reading) =>
       digestFiefOf(
-        fief,
-        await dependencies.chronicle.eventsOf(fief.id),
+        reading,
+        await dependencies.chronicle.eventsOf(reading.fief.id),
         dependencies.buildingCatalog,
         acknowledgedAt,
       ),
