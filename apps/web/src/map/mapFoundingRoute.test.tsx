@@ -9,6 +9,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const sotoverdeWithASettler: FiefOverview = {
   ...knownFief,
@@ -170,9 +171,7 @@ it('blocks the founding without a settler at home', async () => {
   fireEvent.submit(form)
 
   expect(screen.getByRole('article').textContent).toContain('0 colonos en casa')
-  expect(foundButton(form).getAttribute('aria-label')).toBe(
-    'Fundar un feudo. Necesitas 1 colono en casa y tienes 0.',
-  )
+  expect(accessibleDescriptionOf(foundButton(form))).toBe('Necesitas 1 colono en casa y tienes 0.')
   expect(dispatchFounding).not.toHaveBeenCalled()
 })
 
@@ -185,9 +184,7 @@ it('blocks the founding while a march is away', async () => {
 
   fireEvent.submit(form)
 
-  expect(foundButton(form).getAttribute('aria-label')).toBe(
-    'Fundar un feudo. Ya hay una marcha en curso.',
-  )
+  expect(accessibleDescriptionOf(foundButton(form))).toBe('Ya hay una marcha en curso.')
   expect(nameField(form).disabled).toBe(true)
   expect(dispatchFounding).not.toHaveBeenCalled()
 })
@@ -199,8 +196,8 @@ it('blocks the founding with a blank name', async () => {
   fireEvent.change(nameField(form), { target: { value: '   ' } })
   fireEvent.submit(form)
 
-  expect(foundButton(form).getAttribute('aria-label')).toBe(
-    'Fundar un feudo. Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
+  expect(accessibleDescriptionOf(foundButton(form))).toBe(
+    'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
   )
   expect(previewOf(form)).toEqual([])
   expect(dispatchFounding).not.toHaveBeenCalled()

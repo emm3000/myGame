@@ -7,11 +7,11 @@ import type {
 } from '@mygame/contracts'
 import { ResourceKindSchema } from '@mygame/contracts'
 import { copy } from '../copy'
+import type { MarchActionState } from '../design-system/CardAction'
 import { formatDuration } from '../design-system/formatDuration'
 import type { MarchFormProps } from '../design-system/MarchForm'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
-import type { SubmitActionState } from '../design-system/SubmitAction'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { partyKinds } from '../units/partyKinds'
@@ -139,7 +139,7 @@ function stateOf(
   party: UnitCounts | undefined,
   hours: number | undefined,
   fief: FiefOverview,
-): SubmitActionState {
+): MarchActionState {
   if (fief.march !== null) {
     return { kind: 'blocked', reason: copy.march.marchAway }
   }

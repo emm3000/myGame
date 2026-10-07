@@ -1,9 +1,9 @@
 import type { FiefOverview, ResourceAmounts } from '@mygame/contracts'
 import { copy } from '../copy'
+import type { MarchActionState } from '../design-system/CardAction'
 import { convoyArtOf } from '../design-system/convoyArtOf'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
-import type { SubmitActionState } from '../design-system/SubmitAction'
 import { shortfallsOf } from '../fief/shortfallsOf'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
@@ -75,7 +75,7 @@ function stateOf(
   party: UnitCounts | undefined,
   cargo: ResourceAmounts | undefined,
   fief: FiefOverview,
-): SubmitActionState {
+): MarchActionState {
   if (fief.march !== null) {
     return { kind: 'blocked', reason: copy.march.marchAway }
   }

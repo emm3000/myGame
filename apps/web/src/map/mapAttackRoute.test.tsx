@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
@@ -212,8 +213,8 @@ it('blocks an attack without infantry at home', async () => {
 
   fireEvent.submit(form)
 
-  expect(attackButton(form).getAttribute('aria-label')).toBe(
-    'Atacar el campamento. Necesitas 1 infante en casa y tienes 0.',
+  expect(accessibleDescriptionOf(attackButton(form))).toBe(
+    'Necesitas 1 infante en casa y tienes 0.',
   )
   expect(dispatchAttack).not.toHaveBeenCalled()
 })
@@ -227,9 +228,7 @@ it('blocks an attack while a march is away', async () => {
 
   fireEvent.submit(form)
 
-  expect(attackButton(form).getAttribute('aria-label')).toBe(
-    'Atacar el campamento. Ya hay una marcha en curso.',
-  )
+  expect(accessibleDescriptionOf(attackButton(form))).toBe('Ya hay una marcha en curso.')
   expect((within(form).getByLabelText('Infantes a enviar') as HTMLInputElement).disabled).toBe(true)
   expect(dispatchAttack).not.toHaveBeenCalled()
 })
@@ -241,9 +240,7 @@ it('blocks a count that is not a whole number from 0', async () => {
   typeInfantry(form, '-1')
   fireEvent.submit(form)
 
-  expect(attackButton(form).getAttribute('aria-label')).toBe(
-    'Atacar el campamento. Un número entero, 0 o más.',
-  )
+  expect(accessibleDescriptionOf(attackButton(form))).toBe('Un número entero, 0 o más.')
   expect(previewOf(form)).toEqual([])
   expect(dispatchAttack).not.toHaveBeenCalled()
 })

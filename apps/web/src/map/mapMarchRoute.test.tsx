@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
@@ -184,10 +185,8 @@ it('blocks a march without infantry at home', async () => {
   fireEvent.submit(form)
 
   const button = sendButton(form)
-  expect(button.disabled).toBe(true)
-  expect(button.getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Necesitas 10 infantes en casa y tienes 0.',
-  )
+  expect(button.getAttribute('aria-disabled')).toBe('true')
+  expect(accessibleDescriptionOf(button)).toBe('Necesitas 10 infantes en casa y tienes 0.')
   expect(dispatchMarch).not.toHaveBeenCalled()
 })
 
@@ -201,9 +200,7 @@ it('blocks a march while another is away', async () => {
 
   fireEvent.submit(form)
 
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Ya hay una marcha en curso.',
-  )
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Ya hay una marcha en curso.')
   expect((within(form).getByLabelText('Infantes a enviar') as HTMLInputElement).disabled).toBe(true)
   expect(dispatchMarch).not.toHaveBeenCalled()
 })
@@ -230,9 +227,7 @@ it('blocks a count that is not a whole number from 0', async () => {
   type(form, 'Infantes a enviar', '1.5')
   fireEvent.submit(form)
 
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Un número entero, 0 o más.',
-  )
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Un número entero, 0 o más.')
   expect(previewOf(form)).toEqual([])
   expect(dispatchMarch).not.toHaveBeenCalled()
 })
@@ -261,9 +256,7 @@ it('blocks a stay past the longest', async () => {
   type(form, 'Horas de forrajeo', '9')
   fireEvent.submit(form)
 
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Un número entero, de 1 a 8.',
-  )
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Un número entero, de 1 a 8.')
   expect(previewOf(form)).toEqual([])
   expect(dispatchMarch).not.toHaveBeenCalled()
 })

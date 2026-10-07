@@ -10,6 +10,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { copy } from '../copy'
+import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const fiefWithAParty: FiefOverview = {
   ...knownFief,
@@ -116,9 +117,7 @@ it('opens with one infantry and blocked when nobody is at home', async () => {
 
   expect(entryOf(form, 'Infantes a enviar')).toBe('1')
   expect(entryOf(form, 'Jinetes a enviar')).toBe('0')
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Necesitas 1 infante en casa y tienes 0.',
-  )
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Necesitas 1 infante en casa y tienes 0.')
 })
 
 it('times a march of riders alone at half the road', async () => {
@@ -175,9 +174,9 @@ it('blocks a march with every count at 0', async () => {
   typeParty(form, '0', '')
   fireEvent.submit(form)
 
-  expect(sendButton(form).disabled).toBe(true)
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Envía al menos un infante, un jinete o un arquero.',
+  expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(
+    'Envía al menos un infante, un jinete o un arquero.',
   )
   expect(previewLine(form, 'Camino de ida:')).toBeUndefined()
   expect(send).not.toHaveBeenCalled()
@@ -190,8 +189,8 @@ it('blocks more riders than are at home', async () => {
   typeParty(form, '12', '11')
   fireEvent.submit(form)
 
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Necesitas 11 jinetes en casa y tienes 10.',
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(
+    'Necesitas 11 jinetes en casa y tienes 10.',
   )
   expect(send).not.toHaveBeenCalled()
 })
@@ -265,8 +264,8 @@ it('sends no settler on a forage', async () => {
 
   typeParty(form, '0', '0')
 
-  expect(sendButton(form).getAttribute('aria-label')).toBe(
-    'Enviar una marcha. Envía al menos un infante, un jinete o un arquero.',
+  expect(accessibleDescriptionOf(sendButton(form))).toBe(
+    'Envía al menos un infante, un jinete o un arquero.',
   )
   typeParty(form, '12', '6')
   type(form, 'Horas de forrajeo', '2')

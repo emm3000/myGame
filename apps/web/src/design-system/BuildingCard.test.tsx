@@ -25,18 +25,18 @@ it('marks a building card as too expensive when the cost exceeds the amounts', (
 
   expect(
     screen
-      .getByRole('button', { name: 'Upgrade · 3 h 5 min. You lack 985 stone.' })
-      .hasAttribute('disabled'),
-  ).toBe(true)
+      .getByRole('button', { name: 'Upgrade · 3 h 5 min', description: 'You lack 985 stone.' })
+      .getAttribute('aria-disabled'),
+  ).toBe('true')
   expect(screen.getByText('You lack 985 stone.')).toBeDefined()
 })
 
 it('offers the upgrade when the building is affordable', () => {
   render(<BuildingCard {...quarryShortOfStone()} state={{ kind: 'affordable' }} />)
 
-  expect(screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).hasAttribute('disabled')).toBe(
-    false,
-  )
+  expect(
+    screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).hasAttribute('aria-disabled'),
+  ).toBe(false)
 })
 
 it('replaces the upgrade with the max level label at max level', () => {
@@ -44,16 +44,18 @@ it('replaces the upgrade with the max level label at max level', () => {
     <BuildingCard {...quarryShortOfStone()} state={{ kind: 'atMaxLevel', label: 'Max level' }} />,
   )
 
-  expect(screen.getByRole('button', { name: 'Max level' }).hasAttribute('disabled')).toBe(true)
+  expect(screen.getByRole('button', { name: 'Max level' }).getAttribute('aria-disabled')).toBe(
+    'true',
+  )
   expect(screen.queryByRole('list')).toBeNull()
 })
 
 it('disables an affordable upgrade while another upgrade is being started', () => {
   render(<BuildingCard {...quarryShortOfStone()} state={{ kind: 'affordable' }} isWaiting={true} />)
 
-  expect(screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).hasAttribute('disabled')).toBe(
-    true,
-  )
+  expect(
+    screen.getByRole('button', { name: 'Upgrade · 3 h 5 min' }).getAttribute('aria-busy'),
+  ).toBe('true')
 })
 
 it('titles the card at the heading level it is given', () => {

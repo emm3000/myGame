@@ -1,10 +1,9 @@
 import type { UnitKind } from '@mygame/contracts'
 import { type FormEvent, type ReactElement, useId } from 'react'
-import { cardToneOf } from './CardAction'
+import { CardAction, cardToneOf, type OrderActionState } from './CardAction'
 import { type CardCost, CostList } from './CostList'
 import { NumberField } from './NumberField'
 import { Panel } from './Panel'
-import { SubmitAction, type SubmitActionState } from './SubmitAction'
 import { UnitCardHeader } from './UnitCardHeader'
 import type { UnitTally } from './UnitCount'
 
@@ -17,7 +16,7 @@ export interface UnitCardProps {
   readonly isFieldDisabled: boolean
   readonly costs: ReadonlyArray<CardCost> | undefined
   readonly actionLabel: string
-  readonly state: SubmitActionState
+  readonly state: OrderActionState
   readonly titleElement: 'h3' | 'h4'
   readonly isWaiting: boolean
   readonly onEntryChange: (entry: string) => void
@@ -54,7 +53,12 @@ export function UnitCard(props: UnitCardProps): ReactElement {
           />
         </div>
         {props.costs !== undefined && <CostList costs={props.costs} />}
-        <SubmitAction label={props.actionLabel} state={props.state} isWaiting={props.isWaiting} />
+        <CardAction
+          type="submit"
+          label={props.actionLabel}
+          state={props.state}
+          isWaiting={props.isWaiting}
+        />
       </form>
     </Panel>
   )

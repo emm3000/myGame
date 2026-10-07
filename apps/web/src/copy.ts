@@ -347,6 +347,8 @@ export const copy = {
     work: (label: string, level: number): string => `${label}, ${names.level(level)}`,
     cargoFrom: (name: string): string => `desde ${name}`,
     tomorrow: (time: string): string => `mañana ${time}`,
+    readyAt: (clock: string): string => `lista ${clock}`,
+    readyIn: (timeLeft: string): string => `lista en ${timeLeft}`,
   },
   study: {
     section: 'Biblioteca',

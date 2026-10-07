@@ -51,7 +51,7 @@ const secondsPerMinute = 60
 const wholeMinutesOf = (elapsedSeconds: number): number =>
   Math.floor(elapsedSeconds / secondsPerMinute) * secondsPerMinute
 
-const amountAfter = (
+export const amountAfter = (
   { amount, ratePerHour, capacity }: FiefOverview['resources']['wood'],
   elapsedSeconds: number,
 ): number =>

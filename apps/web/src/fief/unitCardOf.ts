@@ -1,12 +1,13 @@
 import type { UnitKind } from '@mygame/contracts'
 import { copy } from '../copy'
+import type { OrderActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
 import type { LockedUnitCardProps } from '../design-system/LockedUnitCard'
-import type { SubmitActionState } from '../design-system/SubmitAction'
 import type { UnitCardProps } from '../design-system/UnitCard'
 import type { UnitTally } from '../design-system/UnitCount'
 import type { LiveFief } from './liveFief'
+import { readyLineOf } from './readyLineOf'
 import { resourceCostsOf } from './resourceCostsOf'
 import { type ResourceCost, shortfallsOf } from './shortfallsOf'
 
@@ -42,7 +43,7 @@ const costTimes = (cost: ResourceCost, count: number): ResourceCost => ({
   food: cost.food * count,
 })
 
-function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): SubmitActionState {
+function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): OrderActionState {
   if (fief.overview.recruitOrder !== null) {
     return { kind: 'blocked', reason: copy.army.orderRunning }
   }
@@ -55,9 +56,14 @@ function stateOf(unit: UnitKind, count: number | undefined, fief: LiveFief): Sub
   if (neededPeasants > freePeasants) {
     return { kind: 'blocked', reason: copy.fief.notEnoughPeasants(neededPeasants, freePeasants) }
   }
-  const shortfalls = shortfallsOf(costTimes(terms.cost, count), fief.amounts)
+  const cost = costTimes(terms.cost, count)
+  const shortfalls = shortfallsOf(cost, fief.amounts)
   if (shortfalls.length > 0) {
-    return { kind: 'blocked', reason: copy.fief.tooExpensive(shortfalls) }
+    return {
+      kind: 'blocked',
+      reason: copy.fief.tooExpensive(shortfalls),
+      ready: readyLineOf(cost, fief),
+    }
   }
   return { kind: 'affordable' }
 }
