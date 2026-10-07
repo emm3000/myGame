@@ -140,6 +140,12 @@ const levyCancelledAtTheBarracks: FiefOverview = {
   readAt: '2026-09-22T12:00:05.000Z',
 }
 
+const levyRereadAsIfItHadEnded: FiefOverview = {
+  ...levyCancelledAtTheBarracks,
+  units: { ...knownFief.units, infantry: 12 },
+  readAt: '2026-09-22T12:01:05.000Z',
+}
+
 it('announces nothing for a levy the lord cancels on this screen', async () => {
   await showFief(
     stubApiClient({
@@ -152,6 +158,23 @@ it('announces nothing for a levy the lord cancels on this screen', async () => {
 
   fireEvent.click(screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) }))
   await passSeconds(0)
+
+  expect(liveRegion().textContent).toBe('')
+})
+
+it('keeps the adopted cancel as the baseline of the next re-read', async () => {
+  await showFief(
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      fief: readsServing([barracksLevying, levyRereadAsIfItHadEnded]),
+      cancelRecruitOrder: async () => ({ ok: true, value: levyCancelledAtTheBarracks }),
+    }),
+  )
+  await passSeconds(5)
+  fireEvent.click(screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) }))
+  await passSeconds(0)
+
+  await passSeconds(60)
 
   expect(liveRegion().textContent).toBe('')
 })

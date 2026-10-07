@@ -134,3 +134,40 @@ it('counts down the refunded units as the levy delivers them', async () => {
     ),
   ).toBeDefined()
 })
+
+const infantryLevyAllDelivered: FiefOverview = {
+  ...infantryLevyWithSevenToCome,
+  units: { ...knownFief.units, infantry: 12 },
+  recruitOrder: {
+    unit: 'infantry',
+    count: 12,
+    delivered: 12,
+    perUnitSeconds: 30,
+    startedAt: '2026-09-22T11:54:00.000Z',
+    endsAt: '2026-09-22T12:00:00.000Z',
+  },
+}
+
+it('states no refund beside a levy cancel once every unit is delivered', async () => {
+  renderAppAt(
+    knownFiefPath,
+    stubApiClient({
+      currentPlayer: async () => knownPlayer,
+      fief: (() => {
+        const reads = [infantryLevyAllDelivered]
+        return () => {
+          const next = reads.shift()
+          return next === undefined
+            ? new Promise(() => undefined)
+            : Promise.resolve({ ok: true as const, value: next })
+        }
+      })(),
+    }),
+  )
+  await act(() => vi.advanceTimersByTimeAsync(0))
+
+  const cancel = screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) })
+  const row = cancel.parentElement
+  assert(row !== null)
+  expect(within(row).queryByText(/recuperas/)).toBeNull()
+})

@@ -17,7 +17,7 @@ export type RecruitSlotState =
       readonly remainingSeconds: number
       readonly totalSeconds: number
       readonly cancel: CancelAction
-      readonly refund: string
+      readonly refund: string | undefined
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
