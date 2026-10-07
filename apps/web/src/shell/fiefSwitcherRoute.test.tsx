@@ -23,7 +23,7 @@ const bothFiefs: FiefList = {
       freeSlots: [],
       fullStores: [],
     },
-    ...knownFiefList.fiefs,
+    ...knownFiefList.fiefs.map((fief) => ({ ...fief, freeSlots: [] })),
   ],
 }
 
@@ -193,4 +193,83 @@ it('reads the list again on each navigation', async () => {
   )
 
   await waitFor(() => expect(reads).toHaveLength(2))
+})
+
+const otherFiefWith = (
+  freeSlots: FiefList['fiefs'][number]['freeSlots'],
+  fullStores: FiefList['fiefs'][number]['fullStores'],
+): ApiClient =>
+  signedInClient(async () => ({
+    ok: true,
+    value: {
+      fiefs: bothFiefs.fiefs.map((fief) =>
+        fief.id === secondFiefId ? { ...fief, freeSlots, fullStores } : fief,
+      ),
+    },
+  }))
+
+it('names the other fief free slots', async () => {
+  renderAppAt(knownFiefPath, otherFiefWith(['build', 'recruit'], []))
+
+  const otherEntry = await switcherEntry(`${secondEntryName}, Sin obra, Sin leva`)
+
+  expect(within(otherEntry).getByText('Sin obra')).toBeDefined()
+  expect(within(otherEntry).getByText('Sin leva')).toBeDefined()
+})
+
+it('names the other fief full stores', async () => {
+  renderAppAt(knownFiefPath, otherFiefWith([], ['stone', 'food']))
+
+  const otherEntry = await switcherEntry(
+    `${secondEntryName}, Almacén lleno: piedra, Almacén lleno: comida`,
+  )
+
+  for (const store of ['Almacén lleno: piedra', 'Almacén lleno: comida']) {
+    expect(within(otherEntry).getByText(store).querySelector('svg')).not.toBeNull()
+  }
+})
+
+it('shows no badge on the current fief', async () => {
+  const bothBusyAndFull: FiefList = {
+    fiefs: bothFiefs.fiefs.map((fief) => ({ ...fief, freeSlots: ['study'], fullStores: ['iron'] })),
+  }
+  renderAppAt(
+    knownFiefPath,
+    signedInClient(async () => ({ ok: true, value: bothBusyAndFull })),
+  )
+
+  const currentEntry = await switcherEntry(knownEntryName)
+
+  expect(currentEntry.getAttribute('aria-current')).toBe('page')
+  expect(
+    await switcherEntry(`${secondEntryName}, Sin estudio, Almacén lleno: hierro`),
+  ).toBeDefined()
+})
+
+it('shows no badge on a lord of one fief', async () => {
+  renderAppAt(
+    knownFiefPath,
+    signedInClient(async () => ({ ok: true, value: knownFiefList })),
+  )
+
+  expect(await switcherEntry(knownEntryName)).toBeDefined()
+  expect(within(await switcher()).queryByText(copy.status.idleBuild)).toBeNull()
+})
+
+it('shows no badge on a fief with nothing free or full', async () => {
+  renderAppAt(knownFiefPath, otherFiefWith([], []))
+
+  const otherEntry = await switcherEntry(secondEntryName)
+
+  expect(otherEntry.textContent).toBe('Sotoverde del Páramo, ·Vadoalto 2:7')
+})
+
+it('includes the badges in the entry accessible name', async () => {
+  renderAppAt(knownFiefPath, otherFiefWith(['build', 'march'], ['stone']))
+
+  expect(
+    await switcherEntry(
+      'Sotoverde del Páramo, Vadoalto 2:7, Sin obra, Sin marcha, Almacén lleno: piedra',
+    ),
+  ).toBeDefined()
 })
