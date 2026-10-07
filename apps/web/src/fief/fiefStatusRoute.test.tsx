@@ -240,6 +240,14 @@ it('shows when the build queue empties', async () => {
   )
 })
 
+it('draws the time left and the clock as separate pieces', async () => {
+  await showFief(sawmillWithTwoWaiting)
+
+  const build = within(slotLink(/^Obra:/) as HTMLElement)
+  expect(build.getByText('· 1 h 20 min')).toBeDefined()
+  expect(build.getByText('· 15:20')).toBeDefined()
+})
+
 it('counts down and tracks the study, the levy and the march', async () => {
   await showFief({
     ...fiefAtLevels(1, 1),

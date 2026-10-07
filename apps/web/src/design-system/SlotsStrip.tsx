@@ -10,7 +10,7 @@ export type StripIcon = 'slot' | 'march'
 export interface StripLine {
   readonly heading: string
   readonly value: string
-  readonly time: string
+  readonly timePieces: ReadonlyArray<string>
 }
 
 export interface StripProgress {
@@ -49,13 +49,11 @@ function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
   return icon === 'march' ? <MarchIcon sizeClass="size-icon" /> : <SlotIcon sizeClass="size-icon" />
 }
 
-const timeSeparator = ' · '
-
 function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
   return (
     <span className="font-body text-body text-ink">
       <b className="font-bold underline underline-offset-2">{line.heading}</b> {line.value}
-      {line.time.split(timeSeparator).map((piece) => (
+      {line.timePieces.map((piece) => (
         <Fragment key={piece}>
           {' '}
           <span className="inline-block font-utility text-numeral text-ink-muted tabular-nums">
