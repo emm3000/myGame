@@ -305,6 +305,18 @@ describe('the digest routes', () => {
     expect((await digestOf(ana)).isDue).toBe(true)
   })
 
+  it('is due when only a store filled after the acknowledgement', async () => {
+    const ana = await signUpAna()
+    clock.advanceHours(40)
+
+    const digest = await digestOf(ana)
+
+    expect({ isDue: digest.isDue, events: digest.fiefs[0]?.events }).toEqual({
+      isDue: true,
+      events: [],
+    })
+  })
+
   it('is not due within the absence threshold', async () => {
     const ana = await signUpAna()
     await record(await firstFiefOf(ana), [sawmillFinishedAfter(0.5)])
