@@ -217,6 +217,24 @@ describe('nextGoalOf', () => {
     expect(goal.value.missing).toEqual({ resources: [], peasants: 2 })
   })
 
+  it('answers the goal the catalog lists, so other goals change the answer', () => {
+    const newFief = fiefWith({})
+    const sawmillFirst = catalogWithGoals([{ building: 'sawmill', level: 1 }])
+    const farmFirst = catalogWithGoals([
+      { building: 'farm', level: 1 },
+      { building: 'quarry', level: 1 },
+    ])
+
+    const goals = [nextGoalOf(newFief, sawmillFirst), nextGoalOf(newFief, farmFirst)]
+
+    expect(
+      goals.map((goal) => (goal.ok ? [goal.value?.building, goal.value?.count] : goal.error.kind)),
+    ).toEqual([
+      ['sawmill', 1],
+      ['farm', 2],
+    ])
+  })
+
   it('answers no goal once every goal is met', () => {
     const catalog = catalogWithGoals([
       { building: 'sawmill', level: 1 },
