@@ -70,16 +70,22 @@ slice (Decision 1).
   last minute** (Decision 5; #471, PR #484). `useLiveFief` holds no
   `setInterval` at one second: `repaintDelayMsOf` schedules the next
   repaint at the lesser of one minute, the delay to the nearest
-  countdown's last minute, and the next change of state; inside the last
-  minute of any countdown it repaints every second, and it repaints once
-  at a levy's delivery and at a march's arrival or departure.
+  countdown's last minute, and the next discrete change of state. The
+  countdowns it reads are the build slot's, each waiting upgrade's, the
+  study's, the levy's end, the march's displayed countdown, the
+  incoming cargo's and the season's: inside the last minute of any of
+  them it repaints every second, so the season line ticks its last
+  minute as a slot does, though no player set the season running. The
+  discrete changes are a levy's next delivery and a march's arrival and
+  departure: each is one repaint when it happens, 45 s apart for a levy
+  of infantry at barracks 1, never a second-by-second tick.
   `liveFiefAt` interpolates the amounts by whole minutes, so an amount
   never moves between two minute repaints even while a slot ticks its
   seconds. The clock lives in the fief layout, so the map and the
   chronicle repaint at the same cadence. The re-read schedule is
-  unchanged: `rereadIntervalMs` is 60 s, as M8 always required. The
-  season countdown under a day reads `formatTimeLeft`, whole minutes
-  and seconds only in its last minute.
+  unchanged: `rereadIntervalMs` is 60 s, the ceiling M8 put on polling.
+  The season countdown under a day reads `formatTimeLeft`, whole
+  minutes and seconds only in its last minute.
 - **Why that satisfies SC 2.2.2.** The criterion asks that information
   which updates on its own, beside other content, can be paused,
   stopped, hidden or slowed, unless the updating is essential to the
@@ -90,11 +96,16 @@ slice (Decision 1).
   changes, and nothing on screen moves in the meantime, so the page is
   as still as a static one for 60 s at a stretch; that is the "control
   the frequency" the criterion offers, taken once for every player in
-  place of a control each would have to find. The seconds of a slot's
-  last minute are the one exception the slice keeps, for the activity
-  where they are essential: the player who waits for a finish is
-  watching that finish, the ticking is bounded at 60 s, it runs only on
-  a slot the player set running, and it ends when the finish applies.
+  place of a control each would have to find. The seconds of a
+  countdown's last minute are the one ticking the slice keeps, for the
+  activity where they are essential: the player who waits for a finish
+  is watching that finish, the ticking is bounded at 60 s and ends when
+  the finish applies. That holds for a slot the player set running and
+  for the season's end, which the player did not start but waits for
+  the same way, since it turns every rate and duration on the fief. A
+  levy's delivery and a march's arrival or departure are not ticking:
+  each is a discrete change of state painted once when it happens, as a
+  re-read's answer is, and between two of them the screen holds still.
   Two gaps are accepted and recorded here. The minute repaint is
   aligned to the read instant, not to each countdown's own minute
   boundary, so a line such as *14 min* can be up to 59 s stale. And the
@@ -126,7 +137,9 @@ slice (Decision 1).
   stored, walking the season segments `materializeStocks` walks and
   flooring at each boundary: the crossing instant inside its segment,
   `null` for a rate of 0 in every season, and for a store already at or
-  above the capacity the stored `fullSince`. The overview answers it as
+  above the capacity the stored `fullSince`, or `storedAt` when none is
+  stored, as for a store full since before migration 0028. The overview
+  answers it as
   `resources.<kind>.fullAt`. A cell whose `fullAt` falls within 8 h of
   `readAt` reads *lleno 19:00*, or *lleno mañana 03:00*, in place of its
   rate, the 8 h a web constant in `FiefStatus`; a full store reads
@@ -162,11 +175,13 @@ slice (Decision 1).
   (Decision 8 and the Defaults of #463). `readyLineOf` adds *lista
   22:02*, *lista mañana 01:47* or *lista en 24 min* to a building, art
   or recruit card whose every reason left is a short resource with a
-  rate above 0 and a cost within the capacity. The instant is `readAt`
-  plus the latest whole minute at which `amountAfter`, the minute
-  accrual `liveFiefAt` uses, floors to the cost, rounded up to the next
-  whole minute when the read carries seconds, so *lista* never names a
-  minute before the button unlocks. A full queue, short peasants, a
+  rate above 0 and a cost within the capacity. For each short resource
+  it takes the earliest whole minute after `readAt` at which
+  `amountAfter`, the minute accrual `liveFiefAt` uses, floors to the
+  cost, one minute later when the floor falls short; the instant is the
+  latest of those across the short resources, and its clock reading is
+  rounded up to the next whole minute when the read carries seconds, so
+  *lista* never names a minute before the button unlocks. A full queue, short peasants, a
   level, a lock or a cost above the capacity show no *lista*, and a
   march form never does: `MarchActionState` has no `ready`. It is
   display interpolation from the read's rates (M8); the server refuses
@@ -335,7 +350,7 @@ slice (Decision 1).
   routes the research named. Rejected by Decision 5: a control the
   player must find and press, on every visit, to make a bar readable is
   a worse page than one whose values hold still for a minute; and the
-  once-a-minute repaint is what M8 asked of the re-read from the start.
+  minute was already the game's cadence, the ceiling M8 put on polling.
 - **A written argument that every countdown is essential**, the third
   route. Rejected: the argument holds for the last minute of a finish
   the player is watching, and the slice keeps exactly that; it does not
@@ -410,7 +425,9 @@ slice (Decision 1).
 
 - PRD M8 is amended: the bar and the strip are on every signed-in fief
   screen, and the countdowns and amounts they show repaint at most once
-  a minute, with seconds only in a slot's last minute. Row S22 is added
+  a minute, except every second in a countdown's last minute, the
+  season's included, and once at a levy's delivery and at a march's
+  arrival or departure. Row S22 is added
   under Should have, citing this ADR. No Won't-have row changes: the
   slice binds M3, M8, N1, N2, N5 and N6 and keeps W7.
 - `CONTEXT.md` gains **Digest**, **Acknowledgement**, **Goal**,
