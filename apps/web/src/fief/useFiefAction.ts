@@ -16,6 +16,7 @@ export interface FiefAction<Subject> {
     call: () => Promise<ApiOutcome<FiefOverview>>,
     onAdopted?: () => void,
   ) => void
+  readonly dismissRefusal: () => void
 }
 
 interface RefusalOfRead<Subject> extends RefusedAction<Subject> {
@@ -59,5 +60,6 @@ export function useFiefAction<Subject>(
     isWaiting,
     refused: refused?.readAt === readAt ? refused : undefined,
     run: (subject, call, onAdopted) => void run(subject, call, onAdopted),
+    dismissRefusal: () => setRefused(undefined),
   }
 }

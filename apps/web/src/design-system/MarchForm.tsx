@@ -88,7 +88,7 @@ export function MarchForm(props: MarchFormProps): ReactElement {
             height={768}
             loading="lazy"
             decoding="async"
-            className="aspect-4/3 w-full rounded-md object-cover"
+            className="aspect-4/3 w-full max-w-form rounded-md object-cover"
           />
         )}
         <header className="flex flex-wrap items-center justify-between gap-2">

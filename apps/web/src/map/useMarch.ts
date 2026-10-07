@@ -21,6 +21,7 @@ export interface March {
   readonly attack: (request: DispatchAttackRequest) => void
   readonly found: (request: DispatchFoundingRequest) => void
   readonly transport: (request: DispatchTransportRequest) => void
+  readonly dismissRefusal: () => void
 }
 
 export function useMarch(
@@ -29,7 +30,7 @@ export function useMarch(
   adopt: (overview: FiefOverview) => void,
   readAt: string | undefined,
 ): March {
-  const { isWaiting, refused, run } = useFiefAction<MarchRequest>(adopt, readAt)
+  const { isWaiting, refused, run, dismissRefusal } = useFiefAction<MarchRequest>(adopt, readAt)
 
   return {
     isWaiting,
@@ -38,5 +39,6 @@ export function useMarch(
     attack: (request) => run(request, () => apiClient.dispatchAttack(fiefId, request)),
     found: (request) => run(request, () => apiClient.dispatchFounding(fiefId, request)),
     transport: (request) => run(request, () => apiClient.dispatchTransport(fiefId, request)),
+    dismissRefusal,
   }
 }

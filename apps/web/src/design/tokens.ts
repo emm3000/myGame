@@ -102,6 +102,12 @@ export const maxWidths: Readonly<Record<MaxWidth, string>> = {
   form: '640px',
 }
 
+export type Breakpoint = 'lg'
+
+export const breakpoints: Readonly<Record<Breakpoint, string>> = {
+  lg: '64rem',
+}
+
 export const statusBlockHeightProperty = '--status-block-height'
 
 export type ScrollMargin = 'status'

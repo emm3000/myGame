@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
+import { breakpoints } from '../design/tokens'
 
-const wideQuery = '(min-width: 64rem)'
+const wideQuery = `(min-width: ${breakpoints.lg})`
 const narrowColumns = 2
 const wideColumns = 5
 
