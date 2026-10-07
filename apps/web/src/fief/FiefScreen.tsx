@@ -242,7 +242,7 @@ export function FiefScreen({
         <Link
           to="/feudo/$fiefId/mapa/$province"
           params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}
-          className="self-start font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
+          className="inline-flex min-h-control items-center self-start font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
         >
           {names.address(overview.coordinates)}
         </Link>

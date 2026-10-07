@@ -99,7 +99,9 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
               <span className="mt-0.5 flex text-ochre">
                 <CampIcon sizeClass="size-icon" />
               </span>
-              <span className="font-body text-heading font-bold text-ink">{holder.line}</span>
+              <span className="font-body text-heading font-bold text-ink wrap-anywhere hyphens-auto">
+                {holder.line}
+              </span>
             </span>
             <span className="font-body text-caption text-ink-muted tabular-nums">
               {holder.strength}
@@ -140,8 +142,8 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
 export function PlotTile({ plotLabel, terrainLabel, holder }: PlotTileProps): ReactElement {
   return (
     <li className={`flex min-h-plot flex-col gap-2 rounded-md p-3 ${frameClassOf(holder)}`}>
-      <span className="flex items-baseline justify-between gap-2">
-        <span className="font-utility text-label uppercase text-ink-muted tabular-nums">
+      <span className="flex flex-wrap items-baseline justify-between gap-x-2">
+        <span className="whitespace-nowrap font-utility text-label uppercase text-ink-muted tabular-nums">
           {plotLabel}
         </span>
         <span className="font-utility font-semibold text-caption text-ink-muted">

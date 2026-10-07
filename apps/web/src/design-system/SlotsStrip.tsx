@@ -1,5 +1,5 @@
 import { Link, type LinkProps } from '@tanstack/react-router'
-import { type ReactElement, useId } from 'react'
+import { Fragment, type ReactElement, useId } from 'react'
 import { MarchIcon } from './icons/MarchIcon'
 import { SlotIcon } from './icons/SlotIcon'
 import { NoticeToggle, type NoticeToggleProps } from './NoticeToggle'
@@ -49,13 +49,20 @@ function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
   return icon === 'march' ? <MarchIcon sizeClass="size-icon" /> : <SlotIcon sizeClass="size-icon" />
 }
 
+const timeSeparator = ' · '
+
 function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
   return (
     <span className="font-body text-body text-ink">
       <b className="font-bold underline underline-offset-2">{line.heading}</b> {line.value}
-      <span className="whitespace-nowrap font-utility text-numeral text-ink-muted tabular-nums">
-        {` · ${line.time}`}
-      </span>
+      {line.time.split(timeSeparator).map((piece) => (
+        <Fragment key={piece}>
+          {' '}
+          <span className="inline-block font-utility text-numeral text-ink-muted tabular-nums">
+            {`· ${piece}`}
+          </span>
+        </Fragment>
+      ))}
     </span>
   )
 }
