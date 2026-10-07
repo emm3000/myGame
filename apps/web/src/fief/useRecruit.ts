@@ -10,7 +10,7 @@ export interface Recruit {
   readonly isWaiting: boolean
   readonly refused: RefusedAction<PlaceRecruitOrderRequest | CancelRecruitOrderRequest> | undefined
   readonly place: (request: PlaceRecruitOrderRequest) => void
-  readonly cancel: (target: CancelRecruitOrderRequest) => void
+  readonly cancel: (target: CancelRecruitOrderRequest, onCancelled: () => void) => void
 }
 
 export function useRecruit(
@@ -27,6 +27,7 @@ export function useRecruit(
     isWaiting,
     refused,
     place: (request) => run(request, () => apiClient.placeRecruitOrder(fiefId, request)),
-    cancel: (target) => run(target, () => apiClient.cancelRecruitOrder(fiefId, target)),
+    cancel: (target, onCancelled) =>
+      run(target, () => apiClient.cancelRecruitOrder(fiefId, target), onCancelled),
   }
 }

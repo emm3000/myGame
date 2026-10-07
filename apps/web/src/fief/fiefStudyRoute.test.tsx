@@ -426,3 +426,35 @@ it('reads lista with the clock on an art card when only resources are short', as
     'Te faltan 40 de oro. lista 18:00',
   )
 })
+
+const pressCancelStudy = async (): Promise<HTMLElement> => {
+  const button = within(librarySection()).getByRole('button', {
+    name: copy.study.cancelOf('smithing', 1),
+  })
+  button.focus()
+  fireEvent.click(button)
+  await passSeconds(0)
+  return button
+}
+
+it('moves focus to the slot title when the study is cancelled', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: smithingUnderWay }),
+    cancelStudy: async () => ({ ok: true, value: libraryBuilt }),
+  })
+
+  await pressCancelStudy()
+
+  expect(document.activeElement?.textContent).toBe(copy.names.studySlot)
+})
+
+it('keeps focus on Cancelar el estudio when the cancel is refused', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: smithingUnderWay }),
+    cancelStudy: async () => ({ ok: false, refusal: 'StudyNotFound' }),
+  })
+
+  const button = await pressCancelStudy()
+
+  expect(document.activeElement).toBe(button)
+})

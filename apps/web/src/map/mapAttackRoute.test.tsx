@@ -307,3 +307,31 @@ it('sends one attack on a double click', async () => {
   await waitFor(() => expect(screen.getByRole('status')).toBeDefined())
   expect(dispatchAttack).toHaveBeenCalledTimes(1)
 })
+
+it('moves focus to the province heading when an attack is sent', async () => {
+  const form = await openAttackOn(7, {
+    dispatchAttack: async () => ({ ok: true, value: fiefWithAttackAway }),
+  })
+  const button = attackButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('status')
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 3, name: copy.map.heading(uplandsWithCamps.kingdom, 2) }),
+  )
+})
+
+it('keeps focus on the attack when it is refused', async () => {
+  const form = await openAttackOn(7, {
+    dispatchAttack: async () => ({ ok: false, refusal: 'PlotHasNoCamp' }),
+  })
+  const button = attackButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('alert')
+  expect(document.activeElement).toBe(button)
+})

@@ -285,8 +285,8 @@ slice (Decision 1).
   line, `queue` under the build slot, `library` and `barracks` under
   their headings, `marches` on the map above the province grid; the
   chronicle shows none. The design-system `Hint` is a `<p role="note">`
-  with a quiet *Entendido* button; it never takes focus and is never a
-  modal. The copy is the lore's, in `copy.hints`.
+  with a quiet *Entendido* button; it never takes focus when it appears
+  and is never a modal. The copy is the lore's, in `copy.hints`.
 - **The switcher badges each other fief's free slots and full stores**
   (Decision 10; #465, #475, PRs #479 and #490). Each entry of `GET
   /fiefs` answers `freeSlots`, in the order `build`, `study`, `recruit`,
@@ -479,11 +479,22 @@ slice (Decision 1).
   in a battle or a settler that founds, and a cargo when the resources
   are spent in another tab between two reads. Missed notices, never
   false ones.
-- Known gap: pressing a button that removes its own card, the hint's
-  and the digest's *Entendido* and the goal's *Descartar*, drops focus
-  to `body`; the web app has no focus handling for removed content, and
-  a keyboard player loses their place (WCAG 2.4.3). The owner decides
-  whether it gets a ticket.
+- Focus after a removal (WCAG 2.4.3, #493): a button that removes
+  itself or its card on success moves focus to the title of the nearest
+  region that stays, focusable by script only (`tabIndex={-1}`, no new
+  Tab stop) and ringed on `focus-visible`: the fief name for the
+  digest's *Entendido*, the goal's *Descartar* and the `peasants`,
+  `fullStore` and `seasons` hints; the slot's title for the `queue`
+  hint and every cancel and recall; the section heading for `library`
+  and `barracks`; the province heading for `marches` and the four march
+  forms. A refusal keeps the card and focus on its button; a cancel or
+  recall waits with `aria-disabled`, never `disabled`, which would take
+  its focus. A hint still never takes focus when it appears.
+- Known gap: `/forgot-password` and `/reset-password` replace their
+  form on success, the banner's resend and the map's previous and next
+  go `disabled` while busy or at an end, and a cancel or recall that
+  leaves without a press (a finish, the stay ending by interpolation)
+  still drops focus to `body`.
 - Known gap: the strip's cargo cell has no track, because
   `IncomingCargoSchema` answers `arrivesAt` and no departure, the gap
   the S19 cargo card already had. A departure on the wire is the

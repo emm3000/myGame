@@ -452,9 +452,37 @@ it('sends one recall on a double click', async () => {
     button.click()
     button.click()
   })
-  expect(recallButton()?.hasAttribute('disabled')).toBe(true)
+  expect(recallButton()?.getAttribute('aria-disabled')).toBe('true')
+  expect(recallButton()?.hasAttribute('disabled')).toBe(false)
   answer({ ok: true, value: barracksBuilt })
   await passSeconds(0)
 
   expect(recallMarch).toHaveBeenCalledTimes(1)
+})
+
+const pressRecall = async (): Promise<HTMLElement> => {
+  const button = recallButton() as HTMLElement
+  button.focus()
+  fireEvent.click(button)
+  await passSeconds(0)
+  return button
+}
+
+it('moves focus to the slot title when the march is recalled', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: answeredNow(twoHourForageDeparted(2640)) }),
+    recallMarch: async () => ({ ok: true, value: recalledAtThePlot() }),
+  })
+
+  await pressRecall()
+
+  expect(document.activeElement?.textContent).toBe(copy.march.busySlot)
+})
+
+it('keeps focus on Retirar la marcha when the recall is refused', async () => {
+  await showFief({ recallMarch: async () => ({ ok: false, refusal: 'MarchAlreadyReturning' }) })
+
+  const button = await pressRecall()
+
+  expect(document.activeElement).toBe(button)
 })

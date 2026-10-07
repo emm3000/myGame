@@ -5,7 +5,7 @@ import { useFiefAction } from './useFiefAction'
 export interface Cancel {
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
-  readonly start: (target: CancelUpgradeRequest) => void
+  readonly start: (target: CancelUpgradeRequest, onCancelled: () => void) => void
 }
 
 export function useCancel(
@@ -19,6 +19,7 @@ export function useCancel(
   return {
     isWaiting,
     refusal: refused?.refusal,
-    start: (target) => run(target, () => apiClient.cancelUpgrade(fiefId, target)),
+    start: (target, onCancelled) =>
+      run(target, () => apiClient.cancelUpgrade(fiefId, target), onCancelled),
   }
 }

@@ -345,3 +345,83 @@ it('keeps focus where it was when a hint appears', async () => {
   expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
   expect(document.activeElement).toBe(upgrade)
 })
+
+const pressDismiss = async (): Promise<void> => {
+  const dismiss = within(screen.getByRole('note')).getByRole('button', {
+    name: copy.hints.dismiss,
+  })
+  dismiss.focus()
+  fireEvent.click(dismiss)
+  await passSeconds(0)
+}
+
+const fiefName = (): HTMLElement => screen.getByRole('heading', { level: 2, name: knownFief.name })
+
+it('moves focus to the section heading when a hint is dismissed', async () => {
+  await showAt(knownFiefPath, libraryBuilt)
+
+  await pressDismiss()
+
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 3, name: copy.study.section }),
+  )
+})
+
+it('moves focus to the barracks heading when its hint is dismissed', async () => {
+  await showAt(knownFiefPath, barracksBuilt)
+
+  await pressDismiss()
+
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 3, name: copy.army.section }),
+  )
+})
+
+it.each([
+  ['peasants', peasantsShort],
+  ['seasons', winterLoweringFood],
+  ['fullStore', stoneFull],
+] as const)('moves focus to the fief name when the %s hint is dismissed', async (_, overview) => {
+  await showAt(knownFiefPath, overview)
+
+  await pressDismiss()
+
+  expect(document.activeElement).toBe(fiefName())
+})
+
+it('moves focus to the slot title when the queue hint is dismissed', async () => {
+  await showAt(knownFiefPath, slotBusy)
+
+  await pressDismiss()
+
+  expect(document.activeElement?.textContent).toBe(copy.names.busySlot)
+})
+
+it('moves focus to the province heading when the marches hint is dismissed', async () => {
+  await showAt(mapPath, infantryAtHome)
+
+  await pressDismiss()
+
+  expect(document.activeElement?.tagName).toBe('H3')
+  expect(document.activeElement?.textContent).toBe(
+    copy.map.heading(knownFief.coordinates.kingdom, knownFief.coordinates.province),
+  )
+})
+
+it('leaves focus on the fief name when the next hint shows after a dismissal', async () => {
+  await showAt(knownFiefPath, peasantsShortWithSlotBusy)
+
+  await pressDismiss()
+
+  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
+  expect(document.activeElement).toBe(fiefName())
+})
+
+it('adds no tab stop for a focus target', async () => {
+  await showAt(knownFiefPath, libraryBuilt)
+
+  expect(fiefName().getAttribute('tabindex')).toBe('-1')
+  expect(
+    screen.getByRole('heading', { level: 3, name: copy.study.section }).getAttribute('tabindex'),
+  ).toBe('-1')
+})

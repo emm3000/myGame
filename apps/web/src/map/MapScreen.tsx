@@ -1,8 +1,9 @@
 import type { ProvinceMap } from '@mygame/contracts'
-import { type FormEvent, type ReactElement, type ReactNode, useState } from 'react'
+import { type FormEvent, type ReactElement, type ReactNode, type Ref, useState } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { Hint, type HintProps } from '../design-system/Hint'
 import { NumberField } from '../design-system/NumberField'
 import { type PlotAction, type PlotHolder, PlotTile } from '../design-system/PlotTile'
@@ -16,6 +17,7 @@ export interface MapScreenProps {
   readonly plotActionsOf: (map: ProvinceMap, plot: number) => ReadonlyArray<PlotAction>
   readonly marchPanel: ReactNode
   readonly hint: HintProps | undefined
+  readonly provinceHeadingRef?: Ref<HTMLHeadingElement> | undefined
 }
 
 type ProvinceProps = { readonly map: ProvinceMap } & Omit<MapScreenProps, 'state'>
@@ -79,7 +81,14 @@ function JumpControl({
   )
 }
 
-function Province({ map, onBrowse, plotActionsOf, marchPanel, hint }: ProvinceProps): ReactElement {
+function Province({
+  map,
+  onBrowse,
+  plotActionsOf,
+  marchPanel,
+  hint,
+  provinceHeadingRef,
+}: ProvinceProps): ReactElement {
   const heading = copy.map.heading(map.kingdom, map.province)
   const terrainLabel = copy.names.terrains[map.terrain]
   return (
@@ -104,7 +113,13 @@ function Province({ map, onBrowse, plotActionsOf, marchPanel, hint }: ProvincePr
         <JumpControl key={map.province} map={map} onBrowse={onBrowse} />
       </div>
       <div className="flex flex-col gap-1">
-        <h3 className="m-0 font-display text-title text-ink">{heading}</h3>
+        <h3
+          ref={provinceHeadingRef}
+          tabIndex={-1}
+          className={`m-0 self-start rounded-sm font-display text-title text-ink ${focusTargetClass}`}
+        >
+          {heading}
+        </h3>
         <p className="m-0 font-body text-caption text-ink-muted">{copy.map.terrain(map.terrain)}</p>
       </div>
       {hint !== undefined && <Hint {...hint} />}

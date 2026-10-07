@@ -11,7 +11,11 @@ export interface RefusedAction<Subject> {
 export interface FiefAction<Subject> {
   readonly isWaiting: boolean
   readonly refused: RefusedAction<Subject> | undefined
-  readonly run: (subject: Subject, call: () => Promise<ApiOutcome<FiefOverview>>) => void
+  readonly run: (
+    subject: Subject,
+    call: () => Promise<ApiOutcome<FiefOverview>>,
+    onAdopted?: () => void,
+  ) => void
 }
 
 interface RefusalOfRead<Subject> extends RefusedAction<Subject> {
@@ -27,7 +31,11 @@ export function useFiefAction<Subject>(
   const isInFlight = useRef(false)
 
   const run = useCallback(
-    async (subject: Subject, call: () => Promise<ApiOutcome<FiefOverview>>): Promise<void> => {
+    async (
+      subject: Subject,
+      call: () => Promise<ApiOutcome<FiefOverview>>,
+      onAdopted: (() => void) | undefined,
+    ): Promise<void> => {
       if (isInFlight.current) {
         return
       }
@@ -39,6 +47,7 @@ export function useFiefAction<Subject>(
       setIsWaiting(false)
       if (outcome.ok) {
         adopt(outcome.value)
+        onAdopted?.()
         return
       }
       setRefused({ subject, refusal: outcome.refusal, message: outcome.message, readAt })
@@ -49,6 +58,6 @@ export function useFiefAction<Subject>(
   return {
     isWaiting,
     refused: refused?.readAt === readAt ? refused : undefined,
-    run: (subject, call) => void run(subject, call),
+    run: (subject, call, onAdopted) => void run(subject, call, onAdopted),
   }
 }

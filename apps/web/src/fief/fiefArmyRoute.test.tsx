@@ -392,7 +392,8 @@ it('sends one cancel on a double click', async () => {
     button.click()
     button.click()
   })
-  expect(cancelButton().hasAttribute('disabled')).toBe(true)
+  expect(cancelButton().getAttribute('aria-disabled')).toBe('true')
+  expect(cancelButton().hasAttribute('disabled')).toBe(false)
   answer.resolve({ ok: true, value: barracksBuilt })
   await passSeconds(0)
 
@@ -409,4 +410,34 @@ it('sends no request when a blocked recruit action is pressed', async () => {
 
   expect(recruitButton().getAttribute('aria-disabled')).toBe('true')
   expect(placeRecruitOrder).not.toHaveBeenCalled()
+})
+
+const pressCancel = async (): Promise<HTMLElement> => {
+  const button = cancelButton()
+  button.focus()
+  fireEvent.click(button)
+  await passSeconds(0)
+  return button
+}
+
+it('moves focus to the slot title when the order is cancelled', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: orderOfTwelve }),
+    cancelRecruitOrder: async () => ({ ok: true, value: barracksBuilt }),
+  })
+
+  await pressCancel()
+
+  expect(document.activeElement?.textContent).toBe(copy.army.slot)
+})
+
+it('keeps focus on Cancelar la leva when the cancel is refused', async () => {
+  await showFief({
+    fief: async () => ({ ok: true, value: orderOfTwelve }),
+    cancelRecruitOrder: async () => ({ ok: false, refusal: 'RecruitOrderNotFound' }),
+  })
+
+  const button = await pressCancel()
+
+  expect(document.activeElement).toBe(button)
 })

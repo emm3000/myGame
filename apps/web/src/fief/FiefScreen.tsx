@@ -10,10 +10,13 @@ import { capitalize } from '../design-system/capitalize'
 import { convoyArtOf } from '../design-system/convoyArtOf'
 import { DigestCard, type DigestCardProps } from '../design-system/DigestCard'
 import { FormAlert } from '../design-system/FormAlert'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { GoalCard, type GoalCardProps } from '../design-system/GoalCard'
 import { Hint, type HintProps } from '../design-system/Hint'
 import { SeasonLine } from '../design-system/SeasonLine'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
+import { type FocusTarget, useFocusTarget } from '../focus/useFocusTarget'
+import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
 import { ArmySection } from './ArmySection'
@@ -31,6 +34,7 @@ import type { Upgrade } from './useUpgrade'
 
 export interface FiefScreenProps {
   readonly fief: LiveFief
+  readonly fiefName: FocusTarget<HTMLHeadingElement>
   readonly upgrade: Upgrade
   readonly cancel: Cancel
   readonly study: Study
@@ -49,8 +53,14 @@ export interface ScreenHint {
 const hintAt = (hint: ScreenHint | undefined, kind: ScreenHint['kind']): HintProps | undefined =>
   hint?.kind === kind ? hint.props : undefined
 
-function StandaloneHint({ hint }: { readonly hint: HintProps | undefined }): ReactElement | null {
-  return hint === undefined ? null : <Hint {...hint} />
+function StandaloneHint({
+  hint,
+  focusAfterDismiss,
+}: {
+  readonly hint: HintProps | undefined
+  readonly focusAfterDismiss: () => void
+}): ReactElement | null {
+  return hint === undefined ? null : <Hint {...hintFocusingAfterDismiss(hint, focusAfterDismiss)} />
 }
 
 const { names } = copy
@@ -116,16 +126,20 @@ function NoticesRow({
   )
 }
 
-function cancelActionOf(cancel: Cancel, target: CancelUpgradeRequest): CancelAction {
+function cancelActionOf(
+  cancel: Cancel,
+  target: CancelUpgradeRequest,
+  onCancelled: () => void,
+): CancelAction {
   return {
     label: copy.fief.cancel,
     accessibleName: copy.fief.cancelOf(target.building, target.targetLevel),
     isWaiting: cancel.isWaiting,
-    onCancel: () => cancel.start(target),
+    onCancel: () => cancel.start(target, onCancelled),
   }
 }
 
-function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
+function slotStateOf(fief: LiveFief, cancel: Cancel, onCancelled: () => void): BuildSlotState {
   const { slot } = fief.overview
   if (slot.kind === 'idle') {
     return { kind: 'idle', title: names.slot, invitation: names.idleSlot }
@@ -144,7 +158,11 @@ function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
     time: formatFinish(fief.slotRemainingSeconds, fief.at),
     totalSeconds: fief.slotTotalSeconds,
     finishedLabel: copy.fief.finished,
-    cancel: cancelActionOf(cancel, { building: slot.building, targetLevel: slot.targetLevel }),
+    cancel: cancelActionOf(
+      cancel,
+      { building: slot.building, targetLevel: slot.targetLevel },
+      onCancelled,
+    ),
     ...building,
   }
 }
@@ -152,9 +170,11 @@ function slotStateOf(fief: LiveFief, cancel: Cancel): BuildSlotState {
 function WaitingUpgradesOf({
   fief,
   cancel,
+  onCancelled,
 }: {
   readonly fief: LiveFief
   readonly cancel: Cancel
+  readonly onCancelled: () => void
 }): ReactElement | null {
   const last = fief.waitingUpgrades.at(-1)
   if (last === undefined) {
@@ -165,7 +185,7 @@ function WaitingUpgradesOf({
     levelLabel: names.level(targetLevel),
     remainingSeconds,
     time: formatFinish(remainingSeconds, fief.at),
-    cancel: cancelActionOf(cancel, { building, targetLevel }),
+    cancel: cancelActionOf(cancel, { building, targetLevel }, onCancelled),
   }))
   return (
     <WaitingUpgrades
@@ -202,6 +222,7 @@ function BuildingItem({
 
 export function FiefScreen({
   fief,
+  fiefName,
   upgrade,
   cancel,
   study,
@@ -213,6 +234,7 @@ export function FiefScreen({
 }: FiefScreenProps): ReactElement {
   const { overview } = fief
   const buildingsHeadingId = useId()
+  const slotTitle = useFocusTarget<HTMLSpanElement>()
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
@@ -223,9 +245,15 @@ export function FiefScreen({
         >
           {names.address(overview.coordinates)}
         </Link>
-        <h2 className="m-0 font-display text-display-xl text-ink">{overview.name}</h2>
+        <h2
+          ref={fiefName.ref}
+          tabIndex={-1}
+          className={`m-0 self-start rounded-sm font-display text-display-xl text-ink ${focusTargetClass}`}
+        >
+          {overview.name}
+        </h2>
         <SeasonLineOf fief={fief} />
-        <StandaloneHint hint={hintAt(hint, 'seasons')} />
+        <StandaloneHint hint={hintAt(hint, 'seasons')} focusAfterDismiss={fiefName.focus} />
       </header>
       <NoticesRow digest={digest} goal={goal} />
       <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -234,10 +262,10 @@ export function FiefScreen({
           className="flex flex-col gap-2 md:scroll-mt-status lg:scroll-mt-status-wide"
         >
           <IncomingCargoOf fief={fief} />
-          <BuildSlot state={slotStateOf(fief, cancel)} />
-          <StandaloneHint hint={hintAt(hint, 'queue')} />
+          <BuildSlot state={slotStateOf(fief, cancel, slotTitle.focus)} titleRef={slotTitle.ref} />
+          <StandaloneHint hint={hintAt(hint, 'queue')} focusAfterDismiss={slotTitle.focus} />
           {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
-          <WaitingUpgradesOf fief={fief} cancel={cancel} />
+          <WaitingUpgradesOf fief={fief} cancel={cancel} onCancelled={slotTitle.focus} />
         </div>
         <section aria-labelledby={buildingsHeadingId} className="flex flex-col gap-3 lg:col-span-2">
           <SeasonSectionHeading

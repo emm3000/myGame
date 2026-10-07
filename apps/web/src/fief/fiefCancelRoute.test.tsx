@@ -184,3 +184,52 @@ it('offers no cancel on a slot that just finished', async () => {
   expect(screen.getByText(copy.fief.justFinished)).toBeDefined()
   expect(screen.queryByRole('button', { name: copy.fief.cancelOf('sawmill', 2) })).toBeNull()
 })
+
+const press = async (button: HTMLElement): Promise<void> => {
+  button.focus()
+  fireEvent.click(button)
+  await passSeconds(0)
+}
+
+it('moves focus to the slot title when the upgrade in progress is cancelled', async () => {
+  await showFief({ cancelUpgrade: async () => ({ ok: true, value: knownFief }) })
+
+  await press(cancelButton())
+
+  expect(document.activeElement?.textContent).toBe(copy.names.slot)
+})
+
+it('moves focus to the slot title when a waiting upgrade is cancelled', async () => {
+  const quarryOnly: FiefOverview = {
+    ...sawmillUpgradeUnderWay,
+    queue: { ...sawmillWithTwoWaiting.queue, entries: [] },
+  }
+  await showFief({
+    fief: async () => ({ ok: true, value: sawmillWithTwoWaiting }),
+    cancelUpgrade: async () => ({ ok: true, value: quarryOnly }),
+  })
+
+  await press(cancelButtonOf('farm', 2))
+
+  expect(document.activeElement?.textContent).toBe(copy.names.busySlot)
+})
+
+it('keeps focus on Cancelar la obra when the cancel is refused', async () => {
+  await showFief({ cancelUpgrade: async () => ({ ok: false, refusal: 'UpgradeNotFound' }) })
+  const button = cancelButton()
+
+  await press(button)
+
+  expect(document.activeElement).toBe(button)
+})
+
+it('keeps the cancel focusable while it waits', async () => {
+  await showFief({ cancelUpgrade: () => new Promise<ApiOutcome<FiefOverview>>(() => undefined) })
+  const button = cancelButton()
+
+  await press(button)
+
+  expect(button.getAttribute('aria-disabled')).toBe('true')
+  expect(button.hasAttribute('disabled')).toBe(false)
+  expect(document.activeElement).toBe(button)
+})

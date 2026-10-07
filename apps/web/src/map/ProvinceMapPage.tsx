@@ -2,6 +2,8 @@ import { useNavigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../api/apiClient'
 import { useLayoutFief } from '../fief/useLayoutFief'
+import { useFocusTarget } from '../focus/useFocusTarget'
+import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
 import { hintPropsOf } from '../hints/hintPropsOf'
 import { marchesHintOf } from '../hints/marchesHintOf'
 import { useLayoutHints } from '../hints/useLayoutHints'
@@ -25,11 +27,13 @@ export function ProvinceMapPage({
   const fief = useLayoutFief()
   const hints = useLayoutHints()
   const { state, reread } = useProvinceMap(apiClient, fiefId, province)
+  const provinceHeading = useFocusTarget<HTMLHeadingElement>()
   const march = useMapMarch(
     apiClient,
     fiefId,
     state.kind === 'read' ? state.map : undefined,
     reread,
+    provinceHeading.focus,
   )
 
   const browse = (target: number): void => {
@@ -48,7 +52,12 @@ export function ProvinceMapPage({
       onBrowse={browse}
       plotActionsOf={march.plotActionsOf}
       marchPanel={<MapMarchPanel march={march} />}
-      hint={hint === undefined ? undefined : hintPropsOf(hint, hints)}
+      hint={
+        hint === undefined
+          ? undefined
+          : hintFocusingAfterDismiss(hintPropsOf(hint, hints), provinceHeading.focus)
+      }
+      provinceHeadingRef={provinceHeading.ref}
     />
   )
 }

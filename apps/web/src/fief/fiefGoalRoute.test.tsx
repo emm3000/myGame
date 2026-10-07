@@ -209,3 +209,28 @@ it('keeps the goal of the other fief after Descartar', async () => {
 
   expect(within(goalCard()).getByText('Sube el aserradero a nivel 2.')).toBeDefined()
 })
+
+const press = async (button: HTMLElement): Promise<void> => {
+  button.focus()
+  fireEvent.click(button)
+  await passSeconds(0)
+}
+
+it('moves focus to the fief name when the goal is dismissed', async () => {
+  await showFief(barracksShortOfIronAndPeasants, { dismissGuidance: async () => undefined })
+
+  await press(dismissButton())
+
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 2, name: knownFief.name }),
+  )
+})
+
+it('keeps focus on Descartar when the dismissal is refused', async () => {
+  await showFief(barracksShortOfIronAndPeasants, { dismissGuidance: async () => 'Unexpected' })
+  const button = dismissButton()
+
+  await press(button)
+
+  expect(document.activeElement).toBe(button)
+})

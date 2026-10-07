@@ -9,6 +9,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const sotoverdeWithASettler: FiefOverview = {
@@ -280,4 +281,32 @@ it('reads the target plot reserved once the founding is sent', async () => {
   expect(target.textContent).toContain('reservada')
   expect(within(target).queryByRole('button')).toBeNull()
   expect(screen.getByRole('status').textContent).toContain('Nuevo feudo: Villanueva')
+})
+
+it('moves focus to the province heading when a founding is sent', async () => {
+  const form = await openFoundingOn(7, {
+    dispatchFounding: async () => ({ ok: true, value: sotoverdeWithFoundingAway }),
+  })
+  const button = foundButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('status')
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+  )
+})
+
+it('keeps focus on the founding when it is refused', async () => {
+  const form = await openFoundingOn(7, {
+    dispatchFounding: async () => ({ ok: false, refusal: 'PlotReserved' }),
+  })
+  const button = foundButton(form)
+  button.focus()
+
+  fireEvent.click(button)
+
+  await screen.findByRole('alert')
+  expect(document.activeElement).toBe(button)
 })

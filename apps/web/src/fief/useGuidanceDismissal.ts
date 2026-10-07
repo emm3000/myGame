@@ -5,7 +5,7 @@ export interface GuidanceDismissal {
   readonly isDismissed: boolean
   readonly isWaiting: boolean
   readonly refusal: ApiRefusal | undefined
-  readonly dismiss: () => void
+  readonly dismiss: (onDismissed: () => void) => void
 }
 
 export function useGuidanceDismissal(apiClient: ApiClient, fiefId: string): GuidanceDismissal {
@@ -14,23 +14,27 @@ export function useGuidanceDismissal(apiClient: ApiClient, fiefId: string): Guid
   const [refusal, setRefusal] = useState<ApiRefusal | undefined>(undefined)
   const isInFlight = useRef(false)
 
-  const dismiss = useCallback((): void => {
-    if (isInFlight.current) {
-      return
-    }
-    isInFlight.current = true
-    setIsWaiting(true)
-    setRefusal(undefined)
-    void apiClient.dismissGuidance(fiefId).then((answer) => {
-      isInFlight.current = false
-      setIsWaiting(false)
-      if (answer === undefined) {
-        setIsDismissed(true)
+  const dismiss = useCallback(
+    (onDismissed: () => void): void => {
+      if (isInFlight.current) {
         return
       }
-      setRefusal(answer)
-    })
-  }, [apiClient, fiefId])
+      isInFlight.current = true
+      setIsWaiting(true)
+      setRefusal(undefined)
+      void apiClient.dismissGuidance(fiefId).then((answer) => {
+        isInFlight.current = false
+        setIsWaiting(false)
+        if (answer === undefined) {
+          setIsDismissed(true)
+          onDismissed()
+          return
+        }
+        setRefusal(answer)
+      })
+    },
+    [apiClient, fiefId],
+  )
 
   return { isDismissed, isWaiting, refusal, dismiss }
 }
