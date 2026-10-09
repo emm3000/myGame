@@ -325,7 +325,9 @@ slice (Decision 1), recorded by ADR 029.
   server timer (W7, N2). Only while the tab is open, and only for the
   fief on screen. Since #524 (ADR 028) the same re-read also writes the
   same bodies, without the fief's name, to the fief layout's
-  `aria-live="polite"` region, with no opt-in.
+  `aria-live="polite"` region, with no opt-in. Since #542 each
+  announcement replaces the region's line with a new node, so a finish
+  identical to the one before it is announced again.
 - **The three stores are api-side ports, not domain** (#478, PR #482).
   `DigestAcknowledgements`, `GuidanceDismissals` and `SeenHints` join
   `Accounts`, `AccountTokens`, `Mailer` and `ChronicleReader` as the
@@ -536,7 +538,13 @@ slice (Decision 1), recorded by ADR 029.
   form on success, the banner's resend and the map's previous and next
   go `disabled` while busy or at an end, and a cancel or recall that
   leaves without a press (a finish, the stay ending by interpolation)
-  still drops focus to `body`.
+  still drops focus to `body`. Closed by #542 for the password screens
+  and the map: the confirmation line that replaces each form takes
+  focus when it appears, focusable by script only and ringed on
+  `focus-visible`, and previous and next at an end are `blocked`
+  (`aria-disabled`, the press swallowed), so they keep focus. The
+  banner's resend, still `disabled` while it sends, and the focus a
+  finish drops stay open.
 - Known gap: the strip's cargo cell has no track, because
   `IncomingCargoSchema` answers `arrivesAt` and no departure, the gap
   the S19 cargo card already had. A departure on the wire is the
