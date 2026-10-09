@@ -26,7 +26,7 @@ export function WaitingUpgrades({
   finishedLabel,
 }: WaitingUpgradesProps): ReactElement {
   return (
-    <section className="flex flex-col gap-2 rounded-md border border-line bg-surface p-4">
+    <section className="flex flex-col gap-2 rounded-md border border-line bg-surface p-5">
       <span className="font-utility text-ink-muted tabular-nums">
         <span className="text-label uppercase">{title}</span>
         <span className="text-numeral">{` · ${emptiesAt}`}</span>
@@ -37,7 +37,7 @@ export function WaitingUpgrades({
             <span className="flex flex-wrap items-center justify-between gap-2 self-stretch">
               <span className="flex items-baseline gap-2">
                 <span className="font-display text-body text-ink">{buildingName}</span>
-                <span className="rounded-pill bg-surface-raised px-2 font-utility text-label text-ink-muted tabular-nums">
+                <span className="rounded-pill bg-surface-sunken px-2 font-utility text-label text-ink tabular-nums">
                   {levelLabel}
                 </span>
               </span>

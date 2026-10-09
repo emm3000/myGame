@@ -32,7 +32,7 @@ export function UnitCard(props: UnitCardProps): ReactElement {
     }
   }
   return (
-    <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
+    <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
       <UnitCardHeader
         unit={props.unit}
         name={props.name}

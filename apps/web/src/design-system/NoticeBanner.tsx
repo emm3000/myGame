@@ -35,7 +35,7 @@ export function NoticeBanner(props: NoticeBannerProps): ReactElement {
     <section
       aria-labelledby={lineId}
       aria-busy={props.isBusy}
-      className="flex flex-col gap-3 rounded-md border border-line border-l-4 border-l-ochre bg-surface-raised px-4 py-3 shadow-card"
+      className="flex flex-col gap-3 rounded-md border-l-4 border-l-ochre bg-surface-raised px-4 py-3 shadow-card"
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="flex items-start gap-3 md:flex-1 md:items-center">

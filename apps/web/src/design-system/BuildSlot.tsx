@@ -28,7 +28,7 @@ export type BuildSlotState =
       readonly message: string
     }
 
-const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
+const frameClass = 'flex flex-col gap-3 rounded-md p-5'
 const badgeClass = 'rounded-pill px-2 font-utility text-label tabular-nums'
 
 function Building({
@@ -58,19 +58,21 @@ export function BuildSlot({
   switch (state.kind) {
     case 'idle':
       return (
-        <section className={`${frameClass} border-dashed border-line bg-surface text-ink-faint`}>
+        <section
+          className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
+        >
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <p className="m-0 font-body text-caption">{state.invitation}</p>
         </section>
       )
     case 'busy':
       return (
-        <section className={`${frameClass} border-line-strong bg-surface-raised text-ink-muted`}>
+        <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-card`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
             levelLabel={state.levelLabel}
-            badgeTone="bg-umber text-on-umber"
+            badgeTone="bg-surface-sunken text-ink"
           />
           <Countdown
             remainingSeconds={state.remainingSeconds}
@@ -87,7 +89,7 @@ export function BuildSlot({
       )
     case 'justFinished':
       return (
-        <section className={`${frameClass} border-moss bg-moss-soft text-moss`}>
+        <section className={`${frameClass} border border-moss bg-moss-soft text-moss`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}

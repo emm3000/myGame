@@ -108,7 +108,7 @@ function PeasantItem({
 
 export function ResourceBar({ resources, peasants, labels }: ResourceBarProps): ReactElement {
   return (
-    <ul className="m-0 grid list-none grid-cols-3 gap-3 rounded-md border border-line bg-surface-raised p-3 shadow-card md:grid-cols-6">
+    <ul className="m-0 grid list-none grid-cols-3 gap-3 rounded-md bg-surface-raised p-4 shadow-card md:grid-cols-6">
       {resources.map((cell) => (
         <ResourceItem key={cell.kind} cell={cell} fullLabel={labels.full} />
       ))}

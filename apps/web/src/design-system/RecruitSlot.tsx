@@ -20,7 +20,7 @@ export type RecruitSlotState =
       readonly refund: string | undefined
     }
 
-const frameClass = 'flex flex-col gap-3 rounded-md border p-4'
+const frameClass = 'flex flex-col gap-3 rounded-md p-5'
 
 export function RecruitSlot({
   state,
@@ -31,7 +31,9 @@ export function RecruitSlot({
 }): ReactElement {
   if (state.kind === 'idle') {
     return (
-      <section className={`${frameClass} border-dashed border-line bg-surface text-ink-faint`}>
+      <section
+        className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
+      >
         <SlotHeading
           icon={<SlotIcon sizeClass="size-icon" />}
           title={state.title}
@@ -42,7 +44,7 @@ export function RecruitSlot({
     )
   }
   return (
-    <section className={`${frameClass} border-line-strong bg-surface-raised text-ink-muted`}>
+    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-card`}>
       <SlotHeading
         icon={<SlotIcon sizeClass="size-icon" />}
         title={state.title}

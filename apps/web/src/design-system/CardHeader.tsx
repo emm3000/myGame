@@ -21,7 +21,7 @@ export function CardHeader({
         {name}
       </Title>
       <span
-        className={`rounded-pill px-2 font-utility text-label tabular-nums ${isAtMaxLevel ? 'bg-moss text-on-moss' : 'bg-umber text-on-umber'}`}
+        className={`rounded-pill px-2 font-utility text-label tabular-nums ${isAtMaxLevel ? 'bg-moss text-on-moss' : 'bg-surface-sunken text-ink'}`}
       >
         {levelLabel}
       </span>

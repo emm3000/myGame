@@ -23,9 +23,13 @@ export function Track({ value, total, fillClass, marks = [] }: TrackProps): Reac
       aria-valuemax={100}
       aria-valuenow={percent}
       focusable="false"
-      className="block h-1 w-full rounded-sm bg-surface-sunken"
+      className="block h-track w-full rounded-sm bg-surface-sunken"
     >
-      <rect width={`${percent}%`} height="100%" className={fillClass} />
+      <rect
+        width={`${percent}%`}
+        height="100%"
+        className={`motion-safe:transition-track ${fillClass}`}
+      />
       {marks.map((mark) => (
         <rect
           key={mark}

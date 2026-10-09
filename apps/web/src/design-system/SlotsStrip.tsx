@@ -43,7 +43,7 @@ export interface SlotsStripProps {
 }
 
 const cellClass =
-  'flex h-full flex-col gap-2 rounded-md border p-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
+  'flex h-full flex-col gap-2 rounded-md p-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
 
 function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
   return icon === 'march' ? <MarchIcon sizeClass="size-icon" /> : <SlotIcon sizeClass="size-icon" />
@@ -52,7 +52,7 @@ function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
 function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
   return (
     <span className="font-body text-body text-ink">
-      <b className="font-bold underline underline-offset-2">{line.heading}</b> {line.value}
+      <b className="font-bold">{line.heading}</b> {line.value}
       {line.timePieces.map((piece) => (
         <Fragment key={piece}>
           {' '}
@@ -110,7 +110,7 @@ export function SlotsStrip({ label, link, cells, notices }: SlotsStripProps): Re
             <Link
               {...link}
               hash={cell.section}
-              className={`${cellClass} ${cell.kind === 'idle' ? 'border-dashed border-line bg-surface' : 'border-line-strong bg-surface-raised'}`}
+              className={`${cellClass} ${cell.kind === 'idle' ? 'border border-dashed border-line bg-surface' : 'bg-surface-raised shadow-card'}`}
             >
               <CellContent cell={cell} />
             </Link>

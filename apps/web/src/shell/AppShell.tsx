@@ -63,7 +63,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
-        <h1 className="m-0 font-display text-display-xl text-umber">{copy.shell.title}</h1>
+        <h1 className="m-0 font-display text-title text-umber">{copy.shell.title}</h1>
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
           {fiefId === undefined ? null : (

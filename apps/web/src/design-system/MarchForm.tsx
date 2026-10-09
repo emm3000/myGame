@@ -79,7 +79,7 @@ export function MarchForm(props: MarchFormProps): ReactElement {
   }
   return (
     <div className="w-full">
-      <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
+      <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
         {props.artSrc !== undefined && (
           <img
             src={props.artSrc}

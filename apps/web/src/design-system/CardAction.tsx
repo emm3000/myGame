@@ -22,9 +22,9 @@ export interface CardActionProps {
 }
 
 const cardTone: Readonly<Record<CardActionState['kind'], string>> = {
-  affordable: 'border-moss bg-surface-raised',
-  blocked: 'border-line bg-surface-raised',
-  atMaxLevel: 'border-line bg-surface-sunken',
+  affordable: 'border border-moss bg-surface-raised',
+  blocked: 'bg-surface-raised',
+  atMaxLevel: 'bg-surface-sunken',
 }
 
 export const cardToneOf = (state: CardActionState): string => cardTone[state.kind]
