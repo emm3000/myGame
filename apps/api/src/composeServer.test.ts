@@ -25,6 +25,7 @@ import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
 import { dispatchTransportOf } from './fief/dispatchTransportOf'
 import { recallMarchOf } from './fief/recallMarchOf'
+import { isWaitingOnALock, lockedFiefReadQuery, lockProbeLimit } from './lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -438,21 +439,6 @@ const withRead = (
   save: (fief) => fiefs.save(fief),
 })
 
-const probeLimit = 500
-
-const isLockedFiefReadWaiting = async (observer: Client): Promise<boolean> => {
-  const probe = await observer.query<{ waiting: boolean }>(
-    `SELECT pg_sleep(0.01), EXISTS (
-       SELECT 1 FROM pg_stat_activity
-       WHERE datname = current_database()
-         AND pid <> pg_backend_pid()
-         AND wait_event_type = 'Lock'
-         AND query ILIKE 'select "fiefs"."id", %'
-     ) AS waiting`,
-  )
-  return probe.rows[0]?.waiting === true
-}
-
 const untilBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
   let hasRead = false
   void secondRead.then(() => {
@@ -461,8 +447,8 @@ const untilBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> =
   const observer = new Client({ connectionString: databaseUrl() })
   await observer.connect()
   try {
-    for (let probes = 0; probes < probeLimit; probes += 1) {
-      if (hasRead || (await isLockedFiefReadWaiting(observer))) {
+    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+      if (hasRead || (await isWaitingOnALock(observer, [lockedFiefReadQuery]))) {
         return
       }
     }
