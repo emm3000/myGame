@@ -30,9 +30,9 @@ export function NoticeToggle({
         >
           <span
             aria-hidden="true"
-            className={`flex h-6 w-switch items-center rounded-sm border p-px ${isOn ? 'justify-end border-umber bg-umber' : 'justify-start border-line-strong bg-surface-sunken'}`}
+            className={`flex h-6 w-switch items-center rounded-pill border p-px ${isOn ? 'justify-end border-umber bg-umber' : 'justify-start border-line-strong bg-surface-sunken'}`}
           >
-            <span className={`size-icon rounded-sm ${isOn ? 'bg-on-umber' : 'bg-line-strong'}`} />
+            <span className={`size-icon rounded-pill ${isOn ? 'bg-on-umber' : 'bg-line-strong'}`} />
           </span>
           {label}
           <span aria-hidden="true" className="text-caption font-semibold text-ink-muted">

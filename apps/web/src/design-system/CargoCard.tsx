@@ -28,8 +28,8 @@ export function CargoCard({
     <Panel
       element="article"
       labelledBy={titleId}
-      toneClass="border-line-strong bg-surface-raised"
-      spacingClass="gap-3 p-4"
+      toneClass="bg-surface-raised"
+      spacingClass="gap-3 p-5"
     >
       <img
         src={artSrc}

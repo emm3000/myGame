@@ -38,11 +38,11 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   free: 'border border-line border-dashed bg-surface',
   camp: 'border border-line border-dashed bg-surface',
   reserved: 'border border-line-strong border-dashed bg-surface-sunken',
-  held: 'border border-line bg-surface-raised shadow-card',
+  held: 'bg-surface-raised shadow-card',
   own: 'border-2 border-river border-l-4 bg-surface-raised shadow-card',
 }
 
-const expandedFrameClass = 'border border-line-strong bg-surface-raised'
+const expandedFrameClass = 'bg-surface-raised shadow-card'
 
 const frameClassOf = (holder: PlotHolder): string =>
   (holder.kind === 'free' || holder.kind === 'camp') &&

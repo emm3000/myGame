@@ -47,7 +47,7 @@ function Effect({ resource, text }: ArtEffect): ReactElement {
 export function ArtCard(props: ArtCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
-    <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
+    <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
       <img
         src={props.artSrc}
         alt=""

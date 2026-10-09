@@ -22,7 +22,7 @@ export interface BuildingCardProps {
 export function BuildingCard(props: BuildingCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
-    <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-4">
+    <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
       {props.artSrc !== undefined && (
         <img
           src={props.artSrc}

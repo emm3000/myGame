@@ -42,8 +42,8 @@ export function GoalCard({
     <Panel
       element="article"
       labelledBy={titleId}
-      toneClass="border-line bg-surface-raised"
-      spacingClass="gap-3 p-4"
+      toneClass="bg-surface-raised"
+      spacingClass="gap-3 p-5"
     >
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 id={titleId} className="m-0 font-display text-ink text-title">
