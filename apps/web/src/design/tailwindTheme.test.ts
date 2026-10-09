@@ -2,7 +2,16 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { compile } from '@tailwindcss/node'
 import { expect, it } from 'vitest'
-import { minHeights, palette, radii, shadows, spacing, widths } from './tokens'
+import {
+  heights,
+  minHeights,
+  palette,
+  radii,
+  shadows,
+  spacing,
+  transitions,
+  widths,
+} from './tokens'
 
 async function compileStylesheet(): Promise<Awaited<ReturnType<typeof compile>>> {
   const base = join(import.meta.dirname, '..')
@@ -64,4 +73,33 @@ it('exposes a Tailwind width utility for every width token', async () => {
   const css = stylesheet.build(names.map((name) => `w-${name}`))
 
   expect(names.filter((name) => !css.includes(`.w-${name} {`))).toEqual([])
+})
+
+it('exposes a Tailwind height utility for every height token', async () => {
+  const stylesheet = await compileStylesheet()
+  const names = Object.keys(heights)
+
+  const css = stylesheet.build(names.map((name) => `h-${name}`))
+
+  expect(names.filter((name) => !css.includes(`.h-${name} {`))).toEqual([])
+})
+
+it('exposes a Tailwind transition utility for every transition token', async () => {
+  const stylesheet = await compileStylesheet()
+  const entries = Object.entries(transitions)
+
+  const css = stylesheet.build(entries.map(([name]) => `transition-${name}`))
+
+  expect(entries.filter(([, value]) => !css.includes(`transition: ${value}`))).toEqual([])
+})
+
+it('switches every shadow token with the theme', async () => {
+  const stylesheet = await compileStylesheet()
+  const declarations = Object.entries(shadows).flatMap(([name, byTheme]) =>
+    Object.values(byTheme).map((value) => `--shadow-${name}: ${value}`),
+  )
+
+  const css = stylesheet.build([])
+
+  expect(declarations.filter((declaration) => !css.includes(declaration))).toEqual([])
 })
