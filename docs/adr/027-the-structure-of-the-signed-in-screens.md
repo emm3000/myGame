@@ -500,9 +500,12 @@ slice (Decision 1), recorded by ADR 029.
   `fullStore` and `seasons` hints; the slot's title for the `queue`
   hint and every cancel and recall; the section heading for `library`
   and `barracks`; the province heading for `marches` and the four march
-  forms. A refusal keeps the card and focus on its button; a cancel or
-  recall waits with `aria-disabled`, never `disabled`, which would take
-  its focus. A hint still never takes focus when it appears.
+  forms. A form that a confirmation line replaces on success moves
+  focus to that line, in the same way: `/forgot-password` and
+  `/reset-password` (#542). A refusal keeps the card and focus on its
+  button; a cancel or recall waits with `aria-disabled`, never
+  `disabled`, which would take its focus. A hint still never takes
+  focus when it appears.
 - Text contrast (WCAG 1.4.3 and 1.4.11, #500): `design/tokens.test.ts`
   lists text and non-text pairs by token name and fails a text pair
   under 4.5:1 or a non-text pair under 3:1, in Parchment and Ledger.
