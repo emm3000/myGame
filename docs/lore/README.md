@@ -25,7 +25,7 @@ A ticket that names something new for the player links the lore page that names 
 
 ## Voice
 
-Grounded, low-magic, early-medieval. Names are short and pronounceable in Spanish. No real-world nations, religions or historical figures. Humour is dry, never parody.
+Grounded, no magic, early-medieval. Names are short and pronounceable in Spanish. No real-world nations, religions or historical figures. Humour is dry, never parody.
 
 ## Authorship
 
