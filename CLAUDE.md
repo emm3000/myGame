@@ -4,7 +4,7 @@ Operating manifest for this repo. Loaded in every session.
 
 ## Mandatory state
 
-The product is a **server-authoritative** persistent browser game in a medieval setting, built on OGame's mechanics (ADR 003). The server is the only source of truth for every resource, queue and timer; the browser renders and asks. Resources accrue while the player is away by **lazy evaluation** (ADR 005): state is derived on read from stored timestamps and rates, never advanced by a background timer. The name is `myGame` until the lore names it.
+The product is a **server-authoritative** persistent browser game in a medieval setting, built on OGame's mechanics (ADR 003). The server is the only source of truth for every resource, queue and timer; the browser renders and asks. Resources accrue while the player is away by **lazy evaluation** (ADR 005): state is derived on read from stored timestamps and rates, never advanced by a background timer. The lore names the game Vadoalto (`docs/lore/world.md`); the repo, the packages and every identifier keep `myGame`.
 
 No third-party users yet, but the author runs the game from day one, so a schema change is a migration and never a reset.
 
