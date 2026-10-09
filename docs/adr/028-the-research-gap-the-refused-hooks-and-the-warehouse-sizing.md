@@ -277,6 +277,8 @@ it, and changes no content.
   announce the same text, the region's content does not change, so a
   screen reader may not announce the second finish. A fix would key the
   text by the finish instant or clear the region between re-reads.
+  Closed by #542: each announcement puts the line in a new node keyed
+  by a sequence, so the second finish is announced again.
 - Known gap (the review of PR #530): at 1280 px the capped march art,
   640 × 480, still sits between the tapped tile and the controls, so
   the submit button of an attack or a transport form lands about 850
