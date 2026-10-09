@@ -102,6 +102,21 @@ it('shows the Spanish reason when the queue is full', async () => {
   expect(within(cardOf('sawmill')).queryByRole('alert')).toBeNull()
 })
 
+it('reads an upgrade the stores no longer pay in the one line of short resources', async () => {
+  const enqueueUpgrade = async (): Promise<ApiOutcome<FiefOverview>> => ({
+    ok: false,
+    refusal: 'InsufficientResources',
+  })
+  await showFief(signedInClient({ enqueueUpgrade }))
+
+  fireEvent.click(upgradeButtonOf('quarry'))
+  await passSeconds(0)
+
+  expect(within(cardOf('quarry')).getByRole('alert').textContent).toBe(
+    'No tienes recursos suficientes.',
+  )
+})
+
 const threeWaitingBehindSawmill: FiefOverview = {
   ...sawmillUpgradeUnderWay,
   queue: {
