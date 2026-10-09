@@ -36,7 +36,7 @@ no seconds, the goal's dismissal travels with the fief read, *lista*
 rounds up to the next whole minute, the two bar hints sit under the
 status block and not inside the bar, and a digest read costs 2N + 4
 round trips. The slice is structure only; the visual look is a later
-slice (Decision 1).
+slice (Decision 1), recorded by ADR 029.
 
 ## Decision
 
@@ -572,7 +572,7 @@ slice (Decision 1).
   2026-10-07 under the owner's delegation (#497, Decisions 3 and 4):
   #499 kept the S22 open questions as shipped (`docs/lore/names.md`).
 - Out of scope of #463, each a future ADR, an amendment of this one or
-  a ticket: the visual look, server push or mail reminders, a resource
+  a ticket: the visual look (ADR 029), server push or mail reminders, a resource
   snapshot, daily quests or streaks, a tutorial or a modal, goal kinds
   other than a building level, and any change to a game rule, a formula
   or content other than `goals` and `digest`.
