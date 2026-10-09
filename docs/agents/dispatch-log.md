@@ -12,7 +12,7 @@ Totals of rows already folded out of Recent.
 
 | Row | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|---|
-| 1 | sonnet:low | 7 | 5 | 0 | 0 | 2 |
+| 1 | sonnet:low | 8 | 6 | 0 | 0 | 2 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 57 | 49 | 5 | 2 | 1 |
 | 3 | opus:medium | 24 | 16 | 3 | 4 | 1 |
@@ -27,7 +27,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| #508 | #498 | 1 | sonnet:low | MERGE | |
 | infra#7 | #507 | 3 | opus:high | MERGE | |
 | #509 | #501 | 2 | opus:medium | MERGE | |
 | #510 | #499 | 1 | fable:high | FIX FIRST | judgment |
@@ -48,3 +47,4 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #532 | #527 | 1 | fable:high | FIX FIRST | judgment |
 | #535 (artifact) | #535 | 5 | fable:high | MERGE | |
 | #538 | #536 | 3 | opus:high | MERGE | |
+| #539 | #537 | 1 | fable:high | FIX FIRST | judgment |
