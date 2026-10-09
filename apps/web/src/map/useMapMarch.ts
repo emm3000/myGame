@@ -139,7 +139,7 @@ export function useMapMarch(
       return
     }
     setEntries(firstEntriesOf(fiefRead))
-    setName(copy.founding.proposedName(fiefRead.name, map.terrain))
+    setName(copy.founding.proposedName(map.terrain))
     setChosen({ province: map.province, plot, terrain: map.terrain, camp, order })
   }
 

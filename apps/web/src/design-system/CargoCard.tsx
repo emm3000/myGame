@@ -1,4 +1,5 @@
 import { type ReactElement, useId } from 'react'
+import { CardArt } from './CardArt'
 import { CountdownLine, type SlotCountdown } from './CountdownLine'
 import { MarchIcon } from './icons/MarchIcon'
 import { Panel } from './Panel'
@@ -31,15 +32,7 @@ export function CargoCard({
       toneClass="bg-surface-raised"
       spacingClass="gap-3 p-5"
     >
-      <img
-        src={artSrc}
-        alt=""
-        width={768}
-        height={768}
-        loading="lazy"
-        decoding="async"
-        className="aspect-4/3 w-full rounded-md object-cover"
-      />
+      <CardArt src={artSrc} />
       <div className="flex items-center gap-2 text-ink-muted">
         <MarchIcon sizeClass="size-icon" />
         <h3 id={titleId} className="m-0 font-display text-title text-ink">

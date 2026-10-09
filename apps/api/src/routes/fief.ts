@@ -42,7 +42,7 @@ import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarch
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { storedFiefReadingOf } from '../fief/storedFiefReadingOf'
 import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
-import { answerRefusal, type RefusalLines, transportLines } from '../http/answerRefusal'
+import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
@@ -65,13 +65,9 @@ export type FiefDependencies = CurrentFiefDependencies &
   }
 
 export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
-  const answerReading = (
-    c: Context,
-    reading: Result<FiefReading, DomainError>,
-    lines: RefusalLines = {},
-  ): Response => {
+  const answerReading = (c: Context, reading: Result<FiefReading, DomainError>): Response => {
     if (!reading.ok) {
-      return answerRefusal(c, reading.error, lines)
+      return answerRefusal(c, reading.error)
     }
     const overview = fiefOverviewOf(reading.value, dependencies.buildingCatalog)
     if (!overview.ok) {
@@ -80,16 +76,8 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
     const body: FiefOverview = overview.value
     return c.json(body)
   }
-  const answerFief = (
-    c: Context,
-    fief: Result<Fief, DomainError>,
-    lines: RefusalLines = {},
-  ): Response =>
-    answerReading(
-      c,
-      fief.ok ? storedFiefReadingOf(fief.value, dependencies.buildingCatalog) : fief,
-      lines,
-    )
+  const answerFief = (c: Context, fief: Result<Fief, DomainError>): Response =>
+    answerReading(c, fief.ok ? storedFiefReadingOf(fief.value, dependencies.buildingCatalog) : fief)
   const signedInPlayer = requirePlayer(dependencies)
   return new Hono()
     .get('/', signedInPlayer, requireNamedFief, async (c) =>
@@ -185,7 +173,6 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
       return answerFief(
         c,
         await dispatchTransportOf(c.var.fiefOfPlayer, request.data, dependencies),
-        transportLines,
       )
     })
     .post('/marches/:departedAt/recall', signedInPlayer, requireNamedFief, async (c) => {

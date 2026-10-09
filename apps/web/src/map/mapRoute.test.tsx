@@ -83,8 +83,17 @@ it('names the fief that holds a plot', async () => {
 it('marks the fief of the viewer as own', async () => {
   const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
-  expect(within(plots[11] as HTMLElement).getByText('Fuenteclara')).toBeDefined()
-  expect(within(plots[11] as HTMLElement).getByText('Tu feudo')).toBeDefined()
+  expect(within(plots[11] as HTMLElement).getByText('Tu feudo: Fuenteclara')).toBeDefined()
+})
+
+it('reads the own plot as one marker line under its heading', async () => {
+  const plots = await showPlots(
+    `${knownFiefPath}/mapa`,
+    plotsWith({ 12: { fief: { name: 'Sotoverde', isOwn: true } } }),
+  )
+
+  expect(within(plots[11] as HTMLElement).getByText('Parcela 12')).toBeDefined()
+  expect(within(plots[11] as HTMLElement).getByText('Tu feudo: Sotoverde')).toBeDefined()
 })
 
 it('marks no own fief as the one the map is read from', async () => {
@@ -100,7 +109,7 @@ it('shows a free plot with the free line', async () => {
   const plots = await showPlots(`${knownFiefPath}/mapa`, knownProvinceMap)
 
   expect(within(plots[1] as HTMLElement).getByText('libre')).toBeDefined()
-  expect(within(plots[1] as HTMLElement).queryByText('Tu feudo')).toBeNull()
+  expect(within(plots[1] as HTMLElement).queryByText(/^Tu feudo/)).toBeNull()
 })
 
 it('names the terrain of the province the api answered', async () => {
@@ -349,6 +358,6 @@ it('marks both own fiefs', async () => {
     plotsWith({ 7: { fief: { name: 'Sotoverde del Páramo', isOwn: true } } }),
   )
 
-  expect(within(plots[6] as HTMLElement).getByText('Tu feudo')).toBeDefined()
-  expect(within(plots[11] as HTMLElement).getByText('Tu feudo')).toBeDefined()
+  expect(within(plots[6] as HTMLElement).getByText('Tu feudo: Sotoverde del Páramo')).toBeDefined()
+  expect(within(plots[11] as HTMLElement).getByText('Tu feudo: Fuenteclara')).toBeDefined()
 })

@@ -13,14 +13,17 @@ import { UnitKindSchema } from '@mygame/contracts'
 import type { ApiRefusal } from './api/apiClient'
 import { capitalize } from './design-system/capitalize'
 import { formatQuantity } from './design-system/formatQuantity'
+import { neutralPercent } from './seasons/neutralPercent'
 import { formatTimeLeft } from './time/formatTimeLeft'
-import { partyKinds } from './units/partyKinds'
 import type { UnitCounts } from './units/UnitCounts'
 
 export interface ResourceQuantity {
   readonly amount: number
   readonly resource: ResourceKind
 }
+
+const unexpectedRefusal =
+  'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.'
 
 const refusals: Readonly<Record<ApiRefusal, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
@@ -31,8 +34,8 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   MaxLevelReached: 'Ese edificio ya está en su nivel más alto.',
   QueueFull: 'Ya no caben más obras en espera. Espera a que avance alguna.',
   UpgradeNotFound: 'Esa obra ya no está en tu cola. No queda nada que cancelar.',
-  InsufficientResources: 'No tienes recursos suficientes para esa obra.',
-  NotEnoughPeasants: 'No tienes campesinos libres suficientes para esa obra.',
+  InsufficientResources: 'No tienes recursos suficientes.',
+  NotEnoughPeasants: 'No tienes campesinos libres suficientes.',
   BlankFiefName: 'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
   StudySlotBusy: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
   LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
@@ -57,11 +60,11 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   FiefCapReached: 'Solo puedes tener 2 feudos. Deja al colono en casa.',
   PlotReserved: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
   EmptyCargo: 'Un transporte no sale de vacío. Carga al menos un recurso.',
-  CargoAboveCarry: 'La carga pasa de lo que llevan tus hombres. Quita carga o envía más hombres.',
+  CargoAboveCarry: unexpectedRefusal,
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
-  Unexpected: 'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
+  Unexpected: unexpectedRefusal,
 }
 
 const resources: Readonly<Record<ResourceKind, string>> = {
@@ -107,12 +110,6 @@ const terrains: Readonly<Record<Terrain, string>> = {
   lowlands: 'vega',
   uplands: 'páramo',
   ridges: 'riscos',
-}
-
-const terrainSurnames: Readonly<Record<Terrain, string>> = {
-  lowlands: 'de la Vega',
-  uplands: 'del Páramo',
-  ridges: 'de los Riscos',
 }
 
 const seasons: Readonly<Record<SeasonKind, string>> = {
@@ -172,12 +169,16 @@ const sentPartyPhrase = (counts: UnitCounts, sent: UnitCounts): string => {
       )
 }
 
-const emptyParty = `Envía al menos ${new Intl.ListFormat('es', { type: 'disjunction' }).format(
-  partyKinds.map((unit) => `un ${units[unit].singular}`),
-)}.`
+const emptyParty = 'Envía al menos un hombre.'
 
-const lostBeforeCampClause = (unitsLost: UnitCounts): string =>
-  listedUnitsOf(unitsLost).length > 1 ? `${partyPhrase(unitsLost)},` : partyPhrase(unitsLost)
+const lordLossesClause = (unitsLost: UnitCounts): string => {
+  const listed = listedUnitsOf(unitsLost)
+  if (listed.length === 0) {
+    return 'No pierdes a nadie'
+  }
+  const phrase = listFormat.format(listed)
+  return listed.length > 1 ? `Pierdes ${phrase},` : `Pierdes ${phrase}`
+}
 
 const names = {
   resources,
@@ -210,8 +211,6 @@ const quantitiesOf = (quantities: ReadonlyArray<ResourceQuantity>): string =>
   listFormat.format(
     quantities.map(({ amount, resource }) => `${formatQuantity(amount)} de ${resources[resource]}`),
   )
-
-const neutralPercent = 100
 
 const signedChange = (multiplierPercent: number): string => {
   const change = multiplierPercent - neutralPercent
@@ -254,7 +253,7 @@ const storeFull = 'Almacén lleno:'
 
 export const copy = {
   shell: {
-    title: 'myGame',
+    title: 'Vadoalto',
     signOut: 'Salir',
     navigation: {
       fief: 'Feudo',
@@ -505,8 +504,7 @@ export const copy = {
     title: (province: number, plot: number): string =>
       `Fundación en provincia ${province}, parcela ${plot}`,
     nameField: 'Nombre del nuevo feudo',
-    proposedName: (fiefName: string, terrain: Terrain): string =>
-      `${fiefName} ${terrainSurnames[terrain]}`,
+    proposedName: (terrain: Terrain): string => capitalize(terrains[terrain]),
     arrivalHeading: 'Llegada en',
     outboundHeading: 'Marcha de fundación:',
     newFiefHeading: 'Nuevo feudo:',
@@ -527,7 +525,6 @@ export const copy = {
     emptyCargo: refusals.EmptyCargo,
     cargoAboveCarry: (cargo: number, carry: number): string =>
       `La carga suma ${formatQuantity(cargo)} y tus hombres llevan hasta ${formatQuantity(carry)}.`,
-    insufficientResources: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
   },
   chronicle: {
     title: 'Crónica',
@@ -563,7 +560,7 @@ export const copy = {
       unitsLost: UnitCounts,
       campLost: number,
     ): string =>
-      `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. Pierdes ${lostBeforeCampClause(unitsLost)} y los bandidos pierden ${campLost} de fuerza.`,
+      `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. ${lordLossesClause(unitsLost)} y los bandidos pierden ${campLost} de fuerza.`,
     fiefAtPlot: (name: string, province: number, plot: number): string =>
       `${name}, provincia ${province}, parcela ${plot}.`,
     recovered: 'Recuperas',
@@ -622,7 +619,7 @@ export const copy = {
     free: 'libre',
     camp: 'Campamento de bandidos',
     campStrength: (tier: number, strength: number): string => `nivel ${tier}, fuerza ${strength}`,
-    ownFief: 'Tu feudo',
+    ownFief: (name: string): string => `Tu feudo: ${name}`,
     reserved: 'reservada',
     ownFounding: 'Tu fundación',
     previous: 'Provincia anterior',

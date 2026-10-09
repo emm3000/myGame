@@ -22,8 +22,6 @@ type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
 
 type SlotlessRefusalKind = Exclude<Refusal['kind'], SlottedKind>
 
-export type RefusalLines = Partial<Readonly<Record<SlotlessKind, string>>>
-
 type RefusalAnswer = {
   readonly status: ContentfulStatusCode
   readonly kind?: SlotlessKind
@@ -53,10 +51,6 @@ const fiefCapReachedLineOf = ({ cap }: FiefCapReached): string =>
 const cargoAboveCarryLineOf = ({ cargo, carry }: CargoAboveCarry): string =>
   `La carga suma ${cargo} y tus hombres llevan hasta ${carry}. Quita carga o envía más hombres.`
 
-export const transportLines: RefusalLines = {
-  InsufficientResources: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
-}
-
 const messages: Readonly<Record<SlotlessKind, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
   EmailTaken: 'Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.',
@@ -66,8 +60,8 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   MaxLevelReached: 'Ese edificio ya está en su nivel más alto.',
   QueueFull: 'Ya no caben más obras en espera. Espera a que avance alguna.',
   UpgradeNotFound: 'Esa obra ya no está en tu cola. No queda nada que cancelar.',
-  InsufficientResources: 'No tienes recursos suficientes para esa obra.',
-  NotEnoughPeasants: 'No tienes campesinos libres suficientes para esa obra.',
+  InsufficientResources: 'No tienes recursos suficientes.',
+  NotEnoughPeasants: 'No tienes campesinos libres suficientes.',
   BlankFiefName: 'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
   StudySlotBusy: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
   LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
@@ -154,7 +148,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   InvalidLootPercent: internalFailure,
 }
 
-export const answerRefusal = (c: Context, refusal: Refusal, lines: RefusalLines = {}): Response => {
+export const answerRefusal = (c: Context, refusal: Refusal): Response => {
   if (refusal.kind === 'NotEnoughUnitsAtHome') {
     const body: ApiError = { kind: refusal.kind, message: unitsShortLineOf(refusal) }
     return c.json(body, 409)
@@ -175,6 +169,6 @@ export const answerRefusal = (c: Context, refusal: Refusal, lines: RefusalLines 
   if (kind === undefined) {
     return c.body(null, status)
   }
-  const body: ApiError = { kind, message: lines[kind] ?? messages[kind] }
+  const body: ApiError = { kind, message: messages[kind] }
   return c.json(body, status)
 }

@@ -175,9 +175,7 @@ it('blocks a march with every count at 0', async () => {
   fireEvent.submit(form)
 
   expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
-  expect(accessibleDescriptionOf(sendButton(form))).toBe(
-    'Envía al menos un infante, un jinete o un arquero.',
-  )
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Envía al menos un hombre.')
   expect(previewLine(form, 'Camino de ida:')).toBeUndefined()
   expect(send).not.toHaveBeenCalled()
 })
@@ -264,9 +262,7 @@ it('sends no settler on a forage', async () => {
 
   typeParty(form, '0', '0')
 
-  expect(accessibleDescriptionOf(sendButton(form))).toBe(
-    'Envía al menos un infante, un jinete o un arquero.',
-  )
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Envía al menos un hombre.')
   typeParty(form, '12', '6')
   type(form, 'Horas de forrajeo', '2')
   fireEvent.click(sendButton(form))
