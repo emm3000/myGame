@@ -207,3 +207,13 @@ subject that carries `province` and `plot` (migration 0024). Nothing
 else here changes: the events are still written in the transaction
 that applies them, the domain never reads the chronicle, each fief has
 its own, and retention stays at 100.
+
+## Fifth amendment (2026-10-09)
+
+The chronicle records an eleventh and a twelfth kind of event,
+`transportSent` and `transportArrived`. ADR 024 owns them: when each is
+written, what it is stamped with and what it carries. Migration 0026
+adds both to `fief_event_kind` and extends `fief_events_founding_name`
+to cover them. Nothing else here changes: the events are still written
+in the transaction that applies them, the domain never reads the
+chronicle, each fief has its own, and retention stays at 100.

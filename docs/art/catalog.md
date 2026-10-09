@@ -32,7 +32,7 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 , square 1:1 composition, output image 1024 x 1024 pixels, keep the entire <framed> and ground shadow inside the square frame
 ```
 
-`<framed>` is `building` for the library and `subject` for barracks, camps and arts. It follows the tier line (buildings, camps) or the resource block (arts) after `, `, and only on the families Codex generates. Closing clauses, when a prompt has any, follow it after `, `; they sit under each family heading or in its table, never in the Subject cell. The suffix is output framing, not part of the template.
+`<framed>` is `building` for the library and `subject` for barracks, camps, arts and convoys. It follows the tier line (buildings, camps) or the resource block (arts) after `, `, and only on the families Codex generates. Closing clauses, when a prompt has any, follow it after `, `; they sit under each family heading or in its table, never in the Subject cell. The suffix is output framing, not part of the template.
 
 ### Tier lines
 
