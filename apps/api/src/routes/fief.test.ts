@@ -109,6 +109,59 @@ const statementTextOf = (query: unknown): string => {
   return ''
 }
 
+const probeLimit = 500
+
+const isFiefReadWaitingOnALock = async (observer: Client): Promise<boolean> => {
+  const probe = await observer.query<{ waiting: boolean }>(
+    `SELECT pg_sleep(0.01), EXISTS (
+       SELECT 1 FROM pg_stat_activity
+       WHERE datname = current_database()
+         AND pid <> pg_backend_pid()
+         AND wait_event_type = 'Lock'
+         AND query ILIKE 'select "fiefs"."id", %'
+     ) AS waiting`,
+  )
+  return probe.rows[0]?.waiting === true
+}
+
+type LockedFiefOutcome =
+  | { readonly kind: 'answered'; readonly response: Response }
+  | { readonly kind: 'waited' }
+
+const requestWhileFiefIsLocked = async (
+  lockedFiefId: FiefId,
+  request: () => Response | Promise<Response>,
+): Promise<LockedFiefOutcome> => {
+  const holder = new Client({ connectionString: databaseUrl() })
+  const observer = new Client({ connectionString: databaseUrl() })
+  await holder.connect()
+  await observer.connect()
+  let answer: Promise<Response> | undefined
+  try {
+    await holder.query('BEGIN')
+    await holder.query('SELECT id FROM fiefs WHERE id = $1 FOR UPDATE', [lockedFiefId])
+    let response: Response | undefined
+    answer = Promise.resolve(request()).then((answered) => {
+      response = answered
+      return answered
+    })
+    for (let probes = 0; probes < probeLimit; probes += 1) {
+      if (response !== undefined) {
+        return { kind: 'answered', response }
+      }
+      if (await isFiefReadWaitingOnALock(observer)) {
+        return { kind: 'waited' }
+      }
+    }
+    throw new Error('The request neither answered nor waited on the fief lock')
+  } finally {
+    await holder.query('ROLLBACK')
+    await holder.end()
+    await answer
+    await observer.end()
+  }
+}
+
 type AttackedMarch = Extract<NonNullable<FiefOverview['march']>, { order: 'attack' }>
 
 type SentAttack = {
@@ -368,6 +421,89 @@ describe('the fief route', () => {
     expect(response.status).toBe(404)
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
   })
+
+  const oneInfantry = { infantry: 1, cavalry: 0, archer: 0, settler: 0 }
+
+  const departedAtPath = encodeURIComponent('2026-09-22T08:00:00.000Z')
+
+  const foreignFiefRequests: ReadonlyArray<{
+    readonly route: string
+    readonly path: string
+    readonly method: 'POST' | 'DELETE'
+    readonly body: (ownFiefId: FiefId) => unknown
+  }> = [
+    { route: 'upgrade', path: '/upgrades', method: 'POST', body: () => ({ building: 'sawmill' }) },
+    { route: 'upgrade cancel', path: '/upgrades/sawmill/1', method: 'DELETE', body: () => null },
+    { route: 'study', path: '/studies', method: 'POST', body: () => ({ art: 'smithing' }) },
+    { route: 'study cancel', path: '/studies/smithing/1', method: 'DELETE', body: () => null },
+    {
+      route: 'recruit order',
+      path: '/recruit-orders',
+      method: 'POST',
+      body: () => ({ unit: 'infantry', count: 1 }),
+    },
+    {
+      route: 'recruit order cancel',
+      path: `/recruit-orders/infantry/${departedAtPath}`,
+      method: 'DELETE',
+      body: () => null,
+    },
+    {
+      route: 'march',
+      path: '/marches',
+      method: 'POST',
+      body: () => ({ province: 2, plot: 5, units: oneInfantry, stayHours: 1 }),
+    },
+    {
+      route: 'attack',
+      path: '/marches/attack',
+      method: 'POST',
+      body: () => ({ province: 2, plot: 5, units: oneInfantry }),
+    },
+    {
+      route: 'founding',
+      path: '/marches/found',
+      method: 'POST',
+      body: () => ({ province: 2, plot: 5, name: 'Peña Alta' }),
+    },
+    {
+      route: 'recall',
+      path: `/marches/${departedAtPath}/recall`,
+      method: 'POST',
+      body: () => null,
+    },
+    {
+      route: 'transport from a foreign origin',
+      path: '/marches/transport',
+      method: 'POST',
+      body: (ownFiefId) => ({
+        toFiefId: ownFiefId,
+        units: oneInfantry,
+        cargo: { wood: 1, stone: 0, iron: 0, gold: 0, food: 0 },
+      }),
+    },
+  ]
+
+  it.each(foreignFiefRequests)(
+    "refuses another lord's fief without waiting on its row lock: the $route",
+    async ({ path, method, body }) => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+      const requestBody = body(ana.fiefId)
+
+      const outcome = await requestWhileFiefIsLocked(bruno.fiefId, () =>
+        app.request(pathOf({ cookie: ana.cookie, fiefId: bruno.fiefId }, path), {
+          method,
+          headers: { cookie: ana.cookie, 'content-type': 'application/json' },
+          ...(requestBody === null ? {} : { body: JSON.stringify(requestBody) }),
+        }),
+      )
+
+      assert(outcome.kind === 'answered', 'the request waited on the foreign fief lock')
+      expect(outcome.response.status).toBe(404)
+      expect(ApiErrorSchema.parse(await outcome.response.json()).kind).toBe('FiefNotFound')
+    },
+  )
 
   it('answers 400 for a fief id that is not a uuid', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
@@ -3848,6 +3984,19 @@ describe('the fief route', () => {
       })
 
       expect(response.status).toBe(404)
+    })
+
+    it("refuses another lord's fief without waiting on its row lock: the transport to a foreign destination", async () => {
+      const ana = await signUpWithSixRidersAndAFullFief()
+      const bruno = await signUp('bruno@example.com', 'Robledal')
+
+      const outcome = await requestWhileFiefIsLocked(bruno.fiefId, () =>
+        transport(ana, { toFiefId: bruno.fiefId, units: sixRiders, cargo: woodAndStone }),
+      )
+
+      assert(outcome.kind === 'answered', 'the request waited on the foreign fief lock')
+      expect(outcome.response.status).toBe(404)
+      expect(ApiErrorSchema.parse(await outcome.response.json()).kind).toBe('FiefNotFound')
     })
 
     it('refuses a transport that names a plot', async () => {

@@ -9,6 +9,7 @@ import {
   resolveUpgrade,
 } from '@mygame/domain'
 import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
+import { fiefsOfLordHolding } from './fiefsOfLordHolding'
 import { laterOf } from './laterOf'
 
 export type MutateAfterResolveDependencies = {
@@ -28,6 +29,10 @@ export const mutateAfterResolve = async (
   { inTransaction, buildingCatalog, clock, ids }: MutateAfterResolveDependencies,
 ): Promise<Result<Fief, DomainError>> =>
   inTransaction(async ({ fiefs, chronicle, camps }) => {
+    const held = await fiefsOfLordHolding(fiefOfPlayer, fiefs)
+    if (!held.ok) {
+      return held
+    }
     const locked = await fiefs.fiefOf(fiefOfPlayer.fiefId)
     if (!locked.ok) {
       return locked
