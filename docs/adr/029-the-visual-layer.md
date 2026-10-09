@@ -10,10 +10,13 @@ S22 rebuilt the signed-in screens as structure only and named the
 visual look a later slice (ADR 027, Decision 1 of #463); S25 closed the
 research gaps and left the Design System at v26 (ADR 028). Every card,
 slot, strip cell, plot tile and banner was then framed by a hairline,
-`line` or `line-strong`, over a one-pixel `line` shadow, radii were 2
-and 4 px, the display sizes were 40/44 and 26/32, the level badge was
-`umber` on every card, the tracks were 4 px, the icons drew at a 1.75
-px stroke, and nothing animated. On 2026-10-09 the owner asked for a
+`line` or `line-strong`; the cards, the held and own plots, the bar,
+the hints, the banner and the chronicle list also sat on a one-pixel
+`line` shadow, while the slots and the strip cells did not; radii were
+2 and 4 px, the display sizes were 40/44 and 26/32, the level badge
+was `umber` on every card below its top level (the max-level badge was
+`moss` already), the tracks were 4 px, the icons drew at a 1.75 px
+stroke, and nothing animated. On 2026-10-09 the owner asked for a
 look that reads modern and clean with the medieval tone kept (*que se
 vea moderno y limpio*). #533 explored two directions on one artifact
 (https://claude.ai/artifact/R4RJ9muoA3HodGm5Wjr19q), each drawn over
@@ -74,17 +77,21 @@ what shipped, checked against the code on trunk, and changes no code.
   frame says so. Frames that stay, each because it carries a meaning:
   the dashed `line` frame of an idle slot, a free or camp plot, an idle
   strip cell, a locked unit card and an empty chronicle (dashed means
-  empty); the `moss` border of an affordable card and of a just-finished
-  slot; the 2 px `river` frame of the own plot and of the current fief
-  switcher entry; the `line-strong` border of every control; the `line`
-  rules inside a card (the cancel row, the chronicle rows, the bar's
-  peasants divider) and the `border-b` of the header and of the sticky
-  status block. `WaitingUpgrades` keeps its solid `line` frame: it is a
-  sub-section of the page, not a card. A busy slot, a busy strip cell, a
-  held plot, a free plot with an action open, the bar, a hint, the
-  banner and the chronicle list sit on `surface-raised` with
-  `shadow-card` and no border. Cards pad `p-5`, the bar `p-4` (from
-  `p-3`) and the strip cells keep `p-3`. The level badge of `CardHeader`,
+  empty); the dashed `line-strong` frame of a reserved plot on
+  `surface-sunken`; the `moss` border of an affordable card, of a
+  just-finished slot and of the banner's outcome line; the 2 px `river`
+  frame of the own plot and of the current fief switcher entry; the 4
+  px `ochre` left stripe of the banner; the `line-strong` border of
+  every control; the `line` rules inside a card (the cancel row, the
+  chronicle rows, the bar's peasants divider) and the `border-b` of the
+  header and of the sticky status block. `WaitingUpgrades` keeps its
+  solid `line` frame: it is a sub-section of the page, not a card. A
+  busy slot, a busy strip cell, a held plot, a free plot with an action
+  open, the bar, a hint and the chronicle list sit on `surface-raised`
+  with `shadow-card` and no border; the banner sits on the same with
+  its `ochre` stripe as its only border. A `Panel` card and a slot pad
+  `p-5` (`LockedUnitCard`, outside #535's table, keeps `p-4`), the bar
+  `p-4` (from `p-3`) and the strip cells keep `p-3`. The level badge of `CardHeader`,
   `BuildSlot` and `WaitingUpgrades` moves from `umber` to
   `surface-sunken` with `ink` text, a declared text pair at 11.40:1 in
   Parchment and 14.79:1 in Ledger; the max-level badge keeps `moss`,
@@ -115,8 +122,10 @@ what shipped, checked against the code on trunk, and changes no code.
   to `@media (prefers-reduced-motion: no-preference)` (WCAG 2.3.3).
   Nothing else animates: no fade on a just-finished slot, no hover or
   focus motion, no entrance. ADR 027's repaint rules are untouched: a
-  track repaints at most once a minute and every second only in a
-  slot's last minute, so the transition plays once a minute at most.
+  track repaints at most once a minute, and every second in any
+  countdown's last minute (`repaintDelayMsOf`), so the transition plays
+  at most once a minute, and up to once a second in a countdown's last
+  minute, each time the fill's rounded percent changes.
   The fill's `width` is an SVG presentation attribute; in SVG 2 it is a
   geometry property, so a CSS transition on `width` runs when React
   rewrites the attribute. That was measured in headless Chromium only:
