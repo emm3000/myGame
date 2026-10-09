@@ -35,6 +35,7 @@ import {
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { isWaitingOnALock, lockedFiefReadQuery, lockProbeLimit } from '../lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -109,21 +110,6 @@ const statementTextOf = (query: unknown): string => {
   return ''
 }
 
-const probeLimit = 500
-
-const isFiefReadWaitingOnALock = async (observer: Client): Promise<boolean> => {
-  const probe = await observer.query<{ waiting: boolean }>(
-    `SELECT pg_sleep(0.01), EXISTS (
-       SELECT 1 FROM pg_stat_activity
-       WHERE datname = current_database()
-         AND pid <> pg_backend_pid()
-         AND wait_event_type = 'Lock'
-         AND query ILIKE 'select "fiefs"."id", %'
-     ) AS waiting`,
-  )
-  return probe.rows[0]?.waiting === true
-}
-
 type LockedFiefOutcome =
   | { readonly kind: 'answered'; readonly response: Response }
   | { readonly kind: 'waited' }
@@ -134,30 +120,37 @@ const requestWhileFiefIsLocked = async (
 ): Promise<LockedFiefOutcome> => {
   const holder = new Client({ connectionString: databaseUrl() })
   const observer = new Client({ connectionString: databaseUrl() })
-  await holder.connect()
-  await observer.connect()
-  let answer: Promise<Response> | undefined
+  let answering: Promise<void> | undefined
   try {
+    await holder.connect()
+    await observer.connect()
     await holder.query('BEGIN')
     await holder.query('SELECT id FROM fiefs WHERE id = $1 FOR UPDATE', [lockedFiefId])
-    let response: Response | undefined
-    answer = Promise.resolve(request()).then((answered) => {
-      response = answered
-      return answered
-    })
-    for (let probes = 0; probes < probeLimit; probes += 1) {
-      if (response !== undefined) {
-        return { kind: 'answered', response }
+    let outcome: LockedFiefOutcome | undefined
+    let failure: { readonly error: unknown } | undefined
+    answering = Promise.resolve(request()).then(
+      (response) => {
+        outcome = { kind: 'answered', response }
+      },
+      (error: unknown) => {
+        failure = { error }
+      },
+    )
+    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+      if (failure !== undefined) {
+        throw failure.error
       }
-      if (await isFiefReadWaitingOnALock(observer)) {
+      if (outcome !== undefined) {
+        return outcome
+      }
+      if (await isWaitingOnALock(observer, [lockedFiefReadQuery])) {
         return { kind: 'waited' }
       }
     }
     throw new Error('The request neither answered nor waited on the fief lock')
   } finally {
-    await holder.query('ROLLBACK')
     await holder.end()
-    await answer
+    await answering
     await observer.end()
   }
 }

@@ -4,6 +4,7 @@ import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { AccountToken } from '../../auth/AccountTokens'
 import { tokenDigest } from '../../auth/tokenDigest'
+import { isWaitingOnALock, lockProbeLimit } from '../../lockWaitProbe.testSupport'
 import { accountTokensContract } from '../accountTokensContract'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
@@ -50,24 +51,8 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
   return { promise, resolve }
 }
 
-const probeLimit = 500
-
 const playerLockQuery = 'select "id" from "players" %for no key update'
 const tokenDeleteQuery = 'delete from "account_tokens" %'
-
-const isLockWaiting = async (queries: ReadonlyArray<string>): Promise<boolean> => {
-  const probe = await pool.query<{ waiting: boolean }>(
-    `SELECT pg_sleep(0.01), EXISTS (
-       SELECT 1 FROM pg_stat_activity
-       WHERE datname = current_database()
-         AND pid <> pg_backend_pid()
-         AND wait_event_type = 'Lock'
-         AND query ILIKE ANY($1::text[])
-     ) AS waiting`,
-    [queries],
-  )
-  return probe.rows[0]?.waiting === true
-}
 
 const untilWaitingOrDone = async (
   work: Promise<void>,
@@ -78,8 +63,8 @@ const untilWaitingOrDone = async (
   void work.then(() => {
     isDone = true
   })
-  for (let probes = 0; probes < probeLimit; probes += 1) {
-    if (isDone || (await isLockWaiting(queries))) {
+  for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+    if (isDone || (await isWaitingOnALock(pool, queries))) {
       return
     }
   }
