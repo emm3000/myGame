@@ -9,6 +9,7 @@ import {
   type Result,
   resolveUpgrade,
 } from '@mygame/domain'
+import { fiefsOfLordHolding } from './fiefsOfLordHolding'
 import { laterOf } from './laterOf'
 import type { FiefMutation, FiefStores, MutateAfterResolveDependencies } from './mutateAfterResolve'
 
@@ -39,7 +40,11 @@ export const mutateFiefPairAfterResolve = async (
 ): Promise<Result<Fief, DomainError>> =>
   inTransaction(async ({ fiefs, chronicle, camps }) => {
     const stores = { fiefs, chronicle, camps }
-    const lordsFiefs = inLockOrder(await fiefs.fiefsOf(fiefOfPlayer.playerId))
+    const held = await fiefsOfLordHolding(fiefOfPlayer, fiefs)
+    if (!held.ok) {
+      return held
+    }
+    const lordsFiefs = inLockOrder(held.value)
     const storedAts = await lockedStoredAtsOf(lordsFiefs, stores)
     if (!storedAts.ok) {
       return storedAts
