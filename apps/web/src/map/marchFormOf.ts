@@ -14,6 +14,7 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { neutralPercent } from '../seasons/neutralPercent'
 import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
@@ -46,8 +47,6 @@ export type MarchFormContent = Pick<
 >
 
 const secondsPerHour = 3600
-
-const neutralPercent = 100
 
 const yieldRatesOf = (terrain: Terrain, fief: FiefOverview): ResourceAmounts => ({
   ...fief.forageTerms.yieldPerHour[terrain],

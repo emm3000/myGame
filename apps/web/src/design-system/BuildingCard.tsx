@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { CardAction, type CardActionState, cardToneOf } from './CardAction'
+import { CardArt } from './CardArt'
 import { CardHeader } from './CardHeader'
 import { type CardCost, CostList } from './CostList'
 import { formatDuration } from './formatDuration'
@@ -23,17 +24,7 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
     <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
-      {props.artSrc !== undefined && (
-        <img
-          src={props.artSrc}
-          alt=""
-          width={768}
-          height={768}
-          loading="lazy"
-          decoding="async"
-          className="aspect-4/3 w-full rounded-md object-cover"
-        />
-      )}
+      {props.artSrc !== undefined && <CardArt src={props.artSrc} />}
       <CardHeader
         name={props.name}
         levelLabel={props.levelLabel}

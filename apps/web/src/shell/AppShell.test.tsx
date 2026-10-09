@@ -6,5 +6,5 @@ import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient
 it('renders the shell title', async () => {
   renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => knownPlayer }))
 
-  expect(await screen.findByRole('heading', { level: 1, name: 'myGame' })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: 'Vadoalto' })).toBeDefined()
 })

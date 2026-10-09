@@ -131,10 +131,10 @@ it('offers no founding on a plot with a camp', async () => {
   ).toBeNull()
 })
 
-it('prefills the name of the new fief', async () => {
+it('proposes the terrain noun alone as the name of the new fief', async () => {
   const form = await openFoundingOn(7)
 
-  expect(nameField(form).value).toBe('Sotoverde del Páramo')
+  expect(nameField(form).value).toBe('Páramo')
   fireEvent.change(nameField(form), { target: { value: 'Villanueva' } })
   expect(nameField(form).value).toBe('Villanueva')
 })

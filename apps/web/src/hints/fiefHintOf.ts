@@ -7,6 +7,7 @@ import {
 import { fullStoreOf } from '../fief/fullStoreOf'
 import { isBlockedByPeasants } from '../fief/isBlockedByPeasants'
 import type { LiveFief } from '../fief/liveFief'
+import { neutralPercent } from '../seasons/neutralPercent'
 import type { ShownHint } from './ShownHint'
 
 type FiefHintKind = Exclude<HintKind, 'marches'>
@@ -24,7 +25,9 @@ const triggers: Readonly<Record<FiefHintKind, (fief: LiveFief) => FiefHint | und
     ),
   seasons: ({ overview: { season } }) =>
     season !== null &&
-    ResourceKindSchema.options.some((resource) => season.multiplierPercent[resource] !== 100)
+    ResourceKindSchema.options.some(
+      (resource) => season.multiplierPercent[resource] !== neutralPercent,
+    )
       ? { kind: 'seasons', season: season.kind }
       : undefined,
   queue: ({ overview }) => onlyWhen(overview.slot.kind === 'busy', { kind: 'queue' }),

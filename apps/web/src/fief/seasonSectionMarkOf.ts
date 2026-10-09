@@ -1,5 +1,6 @@
 import type { FiefOverview, SeasonKind } from '@mygame/contracts'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
+import { neutralPercent } from '../seasons/neutralPercent'
 
 type Season = FiefOverview['season']
 
@@ -10,7 +11,7 @@ export function seasonSectionMarkOf(
   work: SeasonWork,
   wordsOf: (season: SeasonKind) => string,
 ): SeasonMarkProps | undefined {
-  if (season === null || season.durationPercent[work] === 100) {
+  if (season === null || season.durationPercent[work] === neutralPercent) {
     return undefined
   }
   return { season: season.kind, words: wordsOf(season.kind) }

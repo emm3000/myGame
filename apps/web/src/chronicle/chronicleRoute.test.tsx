@@ -520,7 +520,26 @@ it('sets a comma before the second y when both kinds fall', async () => {
   )
 })
 
-it('reads a battle that lost no one with the infantry at 0', async () => {
+it('reads a battle that lost no one of either side as no one lost', async () => {
+  const [row] = await showChronicle({
+    events: [
+      {
+        kind: 'battleFought',
+        province: 2,
+        plot: 7,
+        tier: 1,
+        won: true,
+        unitsLost: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
+        campLost: 0,
+        occurredAt: '2026-09-22T11:00:00.000Z',
+      },
+    ],
+  })
+
+  expect(row?.textContent).toContain('No pierdes a nadie y los bandidos pierden 0 de fuerza.')
+})
+
+it('reads a battle that lost no one of the lord as no one lost', async () => {
   const [row] = await showChronicle({
     events: [
       {
@@ -536,7 +555,7 @@ it('reads a battle that lost no one with the infantry at 0', async () => {
     ],
   })
 
-  expect(row?.textContent).toContain('Pierdes 0 infantes y los bandidos pierden 1 de fuerza.')
+  expect(row?.textContent).toContain('No pierdes a nadie y los bandidos pierden 1 de fuerza.')
 })
 
 it('reads an infantry-only line as before', async () => {

@@ -1,12 +1,11 @@
 import { type FiefOverview, UnitKindSchema } from '@mygame/contracts'
+import { neutralPercent } from '../seasons/neutralPercent'
 import type { UnitCounts } from '../units/UnitCounts'
 
 export interface RoadEnd {
   readonly province: number
   readonly plot: number
 }
-
-const neutralPercent = 100
 
 const seasonRoadPercentOf = (fief: FiefOverview): number =>
   fief.season === null ? neutralPercent : fief.season.durationPercent.road

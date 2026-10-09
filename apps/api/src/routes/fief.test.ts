@@ -1288,7 +1288,20 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'NotEnoughPeasants',
-        message: 'No tienes campesinos libres suficientes para esa obra.',
+        message: 'No tienes campesinos libres suficientes.',
+      })
+    })
+
+    it('answers an upgrade the stores cannot pay with the one line of short resources', async () => {
+      const ana = await signUp('ana@example.com', 'Valdehierro')
+      await runSql('UPDATE fiefs SET wood = 0')
+
+      const response = await enqueue(ana, 'sawmill')
+
+      expect(response.status).toBe(409)
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'InsufficientResources',
+        message: 'No tienes recursos suficientes.',
       })
     })
 
@@ -3917,7 +3930,7 @@ describe('the fief route', () => {
       expect(stored.value?.incomingCargo).toBeUndefined()
     })
 
-    it('answers a cargo above the stores with the line of the cargo', async () => {
+    it('answers a cargo above the stores with the one line of short resources', async () => {
       const ana = await signUpWithSixRidersAndAFullFief()
 
       const response = await transport(ana, {
@@ -3929,7 +3942,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'InsufficientResources',
-        message: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
+        message: 'No tienes recursos suficientes.',
       })
     })
 

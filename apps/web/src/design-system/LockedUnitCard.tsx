@@ -14,7 +14,7 @@ export interface LockedUnitCardProps {
 
 export function LockedUnitCard(props: LockedUnitCardProps): ReactElement {
   return (
-    <article className="flex flex-col gap-3 rounded-md border border-line border-dashed bg-surface p-4">
+    <article className="flex flex-col gap-3 rounded-md border border-line border-dashed bg-surface p-5">
       <UnitCardHeader
         unit={props.unit}
         name={props.name}

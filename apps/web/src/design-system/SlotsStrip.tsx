@@ -1,5 +1,6 @@
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { Fragment, type ReactElement, useId } from 'react'
+import { finishSeparator } from '../time/finishSeparator'
 import { MarchIcon } from './icons/MarchIcon'
 import { SlotIcon } from './icons/SlotIcon'
 import { NoticeToggle, type NoticeToggleProps } from './NoticeToggle'
@@ -57,7 +58,7 @@ function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
         <Fragment key={piece}>
           {' '}
           <span className="inline-block font-utility text-numeral text-ink-muted tabular-nums">
-            {`· ${piece}`}
+            {`${finishSeparator} ${piece}`}
           </span>
         </Fragment>
       ))}

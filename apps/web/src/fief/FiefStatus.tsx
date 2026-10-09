@@ -7,6 +7,7 @@ import { ResourceBar } from '../design-system/ResourceBar'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { SlotsStrip } from '../design-system/SlotsStrip'
 import type { FinishNoticesHandle } from '../notices/useFinishNotices'
+import { neutralPercent } from '../seasons/neutralPercent'
 import { formatClock } from '../time/formatClock'
 import type { LiveFief } from './liveFief'
 import { slotsStripCellsOf } from './slotsStripCellsOf'
@@ -29,7 +30,7 @@ function seasonMarkOf(
   season: LiveFief['overview']['season'],
   resource: ResourceKind,
 ): SeasonMarkProps | undefined {
-  if (season === null || season.multiplierPercent[resource] === 100) {
+  if (season === null || season.multiplierPercent[resource] === neutralPercent) {
     return undefined
   }
   return {

@@ -172,7 +172,7 @@ it('offers nothing on the fief the map is read from', async () => {
   const plots = await showMapOf(ridges)
 
   await waitFor(() => {
-    expect(within(plots[11] as HTMLElement).queryByText('Sotoverde')).not.toBeNull()
+    expect(within(plots[11] as HTMLElement).queryByText('Tu feudo: Sotoverde')).not.toBeNull()
   })
   expect(within(plots[11] as HTMLElement).queryByRole('button')).toBeNull()
   expect(screen.queryByRole('button', { name: /^Enviar un transporte/ })).toBeNull()
@@ -307,7 +307,7 @@ it('blocks a transport with no unit', async () => {
 
   expect(linesOf(form)).toEqual(['Carga: 300 de 0'])
   expect(sendButton(form).getAttribute('aria-disabled')).toBe('true')
-  expect(within(form).getByText('Envía al menos un infante, un jinete o un arquero.')).toBeDefined()
+  expect(within(form).getByText('Envía al menos un hombre.')).toBeDefined()
 })
 
 it('blocks a transport while a march is away', async () => {
@@ -368,12 +368,12 @@ it('reads the cargo above the carry as the server counted it', async () => {
   ).toBeDefined()
 })
 
-it('reads stocks drawn down since the read in the words of a cargo', async () => {
+it('reads stocks drawn down since the read in the one line of short resources', async () => {
   const form = await openTransport({
     dispatchTransport: async () => ({
       ok: false,
       refusal: 'InsufficientResources',
-      message: 'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
+      message: 'No tienes recursos suficientes.',
     }),
   })
 
@@ -381,11 +381,7 @@ it('reads stocks drawn down since the read in the words of a cargo', async () =>
   loadCargo(form, '300', '200', '220')
   fireEvent.click(sendButton(form))
 
-  expect(
-    await screen.findByText(
-      'No tienes recursos suficientes para esa carga. Ajusta las cantidades.',
-    ),
-  ).toBeDefined()
+  expect(await screen.findByText('No tienes recursos suficientes.')).toBeDefined()
 })
 
 it('reads no lista on a march form', async () => {

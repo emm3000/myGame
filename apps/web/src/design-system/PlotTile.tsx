@@ -23,8 +23,7 @@ export type PlotHolder =
   | { readonly kind: 'held'; readonly name: string }
   | {
       readonly kind: 'own'
-      readonly name: string
-      readonly marker: string
+      readonly line: string
       readonly actions: ReadonlyArray<PlotAction>
     }
 
@@ -127,8 +126,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
     case 'own':
       return (
         <>
-          <span className={nameClass}>{holder.name}</span>
-          <span className={markerClass}>{holder.marker}</span>
+          <span className={nameClass}>{holder.line}</span>
           <PlotActionButtons actions={holder.actions} />
         </>
       )
