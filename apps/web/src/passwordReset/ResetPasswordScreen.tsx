@@ -6,6 +6,7 @@ import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { TextField } from '../design-system/TextField'
+import { ConfirmationLine } from './ConfirmationLine'
 
 export type ResetPasswordState =
   | { readonly kind: 'editing'; readonly refusal: ApiRefusal | undefined }
@@ -62,9 +63,7 @@ export function ResetPasswordScreen({ state, onSubmit }: ResetPasswordScreenProp
     case 'changed':
       return (
         <AuthPanel title={copy.passwordReset.newPassword.title}>
-          <p role="status" className="m-0 font-body text-body text-ink">
-            {copy.passwordReset.newPassword.changed}
-          </p>
+          <ConfirmationLine line={copy.passwordReset.newPassword.changed} />
           <span className="flex">
             <ButtonLink to="/sign-in" tone="primary">
               {copy.passwordReset.newPassword.toSignIn}

@@ -137,3 +137,13 @@ it('opens the new password screen for a signed-in visitor', async () => {
     await screen.findByRole('heading', { level: 1, name: 'Elige una contraseña nueva' }),
   ).not.toBeNull()
 })
+
+it('moves focus to the confirmation once the password is changed', async () => {
+  renderAppAt('/reset-password?token=link-token', stubApiClient())
+
+  await chooseNewPassword('piedra-nueva')
+
+  const confirmation = await screen.findByRole('status')
+  expect(document.activeElement).toBe(confirmation)
+  expect(confirmation.getAttribute('tabindex')).toBe('-1')
+})
