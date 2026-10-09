@@ -26,6 +26,8 @@ The **fief founded** is an ending like the others, the end of the settler's road
 
 A founding that arrives writes no march back, since no one walks back. A founding the lord recalls on the road writes the S14 line, a march recalled, by the hour the settler walks in through the gate, naming the plot and the one settler and listing nothing, since a settler carries nothing; and no fief founded, since none was. The founding sent stays on the roll: the scribe scrapes the oldest line when the roll is full and never a line to unsay it, so a lord reads that the settler came home and, under it, that the settler was sent. A settler who finds another hall on the plot turns home and is written the same way. The settler's levy is the fifth kind of line, unchanged. The headings and the sentences are in `names.md` (The chronicle, The marches).
 
+**The roll of a lord's first fief opens blank**, and a fief founded line of its own, as the second fief's roll opens with, is deferred, settled on 2026-10-09 under the owner's delegation (#540, Decision 1). The first fief is founded at sign-up, and sign-up writes no event: `foundFief` saves the fief and records nothing on any roll, so the line needs a sign-up event the use case does not have, and every roll already kept would need a backfill of its first line, a migration over stored events. Neither is worth a slice while the line would say what the fief's name at the top of the screen already says. Until then the first fief's roll reads *La crónica está en blanco: aún no hay nada que contar.* (`names.md`, The chronicle) until its first ending, and only a second fief's roll opens with its founding.
+
 Proposal (S19, #408): the roll holds an eleventh and a twelfth kind of line, a transport sent and a transport arrived, since a lord of two fiefs may now send resources from one to the other (`world.md`, The land). The **transport sent** is written on the roll of the fief the party leaves, dated by the hour it left: the second line the roll writes for an order, and again for what the order does, not for the order. From that hour the stores are lighter, and a lord who finds them so wants to know where the timber went, as a lord who finds them heavier wants to know from where. The scribe writes the fief the load is bound for, by its name and its plot, and the load, material by material, from the tally at the gate.
 
 The **transport arrived** is an ending, the end of the load's road, written on the roll of the fief that receives it and dated by the hour the party reached it, never by the hour the lord heard of it. It names the fief the load came from, by its name and its plot, and what came, material by material. Each roll writes its own side and neither writes the other's: the sending fief reads that the load left and the receiving fief that it came.
@@ -40,13 +42,16 @@ Each line is dated by the hour the thing happened, never by the hour it was writ
 
 The **scribe of the hall**, *el escribano*, keeps the roll. Every fief has one from its founding, before it has a library: a hall that collects tolls and counts sacks needs someone who can write. The scribe is not one of the library's copyists (`arts.md`), who copy treatises; the scribe writes what happened. The roll is read from its end, where the ink is fresh, so the newest line comes first.
 
+The scribe is never named and never shown on screen, and the roll has no image: the chronicle is read, not looked at, and the screen that shows it draws its lines and nothing else (`docs/art/art-bible.md` lists no chronicle image, and none is planned). The hand that writes the roll has no face, as the masters of the library have none (`arts.md`, Studying). Settled on 2026-10-09 under the owner's delegation (#540, Decision 1).
+
+The roll records what happens in the fief and nothing another lord does to it: no march sighted, no scout caught. That is W1's, and whether the roll ever holds such a line is decided with W1 and not before (Open questions, below).
+
 ## Why only the latest hundred lines
 
 Parchment is dear, and a fief has better uses for a calf than its own annals. The roll holds a hundred lines. When it is full, the scribe scrapes the oldest line and writes the newest over it, as the crown's clerks did with their ledgers. Nothing older than a hundred happenings survives, and no lord has yet missed it.
 
 ## Open questions
 
-- Whether the scribe is ever named or shown on screen.
-- Whether the roll one day records what other fiefs do to this one: a march sighted, a scout caught. Out of scope for S3 (#128), for S13 (#255), whose marches meet no one, and for S15 (#292), whose attacks meet bandits and never a lord.
-- What the roll looks like; the chronicle has no image yet (`docs/art/art-bible.md`).
-- Whether the roll of a lord's first fief should open with a fief founded line of its own, as the second fief's does (S18, #378); today a first fief's roll opens blank.
+One stays, W1's. The other three closed on 2026-10-09 under the owner's delegation (#540, Decision 1): the scribe and the roll's image read in Who keeps it, and the first fief's opening line, deferred, under the S18 proposal.
+
+- Whether the roll one day records what other fiefs do to this one: a march sighted, a scout caught. Out of scope for S3 (#128), for S13 (#255), whose marches meet no one, and for S15 (#292), whose attacks meet bandits and never a lord; decided with W1.
