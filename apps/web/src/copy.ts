@@ -172,12 +172,12 @@ const sentPartyPhrase = (counts: UnitCounts, sent: UnitCounts): string => {
 const emptyParty = 'Envía al menos un hombre.'
 
 const lordLossesClause = (unitsLost: UnitCounts): string => {
-  const listed = listedUnitsOf(unitsLost)
-  if (listed.length === 0) {
+  const listedCount = listedUnitsOf(unitsLost).length
+  if (listedCount === 0) {
     return 'No pierdes a nadie'
   }
-  const phrase = listFormat.format(listed)
-  return listed.length > 1 ? `Pierdes ${phrase},` : `Pierdes ${phrase}`
+  const phrase = partyPhrase(unitsLost)
+  return listedCount > 1 ? `Pierdes ${phrase},` : `Pierdes ${phrase}`
 }
 
 const names = {
