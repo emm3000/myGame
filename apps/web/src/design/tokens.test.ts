@@ -48,7 +48,7 @@ const pairs: ReadonlyArray<Pair> = [
     kind: 'text',
     foreground: 'on-umber',
     background: 'umber',
-    usedBy: 'primary Button, CardHeader level pill, BuildSlot badge, PlotTile marker',
+    usedBy: 'primary Button, PlotTile marker',
   },
   {
     kind: 'text',
@@ -93,6 +93,12 @@ const pairs: ReadonlyArray<Pair> = [
     background: 'surface-sunken',
     usedBy: 'disabled Button and NumberField',
     exemption: 'inactive component, WCAG 1.4.3',
+  },
+  {
+    kind: 'text',
+    foreground: 'ink',
+    background: 'surface-sunken',
+    usedBy: 'CardHeader level badge, BuildSlot badge, WaitingUpgrades badge',
   },
   {
     kind: 'nonText',

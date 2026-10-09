@@ -69,7 +69,7 @@ export const typeFamilies: Readonly<Record<TypeFamily, string>> = {
   utility: "'Alegreya Sans', 'Gill Sans', 'Trebuchet MS', sans-serif",
 }
 
-export type SpaceStep = 0 | 1 | 2 | 3 | 4 | 6 | 8 | 12
+export type SpaceStep = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 12
 
 export const spacing: Readonly<Record<SpaceStep, string>> = {
   0: '0px',
@@ -77,6 +77,7 @@ export const spacing: Readonly<Record<SpaceStep, string>> = {
   2: '8px',
   3: '12px',
   4: '16px',
+  5: '20px',
   6: '24px',
   8: '32px',
   12: '48px',
@@ -122,18 +123,36 @@ export const sizes: Readonly<Record<Size, string>> = {
   icon: '20px',
 }
 
+export type Height = 'track'
+
+export const heights: Readonly<Record<Height, string>> = {
+  track: '6px',
+}
+
+export type StrokeWidth = 'icon'
+
+export const strokeWidths: Readonly<Record<StrokeWidth, number>> = {
+  icon: 1.5,
+}
+
 export type Radius = 'sm' | 'md' | 'pill'
 
 export const radii: Readonly<Record<Radius, string>> = {
-  sm: '2px',
-  md: '4px',
+  sm: '4px',
+  md: '8px',
   pill: '999px',
 }
 
 export type Shadow = 'card'
 
-export const shadows: Readonly<Record<Shadow, string>> = {
-  card: `0 1px 0 ${color('line')}`,
+export const shadows: Readonly<Record<Shadow, Readonly<Record<Theme, string>>>> = {
+  card: { light: '0 1px 3px #2a20171a', dark: '0 0 0 1px #efe4cf24' },
+}
+
+export type Transition = 'track'
+
+export const transitions: Readonly<Record<Transition, string>> = {
+  track: 'width 400ms ease-out',
 }
 
 export type TypeStyle =
@@ -155,8 +174,8 @@ export interface TypeStyleValues {
 }
 
 export const typeScale: Readonly<Record<TypeStyle, TypeStyleValues>> = {
-  'display-xl': { fontSize: '40px', lineHeight: '44px', fontWeight: 600 },
-  title: { fontSize: '26px', lineHeight: '32px', fontWeight: 600 },
+  'display-xl': { fontSize: '36px', lineHeight: '40px', fontWeight: 500 },
+  title: { fontSize: '24px', lineHeight: '28px', fontWeight: 600 },
   heading: { fontSize: '18px', lineHeight: '24px', fontWeight: 700 },
   body: { fontSize: '16px', lineHeight: '24px', fontWeight: 400 },
   caption: { fontSize: '13px', lineHeight: '18px', fontWeight: 400 },
@@ -166,7 +185,7 @@ export const typeScale: Readonly<Record<TypeStyle, TypeStyleValues>> = {
     fontSize: '12px',
     lineHeight: '16px',
     fontWeight: 600,
-    letterSpacing: '0.08em',
+    letterSpacing: '0.06em',
   },
   button: { fontSize: '15px', lineHeight: '20px', fontWeight: 600 },
 }
