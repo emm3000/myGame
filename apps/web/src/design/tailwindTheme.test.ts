@@ -93,13 +93,22 @@ it('exposes a Tailwind transition utility for every transition token', async () 
   expect(entries.filter(([, value]) => !css.includes(`transition: ${value}`))).toEqual([])
 })
 
+function ruleOf(css: string, selector: string): string {
+  const start = css.indexOf(`${selector} {`)
+  return start === -1 ? '' : css.slice(start, css.indexOf('}', start))
+}
+
 it('switches every shadow token with the theme', async () => {
   const stylesheet = await compileStylesheet()
+  const names = Object.keys(shadows)
   const declarations = Object.entries(shadows).flatMap(([name, byTheme]) =>
     Object.values(byTheme).map((value) => `--shadow-${name}: ${value}`),
   )
 
-  const css = stylesheet.build([])
+  const css = stylesheet.build(names.map((name) => `shadow-${name}`))
 
   expect(declarations.filter((declaration) => !css.includes(declaration))).toEqual([])
+  expect(
+    names.filter((name) => !ruleOf(css, `.shadow-${name}`).includes(`var(--shadow-${name})`)),
+  ).toEqual([])
 })
