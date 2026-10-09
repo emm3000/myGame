@@ -146,6 +146,56 @@ const levyRereadAsIfItHadEnded: FiefOverview = {
   readAt: '2026-09-22T12:01:05.000Z',
 }
 
+const levyEndedWithTheNextOneRunning: FiefOverview = {
+  ...knownFief,
+  buildings: barracksLevying.buildings,
+  recruitOrder: {
+    unit: 'infantry',
+    count: 12,
+    delivered: 0,
+    perUnitSeconds: 5,
+    startedAt: '2026-09-22T12:00:30.000Z',
+    endsAt: '2026-09-22T12:01:30.000Z',
+  },
+  units: { ...knownFief.units, infantry: 12 },
+  readAt: '2026-09-22T12:00:30.000Z',
+}
+
+const nextLevyEnded: FiefOverview = {
+  ...levyEndedWithTheNextOneRunning,
+  recruitOrder: null,
+  units: { ...knownFief.units, infantry: 24 },
+  readAt: '2026-09-22T12:01:30.000Z',
+}
+
+const linesPutIn = (region: Element): (() => ReadonlyArray<string>) => {
+  const lines: Array<string> = []
+  const collect = (records: ReadonlyArray<MutationRecord>): void => {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        lines.push(node.textContent ?? '')
+      }
+    }
+  }
+  const observer = new MutationObserver(collect)
+  observer.observe(region, { childList: true, subtree: true })
+  return () => {
+    collect(observer.takeRecords())
+    observer.disconnect()
+    return lines
+  }
+}
+
+it('announces two identical finishes in a row', async () => {
+  await showFiefReading([barracksLevying, levyEndedWithTheNextOneRunning, nextLevyEnded])
+  const linesSoFar = linesPutIn(liveRegion())
+
+  await passSeconds(30)
+  await passSeconds(60)
+
+  expect(linesSoFar()).toEqual(['Leva terminada: 12 infantes.', 'Leva terminada: 12 infantes.'])
+})
+
 it('announces nothing for a levy the lord cancels on this screen', async () => {
   await showFief(
     stubApiClient({

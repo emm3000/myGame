@@ -115,7 +115,7 @@ function Province({
         <Button
           type="button"
           tone="quiet"
-          disabled={map.province <= 1}
+          availability={map.province <= 1 ? 'blocked' : 'available'}
           onClick={() => onBrowse(map.province - 1)}
         >
           {copy.map.previous}
@@ -123,7 +123,7 @@ function Province({
         <Button
           type="button"
           tone="quiet"
-          disabled={map.province >= map.lastProvince}
+          availability={map.province >= map.lastProvince ? 'blocked' : 'available'}
           onClick={() => onBrowse(map.province + 1)}
         >
           {copy.map.next}

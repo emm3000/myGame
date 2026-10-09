@@ -62,7 +62,7 @@ function LiveFiefLayout({ fiefId }: { readonly fiefId: string }): ReactElement {
     <LiveFiefContext value={live}>
       <FiefNameContext value={fiefName}>
         <div className="flex flex-col gap-6">
-          <LiveRegion line={announcement.line} />
+          <LiveRegion {...announcement.announcement} />
           {live.state.kind === 'live' && (
             <LiveFiefStatus fief={live.state.fief} notices={notices} blockRef={statusBlockRef} />
           )}

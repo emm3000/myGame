@@ -76,3 +76,13 @@ it('leads back to sign in from the reset request', async () => {
     (await screen.findByRole('link', { name: copy.auth.signIn.title })).getAttribute('href'),
   ).toBe('/sign-in')
 })
+
+it('moves focus to the confirmation once the request is sent', async () => {
+  renderAppAt('/forgot-password', stubApiClient())
+
+  await askForReset('aldonza@example.com')
+
+  const confirmation = await screen.findByRole('status')
+  expect(document.activeElement).toBe(confirmation)
+  expect(confirmation.getAttribute('tabindex')).toBe('-1')
+})

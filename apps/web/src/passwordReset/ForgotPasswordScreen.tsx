@@ -7,6 +7,7 @@ import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
+import { ConfirmationLine } from './ConfirmationLine'
 
 export type ForgotPasswordState =
   | { readonly kind: 'editing'; readonly refusal: ApiRefusal | undefined }
@@ -66,9 +67,7 @@ export function ForgotPasswordScreen({ state, onSubmit }: ForgotPasswordScreenPr
         title={copy.passwordReset.request.title}
         footer={<TextLink to="/sign-in">{copy.passwordReset.request.toSignIn}</TextLink>}
       >
-        <p role="status" className="m-0 font-body text-body text-ink">
-          {copy.passwordReset.request.confirmation}
-        </p>
+        <ConfirmationLine line={copy.passwordReset.request.confirmation} />
       </AuthPanel>
     )
   }

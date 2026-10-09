@@ -1,5 +1,5 @@
 import type { ProvinceMap } from '@mygame/contracts'
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -113,18 +113,40 @@ it('names the terrain of the province the api answered', async () => {
   expect(screen.getByText('Terreno: vega')).toBeDefined()
 })
 
-it('disables previous on the first province', async () => {
-  await showPlots(`${knownFiefPath}/mapa/1`, { ...knownProvinceMap, province: 1 })
+const pressBlocked = async (name: string): Promise<HTMLButtonElement> => {
+  const blocked = await button(name)
+  blocked.focus()
+  fireEvent.click(blocked)
+  await act(async () => undefined)
+  return blocked
+}
 
-  expect((await button('Provincia anterior')).disabled).toBe(true)
-  expect((await button('Provincia siguiente')).disabled).toBe(false)
+it('blocks previous on the first province and keeps focus on it', async () => {
+  const { client, requested } = recordingClient(() => ({ ...knownProvinceMap, province: 1 }))
+  renderAppAt(`${knownFiefPath}/mapa/1`, client)
+
+  const previous = await pressBlocked('Provincia anterior')
+
+  expect(previous.getAttribute('aria-disabled')).toBe('true')
+  expect(document.activeElement).toBe(previous)
+  expect(requested).toEqual([1])
+  expect((await button('Provincia siguiente')).hasAttribute('aria-disabled')).toBe(false)
 })
 
-it('disables next on the last province of the map', async () => {
-  await showPlots(`${knownFiefPath}/mapa/4`, { ...knownProvinceMap, province: 4, lastProvince: 4 })
+it('blocks next on the last province of the map and keeps focus on it', async () => {
+  const { client, requested } = recordingClient(() => ({
+    ...knownProvinceMap,
+    province: 4,
+    lastProvince: 4,
+  }))
+  renderAppAt(`${knownFiefPath}/mapa/4`, client)
 
-  expect((await button('Provincia siguiente')).disabled).toBe(true)
-  expect((await button('Provincia anterior')).disabled).toBe(false)
+  const next = await pressBlocked('Provincia siguiente')
+
+  expect(next.getAttribute('aria-disabled')).toBe('true')
+  expect(document.activeElement).toBe(next)
+  expect(requested).toEqual([4])
+  expect((await button('Provincia anterior')).hasAttribute('aria-disabled')).toBe(false)
 })
 
 it('moves to the previous province', async () => {
