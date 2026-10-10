@@ -120,10 +120,11 @@ it('draws the art of each resource in its cell', () => {
   expect(sources).toEqual(['/art/resources/wood-1-96.webp', '/art/resources/food-1-96.webp'])
 })
 
-it('draws the peasants icon in a roundel while no peasants art is listed', () => {
-  render(<ResourceBar {...villageWith(10, 0)} />)
+it('draws no art in the peasants cell while no peasants art is listed', () => {
+  render(<ResourceBar {...storeWithFullGranary()} />)
 
-  const village = screen.getByRole('listitem', { name: 'Campesinos' })
+  const woodpile = screen.getByRole('listitem', { name: 'Wood' })
+  const village = screen.getByRole('listitem', { name: 'Peasants' })
+  expect(within(woodpile).queryByRole('presentation')).not.toBeNull()
   expect(within(village).queryByRole('presentation')).toBeNull()
-  expect(village.querySelector('svg')).not.toBeNull()
 })
