@@ -148,9 +148,16 @@ function Rocks({ rocks }: { readonly rocks: ReadonlyArray<Rock> }): ReactElement
   )
 }
 
+function SeasonTint({ season }: { readonly season: SeasonKind | null }): ReactElement | null {
+  if (season === null) {
+    return null
+  }
+  const { token, opacity } = seasonTints[season]
+  return <rect width={width} height={height} fill={color(token)} fillOpacity={opacity} />
+}
+
 function Sky({ season }: { readonly season: SeasonKind | null }): ReactElement {
   const glowId = useId()
-  const tint = season === null ? undefined : seasonTints[season]
   return (
     <>
       <defs>
@@ -160,12 +167,31 @@ function Sky({ season }: { readonly season: SeasonKind | null }): ReactElement {
         </radialGradient>
       </defs>
       <rect width={width} height={height} fill={color('surface-raised')} />
-      {tint !== undefined && (
-        <rect width={width} height={height} fill={color(tint.token)} fillOpacity={tint.opacity} />
-      )}
+      <SeasonTint season={season} />
       <rect width={width} height={height} fill={`url(#${glowId})`} />
       <circle cx={984} cy={184} r={24} fill={color('ochre')} fillOpacity={0.55} />
     </>
+  )
+}
+
+function RasterVeil({ season }: { readonly season: SeasonKind | null }): ReactElement {
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+      className="absolute inset-0 h-full w-full"
+    >
+      <rect
+        width={width}
+        height={height}
+        fill={color('surface')}
+        fillOpacity={0.35}
+        className="hidden dark:inline"
+      />
+      <SeasonTint season={season} />
+    </svg>
   )
 }
 
@@ -410,19 +436,9 @@ const ridgesRocks: ReadonlyArray<Rock> = [
   [843, 401, 34, 14],
 ]
 
-function RidgesCrags(): ReactElement {
+function OreStains(): ReactElement {
   return (
     <>
-      <Area
-        d="M0 230 L110 160 L190 190 L300 110 L380 150 L460 128 L560 196 L640 140 L720 174 L820 98 L900 150 L980 126 L1080 186 L1140 160 L1200 190 L1200 240 L0 240 Z"
-        token="slate"
-        opacity={0.38}
-      />
-      <Area
-        d="M0 262 L80 214 L150 236 L230 180 L310 216 L380 198 L470 250 L560 206 L640 230 L760 178 L850 222 L930 204 L1030 246 L1100 224 L1200 254 L1200 300 L0 300 Z"
-        token="iron"
-        opacity={0.5}
-      />
       <Area
         d="M230 182 L246 200 L300 232 L330 300 L286 300 L250 236 L212 204 Z"
         token="rust"
@@ -439,6 +455,24 @@ function RidgesCrags(): ReactElement {
         opacity={0.5}
         strokeWidth={3}
       />
+    </>
+  )
+}
+
+function RidgesCrags(): ReactElement {
+  return (
+    <>
+      <Area
+        d="M0 230 L110 160 L190 190 L300 110 L380 150 L460 128 L560 196 L640 140 L720 174 L820 98 L900 150 L980 126 L1080 186 L1140 160 L1200 190 L1200 240 L0 240 Z"
+        token="slate"
+        opacity={0.38}
+      />
+      <Area
+        d="M0 262 L80 214 L150 236 L230 180 L310 216 L380 198 L470 250 L560 206 L640 230 L760 178 L850 222 L930 204 L1030 246 L1100 224 L1200 254 L1200 300 L0 300 Z"
+        token="iron"
+        opacity={0.5}
+      />
+      <OreStains />
       <path
         d="M300 220 L360 300 M560 210 L600 300 M850 226 L880 300 M1030 248 L1012 300"
         stroke={color('ink')}
@@ -511,6 +545,7 @@ export function SceneBand({
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
+      {artSrc !== undefined && <RasterVeil season={season} />}
     </div>
   )
 }
