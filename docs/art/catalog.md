@@ -5,14 +5,14 @@ Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D a
 ## How to run it
 
 1. Model: GPT Image, 1024×1024, one image per prompt. Run a whole family in one sitting so the style holds.
-2. Codex's image tool has no size argument, so the prompts of the families it generates (library, barracks, camps, arts, convoys) end with the square output suffix under Common lines, after the tier line or the resource block. The 25 older building images and the 5 resource images keep their prompts and are not regenerated. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
+2. Codex's image tool has no size argument, so the prompts of the families it generates (library, barracks, camps, arts, convoys, scenes, the peasants resource) end with the square output suffix under Common lines, after the tier line, the resource block or the scene's framing clause. The 25 older building images and the 5 resource images keep their prompts and are not regenerated. Paste the prompt exactly. If an output breaks a rule (text, people, night, sci-fi material, a different framing), regenerate; never keep an outlier.
 3. Codex outputs a PNG at the generation size. Keep the prompt as `apps/web/public/art/<family>/<term>-<tier>.prompt.txt`, byte for byte what was pasted (N7).
 4. Lay the family out as a contact sheet from those PNG outputs before committing, and check it against the bible's palette and framing. One outlier means one regeneration; three mean the template changes and the family is regenerated.
-5. The PR that adds the art converts each PNG output to a 768×768 WebP with `cwebp -q 78 -m 6 -resize 768 0 <in> -o <out>` and commits the WebP as `apps/web/public/art/<family>/<term>-<tier>.webp` beside its prompt; the PNG output is never committed under `public/`. Commit image and prompt together: `feat(art): <family> <term>` or `feat(art): <family>` for a whole family.
+5. The PR that adds the art converts each PNG output to a 768×768 WebP with `cwebp -q 78 -m 6 -resize 768 0 <in> -o <out>` and commits the WebP as `apps/web/public/art/<family>/<term>-<tier>.webp` beside its prompt; the PNG output is never committed under `public/`. A scene is the one exception, converted at 1024 with `cwebp -q 78 -m 6 -resize 1024 0 <in> -o <out>` (the bible's Scenes rule). An image a screen draws at 48 px or less also gets its 96 px derivative, `<term>-<tier>-96.webp` beside the 768 source, with `cwebp -q 78 -m 6 -resize 96 0 <in> -o <out>` (the bible's Thumbnail rule); the derivative has no prompt file of its own. Commit image and prompt together: `feat(art): <family> <term>` or `feat(art): <family>` for a whole family.
 
 Every building has ten levels and five tiers, tier = ceil(level / 2), so a level shows the image of its tier: levels 1 and 2 share `sawmill-1.webp`, levels 9 and 10 share `sawmill-5.webp`. Level 0 shows no image; the screen shows the empty plot state from the design system.
 
-Kingdom terrain for every prompt is Vadoalto's: a wide river valley with pine hills behind, the high ford in the distance (`docs/lore/names.md`). A fief on uplands or ridges shows the same images in the MVP; terrain-specific art is a later family.
+Kingdom terrain for every prompt is Vadoalto's: a wide river valley with pine hills behind, the high ford in the distance (`docs/lore/names.md`). A fief on uplands or ridges shows the same building images; the terrain shows in the scene band alone, drawn from Family: scenes below, whose prompts carry their own terrain phrase.
 
 ## Common lines
 
@@ -32,7 +32,7 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 , square 1:1 composition, output image 1024 x 1024 pixels, keep the entire <framed> and ground shadow inside the square frame
 ```
 
-`<framed>` is `building` for the library and `subject` for barracks, camps, arts and convoys. It follows the tier line (buildings, camps) or the resource block (arts) after `, `, and only on the families Codex generates. Closing clauses, when a prompt has any, follow it after `, `; they sit under each family heading or in its table, never in the Subject cell. The suffix is output framing, not part of the template.
+`<framed>` is `building` for the library, `scene` for the scenes and `subject` for barracks, camps, arts, convoys and the peasants resource. It follows the tier line (buildings, camps) or the resource block (arts) after `, `, and only on the families Codex generates. Closing clauses, when a prompt has any, follow it after `, `; they sit under each family heading or in its table, never in the Subject cell. The suffix is output framing, not part of the template.
 
 ### Tier lines
 
@@ -56,10 +56,12 @@ no photorealism, no outlines, no text, no watermark, no people, <tier line>
 | buildings | library | gold warm yellow |
 | buildings | barracks | iron dark blue-grey |
 | resources | wood, stone, iron, gold, food | the resource's own accent |
+| resources | peasants | ochre and umber |
 | camps | camp | pennant red |
 | arts | smithing | iron dark blue-grey |
 | arts | masonry | stone pale grey |
 | convoys | convoy | ochre and umber |
+| scenes | lowlands, uplands, ridges | the terrain's resource: food wheat green, stone pale grey, iron dark blue-grey |
 
 ## Family: buildings
 
@@ -141,7 +143,7 @@ Closing clauses: `a human-scale village training yard, the training dummies are 
 
 ## Family: resources
 
-5 images. Large resource art for the screen and the art bible's contact sheet, not the UI icons (those stay hand-drawn SVG). Framing follows the bible's resource rule: 1:1, a single object on plain parchment, thick silhouette readable at 48 px.
+6 images. Large resource art for the screen and the art bible's contact sheet, not the UI icons (those stay hand-drawn SVG). Framing follows the bible's resource rule: 1:1, a single object on plain parchment, thick silhouette readable at 48 px. Where a screen draws one at 48 px or less, it reads the 96 px derivative `<term>-1-96.webp` beside the 768 source (the bible's Thumbnail rule).
 
 ```
 <subject>, stylized 3D animated film look, soft cel shading, clean readable shapes, slightly exaggerated proportions,
@@ -157,10 +159,17 @@ no photorealism, no outlines, no text, no watermark, no people
 | `iron-1.webp` | three iron ingots, dark blue-grey, one with a hammer mark | iron dark blue-grey |
 | `gold-1.webp` | a small heap of worn gold coins beside an open leather toll purse | gold warm yellow |
 | `food-1.webp` | a bound sheaf of ripe wheat with a round loaf beside it | food wheat green |
+| `peasants-1.webp` | a wide straw hat resting on the upright handle of a wooden hoe beside a curved sickle laid on the ground, worn and sun-bleached | ochre and umber |
+
+The peasants image is the one of the six Codex generates: the workforce is told by its tools, never by a figure, and the `peasants` token is `umber`, so the straw of the hat carries the light in ochre and the wood of the hoe in umber. Its prompt is the resource block with the line breaks turned into single spaces, then the square output suffix with `<framed>` set to `subject`, then `, ` and the closing clauses `the hat is empty with no head or face under it, no hands, no human figure or silhouette anywhere, no lettering or symbols on the hat band`. Pasted byte for byte, `peasants-1.prompt.txt` reads:
+
+```
+a wide straw hat resting on the upright handle of a wooden hoe beside a curved sickle laid on the ground, worn and sun-bleached, stylized 3D animated film look, soft cel shading, clean readable shapes, slightly exaggerated proportions, warm studio light, gentle rim light, saturated but harmonious earth palette with ochre and umber as the brightest element, single object centered on a plain parchment background, thick readable silhouette, soft ground shadow, no photorealism, no outlines, no text, no watermark, no people, square 1:1 composition, output image 1024 x 1024 pixels, keep the entire subject and ground shadow inside the square frame, the hat is empty with no head or face under it, no hands, no human figure or silhouette anywhere, no lettering or symbols on the hat band
+```
 
 ## Family: camps
 
-3 images, one per camp tier, 1 to 3. A camp's tier never rises, so a camp shows the one image of its tier for as long as it stands. Framing follows the bible's building rule, with no people: tents, a fire pit, a palisade and the loot carry the camp. Each prompt is the Common lines above with `<resource accent>` set to `pennant red` and the tier line taken from the Camp tier lines below, never from the building Tier lines. The image is saved as `apps/web/public/art/camps/camp-<tier>.webp` with `camp-<tier>.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/camp.png`.
+3 images, one per camp tier, 1 to 3. A camp's tier never rises, so a camp shows the one image of its tier for as long as it stands. Framing follows the bible's building rule, with no people: tents, a fire pit, a palisade and the loot carry the camp. Each prompt is the Common lines above with `<resource accent>` set to `pennant red` and the tier line taken from the Camp tier lines below, never from the building Tier lines. The image is saved as `apps/web/public/art/camps/camp-<tier>.webp` with `camp-<tier>.prompt.txt` next to it; the contact sheet is `docs/art/contact-sheets/camp.png`. Where a screen draws a camp at 48 px or less, it reads the 96 px derivative `camp-<tier>-96.webp` beside the 768 source (the bible's Thumbnail rule).
 
 ### Camp tier lines
 
@@ -201,9 +210,39 @@ The prompt is the subject, `, `, the Common lines above with their line breaks t
 |---|---|---|
 | `convoy.webp` | a small convoy of two laden ox carts on a dirt road, one heaped with fresh-cut timber and dressed pale stone blocks, the other with dark iron ingots, a small iron-bound chest of gold coins and grain sacks, spears and two lances lashed upright to the carts, a plain round shield hung on each cart side, the oxen yoked and standing on the road | `a modest convoy at human scale, absolutely no humans or human silhouettes anywhere including the background, shields are plain and unpainted, any pennant is solid ochre fabric with no lettering or symbols, no cross or religious symbols anywhere including pennants, shields, carts and pole tops, plain pole tops with no finials or crossbars, no lettering on chests or sacks` |
 
+## Family: scenes
+
+3 images, one per terrain and never per season or fief: the season is a tint the screen draws, never a second image. Framing follows the bible's Scenes rule: generated 1:1, shown as a 3:1 band, the horizon in the middle third, a wide landscape from slightly above, no building centred, no people, no cross or religious symbols on any pole top or pennant. The `<kingdom terrain>` slot is the terrain's own phrase, not Vadoalto's valley, so the three bands tell the three grounds of `docs/lore/world.md` (The land) apart: the vega, the páramo and the riscos of `docs/lore/names.md`. The accent is the terrain's resource.
+
+Each prompt is the subject, `, `, the Common lines with their line breaks turned into single spaces, `<resource accent>` set from the Accents table and the framing clause `three-quarter elevated view, subject centered filling 70% of frame` replaced by `wide landscape view from slightly above, the horizon in the middle third of the frame, no building centred`, without a tier line and without `ground shadow`, then the square output suffix with `<framed>` set to `scene`, then `, ` and the closing clauses. The image is saved as `apps/web/public/art/scenes/<terrain>.webp`, the terrain as `TerrainSchema` spells it, with `<terrain>.prompt.txt` next to it, no tier in the name; it is served at 1024×1024 (How to run it, item 5), at most 200 KB; the contact sheet is `docs/art/contact-sheets/scenes.png`.
+
+| File | Terrain | Accent |
+|---|---|---|
+| `lowlands.webp` | vega | food wheat green |
+| `uplands.webp` | páramo | stone pale grey |
+| `ridges.webp` | riscos | iron dark blue-grey |
+
+Pasted byte for byte, `lowlands.prompt.txt` reads:
+
+```
+a wide river valley at golden hour seen from a low grassy rise, a slow river meandering from distant pine hills through a shallow ford of stepping stones down to the near meadows, strips of ripe wheat between hedgerows, scattered pines and oaks, early-medieval river valley with pine hills, stylized 3D animated film look, soft cel shading, clean readable shapes, slightly exaggerated proportions, warm golden-hour light, gentle rim light, saturated but harmonious earth palette with food wheat green as the brightest element, wide landscape view from slightly above, the horizon in the middle third of the frame, no building centred, soft sky, no photorealism, no outlines, no text, no watermark, no people, square 1:1 composition, output image 1024 x 1024 pixels, keep the entire scene and ground shadow inside the square frame, an open landscape with no buildings or ruins anywhere, no roads with travellers, absolutely no people or human silhouettes anywhere, no cross or religious symbols on any pole top or pennant, no lettering anywhere
+```
+
+`uplands.prompt.txt` reads:
+
+```
+a high bare plateau at golden hour seen from its edge, flat heath of dry ochre grass and loose pale stones, a terraced quarry face of pale grey stone cut into the far slope with a worn sled track down from it, scrub oaks in a shallow gully, a far ridge of pines under the sky, early-medieval upland plateau with pine hills, stylized 3D animated film look, soft cel shading, clean readable shapes, slightly exaggerated proportions, warm golden-hour light, gentle rim light, saturated but harmonious earth palette with stone pale grey as the brightest element, wide landscape view from slightly above, the horizon in the middle third of the frame, no building centred, soft sky, no photorealism, no outlines, no text, no watermark, no people, square 1:1 composition, output image 1024 x 1024 pixels, keep the entire scene and ground shadow inside the square frame, an open landscape with no buildings or ruins anywhere, the quarry is a bare rock face with no hoist or hut, absolutely no people or human silhouettes anywhere, no cross or religious symbols on any pole top or pennant, no lettering anywhere
+```
+
+`ridges.prompt.txt` reads:
+
+```
+a line of dark iron-grey crags at golden hour seen from a scree slope, red-brown ore stains streaking the rock faces, pines in the gullies at their feet, grey rubble and lumps of surface ore in the foreground, high mountains fading behind, early-medieval iron ridges with pine gullies, stylized 3D animated film look, soft cel shading, clean readable shapes, slightly exaggerated proportions, warm golden-hour light, gentle rim light, saturated but harmonious earth palette with iron dark blue-grey as the brightest element, wide landscape view from slightly above, the horizon in the middle third of the frame, no building centred, soft sky, no photorealism, no outlines, no text, no watermark, no people, square 1:1 composition, output image 1024 x 1024 pixels, keep the entire scene and ground shadow inside the square frame, an open landscape with no buildings, mine mouths or ruins anywhere, absolutely no people or human silhouettes anywhere, no cross or religious symbols on any pole top or pennant, no lettering anywhere
+```
+
 ## Where the screen reads them
 
-`buildingArtOf(building, level)` in `apps/web/src/design-system/buildingArtOf.ts` resolves a building image as `/art/buildings/<term>-<tier>.webp` with tier = ceil(level / 2), and answers nothing at level 0, where the fief screen's building card shows no image. It is the only place a screen reads the building family from. `campArtOf(tier)` in `apps/web/src/design-system/campArtOf.ts` resolves a bandit camp image as `/art/camps/camp-<tier>.webp` for tiers 1 to 3; its one consumer is `attackFormOf` in `apps/web/src/map/attackFormOf.ts`, which puts the target camp's image at the top of the attack form on `/mapa`. The forage form shows none, and the map's plot tile keeps its hand-drawn `CampIcon`. `artArtOf(art)` in `apps/web/src/design-system/artArtOf.ts` resolves an art image as `/art/arts/<art>.webp`, one image per art with no tiers; its one consumer is `artCardOf` in `apps/web/src/fief/artCardOf.ts`, which puts the image at the top of every art card of the library section at every level, *sin estudiar* and the top level included. `convoyArtOf()` in `apps/web/src/design-system/convoyArtOf.ts` resolves the convoy image as `/art/convoys/convoy.webp`, one image with no tiers; its first consumer is the *Carga en camino* card of the destination's fief screen (`IncomingCargoOf` in `apps/web/src/fief/FiefScreen.tsx`, #415), which puts it at the top of the card as `BuildingCard` draws its `artSrc`; its second consumer is the transport form on `/mapa` (`transportFormOf` in `apps/web/src/map/transportFormOf.ts`, #416), which puts it at the top of the form as the attack form shows its camp. The resource family (`/art/resources/<term>-1.webp`) has no consumer yet: no MVP screen has a place for large resource art, and the resource bar, the build slot and the cost list keep their hand-drawn SVG icons.
+`buildingArtOf(building, level)` in `apps/web/src/design-system/buildingArtOf.ts` resolves a building image as `/art/buildings/<term>-<tier>.webp` with tier = ceil(level / 2), and answers nothing at level 0, where the fief screen's building card shows no image. It is the only place a screen reads the building family from. `campArtOf(tier)` in `apps/web/src/design-system/campArtOf.ts` resolves a bandit camp image as `/art/camps/camp-<tier>.webp` for tiers 1 to 3; its one consumer is `attackFormOf` in `apps/web/src/map/attackFormOf.ts`, which puts the target camp's image at the top of the attack form on `/mapa`. The forage form shows none, and the map's plot tile keeps its hand-drawn `CampIcon`. `artArtOf(art)` in `apps/web/src/design-system/artArtOf.ts` resolves an art image as `/art/arts/<art>.webp`, one image per art with no tiers; its one consumer is `artCardOf` in `apps/web/src/fief/artCardOf.ts`, which puts the image at the top of every art card of the library section at every level, *sin estudiar* and the top level included. `convoyArtOf()` in `apps/web/src/design-system/convoyArtOf.ts` resolves the convoy image as `/art/convoys/convoy.webp`, one image with no tiers; its first consumer is the *Carga en camino* card of the destination's fief screen (`IncomingCargoOf` in `apps/web/src/fief/FiefScreen.tsx`, #415), which puts it at the top of the card as `BuildingCard` draws its `artSrc`; its second consumer is the transport form on `/mapa` (`transportFormOf` in `apps/web/src/map/transportFormOf.ts`, #416), which puts it at the top of the form as the attack form shows its camp. The resource family (`/art/resources/<term>-1.webp`) has no consumer yet: no MVP screen has a place for large resource art, and the resource bar, the build slot and the cost list keep their hand-drawn SVG icons. `sceneArtOf(terrain)` in `apps/web/src/design-system/sceneArtOf.ts` (#553) resolves a scene plate as `/art/scenes/<terrain>.webp` once the art ticket lists one and answers `undefined` for every terrain until then; its one consumer is `SceneBand` in `apps/web/src/design-system/SceneBand.tsx`, which draws its own SVG of the terrain and the season and lays the plate over it as an `<img alt="">` only when one is answered, under the sticky block in the fief header and behind `AuthPanel` on the guest screens, where no fief is on the wire and the band is the vega with no season.
 
 ## Open questions
 
