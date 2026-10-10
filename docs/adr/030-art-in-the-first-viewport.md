@@ -97,7 +97,7 @@ code.
   `apps/web/public/art/scenes/<terrain>.webp`, the terrain as
   `TerrainSchema` spells it, served at 1024 by 1024 (`cwebp -q 78 -m 6
   -resize 1024 0`, the one exception to the catalog's 768 rule, because
-  the band is 1216 px wide from `lg`), each at most 200 KB, with its
+  the band is 1216 px wide at 1280), each at most 200 KB, with its
   `<terrain>.prompt.txt` beside it and the contact sheet
   `docs/art/contact-sheets/scenes.png` (#552, decision 6; the bible's
   Scenes rule). The directory does not exist on trunk: #555 lists the
@@ -194,7 +194,7 @@ code.
   S4's last clause, *the camp keeps its icon on the map's plot tile*,
   stays true and this ADR amends no row: the thumbnail is an addition.
 - **The thumbnail is a derivative, never a regeneration** (Fork 3;
-  the bible's Thumbnail rule, PR #559). An image drawn at 48 px or less
+  the bible's Thumbnail rule, PR #559). An image drawn at 96 px or less
   is served from `<name>-96.webp` beside its 768 source, made with
   `cwebp -q 78 -m 6 -resize 96 0 <in> -o <out>`, at most 10 KB, with no
   prompt of its own. The eight on trunk:
@@ -286,7 +286,7 @@ code.
   line does not already say, and one tint rect over the sky is the
   whole seasonal cost. The band is `aria-hidden` for the same reason.
 - **A 768 scene plate.** Rejected on #552, decision 6: the band is
-  1216 px wide from `lg` and a 768 source upscales 1.6x; a 1024 square
+  1216 px wide at 1280 and a 768 source upscales 1.6x; a 1024 square
   at q 78 weighs about 150 to 190 KB, under the 200 KB cap, `-q 70` if
   one is over.
 - **The band on the map and the chronicle below `md`.** The map draws
@@ -304,8 +304,8 @@ code.
 - `docs/art/art-bible.md`'s UI icons line states what the plot tile
   draws: the tier's 96 px thumbnail above the tent with a pennant.
   `docs/art/catalog.md`'s consumers paragraph says the same of
-  `campThumbnailOf`; its `sceneArtOf` and `resourceArtOf` sentences
-  were written by PRs #559, #561 and #562.
+  `campThumbnailOf`; its `sceneArtOf` sentence was written by PR #559
+  and its `resourceArtOf` sentence by PR #561.
 - `CONTEXT.md` is unchanged: a band, a plate, a roundel and a thumbnail
   are screen vocabulary, as ADR 029 ruled for its tokens.
 - PRD: no row changes. S4's last clause holds because `CampIcon` still

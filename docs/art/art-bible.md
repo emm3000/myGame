@@ -22,8 +22,8 @@ Status: stub. Style set to stylized 3D animation on 2026-09-22, before any image
 - Resources: 1:1 icon, single object on a plain parchment background, thick silhouette readable at 48 px.
 - Bandit camps take the building rule, always with no people; arts take the resource rule, one object of the craft.
 - Convoys take the building rule, always with no people; the escort is implied by its arms on the carts.
-- Scenes: generated 1:1 and shown as a 3:1 band cropped by the screen, so the horizon sits in the middle third of the frame. A wide landscape from slightly above, no building centred, no people, the accent of the terrain's resource. Served at 1024×1024, the one exception to the 768 rule, because the band is 1216 px wide from `lg` (Model and size); a plate weighs at most 200 KB, `-q 70` if 78 is over.
-- Thumbnail: an image drawn at 48 px or less is served from a 96 px WebP derivative, `<name>-96.webp` beside its 768 source, made with `cwebp -q 78 -m 6 -resize 96 0 <in> -o <out>` and weighing at most 10 KB. The derivative is a conversion, never a regeneration: the source keeps its prompt and the derivative has none.
+- Scenes: generated 1:1 and shown as a 3:1 band cropped by the screen, so the horizon sits in the middle third of the frame. A wide landscape from slightly above, no building centred, no people, the accent of the terrain's resource. Served at 1024×1024, the one exception to the 768 rule, because the band is 1216 px wide at 1280 (Model and size); a plate weighs at most 200 KB, `-q 70` if 78 is over.
+- Thumbnail: an image drawn at 96 px or less is served from a 96 px WebP derivative, `<name>-96.webp` beside its 768 source, made with `cwebp -q 78 -m 6 -resize 96 0 <in> -o <out>` and weighing at most 10 KB. The derivative is a conversion, never a regeneration: the source keeps its prompt and the derivative has none.
 - Portraits (later): 3:4, bust, three-quarter turn, plain background in the house colour.
 - Map tiles (later): top-down, 1:1, seamless edges.
 
