@@ -112,12 +112,9 @@ function PeasantItem({
       aria-labelledby={labelId}
       className="flex min-w-0 flex-col gap-1 border-line md:border-l md:pl-3"
     >
-      <span className={`flex items-center gap-2 ${textClass}`}>
+      <span className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${textClass}`}>
         <CellArt accent="peasants" />
-        <span
-          id={labelId}
-          className="min-w-0 font-utility text-label uppercase wrap-anywhere hyphens-auto"
-        >
+        <span id={labelId} className="font-utility text-label uppercase">
           {cell.label}
         </span>
       </span>
