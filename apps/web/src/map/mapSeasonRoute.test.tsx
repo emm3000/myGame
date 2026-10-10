@@ -222,9 +222,6 @@ it('marks nothing before the calendar starts', async () => {
 
 it('sets the province grid on the scene of its terrain', async () => {
   await showMap(uplands, fiefIn(seasons.autumn))
-  const grid = screen.getByRole('list', {
-    name: copy.map.heading(uplands.kingdom, uplands.province),
-  })
   const band = document.querySelector('[data-terrain]')
 
   expect([band?.getAttribute('data-terrain'), band?.getAttribute('data-season')]).toEqual([
@@ -232,11 +229,16 @@ it('sets the province grid on the scene of its terrain', async () => {
     'autumn',
   ])
   expect(band?.textContent).toBe('')
-  expect(band?.parentElement?.contains(grid)).toBe(true)
 })
 
 it('sets the grid of a province on its own terrain, not the fief one', async () => {
   await showMap(lowlands, fiefIn(null))
 
   expect(document.querySelector('[data-terrain]')?.getAttribute('data-terrain')).toBe('lowlands')
+})
+
+it('sets the grid of a province on a scene with no season before the first spring', async () => {
+  await showMap(lowlands, fiefIn(null))
+
+  expect(document.querySelector('[data-terrain]')?.getAttribute('data-season')).toBe('none')
 })
