@@ -17,6 +17,7 @@ function NumberedProvincePage(): ReactElement {
       <MapScreen
         fiefId={params.fiefId}
         state={{ kind: 'refused', refusal: 'ProvinceNotFound' }}
+        season={null}
         onBrowse={ignoreBrowse}
         plotActionsOf={noPlotActions}
         columns={2}

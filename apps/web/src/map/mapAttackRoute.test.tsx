@@ -117,6 +117,20 @@ it('reads a camp tier and strength on its plot', async () => {
   expect(plots[4]?.textContent).toContain('libre')
 })
 
+it('draws the camp image of its tier on a camp tile', async () => {
+  const plots = await showMap()
+
+  expect(
+    [plots[6], plots[8], plots[4]].map((plot) =>
+      plot === undefined
+        ? undefined
+        : within(plot)
+            .queryAllByRole('presentation')
+            .map((image) => image.getAttribute('src')),
+    ),
+  ).toEqual([['/art/camps/camp-1-96.webp'], ['/art/camps/camp-2-96.webp'], []])
+})
+
 it('shows the art of its tier on the attack form', async () => {
   await openAttackOn(9)
 
