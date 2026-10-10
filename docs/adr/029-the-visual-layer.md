@@ -237,4 +237,5 @@ what shipped, checked against the code on trunk, and changes no code.
   the 1.75 uploads stay in the artifact's asset store, unreferenced.
 - Out of scope of #534, each a future ADR or an amendment of this one:
   any palette value, the house colours the art bible leaves open, a
-  type family, and any motion beyond the track.
+  type family, and any motion beyond the track. Painted art in the
+  first viewport, the band, the bar art and the map plate, is ADR 030.
