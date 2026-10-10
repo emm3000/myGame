@@ -6,10 +6,12 @@ import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
 import { LiveRegion } from '../../design-system/LiveRegion'
 import { FiefNameContext } from '../../fief/FiefNameContext'
+import { FiefSceneBand } from '../../fief/FiefSceneBand'
 import { FiefStatus } from '../../fief/FiefStatus'
 import { LiveFiefContext } from '../../fief/LiveFiefContext'
 import type { LiveFief } from '../../fief/liveFief'
 import { useFiefNameTarget } from '../../fief/useFiefNameTarget'
+import { useIsStatusBlockSticky } from '../../fief/useIsStatusBlockSticky'
 import { useLiveFief } from '../../fief/useLiveFief'
 import { useStatusBlockMargin } from '../../fief/useStatusBlockMargin'
 import { useFocusTarget } from '../../focus/useFocusTarget'
@@ -32,19 +34,23 @@ function LiveFiefStatus({
   const hints = useLayoutHints()
   const fiefName = useFiefNameTarget()
   const matchRoute = useMatchRoute()
+  const isStatusBlockSticky = useIsStatusBlockSticky()
   const isFiefScreen = matchRoute({ to: '/feudo/$fiefId' }) !== false
   const hint = isFiefScreen ? barHintOf(fief, hints.hidden) : undefined
   return (
-    <FiefStatus
-      fief={fief}
-      hint={
-        hint === undefined
-          ? undefined
-          : hintFocusingAfterDismiss(hintPropsOf(hint, hints), fiefName.focus)
-      }
-      notices={notices}
-      blockRef={blockRef}
-    />
+    <>
+      {isFiefScreen && !isStatusBlockSticky && <FiefSceneBand overview={fief.overview} />}
+      <FiefStatus
+        fief={fief}
+        hint={
+          hint === undefined
+            ? undefined
+            : hintFocusingAfterDismiss(hintPropsOf(hint, hints), fiefName.focus)
+        }
+        notices={notices}
+        blockRef={blockRef}
+      />
+    </>
   )
 }
 

@@ -4,6 +4,7 @@ import {
   type ColorToken,
   color,
   heights,
+  maxHeights,
   maxWidths,
   minHeights,
   palette,
@@ -75,6 +76,7 @@ export default plugin(
       extend: {
         height: heights,
         maxWidth: maxWidths,
+        maxHeight: maxHeights,
         scrollMargin: scrollMargins,
         screens: breakpoints,
       },
