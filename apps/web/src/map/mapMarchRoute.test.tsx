@@ -130,7 +130,7 @@ it('offers the march on a free plot only', async () => {
 it('shows no art on the forage form', async () => {
   await openMarchTo(uplands, 5)
 
-  expect(screen.queryByRole('presentation')).toBeNull()
+  expect(within(screen.getByRole('article')).queryByRole('presentation')).toBeNull()
 })
 
 it('previews the road time from the fief to the plot', async () => {

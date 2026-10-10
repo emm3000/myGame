@@ -1,7 +1,8 @@
 import type { ResourceKind } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
 import { formatQuantity } from './formatQuantity'
-import { resourceAccent } from './resourceAccent'
+import { type Accent, resourceAccent } from './resourceAccent'
+import { resourceArtOf } from './resourceArtOf'
 import { SeasonMark, type SeasonMarkProps } from './SeasonMark'
 import { Track } from './Track'
 
@@ -34,6 +35,30 @@ export interface ResourceBarProps {
 
 const numeralClass = 'font-utility tabular-nums'
 
+const roundelClass = 'size-roundel-sm shrink-0 rounded-pill md:size-roundel'
+
+function CellArt({ accent }: { readonly accent: Accent }): ReactElement {
+  const src = resourceArtOf(accent)
+  if (src === undefined) {
+    const { Icon } = resourceAccent[accent]
+    return (
+      <span className={`flex items-center justify-center bg-surface-sunken ${roundelClass}`}>
+        <Icon sizeClass="size-4 md:size-icon" />
+      </span>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt=""
+      width={96}
+      height={96}
+      decoding="async"
+      className={`border border-line object-cover ${roundelClass}`}
+    />
+  )
+}
+
 function ResourceItem({
   cell,
   fullLabel,
@@ -42,12 +67,12 @@ function ResourceItem({
   readonly fullLabel: string
 }): ReactElement {
   const labelId = useId()
-  const { Icon, textClass, fillClass } = resourceAccent[cell.kind]
+  const { textClass, fillClass } = resourceAccent[cell.kind]
   const isFull = cell.amount >= cell.capacity
   return (
     <li aria-labelledby={labelId} className="flex min-w-0 flex-col gap-1">
       <span className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${textClass}`}>
-        <Icon />
+        <CellArt accent={cell.kind} />
         <span id={labelId} className="font-utility text-label uppercase">
           {cell.label}
         </span>
@@ -81,14 +106,14 @@ function PeasantItem({
   readonly labels: ResourceBarProps['labels']
 }): ReactElement {
   const labelId = useId()
-  const { Icon, textClass } = resourceAccent.peasants
+  const { textClass } = resourceAccent.peasants
   return (
     <li
       aria-labelledby={labelId}
       className="flex min-w-0 flex-col gap-1 border-line md:border-l md:pl-3"
     >
       <span className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${textClass}`}>
-        <Icon />
+        <CellArt accent="peasants" />
         <span id={labelId} className="font-utility text-label uppercase">
           {cell.label}
         </span>

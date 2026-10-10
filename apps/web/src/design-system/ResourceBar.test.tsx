@@ -109,3 +109,21 @@ it('marks nothing on a cell without an effect', () => {
   const woodpile = screen.getByRole('listitem', { name: 'Madera' })
   expect(within(woodpile).queryByText(/: [+-]\d+ % de /)).toBeNull()
 })
+
+it('draws the art of each resource in its cell', () => {
+  render(<ResourceBar {...storeWithFullGranary()} />)
+
+  const sources = ['Wood', 'Food'].map((name) =>
+    within(screen.getByRole('listitem', { name })).getByRole('presentation').getAttribute('src'),
+  )
+
+  expect(sources).toEqual(['/art/resources/wood-1-96.webp', '/art/resources/food-1-96.webp'])
+})
+
+it('draws the peasants icon in a roundel while no peasants art is listed', () => {
+  render(<ResourceBar {...villageWith(10, 0)} />)
+
+  const village = screen.getByRole('listitem', { name: 'Campesinos' })
+  expect(within(village).queryByRole('presentation')).toBeNull()
+  expect(village.querySelector('svg')).not.toBeNull()
+})
