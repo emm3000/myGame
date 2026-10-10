@@ -103,9 +103,16 @@ export const maxWidths: Readonly<Record<MaxWidth, string>> = {
   form: '640px',
 }
 
-export type Breakpoint = 'lg'
+export type MaxHeight = 'band'
+
+export const maxHeights: Readonly<Record<MaxHeight, string>> = {
+  band: '240px',
+}
+
+export type Breakpoint = 'md' | 'lg'
 
 export const breakpoints: Readonly<Record<Breakpoint, string>> = {
+  md: '48rem',
   lg: '64rem',
 }
 

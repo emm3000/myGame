@@ -21,6 +21,7 @@ import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
 import { ArmySection } from './ArmySection'
 import { buildingCardOf } from './buildingCardOf'
+import { FiefSceneBand } from './FiefSceneBand'
 import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
@@ -43,6 +44,7 @@ export interface FiefScreenProps {
   readonly digest: DigestCardProps | undefined
   readonly goal: GoalCardProps | undefined
   readonly hint: ScreenHint | undefined
+  readonly isSceneInHeader: boolean
 }
 
 export interface ScreenHint {
@@ -232,6 +234,7 @@ export function FiefScreen({
   digest,
   goal,
   hint,
+  isSceneInHeader,
 }: FiefScreenProps): ReactElement {
   const { overview } = fief
   const buildingsHeadingId = useId()
@@ -239,6 +242,11 @@ export function FiefScreen({
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
+        {isSceneInHeader && (
+          <div className="mb-2">
+            <FiefSceneBand overview={overview} />
+          </div>
+        )}
         <Link
           to="/feudo/$fiefId/mapa/$province"
           params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}
