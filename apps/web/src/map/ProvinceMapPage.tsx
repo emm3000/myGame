@@ -59,6 +59,7 @@ export function ProvinceMapPage({
     <MapScreen
       fiefId={fiefId}
       state={state}
+      season={fief.state.kind === 'live' ? (fief.state.fief.overview.season?.kind ?? null) : null}
       onBrowse={browse}
       plotActionsOf={march.plotActionsOf}
       columns={columns}

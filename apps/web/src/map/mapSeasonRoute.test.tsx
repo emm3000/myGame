@@ -219,3 +219,24 @@ it('marks nothing before the calendar starts', async () => {
   expect(lineOf(march, 'Botín:').textContent).toBe('Botín: 72 de madera y 72 de comida')
   expect(within(march).queryByText(/acorta|%/)).toBeNull()
 })
+
+it('sets the province grid on the scene of its terrain', async () => {
+  await showMap(uplands, fiefIn(seasons.autumn))
+  const grid = screen.getByRole('list', {
+    name: copy.map.heading(uplands.kingdom, uplands.province),
+  })
+  const band = document.querySelector('[data-terrain]')
+
+  expect([band?.getAttribute('data-terrain'), band?.getAttribute('data-season')]).toEqual([
+    'uplands',
+    'autumn',
+  ])
+  expect(band?.textContent).toBe('')
+  expect(band?.parentElement?.contains(grid)).toBe(true)
+})
+
+it('sets the grid of a province on its own terrain, not the fief one', async () => {
+  await showMap(lowlands, fiefIn(null))
+
+  expect(document.querySelector('[data-terrain]')?.getAttribute('data-terrain')).toBe('lowlands')
+})

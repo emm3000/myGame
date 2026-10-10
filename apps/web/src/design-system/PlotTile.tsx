@@ -15,6 +15,7 @@ export type PlotHolder =
   | { readonly kind: 'free'; readonly line: string; readonly actions: ReadonlyArray<PlotAction> }
   | {
       readonly kind: 'camp'
+      readonly artSrc: string
       readonly line: string
       readonly strength: string
       readonly actions: ReadonlyArray<PlotAction>
@@ -94,6 +95,14 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
       return (
         <>
           <span className="flex flex-col gap-1">
+            <img
+              src={holder.artSrc}
+              alt=""
+              width={96}
+              height={96}
+              decoding="async"
+              className="mb-1 block size-thumbnail rounded-sm object-cover"
+            />
             <span className="flex items-start gap-2">
               <span className="mt-0.5 flex text-ochre">
                 <CampIcon sizeClass="size-icon" />

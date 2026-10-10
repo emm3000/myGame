@@ -124,12 +124,13 @@ export const scrollMargins: Readonly<Record<ScrollMargin, string>> = {
   status: `calc(var(${statusBlockHeightProperty}) + 1px)`,
 }
 
-export type Size = 'icon' | 'roundel' | 'roundel-sm'
+export type Size = 'icon' | 'roundel' | 'roundel-sm' | 'thumbnail'
 
 export const sizes: Readonly<Record<Size, string>> = {
   icon: '20px',
   roundel: '40px',
   'roundel-sm': '28px',
+  thumbnail: '96px',
 }
 
 export type Height = 'track'

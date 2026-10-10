@@ -100,10 +100,12 @@ it('moves the scene band under the resource bar when the screen widens to md', a
   expect(document.querySelectorAll('[data-terrain]')).toHaveLength(1)
 })
 
-it('draws no scene band on the map below md', async () => {
+it('draws no scene band above the resource bar on the map below md', async () => {
   stubMatchMedia(false)
   await showAt(`${knownFiefPath}/mapa`)
+  const bar = resourceBar()
 
-  expect(resourceBar()).not.toBeNull()
-  expect(sceneBand()).toBeNull()
+  expect(
+    Array.from(document.querySelectorAll('[data-terrain]')).filter((band) => isBefore(band, bar)),
+  ).toEqual([])
 })
