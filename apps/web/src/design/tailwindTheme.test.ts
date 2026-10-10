@@ -9,6 +9,7 @@ import {
   palette,
   radii,
   shadows,
+  sizes,
   spacing,
   transitions,
   widths,
@@ -83,6 +84,15 @@ it('exposes a Tailwind height utility for every height token', async () => {
   const css = stylesheet.build(names.map((name) => `h-${name}`))
 
   expect(names.filter((name) => !css.includes(`.h-${name} {`))).toEqual([])
+})
+
+it('exposes a Tailwind size utility for every size token', async () => {
+  const stylesheet = await compileStylesheet()
+  const names = Object.keys(sizes)
+
+  const css = stylesheet.build(names.map((name) => `size-${name}`))
+
+  expect(names.filter((name) => !css.includes(`.size-${name} {`))).toEqual([])
 })
 
 it('exposes a Tailwind max-h-band utility', async () => {

@@ -181,7 +181,9 @@ it('offers nothing on the fief the map is read from', async () => {
 it('shows the convoy art on the transport form', async () => {
   await openTransport()
 
-  expect(screen.getByRole('presentation').getAttribute('src')).toBe('/art/convoys/convoy.webp')
+  expect(within(screen.getByRole('article')).getByRole('presentation').getAttribute('src')).toBe(
+    '/art/convoys/convoy.webp',
+  )
 })
 
 it('offers no settler field', async () => {
