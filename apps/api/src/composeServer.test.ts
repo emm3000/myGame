@@ -211,13 +211,6 @@ describe('composeServer', () => {
     removeDirectory(fixtureDirectory)
   })
 
-  it('listens on the port API_PORT names', async () => {
-    const server = composeServer(composableEnvironment, fixtureDirectory)
-
-    expect(server.port).toBe(3106)
-    await server.close()
-  })
-
   it('builds a catalog from the content folder at start-up', async () => {
     const server = composeServer(composableEnvironment, contentDirectory)
 
@@ -255,24 +248,6 @@ describe('composeServer', () => {
     }
   })
 
-  it('refuses to compose without API_PORT', () => {
-    expect(() => composeServer(environmentWithout('API_PORT'), fixtureDirectory)).toThrow(
-      'API_PORT',
-    )
-  })
-
-  it('refuses to compose with a non-integer API_PORT', () => {
-    expect(() =>
-      composeServer({ ...composableEnvironment, API_PORT: '31.5' }, fixtureDirectory),
-    ).toThrow('API_PORT')
-  })
-
-  it('refuses to compose with a non-positive API_PORT', () => {
-    expect(() =>
-      composeServer({ ...composableEnvironment, API_PORT: '0' }, fixtureDirectory),
-    ).toThrow('API_PORT')
-  })
-
   it('refuses to compose without DATABASE_URL', () => {
     expect(() => composeServer(environmentWithout('DATABASE_URL'), fixtureDirectory)).toThrow(
       'DATABASE_URL',
@@ -300,12 +275,6 @@ describe('composeServer', () => {
     expect(() =>
       composeServer({ ...composableEnvironment, SESSION_COOKIE_SECURE: 'yes' }, fixtureDirectory),
     ).toThrow('SESSION_COOKIE_SECURE')
-  })
-
-  it('refuses to compose with an API_PORT above 65535', () => {
-    expect(() =>
-      composeServer({ ...composableEnvironment, API_PORT: '65536' }, fixtureDirectory),
-    ).toThrow('API_PORT')
   })
 
   it('refuses to compose without SMTP_URL', () => {
@@ -631,10 +600,7 @@ describe('a fief transaction from the composed server', () => {
   let server: ComposedServer
 
   beforeAll(() => {
-    server = composeServer(
-      { API_PORT: '3190', DATABASE_URL: databaseUrl(), ...mailEnvironment },
-      contentDirectory,
-    )
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
   })
 
   afterAll(async () => {
@@ -710,10 +676,7 @@ describe('an account transaction from the composed server', () => {
   let server: ComposedServer
 
   beforeAll(() => {
-    server = composeServer(
-      { API_PORT: '3190', DATABASE_URL: databaseUrl(), ...mailEnvironment },
-      contentDirectory,
-    )
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
   })
 
   afterAll(async () => {

@@ -113,10 +113,7 @@ describe('the digest routes', () => {
   let app: ReturnType<typeof createApp>
 
   beforeAll(() => {
-    server = composeServer(
-      { API_PORT: '3197', DATABASE_URL: databaseUrl(), ...mailEnvironment },
-      contentDirectory,
-    )
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
   })
 
   afterAll(async () => {

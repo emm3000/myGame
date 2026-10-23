@@ -70,10 +70,7 @@ describe('the map route', () => {
   let clock: MovableClock
 
   beforeAll(() => {
-    server = composeServer(
-      { API_PORT: '3195', DATABASE_URL: databaseUrl(), ...mailEnvironment },
-      contentDirectory,
-    )
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
   })
 
   afterAll(async () => {

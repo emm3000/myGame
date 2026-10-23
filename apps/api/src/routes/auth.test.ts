@@ -120,10 +120,7 @@ describe('the auth routes', () => {
   let app: ReturnType<typeof createApp>
 
   beforeAll(() => {
-    server = composeServer(
-      { API_PORT: '3192', DATABASE_URL: databaseUrl(), ...mailEnvironment },
-      contentDirectory,
-    )
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
   })
 
   afterAll(async () => {

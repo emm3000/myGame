@@ -41,10 +41,7 @@ describe('the fief list route', () => {
   let app: ReturnType<typeof createApp>
 
   beforeAll(() => {
-    server = composeServer(
-      { API_PORT: '3196', DATABASE_URL: databaseUrl(), ...mailEnvironment },
-      contentDirectory,
-    )
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
   })
 
   afterAll(async () => {
