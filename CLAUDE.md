@@ -63,7 +63,7 @@ Each package carries a `CLAUDE.md` with its build and test facts and its gotchas
 
 ## Stack
 
-TypeScript strict, pnpm workspaces, Node 24 (`.node-version`), Vitest, Biome. Web: TanStack Start. Api: Hono on Node. Persistence: Postgres with Drizzle (ADR 006). Production: one shared VPS running Docker Compose behind Caddy, deployed from `trunk` by `deploy.yml`; the server side lives in `emm3000/infra` (ADR 026).
+TypeScript strict, pnpm workspaces, Node 24 (`.node-version`), Vitest, Biome. Web: TanStack Start. Api: Hono on Node. Persistence: Postgres with Drizzle (ADR 006). Production: two Vercel projects, `mygame-web` and `mygame-api`, the web rewriting `/api/*` to the api, on Postgres at Neon, deployed from `trunk` by `deploy.yml` (ADR 031).
 
 ## Commands
 
