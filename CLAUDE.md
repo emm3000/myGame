@@ -86,7 +86,7 @@ Vitest, plain assertions from `vitest`, no mocking library until a ticket proves
 
 Budget tier: max-100
 
-Every model and effort of a dispatch, a review and an agent comes from this tier's column in the tables of `.claude/skills/wave/SKILL.md`. The tier lowers only what a gate catches: silent-failure work (schema and migrations, auth, money, the composition root, config, shared schemas) stays opus:high; compiler- or test-caught code runs sonnet:high; docs, copy and renames sonnet:low; reviewers never drop. Ticket writers and planners run opus:medium, the orchestrator opus:medium, Fable designs alone. At most 3 peers at a time, a peer carrying up to 3 trivial tickets. A lowered row that draws two FIX FIRST verdicts for one criterion goes back up one step, noted in the table. Only the owner switches tiers, changing this line and the agents' frontmatter in one `chore(agents):` commit.
+Every model and effort of a dispatch, a review and an agent comes from this tier's column in the tables of `.claude/skills/wave/SKILL.md`. The tier lowers only what a gate catches: silent-failure work (schema and migrations, auth, the composition root, config, shared schemas) stays opus:high; compiler- or test-caught code runs sonnet:high; docs, copy and renames sonnet:low; reviewers never drop. Ticket writers and planners run opus:medium, the orchestrator opus:medium, Fable designs alone. At most 3 peers at a time, a peer carrying up to 3 trivial tickets. A row that draws two FIX FIRST verdicts for one criterion goes back up one step in the active tier's column, noted in the table. Only the owner switches tiers, changing this line and the agents' frontmatter in one `chore(agents):` commit.
 
 ## Final rule
 

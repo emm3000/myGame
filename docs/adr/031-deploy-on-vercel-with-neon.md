@@ -71,6 +71,10 @@ game charges nothing.
   A broken build touches no database, and a broken migration deploys
   nothing. Git deploys are off in both `vercel.json` files, so CI is
   the only way in.
+- **The domain belongs to the web project.** `mygame.emm3000.com` is
+  added to `mygame-web`, and its DNS record moves off the VPS's address
+  to Vercel at the cutover, once the `*.vercel.app` deployment answers;
+  `health.yml` checks that domain.
 - **Health is a request.** `health.yml` asks `/api/health` through the
   web's domain once a day and fails on anything but 200.
 - **Mail stays on Resend** over SMTP, with a key of its own for this

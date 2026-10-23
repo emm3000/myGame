@@ -49,7 +49,6 @@ Every dispatch to a peer session must include:
 - The line: *"The issue's acceptance criteria are the contract and win over any file list here; run every criterion check before opening the PR."* Prefer criteria phrased as a command with expected empty output.
 - The file list (`fd -e ts`) and their tests, plus the pre-scoped blockers. For a move or refactor, a dependency-closure directive: transitive imports mapped from the consuming layer, non-platform dependencies co-moved.
 - Gates: `pnpm gate` green before every commit; conventional commits; no `Co-Authored-By` (a PreToolUse hook in `.claude/settings.json` blocks it); English code and docs, Spanish only for UI copy; `rg` / `fd` / `bat` / `sd` / `eza`; gotchas saved to engram.
-- For an infra ticket, the gate is the ticket's own checks, named in the dispatch, since `emm3000/infra` has no `pnpm gate`. Its peer runs outside this repo, so myGame's `.claude/settings.json` and its `Co-Authored-By` hook do not load there: the dispatch states the no-trailer rule in its own words.
 - For any ticket that adds or changes behavior (a use case, a route, a derived state, a component rule), an instruction to load `mattpocock-skills:tdd` and work red, green, refactor, writing the failing behavior test before the code. Pure layout, copy or restyle tickets skip it.
 - For any screen-touching ticket, a visual check: run the web app locally, capture every changed screen and state with the `playwright` MCP server declared in `.mcp.json` (its `browser_take_screenshot` tool, headless, works in any worktree) and publish the images on a branch named `assets/<N>-visual-check`, with the PR head short SHA in every file name (`fief-<sha>.png`), linked in the PR body with `raw.githubusercontent.com` URLs; the `gh` CLI cannot attach images to a PR. Add the image files explicitly, never `git add -A`: `git checkout --orphan` leaves the previous branch's working files on disk. The assets branch is deleted when the cycle closes. Evidence a criterion turns on goes in the PR body in full: the reviewer reads the PR. When a criterion is a measurement, quote the lines rather than the conclusion drawn from them.
 - An instruction to keep the slice small and stop and report instead of expanding scope.
@@ -58,8 +57,8 @@ Every dispatch to a peer session must include:
 ## Launching peers
 
 - `/wave <issue numbers>` is the only entry point, whether the owner types it or the orchestrator invokes it for the next wave: it classifies each ticket with the skill table, states `@<name> #<n> <model>:<effort>` to the owner before booting (deviations from the table carry a one-line reason), runs `scripts/mygame-wave`, waits for the peers in `ListAgents` and dispatches. The skill lives in `.claude/skills/wave/SKILL.md`.
-- `scripts/mygame-wave name:model:effort[:infra] [...]` opens one pane per peer, side by side, each running `scripts/mygame-session`. The terminal comes from `--terminal herdr|warp|manual` as the first argument and otherwise from `TERM_PROGRAM`. herdr: a `mygame-wave` tab in the orchestrator's workspace, panes split right at equal widths and labelled by peer name; the herdr server must be running. Warp: writes `~/.warp/tab_configs/mygame-wave.toml` and opens it with `open "warp://tab_config/mygame-wave"`, a new tab in the active Warp window. Any other terminal: `manual`, which prints the launch lines instead of opening anything. Peers are found by `ListAgents` either way: the `claude -n <name>` session name, not the terminal, is the address.
-- `scripts/mygame-session name model effort [infra]` creates the detached worktree `../mygame-<name>` from `origin/trunk` when missing, runs `pnpm install --frozen-lockfile` there, then runs `claude -n <name> --model <model> --effort <effort> --permission-mode bypassPermissions` inside it. The peer creates its ticket branch with `git switch -c`. With `infra` it clones `emm3000/infra` to `../infra` once if missing, creates the detached worktree `../infra-<name>` from `origin/main` instead and skips `pnpm install` (see Isolation: the infra repo).
+- `scripts/mygame-wave name:model:effort [...]` opens one pane per peer, side by side, each running `scripts/mygame-session`. The terminal comes from `--terminal herdr|warp|manual` as the first argument and otherwise from `TERM_PROGRAM`. herdr: a `mygame-wave` tab in the orchestrator's workspace, panes split right at equal widths and labelled by peer name; the herdr server must be running. Warp: writes `~/.warp/tab_configs/mygame-wave.toml` and opens it with `open "warp://tab_config/mygame-wave"`, a new tab in the active Warp window. Any other terminal: `manual`, which prints the launch lines instead of opening anything. Peers are found by `ListAgents` either way: the `claude -n <name>` session name, not the terminal, is the address.
+- `scripts/mygame-session name model effort` creates the detached worktree `../mygame-<name>` from `origin/trunk` when missing, runs `pnpm install --frozen-lockfile` there, then runs `claude -n <name> --model <model> --effort <effort> --permission-mode bypassPermissions` inside it. The peer creates its ticket branch with `git switch -c`.
 
 ## Isolation: worktrees
 
@@ -70,13 +69,6 @@ Every dispatch to a peer session must include:
 - `git checkout trunk` fails inside a worktree while the primary worktree is already on `trunk`; use `git fetch` + `git switch -c <branch> origin/trunk` instead.
 - Cleanup is part of closing the cycle, not a later chore (see Between tickets).
 
-## Isolation: the infra repo
-
-- A ticket whose first line is `Target repo: emm3000/infra` boots with `name:model:effort:infra`, so its peer works in `../infra-<name>`, a worktree of the `../infra` clone.
-- Its branch and PR live in `emm3000/infra`: the peer runs `git fetch` + `git switch -c <branch> origin/main` there and opens the PR against `main`.
-- The ticket stays an issue in `emm3000/myGame`, so the PR body says `Closes emm3000/myGame#<n>`.
-- Cleanup runs the Between tickets steps against the clone: `git -C ../infra worktree remove ../infra-<name>`, `git -C ../infra branch -D <branch>`, `git -C ../infra worktree prune`.
-
 ## Isolation: ports and databases
 
 - Each peer that runs the api or the web locally picks a port from the dispatch (`API_PORT`, `WEB_PORT`), never the defaults, so two peers never collide. The orchestrator assigns them in the dispatch.
@@ -84,7 +76,7 @@ Every dispatch to a peer session must include:
 
 ## Review cycle
 
-- A session gets nothing new until its previous PR is reviewed, fixed and merged. Never queue two tickets in one dispatch.
+- A session gets nothing new until its previous PR is reviewed, fixed and merged. Never queue two tickets in one dispatch, except under `max-100`, where one peer may carry up to 3 row 1 tickets, one PR each, in sequence (`.claude/skills/wave/SKILL.md`).
 - Two-axis review (standards vs. `CLAUDE.md` and `.claude/rules/`, spec vs. the issue), plus screenshots checked against the design system rules once they exist. Every PR gets one, on the model the roles table of `.claude/skills/wave/SKILL.md` names; no tier lowers a review.
 - Every PR review is a fresh `pr-reviewer` subagent that the orchestrator launches, one per PR, with the model passed on the call. It is not a long-lived peer session. The subagent is read-only. It does not rerun the gate, because CI already did. It reads the diff, the issue and `gh pr checks`, and it pulls the screenshots locally with `git show origin/assets/<N>-visual-check:<file>`. It checks that the SHA in each file name matches the PR head, and then views the images. It treats a base behind `origin/trunk` as a minor note, because the repo merges with rebase, and it rechecks an `IN_PROGRESS` CI job instead of failing the PR on it. It follows `mattpocock-skills:code-review` for the Standards and Spec axes, with the PR's merge-base with `origin/trunk` as the fixed point. It returns `blocking|minor` findings, one verdict (MERGE or FIX FIRST) and one cause word (`checklist`, `judgment`, `spec`) for the dispatch log.
 - Merge is rebase-only, linear history, CI required. The orchestrator never blocks its own turn on `gh run watch`; it merges when the CI notification or the session's report arrives.

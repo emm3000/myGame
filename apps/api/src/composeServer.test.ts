@@ -32,7 +32,6 @@ const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 const unusedDatabaseUrl = 'postgres://composer@localhost:5432/unused'
 
 const composableEnvironment: NodeJS.ProcessEnv = {
-  API_PORT: '3106',
   DATABASE_URL: unusedDatabaseUrl,
   ...mailEnvironment,
 }

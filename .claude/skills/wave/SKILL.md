@@ -32,7 +32,7 @@ Rows are ordered by blast radius: how much a mistake breaks and whether a gate c
 | 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low | sonnet:low | none: the compiler and the criteria fail loudly |
 | 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | opus:medium | sonnet:high | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
 | 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), `.github/`, a design-system default that changes N screens | opus:high | opus:high | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
-| 4 | Schema or migration, auth, money, the persistence adapters, cross-package architecture, a new package | opus:high | opus:high | the contract test suite against every adapter; a migration test from the previous version |
+| 4 | Schema or migration, auth, the persistence adapters, cross-package architecture, a new package | opus:high | opus:high | the contract test suite against every adapter; a migration test from the previous version |
 | 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | fable:high | fable:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
 
 Roles outside the rows:
@@ -48,7 +48,7 @@ Roles outside the rows:
 
 Reviewers never drop a step in any tier: they are the gate that holds the quality the lowered rows give up. Design is row 5, a `/wave` peer like any other ticket.
 
-Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a row shows two or more first-review FIX FIRST verdicts for reasons the checklist did not cover, raise it one step in the active tier's column and note why here.
+Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. A row that draws two FIX FIRST verdicts for one criterion goes back up one step in the active tier's column, noted in the table.
 
 - Inherited from JustChill's log, kept as a starting bet: a package-wide sweep that needs judgment per line (which comment survives, which duplicate is real) takes row 3, not row 2.
 - Inherited: a dispatch that names a reference file to model the work on inherits that file's debt, so name its known gaps in the same breath.
@@ -59,11 +59,11 @@ Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a ro
 
 ## Execution Steps
 
-1. For each issue run `gh issue view <n> --json title,labels,body`. Confirm the label and derive a short lowercase pane name from the title (one word, no digits). A body whose first line is `Target repo: emm3000/infra` marks an infra ticket.
+1. For each issue run `gh issue view <n> --json title,labels,body`. Confirm the label and derive a short lowercase pane name from the title (one word, no digits).
 2. Classify each ticket with the table. The table binds: deviate only with a one-line reason stated in the plan, never silently. Tell the owner the plan in one line per ticket: `@<name> #<n> <model>:<effort>`, before booting anything.
-3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket, appending `:infra` to the spec of an infra ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
+3. Run `scripts/mygame-wave <name>:<model>:<effort> ...` once with every ticket. It opens the panes in the terminal the orchestrator runs in (`TERM_PROGRAM`: herdr or Warp). When the owner names a terminal in the session ("trabajemos con warp", "con herdr"), pass `--terminal warp` or `--terminal herdr` as the first argument for the rest of the session. On `manual` (unknown terminal) the script prints one `scripts/mygame-session` line per peer: pass them to the owner to run, then poll.
 4. Poll `ListAgents` until every pane name is listed, at most 60 seconds.
-5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>` (`../infra-<name>` for an infra ticket), its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. An infra ticket's dispatch names the ticket's own checks in place of `pnpm gate`, assigns no ports and states the no-`Co-Authored-By` rule, which no hook guards in that repo; its branch and PR live in `emm3000/infra`, branched from `origin/main`, and its PR body says `Closes emm3000/myGame#<n>`; at cycle close its cleanup is `git -C ../infra worktree remove ../infra-<name>`. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
+5. Send each peer one dispatch built from the playbook checklist: issue, docs to read, branch `<type>/<n>-<slug>`, its worktree `../mygame-<name>`, its ports, the acceptance-criteria line, the gate (`pnpm gate`), TDD or screenshots per the table, `Closes #<n>`, no merge, reply with the PR URL. A row 5 dispatch replaces branch, gate and PR with: publish the artifact, comment its URL on the issue, close the issue, reply with the URL. Ask for `notify_when_idle`.
 6. Report to the owner in one or two lines: peers booted, tickets dispatched.
 
 ## Output Contract
@@ -75,4 +75,4 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 - `docs/agents/multi-session.md` — dispatch checklist, isolation, review cycle.
 - `docs/agents/dispatch-log.md` — the outcomes per table row.
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
-- `scripts/mygame-session` — worktree plus `claude` launcher; `infra` as the fourth argument for a worktree of `emm3000/infra`.
+- `scripts/mygame-session` — worktree plus `claude` launcher.
