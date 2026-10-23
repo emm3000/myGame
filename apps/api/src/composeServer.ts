@@ -27,8 +27,6 @@ import type { GuidanceDismissals } from './guidance/GuidanceDismissals'
 import type { SeenHints } from './hint/SeenHints'
 import type { CampReader } from './kingdom/CampReader'
 
-const highestPort = 65535
-
 const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
   if (flag === undefined || flag === 'true') {
     return true
@@ -73,7 +71,6 @@ const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
 
 export type ComposedServer = MailSettings & {
   readonly fetch: Hono['fetch']
-  readonly port: number
   readonly buildingCatalog: BuildingCatalog
   readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
@@ -97,12 +94,6 @@ export function composeServer(
   environment: NodeJS.ProcessEnv,
   contentDirectory: string,
 ): ComposedServer {
-  const port = Number(environment.API_PORT)
-  if (!Number.isInteger(port) || port <= 0 || port > highestPort) {
-    throw new Error(
-      `API_PORT must be an integer from 1 to ${highestPort}, got ${environment.API_PORT}`,
-    )
-  }
   const databaseUrl = environment.DATABASE_URL
   if (!databaseUrl) {
     throw new Error('DATABASE_URL is not set')
@@ -133,7 +124,6 @@ export function composeServer(
   return {
     ...dependencies,
     fetch: createApp(dependencies).fetch,
-    port,
     close,
   }
 }

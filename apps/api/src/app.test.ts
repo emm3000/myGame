@@ -14,7 +14,7 @@ describe('app', () => {
 
   beforeAll(() => {
     server = composeServer(
-      { API_PORT: '3192', DATABASE_URL: unusedDatabaseUrl, ...mailEnvironment },
+      { DATABASE_URL: unusedDatabaseUrl, ...mailEnvironment },
       contentDirectory,
     )
   })
