@@ -65,26 +65,50 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_API_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
+      VERCEL_WEB_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
     steps:
-      - name: install the deploy key
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: build the api
         env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
         run: |
-          umask 077
-          mkdir -p ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      - name: run deploy.sh on the server
+          pnpm dlx vercel@65.2.0 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@65.2.0 build --prod --token="$VERCEL_TOKEN"
+          mv .vercel .vercel-api
+      - name: build the web
         env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: >-
-          ssh
-          -i "$HOME/.ssh/deploy_key"
-          -o IdentitiesOnly=yes
-          -o BatchMode=yes
-          -o StrictHostKeyChecking=yes
-          -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
-          "deploy@$DEPLOY_HOST"
-          /srv/infra/apps/mygame/deploy.sh "$HEAD_SHA"
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
+        run: |
+          pnpm dlx vercel@65.2.0 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@65.2.0 build --prod --token="$VERCEL_TOKEN"
+          mv .vercel .vercel-web
+      - name: apply the migrations
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+        run: pnpm --filter @mygame/api db:migrate
+      - name: deploy the api
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
+        run: |
+          mv .vercel-api .vercel
+          pnpm dlx vercel@65.2.0 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+          mv .vercel .vercel-api
+      - name: deploy the web
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
+        run: |
+          mv .vercel-web .vercel
+          pnpm dlx vercel@65.2.0 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
