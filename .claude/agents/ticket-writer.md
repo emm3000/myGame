@@ -2,7 +2,7 @@
 name: ticket-writer
 description: Writes GitHub issues for myGame slices from the PRD, the lore and the ADRs. Use when the orchestrator needs tickets before dispatch. Returns the issue numbers grouped by wave.
 model: opus
-effort: high
+effort: medium
 tools: Read, Glob, Grep, Bash
 ---
 

@@ -16,7 +16,8 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 ## Hard Rules
 
 - Read `docs/agents/multi-session.md` first. Its dispatch checklist, model table and isolation rules bind every dispatch.
-- Never queue two tickets on one peer. Never dispatch a ticket while a PR from the same wave is unmerged.
+- Under `max-200`, one ticket per peer. Under `max-100`, at most 3 peers at a time, and one peer may carry up to 3 row 1 tickets, one PR each, in sequence; every other ticket gets its own peer. Never dispatch a ticket while a PR from the same wave is unmerged.
+- Read the active budget tier from the `Budget tier:` line of `CLAUDE.md` and take every model and effort from that tier's column.
 - One explicit model and one explicit effort per ticket, stated to the owner before booting.
 - Never touch the owner's main checkout. Peers get their own worktree from `scripts/mygame-session`.
 - No wave carries two tickets touching the same package, and a schema or migration change is always a wave of one.
@@ -26,17 +27,28 @@ Run when the owner invokes `/wave` with one or more issue numbers, or when the o
 
 Rows are ordered by blast radius: how much a mistake breaks and whether a gate catches it. A ticket that matches several rows takes the highest-numbered row that matches. The table lives only here; `docs/agents/dispatch-log.md` records the outcomes per row.
 
-| Row | Work | Model:effort | Extra instruction |
-|---|---|---|---|
-| 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low | none: the compiler and the criteria fail loudly |
-| 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | opus:medium | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
-| 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), `.github/`, a design-system default that changes N screens | opus:high | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
-| 4 | Schema or migration, auth, the persistence adapters, cross-package architecture, a new package | opus:high | the contract test suite against every adapter; a migration test from the previous version |
-| 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | fable:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
+| Row | Work | max-200 | max-100 | Extra instruction |
+|---|---|---|---|---|
+| 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low | sonnet:low | none: the compiler and the criteria fail loudly |
+| 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | opus:medium | sonnet:high | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
+| 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), `.github/`, a design-system default that changes N screens | opus:high | opus:high | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
+| 4 | Schema or migration, auth, money, the persistence adapters, cross-package architecture, a new package | opus:high | opus:high | the contract test suite against every adapter; a migration test from the previous version |
+| 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | fable:high | fable:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
 
-Reviews and other roles keep the playbook rules: a `pr-reviewer` on every PR, restyle/docs/rename reviews sonnet:medium, screen/logic/schema/auth/composition-root reviews opus:high, post-review fixes sonnet:low, `ticket-writer` opus:high, lore fable. Design is row 5, a `/wave` peer like any other ticket.
+Roles outside the rows:
 
-Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a row shows two or more first-review FIX FIRST verdicts for reasons the checklist did not cover, raise it one step and note why here.
+| Role | max-200 | max-100 |
+|---|---|---|
+| `pr-reviewer`, screen, logic, schema, auth or composition-root PR | opus:high | opus:high |
+| `pr-reviewer`, restyle, docs or rename PR | sonnet:medium | sonnet:medium |
+| Post-review fixes | sonnet:low | sonnet:low |
+| `ticket-writer`, planner | opus:high | opus:medium |
+| Orchestrator | opus:medium | opus:medium |
+| Lore, a new ADR, an adversarial audit, an ambiguous triage | fable:high | opus:high, fable:high only when the owner asks |
+
+Reviewers never drop a step in any tier: they are the gate that holds the quality the lowered rows give up. Design is row 5, a `/wave` peer like any other ticket.
+
+Every row is a bet until `docs/agents/dispatch-log.md` says otherwise. When a row shows two or more first-review FIX FIRST verdicts for reasons the checklist did not cover, raise it one step in the active tier's column and note why here.
 
 - Inherited from JustChill's log, kept as a starting bet: a package-wide sweep that needs judgment per line (which comment survives, which duplicate is real) takes row 3, not row 2.
 - Inherited: a dispatch that names a reference file to model the work on inherits that file's debt, so name its known gaps in the same breath.
