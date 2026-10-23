@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR 031
 date: 2026-10-05
 ---
 # Deploy on a shared Contabo VPS with Compose, Caddy and GHCR
