@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.UpgradeRefusal
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 sealed interface FiefUiState {
 
@@ -17,7 +18,9 @@ sealed interface FiefUiState {
         val peasants: PeasantsLine,
         val slot: SlotLine,
         val buildings: List<BuildingCard>,
+        val queue: List<WaitingLine>,
         val upgrade: UpgradeStatus,
+        val cancel: CancelStatus,
     ) : FiefUiState
 
     data class ResourceLine(val kind: ResourceKind, val amount: Long, val capacity: Long, val ratePerHour: Long) {
@@ -34,6 +37,15 @@ sealed interface FiefUiState {
 
         data class Busy(val building: BuildingKind, val targetLevel: Int, val remaining: Duration) : SlotLine
     }
+
+    data class WaitingLine(
+        val building: BuildingKind,
+        val targetLevel: Int,
+        val remaining: Duration,
+        val finishesAt: Instant,
+    )
+
+    data class UpgradeTarget(val building: BuildingKind, val targetLevel: Int)
 
     data class BuildingCard(val kind: BuildingKind, val level: Int, val next: NextLevelLine?, val block: BlockReason?)
 
@@ -67,5 +79,16 @@ sealed interface FiefUiState {
         data class Refused(val building: BuildingKind, val refusal: UpgradeRefusal) : UpgradeStatus
 
         data class Unreachable(val building: BuildingKind) : UpgradeStatus
+    }
+
+    sealed interface CancelStatus {
+
+        data object Idle : CancelStatus
+
+        data class Waiting(val target: UpgradeTarget) : CancelStatus
+
+        data class Refused(val target: UpgradeTarget) : CancelStatus
+
+        data class Unreachable(val target: UpgradeTarget) : CancelStatus
     }
 }

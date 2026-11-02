@@ -7,6 +7,8 @@ interface FiefRepository {
     suspend fun read(): FiefReadResult
 
     suspend fun upgrade(fief: FiefId, building: BuildingKind): UpgradeResult
+
+    suspend fun cancel(fief: FiefId, building: BuildingKind, targetLevel: Int): CancelResult
 }
 
 fun FiefRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): FiefRepository =

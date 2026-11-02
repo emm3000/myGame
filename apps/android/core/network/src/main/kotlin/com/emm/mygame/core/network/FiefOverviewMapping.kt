@@ -5,6 +5,8 @@ import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildings
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmill
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevel
+import com.emm.mygame.core.network.generated.models.FiefOverviewQueue
+import com.emm.mygame.core.network.generated.models.FiefOverviewQueueEntriesInner
 import com.emm.mygame.core.network.generated.models.FiefOverviewResourcesWood
 import com.emm.mygame.core.network.generated.models.BuildSlot as WireBuildSlot
 import java.time.OffsetDateTime
@@ -12,8 +14,10 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
-    val buildSlot: BuildSlot = slot.toBuildSlot() ?: return null
-    val buildingStates: List<BuildingState> = buildings.toBuildingStates() ?: return null
+    val buildSlot: BuildSlot? = slot.toBuildSlot()
+    val buildingStates: List<BuildingState>? = buildings.toBuildingStates()
+    val buildQueue: BuildQueue? = queue.toBuildQueue()
+    if (buildSlot == null || buildingStates == null || buildQueue == null) return null
     return FiefSnapshot(
         id = FiefId(id.toString()),
         name = name,
@@ -28,7 +32,7 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         slot = buildSlot,
         buildings = buildingStates,
         peasants = Peasants(free = peasants.projectedFree, supplied = peasants.projectedSupplied),
-        queue = BuildQueue(waiting = queue.propertyEntries.size, cap = queue.cap),
+        queue = buildQueue,
     )
 }
 
@@ -87,6 +91,29 @@ private fun BusyBuildSlot.Building.toBuildingKind(): BuildingKind? = when (this)
     BusyBuildSlot.Building.library -> BuildingKind.Library
     BusyBuildSlot.Building.barracks -> BuildingKind.Barracks
     BusyBuildSlot.Building.unknown_default_open_api -> null
+}
+
+private fun FiefOverviewQueue.toBuildQueue(): BuildQueue? {
+    val entries: List<WaitingUpgrade> = propertyEntries.mapNotNull { entry: FiefOverviewQueueEntriesInner ->
+        entry.toWaitingUpgrade()
+    }
+    return if (entries.size == propertyEntries.size) BuildQueue(entries = entries, cap = cap) else null
+}
+
+private fun FiefOverviewQueueEntriesInner.toWaitingUpgrade(): WaitingUpgrade? {
+    val buildingKind: BuildingKind = building.toBuildingKind() ?: return null
+    return WaitingUpgrade(building = buildingKind, targetLevel = targetLevel, finishesAt = finishesAt.toKotlinInstant())
+}
+
+private fun FiefOverviewQueueEntriesInner.Building.toBuildingKind(): BuildingKind? = when (this) {
+    FiefOverviewQueueEntriesInner.Building.sawmill -> BuildingKind.Sawmill
+    FiefOverviewQueueEntriesInner.Building.quarry -> BuildingKind.Quarry
+    FiefOverviewQueueEntriesInner.Building.ironMine -> BuildingKind.IronMine
+    FiefOverviewQueueEntriesInner.Building.farm -> BuildingKind.Farm
+    FiefOverviewQueueEntriesInner.Building.warehouse -> BuildingKind.Warehouse
+    FiefOverviewQueueEntriesInner.Building.library -> BuildingKind.Library
+    FiefOverviewQueueEntriesInner.Building.barracks -> BuildingKind.Barracks
+    FiefOverviewQueueEntriesInner.Building.unknown_default_open_api -> null
 }
 
 private fun OffsetDateTime.toKotlinInstant(): Instant = Instant.fromEpochMilliseconds(toInstant().toEpochMilli())

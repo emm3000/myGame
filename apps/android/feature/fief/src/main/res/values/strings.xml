@@ -74,4 +74,13 @@
     <string name="refusal_insufficient_resources">No tienes recursos suficientes.</string>
     <string name="refusal_not_enough_peasants">No tienes campesinos libres suficientes.</string>
     <string name="refusal_max_level_reached">Ese edificio ya está en su nivel más alto.</string>
+    <string name="queue_title">Obras en espera</string>
+    <string name="queue_summary">Obras en espera: %1$d · %2$s</string>
+    <string name="queue_finish">Termina en %1$s</string>
+    <string name="finish_with_clock">%1$s · %2$s</string>
+    <string name="finish_tomorrow">mañana %1$s</string>
+    <string name="finish_day">%1$s %2$s</string>
+    <string name="cancel_upgrade">Cancelar la obra</string>
+    <string name="cancel_upgrade_description">Cancelar la obra: %1$s, nivel %2$d</string>
+    <string name="cancel_refund">Si la cancelas, recuperas todo lo que costó, y lo mismo por cada obra en espera que caiga con ella.</string>
 </resources>

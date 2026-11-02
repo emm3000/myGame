@@ -9,13 +9,14 @@ import com.emm.mygame.core.network.Peasants
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StoredResource
+import com.emm.mygame.core.network.WaitingUpgrade
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.math.floor
 import kotlin.time.Duration
 import kotlin.time.Instant
 
-internal fun FiefSnapshot.contentAt(now: Instant, upgrade: FiefUiState.UpgradeStatus): FiefUiState.Content {
+internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Mutations): FiefUiState.Content {
     val lines: List<FiefUiState.ResourceLine> = resources.map { stored: StoredResource ->
         stored.lineAt(readAt = readAt, now = now)
     }
@@ -23,6 +24,14 @@ internal fun FiefSnapshot.contentAt(now: Instant, upgrade: FiefUiState.UpgradeSt
         line.kind to line.amount
     }
     val isQueueFull: Boolean = slot is BuildSlot.Busy && queue.isFull()
+    val waiting: List<FiefUiState.WaitingLine> = queue.entries.map { entry: WaitingUpgrade ->
+        FiefUiState.WaitingLine(
+            building = entry.building,
+            targetLevel = entry.targetLevel,
+            remaining = countdownTo(finishesAt = entry.finishesAt, now = now),
+            finishesAt = entry.finishesAt - gap,
+        )
+    }
     return FiefUiState.Content(
         name = name,
         resources = lines,
@@ -31,7 +40,9 @@ internal fun FiefSnapshot.contentAt(now: Instant, upgrade: FiefUiState.UpgradeSt
         buildings = buildings.map { building: BuildingState ->
             building.cardWith(amounts = drawnAmounts, peasants = peasants, isQueueFull = isQueueFull)
         },
-        upgrade = upgrade,
+        queue = waiting,
+        upgrade = mutations.upgrade,
+        cancel = mutations.cancel,
     )
 }
 
@@ -40,7 +51,7 @@ internal fun FiefSnapshot.slotRemainingAt(now: Instant): Duration? = when (val c
     is BuildSlot.Busy -> countdownTo(finishesAt = current.finishesAt, now = now)
 }
 
-private fun BuildQueue.isFull(): Boolean = waiting >= cap
+private fun BuildQueue.isFull(): Boolean = entries.size >= cap
 
 private fun StoredResource.lineAt(readAt: Instant, now: Instant): FiefUiState.ResourceLine {
     val stock: ResourceStock = ResourceStock(amount = amount, ratePerHour = ratePerHour, capacity = capacity)

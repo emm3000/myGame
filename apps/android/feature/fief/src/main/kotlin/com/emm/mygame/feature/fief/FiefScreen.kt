@@ -85,7 +85,8 @@ private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         Header(title = content.name)
         ResourcesSection(content = content)
-        SlotSection(slot = content.slot)
+        SlotSection(content = content, onIntent = onIntent)
+        if (content.queue.isNotEmpty()) QueueSection(content = content, onIntent = onIntent)
         BuildingsSection(content = content, onIntent = onIntent)
     }
 }

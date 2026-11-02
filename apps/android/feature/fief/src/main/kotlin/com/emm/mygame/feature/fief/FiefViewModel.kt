@@ -3,6 +3,8 @@ package com.emm.mygame.feature.fief
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.network.CancelRefusal
+import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
@@ -29,7 +31,7 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
 
     private var shown: FiefSnapshot? = null
 
-    private var upgrade: FiefUiState.UpgradeStatus = FiefUiState.UpgradeStatus.Idle
+    private var mutations: Mutations = Mutations.none
 
     init {
         open()
@@ -39,6 +41,7 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
         when (intent) {
             FiefIntent.RetryTapped -> open()
             is FiefIntent.UpgradeTapped -> upgrade(intent.building)
+            is FiefIntent.CancelTapped -> cancel(FiefUiState.UpgradeTarget(intent.building, intent.targetLevel))
         }
     }
 
@@ -55,27 +58,56 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
 
     private fun upgrade(building: BuildingKind) {
         val fief: FiefSnapshot = shown ?: return
-        if (upgrade is FiefUiState.UpgradeStatus.Waiting) return
-        drawUpgrade(FiefUiState.UpgradeStatus.Waiting(building))
+        if (mutations.upgrade is FiefUiState.UpgradeStatus.Waiting) return
+        draw(mutations.copy(upgrade = FiefUiState.UpgradeStatus.Waiting(building)))
         viewModelScope.launch {
             when (val answer: UpgradeResult = fiefs.upgrade(fief.id, building)) {
                 is UpgradeResult.Upgraded -> restartFrom(answer.fief)
-                is UpgradeResult.Refused -> drawUpgrade(FiefUiState.UpgradeStatus.Refused(building, answer.refusal))
-                UpgradeResult.Unreachable -> drawUpgrade(FiefUiState.UpgradeStatus.Unreachable(building))
+                is UpgradeResult.Refused ->
+                    draw(mutations.copy(upgrade = FiefUiState.UpgradeStatus.Refused(building, answer.refusal)))
+                UpgradeResult.Unreachable ->
+                    draw(mutations.copy(upgrade = FiefUiState.UpgradeStatus.Unreachable(building)))
             }
+        }
+    }
+
+    private fun cancel(target: FiefUiState.UpgradeTarget) {
+        val fief: FiefSnapshot = shown ?: return
+        if (mutations.cancel is FiefUiState.CancelStatus.Waiting) return
+        draw(mutations.copy(cancel = FiefUiState.CancelStatus.Waiting(target)))
+        viewModelScope.launch {
+            when (val answer: CancelResult = fiefs.cancel(fief.id, target.building, target.targetLevel)) {
+                is CancelResult.Cancelled -> restartFrom(answer.fief)
+                is CancelResult.Refused -> answerRefusedCancel(target, answer.refusal)
+                CancelResult.Unreachable -> draw(mutations.copy(cancel = FiefUiState.CancelStatus.Unreachable(target)))
+            }
+        }
+    }
+
+    private suspend fun answerRefusedCancel(target: FiefUiState.UpgradeTarget, refusal: CancelRefusal) {
+        when (refusal) {
+            CancelRefusal.UpgradeNotFound -> rereadAfterCancel(target)
+            CancelRefusal.Unrecognized -> draw(mutations.copy(cancel = FiefUiState.CancelStatus.Refused(target)))
+        }
+    }
+
+    private suspend fun rereadAfterCancel(target: FiefUiState.UpgradeTarget) {
+        when (val answer: FiefReadResult = fiefs.read()) {
+            is FiefReadResult.Read -> restartFrom(answer.fief)
+            FiefReadResult.Unreachable -> draw(mutations.copy(cancel = FiefUiState.CancelStatus.Unreachable(target)))
         }
     }
 
     private fun restartFrom(snapshot: FiefSnapshot) {
         projection?.cancel()
-        upgrade = FiefUiState.UpgradeStatus.Idle
+        mutations = Mutations.none
         projection = viewModelScope.launch { project(snapshot) }
     }
 
-    private fun drawUpgrade(status: FiefUiState.UpgradeStatus) {
-        upgrade = status
+    private fun draw(next: Mutations) {
+        mutations = next
         _state.update { current: FiefUiState ->
-            if (current is FiefUiState.Content) current.copy(upgrade = status) else current
+            if (current is FiefUiState.Content) current.copy(upgrade = next.upgrade, cancel = next.cancel) else current
         }
     }
 
@@ -88,18 +120,14 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
                 if (answer is FiefReadResult.Read) {
                     snapshot = answer.fief
                     gap = serverGapOf(snapshot)
-                    forgetAnsweredUpgrade()
+                    mutations = mutations.keptAfterRead()
                 }
             }
             val now: Instant = clock.now() + gap
             shown = snapshot
-            _state.value = snapshot.contentAt(now, upgrade)
+            _state.value = snapshot.contentAt(now = now, gap = gap, mutations = mutations)
             delay(repaintDelay(snapshot.slotRemainingAt(now)))
         }
-    }
-
-    private fun forgetAnsweredUpgrade() {
-        if (upgrade !is FiefUiState.UpgradeStatus.Waiting) upgrade = FiefUiState.UpgradeStatus.Idle
     }
 
     private fun serverGapOf(snapshot: FiefSnapshot): Duration = snapshot.readAt - clock.now()
