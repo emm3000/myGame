@@ -1,5 +1,5 @@
+import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
-import { Hono } from 'hono'
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { type DigestDependencies, digestRoutes } from './routes/digest'
 import { type FiefsDependencies, fiefsRoutes } from './routes/fiefs'
@@ -10,8 +10,9 @@ export type AppDependencies = AuthDependencies &
   DigestDependencies &
   HintsDependencies
 
-export const createApp = (dependencies: AppDependencies): Hono =>
-  new Hono()
+export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
+  const app = new OpenAPIHono()
+  app
     .get('/health', (c) => {
       const body: HealthResponse = { status: 'ok' }
       return c.json(body)
@@ -20,3 +21,9 @@ export const createApp = (dependencies: AppDependencies): Hono =>
     .route('/fiefs', fiefsRoutes(dependencies))
     .route('/digest', digestRoutes(dependencies))
     .route('/hints', hintsRoutes(dependencies))
+  app.doc('/openapi.json', {
+    openapi: '3.0.0',
+    info: { title: 'myGame api', version: '0.0.0' },
+  })
+  return app
+}

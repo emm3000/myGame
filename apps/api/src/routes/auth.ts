@@ -1,3 +1,4 @@
+import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   ForgotPasswordRequestSchema,
   type Player,
@@ -7,7 +8,7 @@ import {
   VerifyEmailRequestSchema,
 } from '@mygame/contracts'
 import type { Result } from '@mygame/domain'
-import { type Context, Hono } from 'hono'
+import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { StoredPlayer } from '../auth/Accounts'
 import {
@@ -29,6 +30,7 @@ import { bodyOf } from '../http/bodyOf'
 import type { Refusal } from '../http/Refusal'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { clearSessionCookie, writeSessionCookie } from '../http/sessionCookie'
+import { authDeclarations } from './authDeclarations'
 
 export type AuthDependencies = SignUpDependencies &
   SignInDependencies &
@@ -73,46 +75,50 @@ const answerSignedIn = async (
   return c.json(await playerOf(signedIn.value.player, seenHints), status)
 }
 
-export const authRoutes = (dependencies: AuthDependencies): Hono => {
+export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
   const signedInPlayer = requirePlayer(dependencies)
-  return new Hono()
-    .post('/sign-up', async (c) => {
+  const routes = new OpenAPIHono()
+  for (const declaration of Object.values(authDeclarations)) {
+    routes.openAPIRegistry.registerPath(declaration)
+  }
+  routes
+    .post(authDeclarations.signUp.path, async (c) => {
       const request = SignUpRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
       }
       return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
     })
-    .post('/sign-in', async (c) => {
+    .post(authDeclarations.signIn.path, async (c) => {
       const request = SignInRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'InvalidCredentials' })
       }
       return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
     })
-    .post('/sign-out', signedInPlayer, async (c) => {
+    .post(authDeclarations.signOut.path, signedInPlayer, async (c) => {
       await dependencies.accounts.closeSession(c.var.sessionToken)
       clearSessionCookie(c, dependencies.isSessionCookieSecure)
       return c.body(null, 204)
     })
-    .get('/session', signedInPlayer, async (c) => {
+    .get(authDeclarations.session.path, signedInPlayer, async (c) => {
       const player = await dependencies.accounts.playerOf(c.var.playerId)
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
       return c.json(await playerOf(player, dependencies.seenHints))
     })
-    .post('/verify-email', async (c) => {
+    .post(authDeclarations.verifyEmail.path, async (c) => {
       const request = VerifyEmailRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerDone(c, await verifyEmail(request.data, dependencies))
     })
-    .post('/verify-email/resend', signedInPlayer, async (c) =>
+    .post(authDeclarations.resendVerification.path, signedInPlayer, async (c) =>
       answerDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
     )
-    .post('/forgot-password', async (c) => {
+    .post(authDeclarations.forgotPassword.path, async (c) => {
       const request = ForgotPasswordRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -120,11 +126,12 @@ export const authRoutes = (dependencies: AuthDependencies): Hono => {
       await requestPasswordReset(request.data, dependencies)
       return c.body(null, 202)
     })
-    .post('/reset-password', async (c) => {
+    .post(authDeclarations.resetPassword.path, async (c) => {
       const request = ResetPasswordRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
       }
       return answerDone(c, await resetPassword(request.data, dependencies))
     })
+  return routes
 }

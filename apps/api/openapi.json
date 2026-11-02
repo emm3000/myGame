@@ -1,0 +1,2669 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "myGame api",
+    "version": "0.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Player": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "seenHints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "peasants",
+                "seasons",
+                "queue",
+                "library",
+                "barracks",
+                "marches",
+                "fullStore"
+              ]
+            }
+          }
+        },
+        "required": ["id", "email", "emailVerified", "seenHints"],
+        "additionalProperties": false
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "InvalidCredentials",
+              "EmailTaken",
+              "WeakPassword",
+              "FiefNotFound",
+              "UnknownBuilding",
+              "MaxLevelReached",
+              "QueueFull",
+              "UpgradeNotFound",
+              "InsufficientResources",
+              "NotEnoughPeasants",
+              "BlankFiefName",
+              "StudySlotBusy",
+              "LibraryLevelTooLow",
+              "ArtMaxLevelReached",
+              "StudyNotFound",
+              "BarracksNotBuilt",
+              "BarracksTooLow",
+              "RecruitSlotBusy",
+              "RecruitOrderNotFound",
+              "PlotHeld",
+              "PlotHasCamp",
+              "PlotHasNoCamp",
+              "MarchToOwnPlot",
+              "NotEnoughUnitsAtHome",
+              "MarchSlotBusy",
+              "StayOutOfRange",
+              "MarchTargetOutOfBounds",
+              "MarchNotFound",
+              "MarchAlreadyReturning",
+              "UnitUnfitForOrder",
+              "FiefCapReached",
+              "PlotReserved",
+              "EmptyCargo",
+              "CargoAboveCarry",
+              "ProvinceNotFound",
+              "TokenInvalid",
+              "MailNotSent"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["kind", "message"]
+      },
+      "SignUpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          },
+          "fiefName": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["email", "password", "fiefName"]
+      },
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "VerifyEmailRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["token"],
+        "additionalProperties": false
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": ["email"],
+        "additionalProperties": false
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": ["token", "password"],
+        "additionalProperties": false
+      },
+      "FiefOverview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coordinates": {
+            "type": "object",
+            "properties": {
+              "kingdom": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "province": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "plot": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["kingdom", "province", "plot"]
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["lowlands", "uplands", "ridges"]
+          },
+          "resources": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"]
+              },
+              "stone": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"]
+              },
+              "iron": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"]
+              },
+              "gold": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"]
+              },
+              "food": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "fullAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity", "fullAt"]
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          },
+          "buildings": {
+            "type": "object",
+            "properties": {
+              "sawmill": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              },
+              "quarry": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              },
+              "ironMine": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              },
+              "farm": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              },
+              "warehouse": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              },
+              "library": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              },
+              "barracks": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "peasants"]
+                  }
+                },
+                "required": ["level", "nextLevel"]
+              }
+            }
+          },
+          "peasants": {
+            "type": "object",
+            "properties": {
+              "supplied": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "occupied": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "free": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "projectedSupplied": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "projectedOccupied": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "projectedFree": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "lowestFree": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "supplied",
+              "occupied",
+              "free",
+              "projectedSupplied",
+              "projectedOccupied",
+              "projectedFree",
+              "lowestFree"
+            ]
+          },
+          "slot": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["idle"]
+                  }
+                },
+                "required": ["kind"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["busy"]
+                  },
+                  "building": {
+                    "type": "string",
+                    "enum": [
+                      "sawmill",
+                      "quarry",
+                      "ironMine",
+                      "farm",
+                      "warehouse",
+                      "library",
+                      "barracks"
+                    ]
+                  },
+                  "targetLevel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "startedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "finishesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["kind", "building", "targetLevel", "startedAt", "finishesAt"]
+              }
+            ]
+          },
+          "queue": {
+            "type": "object",
+            "properties": {
+              "entries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "building": {
+                      "type": "string",
+                      "enum": [
+                        "sawmill",
+                        "quarry",
+                        "ironMine",
+                        "farm",
+                        "warehouse",
+                        "library",
+                        "barracks"
+                      ]
+                    },
+                    "targetLevel": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "startsAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "finishesAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["building", "targetLevel", "startsAt", "finishesAt"]
+                }
+              },
+              "cap": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["entries", "cap"]
+          },
+          "study": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["idle"]
+                  }
+                },
+                "required": ["kind"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["busy"]
+                  },
+                  "art": {
+                    "type": "string",
+                    "enum": ["smithing", "masonry"]
+                  },
+                  "targetLevel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "startedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "finishesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["kind", "art", "targetLevel", "startedAt", "finishesAt"]
+              }
+            ]
+          },
+          "arts": {
+            "type": "object",
+            "properties": {
+              "smithing": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "resource": {
+                    "type": "string",
+                    "enum": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "ratePercent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "requiredLibraryLevel": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "ratePercent": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "level",
+                      "cost",
+                      "durationSeconds",
+                      "requiredLibraryLevel",
+                      "ratePercent"
+                    ]
+                  }
+                },
+                "required": ["level", "resource", "ratePercent", "nextLevel"]
+              },
+              "masonry": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "resource": {
+                    "type": "string",
+                    "enum": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "ratePercent": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "wood": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "stone": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "iron": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "requiredLibraryLevel": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "ratePercent": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "level",
+                      "cost",
+                      "durationSeconds",
+                      "requiredLibraryLevel",
+                      "ratePercent"
+                    ]
+                  }
+                },
+                "required": ["level", "resource", "ratePercent", "nextLevel"]
+              }
+            }
+          },
+          "season": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["spring", "summer", "autumn", "winter"]
+              },
+              "year": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "endsAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "multiplierPercent": {
+                "type": "object",
+                "properties": {
+                  "wood": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "stone": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "iron": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "gold": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                }
+              },
+              "durationPercent": {
+                "type": "object",
+                "properties": {
+                  "build": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "study": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "train": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "road": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["build", "study", "train", "road"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["kind", "year", "endsAt", "multiplierPercent", "durationPercent"],
+            "additionalProperties": false
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "recruitOrder": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "unit": {
+                "type": "string",
+                "enum": ["infantry", "cavalry", "archer", "settler"]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "delivered": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "perUnitSeconds": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endsAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["unit", "count", "delivered", "perUnitSeconds", "startedAt", "endsAt"],
+            "additionalProperties": false
+          },
+          "recruitTerms": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "object",
+                "properties": {
+                  "cost": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "peasants": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "perUnitSeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["cost", "peasants", "perUnitSeconds"],
+                "additionalProperties": false
+              },
+              "cavalry": {
+                "type": "object",
+                "properties": {
+                  "cost": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "peasants": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "perUnitSeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["cost", "peasants", "perUnitSeconds"],
+                "additionalProperties": false
+              },
+              "archer": {
+                "type": "object",
+                "properties": {
+                  "cost": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "peasants": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "perUnitSeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["cost", "peasants", "perUnitSeconds"],
+                "additionalProperties": false
+              },
+              "settler": {
+                "type": "object",
+                "properties": {
+                  "cost": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "peasants": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "perUnitSeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["cost", "peasants", "perUnitSeconds"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "unitTerms": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "object",
+                "properties": {
+                  "strength": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "carry": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "roadPercent": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "barracksLevel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["strength", "carry", "roadPercent", "barracksLevel"],
+                "additionalProperties": false
+              },
+              "cavalry": {
+                "type": "object",
+                "properties": {
+                  "strength": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "carry": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "roadPercent": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "barracksLevel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["strength", "carry", "roadPercent", "barracksLevel"],
+                "additionalProperties": false
+              },
+              "archer": {
+                "type": "object",
+                "properties": {
+                  "strength": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "carry": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "roadPercent": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "barracksLevel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["strength", "carry", "roadPercent", "barracksLevel"],
+                "additionalProperties": false
+              },
+              "settler": {
+                "type": "object",
+                "properties": {
+                  "strength": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "carry": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "roadPercent": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "barracksLevel": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["strength", "carry", "roadPercent", "barracksLevel"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "march": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "province": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "plot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "terrain": {
+                    "type": "string",
+                    "enum": ["lowlands", "uplands", "ridges"]
+                  },
+                  "units": {
+                    "type": "object",
+                    "properties": {
+                      "infantry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "cavalry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "archer": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "settler": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "departedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "oneWaySeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "loot": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "arrivesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "leavesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "returnsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "recalledAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": ["forage"]
+                  },
+                  "stayHours": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "camp": {
+                    "nullable": true
+                  },
+                  "fought": {
+                    "type": "boolean",
+                    "enum": [false]
+                  }
+                },
+                "required": [
+                  "province",
+                  "plot",
+                  "terrain",
+                  "units",
+                  "departedAt",
+                  "oneWaySeconds",
+                  "loot",
+                  "arrivesAt",
+                  "leavesAt",
+                  "returnsAt",
+                  "recalledAt",
+                  "order",
+                  "stayHours",
+                  "camp",
+                  "fought"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "province": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "plot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "terrain": {
+                    "type": "string",
+                    "enum": ["lowlands", "uplands", "ridges"]
+                  },
+                  "units": {
+                    "type": "object",
+                    "properties": {
+                      "infantry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "cavalry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "archer": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "settler": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "departedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "oneWaySeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "loot": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "arrivesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "leavesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "returnsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "recalledAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": ["attack"]
+                  },
+                  "stayHours": {
+                    "type": "number",
+                    "enum": [0]
+                  },
+                  "camp": {
+                    "type": "object",
+                    "properties": {
+                      "tier": {
+                        "type": "number",
+                        "enum": [1]
+                      },
+                      "strength": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["tier", "strength"],
+                    "additionalProperties": false
+                  },
+                  "fought": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "province",
+                  "plot",
+                  "terrain",
+                  "units",
+                  "departedAt",
+                  "oneWaySeconds",
+                  "loot",
+                  "arrivesAt",
+                  "leavesAt",
+                  "returnsAt",
+                  "recalledAt",
+                  "order",
+                  "stayHours",
+                  "camp",
+                  "fought"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "province": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "plot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "terrain": {
+                    "type": "string",
+                    "enum": ["lowlands", "uplands", "ridges"]
+                  },
+                  "units": {
+                    "type": "object",
+                    "properties": {
+                      "infantry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "cavalry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "archer": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "settler": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "departedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "oneWaySeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "loot": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "arrivesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "leavesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "returnsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "recalledAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": ["found"]
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "stayHours": {
+                    "type": "number",
+                    "enum": [0]
+                  },
+                  "camp": {
+                    "nullable": true
+                  },
+                  "fought": {
+                    "type": "boolean",
+                    "enum": [false]
+                  }
+                },
+                "required": [
+                  "province",
+                  "plot",
+                  "terrain",
+                  "units",
+                  "departedAt",
+                  "oneWaySeconds",
+                  "loot",
+                  "arrivesAt",
+                  "leavesAt",
+                  "returnsAt",
+                  "recalledAt",
+                  "order",
+                  "name",
+                  "stayHours",
+                  "camp",
+                  "fought"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "province": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "plot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "terrain": {
+                    "type": "string",
+                    "enum": ["lowlands", "uplands", "ridges"]
+                  },
+                  "units": {
+                    "type": "object",
+                    "properties": {
+                      "infantry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "cavalry": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "archer": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "settler": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "departedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "oneWaySeconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "loot": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "arrivesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "leavesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "returnsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "recalledAt": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date-time"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": ["transport"]
+                  },
+                  "toFiefId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "cargo": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"]
+                  },
+                  "stayHours": {
+                    "type": "number",
+                    "enum": [0]
+                  },
+                  "camp": {
+                    "nullable": true
+                  },
+                  "fought": {
+                    "type": "boolean",
+                    "enum": [false]
+                  }
+                },
+                "required": [
+                  "province",
+                  "plot",
+                  "terrain",
+                  "units",
+                  "departedAt",
+                  "oneWaySeconds",
+                  "loot",
+                  "arrivesAt",
+                  "leavesAt",
+                  "returnsAt",
+                  "recalledAt",
+                  "order",
+                  "toFiefId",
+                  "cargo",
+                  "stayHours",
+                  "camp",
+                  "fought"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "nullable": true
+              }
+            ]
+          },
+          "forageTerms": {
+            "type": "object",
+            "properties": {
+              "secondsPerProvince": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "secondsPerPlot": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "maxStayHours": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "yieldPerHour": {
+                "type": "object",
+                "properties": {
+                  "lowlands": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "number",
+                        "enum": [0]
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"],
+                    "additionalProperties": false
+                  },
+                  "uplands": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "number",
+                        "enum": [0]
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"],
+                    "additionalProperties": false
+                  },
+                  "ridges": {
+                    "type": "object",
+                    "properties": {
+                      "wood": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "stone": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "iron": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "gold": {
+                        "type": "number",
+                        "enum": [0]
+                      },
+                      "food": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["wood", "stone", "iron", "gold", "food"],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            },
+            "required": ["secondsPerProvince", "secondsPerPlot", "maxStayHours", "yieldPerHour"],
+            "additionalProperties": false
+          },
+          "combatTerms": {
+            "type": "object",
+            "properties": {
+              "lootPerStrength": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "tiers": {
+                "type": "object",
+                "properties": {
+                  "1": {
+                    "type": "object",
+                    "properties": {
+                      "maxStrength": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "regrowHours": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
+                    },
+                    "required": ["maxStrength", "regrowHours"],
+                    "additionalProperties": false
+                  },
+                  "2": {
+                    "type": "object",
+                    "properties": {
+                      "maxStrength": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "regrowHours": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
+                    },
+                    "required": ["maxStrength", "regrowHours"],
+                    "additionalProperties": false
+                  },
+                  "3": {
+                    "type": "object",
+                    "properties": {
+                      "maxStrength": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "regrowHours": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
+                    },
+                    "required": ["maxStrength", "regrowHours"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["1", "2", "3"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["lootPerStrength", "tiers"],
+            "additionalProperties": false
+          },
+          "incomingCargo": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "fromFiefId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "from": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "province": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "plot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["name", "province", "plot"],
+                "additionalProperties": false
+              },
+              "cargo": {
+                "type": "object",
+                "properties": {
+                  "wood": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "stone": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "iron": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "gold": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["wood", "stone", "iron", "gold", "food"]
+              },
+              "departedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "arrivesAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["fromFiefId", "from", "cargo", "departedAt", "arrivesAt"],
+            "additionalProperties": false
+          },
+          "goal": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "building": {
+                    "type": "string",
+                    "enum": [
+                      "sawmill",
+                      "quarry",
+                      "ironMine",
+                      "farm",
+                      "warehouse",
+                      "library",
+                      "barracks"
+                    ]
+                  },
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": ["pending"]
+                  },
+                  "missing": {
+                    "type": "object",
+                    "properties": {
+                      "resources": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "resource": {
+                              "type": "string",
+                              "enum": ["wood", "stone", "iron", "gold", "food"]
+                            },
+                            "amount": {
+                              "type": "number",
+                              "minimum": 0,
+                              "exclusiveMinimum": true
+                            }
+                          },
+                          "required": ["resource", "amount"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "peasants": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["resources", "peasants"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["position", "count", "building", "level", "state", "missing"],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "position": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "building": {
+                    "type": "string",
+                    "enum": [
+                      "sawmill",
+                      "quarry",
+                      "ironMine",
+                      "farm",
+                      "warehouse",
+                      "library",
+                      "barracks"
+                    ]
+                  },
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": ["underway"]
+                  },
+                  "missing": {
+                    "nullable": true
+                  }
+                },
+                "required": ["position", "count", "building", "level", "state", "missing"],
+                "additionalProperties": false
+              },
+              {
+                "nullable": true
+              }
+            ]
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "coordinates",
+          "terrain",
+          "resources",
+          "buildings",
+          "peasants",
+          "slot",
+          "queue",
+          "study",
+          "arts",
+          "season",
+          "units",
+          "recruitOrder",
+          "recruitTerms",
+          "unitTerms",
+          "march",
+          "forageTerms",
+          "combatTerms",
+          "incomingCargo",
+          "goal",
+          "readAt"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/auth/sign-up": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new player, signed in through the session cookie.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "WeakPassword or BlankFiefName; a malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "EmailTaken.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The player, signed in through the session cookie.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "InvalidCredentials, a malformed body included.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "The session is closed and its cookie cleared."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          }
+        }
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "The signed-in player; the session is renewed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          }
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The email is verified."
+          },
+          "400": {
+            "description": "TokenInvalid; a malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-email/resend": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "The verification mail is sent, or the email is already verified."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "503": {
+            "description": "MailNotSent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted for any well-formed email. Empty body."
+          },
+          "400": {
+            "description": "A malformed body. Empty body."
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "The password is replaced and every session closed."
+          },
+          "400": {
+            "description": "TokenInvalid or WeakPassword; a malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief the path names, accrued to the read; the session is renewed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A fief id that is not a uuid. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

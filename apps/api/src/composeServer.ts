@@ -1,6 +1,6 @@
+import type { OpenAPIHono } from '@hono/zod-openapi'
 import type { FiefContent } from '@mygame/contracts'
 import type { BuildingCatalog, Clock, IdGenerator, KingdomMapReader } from '@mygame/domain'
-import type { Hono } from 'hono'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
@@ -70,7 +70,7 @@ const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
 }
 
 export type ComposedServer = MailSettings & {
-  readonly fetch: Hono['fetch']
+  readonly fetch: OpenAPIHono['fetch']
   readonly buildingCatalog: BuildingCatalog
   readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
