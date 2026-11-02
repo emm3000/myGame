@@ -52,12 +52,17 @@ Path-scoped, loaded when matching files are touched:
 
 | File | Covers |
 |---|---|
-| `.claude/rules/architecture.md` | Layer boundaries, ports and adapters, use-case admission, `DomainError`, the contracts boundary, the leak check |
-| `.claude/rules/typescript-style.md` | Explicit return types, comment policy, idioms, complexity limits |
-| `.claude/rules/naming.md` | Naming patterns by layer, file names, English identifiers |
-| `.claude/rules/principles.md` | YAGNI, KISS, SOLID with its tests, DRY with its caveat, what is rejected |
+| `.claude/rules/architecture.md` | Api, web and shared TS packages: layer boundaries, ports and adapters, use-case admission, `DomainError`, the contracts boundary, the leak check |
+| `.claude/rules/typescript-style.md` | Explicit return types, comment policy, idioms, complexity limits, naming patterns by layer, file names |
+| `.claude/rules/naming.md` | Language-neutral naming for all code: English identifiers, predicates, plurals, units, game content names |
+| `.claude/rules/principles.md` | All code: YAGNI, KISS, SOLID with its tests, DRY with its caveat, what is rejected |
 | `.claude/rules/testing.md` | Vitest, behavior tests, fixtures, what a test may not do |
 | `.claude/rules/github-workflows.md` | CI, the gate's definition, pinned actions |
+| `.claude/rules/kotlin-style.md` | Kotlin in `apps/android`: comment policy, explicit types, idioms, names, detekt |
+| `.claude/rules/android-architecture.md` | `apps/android`: the client as renderer, modules and `checkModuleBoundaries`, the generated contract, the bearer session, the lazy projection, MVI |
+| `.claude/rules/android-testing.md` | Android tests: sentence names, Turbine, fakes over mocks, the shared projection fixture |
+| `.claude/rules/ui-components.md` | Every client's UI: one token-defined design system, touch targets, states, accessibility floor, icons |
+| `.claude/rules/verification.md` | Required evidence per changed area and how to report it |
 
 Each package carries a `CLAUDE.md` with its build and test facts and its gotchas once it exists.
 

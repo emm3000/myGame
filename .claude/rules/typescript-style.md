@@ -36,6 +36,29 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - A package exposes one entry (`src/index.ts`) and consumers import only from it.
 - No barrel files inside a package beyond that single entry.
 
+## Naming by layer
+
+| Thing | Pattern | Example |
+|---|---|---|
+| Entity | noun | `Fief`, `Building`, `BuildQueue` |
+| Value object | noun, immutable | `ResourceAmount`, `Coordinates`, `Duration` |
+| Use case | verb phrase | `enqueueBuilding`, `collectResources` |
+| Port | noun + role | `FiefRepository`, `Clock`, `IdGenerator` |
+| Adapter | technology + port | `DrizzleFiefRepository`, `SystemClock` |
+| Domain error member | past or present participle of the failure | `InsufficientResources`, `QueueFull` |
+| Contract schema | wire noun + `Schema` | `FiefOverviewSchema`, `EnqueueBuildingRequestSchema` |
+| Contract type | the schema's noun | `FiefOverview`, `EnqueueBuildingRequest` |
+| Hono route module | resource | `fiefs.ts`, `slot.ts` |
+| Web route | TanStack file route | `routes/fief.$fiefId.tsx` |
+| Component | noun, PascalCase | `ResourceBar`, `BuildQueuePanel` |
+| Hook | `use` + noun | `useFiefOverview` |
+| Test | `<subject>.test.ts` beside the subject | `enqueueBuilding.test.ts` |
+
+## File names
+
+- camelCase for files that export a function or value, PascalCase for files that export a type, class or component.
+- Directories are plural nouns for collections (`useCases/`, `ports/`, `adapters/`) and singular for a single concern (`auth/`).
+
 ## Formatting
 
 Biome owns formatting. Never hand-format; run `pnpm format`.

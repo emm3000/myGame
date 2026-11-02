@@ -1,9 +1,12 @@
 ---
 paths:
-  - "apps/**"
+  - "apps/api/**"
+  - "apps/web/**"
   - "packages/**"
 ---
 # Architecture
+
+Covers the TypeScript side: the server (`apps/api`), the web (`apps/web`) and the shared packages. The native clients follow `android-architecture.md`.
 
 Hexagonal. The game rules live in `packages/domain` and know nothing about HTTP, the database or React. Everything else is an adapter.
 
@@ -67,7 +70,7 @@ Hono routes are thin: parse with the contract schema, call the use case, map the
 
 ## `apps/web`
 
-Routes load data through typed clients built on `packages/contracts`. Screens are presentational; a route or a hook owns the data. The design system is the only source of visual primitives; a feature screen never imports a raw third-party UI control.
+Routes load data through typed clients built on `packages/contracts`. Screens are presentational; a route or a hook owns the data. Visual primitives follow `ui-components.md`.
 
 ## Rebuild, never adapt
 
