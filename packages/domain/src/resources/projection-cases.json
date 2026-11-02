@@ -1,0 +1,103 @@
+{
+  "cases": [
+    {
+      "name": "draws the stored amount when no time has passed",
+      "storedAmount": 100,
+      "ratePerHour": 10,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 0,
+      "expectedAmount": 100
+    },
+    {
+      "name": "caps the drawn amount at the capacity",
+      "storedAmount": 890,
+      "ratePerHour": 100,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 900
+    },
+    {
+      "name": "freezes a stock above the capacity instead of clamping it",
+      "storedAmount": 1200,
+      "ratePerHour": 100,
+      "capacity": 1000,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 1200
+    },
+    {
+      "name": "accrues a rate of 10 an hour over one hour",
+      "storedAmount": 0,
+      "ratePerHour": 10,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 10
+    },
+    {
+      "name": "accrues a rate of 20 an hour over one hour",
+      "storedAmount": 0,
+      "ratePerHour": 20,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 20
+    },
+    {
+      "name": "accrues a rate of 5 an hour over one hour",
+      "storedAmount": 0,
+      "ratePerHour": 5,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 5
+    },
+    {
+      "name": "accrues a rate of 1 an hour over one hour",
+      "storedAmount": 0,
+      "ratePerHour": 1,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 1
+    },
+    {
+      "name": "accrues a rate of 30 an hour over one hour",
+      "storedAmount": 0,
+      "ratePerHour": 30,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 30
+    },
+    {
+      "name": "accrues nothing when the rate is zero",
+      "storedAmount": 50,
+      "ratePerHour": 0,
+      "capacity": 900,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 3600000,
+      "expectedAmount": 50
+    },
+    {
+      "name": "accrues a partial hour without losing a unit",
+      "storedAmount": 0,
+      "ratePerHour": 15,
+      "capacity": 10000,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 29520000,
+      "expectedAmount": 123
+    },
+    {
+      "name": "floors a fractional rate",
+      "storedAmount": 300,
+      "ratePerHour": 18.75,
+      "capacity": 1000,
+      "readAtEpochMilliseconds": 0,
+      "nowEpochMilliseconds": 10800000,
+      "expectedAmount": 356
+    }
+  ]
+}
