@@ -24,16 +24,33 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         showAlone(Destination.SignIn)
     }
 
+    fun openMap() {
+        openTab(Destination.Map)
+    }
+
     fun openChronicle() {
-        if (backStack.lastOrNull() == Destination.Fief) backStack.add(Destination.Chronicle)
+        openTab(Destination.Chronicle)
     }
 
     fun openFief() {
-        if (backStack.lastOrNull() == Destination.Chronicle) back()
+        if (backStack.lastOrNull() in tabsAboveFief) back()
+    }
+
+    private fun openTab(tab: Destination) {
+        val top: NavKey? = backStack.lastOrNull()
+        when {
+            top == tab -> Unit
+            top == Destination.Fief -> backStack.add(tab)
+            top in tabsAboveFief -> backStack[backStack.lastIndex] = tab
+        }
     }
 
     private fun showAlone(destination: Destination) {
         backStack.add(destination)
         repeat(backStack.size - 1) { backStack.removeAt(0) }
+    }
+
+    private companion object {
+        val tabsAboveFief: Set<Destination> = setOf(Destination.Map, Destination.Chronicle)
     }
 }

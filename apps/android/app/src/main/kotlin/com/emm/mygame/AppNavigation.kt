@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameNavigationItem
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.feature.chronicle.ChronicleRoute
 import com.emm.mygame.feature.fief.FiefRoute
+import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
 
@@ -63,6 +64,11 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                     )
                 }
             }
+            entry<Destination.Map> {
+                SignedInFrame(current = Destination.Map, navigator = navigator) {
+                    MapRoute(maps = application.maps)
+                }
+            }
             entry<Destination.Chronicle> {
                 SignedInFrame(current = Destination.Chronicle, navigator = navigator) {
                     ChronicleRoute(chronicles = application.chronicles, clock = application.clock)
@@ -89,6 +95,11 @@ private fun SignedInFrame(
                 label = stringResource(R.string.navigation_fief),
                 isCurrent = current == Destination.Fief,
                 onClick = navigator::openFief,
+            )
+            MyGameNavigationItem(
+                label = stringResource(R.string.navigation_map),
+                isCurrent = current == Destination.Map,
+                onClick = navigator::openMap,
             )
             MyGameNavigationItem(
                 label = stringResource(R.string.navigation_chronicle),

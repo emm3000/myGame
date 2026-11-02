@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="map_title">Mapa</string>
+    <string name="map_loading">Estamos leyendo el mapa…</string>
+    <string name="map_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="map_retry">Volver a intentarlo</string>
+    <string name="map_province_not_found">Esa provincia no está en el mapa. Vuelve a la tuya.</string>
+    <string name="map_own_province">Ir a tu provincia</string>
+    <string name="map_kingdom_vadoalto">Vadoalto</string>
+    <string name="map_heading">%1$s, provincia %2$d</string>
+    <string name="map_terrain">Terreno: %1$s</string>
+    <string name="terrain_lowlands">vega</string>
+    <string name="terrain_uplands">páramo</string>
+    <string name="terrain_ridges">riscos</string>
+    <string name="map_plot">Parcela %1$d</string>
+    <string name="map_plot_free">Parcela %1$d: libre</string>
+    <string name="map_plot_held">Parcela %1$d: %2$s</string>
+    <string name="map_plot_own_fief">Tu feudo: %1$s</string>
+    <string name="map_plot_camp">Parcela %1$d: campamento de bandidos, nivel %2$d, fuerza %3$d</string>
+    <string name="map_plot_reserved">Parcela %1$d: reservada</string>
+    <string name="map_plot_own_founding">Parcela %1$d: reservada · Tu fundación</string>
+    <string name="map_previous">Provincia anterior</string>
+    <string name="map_next">Provincia siguiente</string>
+    <string name="map_jump">Ir a la provincia</string>
+    <string name="map_jump_reading">Leyendo la provincia…</string>
+</resources>

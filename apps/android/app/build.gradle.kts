@@ -35,6 +35,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":feature:chronicle"))
     implementation(project(":feature:fief"))
+    implementation(project(":feature:map"))
     implementation(project(":feature:signin"))
 
     implementation(libs.androidx.activity.compose)

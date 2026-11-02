@@ -16,5 +16,8 @@ sealed interface Destination : NavKey {
     data object Fief : Destination
 
     @Serializable
+    data object Map : Destination
+
+    @Serializable
     data object Chronicle : Destination
 }

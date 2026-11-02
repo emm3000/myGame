@@ -86,4 +86,70 @@ class NavigatorTest {
 
         assertEquals(listOf(Destination.SignIn), backStack)
     }
+
+    @Test
+    fun `opens the map above the fief and pops back to it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief)
+        val navigator: Navigator = Navigator(backStack)
+
+        navigator.openMap()
+        assertEquals(listOf(Destination.Fief, Destination.Map), backStack)
+        navigator.openFief()
+
+        assertEquals(listOf(Destination.Fief), backStack)
+    }
+
+    @Test
+    fun `keeps one map when it is opened twice`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Map)
+
+        Navigator(backStack).openMap()
+
+        assertEquals(listOf(Destination.Fief, Destination.Map), backStack)
+    }
+
+    @Test
+    fun `returns to the fief on back from the map`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Map)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Fief), backStack)
+    }
+
+    @Test
+    fun `opens the map in place of the chronicle`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Chronicle)
+
+        Navigator(backStack).openMap()
+
+        assertEquals(listOf(Destination.Fief, Destination.Map), backStack)
+    }
+
+    @Test
+    fun `opens the chronicle in place of the map`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Map)
+
+        Navigator(backStack).openChronicle()
+
+        assertEquals(listOf(Destination.Fief, Destination.Chronicle), backStack)
+    }
+
+    @Test
+    fun `returns to the fief on back from the chronicle`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Chronicle)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Fief), backStack)
+    }
+
+    @Test
+    fun `returns to sign-in alone once signed out from the map`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Map)
+
+        Navigator(backStack).signedOut()
+
+        assertEquals(listOf(Destination.SignIn), backStack)
+    }
 }
