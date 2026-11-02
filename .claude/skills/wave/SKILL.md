@@ -78,4 +78,4 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
 - `scripts/mygame-session` — worktree plus `claude` launcher.
 - `scripts/mygame-wave-close` — closes one peer's cycle: its processes, containers, worktree and branches, then the orphan check.
-- `scripts/mygame-orphans` — lists what closed cycles left behind; prints `orphans: none` and exits 0 when clean.
+- `scripts/mygame-orphans` — lists what closed cycles left behind; exits 0 with `orphans: none`, beside any `kept:` emulator lines, when clean.

@@ -26,6 +26,7 @@ node_pid=900000002
 qemu_pid=900000003
 neighbor_pid=900000004
 live_pid=900000005
+stranger_pid=900000006
 failures=0
 case_dir=""
 repo=""
@@ -80,7 +81,7 @@ STUB
 build_a_live_peer() {
   case_dir="$sandbox/$1"
   repo="$case_dir/myGame"
-  mkdir -p "$repo/scripts" "$case_dir/state" "$case_dir/mygame-probex"
+  mkdir -p "$repo/scripts" "$case_dir/state" "$case_dir/mygame-probex" "$case_dir/pichanga-probe"
   cp "$scripts_dir/mygame-wave-close" "$scripts_dir/mygame-orphans" "$repo/scripts/"
   git init -q --bare -b trunk "$case_dir/origin.git"
   git -C "$repo" init -q -b trunk
@@ -91,6 +92,7 @@ build_a_live_peer() {
   git -C "$repo" remote set-head origin trunk >/dev/null
   {
     printf '%s\tclaude\t%s\tclaude -n probex --model opus\n' "$neighbor_pid" "$case_dir/mygame-probex"
+    printf '%s\tclaude\t%s\tclaude -n probe --model opus\n' "$stranger_pid" "$case_dir/pichanga-probe"
     printf '%s\tclaude\t%s\tclaude -n live --model opus\n' "$live_pid" "$case_dir/mygame-live"
   } >"$case_dir/state/processes"
   printf '%s\n' mygame-orch-pg mygame-live-pg >"$case_dir/state/containers"
@@ -176,6 +178,53 @@ orphans_names_a_stray_branch_and_fails() {
   [ "$status" -ne 0 ] && [ "$output" = "orphan: branch stray" ] || fail "${FUNCNAME[0]}" "stray run (exit $status): $output"
 }
 
+orphans_lists_a_spared_emulator_as_kept_and_passes() {
+  build_a_merged_ticket_beside_a_live_peer kept
+  with_stubs scripts/mygame-wave-close probe --keep-emulator >/dev/null || fail "${FUNCNAME[0]}" "close failed" || return 1
+  local output status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "kept: emulator $qemu_pid in $case_dir/mygame-probe"$'\n'"orphans: none" ] ||
+    fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
+orphans_reports_only_anonymous_or_mygame_dangling_volumes() {
+  build_a_live_peer volumes
+  local anonymous=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  {
+    printf '%s\tcom.docker.volume.anonymous=\n' "$anonymous"
+    printf 'supabase-db-pichanga\tcom.supabase.cli.project=pichanga\n'
+    printf 'mygame_cache\tcom.docker.compose.project=mygame\n'
+  } >"$case_dir/state/volumes"
+  local output status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -ne 0 ] && [ "$output" = "orphan: dangling volume $anonymous"$'\n'"orphan: dangling volume mygame_cache" ] ||
+    fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
+closing_a_session_on_trunk_keeps_trunk() {
+  build_a_live_peer trunk
+  git -C "$repo" worktree add -q -f "$case_dir/mygame-probe" trunk
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  git -C "$repo" show-ref --verify --quiet refs/heads/trunk || fail "${FUNCNAME[0]}" "local trunk deleted: $output" || return 1
+  git --git-dir="$case_dir/origin.git" show-ref --verify --quiet refs/heads/trunk || fail "${FUNCNAME[0]}" "origin trunk deleted: $output"
+}
+
+orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live() {
+  build_a_live_peer elsewhere
+  awk -F '\t' -v OFS='\t' -v pid="$live_pid" -v cwd="$case_dir/pichanga-probe" '$1 == pid { $3 = cwd } { print }' \
+    "$case_dir/state/processes" >"$case_dir/state/processes.next"
+  mv "$case_dir/state/processes.next" "$case_dir/state/processes"
+  local output status=0 expected
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  expected=$(printf '%s\n' \
+    "orphan: worktree $case_dir/mygame-live" \
+    "orphan: branch chore/9-live" \
+    "orphan: remote ref refs/remotes/origin/chore/9-live" \
+    "orphan: container mygame-live-pg")
+  [ "$status" -ne 0 ] && [ "$output" = "$expected" ] || fail "${FUNCNAME[0]}" "exit $status: $output"
+}
+
 run() {
   if "$1"; then
     echo "ok   $1"
@@ -188,4 +237,8 @@ run spares_the_emulator_under_keep_emulator_and_kills_node
 run kills_the_emulator_without_keep_emulator
 run closes_an_already_closed_session_quietly
 run orphans_names_a_stray_branch_and_fails
+run orphans_lists_a_spared_emulator_as_kept_and_passes
+run orphans_reports_only_anonymous_or_mygame_dangling_volumes
+run closing_a_session_on_trunk_keeps_trunk
+run orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live
 [ "$failures" -eq 0 ]
