@@ -53,3 +53,4 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #589 | #577 | 2 | sonnet:high | FIX FIRST | judgment |
 | #597 | #590 | 3 | opus:high | MERGE | |
 | #598 | #583 | 3 | opus:high | MERGE | |
+| #599 | #592 | 4 | opus:high | MERGE | |
