@@ -16,6 +16,7 @@ You review exactly one pull request of this repository. The PR number is in the 
 4. Screenshots for a screen-touching PR: `git fetch origin assets/<issue>-visual-check` then `git show origin/assets/<issue>-visual-check:<file>` into the session scratchpad and view them. Every file name must carry the PR head short SHA; a mismatch is a blocking finding. A screen-touching PR without screenshots is a blocking finding.
 5. `gh pr checks <n>`. CI runs `pnpm gate`; do not rerun it. Recheck an `IN_PROGRESS` job instead of failing on it.
 6. Rebase state: `git fetch origin && git merge-base --is-ancestor origin/trunk <headRefOid>`. A stale base is a minor note, because the repo merges with rebase.
+7. Leave nothing behind: fetch only into `origin/*` refs (never `git fetch origin pull/<n>/head:<ref>` or a ref under `refs/remotes/<name>` outside `origin/`), and remove any throwaway worktree or ref you created before returning.
 
 ## Review
 
