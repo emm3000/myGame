@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   ForgotPasswordRequestSchema,
+  type NativeSession,
   type Player,
   ResetPasswordRequestSchema,
   SignInRequestSchema,
@@ -75,6 +76,21 @@ const answerSignedIn = async (
   return c.json(await playerOf(signedIn.value.player, seenHints), status)
 }
 
+const answerNativeSession = async (
+  c: Context,
+  signedIn: Result<SignedIn, Refusal>,
+  { seenHints }: AuthDependencies,
+): Promise<Response> => {
+  if (!signedIn.ok) {
+    return answerRefusal(c, signedIn.error)
+  }
+  const nativeSession: NativeSession = {
+    token: signedIn.value.session.token,
+    player: await playerOf(signedIn.value.player, seenHints),
+  }
+  return c.json(nativeSession)
+}
+
 export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
   const signedInPlayer = requirePlayer(dependencies)
   const routes = new OpenAPIHono()
@@ -94,6 +110,13 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
       return answerRefusal(c, { kind: 'InvalidCredentials' })
     }
     return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
+  })
+  routes.on(authDeclarations.nativeSignIn.method, authDeclarations.nativeSignIn.path, async (c) => {
+    const request = SignInRequestSchema.safeParse(await bodyOf(c))
+    if (!request.success) {
+      return answerRefusal(c, { kind: 'InvalidCredentials' })
+    }
+    return answerNativeSession(c, await signIn(request.data, dependencies), dependencies)
   })
   routes.on(
     authDeclarations.signOut.method,

@@ -5,6 +5,13 @@
     "version": "0.0.0"
   },
   "components": {
+    "securitySchemes": {
+      "sessionBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "The session token the native sign-in answers; read only when the request carries no session cookie."
+      }
+    },
     "schemas": {
       "HealthResponse": {
         "type": "object",
@@ -132,6 +139,20 @@
           }
         },
         "required": ["email", "password"]
+      },
+      "NativeSession": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "player": {
+            "$ref": "#/components/schemas/Player"
+          }
+        },
+        "required": ["token", "player"],
+        "additionalProperties": false
       },
       "VerifyEmailRequest": {
         "type": "object",
@@ -4043,20 +4064,66 @@
         }
       }
     },
+    "/auth/sign-in/native": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The player and the session token, sent as an Authorization bearer; no cookie is set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeSession"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "InvalidCredentials, a malformed body included.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/sign-out": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "The session is closed and its cookie cleared."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }
     },
     "/auth/session": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The signed-in player; the session is renewed.",
@@ -4069,7 +4136,7 @@
             }
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }
@@ -4105,12 +4172,17 @@
     },
     "/auth/verify-email/resend": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "The verification mail is sent, or the email is already verified."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "503": {
             "description": "MailNotSent.",
@@ -4178,6 +4250,11 @@
     },
     "/fiefs": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "The fiefs the signed-in lord holds, province then plot; the session is renewed.",
@@ -4190,13 +4267,18 @@
             }
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }
     },
     "/fiefs/{fiefId}/map": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4223,7 +4305,7 @@
             "description": "A malformed fief id or province. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4240,6 +4322,11 @@
     },
     "/fiefs/{fiefId}/map/{province}": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4275,7 +4362,7 @@
             "description": "A malformed fief id or province. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound or ProvinceNotFound.",
@@ -4292,6 +4379,11 @@
     },
     "/fiefs/{fiefId}": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4318,7 +4410,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4335,6 +4427,11 @@
     },
     "/fiefs/{fiefId}/events": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4361,7 +4458,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4378,6 +4475,11 @@
     },
     "/fiefs/{fiefId}/upgrades": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4421,7 +4523,7 @@
             }
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4448,6 +4550,11 @@
     },
     "/fiefs/{fiefId}/upgrades/{building}/{targetLevel}": {
       "delete": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4492,7 +4599,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4519,6 +4626,11 @@
     },
     "/fiefs/{fiefId}/studies": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4555,7 +4667,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4582,6 +4694,11 @@
     },
     "/fiefs/{fiefId}/studies/{art}/{targetLevel}": {
       "delete": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4626,7 +4743,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4653,6 +4770,11 @@
     },
     "/fiefs/{fiefId}/recruit-orders": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4689,7 +4811,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4716,6 +4838,11 @@
     },
     "/fiefs/{fiefId}/recruit-orders/{unit}/{startedAt}": {
       "delete": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4760,7 +4887,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4787,6 +4914,11 @@
     },
     "/fiefs/{fiefId}/marches": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4823,7 +4955,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4850,6 +4982,11 @@
     },
     "/fiefs/{fiefId}/marches/attack": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4886,7 +5023,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4913,6 +5050,11 @@
     },
     "/fiefs/{fiefId}/marches/found": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -4956,7 +5098,7 @@
             }
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -4983,6 +5125,11 @@
     },
     "/fiefs/{fiefId}/marches/transport": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -5019,7 +5166,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief, another lord’s, or a destination the lord does not hold.",
@@ -5046,6 +5193,11 @@
     },
     "/fiefs/{fiefId}/marches/{departedAt}/recall": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -5081,7 +5233,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -5108,6 +5260,11 @@
     },
     "/fiefs/{fiefId}/guidance/dismissal": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -5127,7 +5284,7 @@
             "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },
           "404": {
             "description": "FiefNotFound, for an unknown fief or another lord’s.",
@@ -5144,6 +5301,11 @@
     },
     "/digest": {
       "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "What happened in the lord’s fiefs since the last acknowledgement; nothing is written.",
@@ -5156,25 +5318,35 @@
             }
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }
     },
     "/digest/acknowledgement": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "The digest is acknowledged at the read instant."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }
     },
     "/hints/{hint}": {
       "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
         "parameters": [
           {
             "schema": {
@@ -5202,7 +5374,7 @@
             "description": "An unknown hint. Empty body."
           },
           "401": {
-            "description": "No live session cookie. Empty body."
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           }
         }
       }

@@ -1,5 +1,10 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, FiefListSchema, PlayerSchema } from '@mygame/contracts'
+import {
+  ApiErrorSchema,
+  FiefListSchema,
+  NativeSessionSchema,
+  PlayerSchema,
+} from '@mygame/contracts'
 import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -308,6 +313,67 @@ describe('the auth routes', () => {
     const signedOut = await app.request('/auth/sign-out', post({}, cookie))
 
     expect(signedOut.headers.getSetCookie().at(-1)).toMatch(/^session=; Max-Age=0;/)
+  })
+
+  const anasSignIn = { email: anasSignUp.email, password: anasSignUp.password }
+
+  const signInNatively = async (body: object): Promise<Response> =>
+    app.request('/auth/sign-in/native', post(body))
+
+  it('answers the session token in the body of the native sign-in', async () => {
+    await signUpAna()
+
+    const response = await signInNatively(anasSignIn)
+
+    expect(response.status).toBe(200)
+    expect(NativeSessionSchema.parse(await response.json()).player.email).toBe(anasSignUp.email)
+  })
+
+  it('sets no cookie on the native sign-in', async () => {
+    await signUpAna()
+
+    const response = await signInNatively(anasSignIn)
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
+  it('accepts the native sign-in token as a bearer on the session read', async () => {
+    await signUpAna()
+    const { token } = NativeSessionSchema.parse(await (await signInNatively(anasSignIn)).json())
+
+    const response = await app.request('/auth/session', {
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.status).toBe(200)
+    expect(PlayerSchema.parse(await response.json()).email).toBe(anasSignUp.email)
+  })
+
+  it('refuses the native sign-in with a wrong password as invalid credentials', async () => {
+    await signUpAna()
+
+    const response = await signInNatively({ ...anasSignIn, password: 'lana-y-hierro' })
+
+    expect(response.status).toBe(401)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InvalidCredentials')
+  })
+
+  it('refuses a malformed native sign-in as invalid credentials', async () => {
+    const response = await signInNatively({ email: 'no-es-un-correo' })
+
+    expect(response.status).toBe(401)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('InvalidCredentials')
+  })
+
+  it('answers no token in the body of the web sign-in', async () => {
+    await signUpAna()
+
+    const response = await app.request('/auth/sign-in', post(anasSignIn))
+
+    const [, token = ''] = sessionCookieOf(response).split('=')
+    expect(token).not.toBe('')
+    expect(await response.text()).not.toContain(token)
   })
 
   const verifyEmail = async (token: string): Promise<Response> =>

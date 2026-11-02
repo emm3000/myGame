@@ -128,6 +128,18 @@ const exchanges: ReadonlyArray<Exchange> = [
     body: { email: 'carla@example.com', password: 'otra-clave-distinta' },
     status: 401,
   },
+  {
+    operation: 'POST /auth/sign-in/native',
+    caller: 'signedOut',
+    body: { email: 'carla@example.com', password: 'hierro-y-lana' },
+    status: 200,
+  },
+  {
+    operation: 'POST /auth/sign-in/native',
+    caller: 'signedOut',
+    body: { email: 'carla@example.com', password: 'otra-clave-distinta' },
+    status: 401,
+  },
   { operation: 'GET /auth/session', caller: 'ana', status: 200 },
   { operation: 'GET /auth/session', caller: 'signedOut', status: 401 },
   {

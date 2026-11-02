@@ -14,6 +14,22 @@ export const jsonResponse = (description: string, schema: ZodType): ResponseDecl
   content: { 'application/json': { schema } },
 })
 
-export const signedOutResponse: ResponseDeclaration = {
-  description: 'No live session cookie. Empty body.',
+export const sessionBearerScheme = 'sessionBearer'
+
+export const sessionBearerSecurityScheme = {
+  type: 'http',
+  scheme: 'bearer',
+  description:
+    'The session token the native sign-in answers; read only when the request carries no session cookie.',
+} as const
+
+const signedOutResponse: ResponseDeclaration = {
+  description:
+    'No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body.',
 }
+
+export const signedInRoute = <Route extends RouteConfig>(route: Route): Route => ({
+  ...route,
+  security: [{ [sessionBearerScheme]: [] }],
+  responses: { ...route.responses, 401: signedOutResponse },
+})

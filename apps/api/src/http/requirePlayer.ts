@@ -4,6 +4,7 @@ import type { MiddlewareHandler } from 'hono/types'
 import type { Accounts } from '../auth/Accounts'
 import { sessionExpiryFrom } from '../auth/sessionExpiryFrom'
 import { answerRefusal } from './answerRefusal'
+import { readBearerToken } from './bearerToken'
 import { readSessionCookie, writeSessionCookie } from './sessionCookie'
 
 export type SignedInPlayer = {
@@ -25,7 +26,8 @@ export const requirePlayer = ({
   isSessionCookieSecure,
 }: RequirePlayerDependencies): MiddlewareHandler<SignedInPlayer> =>
   createMiddleware<SignedInPlayer>(async (c, next) => {
-    const token = readSessionCookie(c)
+    const cookieToken = readSessionCookie(c)
+    const token = cookieToken ?? readBearerToken(c)
     if (token === undefined) {
       return answerRefusal(c, { kind: 'SignedOut' })
     }
@@ -35,7 +37,9 @@ export const requirePlayer = ({
     if (playerId === undefined) {
       return answerRefusal(c, { kind: 'SignedOut' })
     }
-    writeSessionCookie(c, { token, playerId, expiresAt }, isSessionCookieSecure)
+    if (cookieToken !== undefined) {
+      writeSessionCookie(c, { token, playerId, expiresAt }, isSessionCookieSecure)
+    }
     c.set('playerId', playerId)
     c.set('sessionToken', token)
     await next()

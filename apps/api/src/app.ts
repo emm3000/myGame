@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
 import { honoPathOf } from './http/honoPath'
+import { sessionBearerScheme, sessionBearerSecurityScheme } from './http/responseDeclarations'
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { type DigestDependencies, digestRoutes } from './routes/digest'
 import { type FiefsDependencies, fiefsRoutes } from './routes/fiefs'
@@ -14,6 +15,11 @@ export type AppDependencies = AuthDependencies &
 
 export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
   const app = new OpenAPIHono()
+  app.openAPIRegistry.registerComponent(
+    'securitySchemes',
+    sessionBearerScheme,
+    sessionBearerSecurityScheme,
+  )
   app.openAPIRegistry.registerPath(healthDeclarations.health)
   app.on(healthDeclarations.health.method, honoPathOf(healthDeclarations.health), (c) => {
     const body: HealthResponse = { status: 'ok' }
