@@ -8,4 +8,5 @@ object MyGameSizes {
     val icon: Dp = 20.dp
     val hairline: Dp = 1.dp
     val bar: Dp = 4.dp
+    val dash: Dp = 4.dp
 }

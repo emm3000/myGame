@@ -1,7 +1,6 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import com.emm.mygame.core.network.generated.infrastructure.Serializer
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.NativeSession
 import com.emm.mygame.core.network.generated.models.Player
@@ -69,15 +68,6 @@ internal class ApiSessionRepository(
             }
             else -> RestoreResult.Unreachable
         }
-    }
-}
-
-private fun Response<*>.apiError(): ApiError? {
-    val body: String = errorBody()?.string() ?: return null
-    return try {
-        Serializer.kotlinxSerializationJson.decodeFromString(ApiError.serializer(), body)
-    } catch (expectedMalformedBody: SerializationException) {
-        null
     }
 }
 

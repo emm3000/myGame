@@ -34,7 +34,7 @@ fun FiefScreen(state: FiefUiState, onIntent: (FiefIntent) -> Unit, modifier: Mod
         when (state) {
             FiefUiState.Loading -> Loading()
             FiefUiState.Failed -> Failed(onIntent = onIntent)
-            is FiefUiState.Content -> Content(content = state)
+            is FiefUiState.Content -> Content(content = state, onIntent = onIntent)
         }
     }
 }
@@ -81,10 +81,11 @@ private fun Failed(onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun Content(content: FiefUiState.Content, modifier: Modifier = Modifier) {
+private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         Header(title = content.name)
         ResourcesSection(content = content)
         SlotSection(slot = content.slot)
+        BuildingsSection(content = content, onIntent = onIntent)
     }
 }

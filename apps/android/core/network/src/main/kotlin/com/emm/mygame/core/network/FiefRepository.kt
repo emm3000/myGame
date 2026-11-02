@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 interface FiefRepository {
 
     suspend fun read(): FiefReadResult
+
+    suspend fun upgrade(fief: FiefId, building: BuildingKind): UpgradeResult
 }
 
 fun FiefRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): FiefRepository =

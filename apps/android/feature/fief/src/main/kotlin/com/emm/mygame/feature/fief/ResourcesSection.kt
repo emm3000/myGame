@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -37,6 +38,8 @@ internal fun ResourcesSection(content: FiefUiState.Content, modifier: Modifier =
                 if (index > 0) Divider()
                 ResourceRow(resource = resource)
             }
+            Divider()
+            PeasantsRow(peasants = content.peasants)
         }
     }
 }
@@ -117,6 +120,33 @@ private fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier =
             )
         }
         ProgressBar(resource = resource)
+    }
+}
+
+@Composable
+private fun PeasantsRow(peasants: FiefUiState.PeasantsLine, modifier: Modifier = Modifier) {
+    val free: String = formatQuantity(peasants.free.toLong())
+    val supplied: String = formatQuantity(peasants.supplied.toLong())
+    val description: String = stringResource(R.string.peasants_description, free, supplied)
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = MyGameSpacing.step3)
+            .clearAndSetSemantics { contentDescription = description },
+    ) {
+        MyGameText(
+            text = stringResource(R.string.resource_peasants),
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.weight(1f),
+        )
+        MyGameText(
+            text = pluralStringResource(R.plurals.peasants_free, peasants.supplied, free, supplied),
+            style = MyGameTypography.action,
+            color = MyGameTheme.colors.ink,
+        )
     }
 }
 

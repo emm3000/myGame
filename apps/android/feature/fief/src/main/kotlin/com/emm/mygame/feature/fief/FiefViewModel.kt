@@ -2,9 +2,11 @@ package com.emm.mygame.feature.fief
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.UpgradeResult
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -14,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock) : ViewModel() {
@@ -24,6 +27,10 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
 
     private var projection: Job? = null
 
+    private var shown: FiefSnapshot? = null
+
+    private var upgrade: FiefUiState.UpgradeStatus = FiefUiState.UpgradeStatus.Idle
+
     init {
         open()
     }
@@ -31,6 +38,7 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
     fun onIntent(intent: FiefIntent) {
         when (intent) {
             FiefIntent.RetryTapped -> open()
+            is FiefIntent.UpgradeTapped -> upgrade(intent.building)
         }
     }
 
@@ -42,6 +50,32 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
                 FiefReadResult.Unreachable -> _state.value = FiefUiState.Failed
                 is FiefReadResult.Read -> project(answer.fief)
             }
+        }
+    }
+
+    private fun upgrade(building: BuildingKind) {
+        val fief: FiefSnapshot = shown ?: return
+        if (upgrade is FiefUiState.UpgradeStatus.Waiting) return
+        drawUpgrade(FiefUiState.UpgradeStatus.Waiting(building))
+        viewModelScope.launch {
+            when (val answer: UpgradeResult = fiefs.upgrade(fief.id, building)) {
+                is UpgradeResult.Upgraded -> restartFrom(answer.fief)
+                is UpgradeResult.Refused -> drawUpgrade(FiefUiState.UpgradeStatus.Refused(building, answer.refusal))
+                UpgradeResult.Unreachable -> drawUpgrade(FiefUiState.UpgradeStatus.Unreachable(building))
+            }
+        }
+    }
+
+    private fun restartFrom(snapshot: FiefSnapshot) {
+        projection?.cancel()
+        upgrade = FiefUiState.UpgradeStatus.Idle
+        projection = viewModelScope.launch { project(snapshot) }
+    }
+
+    private fun drawUpgrade(status: FiefUiState.UpgradeStatus) {
+        upgrade = status
+        _state.update { current: FiefUiState ->
+            if (current is FiefUiState.Content) current.copy(upgrade = status) else current
         }
     }
 
@@ -57,7 +91,8 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
                 }
             }
             val now: Instant = clock.now() + gap
-            _state.value = snapshot.contentAt(now)
+            shown = snapshot
+            _state.value = snapshot.contentAt(now, upgrade)
             delay(repaintDelay(snapshot.slotRemainingAt(now)))
         }
     }
