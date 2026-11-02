@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  echo "usage: scripts/mygame-wave-close <session> [--keep-emulator]" >&2
+  exit 64
+}
+
+session=${1:-}
+keep_emulator=0
+case $# in
+  1) ;;
+  2) [ "$2" = --keep-emulator ] || usage; keep_emulator=1 ;;
+  *) usage ;;
+esac
+case $session in
+  '' | -* | *[!a-z0-9-]*) usage ;;
+  orch) echo "orch is the orchestrator, never a peer" >&2; exit 64 ;;
+esac
+
+repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+worktree="$(dirname "$repo")/mygame-$session"
+case $(pwd -P)/ in
+  "$worktree"/*) echo "run scripts/mygame-wave-close from outside $worktree" >&2; exit 64 ;;
+esac
+
+stop() {
+  env kill "$1" 2>/dev/null || true
+}
+
+while read -r pid; do
+  [ -n "$pid" ] || continue
+  stop "$pid"
+  echo "killed claude -n $session (pid $pid)"
+done <<<"$(ps -axo pid=,command= | awk -v name="$session" '
+  {
+    command = $2
+    sub(/.*\//, "", command)
+    if (command != "claude") next
+    for (i = 3; i < NF; i++) if ($i == "-n" && $(i + 1) == name) { print $1; next }
+  }')"
+
+while read -r pid name; do
+  [ -n "$pid" ] || continue
+  stop "$pid"
+  echo "killed $name (pid $pid)"
+done <<<"$(lsof -d cwd -Fpcn +c 0 2>/dev/null | awk -v worktree="$worktree" -v keep="$keep_emulator" -v self="$$" '
+  /^p/ { pid = substr($0, 2) }
+  /^c/ { name = substr($0, 2) }
+  /^n/ {
+    path = substr($0, 2)
+    if (pid == self) next
+    if (path != worktree && index(path, worktree "/") != 1) next
+    if (keep && name ~ /^(emulator|qemu|crashpad|netsim)/) next
+    print pid " " name
+  }' || true)"
+
+if command -v docker >/dev/null; then
+  while read -r container; do
+    [ -n "$container" ] || continue
+    docker rm -fv "$container" >/dev/null
+    echo "removed container $container"
+  done <<<"$(docker ps -a --format '{{.Names}}' 2>/dev/null |
+    awk -v pg="mygame-$session-pg" -v mail="mygame-$session-mail" '$0 == pg || $0 == mail' || true)"
+fi
+
+porcelain=$(git -C "$repo" worktree list --porcelain)
+branch=$(awk -v worktree="worktree $worktree" '
+  /^worktree / { current = ($0 == worktree) }
+  current && /^branch refs\/heads\// { print substr($0, 19) }' <<<"$porcelain")
+if [ -d "$worktree" ] && awk -v worktree="worktree $worktree" '$0 == worktree { found = 1 } END { exit !found }' <<<"$porcelain"; then
+  git -C "$repo" worktree remove --force "$worktree"
+  echo "removed worktree $worktree"
+fi
+git -C "$repo" worktree prune
+
+if [ -n "$branch" ]; then
+  branches=$branch
+  ticket=${branch#*/}
+  ticket=${ticket%%-*}
+  case $ticket in
+    '' | *[!0-9]*) ;;
+    *) branches="$branches assets/$ticket-visual-check" ;;
+  esac
+  remote_heads=$(git -C "$repo" ls-remote --heads origin 2>/dev/null | awk '{ print substr($2, 12) }' || true)
+  pushed=()
+  for name in $branches; do
+    if git -C "$repo" show-ref --verify --quiet "refs/heads/$name"; then
+      git -C "$repo" branch -q -D "$name"
+      echo "deleted branch $name"
+    fi
+    if awk -v name="$name" '$0 == name { found = 1 } END { exit !found }' <<<"$remote_heads"; then
+      pushed+=("$name")
+    fi
+  done
+  if [ "${#pushed[@]}" -gt 0 ]; then
+    git -C "$repo" push -q origin --delete "${pushed[@]}"
+    echo "deleted ${pushed[*]} on origin"
+  fi
+fi
+
+"$repo/scripts/mygame-orphans" || echo "clean the orphans above before reporting $session as free"

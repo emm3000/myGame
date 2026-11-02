@@ -2,7 +2,7 @@
 name: wave
 description: "Trigger: /wave, levantar wave, abrir peers, dispatch wave, lanzar sesiones. Boot one terminal pane per ticket (herdr or Warp) and dispatch each ticket to its peer session."
 argument-hint: <issue numbers>
-allowed-tools: Bash(gh:*) Bash(scripts/mygame-wave:*) Bash(git worktree:*) ListAgents SendMessage Read
+allowed-tools: Bash(gh:*) Bash(scripts/mygame-wave:*) Bash(scripts/mygame-wave-close:*) Bash(scripts/mygame-orphans:*) Bash(git worktree:*) ListAgents SendMessage Read
 license: Apache-2.0
 metadata:
   author: "emm3000"
@@ -77,3 +77,5 @@ Return the list `@<name> #<n> <model>:<effort>` and nothing else until a peer re
 - `docs/agents/dispatch-log.md` — the outcomes per table row.
 - `scripts/mygame-wave` — opens one pane per peer in herdr or Warp, or prints the launch lines.
 - `scripts/mygame-session` — worktree plus `claude` launcher.
+- `scripts/mygame-wave-close` — closes one peer's cycle: its processes, containers, worktree and branches, then the orphan check.
+- `scripts/mygame-orphans` — lists what closed cycles left behind; prints `orphans: none` and exits 0 when clean.

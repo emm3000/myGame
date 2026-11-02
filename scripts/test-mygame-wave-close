@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+scripts_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+
+while IFS= read -r variable; do
+  unset "$variable"
+done < <(compgen -e | awk '/^GIT_/')
+export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid
+export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid
+
+temp_base=${TMPDIR:-/tmp}
+sandbox=$(mktemp -d "${temp_base%/}/wave-close-test.XXXXXX") || { echo "refusing the sandbox: mktemp -d failed" >&2; exit 70; }
+[ -n "$sandbox" ] && [ -d "$sandbox" ] || { echo "refusing the sandbox: mktemp -d printed no directory" >&2; exit 70; }
+sandbox=$(cd "$sandbox" && pwd -P)
+case $sandbox in
+  "$(cd "$temp_base" && pwd -P)"/?*) ;;
+  *) echo "refusing the sandbox: $sandbox is not under $temp_base" >&2; exit 70 ;;
+esac
+trap 'rm -rf "$sandbox"' EXIT
+export GIT_CEILING_DIRECTORIES="$sandbox"
+
+claude_pid=900000001
+node_pid=900000002
+qemu_pid=900000003
+neighbor_pid=900000004
+live_pid=900000005
+failures=0
+case_dir=""
+repo=""
+
+mkdir -p "$sandbox/bin"
+write_stub() {
+  {
+    echo '#!/usr/bin/env bash'
+    awk 1
+  } >"$sandbox/bin/$1"
+  chmod +x "$sandbox/bin/$1"
+}
+write_stub ps <<'STUB'
+awk -F '\t' '{ print $1 " " $4 }' "$FAKE_STATE/processes"
+STUB
+write_stub lsof <<'STUB'
+awk -F '\t' '{ print "p" $1; print "c" $2; print "fcwd"; print "n" $3 }' "$FAKE_STATE/processes"
+STUB
+write_stub kill <<'STUB'
+for pid in "$@"; do
+  case $pid in -*) continue ;; esac
+  awk -F '\t' -v pid="$pid" '$1 == pid { found = 1 } END { exit !found }' "$FAKE_STATE/processes" || { echo "kill: ($pid) - No such process" >&2; exit 1; }
+  echo "$pid" >>"$FAKE_STATE/killed"
+  awk -F '\t' -v pid="$pid" '$1 != pid' "$FAKE_STATE/processes" >"$FAKE_STATE/processes.next"
+  mv "$FAKE_STATE/processes.next" "$FAKE_STATE/processes"
+done
+STUB
+write_stub docker <<'STUB'
+case "$1 $2" in
+  "ps -a") awk 1 "$FAKE_STATE/containers" ;;
+  "volume ls") awk 1 "$FAKE_STATE/volumes" ;;
+  "rm -fv")
+    shift 2
+    for container in "$@"; do
+      awk -v name="$container" '$0 == name { found = 1 } END { exit !found }' "$FAKE_STATE/containers" || { echo "Error response from daemon: No such container: $container" >&2; exit 1; }
+      awk -v name="$container" '$0 != name' "$FAKE_STATE/containers" >"$FAKE_STATE/containers.next"
+      mv "$FAKE_STATE/containers.next" "$FAKE_STATE/containers"
+      echo "$container"
+    done ;;
+  *) echo "unexpected docker $*" >&2; exit 1 ;;
+esac
+STUB
+write_stub gh <<'STUB'
+echo "unexpected gh $*" >&2
+exit 1
+STUB
+write_stub pkill <<'STUB'
+echo "unexpected pkill $*" >&2
+exit 1
+STUB
+
+build_a_live_peer() {
+  case_dir="$sandbox/$1"
+  repo="$case_dir/myGame"
+  mkdir -p "$repo/scripts" "$case_dir/state" "$case_dir/mygame-probex"
+  cp "$scripts_dir/mygame-wave-close" "$scripts_dir/mygame-orphans" "$repo/scripts/"
+  git init -q --bare -b trunk "$case_dir/origin.git"
+  git -C "$repo" init -q -b trunk
+  git -C "$repo" commit -q --allow-empty -m "chore: start"
+  git -C "$repo" remote add origin "$case_dir/origin.git"
+  git -C "$repo" worktree add -q -b chore/9-live "$case_dir/mygame-live" trunk
+  git -C "$repo" push -q -u origin trunk chore/9-live
+  git -C "$repo" remote set-head origin trunk >/dev/null
+  {
+    printf '%s\tclaude\t%s\tclaude -n probex --model opus\n' "$neighbor_pid" "$case_dir/mygame-probex"
+    printf '%s\tclaude\t%s\tclaude -n live --model opus\n' "$live_pid" "$case_dir/mygame-live"
+  } >"$case_dir/state/processes"
+  printf '%s\n' mygame-orch-pg mygame-live-pg >"$case_dir/state/containers"
+  : >"$case_dir/state/volumes"
+  : >"$case_dir/state/killed"
+}
+
+build_a_merged_ticket_beside_a_live_peer() {
+  build_a_live_peer "$1"
+  git -C "$repo" worktree add -q -b chore/7-probe "$case_dir/mygame-probe" trunk
+  git -C "$repo" branch assets/7-visual-check
+  git -C "$repo" push -q origin chore/7-probe assets/7-visual-check
+  mkdir -p "$case_dir/mygame-probe/apps/api"
+  {
+    printf '%s\tclaude\t%s\tclaude -n probe --model opus\n' "$claude_pid" "$case_dir/mygame-probe"
+    printf '%s\tnode\t%s\tnode tsx watch src/main.ts\n' "$node_pid" "$case_dir/mygame-probe/apps/api"
+    printf '%s\tqemu-system-aarch64\t%s\tqemu-system-aarch64 -netdev user\n' "$qemu_pid" "$case_dir/mygame-probe"
+  } >>"$case_dir/state/processes"
+  printf '%s\n' mygame-probe-pg mygame-probe-mail >>"$case_dir/state/containers"
+}
+
+with_stubs() {
+  (
+    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH"
+    for tool in docker gh kill lsof pkill ps; do
+      [ "$(type -P "$tool")" = "$sandbox/bin/$tool" ] || { echo "refusing to run: stub $tool is not first on PATH" >&2; exit 70; }
+    done
+    cd "$repo" && "$@" 2>&1
+  )
+}
+
+killed() {
+  sort "$case_dir/state/killed" | tr '\n' ' '
+}
+
+refs() {
+  git -C "$repo" for-each-ref --format='%(refname)' "$1" | sort | tr '\n' ' '
+}
+
+fail() {
+  printf 'FAIL %s:\n%s\n' "$1" "$2" >&2
+  return 1
+}
+
+spares_the_emulator_under_keep_emulator_and_kills_node() {
+  build_a_merged_ticket_beside_a_live_peer keep
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe --keep-emulator) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)"
+}
+
+kills_the_emulator_without_keep_emulator() {
+  build_a_merged_ticket_beside_a_live_peer plain
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)"
+}
+
+closes_an_already_closed_session_quietly() {
+  build_a_merged_ticket_beside_a_live_peer twice
+  local first second
+  first=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "first run failed: $first" || return 1
+  second=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "second run failed: $second" || return 1
+  case "$first$second" in
+    *fatal:* | *error:* | *Error* | *"No such"*) fail "${FUNCNAME[0]}" "$first$second" || return 1 ;;
+  esac
+  [ "$second" = "orphans: none" ] || fail "${FUNCNAME[0]}" "second run printed $second" || return 1
+  [ ! -e "$case_dir/mygame-probe" ] || fail "${FUNCNAME[0]}" "worktree left behind" || return 1
+  [ "$(refs refs/heads)" = "refs/heads/chore/9-live refs/heads/trunk " ] || fail "${FUNCNAME[0]}" "local $(refs refs/heads)" || return 1
+  [ "$(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)' | sort | tr '\n' ' ')" = "refs/heads/chore/9-live refs/heads/trunk " ] ||
+    fail "${FUNCNAME[0]}" "origin kept $(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)')" || return 1
+  [ "$(sort "$case_dir/state/containers" | tr '\n' ' ')" = "mygame-live-pg mygame-orch-pg " ] || fail "${FUNCNAME[0]}" "containers $(tr '\n' ' ' <"$case_dir/state/containers")"
+}
+
+orphans_names_a_stray_branch_and_fails() {
+  build_a_live_peer stray
+  local output status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "clean run (exit $status): $output" || return 1
+  git -C "$repo" branch stray
+  status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -ne 0 ] && [ "$output" = "orphan: branch stray" ] || fail "${FUNCNAME[0]}" "stray run (exit $status): $output"
+}
+
+run() {
+  if "$1"; then
+    echo "ok   $1"
+  else
+    failures=$((failures + 1))
+  fi
+}
+
+run spares_the_emulator_under_keep_emulator_and_kills_node
+run kills_the_emulator_without_keep_emulator
+run closes_an_already_closed_session_quietly
+run orphans_names_a_stray_branch_and_fails
+[ "$failures" -eq 0 ]
