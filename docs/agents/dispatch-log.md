@@ -27,7 +27,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| #563 | #558 | 1 | fable:high | MERGE | |
 | artifact | #572 | 5 | opus:high | MERGE | |
 | #578 | #573 | 4 | opus:high | MERGE | |
 | #579 | #574 | 4 | opus:high | MERGE | |
