@@ -40,6 +40,31 @@ internal class ApiFiefRepository(
         }
     }
 
+    override suspend fun cancel(fief: FiefId, building: BuildingKind, targetLevel: Int): CancelResult =
+        withContext(ioDispatcher) {
+            try {
+                val response: Response<FiefOverview> = api.fiefsFiefIdUpgradesBuildingTargetLevelDelete(
+                    fiefId = UUID.fromString(fief.value),
+                    building = building.toWireBuilding().value,
+                    targetLevel = targetLevel.toString(),
+                )
+                cancelledOrRefused(response)
+            } catch (expectedOutage: IOException) {
+                CancelResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                CancelResult.Unreachable
+            }
+        }
+
+    private fun cancelledOrRefused(response: Response<FiefOverview>): CancelResult {
+        val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
+        if (response.isSuccessful) {
+            return if (snapshot == null) CancelResult.Unreachable else CancelResult.Cancelled(snapshot)
+        }
+        val refusal: ApiError = response.apiError() ?: return CancelResult.Unreachable
+        return CancelResult.Refused(refusal.kind.toCancelRefusal())
+    }
+
     private fun upgradedOrRefused(response: Response<FiefOverview>): UpgradeResult {
         val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
         if (response.isSuccessful) {
@@ -68,3 +93,6 @@ private val upgradeRefusals: Map<ApiError.Kind, UpgradeRefusal> = mapOf(
 )
 
 private fun ApiError.Kind.toUpgradeRefusal(): UpgradeRefusal = upgradeRefusals[this] ?: UpgradeRefusal.Unrecognized
+
+private fun ApiError.Kind.toCancelRefusal(): CancelRefusal =
+    if (this == ApiError.Kind.UpgradeNotFound) CancelRefusal.UpgradeNotFound else CancelRefusal.Unrecognized

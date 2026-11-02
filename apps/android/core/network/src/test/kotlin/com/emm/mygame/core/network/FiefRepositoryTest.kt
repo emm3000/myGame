@@ -168,10 +168,77 @@ class FiefRepositoryTest {
     }
 
     @Test
-    fun `reads the works waiting in the queue and its cap`() = runTest {
-        enqueueIdleFief()
+    fun `reads the works waiting in the queue in order with each finish and its cap`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, busyOverview().replace(EMPTY_QUEUE, TWO_WAITING)))
 
-        assertEquals(BuildQueue(waiting = 0, cap = 4), readFief().queue)
+        assertEquals(
+            BuildQueue(
+                entries = listOf(
+                    WaitingUpgrade(BuildingKind.Sawmill, 2, Instant.parse("2026-11-02T15:50:00.000Z")),
+                    WaitingUpgrade(BuildingKind.IronMine, 1, Instant.parse("2026-11-02T16:10:00.000Z")),
+                ),
+                cap = 4,
+            ),
+            readFief().queue,
+        )
+    }
+
+    @Test
+    fun `answers unreachable when a waiting work names a building the client does not know`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, busyOverview().replace(EMPTY_QUEUE, TWO_WAITING.replace("ironMine", "mill"))))
+
+        assertTrue(repository().read() is FiefReadResult.Unreachable)
+    }
+
+    @Test
+    fun `deletes the upgrade naming its building and level`() = runTest {
+        api.enqueue(resource(200, "fief-overview-idle.json"))
+
+        repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.IronMine, targetLevel = 2)
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/upgrades/ironMine/2", request.url.encodedPath)
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `answers the overview the cancel returns`() = runTest {
+        api.enqueue(resource(200, "fief-overview-idle.json"))
+
+        val result: CancelResult = repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.Sawmill, targetLevel = 1)
+
+        assertEquals(BuildSlot.Idle, (result as CancelResult.Cancelled).fief.slot)
+    }
+
+    @Test
+    fun `answers the cancel of an upgrade the api no longer holds as not found`() = runTest {
+        api.enqueue(json(409, """{"kind":"UpgradeNotFound","message":"Esa obra ya no está en curso."}"""))
+
+        assertEquals(
+            CancelResult.Refused(CancelRefusal.UpgradeNotFound),
+            repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.Sawmill, targetLevel = 1),
+        )
+    }
+
+    @Test
+    fun `answers an unrecognized cancel refusal when the api names one the screen does not draw`() = runTest {
+        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+
+        assertEquals(
+            CancelResult.Refused(CancelRefusal.Unrecognized),
+            repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.Sawmill, targetLevel = 1),
+        )
+    }
+
+    @Test
+    fun `answers unreachable when the cancel cannot reach the api`() = runTest {
+        val fiefs: FiefRepository = repository()
+        api.close()
+
+        assertEquals(CancelResult.Unreachable, fiefs.cancel(FiefId(LISTED_FIEF_ID), BuildingKind.Farm, targetLevel = 1))
     }
 
     @Test
@@ -342,6 +409,13 @@ class FiefRepositoryTest {
         const val WAREHOUSE_AT_LEVEL_0: String =
             """"warehouse":{"level":0,"nextLevel":{"level":1,"cost":{"wood":150,"stone":100,"iron":20,""" +
                 """"gold":0,"food":0},"durationSeconds":180,"peasants":1}}"""
+        const val EMPTY_QUEUE: String = """"queue":{"entries":[],"cap":4}"""
+        const val TWO_WAITING: String =
+            """"queue":{"entries":[""" +
+                """{"building":"sawmill","targetLevel":2,"startsAt":"2026-11-02T15:42:47.138Z",""" +
+                """"finishesAt":"2026-11-02T15:50:00.000Z"},""" +
+                """{"building":"ironMine","targetLevel":1,"startsAt":"2026-11-02T15:50:00.000Z",""" +
+                """"finishesAt":"2026-11-02T16:10:00.000Z"}],"cap":4}"""
         const val WAREHOUSE_AT_ITS_TOP: String = """"warehouse":{"level":10,"nextLevel":null}"""
         const val ATTACK_ON_THE_ROAD: String =
             """{"order":"attack","province":1,"plot":4,"terrain":"lowlands",""" +

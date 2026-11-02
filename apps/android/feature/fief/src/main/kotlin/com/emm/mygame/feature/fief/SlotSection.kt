@@ -20,13 +20,18 @@ import com.emm.mygame.core.network.BuildingKind
 import kotlin.time.Duration
 
 @Composable
-internal fun SlotSection(slot: FiefUiState.SlotLine, modifier: Modifier = Modifier) {
+internal fun SlotSection(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         SectionTitle(text = stringResource(R.string.slot_title))
         Card {
-            when (slot) {
+            when (val slot: FiefUiState.SlotLine = content.slot) {
                 FiefUiState.SlotLine.Idle -> IdleSlot()
-                is FiefUiState.SlotLine.Busy -> BusySlot(slot = slot)
+                is FiefUiState.SlotLine.Busy -> BusySlot(
+                    slot = slot,
+                    waitingSummary = waitingSummaryOf(content),
+                    cancel = content.cancel,
+                    onIntent = onIntent,
+                )
             }
         }
     }
@@ -43,7 +48,13 @@ private fun IdleSlot(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun BusySlot(slot: FiefUiState.SlotLine.Busy, modifier: Modifier = Modifier) {
+private fun BusySlot(
+    slot: FiefUiState.SlotLine.Busy,
+    waitingSummary: String?,
+    cancel: FiefUiState.CancelStatus,
+    onIntent: (FiefIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val countdown: String = countdownLabelOf(slot.remaining)
     val description: String = stringResource(R.string.slot_countdown_description, countdown)
     Column(
@@ -73,11 +84,19 @@ private fun BusySlot(slot: FiefUiState.SlotLine.Busy, modifier: Modifier = Modif
             MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.umber)
             MyGameText(text = countdown, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
         }
+        if (waitingSummary != null) {
+            MyGameText(text = waitingSummary, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
+        }
+        CancelControl(
+            target = FiefUiState.UpgradeTarget(slot.building, slot.targetLevel),
+            cancel = cancel,
+            onIntent = onIntent,
+        )
     }
 }
 
 @Composable
-private fun countdownLabelOf(remaining: Duration): String = remaining.toComponents { hours, minutes, seconds, _ ->
+internal fun countdownLabelOf(remaining: Duration): String = remaining.toComponents { hours, minutes, seconds, _ ->
     when {
         hours > 0 -> stringResource(R.string.slot_countdown_hours, hours, minutes)
         minutes > 0 -> stringResource(R.string.slot_countdown_minutes, minutes)

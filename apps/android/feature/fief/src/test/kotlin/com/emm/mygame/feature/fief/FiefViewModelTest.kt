@@ -1,7 +1,5 @@
 package com.emm.mygame.feature.fief
 
-import androidx.lifecycle.viewModelScope
-import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.emm.mygame.core.network.BuildQueue
 import com.emm.mygame.core.network.BuildSlot
@@ -10,26 +8,17 @@ import com.emm.mygame.core.network.BuildingState
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefSnapshot
-import com.emm.mygame.core.network.NextLevel
 import com.emm.mygame.core.network.Peasants
-import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
-import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.UpgradeRefusal
 import com.emm.mygame.core.network.UpgradeResult
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -43,7 +32,7 @@ class FiefViewModelTest {
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
-    private val readAt: Instant = Instant.fromEpochMilliseconds(1_000_000)
+    private val readAt: Instant = firstReadAt
 
     @Test
     fun `reads the fief when the screen opens`() = runTest {
@@ -471,7 +460,10 @@ class FiefViewModelTest {
                     slot = busySlot(finishesIn = 2.hours),
                     buildings = listOf(sawmill()),
                     peasants = Peasants(free = 0, supplied = 10),
-                    queue = BuildQueue(waiting = 4, cap = 4),
+                    queue = BuildQueue(
+                        entries = List(4) { index: Int -> waitingSawmill(index + 4, readAt + 3.hours) },
+                        cap = 4,
+                    ),
                 ),
             ),
         )
@@ -613,79 +605,5 @@ class FiefViewModelTest {
                 awaitContentWhere { it.upgrade is FiefUiState.UpgradeStatus.Unreachable }.upgrade,
             )
         }
-    }
-
-    private fun TestScope.openFief(fiefs: FakeFiefRepository, deviceNow: Instant = readAt): FiefViewModel {
-        val viewModel: FiefViewModel = FiefViewModel(fiefs, TestClock(testScheduler, deviceNow))
-        backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            try {
-                awaitCancellation()
-            } finally {
-                viewModel.viewModelScope.cancel()
-            }
-        }
-        return viewModel
-    }
-
-    private suspend fun ReceiveTurbine<FiefUiState>.awaitContentWhere(
-        isWanted: (FiefUiState.Content) -> Boolean,
-    ): FiefUiState.Content {
-        var content: FiefUiState.Content = awaitContent()
-        while (!isWanted(content)) content = awaitContent()
-        return content
-    }
-
-    private suspend fun ReceiveTurbine<FiefUiState>.awaitContent(): FiefUiState.Content {
-        var item: FiefUiState = awaitItem()
-        while (item !is FiefUiState.Content) item = awaitItem()
-        return item
-    }
-
-    private fun FiefUiState.Content.remaining(): Duration = (slot as FiefUiState.SlotLine.Busy).remaining
-
-    private fun busySlot(finishesIn: Duration): BuildSlot =
-        BuildSlot.Busy(BuildingKind.Sawmill, targetLevel = 3, finishesAt = readAt + finishesIn)
-
-    private fun fief(
-        resources: List<StoredResource> = listOf(wood(amount = 500, ratePerHour = 60.0)),
-        slot: BuildSlot = BuildSlot.Idle,
-        readAt: Instant = this.readAt,
-        buildings: List<BuildingState> = emptyList(),
-        peasants: Peasants = Peasants(free = 10, supplied = 10),
-        queue: BuildQueue = BuildQueue(waiting = 0, cap = 4),
-    ): FiefSnapshot = FiefSnapshot(
-        id = FiefId(FIEF_ID),
-        name = "Vadoalto",
-        readAt = readAt,
-        resources = resources,
-        slot = slot,
-        buildings = buildings,
-        peasants = peasants,
-        queue = queue,
-    )
-
-    private fun sawmill(level: Int = 0): BuildingState = BuildingState(
-        kind = BuildingKind.Sawmill,
-        level = level,
-        nextLevel = NextLevel(
-            level = level + 1,
-            cost = listOf(
-                ResourceCost(ResourceKind.Wood, 60),
-                ResourceCost(ResourceKind.Stone, 0),
-                ResourceCost(ResourceKind.Iron, 15),
-            ),
-            duration = 2.minutes,
-            peasants = 1,
-        ),
-    )
-
-    private fun iron(amount: Long): StoredResource =
-        StoredResource(ResourceKind.Iron, amount = amount, ratePerHour = 0.0, capacity = 1000)
-
-    private fun wood(amount: Long, ratePerHour: Double, capacity: Long = 1000): StoredResource =
-        StoredResource(ResourceKind.Wood, amount = amount, ratePerHour = ratePerHour, capacity = capacity)
-
-    private companion object {
-        const val FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
     }
 }

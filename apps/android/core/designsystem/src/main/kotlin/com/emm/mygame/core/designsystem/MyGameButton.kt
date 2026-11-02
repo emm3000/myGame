@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 
@@ -33,6 +35,7 @@ fun MyGameButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     blockedReason: String? = null,
+    accessibleName: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
@@ -49,17 +52,28 @@ fun MyGameButton(
             .clip(shape)
             .background(ground)
             .edge(isBlocked = isBlocked, isBusy = isBusy, colors = colors, shape = shape)
-            .semantics(mergeDescendants = true) {
-                if (isBusy) stateDescription = busyDescription
-                if (blockedReason != null && !isBusy) stateDescription = blockedReason
-            }
+            .buttonSemantics(
+                accessibleName = accessibleName,
+                state = if (isBusy) busyDescription else blockedReason,
+            )
             .clickable(enabled = !isBusy, role = Role.Button, onClick = onClick)
             .padding(horizontal = MyGameSpacing.step4),
     ) {
         if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
-        MyGameText(text = label, style = MyGameTypography.action, color = ink)
+        MyGameText(
+            text = label,
+            style = MyGameTypography.action,
+            color = ink,
+            modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
+        )
     }
 }
+
+private fun Modifier.buttonSemantics(accessibleName: String?, state: String?): Modifier =
+    semantics(mergeDescendants = true) {
+        if (accessibleName != null) contentDescription = accessibleName
+        if (state != null) stateDescription = state
+    }
 
 private fun Modifier.edge(isBlocked: Boolean, isBusy: Boolean, colors: MyGameColors, shape: Shape): Modifier = when {
     isBlocked -> drawBehind {
