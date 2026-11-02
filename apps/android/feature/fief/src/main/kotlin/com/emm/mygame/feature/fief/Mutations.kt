@@ -7,6 +7,10 @@ internal data class Mutations(val upgrade: FiefUiState.UpgradeStatus, val cancel
         cancel = if (cancel is FiefUiState.CancelStatus.Waiting) cancel else FiefUiState.CancelStatus.Idle,
     )
 
+    fun upgradeAnswered(): Mutations = keptAfterRead().copy(upgrade = FiefUiState.UpgradeStatus.Idle)
+
+    fun cancelAnswered(): Mutations = keptAfterRead().copy(cancel = FiefUiState.CancelStatus.Idle)
+
     companion object {
         val none: Mutations = Mutations(FiefUiState.UpgradeStatus.Idle, FiefUiState.CancelStatus.Idle)
     }

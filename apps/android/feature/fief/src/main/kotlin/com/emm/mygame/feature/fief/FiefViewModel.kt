@@ -62,7 +62,7 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
         draw(mutations.copy(upgrade = FiefUiState.UpgradeStatus.Waiting(building)))
         viewModelScope.launch {
             when (val answer: UpgradeResult = fiefs.upgrade(fief.id, building)) {
-                is UpgradeResult.Upgraded -> restartFrom(answer.fief)
+                is UpgradeResult.Upgraded -> restartFrom(answer.fief, mutations.upgradeAnswered())
                 is UpgradeResult.Refused ->
                     draw(mutations.copy(upgrade = FiefUiState.UpgradeStatus.Refused(building, answer.refusal)))
                 UpgradeResult.Unreachable ->
@@ -77,7 +77,7 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
         draw(mutations.copy(cancel = FiefUiState.CancelStatus.Waiting(target)))
         viewModelScope.launch {
             when (val answer: CancelResult = fiefs.cancel(fief.id, target.building, target.targetLevel)) {
-                is CancelResult.Cancelled -> restartFrom(answer.fief)
+                is CancelResult.Cancelled -> restartFrom(answer.fief, mutations.cancelAnswered())
                 is CancelResult.Refused -> answerRefusedCancel(target, answer.refusal)
                 CancelResult.Unreachable -> draw(mutations.copy(cancel = FiefUiState.CancelStatus.Unreachable(target)))
             }
@@ -93,14 +93,14 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
 
     private suspend fun rereadAfterCancel(target: FiefUiState.UpgradeTarget) {
         when (val answer: FiefReadResult = fiefs.read()) {
-            is FiefReadResult.Read -> restartFrom(answer.fief)
+            is FiefReadResult.Read -> restartFrom(answer.fief, mutations.cancelAnswered())
             FiefReadResult.Unreachable -> draw(mutations.copy(cancel = FiefUiState.CancelStatus.Unreachable(target)))
         }
     }
 
-    private fun restartFrom(snapshot: FiefSnapshot) {
+    private fun restartFrom(snapshot: FiefSnapshot, kept: Mutations) {
         projection?.cancel()
-        mutations = Mutations.none
+        mutations = kept
         projection = viewModelScope.launch { project(snapshot) }
     }
 
