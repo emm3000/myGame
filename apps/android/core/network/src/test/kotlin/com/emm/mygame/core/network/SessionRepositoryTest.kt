@@ -275,6 +275,85 @@ class SessionRepositoryTest {
         assertNull(api.takeRequest().headers["Authorization"])
     }
 
+    @Test
+    fun `stores the token of the account it creates as a bearer for the next request`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore())
+        api.enqueue(createdSession(token = "fresh-session", email = "elena@encinar.es"))
+        api.enqueue(player(email = "elena@encinar.es"))
+
+        val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        sessions.restore()
+
+        assertEquals(SignUpResult.SignedIn(SignedInPlayer(email = "elena@encinar.es")), result)
+        val signUpRequest: RecordedRequest = api.takeRequest()
+        assertEquals("/api/auth/sign-up/native", signUpRequest.url.encodedPath)
+        assertEquals(
+            """{"email":"elena@encinar.es","password":"hierro-y-lana","fiefName":"Encinar"}""",
+            signUpRequest.body?.utf8(),
+        )
+        assertEquals("Bearer fresh-session", api.takeRequest().headers["Authorization"])
+    }
+
+    @Test
+    fun `answers the sign-up refusal the api names`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore())
+        api.enqueue(json(400, refusalJson("WeakPassword")))
+        api.enqueue(json(400, refusalJson("BlankFiefName")))
+        api.enqueue(json(409, refusalJson("EmailTaken")))
+
+        val answers: List<SignUpResult> = List(3) { sessions.signUp("elena@encinar.es", "corta", " ") }
+
+        assertEquals(
+            listOf(
+                SignUpResult.Refused(SignUpRefusal.WeakPassword),
+                SignUpResult.Refused(SignUpRefusal.BlankFiefName),
+                SignUpResult.Refused(SignUpRefusal.EmailTaken),
+            ),
+            answers,
+        )
+    }
+
+    @Test
+    fun `answers an unrecognized sign-up refusal for a malformed request the api answers without a kind`() =
+        runTest {
+            api.enqueue(MockResponse.Builder().code(400).build())
+
+            val result: SignUpResult = repository(tokenStore()).signUp("elena", "hierro-y-lana", "")
+
+            assertEquals(SignUpResult.Refused(SignUpRefusal.Unrecognized), result)
+        }
+
+    @Test
+    fun `answers unreachable when the sign-up cannot reach the api`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore())
+        api.close()
+
+        val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+
+        assertEquals(SignUpResult.Unreachable, result)
+    }
+
+    @Test
+    fun `answers unreachable when the api fails while creating the account`() = runTest {
+        api.enqueue(MockResponse.Builder().code(503).build())
+
+        val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+
+        assertEquals(SignUpResult.Unreachable, result)
+    }
+
+    @Test
+    fun `answers unreachable when the keystore cannot seal the created account's token`() = runTest {
+        val sealFailure: ProviderException = ProviderException("The keystore could not encrypt")
+        val store: TokenStore = tokenStore(FakeTokenCipher(encryptFailure = sealFailure))
+        api.enqueue(createdSession(token = "fresh-session", email = "elena@encinar.es"))
+
+        val result: SignUpResult = repository(store).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+
+        assertEquals(SignUpResult.Unreachable, result)
+        assertNull(store.read())
+    }
+
     private fun TestScope.repository(store: TokenStore): SessionRepository =
         SessionRepository(
             baseUrl = api.url("/api/").toString(),
@@ -291,10 +370,14 @@ class SessionRepositoryTest {
     private fun nativeSession(token: String, email: String): MockResponse =
         json(200, """{"token":"$token","player":${playerJson(email)}}""")
 
+    private fun createdSession(token: String, email: String): MockResponse =
+        json(201, """{"token":"$token","player":${playerJson(email)}}""")
+
     private fun player(email: String): MockResponse = json(200, playerJson(email))
 
-    private fun refusal(kind: String): MockResponse =
-        json(401, """{"kind":"$kind","message":"El correo o la contraseña no son correctos."}""")
+    private fun refusal(kind: String): MockResponse = json(401, refusalJson(kind))
+
+    private fun refusalJson(kind: String): String = """{"kind":"$kind","message":"La petición no vale."}"""
 
     private fun playerJson(email: String): String =
         """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":true,"seenHints":[]}"""

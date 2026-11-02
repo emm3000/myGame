@@ -13,6 +13,7 @@ import com.emm.mygame.core.network.SessionRepository
 fun SignInRoute(
     sessions: SessionRepository,
     onSignedIn: () -> Unit,
+    onSignUpOpen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = viewModel { SignInViewModel(sessions) },
 ) {
@@ -22,5 +23,5 @@ fun SignInRoute(
     LaunchedEffect(isSignedIn) {
         if (isSignedIn) currentOnSignedIn()
     }
-    SignInScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+    SignInScreen(state = state, onIntent = viewModel::onIntent, onSignUpOpen = onSignUpOpen, modifier = modifier)
 }

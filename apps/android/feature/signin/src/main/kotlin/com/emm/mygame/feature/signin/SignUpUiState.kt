@@ -1,0 +1,22 @@
+package com.emm.mygame.feature.signin
+
+import com.emm.mygame.core.network.SignUpRefusal
+
+sealed interface SignUpUiState {
+
+    data class Form(val email: String, val password: String, val fiefName: String, val status: FormStatus) :
+        SignUpUiState
+
+    data object SignedIn : SignUpUiState
+
+    sealed interface FormStatus {
+
+        data object Idle : FormStatus
+
+        data object Submitting : FormStatus
+
+        data class Refused(val refusal: SignUpRefusal) : FormStatus
+
+        data object Unreachable : FormStatus
+    }
+}
