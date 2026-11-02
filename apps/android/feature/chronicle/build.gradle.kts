@@ -2,6 +2,10 @@ plugins {
     id("mygame.android.compose")
 }
 
+android {
+    testOptions.unitTests.isIncludeAndroidResources = true
+}
+
 dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:designsystem"))
@@ -10,4 +14,5 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     testImplementation(project(":core:testing"))
+    testImplementation(libs.robolectric)
 }

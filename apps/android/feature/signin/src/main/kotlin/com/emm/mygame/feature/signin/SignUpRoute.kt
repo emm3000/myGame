@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.SessionRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SignUpRoute(
@@ -20,9 +22,11 @@ fun SignUpRoute(
     val state: SignUpUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedIn: () -> Unit by rememberUpdatedState(onSignedIn)
     LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect: SignUpEffect ->
-            when (effect) {
-                SignUpEffect.SignedIn -> currentOnSignedIn()
+        withContext(Dispatchers.Main.immediate) {
+            viewModel.effects.collect { effect: SignUpEffect ->
+                when (effect) {
+                    SignUpEffect.SignedIn -> currentOnSignedIn()
+                }
             }
         }
     }
