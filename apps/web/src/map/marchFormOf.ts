@@ -43,7 +43,7 @@ export interface MarchEntries {
 
 export type MarchFormContent = Pick<
   MarchFormProps,
-  'title' | 'artSrc' | 'atHome' | 'isFieldDisabled' | 'preview' | 'actionLabel' | 'state'
+  'title' | 'atHome' | 'isFieldDisabled' | 'preview' | 'actionLabel' | 'state'
 >
 
 const secondsPerHour = 3600

@@ -1,8 +1,6 @@
 import type { FormEvent, ReactElement, ReactNode } from 'react'
 import { copy } from '../copy'
 import { Panel } from '../design-system/Panel'
-import { SceneBand } from '../design-system/SceneBand'
-import { sceneArtOf } from '../design-system/sceneArtOf'
 
 export interface AuthPanelProps {
   readonly title: string
@@ -10,8 +8,6 @@ export interface AuthPanelProps {
   readonly children: ReactNode
   readonly footer?: ReactNode
 }
-
-const guestTerrain = 'lowlands'
 
 const bodyClass = 'flex flex-col gap-4'
 
@@ -38,13 +34,7 @@ function Body({ onSubmit, children }: BodyProps): ReactElement {
 export function AuthPanel(props: AuthPanelProps): ReactElement {
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink">
-      <SceneBand
-        terrain={guestTerrain}
-        season={null}
-        artSrc={sceneArtOf(guestTerrain)}
-        isFullBleed
-      />
-      <div className="relative -mt-12 flex grow flex-col items-center px-4 pb-12">
+      <div className="flex grow flex-col items-center px-4 py-12">
         <main className="w-full max-w-sm">
           <Panel element="section" toneClass="bg-surface-raised" spacingClass="gap-6 p-6">
             <p className="m-0 -mb-2 font-display text-title text-umber">{copy.shell.title}</p>

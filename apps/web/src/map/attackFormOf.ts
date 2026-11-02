@@ -1,7 +1,6 @@
 import type { FiefOverview, ResourceAmounts, Terrain } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { MarchActionState } from '../design-system/CardAction'
-import { campArtOf } from '../design-system/campArtOf'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { quantitiesOf } from '../resources/quantitiesOf'
@@ -115,7 +114,6 @@ export function attackFormOf(
   const party = partyOf(entries)
   return {
     title: copy.march.attackTitle(target.province, target.plot),
-    artSrc: campArtOf(target.camp.tier),
     atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
     preview:

@@ -11,7 +11,6 @@ import { useCancel } from '../../../fief/useCancel'
 import { type DigestHandle, useDigest } from '../../../fief/useDigest'
 import { useFiefNameTarget } from '../../../fief/useFiefNameTarget'
 import { useGuidanceDismissal } from '../../../fief/useGuidanceDismissal'
-import { useIsStatusBlockSticky } from '../../../fief/useIsStatusBlockSticky'
 import { useLayoutFief } from '../../../fief/useLayoutFief'
 import { useRecall } from '../../../fief/useRecall'
 import { useRecruit } from '../../../fief/useRecruit'
@@ -62,7 +61,6 @@ function FiefOverviewPage(): ReactElement {
   const dismissal = useGuidanceDismissal(apiClient, fiefId)
   const hints = useLayoutHints()
   const fiefName = useFiefNameTarget()
-  const isStatusBlockSticky = useIsStatusBlockSticky()
   switch (state.kind) {
     case 'loading':
       return <p className="m-0">{copy.fief.loading}</p>
@@ -81,7 +79,6 @@ function FiefOverviewPage(): ReactElement {
           digest={digestCardOf(digest, fiefName.focus)}
           goal={goalCardOf(state.fief.overview, dismissal, fiefName.focus)}
           hint={screenHintOf(state.fief, hints)}
-          isSceneInHeader={isStatusBlockSticky}
         />
       )
     default: {

@@ -131,12 +131,10 @@ it('draws the camp image of its tier on a camp tile', async () => {
   ).toEqual([['/art/camps/camp-1-96.webp'], ['/art/camps/camp-2-96.webp'], []])
 })
 
-it('shows the art of its tier on the attack form', async () => {
+it('draws no image on the attack form', async () => {
   await openAttackOn(9)
 
-  expect(within(screen.getByRole('article')).getByRole('presentation').getAttribute('src')).toBe(
-    '/art/camps/camp-2.webp',
-  )
+  expect(within(screen.getByRole('article')).queryByRole('presentation')).toBeNull()
 })
 
 it('offers the attack on a camp plot and no forage', async () => {

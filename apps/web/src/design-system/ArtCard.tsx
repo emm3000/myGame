@@ -1,7 +1,6 @@
 import type { ResourceKind } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { CardAction, type CardActionState, cardToneOf } from './CardAction'
-import { CardArt } from './CardArt'
 import { CardHeader } from './CardHeader'
 import { type CardCost, CostList } from './CostList'
 import { formatDuration } from './formatDuration'
@@ -28,7 +27,6 @@ export interface ArtCardProps {
   readonly durationSeconds: number
   readonly state: CardActionState
   readonly titleElement: 'h3' | 'h4'
-  readonly artSrc: string
   readonly isWaiting?: boolean
   readonly onStudy?: (() => void) | undefined
 }
@@ -49,7 +47,6 @@ export function ArtCard(props: ArtCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
     <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
-      <CardArt src={props.artSrc} />
       <CardHeader
         name={props.name}
         levelLabel={props.levelLabel}

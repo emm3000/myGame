@@ -94,24 +94,17 @@ it('shows the idle study slot and a card per art once the library stands', async
   expect(within(artCard('masonry')).getByText('Cantería')).toBeDefined()
 })
 
-it('shows the art of each art on its card', async () => {
-  await showFief({})
-
-  expect(within(artCard('smithing')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/art\/arts\/smithing\.webp$/,
-  )
-  expect(within(artCard('masonry')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/art\/arts\/masonry\.webp$/,
-  )
-})
-
-it('shows the art of an art not yet studied', async () => {
+it('badges an art not yet studied as unstudied', async () => {
   await showFief({})
 
   expect(within(artCard('masonry')).getByText(copy.names.unstudied)).toBeDefined()
-  expect(within(artCard('masonry')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/masonry\.webp$/,
-  )
+})
+
+it('draws no image on an art card', async () => {
+  await showFief({})
+
+  expect(within(artCard('smithing')).queryByRole('presentation')).toBeNull()
+  expect(within(artCard('masonry')).queryByRole('presentation')).toBeNull()
 })
 
 it('shows on an art card its level, effect, cost, duration and library requirement', async () => {
@@ -317,7 +310,7 @@ it('shows an art at its top level as finished', async () => {
   ).toBeDefined()
 })
 
-it('keeps the art on a card at its top level', async () => {
+it('draws no image on a card at its top level', async () => {
   const smithingAtTop: FiefOverview = {
     ...libraryBuilt,
     arts: {
@@ -327,9 +320,7 @@ it('keeps the art on a card at its top level', async () => {
   }
   await showFief({ fief: async () => ({ ok: true, value: smithingAtTop }) })
 
-  expect(within(artCard('smithing')).getByRole('presentation').getAttribute('src')).toMatch(
-    /\/smithing\.webp$/,
-  )
+  expect(within(artCard('smithing')).queryByRole('presentation')).toBeNull()
 })
 
 it('counts down the study in progress between reads', async () => {
