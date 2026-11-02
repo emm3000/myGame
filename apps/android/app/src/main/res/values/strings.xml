@@ -2,5 +2,6 @@
 <resources>
     <string name="app_name">Vadoalto</string>
     <string name="navigation_fief">Feudo</string>
+    <string name="navigation_map">Mapa</string>
     <string name="navigation_chronicle">Crónica</string>
 </resources>

@@ -4,6 +4,7 @@ import android.app.Application
 import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
+import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TokenStore
 import java.io.File
@@ -27,6 +28,10 @@ class MyGameApplication : Application() {
 
     val fiefs: FiefRepository by lazy {
         FiefRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
+    }
+
+    val maps: MapRepository by lazy {
+        MapRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
     }
 
     val chronicles: ChronicleRepository by lazy {
