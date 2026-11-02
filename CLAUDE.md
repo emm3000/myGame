@@ -26,7 +26,7 @@ packages/domain    -> nothing
 
 Every package defines `typecheck` and `test` scripts, because `pnpm -r` fails on a package that lacks the script it was asked to run. Versions shared by more than one package are written once in the `catalog` of `pnpm-workspace.yaml`, never repeated per package. Every version, in a `package.json` or in the catalog, is exact: no caret, no tilde, no range; `.npmrc` sets `save-exact` so `pnpm add` writes it that way.
 
-All four packages exist; each carries its own `CLAUDE.md`.
+All four packages exist; each carries its own `CLAUDE.md`. Beside them, `apps/android` is a Gradle project outside the pnpm workspace (no `package.json`, ADR 034), with its own `CLAUDE.md`.
 
 ## Product
 
@@ -76,6 +76,7 @@ TypeScript strict, pnpm workspaces, Node 24 (`.node-version`), Vitest, Biome. We
 - `pnpm -r typecheck`, `pnpm -r test` — every package; `pnpm --filter <pkg> test` for one.
 - `pnpm lint`, `pnpm format` — Biome check and write.
 - `pnpm install --frozen-lockfile` — what CI runs; a lockfile drift fails there, not locally.
+- `./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug`, run in `apps/android` — the Android leg of the gate, CI's `android` job (`apps/android/CLAUDE.md`).
 
 ## Test stack
 

@@ -18,7 +18,7 @@ fi
 
 while IFS= read -r file; do
   case "$file" in
-    docs/* | *.md) ;;
+    docs/* | *.md | apps/android/*) ;;
     *)
       echo true
       exit 0
