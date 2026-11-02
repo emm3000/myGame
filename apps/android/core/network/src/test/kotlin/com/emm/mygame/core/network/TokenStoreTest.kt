@@ -2,6 +2,8 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
+import java.security.GeneralSecurityException
+import java.security.ProviderException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -47,9 +49,30 @@ class TokenStoreTest {
     fun `reads nothing when the stored ciphertext no longer decrypts`() {
         val file: File = sessionFile()
         TokenStore(file, FakeTokenCipher()).write("opaque-session")
-        val storeWithLostKey: TokenStore = TokenStore(file, FakeTokenCipher(isKeyLost = true))
+        val lostKey: GeneralSecurityException = GeneralSecurityException("The key under this ciphertext is gone")
+        val storeWithLostKey: TokenStore = TokenStore(file, FakeTokenCipher(decryptFailure = lostKey))
 
         assertNull(storeWithLostKey.read())
+    }
+
+    @Test
+    fun `forgets a stored ciphertext shorter than its nonce`() {
+        val file: File = sessionFile().apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val store: TokenStore = TokenStore(file, FakeTokenCipher())
+
+        assertNull(store.read())
+        assertFalse(file.exists())
+    }
+
+    @Test
+    fun `forgets the stored ciphertext when the keystore provider fails`() {
+        val file: File = sessionFile()
+        TokenStore(file, FakeTokenCipher()).write("opaque-session")
+        val providerFailure: ProviderException = ProviderException("The keystore could not decrypt")
+        val storeWithFailingProvider: TokenStore = TokenStore(file, FakeTokenCipher(decryptFailure = providerFailure))
+
+        assertNull(storeWithFailingProvider.read())
+        assertFalse(file.exists())
     }
 
     private fun sessionFile(): File = File(folder.root, "session")

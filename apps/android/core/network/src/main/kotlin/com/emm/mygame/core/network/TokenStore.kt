@@ -3,6 +3,7 @@ package com.emm.mygame.core.network
 import java.io.File
 import java.io.IOException
 import java.security.GeneralSecurityException
+import java.security.ProviderException
 
 class TokenStore(private val file: File, private val cipher: TokenCipher) {
 
@@ -13,9 +14,17 @@ class TokenStore(private val file: File, private val cipher: TokenCipher) {
         try {
             cipher.decrypt(file.readBytes()).decodeToString()
         } catch (expectedLostKey: GeneralSecurityException) {
-            file.delete()
-            null
+            forgotten()
+        } catch (expectedShortCiphertext: IllegalArgumentException) {
+            forgotten()
+        } catch (expectedProviderFailure: ProviderException) {
+            forgotten()
         }
+    }
+
+    private fun forgotten(): String? {
+        file.delete()
+        return null
     }
 
     internal fun write(token: String) {
