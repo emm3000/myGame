@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fief_brand">Vadoalto</string>
+    <string name="fief_eyebrow">Tu feudo</string>
+    <string name="fief_loading">Estamos leyendo tu feudo…</string>
+    <string name="fief_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="fief_retry">Volver a intentarlo</string>
+    <string name="fief_resources_title">Recursos</string>
+    <string name="resource_wood">Madera</string>
+    <string name="resource_stone">Piedra</string>
+    <string name="resource_iron">Hierro</string>
+    <string name="resource_gold">Oro</string>
+    <string name="resource_food">Comida</string>
+    <string name="resource_capacity">/ %1$s</string>
+    <string name="resource_rate">+%1$s / h</string>
+    <string name="resource_full">Lleno</string>
+    <string name="resource_description">%1$s: %2$s de %3$s, más %4$s por hora</string>
+    <string name="resource_description_full">%1$s: %2$s de %3$s, lleno</string>
+    <string name="slot_title">La obra</string>
+    <string name="slot_idle">Tu feudo no tiene obra.</string>
+    <string name="slot_busy_title">Una obra en marcha</string>
+    <string name="slot_level">nivel %1$d</string>
+    <string name="slot_countdown_hours">%1$d h %2$d min</string>
+    <string name="slot_countdown_minutes">%1$d min</string>
+    <string name="slot_countdown_seconds">%1$d s</string>
+    <string name="slot_countdown_finished">Terminada</string>
+    <string name="slot_countdown_description">Termina en %1$s</string>
+    <string name="building_sawmill">Aserradero</string>
+    <string name="building_quarry">Cantera</string>
+    <string name="building_iron_mine">Mina de hierro</string>
+    <string name="building_farm">Granja</string>
+    <string name="building_warehouse">Almacén</string>
+    <string name="building_library">Biblioteca</string>
+    <string name="building_barracks">Cuartel</string>
+</resources>

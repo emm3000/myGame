@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.signin.SignInRoute
 
 class MainActivity : ComponentActivity() {
@@ -13,10 +17,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        val sessions: SessionRepository = (application as MyGameApplication).sessions
+        val application: MyGameApplication = application as MyGameApplication
         setContent {
             MyGameTheme {
-                SignInRoute(sessions = sessions)
+                var isSignedIn: Boolean by rememberSaveable { mutableStateOf(false) }
+                if (isSignedIn) {
+                    FiefRoute(fiefs = application.fiefs, clock = application.clock)
+                } else {
+                    SignInRoute(sessions = application.sessions, onSignedIn = { isSignedIn = true })
+                }
             }
         }
     }

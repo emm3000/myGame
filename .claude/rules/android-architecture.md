@@ -22,7 +22,7 @@ paths:
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
 | `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown) |
-| `core:testing` | Fakes of the `core:network` interfaces, the fixed clock, the projection-fixture reader |
+| `core:testing` | Fakes of the `core:network` interfaces, the test clock |
 
 ```
 app               -> feature:*, core:*

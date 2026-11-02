@@ -6,5 +6,6 @@ import androidx.compose.ui.unit.dp
 object MyGameRadii {
     val sm: Dp = 4.dp
     val md: Dp = 8.dp
+    val lg: Dp = 12.dp
     val pill: Dp = 999.dp
 }
