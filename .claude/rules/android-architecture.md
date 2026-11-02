@@ -59,7 +59,7 @@ The api's opaque session token travels as `Authorization: Bearer <token>`, added
 - `<Feature>Effect`: a `sealed interface` of one-shot outcomes (`NavigateToFief`, `ShowRefusal`), sent through a buffered `Channel` exposed as `Flow`, never a `SharedFlow`, never stored in state. A replay-0 `SharedFlow` drops an effect no collector is there to take.
 - The ViewModel exposes `state: StateFlow<<Feature>UiState>`, `effects: Flow<<Feature>Effect>` and `onIntent(intent: <Feature>Intent)`, nothing else.
 - State stores what the player chose (a building id), never the resolved object; the resolved object is a getter over the catalog the same state holds.
-- A visibility flag (a sheet, a dialog, a confirmation) lives in `UiState`. `remember` holds only pure UI mechanics: scroll, focus, animation.
+- A visibility flag (a sheet, a dialog, a confirmation) lives in `UiState`. So does a refusal that stays beside the card that asked for it until the next read: it is state, not an `Effect`. `remember` holds only pure UI mechanics: scroll, focus, animation.
 - A ViewModel never switches dispatcher: no `withContext`, no `Dispatchers.`; `core:network` owns its threading.
 - A ViewModel never holds user-facing copy; it emits a typed value the screen resolves with `stringResource`.
 - A ViewModel is Compose-free. `./gradlew checkComposeFreeViewModels` fails any `*ViewModel.kt` or `*UiState.kt` importing `androidx.compose`; review also runs, expecting nothing:

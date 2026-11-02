@@ -576,6 +576,29 @@ class FiefViewModelTest {
     }
 
     @Test
+    fun `drops the refusal once the fief is read again`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(
+            FiefReadResult.Read(fief(slot = busySlot(finishesIn = 2.seconds), buildings = listOf(sawmill()))),
+        )
+        fiefs.answerUpgrade(UpgradeResult.Refused(UpgradeRefusal.QueueFull))
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill()), readAt = readAt + 2.seconds)))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            awaitContentWhere { it.upgrade is FiefUiState.UpgradeStatus.Refused }
+            advanceTimeBy(2.seconds)
+            runCurrent()
+            assertEquals(
+                FiefUiState.UpgradeStatus.Idle,
+                awaitContentWhere { it.slot == FiefUiState.SlotLine.Idle }.upgrade,
+            )
+        }
+    }
+
+    @Test
     fun `tells the lord the upgrade could not reach the api`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)

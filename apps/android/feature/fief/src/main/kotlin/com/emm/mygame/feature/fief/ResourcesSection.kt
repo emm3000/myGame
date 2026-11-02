@@ -127,7 +127,7 @@ private fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier =
 private fun PeasantsRow(peasants: FiefUiState.PeasantsLine, modifier: Modifier = Modifier) {
     val free: String = formatQuantity(peasants.free.toLong())
     val supplied: String = formatQuantity(peasants.supplied.toLong())
-    val description: String = stringResource(R.string.peasants_description, free, supplied)
+    val description: String = pluralStringResource(R.plurals.peasants_description, peasants.supplied, free, supplied)
     Row(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),

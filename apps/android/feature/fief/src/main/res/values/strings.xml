@@ -37,7 +37,10 @@
         <item quantity="one">%1$s / %2$s libre</item>
         <item quantity="other">%1$s / %2$s libres</item>
     </plurals>
-    <string name="peasants_description">Campesinos: %1$s libres de %2$s</string>
+    <plurals name="peasants_description">
+        <item quantity="one">Campesinos: %1$s libre de %2$s</item>
+        <item quantity="other">Campesinos: %1$s libres de %2$s</item>
+    </plurals>
     <string name="buildings_title">Edificios</string>
     <string name="building_level">nivel %1$d</string>
     <string name="building_next_level">Sube a nivel %1$d.</string>

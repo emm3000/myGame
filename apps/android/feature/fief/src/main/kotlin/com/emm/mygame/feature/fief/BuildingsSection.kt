@@ -117,7 +117,12 @@ private fun NextLevel(
             blockedReason = reason,
         )
         if (reason != null) {
-            MyGameText(text = reason, style = MyGameTypography.body, color = MyGameTheme.colors.rust)
+            MyGameText(
+                text = reason,
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.rust,
+                modifier = Modifier.clearAndSetSemantics { },
+            )
         }
     }
 }
