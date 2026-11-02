@@ -350,6 +350,17 @@ describe('the auth routes', () => {
     expect(PlayerSchema.parse(await response.json()).email).toBe(anasSignUp.email)
   })
 
+  it('refuses the bearer token after its sign-out', async () => {
+    await signUpAna()
+    const { token } = NativeSessionSchema.parse(await (await signInNatively(anasSignIn)).json())
+    const bearer = { authorization: `Bearer ${token}` }
+
+    const signedOut = await app.request('/auth/sign-out', { method: 'POST', headers: bearer })
+
+    expect(signedOut.status).toBe(204)
+    expect((await app.request('/auth/session', { headers: bearer })).status).toBe(401)
+  })
+
   it('refuses the native sign-in with a wrong password as invalid credentials', async () => {
     await signUpAna()
 
