@@ -47,6 +47,7 @@ import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import { honoPathOf } from '../http/responseDeclarations'
 import { fiefDeclarations } from './fiefDeclarations'
 
 export type FiefDependencies = CurrentFiefDependencies &
@@ -82,12 +83,22 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
     answerReading(c, fief.ok ? storedFiefReadingOf(fief.value, dependencies.buildingCatalog) : fief)
   const signedInPlayer = requirePlayer(dependencies)
   const routes = new OpenAPIHono()
-  routes.openAPIRegistry.registerPath(fiefDeclarations.overview)
-  routes
-    .get(fiefDeclarations.overview.path, signedInPlayer, requireNamedFief, async (c) =>
-      answerReading(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
-    )
-    .get('/events', signedInPlayer, requireNamedFief, async (c) => {
+  for (const declaration of Object.values(fiefDeclarations)) {
+    routes.openAPIRegistry.registerPath(declaration)
+  }
+  routes.on(
+    fiefDeclarations.overview.method,
+    honoPathOf(fiefDeclarations.overview),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => answerReading(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
+  )
+  routes.on(
+    fiefDeclarations.events.method,
+    honoPathOf(fiefDeclarations.events),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const reading = await currentFiefOf(c.var.fiefOfPlayer, dependencies)
       if (!reading.ok) {
         return answerRefusal(c, reading.error)
@@ -96,8 +107,14 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         await dependencies.chronicle.eventsOf(reading.value.fief.id),
       )
       return c.json(body)
-    })
-    .post('/upgrades', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.enqueueUpgrade.method,
+    honoPathOf(fiefDeclarations.enqueueUpgrade),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = EnqueueBuildingRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -106,29 +123,53 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         c,
         await enqueueUpgradeOf(c.var.fiefOfPlayer, request.data.building, dependencies),
       )
-    })
-    .delete('/upgrades/:building/:targetLevel', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.cancelUpgrade.method,
+    honoPathOf(fiefDeclarations.cancelUpgrade),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = CancelUpgradeRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await cancelUpgradeOf(c.var.fiefOfPlayer, request.data, dependencies))
-    })
-    .post('/studies', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.startStudy.method,
+    honoPathOf(fiefDeclarations.startStudy),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = StartStudyRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await startStudyOf(c.var.fiefOfPlayer, request.data.art, dependencies))
-    })
-    .delete('/studies/:art/:targetLevel', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.cancelStudy.method,
+    honoPathOf(fiefDeclarations.cancelStudy),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = CancelStudyRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await cancelStudyOf(c.var.fiefOfPlayer, request.data, dependencies))
-    })
-    .post('/recruit-orders', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.placeRecruitOrder.method,
+    honoPathOf(fiefDeclarations.placeRecruitOrder),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = PlaceRecruitOrderRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -137,8 +178,14 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         c,
         await placeRecruitOrderOf(c.var.fiefOfPlayer, request.data, dependencies),
       )
-    })
-    .delete('/recruit-orders/:unit/:startedAt', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.cancelRecruitOrder.method,
+    honoPathOf(fiefDeclarations.cancelRecruitOrder),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = CancelRecruitOrderRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -147,29 +194,53 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         c,
         await cancelRecruitOrderOf(c.var.fiefOfPlayer, request.data, dependencies),
       )
-    })
-    .post('/marches', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.dispatchMarch.method,
+    honoPathOf(fiefDeclarations.dispatchMarch),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = DispatchMarchRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchMarchOf(c.var.fiefOfPlayer, request.data, dependencies))
-    })
-    .post('/marches/attack', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.dispatchAttack.method,
+    honoPathOf(fiefDeclarations.dispatchAttack),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = DispatchAttackRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchAttackOf(c.var.fiefOfPlayer, request.data, dependencies))
-    })
-    .post('/marches/found', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.dispatchFounding.method,
+    honoPathOf(fiefDeclarations.dispatchFounding),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = DispatchFoundingRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await dispatchFoundingOf(c.var.fiefOfPlayer, request.data, dependencies))
-    })
-    .post('/marches/transport', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.dispatchTransport.method,
+    honoPathOf(fiefDeclarations.dispatchTransport),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = DispatchTransportRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
@@ -178,15 +249,27 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         c,
         await dispatchTransportOf(c.var.fiefOfPlayer, request.data, dependencies),
       )
-    })
-    .post('/marches/:departedAt/recall', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.recallMarch.method,
+    honoPathOf(fiefDeclarations.recallMarch),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const request = RecallMarchRequestSchema.safeParse(c.req.param())
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await recallMarchOf(c.var.fiefOfPlayer, request.data, dependencies))
-    })
-    .post('/guidance/dismissal', signedInPlayer, requireNamedFief, async (c) => {
+    },
+  )
+  routes.on(
+    fiefDeclarations.dismissGuidance.method,
+    honoPathOf(fiefDeclarations.dismissGuidance),
+    signedInPlayer,
+    requireNamedFief,
+    async (c) => {
       const { fiefOfPlayer } = c.var
       const dismissal = await dependencies.guidanceDismissals.dismiss(
         fiefOfPlayer,
@@ -196,6 +279,7 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         return answerRefusal(c, { kind: 'FiefNotFound', fiefId: fiefOfPlayer.fiefId })
       }
       return c.body(null, 204)
-    })
+    },
+  )
   return routes
 }

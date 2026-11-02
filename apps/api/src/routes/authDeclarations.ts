@@ -1,4 +1,4 @@
-import { createRoute, type RouteConfig } from '@hono/zod-openapi'
+import { createRoute } from '@hono/zod-openapi'
 import {
   ForgotPasswordRequestSchema,
   PlayerSchema,
@@ -7,26 +7,13 @@ import {
   SignUpRequestSchema,
   VerifyEmailRequestSchema,
 } from '@mygame/contracts'
-import type { ZodType } from 'zod'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
+import { jsonBody, jsonResponse, signedOutResponse } from '../http/responseDeclarations'
 
 const PlayerComponent = PlayerSchema.meta({ id: 'Player' })
 
-type BodyDeclaration = NonNullable<NonNullable<RouteConfig['request']>['body']>
-
-const jsonBody = (schema: ZodType): BodyDeclaration => ({
-  required: true,
-  content: { 'application/json': { schema } },
-})
-
-const playerResponse = (description: string): ResponseDeclaration => ({
-  description,
-  content: { 'application/json': { schema: PlayerComponent } },
-})
-
-const signedOut: ResponseDeclaration = {
-  description: 'No live session cookie. Empty body.',
-}
+const playerResponse = (description: string): ResponseDeclaration =>
+  jsonResponse(description, PlayerComponent)
 
 export const authDeclarations = {
   signUp: createRoute({
@@ -38,7 +25,9 @@ export const authDeclarations = {
       400: refusalResponse(
         'WeakPassword or BlankFiefName; a malformed body answers an empty body.',
       ),
-      409: refusalResponse('EmailTaken.'),
+      409: refusalResponse(
+        'EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.',
+      ),
     },
   }),
   signIn: createRoute({
@@ -55,7 +44,7 @@ export const authDeclarations = {
     path: '/sign-out',
     responses: {
       204: { description: 'The session is closed and its cookie cleared.' },
-      401: signedOut,
+      401: signedOutResponse,
     },
   }),
   session: createRoute({
@@ -63,7 +52,7 @@ export const authDeclarations = {
     path: '/session',
     responses: {
       200: playerResponse('The signed-in player; the session is renewed.'),
-      401: signedOut,
+      401: signedOutResponse,
     },
   }),
   verifyEmail: createRoute({
@@ -80,7 +69,7 @@ export const authDeclarations = {
     path: '/verify-email/resend',
     responses: {
       204: { description: 'The verification mail is sent, or the email is already verified.' },
-      401: signedOut,
+      401: signedOutResponse,
       503: refusalResponse('MailNotSent.'),
     },
   }),

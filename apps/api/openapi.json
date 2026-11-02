@@ -6,6 +6,16 @@
   },
   "components": {
     "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok"]
+          }
+        },
+        "required": ["status"]
+      },
       "Player": {
         "type": "object",
         "properties": {
@@ -158,6 +168,145 @@
           }
         },
         "required": ["token", "password"],
+        "additionalProperties": false
+      },
+      "FiefList": {
+        "type": "object",
+        "properties": {
+          "fiefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "coordinates": {
+                  "type": "object",
+                  "properties": {
+                    "kingdom": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    }
+                  },
+                  "required": ["kingdom", "province", "plot"],
+                  "additionalProperties": false
+                },
+                "freeSlots": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["build", "study", "recruit", "march"]
+                  }
+                },
+                "fullStores": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["wood", "stone", "iron", "gold", "food"]
+                  }
+                }
+              },
+              "required": ["id", "name", "coordinates", "freeSlots", "fullStores"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["fiefs"],
+        "additionalProperties": false
+      },
+      "ProvinceMap": {
+        "type": "object",
+        "properties": {
+          "kingdom": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "province": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lastProvince": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["lowlands", "uplands", "ridges"]
+          },
+          "plots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "plot": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "fief": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "isOwn": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["name", "isOwn"],
+                  "additionalProperties": false
+                },
+                "camp": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "tier": {
+                      "type": "number",
+                      "enum": [1]
+                    },
+                    "strength": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["tier", "strength"],
+                  "additionalProperties": false
+                },
+                "reservation": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "isOwn": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["isOwn"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["plot", "fief", "camp", "reservation"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["kingdom", "province", "lastProvince", "terrain", "plots"],
         "additionalProperties": false
       },
       "FiefOverview": {
@@ -2402,11 +2551,1416 @@
           "goal",
           "readAt"
         ]
+      },
+      "FiefChronicle": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["upgradeFinished"]
+                    },
+                    "building": {
+                      "type": "string",
+                      "enum": [
+                        "sawmill",
+                        "quarry",
+                        "ironMine",
+                        "farm",
+                        "warehouse",
+                        "library",
+                        "barracks"
+                      ]
+                    },
+                    "level": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "building", "level", "occurredAt"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["artLearned"]
+                    },
+                    "art": {
+                      "type": "string",
+                      "enum": ["smithing", "masonry"]
+                    },
+                    "level": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "art", "level", "occurredAt"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["upgradeCancelled"]
+                    },
+                    "building": {
+                      "type": "string",
+                      "enum": [
+                        "sawmill",
+                        "quarry",
+                        "ironMine",
+                        "farm",
+                        "warehouse",
+                        "library",
+                        "barracks"
+                      ]
+                    },
+                    "level": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "refund": {
+                      "type": "object",
+                      "properties": {
+                        "wood": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "stone": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "iron": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "gold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "food": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["wood", "stone", "iron", "gold", "food"]
+                    }
+                  },
+                  "required": ["kind", "building", "level", "occurredAt", "refund"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["studyCancelled"]
+                    },
+                    "art": {
+                      "type": "string",
+                      "enum": ["smithing", "masonry"]
+                    },
+                    "level": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "refund": {
+                      "type": "object",
+                      "properties": {
+                        "wood": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "stone": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "iron": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "gold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "food": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["wood", "stone", "iron", "gold", "food"]
+                    }
+                  },
+                  "required": ["kind", "art", "level", "occurredAt", "refund"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["recruitsDelivered"]
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["infantry", "cavalry", "archer", "settler"]
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "unit", "count", "occurredAt"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["recruitsCancelled"]
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["infantry", "cavalry", "archer", "settler"]
+                    },
+                    "delivered": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "cancelled": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "refund": {
+                      "type": "object",
+                      "properties": {
+                        "wood": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "stone": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "iron": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "gold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "food": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["wood", "stone", "iron", "gold", "food"]
+                    }
+                  },
+                  "required": ["kind", "unit", "delivered", "cancelled", "occurredAt", "refund"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["marchReturned"]
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "units": {
+                      "type": "object",
+                      "properties": {
+                        "infantry": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "cavalry": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "archer": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "settler": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "loot": {
+                      "type": "object",
+                      "properties": {
+                        "wood": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "stone": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "iron": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "gold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "food": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["wood", "stone", "iron", "gold", "food"]
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "recalled": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "province",
+                    "plot",
+                    "units",
+                    "loot",
+                    "occurredAt",
+                    "recalled"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["battleFought"]
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "tier": {
+                      "type": "number",
+                      "enum": [1]
+                    },
+                    "won": {
+                      "type": "boolean"
+                    },
+                    "unitsLost": {
+                      "type": "object",
+                      "properties": {
+                        "infantry": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "cavalry": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "archer": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "settler": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    "campLost": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "province",
+                    "plot",
+                    "tier",
+                    "won",
+                    "unitsLost",
+                    "campLost",
+                    "occurredAt"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["foundingSent"]
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "province", "plot", "name", "occurredAt"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["fiefFounded"]
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "province", "plot", "name", "occurredAt"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["transportSent"]
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "cargo": {
+                      "type": "object",
+                      "properties": {
+                        "wood": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "stone": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "iron": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "gold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "food": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["wood", "stone", "iron", "gold", "food"]
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "province", "plot", "name", "cargo", "occurredAt"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["transportArrived"]
+                    },
+                    "province": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "plot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "cargo": {
+                      "type": "object",
+                      "properties": {
+                        "wood": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "stone": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "iron": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "gold": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "food": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["wood", "stone", "iron", "gold", "food"]
+                    },
+                    "occurredAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["kind", "province", "plot", "name", "cargo", "occurredAt"],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["events"]
+      },
+      "EnqueueBuildingRequest": {
+        "type": "object",
+        "properties": {
+          "building": {
+            "type": "string",
+            "enum": ["sawmill", "quarry", "ironMine", "farm", "warehouse", "library", "barracks"]
+          }
+        },
+        "required": ["building"]
+      },
+      "StartStudyRequest": {
+        "type": "object",
+        "properties": {
+          "art": {
+            "type": "string",
+            "enum": ["smithing", "masonry"]
+          }
+        },
+        "required": ["art"]
+      },
+      "PlaceRecruitOrderRequest": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "enum": ["infantry", "cavalry", "archer", "settler"]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": ["unit", "count"]
+      },
+      "DispatchMarchRequest": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "stayHours": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": ["province", "plot", "units", "stayHours"]
+      },
+      "DispatchAttackRequest": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "required": ["province", "plot", "units"]
+      },
+      "DispatchFoundingRequest": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["province", "plot", "name"],
+        "additionalProperties": false
+      },
+      "DispatchTransportRequest": {
+        "type": "object",
+        "properties": {
+          "toFiefId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "cargo": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          }
+        },
+        "required": ["toFiefId", "units", "cargo"],
+        "additionalProperties": false
+      },
+      "Digest": {
+        "type": "object",
+        "properties": {
+          "acknowledgedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDue": {
+            "type": "boolean"
+          },
+          "fiefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["upgradeFinished"]
+                          },
+                          "building": {
+                            "type": "string",
+                            "enum": [
+                              "sawmill",
+                              "quarry",
+                              "ironMine",
+                              "farm",
+                              "warehouse",
+                              "library",
+                              "barracks"
+                            ]
+                          },
+                          "level": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "building", "level", "occurredAt"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["artLearned"]
+                          },
+                          "art": {
+                            "type": "string",
+                            "enum": ["smithing", "masonry"]
+                          },
+                          "level": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "art", "level", "occurredAt"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["upgradeCancelled"]
+                          },
+                          "building": {
+                            "type": "string",
+                            "enum": [
+                              "sawmill",
+                              "quarry",
+                              "ironMine",
+                              "farm",
+                              "warehouse",
+                              "library",
+                              "barracks"
+                            ]
+                          },
+                          "level": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "refund": {
+                            "type": "object",
+                            "properties": {
+                              "wood": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "stone": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "iron": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "gold": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "food": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": ["wood", "stone", "iron", "gold", "food"]
+                          }
+                        },
+                        "required": ["kind", "building", "level", "occurredAt", "refund"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["studyCancelled"]
+                          },
+                          "art": {
+                            "type": "string",
+                            "enum": ["smithing", "masonry"]
+                          },
+                          "level": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "refund": {
+                            "type": "object",
+                            "properties": {
+                              "wood": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "stone": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "iron": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "gold": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "food": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": ["wood", "stone", "iron", "gold", "food"]
+                          }
+                        },
+                        "required": ["kind", "art", "level", "occurredAt", "refund"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["recruitsDelivered"]
+                          },
+                          "unit": {
+                            "type": "string",
+                            "enum": ["infantry", "cavalry", "archer", "settler"]
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "unit", "count", "occurredAt"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["recruitsCancelled"]
+                          },
+                          "unit": {
+                            "type": "string",
+                            "enum": ["infantry", "cavalry", "archer", "settler"]
+                          },
+                          "delivered": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "cancelled": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "refund": {
+                            "type": "object",
+                            "properties": {
+                              "wood": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "stone": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "iron": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "gold": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "food": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": ["wood", "stone", "iron", "gold", "food"]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "unit",
+                          "delivered",
+                          "cancelled",
+                          "occurredAt",
+                          "refund"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["marchReturned"]
+                          },
+                          "province": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "plot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "units": {
+                            "type": "object",
+                            "properties": {
+                              "infantry": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "cavalry": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "archer": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "settler": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            }
+                          },
+                          "loot": {
+                            "type": "object",
+                            "properties": {
+                              "wood": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "stone": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "iron": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "gold": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "food": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": ["wood", "stone", "iron", "gold", "food"]
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "recalled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "province",
+                          "plot",
+                          "units",
+                          "loot",
+                          "occurredAt",
+                          "recalled"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["battleFought"]
+                          },
+                          "province": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "plot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "tier": {
+                            "type": "number",
+                            "enum": [1]
+                          },
+                          "won": {
+                            "type": "boolean"
+                          },
+                          "unitsLost": {
+                            "type": "object",
+                            "properties": {
+                              "infantry": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "cavalry": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "archer": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "settler": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            }
+                          },
+                          "campLost": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "province",
+                          "plot",
+                          "tier",
+                          "won",
+                          "unitsLost",
+                          "campLost",
+                          "occurredAt"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["foundingSent"]
+                          },
+                          "province": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "plot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "province", "plot", "name", "occurredAt"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["fiefFounded"]
+                          },
+                          "province": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "plot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "province", "plot", "name", "occurredAt"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["transportSent"]
+                          },
+                          "province": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "plot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "cargo": {
+                            "type": "object",
+                            "properties": {
+                              "wood": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "stone": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "iron": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "gold": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "food": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": ["wood", "stone", "iron", "gold", "food"]
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "province", "plot", "name", "cargo", "occurredAt"],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": ["transportArrived"]
+                          },
+                          "province": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "plot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "cargo": {
+                            "type": "object",
+                            "properties": {
+                              "wood": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "stone": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "iron": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "gold": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "food": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": ["wood", "stone", "iron", "gold", "food"]
+                          },
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": ["kind", "province", "plot", "name", "cargo", "occurredAt"],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "stores": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "resource": {
+                        "type": "string",
+                        "enum": ["wood", "stone", "iron", "gold", "food"]
+                      },
+                      "fullSince": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": ["resource", "fullSince"],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": ["id", "name", "events", "stores"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["acknowledgedAt", "isDue", "fiefs"],
+        "additionalProperties": false
       }
     },
     "parameters": {}
   },
   "paths": {
+    "/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "The api is up; answered without reaching the database.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/sign-up": {
       "post": {
         "requestBody": {
@@ -2441,7 +3995,7 @@
             }
           },
           "409": {
-            "description": "EmailTaken.",
+            "description": "EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2622,6 +4176,120 @@
         }
       }
     },
+    "/fiefs": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "The fiefs the signed-in lord holds, province then plot; the session is renewed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/map": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The province of the fief the path names; the session is renewed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceMap"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id or province. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/map/{province}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9]\\d*$"
+            },
+            "required": true,
+            "name": "province",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The province the path names; the session is renewed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceMap"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id or province. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound or ProvinceNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/fiefs/{fiefId}": {
       "get": {
         "parameters": [
@@ -2647,7 +4315,7 @@
             }
           },
           "400": {
-            "description": "A fief id that is not a uuid. Empty body."
+            "description": "A malformed fief id, path or body. Empty body."
           },
           "401": {
             "description": "No live session cookie. Empty body."
@@ -2661,6 +4329,873 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/events": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief’s chronicle, newest first, after the finishes no read had applied yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefChronicle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/upgrades": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnqueueBuildingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the upgrade started or queued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "UnknownBuilding; a malformed fief id or body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "MaxLevelReached, QueueFull, InsufficientResources or NotEnoughPeasants.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/upgrades/{building}/{targetLevel}": {
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["sawmill", "quarry", "ironMine", "farm", "warehouse", "library", "barracks"]
+            },
+            "required": true,
+            "name": "building",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9]\\d*$"
+            },
+            "required": true,
+            "name": "targetLevel",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief with the upgrade cancelled and its cost refunded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "UpgradeNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/studies": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartStudyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the study started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "StudySlotBusy, LibraryLevelTooLow, ArtMaxLevelReached or InsufficientResources.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/studies/{art}/{targetLevel}": {
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["smithing", "masonry"]
+            },
+            "required": true,
+            "name": "art",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9]\\d*$"
+            },
+            "required": true,
+            "name": "targetLevel",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief with the study cancelled and its cost refunded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "StudyNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/recruit-orders": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceRecruitOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the recruit order placed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "BarracksNotBuilt, BarracksTooLow, RecruitSlotBusy, InsufficientResources or NotEnoughPeasants.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/recruit-orders/{unit}/{startedAt}": {
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["infantry", "cavalry", "archer", "settler"]
+            },
+            "required": true,
+            "name": "unit",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "startedAt",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief with the recruit order cancelled and refunded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "RecruitOrderNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/marches": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchMarchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the forage march away.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PlotHasCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/marches/attack": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchAttackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the attack march away.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "PlotHasNoCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/marches/found": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchFoundingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the settler away to found a fief.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "FiefCapReached, PlotHasCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/marches/transport": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchTransportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the transport away.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief, another lord’s, or a destination the lord does not hold.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "EmptyCargo, CargoAboveCarry, InsufficientResources, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/marches/{departedAt}/recall": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "departedAt",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief with the march turned back.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "MarchNotFound or MarchAlreadyReturning.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/guidance/dismissal": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The fief’s guidance is dismissed."
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/digest": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "What happened in the lord’s fiefs since the last acknowledgement; nothing is written.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Digest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          }
+        }
+      }
+    },
+    "/digest/acknowledgement": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "The digest is acknowledged at the read instant."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
+          }
+        }
+      }
+    },
+    "/hints/{hint}": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "peasants",
+                "seasons",
+                "queue",
+                "library",
+                "barracks",
+                "marches",
+                "fullStore"
+              ]
+            },
+            "required": true,
+            "name": "hint",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The hint is marked seen."
+          },
+          "400": {
+            "description": "An unknown hint. Empty body."
+          },
+          "401": {
+            "description": "No live session cookie. Empty body."
           }
         }
       }

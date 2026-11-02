@@ -81,57 +81,77 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
   for (const declaration of Object.values(authDeclarations)) {
     routes.openAPIRegistry.registerPath(declaration)
   }
-  routes
-    .post(authDeclarations.signUp.path, async (c) => {
-      const request = SignUpRequestSchema.safeParse(await bodyOf(c))
-      if (!request.success) {
-        return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
-      }
-      return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
-    })
-    .post(authDeclarations.signIn.path, async (c) => {
-      const request = SignInRequestSchema.safeParse(await bodyOf(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'InvalidCredentials' })
-      }
-      return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
-    })
-    .post(authDeclarations.signOut.path, signedInPlayer, async (c) => {
+  routes.on(authDeclarations.signUp.method, authDeclarations.signUp.path, async (c) => {
+    const request = SignUpRequestSchema.safeParse(await bodyOf(c))
+    if (!request.success) {
+      return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
+    }
+    return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
+  })
+  routes.on(authDeclarations.signIn.method, authDeclarations.signIn.path, async (c) => {
+    const request = SignInRequestSchema.safeParse(await bodyOf(c))
+    if (!request.success) {
+      return answerRefusal(c, { kind: 'InvalidCredentials' })
+    }
+    return answerSignedIn(c, await signIn(request.data, dependencies), 200, dependencies)
+  })
+  routes.on(
+    authDeclarations.signOut.method,
+    authDeclarations.signOut.path,
+    signedInPlayer,
+    async (c) => {
       await dependencies.accounts.closeSession(c.var.sessionToken)
       clearSessionCookie(c, dependencies.isSessionCookieSecure)
       return c.body(null, 204)
-    })
-    .get(authDeclarations.session.path, signedInPlayer, async (c) => {
+    },
+  )
+  routes.on(
+    authDeclarations.session.method,
+    authDeclarations.session.path,
+    signedInPlayer,
+    async (c) => {
       const player = await dependencies.accounts.playerOf(c.var.playerId)
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
       return c.json(await playerOf(player, dependencies.seenHints))
-    })
-    .post(authDeclarations.verifyEmail.path, async (c) => {
-      const request = VerifyEmailRequestSchema.safeParse(await bodyOf(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      return answerDone(c, await verifyEmail(request.data, dependencies))
-    })
-    .post(authDeclarations.resendVerification.path, signedInPlayer, async (c) =>
-      answerDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
-    )
-    .post(authDeclarations.forgotPassword.path, async (c) => {
+    },
+  )
+  routes.on(authDeclarations.verifyEmail.method, authDeclarations.verifyEmail.path, async (c) => {
+    const request = VerifyEmailRequestSchema.safeParse(await bodyOf(c))
+    if (!request.success) {
+      return answerRefusal(c, { kind: 'MalformedRequest' })
+    }
+    return answerDone(c, await verifyEmail(request.data, dependencies))
+  })
+  routes.on(
+    authDeclarations.resendVerification.method,
+    authDeclarations.resendVerification.path,
+    signedInPlayer,
+    async (c) => answerDone(c, await resendVerificationMail(c.var.playerId, dependencies)),
+  )
+  routes.on(
+    authDeclarations.forgotPassword.method,
+    authDeclarations.forgotPassword.path,
+    async (c) => {
       const request = ForgotPasswordRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       await requestPasswordReset(request.data, dependencies)
       return c.body(null, 202)
-    })
-    .post(authDeclarations.resetPassword.path, async (c) => {
+    },
+  )
+  routes.on(
+    authDeclarations.resetPassword.method,
+    authDeclarations.resetPassword.path,
+    async (c) => {
       const request = ResetPasswordRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
         return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
       }
       return answerDone(c, await resetPassword(request.data, dependencies))
-    })
+    },
+  )
   return routes
 }
