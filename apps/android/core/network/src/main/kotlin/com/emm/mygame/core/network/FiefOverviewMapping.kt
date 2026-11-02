@@ -116,4 +116,4 @@ private fun FiefOverviewQueueEntriesInner.Building.toBuildingKind(): BuildingKin
     FiefOverviewQueueEntriesInner.Building.unknown_default_open_api -> null
 }
 
-private fun OffsetDateTime.toKotlinInstant(): Instant = Instant.fromEpochMilliseconds(toInstant().toEpochMilli())
+internal fun OffsetDateTime.toKotlinInstant(): Instant = Instant.fromEpochMilliseconds(toInstant().toEpochMilli())

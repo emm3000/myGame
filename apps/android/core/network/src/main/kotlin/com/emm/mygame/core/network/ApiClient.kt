@@ -20,6 +20,7 @@ internal fun defaultApi(baseUrl: String, tokenStore: TokenStore, callTimeout: Du
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(client)
+        .addConverterFactory(KnownFiefEventsConverterFactory(Serializer.kotlinxSerializationJson))
         .addConverterFactory(Serializer.kotlinxSerializationJson.asConverterFactory("application/json".toMediaType()))
         .build()
     return retrofit.create(DefaultApi::class.java)

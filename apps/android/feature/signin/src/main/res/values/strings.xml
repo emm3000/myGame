@@ -24,6 +24,4 @@
     <string name="sign_up_refused_unrecognized">No hemos podido crear tu cuenta. Inténtalo de nuevo en un momento.</string>
     <string name="sign_up_switch_prompt">¿Ya tienes cuenta?</string>
     <string name="sign_up_switch_link">Entra</string>
-    <string name="signed_in_title">Ya estás en tu feudo</string>
-    <string name="signed_in_as">Has entrado como %1$s</string>
 </resources>

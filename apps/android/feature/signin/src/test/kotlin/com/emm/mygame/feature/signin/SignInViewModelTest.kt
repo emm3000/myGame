@@ -30,14 +30,13 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `opens signed in when the stored token's session answers`() = runTest {
+    fun `opens the fief when the stored token's session answers`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         val viewModel: SignInViewModel = SignInViewModel(sessions)
 
-        viewModel.state.test {
-            assertEquals(SignInUiState.CheckingSession, awaitItem())
+        viewModel.effects.test {
             sessions.answerRestore(RestoreResult.SignedIn(ines))
-            assertEquals(SignInUiState.SignedIn(email = "ines@sotoverde.es"), awaitItem())
+            assertEquals(SignInEffect.SignedIn, awaitItem())
         }
     }
 
@@ -78,8 +77,10 @@ class SignInViewModelTest {
             skipItems(1)
             viewModel.onIntent(SignInIntent.RetryTapped)
             assertEquals(SignInUiState.CheckingSession, awaitItem())
+        }
+        viewModel.effects.test {
             sessions.answerRestore(RestoreResult.SignedIn(ines))
-            assertEquals(SignInUiState.SignedIn(email = "ines@sotoverde.es"), awaitItem())
+            assertEquals(SignInEffect.SignedIn, awaitItem())
         }
     }
 
@@ -122,14 +123,26 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `opens signed in when the api accepts the credentials`() = runTest {
+    fun `opens the fief when the api accepts the credentials`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val viewModel: SignInViewModel = signedOutViewModel(sessions)
+        fillAndSubmit(viewModel)
+
+        viewModel.effects.test {
+            sessions.answerSignIn(SignInResult.SignedIn(ines))
+            assertEquals(SignInEffect.SignedIn, awaitItem())
+        }
+    }
+
+    @Test
+    fun `keeps the form busy once the api accepts the credentials`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         val viewModel: SignInViewModel = signedOutViewModel(sessions)
         fillAndSubmit(viewModel)
 
         sessions.answerSignIn(SignInResult.SignedIn(ines))
 
-        assertEquals(SignInUiState.SignedIn(email = "ines@sotoverde.es"), viewModel.state.value)
+        assertEquals(filledForm(SignInUiState.FormStatus.Submitting), viewModel.state.value)
     }
 
     @Test

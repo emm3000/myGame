@@ -19,9 +19,12 @@ fun SignUpRoute(
 ) {
     val state: SignUpUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedIn: () -> Unit by rememberUpdatedState(onSignedIn)
-    val isSignedIn: Boolean = state is SignUpUiState.SignedIn
-    LaunchedEffect(isSignedIn) {
-        if (isSignedIn) currentOnSignedIn()
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect: SignUpEffect ->
+            when (effect) {
+                SignUpEffect.SignedIn -> currentOnSignedIn()
+            }
+        }
     }
     SignUpScreen(state = state, onIntent = viewModel::onIntent, onSignInOpen = onSignInOpen, modifier = modifier)
 }

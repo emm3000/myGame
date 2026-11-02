@@ -44,7 +44,6 @@ fun SignInScreen(
         when (state) {
             SignInUiState.CheckingSession -> CheckingSession()
             is SignInUiState.Form -> SignInForm(form = state, onIntent = onIntent, onSignUpOpen = onSignUpOpen)
-            is SignInUiState.SignedIn -> SignedIn(email = state.email)
         }
     }
 }
@@ -57,18 +56,6 @@ private fun CheckingSession(modifier: Modifier = Modifier) {
             text = stringResource(R.string.sign_in_checking_session),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
-        )
-    }
-}
-
-@Composable
-private fun SignedIn(email: String, modifier: Modifier = Modifier) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step8), modifier = modifier) {
-        AuthHeader(title = stringResource(R.string.signed_in_title))
-        MyGameText(
-            text = stringResource(R.string.signed_in_as, email),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
         )
     }
 }

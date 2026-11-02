@@ -64,10 +64,9 @@ class SignUpViewModelTest {
         val viewModel: SignUpViewModel = SignUpViewModel(sessions)
         fillAndSubmit(viewModel)
 
-        viewModel.state.test {
-            skipItems(1)
+        viewModel.effects.test {
             sessions.answerSignUp(SignUpResult.SignedIn(elena))
-            assertEquals(SignUpUiState.SignedIn, awaitItem())
+            assertEquals(SignUpEffect.SignedIn, awaitItem())
         }
     }
 

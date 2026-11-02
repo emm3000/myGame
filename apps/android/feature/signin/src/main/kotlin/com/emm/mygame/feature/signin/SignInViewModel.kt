@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignInResult
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -16,6 +19,10 @@ class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
     private val _state: MutableStateFlow<SignInUiState> = MutableStateFlow(SignInUiState.CheckingSession)
 
     val state: StateFlow<SignInUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<SignInEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<SignInEffect> = _effects.receiveAsFlow()
 
     init {
         checkSession()
@@ -33,11 +40,10 @@ class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
     private fun checkSession() {
         _state.value = SignInUiState.CheckingSession
         viewModelScope.launch {
-            _state.value = when (val restored: RestoreResult = sessions.restore()) {
-                is RestoreResult.SignedIn -> SignInUiState.SignedIn(email = restored.player.email)
-                RestoreResult.SignedOut -> blankForm(SignInUiState.FormStatus.Idle)
-                RestoreResult.Unreachable ->
-                    blankForm(SignInUiState.FormStatus.Unreachable(SignInUiState.Attempt.SessionCheck))
+            when (sessions.restore()) {
+                is RestoreResult.SignedIn -> _effects.send(SignInEffect.SignedIn)
+                RestoreResult.SignedOut -> _state.value = blankForm()
+                RestoreResult.Unreachable -> showUnreachable(blankForm(), SignInUiState.Attempt.SessionCheck)
             }
         }
     }
@@ -48,11 +54,11 @@ class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
         _state.value = form.copy(status = SignInUiState.FormStatus.Submitting)
         viewModelScope.launch {
             val answer: SignInResult = sessions.signIn(email = form.email, password = form.password)
-            _state.value = when (answer) {
-                is SignInResult.SignedIn -> SignInUiState.SignedIn(email = answer.player.email)
-                is SignInResult.Refused -> form.copy(status = SignInUiState.FormStatus.Refused(answer.kind))
-                SignInResult.Unreachable ->
-                    form.copy(status = SignInUiState.FormStatus.Unreachable(SignInUiState.Attempt.SignIn))
+            when (answer) {
+                is SignInResult.SignedIn -> _effects.send(SignInEffect.SignedIn)
+                is SignInResult.Refused ->
+                    _state.value = form.copy(status = SignInUiState.FormStatus.Refused(answer.kind))
+                SignInResult.Unreachable -> showUnreachable(form, SignInUiState.Attempt.SignIn)
             }
         }
     }
@@ -77,6 +83,10 @@ class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
         }
     }
 
-    private fun blankForm(status: SignInUiState.FormStatus): SignInUiState.Form =
-        SignInUiState.Form(email = "", password = "", status = status)
+    private fun showUnreachable(form: SignInUiState.Form, failedAttempt: SignInUiState.Attempt) {
+        _state.value = form.copy(status = SignInUiState.FormStatus.Unreachable(failedAttempt))
+    }
+
+    private fun blankForm(): SignInUiState.Form =
+        SignInUiState.Form(email = "", password = "", status = SignInUiState.FormStatus.Idle)
 }

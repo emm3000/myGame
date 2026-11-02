@@ -9,4 +9,5 @@ object MyGameSizes {
     val hairline: Dp = 1.dp
     val bar: Dp = 4.dp
     val dash: Dp = 4.dp
+    val currentMark: Dp = 3.dp
 }

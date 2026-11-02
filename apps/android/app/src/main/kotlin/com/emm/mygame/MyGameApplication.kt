@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import android.app.Application
+import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.SessionRepository
@@ -26,6 +27,10 @@ class MyGameApplication : Application() {
 
     val fiefs: FiefRepository by lazy {
         FiefRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
+    }
+
+    val chronicles: ChronicleRepository by lazy {
+        ChronicleRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
     }
 
     private companion object {

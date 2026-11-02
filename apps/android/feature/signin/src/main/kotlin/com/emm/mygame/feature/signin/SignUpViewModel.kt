@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignUpResult
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -17,6 +20,10 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
     )
 
     val state: StateFlow<SignUpUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<SignUpEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<SignUpEffect> = _effects.receiveAsFlow()
 
     fun onIntent(intent: SignUpIntent) {
         when (intent) {
@@ -35,10 +42,11 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
         viewModelScope.launch {
             val answer: SignUpResult =
                 sessions.signUp(email = form.email, password = form.password, fiefName = form.fiefName)
-            _state.value = when (answer) {
-                is SignUpResult.SignedIn -> SignUpUiState.SignedIn
-                is SignUpResult.Refused -> form.copy(status = SignUpUiState.FormStatus.Refused(answer.refusal))
-                SignUpResult.Unreachable -> form.copy(status = SignUpUiState.FormStatus.Unreachable)
+            when (answer) {
+                is SignUpResult.SignedIn -> _effects.send(SignUpEffect.SignedIn)
+                is SignUpResult.Refused ->
+                    _state.value = form.copy(status = SignUpUiState.FormStatus.Refused(answer.refusal))
+                SignUpResult.Unreachable -> _state.value = form.copy(status = SignUpUiState.FormStatus.Unreachable)
             }
         }
     }

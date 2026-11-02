@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.fief
+package com.emm.mygame.core.designsystem
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
