@@ -150,6 +150,29 @@ const closeWithoutChanges = async (client: Client): Promise<void> => {
   await client.end()
 }
 
+const probeDatabaseName = (): string =>
+  `${decodeURIComponent(new URL(databaseUrl()).pathname.slice(1))}_migration_probe`
+
+const openEmptyProbeDatabase = async (): Promise<Client> => {
+  const admin = new Client({ connectionString: databaseUrl() })
+  await admin.connect()
+  const existing = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [
+    probeDatabaseName(),
+  ])
+  if (existing.rowCount === 0) {
+    await admin.query(`CREATE DATABASE "${probeDatabaseName()}"`)
+  }
+  await admin.end()
+  const probeUrl = new URL(databaseUrl())
+  probeUrl.pathname = `/${probeDatabaseName()}`
+  const probe = new Client({ connectionString: probeUrl.toString() })
+  await probe.connect()
+  await probe.query('DROP SCHEMA IF EXISTS drizzle CASCADE')
+  await probe.query('DROP SCHEMA IF EXISTS public CASCADE')
+  await probe.query('CREATE SCHEMA public')
+  return probe
+}
+
 describe('the migrations', () => {
   let client: Client
   let db: NodePgDatabase
@@ -2107,15 +2130,8 @@ describe('the battle event migration', () => {
   })
 
   it('adds the battle kind in the transaction that migrates a database committed at the recall migration', async () => {
-    const probeName = `mygame_battle_probe_${process.pid}`
-    const admin = new Client({ connectionString: databaseUrl() })
-    await admin.connect()
-    await admin.query(`CREATE DATABASE ${probeName}`)
-    const probeUrl = new URL(databaseUrl())
-    probeUrl.pathname = `/${probeName}`
-    const probe = new Client({ connectionString: probeUrl.toString() })
+    const probe = await openEmptyProbeDatabase()
     try {
-      await probe.connect()
       const migrations = readMigrationFiles({ migrationsFolder })
       await applyMigrations(probe, migrations.slice(0, 16))
       await probe.query('BEGIN')
@@ -2128,8 +2144,6 @@ describe('the battle event migration', () => {
       expect(kinds.rows.map(({ kind }) => kind)).toContain('battle_fought')
     } finally {
       await probe.end()
-      await admin.query(`DROP DATABASE ${probeName} WITH (FORCE)`)
-      await admin.end()
     }
   })
 
@@ -2419,15 +2433,8 @@ describe('the march units migration', () => {
   })
 
   it('carries the marches and events forward in its own transaction on a database committed at the cavalry migration', async () => {
-    const probeName = `mygame_party_probe_${process.pid}`
-    const admin = new Client({ connectionString: databaseUrl() })
-    await admin.connect()
-    await admin.query(`CREATE DATABASE ${probeName}`)
-    const probeUrl = new URL(databaseUrl())
-    probeUrl.pathname = `/${probeName}`
-    const probe = new Client({ connectionString: probeUrl.toString() })
+    const probe = await openEmptyProbeDatabase()
     try {
-      await probe.connect()
       const migrations = readMigrationFiles({ migrationsFolder })
       await applyMigrations(probe, migrations.slice(0, 19))
       await insertMarchesOfPartyVersion(probe)
@@ -2442,8 +2449,6 @@ describe('the march units migration', () => {
       }).toEqual({ marches: marchesOfPartyVersion, events: eventsOfPartyVersion })
     } finally {
       await probe.end()
-      await admin.query(`DROP DATABASE ${probeName} WITH (FORCE)`)
-      await admin.end()
     }
   })
 })
