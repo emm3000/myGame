@@ -112,6 +112,32 @@ class FiefRepositoryTest {
     }
 
     @Test
+    fun `reads the overview when a field the screen never draws holds a value the client does not know`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, idleOverview().replace(""""terrain":"lowlands"""", """"terrain":"marshes"""")))
+
+        assertEquals("Vadoalto", readFief().name)
+    }
+
+    @Test
+    fun `reads the overview while an attack on a camp is on the road`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, idleOverview().replace(""""march":null""", """"march":$ATTACK_ON_THE_ROAD""")))
+
+        assertEquals("Vadoalto", readFief().name)
+    }
+
+    @Test
+    fun `answers unreachable when the busy slot names a building the client does not know`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        val sawmillSlot: String = """"slot":{"kind":"busy","building":"sawmill""""
+        val unknownBuildingSlot: String = """"slot":{"kind":"busy","building":"mill""""
+        api.enqueue(json(200, busyOverview().replace(sawmillSlot, unknownBuildingSlot)))
+
+        assertEquals(FiefReadResult.Unreachable, repository().read())
+    }
+
+    @Test
     fun `answers unreachable when the api cannot be reached`() = runTest {
         val fiefs: FiefRepository = repository()
         api.close()
@@ -170,13 +196,27 @@ class FiefRepositoryTest {
         )
     }
 
-    private fun resource(code: Int, name: String): MockResponse =
-        json(code, requireNotNull(javaClass.classLoader?.getResource(name)) { "missing $name" }.readText())
+    private fun idleOverview(): String = text("fief-overview-idle.json")
+
+    private fun busyOverview(): String = text("fief-overview-busy.json")
+
+    private fun text(name: String): String =
+        requireNotNull(javaClass.classLoader?.getResource(name)) { "missing $name" }.readText()
+
+    private fun resource(code: Int, name: String): MockResponse = json(code, text(name))
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
         const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+        const val ATTACK_ON_THE_ROAD: String =
+            """{"order":"attack","province":1,"plot":4,"terrain":"lowlands",""" +
+                """"units":{"infantry":5,"cavalry":0,"archer":0,"settler":0},"stayHours":0,""" +
+                """"departedAt":"2026-11-02T15:30:00.000Z","oneWaySeconds":180,""" +
+                """"loot":{"wood":30,"stone":0,"iron":0,"gold":30,"food":30},""" +
+                """"arrivesAt":"2026-11-02T15:33:00.000Z","leavesAt":"2026-11-02T15:33:00.000Z",""" +
+                """"returnsAt":"2026-11-02T15:36:00.000Z","recalledAt":null,""" +
+                """"camp":{"tier":2,"strength":3},"fought":false}"""
     }
 }
