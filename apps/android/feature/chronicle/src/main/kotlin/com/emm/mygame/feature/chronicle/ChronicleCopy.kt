@@ -12,7 +12,18 @@ import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
+import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+internal fun Resources.instantLabelOf(line: ChronicleInstant): String {
+    val time: String = line.at.format(clockFormat)
+    return when (line.day) {
+        ChronicleInstant.Day.Today -> getString(R.string.chronicle_today, time)
+        ChronicleInstant.Day.ThisYear -> getString(R.string.chronicle_day, line.at.format(dayFormat), time)
+        ChronicleInstant.Day.EarlierYear ->
+            getString(R.string.chronicle_day_of_year, line.at.format(dayFormat), line.at.year, time)
+    }
+}
 
 internal fun Resources.headingOf(event: ChronicleEvent): String = getString(
     when (event) {
@@ -113,6 +124,10 @@ private fun Resources.listedAmounts(amounts: List<ResourceQuantity>, @StringRes 
 }
 
 private fun spanishList(items: List<String>): String = spanishListFormat.format(items)
+
+private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("es"))
 
 private val spanishListFormat: ListFormatter = ListFormatter.getInstance(Locale.forLanguageTag("es"))
 

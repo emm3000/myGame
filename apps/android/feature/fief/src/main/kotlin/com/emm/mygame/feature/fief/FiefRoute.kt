@@ -10,6 +10,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.SessionRepository
 import kotlin.time.Clock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun FiefRoute(
@@ -23,9 +25,11 @@ fun FiefRoute(
     val state: FiefUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedOut: () -> Unit by rememberUpdatedState(onSignedOut)
     LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect: FiefEffect ->
-            when (effect) {
-                FiefEffect.SignedOut -> currentOnSignedOut()
+        withContext(Dispatchers.Main.immediate) {
+            viewModel.effects.collect { effect: FiefEffect ->
+                when (effect) {
+                    FiefEffect.SignedOut -> currentOnSignedOut()
+                }
             }
         }
     }
