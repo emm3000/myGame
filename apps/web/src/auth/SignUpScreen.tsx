@@ -26,6 +26,7 @@ const fieldMessages: Readonly<Record<SignUpField, string>> = {
 
 const refusalFields: Partial<Record<ApiRefusal, SignUpField>> = {
   EmailTaken: 'email',
+  MalformedEmail: 'email',
   WeakPassword: 'password',
   BlankFiefName: 'fiefName',
 }
