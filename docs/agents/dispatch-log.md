@@ -58,3 +58,4 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #601 | #593 | 2 | opus:medium | FIX FIRST | judgment |
 | #602 | #594 | 4 | opus:high | MERGE | |
 | #603 | #595 | 2 | opus:medium | MERGE | |
+| #605 | #604 | 3 | opus:high | FIX FIRST | checklist |
