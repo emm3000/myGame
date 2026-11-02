@@ -8,6 +8,8 @@ import com.emm.mygame.core.network.generated.models.Player
 import com.emm.mygame.core.network.generated.models.SignInRequest
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.security.GeneralSecurityException
+import java.security.ProviderException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
@@ -25,6 +27,10 @@ internal class ApiSessionRepository(
         } catch (expectedOutage: IOException) {
             SignInResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
+            SignInResult.Unreachable
+        } catch (expectedKeystoreRefusal: GeneralSecurityException) {
+            SignInResult.Unreachable
+        } catch (expectedKeystoreFailure: ProviderException) {
             SignInResult.Unreachable
         }
     }

@@ -2,6 +2,8 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
+import java.security.GeneralSecurityException
+import java.security.ProviderException
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -54,6 +56,43 @@ class SessionRepositoryTest {
         api.takeRequest()
         val sessionRequest: RecordedRequest = api.takeRequest()
         assertEquals("Bearer opaque-session", sessionRequest.headers["Authorization"])
+    }
+
+    @Test
+    fun `asks the api under the base path it was given`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore())
+        api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
+        api.enqueue(player(email = "ines@sotoverde.es"))
+        sessions.signIn("ines@sotoverde.es", "contrasena")
+
+        sessions.restore()
+
+        assertEquals("/api/auth/sign-in/native", api.takeRequest().url.encodedPath)
+        assertEquals("/api/auth/session", api.takeRequest().url.encodedPath)
+    }
+
+    @Test
+    fun `answers unreachable when the keystore provider cannot seal the token`() = runTest {
+        val sealFailure: ProviderException = ProviderException("The keystore could not encrypt")
+        val store: TokenStore = tokenStore(FakeTokenCipher(encryptFailure = sealFailure))
+        api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
+
+        val result: SignInResult = repository(store).signIn("ines@sotoverde.es", "contrasena")
+
+        assertEquals(SignInResult.Unreachable, result)
+        assertNull(store.read())
+    }
+
+    @Test
+    fun `answers unreachable when the keystore refuses to seal the token`() = runTest {
+        val sealFailure: GeneralSecurityException = GeneralSecurityException("The keystore refused the key")
+        val store: TokenStore = tokenStore(FakeTokenCipher(encryptFailure = sealFailure))
+        api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
+
+        val result: SignInResult = repository(store).signIn("ines@sotoverde.es", "contrasena")
+
+        assertEquals(SignInResult.Unreachable, result)
+        assertNull(store.read())
     }
 
     @Test
@@ -132,7 +171,9 @@ class SessionRepositoryTest {
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
 
-    private fun tokenStore(): TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher())
+    private fun tokenStore(): TokenStore = tokenStore(FakeTokenCipher())
+
+    private fun tokenStore(cipher: FakeTokenCipher): TokenStore = TokenStore(File(folder.root, "session"), cipher)
 
     private fun nativeSession(token: String, email: String): MockResponse =
         json(200, """{"token":"$token","player":${playerJson(email)}}""")
