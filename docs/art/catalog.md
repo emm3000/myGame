@@ -12,7 +12,7 @@ Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D a
 
 Every building has ten levels and five tiers, tier = ceil(level / 2), so a level shows the image of its tier: levels 1 and 2 share `sawmill-1.webp`, levels 9 and 10 share `sawmill-5.webp`. Level 0 shows no image; the screen shows the empty plot state from the design system.
 
-Kingdom terrain for every prompt is Vadoalto's: a wide river valley with pine hills behind, the high ford in the distance (`docs/lore/names.md`). A fief on uplands or ridges shows the same building images; the terrain shows in the scene band alone, drawn from Family: scenes below, whose prompts carry their own terrain phrase.
+Kingdom terrain for every prompt is Vadoalto's: a wide river valley with pine hills behind, the high ford in the distance (`docs/lore/names.md`). A fief on uplands or ridges shows the same building images; the terrain shows in words on the map.
 
 ## Common lines
 

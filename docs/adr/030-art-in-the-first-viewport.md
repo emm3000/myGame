@@ -352,11 +352,15 @@ code.
 
 The v29 redesign (#572, ADR 034) dropped the scene plates, the code-drawn
 `SceneBand` and the resource art; the owner approved it on 2026-11-02 and
-#555 is closed as not planned. Forks 2, 3, 4 and 6 and the `SceneBand`,
-`sceneArtOf`, `resourceArtOf` and roundel decisions no longer hold: the
+#555 is closed as not planned. Forks 2, 4, 5 and 6 and the roundel half
+of Fork 3 (the bar's art) no longer hold, with the `SceneBand`,
+`sceneArtOf`, `resourceArtOf`, terrain-plate and roundel decisions: the
 web draws no scene band, the resource bar draws each resource's stroke
 icon, and the `max-h-band` and `size-roundel` tokens are gone. The
 building image stays on `BuildingCard` alone; `ArtCard`, `CargoCard` and
 the march forms draw none, so the art, convoy and camp 768 images and the
-resource images are deleted. Fork 5 stands in part: a camp tile on the
-map keeps `camp-<tier>-96.webp`.
+resource images are deleted. Two decisions stand: the camp tile's
+thumbnail (#552, decision 1: `campThumbnailOf` and
+`camp-<tier>-96.webp`, with `CampIcon` kept) and the derivative half of
+Fork 3, *the thumbnail is a derivative, never a regeneration*, which
+still governs `camp-<tier>-96.webp`.

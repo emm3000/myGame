@@ -36,7 +36,7 @@ const numeralClass = 'font-utility tabular-nums'
 
 function CellIcon({ accent }: { readonly accent: Accent }): ReactElement {
   const { Icon } = resourceAccent[accent]
-  return <Icon sizeClass="size-icon" />
+  return <Icon sizeClass="size-4 md:size-icon" />
 }
 
 function ResourceItem({
