@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.UpgradeRefusal
+import kotlin.time.Duration
 
 @Composable
 internal fun BuildingsSection(
@@ -111,7 +112,7 @@ private fun NextLevel(
         )
         Costs(next = next)
         MyGameButton(
-            label = stringResource(R.string.building_upgrade, durationLabelOf(next)),
+            label = stringResource(R.string.building_upgrade, durationLabelOf(next.duration)),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.UpgradeTapped(building)) },
@@ -148,7 +149,7 @@ private fun Costs(next: FiefUiState.NextLevelLine, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun CostItem(text: String, isShort: Boolean, modifier: Modifier = Modifier) {
+internal fun CostItem(text: String, isShort: Boolean, modifier: Modifier = Modifier) {
     val description: String = if (isShort) stringResource(R.string.cost_short, text) else text
     MyGameText(
         text = text,
@@ -192,15 +193,15 @@ private fun shortfallReasonOf(block: FiefUiState.BlockReason.Resources): String 
     return stringResource(if (isSingleOne) R.string.reason_resources_one else R.string.reason_resources, listed)
 }
 
-private fun spanishListOf(items: List<String>, pairPattern: String, morePattern: String): String {
+internal fun spanishListOf(items: List<String>, pairPattern: String, morePattern: String): String {
     if (items.size < 2) return items.joinToString()
     val head: String = items.dropLast(1).reduce { listed: String, item: String -> morePattern.format(listed, item) }
     return pairPattern.format(head, items.last())
 }
 
 @Composable
-private fun durationLabelOf(next: FiefUiState.NextLevelLine): String =
-    next.duration.toComponents { hours: Long, minutes: Int, seconds: Int, _: Int ->
+internal fun durationLabelOf(duration: Duration): String =
+    duration.toComponents { hours: Long, minutes: Int, seconds: Int, _: Int ->
         when {
             hours == 0L -> stringResource(R.string.duration_minutes_seconds, minutes, seconds)
             minutes == 0 -> stringResource(R.string.duration_hours, hours)
@@ -210,7 +211,7 @@ private fun durationLabelOf(next: FiefUiState.NextLevelLine): String =
 
 private fun costNameOf(cost: FiefUiState.CostLine): Int = costNameOf(cost.kind)
 
-private fun costNameOf(kind: ResourceKind): Int = when (kind) {
+internal fun costNameOf(kind: ResourceKind): Int = when (kind) {
     ResourceKind.Wood -> R.string.cost_wood
     ResourceKind.Stone -> R.string.cost_stone
     ResourceKind.Iron -> R.string.cost_iron

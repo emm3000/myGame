@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.EnqueueBuildingRequest
 import com.emm.mygame.core.network.generated.models.FiefOverview
+import com.emm.mygame.core.network.generated.models.StartStudyRequest
 import java.io.IOException
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
@@ -56,6 +57,42 @@ internal class ApiFiefRepository(
             }
         }
 
+    override suspend fun startStudy(fief: FiefId, art: ArtKind): StudyResult = withContext(ioDispatcher) {
+        try {
+            val request = StartStudyRequest(art = art.toWireArt())
+            studiedOrRefused(api.fiefsFiefIdStudiesPost(UUID.fromString(fief.value), request))
+        } catch (expectedOutage: IOException) {
+            StudyResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            StudyResult.Unreachable
+        }
+    }
+
+    override suspend fun cancelStudy(fief: FiefId, art: ArtKind, targetLevel: Int): StudyResult =
+        withContext(ioDispatcher) {
+            try {
+                val response: Response<FiefOverview> = api.fiefsFiefIdStudiesArtTargetLevelDelete(
+                    fiefId = UUID.fromString(fief.value),
+                    art = art.toWireArt().value,
+                    targetLevel = targetLevel.toString(),
+                )
+                studiedOrRefused(response)
+            } catch (expectedOutage: IOException) {
+                StudyResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                StudyResult.Unreachable
+            }
+        }
+
+    private fun studiedOrRefused(response: Response<FiefOverview>): StudyResult {
+        val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
+        if (response.isSuccessful) {
+            return if (snapshot == null) StudyResult.Unreachable else StudyResult.Answered(snapshot)
+        }
+        val refusal: ApiError = response.apiError() ?: return StudyResult.Unreachable
+        return StudyResult.Refused(refusal.kind.toStudyRefusal())
+    }
+
     private fun cancelledOrRefused(response: Response<FiefOverview>): CancelResult {
         val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
         if (response.isSuccessful) {
@@ -84,6 +121,21 @@ private fun BuildingKind.toWireBuilding(): EnqueueBuildingRequest.Building = whe
     BuildingKind.Library -> EnqueueBuildingRequest.Building.library
     BuildingKind.Barracks -> EnqueueBuildingRequest.Building.barracks
 }
+
+private fun ArtKind.toWireArt(): StartStudyRequest.Art = when (this) {
+    ArtKind.Smithing -> StartStudyRequest.Art.smithing
+    ArtKind.Masonry -> StartStudyRequest.Art.masonry
+}
+
+private val studyRefusals: Map<ApiError.Kind, StudyRefusal> = mapOf(
+    ApiError.Kind.StudySlotBusy to StudyRefusal.StudySlotBusy,
+    ApiError.Kind.LibraryLevelTooLow to StudyRefusal.LibraryLevelTooLow,
+    ApiError.Kind.ArtMaxLevelReached to StudyRefusal.ArtMaxLevelReached,
+    ApiError.Kind.StudyNotFound to StudyRefusal.StudyNotFound,
+    ApiError.Kind.InsufficientResources to StudyRefusal.InsufficientResources,
+)
+
+private fun ApiError.Kind.toStudyRefusal(): StudyRefusal = studyRefusals[this] ?: StudyRefusal.Unrecognized
 
 private val upgradeRefusals: Map<ApiError.Kind, UpgradeRefusal> = mapOf(
     ApiError.Kind.QueueFull to UpgradeRefusal.QueueFull,

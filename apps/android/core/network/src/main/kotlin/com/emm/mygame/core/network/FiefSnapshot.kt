@@ -11,4 +11,6 @@ data class FiefSnapshot(
     val buildings: List<BuildingState>,
     val peasants: Peasants,
     val queue: BuildQueue,
+    val study: StudySlot,
+    val arts: List<ArtState>,
 )

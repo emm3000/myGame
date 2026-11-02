@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildings
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmill
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevel
+import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevelCost
 import com.emm.mygame.core.network.generated.models.FiefOverviewQueue
 import com.emm.mygame.core.network.generated.models.FiefOverviewQueueEntriesInner
 import com.emm.mygame.core.network.generated.models.FiefOverviewResourcesWood
@@ -17,7 +18,10 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
     val buildSlot: BuildSlot? = slot.toBuildSlot()
     val buildingStates: List<BuildingState>? = buildings.toBuildingStates()
     val buildQueue: BuildQueue? = queue.toBuildQueue()
+    val studySlot: StudySlot? = study.toStudySlot()
+    val artStates: List<ArtState>? = arts.toArtStates()
     if (buildSlot == null || buildingStates == null || buildQueue == null) return null
+    if (studySlot == null || artStates == null) return null
     return FiefSnapshot(
         id = FiefId(id.toString()),
         name = name,
@@ -33,6 +37,8 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         buildings = buildingStates,
         peasants = Peasants(free = peasants.projectedFree, supplied = peasants.projectedSupplied),
         queue = buildQueue,
+        study = studySlot,
+        arts = artStates,
     )
 }
 
@@ -56,15 +62,17 @@ private fun FiefOverviewBuildingsSawmill.toBuildingState(kind: BuildingKind): Bu
 
 private fun FiefOverviewBuildingsSawmillNextLevel.toNextLevel(): NextLevel = NextLevel(
     level = level,
-    cost = listOf(
-        ResourceCost(ResourceKind.Wood, cost.wood.toLong()),
-        ResourceCost(ResourceKind.Stone, cost.stone.toLong()),
-        ResourceCost(ResourceKind.Iron, cost.iron.toLong()),
-        ResourceCost(ResourceKind.Gold, cost.gold.toLong()),
-        ResourceCost(ResourceKind.Food, cost.food.toLong()),
-    ),
+    cost = cost.toResourceCosts(),
     duration = durationSeconds.seconds,
     peasants = peasants,
+)
+
+internal fun FiefOverviewBuildingsSawmillNextLevelCost.toResourceCosts(): List<ResourceCost> = listOf(
+    ResourceCost(ResourceKind.Wood, wood.toLong()),
+    ResourceCost(ResourceKind.Stone, stone.toLong()),
+    ResourceCost(ResourceKind.Iron, iron.toLong()),
+    ResourceCost(ResourceKind.Gold, gold.toLong()),
+    ResourceCost(ResourceKind.Food, food.toLong()),
 )
 
 private fun FiefOverviewResourcesWood.toStoredResource(kind: ResourceKind): StoredResource =

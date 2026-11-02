@@ -392,6 +392,154 @@ class FiefRepositoryTest {
         assertTrue(repository().read() is FiefReadResult.Unreachable)
     }
 
+    @Test
+    fun `reads an idle study slot`() = runTest {
+        enqueueIdleFief()
+
+        assertEquals(StudySlot.Idle, readFief().study)
+    }
+
+    @Test
+    fun `reads a busy study slot with its art, target level and finish`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, idleOverview().replace(IDLE_STUDY, BUSY_SMITHING)))
+
+        assertEquals(
+            StudySlot.Busy(
+                art = ArtKind.Smithing,
+                targetLevel = 2,
+                finishesAt = Instant.parse("2026-11-02T16:00:00.000Z"),
+            ),
+            readFief().study,
+        )
+    }
+
+    @Test
+    fun `reads each art with its resource, rate and next level`() = runTest {
+        enqueueIdleFief()
+
+        assertEquals(
+            ArtState(
+                kind = ArtKind.Masonry,
+                level = 0,
+                resource = ResourceKind.Stone,
+                ratePercent = 0,
+                nextLevel = NextArtLevel(
+                    level = 1,
+                    cost = listOf(
+                        ResourceCost(ResourceKind.Wood, 150),
+                        ResourceCost(ResourceKind.Stone, 150),
+                        ResourceCost(ResourceKind.Iron, 60),
+                        ResourceCost(ResourceKind.Gold, 60),
+                        ResourceCost(ResourceKind.Food, 0),
+                    ),
+                    duration = 1800.seconds,
+                    requiredLibraryLevel = 1,
+                    ratePercent = 5,
+                ),
+            ),
+            readFief().arts[1],
+        )
+    }
+
+    @Test
+    fun `maps the arts in the contract's order`() = runTest {
+        enqueueIdleFief()
+
+        assertEquals(listOf(ArtKind.Smithing, ArtKind.Masonry), readFief().arts.map { it.kind })
+    }
+
+    @Test
+    fun `posts the study of the art to the fief it names`() = runTest {
+        api.enqueue(resource(200, "fief-overview-idle.json"))
+
+        repository().startStudy(FiefId(LISTED_FIEF_ID), ArtKind.Masonry)
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/studies", request.url.encodedPath)
+        assertEquals("""{"art":"masonry"}""", request.body?.utf8())
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `answers the overview the study returns`() = runTest {
+        api.enqueue(json(200, idleOverview().replace(IDLE_STUDY, BUSY_SMITHING)))
+
+        val result: StudyResult = repository().startStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing)
+
+        assertTrue((result as StudyResult.Answered).fief.study is StudySlot.Busy)
+    }
+
+    @Test
+    fun `answers the study refusal the api names`() = runTest {
+        val kinds: List<String> =
+            listOf("StudySlotBusy", "LibraryLevelTooLow", "ArtMaxLevelReached", "InsufficientResources")
+        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind","message":"No."}""")) }
+        val fiefs: FiefRepository = repository()
+
+        val refusals: List<StudyResult> = kinds.map { fiefs.startStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing) }
+
+        assertEquals(
+            listOf(
+                StudyResult.Refused(StudyRefusal.StudySlotBusy),
+                StudyResult.Refused(StudyRefusal.LibraryLevelTooLow),
+                StudyResult.Refused(StudyRefusal.ArtMaxLevelReached),
+                StudyResult.Refused(StudyRefusal.InsufficientResources),
+            ),
+            refusals,
+        )
+    }
+
+    @Test
+    fun `answers unreachable when the study cannot reach the api`() = runTest {
+        val fiefs: FiefRepository = repository()
+        api.close()
+
+        assertEquals(StudyResult.Unreachable, fiefs.startStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing))
+    }
+
+    @Test
+    fun `deletes the study naming its art and level`() = runTest {
+        api.enqueue(resource(200, "fief-overview-idle.json"))
+
+        repository().cancelStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing, targetLevel = 2)
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/studies/smithing/2", request.url.encodedPath)
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `answers the overview the study cancel returns`() = runTest {
+        api.enqueue(resource(200, "fief-overview-idle.json"))
+
+        val result: StudyResult = repository().cancelStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing, targetLevel = 1)
+
+        assertEquals(StudySlot.Idle, (result as StudyResult.Answered).fief.study)
+    }
+
+    @Test
+    fun `answers the cancel of a study the api no longer holds as not found`() = runTest {
+        api.enqueue(json(409, """{"kind":"StudyNotFound","message":"No."}"""))
+
+        assertEquals(
+            StudyResult.Refused(StudyRefusal.StudyNotFound),
+            repository().cancelStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing, targetLevel = 1),
+        )
+    }
+
+    @Test
+    fun `answers an unrecognized study refusal when the api names one the screen does not draw`() = runTest {
+        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+
+        assertEquals(
+            StudyResult.Refused(StudyRefusal.Unrecognized),
+            repository().cancelStudy(FiefId(LISTED_FIEF_ID), ArtKind.Masonry, targetLevel = 1),
+        )
+    }
+
     private fun enqueueIdleFief() {
         api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(resource(200, "fief-overview-idle.json"))
@@ -437,6 +585,10 @@ class FiefRepositoryTest {
                 """"finishesAt":"2026-11-02T15:50:00.000Z"},""" +
                 """{"building":"ironMine","targetLevel":1,"startsAt":"2026-11-02T15:50:00.000Z",""" +
                 """"finishesAt":"2026-11-02T16:10:00.000Z"}],"cap":4}"""
+        const val IDLE_STUDY: String = """"study":{"kind":"idle"}"""
+        const val BUSY_SMITHING: String =
+            """"study":{"kind":"busy","art":"smithing","targetLevel":2,""" +
+                """"startedAt":"2026-11-02T15:30:00.000Z","finishesAt":"2026-11-02T16:00:00.000Z"}"""
         const val WAREHOUSE_AT_ITS_TOP: String = """"warehouse":{"level":10,"nextLevel":null}"""
         const val ATTACK_ON_THE_ROAD: String =
             """{"order":"attack","province":1,"plot":4,"terrain":"lowlands",""" +

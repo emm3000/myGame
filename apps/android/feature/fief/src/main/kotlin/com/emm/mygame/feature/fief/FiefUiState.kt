@@ -1,7 +1,10 @@
 package com.emm.mygame.feature.fief
 
+import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.network.StudyRefusal
 import com.emm.mygame.core.network.UpgradeRefusal
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -23,7 +26,50 @@ sealed interface FiefUiState {
         val queue: List<WaitingLine>,
         val upgrade: UpgradeStatus,
         val cancel: CancelStatus,
+        val library: LibraryLine?,
     ) : FiefUiState
+
+    data class LibraryLine(val slot: StudySlotLine, val arts: List<ArtCard>, val study: StudyStatus)
+
+    sealed interface StudySlotLine {
+
+        data object Idle : StudySlotLine
+
+        data class Busy(
+            val art: ArtKind,
+            val targetLevel: Int,
+            val remaining: Duration,
+            val refund: List<ResourceCost>,
+        ) : StudySlotLine
+    }
+
+    data class ArtCard(
+        val kind: ArtKind,
+        val level: Int,
+        val resource: ResourceKind,
+        val ratePercent: Int,
+        val next: NextArtLine?,
+    )
+
+    data class NextArtLine(
+        val level: Int,
+        val ratePercent: Int,
+        val costs: List<CostLine>,
+        val duration: Duration,
+        val requiredLibraryLevel: Int,
+        val isLibraryTooLow: Boolean,
+    )
+
+    sealed interface StudyStatus {
+
+        data object Idle : StudyStatus
+
+        data object Waiting : StudyStatus
+
+        data class Refused(val refusal: StudyRefusal) : StudyStatus
+
+        data object Unreachable : StudyStatus
+    }
 
     data class ResourceLine(val kind: ResourceKind, val amount: Long, val capacity: Long, val ratePerHour: Long) {
 
