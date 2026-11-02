@@ -311,6 +311,7 @@ The **sign-in and sign-up** lines shipped before this section and are recorded h
 | sign-up | *Funda tu feudo*, *Nombre de tu feudo*, *Crear cuenta* | the title, the fief name field and the submit |
 | sign-up | *Al menos 8 caracteres.* | the password hint |
 | sign-up | *¿Ya tienes cuenta?* *Entra* | the switch to sign-in |
+| sign-up | *No hemos podido crear tu cuenta. Inténtalo de nuevo en un momento.* | Android: a refusal with no kind the screen names, such as the empty 400 of a malformed request or the empty 409 of a founding race |
 
 ### The mails
 
