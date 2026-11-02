@@ -13,7 +13,8 @@
       "!**/coverage",
       "!pnpm-lock.yaml",
       "!**/routeTree.gen.ts",
-      "!apps/api/migrations/meta"
+      "!apps/api/migrations/meta",
+      "!apps/android"
     ]
   },
   "formatter": {
