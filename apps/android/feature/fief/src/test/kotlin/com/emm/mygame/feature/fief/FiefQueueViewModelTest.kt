@@ -8,6 +8,8 @@ import com.emm.mygame.core.network.CancelRefusal
 import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
+import com.emm.mygame.core.network.UpgradeResult
+import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.WaitingUpgrade
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -197,4 +199,73 @@ class FiefQueueViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `keeps the cancel waiting when the upgrade answers first`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val busyFief: FiefSnapshot = fief(slot = busySlot(finishesIn = 2.minutes), buildings = listOf(sawmill()))
+        fiefs.answerRead(FiefReadResult.Read(busyFief))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            viewModel.onIntent(FiefIntent.CancelTapped(BuildingKind.Sawmill, targetLevel = 3))
+            fiefs.answerUpgrade(UpgradeResult.Upgraded(busyFief))
+            runCurrent()
+            assertEquals(
+                FiefUiState.CancelStatus.Waiting(FiefUiState.UpgradeTarget(BuildingKind.Sawmill, 3)),
+                expectMostRecentItem().let { it as FiefUiState.Content }.cancel,
+            )
+            viewModel.onIntent(FiefIntent.CancelTapped(BuildingKind.Sawmill, targetLevel = 3))
+            runCurrent()
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(1, fiefs.cancels.size)
+    }
+
+    @Test
+    fun `keeps the upgrade waiting when the cancel answers first`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val busyFief: FiefSnapshot = fief(slot = busySlot(finishesIn = 2.minutes), buildings = listOf(sawmill()))
+        fiefs.answerRead(FiefReadResult.Read(busyFief))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            viewModel.onIntent(FiefIntent.CancelTapped(BuildingKind.Sawmill, targetLevel = 3))
+            fiefs.answerCancel(CancelResult.Cancelled(fief(buildings = listOf(sawmill()))))
+            runCurrent()
+            assertEquals(
+                FiefUiState.UpgradeStatus.Waiting(BuildingKind.Sawmill),
+                expectMostRecentItem().let { it as FiefUiState.Content }.upgrade,
+            )
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            runCurrent()
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(1, fiefs.upgrades.size)
+    }
+
+    @Test
+    fun `drops the cancel outage once the fief is read again`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(slot = busySlot(finishesIn = 2.seconds))))
+        fiefs.answerCancel(CancelResult.Unreachable)
+        fiefs.answerRead(FiefReadResult.Read(fief(slot = BuildSlot.Idle, readAt = readAt + 2.seconds)))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.CancelTapped(BuildingKind.Sawmill, targetLevel = 3))
+            awaitContentWhere { it.cancel is FiefUiState.CancelStatus.Unreachable }
+            advanceTimeBy(2.seconds)
+            runCurrent()
+            assertEquals(
+                FiefUiState.CancelStatus.Idle,
+                awaitContentWhere { it.slot == FiefUiState.SlotLine.Idle }.cancel,
+            )
+        }
+    }
 }
