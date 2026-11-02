@@ -2,9 +2,11 @@ package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.network.RecruitRefusal
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StudyRefusal
+import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UpgradeRefusal
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -27,7 +29,81 @@ sealed interface FiefUiState {
         val upgrade: UpgradeStatus,
         val cancel: CancelStatus,
         val library: LibraryLine?,
+        val army: ArmyLine?,
     ) : FiefUiState
+
+    data class ArmyLine(val slot: LevySlotLine, val units: List<UnitCard>, val recruit: RecruitStatus)
+
+    sealed interface LevySlotLine {
+
+        data object Idle : LevySlotLine
+
+        data class Busy(
+            val unit: UnitKind,
+            val count: Int,
+            val delivered: Int,
+            val remaining: Duration,
+            val startedAt: Instant,
+            val refund: List<ResourceCost>,
+        ) : LevySlotLine {
+
+            val undelivered: Int
+                get() = count - delivered
+        }
+    }
+
+    sealed interface UnitCard {
+
+        val kind: UnitKind
+
+        val atHome: Int
+
+        val away: Int
+
+        data class Locked(
+            override val kind: UnitKind,
+            override val atHome: Int,
+            override val away: Int,
+            val requiredLevel: Int,
+            val builtLevel: Int,
+        ) : UnitCard
+
+        data class Open(
+            override val kind: UnitKind,
+            override val atHome: Int,
+            override val away: Int,
+            val entry: String,
+            val isEntryLocked: Boolean,
+            val order: RecruitLine?,
+            val block: RecruitBlock?,
+        ) : UnitCard
+    }
+
+    data class RecruitLine(
+        val count: Int,
+        val costs: List<CostLine>,
+        val peasants: Int,
+        val isShortOfPeasants: Boolean,
+        val duration: Duration,
+    )
+
+    sealed interface RecruitBlock {
+
+        data object LevyRunning : RecruitBlock
+
+        data object InvalidCount : RecruitBlock
+    }
+
+    sealed interface RecruitStatus {
+
+        data object Idle : RecruitStatus
+
+        data object Waiting : RecruitStatus
+
+        data class Refused(val refusal: RecruitRefusal, val unit: UnitKind, val barracksLevel: Int) : RecruitStatus
+
+        data object Unreachable : RecruitStatus
+    }
 
     data class LibraryLine(val slot: StudySlotLine, val arts: List<ArtCard>, val study: StudyStatus)
 
@@ -113,9 +189,9 @@ sealed interface FiefUiState {
 
         data object QueueFull : BlockReason
 
-        data class Peasants(val needed: Int, val free: Int) : BlockReason
+        data class Peasants(val needed: Int, val free: Int) : BlockReason, RecruitBlock
 
-        data class Resources(val shortfalls: List<Shortfall>) : BlockReason
+        data class Resources(val shortfalls: List<Shortfall>) : BlockReason, RecruitBlock
     }
 
     sealed interface UpgradeStatus {

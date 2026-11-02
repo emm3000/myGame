@@ -106,4 +106,49 @@
     <string name="refusal_library_level_too_low">Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.</string>
     <string name="refusal_art_max_level_reached">Ese arte ya está en su nivel más alto.</string>
     <string name="refusal_study_not_found">La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.</string>
+    <string name="army_title">Cuartel</string>
+    <string name="levy_idle">El cuartel no tiene leva en marcha.</string>
+    <string name="levy_busy_title">Una leva en marcha</string>
+    <string name="levy_order">Leva en marcha: %1$d de %2$s</string>
+    <string name="levy_complete">Leva completa en %1$s</string>
+    <string name="levy_cancel">Cancelar la leva</string>
+    <string name="levy_cancel_description">Cancelar la leva: %1$s</string>
+    <string name="levy_refund">Si la cancelas, recuperas lo de %1$s de vuelta al campo: %2$s.</string>
+    <string name="unit_infantry_title">Infantes</string>
+    <string name="unit_cavalry_title">Jinetes</string>
+    <string name="unit_archer_title">Arqueros</string>
+    <string name="unit_settler_title">Colonos</string>
+    <string name="unit_infantry_plural">infantes</string>
+    <string name="unit_cavalry_plural">jinetes</string>
+    <string name="unit_archer_plural">arqueros</string>
+    <string name="unit_settler_plural">colonos</string>
+    <plurals name="unit_infantry_counted">
+        <item quantity="one">%1$d infante</item>
+        <item quantity="other">%1$d infantes</item>
+    </plurals>
+    <plurals name="unit_cavalry_counted">
+        <item quantity="one">%1$d jinete</item>
+        <item quantity="other">%1$d jinetes</item>
+    </plurals>
+    <plurals name="unit_archer_counted">
+        <item quantity="one">%1$d arquero</item>
+        <item quantity="other">%1$d arqueros</item>
+    </plurals>
+    <plurals name="unit_settler_counted">
+        <item quantity="one">%1$d colono</item>
+        <item quantity="other">%1$d colonos</item>
+    </plurals>
+    <string name="units_at_home">%1$s en casa</string>
+    <string name="units_at_home_and_away">%1$s en casa, %2$s de marcha</string>
+    <string name="recruit_field">%1$s a reclutar</string>
+    <string name="recruit_action">Reclutar %1$s</string>
+    <string name="recruit_action_with_duration">Reclutar %1$s · %2$s</string>
+    <string name="unit_requires">Requiere cuartel de nivel %1$d</string>
+    <string name="reason_barracks_too_low">Necesitas un cuartel de nivel %1$d y el tuyo es de nivel %2$d.</string>
+    <string name="reason_levy_running">Ya hay una leva en marcha.</string>
+    <string name="reason_invalid_count">Un número entero, al menos 1.</string>
+    <string name="refusal_barracks_not_built">Tu feudo aún no tiene cuartel. Levántalo primero.</string>
+    <string name="refusal_barracks_too_low">Tu cuartel aún no llega al nivel %1$d que piden los %2$s. Mejóralo primero.</string>
+    <string name="refusal_recruit_slot_busy">El cuartel ya tiene una leva en marcha. Espera a que termine.</string>
+    <string name="refusal_recruit_order_not_found">El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.</string>
 </resources>

@@ -13,4 +13,6 @@ data class FiefSnapshot(
     val queue: BuildQueue,
     val study: StudySlot,
     val arts: List<ArtState>,
+    val units: List<UnitState>,
+    val recruitOrder: RecruitOrder?,
 )

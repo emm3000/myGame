@@ -21,7 +21,8 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
     val studySlot: StudySlot? = study.toStudySlot()
     val artStates: List<ArtState>? = arts.toArtStates()
     if (buildSlot == null || buildingStates == null || buildQueue == null) return null
-    if (studySlot == null || artStates == null) return null
+    val army: MappedArmy? = toArmy()
+    if (studySlot == null || artStates == null || army == null) return null
     return FiefSnapshot(
         id = FiefId(id.toString()),
         name = name,
@@ -39,6 +40,8 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         queue = buildQueue,
         study = studySlot,
         arts = artStates,
+        units = army.units,
+        recruitOrder = army.recruitOrder,
     )
 }
 

@@ -123,5 +123,8 @@ private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit
         content.library?.let { library: FiefUiState.LibraryLine ->
             LibrarySection(library = library, onIntent = onIntent)
         }
+        content.army?.let { army: FiefUiState.ArmyLine ->
+            ArmySection(army = army, onIntent = onIntent)
+        }
     }
 }

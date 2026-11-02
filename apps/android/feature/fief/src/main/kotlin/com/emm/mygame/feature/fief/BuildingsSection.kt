@@ -180,7 +180,7 @@ private fun reasonOf(block: FiefUiState.BlockReason): String = when (block) {
 }
 
 @Composable
-private fun shortfallReasonOf(block: FiefUiState.BlockReason.Resources): String {
+internal fun shortfallReasonOf(block: FiefUiState.BlockReason.Resources): String {
     val quantities: List<String> = block.shortfalls.map { shortfall: FiefUiState.Shortfall ->
         stringResource(costNameOf(shortfall.kind), formatQuantity(shortfall.amount))
     }
