@@ -45,9 +45,9 @@ import { storedFiefReadingOf } from '../fief/storedFiefReadingOf'
 import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
+import { honoPathOf } from '../http/honoPath'
 import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { honoPathOf } from '../http/responseDeclarations'
 import { fiefDeclarations } from './fiefDeclarations'
 
 export type FiefDependencies = CurrentFiefDependencies &

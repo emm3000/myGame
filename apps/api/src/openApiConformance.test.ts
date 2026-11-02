@@ -78,6 +78,18 @@ const troops = { infantry: 1, cavalry: 0, archer: 0, settler: 0 }
 
 const someCargo = { wood: 1, stone: 0, iron: 0, gold: 0, food: 0 }
 
+const onForeignFief = (
+  operation: string,
+  params: Readonly<Record<string, string>> = {},
+  body?: unknown,
+): Exchange => ({
+  operation,
+  caller: 'ana',
+  params: { fiefId: 'foreign', ...params },
+  ...(body === undefined ? {} : { body }),
+  status: 404,
+})
+
 const exchanges: ReadonlyArray<Exchange> = [
   { operation: 'GET /health', caller: 'signedOut', status: 200 },
   {
@@ -97,6 +109,12 @@ const exchanges: ReadonlyArray<Exchange> = [
     caller: 'signedOut',
     body: { email: 'carla@example.com', password: 'hierro-y-lana', fiefName: 'Pinares' },
     status: 409,
+  },
+  {
+    operation: 'POST /auth/sign-up',
+    caller: 'signedOut',
+    body: { email: 'dario@example.com', password: 'hierro-y-lana', fiefName: '   ' },
+    status: 400,
   },
   {
     operation: 'POST /auth/sign-in',
@@ -131,6 +149,12 @@ const exchanges: ReadonlyArray<Exchange> = [
     operation: 'POST /auth/reset-password',
     caller: 'signedOut',
     body: { token: 'no-such-token', password: 'hierro-y-lana' },
+    status: 400,
+  },
+  {
+    operation: 'POST /auth/reset-password',
+    caller: 'signedOut',
+    body: { token: 'no-such-token', password: 'corta' },
     status: 400,
   },
   { operation: 'GET /fiefs', caller: 'ana', status: 200 },
@@ -245,6 +269,13 @@ const exchanges: ReadonlyArray<Exchange> = [
     operation: 'POST /fiefs/{fiefId}/marches/found',
     caller: 'ana',
     params: { fiefId: 'own' },
+    body: { province: 1, plot: 9, name: '   ' },
+    status: 400,
+  },
+  {
+    operation: 'POST /fiefs/{fiefId}/marches/found',
+    caller: 'ana',
+    params: { fiefId: 'own' },
     body: { province: 1, plot: 9, name: 'Nuevo' },
     status: 409,
   },
@@ -304,6 +335,38 @@ const exchanges: ReadonlyArray<Exchange> = [
   { operation: 'POST /digest/acknowledgement', caller: 'ana', status: 204 },
   { operation: 'POST /hints/{hint}', caller: 'ana', params: { hint: 'peasants' }, status: 204 },
   { operation: 'POST /hints/{hint}', caller: 'ana', params: { hint: 'unknown' }, status: 400 },
+  onForeignFief('POST /fiefs/{fiefId}/upgrades', {}, { building: 'sawmill' }),
+  onForeignFief('DELETE /fiefs/{fiefId}/upgrades/{building}/{targetLevel}', {
+    building: 'sawmill',
+    targetLevel: '1',
+  }),
+  onForeignFief('POST /fiefs/{fiefId}/studies', {}, { art: 'smithing' }),
+  onForeignFief('DELETE /fiefs/{fiefId}/studies/{art}/{targetLevel}', {
+    art: 'smithing',
+    targetLevel: '1',
+  }),
+  onForeignFief('POST /fiefs/{fiefId}/recruit-orders', {}, { unit: 'infantry', count: 1 }),
+  onForeignFief('DELETE /fiefs/{fiefId}/recruit-orders/{unit}/{startedAt}', {
+    unit: 'infantry',
+    startedAt: '2026-09-22T08:00:00.000Z',
+  }),
+  onForeignFief(
+    'POST /fiefs/{fiefId}/marches',
+    {},
+    { province: 1, plot: 4, units: troops, stayHours: 1 },
+  ),
+  onForeignFief('POST /fiefs/{fiefId}/marches/attack', {}, { province: 1, plot: 9, units: troops }),
+  onForeignFief('POST /fiefs/{fiefId}/marches/found', {}, { province: 1, plot: 9, name: 'Nuevo' }),
+  onForeignFief(
+    'POST /fiefs/{fiefId}/marches/transport',
+    {},
+    { toFiefId: 'own', units: troops, cargo: someCargo },
+  ),
+  onForeignFief('POST /fiefs/{fiefId}/marches/{departedAt}/recall', {
+    departedAt: '2026-01-01T00:00:00.000Z',
+  }),
+  onForeignFief('GET /fiefs/{fiefId}/map'),
+  onForeignFief('GET /fiefs/{fiefId}/map/{province}', { province: '1' }),
   { operation: 'POST /auth/sign-out', caller: 'ana', status: 204 },
   { operation: 'POST /auth/sign-out', caller: 'signedOut', status: 401 },
 ]

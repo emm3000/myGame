@@ -4946,7 +4946,14 @@
             }
           },
           "400": {
-            "description": "A malformed fief id, path or body. Empty body."
+            "description": "BlankFiefName; a malformed fief id or body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           },
           "401": {
             "description": "No live session cookie. Empty body."

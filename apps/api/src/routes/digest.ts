@@ -2,8 +2,8 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import type { Digest } from '@mygame/contracts'
 import { type DigestReadDependencies, digestOf } from '../digest/digestOf'
 import { answerRefusal } from '../http/answerRefusal'
+import { honoPathOf } from '../http/honoPath'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { honoPathOf } from '../http/responseDeclarations'
 import { digestDeclarations } from './digestDeclarations'
 
 export type DigestDependencies = RequirePlayerDependencies & DigestReadDependencies
