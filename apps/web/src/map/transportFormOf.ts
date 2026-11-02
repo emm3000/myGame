@@ -1,7 +1,6 @@
 import type { FiefOverview, ResourceAmounts } from '@mygame/contracts'
 import { copy } from '../copy'
 import type { MarchActionState } from '../design-system/CardAction'
-import { convoyArtOf } from '../design-system/convoyArtOf'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { shortfallsOf } from '../fief/shortfallsOf'
@@ -95,7 +94,6 @@ export function transportFormOf(
   const cargo = cargoOf(entries.cargo)
   return {
     title: copy.transport.title(target.province, target.plot),
-    artSrc: convoyArtOf(),
     atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
     preview:

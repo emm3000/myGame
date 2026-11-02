@@ -220,25 +220,9 @@ it('marks nothing before the calendar starts', async () => {
   expect(within(march).queryByText(/acorta|%/)).toBeNull()
 })
 
-it('sets the province grid on the scene of its terrain', async () => {
+it('draws the province grid with no scene band', async () => {
   await showMap(uplands, fiefIn(seasons.autumn))
-  const band = document.querySelector('[data-terrain]')
 
-  expect([band?.getAttribute('data-terrain'), band?.getAttribute('data-season')]).toEqual([
-    'uplands',
-    'autumn',
-  ])
-  expect(band?.textContent).toBe('')
-})
-
-it('sets the grid of a province on its own terrain, not the fief one', async () => {
-  await showMap(lowlands, fiefIn(null))
-
-  expect(document.querySelector('[data-terrain]')?.getAttribute('data-terrain')).toBe('lowlands')
-})
-
-it('sets the grid of a province on a scene with no season before the first spring', async () => {
-  await showMap(lowlands, fiefIn(null))
-
-  expect(document.querySelector('[data-terrain]')?.getAttribute('data-season')).toBe('none')
+  expect(document.querySelector('[data-terrain]')).toBeNull()
+  expect(document.querySelector('img')).toBeNull()
 })

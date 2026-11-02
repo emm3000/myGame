@@ -178,12 +178,10 @@ it('offers nothing on the fief the map is read from', async () => {
   expect(screen.queryByRole('button', { name: /^Enviar un transporte/ })).toBeNull()
 })
 
-it('shows the convoy art on the transport form', async () => {
+it('draws no image on the transport form', async () => {
   await openTransport()
 
-  expect(within(screen.getByRole('article')).getByRole('presentation').getAttribute('src')).toBe(
-    '/art/convoys/convoy.webp',
-  )
+  expect(within(screen.getByRole('article')).queryByRole('presentation')).toBeNull()
 })
 
 it('offers no settler field', async () => {

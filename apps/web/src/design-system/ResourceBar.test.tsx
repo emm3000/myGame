@@ -110,21 +110,19 @@ it('marks nothing on a cell without an effect', () => {
   expect(within(woodpile).queryByText(/: [+-]\d+ % de /)).toBeNull()
 })
 
-it('draws the art of each resource in its cell', () => {
+it('draws the stroke icon of each resource in the bar', () => {
   render(<ResourceBar {...storeWithFullGranary()} />)
 
-  const sources = ['Wood', 'Food'].map((name) =>
-    within(screen.getByRole('listitem', { name })).getByRole('presentation').getAttribute('src'),
-  )
+  const cells = screen.getAllByRole('listitem')
 
-  expect(sources).toEqual(['/art/resources/wood-1-96.webp', '/art/resources/food-1-96.webp'])
+  expect(
+    cells.map((cell) => cell.querySelector('svg')?.getAttribute('class')?.includes('size-icon')),
+  ).toEqual(cells.map(() => true))
 })
 
-it('draws no art in the peasants cell while no peasants art is listed', () => {
+it('draws no raster image in the bar', () => {
   render(<ResourceBar {...storeWithFullGranary()} />)
 
-  const woodpile = screen.getByRole('listitem', { name: 'Wood' })
-  const village = screen.getByRole('listitem', { name: 'Peasants' })
-  expect(within(woodpile).queryByRole('presentation')).not.toBeNull()
-  expect(within(village).queryByRole('presentation')).toBeNull()
+  expect(screen.queryAllByRole('presentation')).toEqual([])
+  expect(screen.getByRole('list').querySelector('img')).toBeNull()
 })

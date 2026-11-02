@@ -1,7 +1,6 @@
 import type { UnitKind } from '@mygame/contracts'
 import { type FormEvent, type ReactElement, type Ref, useId } from 'react'
 import { CardAction, cardToneOf, type MarchActionState } from './CardAction'
-import { CardArt } from './CardArt'
 import { focusTargetClass } from './focusTargetClass'
 import { NumberField } from './NumberField'
 import { Panel } from './Panel'
@@ -31,7 +30,6 @@ export interface MarchFormAtHome {
 export interface MarchFormProps {
   readonly title: string
   readonly titleRef?: Ref<HTMLHeadingElement> | undefined
-  readonly artSrc?: string | undefined
   readonly atHome: ReadonlyArray<MarchFormAtHome>
   readonly counts: ReadonlyArray<MarchFormField>
   readonly amounts?: ReadonlyArray<MarchFormField> | undefined
@@ -81,7 +79,6 @@ export function MarchForm(props: MarchFormProps): ReactElement {
   return (
     <div className="w-full">
       <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
-        {props.artSrc !== undefined && <CardArt src={props.artSrc} isCappedAtFormWidth />}
         <header className="flex flex-wrap items-center justify-between gap-2">
           <h4
             id={titleId}

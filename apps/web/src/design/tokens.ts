@@ -103,12 +103,6 @@ export const maxWidths: Readonly<Record<MaxWidth, string>> = {
   form: '640px',
 }
 
-export type MaxHeight = 'band'
-
-export const maxHeights: Readonly<Record<MaxHeight, string>> = {
-  band: '240px',
-}
-
 export type Breakpoint = 'md' | 'lg'
 
 export const breakpoints: Readonly<Record<Breakpoint, string>> = {
@@ -124,12 +118,10 @@ export const scrollMargins: Readonly<Record<ScrollMargin, string>> = {
   status: `calc(var(${statusBlockHeightProperty}) + 1px)`,
 }
 
-export type Size = 'icon' | 'roundel' | 'roundel-sm' | 'thumbnail'
+export type Size = 'icon' | 'thumbnail'
 
 export const sizes: Readonly<Record<Size, string>> = {
   icon: '20px',
-  roundel: '40px',
-  'roundel-sm': '28px',
   thumbnail: '96px',
 }
 

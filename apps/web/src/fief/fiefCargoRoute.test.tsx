@@ -64,12 +64,10 @@ it('shows the cargo on its way with its origin and amounts', async () => {
   expect(within(card).getByText('300 de madera, 200 de piedra y 220 de hierro')).toBeDefined()
 })
 
-it('shows the convoy art on the cargo card', async () => {
+it('draws no image on the cargo card', async () => {
   await showFief(async () => ({ ok: true, value: awaitingCargo }))
 
-  const art = within(presentCargoCard()).getByRole('presentation')
-  expect(art.getAttribute('src')).toBe('/art/convoys/convoy.webp')
-  expect(art.getAttribute('loading')).toBe('lazy')
+  expect(within(presentCargoCard()).queryByRole('presentation')).toBeNull()
 })
 
 it('counts down to the arrival', async () => {

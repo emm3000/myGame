@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 034
 date: 2026-10-10
 ---
 # Art in the first viewport
@@ -347,3 +347,16 @@ code.
   the village view (S29 if the owner still says *igual*), any motion in
   the band, a plate for the chronicle, the house colours the art bible
   leaves open, and any palette value.
+
+## Amendment, 2026-11-02 (#580)
+
+The v29 redesign (#572, ADR 034) dropped the scene plates, the code-drawn
+`SceneBand` and the resource art; the owner approved it on 2026-11-02 and
+#555 is closed as not planned. Forks 2, 3, 4 and 6 and the `SceneBand`,
+`sceneArtOf`, `resourceArtOf` and roundel decisions no longer hold: the
+web draws no scene band, the resource bar draws each resource's stroke
+icon, and the `max-h-band` and `size-roundel` tokens are gone. The
+building image stays on `BuildingCard` alone; `ArtCard`, `CargoCard` and
+the march forms draw none, so the art, convoy and camp 768 images and the
+resource images are deleted. Fork 5 stands in part: a camp tile on the
+map keeps `camp-<tier>-96.webp`.

@@ -7,7 +7,6 @@ import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
 import { CargoCard } from '../design-system/CargoCard'
 import { capitalize } from '../design-system/capitalize'
-import { convoyArtOf } from '../design-system/convoyArtOf'
 import { DigestCard, type DigestCardProps } from '../design-system/DigestCard'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
@@ -21,7 +20,6 @@ import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
 import { ArmySection } from './ArmySection'
 import { buildingCardOf } from './buildingCardOf'
-import { FiefSceneBand } from './FiefSceneBand'
 import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
@@ -44,7 +42,6 @@ export interface FiefScreenProps {
   readonly digest: DigestCardProps | undefined
   readonly goal: GoalCardProps | undefined
   readonly hint: ScreenHint | undefined
-  readonly isSceneInHeader: boolean
 }
 
 export interface ScreenHint {
@@ -91,7 +88,6 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
     <div id={sectionAnchors.incomingCargo} className="flex flex-col md:scroll-mt-status">
       <CargoCard
         title={copy.fief.incomingCargo}
-        artSrc={convoyArtOf()}
         origin={copy.fief.cargoOrigin(from.name, from.province, from.plot)}
         amounts={copy.fief.cargoAmounts(quantitiesOf(cargo))}
         countdown={{
@@ -234,7 +230,6 @@ export function FiefScreen({
   digest,
   goal,
   hint,
-  isSceneInHeader,
 }: FiefScreenProps): ReactElement {
   const { overview } = fief
   const buildingsHeadingId = useId()
@@ -242,11 +237,6 @@ export function FiefScreen({
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        {isSceneInHeader && (
-          <div className="mb-2">
-            <FiefSceneBand overview={overview} />
-          </div>
-        )}
         <Link
           to="/feudo/$fiefId/mapa/$province"
           params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}

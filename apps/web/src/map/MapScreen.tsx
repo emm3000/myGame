@@ -1,4 +1,4 @@
-import type { ProvinceMap, SeasonKind } from '@mygame/contracts'
+import type { ProvinceMap } from '@mygame/contracts'
 import { type FormEvent, type ReactElement, type ReactNode, type Ref, useId, useState } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
@@ -8,8 +8,6 @@ import { focusTargetClass } from '../design-system/focusTargetClass'
 import { Hint, type HintProps } from '../design-system/Hint'
 import { NumberField } from '../design-system/NumberField'
 import { type PlotAction, type PlotHolder, PlotTile } from '../design-system/PlotTile'
-import { SceneBand } from '../design-system/SceneBand'
-import { sceneArtOf } from '../design-system/sceneArtOf'
 import { TextLink } from '../design-system/TextLink'
 import { panelPlaceOf } from './panelPlaceOf'
 import type { ProvinceMapState } from './useProvinceMap'
@@ -22,7 +20,6 @@ export interface MarchPanelSlot {
 export interface MapScreenProps {
   readonly fiefId: string
   readonly state: ProvinceMapState
-  readonly season: SeasonKind | null
   readonly onBrowse: (province: number) => void
   readonly plotActionsOf: (map: ProvinceMap, plot: number) => ReadonlyArray<PlotAction>
   readonly columns: number
@@ -96,7 +93,6 @@ function JumpControl({
 
 function Province({
   map,
-  season,
   onBrowse,
   plotActionsOf,
   columns,
@@ -148,10 +144,9 @@ function Province({
       </div>
       {hint !== undefined && <Hint {...hint} />}
       <div className="overflow-hidden rounded-md bg-surface-sunken pb-3">
-        <SceneBand terrain={map.terrain} season={season} artSrc={sceneArtOf(map.terrain)} />
         <ul
           aria-label={heading}
-          className="relative mx-3 mt-3 mb-0 grid list-none grid-cols-2 gap-3 p-0 md:-mt-8 lg:grid-cols-5"
+          className="mx-3 mt-3 mb-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-5"
         >
           {map.plots.flatMap((plot, position) => {
             const tile = (

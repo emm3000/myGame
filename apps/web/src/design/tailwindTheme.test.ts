@@ -4,7 +4,6 @@ import { compile } from '@tailwindcss/node'
 import { expect, it } from 'vitest'
 import {
   heights,
-  maxHeights,
   minHeights,
   palette,
   radii,
@@ -93,16 +92,6 @@ it('exposes a Tailwind size utility for every size token', async () => {
   const css = stylesheet.build(names.map((name) => `size-${name}`))
 
   expect(names.filter((name) => !css.includes(`.size-${name} {`))).toEqual([])
-})
-
-it('exposes a Tailwind max-h-band utility', async () => {
-  const stylesheet = await compileStylesheet()
-  const names = Object.keys(maxHeights)
-
-  const css = stylesheet.build(names.map((name) => `max-h-${name}`))
-
-  expect(names).toEqual(['band'])
-  expect(names.filter((name) => !css.includes(`.max-h-${name} {`))).toEqual([])
 })
 
 it('exposes a Tailwind transition utility for every transition token', async () => {
