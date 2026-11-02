@@ -47,20 +47,20 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
 
     private suspend fun project(first: FiefSnapshot) {
         var snapshot: FiefSnapshot = first
+        var gap: Duration = serverGapOf(snapshot)
         while (true) {
-            var now: Instant = clock.now()
-            if (snapshot.slotRemainingAt(now) == Duration.ZERO) {
-                when (val answer: FiefReadResult = fiefs.read()) {
-                    FiefReadResult.Unreachable -> {
-                        _state.value = FiefUiState.Failed
-                        return
-                    }
-                    is FiefReadResult.Read -> snapshot = answer.fief
+            if (snapshot.slotRemainingAt(clock.now() + gap) == Duration.ZERO) {
+                val answer: FiefReadResult = fiefs.read()
+                if (answer is FiefReadResult.Read) {
+                    snapshot = answer.fief
+                    gap = serverGapOf(snapshot)
                 }
-                now = clock.now()
             }
+            val now: Instant = clock.now() + gap
             _state.value = snapshot.contentAt(now)
             delay(repaintDelay(snapshot.slotRemainingAt(now)))
         }
     }
+
+    private fun serverGapOf(snapshot: FiefSnapshot): Duration = snapshot.readAt - clock.now()
 }

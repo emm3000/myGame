@@ -8,7 +8,7 @@ private val amountsCadence: Duration = 1.minutes
 private val lastMinuteCadence: Duration = 1.seconds
 
 fun repaintDelay(slotRemaining: Duration?): Duration = when {
-    slotRemaining == null -> amountsCadence
+    slotRemaining == null || slotRemaining <= Duration.ZERO -> amountsCadence
     slotRemaining <= amountsCadence -> lastMinuteCadence
     else -> minOf(amountsCadence, slotRemaining - amountsCadence)
 }

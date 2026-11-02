@@ -276,22 +276,83 @@ class FiefViewModelTest {
     }
 
     @Test
-    fun `offers a retry when the re-read at the end of the build cannot reach the api`() = runTest {
+    fun `keeps the last content and asks again when the re-read at the end of the build cannot reach the api`() =
+        runTest {
+            val fiefs: FakeFiefRepository = FakeFiefRepository()
+            val viewModel: FiefViewModel = openFief(fiefs)
+            fiefs.answerRead(FiefReadResult.Read(fief(slot = busySlot(finishesIn = 1.seconds))))
+            fiefs.answerRead(FiefReadResult.Unreachable)
+            fiefs.answerRead(FiefReadResult.Read(fief(slot = BuildSlot.Idle, readAt = readAt + 61.seconds)))
+
+            viewModel.state.test {
+                assertEquals(1.seconds, awaitContent().remaining())
+                advanceTimeBy(1.seconds)
+                runCurrent()
+                assertEquals(Duration.ZERO, awaitContent().remaining())
+                advanceTimeBy(1.minutes)
+                runCurrent()
+                assertEquals(FiefUiState.SlotLine.Idle, awaitContent().slot)
+            }
+            assertEquals(3, fiefs.readCount)
+        }
+
+    @Test
+    fun `re-reads once when the api still answers the build busy`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)
         fiefs.answerRead(FiefReadResult.Read(fief(slot = busySlot(finishesIn = 1.seconds))))
-        fiefs.answerRead(FiefReadResult.Unreachable)
+        fiefs.answerRead(
+            FiefReadResult.Read(
+                fief(
+                    slot = BuildSlot.Busy(BuildingKind.Sawmill, targetLevel = 3, finishesAt = readAt + 2.minutes),
+                    readAt = readAt + 1.seconds,
+                ),
+            ),
+        )
 
         viewModel.state.test {
-            awaitContent()
+            assertEquals(1.seconds, awaitContent().remaining())
             advanceTimeBy(1.seconds)
             runCurrent()
-            assertEquals(FiefUiState.Failed, awaitItem())
+            assertEquals(119.seconds, awaitContent().remaining())
+            advanceTimeBy(59.seconds)
+            runCurrent()
+            assertEquals(60.seconds, awaitContent().remaining())
+        }
+        assertEquals(2, fiefs.readCount)
+    }
+
+    @Test
+    fun `counts the build down on the server's time when the device clock is ahead`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs, deviceNow = readAt + 10.minutes)
+        fiefs.answerRead(FiefReadResult.Read(fief(slot = busySlot(finishesIn = 3.minutes))))
+
+        viewModel.state.test {
+            assertEquals(3.minutes, awaitContent().remaining())
+            advanceTimeBy(1.minutes)
+            runCurrent()
+            assertEquals(2.minutes, awaitContent().remaining())
+        }
+        assertEquals(1, fiefs.readCount)
+    }
+
+    @Test
+    fun `draws the amounts on the server's time when the device clock is behind`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs, deviceNow = readAt - 1.hours)
+        fiefs.answerRead(FiefReadResult.Read(fief(resources = listOf(wood(amount = 500, ratePerHour = 60.0)))))
+
+        viewModel.state.test {
+            assertEquals(500L, awaitContent().resources.single().amount)
+            advanceTimeBy(1.minutes)
+            runCurrent()
+            assertEquals(501L, awaitContent().resources.single().amount)
         }
     }
 
-    private fun TestScope.openFief(fiefs: FakeFiefRepository): FiefViewModel {
-        val viewModel: FiefViewModel = FiefViewModel(fiefs, TestClock(testScheduler, readAt))
+    private fun TestScope.openFief(fiefs: FakeFiefRepository, deviceNow: Instant = readAt): FiefViewModel {
+        val viewModel: FiefViewModel = FiefViewModel(fiefs, TestClock(testScheduler, deviceNow))
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 awaitCancellation()

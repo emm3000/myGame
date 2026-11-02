@@ -16,8 +16,8 @@ The Android leg of the gate runs the unit tests (`verification.md`); a test the 
 ## ViewModel tests
 
 - Drive `onIntent`, then assert `state` and `effects` with Turbine: `awaitItem()` for each expected emission, `expectNoEvents()` where nothing may follow.
-- `runTest` with the fixed clock from `core:testing`, advanced by the test. Never `Thread.sleep`, never real time.
-- A flow that loops on the clock exits when the clock did not advance; under a fixed clock a `while (true) { delay(...) }` hangs the test.
+- `runTest` with the `TestClock` from `core:testing`, which reads the scheduler's virtual time, so `advanceTimeBy` advances it. Never `Thread.sleep`, never real time.
+- A ViewModel that loops on the clock (`while (true) { delay(...) }`) never lets `runTest` finish: cancel its `viewModelScope` from a `backgroundScope.launch(start = CoroutineStart.UNDISPATCHED)` that awaits cancellation.
 - Collaborators are the fakes in `core:testing`; no mocking library until a ticket proves the need. A fake that needs a stub per test is a sign the interface is too wide.
 
 ## Projection tests
