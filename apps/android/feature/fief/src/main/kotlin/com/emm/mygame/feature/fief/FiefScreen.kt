@@ -120,5 +120,8 @@ private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit
         SlotSection(content = content, onIntent = onIntent)
         if (content.queue.isNotEmpty()) QueueSection(content = content, onIntent = onIntent)
         BuildingsSection(content = content, onIntent = onIntent)
+        content.library?.let { library: FiefUiState.LibraryLine ->
+            LibrarySection(library = library, onIntent = onIntent)
+        }
     }
 }

@@ -9,6 +9,8 @@ import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.SessionRepository
+import com.emm.mygame.core.network.StudyRefusal
+import com.emm.mygame.core.network.StudyResult
 import com.emm.mygame.core.network.UpgradeResult
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
@@ -57,6 +59,10 @@ class FiefViewModel(
             FiefIntent.SignOutTapped -> signOut()
             is FiefIntent.UpgradeTapped -> upgrade(intent.building)
             is FiefIntent.CancelTapped -> cancel(FiefUiState.UpgradeTarget(intent.building, intent.targetLevel))
+            is FiefIntent.StudyTapped -> study { fief: FiefSnapshot -> fiefs.startStudy(fief.id, intent.art) }
+            is FiefIntent.StudyCancelTapped -> study { fief: FiefSnapshot ->
+                fiefs.cancelStudy(fief.id, intent.art, intent.targetLevel)
+            }
         }
     }
 
@@ -108,6 +114,29 @@ class FiefViewModel(
         }
     }
 
+    private fun study(call: suspend (FiefSnapshot) -> StudyResult) {
+        val fief: FiefSnapshot = shown ?: return
+        if (mutations.study == FiefUiState.StudyStatus.Waiting) return
+        draw(mutations.copy(study = FiefUiState.StudyStatus.Waiting))
+        viewModelScope.launch {
+            when (val answer: StudyResult = call(fief)) {
+                is StudyResult.Answered ->
+                    restartFrom(answer.fief, mutations.studyAnswered(FiefUiState.StudyStatus.Idle))
+                is StudyResult.Refused -> answerRefusedStudy(answer.refusal)
+                StudyResult.Unreachable -> draw(mutations.copy(study = FiefUiState.StudyStatus.Unreachable))
+            }
+        }
+    }
+
+    private suspend fun answerRefusedStudy(refusal: StudyRefusal) {
+        val refused: FiefUiState.StudyStatus = FiefUiState.StudyStatus.Refused(refusal)
+        if (refusal != StudyRefusal.StudyNotFound) return draw(mutations.copy(study = refused))
+        when (val answer: FiefReadResult = fiefs.read()) {
+            is FiefReadResult.Read -> restartFrom(answer.fief, mutations.studyAnswered(refused))
+            FiefReadResult.Unreachable -> draw(mutations.copy(study = refused))
+        }
+    }
+
     private suspend fun answerRefusedCancel(target: FiefUiState.UpgradeTarget, refusal: CancelRefusal) {
         when (refusal) {
             CancelRefusal.UpgradeNotFound -> rereadAfterCancel(target)
@@ -131,7 +160,7 @@ class FiefViewModel(
     private fun draw(next: Mutations) {
         mutations = next
         _state.update { current: FiefUiState ->
-            if (current is FiefUiState.Content) current.copy(upgrade = next.upgrade, cancel = next.cancel) else current
+            if (current is FiefUiState.Content) current.drawn(next) else current
         }
     }
 
@@ -139,7 +168,7 @@ class FiefViewModel(
         var snapshot: FiefSnapshot = first
         var gap: Duration = serverGapOf(snapshot)
         while (true) {
-            if (snapshot.slotRemainingAt(clock.now() + gap) == Duration.ZERO) {
+            if (snapshot.nextFinishAt(clock.now() + gap) == Duration.ZERO) {
                 val answer: FiefReadResult = fiefs.read()
                 if (answer is FiefReadResult.Read) {
                     snapshot = answer.fief
@@ -150,9 +179,15 @@ class FiefViewModel(
             val now: Instant = clock.now() + gap
             shown = snapshot
             _state.value = snapshot.contentAt(now = now, gap = gap, mutations = mutations)
-            delay(repaintDelay(snapshot.slotRemainingAt(now)))
+            delay(repaintDelay(snapshot.nextFinishAt(now)))
         }
     }
+
+    private fun FiefUiState.Content.drawn(next: Mutations): FiefUiState.Content = copy(
+        upgrade = next.upgrade,
+        cancel = next.cancel,
+        library = library?.copy(study = next.study),
+    )
 
     private fun serverGapOf(snapshot: FiefSnapshot): Duration = snapshot.readAt - clock.now()
 }

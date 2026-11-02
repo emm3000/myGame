@@ -1,0 +1,245 @@
+package com.emm.mygame.feature.fief
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameIcon
+import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.network.ArtKind
+import com.emm.mygame.core.network.ResourceCost
+import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.network.StudyRefusal
+import java.util.Locale
+
+@Composable
+internal fun LibrarySection(
+    library: FiefUiState.LibraryLine,
+    onIntent: (FiefIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isWaiting: Boolean = library.study == FiefUiState.StudyStatus.Waiting
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+        SectionTitle(text = stringResource(R.string.library_title))
+        Card {
+            when (val slot: FiefUiState.StudySlotLine = library.slot) {
+                FiefUiState.StudySlotLine.Idle -> IdleStudy()
+                is FiefUiState.StudySlotLine.Busy -> BusyStudy(slot = slot, isWaiting = isWaiting, onIntent = onIntent)
+            }
+        }
+        library.arts.forEach { card: FiefUiState.ArtCard ->
+            ArtItem(card = card, isWaiting = isWaiting, onIntent = onIntent)
+        }
+        StudyAnswer(study = library.study)
+    }
+}
+
+@Composable
+private fun IdleStudy(modifier: Modifier = Modifier) {
+    MyGameText(
+        text = stringResource(R.string.study_idle),
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.inkMuted,
+        modifier = modifier.padding(vertical = MyGameSpacing.step4),
+    )
+}
+
+@Composable
+private fun BusyStudy(
+    slot: FiefUiState.StudySlotLine.Busy,
+    isWaiting: Boolean,
+    onIntent: (FiefIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val countdown: String = countdownLabelOf(slot.remaining)
+    val description: String = stringResource(R.string.slot_countdown_description, countdown)
+    val art: String = stringResource(artNameOf(slot.art)).lowercase(spanish)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier.padding(vertical = MyGameSpacing.step4),
+    ) {
+        MyGameText(
+            text = stringResource(R.string.study_busy_title),
+            style = MyGameTypography.label,
+            color = MyGameTheme.colors.inkMuted,
+        )
+        MyGameText(
+            text = stringResource(artNameOf(slot.art)),
+            style = MyGameTypography.brand,
+            color = MyGameTheme.colors.ink,
+        )
+        MyGameText(
+            text = stringResource(R.string.slot_level, slot.targetLevel),
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.inkMuted,
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+            modifier = Modifier.clearAndSetSemantics { contentDescription = description },
+        ) {
+            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.umber)
+            MyGameText(text = countdown, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
+        }
+        MyGameButton(
+            label = stringResource(R.string.study_cancel),
+            isBusy = isWaiting,
+            busyDescription = stringResource(R.string.building_waiting),
+            onClick = { onIntent(FiefIntent.StudyCancelTapped(slot.art, slot.targetLevel)) },
+            accessibleName = stringResource(R.string.study_cancel_description, art, slot.targetLevel),
+        )
+        if (slot.refund.isNotEmpty()) {
+            MyGameText(
+                text = stringResource(R.string.study_refund, refundOf(slot)),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.inkMuted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ArtItem(
+    card: FiefUiState.ArtCard,
+    isWaiting: Boolean,
+    onIntent: (FiefIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+            modifier = Modifier.padding(vertical = MyGameSpacing.step3),
+        ) {
+            MyGameText(
+                text = stringResource(artNameOf(card.kind)),
+                style = MyGameTypography.brand,
+                color = MyGameTheme.colors.ink,
+                modifier = Modifier.semantics { heading() },
+            )
+            MyGameText(
+                text = artLevelOf(card.level),
+                style = MyGameTypography.label,
+                color = MyGameTheme.colors.inkMuted,
+            )
+            MyGameText(
+                text = effectOf(card),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.inkMuted,
+            )
+            when (val next: FiefUiState.NextArtLine? = card.next) {
+                null -> MyGameText(
+                    text = stringResource(R.string.building_max_level),
+                    style = MyGameTypography.action,
+                    color = MyGameTheme.colors.ink,
+                )
+                else -> NextArt(art = card.kind, next = next, isWaiting = isWaiting, onIntent = onIntent)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NextArt(
+    art: ArtKind,
+    next: FiefUiState.NextArtLine,
+    isWaiting: Boolean,
+    onIntent: (FiefIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+        ) {
+            next.costs.forEach { cost: FiefUiState.CostLine ->
+                CostItem(
+                    text = stringResource(costNameOf(cost.kind), formatQuantity(cost.amount)),
+                    isShort = cost.isShort,
+                )
+            }
+        }
+        MyGameText(
+            text = stringResource(R.string.art_requires, next.requiredLibraryLevel),
+            style = MyGameTypography.body,
+            color = if (next.isLibraryTooLow) MyGameTheme.colors.rust else MyGameTheme.colors.inkMuted,
+        )
+        MyGameButton(
+            label = stringResource(R.string.study_start, durationLabelOf(next.duration)),
+            isBusy = isWaiting,
+            busyDescription = stringResource(R.string.building_waiting),
+            onClick = { onIntent(FiefIntent.StudyTapped(art)) },
+        )
+    }
+}
+
+@Composable
+private fun StudyAnswer(study: FiefUiState.StudyStatus, modifier: Modifier = Modifier) {
+    val message: Int? = when (study) {
+        is FiefUiState.StudyStatus.Refused -> refusalOf(study.refusal)
+        FiefUiState.StudyStatus.Unreachable -> R.string.fief_unreachable
+        FiefUiState.StudyStatus.Idle, FiefUiState.StudyStatus.Waiting -> null
+    }
+    if (message != null) MyGameInlineAlert(message = stringResource(message), modifier = modifier)
+}
+
+@Composable
+private fun artLevelOf(level: Int): String =
+    if (level == 0) stringResource(R.string.art_unstudied) else stringResource(R.string.building_level, level)
+
+@Composable
+private fun effectOf(card: FiefUiState.ArtCard): String {
+    val rate: String = stringResource(rateOf(card.resource), card.ratePercent)
+    return when (val next: FiefUiState.NextArtLine? = card.next) {
+        null -> stringResource(R.string.art_effect_at_max_level, rate)
+        else -> stringResource(R.string.art_effect, rate, next.level, next.ratePercent)
+    }
+}
+
+@Composable
+private fun refundOf(slot: FiefUiState.StudySlotLine.Busy): String = spanishListOf(
+    items = slot.refund.map { cost: ResourceCost ->
+        stringResource(costNameOf(cost.kind), formatQuantity(cost.amount))
+    },
+    pairPattern = stringResource(R.string.list_pair),
+    morePattern = stringResource(R.string.list_more),
+)
+
+private fun artNameOf(art: ArtKind): Int = when (art) {
+    ArtKind.Smithing -> R.string.art_smithing
+    ArtKind.Masonry -> R.string.art_masonry
+}
+
+private fun rateOf(resource: ResourceKind): Int = when (resource) {
+    ResourceKind.Wood -> R.string.art_rate_wood
+    ResourceKind.Stone -> R.string.art_rate_stone
+    ResourceKind.Iron -> R.string.art_rate_iron
+    ResourceKind.Gold -> R.string.art_rate_gold
+    ResourceKind.Food -> R.string.art_rate_food
+}
+
+private fun refusalOf(refusal: StudyRefusal): Int = when (refusal) {
+    StudyRefusal.StudySlotBusy -> R.string.refusal_study_slot_busy
+    StudyRefusal.LibraryLevelTooLow -> R.string.refusal_library_level_too_low
+    StudyRefusal.ArtMaxLevelReached -> R.string.refusal_art_max_level_reached
+    StudyRefusal.StudyNotFound -> R.string.refusal_study_not_found
+    StudyRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
+    StudyRefusal.Unrecognized -> R.string.fief_unreachable
+}
+
+private val spanish: Locale = Locale.forLanguageTag("es")

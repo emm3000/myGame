@@ -84,4 +84,26 @@
     <string name="cancel_upgrade">Cancelar la obra</string>
     <string name="cancel_upgrade_description">Cancelar la obra: %1$s, nivel %2$d</string>
     <string name="cancel_refund">Si la cancelas, recuperas todo lo que costó, y lo mismo por cada obra en espera que caiga con ella.</string>
+    <string name="library_title">Biblioteca</string>
+    <string name="study_idle">La biblioteca no tiene estudio en marcha.</string>
+    <string name="study_busy_title">Un estudio en marcha</string>
+    <string name="art_smithing">Herrería</string>
+    <string name="art_masonry">Cantería</string>
+    <string name="art_unstudied">sin estudiar</string>
+    <string name="art_rate_wood">+%1$d %% de madera / h</string>
+    <string name="art_rate_stone">+%1$d %% de piedra / h</string>
+    <string name="art_rate_iron">+%1$d %% de hierro / h</string>
+    <string name="art_rate_gold">+%1$d %% de oro / h</string>
+    <string name="art_rate_food">+%1$d %% de comida / h</string>
+    <string name="art_effect">%1$s · nivel %2$d: +%3$d %%</string>
+    <string name="art_effect_at_max_level">%1$s · Ya está en su nivel más alto.</string>
+    <string name="art_requires">Requiere biblioteca a nivel %1$d</string>
+    <string name="study_start">Estudiar · %1$s</string>
+    <string name="study_cancel">Cancelar el estudio</string>
+    <string name="study_cancel_description">Cancelar el estudio: %1$s, nivel %2$d</string>
+    <string name="study_refund">Si lo cancelas, recuperas %1$s.</string>
+    <string name="refusal_study_slot_busy">La biblioteca ya tiene un estudio en marcha. Espera a que termine.</string>
+    <string name="refusal_library_level_too_low">Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.</string>
+    <string name="refusal_art_max_level_reached">Ese arte ya está en su nivel más alto.</string>
+    <string name="refusal_study_not_found">La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.</string>
 </resources>

@@ -43,6 +43,7 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
         queue = waiting,
         upgrade = mutations.upgrade,
         cancel = mutations.cancel,
+        library = libraryAt(now = now, amounts = drawnAmounts, study = mutations.study),
     )
 }
 
@@ -50,6 +51,9 @@ internal fun FiefSnapshot.slotRemainingAt(now: Instant): Duration? = when (val c
     BuildSlot.Idle -> null
     is BuildSlot.Busy -> countdownTo(finishesAt = current.finishesAt, now = now)
 }
+
+internal fun FiefSnapshot.nextFinishAt(now: Instant): Duration? =
+    listOfNotNull(slotRemainingAt(now), studyRemainingAt(now)).minOrNull()
 
 private fun BuildQueue.isFull(): Boolean = entries.size >= cap
 
@@ -117,5 +121,5 @@ private fun NextLevel.blockWith(
     }
 }
 
-private fun ResourceCost.shortfallFrom(amounts: Map<ResourceKind, Long>): Long =
+internal fun ResourceCost.shortfallFrom(amounts: Map<ResourceKind, Long>): Long =
     (amount - (amounts[kind] ?: 0L)).coerceAtLeast(0L)
