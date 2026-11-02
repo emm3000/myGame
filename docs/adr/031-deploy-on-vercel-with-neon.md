@@ -40,16 +40,18 @@ game charges nothing.
   are gone; the one-year `immutable` cache on `/assets/` and the
   one-day cache on `/art/` move to `headers` in `apps/web/vercel.json`.
 - **The api is one function built from a JavaScript bundle.**
-  `src/index.ts` composes the server and default-exports `{ fetch }`;
+  `src/index.ts` composes the server and default-exports a plain
+  `Hono` that mounts its `fetch` (amended 2026-11-02, #587);
   `pnpm build` bundles it with esbuild into `dist/index.js`, and
   `apps/api/vercel.json` points Vercel at `dist`, where its Hono
   detection finds the entry. Vercel type-checks a TypeScript entry
   with the workspace's TypeScript, and under TypeScript 7 that check
   fails with TS2688 on `types: ["node"]` although `pnpm -r typecheck`
   passes, so the function starts from the bundle and the gate stays
-  the type check. Vercel's Hono detection also takes the first
-  candidate file that imports `hono`, which in `src/` would be
-  `src/app.ts`, not the entry. The trace carries `content/` into the
+  the type check. Vercel's Hono detection needs a candidate file that
+  imports `hono` as a value; since every router became an
+  `OpenAPIHono` (#581), the entry's plain `Hono` is the only such
+  import, and without it `vercel build` fails. The trace carries `content/` into the
   function because the bundle reads it from `import.meta.url`.
   `composeServer` no longer reads `API_PORT`; `src/listen.ts`, the local
   Node listener `dev` runs, reads it through `listenPortOf`.
