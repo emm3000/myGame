@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { TerrainSchema } from './Terrain'
-import { WholeCountSchema } from './Wire'
+import { CampTierSchema, WholeCountSchema } from './Wire'
 
 const PlotCampSchema = z.strictObject({
-  tier: z.literal([1, 2, 3]),
+  tier: CampTierSchema,
   strength: WholeCountSchema,
 })
 

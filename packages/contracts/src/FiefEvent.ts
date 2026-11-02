@@ -5,7 +5,7 @@ import { PartySchema } from './Party'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { UnitCountsSchema } from './UnitCounts'
 import { UnitKindSchema } from './UnitKind'
-import { BuildingLevelSchema, InstantSchema, WholeCountSchema } from './Wire'
+import { BuildingLevelSchema, CampTierSchema, InstantSchema, WholeCountSchema } from './Wire'
 
 const UpgradeFinishedSchema = z.strictObject({
   kind: z.literal('upgradeFinished'),
@@ -67,7 +67,7 @@ const BattleFoughtSchema = z.strictObject({
   kind: z.literal('battleFought'),
   province: WholeCountSchema.positive(),
   plot: WholeCountSchema.positive(),
-  tier: z.literal([1, 2, 3]),
+  tier: CampTierSchema,
   won: z.boolean(),
   unitsLost: UnitCountsSchema,
   campLost: WholeCountSchema,

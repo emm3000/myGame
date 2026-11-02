@@ -299,8 +299,8 @@
                   "nullable": true,
                   "properties": {
                     "tier": {
-                      "type": "number",
-                      "enum": [1]
+                      "type": "integer",
+                      "enum": [1, 2, 3]
                     },
                     "strength": {
                       "type": "integer",
@@ -927,53 +927,7 @@
             ]
           },
           "slot": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "type": "string",
-                    "enum": ["idle"]
-                  }
-                },
-                "required": ["kind"]
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "type": "string",
-                    "enum": ["busy"]
-                  },
-                  "building": {
-                    "type": "string",
-                    "enum": [
-                      "sawmill",
-                      "quarry",
-                      "ironMine",
-                      "farm",
-                      "warehouse",
-                      "library",
-                      "barracks"
-                    ]
-                  },
-                  "targetLevel": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "startedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "finishesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                },
-                "required": ["kind", "building", "targetLevel", "startedAt", "finishesAt"]
-              }
-            ]
+            "$ref": "#/components/schemas/BuildSlot"
           },
           "queue": {
             "type": "object",
@@ -1020,45 +974,7 @@
             "required": ["entries", "cap"]
           },
           "study": {
-            "oneOf": [
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "type": "string",
-                    "enum": ["idle"]
-                  }
-                },
-                "required": ["kind"]
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "kind": {
-                    "type": "string",
-                    "enum": ["busy"]
-                  },
-                  "art": {
-                    "type": "string",
-                    "enum": ["smithing", "masonry"]
-                  },
-                  "targetLevel": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "startedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "finishesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                },
-                "required": ["kind", "art", "targetLevel", "startedAt", "finishesAt"]
-              }
-            ]
+            "$ref": "#/components/schemas/StudySlot"
           },
           "arts": {
             "type": "object",
@@ -1627,555 +1543,9 @@
             }
           },
           "march": {
-            "oneOf": [
+            "allOf": [
               {
-                "type": "object",
-                "properties": {
-                  "province": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "plot": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "terrain": {
-                    "type": "string",
-                    "enum": ["lowlands", "uplands", "ridges"]
-                  },
-                  "units": {
-                    "type": "object",
-                    "properties": {
-                      "infantry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "cavalry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "archer": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "settler": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    }
-                  },
-                  "departedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "oneWaySeconds": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "loot": {
-                    "type": "object",
-                    "properties": {
-                      "wood": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "stone": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "iron": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "gold": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "food": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["wood", "stone", "iron", "gold", "food"]
-                  },
-                  "arrivesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "leavesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "returnsAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "recalledAt": {
-                    "type": "string",
-                    "nullable": true,
-                    "format": "date-time"
-                  },
-                  "order": {
-                    "type": "string",
-                    "enum": ["forage"]
-                  },
-                  "stayHours": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "camp": {
-                    "nullable": true
-                  },
-                  "fought": {
-                    "type": "boolean",
-                    "enum": [false]
-                  }
-                },
-                "required": [
-                  "province",
-                  "plot",
-                  "terrain",
-                  "units",
-                  "departedAt",
-                  "oneWaySeconds",
-                  "loot",
-                  "arrivesAt",
-                  "leavesAt",
-                  "returnsAt",
-                  "recalledAt",
-                  "order",
-                  "stayHours",
-                  "camp",
-                  "fought"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "province": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "plot": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "terrain": {
-                    "type": "string",
-                    "enum": ["lowlands", "uplands", "ridges"]
-                  },
-                  "units": {
-                    "type": "object",
-                    "properties": {
-                      "infantry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "cavalry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "archer": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "settler": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    }
-                  },
-                  "departedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "oneWaySeconds": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "loot": {
-                    "type": "object",
-                    "properties": {
-                      "wood": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "stone": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "iron": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "gold": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "food": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["wood", "stone", "iron", "gold", "food"]
-                  },
-                  "arrivesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "leavesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "returnsAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "recalledAt": {
-                    "type": "string",
-                    "nullable": true,
-                    "format": "date-time"
-                  },
-                  "order": {
-                    "type": "string",
-                    "enum": ["attack"]
-                  },
-                  "stayHours": {
-                    "type": "number",
-                    "enum": [0]
-                  },
-                  "camp": {
-                    "type": "object",
-                    "properties": {
-                      "tier": {
-                        "type": "number",
-                        "enum": [1]
-                      },
-                      "strength": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["tier", "strength"],
-                    "additionalProperties": false
-                  },
-                  "fought": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "province",
-                  "plot",
-                  "terrain",
-                  "units",
-                  "departedAt",
-                  "oneWaySeconds",
-                  "loot",
-                  "arrivesAt",
-                  "leavesAt",
-                  "returnsAt",
-                  "recalledAt",
-                  "order",
-                  "stayHours",
-                  "camp",
-                  "fought"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "province": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "plot": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "terrain": {
-                    "type": "string",
-                    "enum": ["lowlands", "uplands", "ridges"]
-                  },
-                  "units": {
-                    "type": "object",
-                    "properties": {
-                      "infantry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "cavalry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "archer": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "settler": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    }
-                  },
-                  "departedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "oneWaySeconds": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "loot": {
-                    "type": "object",
-                    "properties": {
-                      "wood": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "stone": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "iron": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "gold": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "food": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["wood", "stone", "iron", "gold", "food"]
-                  },
-                  "arrivesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "leavesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "returnsAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "recalledAt": {
-                    "type": "string",
-                    "nullable": true,
-                    "format": "date-time"
-                  },
-                  "order": {
-                    "type": "string",
-                    "enum": ["found"]
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "stayHours": {
-                    "type": "number",
-                    "enum": [0]
-                  },
-                  "camp": {
-                    "nullable": true
-                  },
-                  "fought": {
-                    "type": "boolean",
-                    "enum": [false]
-                  }
-                },
-                "required": [
-                  "province",
-                  "plot",
-                  "terrain",
-                  "units",
-                  "departedAt",
-                  "oneWaySeconds",
-                  "loot",
-                  "arrivesAt",
-                  "leavesAt",
-                  "returnsAt",
-                  "recalledAt",
-                  "order",
-                  "name",
-                  "stayHours",
-                  "camp",
-                  "fought"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "province": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "plot": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "terrain": {
-                    "type": "string",
-                    "enum": ["lowlands", "uplands", "ridges"]
-                  },
-                  "units": {
-                    "type": "object",
-                    "properties": {
-                      "infantry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "cavalry": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "archer": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "settler": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    }
-                  },
-                  "departedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "oneWaySeconds": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "loot": {
-                    "type": "object",
-                    "properties": {
-                      "wood": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "stone": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "iron": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "gold": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "food": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["wood", "stone", "iron", "gold", "food"]
-                  },
-                  "arrivesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "leavesAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "returnsAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "recalledAt": {
-                    "type": "string",
-                    "nullable": true,
-                    "format": "date-time"
-                  },
-                  "order": {
-                    "type": "string",
-                    "enum": ["transport"]
-                  },
-                  "toFiefId": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "cargo": {
-                    "type": "object",
-                    "properties": {
-                      "wood": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "stone": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "iron": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "gold": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "food": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["wood", "stone", "iron", "gold", "food"]
-                  },
-                  "stayHours": {
-                    "type": "number",
-                    "enum": [0]
-                  },
-                  "camp": {
-                    "nullable": true
-                  },
-                  "fought": {
-                    "type": "boolean",
-                    "enum": [false]
-                  }
-                },
-                "required": [
-                  "province",
-                  "plot",
-                  "terrain",
-                  "units",
-                  "departedAt",
-                  "oneWaySeconds",
-                  "loot",
-                  "arrivesAt",
-                  "leavesAt",
-                  "returnsAt",
-                  "recalledAt",
-                  "order",
-                  "toFiefId",
-                  "cargo",
-                  "stayHours",
-                  "camp",
-                  "fought"
-                ],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/MarchState"
               },
               {
                 "nullable": true
@@ -2219,8 +1589,9 @@
                         "minimum": 0
                       },
                       "gold": {
-                        "type": "number",
-                        "enum": [0]
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 0
                       },
                       "food": {
                         "type": "integer",
@@ -2246,8 +1617,9 @@
                         "minimum": 0
                       },
                       "gold": {
-                        "type": "number",
-                        "enum": [0]
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 0
                       },
                       "food": {
                         "type": "integer",
@@ -2273,8 +1645,9 @@
                         "minimum": 0
                       },
                       "gold": {
-                        "type": "number",
-                        "enum": [0]
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 0
                       },
                       "food": {
                         "type": "integer",
@@ -2428,115 +1801,9 @@
             "additionalProperties": false
           },
           "goal": {
-            "oneOf": [
+            "allOf": [
               {
-                "type": "object",
-                "properties": {
-                  "position": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "count": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "building": {
-                    "type": "string",
-                    "enum": [
-                      "sawmill",
-                      "quarry",
-                      "ironMine",
-                      "farm",
-                      "warehouse",
-                      "library",
-                      "barracks"
-                    ]
-                  },
-                  "level": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "state": {
-                    "type": "string",
-                    "enum": ["pending"]
-                  },
-                  "missing": {
-                    "type": "object",
-                    "properties": {
-                      "resources": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "resource": {
-                              "type": "string",
-                              "enum": ["wood", "stone", "iron", "gold", "food"]
-                            },
-                            "amount": {
-                              "type": "number",
-                              "minimum": 0,
-                              "exclusiveMinimum": true
-                            }
-                          },
-                          "required": ["resource", "amount"],
-                          "additionalProperties": false
-                        }
-                      },
-                      "peasants": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    },
-                    "required": ["resources", "peasants"],
-                    "additionalProperties": false
-                  }
-                },
-                "required": ["position", "count", "building", "level", "state", "missing"],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "position": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "count": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "building": {
-                    "type": "string",
-                    "enum": [
-                      "sawmill",
-                      "quarry",
-                      "ironMine",
-                      "farm",
-                      "warehouse",
-                      "library",
-                      "barracks"
-                    ]
-                  },
-                  "level": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "state": {
-                    "type": "string",
-                    "enum": ["underway"]
-                  },
-                  "missing": {
-                    "nullable": true
-                  }
-                },
-                "required": ["position", "count", "building", "level", "state", "missing"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/Goal"
               },
               {
                 "nullable": true
@@ -2572,6 +1839,801 @@
           "goal",
           "readAt"
         ]
+      },
+      "BuildSlot": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IdleBuildSlot"
+          },
+          {
+            "$ref": "#/components/schemas/BusyBuildSlot"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "idle": "#/components/schemas/IdleBuildSlot",
+            "busy": "#/components/schemas/BusyBuildSlot"
+          }
+        }
+      },
+      "IdleBuildSlot": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["idle"]
+          }
+        },
+        "required": ["kind"]
+      },
+      "BusyBuildSlot": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["busy"]
+          },
+          "building": {
+            "type": "string",
+            "enum": ["sawmill", "quarry", "ironMine", "farm", "warehouse", "library", "barracks"]
+          },
+          "targetLevel": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishesAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "building", "targetLevel", "startedAt", "finishesAt"]
+      },
+      "StudySlot": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/IdleStudySlot"
+          },
+          {
+            "$ref": "#/components/schemas/BusyStudySlot"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "idle": "#/components/schemas/IdleStudySlot",
+            "busy": "#/components/schemas/BusyStudySlot"
+          }
+        }
+      },
+      "IdleStudySlot": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["idle"]
+          }
+        },
+        "required": ["kind"]
+      },
+      "BusyStudySlot": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["busy"]
+          },
+          "art": {
+            "type": "string",
+            "enum": ["smithing", "masonry"]
+          },
+          "targetLevel": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishesAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "art", "targetLevel", "startedAt", "finishesAt"]
+      },
+      "MarchState": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ForageMarch"
+          },
+          {
+            "$ref": "#/components/schemas/AttackMarch"
+          },
+          {
+            "$ref": "#/components/schemas/FoundingMarch"
+          },
+          {
+            "$ref": "#/components/schemas/TransportMarch"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "order",
+          "mapping": {
+            "forage": "#/components/schemas/ForageMarch",
+            "attack": "#/components/schemas/AttackMarch",
+            "found": "#/components/schemas/FoundingMarch",
+            "transport": "#/components/schemas/TransportMarch"
+          }
+        }
+      },
+      "ForageMarch": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["lowlands", "uplands", "ridges"]
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "departedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "oneWaySeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "loot": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          },
+          "arrivesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leavesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recalledAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string",
+            "enum": ["forage"]
+          },
+          "stayHours": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "camp": {
+            "nullable": true
+          },
+          "fought": {
+            "type": "boolean",
+            "enum": [false]
+          }
+        },
+        "required": [
+          "province",
+          "plot",
+          "terrain",
+          "units",
+          "departedAt",
+          "oneWaySeconds",
+          "loot",
+          "arrivesAt",
+          "leavesAt",
+          "returnsAt",
+          "recalledAt",
+          "order",
+          "stayHours",
+          "camp",
+          "fought"
+        ],
+        "additionalProperties": false
+      },
+      "AttackMarch": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["lowlands", "uplands", "ridges"]
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "departedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "oneWaySeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "loot": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          },
+          "arrivesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leavesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recalledAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string",
+            "enum": ["attack"]
+          },
+          "stayHours": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 0
+          },
+          "camp": {
+            "type": "object",
+            "properties": {
+              "tier": {
+                "type": "integer",
+                "enum": [1, 2, 3]
+              },
+              "strength": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["tier", "strength"],
+            "additionalProperties": false
+          },
+          "fought": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "province",
+          "plot",
+          "terrain",
+          "units",
+          "departedAt",
+          "oneWaySeconds",
+          "loot",
+          "arrivesAt",
+          "leavesAt",
+          "returnsAt",
+          "recalledAt",
+          "order",
+          "stayHours",
+          "camp",
+          "fought"
+        ],
+        "additionalProperties": false
+      },
+      "FoundingMarch": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["lowlands", "uplands", "ridges"]
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "departedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "oneWaySeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "loot": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          },
+          "arrivesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leavesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recalledAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string",
+            "enum": ["found"]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stayHours": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 0
+          },
+          "camp": {
+            "nullable": true
+          },
+          "fought": {
+            "type": "boolean",
+            "enum": [false]
+          }
+        },
+        "required": [
+          "province",
+          "plot",
+          "terrain",
+          "units",
+          "departedAt",
+          "oneWaySeconds",
+          "loot",
+          "arrivesAt",
+          "leavesAt",
+          "returnsAt",
+          "recalledAt",
+          "order",
+          "name",
+          "stayHours",
+          "camp",
+          "fought"
+        ],
+        "additionalProperties": false
+      },
+      "TransportMarch": {
+        "type": "object",
+        "properties": {
+          "province": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "plot": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["lowlands", "uplands", "ridges"]
+          },
+          "units": {
+            "type": "object",
+            "properties": {
+              "infantry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cavalry": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "archer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "settler": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "departedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "oneWaySeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "loot": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          },
+          "arrivesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leavesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recalledAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "order": {
+            "type": "string",
+            "enum": ["transport"]
+          },
+          "toFiefId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cargo": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
+          },
+          "stayHours": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 0
+          },
+          "camp": {
+            "nullable": true
+          },
+          "fought": {
+            "type": "boolean",
+            "enum": [false]
+          }
+        },
+        "required": [
+          "province",
+          "plot",
+          "terrain",
+          "units",
+          "departedAt",
+          "oneWaySeconds",
+          "loot",
+          "arrivesAt",
+          "leavesAt",
+          "returnsAt",
+          "recalledAt",
+          "order",
+          "toFiefId",
+          "cargo",
+          "stayHours",
+          "camp",
+          "fought"
+        ],
+        "additionalProperties": false
+      },
+      "Goal": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PendingGoal"
+          },
+          {
+            "$ref": "#/components/schemas/UnderwayGoal"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "state",
+          "mapping": {
+            "pending": "#/components/schemas/PendingGoal",
+            "underway": "#/components/schemas/UnderwayGoal"
+          }
+        }
+      },
+      "PendingGoal": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "building": {
+            "type": "string",
+            "enum": ["sawmill", "quarry", "ironMine", "farm", "warehouse", "library", "barracks"]
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "state": {
+            "type": "string",
+            "enum": ["pending"]
+          },
+          "missing": {
+            "type": "object",
+            "properties": {
+              "resources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "resource": {
+                      "type": "string",
+                      "enum": ["wood", "stone", "iron", "gold", "food"]
+                    },
+                    "amount": {
+                      "type": "number",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    }
+                  },
+                  "required": ["resource", "amount"],
+                  "additionalProperties": false
+                }
+              },
+              "peasants": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["resources", "peasants"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["position", "count", "building", "level", "state", "missing"],
+        "additionalProperties": false
+      },
+      "UnderwayGoal": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "building": {
+            "type": "string",
+            "enum": ["sawmill", "quarry", "ironMine", "farm", "warehouse", "library", "barracks"]
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "state": {
+            "type": "string",
+            "enum": ["underway"]
+          },
+          "missing": {
+            "nullable": true
+          }
+        },
+        "required": ["position", "count", "building", "level", "state", "missing"],
+        "additionalProperties": false
       },
       "FiefChronicle": {
         "type": "object",
@@ -2923,8 +2985,8 @@
                       "exclusiveMinimum": true
                     },
                     "tier": {
-                      "type": "number",
-                      "enum": [1]
+                      "type": "integer",
+                      "enum": [1, 2, 3]
                     },
                     "won": {
                       "type": "boolean"
@@ -3716,8 +3778,8 @@
                             "exclusiveMinimum": true
                           },
                           "tier": {
-                            "type": "number",
-                            "enum": [1]
+                            "type": "integer",
+                            "enum": [1, 2, 3]
                           },
                           "won": {
                             "type": "boolean"

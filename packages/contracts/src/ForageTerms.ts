@@ -6,7 +6,7 @@ const ForageYieldSchema = z.strictObject({
   wood: WholeCountSchema,
   stone: WholeCountSchema,
   iron: WholeCountSchema,
-  gold: z.literal(0),
+  gold: WholeCountSchema.max(0),
   food: WholeCountSchema,
 })
 

@@ -13,6 +13,7 @@ import { UnitCountsSchema } from './UnitCounts'
 import { UnitKindSchema } from './UnitKind'
 import {
   BuildingLevelSchema,
+  CampTierSchema,
   DurationSecondsSchema,
   InstantSchema,
   QuantitySchema,
@@ -38,29 +39,37 @@ const BuildingStateSchema = z.object({
   nextLevel: NextLevelSchema.nullable(),
 })
 
-const IdleSlotSchema = z.object({
-  kind: z.literal('idle'),
-})
+const IdleBuildSlotSchema = z
+  .object({
+    kind: z.literal('idle'),
+  })
+  .meta({ id: 'IdleBuildSlot' })
 
-const BusySlotSchema = z.object({
-  kind: z.literal('busy'),
-  building: BuildingKindSchema,
-  targetLevel: BuildingLevelSchema,
-  startedAt: InstantSchema,
-  finishesAt: InstantSchema,
-})
+const BusyBuildSlotSchema = z
+  .object({
+    kind: z.literal('busy'),
+    building: BuildingKindSchema,
+    targetLevel: BuildingLevelSchema,
+    startedAt: InstantSchema,
+    finishesAt: InstantSchema,
+  })
+  .meta({ id: 'BusyBuildSlot' })
 
-const IdleStudySchema = z.object({
-  kind: z.literal('idle'),
-})
+const IdleStudySlotSchema = z
+  .object({
+    kind: z.literal('idle'),
+  })
+  .meta({ id: 'IdleStudySlot' })
 
-const BusyStudySchema = z.object({
-  kind: z.literal('busy'),
-  art: ArtKindSchema,
-  targetLevel: BuildingLevelSchema,
-  startedAt: InstantSchema,
-  finishesAt: InstantSchema,
-})
+const BusyStudySlotSchema = z
+  .object({
+    kind: z.literal('busy'),
+    art: ArtKindSchema,
+    targetLevel: BuildingLevelSchema,
+    startedAt: InstantSchema,
+    finishesAt: InstantSchema,
+  })
+  .meta({ id: 'BusyStudySlot' })
 
 const NextArtLevelSchema = z.object({
   level: BuildingLevelSchema,
@@ -121,48 +130,50 @@ const MarchOnTheRoadSchema = z.strictObject({
   recalledAt: InstantSchema.nullable(),
 })
 
-const ForageMarchStateSchema = MarchOnTheRoadSchema.extend({
+const ForageMarchSchema = MarchOnTheRoadSchema.extend({
   order: z.literal('forage'),
   stayHours: WholeCountSchema.positive(),
   camp: z.null(),
   fought: z.literal(false),
-})
+}).meta({ id: 'ForageMarch' })
 
 const AttackedCampSchema = z.strictObject({
-  tier: z.literal([1, 2, 3]),
+  tier: CampTierSchema,
   strength: WholeCountSchema,
 })
 
-const AttackMarchStateSchema = MarchOnTheRoadSchema.extend({
+const AttackMarchSchema = MarchOnTheRoadSchema.extend({
   order: z.literal('attack'),
-  stayHours: z.literal(0),
+  stayHours: WholeCountSchema.max(0),
   camp: AttackedCampSchema,
   fought: z.boolean(),
-})
+}).meta({ id: 'AttackMarch' })
 
-const FoundingMarchStateSchema = MarchOnTheRoadSchema.extend({
+const FoundingMarchSchema = MarchOnTheRoadSchema.extend({
   order: z.literal('found'),
   name: z.string().min(1),
-  stayHours: z.literal(0),
+  stayHours: WholeCountSchema.max(0),
   camp: z.null(),
   fought: z.literal(false),
-})
+}).meta({ id: 'FoundingMarch' })
 
-const TransportMarchStateSchema = MarchOnTheRoadSchema.extend({
+const TransportMarchSchema = MarchOnTheRoadSchema.extend({
   order: z.literal('transport'),
   toFiefId: z.uuid(),
   cargo: ResourceAmountsSchema,
-  stayHours: z.literal(0),
+  stayHours: WholeCountSchema.max(0),
   camp: z.null(),
   fought: z.literal(false),
-})
+}).meta({ id: 'TransportMarch' })
 
-const MarchStateSchema = z.discriminatedUnion('order', [
-  ForageMarchStateSchema,
-  AttackMarchStateSchema,
-  FoundingMarchStateSchema,
-  TransportMarchStateSchema,
-])
+const MarchStateSchema = z
+  .discriminatedUnion('order', [
+    ForageMarchSchema,
+    AttackMarchSchema,
+    FoundingMarchSchema,
+    TransportMarchSchema,
+  ])
+  .meta({ id: 'MarchState' })
 
 const IncomingCargoSchema = z.strictObject({
   fromFiefId: z.uuid(),
@@ -206,14 +217,24 @@ const PendingGoalSchema = GoalPlacementSchema.extend({
     resources: z.array(ResourceShortfallSchema),
     peasants: WholeCountSchema,
   }),
-})
+}).meta({ id: 'PendingGoal' })
 
 const UnderwayGoalSchema = GoalPlacementSchema.extend({
   state: z.literal('underway'),
   missing: z.null(),
-})
+}).meta({ id: 'UnderwayGoal' })
 
-const GoalSchema = z.discriminatedUnion('state', [PendingGoalSchema, UnderwayGoalSchema])
+const BuildSlotSchema = z
+  .discriminatedUnion('kind', [IdleBuildSlotSchema, BusyBuildSlotSchema])
+  .meta({ id: 'BuildSlot' })
+
+const StudySlotSchema = z
+  .discriminatedUnion('kind', [IdleStudySlotSchema, BusyStudySlotSchema])
+  .meta({ id: 'StudySlot' })
+
+const GoalSchema = z
+  .discriminatedUnion('state', [PendingGoalSchema, UnderwayGoalSchema])
+  .meta({ id: 'Goal' })
 
 export const FiefOverviewSchema = z.object({
   id: z.uuid(),
@@ -241,23 +262,23 @@ export const FiefOverviewSchema = z.object({
     projectedFree: WholeCountSchema,
     lowestFree: WholeCountSchema,
   }),
-  slot: z.discriminatedUnion('kind', [IdleSlotSchema, BusySlotSchema]),
+  slot: BuildSlotSchema,
   queue: z.object({
     entries: z.array(WaitingUpgradeSchema),
     cap: WholeCountSchema,
   }),
-  study: z.discriminatedUnion('kind', [IdleStudySchema, BusyStudySchema]),
+  study: StudySlotSchema,
   arts: z.record(ArtKindSchema, ArtStateSchema),
   season: SeasonStateSchema.nullable(),
   units: UnitCountsSchema,
   recruitOrder: RecruitOrderStateSchema.nullable(),
   recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
   unitTerms: z.record(UnitKindSchema, UnitStatsSchema),
-  march: MarchStateSchema.nullable(),
+  march: z.lazy(() => MarchStateSchema).nullable(),
   forageTerms: ForageTermsSchema,
   combatTerms: CombatTermsSchema,
   incomingCargo: IncomingCargoSchema.nullable(),
-  goal: GoalSchema.nullable(),
+  goal: z.lazy(() => GoalSchema).nullable(),
   readAt: InstantSchema,
 })
 

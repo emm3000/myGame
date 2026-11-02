@@ -26,6 +26,36 @@ const refusal = jsonOf('ApiError')
 
 const bodiless = { description: expect.any(String) }
 
+const discriminatedBy = (propertyName: string, components: Record<string, string>): object => ({
+  discriminator: {
+    propertyName,
+    mapping: Object.fromEntries(
+      Object.entries(components).map(([value, component]) => [
+        value,
+        `#/components/schemas/${component}`,
+      ]),
+    ),
+  },
+})
+
+const isWholeNumberLiteralTypedAsNumber = (node: Record<string, unknown>): boolean =>
+  node.type === 'number' &&
+  Array.isArray(node.enum) &&
+  node.enum.every((literal) => Number.isInteger(literal))
+
+const wholeNumberLiteralsTypedAsNumber = (node: unknown, path = '#'): ReadonlyArray<string> => {
+  if (typeof node !== 'object' || node === null) {
+    return []
+  }
+  const here = isWholeNumberLiteralTypedAsNumber(node as Record<string, unknown>) ? [path] : []
+  return [
+    ...here,
+    ...Object.entries(node).flatMap(([key, child]) =>
+      wholeNumberLiteralsTypedAsNumber(child, `${path}/${key}`),
+    ),
+  ]
+}
+
 describe('the OpenAPI document', () => {
   let server: ComposedServer
 
@@ -97,6 +127,71 @@ describe('the OpenAPI document', () => {
               400: bodiless,
               401: bodiless,
               404: refusal,
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('declares every whole-number literal as an integer', async () => {
+    const document = await (await servedDocument()).json()
+
+    expect(wholeNumberLiteralsTypedAsNumber(document)).toEqual([])
+  })
+
+  it('lists every value of a numeric literal union', async () => {
+    const document = await (await servedDocument()).json()
+
+    expect(document).toMatchObject({
+      components: {
+        schemas: {
+          ProvinceMap: {
+            properties: {
+              plots: {
+                items: {
+                  properties: {
+                    camp: { properties: { tier: { type: 'integer', enum: [1, 2, 3] } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('names the discriminator of every union in the fief overview', async () => {
+    const document = await (await servedDocument()).json()
+
+    expect(document).toMatchObject({
+      components: {
+        schemas: {
+          BuildSlot: discriminatedBy('kind', { idle: 'IdleBuildSlot', busy: 'BusyBuildSlot' }),
+          StudySlot: discriminatedBy('kind', { idle: 'IdleStudySlot', busy: 'BusyStudySlot' }),
+          MarchState: discriminatedBy('order', {
+            forage: 'ForageMarch',
+            attack: 'AttackMarch',
+            found: 'FoundingMarch',
+            transport: 'TransportMarch',
+          }),
+          Goal: discriminatedBy('state', { pending: 'PendingGoal', underway: 'UnderwayGoal' }),
+        },
+      },
+    })
+  })
+
+  it('keeps a nullable union of the fief overview nullable beside its discriminator', async () => {
+    const document = await (await servedDocument()).json()
+
+    expect(document).toMatchObject({
+      components: {
+        schemas: {
+          FiefOverview: {
+            properties: {
+              march: { allOf: [{ $ref: '#/components/schemas/MarchState' }, { nullable: true }] },
+              goal: { allOf: [{ $ref: '#/components/schemas/Goal' }, { nullable: true }] },
             },
           },
         },

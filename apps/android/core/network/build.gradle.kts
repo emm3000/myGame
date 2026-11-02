@@ -1,4 +1,3 @@
-import com.emm.mygame.buildlogic.NormalizeApiSpecTask
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
@@ -7,15 +6,10 @@ plugins {
     alias(libs.plugins.openapi.generator)
 }
 
-val normalizeApiSpec: TaskProvider<NormalizeApiSpecTask> = tasks.register<NormalizeApiSpecTask>("normalizeApiSpec") {
-    specification.set(rootProject.layout.projectDirectory.file("../api/openapi.json"))
-    normalized.set(layout.buildDirectory.file("openapi/openapi.json"))
-}
-
 val generateApiClient: TaskProvider<GenerateTask> = tasks.named<GenerateTask>("openApiGenerate") {
     generatorName.set("kotlin")
     library.set("jvm-retrofit2")
-    inputSpec.set(normalizeApiSpec.flatMap { it.normalized })
+    inputSpec.set(rootProject.layout.projectDirectory.file("../api/openapi.json").asFile.path)
     ignoreFileOverride.set(layout.projectDirectory.file("openapi-generator-ignore"))
     cleanupOutput.set(true)
     packageName.set("com.emm.mygame.core.network.generated")
@@ -28,7 +22,7 @@ val generateApiClient: TaskProvider<GenerateTask> = tasks.named<GenerateTask>("o
         mapOf(
             "serializationLibrary" to "kotlinx_serialization",
             "useCoroutines" to "true",
-            "enumUnknownDefaultCase" to "false",
+            "enumUnknownDefaultCase" to "true",
             "generateOneOfAnyOfWrappers" to "true",
             "omitGradleWrapper" to "true",
             "sourceFolder" to "",
