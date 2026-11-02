@@ -15,13 +15,25 @@ contains() {
   awk -v item="$2" '$0 == item { found = 1 } END { exit !found }' <<<"$1"
 }
 
-running_names=$(ps -axo pid=,command= | awk '
+cwds=$(lsof -d cwd -Fpcn +c 0 2>/dev/null | awk '
+  /^p/ { pid = substr($0, 2) }
+  /^c/ { name = substr($0, 2) }
+  /^n/ { print pid "\t" name "\t" substr($0, 2) }' || true)
+
+running=$(ps -axo pid=,command= | awk '
   {
     command = $2
     sub(/.*\//, "", command)
     if (command != "claude") next
-    for (i = 3; i < NF; i++) if ($i == "-n") { print $(i + 1); next }
+    for (i = 3; i < NF; i++) if ($i == "-n") { print $1 "\t" $(i + 1); next }
   }')
+
+is_live() {
+  awk -F '\t' -v name="$1" -v path="$2" '
+    FNR == NR { if ($2 == name) pids[$1] = 1; next }
+    ($1 in pids) && ($3 == path || index($3, path "/") == 1) { found = 1 }
+    END { exit !found }' <(printf '%s\n' "$running") <(printf '%s\n' "$cwds")
+}
 
 main_worktree=""
 while IFS="$(printf '\t')" read -r path branch; do
@@ -32,7 +44,7 @@ while IFS="$(printf '\t')" read -r path branch; do
   fi
   folder=$(basename "$path")
   name=${folder#mygame-}
-  if [ "$name" != "$folder" ] && [ -d "$path" ] && contains "$running_names" "$name"; then
+  if [ "$name" != "$folder" ] && [ -d "$path" ] && is_live "$name" "$path"; then
     live_peers="$live_peers$name"$'\n'
     if [ -n "$branch" ]; then
       ticket=${branch#*/}
@@ -72,19 +84,29 @@ if command -v docker >/dev/null; then
       owner=${container#mygame-}
       contains "$live_peers" "${owner%-*}" || report "container $container"
     done <<<"$containers"
-    while read -r volume; do
-      [ -z "$volume" ] || report "dangling volume $volume"
-    done <<<"$(docker volume ls -qf dangling=true 2>/dev/null || true)"
+    while IFS="$(printf '\t')" read -r volume labels; do
+      [ -n "$volume" ] || continue
+      if [[ $volume =~ ^[0-9a-f]{64}$ ]] || [[ $labels == *mygame* ]]; then
+        report "dangling volume $volume"
+      fi
+    done <<<"$(docker volume ls -f dangling=true --format '{{.Name}}\t{{.Labels}}' 2>/dev/null || true)"
   else
     echo "orphans: docker unreachable, containers and volumes not checked" >&2
   fi
 fi
 
-while read -r pid path; do
-  [ -z "$pid" ] || [ -d "$path" ] || report "process $pid in missing $path"
-done <<<"$(lsof -d cwd -Fpn 2>/dev/null | awk '
-  /^p/ { pid = substr($0, 2) }
-  /^n/ { path = substr($0, 2); if (path ~ /\/mygame-[^\/]*(\/|$)/) print pid " " path }' || true)"
+while IFS="$(printf '\t')" read -r pid name path; do
+  case $path in
+    */mygame-*) ;;
+    *) continue ;;
+  esac
+  [ ! -d "$path" ] || continue
+  if [[ $name =~ ^(emulator|qemu|crashpad|netsim) ]]; then
+    echo "kept: emulator $pid in $path"
+  else
+    report "process $pid in missing $path"
+  fi
+done <<<"$cwds"
 
 [ "$found" -eq 1 ] || echo "orphans: none"
 exit "$found"
