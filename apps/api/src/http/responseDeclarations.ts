@@ -17,6 +17,3 @@ export const jsonResponse = (description: string, schema: ZodType): ResponseDecl
 export const signedOutResponse: ResponseDeclaration = {
   description: 'No live session cookie. Empty body.',
 }
-
-export const honoPathOf = ({ path }: { readonly path: string }): string =>
-  path.replace(/\{(\w+)\}/g, ':$1')

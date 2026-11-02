@@ -1,6 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import type { HealthResponse } from '@mygame/contracts'
-import { honoPathOf } from './http/responseDeclarations'
+import { honoPathOf } from './http/honoPath'
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { type DigestDependencies, digestRoutes } from './routes/digest'
 import { type FiefsDependencies, fiefsRoutes } from './routes/fiefs'

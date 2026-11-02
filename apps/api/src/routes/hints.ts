@@ -2,8 +2,8 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { HintKindSchema } from '@mygame/contracts'
 import type { SeenHints } from '../hint/SeenHints'
 import { answerRefusal } from '../http/answerRefusal'
+import { honoPathOf } from '../http/honoPath'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { honoPathOf } from '../http/responseDeclarations'
 import { hintsDeclarations } from './hintsDeclarations'
 
 export type HintsDependencies = RequirePlayerDependencies & {
