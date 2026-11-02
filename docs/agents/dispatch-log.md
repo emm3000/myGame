@@ -12,14 +12,14 @@ Totals of rows already folded out of Recent.
 
 | Row | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|---|
-| 1 | sonnet:low | 8 | 6 | 0 | 0 | 2 |
+| 1 | sonnet:low | 9 | 7 | 0 | 0 | 2 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
-| 2 | opus:medium | 63 | 53 | 5 | 4 | 1 |
+| 2 | opus:medium | 66 | 56 | 5 | 4 | 1 |
 | 3 | opus:medium | 24 | 16 | 3 | 4 | 1 |
-| 4 | opus:high | 49 | 44 | 1 | 2 | 2 |
-| 3 | opus:high | 50 | 40 | 4 | 6 | 0 |
-| 1 | fable:high | 38 | 29 | 1 | 6 | 2 |
-| 5 | fable:high | 16 | 16 | 0 | 0 | 0 |
+| 4 | opus:high | 50 | 45 | 1 | 2 | 2 |
+| 3 | opus:high | 54 | 43 | 4 | 7 | 0 |
+| 1 | fable:high | 42 | 30 | 1 | 8 | 3 |
+| 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
 
 ## Recent
 
@@ -27,21 +27,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| #531 | #526 | 3 | opus:high | FIX FIRST | judgment |
-| #532 | #527 | 1 | fable:high | FIX FIRST | judgment |
-| #535 (artifact) | #535 | 5 | fable:high | MERGE | |
-| #538 | #536 | 3 | opus:high | MERGE | |
-| #539 | #537 | 1 | fable:high | FIX FIRST | judgment |
-| #546 | #544 | 1 | sonnet:low | MERGE | |
-| #547 | #543 | 4 | opus:high | MERGE | |
-| #548 | #542 | 2 | opus:medium | MERGE | |
-| #549 | #541 | 1 | fable:high | FIX FIRST | spec |
-| #550 | #545 | 2 | opus:medium | MERGE | |
-| #552 (artifact) | #552 | 5 | fable:high | MERGE | |
-| #559 | #554 | 1 | fable:high | MERGE | |
-| #560 | #553 | 3 | opus:high | MERGE | |
-| #561 | #556 | 3 | opus:high | MERGE | |
-| #562 | #557 | 2 | opus:medium | MERGE | |
 | #563 | #558 | 1 | fable:high | MERGE | |
 | artifact | #572 | 5 | opus:high | MERGE | |
 | #578 | #573 | 4 | opus:high | MERGE | |
@@ -60,3 +45,5 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #603 | #595 | 2 | opus:medium | MERGE | |
 | #605 | #604 | 3 | opus:high | FIX FIRST | checklist |
 | #606 | #596 | 3 | opus:high | MERGE | |
+| #613 | #582 | 3 | opus:high | MERGE | |
+| #614 | #607 | 2 | opus:medium | MERGE | |
