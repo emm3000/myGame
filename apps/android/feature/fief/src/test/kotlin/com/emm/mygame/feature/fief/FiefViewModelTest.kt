@@ -496,6 +496,28 @@ class FiefViewModelTest {
     }
 
     @Test
+    fun `upgrades the barracks as any other building`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill(), barracks()))))
+        val barracksUnderWay: BuildSlot =
+            BuildSlot.Busy(BuildingKind.Barracks, targetLevel = 1, finishesAt = firstReadAt + 6.minutes)
+        fiefs.answerUpgrade(
+            UpgradeResult.Upgraded(fief(slot = barracksUnderWay, buildings = listOf(sawmill(), barracks()))),
+        )
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Barracks))
+            assertEquals(
+                FiefUiState.SlotLine.Busy(BuildingKind.Barracks, targetLevel = 1, remaining = 6.minutes),
+                awaitContentWhere { it.slot is FiefUiState.SlotLine.Busy }.slot,
+            )
+        }
+        assertEquals(listOf(FiefId(FIEF_ID) to BuildingKind.Barracks), fiefs.upgrades)
+    }
+
+    @Test
     fun `waits on the api once while an upgrade is under way`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)

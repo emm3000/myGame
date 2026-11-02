@@ -113,7 +113,7 @@ class FiefRepositoryTest {
     }
 
     @Test
-    fun `reads the five buildings with the next level's cost, duration and peasants`() = runTest {
+    fun `maps the seven buildings in the contract's order`() = runTest {
         enqueueIdleFief()
 
         val buildings: List<BuildingState> = readFief().buildings
@@ -125,9 +125,19 @@ class FiefRepositoryTest {
                 BuildingKind.IronMine,
                 BuildingKind.Farm,
                 BuildingKind.Warehouse,
+                BuildingKind.Library,
+                BuildingKind.Barracks,
             ),
             buildings.map { it.kind },
         )
+    }
+
+    @Test
+    fun `reads a building with the next level's cost, duration and peasants`() = runTest {
+        enqueueIdleFief()
+
+        val buildings: List<BuildingState> = readFief().buildings
+
         assertEquals(
             BuildingState(
                 kind = BuildingKind.IronMine,
