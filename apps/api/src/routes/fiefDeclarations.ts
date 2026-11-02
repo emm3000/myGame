@@ -185,7 +185,9 @@ export const fiefDeclarations = {
         body: jsonBody(DispatchFoundingRequestSchema.meta({ id: 'DispatchFoundingRequest' })),
       },
       responses: mutationResponses('The fief with the settler away to found a fief.', {
-        400: refusalResponse('BlankFiefName; a malformed fief id or body answers an empty body.'),
+        400: refusalResponse(
+          'BlankFiefName for an empty or blank name, before any other issue of the body; a malformed fief id or any other malformed body answers an empty body.',
+        ),
         409: refusalResponse(`FiefCapReached, PlotHasCamp, ${marchRefusals}.`),
       }),
     }),
