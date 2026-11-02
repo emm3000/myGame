@@ -46,9 +46,12 @@ import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { honoPathOf } from '../http/honoPath'
+import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
 import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { fiefDeclarations } from './fiefDeclarations'
+
+const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankFiefName' }]]
 
 export type FiefDependencies = CurrentFiefDependencies &
   CancelUpgradeDependencies &
@@ -230,7 +233,7 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
     async (c) => {
       const request = DispatchFoundingRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
+        return answerRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
       }
       return answerFief(c, await dispatchFoundingOf(c.var.fiefOfPlayer, request.data, dependencies))
     },

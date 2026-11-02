@@ -3442,6 +3442,17 @@ describe('the fief route', () => {
       expect(units).toEqual({ infantry: 0, cavalry: 0, archer: 0, settler: 1 })
     })
 
+    it.each(['   ', ''])('refuses the founding name %j as BlankFiefName', async (name) => {
+      const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
+
+      const response = await found(ana, { ...foundingOnFreePlot(), name })
+
+      expect(response.status).toBe(400)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
+      const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
+      expect(march).toBeNull()
+    })
+
     it('refuses a second founding to a reserved plot', async () => {
       const ana = await signUpWithASettler('ana@example.com', 'Valdehierro')
       const bruno = await signUpWithASettler('bruno@example.com', 'Robledal')

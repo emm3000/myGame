@@ -14,6 +14,18 @@ describe('DispatchFoundingRequestSchema', () => {
     expect(DispatchFoundingRequestSchema.safeParse({ province: 2, plot: 7 }).success).toBe(false)
   })
 
+  it('rejects a founding whose name is only spaces', () => {
+    expect(
+      DispatchFoundingRequestSchema.safeParse({ ...foundingOnProvinceTwo, name: '   ' }).success,
+    ).toBe(false)
+  })
+
+  it('trims the name of a founding', () => {
+    expect(
+      DispatchFoundingRequestSchema.parse({ ...foundingOnProvinceTwo, name: '  Villanueva ' }).name,
+    ).toBe('Villanueva')
+  })
+
   it('rejects a founding that carries a party', () => {
     expect(
       DispatchFoundingRequestSchema.safeParse({
