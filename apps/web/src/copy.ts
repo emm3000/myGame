@@ -29,6 +29,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
   EmailTaken: 'Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.',
   WeakPassword: 'Tu contraseña necesita al menos 8 caracteres.',
+  MalformedEmail: 'Escribe un correo válido, como nombre@ejemplo.com.',
   FiefNotFound: 'No encontramos tus tierras.',
   UnknownBuilding: 'Ese edificio no existe.',
   MaxLevelReached: 'Ese edificio ya está en su nivel más alto.',
@@ -269,7 +270,7 @@ export const copy = {
   auth: {
     email: 'Correo',
     password: 'Contraseña',
-    invalidEmail: 'Escribe un correo válido, como nombre@ejemplo.com.',
+    invalidEmail: refusals.MalformedEmail,
     signIn: {
       title: signInTitle,
       submit: 'Entrar',

@@ -305,7 +305,7 @@ The **sign-in and sign-up** lines shipped before this section and are recorded h
 | Screen | Line | Note |
 |---|---|---|
 | both | *Correo*, *Contraseña* | the two field labels |
-| both | *Escribe un correo válido, como nombre@ejemplo.com.* | a malformed email, refused before any request |
+| both | *Escribe un correo válido, como nombre@ejemplo.com.* | a malformed email: the web refuses it before any request; the api answers it as `MalformedEmail` on both sign-up routes, and Android shows it as that refusal's line |
 | sign-in | *Entra en tu feudo*, *Entrar* | the title and the submit |
 | sign-in | *¿Aún no tienes feudo?* *Crea tu cuenta* | the switch to sign-up |
 | sign-up | *Funda tu feudo*, *Nombre de tu feudo*, *Crear cuenta* | the title, the fief name field and the submit |

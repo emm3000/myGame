@@ -195,6 +195,30 @@ describe('the auth routes', () => {
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
   })
 
+  it('refuses an empty fief name as a blank fief name', async () => {
+    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, fiefName: '' }))
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
+  })
+
+  it('refuses a malformed email with a message the sign-up screen can show', async () => {
+    const response = await app.request(
+      '/auth/sign-up',
+      post({ ...anasSignUp, email: 'ana-sin-arroba' }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('MalformedEmail')
+  })
+
+  it('refuses an email that is not text as a malformed request', async () => {
+    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, email: 42 }))
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toBe('')
+  })
+
   it('answers the same refusal for an unknown email and a wrong password', async () => {
     await signUpAna()
 
@@ -410,6 +434,8 @@ describe('the auth routes', () => {
       { ...anasSignUp, email: 'bea@example.com', fiefName: ' \t ' },
       { ...anasSignUp, email: 'Ana@Example.com', fiefName: 'Otra' },
       { ...anasSignUp, email: 'bea@example.com', password: 12345678 },
+      { ...anasSignUp, email: 'bea@example.com', fiefName: '' },
+      { ...anasSignUp, email: 'bea-sin-arroba' },
     ]
 
     const webAnswers: Array<readonly [number, string]> = []
@@ -421,7 +447,10 @@ describe('the auth routes', () => {
       nativeAnswers.push([native.status, await native.text()])
     }
 
-    expect(webAnswers.map(([status]) => status)).toEqual([400, 400, 409, 400])
+    expect(webAnswers.map(([status]) => status)).toEqual([400, 400, 409, 400, 400, 400])
+    expect(
+      webAnswers.slice(4).map(([, body]) => ApiErrorSchema.parse(JSON.parse(body)).kind),
+    ).toEqual(['BlankFiefName', 'MalformedEmail'])
     expect(nativeAnswers).toEqual(webAnswers)
   })
 

@@ -20,6 +20,7 @@
     <string name="sign_up_refused_weak_password">Tu contraseña necesita al menos 8 caracteres.</string>
     <string name="sign_up_refused_blank_fief_name">Tu feudo necesita un nombre. Escribe uno que no esté en blanco.</string>
     <string name="sign_up_refused_email_taken">Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.</string>
+    <string name="sign_up_refused_malformed_email">Escribe un correo válido, como nombre@ejemplo.com.</string>
     <string name="sign_up_refused_unrecognized">No hemos podido crear tu cuenta. Inténtalo de nuevo en un momento.</string>
     <string name="sign_up_switch_prompt">¿Ya tienes cuenta?</string>
     <string name="sign_up_switch_link">Entra</string>

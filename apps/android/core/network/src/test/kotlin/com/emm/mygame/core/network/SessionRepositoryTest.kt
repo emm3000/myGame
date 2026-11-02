@@ -300,14 +300,16 @@ class SessionRepositoryTest {
         api.enqueue(json(400, refusalJson("WeakPassword")))
         api.enqueue(json(400, refusalJson("BlankFiefName")))
         api.enqueue(json(409, refusalJson("EmailTaken")))
+        api.enqueue(json(400, refusalJson("MalformedEmail")))
 
-        val answers: List<SignUpResult> = List(3) { sessions.signUp("elena@encinar.es", "corta", " ") }
+        val answers: List<SignUpResult> = List(4) { sessions.signUp("elena@encinar.es", "corta", " ") }
 
         assertEquals(
             listOf(
                 SignUpResult.Refused(SignUpRefusal.WeakPassword),
                 SignUpResult.Refused(SignUpRefusal.BlankFiefName),
                 SignUpResult.Refused(SignUpRefusal.EmailTaken),
+                SignUpResult.Refused(SignUpRefusal.MalformedEmail),
             ),
             answers,
         )

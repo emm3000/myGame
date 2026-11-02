@@ -136,5 +136,6 @@ private fun refusalMessageOf(refusal: SignUpRefusal): Int = when (refusal) {
     SignUpRefusal.WeakPassword -> R.string.sign_up_refused_weak_password
     SignUpRefusal.BlankFiefName -> R.string.sign_up_refused_blank_fief_name
     SignUpRefusal.EmailTaken -> R.string.sign_up_refused_email_taken
+    SignUpRefusal.MalformedEmail -> R.string.sign_up_refused_malformed_email
     SignUpRefusal.Unrecognized -> R.string.sign_up_refused_unrecognized
 }
