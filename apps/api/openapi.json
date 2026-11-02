@@ -4662,7 +4662,7 @@
             }
           },
           "400": {
-            "description": "BlankFiefName; a malformed fief id or body answers an empty body.",
+            "description": "BlankFiefName for an empty or blank name, before any other issue of the body; a malformed fief id or any other malformed body answers an empty body.",
             "content": {
               "application/json": {
                 "schema": {
