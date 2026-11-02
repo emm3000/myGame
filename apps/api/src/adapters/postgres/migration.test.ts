@@ -153,24 +153,36 @@ const closeWithoutChanges = async (client: Client): Promise<void> => {
 const probeDatabaseName = (): string =>
   `${decodeURIComponent(new URL(databaseUrl()).pathname.slice(1))}_migration_probe`
 
-const openEmptyProbeDatabase = async (): Promise<Client> => {
+const createProbeDatabaseOnce = async (): Promise<void> => {
   const admin = new Client({ connectionString: databaseUrl() })
-  await admin.connect()
-  const existing = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [
-    probeDatabaseName(),
-  ])
-  if (existing.rowCount === 0) {
-    await admin.query(`CREATE DATABASE "${probeDatabaseName()}"`)
+  try {
+    await admin.connect()
+    const existing = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [
+      probeDatabaseName(),
+    ])
+    if (existing.rowCount === 0) {
+      await admin.query(`CREATE DATABASE "${probeDatabaseName()}"`)
+    }
+  } finally {
+    await admin.end()
   }
-  await admin.end()
+}
+
+const openEmptyProbeDatabase = async (): Promise<Client> => {
+  await createProbeDatabaseOnce()
   const probeUrl = new URL(databaseUrl())
   probeUrl.pathname = `/${probeDatabaseName()}`
   const probe = new Client({ connectionString: probeUrl.toString() })
-  await probe.connect()
-  await probe.query('DROP SCHEMA IF EXISTS drizzle CASCADE')
-  await probe.query('DROP SCHEMA IF EXISTS public CASCADE')
-  await probe.query('CREATE SCHEMA public')
-  return probe
+  try {
+    await probe.connect()
+    await probe.query('DROP SCHEMA IF EXISTS drizzle CASCADE')
+    await probe.query('DROP SCHEMA IF EXISTS public CASCADE')
+    await probe.query('CREATE SCHEMA public')
+    return probe
+  } catch (error) {
+    await probe.end()
+    throw error
+  }
 }
 
 describe('the migrations', () => {
