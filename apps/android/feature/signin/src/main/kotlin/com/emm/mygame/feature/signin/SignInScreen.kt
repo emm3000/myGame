@@ -110,7 +110,7 @@ private fun SignInForm(
             AuthSwitch(
                 prompt = stringResource(R.string.sign_in_switch_prompt),
                 linkLabel = stringResource(R.string.sign_in_switch_link),
-                onClick = onSignUpOpen,
+                onClick = { if (form.canSwitchToSignUp) onSignUpOpen() },
             )
         }
     }
