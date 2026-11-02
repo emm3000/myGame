@@ -96,8 +96,8 @@
       "ratePerHour": 18.75,
       "capacity": 1000,
       "readAtEpochMilliseconds": 0,
-      "nowEpochMilliseconds": 10800000,
-      "expectedAmount": 356
+      "nowEpochMilliseconds": 7200000,
+      "expectedAmount": 337
     }
   ]
 }

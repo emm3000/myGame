@@ -31,7 +31,7 @@ class RepaintCadenceTest {
     }
 
     @Test
-    fun `repaints every second once the build is over until the api answers`() {
-        assertEquals(1.seconds, repaintDelay(slotRemaining = Duration.ZERO))
+    fun `waits a minute once the build is over before asking the api again`() {
+        assertEquals(1.minutes, repaintDelay(slotRemaining = Duration.ZERO))
     }
 }

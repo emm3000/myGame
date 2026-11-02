@@ -13,7 +13,7 @@ class ResourceStockTest {
 
     @Test
     fun `draws the stored amount when the clock is behind the read`() {
-        val woodStock = ResourceStock(amount = 100, ratePerHour = 10.0, capacity = 900)
+        val woodStock: ResourceStock = ResourceStock(amount = 100, ratePerHour = 10.0, capacity = 900)
 
         val drawn: Long = woodStock.amountAt(readAt = readAt, now = readAt - 1.hours)
 
@@ -22,7 +22,7 @@ class ResourceStockTest {
 
     @Test
     fun `accrues the rate over the time elapsed since the read`() {
-        val woodStock = ResourceStock(amount = 0, ratePerHour = 60.0, capacity = 900)
+        val woodStock: ResourceStock = ResourceStock(amount = 0, ratePerHour = 60.0, capacity = 900)
 
         val afterTenMinutes: Long = woodStock.amountAt(readAt = readAt, now = readAt + 10.minutes)
         val afterTwentyMinutes: Long = woodStock.amountAt(readAt = readAt, now = readAt + 20.minutes)
