@@ -126,20 +126,6 @@
         },
         "required": ["email", "password", "fiefName"]
       },
-      "SignInRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "required": ["email", "password"]
-      },
       "NativeSession": {
         "type": "object",
         "properties": {
@@ -153,6 +139,20 @@
         },
         "required": ["token", "player"],
         "additionalProperties": false
+      },
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["email", "password"]
       },
       "VerifyEmailRequest": {
         "type": "object",
@@ -4063,6 +4063,52 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "WeakPassword or BlankFiefName; a malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-up/native": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new player and the session token, sent as an Authorization bearer; no cookie is set.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeSession"
                 }
               }
             }

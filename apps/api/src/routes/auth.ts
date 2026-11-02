@@ -79,6 +79,7 @@ const answerSignedIn = async (
 const answerNativeSession = async (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
+  status: ContentfulStatusCode,
   { seenHints }: AuthDependencies,
 ): Promise<Response> => {
   if (!signedIn.ok) {
@@ -88,7 +89,7 @@ const answerNativeSession = async (
     token: signedIn.value.session.token,
     player: await playerOf(signedIn.value.player, seenHints),
   }
-  return c.json(nativeSession)
+  return c.json(nativeSession, status)
 }
 
 export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
@@ -104,6 +105,13 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     }
     return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
   })
+  routes.on(authDeclarations.nativeSignUp.method, authDeclarations.nativeSignUp.path, async (c) => {
+    const request = SignUpRequestSchema.safeParse(await bodyOf(c))
+    if (!request.success) {
+      return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
+    }
+    return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
+  })
   routes.on(authDeclarations.signIn.method, authDeclarations.signIn.path, async (c) => {
     const request = SignInRequestSchema.safeParse(await bodyOf(c))
     if (!request.success) {
@@ -116,7 +124,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     if (!request.success) {
       return answerRefusal(c, { kind: 'InvalidCredentials' })
     }
-    return answerNativeSession(c, await signIn(request.data, dependencies), dependencies)
+    return answerNativeSession(c, await signIn(request.data, dependencies), 200, dependencies)
   })
   routes.on(
     authDeclarations.signOut.method,
