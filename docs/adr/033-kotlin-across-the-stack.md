@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR 034
 date: 2026-11-02
 ---
 # Kotlin across the stack

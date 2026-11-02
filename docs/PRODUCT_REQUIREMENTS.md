@@ -50,7 +50,7 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 | W3 | Trade or market | Needs more than one player and the gold economy tuned. |
 | W4 | New land. ADR 023 admits a second fief, founded by a settler (S18), and ADR 024 transport between a lord's fiefs (S19); more than two fiefs stay out. | Multiplies every screen; after the first fief is complete. |
 | W5 | Real-money purchases | Free game. |
-| W6 | Native mobile clients. ADR 032 admits a Compose Multiplatform client for Android and Desktop that replaces the web as the primary client; iOS builds, a store listing before parity, push notifications and offline play stay out. | The web is responsive; a native client is a separate product. |
+| W6 | Native mobile clients. ADR 034 admits a native client per platform beside the web: Jetpack Compose on Android first, then SwiftUI on iOS and macOS; Windows, Linux, a store listing before parity, push notifications and offline play stay out. | The web is responsive; a native client is a separate product. |
 | W7 | Background job runner or scheduler | ADR 005; a job is admitted only with a measurement. |
 | W8 | OAuth or magic-link sign-in | Email and password need no third party. |
 | W9 | Population growth or famine | ADR 007; peasants are derived, food is a stock. |
