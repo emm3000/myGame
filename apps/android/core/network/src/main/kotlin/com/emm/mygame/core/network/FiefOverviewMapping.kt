@@ -43,6 +43,8 @@ private fun FiefOverviewBuildings.toBuildingStates(): List<BuildingState>? {
         BuildingKind.IronMine to ironMine,
         BuildingKind.Farm to farm,
         BuildingKind.Warehouse to warehouse,
+        BuildingKind.Library to library,
+        BuildingKind.Barracks to barracks,
     )
     return drawn.map { (kind: BuildingKind, building: FiefOverviewBuildingsSawmill?) ->
         building?.toBuildingState(kind) ?: return null

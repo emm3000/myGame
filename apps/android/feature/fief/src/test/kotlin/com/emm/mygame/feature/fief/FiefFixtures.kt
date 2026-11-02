@@ -81,8 +81,12 @@ internal fun fief(
     queue = queue,
 )
 
-internal fun sawmill(level: Int = 0): BuildingState = BuildingState(
-    kind = BuildingKind.Sawmill,
+internal fun sawmill(level: Int = 0): BuildingState = building(BuildingKind.Sawmill, level)
+
+internal fun barracks(level: Int = 0): BuildingState = building(BuildingKind.Barracks, level)
+
+private fun building(kind: BuildingKind, level: Int): BuildingState = BuildingState(
+    kind = kind,
     level = level,
     nextLevel = NextLevel(
         level = level + 1,
