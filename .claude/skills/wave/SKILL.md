@@ -31,9 +31,9 @@ Rows are ordered by blast radius: how much a mistake breaks and whether a gate c
 |---|---|---|---|---|
 | 1 | `.md` edits, copy, renames, applying a diff already designed; every criterion is a command with empty output | sonnet:low | sonnet:low | none: the compiler and the criteria fail loudly |
 | 2 | Code where the compiler or a test catches the error: one component, one use case, one route handler, one adapter behind an existing contract test | opus:medium | sonnet:high | load `mattpocock-skills:tdd` for behavior; Playwright screenshots for a screen |
-| 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), `.github/`, a design-system default that changes N screens | opus:high | opus:high | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
+| 3 | Code on the trap list, where nothing catches the error: the composition root, a `packages/contracts` schema change, package config (`tsconfig`, `package.json`, `biome.json`), Gradle config (`build.gradle.kts`, `settings.gradle.kts`, `libs.versions.toml`, `detekt.yml`, a convention plugin), `.github/`, a design-system default that changes N screens | opus:high | opus:high | screenshots of every affected screen; the leak check in `.claude/rules/architecture.md` |
 | 4 | Schema or migration, auth, the persistence adapters, cross-package architecture, a new package | opus:high | opus:high | the contract test suite against every adapter; a migration test from the previous version |
-| 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | fable:high | fable:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
+| 5 | Design: a Design System or Design artifact (tokens, icons, component rules, a screen mockup) | opus:high | opus:high | no branch, no PR: the peer publishes the artifact, posts its URL as a comment on the issue and closes it; the dispatch names the art bible, the lore pages and the existing artifact URLs |
 
 Roles outside the rows:
 
@@ -44,7 +44,7 @@ Roles outside the rows:
 | Post-review fixes | sonnet:low | sonnet:low |
 | `ticket-writer`, planner | opus:high | opus:medium |
 | Orchestrator | opus:medium | opus:medium |
-| Lore, a new ADR, an adversarial audit, an ambiguous triage | fable:high | opus:high, fable:high only when the owner asks |
+| Lore, a new ADR, an adversarial audit, an ambiguous triage | opus:high | opus:high |
 
 Reviewers never drop a step in any tier: they are the gate that holds the quality the lowered rows give up. Design is row 5, a `/wave` peer like any other ticket.
 
