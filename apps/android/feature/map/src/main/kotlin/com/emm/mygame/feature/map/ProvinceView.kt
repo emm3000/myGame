@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -91,6 +92,7 @@ private fun BrowseControls(content: MapUiState.Content, onIntent: (MapIntent) ->
             isReadOnly = false,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Go),
             onValueChange = { entry: String -> onIntent(MapIntent.JumpEntryChanged(entry)) },
+            keyboardActions = KeyboardActions(onGo = { onIntent(MapIntent.JumpTapped) }),
         )
         MyGameButton(
             label = stringResource(R.string.map_jump),

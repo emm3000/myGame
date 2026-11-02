@@ -94,6 +94,19 @@ class MapRepositoryTest {
     }
 
     @Test
+    fun `reads a plot with a fief and a camp as the fief`() = runTest {
+        enqueueMap(
+            """{"kingdom":1,"province":1,"lastProvince":9,"terrain":"lowlands","plots":[""" +
+                """{"plot":4,"fief":{"name":"Sotoverde","isOwn":false},"camp":{"tier":2,"strength":15},""" +
+                """"reservation":null}]}""",
+        )
+
+        val answer: MapReadResult = repository().readOwn()
+
+        assertEquals(PlotHolder.Held(name = "Sotoverde"), (answer as MapReadResult.Read).map.plots.single().holder)
+    }
+
+    @Test
     fun `answers a province past the last one as not found`() = runTest {
         api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(json(404, """{"kind":"ProvinceNotFound","message":"Esa provincia no está en el mapa."}"""))
