@@ -9,7 +9,7 @@ paths:
 ## The client never decides
 
 - A request names what the player wants (`enqueue sawmill`), never an amount, a finish time or a verdict the client derived. The api's response is the new state.
-- The client never withholds a request on its own arithmetic. A projected amount may colour a cost; the api's answer is the only verdict.
+- The client never withholds a request on its own arithmetic. A projected amount may color a cost; the api's answer is the only verdict.
 - A refusal arrives as the error `kind` the contract declares and reaches the screen as that typed value.
 
 ## Modules
@@ -48,7 +48,7 @@ The api's opaque session token travels as `Authorization: Bearer <token>`, added
 
 ## Time and the lazy projection
 
-- `kotlin.time.Clock` is injected with no default; only `app` binds `Clock.System`. A ViewModel and the projection read `clock.now()`, never `System.currentTimeMillis()`.
+- Only `app` binds `kotlin.time.Clock.System`. A ViewModel and the projection read `clock.now()`, never `System.currentTimeMillis()`.
 - Between reads, `core:projection` derives the amount drawn from the state the api returned (each resource's `amount`, `ratePerHour`, `capacity` and `fullAt`, and the overview's `readAt`) and `clock.now()`, by ADR 005 and its amendments. The derived amount is for drawing only: it is never sent and never stored as truth.
 - A mutation re-reads the api's answer; the projection restarts from it.
 
@@ -73,4 +73,4 @@ rg -e 'stringResource|painterResource' -e '\bR\.' -e 'BuildConfig' -e '@Preview'
 
 ## Copy
 
-Spanish UI copy addressed as tú lives in `res/values/strings.xml`, never as a literal in Kotlin. Names the player sees come from `docs/lore/`; resource keys and identifiers are English.
+UI copy lives in `res/values/strings.xml`, never as a literal in Kotlin.

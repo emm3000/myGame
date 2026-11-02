@@ -10,7 +10,7 @@ Pick the evidence from the whole work unit: staged, unstaged and new files, or t
 |---|---|
 | `packages/domain` | `pnpm --filter @mygame/domain test`; the leak check in `architecture.md` is empty |
 | `packages/contracts` | `pnpm --filter @mygame/contracts test`; `pnpm -r typecheck`, since the api and the web consume it |
-| `apps/api` routes and adapters | `pnpm --filter @mygame/api test` with `DATABASE_URL` on the session's own Postgres container; a route whose schema changed also owes the Android row, because the generated client changes |
+| `apps/api` routes and adapters | `pnpm --filter @mygame/api test` with `DATABASE_URL` on the session's own Postgres container; once `apps/android` and the OpenAPI client exist, a route whose schema changed also owes the Android row, because the generated client changes |
 | `apps/api/src/adapters/postgres/schema.ts`, `apps/api/migrations/` | `pnpm --filter @mygame/api db:generate` writes no new file; `pnpm --filter @mygame/api test`, whose migration test applies every migration on an empty database. Never against Neon |
 | `apps/web` screens | `pnpm --filter @mygame/web test`; a screenshot of each changed screen in the PR, seeded after the gate (`apps/web/CLAUDE.md`) |
 | `apps/android` | In `apps/android`: `./gradlew detekt checkModuleBoundaries checkComposeFreeViewModels testDebugUnitTest assembleDebug`; for a screen, the flow exercised on an emulator with a screenshot in the PR |

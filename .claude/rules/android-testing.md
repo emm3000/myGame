@@ -22,7 +22,7 @@ The Android leg of the gate runs the unit tests (`verification.md`); a test the 
 
 ## Projection tests
 
-`core:projection`'s test reads every case of the shared projection fixture (ADR 034), written once from `packages/domain`'s tests. A case it cannot read fails the test. A new projection rule is a new case in that fixture first, never a case only Android has.
+`core:projection`'s test reads every case of the shared projection fixture (ADR 034), written once from `packages/domain`'s tests; the fixture lands with the `apps/android` scaffold. A case it cannot read fails the test. A new projection rule is a new case in that fixture first, never a case only Android has.
 
 ## UI tests
 

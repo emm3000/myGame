@@ -36,8 +36,8 @@ One fief per player at first: wood, stone, iron, gold and food, peasants as the 
 
 These bind on every change, including a new file created before any TypeScript has been read.
 
-- **No comments.** No JSDoc, no `//`, no banners, no commented-out code. The code explains itself or it gets renamed. Narrow exceptions in `.claude/rules/typescript-style.md`.
-- **Explicit return types on every exported function and method.** Locals infer.
+- **No comments.** No JSDoc, no `//`, no banners, no commented-out code. The code explains itself or it gets renamed. Narrow exceptions in `.claude/rules/typescript-style.md` and `.claude/rules/kotlin-style.md`.
+- **Explicit return types on every exported function and method.** Locals infer in TypeScript; Kotlin types them too (`kotlin-style.md`).
 - **`packages/domain` stays pure.** If it needs to reach outward, invert with a port interface in `packages/domain`. Failure modes are members of the sealed `DomainError` union, never a thrown `Error`.
 - **Time is injected.** A use case takes a `Clock` port; nothing in `packages/domain` or a use case calls `Date.now()` or `new Date()`.
 - **Lazy evaluation.** Resource amounts are computed from `(storedAmount, storedAt, rate, capacity, now)`. No cron, no `setInterval`, no worker advancing state.

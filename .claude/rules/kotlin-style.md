@@ -25,7 +25,7 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 - `val` everywhere; `var` only when reassignment is the point.
 - A closed set of states or errors is a `sealed interface`; `when` over it is exhaustive with no `else`.
 - Identifiers and constrained values are value classes (`FiefId`), validated in `init` with `require`.
-- Dependencies are constructor parameters with no default value. A default never blocks an explicit argument, so a test passing a fake still compiles against the real one.
+- Dependencies are constructor parameters with no default value. A default lets a forgotten argument compile silently against the real dependency.
 - Extension functions over `object` holders and utility classes.
 - One public top-level type per `.kt` file, named after the file. Private helpers used only by that type may share it.
 - Every catch-all owes a `CancellationException` arm first: rethrow it, then catch `Exception`. `runCatching` and a bare `catch (e: Exception)` swallow cancellation, and a cancelled load overwrites the winner; a `Flow.catch` owes the arm too.
