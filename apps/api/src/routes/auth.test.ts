@@ -212,6 +212,16 @@ describe('the auth routes', () => {
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('MalformedEmail')
   })
 
+  it('names the malformed email before the short password', async () => {
+    const response = await app.request(
+      '/auth/sign-up',
+      post({ ...anasSignUp, email: 'ana-sin-arroba', password: 'corta77' }),
+    )
+
+    expect(response.status).toBe(400)
+    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('MalformedEmail')
+  })
+
   it('refuses an email that is not text as a malformed request', async () => {
     const response = await app.request('/auth/sign-up', post({ ...anasSignUp, email: 42 }))
 

@@ -36,6 +36,18 @@ it('shows the Spanish message for a taken email', async () => {
   expect(screen.getByLabelText(copy.auth.email).getAttribute('aria-invalid')).toBe('true')
 })
 
+it('marks the email field for a malformed email the api refused', async () => {
+  renderAppAt(
+    '/sign-up',
+    stubApiClient({ signUp: async () => ({ ok: false, refusal: 'MalformedEmail' }) }),
+  )
+
+  await fillSignUp(newcomer)
+
+  expect(await screen.findByText(copy.refusals.MalformedEmail)).toBeDefined()
+  expect(screen.getByLabelText(copy.auth.email).getAttribute('aria-invalid')).toBe('true')
+})
+
 it('refuses to submit a password shorter than eight characters', async () => {
   const sentRequests: SignUpRequest[] = []
   renderAppAt(

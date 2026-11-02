@@ -326,6 +326,15 @@ class SessionRepositoryTest {
         }
 
     @Test
+    fun `answers an unrecognized sign-up refusal for a kind the spec does not list`() = runTest {
+        api.enqueue(json(400, refusalJson("FiefNameTooLong")))
+
+        val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+
+        assertEquals(SignUpResult.Refused(SignUpRefusal.Unrecognized), result)
+    }
+
+    @Test
     fun `answers unreachable when the sign-up cannot reach the api`() = runTest {
         val sessions: SessionRepository = repository(tokenStore())
         api.close()
