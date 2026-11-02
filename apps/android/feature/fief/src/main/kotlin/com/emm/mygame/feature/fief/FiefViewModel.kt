@@ -88,6 +88,7 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
                 if (answer is FiefReadResult.Read) {
                     snapshot = answer.fief
                     gap = serverGapOf(snapshot)
+                    forgetAnsweredUpgrade()
                 }
             }
             val now: Instant = clock.now() + gap
@@ -95,6 +96,10 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
             _state.value = snapshot.contentAt(now, upgrade)
             delay(repaintDelay(snapshot.slotRemainingAt(now)))
         }
+    }
+
+    private fun forgetAnsweredUpgrade() {
+        if (upgrade !is FiefUiState.UpgradeStatus.Waiting) upgrade = FiefUiState.UpgradeStatus.Idle
     }
 
     private fun serverGapOf(snapshot: FiefSnapshot): Duration = snapshot.readAt - clock.now()
