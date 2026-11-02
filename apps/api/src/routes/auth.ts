@@ -58,10 +58,16 @@ type ParseIssue = {
   readonly code: string
 }
 
-const passwordRequestRefusalOf = (issues: ReadonlyArray<ParseIssue>): Refusal =>
-  issues.some((issue) => issue.path[0] === 'password' && issue.code === 'too_small')
-    ? { kind: 'WeakPassword' }
-    : { kind: 'MalformedRequest' }
+const namedIssues: ReadonlyArray<readonly [field: string, code: string, refusal: Refusal]> = [
+  ['email', 'invalid_format', { kind: 'MalformedEmail' }],
+  ['password', 'too_small', { kind: 'WeakPassword' }],
+  ['fiefName', 'too_small', { kind: 'BlankFiefName' }],
+]
+
+const requestRefusalOf = (issues: ReadonlyArray<ParseIssue>): Refusal =>
+  namedIssues.find(([field, code]) =>
+    issues.some((issue) => issue.path[0] === field && issue.code === code),
+  )?.[2] ?? { kind: 'MalformedRequest' }
 
 const answerSignedIn = async (
   c: Context,
@@ -101,14 +107,14 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
   routes.on(authDeclarations.signUp.method, authDeclarations.signUp.path, async (c) => {
     const request = SignUpRequestSchema.safeParse(await bodyOf(c))
     if (!request.success) {
-      return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
+      return answerRefusal(c, requestRefusalOf(request.error.issues))
     }
     return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
   })
   routes.on(authDeclarations.nativeSignUp.method, authDeclarations.nativeSignUp.path, async (c) => {
     const request = SignUpRequestSchema.safeParse(await bodyOf(c))
     if (!request.success) {
-      return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
+      return answerRefusal(c, requestRefusalOf(request.error.issues))
     }
     return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
   })
@@ -179,7 +185,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     async (c) => {
       const request = ResetPasswordRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
-        return answerRefusal(c, passwordRequestRefusalOf(request.error.issues))
+        return answerRefusal(c, requestRefusalOf(request.error.issues))
       }
       return answerDone(c, await resetPassword(request.data, dependencies))
     },

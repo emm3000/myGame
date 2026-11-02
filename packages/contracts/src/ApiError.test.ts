@@ -14,6 +14,15 @@ describe('ApiErrorSchema', () => {
     expect(ApiErrorSchema.parse(blankFiefNameError)).toEqual(blankFiefNameError)
   })
 
+  it('parses the refusal of a malformed email', () => {
+    const malformedEmailError = {
+      kind: 'MalformedEmail',
+      message: 'Escribe un correo válido, como nombre@ejemplo.com.',
+    }
+
+    expect(ApiErrorSchema.parse(malformedEmailError)).toEqual(malformedEmailError)
+  })
+
   it('parses the refusal of a party short at home', () => {
     const unitsShortError = {
       kind: 'NotEnoughUnitsAtHome',

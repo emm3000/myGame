@@ -4,6 +4,7 @@ export const ApiErrorKindSchema = z.enum([
   'InvalidCredentials',
   'EmailTaken',
   'WeakPassword',
+  'MalformedEmail',
   'FiefNotFound',
   'UnknownBuilding',
   'MaxLevelReached',

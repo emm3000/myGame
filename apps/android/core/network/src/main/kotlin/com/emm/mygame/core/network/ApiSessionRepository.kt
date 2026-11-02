@@ -119,6 +119,7 @@ private fun ApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
     ApiError.Kind.WeakPassword -> SignUpRefusal.WeakPassword
     ApiError.Kind.BlankFiefName -> SignUpRefusal.BlankFiefName
     ApiError.Kind.EmailTaken -> SignUpRefusal.EmailTaken
+    ApiError.Kind.MalformedEmail -> SignUpRefusal.MalformedEmail
     else -> SignUpRefusal.Unrecognized
 }
 

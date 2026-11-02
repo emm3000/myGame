@@ -65,6 +65,7 @@
               "InvalidCredentials",
               "EmailTaken",
               "WeakPassword",
+              "MalformedEmail",
               "FiefNotFound",
               "UnknownBuilding",
               "MaxLevelReached",
@@ -4068,7 +4069,7 @@
             }
           },
           "400": {
-            "description": "WeakPassword or BlankFiefName; a malformed body answers an empty body.",
+            "description": "MalformedEmail, WeakPassword or BlankFiefName, empty or blank; any other malformed body answers an empty body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4114,7 +4115,7 @@
             }
           },
           "400": {
-            "description": "WeakPassword or BlankFiefName; a malformed body answers an empty body.",
+            "description": "MalformedEmail, WeakPassword or BlankFiefName, empty or blank; any other malformed body answers an empty body.",
             "content": {
               "application/json": {
                 "schema": {
