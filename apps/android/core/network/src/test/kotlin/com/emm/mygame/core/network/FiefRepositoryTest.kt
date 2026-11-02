@@ -215,6 +215,17 @@ class FiefRepositoryTest {
     }
 
     @Test
+    fun `cancels the barracks as any other building`() = runTest {
+        api.enqueue(resource(200, "fief-overview-idle.json"))
+
+        repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.Barracks, targetLevel = 1)
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/upgrades/barracks/1", request.url.encodedPath)
+    }
+
+    @Test
     fun `answers the overview the cancel returns`() = runTest {
         api.enqueue(resource(200, "fief-overview-idle.json"))
 
