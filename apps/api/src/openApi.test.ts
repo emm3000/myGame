@@ -182,6 +182,34 @@ describe('the OpenAPI document', () => {
     })
   })
 
+  it('names the discriminator of the fief event union', async () => {
+    const document = await (await servedDocument()).json()
+
+    expect(document).toMatchObject({
+      components: {
+        schemas: {
+          FiefEvent: discriminatedBy('kind', {
+            upgradeFinished: 'UpgradeFinishedEvent',
+            artLearned: 'ArtLearnedEvent',
+            upgradeCancelled: 'UpgradeCancelledEvent',
+            studyCancelled: 'StudyCancelledEvent',
+            recruitsDelivered: 'RecruitsDeliveredEvent',
+            recruitsCancelled: 'RecruitsCancelledEvent',
+            marchReturned: 'MarchReturnedEvent',
+            battleFought: 'BattleFoughtEvent',
+            foundingSent: 'FoundingSentEvent',
+            fiefFounded: 'FiefFoundedEvent',
+            transportSent: 'TransportSentEvent',
+            transportArrived: 'TransportArrivedEvent',
+          }),
+          FiefChronicle: {
+            properties: { events: { items: { $ref: '#/components/schemas/FiefEvent' } } },
+          },
+        },
+      },
+    })
+  })
+
   it('keeps a nullable union of the fief overview nullable beside its discriminator', async () => {
     const document = await (await servedDocument()).json()
 
