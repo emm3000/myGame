@@ -11,8 +11,6 @@ sealed interface SignInUiState {
 
     data class Form(val email: String, val password: String, val status: FormStatus) : SignInUiState
 
-    data class SignedIn(val email: String) : SignInUiState
-
     sealed interface FormStatus {
 
         data object Idle : FormStatus

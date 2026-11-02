@@ -1,5 +1,6 @@
 plugins {
     id("mygame.android.application")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -32,10 +33,15 @@ dependencies {
     implementation(project(":core:projection"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
+    implementation(project(":feature:chronicle"))
     implementation(project(":feature:fief"))
     implementation(project(":feature:signin"))
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(project(":core:testing"))

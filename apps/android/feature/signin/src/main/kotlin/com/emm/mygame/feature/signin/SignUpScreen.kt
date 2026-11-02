@@ -45,11 +45,6 @@ fun SignUpScreen(
         AuthHeader(title = stringResource(R.string.sign_up_title))
         when (state) {
             is SignUpUiState.Form -> SignUpForm(form = state, onIntent = onIntent, onSignInOpen = onSignInOpen)
-            SignUpUiState.SignedIn -> MyGameText(
-                text = stringResource(R.string.signed_in_title),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.ink,
-            )
         }
     }
 }
