@@ -115,9 +115,9 @@ it('draws the stroke icon of each resource in the bar', () => {
 
   const cells = screen.getAllByRole('listitem')
 
-  expect(
-    cells.map((cell) => cell.querySelector('svg')?.getAttribute('class')?.includes('size-icon')),
-  ).toEqual(cells.map(() => true))
+  expect(cells.map((cell) => cell.querySelectorAll('svg[aria-hidden="true"]').length)).toEqual(
+    cells.map(() => 1),
+  )
 })
 
 it('draws no raster image in the bar', () => {
