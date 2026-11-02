@@ -16,6 +16,7 @@ import retrofit2.Response
 
 internal class ApiSessionRepository(
     private val api: DefaultApi,
+    private val signOutApi: DefaultApi,
     private val tokenStore: TokenStore,
     private val ioDispatcher: CoroutineDispatcher,
 ) : SessionRepository {
@@ -45,6 +46,21 @@ internal class ApiSessionRepository(
             } catch (expectedMalformedBody: SerializationException) {
                 RestoreResult.Unreachable
             }
+        }
+    }
+
+    override suspend fun signOut(): Unit = withContext(ioDispatcher) {
+        try {
+            closeSession()
+        } finally {
+            tokenStore.clear()
+        }
+    }
+
+    private suspend fun closeSession() {
+        try {
+            signOutApi.authSignOutPost()
+        } catch (expectedOutage: IOException) {
         }
     }
 

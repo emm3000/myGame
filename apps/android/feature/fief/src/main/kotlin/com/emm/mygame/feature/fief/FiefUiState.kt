@@ -12,6 +12,8 @@ sealed interface FiefUiState {
 
     data object Failed : FiefUiState
 
+    data object SigningOut : FiefUiState
+
     data class Content(
         val name: String,
         val resources: List<ResourceLine>,
