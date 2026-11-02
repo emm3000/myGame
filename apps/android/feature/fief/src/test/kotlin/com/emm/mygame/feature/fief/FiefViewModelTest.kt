@@ -3,12 +3,20 @@ package com.emm.mygame.feature.fief
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
+import com.emm.mygame.core.network.BuildQueue
 import com.emm.mygame.core.network.BuildSlot
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.network.BuildingState
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.NextLevel
+import com.emm.mygame.core.network.Peasants
+import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StoredResource
+import com.emm.mygame.core.network.UpgradeRefusal
+import com.emm.mygame.core.network.UpgradeResult
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
@@ -351,6 +359,239 @@ class FiefViewModelTest {
         }
     }
 
+    @Test
+    fun `draws each building with its level and the next level's cost, duration and peasants`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(
+            FiefReadResult.Read(
+                fief(
+                    resources = listOf(wood(amount = 500, ratePerHour = 0.0), iron(amount = 100)),
+                    buildings = listOf(sawmill(level = 2)),
+                ),
+            ),
+        )
+
+        viewModel.state.test {
+            assertEquals(
+                FiefUiState.BuildingCard(
+                    kind = BuildingKind.Sawmill,
+                    level = 2,
+                    next = FiefUiState.NextLevelLine(
+                        level = 3,
+                        costs = listOf(
+                            FiefUiState.CostLine(ResourceKind.Wood, amount = 60, isShort = false),
+                            FiefUiState.CostLine(ResourceKind.Iron, amount = 15, isShort = false),
+                        ),
+                        duration = 2.minutes,
+                        peasants = 1,
+                        isShortOfPeasants = false,
+                    ),
+                    block = null,
+                ),
+                awaitContent().buildings.single(),
+            )
+        }
+    }
+
+    @Test
+    fun `offers no next level for a building at its highest level`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val topWarehouse: BuildingState = BuildingState(BuildingKind.Warehouse, level = 10, nextLevel = null)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(topWarehouse))))
+
+        viewModel.state.test {
+            assertEquals(null, awaitContent().buildings.single().next)
+        }
+    }
+
+    @Test
+    fun `draws the free peasants out of those supplied`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(peasants = Peasants(free = 5, supplied = 12))))
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.PeasantsLine(free = 5, supplied = 12), awaitContent().peasants)
+        }
+    }
+
+    @Test
+    fun `names the resources the next level lacks`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(
+            FiefReadResult.Read(
+                fief(
+                    resources = listOf(wood(amount = 500, ratePerHour = 0.0), iron(amount = 0)),
+                    buildings = listOf(sawmill()),
+                ),
+            ),
+        )
+
+        viewModel.state.test {
+            val card: FiefUiState.BuildingCard = awaitContent().buildings.single()
+            val ironShort: FiefUiState.Shortfall = FiefUiState.Shortfall(ResourceKind.Iron, 15)
+            assertEquals(FiefUiState.BlockReason.Resources(listOf(ironShort)), card.block)
+            assertTrue(card.next?.costs?.single { it.kind == ResourceKind.Iron }?.isShort == true)
+        }
+    }
+
+    @Test
+    fun `names the peasants before the resources when both block`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(
+            FiefReadResult.Read(
+                fief(
+                    resources = listOf(wood(amount = 0, ratePerHour = 0.0)),
+                    buildings = listOf(sawmill()),
+                    peasants = Peasants(free = 0, supplied = 10),
+                ),
+            ),
+        )
+
+        viewModel.state.test {
+            assertEquals(
+                FiefUiState.BlockReason.Peasants(needed = 1, free = 0),
+                awaitContent().buildings.single().block,
+            )
+        }
+    }
+
+    @Test
+    fun `names the queue before the resources when both block`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(
+            FiefReadResult.Read(
+                fief(
+                    resources = listOf(wood(amount = 0, ratePerHour = 0.0)),
+                    slot = busySlot(finishesIn = 2.hours),
+                    buildings = listOf(sawmill()),
+                    peasants = Peasants(free = 0, supplied = 10),
+                    queue = BuildQueue(waiting = 4, cap = 4),
+                ),
+            ),
+        )
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.BlockReason.QueueFull, awaitContent().buildings.single().block)
+        }
+    }
+
+    @Test
+    fun `draws the overview the upgrade answers`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill()))))
+        val busyFief: FiefSnapshot = fief(slot = busySlot(finishesIn = 2.minutes), buildings = listOf(sawmill()))
+        fiefs.answerUpgrade(UpgradeResult.Upgraded(busyFief))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            val upgraded: FiefUiState.Content = awaitContentWhere { it.slot is FiefUiState.SlotLine.Busy }
+            assertEquals(
+                FiefUiState.SlotLine.Busy(BuildingKind.Sawmill, targetLevel = 3, remaining = 2.minutes),
+                upgraded.slot,
+            )
+            assertEquals(FiefUiState.UpgradeStatus.Idle, upgraded.upgrade)
+        }
+        assertEquals(listOf(FiefId(FIEF_ID) to BuildingKind.Sawmill), fiefs.upgrades)
+        assertEquals(1, fiefs.readCount)
+    }
+
+    @Test
+    fun `waits on the api once while an upgrade is under way`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill()))))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            assertEquals(FiefUiState.UpgradeStatus.Waiting(BuildingKind.Sawmill), awaitContent().upgrade)
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            runCurrent()
+        }
+        assertEquals(1, fiefs.upgrades.size)
+    }
+
+    @Test
+    fun `sends the upgrade of a blocked building and lets the api decide`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(
+            FiefReadResult.Read(
+                fief(resources = listOf(wood(amount = 0, ratePerHour = 0.0)), buildings = listOf(sawmill())),
+            ),
+        )
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            runCurrent()
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(listOf(FiefId(FIEF_ID) to BuildingKind.Sawmill), fiefs.upgrades)
+    }
+
+    @Test
+    fun `shows the refusal the api names`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill()))))
+        fiefs.answerUpgrade(UpgradeResult.Refused(UpgradeRefusal.InsufficientResources))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            assertEquals(
+                FiefUiState.UpgradeStatus.Refused(BuildingKind.Sawmill, UpgradeRefusal.InsufficientResources),
+                awaitContentWhere { it.upgrade is FiefUiState.UpgradeStatus.Refused }.upgrade,
+            )
+        }
+    }
+
+    @Test
+    fun `keeps the refusal while the amounts repaint`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill()))))
+        fiefs.answerUpgrade(UpgradeResult.Refused(UpgradeRefusal.QueueFull))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            awaitContentWhere { it.upgrade is FiefUiState.UpgradeStatus.Refused }
+            advanceTimeBy(1.minutes)
+            runCurrent()
+            assertEquals(
+                FiefUiState.UpgradeStatus.Refused(BuildingKind.Sawmill, UpgradeRefusal.QueueFull),
+                awaitContent().upgrade,
+            )
+        }
+    }
+
+    @Test
+    fun `tells the lord the upgrade could not reach the api`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(sawmill()))))
+        fiefs.answerUpgrade(UpgradeResult.Unreachable)
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.UpgradeTapped(BuildingKind.Sawmill))
+            assertEquals(
+                FiefUiState.UpgradeStatus.Unreachable(BuildingKind.Sawmill),
+                awaitContentWhere { it.upgrade is FiefUiState.UpgradeStatus.Unreachable }.upgrade,
+            )
+        }
+    }
+
     private fun TestScope.openFief(fiefs: FakeFiefRepository, deviceNow: Instant = readAt): FiefViewModel {
         val viewModel: FiefViewModel = FiefViewModel(fiefs, TestClock(testScheduler, deviceNow))
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -361,6 +602,14 @@ class FiefViewModelTest {
             }
         }
         return viewModel
+    }
+
+    private suspend fun ReceiveTurbine<FiefUiState>.awaitContentWhere(
+        isWanted: (FiefUiState.Content) -> Boolean,
+    ): FiefUiState.Content {
+        var content: FiefUiState.Content = awaitContent()
+        while (!isWanted(content)) content = awaitContent()
+        return content
     }
 
     private suspend fun ReceiveTurbine<FiefUiState>.awaitContent(): FiefUiState.Content {
@@ -378,8 +627,42 @@ class FiefViewModelTest {
         resources: List<StoredResource> = listOf(wood(amount = 500, ratePerHour = 60.0)),
         slot: BuildSlot = BuildSlot.Idle,
         readAt: Instant = this.readAt,
-    ): FiefSnapshot = FiefSnapshot(name = "Vadoalto", readAt = readAt, resources = resources, slot = slot)
+        buildings: List<BuildingState> = emptyList(),
+        peasants: Peasants = Peasants(free = 10, supplied = 10),
+        queue: BuildQueue = BuildQueue(waiting = 0, cap = 4),
+    ): FiefSnapshot = FiefSnapshot(
+        id = FiefId(FIEF_ID),
+        name = "Vadoalto",
+        readAt = readAt,
+        resources = resources,
+        slot = slot,
+        buildings = buildings,
+        peasants = peasants,
+        queue = queue,
+    )
+
+    private fun sawmill(level: Int = 0): BuildingState = BuildingState(
+        kind = BuildingKind.Sawmill,
+        level = level,
+        nextLevel = NextLevel(
+            level = level + 1,
+            cost = listOf(
+                ResourceCost(ResourceKind.Wood, 60),
+                ResourceCost(ResourceKind.Stone, 0),
+                ResourceCost(ResourceKind.Iron, 15),
+            ),
+            duration = 2.minutes,
+            peasants = 1,
+        ),
+    )
+
+    private fun iron(amount: Long): StoredResource =
+        StoredResource(ResourceKind.Iron, amount = amount, ratePerHour = 0.0, capacity = 1000)
 
     private fun wood(amount: Long, ratePerHour: Double, capacity: Long = 1000): StoredResource =
         StoredResource(ResourceKind.Wood, amount = amount, ratePerHour = ratePerHour, capacity = capacity)
+
+    private companion object {
+        const val FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+    }
 }

@@ -32,4 +32,43 @@
     <string name="building_warehouse">Almacén</string>
     <string name="building_library">Biblioteca</string>
     <string name="building_barracks">Cuartel</string>
+    <string name="resource_peasants">Campesinos</string>
+    <plurals name="peasants_free">
+        <item quantity="one">%1$s / %2$s libre</item>
+        <item quantity="other">%1$s / %2$s libres</item>
+    </plurals>
+    <string name="peasants_description">Campesinos: %1$s libres de %2$s</string>
+    <string name="buildings_title">Edificios</string>
+    <string name="building_level">nivel %1$d</string>
+    <string name="building_next_level">Sube a nivel %1$d.</string>
+    <string name="building_max_level">Nivel máximo</string>
+    <string name="building_at_max_level">Ya está en su nivel más alto.</string>
+    <string name="building_upgrade">Mejorar · %1$s</string>
+    <string name="building_waiting">Esperando al servidor</string>
+    <string name="cost_wood">%1$s de madera</string>
+    <string name="cost_stone">%1$s de piedra</string>
+    <string name="cost_iron">%1$s de hierro</string>
+    <string name="cost_gold">%1$s de oro</string>
+    <string name="cost_food">%1$s de comida</string>
+    <plurals name="cost_peasants">
+        <item quantity="one">%1$d campesino</item>
+        <item quantity="other">%1$d campesinos</item>
+    </plurals>
+    <string name="cost_short">%1$s, falta</string>
+    <string name="duration_minutes_seconds">%1$d:%2$02d</string>
+    <string name="duration_hours">%1$d h</string>
+    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="list_pair">%1$s y %2$s</string>
+    <string name="list_more">%1$s, %2$s</string>
+    <string name="reason_queue_full">Ya no caben más obras en espera. Espera a que avance alguna.</string>
+    <plurals name="reason_peasants">
+        <item quantity="one">Necesitas %1$d campesino libre y tienes %2$d.</item>
+        <item quantity="other">Necesitas %1$d campesinos libres y tienes %2$d.</item>
+    </plurals>
+    <string name="reason_resources_one">Te falta %1$s.</string>
+    <string name="reason_resources">Te faltan %1$s.</string>
+    <string name="refusal_queue_full">Ya no caben más obras en espera. Espera a que avance alguna.</string>
+    <string name="refusal_insufficient_resources">No tienes recursos suficientes.</string>
+    <string name="refusal_not_enough_peasants">No tienes campesinos libres suficientes.</string>
+    <string name="refusal_max_level_reached">Ese edificio ya está en su nivel más alto.</string>
 </resources>

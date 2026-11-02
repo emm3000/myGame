@@ -2,6 +2,7 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -112,6 +113,134 @@ class FiefRepositoryTest {
     }
 
     @Test
+    fun `reads the five buildings with the next level's cost, duration and peasants`() = runTest {
+        enqueueIdleFief()
+
+        val buildings: List<BuildingState> = readFief().buildings
+
+        assertEquals(
+            listOf(
+                BuildingKind.Sawmill,
+                BuildingKind.Quarry,
+                BuildingKind.IronMine,
+                BuildingKind.Farm,
+                BuildingKind.Warehouse,
+            ),
+            buildings.map { it.kind },
+        )
+        assertEquals(
+            BuildingState(
+                kind = BuildingKind.IronMine,
+                level = 0,
+                nextLevel = NextLevel(
+                    level = 1,
+                    cost = listOf(
+                        ResourceCost(ResourceKind.Wood, 90),
+                        ResourceCost(ResourceKind.Stone, 70),
+                        ResourceCost(ResourceKind.Iron, 20),
+                        ResourceCost(ResourceKind.Gold, 0),
+                        ResourceCost(ResourceKind.Food, 0),
+                    ),
+                    duration = 240.seconds,
+                    peasants = 1,
+                ),
+            ),
+            buildings[2],
+        )
+    }
+
+    @Test
+    fun `reads a building at its highest level with no next level`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, idleOverview().replace(WAREHOUSE_AT_LEVEL_0, WAREHOUSE_AT_ITS_TOP)))
+
+        val warehouse: BuildingState = readFief().buildings.single { it.kind == BuildingKind.Warehouse }
+
+        assertEquals(BuildingState(BuildingKind.Warehouse, level = 10, nextLevel = null), warehouse)
+    }
+
+    @Test
+    fun `reads the peasants free and supplied once the ordered works are done`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(resource(200, "fief-overview-busy.json"))
+
+        assertEquals(Peasants(free = 9, supplied = 10), readFief().peasants)
+    }
+
+    @Test
+    fun `reads the works waiting in the queue and its cap`() = runTest {
+        enqueueIdleFief()
+
+        assertEquals(BuildQueue(waiting = 0, cap = 4), readFief().queue)
+    }
+
+    @Test
+    fun `posts the upgrade of the building to the fief it names`() = runTest {
+        api.enqueue(resource(200, "fief-overview-busy.json"))
+
+        repository().upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.IronMine)
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/upgrades", request.url.encodedPath)
+        assertEquals("""{"building":"ironMine"}""", request.body?.utf8())
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `answers the overview the upgrade returns`() = runTest {
+        api.enqueue(resource(200, "fief-overview-busy.json"))
+
+        val result: UpgradeResult = repository().upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.Sawmill)
+
+        assertEquals(
+            BuildSlot.Busy(
+                building = BuildingKind.Sawmill,
+                targetLevel = 1,
+                finishesAt = Instant.parse("2026-11-02T15:42:47.138Z"),
+            ),
+            (result as UpgradeResult.Upgraded).fief.slot,
+        )
+    }
+
+    @Test
+    fun `answers the refusal the api names`() = runTest {
+        api.enqueue(json(409, """{"kind":"QueueFull","message":"Ya no caben más obras en espera."}"""))
+        api.enqueue(json(409, """{"kind":"InsufficientResources","message":"No tienes recursos suficientes."}"""))
+        api.enqueue(json(409, """{"kind":"NotEnoughPeasants","message":"No tienes campesinos libres suficientes."}"""))
+        val fiefs: FiefRepository = repository()
+
+        val refusals: List<UpgradeResult> = List(3) { fiefs.upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.Farm) }
+
+        assertEquals(
+            listOf(
+                UpgradeResult.Refused(UpgradeRefusal.QueueFull),
+                UpgradeResult.Refused(UpgradeRefusal.InsufficientResources),
+                UpgradeResult.Refused(UpgradeRefusal.NotEnoughPeasants),
+            ),
+            refusals,
+        )
+    }
+
+    @Test
+    fun `answers an unrecognized refusal when the api names one the screen does not draw`() = runTest {
+        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+
+        assertEquals(
+            UpgradeResult.Refused(UpgradeRefusal.Unrecognized),
+            repository().upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `answers unreachable when the upgrade cannot reach the api`() = runTest {
+        val fiefs: FiefRepository = repository()
+        api.close()
+
+        assertEquals(UpgradeResult.Unreachable, fiefs.upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.Farm))
+    }
+
+    @Test
     fun `reads the overview when a field the screen never draws holds a value the client does not know`() = runTest {
         api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(""""terrain":"lowlands"""", """"terrain":"marshes"""")))
@@ -210,6 +339,10 @@ class FiefRepositoryTest {
 
     private companion object {
         const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+        const val WAREHOUSE_AT_LEVEL_0: String =
+            """"warehouse":{"level":0,"nextLevel":{"level":1,"cost":{"wood":150,"stone":100,"iron":20,""" +
+                """"gold":0,"food":0},"durationSeconds":180,"peasants":1}}"""
+        const val WAREHOUSE_AT_ITS_TOP: String = """"warehouse":{"level":10,"nextLevel":null}"""
         const val ATTACK_ON_THE_ROAD: String =
             """{"order":"attack","province":1,"plot":4,"terrain":"lowlands",""" +
                 """"units":{"infantry":5,"cavalry":0,"archer":0,"settler":0},"stayHours":0,""" +

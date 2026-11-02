@@ -86,7 +86,7 @@ private fun countdownLabelOf(remaining: Duration): String = remaining.toComponen
     }
 }
 
-private fun buildingNameOf(building: BuildingKind): Int = when (building) {
+internal fun buildingNameOf(building: BuildingKind): Int = when (building) {
     BuildingKind.Sawmill -> R.string.building_sawmill
     BuildingKind.Quarry -> R.string.building_quarry
     BuildingKind.IronMine -> R.string.building_iron_mine
