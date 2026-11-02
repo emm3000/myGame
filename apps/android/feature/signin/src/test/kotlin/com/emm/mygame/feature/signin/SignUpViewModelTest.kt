@@ -8,6 +8,8 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -127,6 +129,39 @@ class SignUpViewModelTest {
         viewModel.onIntent(SignUpIntent.FiefNameChanged("Pinares"))
 
         assertEquals(filledForm(SignUpUiState.FormStatus.Submitting), viewModel.state.value)
+    }
+
+    @Test
+    fun `does not send again on retry after the api refused`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val viewModel: SignUpViewModel = SignUpViewModel(sessions)
+        fillAndSubmit(viewModel)
+        sessions.answerSignUp(SignUpResult.Refused(SignUpRefusal.WeakPassword))
+
+        viewModel.onIntent(SignUpIntent.RetryTapped)
+
+        assertEquals(1, sessions.signUpAttempts.size)
+        assertEquals(filledForm(SignUpUiState.FormStatus.Refused(SignUpRefusal.WeakPassword)), viewModel.state.value)
+    }
+
+    @Test
+    fun `keeps the player on sign-up while the sign-up is in flight`() = runTest {
+        val viewModel: SignUpViewModel = SignUpViewModel(FakeSessionRepository())
+
+        fillAndSubmit(viewModel)
+
+        assertFalse(viewModel.state.value.canSwitchToSignIn)
+    }
+
+    @Test
+    fun `lets the player switch to sign-in once the api has answered`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val viewModel: SignUpViewModel = SignUpViewModel(sessions)
+        fillAndSubmit(viewModel)
+
+        sessions.answerSignUp(SignUpResult.Refused(SignUpRefusal.EmailTaken))
+
+        assertTrue(viewModel.state.value.canSwitchToSignIn)
     }
 
     private fun fillAndSubmit(viewModel: SignUpViewModel) {

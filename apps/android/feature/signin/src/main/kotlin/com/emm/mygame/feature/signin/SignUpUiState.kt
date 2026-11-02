@@ -4,6 +4,9 @@ import com.emm.mygame.core.network.SignUpRefusal
 
 sealed interface SignUpUiState {
 
+    val canSwitchToSignIn: Boolean
+        get() = this is Form && status != FormStatus.Submitting
+
     data class Form(val email: String, val password: String, val fiefName: String, val status: FormStatus) :
         SignUpUiState
 

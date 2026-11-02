@@ -10,6 +10,8 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -165,6 +167,26 @@ class SignInViewModelTest {
         viewModel.onIntent(SignInIntent.SubmitTapped)
 
         assertEquals(1, sessions.signInAttempts.size)
+    }
+
+    @Test
+    fun `keeps the player on sign-in while the sign-in is in flight`() = runTest {
+        val viewModel: SignInViewModel = signedOutViewModel(FakeSessionRepository())
+
+        fillAndSubmit(viewModel)
+
+        assertFalse(viewModel.state.value.canSwitchToSignUp)
+    }
+
+    @Test
+    fun `lets the player switch to sign-up once the api has answered`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        val viewModel: SignInViewModel = signedOutViewModel(sessions)
+        fillAndSubmit(viewModel)
+
+        sessions.answerSignIn(SignInResult.Refused(RefusalKind.InvalidCredentials))
+
+        assertTrue(viewModel.state.value.canSwitchToSignUp)
     }
 
     private fun signedOutViewModel(sessions: FakeSessionRepository): SignInViewModel {
