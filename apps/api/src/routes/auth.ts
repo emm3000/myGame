@@ -29,6 +29,7 @@ import type { SeenHints } from '../hint/SeenHints'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import type { Refusal } from '../http/Refusal'
+import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { clearSessionCookie, writeSessionCookie } from '../http/sessionCookie'
 import { authDeclarations } from './authDeclarations'
@@ -53,21 +54,11 @@ const playerOf = async (stored: StoredPlayer, seenHints: SeenHints): Promise<Pla
 const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
   done.ok ? c.body(null, 204) : answerRefusal(c, done.error)
 
-type ParseIssue = {
-  readonly path: ReadonlyArray<PropertyKey>
-  readonly code: string
-}
-
-const namedIssues: ReadonlyArray<readonly [field: string, code: string, refusal: Refusal]> = [
+const accountIssues: ReadonlyArray<NamedIssue> = [
   ['email', 'invalid_format', { kind: 'MalformedEmail' }],
   ['password', 'too_small', { kind: 'WeakPassword' }],
   ['fiefName', 'too_small', { kind: 'BlankFiefName' }],
 ]
-
-const requestRefusalOf = (issues: ReadonlyArray<ParseIssue>): Refusal =>
-  namedIssues.find(([field, code]) =>
-    issues.some((issue) => issue.path[0] === field && issue.code === code),
-  )?.[2] ?? { kind: 'MalformedRequest' }
 
 const answerSignedIn = async (
   c: Context,
@@ -107,14 +98,14 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
   routes.on(authDeclarations.signUp.method, authDeclarations.signUp.path, async (c) => {
     const request = SignUpRequestSchema.safeParse(await bodyOf(c))
     if (!request.success) {
-      return answerRefusal(c, requestRefusalOf(request.error.issues))
+      return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
     return answerSignedIn(c, await signUp(request.data, dependencies), 201, dependencies)
   })
   routes.on(authDeclarations.nativeSignUp.method, authDeclarations.nativeSignUp.path, async (c) => {
     const request = SignUpRequestSchema.safeParse(await bodyOf(c))
     if (!request.success) {
-      return answerRefusal(c, requestRefusalOf(request.error.issues))
+      return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
     return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
   })
@@ -185,7 +176,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     async (c) => {
       const request = ResetPasswordRequestSchema.safeParse(await bodyOf(c))
       if (!request.success) {
-        return answerRefusal(c, requestRefusalOf(request.error.issues))
+        return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
       }
       return answerDone(c, await resetPassword(request.data, dependencies))
     },
