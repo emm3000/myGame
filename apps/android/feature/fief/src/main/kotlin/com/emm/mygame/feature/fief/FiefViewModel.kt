@@ -8,24 +8,37 @@ import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.UpgradeResult
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock) : ViewModel() {
+class FiefViewModel(
+    private val fiefs: FiefRepository,
+    private val sessions: SessionRepository,
+    private val clock: Clock,
+) : ViewModel() {
 
     private val _state: MutableStateFlow<FiefUiState> = MutableStateFlow(FiefUiState.Loading)
 
     val state: StateFlow<FiefUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<FiefEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<FiefEffect> = _effects.receiveAsFlow()
 
     private var projection: Job? = null
 
@@ -38,8 +51,10 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
     }
 
     fun onIntent(intent: FiefIntent) {
+        if (_state.value == FiefUiState.SigningOut) return
         when (intent) {
             FiefIntent.RetryTapped -> open()
+            FiefIntent.SignOutTapped -> signOut()
             is FiefIntent.UpgradeTapped -> upgrade(intent.building)
             is FiefIntent.CancelTapped -> cancel(FiefUiState.UpgradeTarget(intent.building, intent.targetLevel))
         }
@@ -53,6 +68,15 @@ class FiefViewModel(private val fiefs: FiefRepository, private val clock: Clock)
                 FiefReadResult.Unreachable -> _state.value = FiefUiState.Failed
                 is FiefReadResult.Read -> project(answer.fief)
             }
+        }
+    }
+
+    private fun signOut() {
+        viewModelScope.coroutineContext.cancelChildren()
+        _state.value = FiefUiState.SigningOut
+        viewModelScope.launch {
+            sessions.signOut()
+            _effects.send(FiefEffect.SignedOut)
         }
     }
 

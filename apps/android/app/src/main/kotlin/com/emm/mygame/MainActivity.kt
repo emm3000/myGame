@@ -22,7 +22,15 @@ class MainActivity : ComponentActivity() {
             MyGameTheme {
                 var isSignedIn: Boolean by rememberSaveable { mutableStateOf(false) }
                 if (isSignedIn) {
-                    FiefRoute(fiefs = application.fiefs, clock = application.clock)
+                    FiefRoute(
+                        fiefs = application.fiefs,
+                        sessions = application.sessions,
+                        clock = application.clock,
+                        onSignedOut = {
+                            viewModelStore.clear()
+                            isSignedIn = false
+                        },
+                    )
                 } else {
                     SignInRoute(sessions = application.sessions, onSignedIn = { isSignedIn = true })
                 }

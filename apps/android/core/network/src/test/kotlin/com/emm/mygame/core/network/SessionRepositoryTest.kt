@@ -4,14 +4,17 @@ import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import java.security.GeneralSecurityException
 import java.security.ProviderException
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
+import mockwebserver3.SocketEffect
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
@@ -164,6 +167,114 @@ class SessionRepositoryTest {
         assertEquals("opaque-session", store.read())
     }
 
+    @Test
+    fun `posts the stored token as a bearer to sign-out`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(MockResponse.Builder().code(204).build())
+
+        repository(store).signOut()
+
+        val signOutRequest: RecordedRequest = api.takeRequest()
+        assertEquals("POST", signOutRequest.method)
+        assertEquals("/api/auth/sign-out", signOutRequest.url.encodedPath)
+        assertEquals("Bearer opaque-session", signOutRequest.headers["Authorization"])
+    }
+
+    @Test
+    fun `deletes the ciphertext file once the api closes the session`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(MockResponse.Builder().code(204).build())
+
+        repository(store).signOut()
+
+        assertFalse(sessionFile().exists())
+    }
+
+    @Test
+    fun `forgets the token even when the api is unreachable`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        val sessions: SessionRepository = repository(store)
+        api.close()
+
+        sessions.signOut()
+
+        assertNull(store.read())
+        assertFalse(sessionFile().exists())
+    }
+
+    @Test
+    fun `forgets the token when the api no longer knows its session`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("expired-session") }
+        api.enqueue(MockResponse.Builder().code(401).build())
+
+        repository(store).signOut()
+
+        assertNull(store.read())
+        assertFalse(sessionFile().exists())
+    }
+
+    @Test
+    fun `signs out when the keystore refuses to open the stored token`() = runTest {
+        val openFailure: GeneralSecurityException = GeneralSecurityException("The keystore lost the key")
+        val store: TokenStore = tokenStore(FakeTokenCipher(decryptFailure = openFailure)).apply { write("opaque") }
+        api.enqueue(MockResponse.Builder().code(401).build())
+
+        repository(store).signOut()
+
+        assertFalse(sessionFile().exists())
+    }
+
+    @Test
+    fun `signs out when the keystore provider cannot open the stored token`() = runTest {
+        val openFailure: ProviderException = ProviderException("The keystore could not decrypt")
+        val store: TokenStore = tokenStore(FakeTokenCipher(decryptFailure = openFailure)).apply { write("opaque") }
+        api.enqueue(MockResponse.Builder().code(401).build())
+
+        repository(store).signOut()
+
+        assertFalse(sessionFile().exists())
+    }
+
+    @Test
+    fun `signs out without waiting on an api that never answers`() = runTest(timeout = 8.seconds) {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(MockResponse.Builder().onResponseStart(SocketEffect.Stall).build())
+
+        repository(store).signOut()
+
+        assertFalse(sessionFile().exists())
+    }
+
+    @Test
+    fun `opens on sign-in after signing out`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore().apply { write("opaque-session") })
+        api.enqueue(MockResponse.Builder().code(204).build())
+        sessions.signOut()
+
+        val result: RestoreResult = sessions.restore()
+
+        assertEquals(RestoreResult.SignedOut, result)
+        assertEquals(1, api.requestCount)
+    }
+
+    @Test
+    fun `sends no bearer on a fief read after signing out`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        val fiefs: FiefRepository = FiefRepository(
+            baseUrl = api.url("/api/").toString(),
+            tokenStore = store,
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+        )
+        api.enqueue(MockResponse.Builder().code(204).build())
+        api.enqueue(MockResponse.Builder().code(401).build())
+        repository(store).signOut()
+
+        fiefs.read()
+
+        api.takeRequest()
+        assertNull(api.takeRequest().headers["Authorization"])
+    }
+
     private fun TestScope.repository(store: TokenStore): SessionRepository =
         SessionRepository(
             baseUrl = api.url("/api/").toString(),
@@ -173,7 +284,9 @@ class SessionRepositoryTest {
 
     private fun tokenStore(): TokenStore = tokenStore(FakeTokenCipher())
 
-    private fun tokenStore(cipher: FakeTokenCipher): TokenStore = TokenStore(File(folder.root, "session"), cipher)
+    private fun tokenStore(cipher: FakeTokenCipher): TokenStore = TokenStore(sessionFile(), cipher)
+
+    private fun sessionFile(): File = File(folder.root, "session")
 
     private fun nativeSession(token: String, email: String): MockResponse =
         json(200, """{"token":"$token","player":${playerJson(email)}}""")

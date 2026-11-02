@@ -15,6 +15,7 @@ import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.WaitingUpgrade
 import com.emm.mygame.core.testing.FakeFiefRepository
+import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -27,8 +28,12 @@ import kotlinx.coroutines.test.TestScope
 
 internal val firstReadAt: Instant = Instant.fromEpochMilliseconds(1_000_000)
 
-internal fun TestScope.openFief(fiefs: FakeFiefRepository, deviceNow: Instant = firstReadAt): FiefViewModel {
-    val viewModel: FiefViewModel = FiefViewModel(fiefs, TestClock(testScheduler, deviceNow))
+internal fun TestScope.openFief(
+    fiefs: FakeFiefRepository,
+    deviceNow: Instant = firstReadAt,
+    sessions: FakeSessionRepository = FakeSessionRepository(),
+): FiefViewModel {
+    val viewModel: FiefViewModel = FiefViewModel(fiefs, sessions, TestClock(testScheduler, deviceNow))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()
