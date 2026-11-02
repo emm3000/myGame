@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.openapi.generator) apply false
     alias(libs.plugins.detekt)
     id("mygame.module.checks")
 }
@@ -16,6 +18,10 @@ allprojects {
         buildUponDefaultConfig = true
         parallel = true
         basePath = rootDir.absolutePath
+    }
+
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        exclude("**/build/**")
     }
 
     dependencies {
