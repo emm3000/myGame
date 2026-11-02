@@ -49,7 +49,7 @@ The api's opaque session token travels as `Authorization: Bearer <token>`, added
 ## Time and the lazy projection
 
 - `kotlin.time.Clock` is injected with no default; only `app` binds `Clock.System`. A ViewModel and the projection read `clock.now()`, never `System.currentTimeMillis()`.
-- Between reads, `core:projection` derives the amount drawn from the state the api returned (`amount`, `at`, `ratePerHour`, `capacity`, `fullSince`) and `clock.now()`, by ADR 005 and its amendments. The derived amount is for drawing only: it is never sent and never stored as truth.
+- Between reads, `core:projection` derives the amount drawn from the state the api returned (each resource's `amount`, `ratePerHour`, `capacity` and `fullAt`, and the overview's `readAt`) and `clock.now()`, by ADR 005 and its amendments. The derived amount is for drawing only: it is never sent and never stored as truth.
 - A mutation re-reads the api's answer; the projection restarts from it.
 
 ## MVI
