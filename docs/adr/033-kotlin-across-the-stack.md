@@ -19,8 +19,15 @@ beta on every plan, so a JVM server does not force a change of host.
   Kotlin Multiplatform wizard generates for a client and a server:
   `core` (a multiplatform library: the domain and the wire types),
   `server` (Ktor on the JVM) and `app/shared`, `app/androidApp`,
-  `app/desktopApp` (the Compose Multiplatform client). This replaces
-  ADR 032's `apps/mobile` and `:composeApp`.
+  `app/desktopApp`, `app/webApp` (the Compose Multiplatform client).
+  This replaces ADR 032's `apps/mobile` and `:composeApp`.
+- **Web joins the targets, on Kotlin/Wasm.** Android, Desktop and web
+  now, iOS later; this amends ADR 032's targets. Compose Multiplatform
+  for web is in Beta, so Android sets parity: a slice is done when it
+  works on Android, while Desktop and web must build in the gate and
+  their visual defects do not block a slice. Every library the client
+  takes must support `wasmJs`. If the Beta breaks the game, the web
+  target is dropped and the other two are untouched.
 - **The domain moves to `core`, unchanged in its rules.** It stays
   pure: no I/O, time through a `Clock` port, failures as a sealed type,
   never a thrown exception. The server decides with it and the client
@@ -39,9 +46,9 @@ beta on every plan, so a JVM server does not force a change of host.
   server's image from a Dockerfile and serves the game's domain. The
   JVM's cold start is measured in the first slice; a GraalVM native
   image is the answer only if the measurement asks for it.
-- **The pages the mail links open** (email verification, password
-  reset) are plain HTML the server renders. Sign-up moves into the
-  client.
+- **The mail links open the web client.** Email verification and
+  password reset are screens of the client, served by its web target
+  as static files on Vercel; the server renders no HTML.
 - **Cutover, then removal.** The TypeScript api and web stay in
   production until the Kotlin stack reaches parity; the domain then
   points at the Kotlin server, and `apps/`, `packages/` and the pnpm
@@ -52,8 +59,7 @@ beta on every plan, so a JVM server does not force a change of host.
   the unit tests, the server's tests against a Postgres container, and
   Roborazzi screenshot tests on Desktop.
 
-ADR 032 still holds for the targets (Android and Desktop now, iOS
-later), the bearer session token, the client's MVI shape, the design
+ADR 032 still holds for the bearer session token, the client's MVI shape, the design
 system and what stays out.
 
 ## Considered options
@@ -66,8 +72,11 @@ system and what stays out.
   container hosting, but a second provider for one owner. Rejected
   while Vercel's Container Runtime serves; it is the fallback if the
   beta fails the game.
-- **Compose for Web for the mail pages.** One UI toolkit everywhere,
-  but a heavy bundle for two forms. Rejected.
+- **Plain HTML from the server for the mail links.** A light page,
+  but a second UI to keep, and no web client to practise Kotlin/Wasm
+  on. Rejected.
+- **No web target until it is stable.** No Beta risk, but every
+  library picked meanwhile might lock web out later. Rejected.
 
 ## Consequences
 
