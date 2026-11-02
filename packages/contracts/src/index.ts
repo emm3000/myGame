@@ -34,6 +34,7 @@ export { type FiefRequest, FiefRequestSchema } from './FiefRequest'
 export { type ForgotPasswordRequest, ForgotPasswordRequestSchema } from './ForgotPasswordRequest'
 export { type HealthResponse, HealthResponseSchema } from './HealthResponse'
 export { type HintKind, HintKindSchema } from './HintKind'
+export { type NativeSession, NativeSessionSchema } from './NativeSession'
 export {
   type PlaceRecruitOrderRequest,
   PlaceRecruitOrderRequestSchema,

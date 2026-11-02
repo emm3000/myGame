@@ -1,6 +1,7 @@
 import { createRoute } from '@hono/zod-openapi'
 import {
   ForgotPasswordRequestSchema,
+  NativeSessionSchema,
   PlayerSchema,
   ResetPasswordRequestSchema,
   SignInRequestSchema,
@@ -8,12 +9,18 @@ import {
   VerifyEmailRequestSchema,
 } from '@mygame/contracts'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
-import { jsonBody, jsonResponse, signedOutResponse } from '../http/responseDeclarations'
+import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
 
 const PlayerComponent = PlayerSchema.meta({ id: 'Player' })
 
 const playerResponse = (description: string): ResponseDeclaration =>
   jsonResponse(description, PlayerComponent)
+
+const NativeSessionComponent = NativeSessionSchema.extend({ player: PlayerComponent }).meta({
+  id: 'NativeSession',
+})
+
+const SignInRequestComponent = SignInRequestSchema.meta({ id: 'SignInRequest' })
 
 export const authDeclarations = {
   signUp: createRoute({
@@ -33,28 +40,42 @@ export const authDeclarations = {
   signIn: createRoute({
     method: 'post',
     path: '/sign-in',
-    request: { body: jsonBody(SignInRequestSchema.meta({ id: 'SignInRequest' })) },
+    request: { body: jsonBody(SignInRequestComponent) },
     responses: {
       200: playerResponse('The player, signed in through the session cookie.'),
       401: refusalResponse('InvalidCredentials, a malformed body included.'),
     },
   }),
-  signOut: createRoute({
+  nativeSignIn: createRoute({
     method: 'post',
-    path: '/sign-out',
+    path: '/sign-in/native',
+    request: { body: jsonBody(SignInRequestComponent) },
     responses: {
-      204: { description: 'The session is closed and its cookie cleared.' },
-      401: signedOutResponse,
+      200: jsonResponse(
+        'The player and the session token, sent as an Authorization bearer; no cookie is set.',
+        NativeSessionComponent,
+      ),
+      401: refusalResponse('InvalidCredentials, a malformed body included.'),
     },
   }),
-  session: createRoute({
-    method: 'get',
-    path: '/session',
-    responses: {
-      200: playerResponse('The signed-in player; the session is renewed.'),
-      401: signedOutResponse,
-    },
-  }),
+  signOut: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/sign-out',
+      responses: {
+        204: { description: 'The session is closed and its cookie cleared.' },
+      },
+    }),
+  ),
+  session: createRoute(
+    signedInRoute({
+      method: 'get',
+      path: '/session',
+      responses: {
+        200: playerResponse('The signed-in player; the session is renewed.'),
+      },
+    }),
+  ),
   verifyEmail: createRoute({
     method: 'post',
     path: '/verify-email',
@@ -64,15 +85,16 @@ export const authDeclarations = {
       400: refusalResponse('TokenInvalid; a malformed body answers an empty body.'),
     },
   }),
-  resendVerification: createRoute({
-    method: 'post',
-    path: '/verify-email/resend',
-    responses: {
-      204: { description: 'The verification mail is sent, or the email is already verified.' },
-      401: signedOutResponse,
-      503: refusalResponse('MailNotSent.'),
-    },
-  }),
+  resendVerification: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/verify-email/resend',
+      responses: {
+        204: { description: 'The verification mail is sent, or the email is already verified.' },
+        503: refusalResponse('MailNotSent.'),
+      },
+    }),
+  ),
   forgotPassword: createRoute({
     method: 'post',
     path: '/forgot-password',
