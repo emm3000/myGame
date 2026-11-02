@@ -4,9 +4,14 @@ import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.EnqueueBuildingRequest
 import com.emm.mygame.core.network.generated.models.FiefOverview
+import com.emm.mygame.core.network.generated.models.PlaceRecruitOrderRequest
 import com.emm.mygame.core.network.generated.models.StartStudyRequest
 import java.io.IOException
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.UUID
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
@@ -84,6 +89,43 @@ internal class ApiFiefRepository(
             }
         }
 
+    override suspend fun recruit(fief: FiefId, unit: UnitKind, count: Int): RecruitResult =
+        withContext(ioDispatcher) {
+            try {
+                val request = PlaceRecruitOrderRequest(unit = unit.toWireUnit(), count = count)
+                recruitedOrRefused(api.fiefsFiefIdRecruitOrdersPost(UUID.fromString(fief.value), request))
+            } catch (expectedOutage: IOException) {
+                RecruitResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                RecruitResult.Unreachable
+            }
+        }
+
+    override suspend fun cancelRecruit(fief: FiefId, unit: UnitKind, startedAt: Instant): RecruitResult =
+        withContext(ioDispatcher) {
+            try {
+                val response: Response<FiefOverview> = api.fiefsFiefIdRecruitOrdersUnitStartedAtDelete(
+                    fiefId = UUID.fromString(fief.value),
+                    unit = unit.toWireUnit().value,
+                    startedAt = OffsetDateTime.ofInstant(startedAt.toJavaInstant(), ZoneOffset.UTC),
+                )
+                recruitedOrRefused(response)
+            } catch (expectedOutage: IOException) {
+                RecruitResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                RecruitResult.Unreachable
+            }
+        }
+
+    private fun recruitedOrRefused(response: Response<FiefOverview>): RecruitResult {
+        val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
+        if (response.isSuccessful) {
+            return if (snapshot == null) RecruitResult.Unreachable else RecruitResult.Answered(snapshot)
+        }
+        val refusal: ApiError = response.apiError() ?: return RecruitResult.Unreachable
+        return RecruitResult.Refused(refusal.kind.toRecruitRefusal())
+    }
+
     private fun studiedOrRefused(response: Response<FiefOverview>): StudyResult {
         val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
         if (response.isSuccessful) {
@@ -136,6 +178,17 @@ private val studyRefusals: Map<ApiError.Kind, StudyRefusal> = mapOf(
 )
 
 private fun ApiError.Kind.toStudyRefusal(): StudyRefusal = studyRefusals[this] ?: StudyRefusal.Unrecognized
+
+private val recruitRefusals: Map<ApiError.Kind, RecruitRefusal> = mapOf(
+    ApiError.Kind.BarracksNotBuilt to RecruitRefusal.BarracksNotBuilt,
+    ApiError.Kind.BarracksTooLow to RecruitRefusal.BarracksTooLow,
+    ApiError.Kind.RecruitSlotBusy to RecruitRefusal.RecruitSlotBusy,
+    ApiError.Kind.RecruitOrderNotFound to RecruitRefusal.RecruitOrderNotFound,
+    ApiError.Kind.InsufficientResources to RecruitRefusal.InsufficientResources,
+    ApiError.Kind.NotEnoughPeasants to RecruitRefusal.NotEnoughPeasants,
+)
+
+private fun ApiError.Kind.toRecruitRefusal(): RecruitRefusal = recruitRefusals[this] ?: RecruitRefusal.Unrecognized
 
 private val upgradeRefusals: Map<ApiError.Kind, UpgradeRefusal> = mapOf(
     ApiError.Kind.QueueFull to UpgradeRefusal.QueueFull,

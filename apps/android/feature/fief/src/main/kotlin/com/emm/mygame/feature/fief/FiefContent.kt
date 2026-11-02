@@ -44,6 +44,7 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
         upgrade = mutations.upgrade,
         cancel = mutations.cancel,
         library = libraryAt(now = now, amounts = drawnAmounts, study = mutations.study),
+        army = armyAt(now = now, amounts = drawnAmounts, mutations = mutations),
     )
 }
 
@@ -53,7 +54,7 @@ internal fun FiefSnapshot.slotRemainingAt(now: Instant): Duration? = when (val c
 }
 
 internal fun FiefSnapshot.nextFinishAt(now: Instant): Duration? =
-    listOfNotNull(slotRemainingAt(now), studyRemainingAt(now)).minOrNull()
+    listOfNotNull(slotRemainingAt(now), studyRemainingAt(now), levyRemainingAt(now)).minOrNull()
 
 private fun BuildQueue.isFull(): Boolean = entries.size >= cap
 

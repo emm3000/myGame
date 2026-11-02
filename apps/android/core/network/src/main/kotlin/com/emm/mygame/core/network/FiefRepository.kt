@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 
 interface FiefRepository {
@@ -13,6 +14,10 @@ interface FiefRepository {
     suspend fun startStudy(fief: FiefId, art: ArtKind): StudyResult
 
     suspend fun cancelStudy(fief: FiefId, art: ArtKind, targetLevel: Int): StudyResult
+
+    suspend fun recruit(fief: FiefId, unit: UnitKind, count: Int): RecruitResult
+
+    suspend fun cancelRecruit(fief: FiefId, unit: UnitKind, startedAt: Instant): RecruitResult
 }
 
 fun FiefRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): FiefRepository =

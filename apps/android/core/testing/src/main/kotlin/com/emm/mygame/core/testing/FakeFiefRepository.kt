@@ -6,8 +6,11 @@ import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
+import com.emm.mygame.core.network.RecruitResult
 import com.emm.mygame.core.network.StudyResult
+import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UpgradeResult
+import kotlin.time.Instant
 import kotlinx.coroutines.channels.Channel
 
 class FakeFiefRepository : FiefRepository {
@@ -21,6 +24,10 @@ class FakeFiefRepository : FiefRepository {
     private val studyAnswers: Channel<StudyResult> = Channel(Channel.UNLIMITED)
 
     private val _studies: MutableList<StudyRequest> = mutableListOf()
+
+    private val recruitAnswers: Channel<RecruitResult> = Channel(Channel.UNLIMITED)
+
+    private val _recruits: MutableList<RecruitRequest> = mutableListOf()
 
     private val _upgrades: MutableList<Pair<FiefId, BuildingKind>> = mutableListOf()
 
@@ -37,6 +44,13 @@ class FakeFiefRepository : FiefRepository {
 
     val studies: List<StudyRequest>
         get() = _studies.toList()
+
+    val recruits: List<RecruitRequest>
+        get() = _recruits.toList()
+
+    fun answerRecruit(result: RecruitResult) {
+        recruitAnswers.trySend(result)
+    }
 
     fun answerStudy(result: StudyResult) {
         studyAnswers.trySend(result)
@@ -77,6 +91,23 @@ class FakeFiefRepository : FiefRepository {
     override suspend fun cancelStudy(fief: FiefId, art: ArtKind, targetLevel: Int): StudyResult {
         _studies += StudyRequest.Cancel(fief, art, targetLevel)
         return studyAnswers.receive()
+    }
+
+    override suspend fun recruit(fief: FiefId, unit: UnitKind, count: Int): RecruitResult {
+        _recruits += RecruitRequest.Place(fief, unit, count)
+        return recruitAnswers.receive()
+    }
+
+    override suspend fun cancelRecruit(fief: FiefId, unit: UnitKind, startedAt: Instant): RecruitResult {
+        _recruits += RecruitRequest.Cancel(fief, unit, startedAt)
+        return recruitAnswers.receive()
+    }
+
+    sealed interface RecruitRequest {
+
+        data class Place(val fief: FiefId, val unit: UnitKind, val count: Int) : RecruitRequest
+
+        data class Cancel(val fief: FiefId, val unit: UnitKind, val startedAt: Instant) : RecruitRequest
     }
 
     sealed interface StudyRequest {

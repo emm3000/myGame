@@ -13,16 +13,21 @@ import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.NextArtLevel
 import com.emm.mygame.core.network.NextLevel
 import com.emm.mygame.core.network.Peasants
+import com.emm.mygame.core.network.RecruitOrder
+import com.emm.mygame.core.network.RecruitTerms
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.StudySlot
+import com.emm.mygame.core.network.UnitKind
+import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.network.WaitingUpgrade
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
@@ -76,6 +81,8 @@ internal fun fief(
     queue: BuildQueue = BuildQueue(entries = emptyList(), cap = 4),
     study: StudySlot = StudySlot.Idle,
     arts: List<ArtState> = listOf(smithing(level = 0), masonry()),
+    units: List<UnitState> = army(),
+    recruitOrder: RecruitOrder? = null,
 ): FiefSnapshot = FiefSnapshot(
     id = FiefId(FIEF_ID),
     name = "Vadoalto",
@@ -87,6 +94,8 @@ internal fun fief(
     queue = queue,
     study = study,
     arts = arts,
+    units = units,
+    recruitOrder = recruitOrder,
 )
 
 internal fun sawmill(level: Int = 0): BuildingState = building(BuildingKind.Sawmill, level)
@@ -118,6 +127,43 @@ internal fun masonry(): ArtState =
 
 internal fun studyingSmithing(targetLevel: Int, finishesIn: Duration): StudySlot =
     StudySlot.Busy(ArtKind.Smithing, targetLevel = targetLevel, finishesAt = firstReadAt + finishesIn)
+
+internal fun army(infantryAtHome: Int = 0, infantryAway: Int = 0): List<UnitState> = listOf(
+    unit(UnitKind.Infantry, count = infantryAtHome + infantryAway, away = infantryAway, barracksLevel = 1),
+    unit(UnitKind.Cavalry, count = 0, away = 0, barracksLevel = 3),
+    unit(UnitKind.Archer, count = 0, away = 0, barracksLevel = 2),
+    unit(UnitKind.Settler, count = 0, away = 0, barracksLevel = 5),
+)
+
+private fun unit(kind: UnitKind, count: Int, away: Int, barracksLevel: Int): UnitState = UnitState(
+    kind = kind,
+    count = count,
+    away = away,
+    barracksLevel = barracksLevel,
+    terms = RecruitTerms(
+        cost = listOf(
+            ResourceCost(ResourceKind.Wood, 20),
+            ResourceCost(ResourceKind.Stone, 0),
+            ResourceCost(ResourceKind.Iron, 10),
+            ResourceCost(ResourceKind.Gold, 0),
+            ResourceCost(ResourceKind.Food, 30),
+        ),
+        peasants = 1,
+        perUnit = 68.seconds,
+    ),
+)
+
+internal fun levyOfInfantry(count: Int, delivered: Int, startedBefore: Duration): RecruitOrder {
+    val startedAt: Instant = firstReadAt - startedBefore
+    return RecruitOrder(
+        unit = UnitKind.Infantry,
+        count = count,
+        delivered = delivered,
+        perUnit = 1.minutes,
+        startedAt = startedAt,
+        endsAt = startedAt + count.minutes,
+    )
+}
 
 internal fun barracks(level: Int = 0): BuildingState = building(BuildingKind.Barracks, level)
 

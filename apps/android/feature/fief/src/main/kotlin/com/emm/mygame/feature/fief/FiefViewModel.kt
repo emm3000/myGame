@@ -8,9 +8,12 @@ import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.RecruitRefusal
+import com.emm.mygame.core.network.RecruitResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.StudyRefusal
 import com.emm.mygame.core.network.StudyResult
+import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UpgradeResult
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
@@ -48,6 +51,8 @@ class FiefViewModel(
 
     private var mutations: Mutations = Mutations.none
 
+    private var gap: Duration = Duration.ZERO
+
     init {
         open()
     }
@@ -62,6 +67,11 @@ class FiefViewModel(
             is FiefIntent.StudyTapped -> study { fief: FiefSnapshot -> fiefs.startStudy(fief.id, intent.art) }
             is FiefIntent.StudyCancelTapped -> study { fief: FiefSnapshot ->
                 fiefs.cancelStudy(fief.id, intent.art, intent.targetLevel)
+            }
+            is FiefIntent.RecruitEntryChanged -> enter(intent.unit, intent.entry)
+            is FiefIntent.RecruitTapped -> recruit(intent.unit)
+            is FiefIntent.RecruitCancelTapped -> levy(intent.unit) { fief: FiefSnapshot ->
+                fiefs.cancelRecruit(fief.id, intent.unit, intent.startedAt)
             }
         }
     }
@@ -128,6 +138,42 @@ class FiefViewModel(
         }
     }
 
+    private fun enter(unit: UnitKind, entry: String) {
+        mutations = mutations.copy(recruitEntries = mutations.recruitEntries + (unit to entry))
+        val fief: FiefSnapshot = shown ?: return
+        if (_state.value !is FiefUiState.Content) return
+        _state.value = fief.contentAt(now = clock.now() + gap, gap = gap, mutations = mutations)
+    }
+
+    private fun recruit(unit: UnitKind) {
+        val count: Int = recruitCountOf(mutations.entryOf(unit)) ?: return
+        levy(unit) { fief: FiefSnapshot -> fiefs.recruit(fief.id, unit, count) }
+    }
+
+    private fun levy(unit: UnitKind, call: suspend (FiefSnapshot) -> RecruitResult) {
+        val fief: FiefSnapshot = shown ?: return
+        if (mutations.recruit == FiefUiState.RecruitStatus.Waiting) return
+        draw(mutations.copy(recruit = FiefUiState.RecruitStatus.Waiting))
+        viewModelScope.launch {
+            when (val answer: RecruitResult = call(fief)) {
+                is RecruitResult.Answered ->
+                    restartFrom(answer.fief, mutations.recruitAnswered(FiefUiState.RecruitStatus.Idle))
+                is RecruitResult.Refused -> answerRefusedLevy(fief, unit, answer.refusal)
+                RecruitResult.Unreachable -> draw(mutations.copy(recruit = FiefUiState.RecruitStatus.Unreachable))
+            }
+        }
+    }
+
+    private suspend fun answerRefusedLevy(fief: FiefSnapshot, unit: UnitKind, refusal: RecruitRefusal) {
+        val refused: FiefUiState.RecruitStatus =
+            FiefUiState.RecruitStatus.Refused(refusal, unit, fief.barracksLevelOf(unit))
+        if (refusal != RecruitRefusal.RecruitOrderNotFound) return draw(mutations.copy(recruit = refused))
+        when (val answer: FiefReadResult = fiefs.read()) {
+            is FiefReadResult.Read -> restartFrom(answer.fief, mutations.recruitAnswered(refused))
+            FiefReadResult.Unreachable -> draw(mutations.copy(recruit = refused))
+        }
+    }
+
     private suspend fun answerRefusedStudy(refusal: StudyRefusal) {
         val refused: FiefUiState.StudyStatus = FiefUiState.StudyStatus.Refused(refusal)
         if (refusal != StudyRefusal.StudyNotFound) return draw(mutations.copy(study = refused))
@@ -166,7 +212,7 @@ class FiefViewModel(
 
     private suspend fun project(first: FiefSnapshot) {
         var snapshot: FiefSnapshot = first
-        var gap: Duration = serverGapOf(snapshot)
+        gap = serverGapOf(snapshot)
         while (true) {
             if (snapshot.nextFinishAt(clock.now() + gap) == Duration.ZERO) {
                 val answer: FiefReadResult = fiefs.read()
@@ -187,6 +233,7 @@ class FiefViewModel(
         upgrade = next.upgrade,
         cancel = next.cancel,
         library = library?.copy(study = next.study),
+        army = army?.copy(recruit = next.recruit),
     )
 
     private fun serverGapOf(snapshot: FiefSnapshot): Duration = snapshot.readAt - clock.now()
