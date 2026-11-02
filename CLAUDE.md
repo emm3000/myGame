@@ -36,8 +36,8 @@ One fief per player at first: wood, stone, iron, gold and food, peasants as the 
 
 These bind on every change, including a new file created before any TypeScript has been read.
 
-- **No comments.** No JSDoc, no `//`, no banners, no commented-out code. The code explains itself or it gets renamed. Narrow exceptions in `.claude/rules/typescript-style.md`.
-- **Explicit return types on every exported function and method.** Locals infer.
+- **No comments.** No JSDoc, no `//`, no banners, no commented-out code. The code explains itself or it gets renamed. Narrow exceptions in `.claude/rules/typescript-style.md` and `.claude/rules/kotlin-style.md`.
+- **Explicit return types on every exported function and method.** Locals infer in TypeScript; Kotlin types them too (`kotlin-style.md`).
 - **`packages/domain` stays pure.** If it needs to reach outward, invert with a port interface in `packages/domain`. Failure modes are members of the sealed `DomainError` union, never a thrown `Error`.
 - **Time is injected.** A use case takes a `Clock` port; nothing in `packages/domain` or a use case calls `Date.now()` or `new Date()`.
 - **Lazy evaluation.** Resource amounts are computed from `(storedAmount, storedAt, rate, capacity, now)`. No cron, no `setInterval`, no worker advancing state.
@@ -52,12 +52,17 @@ Path-scoped, loaded when matching files are touched:
 
 | File | Covers |
 |---|---|
-| `.claude/rules/architecture.md` | Layer boundaries, ports and adapters, use-case admission, `DomainError`, the contracts boundary, the leak check |
-| `.claude/rules/typescript-style.md` | Explicit return types, comment policy, idioms, complexity limits |
-| `.claude/rules/naming.md` | Naming patterns by layer, file names, English identifiers |
-| `.claude/rules/principles.md` | YAGNI, KISS, SOLID with its tests, DRY with its caveat, what is rejected |
+| `.claude/rules/architecture.md` | Api, web and shared TS packages: layer boundaries, ports and adapters, use-case admission, `DomainError`, the contracts boundary, the leak check |
+| `.claude/rules/typescript-style.md` | Explicit return types, comment policy, idioms, complexity limits, naming patterns by layer, file names |
+| `.claude/rules/naming.md` | Language-neutral naming for all code: English identifiers, predicates, plurals, units, game content names |
+| `.claude/rules/principles.md` | All code: YAGNI, KISS, SOLID with its tests, DRY with its caveat, what is rejected |
 | `.claude/rules/testing.md` | Vitest, behavior tests, fixtures, what a test may not do |
 | `.claude/rules/github-workflows.md` | CI, the gate's definition, pinned actions |
+| `.claude/rules/kotlin-style.md` | Kotlin in `apps/android`: comment policy, explicit types, idioms, names, detekt |
+| `.claude/rules/android-architecture.md` | `apps/android`: the client as renderer, modules and `checkModuleBoundaries`, the generated contract, the bearer session, the lazy projection, MVI |
+| `.claude/rules/android-testing.md` | Android tests: sentence names, Turbine, fakes over mocks, the shared projection fixture |
+| `.claude/rules/ui-components.md` | Every client's UI: one token-defined design system, touch targets, states, accessibility floor, icons |
+| `.claude/rules/verification.md` | Required evidence per changed area and how to report it |
 
 Each package carries a `CLAUDE.md` with its build and test facts and its gotchas once it exists.
 

@@ -5,31 +5,7 @@ paths:
 ---
 # Naming
 
-English for every identifier, file, directory, branch, commit and doc. Spanish appears only in user-facing copy. A name is a sentence fragment a reader understands without opening the file.
-
-## By layer
-
-| Thing | Pattern | Example |
-|---|---|---|
-| Entity | noun | `Fief`, `Building`, `BuildQueue` |
-| Value object | noun, immutable | `ResourceAmount`, `Coordinates`, `Duration` |
-| Use case | verb phrase | `enqueueBuilding`, `collectResources` |
-| Port | noun + role | `FiefRepository`, `Clock`, `IdGenerator` |
-| Adapter | technology + port | `DrizzleFiefRepository`, `SystemClock` |
-| Domain error member | past or present participle of the failure | `InsufficientResources`, `QueueFull` |
-| Contract schema | wire noun + `Schema` | `FiefOverviewSchema`, `EnqueueBuildingRequestSchema` |
-| Contract type | the schema's noun | `FiefOverview`, `EnqueueBuildingRequest` |
-| Hono route module | resource | `fiefs.ts`, `slot.ts` |
-| Web route | TanStack file route | `routes/fief.$fiefId.tsx` |
-| Component | noun, PascalCase | `ResourceBar`, `BuildQueuePanel` |
-| Hook | `use` + noun | `useFiefOverview` |
-| Test | `<subject>.test.ts` beside the subject | `enqueueBuilding.test.ts` |
-
-## Files
-
-- One primary export per file, file named after it: `enqueueBuilding.ts` exports `enqueueBuilding`.
-- camelCase for files that export a function or value, PascalCase for files that export a type, class or component.
-- Directories are plural nouns for collections (`useCases/`, `ports/`, `adapters/`) and singular for a single concern (`auth/`).
+English for every identifier, file, directory, branch, commit and doc. Spanish appears only in user-facing copy. A name is a sentence fragment a reader understands without opening the file. The per-language patterns live in `typescript-style.md` and `kotlin-style.md`.
 
 ## Booleans and collections
 
@@ -39,8 +15,8 @@ English for every identifier, file, directory, branch, commit and doc. Spanish a
 
 ## Game content
 
-Names players see come from `docs/lore/` and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the Spanish label lives in the copy layer of `apps/web`.
+Names players see come from `docs/lore/` and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the Spanish label lives in each client's copy layer: `apps/web/src/copy.ts`, string resources on Android.
 
 ## Rejected
 
-Abbreviations (`cfg`, `repo`, `mgr`, `ctx` outside Hono's own `c`), Hungarian prefixes (`IFiefRepository`), `Impl` suffixes, `Helper` / `Util` / `Manager` classes, numbered variants (`fief2`).
+Abbreviations (`cfg`, `repo`, `mgr`, `ctx`; Hono's own `c` is the exception), Hungarian prefixes (`IFiefRepository`), `Impl` suffixes, `Helper` / `Util` / `Manager` classes, numbered variants (`fief2`).
