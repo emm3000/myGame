@@ -10,6 +10,7 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
             pluginManager.apply("org.jetbrains.kotlin.jvm")
 
             configureKotlinJvm()
+            configureUnitTests()
 
             tasks.register("testDebugUnitTest") {
                 group = "verification"

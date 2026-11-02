@@ -1,0 +1,7 @@
+build.gradle
+settings.gradle
+README.md
+proguard-rules.pro
+**/infrastructure/ApiClient.kt
+**/infrastructure/ResponseExt.kt
+**/auth/**

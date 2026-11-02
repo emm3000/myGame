@@ -14,6 +14,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             val extension: ApplicationExtension = extensions.getByType<ApplicationExtension>()
             configureKotlinAndroid(extension)
+            configureUnitTests()
             extension.defaultConfig.targetSdk = TARGET_SDK
             configureAndroidCompose(extension)
         }

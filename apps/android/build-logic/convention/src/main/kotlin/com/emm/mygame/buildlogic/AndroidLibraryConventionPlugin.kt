@@ -14,6 +14,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             val extension: LibraryExtension = extensions.getByType<LibraryExtension>()
             extension.namespace = NAMESPACE_PREFIX + path.replace(':', '.')
             configureKotlinAndroid(extension)
+            configureUnitTests()
         }
     }
 }
