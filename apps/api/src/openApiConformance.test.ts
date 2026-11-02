@@ -379,6 +379,30 @@ const exchanges: ReadonlyArray<Exchange> = [
   }),
   onForeignFief('GET /fiefs/{fiefId}/map'),
   onForeignFief('GET /fiefs/{fiefId}/map/{province}', { province: '1' }),
+  {
+    operation: 'POST /auth/sign-up/native',
+    caller: 'signedOut',
+    body: { email: 'elena@example.com', password: 'hierro-y-lana', fiefName: 'Encinar' },
+    status: 201,
+  },
+  {
+    operation: 'POST /auth/sign-up/native',
+    caller: 'signedOut',
+    body: { email: 'dario@example.com', password: 'corta', fiefName: 'Pinares' },
+    status: 400,
+  },
+  {
+    operation: 'POST /auth/sign-up/native',
+    caller: 'signedOut',
+    body: { email: 'elena@example.com', password: 'hierro-y-lana', fiefName: 'Encinar' },
+    status: 409,
+  },
+  {
+    operation: 'POST /auth/sign-up/native',
+    caller: 'signedOut',
+    body: { email: 'dario@example.com', password: 'hierro-y-lana', fiefName: '   ' },
+    status: 400,
+  },
   { operation: 'POST /auth/sign-out', caller: 'ana', status: 204 },
   { operation: 'POST /auth/sign-out', caller: 'signedOut', status: 401 },
 ]

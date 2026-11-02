@@ -22,19 +22,35 @@ const NativeSessionComponent = NativeSessionSchema.extend({ player: PlayerCompon
 
 const SignInRequestComponent = SignInRequestSchema.meta({ id: 'SignInRequest' })
 
+const SignUpRequestComponent = SignUpRequestSchema.meta({ id: 'SignUpRequest' })
+
+const signUpRefusals = {
+  400: refusalResponse('WeakPassword or BlankFiefName; a malformed body answers an empty body.'),
+  409: refusalResponse(
+    'EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.',
+  ),
+}
+
 export const authDeclarations = {
   signUp: createRoute({
     method: 'post',
     path: '/sign-up',
-    request: { body: jsonBody(SignUpRequestSchema.meta({ id: 'SignUpRequest' })) },
+    request: { body: jsonBody(SignUpRequestComponent) },
     responses: {
       201: playerResponse('The new player, signed in through the session cookie.'),
-      400: refusalResponse(
-        'WeakPassword or BlankFiefName; a malformed body answers an empty body.',
+      ...signUpRefusals,
+    },
+  }),
+  nativeSignUp: createRoute({
+    method: 'post',
+    path: '/sign-up/native',
+    request: { body: jsonBody(SignUpRequestComponent) },
+    responses: {
+      201: jsonResponse(
+        'The new player and the session token, sent as an Authorization bearer; no cookie is set.',
+        NativeSessionComponent,
       ),
-      409: refusalResponse(
-        'EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.',
-      ),
+      ...signUpRefusals,
     },
   }),
   signIn: createRoute({
