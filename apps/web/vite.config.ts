@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, isPreview }) => ({
   server: {
     port: Number(process.env.WEB_PORT),
     strictPort: true,
@@ -15,5 +15,10 @@ export default defineConfig(({ command }) => ({
       },
     },
   },
-  plugins: [tailwindcss(), tanstackStart(), command === 'build' ? nitro() : null, react()],
+  plugins: [
+    tailwindcss(),
+    tanstackStart(),
+    command === 'build' || isPreview ? nitro() : null,
+    react(),
+  ],
 }))
