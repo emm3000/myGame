@@ -5,20 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/listen.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.js --external:hono --external:pg --external:drizzle-orm --external:@node-rs/argon2 --external:nodemailer",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.js --external:hono --external:pg --external:drizzle-orm --external:@node-rs/argon2 --external:nodemailer --external:@hono/zod-openapi --external:zod",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "openapi:write": "tsx src/writeOpenApiDocument.ts && biome format --write openapi.json"
   },
   "dependencies": {
+    "@hono/zod-openapi": "1.6.3",
     "@mygame/contracts": "workspace:*",
     "@mygame/domain": "workspace:*",
     "@node-rs/argon2": "2.2.1",
     "drizzle-orm": "0.45.2",
     "hono": "4.13.8",
     "nodemailer": "10.0.11",
-    "pg": "8.23.0"
+    "pg": "8.23.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@hono/node-server": "2.1.1",

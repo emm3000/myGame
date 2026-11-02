@@ -1,3 +1,4 @@
+import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   CancelRecruitOrderRequestSchema,
   CancelStudyRequestSchema,
@@ -14,7 +15,7 @@ import {
   StartStudyRequestSchema,
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
-import { type Context, Hono } from 'hono'
+import type { Context } from 'hono'
 import type { ChronicleReader } from '../fief/ChronicleReader'
 import {
   type CancelRecruitOrderDependencies,
@@ -46,6 +47,7 @@ import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import { fiefDeclarations } from './fiefDeclarations'
 
 export type FiefDependencies = CurrentFiefDependencies &
   CancelUpgradeDependencies &
@@ -64,7 +66,7 @@ export type FiefDependencies = CurrentFiefDependencies &
     readonly guidanceDismissals: GuidanceDismissals
   }
 
-export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
+export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
   const answerReading = (c: Context, reading: Result<FiefReading, DomainError>): Response => {
     if (!reading.ok) {
       return answerRefusal(c, reading.error)
@@ -79,8 +81,10 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
   const answerFief = (c: Context, fief: Result<Fief, DomainError>): Response =>
     answerReading(c, fief.ok ? storedFiefReadingOf(fief.value, dependencies.buildingCatalog) : fief)
   const signedInPlayer = requirePlayer(dependencies)
-  return new Hono()
-    .get('/', signedInPlayer, requireNamedFief, async (c) =>
+  const routes = new OpenAPIHono()
+  routes.openAPIRegistry.registerPath(fiefDeclarations.overview)
+  routes
+    .get(fiefDeclarations.overview.path, signedInPlayer, requireNamedFief, async (c) =>
       answerReading(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
     )
     .get('/events', signedInPlayer, requireNamedFief, async (c) => {
@@ -193,4 +197,5 @@ export const fiefRoutes = (dependencies: FiefDependencies): Hono => {
       }
       return c.body(null, 204)
     })
+  return routes
 }
