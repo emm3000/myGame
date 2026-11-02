@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.signin.SignInRoute
+import com.emm.mygame.feature.signin.SignUpRoute
 
 class MainActivity : ComponentActivity() {
 
@@ -20,21 +21,35 @@ class MainActivity : ComponentActivity() {
         val application: MyGameApplication = application as MyGameApplication
         setContent {
             MyGameTheme {
-                var isSignedIn: Boolean by rememberSaveable { mutableStateOf(false) }
-                if (isSignedIn) {
-                    FiefRoute(
+                var screen: Screen by rememberSaveable { mutableStateOf(Screen.SignIn) }
+                when (screen) {
+                    Screen.SignIn -> SignInRoute(
+                        sessions = application.sessions,
+                        onSignedIn = { screen = Screen.Fief },
+                        onSignUpOpen = { screen = Screen.SignUp },
+                    )
+                    Screen.SignUp -> SignUpRoute(
+                        sessions = application.sessions,
+                        onSignedIn = { screen = Screen.Fief },
+                        onSignInOpen = { screen = Screen.SignIn },
+                    )
+                    Screen.Fief -> FiefRoute(
                         fiefs = application.fiefs,
                         sessions = application.sessions,
                         clock = application.clock,
                         onSignedOut = {
                             viewModelStore.clear()
-                            isSignedIn = false
+                            screen = Screen.SignIn
                         },
                     )
-                } else {
-                    SignInRoute(sessions = application.sessions, onSignedIn = { isSignedIn = true })
                 }
             }
         }
+    }
+
+    private enum class Screen {
+        SignIn,
+        SignUp,
+        Fief,
     }
 }

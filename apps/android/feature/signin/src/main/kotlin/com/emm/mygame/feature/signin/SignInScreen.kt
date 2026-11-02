@@ -12,8 +12,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameButton
@@ -27,7 +25,12 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.RefusalKind
 
 @Composable
-fun SignInScreen(state: SignInUiState, onIntent: (SignInIntent) -> Unit, modifier: Modifier = Modifier) {
+fun SignInScreen(
+    state: SignInUiState,
+    onIntent: (SignInIntent) -> Unit,
+    onSignUpOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step8),
         modifier = modifier
@@ -40,33 +43,16 @@ fun SignInScreen(state: SignInUiState, onIntent: (SignInIntent) -> Unit, modifie
     ) {
         when (state) {
             SignInUiState.CheckingSession -> CheckingSession()
-            is SignInUiState.Form -> SignInForm(form = state, onIntent = onIntent)
+            is SignInUiState.Form -> SignInForm(form = state, onIntent = onIntent, onSignUpOpen = onSignUpOpen)
             is SignInUiState.SignedIn -> SignedIn(email = state.email)
         }
     }
 }
 
 @Composable
-private fun Header(title: String, modifier: Modifier = Modifier) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            text = stringResource(R.string.sign_in_brand),
-            style = MyGameTypography.brand,
-            color = MyGameTheme.colors.umber,
-        )
-        MyGameText(
-            text = title,
-            style = MyGameTypography.title,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
-    }
-}
-
-@Composable
 private fun CheckingSession(modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step8), modifier = modifier) {
-        Header(title = stringResource(R.string.sign_in_title))
+        AuthHeader(title = stringResource(R.string.sign_in_title))
         MyGameText(
             text = stringResource(R.string.sign_in_checking_session),
             style = MyGameTypography.body,
@@ -78,7 +64,7 @@ private fun CheckingSession(modifier: Modifier = Modifier) {
 @Composable
 private fun SignedIn(email: String, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step8), modifier = modifier) {
-        Header(title = stringResource(R.string.signed_in_title))
+        AuthHeader(title = stringResource(R.string.signed_in_title))
         MyGameText(
             text = stringResource(R.string.signed_in_as, email),
             style = MyGameTypography.body,
@@ -88,10 +74,15 @@ private fun SignedIn(email: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SignInForm(form: SignInUiState.Form, onIntent: (SignInIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun SignInForm(
+    form: SignInUiState.Form,
+    onIntent: (SignInIntent) -> Unit,
+    onSignUpOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val isSubmitting: Boolean = form.status == SignInUiState.FormStatus.Submitting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step8), modifier = modifier) {
-        Header(title = stringResource(R.string.sign_in_title))
+        AuthHeader(title = stringResource(R.string.sign_in_title))
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4)) {
             MyGameTextField(
                 value = form.email,
@@ -115,6 +106,11 @@ private fun SignInForm(form: SignInUiState.Form, onIntent: (SignInIntent) -> Uni
                 isBusy = isSubmitting,
                 busyDescription = stringResource(R.string.sign_in_submitting),
                 onClick = { onIntent(SignInIntent.SubmitTapped) },
+            )
+            AuthSwitch(
+                prompt = stringResource(R.string.sign_in_switch_prompt),
+                linkLabel = stringResource(R.string.sign_in_switch_link),
+                onClick = onSignUpOpen,
             )
         }
     }
