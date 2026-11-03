@@ -61,6 +61,7 @@ android {
         create("localRelease") {
             initWith(getByName("release"))
             matchingFallbacks += "release"
+            applicationIdSuffix = ".local"
             buildConfigField("String", "API_BASE_URL", "\"$localApiBaseUrl\"")
         }
     }
