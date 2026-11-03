@@ -1,5 +1,6 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.network.PasswordResetRequestResult
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignInResult
@@ -14,11 +15,15 @@ class FakeSessionRepository : SessionRepository {
 
     private val signUpAnswers: Channel<SignUpResult> = Channel(Channel.UNLIMITED)
 
+    private val passwordResetAnswers: Channel<PasswordResetRequestResult> = Channel(Channel.UNLIMITED)
+
     private val signOutAnswers: Channel<Unit> = Channel(Channel.UNLIMITED)
 
     private val attempts: MutableList<SignInAttempt> = mutableListOf()
 
     private val signUps: MutableList<SignUpAttempt> = mutableListOf()
+
+    private val resetEmails: MutableList<String> = mutableListOf()
 
     var signOutCount: Int = 0
         private set
@@ -28,6 +33,9 @@ class FakeSessionRepository : SessionRepository {
 
     val signUpAttempts: List<SignUpAttempt>
         get() = signUps.toList()
+
+    val passwordResetEmails: List<String>
+        get() = resetEmails.toList()
 
     fun answerRestore(result: RestoreResult) {
         restoreAnswers.trySend(result)
@@ -39,6 +47,10 @@ class FakeSessionRepository : SessionRepository {
 
     fun answerSignUp(result: SignUpResult) {
         signUpAnswers.trySend(result)
+    }
+
+    fun answerPasswordReset(result: PasswordResetRequestResult) {
+        passwordResetAnswers.trySend(result)
     }
 
     fun answerSignOut() {
@@ -55,6 +67,11 @@ class FakeSessionRepository : SessionRepository {
     override suspend fun signUp(email: String, password: String, fiefName: String): SignUpResult {
         signUps += SignUpAttempt(email = email, password = password, fiefName = fiefName)
         return signUpAnswers.receive()
+    }
+
+    override suspend fun requestPasswordReset(email: String): PasswordResetRequestResult {
+        resetEmails += email
+        return passwordResetAnswers.receive()
     }
 
     override suspend fun signOut() {
