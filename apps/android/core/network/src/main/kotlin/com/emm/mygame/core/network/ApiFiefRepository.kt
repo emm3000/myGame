@@ -162,7 +162,7 @@ internal class ApiFiefRepository(
             return if (snapshot == null) MarchResult.Unreachable else MarchResult.Answered(snapshot)
         }
         val refusal: ApiError = response.apiError() ?: return MarchResult.Unreachable
-        return MarchResult.Refused(refusal.kind.toMarchRefusal())
+        return MarchResult.Refused(refusal.kind.toMarchRefusal(), refusal.message)
     }
 
     private fun recruitedOrRefused(response: Response<FiefOverview>): RecruitResult {

@@ -42,9 +42,7 @@
     <string name="forage_invalid_hours">Un número entero, de 1 a %1$d.</string>
     <string name="forage_empty_party">Envía al menos un hombre.</string>
     <string name="forage_not_enough_at_home">Necesitas %1$s en casa y tienes %2$d.</string>
-    <string name="refusal_not_enough_units_at_home">No tienes en casa los hombres que pide esa marcha. Ajusta la marcha.</string>
     <string name="refusal_march_slot_busy">El cuartel ya tiene una marcha en curso. Espera a que vuelva.</string>
-    <string name="refusal_stay_out_of_range">Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.</string>
     <string name="refusal_march_target_out_of_bounds">Esa parcela no está en el mapa. Elige una que lo esté.</string>
     <string name="refusal_plot_held">Esa parcela ya tiene feudo. Elige una libre.</string>
     <string name="refusal_plot_has_camp">Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.</string>
@@ -83,10 +81,8 @@
     <string name="transport_short_many">Te faltan %1$s.</string>
     <string name="refusal_plot_has_no_camp">Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.</string>
     <string name="refusal_march_to_own_plot">A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.</string>
-    <string name="refusal_fief_cap_reached">Solo puedes tener 2 feudos. Deja al colono en casa.</string>
     <string name="refusal_blank_fief_name">Tu feudo necesita un nombre. Escribe uno que no esté en blanco.</string>
     <string name="refusal_empty_cargo">Un transporte no sale de vacío. Carga al menos un recurso.</string>
-    <string name="refusal_cargo_above_carry">La carga suma %1$d y tus hombres llevan hasta %2$d. Quita carga o envía más hombres.</string>
     <string name="refusal_insufficient_resources">No tienes recursos suficientes.</string>
     <string name="refusal_fief_not_found">No encontramos tus tierras.</string>
     <string name="duration_minutes_seconds">%1$d:%2$02d</string>

@@ -96,9 +96,7 @@ class MarchCopyTest {
     fun `reads each refusal of the send as the web does`() {
         assertEquals(
             listOf(
-                "No tienes en casa los hombres que pide esa marcha. Ajusta la marcha.",
                 "El cuartel ya tiene una marcha en curso. Espera a que vuelva.",
-                "Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.",
                 "Esa parcela no está en el mapa. Elige una que lo esté.",
                 "Esa parcela ya tiene feudo. Elige una libre.",
                 "Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.",
@@ -107,9 +105,7 @@ class MarchCopyTest {
                 "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.",
             ),
             listOf(
-                MarchRefusal.NotEnoughUnitsAtHome,
                 MarchRefusal.MarchSlotBusy,
-                MarchRefusal.StayOutOfRange,
                 MarchRefusal.MarchTargetOutOfBounds,
                 MarchRefusal.PlotHeld,
                 MarchRefusal.PlotHasCamp,
@@ -250,14 +246,12 @@ class MarchCopyTest {
         assertEquals(
             listOf(
                 "Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.",
-                "Solo puedes tener 2 feudos. Deja al colono en casa.",
                 "Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.",
                 "Tu feudo necesita un nombre. Escribe uno que no esté en blanco.",
                 "Un transporte no sale de vacío. Carga al menos un recurso.",
             ),
             listOf(
                 MarchRefusal.PlotHasNoCamp,
-                MarchRefusal.FiefCapReached,
                 MarchRefusal.PlotReserved,
                 MarchRefusal.BlankFiefName,
                 MarchRefusal.EmptyCargo,
@@ -296,10 +290,12 @@ class MarchCopyTest {
     }
 
     @Test
-    fun `reads the api's cargo above the carry with its raw figures`() {
+    fun `draws the api's line for a party short at home`() {
         assertEquals(
-            "La carga suma 1200 y tus hombres llevan hasta 600. Quita carga o envía más hombres.",
-            resources.sendAnswerOf(MapUiState.SendStatus.CargoAboveCarry(cargo = 1_200, carry = 600)),
+            "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha.",
+            resources.sendAnswerOf(
+                MapUiState.SendStatus.RefusedWithApiLine("Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha."),
+            ),
         )
     }
 
