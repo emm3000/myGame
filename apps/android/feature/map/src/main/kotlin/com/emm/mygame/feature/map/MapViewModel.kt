@@ -8,10 +8,12 @@ import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.MapPlot
 import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.MapRepository
+import com.emm.mygame.core.network.MarchDispatch
 import com.emm.mygame.core.network.MarchResult
 import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.PlotHolder
 import com.emm.mygame.core.network.ProvinceMap
+import com.emm.mygame.core.network.UnitCount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,9 +29,9 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
 
     private var isFiefRead: Boolean = false
 
-    private var choice: ForageChoice? = null
+    private var choice: MarchChoice? = null
 
-    private var sent: MapUiState.SentForage? = null
+    private var sent: MapUiState.SentMarch? = null
 
     init {
         read(ProvinceRequest.Own)
@@ -49,11 +51,18 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
                 content.jumpEntry.toIntOrNull()?.takeIf { it >= 1 }
             }
             MapIntent.OwnProvinceTapped -> readOwnAgain()
-            is MapIntent.ForageToggled -> toggle(intent.plot)
-            is MapIntent.PartyEntryChanged -> choose { open: ForageChoice ->
+            is MapIntent.ForageToggled -> toggle(intent.plot, MapUiState.OfferedOrder.Forage, proposedName = "")
+            is MapIntent.AttackToggled -> toggle(intent.plot, MapUiState.OfferedOrder.Attack, proposedName = "")
+            is MapIntent.FoundingToggled -> toggle(intent.plot, MapUiState.OfferedOrder.Found, intent.proposedName)
+            is MapIntent.TransportToggled -> toggle(intent.plot, MapUiState.OfferedOrder.Transport, proposedName = "")
+            is MapIntent.PartyEntryChanged -> choose { open: MarchChoice ->
                 open.copy(entries = open.entries + (intent.unit to intent.entry))
             }
-            is MapIntent.HoursEntryChanged -> choose { open: ForageChoice -> open.copy(hoursEntry = intent.entry) }
+            is MapIntent.HoursEntryChanged -> choose { open: MarchChoice -> open.copy(hoursEntry = intent.entry) }
+            is MapIntent.NameEntryChanged -> choose { open: MarchChoice -> open.copy(nameEntry = intent.entry) }
+            is MapIntent.CargoEntryChanged -> choose { open: MarchChoice ->
+                open.copy(cargoEntries = open.cargoEntries + (intent.kind to intent.entry))
+            }
             MapIntent.SendTapped -> send()
         }
     }
@@ -78,45 +87,59 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
         if (_state.value == MapUiState.ProvinceNotFound) read(ProvinceRequest.Own)
     }
 
-    private fun toggle(plot: Int) {
+    private fun toggle(plot: Int, offered: MapUiState.OfferedOrder, proposedName: String) {
         val content: MapUiState.Content = _state.value as? MapUiState.Content ?: return
         val read: FiefSnapshot = fief ?: return
-        if (plot !in content.forageablePlots) return
+        val order: ChosenOrder = content.offeredOrderOn(plot, offered) ?: return
         val target: PlotAddress = PlotAddress(province = content.map.province, plot = plot)
         sent = null
-        choice = if (choice?.target == target) null else read.firstChoiceOn(target)
+        val isOpen: Boolean = choice?.let { open: MarchChoice -> open.target == target && open.order == order } ?: false
+        choice = if (isOpen) null else read.firstChoiceOn(target, order, proposedName)
         redraw()
     }
 
-    private fun choose(change: (ForageChoice) -> ForageChoice) {
-        val open: ForageChoice = choice ?: return
+    private fun choose(change: (MarchChoice) -> MarchChoice) {
+        val open: MarchChoice = choice ?: return
         choice = change(open)
         redraw()
     }
 
     private fun send() {
         val read: FiefSnapshot = fief ?: return
-        val open: ForageChoice = choice?.takeIf { asked: ForageChoice -> asked.send != MapUiState.SendStatus.Waiting }
+        val open: MarchChoice = choice?.takeIf { asked: MarchChoice -> asked.send != MapUiState.SendStatus.Waiting }
             ?: return
-        val request: ForageRequest = requestOf(open) ?: return
+        val march: MarchDispatch = dispatchOf(open) ?: return
         answerSend(open, MapUiState.SendStatus.Waiting)
         viewModelScope.launch {
-            when (val answer: MarchResult = fiefs.forage(read.id, open.target, request.party, request.stayHours)) {
+            when (val answer: MarchResult = fiefs.dispatch(read.id, march)) {
                 is MarchResult.Answered -> {
                     fief = answer.fief
                     choice = null
-                    sent = answer.fief.sentForage()
+                    sent = answer.fief.sentMarch()
                     redraw()
                 }
-                is MarchResult.Refused -> answerSend(open, MapUiState.SendStatus.Refused(answer.refusal))
+                is MarchResult.Refused -> answerSend(open, read.refusedStatusOf(open, answer.refusal))
                 MarchResult.Unreachable -> answerSend(open, MapUiState.SendStatus.Unreachable)
             }
         }
     }
 
-    private fun answerSend(asked: ForageChoice, status: MapUiState.SendStatus) {
-        val open: ForageChoice = choice ?: return
-        if (open.target != asked.target) return
+    private fun dispatchOf(open: MarchChoice): MarchDispatch? = when (val order: ChosenOrder = open.order) {
+        ChosenOrder.Forage -> forageRequestOf(open)?.let { request: ForageRequest ->
+            MarchDispatch.Forage(open.target, request.party, request.stayHours)
+        }
+        is ChosenOrder.Attack -> attackPartyOf(open)?.let { party: List<UnitCount> ->
+            MarchDispatch.Attack(open.target, party)
+        }
+        ChosenOrder.Found -> MarchDispatch.Found(open.target, foundingNameOf(open))
+        is ChosenOrder.Transport -> transportLoadOf(open)?.let { load: TransportLoad ->
+            MarchDispatch.Transport(order.destination, load.party, load.cargo)
+        }
+    }
+
+    private fun answerSend(asked: MarchChoice, status: MapUiState.SendStatus) {
+        val open: MarchChoice = choice ?: return
+        if (open.target != asked.target || open.order != asked.order) return
         choice = open.copy(send = status)
         redraw()
     }
@@ -162,12 +185,15 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
         return MapUiState.Content(
             map = map,
             jumpEntry = jumpEntry,
-            forageablePlots = if (read == null) emptyList() else map.freePlots(),
-            form = choice?.let { open: ForageChoice -> read?.formOf(open, map.terrain) },
+            offers = read?.offersOn(map).orEmpty(),
+            form = choice?.let { open: MarchChoice -> read?.formOf(open, map.terrain) },
             sent = sent,
         )
     }
+}
 
-    private fun ProvinceMap.freePlots(): List<Int> =
-        plots.filter { plot: MapPlot -> plot.holder == PlotHolder.Free }.map { plot: MapPlot -> plot.plot }
+private fun MapUiState.Content.offeredOrderOn(plot: Int, offered: MapUiState.OfferedOrder): ChosenOrder? {
+    if (MapUiState.PlotOffer(plot, offered) !in offers) return null
+    val holder: PlotHolder = map.plots.firstOrNull { each: MapPlot -> each.plot == plot }?.holder ?: return null
+    return chosenOrderOf(holder, offered)
 }

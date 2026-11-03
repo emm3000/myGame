@@ -58,7 +58,7 @@ class MapCopyTest {
     fun `reads the own fief under the plot with its marker`() {
         assertEquals(
             listOf("Parcela 12", "Tu feudo: Sotoverde"),
-            resources.plotLinesOf(MapPlot(12, PlotHolder.Own(name = "Sotoverde"))),
+            resources.plotLinesOf(MapPlot(12, PlotHolder.Own(name = "Sotoverde", fief = null))),
         )
     }
 

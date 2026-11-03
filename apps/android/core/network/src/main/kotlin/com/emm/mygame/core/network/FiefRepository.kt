@@ -19,7 +19,7 @@ interface FiefRepository {
 
     suspend fun cancelRecruit(fief: FiefId, unit: UnitKind, startedAt: Instant): RecruitResult
 
-    suspend fun forage(fief: FiefId, target: PlotAddress, party: List<UnitCount>, stayHours: Int): MarchResult
+    suspend fun dispatch(fief: FiefId, march: MarchDispatch): MarchResult
 
     suspend fun recall(fief: FiefId, departedAt: Instant): MarchResult
 }

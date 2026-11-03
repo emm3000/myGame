@@ -9,15 +9,14 @@ import com.emm.mygame.core.network.Terrain
 internal fun Resources.headingOf(map: ProvinceMap): String =
     getString(R.string.map_heading, kingdomLabelOf(map.kingdom), map.province)
 
-internal fun Resources.terrainLineOf(terrain: Terrain): String = getString(
-    R.string.map_terrain,
-    getString(
-        when (terrain) {
-            Terrain.Lowlands -> R.string.terrain_lowlands
-            Terrain.Uplands -> R.string.terrain_uplands
-            Terrain.Ridges -> R.string.terrain_ridges
-        },
-    ),
+internal fun Resources.terrainLineOf(terrain: Terrain): String = getString(R.string.map_terrain, terrainOf(terrain))
+
+internal fun Resources.terrainOf(terrain: Terrain): String = getString(
+    when (terrain) {
+        Terrain.Lowlands -> R.string.terrain_lowlands
+        Terrain.Uplands -> R.string.terrain_uplands
+        Terrain.Ridges -> R.string.terrain_ridges
+    },
 )
 
 internal fun Resources.plotLinesOf(plot: MapPlot): List<String> = when (val holder: PlotHolder = plot.holder) {

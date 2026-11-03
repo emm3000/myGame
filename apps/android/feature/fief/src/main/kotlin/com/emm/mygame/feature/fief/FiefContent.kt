@@ -54,7 +54,13 @@ internal fun FiefSnapshot.slotRemainingAt(now: Instant): Duration? = when (val c
 }
 
 internal fun FiefSnapshot.nextFinishAt(now: Instant): Duration? =
-    listOfNotNull(slotRemainingAt(now), studyRemainingAt(now), levyRemainingAt(now), marchRemainingAt(now)).minOrNull()
+    listOfNotNull(
+        slotRemainingAt(now),
+        studyRemainingAt(now),
+        levyRemainingAt(now),
+        marchRemainingAt(now),
+        battleRemainingAt(now),
+    ).minOrNull()
 
 private fun BuildQueue.isFull(): Boolean = entries.size >= cap
 

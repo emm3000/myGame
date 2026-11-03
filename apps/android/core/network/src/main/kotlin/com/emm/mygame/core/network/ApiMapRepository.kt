@@ -2,6 +2,7 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.FiefListFiefsInner
 import java.io.IOException
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,9 +24,9 @@ internal class ApiMapRepository(
     private suspend fun readOf(request: suspend (UUID) -> Response<ProvinceMapBody>): MapReadResult =
         withContext(ioDispatcher) {
             try {
-                val fiefId: UUID = api.fiefsGet().body()?.fiefs?.firstOrNull()?.id
-                    ?: return@withContext MapReadResult.Unreachable
-                request(fiefId).toMapReadResult()
+                val lordsFiefs: List<FiefListFiefsInner> = api.fiefsGet().body()?.fiefs.orEmpty()
+                val fiefId: UUID = lordsFiefs.firstOrNull()?.id ?: return@withContext MapReadResult.Unreachable
+                request(fiefId).toMapReadResult(lordsFiefs)
             } catch (expectedOutage: IOException) {
                 MapReadResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
@@ -33,9 +34,9 @@ internal class ApiMapRepository(
             }
         }
 
-    private fun Response<ProvinceMapBody>.toMapReadResult(): MapReadResult {
+    private fun Response<ProvinceMapBody>.toMapReadResult(lordsFiefs: List<FiefListFiefsInner>): MapReadResult {
         if (isSuccessful) {
-            val map: ProvinceMap = body()?.toProvinceMap() ?: return MapReadResult.Unreachable
+            val map: ProvinceMap = body()?.toProvinceMap(lordsFiefs) ?: return MapReadResult.Unreachable
             return MapReadResult.Read(map)
         }
         return when (apiError()?.kind) {

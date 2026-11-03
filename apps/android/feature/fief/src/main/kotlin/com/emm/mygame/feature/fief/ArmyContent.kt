@@ -4,18 +4,14 @@ import com.emm.mygame.core.network.AwayMarch
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.BuildingState
 import com.emm.mygame.core.network.FiefSnapshot
-import com.emm.mygame.core.network.MarchOrder
 import com.emm.mygame.core.network.RecruitOrder
 import com.emm.mygame.core.network.RecruitTerms
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
-import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.deliveredUnitsAt
-import com.emm.mygame.core.projection.marchPhaseAt
-import com.emm.mygame.core.projection.nextMarchTurnAt
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -45,25 +41,6 @@ internal fun FiefSnapshot.armyAt(
         recall = mutations.recall,
     )
 }
-
-internal fun FiefSnapshot.marchRemainingAt(now: Instant): Duration? =
-    march?.let { away: AwayMarch -> countdownTo(finishesAt = away.endsAt(), now = now) }
-
-internal fun FiefSnapshot.marchTurnAt(now: Instant): Duration? =
-    march?.let { away: AwayMarch -> nextMarchTurnAt(arrivesAt = away.arrivesAt, leavesAt = away.leavesAt, now = now) }
-
-private fun marchSlotOf(away: AwayMarch, now: Instant): FiefUiState.MarchSlotLine.Busy =
-    FiefUiState.MarchSlotLine.Busy(
-        phase = marchPhaseAt(arrivesAt = away.arrivesAt, leavesAt = away.leavesAt, now = now),
-        units = away.units.filter { count: UnitCount -> count.count > 0 },
-        target = away.target,
-        remaining = countdownTo(finishesAt = away.endsAt(), now = now),
-        loot = away.loot,
-        departedAt = away.departedAt,
-    )
-
-private fun AwayMarch.endsAt(): Instant =
-    if (order == MarchOrder.Found && recalledAt == null) arrivesAt else returnsAt
 
 internal fun FiefSnapshot.levyRemainingAt(now: Instant): Duration? =
     recruitOrder?.let { order: RecruitOrder -> countdownTo(finishesAt = order.endsAt, now = now) }

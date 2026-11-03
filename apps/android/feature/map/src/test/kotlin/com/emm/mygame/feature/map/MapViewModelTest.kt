@@ -217,7 +217,7 @@ class MapViewModelTest {
     }
 
     private fun idleContentOf(map: ProvinceMap, jumpEntry: String): MapUiState.Content =
-        MapUiState.Content(map, jumpEntry = jumpEntry, forageablePlots = emptyList(), form = null, sent = null)
+        MapUiState.Content(map, jumpEntry = jumpEntry, offers = emptyList(), form = null, sent = null)
 
     private fun contentOf(maps: FakeMapRepository, shown: ProvinceMap): MapViewModel {
         val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())

@@ -6,7 +6,7 @@ sealed interface PlotHolder {
 
     data class Held(val name: String) : PlotHolder
 
-    data class Own(val name: String) : PlotHolder
+    data class Own(val name: String, val fief: FiefId?) : PlotHolder
 
     data class Camp(val tier: Int, val strength: Int) : PlotHolder
 

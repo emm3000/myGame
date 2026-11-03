@@ -114,12 +114,14 @@ private fun PlotLine(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         PlotHolderLines(plot = plot)
-        if (plot.plot in content.forageablePlots) ForageAction(plot = plot.plot, onIntent = onIntent)
-        content.form?.takeIf { form: MapUiState.ForageForm -> form.target.plot == plot.plot }?.let { form ->
-            ForageFormView(form = form, onIntent = onIntent)
+        content.offersOn(plot.plot).forEach { order: MapUiState.OfferedOrder ->
+            OrderAction(plot = plot.plot, order = order, terrain = content.map.terrain, onIntent = onIntent)
         }
-        content.sent?.takeIf { sent: MapUiState.SentForage -> sent.target.plot == plot.plot }?.let { sent ->
-            SentForageView(sent = sent)
+        content.form?.takeIf { form: MapUiState.MarchForm -> form.target.plot == plot.plot }?.let { form ->
+            MarchFormView(form = form, onIntent = onIntent)
+        }
+        content.sent?.takeIf { sent: MapUiState.SentMarch -> sent.target.plot == plot.plot }?.let { sent ->
+            SentMarchView(sent = sent)
         }
     }
 }

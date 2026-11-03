@@ -1,0 +1,65 @@
+package com.emm.mygame.feature.map
+
+import android.content.res.Resources
+import com.emm.mygame.core.network.MarchRefusal
+import com.emm.mygame.core.network.PlotAddress
+import com.emm.mygame.core.network.UnitCount
+
+internal fun Resources.sendAnswerOf(send: MapUiState.SendStatus): String? = when (send) {
+    is MapUiState.SendStatus.Refused -> refusalLineOf(send.refusal)
+    is MapUiState.SendStatus.CargoAboveCarry -> getString(R.string.refusal_cargo_above_carry, send.cargo, send.carry)
+    MapUiState.SendStatus.Unreachable -> getString(R.string.map_unreachable)
+    MapUiState.SendStatus.Idle, MapUiState.SendStatus.Waiting -> null
+}
+
+internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = getString(
+    when (refusal) {
+        MarchRefusal.NotEnoughUnitsAtHome -> R.string.refusal_not_enough_units_at_home
+        MarchRefusal.MarchSlotBusy -> R.string.refusal_march_slot_busy
+        MarchRefusal.StayOutOfRange -> R.string.refusal_stay_out_of_range
+        MarchRefusal.MarchTargetOutOfBounds -> R.string.refusal_march_target_out_of_bounds
+        MarchRefusal.PlotHeld -> R.string.refusal_plot_held
+        MarchRefusal.PlotHasCamp -> R.string.refusal_plot_has_camp
+        MarchRefusal.PlotHasNoCamp -> R.string.refusal_plot_has_no_camp
+        MarchRefusal.PlotReserved -> R.string.refusal_plot_reserved
+        MarchRefusal.MarchToOwnPlot -> R.string.refusal_march_to_own_plot
+        MarchRefusal.UnitUnfitForOrder -> R.string.refusal_unit_unfit_for_order
+        MarchRefusal.FiefCapReached -> R.string.refusal_fief_cap_reached
+        MarchRefusal.BlankFiefName -> R.string.refusal_blank_fief_name
+        MarchRefusal.EmptyCargo -> R.string.refusal_empty_cargo
+        MarchRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
+        MarchRefusal.FiefNotFound -> R.string.refusal_fief_not_found
+        MarchRefusal.CargoAboveCarry,
+        MarchRefusal.MarchNotFound,
+        MarchRefusal.MarchAlreadyReturning,
+        MarchRefusal.Unrecognized,
+        -> R.string.map_unreachable
+    },
+)
+
+internal fun Resources.sentLinesOf(sent: MapUiState.SentMarch): List<String> = when (sent) {
+    is MapUiState.SentForage -> listOfNotNull(
+        outboundOf(R.string.forage_outbound, sent.units, sent.target),
+        returnLineOf(sent.returnIn),
+        if (sent.loot.isEmpty()) null else lootLineOf(sent.loot),
+    )
+    is MapUiState.SentAttack -> listOfNotNull(
+        outboundOf(R.string.attack_outbound, sent.units, sent.target),
+        campLineOf(sent.camp),
+        returnLineOf(sent.returnIn),
+        if (sent.loot.isEmpty()) null else lootLineOf(sent.loot),
+    )
+    is MapUiState.SentFounding -> listOf(
+        outboundOf(R.string.founding_outbound, sent.units, sent.target),
+        getString(R.string.founding_new_fief, sent.name),
+        arrivalLineOf(sent.arrivalIn),
+    )
+    is MapUiState.SentTransport -> listOf(
+        outboundOf(R.string.transport_outbound, sent.units, sent.target),
+        getString(R.string.transport_cargo, quantitiesOf(sent.cargo)),
+        arrivalLineOf(sent.arrivalIn),
+    )
+}
+
+private fun Resources.outboundOf(line: Int, units: List<UnitCount>, target: PlotAddress): String =
+    getString(line, partyOf(units), target.province, target.plot)

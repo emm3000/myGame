@@ -51,6 +51,7 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         march = mapped.march,
         forageTerms = mapped.forageTerms,
         season = mapped.season,
+        combatTerms = CombatTerms(lootPerStrength = combatTerms.lootPerStrength),
     )
 }
 

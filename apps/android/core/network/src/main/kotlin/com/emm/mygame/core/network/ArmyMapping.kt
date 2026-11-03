@@ -30,6 +30,7 @@ private fun FiefOverview.unitStateOf(kind: UnitKind, away: FiefOverviewUnits?): 
         count = count,
         away = away?.countOf(kind) ?: 0,
         barracksLevel = levelTerms.barracksLevel,
+        strength = levelTerms.strength,
         carry = levelTerms.carry,
         roadPercent = levelTerms.roadPercent,
         terms = RecruitTerms(
