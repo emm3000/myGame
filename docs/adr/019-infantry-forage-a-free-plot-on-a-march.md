@@ -314,11 +314,6 @@ draws them.
   the shipped request schema refuses it before the use case with 400
   `MalformedRequest`, and the form's own line keeps it from being sent.
   The domain refusal stands for a caller that bypasses the wire.
-- Known gap: `StayOutOfRange` carries `stayHours` only, since `Fief.restore`
-  has no catalog to read `maxStayHours`, and both Spanish copies of its
-  line, `apps/api/src/http/answerRefusal.ts` and `apps/web/src/copy.ts`,
-  hardcode *de 1 a 8 horas enteras*: a content change to `maxStayHours`
-  leaves the refusal line wrong until both are edited.
 - Known gap: the lore proposals of #268 wait for the author; until
   accepted, `apps/web/src/copy.ts` mirrors them. The march icon is a
   hand-drawn line SVG and the march has no generated image (S4).
@@ -627,3 +622,15 @@ nullable `to_fief_id` and `cargo_*` columns and the order's terms in
 variant, sent by `POST /fiefs/:fiefId/marches/transport`. Nothing else
 here changes: one march at a time for each fief, the road, the stay and
 the loot of a forage, the phases, and no march meets another lord.
+
+## Seventh amendment (2026-11-03)
+
+`Fief.roomForMarch` refuses a forage whose stay is not a whole count from 1
+to the content's `maxStayHours` with `StayOutOfRange { stayHours,
+maxStayHours }`, answered 409, and both Spanish lines build *de 1 a
+{maxStayHours}* from that content (`stayOutOfRangeLineOf` in
+`apps/api/src/http/answerRefusal.ts`, `copy.march.stayOutOfRange` in
+`apps/web/src/copy.ts`) (#630). `Fief.restore` refuses a corrupt stored
+stay of any order with `InvalidMarchStay { stayHours }`, answered 500 with
+an empty body, never `StayOutOfRange` (#650, ADR 023 third amendment).
+Nothing else here changes.
