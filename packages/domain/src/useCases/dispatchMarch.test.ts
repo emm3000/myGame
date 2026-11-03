@@ -4,7 +4,6 @@ import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import { noStoreFull } from '../fief/FullSince'
-import { materializeStocks } from '../fief/materializeStocks'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -252,11 +251,8 @@ describe('dispatchMarch', () => {
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
     const settled = dependencies.fiefs.storedFiefOf('fief-1')
-    const stocksAtDispatch = materializeStocks(fief, catalog, dispatchInstant)
-    assert(stocksAtDispatch.ok)
     expect(settled?.storedAt).toEqual(dispatchInstant)
-    expect(settled?.stocks).toEqual(stocksAtDispatch.value)
-    expect(settled?.stocks.wood).toBe(1000)
+    expect(settled?.stocks).toEqual({ wood: 1000, stone: 110, iron: 305, gold: 102, food: 520 })
     expect(settled?.fullSince).toEqual({ ...noStoreFull, wood: woodFullAt })
   })
 

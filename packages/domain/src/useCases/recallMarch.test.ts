@@ -1,7 +1,6 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { noStoreFull } from '../fief/FullSince'
-import { materializeStocks } from '../fief/materializeStocks'
 import type { AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
@@ -214,11 +213,8 @@ describe('recallMarch', () => {
     await recallMarch(recall, dependencies)
 
     const settled = dependencies.fiefs.storedFiefOf('fief-1')
-    const stocksAtRecall = materializeStocks(fief, catalog, secondsAfterDeparture(2_640))
-    assert(stocksAtRecall.ok)
     expect(settled?.storedAt).toEqual(secondsAfterDeparture(2_640))
-    expect(settled?.stocks).toEqual(stocksAtRecall.value)
-    expect(settled?.stocks.wood).toBe(1000)
+    expect(settled?.stocks).toEqual({ wood: 1000, stone: 107, iron: 303, gold: 101, food: 514 })
     expect(settled?.fullSince).toEqual({ ...noStoreFull, wood: secondsAfterDeparture(1_800) })
   })
 
