@@ -75,7 +75,11 @@ export const dispatchFounding = async (
     return err({ kind: 'PlotHasCamp', province, plot })
   }
   const now = clock.now()
-  const founding = fief.dispatchFounding(
+  const settled = fief.accruedTo(catalog, now)
+  if (!settled.ok) {
+    return settled
+  }
+  const founding = settled.value.dispatchFounding(
     { province, plot, name: name.value },
     now,
     settings,

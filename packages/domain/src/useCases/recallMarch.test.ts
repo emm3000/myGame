@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { noStoreFull } from '../fief/FullSince'
+import { materializeStocks } from '../fief/materializeStocks'
 import type { AwayMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
@@ -206,7 +207,22 @@ describe('recallMarch', () => {
     expect(recalledMarchOf(dependencies).loot).toEqual({ ...noLoot, wood: 20, stone: 20 })
   })
 
-  it('keeps the stocks, the stored instant, the units and the other slots', async () => {
+  it('settles the fief at the recall instant', async () => {
+    const fief = storedFief({ stocks: { wood: 995, stone: 100, iron: 300, gold: 100, food: 500 } })
+    const dependencies = dependenciesAt(2_640, fief)
+
+    await recallMarch(recall, dependencies)
+
+    const settled = dependencies.fiefs.storedFiefOf('fief-1')
+    const stocksAtRecall = materializeStocks(fief, catalog, secondsAfterDeparture(2_640))
+    assert(stocksAtRecall.ok)
+    expect(settled?.storedAt).toEqual(secondsAfterDeparture(2_640))
+    expect(settled?.stocks).toEqual(stocksAtRecall.value)
+    expect(settled?.stocks.wood).toBe(1000)
+    expect(settled?.fullSince).toEqual({ ...noStoreFull, wood: secondsAfterDeparture(1_800) })
+  })
+
+  it('keeps the units and the other slots', async () => {
     const fief = storedFief({})
     const dependencies = dependenciesAt(2_640, fief)
 
@@ -214,10 +230,8 @@ describe('recallMarch', () => {
 
     const recalled = dependencies.fiefs.storedFiefOf('fief-1')
     assert(recalled !== undefined)
-    const { stocks, storedAt, units, slot, buildQueue, studySlot, recruitOrder } = recalled
-    expect({ stocks, storedAt, units, slot, buildQueue, studySlot, recruitOrder }).toEqual({
-      stocks: fief.stocks,
-      storedAt: fief.storedAt,
+    const { units, slot, buildQueue, studySlot, recruitOrder } = recalled
+    expect({ units, slot, buildQueue, studySlot, recruitOrder }).toEqual({
       units: fief.units,
       slot: fief.slot,
       buildQueue: fief.buildQueue,

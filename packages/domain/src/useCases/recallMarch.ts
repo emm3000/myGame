@@ -47,10 +47,14 @@ export const recallMarch = async (
     return owned
   }
   const fief = owned.value
-
-  const recalled = fief.recallMarch(
+  const now = clock.now()
+  const settled = fief.accruedTo(catalog, now)
+  if (!settled.ok) {
+    return settled
+  }
+  const recalled = settled.value.recallMarch(
     { departedAt: command.departedAt },
-    clock.now(),
+    now,
     catalog.fiefSettings(),
   )
   if (!recalled.ok) {

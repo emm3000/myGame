@@ -4,6 +4,7 @@ import { derivePeasantCounts } from '../fief/derivePeasantCounts'
 import { Fief, type StoredFief } from '../fief/Fief'
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import { noStoreFull } from '../fief/FullSince'
+import { materializeStocks } from '../fief/materializeStocks'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
@@ -26,6 +27,12 @@ const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
 const dispatchInstant = Instant.fromEpochMilliseconds(86_400_000 + 180_000)
 
 const frozenClock = (instant: Instant): Clock => ({ now: () => instant })
+
+const anHourBeforeDispatch = Instant.fromEpochMilliseconds(
+  dispatchInstant.epochMilliseconds - 3_600_000,
+)
+
+const woodFullAt = Instant.fromEpochMilliseconds(anHourBeforeDispatch.epochMilliseconds + 1_800_000)
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
@@ -235,15 +242,22 @@ describe('dispatchMarch', () => {
     expect(peasantsOf(away)).toEqual(peasantsOf(fief))
   })
 
-  it('debits nothing and keeps the stored instant', async () => {
-    const fief = storedFief({})
+  it('settles the fief at the dispatch instant', async () => {
+    const fief = storedFief({
+      stocks: { wood: 995, stone: 100, iron: 300, gold: 100, food: 500 },
+      storedAt: anHourBeforeDispatch,
+    })
     const dependencies = dependenciesOver(fief)
 
     await dispatchMarch(tenInfantryForTwoHours, dependencies)
 
-    const away = dependencies.fiefs.storedFiefOf('fief-1')
-    expect(away?.stocks).toEqual(fief.stocks)
-    expect(away?.storedAt).toBe(fief.storedAt)
+    const settled = dependencies.fiefs.storedFiefOf('fief-1')
+    const stocksAtDispatch = materializeStocks(fief, catalog, dispatchInstant)
+    assert(stocksAtDispatch.ok)
+    expect(settled?.storedAt).toEqual(dispatchInstant)
+    expect(settled?.stocks).toEqual(stocksAtDispatch.value)
+    expect(settled?.stocks.wood).toBe(1000)
+    expect(settled?.fullSince).toEqual({ ...noStoreFull, wood: woodFullAt })
   })
 
   it('refuses an unknown fief', async () => {
@@ -419,6 +433,18 @@ describe('dispatchMarch', () => {
     expect(result).toEqual(
       err({ kind: 'NotEnoughUnitsAtHome', unit: 'infantry', count: 11, atHome: 10 }),
     )
+  })
+
+  it('settles nothing on a refused dispatch', async () => {
+    const fief = storedFief({ storedAt: anHourBeforeDispatch })
+    const dependencies = dependenciesOver(fief)
+
+    await dispatchMarch(
+      { ...tenInfantryForTwoHours, units: { infantry: 11, cavalry: 0, archer: 0, settler: 0 } },
+      dependencies,
+    )
+
+    expect(dependencies.fiefs.storedFiefOf('fief-1')).toBe(fief)
   })
 
   it('refuses a count of infantry below one or fractional', async () => {

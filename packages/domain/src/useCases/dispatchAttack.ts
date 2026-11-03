@@ -52,9 +52,13 @@ export const dispatchAttack = async (
     return err({ kind: 'PlotHasNoCamp', province, plot })
   }
   const now = clock.now()
+  const settled = fief.accruedTo(catalog, now)
+  if (!settled.ok) {
+    return settled
+  }
   const lastBattle = await camps.lastBattleOf(address)
   const strength = campStrengthAt(settings.camps.tiers[camp.tier], lastBattle, now)
-  const attacking = fief.dispatchAttack(
+  const attacking = settled.value.dispatchAttack(
     command,
     { tier: camp.tier, strength },
     now,

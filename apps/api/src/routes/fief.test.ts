@@ -2405,6 +2405,18 @@ describe('the fief route', () => {
       })
     })
 
+    it('answers a march dispatch with readAt at the dispatch instant', async () => {
+      const ana = await signUpWithFiveInfantry()
+      clock.advanceMinutes(30)
+
+      const response = await march(ana, fiveInfantryToProvinceTwoPlotFive)
+
+      expect(response.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await response.json()).readAt).toBe(
+        '2026-09-22T08:30:00.000Z',
+      )
+    })
+
     it('answers the infantry away still counted', async () => {
       const ana = await signUpWithFiveInfantry()
       await march(ana, fiveInfantryToProvinceTwoPlotFive)
@@ -2687,6 +2699,18 @@ describe('the fief route', () => {
         camp: null,
         fought: false,
       })
+    })
+
+    it('answers a recall with readAt at the recall instant', async () => {
+      const ana = await sendFiveInfantryToProvinceTwoPlotFive()
+      clock.advanceMinutes(10)
+
+      const response = await recall(ana, departedAt)
+
+      expect(response.status).toBe(200)
+      expect(FiefOverviewSchema.parse(await response.json()).readAt).toBe(
+        '2026-09-22T08:10:00.000Z',
+      )
     })
 
     it('recalls a foraging march with the loot of the seconds foraged', async () => {

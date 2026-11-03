@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { campOf } from '../camp/campOf'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { noStoreFull } from '../fief/FullSince'
+import { materializeStocks } from '../fief/materializeStocks'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -25,6 +26,12 @@ const storedInstant = Instant.fromEpochMilliseconds(86_400_000)
 const dispatchInstant = Instant.fromEpochMilliseconds(86_400_000 + 180_000)
 
 const frozenClock = (instant: Instant): Clock => ({ now: () => instant })
+
+const anHourBeforeDispatch = Instant.fromEpochMilliseconds(
+  dispatchInstant.epochMilliseconds - 3_600_000,
+)
+
+const woodFullAt = Instant.fromEpochMilliseconds(anHourBeforeDispatch.epochMilliseconds + 1_800_000)
 
 const fiefSettings: FiefSettings = {
   startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
@@ -162,6 +169,24 @@ describe('dispatchFounding', () => {
       loot: noLoot,
       lootPercent: unscaled,
     })
+  })
+
+  it('settles the fief at the dispatch instant', async () => {
+    const fief = storedFief({
+      stocks: { wood: 995, stone: 100, iron: 300, gold: 100, food: 500 },
+      storedAt: anHourBeforeDispatch,
+    })
+    const dependencies = dependenciesOver([fief])
+
+    await dispatchFounding(foundingOn(2, 7), dependencies)
+
+    const settled = dependencies.fiefs.storedFiefOf('fief-1')
+    const stocksAtDispatch = materializeStocks(fief, catalog, dispatchInstant)
+    assert(stocksAtDispatch.ok)
+    expect(settled?.storedAt).toEqual(dispatchInstant)
+    expect(settled?.stocks).toEqual(stocksAtDispatch.value)
+    expect(settled?.stocks.wood).toBe(1000)
+    expect(settled?.fullSince).toEqual({ ...noStoreFull, wood: woodFullAt })
   })
 
   it('walks the settler 900 seconds to province 2, plot 7', async () => {
