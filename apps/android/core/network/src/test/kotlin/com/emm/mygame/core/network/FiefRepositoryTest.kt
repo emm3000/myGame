@@ -496,7 +496,7 @@ class FiefRepositoryTest {
                 kind = ArtKind.Masonry,
                 level = 0,
                 resource = ResourceKind.Stone,
-                ratePercent = 0,
+                ratePercent = 0.0,
                 nextLevel = NextArtLevel(
                     level = 1,
                     cost = listOf(
@@ -508,11 +508,22 @@ class FiefRepositoryTest {
                     ),
                     duration = 1800.seconds,
                     requiredLibraryLevel = 1,
-                    ratePercent = 5,
+                    ratePercent = 5.0,
                 ),
             ),
             readFief().arts[1],
         )
+    }
+
+    @Test
+    fun `keeps the fraction of an art's rate`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, idleOverview().replace(SMITHING_AT_LEVEL_0, SMITHING_AT_A_FRACTION)))
+
+        val smithing: ArtState = readFief().arts[0]
+
+        assertEquals(7.5, smithing.ratePercent, 0.0)
+        assertEquals(12.5, smithing.nextLevel?.ratePercent ?: 0.0, 0.0)
     }
 
     @Test
@@ -666,6 +677,14 @@ class FiefRepositoryTest {
             """"study":{"kind":"busy","art":"smithing","targetLevel":2,""" +
                 """"startedAt":"2026-11-02T15:30:00.000Z","finishesAt":"2026-11-02T16:00:00.000Z",""" +
                 """"cost":{"wood":97,"stone":41,"iron":13,"gold":7,"food":3}}"""
+        const val SMITHING_AT_LEVEL_0: String =
+            """"smithing":{"level":0,"resource":"iron","ratePercent":0,"nextLevel":{"level":1,""" +
+                """"cost":{"wood":120,"stone":80,"iron":150,"gold":60,"food":0},"durationSeconds":1800,""" +
+                """"requiredLibraryLevel":1,"ratePercent":5}}"""
+        const val SMITHING_AT_A_FRACTION: String =
+            """"smithing":{"level":1,"resource":"iron","ratePercent":7.5,"nextLevel":{"level":2,""" +
+                """"cost":{"wood":120,"stone":80,"iron":150,"gold":60,"food":0},"durationSeconds":1800,""" +
+                """"requiredLibraryLevel":1,"ratePercent":12.5}}"""
         const val WAREHOUSE_AT_ITS_TOP: String = """"warehouse":{"level":10,"nextLevel":null}"""
         const val ATTACK_ON_THE_ROAD: String =
             """{"order":"attack","province":1,"plot":4,"terrain":"lowlands",""" +

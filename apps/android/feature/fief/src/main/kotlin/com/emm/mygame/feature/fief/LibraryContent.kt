@@ -19,9 +19,11 @@ internal fun FiefSnapshot.libraryAt(
 ): FiefUiState.LibraryLine? {
     val libraryLevel: Int = libraryLevel()
     if (libraryLevel < 1) return null
+    val context: StudyContext =
+        StudyContext(amounts = amounts, libraryLevel = libraryLevel, isStudyRunning = this.study is StudySlot.Busy)
     return FiefUiState.LibraryLine(
         slot = studySlotLineAt(now),
-        arts = arts.map { art: ArtState -> art.cardWith(amounts = amounts, libraryLevel = libraryLevel) },
+        arts = arts.map { art: ArtState -> art.cardWith(context) },
         study = study,
     )
 }
@@ -30,6 +32,12 @@ internal fun FiefSnapshot.studyRemainingAt(now: Instant): Duration? = when (val 
     StudySlot.Idle -> null
     is StudySlot.Busy -> countdownTo(finishesAt = current.finishesAt, now = now)
 }
+
+private data class StudyContext(
+    val amounts: Map<ResourceKind, Long>,
+    val libraryLevel: Int,
+    val isStudyRunning: Boolean,
+)
 
 private fun FiefSnapshot.libraryLevel(): Int =
     buildings.firstOrNull { building: BuildingState -> building.kind == BuildingKind.Library }?.level ?: 0
@@ -48,16 +56,16 @@ private fun FiefSnapshot.studySlotLineAt(now: Instant): FiefUiState.StudySlotLin
 private fun refundOf(busy: StudySlot.Busy): List<ResourceCost> =
     busy.cost.filter { resource: ResourceCost -> resource.amount > 0 }
 
-private fun ArtState.cardWith(amounts: Map<ResourceKind, Long>, libraryLevel: Int): FiefUiState.ArtCard =
+private fun ArtState.cardWith(context: StudyContext): FiefUiState.ArtCard =
     FiefUiState.ArtCard(
         kind = kind,
         level = level,
         resource = resource,
         ratePercent = ratePercent,
-        next = nextLevel?.lineWith(amounts = amounts, libraryLevel = libraryLevel),
+        next = nextLevel?.lineWith(context),
     )
 
-private fun NextArtLevel.lineWith(amounts: Map<ResourceKind, Long>, libraryLevel: Int): FiefUiState.NextArtLine =
+private fun NextArtLevel.lineWith(context: StudyContext): FiefUiState.NextArtLine =
     FiefUiState.NextArtLine(
         level = level,
         ratePercent = ratePercent,
@@ -65,10 +73,22 @@ private fun NextArtLevel.lineWith(amounts: Map<ResourceKind, Long>, libraryLevel
             FiefUiState.CostLine(
                 kind = resource.kind,
                 amount = resource.amount,
-                isShort = resource.shortfallFrom(amounts) > 0,
+                isShort = resource.shortfallFrom(context.amounts) > 0,
             )
         },
         duration = duration,
         requiredLibraryLevel = requiredLibraryLevel,
-        isLibraryTooLow = requiredLibraryLevel > libraryLevel,
+        isLibraryTooLow = requiredLibraryLevel > context.libraryLevel,
+        block = blockWith(context),
     )
+
+private fun NextArtLevel.blockWith(context: StudyContext): FiefUiState.StudyBlock? {
+    val shortfalls: List<FiefUiState.Shortfall> = cost.shortfallsFrom(context.amounts)
+    return when {
+        context.isStudyRunning -> FiefUiState.StudyBlock.StudyRunning
+        requiredLibraryLevel > context.libraryLevel ->
+            FiefUiState.StudyBlock.LibraryTooLow(required = requiredLibraryLevel, built = context.libraryLevel)
+        shortfalls.isNotEmpty() -> FiefUiState.BlockReason.Resources(shortfalls)
+        else -> null
+    }
+}

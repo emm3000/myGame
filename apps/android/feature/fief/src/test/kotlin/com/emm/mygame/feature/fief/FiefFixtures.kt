@@ -124,7 +124,7 @@ internal fun smithing(level: Int, requiredLibraryLevel: Int = 1): ArtState = Art
     kind = ArtKind.Smithing,
     level = level,
     resource = ResourceKind.Iron,
-    ratePercent = level * 5,
+    ratePercent = level * 5.0,
     nextLevel = NextArtLevel(
         level = level + 1,
         cost = listOf(
@@ -136,12 +136,12 @@ internal fun smithing(level: Int, requiredLibraryLevel: Int = 1): ArtState = Art
         ),
         duration = 30.minutes,
         requiredLibraryLevel = requiredLibraryLevel,
-        ratePercent = (level + 1) * 5,
+        ratePercent = (level + 1) * 5.0,
     ),
 )
 
 internal fun masonry(): ArtState =
-    ArtState(kind = ArtKind.Masonry, level = 10, resource = ResourceKind.Stone, ratePercent = 50, nextLevel = null)
+    ArtState(kind = ArtKind.Masonry, level = 10, resource = ResourceKind.Stone, ratePercent = 50.0, nextLevel = null)
 
 internal fun studyingSmithing(
     targetLevel: Int,

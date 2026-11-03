@@ -162,6 +162,7 @@ private fun NextArt(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val reason: String? = next.block?.let { block: FiefUiState.StudyBlock -> reasonOf(block) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -184,8 +185,25 @@ private fun NextArt(
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.StudyTapped(art)) },
+            blockedReason = reason,
         )
+        if (reason != null) {
+            MyGameText(
+                text = reason,
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.rust,
+                modifier = Modifier.clearAndSetSemantics { },
+            )
+        }
     }
+}
+
+@Composable
+private fun reasonOf(block: FiefUiState.StudyBlock): String = when (block) {
+    FiefUiState.StudyBlock.StudyRunning -> stringResource(R.string.reason_study_running)
+    is FiefUiState.StudyBlock.LibraryTooLow ->
+        stringResource(R.string.reason_library_too_low, block.required, block.built)
+    is FiefUiState.BlockReason.Resources -> shortfallReasonOf(block)
 }
 
 @Composable
@@ -204,10 +222,10 @@ private fun artLevelOf(level: Int): String =
 
 @Composable
 private fun effectOf(card: FiefUiState.ArtCard): String {
-    val rate: String = stringResource(rateOf(card.resource), card.ratePercent)
+    val rate: String = stringResource(rateOf(card.resource), percentLabelOf(card.ratePercent))
     return when (val next: FiefUiState.NextArtLine? = card.next) {
         null -> stringResource(R.string.art_effect_at_max_level, rate)
-        else -> stringResource(R.string.art_effect, rate, next.level, next.ratePercent)
+        else -> stringResource(R.string.art_effect, rate, next.level, percentLabelOf(next.ratePercent))
     }
 }
 

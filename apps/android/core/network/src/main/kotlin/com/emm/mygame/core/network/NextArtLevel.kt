@@ -7,5 +7,5 @@ data class NextArtLevel(
     val cost: List<ResourceCost>,
     val duration: Duration,
     val requiredLibraryLevel: Int,
-    val ratePercent: Int,
+    val ratePercent: Double,
 )
