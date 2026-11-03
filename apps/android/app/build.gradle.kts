@@ -3,6 +3,27 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+fun releaseSetting(property: String, variable: String): Provider<String> =
+    providers.gradleProperty("mygame.release.$property")
+        .orElse(providers.environmentVariable("MYGAME_RELEASE_$variable"))
+
+val releaseStoreFile: Provider<String> = releaseSetting("storeFile", "STORE_FILE")
+val releaseStorePassword: Provider<String> = releaseSetting("storePassword", "STORE_PASSWORD")
+val releaseKeyAlias: Provider<String> = releaseSetting("keyAlias", "KEY_ALIAS")
+val releaseKeyPassword: Provider<String> = releaseSetting("keyPassword", "KEY_PASSWORD")
+val releaseSettings: List<Provider<String>> =
+    listOf(releaseStoreFile, releaseStorePassword, releaseKeyAlias, releaseKeyPassword)
+val isReleaseSigned: Boolean = releaseSettings.all { it.isPresent }
+
+if (!isReleaseSigned && releaseSettings.any { it.isPresent }) {
+    error(
+        "Release signing needs all four of mygame.release.storeFile, storePassword, keyAlias and keyPassword " +
+            "(or MYGAME_RELEASE_STORE_FILE, _STORE_PASSWORD, _KEY_ALIAS and _KEY_PASSWORD); some are missing.",
+    )
+}
+
+val localApiBaseUrl: String = providers.gradleProperty("mygame.apiBaseUrl").orElse("http://10.0.2.2:3141/").get()
+
 android {
     namespace = "com.emm.mygame"
 
@@ -16,14 +37,38 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        if (isReleaseSigned) {
+            create("release") {
+                storeFile = file(releaseStoreFile.get())
+                storePassword = releaseStorePassword.get()
+                keyAlias = releaseKeyAlias.get()
+                keyPassword = releaseKeyPassword.get()
+            }
+        }
+    }
+
     buildTypes {
         debug {
-            val debugApiBaseUrl: String =
-                providers.gradleProperty("mygame.apiBaseUrl").orElse("http://10.0.2.2:3141/").get()
-            buildConfigField("String", "API_BASE_URL", "\"$debugApiBaseUrl\"")
+            buildConfigField("String", "API_BASE_URL", "\"$localApiBaseUrl\"")
         }
         release {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.findByName("release")
             buildConfigField("String", "API_BASE_URL", "\"https://mygame.emm3000.com/api/\"")
+        }
+        create("localRelease") {
+            initWith(getByName("release"))
+            matchingFallbacks += "release"
+            buildConfigField("String", "API_BASE_URL", "\"$localApiBaseUrl\"")
+        }
+    }
+
+    sourceSets {
+        getByName("localRelease") {
+            manifest.srcFile("src/debug/AndroidManifest.xml")
+            res.srcDir("src/debug/res")
         }
     }
 }
