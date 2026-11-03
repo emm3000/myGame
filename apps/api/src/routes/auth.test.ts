@@ -195,6 +195,16 @@ describe('the auth routes', () => {
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
   })
 
+  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
+    'refuses a fief name of spaces on %s as a blank fief name',
+    async (route) => {
+      const response = await app.request(route, post({ ...anasSignUp, fiefName: '   ' }))
+
+      expect(response.status).toBe(400)
+      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
+    },
+  )
+
   it('refuses an empty fief name as a blank fief name', async () => {
     const response = await app.request('/auth/sign-up', post({ ...anasSignUp, fiefName: '' }))
 

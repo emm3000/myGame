@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import type { RouteConfig } from '@hono/zod-openapi'
-import { FiefListSchema } from '@mygame/contracts'
+import { FiefListSchema, ProvinceMapSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -281,35 +281,35 @@ const exchanges: ReadonlyArray<Exchange> = [
     operation: 'POST /fiefs/{fiefId}/marches/found',
     caller: 'ana',
     params: { fiefId: 'own' },
-    body: { province: 1, plot: 9, name: '   ' },
+    body: { province: 'ownProvince', plot: 'campPlot', name: '   ' },
     status: 400,
   },
   {
     operation: 'POST /fiefs/{fiefId}/marches/found',
     caller: 'ana',
     params: { fiefId: 'own' },
-    body: { province: 1, plot: 9, name: 'Nuevo' },
+    body: { province: 'ownProvince', plot: 'campPlot', name: 'Nuevo' },
     status: 409,
   },
   {
     operation: 'POST /fiefs/{fiefId}/marches',
     caller: 'ana',
     params: { fiefId: 'own' },
-    body: { province: 1, plot: 4, units: troops, stayHours: 1 },
+    body: { province: 'ownProvince', plot: 'freePlot', units: troops, stayHours: 1 },
     status: 200,
   },
   {
     operation: 'POST /fiefs/{fiefId}/marches',
     caller: 'ana',
     params: { fiefId: 'own' },
-    body: { province: 1, plot: 4, units: troops, stayHours: 1 },
+    body: { province: 'ownProvince', plot: 'freePlot', units: troops, stayHours: 1 },
     status: 409,
   },
   {
     operation: 'POST /fiefs/{fiefId}/marches/attack',
     caller: 'ana',
     params: { fiefId: 'own' },
-    body: { province: 1, plot: 9, units: troops },
+    body: { province: 'ownProvince', plot: 'campPlot', units: troops },
     status: 409,
   },
   {
@@ -334,7 +334,7 @@ const exchanges: ReadonlyArray<Exchange> = [
   {
     operation: 'GET /fiefs/{fiefId}/map/{province}',
     caller: 'ana',
-    params: { fiefId: 'own', province: '1' },
+    params: { fiefId: 'own', province: 'ownProvince' },
     status: 200,
   },
   {
@@ -365,10 +365,18 @@ const exchanges: ReadonlyArray<Exchange> = [
   onForeignFief(
     'POST /fiefs/{fiefId}/marches',
     {},
-    { province: 1, plot: 4, units: troops, stayHours: 1 },
+    { province: 'ownProvince', plot: 'freePlot', units: troops, stayHours: 1 },
   ),
-  onForeignFief('POST /fiefs/{fiefId}/marches/attack', {}, { province: 1, plot: 9, units: troops }),
-  onForeignFief('POST /fiefs/{fiefId}/marches/found', {}, { province: 1, plot: 9, name: 'Nuevo' }),
+  onForeignFief(
+    'POST /fiefs/{fiefId}/marches/attack',
+    {},
+    { province: 'ownProvince', plot: 'campPlot', units: troops },
+  ),
+  onForeignFief(
+    'POST /fiefs/{fiefId}/marches/found',
+    {},
+    { province: 'ownProvince', plot: 'campPlot', name: 'Nuevo' },
+  ),
   onForeignFief(
     'POST /fiefs/{fiefId}/marches/transport',
     {},
@@ -378,7 +386,7 @@ const exchanges: ReadonlyArray<Exchange> = [
     departedAt: '2026-01-01T00:00:00.000Z',
   }),
   onForeignFief('GET /fiefs/{fiefId}/map'),
-  onForeignFief('GET /fiefs/{fiefId}/map/{province}', { province: '1' }),
+  onForeignFief('GET /fiefs/{fiefId}/map/{province}', { province: 'ownProvince' }),
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
@@ -414,7 +422,7 @@ describe('the OpenAPI conformance', () => {
   let server: ComposedServer
   let app: ReturnType<typeof createApp>
   let cookies: Readonly<Record<Caller, string>>
-  let fiefIds: Readonly<Record<string, string>>
+  let standIns: Readonly<Record<string, string | number>>
 
   const signUp = async (email: string, fiefName: string): Promise<string> => {
     const response = await app.request('/auth/sign-up', {
@@ -426,10 +434,23 @@ describe('the OpenAPI conformance', () => {
     return sessionCookieOf(response)
   }
 
-  const firstFiefIdOf = async (cookie: string): Promise<string> => {
+  const firstFiefOf = async (cookie: string): Promise<{ id: string; province: number }> => {
     const response = await app.request('/fiefs', { headers: { cookie } })
     const [fief] = FiefListSchema.parse(await response.json()).fiefs
-    return fief?.id ?? ''
+    return { id: fief?.id ?? '', province: fief?.coordinates.province ?? 0 }
+  }
+
+  const marchTargetsOf = async (
+    cookie: string,
+    { id, province }: { id: string; province: number },
+  ): Promise<{ freePlot: number; campPlot: number }> => {
+    const response = await app.request(`/fiefs/${id}/map/${province}`, { headers: { cookie } })
+    const { plots } = ProvinceMapSchema.parse(await response.json())
+    const freePlot = plots.findLast(
+      ({ fief, camp, reservation }) => fief === null && camp === null && reservation === null,
+    )
+    const campPlot = plots.find(({ camp }) => camp !== null)
+    return { freePlot: freePlot?.plot ?? 0, campPlot: campPlot?.plot ?? 0 }
   }
 
   beforeAll(async () => {
@@ -440,7 +461,14 @@ describe('the OpenAPI conformance', () => {
     app = createApp({ ...server, clock: frozenClock })
     const ana = await signUp('ana@example.com', 'Valdehierro')
     const bruno = await signUp('bruno@example.com', 'Robledal')
-    fiefIds = { own: await firstFiefIdOf(ana), foreign: await firstFiefIdOf(bruno) }
+    const own = await firstFiefOf(ana)
+    const foreign = await firstFiefOf(bruno)
+    standIns = {
+      own: own.id,
+      foreign: foreign.id,
+      ownProvince: own.province,
+      ...(await marchTargetsOf(ana, own)),
+    }
     await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
       SELECT id, unnest(ARRAY['library', 'barracks']::building[]), 1 FROM fiefs`)
     await runSql(`INSERT INTO fief_units (fief_id, kind, count)
@@ -468,13 +496,13 @@ describe('the OpenAPI conformance', () => {
     async (_name, { operation, caller, params = {}, body, status }) => {
       const [method = '', template = ''] = operation.split(' ')
       const path = template.replace(/\{(\w+)\}/g, (_match, name: string) =>
-        encodeURIComponent(fiefIds[params[name] ?? ''] ?? params[name] ?? ''),
+        encodeURIComponent(standIns[params[name] ?? ''] ?? params[name] ?? ''),
       )
       const resolvedBody =
         body === undefined
           ? undefined
           : JSON.parse(JSON.stringify(body), (_key, value: unknown) =>
-              typeof value === 'string' && Object.hasOwn(fiefIds, value) ? fiefIds[value] : value,
+              typeof value === 'string' && Object.hasOwn(standIns, value) ? standIns[value] : value,
             )
 
       const response = await app.request(path, {
