@@ -41,8 +41,8 @@ class MapRepositoryTest {
 
         repository().readOwn()
 
-        assertEquals("/api/fiefs", api.takeRequest().url.encodedPath)
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID/map", api.takeRequest().url.encodedPath)
+        assertEquals("/api/fiefs", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/map", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
@@ -51,8 +51,8 @@ class MapRepositoryTest {
 
         repository().read(province = 4)
 
-        api.takeRequest()
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID/map/4", api.takeRequest().url.encodedPath)
+        api.takeRequestWithin()
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/map/4", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
@@ -61,7 +61,7 @@ class MapRepositoryTest {
 
         repository().readOwn()
 
-        assertEquals("Bearer opaque-session", api.takeRequest().headers["Authorization"])
+        assertEquals("Bearer opaque-session", api.takeRequestWithin().headers["Authorization"])
     }
 
     @Test

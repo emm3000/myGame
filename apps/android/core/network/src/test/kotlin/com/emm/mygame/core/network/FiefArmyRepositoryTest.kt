@@ -121,7 +121,7 @@ class FiefArmyRepositoryTest {
 
         repository().recruit(FiefId(LISTED_FIEF_ID), UnitKind.Archer, count = 7)
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/recruit-orders", request.url.encodedPath)
         assertEquals("""{"unit":"archer","count":7}""", request.body?.utf8())
@@ -147,7 +147,7 @@ class FiefArmyRepositoryTest {
             startedAt = Instant.parse("2026-11-02T15:30:00Z"),
         )
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("DELETE", request.method)
         assertEquals(
             "/api/fiefs/$LISTED_FIEF_ID/recruit-orders/infantry/2026-11-02T15:30:00.000Z",

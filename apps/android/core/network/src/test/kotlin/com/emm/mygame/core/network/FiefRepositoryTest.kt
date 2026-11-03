@@ -48,8 +48,8 @@ class FiefRepositoryTest {
 
         repository().read()
 
-        assertEquals("/api/fiefs", api.takeRequest().url.encodedPath)
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID", api.takeRequest().url.encodedPath)
+        assertEquals("/api/fiefs", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
@@ -59,7 +59,7 @@ class FiefRepositoryTest {
 
         repository().read()
 
-        val listRequest: RecordedRequest = api.takeRequest()
+        val listRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("Bearer opaque-session", listRequest.headers["Authorization"])
     }
 
@@ -214,7 +214,7 @@ class FiefRepositoryTest {
 
         repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.IronMine, targetLevel = 2)
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("DELETE", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/upgrades/ironMine/2", request.url.encodedPath)
         assertEquals("Bearer opaque-session", request.headers["Authorization"])
@@ -226,7 +226,7 @@ class FiefRepositoryTest {
 
         repository().cancel(FiefId(LISTED_FIEF_ID), BuildingKind.Barracks, targetLevel = 1)
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("DELETE", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/upgrades/barracks/1", request.url.encodedPath)
     }
@@ -274,7 +274,7 @@ class FiefRepositoryTest {
 
         repository().upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.IronMine)
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/upgrades", request.url.encodedPath)
         assertEquals("""{"building":"ironMine"}""", request.body?.utf8())
@@ -539,7 +539,7 @@ class FiefRepositoryTest {
 
         repository().startStudy(FiefId(LISTED_FIEF_ID), ArtKind.Masonry)
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/studies", request.url.encodedPath)
         assertEquals("""{"art":"masonry"}""", request.body?.utf8())
@@ -589,7 +589,7 @@ class FiefRepositoryTest {
 
         repository().cancelStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing, targetLevel = 2)
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("DELETE", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/studies/smithing/2", request.url.encodedPath)
         assertEquals("Bearer opaque-session", request.headers["Authorization"])
