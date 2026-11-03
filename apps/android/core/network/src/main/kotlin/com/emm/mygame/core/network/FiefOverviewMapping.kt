@@ -50,6 +50,7 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         march = mapped.march,
         forageTerms = mapped.forageTerms,
         season = mapped.season,
+        seasonEndsAt = season?.endsAt?.toKotlinInstant(),
         combatTerms = CombatTerms(lootPerStrength = combatTerms.lootPerStrength),
     )
 }

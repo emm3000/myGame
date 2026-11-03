@@ -61,7 +61,11 @@ internal fun FiefSnapshot.nextFinishAt(now: Instant): Duration? =
         levyRemainingAt(now),
         marchRemainingAt(now),
         battleRemainingAt(now),
+        seasonRemainingAt(now),
     ).minOrNull()
+
+private fun FiefSnapshot.seasonRemainingAt(now: Instant): Duration? =
+    seasonEndsAt?.let { endsAt: Instant -> countdownTo(finishesAt = endsAt, now = now) }
 
 private data class BuildingContext(
     val amounts: Map<ResourceKind, Long>,

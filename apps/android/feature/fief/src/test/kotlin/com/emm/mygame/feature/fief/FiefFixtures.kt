@@ -91,6 +91,7 @@ internal fun fief(
     units: List<UnitState> = army(),
     recruitOrder: RecruitOrder? = null,
     march: AwayMarch? = null,
+    seasonEndsAt: Instant? = null,
 ): FiefSnapshot = FiefSnapshot(
     id = FiefId(FIEF_ID),
     name = "Vadoalto",
@@ -113,6 +114,7 @@ internal fun fief(
         yieldPerHour = emptyMap(),
     ),
     season = null,
+    seasonEndsAt = seasonEndsAt,
     combatTerms = CombatTerms(lootPerStrength = 60),
 )
 

@@ -74,6 +74,21 @@ class FiefRepositoryTest {
     }
 
     @Test
+    fun `reads the instant the season ends`() = runTest {
+        enqueueIdleFief()
+
+        assertEquals(Instant.parse("2026-11-09T00:00:00.000Z"), readFief().seasonEndsAt)
+    }
+
+    @Test
+    fun `reads no season end when the overview carries no season`() = runTest {
+        api.enqueue(resource(200, "fief-list.json"))
+        api.enqueue(json(200, idleOverview().replace(SPRING_SEASON, """"season":null""")))
+
+        assertNull(readFief().seasonEndsAt)
+    }
+
+    @Test
     fun `reads the five resources in the order the lord reads them`() = runTest {
         enqueueIdleFief()
 
@@ -665,6 +680,10 @@ class FiefRepositoryTest {
         const val WAREHOUSE_AT_LEVEL_0: String =
             """"warehouse":{"level":0,"nextLevel":{"level":1,"cost":{"wood":150,"stone":100,"iron":20,""" +
                 """"gold":0,"food":0},"durationSeconds":180,"peasants":1}}"""
+        const val SPRING_SEASON: String =
+            """"season":{"kind":"spring","year":2,"endsAt":"2026-11-09T00:00:00.000Z",""" +
+                """"multiplierPercent":{"wood":100,"stone":100,"iron":100,"gold":100,"food":125},""" +
+                """"durationPercent":{"build":100,"study":100,"train":75,"road":100}}"""
         const val EMPTY_QUEUE: String = """"queue":{"entries":[],"cap":4}"""
         const val TWO_WAITING: String =
             """"queue":{"entries":[""" +
