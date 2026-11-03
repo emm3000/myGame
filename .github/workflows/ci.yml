@@ -65,12 +65,11 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - name: require the vercel secrets
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_API_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
           VERCEL_WEB_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
         run: |
@@ -80,6 +79,38 @@ jobs:
           done
           if [ -n "$missing" ]; then
             echo "::error::not readable from a pull request job:$missing"
+            exit 1
+          fi
+      - name: pull the api settings
+        working-directory: ${{ runner.temp }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
+        run: |
+          mkdir vercel-api
+          cd vercel-api
+          npx --yes vercel@65.2.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          echo "dropped before the build: $(sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' .vercel/.env.* | tr '\n' ' ')"
+          rm -f .vercel/.env.*
+          if grep -rqF -- "$VERCEL_TOKEN" . "$HOME/.local/share/com.vercel.cli" 2>/dev/null; then
+            echo "::error::the token was written to disk"
+            exit 1
+          fi
+      - name: pull the web settings
+        working-directory: ${{ runner.temp }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
+        run: |
+          mkdir vercel-web
+          cd vercel-web
+          npx --yes vercel@65.2.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          echo "dropped before the build: $(sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' .vercel/.env.* | tr '\n' ' ')"
+          rm -f .vercel/.env.*
+          if grep -rqF -- "$VERCEL_TOKEN" . "$HOME/.local/share/com.vercel.cli" 2>/dev/null; then
+            echo "::error::the token was written to disk"
             exit 1
           fi
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -92,19 +123,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: build the api
-        env:
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
         run: |
-          pnpm dlx vercel@65.2.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
-          pnpm dlx vercel@65.2.0 build --token="$VERCEL_TOKEN"
+          mv "$RUNNER_TEMP/vercel-api/.vercel" .vercel
+          pnpm dlx vercel@65.2.0 build
           rm -rf .vercel
       - name: build the web
         env:
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
           NITRO_PRESET: vercel
         run: |
-          pnpm dlx vercel@65.2.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
-          pnpm dlx vercel@65.2.0 build --token="$VERCEL_TOKEN"
+          mv "$RUNNER_TEMP/vercel-web/.vercel" .vercel
+          pnpm dlx vercel@65.2.0 build
           rm -rf .vercel
 
   android:
