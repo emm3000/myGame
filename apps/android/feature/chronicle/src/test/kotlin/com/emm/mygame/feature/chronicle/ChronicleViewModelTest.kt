@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.ChronicleEvent
 import com.emm.mygame.core.network.ChronicleReadResult
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.testing.FakeChronicleRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -21,6 +22,8 @@ class ChronicleViewModelTest {
 
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
+
+    private val routeFief: FiefId = FiefId("7c1f0a52-3d4e-4b8a-9f61-2e5d8c0b4a17")
 
     private val openedAt: Instant = Instant.parse("2026-11-02T19:00:00Z")
 
@@ -102,6 +105,15 @@ class ChronicleViewModelTest {
     }
 
     @Test
+    fun `reads the chronicle of the fief the route names`() = runTest {
+        val chronicles: FakeChronicleRepository = FakeChronicleRepository()
+
+        viewModel(chronicles)
+
+        assertEquals(listOf(routeFief), chronicles.reads)
+    }
+
+    @Test
     fun `ignores a retry while the chronicle is read`() = runTest {
         val chronicles: FakeChronicleRepository = FakeChronicleRepository()
         val viewModel: ChronicleViewModel = viewModel(chronicles)
@@ -112,5 +124,5 @@ class ChronicleViewModelTest {
     }
 
     private fun TestScope.viewModel(chronicles: FakeChronicleRepository): ChronicleViewModel =
-        ChronicleViewModel(chronicles = chronicles, clock = TestClock(testScheduler, openedAt))
+        ChronicleViewModel(fief = routeFief, chronicles = chronicles, clock = TestClock(testScheduler, openedAt))
 }

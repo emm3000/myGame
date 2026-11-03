@@ -1,5 +1,8 @@
 package com.emm.mygame.core.network
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 @JvmInline
 value class FiefId(val value: String) {
 

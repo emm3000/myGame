@@ -42,25 +42,22 @@ class FiefRepositoryTest {
     }
 
     @Test
-    fun `reads the overview of the first fief the api lists`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
+    fun `reads the overview of the fief the route names`() = runTest {
         api.enqueue(resource(200, "fief-overview-idle.json"))
 
-        repository().read()
+        repository().read(FiefId(SECOND_FIEF_ID))
 
-        assertEquals("/api/fiefs", api.takeRequestWithin().url.encodedPath)
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/fiefs/$SECOND_FIEF_ID", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
     fun `sends the stored token as a bearer`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(resource(200, "fief-overview-idle.json"))
 
-        repository().read()
+        repository().read(FiefId(LISTED_FIEF_ID))
 
-        val listRequest: RecordedRequest = api.takeRequestWithin()
-        assertEquals("Bearer opaque-session", listRequest.headers["Authorization"])
+        val overviewRequest: RecordedRequest = api.takeRequestWithin()
+        assertEquals("Bearer opaque-session", overviewRequest.headers["Authorization"])
     }
 
     @Test
@@ -82,7 +79,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads no season end when the overview carries no season`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(SPRING_SEASON, """"season":null""")))
 
         assertNull(readFief().seasonEndsAt)
@@ -118,7 +114,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads a busy build slot with its building, target level and finish`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(resource(200, "fief-overview-busy.json"))
 
         val slot: BuildSlot = readFief().slot
@@ -182,7 +177,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads a building at its highest level with no next level`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(WAREHOUSE_AT_LEVEL_0, WAREHOUSE_AT_ITS_TOP)))
 
         val warehouse: BuildingState = readFief().buildings.single { it.kind == BuildingKind.Warehouse }
@@ -192,7 +186,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads the peasants free and supplied once the ordered works are done`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(resource(200, "fief-overview-busy.json"))
 
         assertEquals(Peasants(free = 9, supplied = 10, lowestFree = 9), readFief().peasants)
@@ -200,7 +193,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads the works waiting in the queue in order with each finish and its cap`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, busyOverview().replace(EMPTY_QUEUE, TWO_WAITING)))
 
         assertEquals(
@@ -217,10 +209,9 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers unreachable when a waiting work names a building the client does not know`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, busyOverview().replace(EMPTY_QUEUE, TWO_WAITING.replace("ironMine", "mill"))))
 
-        assertTrue(repository().read() is FiefReadResult.Unreachable)
+        assertTrue(repository().read(FiefId(LISTED_FIEF_ID)) is FiefReadResult.Unreachable)
     }
 
     @Test
@@ -351,7 +342,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads the overview when a field the screen never draws holds a value the client does not know`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(""""terrain":"lowlands"""", """"terrain":"marshes"""")))
 
         assertEquals("Vadoalto", readFief().name)
@@ -359,7 +349,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads the overview while an attack on a camp is on the road`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(""""march":null""", """"march":$ATTACK_ON_THE_ROAD""")))
 
         assertEquals("Vadoalto", readFief().name)
@@ -367,12 +356,11 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers unreachable when the busy slot names a building the client does not know`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         val sawmillSlot: String = """"slot":{"kind":"busy","building":"sawmill""""
         val unknownBuildingSlot: String = """"slot":{"kind":"busy","building":"mill""""
         api.enqueue(json(200, busyOverview().replace(sawmillSlot, unknownBuildingSlot)))
 
-        assertEquals(FiefReadResult.Unreachable, repository().read())
+        assertEquals(FiefReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
@@ -380,7 +368,7 @@ class FiefRepositoryTest {
         val fiefs: FiefRepository = repository()
         api.close()
 
-        assertEquals(FiefReadResult.Unreachable, fiefs.read())
+        assertEquals(FiefReadResult.Unreachable, fiefs.read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
@@ -389,7 +377,7 @@ class FiefRepositoryTest {
         val fiefs: FiefRepository = repository()
 
         sessionEnds.ended.test {
-            fiefs.read()
+            fiefs.read(FiefId(LISTED_FIEF_ID))
 
             awaitItem()
             assertNull(tokenStore().read())
@@ -430,7 +418,7 @@ class FiefRepositoryTest {
         val fiefs: FiefRepository = repository()
 
         sessionEnds.ended.test {
-            List(3) { async { fiefs.read() } }.awaitAll()
+            List(3) { async { fiefs.read(FiefId(LISTED_FIEF_ID)) } }.awaitAll()
 
             awaitItem()
             expectNoEvents()
@@ -444,7 +432,7 @@ class FiefRepositoryTest {
         api.enqueue(signedOut())
 
         sessionEnds.ended.test {
-            fiefs.read()
+            fiefs.read(FiefId(LISTED_FIEF_ID))
 
             expectNoEvents()
         }
@@ -452,25 +440,16 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers unreachable when the fief overview cannot be read`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(MockResponse.Builder().code(500).build())
 
-        assertEquals(FiefReadResult.Unreachable, repository().read())
-    }
-
-    @Test
-    fun `answers unreachable when the lord holds no fief`() = runTest {
-        api.enqueue(json(200, """{"fiefs":[]}"""))
-
-        assertEquals(FiefReadResult.Unreachable, repository().read())
+        assertEquals(FiefReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `answers unreachable when the body is not a fief overview`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, """{"id":"not a fief"}"""))
 
-        assertTrue(repository().read() is FiefReadResult.Unreachable)
+        assertTrue(repository().read(FiefId(LISTED_FIEF_ID)) is FiefReadResult.Unreachable)
     }
 
     @Test
@@ -482,7 +461,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `reads a busy study slot with its art, target level, finish and the cost it debited`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(IDLE_STUDY, BUSY_SMITHING)))
 
         assertEquals(
@@ -532,7 +510,6 @@ class FiefRepositoryTest {
 
     @Test
     fun `keeps the fraction of an art's rate`() = runTest {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(SMITHING_AT_LEVEL_0, SMITHING_AT_A_FRACTION)))
 
         val smithing: ArtState = readFief().arts[0]
@@ -640,12 +617,11 @@ class FiefRepositoryTest {
     }
 
     private fun enqueueIdleFief() {
-        api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(resource(200, "fief-overview-idle.json"))
     }
 
     private suspend fun TestScope.readFief(): FiefSnapshot {
-        val result: FiefReadResult = repository().read()
+        val result: FiefReadResult = repository().read(FiefId(LISTED_FIEF_ID))
         return (result as FiefReadResult.Read).fief
     }
 
@@ -677,6 +653,7 @@ class FiefRepositoryTest {
 
     private companion object {
         const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+        const val SECOND_FIEF_ID: String = "7c1f0a52-3d4e-4b8a-9f61-2e5d8c0b4a17"
         const val WAREHOUSE_AT_LEVEL_0: String =
             """"warehouse":{"level":0,"nextLevel":{"level":1,"cost":{"wood":150,"stone":100,"iron":20,""" +
                 """"gold":0,"food":0},"durationSeconds":180,"peasants":1}}"""

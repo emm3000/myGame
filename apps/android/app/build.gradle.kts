@@ -92,4 +92,5 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(project(":core:testing"))
+    testImplementation(libs.kotlinx.serialization.json)
 }

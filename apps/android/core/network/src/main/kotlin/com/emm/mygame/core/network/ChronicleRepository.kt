@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 
 interface ChronicleRepository {
 
-    suspend fun read(): ChronicleReadResult
+    suspend fun read(fief: FiefId): ChronicleReadResult
 }
 
 fun ChronicleRepository(

@@ -2,6 +2,7 @@ package com.emm.mygame.feature.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
@@ -20,7 +21,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepository) : ViewModel() {
+class MapViewModel(
+    private val route: FiefId,
+    private val maps: MapRepository,
+    private val fiefs: FiefRepository,
+) : ViewModel() {
 
     private val _state: MutableStateFlow<MapUiState> = MutableStateFlow(MapUiState.Loading)
 
@@ -158,7 +163,8 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
         val shown: MapUiState.Content = _state.value as? MapUiState.Content ?: return
         reading?.cancel()
         reading = viewModelScope.launch {
-            val answer: MapReadResult.Read = maps.read(shown.map.province) as? MapReadResult.Read ?: return@launch
+            val answer: MapReadResult = maps.read(route, shown.map.province)
+            if (answer !is MapReadResult.Read) return@launch
             val current: MapUiState.Content = _state.value as? MapUiState.Content ?: return@launch
             _state.value = contentOf(answer.map, current.jumpEntry)
         }
@@ -172,8 +178,8 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
         if (!isFiefRead) readFief()
         viewModelScope.launch {
             val answer: MapReadResult = when (request) {
-                ProvinceRequest.Own -> maps.readOwn()
-                is ProvinceRequest.Numbered -> maps.read(request.province)
+                ProvinceRequest.Own -> maps.readOwn(route)
+                is ProvinceRequest.Numbered -> maps.read(route, request.province)
             }
             _state.value = when (answer) {
                 is MapReadResult.Read -> contentOf(answer.map, jumpEntry = answer.map.province.toString())
@@ -186,7 +192,7 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
     private fun readFief() {
         isFiefRead = true
         viewModelScope.launch {
-            when (val answer: FiefReadResult = fiefs.read()) {
+            when (val answer: FiefReadResult = fiefs.read(route)) {
                 is FiefReadResult.Read -> {
                     fief = answer.fief
                     redraw()

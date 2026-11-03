@@ -26,10 +26,9 @@ internal class ApiFiefRepository(
     private val ioDispatcher: CoroutineDispatcher,
 ) : FiefRepository {
 
-    override suspend fun read(): FiefReadResult = withContext(ioDispatcher) {
+    override suspend fun read(fief: FiefId): FiefReadResult = withContext(ioDispatcher) {
         try {
-            val fiefId: UUID? = api.fiefsGet().body()?.fiefs?.firstOrNull()?.id
-            val overview: FiefOverview? = fiefId?.let { api.fiefsFiefIdGet(it).body() }
+            val overview: FiefOverview? = api.fiefsFiefIdGet(UUID.fromString(fief.value)).body()
             val snapshot: FiefSnapshot? = overview?.toSnapshot()
             if (snapshot == null) FiefReadResult.Unreachable else FiefReadResult.Read(snapshot)
         } catch (expectedOutage: IOException) {

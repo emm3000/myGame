@@ -2,6 +2,7 @@ package com.emm.mygame
 
 import android.app.Application
 import com.emm.mygame.core.network.ChronicleRepository
+import com.emm.mygame.core.network.FiefListRepository
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.MapRepository
@@ -27,6 +28,15 @@ class MyGameApplication : Application() {
 
     val sessions: SessionRepository by lazy {
         SessionRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
+    }
+
+    val listings: FiefListRepository by lazy {
+        FiefListRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,

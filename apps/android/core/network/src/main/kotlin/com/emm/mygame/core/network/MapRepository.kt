@@ -4,9 +4,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 
 interface MapRepository {
 
-    suspend fun readOwn(): MapReadResult
+    suspend fun readOwn(fief: FiefId): MapReadResult
 
-    suspend fun read(province: Int): MapReadResult
+    suspend fun read(fief: FiefId, province: Int): MapReadResult
 }
 
 fun MapRepository(

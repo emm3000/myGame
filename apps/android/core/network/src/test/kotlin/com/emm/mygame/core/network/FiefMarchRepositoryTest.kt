@@ -443,12 +443,11 @@ class FiefMarchRepositoryTest {
     }
 
     private fun enqueueFief(overview: String) {
-        api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(json(200, overview))
     }
 
     private suspend fun TestScope.readFief(): FiefSnapshot {
-        val result: FiefReadResult = repository().read()
+        val result: FiefReadResult = repository().read(FiefId(LISTED_FIEF_ID))
         return (result as FiefReadResult.Read).fief
     }
 

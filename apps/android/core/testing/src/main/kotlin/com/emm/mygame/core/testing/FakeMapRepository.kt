@@ -1,5 +1,6 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.MapRepository
 import kotlinx.coroutines.CompletableDeferred
@@ -14,8 +15,13 @@ class FakeMapRepository : MapRepository {
 
     private val _requests: MutableList<Int?> = mutableListOf()
 
+    private val _fiefs: MutableList<FiefId> = mutableListOf()
+
     val requests: List<Int?>
         get() = _requests.toList()
+
+    val fiefs: List<FiefId>
+        get() = _fiefs.toList()
 
     fun answerRead(result: MapReadResult) {
         val oldest: CompletableDeferred<MapReadResult>? = pending.entries
@@ -29,13 +35,14 @@ class FakeMapRepository : MapRepository {
         checkNotNull(pending[request]) { "No pending read at request $request" }.complete(result)
     }
 
-    override suspend fun readOwn(): MapReadResult = answerTo(province = null)
+    override suspend fun readOwn(fief: FiefId): MapReadResult = answerTo(fief, province = null)
 
-    override suspend fun read(province: Int): MapReadResult = answerTo(province)
+    override suspend fun read(fief: FiefId, province: Int): MapReadResult = answerTo(fief, province)
 
-    private suspend fun answerTo(province: Int?): MapReadResult {
+    private suspend fun answerTo(fief: FiefId, province: Int?): MapReadResult {
         val request: Int = _requests.size
         _requests += province
+        _fiefs += fief
         queued.removeFirstOrNull()?.let { answer: MapReadResult -> return answer }
         val read: CompletableDeferred<MapReadResult> = CompletableDeferred(parent = currentCoroutineContext().job)
         pending[request] = read

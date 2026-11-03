@@ -48,8 +48,9 @@ internal fun TestScope.openFief(
     fiefs: FakeFiefRepository,
     deviceNow: Instant = firstReadAt,
     sessions: FakeSessionRepository = FakeSessionRepository(),
+    route: FiefId = FiefId(FIEF_ID),
 ): FiefViewModel {
-    val viewModel: FiefViewModel = FiefViewModel(fiefs, sessions, TestClock(testScheduler, deviceNow))
+    val viewModel: FiefViewModel = FiefViewModel(route, fiefs, sessions, TestClock(testScheduler, deviceNow))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()

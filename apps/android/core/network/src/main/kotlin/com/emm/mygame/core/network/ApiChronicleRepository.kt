@@ -13,10 +13,9 @@ internal class ApiChronicleRepository(
     private val ioDispatcher: CoroutineDispatcher,
 ) : ChronicleRepository {
 
-    override suspend fun read(): ChronicleReadResult = withContext(ioDispatcher) {
+    override suspend fun read(fief: FiefId): ChronicleReadResult = withContext(ioDispatcher) {
         try {
-            val fiefId: UUID? = api.fiefsGet().body()?.fiefs?.firstOrNull()?.id
-            val chronicle: FiefChronicle? = fiefId?.let { api.fiefsFiefIdEventsGet(it).body() }
+            val chronicle: FiefChronicle? = api.fiefsFiefIdEventsGet(UUID.fromString(fief.value)).body()
             if (chronicle == null) {
                 ChronicleReadResult.Unreachable
             } else {

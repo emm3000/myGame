@@ -41,6 +41,16 @@ class MapTransportViewModelTest {
     }
 
     @Test
+    fun `offers the transport from the second fief on the first fief's plot alone`() = runTest {
+        val viewModel: MapViewModel = openOrdersOn(FakeFiefRepository(), read = fief().copy(id = FiefId(OTHER_FIEF_ID)))
+
+        assertEquals(
+            listOf(MapUiState.OfferedOrder.Transport) to emptyList<MapUiState.OfferedOrder>(),
+            offeredOn(viewModel, plot = 2) to offeredOn(viewModel, plot = 4),
+        )
+    }
+
+    @Test
     fun `opens the transport with nothing loaded`() = runTest {
         val viewModel: MapViewModel = openOrdersOn(FakeFiefRepository())
 

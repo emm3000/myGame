@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.core.network.FiefId
 import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>) {
@@ -28,7 +29,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedIn() {
-        showAlone(Destination.Fief)
+        showAlone(Destination.FirstFief)
+    }
+
+    fun firstFiefOpened(fief: FiefId) {
+        if (backStack.lastOrNull() == Destination.FirstFief) showAlone(Destination.Fief(fief))
     }
 
     fun signedOut(isSessionEnded: Boolean) {
@@ -41,24 +46,27 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openMap() {
-        openTab(Destination.Map)
+        openTab { fief: FiefId -> Destination.Map(fief) }
     }
 
     fun openChronicle() {
-        openTab(Destination.Chronicle)
+        openTab { fief: FiefId -> Destination.Chronicle(fief) }
     }
 
     fun openFief() {
-        if (backStack.lastOrNull() in tabsAboveFief) back()
+        when (backStack.lastOrNull()) {
+            is Destination.Map, is Destination.Chronicle -> back()
+            else -> Unit
+        }
     }
 
-    private fun openTab(tab: Destination) {
-        val top: NavKey? = backStack.lastOrNull()
-        when {
-            !areTabsEnabled -> Unit
-            top == tab -> Unit
-            top == Destination.Fief -> backStack.add(tab)
-            top in tabsAboveFief -> backStack[backStack.lastIndex] = tab
+    private fun openTab(tabOf: (FiefId) -> Destination) {
+        if (!areTabsEnabled) return
+        when (val top: NavKey? = backStack.lastOrNull()) {
+            is Destination.Fief -> backStack.add(tabOf(top.fief))
+            is Destination.Map -> backStack[backStack.lastIndex] = tabOf(top.fief)
+            is Destination.Chronicle -> backStack[backStack.lastIndex] = tabOf(top.fief)
+            else -> Unit
         }
     }
 
@@ -66,9 +74,5 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         if (backStack == listOf(destination)) return
         backStack.add(destination)
         repeat(backStack.size - 1) { backStack.removeAt(0) }
-    }
-
-    private companion object {
-        val tabsAboveFief: Set<Destination> = setOf(Destination.Map, Destination.Chronicle)
     }
 }

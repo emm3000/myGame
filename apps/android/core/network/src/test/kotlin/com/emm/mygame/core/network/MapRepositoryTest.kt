@@ -36,30 +36,30 @@ class MapRepositoryTest {
     }
 
     @Test
-    fun `reads the province of the first fief the api lists`() = runTest {
+    fun `reads the own province of the fief the route names`() = runTest {
         enqueueMap(EMPTY_PROVINCE)
 
-        repository().readOwn()
+        repository().readOwn(FiefId(OTHER_FIEF_ID))
 
-        assertEquals("/api/fiefs", api.takeRequestWithin().url.encodedPath)
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID/map", api.takeRequestWithin().url.encodedPath)
+        api.takeRequestWithin()
+        assertEquals("/api/fiefs/$OTHER_FIEF_ID/map", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
-    fun `reads the province the player names`() = runTest {
+    fun `reads the province the player names from the fief the route names`() = runTest {
         enqueueMap(EMPTY_PROVINCE)
 
-        repository().read(province = 4)
+        repository().read(FiefId(OTHER_FIEF_ID), province = 4)
 
         api.takeRequestWithin()
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID/map/4", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/fiefs/$OTHER_FIEF_ID/map/4", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
     fun `sends the stored token as a bearer`() = runTest {
         enqueueMap(EMPTY_PROVINCE)
 
-        repository().readOwn()
+        repository().readOwn(FiefId(LISTED_FIEF_ID))
 
         assertEquals("Bearer opaque-session", api.takeRequestWithin().headers["Authorization"])
     }
@@ -93,7 +93,7 @@ class MapRepositoryTest {
                     ),
                 ),
             ),
-            repository().readOwn(),
+            repository().readOwn(FiefId(LISTED_FIEF_ID)),
         )
     }
 
@@ -119,7 +119,7 @@ class MapRepositoryTest {
             ),
         )
 
-        val answer: MapReadResult = repository().readOwn()
+        val answer: MapReadResult = repository().readOwn(FiefId(LISTED_FIEF_ID))
 
         assertEquals(
             listOf(
@@ -138,7 +138,7 @@ class MapRepositoryTest {
                 """"reservation":null}]}""",
         )
 
-        val answer: MapReadResult = repository().readOwn()
+        val answer: MapReadResult = repository().readOwn(FiefId(LISTED_FIEF_ID))
 
         assertEquals(PlotHolder.Held(name = "Sotoverde"), (answer as MapReadResult.Read).map.plots.single().holder)
     }
@@ -148,7 +148,7 @@ class MapRepositoryTest {
         api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(json(404, """{"kind":"ProvinceNotFound","message":"Esa provincia no está en el mapa."}"""))
 
-        assertEquals(MapReadResult.ProvinceNotFound, repository().read(province = 99))
+        assertEquals(MapReadResult.ProvinceNotFound, repository().read(FiefId(LISTED_FIEF_ID), province = 99))
     }
 
     @Test
@@ -156,7 +156,7 @@ class MapRepositoryTest {
         api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
 
-        assertEquals(MapReadResult.Unreachable, repository().readOwn())
+        assertEquals(MapReadResult.Unreachable, repository().readOwn(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
@@ -166,7 +166,7 @@ class MapRepositoryTest {
         val maps: MapRepository = repository()
 
         sessionEnds.ended.test {
-            maps.readOwn()
+            maps.readOwn(FiefId(LISTED_FIEF_ID))
 
             awaitItem()
             assertNull(TokenStore(File(folder.root, "session"), FakeTokenCipher()).read())
@@ -174,24 +174,17 @@ class MapRepositoryTest {
     }
 
     @Test
-    fun `answers unreachable when the lord holds no fief`() = runTest {
-        api.enqueue(json(200, """{"fiefs":[]}"""))
-
-        assertEquals(MapReadResult.Unreachable, repository().readOwn())
-    }
-
-    @Test
     fun `answers unreachable for a terrain it does not know`() = runTest {
         enqueueMap(EMPTY_PROVINCE.replace("lowlands", "marshes"))
 
-        assertEquals(MapReadResult.Unreachable, repository().readOwn())
+        assertEquals(MapReadResult.Unreachable, repository().readOwn(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `answers unreachable when the body is not a province`() = runTest {
         enqueueMap("""{"id":"not a province"}""")
 
-        assertEquals(MapReadResult.Unreachable, repository().readOwn())
+        assertEquals(MapReadResult.Unreachable, repository().readOwn(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
@@ -199,7 +192,7 @@ class MapRepositoryTest {
         val maps: MapRepository = repository()
         api.close()
 
-        assertEquals(MapReadResult.Unreachable, maps.readOwn())
+        assertEquals(MapReadResult.Unreachable, maps.readOwn(FiefId(LISTED_FIEF_ID)))
     }
 
     private fun enqueueMap(body: String) {
