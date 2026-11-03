@@ -11,14 +11,14 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.Instant
 
-internal data class Accrual(
+internal data class ReadyTerms(
     val resources: List<StoredResource>,
     val readAt: Instant,
     val now: Instant,
     val gap: Duration,
 )
 
-internal fun Accrual.resourcesBlockOf(
+internal fun ReadyTerms.resourcesBlockOf(
     cost: List<ResourceCost>,
     amounts: Map<ResourceKind, Long>,
 ): FiefUiState.BlockReason.Resources? {
@@ -27,7 +27,7 @@ internal fun Accrual.resourcesBlockOf(
     return FiefUiState.BlockReason.Resources(shortfalls = shortfalls, ready = readyHourOf(cost, shortfalls))
 }
 
-private fun Accrual.readyHourOf(
+private fun ReadyTerms.readyHourOf(
     cost: List<ResourceCost>,
     shortfalls: List<FiefUiState.Shortfall>,
 ): FiefUiState.ReadyHour? {
@@ -36,13 +36,18 @@ private fun Accrual.readyHourOf(
     val remaining: Duration = ready - now
     val remainingSeconds: Double = remaining.toDouble(DurationUnit.SECONDS)
     if (ceil(remainingSeconds) <= SECONDS_PER_HOUR) {
-        return FiefUiState.ReadyHour.InMinutes(minutesLeftOf(remainingSeconds))
+        val minutesLeft: Int = minutesLeftOf(remainingSeconds)
+        return if (minutesLeft == MINUTES_PER_HOUR) {
+            FiefUiState.ReadyHour.InAnHour
+        } else {
+            FiefUiState.ReadyHour.InMinutes(minutesLeft)
+        }
     }
     val readyMinute: Instant = nextWholeMinuteOf(ready - gap)
     return FiefUiState.ReadyHour.AtClock(readyAt = readyMinute, remaining = readyMinute - (now - gap))
 }
 
-private fun Accrual.latestReadyAfter(
+private fun ReadyTerms.latestReadyAfter(
     cost: List<ResourceCost>,
     shortfalls: List<FiefUiState.Shortfall>,
 ): Duration? {
@@ -74,4 +79,5 @@ private fun nextWholeMinuteOf(instant: Instant): Instant {
 
 private const val SECONDS_PER_HOUR: Double = 3600.0
 private const val SECONDS_PER_MINUTE: Double = 60.0
+private const val MINUTES_PER_HOUR: Int = 60
 private const val MILLISECONDS_PER_MINUTE: Long = 60_000

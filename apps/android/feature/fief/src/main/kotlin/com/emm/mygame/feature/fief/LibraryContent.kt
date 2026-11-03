@@ -13,7 +13,7 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 internal fun FiefSnapshot.libraryAt(
-    accrual: Accrual,
+    readyTerms: ReadyTerms,
     amounts: Map<ResourceKind, Long>,
     study: FiefUiState.StudyStatus,
 ): FiefUiState.LibraryLine? {
@@ -23,10 +23,10 @@ internal fun FiefSnapshot.libraryAt(
         amounts = amounts,
         libraryLevel = libraryLevel,
         isStudyRunning = this.study is StudySlot.Busy,
-        accrual = accrual,
+        readyTerms = readyTerms,
     )
     return FiefUiState.LibraryLine(
-        slot = studySlotLineAt(accrual.now),
+        slot = studySlotLineAt(readyTerms.now),
         arts = arts.map { art: ArtState -> art.cardWith(context) },
         study = study,
     )
@@ -41,7 +41,7 @@ private data class StudyContext(
     val amounts: Map<ResourceKind, Long>,
     val libraryLevel: Int,
     val isStudyRunning: Boolean,
-    val accrual: Accrual,
+    val readyTerms: ReadyTerms,
 )
 
 private fun FiefSnapshot.libraryLevel(): Int =
@@ -92,5 +92,5 @@ private fun NextArtLevel.blockWith(context: StudyContext): FiefUiState.StudyBloc
         context.isStudyRunning -> FiefUiState.StudyBlock.StudyRunning
         requiredLibraryLevel > context.libraryLevel ->
             FiefUiState.StudyBlock.LibraryTooLow(required = requiredLibraryLevel, built = context.libraryLevel)
-        else -> context.accrual.resourcesBlockOf(cost = cost, amounts = context.amounts)
+        else -> context.readyTerms.resourcesBlockOf(cost = cost, amounts = context.amounts)
     }

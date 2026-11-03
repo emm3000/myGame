@@ -24,7 +24,7 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
         line.kind to line.amount
     }
     val isQueueFull: Boolean = slot is BuildSlot.Busy && queue.isFull()
-    val accrual: Accrual = Accrual(resources = resources, readAt = readAt, now = now, gap = gap)
+    val readyTerms: ReadyTerms = ReadyTerms(resources = resources, readAt = readAt, now = now, gap = gap)
     val waiting: List<FiefUiState.WaitingLine> = queue.entries.map { entry: WaitingUpgrade ->
         FiefUiState.WaitingLine(
             building = entry.building,
@@ -39,13 +39,13 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
         peasants = FiefUiState.PeasantsLine(free = peasants.free, supplied = peasants.supplied),
         slot = slot.lineAt(now),
         buildings = buildings.map { building: BuildingState ->
-            building.cardWith(BuildingContext(drawnAmounts, peasants, isQueueFull, accrual))
+            building.cardWith(BuildingContext(drawnAmounts, peasants, isQueueFull, readyTerms))
         },
         queue = waiting,
         upgrade = mutations.upgrade,
         cancel = mutations.cancel,
-        library = libraryAt(accrual = accrual, amounts = drawnAmounts, study = mutations.study),
-        army = armyAt(accrual = accrual, amounts = drawnAmounts, mutations = mutations),
+        library = libraryAt(readyTerms = readyTerms, amounts = drawnAmounts, study = mutations.study),
+        army = armyAt(readyTerms = readyTerms, amounts = drawnAmounts, mutations = mutations),
     )
 }
 
@@ -67,7 +67,7 @@ private data class BuildingContext(
     val amounts: Map<ResourceKind, Long>,
     val peasants: Peasants,
     val isQueueFull: Boolean,
-    val accrual: Accrual,
+    val readyTerms: ReadyTerms,
 )
 
 private fun BuildQueue.isFull(): Boolean = entries.size >= cap
@@ -121,7 +121,7 @@ private fun NextLevel.blockWith(context: BuildingContext): FiefUiState.BlockReas
     return when {
         context.isQueueFull -> FiefUiState.BlockReason.QueueFull
         peasants > free -> FiefUiState.BlockReason.Peasants(needed = peasants, free = free)
-        else -> context.accrual.resourcesBlockOf(cost = cost, amounts = context.amounts)
+        else -> context.readyTerms.resourcesBlockOf(cost = cost, amounts = context.amounts)
     }
 }
 

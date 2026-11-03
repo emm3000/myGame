@@ -39,16 +39,10 @@ internal fun BlockedReasonLine(blocked: BlockedReason, modifier: Modifier = Modi
 
 @Composable
 private fun readyLabelOf(ready: FiefUiState.ReadyHour): String = when (ready) {
-    is FiefUiState.ReadyHour.InMinutes ->
-        if (ready.minutes >= MINUTES_PER_HOUR) {
-            stringResource(R.string.ready_in_an_hour)
-        } else {
-            stringResource(R.string.ready_in_minutes, ready.minutes)
-        }
+    is FiefUiState.ReadyHour.InMinutes -> stringResource(R.string.ready_in_minutes, ready.minutes)
+    FiefUiState.ReadyHour.InAnHour -> stringResource(R.string.ready_in_an_hour)
     is FiefUiState.ReadyHour.AtClock -> stringResource(
         R.string.ready_at,
         clockLabelOf(finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())),
     )
 }
-
-private const val MINUTES_PER_HOUR: Int = 60
