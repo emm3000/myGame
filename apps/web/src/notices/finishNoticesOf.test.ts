@@ -41,6 +41,7 @@ it('reads a finished study as the roll does', () => {
       targetLevel: 2,
       startedAt: '2026-09-22T11:00:00.000Z',
       finishesAt: '2026-09-22T12:05:00.000Z',
+      cost: { wood: 180, stone: 120, iron: 225, gold: 90, food: 0 },
     },
   }
   const learned = rereadOf({

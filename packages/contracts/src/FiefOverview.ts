@@ -68,6 +68,7 @@ const BusyStudySlotSchema = z
     targetLevel: BuildingLevelSchema,
     startedAt: InstantSchema,
     finishesAt: InstantSchema,
+    cost: ResourceAmountsSchema,
   })
   .meta({ id: 'BusyStudySlot' })
 

@@ -45,6 +45,7 @@ const smithingUnderWay: FiefOverview = {
     targetLevel: 1,
     startedAt: '2026-09-22T11:50:00.000Z',
     finishesAt: '2026-09-22T12:20:00.000Z',
+    cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
   },
 }
 
@@ -249,6 +250,7 @@ it('names the running study before the library an art still requires', async () 
       targetLevel: 1,
       startedAt: '2026-09-22T11:50:00.000Z',
       finishesAt: '2026-09-22T12:20:00.000Z',
+      cost: { wood: 150, stone: 150, iron: 60, gold: 60, food: 0 },
     },
   }
   await showFief({ fief: async () => ({ ok: true, value: masonryUnderWay }) })
@@ -285,6 +287,7 @@ it('shows an art at its top level as finished while a study runs', async () => {
       targetLevel: 1,
       startedAt: '2026-09-22T11:50:00.000Z',
       finishesAt: '2026-09-22T12:20:00.000Z',
+      cost: { wood: 150, stone: 150, iron: 60, gold: 60, food: 0 },
     },
   }
   await showFief({ fief: async () => ({ ok: true, value: smithingAtTopWhileMasonryRuns }) })
@@ -342,6 +345,7 @@ it('re-reads the fief when the study finishes', async () => {
       targetLevel: 1,
       startedAt: '2026-09-22T11:30:30.000Z',
       finishesAt: '2026-09-22T12:00:30.000Z',
+      cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
     },
   }
   const fief = vi.fn(async () => ({ ok: true as const, value: smithingNearlyDone }))

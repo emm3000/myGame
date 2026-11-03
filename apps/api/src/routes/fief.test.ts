@@ -538,6 +538,31 @@ describe('the fief route', () => {
     expect(stored.ok && stored.value?.studySlot).toEqual({ kind: 'idle' })
   })
 
+  it('answers the cost a study debited, not the catalog price of its level', async () => {
+    const ana = await signUp('ana@example.com', 'Valdehierro')
+    await runSql(
+      `UPDATE fiefs SET study_art = 'smithing', study_level = 1,
+         study_started_at = '2026-09-22T08:00:00Z', study_finishes_at = '2026-09-22T08:30:00Z',
+         study_cost_wood = 97, study_cost_stone = 41, study_cost_iron = 13, study_cost_gold = 7,
+         study_cost_food = 3`,
+    )
+
+    const response = await fiefOf(ana)
+
+    const overview = FiefOverviewSchema.parse(await response.json())
+    expect(overview.arts.smithing.nextLevel?.cost).not.toEqual({
+      wood: 97,
+      stone: 41,
+      iron: 13,
+      gold: 7,
+      food: 3,
+    })
+    expect(overview.study).toMatchObject({
+      kind: 'busy',
+      cost: { wood: 97, stone: 41, iron: 13, gold: 7, food: 3 },
+    })
+  })
+
   it('writes the finish a read applied at its finish instant', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await enqueueSawmill(ana)
@@ -1588,6 +1613,7 @@ describe('the fief route', () => {
         targetLevel: 1,
         startedAt: '2026-09-22T08:10:00.000Z',
         finishesAt: '2026-09-22T08:25:00.000Z',
+        cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
       })
       expect(overview.resources.gold.amount).toBe(40)
       expect(overview.slot).toEqual({ kind: 'idle' })

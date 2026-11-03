@@ -14,7 +14,12 @@ internal fun WireStudySlot.toStudySlot(): StudySlot? = when (this) {
 
 private fun BusyStudySlot.toBusyStudy(): StudySlot? {
     val artKind: ArtKind = art.toArtKind() ?: return null
-    return StudySlot.Busy(art = artKind, targetLevel = targetLevel, finishesAt = finishesAt.toKotlinInstant())
+    return StudySlot.Busy(
+        art = artKind,
+        targetLevel = targetLevel,
+        finishesAt = finishesAt.toKotlinInstant(),
+        cost = cost.toResourceCosts(),
+    )
 }
 
 private fun BusyStudySlot.Art.toArtKind(): ArtKind? = when (this) {

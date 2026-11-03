@@ -2,8 +2,10 @@ package com.emm.mygame.feature.fief
 
 import app.cash.turbine.test
 import com.emm.mygame.core.network.ArtKind
+import com.emm.mygame.core.network.ArtState
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
+import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StudyRefusal
@@ -17,6 +19,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
@@ -118,23 +121,32 @@ class FiefLibraryViewModelTest {
     }
 
     @Test
-    fun `counts the busy study down to its finish with the refund of its cost`() = runTest {
+    fun `counts the busy study down to its finish with the refund of the cost it debited`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)
-        val studying: StudySlot = studyingSmithing(targetLevel = 1, finishesIn = 30.minutes)
-        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(library(level = 1)), study = studying)))
+        val debited: List<ResourceCost> = listOf(
+            ResourceCost(ResourceKind.Wood, 100),
+            ResourceCost(ResourceKind.Stone, 70),
+            ResourceCost(ResourceKind.Iron, 130),
+            ResourceCost(ResourceKind.Gold, 50),
+            ResourceCost(ResourceKind.Food, 0),
+        )
+        val studying: StudySlot = studyingSmithing(targetLevel = 1, finishesIn = 30.minutes, cost = debited)
+        val read: FiefSnapshot = fief(buildings = listOf(library(level = 1)), study = studying)
+        fiefs.answerRead(FiefReadResult.Read(read))
 
         viewModel.state.test {
+            assertNotEquals(debited, read.arts.first { art: ArtState -> art.kind == ArtKind.Smithing }.nextLevel?.cost)
             assertEquals(
                 FiefUiState.StudySlotLine.Busy(
                     art = ArtKind.Smithing,
                     targetLevel = 1,
                     remaining = 30.minutes,
                     refund = listOf(
-                        ResourceCost(ResourceKind.Wood, 120),
-                        ResourceCost(ResourceKind.Stone, 80),
-                        ResourceCost(ResourceKind.Iron, 150),
-                        ResourceCost(ResourceKind.Gold, 60),
+                        ResourceCost(ResourceKind.Wood, 100),
+                        ResourceCost(ResourceKind.Stone, 70),
+                        ResourceCost(ResourceKind.Iron, 130),
+                        ResourceCost(ResourceKind.Gold, 50),
                     ),
                 ),
                 awaitContent().library?.slot,

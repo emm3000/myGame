@@ -45,10 +45,8 @@ private fun FiefSnapshot.studySlotLineAt(now: Instant): FiefUiState.StudySlotLin
         )
     }
 
-private fun FiefSnapshot.refundOf(busy: StudySlot.Busy): List<ResourceCost> {
-    val cost: List<ResourceCost> = arts.firstOrNull { art: ArtState -> art.kind == busy.art }?.nextLevel?.cost.orEmpty()
-    return cost.filter { resource: ResourceCost -> resource.amount > 0 }
-}
+private fun refundOf(busy: StudySlot.Busy): List<ResourceCost> =
+    busy.cost.filter { resource: ResourceCost -> resource.amount > 0 }
 
 private fun ArtState.cardWith(amounts: Map<ResourceKind, Long>, libraryLevel: Int): FiefUiState.ArtCard =
     FiefUiState.ArtCard(
