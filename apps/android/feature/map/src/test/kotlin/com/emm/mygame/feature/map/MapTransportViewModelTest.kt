@@ -155,13 +155,26 @@ class MapTransportViewModelTest {
     }
 
     @Test
-    fun `sends an empty cargo so the api answers`() = runTest {
+    fun `sends nothing while the form is blocked`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = loading(wood = "0", fiefs = fiefs)
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(1, fiefs.marches.size)
+        assertEquals(emptyList<FakeFiefRepository.MarchRequest>(), fiefs.marches)
+    }
+
+    @Test
+    fun `draws only the block for a cargo above the carry once tapped`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: MapViewModel = loading(wood = "49", fiefs = fiefs)
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(
+            MapUiState.MarchBlock.CargoAboveCarry(cargo = 49, carry = 48) to MapUiState.SendStatus.Idle,
+            transportForm(viewModel).block to transportForm(viewModel).send,
+        )
     }
 
     @Test
@@ -177,23 +190,12 @@ class MapTransportViewModelTest {
     @Test
     fun `keeps the api's line for a cargo above the carry beside the transport`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: MapViewModel = loading(wood = "300", fiefs = fiefs)
+        val viewModel: MapViewModel = loading(cavalry = "5", wood = "300", fiefs = fiefs)
         fiefs.answerMarch(MarchResult.Refused(MarchRefusal.CargoAboveCarry, CARGO_ABOVE_CARRY_LINE))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
         assertEquals(MapUiState.SendStatus.RefusedWithApiLine(CARGO_ABOVE_CARRY_LINE), transportForm(viewModel).send)
-    }
-
-    @Test
-    fun `keeps the api's refusal of an empty cargo beside the transport`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: MapViewModel = loading(wood = "0", fiefs = fiefs)
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.EmptyCargo, EMPTY_CARGO_LINE))
-
-        viewModel.onIntent(MapIntent.SendTapped)
-
-        assertEquals(MapUiState.SendStatus.Refused(MarchRefusal.EmptyCargo), transportForm(viewModel).send)
     }
 
     @Test
@@ -241,5 +243,3 @@ class MapTransportViewModelTest {
 
 private const val CARGO_ABOVE_CARRY_LINE: String =
     "La carga suma 300 y tus hombres llevan hasta 48. Quita carga o envía más hombres."
-
-private const val EMPTY_CARGO_LINE: String = "Un transporte no sale de vacío. Carga al menos un recurso."

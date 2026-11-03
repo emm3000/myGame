@@ -199,6 +199,18 @@ class MapAttackViewModelTest {
     }
 
     @Test
+    fun `sends nothing while the form is blocked`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: MapViewModel = openOrdersOn(fiefs)
+        viewModel.onIntent(MapIntent.AttackToggled(5))
+        viewModel.onIntent(MapIntent.PartyEntryChanged(UnitKind.Cavalry, "5"))
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(emptyList<FakeFiefRepository.MarchRequest>(), fiefs.marches)
+    }
+
+    @Test
     fun `sends no settler on an attack`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs)
