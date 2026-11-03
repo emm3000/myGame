@@ -2,6 +2,7 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.ForgotPasswordRequest
 import com.emm.mygame.core.network.generated.models.NativeSession
 import com.emm.mygame.core.network.generated.models.Player
 import com.emm.mygame.core.network.generated.models.SignInRequest
@@ -33,6 +34,11 @@ internal class ApiSessionRepository(
             signedUpOrRefused(
                 openingApi.authSignUpNativePost(SignUpRequest(email = email, password = password, fiefName = fiefName)),
             )
+        }
+
+    override suspend fun requestPasswordReset(email: String): PasswordResetRequestResult =
+        openingSession(unreachable = PasswordResetRequestResult.Unreachable) {
+            requestedOrRefused(openingApi.authForgotPasswordPost(ForgotPasswordRequest(email = email)))
         }
 
     override suspend fun restore(): RestoreResult = withContext(ioDispatcher) {
@@ -96,6 +102,12 @@ internal class ApiSessionRepository(
         }
         val refusal: ApiError = response.apiError() ?: return SignInResult.Unreachable
         return SignInResult.Refused(refusal.kind.toRefusalKind())
+    }
+
+    private fun requestedOrRefused(response: Response<Unit>): PasswordResetRequestResult = when (response.code()) {
+        HttpURLConnection.HTTP_ACCEPTED -> PasswordResetRequestResult.Requested
+        HttpURLConnection.HTTP_BAD_REQUEST -> PasswordResetRequestResult.MalformedEmail
+        else -> PasswordResetRequestResult.Unreachable
     }
 
     private fun restoredOrSignedOut(response: Response<Player>): RestoreResult {
