@@ -24,7 +24,7 @@ class SignInViewModelTest {
 
     @Test
     fun `checks the stored session at launch`() = runTest {
-        val viewModel: SignInViewModel = SignInViewModel(FakeSessionRepository())
+        val viewModel: SignInViewModel = SignInViewModel(FakeSessionRepository(), isSessionEnded = false)
 
         assertEquals(SignInUiState.CheckingSession, viewModel.state.value)
     }
@@ -32,7 +32,7 @@ class SignInViewModelTest {
     @Test
     fun `opens the fief when the stored token's session answers`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
-        val viewModel: SignInViewModel = SignInViewModel(sessions)
+        val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = false)
 
         viewModel.effects.test {
             sessions.answerRestore(RestoreResult.SignedIn(ines))
@@ -43,7 +43,7 @@ class SignInViewModelTest {
     @Test
     fun `returns to sign-in when the api refuses the stored token`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
-        val viewModel: SignInViewModel = SignInViewModel(sessions)
+        val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = false)
 
         viewModel.state.test {
             assertEquals(SignInUiState.CheckingSession, awaitItem())
@@ -55,7 +55,7 @@ class SignInViewModelTest {
     @Test
     fun `offers a retry when the session check cannot reach the api`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
-        val viewModel: SignInViewModel = SignInViewModel(sessions)
+        val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = false)
 
         viewModel.state.test {
             skipItems(1)
@@ -70,7 +70,7 @@ class SignInViewModelTest {
     @Test
     fun `checks the stored session again on retry`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
-        val viewModel: SignInViewModel = SignInViewModel(sessions)
+        val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = false)
         sessions.answerRestore(RestoreResult.Unreachable)
 
         viewModel.state.test {
@@ -202,9 +202,38 @@ class SignInViewModelTest {
         assertTrue(viewModel.state.value.canSwitchToSignUp)
     }
 
+    @Test
+    fun `shows the session-ended line when sign-in follows an ended session`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        sessions.answerRestore(RestoreResult.SignedOut)
+
+        val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = true)
+
+        assertTrue((viewModel.state.value as SignInUiState.Form).isSessionEnded)
+    }
+
+    @Test
+    fun `shows no session-ended line on a sign-in no ended session led to`() = runTest {
+        val viewModel: SignInViewModel = signedOutViewModel(FakeSessionRepository())
+
+        assertFalse((viewModel.state.value as SignInUiState.Form).isSessionEnded)
+    }
+
+    @Test
+    fun `drops the session-ended line once the player submits`() = runTest {
+        val sessions: FakeSessionRepository = FakeSessionRepository()
+        sessions.answerRestore(RestoreResult.SignedOut)
+        val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = true)
+
+        fillAndSubmit(viewModel)
+        sessions.answerSignIn(SignInResult.Refused(RefusalKind.InvalidCredentials))
+
+        assertFalse((viewModel.state.value as SignInUiState.Form).isSessionEnded)
+    }
+
     private fun signedOutViewModel(sessions: FakeSessionRepository): SignInViewModel {
         sessions.answerRestore(RestoreResult.SignedOut)
-        return SignInViewModel(sessions)
+        return SignInViewModel(sessions, isSessionEnded = false)
     }
 
     private fun fillAndSubmit(viewModel: SignInViewModel) {
@@ -219,8 +248,13 @@ class SignInViewModelTest {
     }
 
     private fun blankForm(status: SignInUiState.FormStatus): SignInUiState =
-        SignInUiState.Form(email = "", password = "", status = status)
+        SignInUiState.Form(email = "", password = "", status = status, isSessionEnded = false)
 
     private fun filledForm(status: SignInUiState.FormStatus): SignInUiState =
-        SignInUiState.Form(email = "ines@sotoverde.es", password = "contrasena", status = status)
+        SignInUiState.Form(
+            email = "ines@sotoverde.es",
+            password = "contrasena",
+            status = status,
+            isSessionEnded = false,
+        )
 }

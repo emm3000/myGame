@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 sealed interface Destination : NavKey {
 
     @Serializable
-    data object SignIn : Destination
+    data class SignIn(val isSessionEnded: Boolean) : Destination
 
     @Serializable
     data object SignUp : Destination

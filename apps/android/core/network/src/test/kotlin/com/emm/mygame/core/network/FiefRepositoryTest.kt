@@ -1,9 +1,12 @@
 package com.emm.mygame.core.network
 
+import app.cash.turbine.test
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -12,6 +15,7 @@ import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -24,6 +28,8 @@ class FiefRepositoryTest {
     val folder: TemporaryFolder = TemporaryFolder()
 
     private val api: MockWebServer = MockWebServer()
+
+    private val sessionEnds: SessionEnds = SessionEnds()
 
     @Before
     fun startApi() {
@@ -363,10 +369,70 @@ class FiefRepositoryTest {
     }
 
     @Test
-    fun `answers unreachable when the api refuses the session`() = runTest {
-        api.enqueue(MockResponse.Builder().code(401).build())
+    fun `ends the session when a signed-in read answers 401`() = runTest {
+        api.enqueue(signedOut())
+        val fiefs: FiefRepository = repository()
 
-        assertEquals(FiefReadResult.Unreachable, repository().read())
+        sessionEnds.ended.test {
+            fiefs.read()
+
+            awaitItem()
+            assertNull(tokenStore().read())
+        }
+    }
+
+    @Test
+    fun `ends the session when any fief mutation answers 401`() = runTest {
+        val fiefs: FiefRepository = repository()
+        val fief: FiefId = FiefId(LISTED_FIEF_ID)
+        val mutations: List<suspend () -> Unit> = listOf(
+            { fiefs.upgrade(fief, BuildingKind.Sawmill) },
+            { fiefs.cancel(fief, BuildingKind.Sawmill, targetLevel = 2) },
+            { fiefs.startStudy(fief, ArtKind.Smithing) },
+            { fiefs.cancelStudy(fief, ArtKind.Smithing, targetLevel = 1) },
+            { fiefs.recruit(fief, UnitKind.Infantry, count = 4) },
+            { fiefs.cancelRecruit(fief, UnitKind.Infantry, startedAt = Instant.parse("2026-11-02T15:30:00Z")) },
+            { fiefs.dispatch(fief, MarchDispatch.Found(PlotAddress(province = 2, plot = 7), name = "Vega")) },
+            { fiefs.recall(fief, departedAt = Instant.parse("2026-11-02T15:30:00Z")) },
+        )
+
+        sessionEnds.ended.test {
+            mutations.forEach { mutation: suspend () -> Unit ->
+                tokenStore().write("opaque-session")
+                api.enqueue(signedOut())
+
+                mutation()
+
+                awaitItem()
+                assertNull(tokenStore().read())
+            }
+        }
+    }
+
+    @Test
+    fun `reports one end for several 401s in flight at once`() = runTest {
+        repeat(3) { api.enqueue(signedOut()) }
+        val fiefs: FiefRepository = repository()
+
+        sessionEnds.ended.test {
+            List(3) { async { fiefs.read() } }.awaitAll()
+
+            awaitItem()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `reports no end for a 401 to a request sent without a bearer`() = runTest {
+        val fiefs: FiefRepository = repository()
+        tokenStore().clear()
+        api.enqueue(signedOut())
+
+        sessionEnds.ended.test {
+            fiefs.read()
+
+            expectNoEvents()
+        }
     }
 
     @Test
@@ -551,15 +617,18 @@ class FiefRepositoryTest {
     }
 
     private fun TestScope.repository(): FiefRepository {
-        val store: TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply {
-            write("opaque-session")
-        }
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
         return FiefRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
+            sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
     }
+
+    private fun tokenStore(): TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher())
+
+    private fun signedOut(): MockResponse = MockResponse.Builder().code(401).build()
 
     private fun idleOverview(): String = text("fief-overview-idle.json")
 

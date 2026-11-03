@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import app.cash.turbine.test
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import kotlinx.coroutines.test.TestScope
@@ -9,6 +10,7 @@ import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,6 +22,8 @@ class MapRepositoryTest {
     val folder: TemporaryFolder = TemporaryFolder()
 
     private val api: MockWebServer = MockWebServer()
+
+    private val sessionEnds: SessionEnds = SessionEnds()
 
     @Before
     fun startApi() {
@@ -156,6 +160,20 @@ class MapRepositoryTest {
     }
 
     @Test
+    fun `ends the session when the map read answers 401`() = runTest {
+        api.enqueue(json(200, text("fief-list.json")))
+        api.enqueue(MockResponse.Builder().code(401).build())
+        val maps: MapRepository = repository()
+
+        sessionEnds.ended.test {
+            maps.readOwn()
+
+            awaitItem()
+            assertNull(TokenStore(File(folder.root, "session"), FakeTokenCipher()).read())
+        }
+    }
+
+    @Test
     fun `answers unreachable when the lord holds no fief`() = runTest {
         api.enqueue(json(200, """{"fiefs":[]}"""))
 
@@ -196,6 +214,7 @@ class MapRepositoryTest {
         return MapRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
+            sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
     }

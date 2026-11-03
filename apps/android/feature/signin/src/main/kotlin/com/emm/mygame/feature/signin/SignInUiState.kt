@@ -9,7 +9,12 @@ sealed interface SignInUiState {
 
     data object CheckingSession : SignInUiState
 
-    data class Form(val email: String, val password: String, val status: FormStatus) : SignInUiState
+    data class Form(
+        val email: String,
+        val password: String,
+        val status: FormStatus,
+        val isSessionEnded: Boolean,
+    ) : SignInUiState
 
     sealed interface FormStatus {
 

@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import app.cash.turbine.test
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import kotlin.time.Instant
@@ -11,6 +12,7 @@ import mockwebserver3.MockWebServer
 import okhttp3.Headers
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,6 +24,8 @@ class ChronicleRepositoryTest {
     val folder: TemporaryFolder = TemporaryFolder()
 
     private val api: MockWebServer = MockWebServer()
+
+    private val sessionEnds: SessionEnds = SessionEnds()
 
     @Before
     fun startApi() {
@@ -110,6 +114,20 @@ class ChronicleRepositoryTest {
     }
 
     @Test
+    fun `ends the session when the chronicle read answers 401`() = runTest {
+        api.enqueue(json(200, text("fief-list.json")))
+        api.enqueue(MockResponse.Builder().code(401).build())
+        val chronicles: ChronicleRepository = repository()
+
+        sessionEnds.ended.test {
+            chronicles.read()
+
+            awaitItem()
+            assertNull(TokenStore(File(folder.root, "session"), FakeTokenCipher()).read())
+        }
+    }
+
+    @Test
     fun `answers unreachable when the lord holds no fief`() = runTest {
         api.enqueue(json(200, """{"fiefs":[]}"""))
 
@@ -136,6 +154,7 @@ class ChronicleRepositoryTest {
         return ChronicleRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
+            sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
     }

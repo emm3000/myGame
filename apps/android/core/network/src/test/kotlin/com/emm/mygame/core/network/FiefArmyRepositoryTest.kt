@@ -26,6 +26,8 @@ class FiefArmyRepositoryTest {
 
     private val api: MockWebServer = MockWebServer()
 
+    private val sessionEnds: SessionEnds = SessionEnds()
+
     @Before
     fun startApi() {
         api.start()
@@ -209,6 +211,7 @@ class FiefArmyRepositoryTest {
         return FiefRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
+            sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
     }

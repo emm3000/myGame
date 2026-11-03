@@ -6,6 +6,7 @@
     <string name="sign_in_password">Contraseña</string>
     <string name="sign_in_submit">Entrar</string>
     <string name="sign_in_submitting">Enviando</string>
+    <string name="sign_in_session_ended">Tu sesión ha terminado. Entra de nuevo en tu feudo.</string>
     <string name="sign_in_checking_session">Estamos leyendo tu sesión…</string>
     <string name="sign_in_refused_invalid_credentials">El correo o la contraseña no son correctos.</string>
     <string name="sign_in_refused_unrecognized">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>

@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
+class SignInViewModel(private val sessions: SessionRepository, private val isSessionEnded: Boolean) : ViewModel() {
 
     private val _state: MutableStateFlow<SignInUiState> = MutableStateFlow(SignInUiState.CheckingSession)
 
@@ -49,8 +49,9 @@ class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
     }
 
     private fun submit() {
-        val form: SignInUiState.Form = _state.value as? SignInUiState.Form ?: return
-        if (form.status == SignInUiState.FormStatus.Submitting) return
+        val shown: SignInUiState.Form = _state.value as? SignInUiState.Form ?: return
+        if (shown.status == SignInUiState.FormStatus.Submitting) return
+        val form: SignInUiState.Form = shown.copy(isSessionEnded = false)
         _state.value = form.copy(status = SignInUiState.FormStatus.Submitting)
         viewModelScope.launch {
             val answer: SignInResult = sessions.signIn(email = form.email, password = form.password)
@@ -88,5 +89,10 @@ class SignInViewModel(private val sessions: SessionRepository) : ViewModel() {
     }
 
     private fun blankForm(): SignInUiState.Form =
-        SignInUiState.Form(email = "", password = "", status = SignInUiState.FormStatus.Idle)
+        SignInUiState.Form(
+            email = "",
+            password = "",
+            status = SignInUiState.FormStatus.Idle,
+            isSessionEnded = isSessionEnded,
+        )
 }

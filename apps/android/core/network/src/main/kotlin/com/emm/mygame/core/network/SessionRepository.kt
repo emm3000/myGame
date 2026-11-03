@@ -15,10 +15,16 @@ interface SessionRepository {
     suspend fun signOut()
 }
 
-fun SessionRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): SessionRepository =
+fun SessionRepository(
+    baseUrl: String,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    ioDispatcher: CoroutineDispatcher,
+): SessionRepository =
     ApiSessionRepository(
-        api = defaultApi(baseUrl = baseUrl, tokenStore = tokenStore),
-        signOutApi = defaultApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = signOutTimeout),
+        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
+        openingApi = authApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = Duration.ZERO),
+        signOutApi = authApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = signOutTimeout),
         tokenStore = tokenStore,
         ioDispatcher = ioDispatcher,
     )

@@ -9,12 +9,19 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-internal fun defaultApi(baseUrl: String, tokenStore: TokenStore): DefaultApi =
-    defaultApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = Duration.ZERO)
+internal fun signedInApi(baseUrl: String, tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi {
+    val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) { refusedToken: String ->
+        if (tokenStore.clearIfHolding(refusedToken)) sessionEnds.report()
+    }
+    return defaultApi(baseUrl = baseUrl, bearer = bearer, callTimeout = Duration.ZERO)
+}
 
-internal fun defaultApi(baseUrl: String, tokenStore: TokenStore, callTimeout: Duration): DefaultApi {
+internal fun authApi(baseUrl: String, tokenStore: TokenStore, callTimeout: Duration): DefaultApi =
+    defaultApi(baseUrl = baseUrl, bearer = BearerInterceptor(tokenStore = tokenStore) {}, callTimeout = callTimeout)
+
+private fun defaultApi(baseUrl: String, bearer: BearerInterceptor, callTimeout: Duration): DefaultApi {
     val client: OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(BearerInterceptor(tokenStore))
+        .addInterceptor(bearer)
         .callTimeout(callTimeout.toJavaDuration())
         .build()
     val retrofit: Retrofit = Retrofit.Builder()

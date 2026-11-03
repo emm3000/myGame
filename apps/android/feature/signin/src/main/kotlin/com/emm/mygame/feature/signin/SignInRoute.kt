@@ -14,10 +14,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SignInRoute(
     sessions: SessionRepository,
+    isSessionEnded: Boolean,
     onSignedIn: () -> Unit,
     onSignUpOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SignInViewModel = viewModel { SignInViewModel(sessions) },
+    viewModel: SignInViewModel = viewModel { SignInViewModel(sessions, isSessionEnded) },
 ) {
     val state: SignInUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedIn: () -> Unit by rememberUpdatedState(onSignedIn)

@@ -24,8 +24,13 @@ interface FiefRepository {
     suspend fun recall(fief: FiefId, departedAt: Instant): MarchResult
 }
 
-fun FiefRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): FiefRepository =
+fun FiefRepository(
+    baseUrl: String,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    ioDispatcher: CoroutineDispatcher,
+): FiefRepository =
     ApiFiefRepository(
-        api = defaultApi(baseUrl = baseUrl, tokenStore = tokenStore),
+        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
     )

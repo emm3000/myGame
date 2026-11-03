@@ -308,6 +308,7 @@ The **sign-in and sign-up** lines shipped before this section and are recorded h
 | both | *Escribe un correo válido, como nombre@ejemplo.com.* | a malformed email: the web refuses it before any request; the api answers it as `MalformedEmail` on both sign-up routes, and Android shows it as that refusal's line |
 | sign-in | *Entra en tu feudo*, *Entrar* | the title and the submit |
 | sign-in | *¿Aún no tienes feudo?* *Crea tu cuenta* | the switch to sign-up |
+| sign-in | *Tu sesión ha terminado. Entra de nuevo en tu feudo.* | Android: the alert above the form when the api refused the session of a signed-in request (#625); never at a cold start with no session, never after *Salir* |
 | sign-up | *Funda tu feudo*, *Nombre de tu feudo*, *Crear cuenta* | the title, the fief name field and the submit |
 | sign-up | *Al menos 8 caracteres.* | the password hint |
 | sign-up | *¿Ya tienes cuenta?* *Entra* | the switch to sign-in |
