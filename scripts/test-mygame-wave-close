@@ -57,7 +57,16 @@ STUB
 write_stub docker <<'STUB'
 case "$1 $2" in
   "ps -a") awk 1 "$FAKE_STATE/containers" ;;
-  "volume ls") awk 1 "$FAKE_STATE/volumes" ;;
+  "volume ls")
+    awk -F '\t' -v dangling="$([[ " $* " == *" dangling=true "* ]] && echo 1)" '
+      FNR == NR { running[$0] = 1; next }
+      !dangling || $3 == "" || !($3 in running) { print $1 "\t" $2 }' "$FAKE_STATE/containers" "$FAKE_STATE/volumes" ;;
+  "volume inspect") awk -F '\t' -v name="$3" '$1 == name { found = 1 } END { exit !found }' "$FAKE_STATE/volumes" || { echo "Error response from daemon: get $3: no such volume" >&2; exit 1; } ;;
+  "volume rm")
+    awk -F '\t' -v name="$3" 'FNR == NR { if ($1 == name) { found = 1; holder = $3 }; next } holder != "" && $0 == holder { busy = 1 } END { exit !(found && !busy) }' "$FAKE_STATE/volumes" "$FAKE_STATE/containers" || { echo "Error response from daemon: remove $3: volume is missing or in use" >&2; exit 1; }
+    awk -F '\t' -v name="$3" '$1 != name' "$FAKE_STATE/volumes" >"$FAKE_STATE/volumes.next"
+    mv "$FAKE_STATE/volumes.next" "$FAKE_STATE/volumes"
+    echo "$3" ;;
   "rm -fv")
     shift 2
     for container in "$@"; do
@@ -96,7 +105,7 @@ build_a_live_peer() {
     printf '%s\tclaude\t%s\tclaude -n live --model opus\n' "$live_pid" "$case_dir/mygame-live"
   } >"$case_dir/state/processes"
   printf '%s\n' mygame-orch-pg mygame-live-pg >"$case_dir/state/containers"
-  : >"$case_dir/state/volumes"
+  printf 'mygame-live-pgdata\t\tmygame-live-pg\n' >"$case_dir/state/volumes"
   : >"$case_dir/state/killed"
 }
 
@@ -112,6 +121,7 @@ build_a_merged_ticket_beside_a_live_peer() {
     printf '%s\tqemu-system-aarch64\t%s\tqemu-system-aarch64 -netdev user\n' "$qemu_pid" "$case_dir/mygame-probe"
   } >>"$case_dir/state/processes"
   printf '%s\n' mygame-probe-pg mygame-probe-mail >>"$case_dir/state/containers"
+  printf 'mygame-probe-pgdata\t\tmygame-probe-pg\n' >>"$case_dir/state/volumes"
 }
 
 with_stubs() {
@@ -141,7 +151,8 @@ spares_the_emulator_under_keep_emulator_and_kills_node() {
   build_a_merged_ticket_beside_a_live_peer keep
   local output
   output=$(with_stubs scripts/mygame-wave-close probe --keep-emulator) || fail "${FUNCNAME[0]}" "$output" || return 1
-  [ "$(killed)" = "$claude_pid $node_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)"
+  [ "$(killed)" = "$claude_pid $node_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(tail -n 2 <<<"$output")" = "kept: emulator $qemu_pid in $case_dir/mygame-probe"$'\n'"orphans: none" ] || fail "${FUNCNAME[0]}" "$output"
 }
 
 kills_the_emulator_without_keep_emulator() {
@@ -164,7 +175,8 @@ closes_an_already_closed_session_quietly() {
   [ "$(refs refs/heads)" = "refs/heads/chore/9-live refs/heads/trunk " ] || fail "${FUNCNAME[0]}" "local $(refs refs/heads)" || return 1
   [ "$(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)' | sort | tr '\n' ' ')" = "refs/heads/chore/9-live refs/heads/trunk " ] ||
     fail "${FUNCNAME[0]}" "origin kept $(git --git-dir="$case_dir/origin.git" for-each-ref --format='%(refname)')" || return 1
-  [ "$(sort "$case_dir/state/containers" | tr '\n' ' ')" = "mygame-live-pg mygame-orch-pg " ] || fail "${FUNCNAME[0]}" "containers $(tr '\n' ' ' <"$case_dir/state/containers")"
+  [ "$(sort "$case_dir/state/containers" | tr '\n' ' ')" = "mygame-live-pg mygame-orch-pg " ] || fail "${FUNCNAME[0]}" "containers $(tr '\n' ' ' <"$case_dir/state/containers")" || return 1
+  [ "$(cut -f 1 "$case_dir/state/volumes" | sort | tr '\n' ' ')" = "mygame-live-pgdata " ] || fail "${FUNCNAME[0]}" "volumes $(cut -f 1 "$case_dir/state/volumes" | tr '\n' ' ')"
 }
 
 orphans_names_a_stray_branch_and_fails() {
@@ -178,26 +190,32 @@ orphans_names_a_stray_branch_and_fails() {
   [ "$status" -ne 0 ] && [ "$output" = "orphan: branch stray" ] || fail "${FUNCNAME[0]}" "stray run (exit $status): $output"
 }
 
-orphans_lists_a_spared_emulator_as_kept_and_passes() {
+orphans_keeps_a_spared_emulator_only_under_keep_emulator() {
   build_a_merged_ticket_beside_a_live_peer kept
   with_stubs scripts/mygame-wave-close probe --keep-emulator >/dev/null || fail "${FUNCNAME[0]}" "close failed" || return 1
   local output status=0
-  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  output=$(with_stubs scripts/mygame-orphans --keep-emulator) || status=$?
   [ "$status" -eq 0 ] && [ "$output" = "kept: emulator $qemu_pid in $case_dir/mygame-probe"$'\n'"orphans: none" ] ||
-    fail "${FUNCNAME[0]}" "exit $status: $output"
+    fail "${FUNCNAME[0]}" "kept run (exit $status): $output" || return 1
+  status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -ne 0 ] && [ "$output" = "orphan: emulator $qemu_pid in missing $case_dir/mygame-probe" ] ||
+    fail "${FUNCNAME[0]}" "plain run (exit $status): $output"
 }
 
-orphans_reports_only_anonymous_or_mygame_dangling_volumes() {
+orphans_reports_only_mygame_dangling_volumes() {
   build_a_live_peer volumes
   local anonymous=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
   {
     printf '%s\tcom.docker.volume.anonymous=\n' "$anonymous"
+    printf 'mygame-live-scratch\t\n'
     printf 'supabase-db-pichanga\tcom.supabase.cli.project=pichanga\n'
     printf 'mygame_cache\tcom.docker.compose.project=mygame\n'
+    printf 'mygame-gone-pgdata\t\n'
   } >"$case_dir/state/volumes"
   local output status=0
   output=$(with_stubs scripts/mygame-orphans) || status=$?
-  [ "$status" -ne 0 ] && [ "$output" = "orphan: dangling volume $anonymous"$'\n'"orphan: dangling volume mygame_cache" ] ||
+  [ "$status" -ne 0 ] && [ "$output" = "orphan: dangling volume mygame_cache"$'\n'"orphan: dangling volume mygame-gone-pgdata" ] ||
     fail "${FUNCNAME[0]}" "exit $status: $output"
 }
 
@@ -237,8 +255,8 @@ run spares_the_emulator_under_keep_emulator_and_kills_node
 run kills_the_emulator_without_keep_emulator
 run closes_an_already_closed_session_quietly
 run orphans_names_a_stray_branch_and_fails
-run orphans_lists_a_spared_emulator_as_kept_and_passes
-run orphans_reports_only_anonymous_or_mygame_dangling_volumes
+run orphans_keeps_a_spared_emulator_only_under_keep_emulator
+run orphans_reports_only_mygame_dangling_volumes
 run closing_a_session_on_trunk_keeps_trunk
 run orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live
 [ "$failures" -eq 0 ]
