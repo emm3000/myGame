@@ -77,7 +77,7 @@ internal fun fief(
     slot: BuildSlot = BuildSlot.Idle,
     readAt: Instant = firstReadAt,
     buildings: List<BuildingState> = emptyList(),
-    peasants: Peasants = Peasants(free = 10, supplied = 10),
+    peasants: Peasants = Peasants(free = 10, supplied = 10, lowestFree = 10),
     queue: BuildQueue = BuildQueue(entries = emptyList(), cap = 4),
     study: StudySlot = StudySlot.Idle,
     arts: List<ArtState> = listOf(smithing(level = 0), masonry()),

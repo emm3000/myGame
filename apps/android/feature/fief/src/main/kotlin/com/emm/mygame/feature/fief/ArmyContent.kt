@@ -26,7 +26,7 @@ internal fun FiefSnapshot.armyAt(
     val context: RecruitContext = RecruitContext(
         builtLevel = builtLevel,
         amounts = amounts,
-        freePeasants = peasants.free,
+        freePeasants = peasants.lowestFree,
         isLevyRunning = levy != null,
     )
     return FiefUiState.ArmyLine(
