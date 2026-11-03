@@ -150,6 +150,7 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
 
     private fun reread() {
         val shown: MapUiState.Content = _state.value as? MapUiState.Content ?: return
+        reading?.cancel()
         reading = viewModelScope.launch {
             val answer: MapReadResult.Read = maps.read(shown.map.province) as? MapReadResult.Read ?: return@launch
             val current: MapUiState.Content = _state.value as? MapUiState.Content ?: return@launch
