@@ -293,8 +293,10 @@ it('moves focus to the province heading when a founding is sent', async () => {
   fireEvent.click(button)
 
   await screen.findByRole('status')
-  expect(document.activeElement).toBe(
-    screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+  await waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+    ),
   )
 })
 
@@ -308,5 +310,5 @@ it('keeps focus on the founding when it is refused', async () => {
   fireEvent.click(button)
 
   await screen.findByRole('alert')
-  expect(document.activeElement).toBe(button)
+  await waitFor(() => expect(document.activeElement).toBe(button))
 })

@@ -1,5 +1,5 @@
 import type { ProvinceMap } from '@mygame/contracts'
-import { act, fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -137,7 +137,7 @@ it('blocks previous on the first province and keeps focus on it', async () => {
   const previous = await pressBlocked('Provincia anterior')
 
   expect(previous.getAttribute('aria-disabled')).toBe('true')
-  expect(document.activeElement).toBe(previous)
+  await waitFor(() => expect(document.activeElement).toBe(previous))
   expect(requested).toEqual([1])
   expect((await button('Provincia siguiente')).hasAttribute('aria-disabled')).toBe(false)
 })
@@ -153,7 +153,7 @@ it('blocks next on the last province of the map and keeps focus on it', async ()
   const next = await pressBlocked('Provincia siguiente')
 
   expect(next.getAttribute('aria-disabled')).toBe('true')
-  expect(document.activeElement).toBe(next)
+  await waitFor(() => expect(document.activeElement).toBe(next))
   expect(requested).toEqual([4])
   expect((await button('Provincia anterior')).hasAttribute('aria-disabled')).toBe(false)
 })

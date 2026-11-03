@@ -196,7 +196,7 @@ it('moves focus to the slot title when the upgrade in progress is cancelled', as
 
   await press(cancelButton())
 
-  expect(document.activeElement?.textContent).toBe(copy.names.slot)
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.names.slot))
 })
 
 it('moves focus to the slot title when a waiting upgrade is cancelled', async () => {
@@ -211,7 +211,7 @@ it('moves focus to the slot title when a waiting upgrade is cancelled', async ()
 
   await press(cancelButtonOf('farm', 2))
 
-  expect(document.activeElement?.textContent).toBe(copy.names.busySlot)
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.names.busySlot))
 })
 
 it('keeps focus on Cancelar la obra when the cancel is refused', async () => {
@@ -220,7 +220,7 @@ it('keeps focus on Cancelar la obra when the cancel is refused', async () => {
 
   await press(button)
 
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })
 
 it('keeps the cancel focusable while it waits', async () => {
@@ -231,5 +231,5 @@ it('keeps the cancel focusable while it waits', async () => {
 
   expect(button.getAttribute('aria-disabled')).toBe('true')
   expect(button.hasAttribute('disabled')).toBe(false)
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })

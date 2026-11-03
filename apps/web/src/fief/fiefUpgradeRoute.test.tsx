@@ -405,7 +405,7 @@ it('keeps a blocked action in the tab order', async () => {
   const blockedButton = upgradeButtonOf('ironMine')
   blockedButton.focus()
 
-  expect(document.activeElement).toBe(blockedButton)
+  await vi.waitFor(() => expect(document.activeElement).toBe(blockedButton))
   expect(blockedButton.getAttribute('aria-disabled')).toBe('true')
 })
 

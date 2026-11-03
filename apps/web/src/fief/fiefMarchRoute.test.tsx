@@ -508,7 +508,7 @@ it('moves focus to the slot title when the march is recalled', async () => {
 
   await pressRecall()
 
-  expect(document.activeElement?.textContent).toBe(copy.march.busySlot)
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.march.busySlot))
 })
 
 it('keeps focus on Retirar la marcha when the recall is refused', async () => {
@@ -516,5 +516,5 @@ it('keeps focus on Retirar la marcha when the recall is refused', async () => {
 
   const button = await pressRecall()
 
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })

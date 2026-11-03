@@ -232,8 +232,10 @@ it('moves focus to the fief name when the digest is acknowledged', async () => {
 
   await press(acknowledgeButton())
 
-  expect(document.activeElement).toBe(
-    screen.getByRole('heading', { level: 2, name: knownFief.name }),
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 2, name: knownFief.name }),
+    ),
   )
 })
 
@@ -246,5 +248,5 @@ it('keeps focus on Entendido when the acknowledgement is refused', async () => {
 
   await press(button)
 
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })
