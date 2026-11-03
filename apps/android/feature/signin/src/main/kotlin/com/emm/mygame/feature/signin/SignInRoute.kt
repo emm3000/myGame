@@ -17,6 +17,7 @@ fun SignInRoute(
     isSessionEnded: Boolean,
     onSignedIn: () -> Unit,
     onSignUpOpen: () -> Unit,
+    onForgotPasswordOpen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignInViewModel = viewModel { SignInViewModel(sessions, isSessionEnded) },
 ) {
@@ -31,5 +32,11 @@ fun SignInRoute(
             }
         }
     }
-    SignInScreen(state = state, onIntent = viewModel::onIntent, onSignUpOpen = onSignUpOpen, modifier = modifier)
+    SignInScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onSignUpOpen = onSignUpOpen,
+        onForgotPasswordOpen = onForgotPasswordOpen,
+        modifier = modifier,
+    )
 }

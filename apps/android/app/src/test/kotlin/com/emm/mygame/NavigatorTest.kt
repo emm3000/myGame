@@ -53,6 +53,42 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the reset request above sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack).openForgotPassword()
+
+        assertEquals(listOf(signIn, Destination.ForgotPassword), backStack)
+    }
+
+    @Test
+    fun `returns to sign-in on back from the reset request`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.ForgotPassword)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `returns to the sign-in below when the reset request links to it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.ForgotPassword)
+
+        Navigator(backStack).openSignIn()
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `opens no reset request above sign-up`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
+
+        Navigator(backStack).openForgotPassword()
+
+        assertEquals(listOf(signIn, Destination.SignUp), backStack)
+    }
+
+    @Test
     fun `leaves the last screen to the system on back`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 

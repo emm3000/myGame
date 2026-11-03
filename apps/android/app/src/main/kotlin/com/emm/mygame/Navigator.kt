@@ -24,8 +24,15 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         if (backStack.lastOrNull() is Destination.SignIn) backStack.add(Destination.SignUp)
     }
 
+    fun openForgotPassword() {
+        if (backStack.lastOrNull() is Destination.SignIn) backStack.add(Destination.ForgotPassword)
+    }
+
     fun openSignIn() {
-        if (backStack.lastOrNull() == Destination.SignUp) back()
+        when (backStack.lastOrNull()) {
+            Destination.SignUp, Destination.ForgotPassword -> back()
+            else -> Unit
+        }
     }
 
     fun signedIn() {

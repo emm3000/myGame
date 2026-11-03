@@ -35,6 +35,7 @@ import com.emm.mygame.feature.chronicle.ChronicleRoute
 import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.fief.FirstFiefRoute
 import com.emm.mygame.feature.map.MapRoute
+import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
 
@@ -59,6 +60,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                     isSessionEnded = signIn.isSessionEnded,
                     onSignedIn = navigator::signedIn,
                     onSignUpOpen = navigator::openSignUp,
+                    onForgotPasswordOpen = navigator::openForgotPassword,
                 )
             }
             entry<Destination.SignUp> {
@@ -67,6 +69,9 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                     onSignedIn = navigator::signedIn,
                     onSignInOpen = navigator::openSignIn,
                 )
+            }
+            entry<Destination.ForgotPassword> {
+                ForgotPasswordRoute(sessions = application.sessions, onSignInOpen = navigator::openSignIn)
             }
             entry<Destination.FirstFief> {
                 FirstFiefRoute(listings = application.listings, onOpen = navigator::firstFiefOpened)

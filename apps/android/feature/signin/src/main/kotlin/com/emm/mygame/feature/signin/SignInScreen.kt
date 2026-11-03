@@ -21,6 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.RefusalKind
@@ -30,6 +31,7 @@ fun SignInScreen(
     state: SignInUiState,
     onIntent: (SignInIntent) -> Unit,
     onSignUpOpen: () -> Unit,
+    onForgotPasswordOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -44,7 +46,12 @@ fun SignInScreen(
     ) {
         when (state) {
             SignInUiState.CheckingSession -> CheckingSession()
-            is SignInUiState.Form -> SignInForm(form = state, onIntent = onIntent, onSignUpOpen = onSignUpOpen)
+            is SignInUiState.Form -> SignInForm(
+                form = state,
+                onIntent = onIntent,
+                onSignUpOpen = onSignUpOpen,
+                onForgotPasswordOpen = onForgotPasswordOpen,
+            )
         }
     }
 }
@@ -66,6 +73,7 @@ private fun SignInForm(
     form: SignInUiState.Form,
     onIntent: (SignInIntent) -> Unit,
     onSignUpOpen: () -> Unit,
+    onForgotPasswordOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isSubmitting: Boolean = form.status == SignInUiState.FormStatus.Submitting
@@ -97,6 +105,10 @@ private fun SignInForm(
                 isBusy = isSubmitting,
                 busyDescription = stringResource(R.string.sign_in_submitting),
                 onClick = { onIntent(SignInIntent.SubmitTapped) },
+            )
+            MyGameTextLink(
+                label = stringResource(R.string.sign_in_forgot_password),
+                onClick = { if (form.canSwitchToSignUp) onForgotPasswordOpen() },
             )
             AuthSwitch(
                 prompt = stringResource(R.string.sign_in_switch_prompt),

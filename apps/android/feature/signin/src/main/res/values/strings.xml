@@ -14,6 +14,15 @@
     <string name="sign_in_retry">Volver a intentarlo</string>
     <string name="sign_in_switch_prompt">¿Aún no tienes feudo?</string>
     <string name="sign_in_switch_link">Crea tu cuenta</string>
+    <string name="sign_in_forgot_password">¿Has olvidado tu contraseña?</string>
+    <string name="forgot_password_title">Recupera tu contraseña</string>
+    <string name="forgot_password_email">Correo</string>
+    <string name="forgot_password_submit">Enviar enlace</string>
+    <string name="forgot_password_sending">Enviando</string>
+    <string name="forgot_password_confirmation">Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.</string>
+    <string name="forgot_password_malformed_email">Escribe un correo válido, como nombre@ejemplo.com.</string>
+    <string name="forgot_password_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="forgot_password_to_sign_in">Entra en tu feudo</string>
     <string name="sign_up_title">Funda tu feudo</string>
     <string name="sign_up_fief_name">Nombre de tu feudo</string>
     <string name="sign_up_password_hint">Al menos 8 caracteres.</string>
