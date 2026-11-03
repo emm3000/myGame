@@ -92,7 +92,7 @@ class FiefViewModel(
         projection = viewModelScope.launch {
             when (val answer: FiefReadResult = fiefs.read()) {
                 FiefReadResult.Unreachable -> _state.value = FiefUiState.Failed
-                is FiefReadResult.Read -> project(answer.fief)
+                is FiefReadResult.Read -> project(measured(answer.fief))
             }
         }
     }
@@ -228,7 +228,7 @@ class FiefViewModel(
     private suspend fun rereadIf(isNeeded: Boolean, answered: () -> Mutations, unanswered: () -> Mutations) {
         if (!isNeeded) return draw(unanswered())
         when (val answer: FiefReadResult = fiefs.read()) {
-            is FiefReadResult.Read -> restartFrom(answer.fief, answered())
+            is FiefReadResult.Read -> restartFrom(measured(answer.fief), answered())
             FiefReadResult.Unreachable -> draw(unanswered())
         }
     }
@@ -248,13 +248,11 @@ class FiefViewModel(
 
     private suspend fun project(first: FiefSnapshot) {
         var snapshot: FiefSnapshot = first
-        gap = serverGapOf(snapshot)
         while (true) {
             if (snapshot.nextFinishAt(clock.now() + gap) == Duration.ZERO) {
                 val answer: FiefReadResult = fiefs.read()
                 if (answer is FiefReadResult.Read) {
-                    snapshot = answer.fief
-                    gap = serverGapOf(snapshot)
+                    snapshot = measured(answer.fief)
                     mutations = mutations.keptAfterRead()
                 }
             }
@@ -272,5 +270,8 @@ class FiefViewModel(
         army = army?.copy(recruit = next.recruit, recall = next.recall),
     )
 
-    private fun serverGapOf(snapshot: FiefSnapshot): Duration = snapshot.readAt - clock.now()
+    private fun measured(read: FiefSnapshot): FiefSnapshot {
+        gap = read.readAt - clock.now()
+        return read
+    }
 }

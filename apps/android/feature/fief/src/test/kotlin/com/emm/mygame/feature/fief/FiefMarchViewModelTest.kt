@@ -17,6 +17,7 @@ import com.emm.mygame.core.projection.MarchPhase
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -210,6 +211,28 @@ class FiefMarchViewModelTest {
     }
 
     @Test
+    fun `projects the recall's answer at the clock the last read measured, not at its stored instant`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val foraging: AwayMarch = forageOfInfantry(count = 12, arrivesIn = (-5).minutes, foragesFor = 60.minutes)
+        val turnedBack: AwayMarch = foraging.copy(
+            leavesAt = firstReadAt,
+            returnsAt = firstReadAt + 6.minutes,
+            recalledAt = firstReadAt,
+        )
+        val storedBeforeTheDeparture: Instant = foraging.departedAt - 10.minutes
+        fiefs.answerRead(FiefReadResult.Read(marching(foraging)))
+        fiefs.answerMarch(MarchResult.Answered(marching(turnedBack, readAt = storedBeforeTheDeparture)))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.RecallTapped(foraging.departedAt))
+            val recalled: FiefUiState.Content = awaitContentWhere { it.army?.recall == FiefUiState.RecallStatus.Idle }
+            assertEquals(MarchPhase.Returning to 6.minutes, busyMarch(recalled).phase to busyMarch(recalled).remaining)
+        }
+    }
+
+    @Test
     fun `draws the refusal of a march already returning`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)
@@ -263,7 +286,8 @@ class FiefMarchViewModelTest {
     private fun busyMarch(content: FiefUiState.Content): FiefUiState.MarchSlotLine.Busy =
         content.army?.march as FiefUiState.MarchSlotLine.Busy
 
-    private fun marching(march: AwayMarch?): FiefSnapshot = fief(
+    private fun marching(march: AwayMarch?, readAt: Instant = firstReadAt): FiefSnapshot = fief(
+        readAt = readAt,
         buildings = listOf(barracks(level = 1)),
         units = army(infantryAtHome = 4, infantryAway = march?.units?.first()?.count ?: 0),
         march = march,
