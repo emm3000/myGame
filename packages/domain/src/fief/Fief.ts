@@ -305,7 +305,7 @@ const campTiers: ReadonlyArray<number> = [1, 2, 3]
 
 const validateAttack = (march: AttackMarch): Result<void, DomainError> => {
   if (march.stayHours !== 0) {
-    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours, maxStayHours: undefined })
   }
   const { tier, strength } = march.camp
   if (!campTiers.includes(tier) || !isWholeLevel(strength)) {
@@ -316,7 +316,7 @@ const validateAttack = (march: AttackMarch): Result<void, DomainError> => {
 
 const validateFounding = (march: FoundingMarch): Result<void, DomainError> => {
   if (march.stayHours !== 0) {
-    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours, maxStayHours: undefined })
   }
   const strayUnit = unitKinds.find((unit) => march.units[unit] !== foundingParty[unit])
   if (strayUnit !== undefined) {
@@ -335,7 +335,7 @@ const refuseInvalidCargo = (cargo: Stocks): Result<void, DomainError> => {
 
 const validateTransport = (march: TransportMarch): Result<void, DomainError> => {
   if (march.stayHours !== 0) {
-    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+    return err({ kind: 'StayOutOfRange', stayHours: march.stayHours, maxStayHours: undefined })
   }
   const fit = refuseUnfitUnits(march.units, 'transport')
   if (!fit.ok) {
@@ -349,7 +349,7 @@ const validateOrder = (march: AwayMarch): Result<void, DomainError> => {
     case 'forage':
       return isWholeFromOne(march.stayHours)
         ? ok(undefined)
-        : err({ kind: 'StayOutOfRange', stayHours: march.stayHours })
+        : err({ kind: 'StayOutOfRange', stayHours: march.stayHours, maxStayHours: undefined })
     case 'attack':
       return validateAttack(march)
     case 'found':
@@ -983,7 +983,7 @@ export class Fief {
       return fit
     }
     if (!isWholeFromOne(stayHours) || stayHours > maxStayHours) {
-      return err({ kind: 'StayOutOfRange', stayHours })
+      return err({ kind: 'StayOutOfRange', stayHours, maxStayHours })
     }
     return this.refuseBusyMarchSlot()
   }

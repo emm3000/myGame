@@ -53,7 +53,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
     'A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.',
   NotEnoughUnitsAtHome: 'No tienes en casa los hombres que pide esa marcha. Ajusta la marcha.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
-  StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
+  StayOutOfRange: unexpectedRefusal,
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
@@ -496,6 +496,8 @@ export const copy = {
     invalidCount: 'Un número entero, 0 o más.',
     emptyParty,
     invalidHours: (maxStayHours: number): string => `Un número entero, de 1 a ${maxStayHours}.`,
+    stayOutOfRange: (maxStayHours: number): string =>
+      `Una marcha forrajea de 1 a ${maxStayHours} horas enteras. Ajusta las horas.`,
     notEnoughAtHome: (unit: UnitKind, needed: number, atHome: number): string =>
       `Necesitas ${countedUnits(unit, needed)} en casa y tienes ${atHome}.`,
   },

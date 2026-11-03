@@ -12,11 +12,14 @@ type FiefCapReached = Extract<Refusal, { readonly kind: 'FiefCapReached' }>
 
 type CargoAboveCarry = Extract<Refusal, { readonly kind: 'CargoAboveCarry' }>
 
+type StayOutOfRange = Extract<Refusal, { readonly kind: 'StayOutOfRange' }>
+
 type SlottedKind =
   | UnitsShortAtHome['kind']
   | BarracksTooLow['kind']
   | FiefCapReached['kind']
   | CargoAboveCarry['kind']
+  | StayOutOfRange['kind']
 
 type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
 
@@ -51,6 +54,9 @@ const fiefCapReachedLineOf = ({ cap }: FiefCapReached): string =>
 const cargoAboveCarryLineOf = ({ cargo, carry }: CargoAboveCarry): string =>
   `La carga suma ${cargo} y tus hombres llevan hasta ${carry}. Quita carga o envía más hombres.`
 
+const stayOutOfRangeLineOf = (maxStayHours: number): string =>
+  `Una marcha forrajea de 1 a ${maxStayHours} horas enteras. Ajusta las horas.`
+
 const messages: Readonly<Record<SlotlessKind, string>> = {
   InvalidCredentials: 'El correo o la contraseña no son correctos.',
   EmailTaken: 'Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.',
@@ -77,7 +83,6 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   MarchToOwnPlot:
     'A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.',
   MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
-  StayOutOfRange: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
   MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
   MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
@@ -134,7 +139,6 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   InvalidBuildingLevel: internalFailure,
   SlotFinishesBeforeStored: internalFailure,
   SlotStartsAfterFinish: internalFailure,
-  StayOutOfRange: { status: 409, kind: 'StayOutOfRange' },
   MarchSlotBusy: { status: 409, kind: 'MarchSlotBusy' },
   MarchNotFound: { status: 409, kind: 'MarchNotFound' },
   MarchAlreadyReturning: { status: 409, kind: 'MarchAlreadyReturning' },
@@ -148,6 +152,14 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   EmptyCargo: { status: 409, kind: 'EmptyCargo' },
   InvalidCamp: internalFailure,
   InvalidLootPercent: internalFailure,
+}
+
+const stayOutOfRangeAnswerOf = (c: Context, { kind, maxStayHours }: StayOutOfRange): Response => {
+  if (maxStayHours === undefined) {
+    return c.body(null, internalFailure.status)
+  }
+  const body: ApiError = { kind, message: stayOutOfRangeLineOf(maxStayHours) }
+  return c.json(body, 409)
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {
@@ -166,6 +178,9 @@ export const answerRefusal = (c: Context, refusal: Refusal): Response => {
   if (refusal.kind === 'CargoAboveCarry') {
     const body: ApiError = { kind: refusal.kind, message: cargoAboveCarryLineOf(refusal) }
     return c.json(body, 409)
+  }
+  if (refusal.kind === 'StayOutOfRange') {
+    return stayOutOfRangeAnswerOf(c, refusal)
   }
   const { status, kind } = answers[refusal.kind]
   if (kind === undefined) {

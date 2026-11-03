@@ -470,11 +470,26 @@ describe('dispatchMarch', () => {
     const longest = await dispatchMarch({ ...tenInfantryForTwoHours, stayHours: 8 }, dependencies)
 
     expect(stays).toEqual([
-      err({ kind: 'StayOutOfRange', stayHours: 0 }),
-      err({ kind: 'StayOutOfRange', stayHours: 9 }),
-      err({ kind: 'StayOutOfRange', stayHours: 1.5 }),
+      err({ kind: 'StayOutOfRange', stayHours: 0, maxStayHours: 8 }),
+      err({ kind: 'StayOutOfRange', stayHours: 9, maxStayHours: 8 }),
+      err({ kind: 'StayOutOfRange', stayHours: 1.5, maxStayHours: 8 }),
     ])
     assert(longest.ok)
+  })
+
+  it('names the content longest stay when it refuses a stay above it', async () => {
+    const sixHourForage: FiefSettings = {
+      ...fiefSettings,
+      forage: { ...plainForage, maxStayHours: 6 },
+    }
+    const sixHourCatalog: BuildingCatalog = { ...catalog, fiefSettings: () => sixHourForage }
+
+    const refusal = await dispatchMarch(
+      { ...tenInfantryForTwoHours, stayHours: 7 },
+      { ...dependenciesOver(storedFief({})), catalog: sixHourCatalog },
+    )
+
+    expect(refusal).toEqual(err({ kind: 'StayOutOfRange', stayHours: 7, maxStayHours: 6 }))
   })
 
   it('refuses a province past the last held one plus one', async () => {

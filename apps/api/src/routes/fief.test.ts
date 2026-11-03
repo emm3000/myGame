@@ -10,6 +10,7 @@ import {
   ProvinceMapSchema,
 } from '@mygame/contracts'
 import {
+  type BuildingCatalog,
   type Clock,
   Coordinates,
   campOf,
@@ -2626,6 +2627,30 @@ describe('the fief route', () => {
       expect(await refusalOf(response)).toEqual({
         kind: 'StayOutOfRange',
         message: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
+      })
+    })
+
+    it('names the content longest stay when it refuses a stay above it', async () => {
+      const shippedSettings = server.buildingCatalog.fiefSettings()
+      const sixHourCatalog: BuildingCatalog = {
+        ...server.buildingCatalog,
+        fiefSettings: () => ({
+          ...shippedSettings,
+          forage: { ...shippedSettings.forage, maxStayHours: 6 },
+        }),
+      }
+      app = createApp({ ...server, clock, buildingCatalog: sixHourCatalog })
+      const ana = await signUpWithFiveInfantry()
+
+      const response = await march(ana, {
+        ...fiveInfantryToProvinceTwoPlotFive,
+        stayHours: 7,
+      })
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'StayOutOfRange',
+        message: 'Una marcha forrajea de 1 a 6 horas enteras. Ajusta las horas.',
       })
     })
 
