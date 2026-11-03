@@ -9,6 +9,8 @@ sealed interface FiefIntent {
 
     data object ScreenShown : FiefIntent
 
+    data object ScreenHidden : FiefIntent
+
     data object RetryTapped : FiefIntent
 
     data object SignOutTapped : FiefIntent

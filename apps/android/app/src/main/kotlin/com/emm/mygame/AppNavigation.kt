@@ -65,6 +65,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                         fiefs = application.fiefs,
                         sessions = application.sessions,
                         clock = application.clock,
+                        onSigningOut = navigator::signingOut,
                         onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                     )
                 }
@@ -99,16 +100,19 @@ private fun SignedInFrame(
             MyGameNavigationItem(
                 label = stringResource(R.string.navigation_fief),
                 isCurrent = current == Destination.Fief,
+                isEnabled = navigator.areTabsEnabled,
                 onClick = navigator::openFief,
             )
             MyGameNavigationItem(
                 label = stringResource(R.string.navigation_map),
                 isCurrent = current == Destination.Map,
+                isEnabled = navigator.areTabsEnabled,
                 onClick = navigator::openMap,
             )
             MyGameNavigationItem(
                 label = stringResource(R.string.navigation_chronicle),
                 isCurrent = current == Destination.Chronicle,
+                isEnabled = navigator.areTabsEnabled,
                 onClick = navigator::openChronicle,
             )
         }

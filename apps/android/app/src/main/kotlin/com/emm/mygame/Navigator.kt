@@ -1,9 +1,19 @@
 package com.emm.mygame
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>) {
+
+    var areTabsEnabled: Boolean by mutableStateOf(true)
+        private set
+
+    fun signingOut() {
+        areTabsEnabled = false
+    }
 
     fun back() {
         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
@@ -22,6 +32,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedOut(isSessionEnded: Boolean) {
+        areTabsEnabled = true
         showAlone(Destination.SignIn(isSessionEnded = isSessionEnded))
     }
 
@@ -44,6 +55,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     private fun openTab(tab: Destination) {
         val top: NavKey? = backStack.lastOrNull()
         when {
+            !areTabsEnabled -> Unit
             top == tab -> Unit
             top == Destination.Fief -> backStack.add(tab)
             top in tabsAboveFief -> backStack[backStack.lastIndex] = tab

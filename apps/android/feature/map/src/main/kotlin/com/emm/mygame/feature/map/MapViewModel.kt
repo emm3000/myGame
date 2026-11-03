@@ -14,6 +14,7 @@ import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.PlotHolder
 import com.emm.mygame.core.network.ProvinceMap
 import com.emm.mygame.core.network.UnitCount
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,8 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
     private var choice: MarchChoice? = null
 
     private var sent: MapUiState.SentMarch? = null
+
+    private var reading: Job? = null
 
     init {
         read(ProvinceRequest.Own)
@@ -117,6 +120,7 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
                     choice = null
                     sent = answer.fief.sentMarch()
                     redraw()
+                    reread()
                 }
                 is MarchResult.Refused -> answerSend(open, read.refusedStatusOf(open, answer.refusal))
                 MarchResult.Unreachable -> answerSend(open, MapUiState.SendStatus.Unreachable)
@@ -144,7 +148,17 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
         redraw()
     }
 
+    private fun reread() {
+        val shown: MapUiState.Content = _state.value as? MapUiState.Content ?: return
+        reading = viewModelScope.launch {
+            val answer: MapReadResult.Read = maps.read(shown.map.province) as? MapReadResult.Read ?: return@launch
+            val current: MapUiState.Content = _state.value as? MapUiState.Content ?: return@launch
+            _state.value = contentOf(answer.map, current.jumpEntry)
+        }
+    }
+
     private fun read(request: ProvinceRequest) {
+        reading?.cancel()
         _state.value = MapUiState.Loading
         choice = null
         sent = null

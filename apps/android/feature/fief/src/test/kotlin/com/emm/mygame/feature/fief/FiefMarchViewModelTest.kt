@@ -113,6 +113,7 @@ class FiefMarchViewModelTest {
 
         viewModel.state.test {
             assertEquals(FiefUiState.MarchSlotLine.Idle, awaitContent().army?.march)
+            viewModel.onIntent(FiefIntent.ScreenHidden)
             viewModel.onIntent(FiefIntent.ScreenShown)
             assertEquals(MarchPhase.Outbound, busyMarch(awaitContent()).phase)
         }

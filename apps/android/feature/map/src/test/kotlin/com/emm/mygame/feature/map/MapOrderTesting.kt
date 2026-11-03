@@ -11,8 +11,8 @@ internal fun openOrdersOn(
     fiefs: FakeFiefRepository,
     read: FiefSnapshot = fief(),
     province: ProvinceMap = ordersProvince,
+    maps: FakeMapRepository = FakeMapRepository(),
 ): MapViewModel {
-    val maps: FakeMapRepository = FakeMapRepository()
     fiefs.answerRead(FiefReadResult.Read(read))
     val viewModel: MapViewModel = MapViewModel(maps, fiefs)
     maps.answerRead(MapReadResult.Read(province))

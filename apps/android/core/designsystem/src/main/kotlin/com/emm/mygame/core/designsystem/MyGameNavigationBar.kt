@@ -33,6 +33,7 @@ fun MyGameNavigationBar(modifier: Modifier = Modifier, content: @Composable RowS
 fun RowScope.MyGameNavigationItem(
     label: String,
     isCurrent: Boolean,
+    isEnabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -41,7 +42,7 @@ fun RowScope.MyGameNavigationItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .weight(1f)
-            .selectable(selected = isCurrent, role = Role.Tab, onClick = onClick),
+            .selectable(selected = isCurrent, enabled = isEnabled, role = Role.Tab, onClick = onClick),
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -52,7 +53,11 @@ fun RowScope.MyGameNavigationItem(
                 style = MyGameTypography.action.copy(
                     fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                 ),
-                color = if (isCurrent) colors.river else colors.ink,
+                color = when {
+                    !isEnabled -> colors.inkMuted
+                    isCurrent -> colors.river
+                    else -> colors.ink
+                },
             )
         }
         Box(

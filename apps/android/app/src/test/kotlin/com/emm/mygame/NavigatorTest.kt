@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Test
 
@@ -149,6 +150,40 @@ class NavigatorTest {
         Navigator(backStack).back()
 
         assertEquals(listOf(Destination.Fief), backStack)
+    }
+
+    @Test
+    fun `leaves the back stack unchanged when the map or the chronicle is tapped while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief)
+        val navigator: Navigator = Navigator(backStack)
+
+        navigator.signingOut()
+        navigator.openMap()
+        navigator.openChronicle()
+
+        assertEquals(listOf(Destination.Fief), backStack)
+    }
+
+    @Test
+    fun `disables the tabs while signing out`() {
+        val navigator: Navigator = Navigator(mutableListOf(Destination.Fief))
+
+        navigator.signingOut()
+
+        assertFalse(navigator.areTabsEnabled)
+    }
+
+    @Test
+    fun `enables the tabs again for the next session`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+        navigator.signedOut(isSessionEnded = false)
+
+        navigator.signedIn()
+        navigator.openMap()
+
+        assertEquals(true to listOf(Destination.Fief, Destination.Map), navigator.areTabsEnabled to backStack)
     }
 
     @Test
