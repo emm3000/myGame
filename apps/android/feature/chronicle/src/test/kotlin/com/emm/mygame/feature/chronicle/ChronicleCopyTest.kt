@@ -101,6 +101,28 @@ class ChronicleCopyTest {
     }
 
     @Test
+    fun `marks each amount sent where its words start`() {
+        val heavyCargo: ChronicleEvent = ChronicleEvent.TransportSent(
+            plot = plot,
+            fiefName = "Sotoverde del Páramo",
+            cargo = amounts(stone = 1200, food = 50),
+            occurredAt = anInstant,
+        )
+
+        assertEquals(
+            listOf(AmountMark(ResourceKind.Stone, start = 7), AmountMark(ResourceKind.Food, start = 25)),
+            resources.amountMarksOf(heavyCargo),
+        )
+    }
+
+    @Test
+    fun `marks no amount when every amount is zero`() {
+        val emptyRefund: ChronicleEvent = cancelledFarm(refund = amounts())
+
+        assertEquals(emptyList<AmountMark>(), resources.amountMarksOf(emptyRefund))
+    }
+
+    @Test
     fun `shows the year of an instant from an earlier year`() {
         val lastYear: ChronicleInstant =
             ChronicleInstant(ChronicleInstant.Day.EarlierYear, LocalDateTime.of(2025, 9, 28, 15, 16))
