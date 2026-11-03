@@ -2,13 +2,18 @@ package com.emm.mygame.feature.map
 
 import com.emm.mygame.core.network.AwayMarch
 import com.emm.mygame.core.network.FiefId
+import com.emm.mygame.core.network.MapPlot
+import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.MarchOrder
 import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.MarchResult
 import com.emm.mygame.core.network.PlotAddress
+import com.emm.mygame.core.network.PlotHolder
+import com.emm.mygame.core.network.ProvinceMap
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.testing.FakeFiefRepository
+import com.emm.mygame.core.testing.FakeMapRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.test.runTest
@@ -23,6 +28,9 @@ class MapFoundingViewModelTest {
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
     private val freePlot: PlotAddress = PlotAddress(province = 3, plot = 7)
+
+    private val sentFounding: AwayMarch =
+        awayOn(MarchOrder.Found, freePlot, listOf(UnitCount(UnitKind.Settler, 1))).copy(foundingName = "Vega")
 
     @Test
     fun `offers a founding only with a settler at home`() = runTest {
@@ -156,6 +164,40 @@ class MapFoundingViewModelTest {
     }
 
     @Test
+    fun `reads the province again after an answered send with the sent line still drawn`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val maps: FakeMapRepository = FakeMapRepository()
+        val viewModel: MapViewModel = openOrdersOn(fiefs, maps = maps)
+        viewModel.onIntent(MapIntent.FoundingToggled(7, proposedName = "Vega"))
+        fiefs.answerMarch(MarchResult.Answered(fief(settlersAtHome = 0, settlersAway = 1, march = sentFounding)))
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(
+            listOf<Int?>(null, 3) to MapUiState.SentFounding::class,
+            maps.requests to contentOf(viewModel).sent?.let { it::class },
+        )
+    }
+
+    @Test
+    fun `draws the founding's plot reserved once the province is read again`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val maps: FakeMapRepository = FakeMapRepository()
+        val viewModel: MapViewModel = openOrdersOn(fiefs, maps = maps)
+        viewModel.onIntent(MapIntent.FoundingToggled(7, proposedName = "Vega"))
+        fiefs.answerMarch(MarchResult.Answered(fief(settlersAtHome = 0, settlersAway = 1, march = sentFounding)))
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        maps.answerRead(MapReadResult.Read(ordersProvince.withPlot(MapPlot(7, PlotHolder.Reserved(isOwn = true)))))
+
+        val drawn: MapUiState.Content = contentOf(viewModel)
+        assertEquals(
+            PlotHolder.Reserved(isOwn = true) to MapUiState.SentFounding::class,
+            drawn.map.plots.first { it.plot == 7 }.holder to drawn.sent?.let { it::class },
+        )
+    }
+
+    @Test
     fun `keeps the api's refusal of a fief past the cap beside the founding`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs)
@@ -180,3 +222,6 @@ class MapFoundingViewModelTest {
     private fun foundingForm(viewModel: MapViewModel): MapUiState.FoundingForm =
         contentOf(viewModel).form as MapUiState.FoundingForm
 }
+
+private fun ProvinceMap.withPlot(changed: MapPlot): ProvinceMap =
+    copy(plots = plots.map { each: MapPlot -> if (each.plot == changed.plot) changed else each })

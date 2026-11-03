@@ -55,6 +55,8 @@ class FiefViewModel(
 
     private var gap: Duration = Duration.ZERO
 
+    private var isShown: Boolean = true
+
     init {
         open()
     }
@@ -62,12 +64,10 @@ class FiefViewModel(
     fun onIntent(intent: FiefIntent) {
         if (_state.value == FiefUiState.SigningOut) return
         when (intent) {
-            FiefIntent.ScreenShown -> viewModelScope.launch {
-                rereadIf(
-                    isNeeded = _state.value is FiefUiState.Content,
-                    answered = { mutations.keptAfterRead() },
-                    unanswered = { mutations },
-                )
+            FiefIntent.ScreenShown -> show()
+            FiefIntent.ScreenHidden -> {
+                isShown = false
+                projection?.cancel()
             }
             FiefIntent.RetryTapped -> open()
             FiefIntent.SignOutTapped -> signOut()
@@ -83,6 +83,19 @@ class FiefViewModel(
                 fiefs.cancelRecruit(fief.id, intent.unit, intent.startedAt)
             }
             is FiefIntent.RecallTapped -> recall(intent.departedAt)
+        }
+    }
+
+    private fun show() {
+        if (isShown) return
+        isShown = true
+        if (_state.value == FiefUiState.Loading) return open()
+        val last: FiefSnapshot = shown?.takeIf { _state.value is FiefUiState.Content } ?: return
+        viewModelScope.launch {
+            when (val answer: FiefReadResult = fiefs.read()) {
+                is FiefReadResult.Read -> restartFrom(measured(answer.fief), mutations.keptAfterRead())
+                FiefReadResult.Unreachable -> restartFrom(last, mutations)
+            }
         }
     }
 
@@ -236,7 +249,8 @@ class FiefViewModel(
     private fun restartFrom(snapshot: FiefSnapshot, kept: Mutations) {
         projection?.cancel()
         mutations = kept
-        projection = viewModelScope.launch { project(snapshot) }
+        shown = snapshot
+        if (isShown) projection = viewModelScope.launch { project(snapshot) }
     }
 
     private fun draw(next: Mutations) {
@@ -263,15 +277,15 @@ class FiefViewModel(
         }
     }
 
-    private fun FiefUiState.Content.drawn(next: Mutations): FiefUiState.Content = copy(
-        upgrade = next.upgrade,
-        cancel = next.cancel,
-        library = library?.copy(study = next.study),
-        army = army?.copy(recruit = next.recruit, recall = next.recall),
-    )
-
     private fun measured(read: FiefSnapshot): FiefSnapshot {
         gap = read.readAt - clock.now()
         return read
     }
 }
+
+private fun FiefUiState.Content.drawn(next: Mutations): FiefUiState.Content = copy(
+    upgrade = next.upgrade,
+    cancel = next.cancel,
+    library = library?.copy(study = next.study),
+    army = army?.copy(recruit = next.recruit, recall = next.recall),
+)

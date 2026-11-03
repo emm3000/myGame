@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.fief
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -18,6 +19,7 @@ fun FiefRoute(
     fiefs: FiefRepository,
     sessions: SessionRepository,
     clock: Clock,
+    onSigningOut: () -> Unit,
     onSignedOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FiefViewModel = viewModel { FiefViewModel(fiefs, sessions, clock) },
@@ -33,8 +35,14 @@ fun FiefRoute(
             }
         }
     }
-    LaunchedEffect(viewModel) {
+    DisposableEffect(viewModel) {
         viewModel.onIntent(FiefIntent.ScreenShown)
+        onDispose { viewModel.onIntent(FiefIntent.ScreenHidden) }
+    }
+    val isSigningOut: Boolean = state == FiefUiState.SigningOut
+    val currentOnSigningOut: () -> Unit by rememberUpdatedState(onSigningOut)
+    LaunchedEffect(isSigningOut) {
+        if (isSigningOut) currentOnSigningOut()
     }
     FiefScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
 }
