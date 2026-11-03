@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -19,10 +20,8 @@ import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.SignUpRefusal
 
 @Composable
@@ -65,22 +64,18 @@ private fun SignUpForm(
             isReadOnly = isSubmitting,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             onValueChange = { email: String -> onIntent(SignUpIntent.EmailChanged(email)) },
+            contentType = ContentType.EmailAddress,
         )
-        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
-            MyGameTextField(
-                value = form.password,
-                label = stringResource(R.string.sign_in_password),
-                isSecret = true,
-                isReadOnly = isSubmitting,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
-                onValueChange = { password: String -> onIntent(SignUpIntent.PasswordChanged(password)) },
-            )
-            MyGameText(
-                text = stringResource(R.string.sign_up_password_hint),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
-        }
+        MyGameTextField(
+            value = form.password,
+            label = stringResource(R.string.sign_in_password),
+            isSecret = true,
+            isReadOnly = isSubmitting,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            onValueChange = { password: String -> onIntent(SignUpIntent.PasswordChanged(password)) },
+            contentType = ContentType.NewPassword,
+            supportingText = stringResource(R.string.sign_up_password_hint),
+        )
         MyGameTextField(
             value = form.fiefName,
             label = stringResource(R.string.sign_up_fief_name),

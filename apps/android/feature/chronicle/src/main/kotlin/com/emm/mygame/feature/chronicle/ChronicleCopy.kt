@@ -4,12 +4,9 @@ import android.content.res.Resources
 import android.icu.text.ListFormatter
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
-import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.ChronicleEvent
-import com.emm.mygame.core.network.ResourceKind
-import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
 import java.time.format.DateTimeFormatter
@@ -71,22 +68,6 @@ internal fun Resources.subjectOf(event: ChronicleEvent): String = when (event) {
     is ChronicleEvent.TransportArrived -> fiefAtPlot(event.fiefName, event.plot.province, event.plot.plot)
 }
 
-internal fun Resources.amountsOf(event: ChronicleEvent): String? = when (event) {
-    is ChronicleEvent.UpgradeCancelled -> listedAmounts(event.refund, R.string.amounts_refunded)
-    is ChronicleEvent.StudyCancelled -> listedAmounts(event.refund, R.string.amounts_refunded)
-    is ChronicleEvent.RecruitsCancelled -> listedAmounts(event.refund, R.string.amounts_refunded)
-    is ChronicleEvent.MarchReturned -> listedAmounts(event.loot, R.string.amounts_received)
-    is ChronicleEvent.TransportArrived -> listedAmounts(event.cargo, R.string.amounts_received)
-    is ChronicleEvent.TransportSent -> listedAmounts(event.cargo, R.string.amounts_sent)
-    is ChronicleEvent.UpgradeFinished,
-    is ChronicleEvent.ArtLearned,
-    is ChronicleEvent.RecruitsDelivered,
-    is ChronicleEvent.BattleFought,
-    is ChronicleEvent.FoundingSent,
-    is ChronicleEvent.FiefFounded,
-    -> null
-}
-
 private fun Resources.buildingSubject(building: BuildingKind, level: Int): String =
     getString(R.string.subject_level, getString(buildingLabelOf(building)), level)
 
@@ -116,14 +97,7 @@ private fun Resources.lossesClause(unitsLost: List<UnitCount>): String {
     }
 }
 
-private fun Resources.listedAmounts(amounts: List<ResourceQuantity>, @StringRes sentence: Int): String? {
-    val listed: List<String> = amounts.filter { it.amount > 0 }.map { quantity: ResourceQuantity ->
-        getString(quantityLabelOf(quantity.kind), formatQuantity(quantity.amount))
-    }
-    return if (listed.isEmpty()) null else getString(sentence, spanishList(listed))
-}
-
-private fun spanishList(items: List<String>): String = spanishListFormat.format(items)
+internal fun spanishList(items: List<String>): String = spanishListFormat.format(items)
 
 private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -154,13 +128,4 @@ private fun unitLabelOf(unit: UnitKind): Int = when (unit) {
     UnitKind.Cavalry -> R.plurals.units_cavalry
     UnitKind.Archer -> R.plurals.units_archer
     UnitKind.Settler -> R.plurals.units_settler
-}
-
-@StringRes
-private fun quantityLabelOf(resource: ResourceKind): Int = when (resource) {
-    ResourceKind.Wood -> R.string.quantity_wood
-    ResourceKind.Stone -> R.string.quantity_stone
-    ResourceKind.Iron -> R.string.quantity_iron
-    ResourceKind.Gold -> R.string.quantity_gold
-    ResourceKind.Food -> R.string.quantity_food
 }

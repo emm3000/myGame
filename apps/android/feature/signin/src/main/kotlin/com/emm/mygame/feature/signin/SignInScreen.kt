@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -79,6 +80,7 @@ private fun SignInForm(
                 isReadOnly = isSubmitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 onValueChange = { email: String -> onIntent(SignInIntent.EmailChanged(email)) },
+                contentType = ContentType.EmailAddress,
             )
             MyGameTextField(
                 value = form.password,
@@ -87,6 +89,7 @@ private fun SignInForm(
                 isReadOnly = isSubmitting,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                 onValueChange = { password: String -> onIntent(SignInIntent.PasswordChanged(password)) },
+                contentType = ContentType.Password,
             )
             FormStatusMessage(status = form.status, onIntent = onIntent)
             MyGameButton(

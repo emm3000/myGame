@@ -15,9 +15,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -32,6 +34,8 @@ fun MyGameTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    contentType: ContentType? = null,
+    supportingText: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
@@ -49,17 +53,26 @@ fun MyGameTextField(
             visualTransformation = if (isSecret) PasswordVisualTransformation() else VisualTransformation.None,
             modifier = Modifier
                 .fillMaxWidth()
-                .semantics { contentDescription = label },
+                .semantics {
+                    contentDescription = label
+                    if (contentType != null) this.contentType = contentType
+                },
             decorationBox = { field ->
-                Box(
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier
-                        .defaultMinSize(minHeight = MyGameSizes.control)
-                        .background(colors.surfaceRaised, shape)
-                        .border(MyGameSizes.hairline, colors.lineStrong, shape)
-                        .padding(horizontal = MyGameSpacing.step3),
-                ) {
-                    field()
+                Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = MyGameSizes.control)
+                            .background(colors.surfaceRaised, shape)
+                            .border(MyGameSizes.hairline, colors.lineStrong, shape)
+                            .padding(horizontal = MyGameSpacing.step3),
+                    ) {
+                        field()
+                    }
+                    if (supportingText != null) {
+                        MyGameText(text = supportingText, style = MyGameTypography.body, color = colors.inkMuted)
+                    }
                 }
             },
         )

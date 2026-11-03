@@ -13,6 +13,12 @@ fun MyGameText(text: String, style: TextStyle, color: Color, modifier: Modifier 
 }
 
 @Composable
-fun MyGameText(text: AnnotatedString, style: TextStyle, color: Color, modifier: Modifier = Modifier) {
-    BasicText(text = text, style = style.copy(color = color), modifier = modifier)
+fun MyGameText(
+    text: AnnotatedString,
+    style: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier,
+    inlineContent: MyGameInlineContent = noInlineContent,
+) {
+    BasicText(text = text, style = style.copy(color = color), modifier = modifier, inlineContent = inlineContent.byId)
 }
