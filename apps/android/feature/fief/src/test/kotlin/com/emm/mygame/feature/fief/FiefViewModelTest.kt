@@ -422,7 +422,7 @@ class FiefViewModelTest {
         viewModel.state.test {
             val card: FiefUiState.BuildingCard = awaitContent().buildings.single()
             val ironShort: FiefUiState.Shortfall = FiefUiState.Shortfall(ResourceKind.Iron, 15)
-            assertEquals(FiefUiState.BlockReason.Resources(listOf(ironShort)), card.block)
+            assertEquals(FiefUiState.BlockReason.Resources(listOf(ironShort), ready = null), card.block)
             assertTrue(card.next?.costs?.single { it.kind == ResourceKind.Iron }?.isShort == true)
         }
     }

@@ -17,6 +17,7 @@ import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -319,6 +320,38 @@ class FiefLibraryViewModelTest {
                     listOf(
                         FiefUiState.Shortfall(ResourceKind.Iron, 50),
                         FiefUiState.Shortfall(ResourceKind.Gold, 60),
+                    ),
+                    ready = null,
+                ),
+                awaitContent().smithingBlock(),
+            )
+        }
+    }
+
+    @Test
+    fun `reads lista with the clock on an art card when only resources are short`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val goldComing: FiefSnapshot = fief(
+            resources = ResourceKind.entries.map { kind: ResourceKind ->
+                if (kind == ResourceKind.Gold) {
+                    StoredResource(kind, amount = 20, ratePerHour = 10.0, capacity = 1000)
+                } else {
+                    stored(kind, 500)
+                }
+            },
+            buildings = listOf(library(level = 1)),
+            arts = listOf(smithing(level = 0)),
+        )
+        fiefs.answerRead(FiefReadResult.Read(goldComing))
+
+        viewModel.state.test {
+            assertEquals(
+                FiefUiState.BlockReason.Resources(
+                    shortfalls = listOf(FiefUiState.Shortfall(ResourceKind.Gold, 40)),
+                    ready = FiefUiState.ReadyHour.AtClock(
+                        readyAt = Instant.parse("1970-01-01T04:17:00Z"),
+                        remaining = 4.hours + 20.seconds,
                     ),
                 ),
                 awaitContent().smithingBlock(),

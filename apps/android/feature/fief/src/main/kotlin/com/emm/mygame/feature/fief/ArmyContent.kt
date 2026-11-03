@@ -16,12 +16,13 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 internal fun FiefSnapshot.armyAt(
-    now: Instant,
+    accrual: Accrual,
     amounts: Map<ResourceKind, Long>,
     mutations: Mutations,
 ): FiefUiState.ArmyLine? {
     val builtLevel: Int = barracksLevel()
     if (builtLevel < 1) return null
+    val now: Instant = accrual.now
     val levy: RecruitOrder? = recruitOrder
     val deliveredSinceRead: Int = levy?.let { order: RecruitOrder -> order.deliveredAt(now) - order.delivered } ?: 0
     val context: RecruitContext = RecruitContext(
@@ -29,6 +30,7 @@ internal fun FiefSnapshot.armyAt(
         amounts = amounts,
         freePeasants = peasants.lowestFree,
         isLevyRunning = levy != null,
+        accrual = accrual,
     )
     return FiefUiState.ArmyLine(
         slot = levy?.let { order: RecruitOrder -> levySlotOf(order, now) } ?: FiefUiState.LevySlotLine.Idle,
@@ -58,6 +60,7 @@ private data class RecruitContext(
     val amounts: Map<ResourceKind, Long>,
     val freePeasants: Int,
     val isLevyRunning: Boolean,
+    val accrual: Accrual,
 )
 
 private fun FiefSnapshot.barracksLevel(): Int =
@@ -123,13 +126,11 @@ private fun RecruitTerms.lineFor(count: Int, context: RecruitContext): FiefUiSta
 
 private fun RecruitTerms.blockFor(count: Int?, context: RecruitContext): FiefUiState.RecruitBlock? {
     val needed: Int = peasants * (count ?: 0)
-    val shortfalls: List<FiefUiState.Shortfall> = cost.times(count ?: 0).shortfallsFrom(context.amounts)
     return when {
         context.isLevyRunning -> FiefUiState.RecruitBlock.LevyRunning
         count == null -> FiefUiState.RecruitBlock.InvalidCount
         needed > context.freePeasants -> FiefUiState.BlockReason.Peasants(needed, context.freePeasants)
-        shortfalls.isNotEmpty() -> FiefUiState.BlockReason.Resources(shortfalls)
-        else -> null
+        else -> context.accrual.resourcesBlockOf(cost = cost.times(count), amounts = context.amounts)
     }
 }
 
