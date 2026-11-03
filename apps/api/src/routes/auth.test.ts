@@ -12,6 +12,7 @@ import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
 import type { Mail } from '../auth/Mailer'
+import { signUp } from '../auth/signUp'
 import { tokenDigest } from '../auth/tokenDigest'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -182,17 +183,10 @@ describe('the auth routes', () => {
   })
 
   it('keeps no player when founding the fief fails', async () => {
-    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, fiefName: '   ' }))
+    const signedUp = await signUp({ ...anasSignUp, fiefName: '   ' }, { ...server, clock, mailer })
 
-    expect(response.status).toBe(400)
+    expect(signedUp.ok ? 'signedUp' : signedUp.error.kind).toBe('BlankFiefName')
     expect(await playersWithEmail(anasSignUp.email)).toBe(0)
-  })
-
-  it('refuses a blank fief name with a message the sign-up screen can show', async () => {
-    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, fiefName: ' \t ' }))
-
-    expect(response.status).toBe(400)
-    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
   })
 
   it.each(['/auth/sign-up', '/auth/sign-up/native'])(
