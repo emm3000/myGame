@@ -3,7 +3,6 @@ import type { Fief as FiefEntity, Stocks, StoredFief } from '../fief/Fief'
 import { Fief } from '../fief/Fief'
 import type { UnitCountsByKind } from '../fief/FiefUnitCounts'
 import { noStoreFull } from '../fief/FullSince'
-import { materializeStocks } from '../fief/materializeStocks'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -574,17 +573,13 @@ describe('the recall of a transport', () => {
   })
   it('settles the origin at the recall instant', async () => {
     const fiefs = await sentTransport()
-    const sent = fiefs.storedFiefOf('fief-1')
-    assert(sent !== undefined)
     const recallInstant = secondsAfter(dispatchInstant, 300)
 
     await recallAt(fiefs, recallInstant)
 
     const settled = fiefs.storedFiefOf('fief-1')
-    const stocksAtRecall = materializeStocks(sent, catalog, recallInstant)
-    assert(stocksAtRecall.ok)
     expect(settled?.storedAt).toEqual(recallInstant)
-    expect(settled?.stocks).toEqual(stocksAtRecall.value)
+    expect(settled?.stocks).toEqual({ wood: 200, stone: 100, iron: 80, gold: 100, food: 500 })
     expect(settled?.fullSince).toEqual(noStoreFull)
   })
   it('carries the cargo home at the return of a recall', async () => {

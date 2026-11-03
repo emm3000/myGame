@@ -2,7 +2,6 @@ import { assert, describe, expect, it } from 'vitest'
 import { campOf } from '../camp/campOf'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { noStoreFull } from '../fief/FullSince'
-import { materializeStocks } from '../fief/materializeStocks'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -181,11 +180,8 @@ describe('dispatchFounding', () => {
     await dispatchFounding(foundingOn(2, 7), dependencies)
 
     const settled = dependencies.fiefs.storedFiefOf('fief-1')
-    const stocksAtDispatch = materializeStocks(fief, catalog, dispatchInstant)
-    assert(stocksAtDispatch.ok)
     expect(settled?.storedAt).toEqual(dispatchInstant)
-    expect(settled?.stocks).toEqual(stocksAtDispatch.value)
-    expect(settled?.stocks.wood).toBe(1000)
+    expect(settled?.stocks).toEqual({ wood: 1000, stone: 110, iron: 315, gold: 102, food: 510 })
     expect(settled?.fullSince).toEqual({ ...noStoreFull, wood: woodFullAt })
   })
 
@@ -208,6 +204,18 @@ describe('dispatchFounding', () => {
       err({ kind: 'NotEnoughUnitsAtHome', unit: 'settler', count: 1, atHome: 0 }),
     )
     expect(dependencies.fiefs.storedFiefOf('fief-1')?.march).toEqual({ kind: 'idle' })
+  })
+
+  it('settles nothing on a refused founding', async () => {
+    const fief = storedFief({
+      storedAt: anHourBeforeDispatch,
+      units: { infantry: 4, cavalry: 0, archer: 0, settler: 0 },
+    })
+    const dependencies = dependenciesOver([fief])
+
+    await dispatchFounding(foundingOn(2, 7), dependencies)
+
+    expect(dependencies.fiefs.storedFiefOf('fief-1')).toBe(fief)
   })
 
   it('refuses a founding at the fief cap', async () => {
