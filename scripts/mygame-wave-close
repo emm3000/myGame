@@ -68,6 +68,11 @@ if command -v docker >/dev/null; then
     echo "removed container $container"
   done <<<"$(docker ps -a --format '{{.Names}}' 2>/dev/null |
     awk -v pg="mygame-$session-pg" -v mail="mygame-$session-mail" '$0 == pg || $0 == mail' || true)"
+  volume="mygame-$session-pgdata"
+  if docker volume inspect "$volume" >/dev/null 2>&1; then
+    docker volume rm "$volume" >/dev/null
+    echo "removed volume $volume"
+  fi
 fi
 
 porcelain=$(git -C "$repo" worktree list --porcelain)
@@ -105,4 +110,8 @@ if [ -n "$branch" ] && [ "$branch" != trunk ]; then
   fi
 fi
 
-"$repo/scripts/mygame-orphans" || echo "clean the orphans above before reporting $session as free"
+if [ "$keep_emulator" -eq 1 ]; then
+  "$repo/scripts/mygame-orphans" --keep-emulator
+else
+  "$repo/scripts/mygame-orphans"
+fi || echo "clean the orphans above before reporting $session as free"
