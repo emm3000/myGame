@@ -69,6 +69,10 @@ class FiefMarchRepositoryTest {
                 returnsAt = Instant.parse("2026-11-02T16:42:00Z"),
                 recalledAt = null,
                 loot = listOf(ResourceQuantity(ResourceKind.Wood, 42), ResourceQuantity(ResourceKind.Food, 42)),
+                camp = null,
+                isFought = false,
+                foundingName = null,
+                cargo = emptyList(),
             ),
             readFief().march,
         )
@@ -151,11 +155,13 @@ class FiefMarchRepositoryTest {
     fun `posts the forage march naming the plot, the party and the hours`() = runTest {
         api.enqueue(json(200, idleOverview()))
 
-        repository().forage(
+        repository().dispatch(
             FiefId(LISTED_FIEF_ID),
-            target = PlotAddress(province = 3, plot = 7),
-            party = listOf(UnitCount(UnitKind.Infantry, 12), UnitCount(UnitKind.Archer, 2)),
-            stayHours = 4,
+            MarchDispatch.Forage(
+                target = PlotAddress(province = 3, plot = 7),
+                party = listOf(UnitCount(UnitKind.Infantry, 12), UnitCount(UnitKind.Archer, 2)),
+                stayHours = 4,
+            ),
         )
 
         val request: RecordedRequest = api.takeRequest()
@@ -172,7 +178,8 @@ class FiefMarchRepositoryTest {
     fun `answers the overview the forage march returns`() = runTest {
         api.enqueue(json(200, idleOverview().replace(NO_MARCH, FORAGE_ON_THE_ROAD)))
 
-        val result: MarchResult = repository().forage(FiefId(LISTED_FIEF_ID), PlotAddress(1, 7), emptyList(), 1)
+        val result: MarchResult =
+            repository().dispatch(FiefId(LISTED_FIEF_ID), MarchDispatch.Forage(PlotAddress(1, 7), emptyList(), 1))
 
         assertEquals(MarchOrder.Forage, (result as MarchResult.Answered).fief.march?.order)
     }
@@ -205,13 +212,16 @@ class FiefMarchRepositoryTest {
             "UnitUnfitForOrder",
             "MarchNotFound",
             "MarchAlreadyReturning",
-            "FiefNotFound",
+            "QueueFull",
         )
         kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind","message":"No."}""")) }
         val fiefs: FiefRepository = repository()
 
         val refusals: List<MarchResult> = kinds.map {
-            fiefs.forage(FiefId(LISTED_FIEF_ID), PlotAddress(1, 7), listOf(UnitCount(UnitKind.Infantry, 1)), 1)
+            fiefs.dispatch(
+                FiefId(LISTED_FIEF_ID),
+                MarchDispatch.Forage(PlotAddress(1, 7), listOf(UnitCount(UnitKind.Infantry, 1)), 1),
+            )
         }
 
         assertEquals(
@@ -230,6 +240,166 @@ class FiefMarchRepositoryTest {
             ).map { MarchResult.Refused(it) },
             refusals,
         )
+    }
+
+    @Test
+    fun `posts the attack naming the plot and the party with no settler`() = runTest {
+        api.enqueue(json(200, idleOverview()))
+
+        repository().dispatch(
+            FiefId(LISTED_FIEF_ID),
+            MarchDispatch.Attack(
+                target = PlotAddress(province = 3, plot = 5),
+                party = listOf(UnitCount(UnitKind.Infantry, 5), UnitCount(UnitKind.Cavalry, 2)),
+            ),
+        )
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches/attack", request.url.encodedPath)
+        assertEquals(
+            """{"province":3,"plot":5,"units":{"infantry":5,"cavalry":2,"archer":0,"settler":0}}""",
+            request.body?.utf8(),
+        )
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `posts the founding naming the plot and the new fief's name`() = runTest {
+        api.enqueue(json(200, idleOverview()))
+
+        repository().dispatch(
+            FiefId(LISTED_FIEF_ID),
+            MarchDispatch.Found(target = PlotAddress(province = 3, plot = 7), name = "Vega"),
+        )
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches/found", request.url.encodedPath)
+        assertEquals("""{"province":3,"plot":7,"name":"Vega"}""", request.body?.utf8())
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `posts the transport naming the destination, the party and every resource of the cargo`() = runTest {
+        api.enqueue(json(200, idleOverview()))
+
+        repository().dispatch(
+            FiefId(LISTED_FIEF_ID),
+            MarchDispatch.Transport(
+                destination = FiefId(OTHER_FIEF_ID),
+                party = listOf(UnitCount(UnitKind.Infantry, 4)),
+                cargo = listOf(ResourceQuantity(ResourceKind.Wood, 300), ResourceQuantity(ResourceKind.Gold, 20)),
+            ),
+        )
+
+        val request: RecordedRequest = api.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches/transport", request.url.encodedPath)
+        assertEquals(
+            """{"toFiefId":"$OTHER_FIEF_ID","units":{"infantry":4,"cavalry":0,"archer":0,"settler":0},""" +
+                """"cargo":{"wood":300,"stone":0,"iron":0,"gold":20,"food":0}}""",
+            request.body?.utf8(),
+        )
+        assertEquals("Bearer opaque-session", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `reads the camp an attack marches on and whether it has fought`() = runTest {
+        enqueueFief(idleOverview().replace(NO_MARCH, ATTACK_ON_THE_ROAD.replace("\"fought\":false", "\"fought\":true")))
+
+        val march: AwayMarch? = readFief().march
+
+        assertEquals(MarchCamp(tier = 2, strength = 3) to true, march?.camp to march?.isFought)
+    }
+
+    @Test
+    fun `reads no camp on a forage march`() = runTest {
+        enqueueFief(idleOverview().replace(NO_MARCH, FORAGE_ON_THE_ROAD))
+
+        assertNull(readFief().march?.camp)
+    }
+
+    @Test
+    fun `reads the name of the fief a founding goes to found`() = runTest {
+        enqueueFief(idleOverview().replace(NO_MARCH, FOUNDING_ON_THE_ROAD))
+
+        assertEquals("Vega", readFief().march?.foundingName)
+    }
+
+    @Test
+    fun `reads the cargo a transport carries, above zero only`() = runTest {
+        enqueueFief(idleOverview().replace(NO_MARCH, TRANSPORT_ON_THE_ROAD))
+
+        assertEquals(
+            listOf(ResourceQuantity(ResourceKind.Wood, 300), ResourceQuantity(ResourceKind.Food, 50)),
+            readFief().march?.cargo,
+        )
+    }
+
+    @Test
+    fun `reads the loot each point of a camp's strength yields`() = runTest {
+        enqueueFief(idleOverview())
+
+        assertEquals(CombatTerms(lootPerStrength = 60), readFief().combatTerms)
+    }
+
+    @Test
+    fun `reads each unit's strength`() = runTest {
+        enqueueFief(idleOverview())
+
+        assertEquals(listOf(1, 2, 1, 0), readFief().units.map { it.strength })
+    }
+
+    @Test
+    fun `answers the refusal the api names for an attack, a founding or a transport`() = runTest {
+        val kinds: List<Pair<Int, String>> = listOf(
+            409 to "PlotHasNoCamp",
+            409 to "MarchToOwnPlot",
+            409 to "FiefCapReached",
+            409 to "EmptyCargo",
+            409 to "CargoAboveCarry",
+            409 to "InsufficientResources",
+            400 to "BlankFiefName",
+            404 to "FiefNotFound",
+        )
+        kinds.forEach { (code: Int, kind: String) -> api.enqueue(json(code, """{"kind":"$kind","message":"No."}""")) }
+        val fiefs: FiefRepository = repository()
+
+        val refusals: List<MarchResult> = kinds.map {
+            fiefs.dispatch(FiefId(LISTED_FIEF_ID), MarchDispatch.Found(PlotAddress(1, 7), "Vega"))
+        }
+
+        assertEquals(
+            listOf(
+                MarchRefusal.PlotHasNoCamp,
+                MarchRefusal.MarchToOwnPlot,
+                MarchRefusal.FiefCapReached,
+                MarchRefusal.EmptyCargo,
+                MarchRefusal.CargoAboveCarry,
+                MarchRefusal.InsufficientResources,
+                MarchRefusal.BlankFiefName,
+                MarchRefusal.FiefNotFound,
+            ).map { MarchResult.Refused(it) },
+            refusals,
+        )
+    }
+
+    @Test
+    fun `answers unreachable when the transport cannot reach the api`() = runTest {
+        val fiefs: FiefRepository = repository()
+        api.close()
+
+        val result: MarchResult = fiefs.dispatch(
+            FiefId(LISTED_FIEF_ID),
+            MarchDispatch.Transport(
+                FiefId(OTHER_FIEF_ID),
+                listOf(UnitCount(UnitKind.Infantry, 1)),
+                listOf(ResourceQuantity(ResourceKind.Wood, 1)),
+            ),
+        )
+
+        assertTrue(result is MarchResult.Unreachable)
     }
 
     @Test
@@ -273,6 +443,7 @@ class FiefMarchRepositoryTest {
 
     private companion object {
         const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+        const val OTHER_FIEF_ID: String = "7c1e2f4a-0b3d-4e5f-9a8b-1c2d3e4f5a6b"
         const val NO_MARCH: String = """"march":null"""
         const val FORAGE_ON_THE_ROAD: String =
             """"march":{"order":"forage","province":1,"plot":7,"terrain":"lowlands",""" +
@@ -290,5 +461,22 @@ class FiefMarchRepositoryTest {
                 """"arrivesAt":"2026-11-02T15:33:00.000Z","leavesAt":"2026-11-02T15:33:00.000Z",""" +
                 """"returnsAt":"2026-11-02T15:36:00.000Z","recalledAt":null,""" +
                 """"camp":{"tier":2,"strength":3},"fought":false}"""
+        const val FOUNDING_ON_THE_ROAD: String =
+            """"march":{"order":"found","province":1,"plot":9,"terrain":"lowlands","name":"Vega",""" +
+                """"units":{"infantry":0,"cavalry":0,"archer":0,"settler":1},"stayHours":0,""" +
+                """"departedAt":"2026-11-02T15:30:00.000Z","oneWaySeconds":480,""" +
+                """"loot":{"wood":0,"stone":0,"iron":0,"gold":0,"food":0},""" +
+                """"arrivesAt":"2026-11-02T15:38:00.000Z","leavesAt":"2026-11-02T15:38:00.000Z",""" +
+                """"returnsAt":"2026-11-02T15:46:00.000Z","recalledAt":null,""" +
+                """"camp":null,"fought":false}"""
+        const val TRANSPORT_ON_THE_ROAD: String =
+            """"march":{"order":"transport","province":2,"plot":4,"terrain":"uplands",""" +
+                """"toFiefId":"$OTHER_FIEF_ID","cargo":{"wood":300,"stone":0,"iron":0,"gold":0,"food":50},""" +
+                """"units":{"infantry":4,"cavalry":0,"archer":0,"settler":0},"stayHours":0,""" +
+                """"departedAt":"2026-11-02T15:30:00.000Z","oneWaySeconds":840,""" +
+                """"loot":{"wood":0,"stone":0,"iron":0,"gold":0,"food":0},""" +
+                """"arrivesAt":"2026-11-02T15:44:00.000Z","leavesAt":"2026-11-02T15:44:00.000Z",""" +
+                """"returnsAt":"2026-11-02T15:58:00.000Z","recalledAt":null,""" +
+                """"camp":null,"fought":false}"""
     }
 }

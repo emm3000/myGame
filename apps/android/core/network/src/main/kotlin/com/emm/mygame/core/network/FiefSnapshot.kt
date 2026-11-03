@@ -19,4 +19,5 @@ data class FiefSnapshot(
     val march: AwayMarch?,
     val forageTerms: ForageTerms,
     val season: SeasonPercents?,
+    val combatTerms: CombatTerms,
 )

@@ -2,6 +2,7 @@ package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.network.MarchCamp
 import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.RecruitRefusal
@@ -51,8 +52,11 @@ sealed interface FiefUiState {
 
         data class Busy(
             val phase: MarchPhase,
+            val heading: MarchHeading,
             val units: List<UnitCount>,
             val target: PlotAddress,
+            val detail: MarchDetail?,
+            val countdown: MarchCountdown,
             val remaining: Duration,
             val loot: List<ResourceQuantity>,
             val departedAt: Instant,
@@ -61,6 +65,31 @@ sealed interface FiefUiState {
             val isRecallable: Boolean
                 get() = phase != MarchPhase.Returning
         }
+    }
+
+    enum class MarchHeading {
+        Outbound,
+        Foraging,
+        Returning,
+        AttackOutbound,
+        AttackReturning,
+        FoundingOutbound,
+        TransportOutbound,
+        TransportReturning,
+    }
+
+    sealed interface MarchDetail {
+
+        data class Camp(val camp: MarchCamp) : MarchDetail
+
+        data class NewFief(val name: String) : MarchDetail
+
+        data class Cargo(val cargo: List<ResourceQuantity>) : MarchDetail
+    }
+
+    enum class MarchCountdown {
+        Return,
+        Arrival,
     }
 
     sealed interface RecallStatus {

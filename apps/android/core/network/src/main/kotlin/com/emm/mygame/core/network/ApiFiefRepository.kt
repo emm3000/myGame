@@ -2,7 +2,10 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.DispatchAttackRequest
+import com.emm.mygame.core.network.generated.models.DispatchFoundingRequest
 import com.emm.mygame.core.network.generated.models.DispatchMarchRequest
+import com.emm.mygame.core.network.generated.models.DispatchTransportRequest
 import com.emm.mygame.core.network.generated.models.EnqueueBuildingRequest
 import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.PlaceRecruitOrderRequest
@@ -118,26 +121,26 @@ internal class ApiFiefRepository(
             }
         }
 
-    override suspend fun forage(
-        fief: FiefId,
-        target: PlotAddress,
-        party: List<UnitCount>,
-        stayHours: Int,
-    ): MarchResult = withContext(ioDispatcher) {
-        try {
-            val request = DispatchMarchRequest(
-                province = target.province,
-                plot = target.plot,
-                units = party.toWireUnits(),
-                stayHours = stayHours,
-            )
-            marchedOrRefused(api.fiefsFiefIdMarchesPost(UUID.fromString(fief.value), request))
-        } catch (expectedOutage: IOException) {
-            MarchResult.Unreachable
-        } catch (expectedMalformedBody: SerializationException) {
-            MarchResult.Unreachable
+    override suspend fun dispatch(fief: FiefId, march: MarchDispatch): MarchResult = marching {
+        val id: UUID = UUID.fromString(fief.value)
+        when (march) {
+            is MarchDispatch.Forage -> api.fiefsFiefIdMarchesPost(id, march.toRequest())
+            is MarchDispatch.Attack -> api.fiefsFiefIdMarchesAttackPost(id, march.toRequest())
+            is MarchDispatch.Found -> api.fiefsFiefIdMarchesFoundPost(id, march.toRequest())
+            is MarchDispatch.Transport -> api.fiefsFiefIdMarchesTransportPost(id, march.toRequest())
         }
     }
+
+    private suspend fun marching(call: suspend () -> Response<FiefOverview>): MarchResult =
+        withContext(ioDispatcher) {
+            try {
+                marchedOrRefused(call())
+            } catch (expectedOutage: IOException) {
+                MarchResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                MarchResult.Unreachable
+            }
+        }
 
     override suspend fun recall(fief: FiefId, departedAt: Instant): MarchResult = withContext(ioDispatcher) {
         try {
@@ -240,8 +243,16 @@ private val marchRefusals: Map<ApiError.Kind, MarchRefusal> = mapOf(
     ApiError.Kind.MarchTargetOutOfBounds to MarchRefusal.MarchTargetOutOfBounds,
     ApiError.Kind.PlotHeld to MarchRefusal.PlotHeld,
     ApiError.Kind.PlotHasCamp to MarchRefusal.PlotHasCamp,
+    ApiError.Kind.PlotHasNoCamp to MarchRefusal.PlotHasNoCamp,
     ApiError.Kind.PlotReserved to MarchRefusal.PlotReserved,
+    ApiError.Kind.MarchToOwnPlot to MarchRefusal.MarchToOwnPlot,
     ApiError.Kind.UnitUnfitForOrder to MarchRefusal.UnitUnfitForOrder,
+    ApiError.Kind.FiefCapReached to MarchRefusal.FiefCapReached,
+    ApiError.Kind.BlankFiefName to MarchRefusal.BlankFiefName,
+    ApiError.Kind.EmptyCargo to MarchRefusal.EmptyCargo,
+    ApiError.Kind.CargoAboveCarry to MarchRefusal.CargoAboveCarry,
+    ApiError.Kind.InsufficientResources to MarchRefusal.InsufficientResources,
+    ApiError.Kind.FiefNotFound to MarchRefusal.FiefNotFound,
     ApiError.Kind.MarchNotFound to MarchRefusal.MarchNotFound,
     ApiError.Kind.MarchAlreadyReturning to MarchRefusal.MarchAlreadyReturning,
 )
@@ -261,3 +272,22 @@ private fun ApiError.Kind.toUpgradeRefusal(): UpgradeRefusal = upgradeRefusals[t
 
 private fun ApiError.Kind.toCancelRefusal(): CancelRefusal =
     if (this == ApiError.Kind.UpgradeNotFound) CancelRefusal.UpgradeNotFound else CancelRefusal.Unrecognized
+
+private fun MarchDispatch.Forage.toRequest(): DispatchMarchRequest = DispatchMarchRequest(
+    province = target.province,
+    plot = target.plot,
+    units = party.toWireUnits(),
+    stayHours = stayHours,
+)
+
+private fun MarchDispatch.Attack.toRequest(): DispatchAttackRequest =
+    DispatchAttackRequest(province = target.province, plot = target.plot, units = party.toWireUnits())
+
+private fun MarchDispatch.Found.toRequest(): DispatchFoundingRequest =
+    DispatchFoundingRequest(province = target.province, plot = target.plot, name = name)
+
+private fun MarchDispatch.Transport.toRequest(): DispatchTransportRequest = DispatchTransportRequest(
+    toFiefId = UUID.fromString(destination.value),
+    units = party.toWireUnits(),
+    cargo = cargo.toWireCargo(),
+)

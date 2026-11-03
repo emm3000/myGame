@@ -12,4 +12,8 @@ data class AwayMarch(
     val returnsAt: Instant,
     val recalledAt: Instant?,
     val loot: List<ResourceQuantity>,
+    val camp: MarchCamp?,
+    val isFought: Boolean,
+    val foundingName: String?,
+    val cargo: List<ResourceQuantity>,
 )

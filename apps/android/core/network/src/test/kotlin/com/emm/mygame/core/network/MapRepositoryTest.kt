@@ -82,7 +82,7 @@ class MapRepositoryTest {
                     plots = listOf(
                         MapPlot(plot = 1, holder = PlotHolder.Free),
                         MapPlot(plot = 2, holder = PlotHolder.Held(name = "Sotoverde")),
-                        MapPlot(plot = 3, holder = PlotHolder.Own(name = "Páramo")),
+                        MapPlot(plot = 3, holder = PlotHolder.Own(name = "Páramo", fief = null)),
                         MapPlot(plot = 4, holder = PlotHolder.Camp(tier = 2, strength = 15)),
                         MapPlot(plot = 5, holder = PlotHolder.Reserved(isOwn = false)),
                         MapPlot(plot = 6, holder = PlotHolder.Reserved(isOwn = true)),
@@ -90,6 +90,39 @@ class MapRepositoryTest {
                 ),
             ),
             repository().readOwn(),
+        )
+    }
+
+    @Test
+    fun `names the lord's fief on an own plot by the id the fief list gives it`() = runTest {
+        api.enqueue(
+            json(
+                200,
+                """{"fiefs":[""" +
+                    """{"id":"$LISTED_FIEF_ID","name":"Sotoverde",""" +
+                    """"coordinates":{"kingdom":1,"province":1,"plot":1},""" +
+                    """"freeSlots":[],"fullStores":[]},""" +
+                    """{"id":"$OTHER_FIEF_ID","name":"Vega","coordinates":{"kingdom":1,"province":1,"plot":4},""" +
+                    """"freeSlots":[],"fullStores":[]}]}""",
+            ),
+        )
+        api.enqueue(
+            json(
+                200,
+                """{"kingdom":1,"province":1,"lastProvince":9,"terrain":"lowlands","plots":[""" +
+                    """{"plot":1,"fief":{"name":"Sotoverde","isOwn":true},"camp":null,"reservation":null},""" +
+                    """{"plot":4,"fief":{"name":"Vega","isOwn":true},"camp":null,"reservation":null}]}""",
+            ),
+        )
+
+        val answer: MapReadResult = repository().readOwn()
+
+        assertEquals(
+            listOf(
+                PlotHolder.Own(name = "Sotoverde", fief = FiefId(LISTED_FIEF_ID)),
+                PlotHolder.Own(name = "Vega", fief = FiefId(OTHER_FIEF_ID)),
+            ),
+            (answer as MapReadResult.Read).map.plots.map { it.holder },
         )
     }
 
@@ -175,6 +208,7 @@ class MapRepositoryTest {
 
     private companion object {
         const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+        const val OTHER_FIEF_ID: String = "7c1e2f4a-0b3d-4e5f-9a8b-1c2d3e4f5a6b"
         const val EMPTY_PROVINCE: String =
             """{"kingdom":1,"province":1,"lastProvince":9,"terrain":"lowlands","plots":[]}"""
     }

@@ -5,6 +5,7 @@ data class UnitState(
     val count: Int,
     val away: Int,
     val barracksLevel: Int,
+    val strength: Int,
     val carry: Int,
     val roadPercent: Int,
     val terms: RecruitTerms,

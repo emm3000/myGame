@@ -46,6 +46,7 @@ class FiefArmyRepositoryTest {
                 count = 12,
                 away = 0,
                 barracksLevel = 1,
+                strength = 1,
                 carry = 48,
                 roadPercent = 100,
                 terms = RecruitTerms(

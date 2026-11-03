@@ -34,14 +34,14 @@ class MapForageViewModelTest {
     fun `offers a march on a free plot`() = runTest {
         val viewModel: MapViewModel = openOn(FakeFiefRepository())
 
-        assertEquals(listOf(7), content(viewModel).forageablePlots)
+        assertEquals(listOf(7), forageablePlotsOf(viewModel))
     }
 
     @Test
     fun `offers no march on a plot with a camp`() = runTest {
         val viewModel: MapViewModel = openOn(FakeFiefRepository())
 
-        assertFalse(5 in content(viewModel).forageablePlots)
+        assertFalse(5 in forageablePlotsOf(viewModel))
     }
 
     @Test
@@ -50,7 +50,7 @@ class MapForageViewModelTest {
         val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
         maps.answerRead(MapReadResult.Read(mixedProvince))
 
-        assertEquals(emptyList<Int>(), content(viewModel).forageablePlots)
+        assertEquals(emptyList<Int>(), forageablePlotsOf(viewModel))
     }
 
     @Test
@@ -200,7 +200,7 @@ class MapForageViewModelTest {
 
         viewModel.onIntent(MapIntent.ForageToggled(7))
 
-        assertEquals(MapUiState.ForageBlock.MarchAway, form(viewModel).block)
+        assertEquals(MapUiState.MarchBlock.MarchAway, form(viewModel).block)
     }
 
     @Test
@@ -210,7 +210,7 @@ class MapForageViewModelTest {
 
         viewModel.onIntent(MapIntent.PartyEntryChanged(UnitKind.Cavalry, "1.5"))
 
-        assertEquals(MapUiState.ForageBlock.InvalidCount, form(viewModel).block)
+        assertEquals(MapUiState.MarchBlock.InvalidCount, form(viewModel).block)
     }
 
     @Test
@@ -220,7 +220,7 @@ class MapForageViewModelTest {
 
         viewModel.onIntent(MapIntent.HoursEntryChanged("9"))
 
-        assertEquals(MapUiState.ForageBlock.InvalidHours(maxStayHours = 8), form(viewModel).block)
+        assertEquals(MapUiState.MarchBlock.InvalidHours(maxStayHours = 8), form(viewModel).block)
     }
 
     @Test
@@ -230,7 +230,7 @@ class MapForageViewModelTest {
 
         viewModel.onIntent(MapIntent.PartyEntryChanged(UnitKind.Infantry, ""))
 
-        assertEquals(MapUiState.ForageBlock.EmptyParty, form(viewModel).block)
+        assertEquals(MapUiState.MarchBlock.EmptyParty, form(viewModel).block)
     }
 
     @Test
@@ -241,7 +241,7 @@ class MapForageViewModelTest {
         viewModel.onIntent(MapIntent.PartyEntryChanged(UnitKind.Infantry, "13"))
 
         assertEquals(
-            MapUiState.ForageBlock.NotEnoughAtHome(UnitKind.Infantry, needed = 13, atHome = 12),
+            MapUiState.MarchBlock.NotEnoughAtHome(UnitKind.Infantry, needed = 13, atHome = 12),
             form(viewModel).block,
         )
     }
@@ -413,5 +413,10 @@ class MapForageViewModelTest {
 
     private fun content(viewModel: MapViewModel): MapUiState.Content = viewModel.state.value as MapUiState.Content
 
-    private fun form(viewModel: MapViewModel): MapUiState.ForageForm = requireNotNull(content(viewModel).form)
+    private fun form(viewModel: MapViewModel): MapUiState.ForageForm =
+        content(viewModel).form as MapUiState.ForageForm
+
+    private fun forageablePlotsOf(viewModel: MapViewModel): List<Int> = content(viewModel).offers
+        .filter { offer: MapUiState.PlotOffer -> offer.order == MapUiState.OfferedOrder.Forage }
+        .map { offer: MapUiState.PlotOffer -> offer.plot }
 }

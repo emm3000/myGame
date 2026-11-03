@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.BuildQueue
 import com.emm.mygame.core.network.BuildSlot
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.BuildingState
+import com.emm.mygame.core.network.CombatTerms
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.ForageTerms
@@ -112,6 +113,7 @@ internal fun fief(
         yieldPerHour = emptyMap(),
     ),
     season = null,
+    combatTerms = CombatTerms(lootPerStrength = 60),
 )
 
 internal fun sawmill(level: Int = 0): BuildingState = building(BuildingKind.Sawmill, level)
@@ -156,6 +158,7 @@ private fun unit(kind: UnitKind, count: Int, away: Int, barracksLevel: Int): Uni
     count = count,
     away = away,
     barracksLevel = barracksLevel,
+    strength = 1,
     carry = 48,
     roadPercent = 100,
     terms = RecruitTerms(
@@ -207,6 +210,10 @@ internal fun forageOfInfantry(
         returnsAt = leavesAt + (arrivesAt - departedAt),
         recalledAt = null,
         loot = listOf(ResourceQuantity(ResourceKind.Wood, 42)),
+        camp = null,
+        isFought = false,
+        foundingName = null,
+        cargo = emptyList(),
     )
 }
 

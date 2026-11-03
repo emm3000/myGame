@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.fief
 
+import android.content.res.Resources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -55,7 +57,8 @@ private fun BusyMarch(
     modifier: Modifier = Modifier,
 ) {
     val party: String = partyPhraseOf(march)
-    val countdown: String = stringResource(R.string.march_return, countdownLabelOf(march.remaining))
+    val countdown: String = stringResource(countdownOf(march.countdown), countdownLabelOf(march.remaining))
+    val detail: String? = march.detail?.let { shown: FiefUiState.MarchDetail -> detailOf(shown) }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.padding(vertical = MyGameSpacing.step4),
@@ -66,10 +69,17 @@ private fun BusyMarch(
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            text = stringResource(phaseLineOf(march.phase), party, march.target.province, march.target.plot),
+            text = stringResource(
+                R.string.march_line,
+                stringResource(headingOf(march.heading)),
+                stringResource(phaseValueOf(march.phase), party, march.target.province, march.target.plot),
+            ),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
+        if (detail != null) {
+            MyGameText(text = detail, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -115,18 +125,44 @@ private fun partyPhraseOf(march: FiefUiState.MarchSlotLine.Busy): String = spani
 )
 
 @Composable
-private fun lootOf(march: FiefUiState.MarchSlotLine.Busy): String = spanishListOf(
-    items = march.loot.map { quantity: ResourceQuantity ->
-        stringResource(costNameOf(quantity.kind), formatQuantity(quantity.amount))
+private fun lootOf(march: FiefUiState.MarchSlotLine.Busy): String = LocalResources.current.quantitiesOf(march.loot)
+
+private fun Resources.quantitiesOf(quantities: List<ResourceQuantity>): String = spanishListOf(
+    items = quantities.map { quantity: ResourceQuantity ->
+        getString(costNameOf(quantity.kind), formatQuantity(quantity.amount))
     },
-    pairPattern = stringResource(R.string.list_pair),
-    morePattern = stringResource(R.string.list_more),
+    pairPattern = getString(R.string.list_pair),
+    morePattern = getString(R.string.list_more),
 )
 
-private fun phaseLineOf(phase: MarchPhase): Int = when (phase) {
-    MarchPhase.Outbound -> R.string.march_line_outbound
-    MarchPhase.Foraging -> R.string.march_line_foraging
-    MarchPhase.Returning -> R.string.march_line_returning
+@Composable
+private fun detailOf(detail: FiefUiState.MarchDetail): String = when (detail) {
+    is FiefUiState.MarchDetail.Camp -> stringResource(R.string.march_camp, detail.camp.tier, detail.camp.strength)
+    is FiefUiState.MarchDetail.NewFief -> stringResource(R.string.march_new_fief, detail.name)
+    is FiefUiState.MarchDetail.Cargo ->
+        stringResource(R.string.march_cargo, LocalResources.current.quantitiesOf(detail.cargo))
+}
+
+private fun countdownOf(countdown: FiefUiState.MarchCountdown): Int = when (countdown) {
+    FiefUiState.MarchCountdown.Return -> R.string.march_return
+    FiefUiState.MarchCountdown.Arrival -> R.string.march_arrival
+}
+
+private fun headingOf(heading: FiefUiState.MarchHeading): Int = when (heading) {
+    FiefUiState.MarchHeading.Outbound -> R.string.march_heading_outbound
+    FiefUiState.MarchHeading.Foraging -> R.string.march_heading_foraging
+    FiefUiState.MarchHeading.Returning -> R.string.march_heading_returning
+    FiefUiState.MarchHeading.AttackOutbound -> R.string.march_heading_attack
+    FiefUiState.MarchHeading.AttackReturning -> R.string.march_heading_attack_returning
+    FiefUiState.MarchHeading.FoundingOutbound -> R.string.march_heading_founding
+    FiefUiState.MarchHeading.TransportOutbound -> R.string.march_heading_transport
+    FiefUiState.MarchHeading.TransportReturning -> R.string.march_heading_transport_returning
+}
+
+private fun phaseValueOf(phase: MarchPhase): Int = when (phase) {
+    MarchPhase.Outbound -> R.string.march_value_outbound
+    MarchPhase.Foraging -> R.string.march_value_foraging
+    MarchPhase.Returning -> R.string.march_value_returning
 }
 
 private fun recallRefusalOf(refusal: MarchRefusal): Int = when (refusal) {
@@ -138,8 +174,16 @@ private fun recallRefusalOf(refusal: MarchRefusal): Int = when (refusal) {
     MarchRefusal.MarchTargetOutOfBounds,
     MarchRefusal.PlotHeld,
     MarchRefusal.PlotHasCamp,
+    MarchRefusal.PlotHasNoCamp,
     MarchRefusal.PlotReserved,
+    MarchRefusal.MarchToOwnPlot,
     MarchRefusal.UnitUnfitForOrder,
+    MarchRefusal.FiefCapReached,
+    MarchRefusal.BlankFiefName,
+    MarchRefusal.EmptyCargo,
+    MarchRefusal.CargoAboveCarry,
+    MarchRefusal.InsufficientResources,
+    MarchRefusal.FiefNotFound,
     MarchRefusal.Unrecognized,
     -> R.string.fief_unreachable
 }

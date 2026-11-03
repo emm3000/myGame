@@ -6,9 +6,11 @@ import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
+import com.emm.mygame.core.network.MarchDispatch
 import com.emm.mygame.core.network.MarchResult
 import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.RecruitResult
+import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.StudyResult
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
@@ -117,13 +119,13 @@ class FakeFiefRepository : FiefRepository {
         return recruitAnswers.receive()
     }
 
-    override suspend fun forage(
-        fief: FiefId,
-        target: PlotAddress,
-        party: List<UnitCount>,
-        stayHours: Int,
-    ): MarchResult {
-        _marches += MarchRequest.Forage(fief, target, party, stayHours)
+    override suspend fun dispatch(fief: FiefId, march: MarchDispatch): MarchResult {
+        _marches += when (march) {
+            is MarchDispatch.Forage -> MarchRequest.Forage(fief, march.target, march.party, march.stayHours)
+            is MarchDispatch.Attack -> MarchRequest.Attack(fief, march.target, march.party)
+            is MarchDispatch.Found -> MarchRequest.Found(fief, march.target, march.name)
+            is MarchDispatch.Transport -> MarchRequest.Transport(fief, march.destination, march.party, march.cargo)
+        }
         return marchAnswers.receive()
     }
 
@@ -139,6 +141,17 @@ class FakeFiefRepository : FiefRepository {
             val target: PlotAddress,
             val party: List<UnitCount>,
             val stayHours: Int,
+        ) : MarchRequest
+
+        data class Attack(val fief: FiefId, val target: PlotAddress, val party: List<UnitCount>) : MarchRequest
+
+        data class Found(val fief: FiefId, val target: PlotAddress, val name: String) : MarchRequest
+
+        data class Transport(
+            val fief: FiefId,
+            val destination: FiefId,
+            val party: List<UnitCount>,
+            val cargo: List<ResourceQuantity>,
         ) : MarchRequest
 
         data class Recall(val fief: FiefId, val departedAt: Instant) : MarchRequest

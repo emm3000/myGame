@@ -51,8 +51,11 @@ class FiefMarchViewModelTest {
             assertEquals(
                 FiefUiState.MarchSlotLine.Busy(
                     phase = MarchPhase.Outbound,
+                    heading = FiefUiState.MarchHeading.Outbound,
                     units = listOf(UnitCount(UnitKind.Infantry, 12)),
                     target = PlotAddress(province = 1, plot = 7),
+                    detail = null,
+                    countdown = FiefUiState.MarchCountdown.Return,
                     remaining = 71.minutes,
                     loot = listOf(ResourceQuantity(ResourceKind.Wood, 42)),
                     departedAt = outbound.departedAt,
