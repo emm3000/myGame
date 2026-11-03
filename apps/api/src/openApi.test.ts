@@ -56,6 +56,24 @@ const wholeNumberLiteralsTypedAsNumber = (node: unknown, path = '#'): ReadonlyAr
   ]
 }
 
+const objectsWithOptionalProperties = (node: unknown, path = '#'): ReadonlyArray<string> => {
+  if (typeof node !== 'object' || node === null) {
+    return []
+  }
+  const { properties, required } = node as Record<string, unknown>
+  const requiredKeys = Array.isArray(required) ? required : []
+  const isMissingARequiredKey =
+    typeof properties === 'object' &&
+    properties !== null &&
+    Object.keys(properties).some((key) => !requiredKeys.includes(key))
+  return [
+    ...(isMissingARequiredKey ? [path] : []),
+    ...Object.entries(node).flatMap(([key, child]) =>
+      objectsWithOptionalProperties(child, `${path}/${key}`),
+    ),
+  ]
+}
+
 describe('the OpenAPI document', () => {
   let server: ComposedServer
 
@@ -150,6 +168,10 @@ describe('the OpenAPI document', () => {
     const document = await (await servedDocument()).json()
 
     expect(wholeNumberLiteralsTypedAsNumber(document)).toEqual([])
+  })
+
+  it('requires every key of every object of the committed document, an enum-keyed record included', () => {
+    expect(objectsWithOptionalProperties(committedDocument())).toEqual([])
   })
 
   it('lists every value of a numeric literal union', async () => {
