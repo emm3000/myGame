@@ -226,7 +226,7 @@ class MapFoundingViewModelTest {
     }
 
     @Test
-    fun `keeps the content and its sent line when the re-read cannot reach the api`() = runTest {
+    fun `keeps drawing the sent line when the re-read cannot reach the api`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val maps: FakeMapRepository = FakeMapRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs, maps = maps)
