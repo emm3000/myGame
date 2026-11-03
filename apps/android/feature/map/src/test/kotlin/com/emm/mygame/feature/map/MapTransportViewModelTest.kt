@@ -242,4 +242,4 @@ class MapTransportViewModelTest {
 }
 
 private const val CARGO_ABOVE_CARRY_LINE: String =
-    "La carga suma 300 y tus hombres llevan hasta 48. Quita carga o envía más hombres."
+    "La carga suma 300 y tus hombres llevan hasta 168. Quita carga o envía más hombres."
