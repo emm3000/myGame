@@ -6,5 +6,10 @@ sealed interface StudySlot {
 
     data object Idle : StudySlot
 
-    data class Busy(val art: ArtKind, val targetLevel: Int, val finishesAt: Instant) : StudySlot
+    data class Busy(
+        val art: ArtKind,
+        val targetLevel: Int,
+        val finishesAt: Instant,
+        val cost: List<ResourceCost>,
+    ) : StudySlot
 }

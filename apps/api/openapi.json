@@ -1945,9 +1945,35 @@
           "finishesAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "wood": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stone": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "iron": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gold": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["wood", "stone", "iron", "gold", "food"]
           }
         },
-        "required": ["kind", "art", "targetLevel", "startedAt", "finishesAt"]
+        "required": ["kind", "art", "targetLevel", "startedAt", "finishesAt", "cost"]
       },
       "MarchState": {
         "oneOf": [

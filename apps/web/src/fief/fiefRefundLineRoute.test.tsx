@@ -83,16 +83,24 @@ const smithingStudied: FiefOverview = {
     targetLevel: 1,
     startedAt: '2026-09-22T11:50:00.000Z',
     finishesAt: '2026-09-22T12:20:00.000Z',
+    cost: { wood: 100, stone: 70, iron: 130, gold: 50, food: 0 },
   },
 }
 
-it('states the stored cost of a study beside its cancel', async () => {
+it('states the cost a study debited beside its cancel, not the price of its level now', async () => {
   await showFief(smithingStudied)
 
+  expect(smithingStudied.arts.smithing.nextLevel?.cost).toEqual({
+    wood: 120,
+    stone: 80,
+    iron: 150,
+    gold: 60,
+    food: 0,
+  })
   expect(
     lineBesideCancel(
       copy.study.cancelOf('smithing', 1),
-      'Si lo cancelas, recuperas 120 de madera, 80 de piedra, 150 de hierro y 60 de oro.',
+      'Si lo cancelas, recuperas 100 de madera, 70 de piedra, 130 de hierro y 50 de oro.',
     ),
   ).toBeDefined()
 })

@@ -466,7 +466,7 @@ class FiefRepositoryTest {
     }
 
     @Test
-    fun `reads a busy study slot with its art, target level and finish`() = runTest {
+    fun `reads a busy study slot with its art, target level, finish and the cost it debited`() = runTest {
         api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(json(200, idleOverview().replace(IDLE_STUDY, BUSY_SMITHING)))
 
@@ -475,6 +475,13 @@ class FiefRepositoryTest {
                 art = ArtKind.Smithing,
                 targetLevel = 2,
                 finishesAt = Instant.parse("2026-11-02T16:00:00.000Z"),
+                cost = listOf(
+                    ResourceCost(ResourceKind.Wood, 97),
+                    ResourceCost(ResourceKind.Stone, 41),
+                    ResourceCost(ResourceKind.Iron, 13),
+                    ResourceCost(ResourceKind.Gold, 7),
+                    ResourceCost(ResourceKind.Food, 3),
+                ),
             ),
             readFief().study,
         )
@@ -657,7 +664,8 @@ class FiefRepositoryTest {
         const val IDLE_STUDY: String = """"study":{"kind":"idle"}"""
         const val BUSY_SMITHING: String =
             """"study":{"kind":"busy","art":"smithing","targetLevel":2,""" +
-                """"startedAt":"2026-11-02T15:30:00.000Z","finishesAt":"2026-11-02T16:00:00.000Z"}"""
+                """"startedAt":"2026-11-02T15:30:00.000Z","finishesAt":"2026-11-02T16:00:00.000Z",""" +
+                """"cost":{"wood":97,"stone":41,"iron":13,"gold":7,"food":3}}"""
         const val WAREHOUSE_AT_ITS_TOP: String = """"warehouse":{"level":10,"nextLevel":null}"""
         const val ATTACK_ON_THE_ROAD: String =
             """{"order":"attack","province":1,"plot":4,"terrain":"lowlands",""" +

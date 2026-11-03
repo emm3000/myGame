@@ -65,6 +65,7 @@ const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
         targetLevel: studySlot.targetLevel,
         startedAt: isoOf(studySlot.startedAt),
         finishesAt: isoOf(studySlot.finishesAt),
+        cost: { ...studySlot.cost },
       }
 
 const unitsOf = (fief: Fief): FiefOverview['units'] => {

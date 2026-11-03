@@ -257,6 +257,7 @@ it('counts down and tracks the study, the levy and the march', async () => {
       targetLevel: 1,
       startedAt: instantAfterRead(-420),
       finishesAt: instantAfterRead(480),
+      cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
     },
     units: { infantry: 17, cavalry: 0, archer: 0, settler: 0 },
     recruitOrder: {

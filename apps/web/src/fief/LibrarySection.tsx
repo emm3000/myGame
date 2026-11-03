@@ -19,12 +19,6 @@ import type { Study } from './useStudy'
 
 const { names } = copy
 
-type ArtNextLevel = LiveFief['overview']['arts'][ArtKind]['nextLevel']
-
-function studyRefundOf(nextLevel: ArtNextLevel): string | undefined {
-  return nextLevel === null ? undefined : copy.study.cancelRefund(quantitiesOf(nextLevel.cost))
-}
-
 function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void): BuildSlotState {
   const { study: slot } = fief.overview
   if (slot.kind === 'idle') {
@@ -55,7 +49,7 @@ function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void)
       isWaiting: study.isWaiting,
       onCancel: () => study.cancel({ art: slot.art, targetLevel: slot.targetLevel }, onCancelled),
     },
-    refund: studyRefundOf(fief.overview.arts[slot.art].nextLevel),
+    refund: copy.study.cancelRefund(quantitiesOf(slot.cost)),
     ...art,
   }
 }

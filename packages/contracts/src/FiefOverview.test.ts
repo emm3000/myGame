@@ -51,6 +51,7 @@ const busyStudy = {
   targetLevel: 1,
   startedAt: '2026-09-22T13:50:00.000Z',
   finishesAt: '2026-09-22T14:05:00.000Z',
+  cost: { wood: 120, stone: 80, iron: 150, gold: 60, food: 0 },
 }
 
 const twoArts = {
@@ -376,6 +377,13 @@ describe('FiefOverviewSchema', () => {
     const overviewWithNamelessStudy = { ...overviewWithSlot(busySlot), study: studyWithoutArt }
 
     expect(FiefOverviewSchema.safeParse(overviewWithNamelessStudy).success).toBe(false)
+  })
+
+  it('rejects a busy study without the cost it debited', () => {
+    const { cost: _, ...studyWithoutCost } = busyStudy
+    const overviewWithUncostedStudy = { ...overviewWithSlot(busySlot), study: studyWithoutCost }
+
+    expect(FiefOverviewSchema.safeParse(overviewWithUncostedStudy).success).toBe(false)
   })
 
   it('rejects a fief overview missing one of the two arts', () => {

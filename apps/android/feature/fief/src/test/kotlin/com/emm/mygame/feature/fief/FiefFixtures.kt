@@ -143,8 +143,16 @@ internal fun smithing(level: Int, requiredLibraryLevel: Int = 1): ArtState = Art
 internal fun masonry(): ArtState =
     ArtState(kind = ArtKind.Masonry, level = 10, resource = ResourceKind.Stone, ratePercent = 50, nextLevel = null)
 
-internal fun studyingSmithing(targetLevel: Int, finishesIn: Duration): StudySlot =
-    StudySlot.Busy(ArtKind.Smithing, targetLevel = targetLevel, finishesAt = firstReadAt + finishesIn)
+internal fun studyingSmithing(
+    targetLevel: Int,
+    finishesIn: Duration,
+    cost: List<ResourceCost> = smithing(level = targetLevel - 1).nextLevel?.cost.orEmpty(),
+): StudySlot = StudySlot.Busy(
+    ArtKind.Smithing,
+    targetLevel = targetLevel,
+    finishesAt = firstReadAt + finishesIn,
+    cost = cost,
+)
 
 internal fun army(infantryAtHome: Int = 0, infantryAway: Int = 0): List<UnitState> = listOf(
     unit(UnitKind.Infantry, count = infantryAtHome + infantryAway, away = infantryAway, barracksLevel = 1),
