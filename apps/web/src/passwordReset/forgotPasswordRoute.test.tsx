@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen } from '@testing-library/react'
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { stubApiClient } from '../auth/stubApiClient.testSupport'
@@ -83,6 +83,6 @@ it('moves focus to the confirmation once the request is sent', async () => {
   await askForReset('aldonza@example.com')
 
   const confirmation = await screen.findByRole('status')
-  expect(document.activeElement).toBe(confirmation)
+  await waitFor(() => expect(document.activeElement).toBe(confirmation))
   expect(confirmation.getAttribute('tabindex')).toBe('-1')
 })

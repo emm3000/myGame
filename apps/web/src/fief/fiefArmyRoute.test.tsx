@@ -428,7 +428,7 @@ it('moves focus to the slot title when the order is cancelled', async () => {
 
   await pressCancel()
 
-  expect(document.activeElement?.textContent).toBe(copy.army.slot)
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.army.slot))
 })
 
 it('keeps focus on Cancelar la leva when the cancel is refused', async () => {
@@ -439,5 +439,5 @@ it('keeps focus on Cancelar la leva when the cancel is refused', async () => {
 
   const button = await pressCancel()
 
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })

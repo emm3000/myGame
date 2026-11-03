@@ -1,5 +1,5 @@
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
-import { act, fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -139,7 +139,7 @@ it('moves focus to the form title when a form opens', async () => {
   fireEvent.click(sendTo(3))
 
   const title = screen.getByRole('heading', { level: 4, name: 'Marcha a provincia 2, parcela 3' })
-  expect(document.activeElement).toBe(title)
+  await waitFor(() => expect(document.activeElement).toBe(title))
   expect(title.getAttribute('tabindex')).toBe('-1')
 })
 
@@ -152,7 +152,7 @@ it('leaves focus on the action when it closes the form', async () => {
   fireEvent.click(action)
 
   expect(screen.queryByRole('form')).toBeNull()
-  expect(document.activeElement).toBe(action)
+  await waitFor(() => expect(document.activeElement).toBe(action))
 })
 
 it('reads a refusal inside the panel', async () => {
@@ -201,7 +201,7 @@ it('opens no panel and keeps focus while the fief is still loading', async () =>
 
   expect(screen.queryAllByRole('button', { name: /parcela/ })).toHaveLength(0)
   expect(list.children).toHaveLength(freeProvince.plots.length)
-  expect(document.activeElement).toBe(next)
+  await waitFor(() => expect(document.activeElement).toBe(next))
 })
 
 it('reads a fief-load refusal under the list, outside any panel', async () => {
@@ -231,7 +231,7 @@ it('keeps focus in the field when the screen crosses to five columns', async () 
   act(() => media.matchAll(true))
 
   expect(orderOf(list)).toEqual(plotsWithPanelAfter(5))
-  expect(document.activeElement).toBe(field)
+  await waitFor(() => expect(document.activeElement).toBe(field))
 })
 
 it('clears a march refusal when another form opens', async () => {

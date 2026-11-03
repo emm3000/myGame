@@ -1,5 +1,5 @@
 import type { ResetPasswordRequest } from '@mygame/contracts'
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
@@ -144,6 +144,6 @@ it('moves focus to the confirmation once the password is changed', async () => {
   await chooseNewPassword('piedra-nueva')
 
   const confirmation = await screen.findByRole('status')
-  expect(document.activeElement).toBe(confirmation)
+  await waitFor(() => expect(document.activeElement).toBe(confirmation))
   expect(confirmation.getAttribute('tabindex')).toBe('-1')
 })

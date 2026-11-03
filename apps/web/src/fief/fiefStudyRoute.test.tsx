@@ -436,7 +436,7 @@ it('moves focus to the slot title when the study is cancelled', async () => {
 
   await pressCancelStudy()
 
-  expect(document.activeElement?.textContent).toBe(copy.names.studySlot)
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.names.studySlot))
 })
 
 it('keeps focus on Cancelar el estudio when the cancel is refused', async () => {
@@ -447,5 +447,5 @@ it('keeps focus on Cancelar el estudio when the cancel is refused', async () => 
 
   const button = await pressCancelStudy()
 
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })

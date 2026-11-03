@@ -221,8 +221,10 @@ it('moves focus to the fief name when the goal is dismissed', async () => {
 
   await press(dismissButton())
 
-  expect(document.activeElement).toBe(
-    screen.getByRole('heading', { level: 2, name: knownFief.name }),
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 2, name: knownFief.name }),
+    ),
   )
 })
 
@@ -232,5 +234,5 @@ it('keeps focus on Descartar when the dismissal is refused', async () => {
 
   await press(button)
 
-  expect(document.activeElement).toBe(button)
+  await vi.waitFor(() => expect(document.activeElement).toBe(button))
 })

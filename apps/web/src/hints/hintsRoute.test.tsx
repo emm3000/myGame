@@ -343,7 +343,7 @@ it('keeps focus where it was when a hint appears', async () => {
   await passSeconds(0)
 
   expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
-  expect(document.activeElement).toBe(upgrade)
+  await vi.waitFor(() => expect(document.activeElement).toBe(upgrade))
 })
 
 const pressDismiss = async (): Promise<void> => {
@@ -362,8 +362,10 @@ it('moves focus to the section heading when a hint is dismissed', async () => {
 
   await pressDismiss()
 
-  expect(document.activeElement).toBe(
-    screen.getByRole('heading', { level: 3, name: copy.study.section }),
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 3, name: copy.study.section }),
+    ),
   )
 })
 
@@ -372,8 +374,10 @@ it('moves focus to the barracks heading when its hint is dismissed', async () =>
 
   await pressDismiss()
 
-  expect(document.activeElement).toBe(
-    screen.getByRole('heading', { level: 3, name: copy.army.section }),
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole('heading', { level: 3, name: copy.army.section }),
+    ),
   )
 })
 
@@ -386,7 +390,7 @@ it.each([
 
   await pressDismiss()
 
-  expect(document.activeElement).toBe(fiefName())
+  await vi.waitFor(() => expect(document.activeElement).toBe(fiefName()))
 })
 
 it('moves focus to the slot title when the queue hint is dismissed', async () => {
@@ -394,7 +398,7 @@ it('moves focus to the slot title when the queue hint is dismissed', async () =>
 
   await pressDismiss()
 
-  expect(document.activeElement?.textContent).toBe(copy.names.busySlot)
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.names.busySlot))
 })
 
 it('moves focus to the province heading when the marches hint is dismissed', async () => {
@@ -402,9 +406,11 @@ it('moves focus to the province heading when the marches hint is dismissed', asy
 
   await pressDismiss()
 
-  expect(document.activeElement?.tagName).toBe('H3')
-  expect(document.activeElement?.textContent).toBe(
-    copy.map.heading(knownFief.coordinates.kingdom, knownFief.coordinates.province),
+  await vi.waitFor(() => expect(document.activeElement?.tagName).toBe('H3'))
+  await vi.waitFor(() =>
+    expect(document.activeElement?.textContent).toBe(
+      copy.map.heading(knownFief.coordinates.kingdom, knownFief.coordinates.province),
+    ),
   )
 })
 
@@ -414,7 +420,7 @@ it('leaves focus on the fief name when the next hint shows after a dismissal', a
   await pressDismiss()
 
   expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
-  expect(document.activeElement).toBe(fiefName())
+  await vi.waitFor(() => expect(document.activeElement).toBe(fiefName()))
 })
 
 it('adds no tab stop for a focus target', async () => {
