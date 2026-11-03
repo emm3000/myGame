@@ -4,21 +4,27 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.ArtState
+import com.emm.mygame.core.network.AwayMarch
 import com.emm.mygame.core.network.BuildQueue
 import com.emm.mygame.core.network.BuildSlot
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.BuildingState
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.ForageTerms
+import com.emm.mygame.core.network.MarchOrder
 import com.emm.mygame.core.network.NextArtLevel
 import com.emm.mygame.core.network.NextLevel
 import com.emm.mygame.core.network.Peasants
+import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.RecruitOrder
 import com.emm.mygame.core.network.RecruitTerms
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.StudySlot
+import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.network.WaitingUpgrade
@@ -83,10 +89,12 @@ internal fun fief(
     arts: List<ArtState> = listOf(smithing(level = 0), masonry()),
     units: List<UnitState> = army(),
     recruitOrder: RecruitOrder? = null,
+    march: AwayMarch? = null,
 ): FiefSnapshot = FiefSnapshot(
     id = FiefId(FIEF_ID),
     name = "Vadoalto",
     readAt = readAt,
+    coordinates = PlotAddress(province = 1, plot = 1),
     resources = resources,
     slot = slot,
     buildings = buildings,
@@ -96,6 +104,14 @@ internal fun fief(
     arts = arts,
     units = units,
     recruitOrder = recruitOrder,
+    march = march,
+    forageTerms = ForageTerms(
+        secondsPerProvince = 600,
+        secondsPerPlot = 60,
+        maxStayHours = 8,
+        yieldPerHour = emptyMap(),
+    ),
+    season = null,
 )
 
 internal fun sawmill(level: Int = 0): BuildingState = building(BuildingKind.Sawmill, level)
@@ -140,6 +156,8 @@ private fun unit(kind: UnitKind, count: Int, away: Int, barracksLevel: Int): Uni
     count = count,
     away = away,
     barracksLevel = barracksLevel,
+    carry = 48,
+    roadPercent = 100,
     terms = RecruitTerms(
         cost = listOf(
             ResourceCost(ResourceKind.Wood, 20),
@@ -162,6 +180,33 @@ internal fun levyOfInfantry(count: Int, delivered: Int, startedBefore: Duration)
         perUnit = 1.minutes,
         startedAt = startedAt,
         endsAt = startedAt + count.minutes,
+    )
+}
+
+internal fun forageOfInfantry(
+    count: Int,
+    arrivesIn: Duration,
+    foragesFor: Duration,
+    order: MarchOrder = MarchOrder.Forage,
+): AwayMarch {
+    val arrivesAt: Instant = firstReadAt + arrivesIn
+    val departedAt: Instant = arrivesAt - 6.minutes
+    val leavesAt: Instant = arrivesAt + foragesFor
+    return AwayMarch(
+        order = order,
+        target = PlotAddress(province = 1, plot = 7),
+        units = listOf(
+            UnitCount(UnitKind.Infantry, count),
+            UnitCount(UnitKind.Cavalry, 0),
+            UnitCount(UnitKind.Archer, 0),
+            UnitCount(UnitKind.Settler, 0),
+        ),
+        departedAt = departedAt,
+        arrivesAt = arrivesAt,
+        leavesAt = leavesAt,
+        returnsAt = leavesAt + (arrivesAt - departedAt),
+        recalledAt = null,
+        loot = listOf(ResourceQuantity(ResourceKind.Wood, 42)),
     )
 }
 

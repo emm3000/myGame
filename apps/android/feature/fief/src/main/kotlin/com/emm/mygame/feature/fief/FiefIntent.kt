@@ -7,6 +7,8 @@ import kotlin.time.Instant
 
 sealed interface FiefIntent {
 
+    data object ScreenShown : FiefIntent
+
     data object RetryTapped : FiefIntent
 
     data object SignOutTapped : FiefIntent
@@ -24,4 +26,6 @@ sealed interface FiefIntent {
     data class RecruitTapped(val unit: UnitKind) : FiefIntent
 
     data class RecruitCancelTapped(val unit: UnitKind, val startedAt: Instant) : FiefIntent
+
+    data class RecallTapped(val departedAt: Instant) : FiefIntent
 }

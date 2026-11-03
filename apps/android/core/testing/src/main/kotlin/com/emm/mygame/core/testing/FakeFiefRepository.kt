@@ -6,8 +6,11 @@ import com.emm.mygame.core.network.CancelResult
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
+import com.emm.mygame.core.network.MarchResult
+import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.RecruitResult
 import com.emm.mygame.core.network.StudyResult
+import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UpgradeResult
 import kotlin.time.Instant
@@ -29,6 +32,10 @@ class FakeFiefRepository : FiefRepository {
 
     private val _recruits: MutableList<RecruitRequest> = mutableListOf()
 
+    private val marchAnswers: Channel<MarchResult> = Channel(Channel.UNLIMITED)
+
+    private val _marches: MutableList<MarchRequest> = mutableListOf()
+
     private val _upgrades: MutableList<Pair<FiefId, BuildingKind>> = mutableListOf()
 
     private val _cancels: MutableList<CancelRequest> = mutableListOf()
@@ -47,6 +54,13 @@ class FakeFiefRepository : FiefRepository {
 
     val recruits: List<RecruitRequest>
         get() = _recruits.toList()
+
+    val marches: List<MarchRequest>
+        get() = _marches.toList()
+
+    fun answerMarch(result: MarchResult) {
+        marchAnswers.trySend(result)
+    }
 
     fun answerRecruit(result: RecruitResult) {
         recruitAnswers.trySend(result)
@@ -101,6 +115,33 @@ class FakeFiefRepository : FiefRepository {
     override suspend fun cancelRecruit(fief: FiefId, unit: UnitKind, startedAt: Instant): RecruitResult {
         _recruits += RecruitRequest.Cancel(fief, unit, startedAt)
         return recruitAnswers.receive()
+    }
+
+    override suspend fun forage(
+        fief: FiefId,
+        target: PlotAddress,
+        party: List<UnitCount>,
+        stayHours: Int,
+    ): MarchResult {
+        _marches += MarchRequest.Forage(fief, target, party, stayHours)
+        return marchAnswers.receive()
+    }
+
+    override suspend fun recall(fief: FiefId, departedAt: Instant): MarchResult {
+        _marches += MarchRequest.Recall(fief, departedAt)
+        return marchAnswers.receive()
+    }
+
+    sealed interface MarchRequest {
+
+        data class Forage(
+            val fief: FiefId,
+            val target: PlotAddress,
+            val party: List<UnitCount>,
+            val stayHours: Int,
+        ) : MarchRequest
+
+        data class Recall(val fief: FiefId, val departedAt: Instant) : MarchRequest
     }
 
     sealed interface RecruitRequest {

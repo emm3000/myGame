@@ -18,6 +18,10 @@ interface FiefRepository {
     suspend fun recruit(fief: FiefId, unit: UnitKind, count: Int): RecruitResult
 
     suspend fun cancelRecruit(fief: FiefId, unit: UnitKind, startedAt: Instant): RecruitResult
+
+    suspend fun forage(fief: FiefId, target: PlotAddress, party: List<UnitCount>, stayHours: Int): MarchResult
+
+    suspend fun recall(fief: FiefId, departedAt: Instant): MarchResult
 }
 
 fun FiefRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): FiefRepository =

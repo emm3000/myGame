@@ -66,7 +66,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
             }
             entry<Destination.Map> {
                 SignedInFrame(current = Destination.Map, navigator = navigator) {
-                    MapRoute(maps = application.maps)
+                    MapRoute(maps = application.maps, fiefs = application.fiefs)
                 }
             }
             entry<Destination.Chronicle> {

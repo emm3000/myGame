@@ -23,4 +23,55 @@
     <string name="map_next">Provincia siguiente</string>
     <string name="map_jump">Ir a la provincia</string>
     <string name="map_jump_reading">Leyendo la provincia…</string>
+    <string name="forage_send">Enviar una marcha</string>
+    <string name="forage_send_to">Enviar una marcha a parcela %1$d</string>
+    <string name="forage_title">Marcha a provincia %1$d, parcela %2$d</string>
+    <string name="forage_field_infantry">Infantes a enviar</string>
+    <string name="forage_field_cavalry">Jinetes a enviar</string>
+    <string name="forage_field_archer">Arqueros a enviar</string>
+    <string name="forage_field_settler">Colonos a enviar</string>
+    <string name="forage_hours">Horas de forrajeo</string>
+    <string name="forage_at_home">%1$s en casa</string>
+    <string name="forage_road">Camino de ida: %1$s</string>
+    <string name="forage_return">Vuelta en %1$s</string>
+    <string name="forage_loot">Botín: %1$s</string>
+    <string name="forage_outbound">Marcha de ida: %1$s a provincia %2$d, parcela %3$d</string>
+    <string name="forage_waiting">Esperando al servidor</string>
+    <string name="forage_march_away">Ya hay una marcha en curso.</string>
+    <string name="forage_invalid_count">Un número entero, 0 o más.</string>
+    <string name="forage_invalid_hours">Un número entero, de 1 a %1$d.</string>
+    <string name="forage_empty_party">Envía al menos un hombre.</string>
+    <string name="forage_not_enough_at_home">Necesitas %1$s en casa y tienes %2$d.</string>
+    <string name="refusal_not_enough_units_at_home">No tienes en casa los hombres que pide esa marcha. Ajusta la marcha.</string>
+    <string name="refusal_march_slot_busy">El cuartel ya tiene una marcha en curso. Espera a que vuelva.</string>
+    <string name="refusal_stay_out_of_range">Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.</string>
+    <string name="refusal_march_target_out_of_bounds">Esa parcela no está en el mapa. Elige una que lo esté.</string>
+    <string name="refusal_plot_held">Esa parcela ya tiene feudo. Elige una libre.</string>
+    <string name="refusal_plot_has_camp">Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.</string>
+    <string name="refusal_plot_reserved">Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.</string>
+    <string name="refusal_unit_unfit_for_order">Un colono no forrajea, no ataca ni lleva carga. Envíalo a fundar un feudo.</string>
+    <string name="duration_minutes_seconds">%1$d:%2$02d</string>
+    <string name="duration_hours">%1$d h</string>
+    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="quantity_wood">%1$s de madera</string>
+    <string name="quantity_stone">%1$s de piedra</string>
+    <string name="quantity_iron">%1$s de hierro</string>
+    <string name="quantity_gold">%1$s de oro</string>
+    <string name="quantity_food">%1$s de comida</string>
+    <plurals name="unit_infantry_counted">
+        <item quantity="one">%1$d infante</item>
+        <item quantity="other">%1$d infantes</item>
+    </plurals>
+    <plurals name="unit_cavalry_counted">
+        <item quantity="one">%1$d jinete</item>
+        <item quantity="other">%1$d jinetes</item>
+    </plurals>
+    <plurals name="unit_archer_counted">
+        <item quantity="one">%1$d arquero</item>
+        <item quantity="other">%1$d arqueros</item>
+    </plurals>
+    <plurals name="unit_settler_counted">
+        <item quantity="one">%1$d colono</item>
+        <item quantity="other">%1$d colonos</item>
+    </plurals>
 </resources>

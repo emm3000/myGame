@@ -6,6 +6,7 @@ import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.PlotHolder
 import com.emm.mygame.core.network.ProvinceMap
 import com.emm.mygame.core.network.Terrain
+import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.FakeMapRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
@@ -21,7 +22,7 @@ class MapViewModelTest {
 
     @Test
     fun `draws the loading state while the api answers`() = runTest {
-        val viewModel: MapViewModel = MapViewModel(FakeMapRepository())
+        val viewModel: MapViewModel = MapViewModel(FakeMapRepository(), FakeFiefRepository())
 
         assertEquals(MapUiState.Loading, viewModel.state.value)
     }
@@ -30,7 +31,7 @@ class MapViewModelTest {
     fun `reads the own province first`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
 
-        MapViewModel(maps)
+        MapViewModel(maps, FakeFiefRepository())
 
         assertEquals(listOf<Int?>(null), maps.requests)
     }
@@ -38,17 +39,17 @@ class MapViewModelTest {
     @Test
     fun `draws the province the api answers`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps)
+        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
 
         maps.answerRead(MapReadResult.Read(thirdProvince))
 
-        assertEquals(MapUiState.Content(map = thirdProvince, jumpEntry = "3"), viewModel.state.value)
+        assertEquals(idleContentOf(thirdProvince, jumpEntry = "3"), viewModel.state.value)
     }
 
     @Test
     fun `offers a retry when the api cannot be reached`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps)
+        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
 
         maps.answerRead(MapReadResult.Unreachable)
 
@@ -70,7 +71,7 @@ class MapViewModelTest {
     @Test
     fun `ignores a retry while the map is read`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps)
+        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
 
         viewModel.onIntent(MapIntent.RetryTapped)
 
@@ -107,7 +108,7 @@ class MapViewModelTest {
             viewModel.onIntent(MapIntent.NextTapped)
             assertEquals(MapUiState.Loading, awaitItem())
             maps.answerRead(MapReadResult.Read(lastProvince))
-            assertEquals(MapUiState.Content(map = lastProvince, jumpEntry = "9"), awaitItem())
+            assertEquals(idleContentOf(lastProvince, jumpEntry = "9"), awaitItem())
         }
     }
 
@@ -215,8 +216,11 @@ class MapViewModelTest {
         assertEquals(listOf(null, 12, null), maps.requests)
     }
 
+    private fun idleContentOf(map: ProvinceMap, jumpEntry: String): MapUiState.Content =
+        MapUiState.Content(map, jumpEntry = jumpEntry, forageablePlots = emptyList(), form = null, sent = null)
+
     private fun contentOf(maps: FakeMapRepository, shown: ProvinceMap): MapViewModel {
-        val viewModel: MapViewModel = MapViewModel(maps)
+        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
         maps.answerRead(MapReadResult.Read(shown))
         return viewModel
     }

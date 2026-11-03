@@ -2,12 +2,17 @@ package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.network.MarchRefusal
+import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.RecruitRefusal
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.StudyRefusal
+import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UpgradeRefusal
+import com.emm.mygame.core.projection.MarchPhase
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -32,7 +37,42 @@ sealed interface FiefUiState {
         val army: ArmyLine?,
     ) : FiefUiState
 
-    data class ArmyLine(val slot: LevySlotLine, val units: List<UnitCard>, val recruit: RecruitStatus)
+    data class ArmyLine(
+        val slot: LevySlotLine,
+        val march: MarchSlotLine,
+        val units: List<UnitCard>,
+        val recruit: RecruitStatus,
+        val recall: RecallStatus,
+    )
+
+    sealed interface MarchSlotLine {
+
+        data object Idle : MarchSlotLine
+
+        data class Busy(
+            val phase: MarchPhase,
+            val units: List<UnitCount>,
+            val target: PlotAddress,
+            val remaining: Duration,
+            val loot: List<ResourceQuantity>,
+            val departedAt: Instant,
+        ) : MarchSlotLine {
+
+            val isRecallable: Boolean
+                get() = phase != MarchPhase.Returning
+        }
+    }
+
+    sealed interface RecallStatus {
+
+        data object Idle : RecallStatus
+
+        data object Waiting : RecallStatus
+
+        data class Refused(val refusal: MarchRefusal) : RecallStatus
+
+        data object Unreachable : RecallStatus
+    }
 
     sealed interface LevySlotLine {
 

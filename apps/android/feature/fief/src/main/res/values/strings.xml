@@ -150,5 +150,16 @@
     <string name="refusal_barracks_not_built">Tu feudo aún no tiene cuartel. Levántalo primero.</string>
     <string name="refusal_barracks_too_low">Tu cuartel aún no llega al nivel %1$d que piden los %2$s. Mejóralo primero.</string>
     <string name="refusal_recruit_slot_busy">El cuartel ya tiene una leva en marcha. Espera a que termine.</string>
+    <string name="march_idle">El cuartel no tiene marcha en curso.</string>
+    <string name="march_busy_title">Una marcha en curso</string>
+    <string name="march_line_outbound">Marcha de ida: %1$s a provincia %2$d, parcela %3$d</string>
+    <string name="march_line_foraging">Forrajeo: %1$s en provincia %2$d, parcela %3$d</string>
+    <string name="march_line_returning">Marcha de vuelta: %1$s desde provincia %2$d, parcela %3$d</string>
+    <string name="march_return">Vuelta en %1$s</string>
+    <string name="march_loot">Botín: %1$s</string>
+    <string name="march_recall">Retirar la marcha</string>
+    <string name="march_recall_description">Retirar la marcha: %1$s</string>
+    <string name="refusal_march_not_found">El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.</string>
+    <string name="refusal_march_already_returning">Esa marcha ya viene de vuelta. Espera a que llegue.</string>
     <string name="refusal_recruit_order_not_found">El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.</string>
 </resources>

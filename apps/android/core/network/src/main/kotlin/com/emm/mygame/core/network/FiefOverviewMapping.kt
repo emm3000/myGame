@@ -23,10 +23,12 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
     if (buildSlot == null || buildingStates == null || buildQueue == null) return null
     val army: MappedArmy? = toArmy()
     if (studySlot == null || artStates == null || army == null) return null
+    val mapped: MappedMarch = army.marching
     return FiefSnapshot(
         id = FiefId(id.toString()),
         name = name,
         readAt = readAt.toKotlinInstant(),
+        coordinates = mapped.coordinates,
         resources = listOf(
             resources.wood.toStoredResource(ResourceKind.Wood),
             resources.stone.toStoredResource(ResourceKind.Stone),
@@ -46,6 +48,9 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         arts = artStates,
         units = army.units,
         recruitOrder = army.recruitOrder,
+        march = mapped.march,
+        forageTerms = mapped.forageTerms,
+        season = mapped.season,
     )
 }
 

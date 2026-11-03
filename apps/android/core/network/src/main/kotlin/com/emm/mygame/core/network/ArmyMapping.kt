@@ -15,8 +15,9 @@ internal fun FiefOverview.toArmy(): MappedArmy? {
     val away: FiefOverviewUnits? = march?.units()
     val unitStates: List<UnitState> = UnitKind.entries.map { kind: UnitKind -> unitStateOf(kind, away) ?: return null }
     val levy: RecruitOrder? = recruitOrder?.toRecruitOrder()
-    if (recruitOrder != null && levy == null) return null
-    return MappedArmy(units = unitStates, recruitOrder = levy)
+    val marching: MappedMarch? = toMappedMarch()
+    if ((recruitOrder != null && levy == null) || marching == null) return null
+    return MappedArmy(units = unitStates, recruitOrder = levy, marching = marching)
 }
 
 private fun FiefOverview.unitStateOf(kind: UnitKind, away: FiefOverviewUnits?): UnitState? {
@@ -29,6 +30,8 @@ private fun FiefOverview.unitStateOf(kind: UnitKind, away: FiefOverviewUnits?): 
         count = count,
         away = away?.countOf(kind) ?: 0,
         barracksLevel = levelTerms.barracksLevel,
+        carry = levelTerms.carry,
+        roadPercent = levelTerms.roadPercent,
         terms = RecruitTerms(
             cost = terms.cost.toResourceCosts(),
             peasants = terms.peasants,

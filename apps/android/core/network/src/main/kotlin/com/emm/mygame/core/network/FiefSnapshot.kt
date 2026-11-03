@@ -6,6 +6,7 @@ data class FiefSnapshot(
     val id: FiefId,
     val name: String,
     val readAt: Instant,
+    val coordinates: PlotAddress,
     val resources: List<StoredResource>,
     val slot: BuildSlot,
     val buildings: List<BuildingState>,
@@ -15,4 +16,7 @@ data class FiefSnapshot(
     val arts: List<ArtState>,
     val units: List<UnitState>,
     val recruitOrder: RecruitOrder?,
+    val march: AwayMarch?,
+    val forageTerms: ForageTerms,
+    val season: SeasonPercents?,
 )
