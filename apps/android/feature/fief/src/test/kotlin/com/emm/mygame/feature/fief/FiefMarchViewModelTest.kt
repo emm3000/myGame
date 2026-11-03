@@ -242,7 +242,7 @@ class FiefMarchViewModelTest {
         val viewModel: FiefViewModel = openFief(fiefs)
         val outbound: AwayMarch = forageOfInfantry(count = 12, arrivesIn = 5.minutes, foragesFor = 60.minutes)
         fiefs.answerRead(FiefReadResult.Read(marching(outbound)))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.MarchAlreadyReturning))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.MarchAlreadyReturning, ALREADY_RETURNING_LINE))
 
         viewModel.state.test {
             awaitContent()
@@ -260,7 +260,7 @@ class FiefMarchViewModelTest {
         val viewModel: FiefViewModel = openFief(fiefs)
         val outbound: AwayMarch = forageOfInfantry(count = 12, arrivesIn = 5.minutes, foragesFor = 60.minutes)
         fiefs.answerRead(FiefReadResult.Read(marching(outbound)))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.MarchNotFound))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.MarchNotFound, MARCH_NOT_FOUND_LINE))
         fiefs.answerRead(FiefReadResult.Read(marching(march = null)))
 
         viewModel.state.test {
@@ -297,3 +297,8 @@ class FiefMarchViewModelTest {
         march = march,
     )
 }
+
+private const val ALREADY_RETURNING_LINE: String = "Esa marcha ya viene de vuelta. Espera a que llegue."
+
+private const val MARCH_NOT_FOUND_LINE: String =
+    "El cuartel ya no tiene esa marcha en curso. No queda nada que retirar."

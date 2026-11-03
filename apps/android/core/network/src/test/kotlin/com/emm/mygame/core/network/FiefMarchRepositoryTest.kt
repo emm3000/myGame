@@ -239,7 +239,7 @@ class FiefMarchRepositoryTest {
                 MarchRefusal.MarchNotFound,
                 MarchRefusal.MarchAlreadyReturning,
                 MarchRefusal.Unrecognized,
-            ).map { MarchResult.Refused(it) },
+            ).map { MarchResult.Refused(it, "No.") },
             refusals,
         )
     }
@@ -354,6 +354,34 @@ class FiefMarchRepositoryTest {
     }
 
     @Test
+    fun `carries the api's line with the refusal of a march`() = runTest {
+        val line: String = "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha."
+        api.enqueue(json(409, """{"kind":"NotEnoughUnitsAtHome","message":"$line"}"""))
+
+        val refused: MarchResult = repository().dispatch(
+            FiefId(LISTED_FIEF_ID),
+            MarchDispatch.Forage(PlotAddress(1, 7), listOf(UnitCount(UnitKind.Cavalry, 7)), 1),
+        )
+
+        assertEquals(
+            MarchResult.Refused(MarchRefusal.NotEnoughUnitsAtHome, line),
+            refused,
+        )
+    }
+
+    @Test
+    fun `answers unreachable for a refused march whose body it cannot read`() = runTest {
+        api.enqueue(json(409, """{"kind":"NotEnoughUnitsAtHome"}"""))
+
+        val refused: MarchResult = repository().dispatch(
+            FiefId(LISTED_FIEF_ID),
+            MarchDispatch.Forage(PlotAddress(1, 7), listOf(UnitCount(UnitKind.Cavalry, 7)), 1),
+        )
+
+        assertEquals(MarchResult.Unreachable, refused)
+    }
+
+    @Test
     fun `answers the refusal the api names for an attack, a founding or a transport`() = runTest {
         val kinds: List<Pair<Int, String>> = listOf(
             409 to "PlotHasNoCamp",
@@ -382,7 +410,7 @@ class FiefMarchRepositoryTest {
                 MarchRefusal.InsufficientResources,
                 MarchRefusal.BlankFiefName,
                 MarchRefusal.FiefNotFound,
-            ).map { MarchResult.Refused(it) },
+            ).map { MarchResult.Refused(it, "No.") },
             refusals,
         )
     }

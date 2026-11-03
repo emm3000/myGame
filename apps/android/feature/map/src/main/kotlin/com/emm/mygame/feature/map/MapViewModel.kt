@@ -122,7 +122,7 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
                     redraw()
                     reread()
                 }
-                is MarchResult.Refused -> answerSend(open, read.refusedStatusOf(open, answer.refusal))
+                is MarchResult.Refused -> answerSend(open, answer.sendStatus())
                 MarchResult.Unreachable -> answerSend(open, MapUiState.SendStatus.Unreachable)
             }
         }

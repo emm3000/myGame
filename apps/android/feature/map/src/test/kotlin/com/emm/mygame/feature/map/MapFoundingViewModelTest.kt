@@ -198,15 +198,15 @@ class MapFoundingViewModelTest {
     }
 
     @Test
-    fun `keeps the api's refusal of a fief past the cap beside the founding`() = runTest {
+    fun `keeps the api's line for a fief past the cap beside the founding`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs)
         viewModel.onIntent(MapIntent.FoundingToggled(7, proposedName = "Vega"))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.FiefCapReached))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.FiefCapReached, FIEF_CAP_LINE))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(MapUiState.SendStatus.Refused(MarchRefusal.FiefCapReached), foundingForm(viewModel).send)
+        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(FIEF_CAP_LINE), foundingForm(viewModel).send)
     }
 
     @Test
@@ -225,3 +225,5 @@ class MapFoundingViewModelTest {
 
 private fun ProvinceMap.withPlot(changed: MapPlot): ProvinceMap =
     copy(plots = plots.map { each: MapPlot -> if (each.plot == changed.plot) changed else each })
+
+private const val FIEF_CAP_LINE: String = "Solo puedes tener 3 feudos. Deja al colono en casa."

@@ -365,11 +365,35 @@ class MapForageViewModelTest {
     }
 
     @Test
+    fun `keeps the api's line for a party short at home beside the form`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: MapViewModel = openOn(fiefs)
+        viewModel.onIntent(MapIntent.ForageToggled(7))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.NotEnoughUnitsAtHome, SHORT_AT_HOME_LINE))
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(SHORT_AT_HOME_LINE), form(viewModel).send)
+    }
+
+    @Test
+    fun `keeps the api's line for a stay out of range beside the form`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: MapViewModel = openOn(fiefs)
+        viewModel.onIntent(MapIntent.ForageToggled(7))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.StayOutOfRange, STAY_OUT_OF_RANGE_LINE))
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(STAY_OUT_OF_RANGE_LINE), form(viewModel).send)
+    }
+
+    @Test
     fun `keeps the refusal the api names beside the form`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOn(fiefs)
         viewModel.onIntent(MapIntent.ForageToggled(7))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.PlotReserved))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.PlotReserved, PLOT_RESERVED_LINE))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
@@ -420,3 +444,10 @@ class MapForageViewModelTest {
         .filter { offer: MapUiState.PlotOffer -> offer.order == MapUiState.OfferedOrder.Forage }
         .map { offer: MapUiState.PlotOffer -> offer.plot }
 }
+
+private const val SHORT_AT_HOME_LINE: String = "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha."
+
+private const val PLOT_RESERVED_LINE: String =
+    "Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra."
+
+private const val STAY_OUT_OF_RANGE_LINE: String = "Una marcha forrajea de 1 a 12 horas enteras. Ajusta las horas."

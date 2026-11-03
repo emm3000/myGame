@@ -7,16 +7,14 @@ import com.emm.mygame.core.network.UnitCount
 
 internal fun Resources.sendAnswerOf(send: MapUiState.SendStatus): String? = when (send) {
     is MapUiState.SendStatus.Refused -> refusalLineOf(send.refusal)
-    is MapUiState.SendStatus.CargoAboveCarry -> getString(R.string.refusal_cargo_above_carry, send.cargo, send.carry)
+    is MapUiState.SendStatus.RefusedWithApiLine -> send.line
     MapUiState.SendStatus.Unreachable -> getString(R.string.map_unreachable)
     MapUiState.SendStatus.Idle, MapUiState.SendStatus.Waiting -> null
 }
 
 internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = getString(
     when (refusal) {
-        MarchRefusal.NotEnoughUnitsAtHome -> R.string.refusal_not_enough_units_at_home
         MarchRefusal.MarchSlotBusy -> R.string.refusal_march_slot_busy
-        MarchRefusal.StayOutOfRange -> R.string.refusal_stay_out_of_range
         MarchRefusal.MarchTargetOutOfBounds -> R.string.refusal_march_target_out_of_bounds
         MarchRefusal.PlotHeld -> R.string.refusal_plot_held
         MarchRefusal.PlotHasCamp -> R.string.refusal_plot_has_camp
@@ -24,11 +22,13 @@ internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = getString(
         MarchRefusal.PlotReserved -> R.string.refusal_plot_reserved
         MarchRefusal.MarchToOwnPlot -> R.string.refusal_march_to_own_plot
         MarchRefusal.UnitUnfitForOrder -> R.string.refusal_unit_unfit_for_order
-        MarchRefusal.FiefCapReached -> R.string.refusal_fief_cap_reached
         MarchRefusal.BlankFiefName -> R.string.refusal_blank_fief_name
         MarchRefusal.EmptyCargo -> R.string.refusal_empty_cargo
         MarchRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
         MarchRefusal.FiefNotFound -> R.string.refusal_fief_not_found
+        MarchRefusal.NotEnoughUnitsAtHome,
+        MarchRefusal.StayOutOfRange,
+        MarchRefusal.FiefCapReached,
         MarchRefusal.CargoAboveCarry,
         MarchRefusal.MarchNotFound,
         MarchRefusal.MarchAlreadyReturning,

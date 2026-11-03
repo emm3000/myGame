@@ -175,21 +175,21 @@ class MapTransportViewModelTest {
     }
 
     @Test
-    fun `reads the api's refusal of a cargo above the carry with the cargo and the carry sent`() = runTest {
+    fun `keeps the api's line for a cargo above the carry beside the transport`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = loading(wood = "300", fiefs = fiefs)
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.CargoAboveCarry))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.CargoAboveCarry, CARGO_ABOVE_CARRY_LINE))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(MapUiState.SendStatus.CargoAboveCarry(cargo = 300, carry = 48), transportForm(viewModel).send)
+        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(CARGO_ABOVE_CARRY_LINE), transportForm(viewModel).send)
     }
 
     @Test
     fun `keeps the api's refusal of an empty cargo beside the transport`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = loading(wood = "0", fiefs = fiefs)
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.EmptyCargo))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.EmptyCargo, EMPTY_CARGO_LINE))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
@@ -238,3 +238,8 @@ class MapTransportViewModelTest {
     private fun preview(viewModel: MapViewModel): MapUiState.TransportPreview =
         requireNotNull(transportForm(viewModel).preview)
 }
+
+private const val CARGO_ABOVE_CARRY_LINE: String =
+    "La carga suma 300 y tus hombres llevan hasta 48. Quita carga o envía más hombres."
+
+private const val EMPTY_CARGO_LINE: String = "Un transporte no sale de vacío. Carga al menos un recurso."

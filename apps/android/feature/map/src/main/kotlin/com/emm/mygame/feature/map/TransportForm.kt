@@ -38,9 +38,6 @@ internal fun transportLoadOf(choice: MarchChoice): TransportLoad? {
     return TransportLoad(party = party.everyPartyKind(), cargo = cargo)
 }
 
-internal fun FiefSnapshot.cargoAboveCarryOf(load: TransportLoad): MapUiState.SendStatus.CargoAboveCarry =
-    MapUiState.SendStatus.CargoAboveCarry(cargo = load.cargo.total(), carry = carryOf(load.party))
-
 private fun FiefSnapshot.transportPreviewOf(
     target: PlotAddress,
     party: List<UnitCount>,
