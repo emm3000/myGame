@@ -278,6 +278,8 @@ sealed interface FiefUiState {
 
         data class InMinutes(val minutes: Int) : ReadyHour
 
+        data object InAnHour : ReadyHour
+
         data class AtClock(val readyAt: Instant, val remaining: Duration) : ReadyHour
     }
 
