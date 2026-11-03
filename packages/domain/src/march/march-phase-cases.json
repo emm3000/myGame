@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "name": "marches outbound until the arrival",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 1,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 4200000,
+      "atEpochMilliseconds": 599999,
+      "expectedPhase": "outbound",
+      "expectedNextTurnInMilliseconds": 1
+    },
+    {
+      "name": "counts down to the arrival while outbound",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 1,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 4200000,
+      "atEpochMilliseconds": 300000,
+      "expectedPhase": "outbound",
+      "expectedNextTurnInMilliseconds": 300000
+    },
+    {
+      "name": "turns from outbound to foraging at the arrival",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 1,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 4200000,
+      "atEpochMilliseconds": 600000,
+      "expectedPhase": "foraging",
+      "expectedNextTurnInMilliseconds": 3600000
+    },
+    {
+      "name": "counts down to the leaving while foraging",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 1,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 4200000,
+      "atEpochMilliseconds": 1200000,
+      "expectedPhase": "foraging",
+      "expectedNextTurnInMilliseconds": 3000000
+    },
+    {
+      "name": "turns from foraging to returning at the leaving, with no turn left",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 1,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 4200000,
+      "atEpochMilliseconds": 4200000,
+      "expectedPhase": "returning",
+      "expectedNextTurnInMilliseconds": null
+    },
+    {
+      "name": "returns at once from a march that leaves on its arrival",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 0,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 600000,
+      "atEpochMilliseconds": 600000,
+      "expectedPhase": "returning",
+      "expectedNextTurnInMilliseconds": null
+    }
+  ]
+}

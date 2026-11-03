@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "name": "delivers one unit per term since the levy started",
+      "startedAtEpochMilliseconds": 0,
+      "perUnitSeconds": 60,
+      "count": 12,
+      "atEpochMilliseconds": 270000,
+      "expectedDelivered": 4
+    },
+    {
+      "name": "never delivers more than the levy counts",
+      "startedAtEpochMilliseconds": 0,
+      "perUnitSeconds": 60,
+      "count": 12,
+      "atEpochMilliseconds": 1200000,
+      "expectedDelivered": 12
+    },
+    {
+      "name": "delivers none before the levy started",
+      "startedAtEpochMilliseconds": 0,
+      "perUnitSeconds": 60,
+      "count": 12,
+      "atEpochMilliseconds": -5000,
+      "expectedDelivered": 0
+    }
+  ]
+}
