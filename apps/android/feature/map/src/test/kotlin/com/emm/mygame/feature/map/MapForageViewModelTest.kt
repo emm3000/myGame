@@ -274,7 +274,34 @@ class MapForageViewModelTest {
     }
 
     @Test
-    fun `sends the march past the longest stay so the api answers`() = runTest {
+    fun `sends nothing while the form is blocked`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: MapViewModel = openOn(fiefs, fief(march = forage(freePlot, infantry = 2)))
+        viewModel.onIntent(MapIntent.ForageToggled(7))
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(emptyList<FakeFiefRepository.MarchRequest>(), fiefs.marches)
+    }
+
+    @Test
+    fun `draws only the block for a party short at home once tapped`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: MapViewModel = openOn(fiefs)
+        viewModel.onIntent(MapIntent.ForageToggled(7))
+        viewModel.onIntent(MapIntent.PartyEntryChanged(UnitKind.Infantry, "13"))
+
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        assertEquals(
+            MapUiState.MarchBlock.NotEnoughAtHome(UnitKind.Infantry, needed = 13, atHome = 12) to
+                MapUiState.SendStatus.Idle,
+            form(viewModel).block to form(viewModel).send,
+        )
+    }
+
+    @Test
+    fun `sends nothing for a stay past the longest`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOn(fiefs)
         viewModel.onIntent(MapIntent.ForageToggled(7))
@@ -282,18 +309,7 @@ class MapForageViewModelTest {
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(listOf(9), fiefs.marches.map { (it as FakeFiefRepository.MarchRequest.Forage).stayHours })
-    }
-
-    @Test
-    fun `sends the march while one is away so the api answers`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: MapViewModel = openOn(fiefs, fief(march = forage(freePlot, infantry = 2)))
-        viewModel.onIntent(MapIntent.ForageToggled(7))
-
-        viewModel.onIntent(MapIntent.SendTapped)
-
-        assertEquals(1, fiefs.marches.size)
+        assertEquals(emptyList<FakeFiefRepository.MarchRequest>(), fiefs.marches)
     }
 
     @Test

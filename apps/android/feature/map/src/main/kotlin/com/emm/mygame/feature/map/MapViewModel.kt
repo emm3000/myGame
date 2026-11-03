@@ -109,8 +109,7 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
 
     private fun send() {
         val read: FiefSnapshot = fief ?: return
-        val open: MarchChoice = choice?.takeIf { asked: MarchChoice -> asked.send != MapUiState.SendStatus.Waiting }
-            ?: return
+        val open: MarchChoice = unblockedChoiceOf(read) ?: return
         val march: MarchDispatch = dispatchOf(open) ?: return
         answerSend(open, MapUiState.SendStatus.Waiting)
         viewModelScope.launch {
@@ -125,6 +124,13 @@ class MapViewModel(private val maps: MapRepository, private val fiefs: FiefRepos
                 is MarchResult.Refused -> answerSend(open, answer.sendStatus())
                 MarchResult.Unreachable -> answerSend(open, MapUiState.SendStatus.Unreachable)
             }
+        }
+    }
+
+    private fun unblockedChoiceOf(read: FiefSnapshot): MarchChoice? {
+        val shown: MapUiState.Content = _state.value as? MapUiState.Content ?: return null
+        return choice?.takeIf { asked: MarchChoice ->
+            asked.send != MapUiState.SendStatus.Waiting && read.formOf(asked, shown.map.terrain).block == null
         }
     }
 

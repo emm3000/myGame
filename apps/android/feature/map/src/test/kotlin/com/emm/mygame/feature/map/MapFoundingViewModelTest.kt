@@ -130,7 +130,7 @@ class MapFoundingViewModelTest {
     }
 
     @Test
-    fun `sends a blank name so the api answers`() = runTest {
+    fun `sends nothing while the form is blocked`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs)
         viewModel.onIntent(MapIntent.FoundingToggled(7, proposedName = "Vega"))
@@ -138,7 +138,7 @@ class MapFoundingViewModelTest {
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(listOf(""), fiefs.marches.map { (it as FakeFiefRepository.MarchRequest.Found).name })
+        assertEquals(emptyList<FakeFiefRepository.MarchRequest>(), fiefs.marches)
     }
 
     @Test
