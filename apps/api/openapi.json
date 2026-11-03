@@ -883,7 +883,16 @@
                 },
                 "required": ["level", "nextLevel"]
               }
-            }
+            },
+            "required": [
+              "sawmill",
+              "quarry",
+              "ironMine",
+              "farm",
+              "warehouse",
+              "library",
+              "barracks"
+            ]
           },
           "peasants": {
             "type": "object",
@@ -1130,7 +1139,8 @@
                 },
                 "required": ["level", "resource", "ratePercent", "nextLevel"]
               }
-            }
+            },
+            "required": ["smithing", "masonry"]
           },
           "season": {
             "type": "object",
@@ -1177,7 +1187,8 @@
                     "minimum": 0,
                     "exclusiveMinimum": true
                   }
-                }
+                },
+                "required": ["wood", "stone", "iron", "gold", "food"]
               },
               "durationPercent": {
                 "type": "object",
@@ -1229,7 +1240,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "recruitOrder": {
             "type": "object",
@@ -1436,7 +1448,8 @@
                 "required": ["cost", "peasants", "perUnitSeconds"],
                 "additionalProperties": false
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "unitTerms": {
             "type": "object",
@@ -1541,7 +1554,8 @@
                 "required": ["strength", "carry", "roadPercent", "barracksLevel"],
                 "additionalProperties": false
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "march": {
             "allOf": [
@@ -1658,7 +1672,8 @@
                     "required": ["wood", "stone", "iron", "gold", "food"],
                     "additionalProperties": false
                   }
-                }
+                },
+                "required": ["lowlands", "uplands", "ridges"]
               }
             },
             "required": ["secondsPerProvince", "secondsPerPlot", "maxStayHours", "yieldPerHour"],
@@ -2036,7 +2051,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "departedAt": {
             "type": "string",
@@ -2162,7 +2178,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "departedAt": {
             "type": "string",
@@ -2299,7 +2316,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "departedAt": {
             "type": "string",
@@ -2430,7 +2448,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "departedAt": {
             "type": "string",
@@ -2994,7 +3013,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "loot": {
             "type": "object",
@@ -3076,7 +3096,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "campLost": {
             "type": "integer",
@@ -3334,7 +3355,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "stayHours": {
             "type": "integer",
@@ -3376,7 +3398,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           }
         },
         "required": ["province", "plot", "units"]
@@ -3428,7 +3451,8 @@
                 "type": "integer",
                 "minimum": 0
               }
-            }
+            },
+            "required": ["infantry", "cavalry", "archer", "settler"]
           },
           "cargo": {
             "type": "object",

@@ -98,7 +98,9 @@ const SeasonStateSchema = z.strictObject({
   kind: SeasonKindSchema,
   year: WholeCountSchema.positive(),
   endsAt: InstantSchema,
-  multiplierPercent: z.record(ResourceKindSchema, WholeCountSchema.positive()),
+  multiplierPercent: z
+    .record(ResourceKindSchema, WholeCountSchema.positive())
+    .meta({ required: ResourceKindSchema.options }),
   durationPercent: SeasonDurationPercentSchema,
 })
 
@@ -253,7 +255,9 @@ export const FiefOverviewSchema = z.object({
     gold: ResourceStateSchema,
     food: ResourceStateSchema,
   }),
-  buildings: z.record(BuildingKindSchema, BuildingStateSchema),
+  buildings: z
+    .record(BuildingKindSchema, BuildingStateSchema)
+    .meta({ required: BuildingKindSchema.options }),
   peasants: z.object({
     supplied: WholeCountSchema,
     occupied: WholeCountSchema,
@@ -269,12 +273,14 @@ export const FiefOverviewSchema = z.object({
     cap: WholeCountSchema,
   }),
   study: StudySlotSchema,
-  arts: z.record(ArtKindSchema, ArtStateSchema),
+  arts: z.record(ArtKindSchema, ArtStateSchema).meta({ required: ArtKindSchema.options }),
   season: SeasonStateSchema.nullable(),
   units: UnitCountsSchema,
   recruitOrder: RecruitOrderStateSchema.nullable(),
-  recruitTerms: z.record(UnitKindSchema, RecruitTermsSchema),
-  unitTerms: z.record(UnitKindSchema, UnitStatsSchema),
+  recruitTerms: z
+    .record(UnitKindSchema, RecruitTermsSchema)
+    .meta({ required: UnitKindSchema.options }),
+  unitTerms: z.record(UnitKindSchema, UnitStatsSchema).meta({ required: UnitKindSchema.options }),
   march: z.lazy(() => MarchStateSchema).nullable(),
   forageTerms: ForageTermsSchema,
   combatTerms: CombatTermsSchema,

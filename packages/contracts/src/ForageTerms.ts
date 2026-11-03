@@ -14,5 +14,7 @@ export const ForageTermsSchema = z.strictObject({
   secondsPerProvince: WholeCountSchema.positive(),
   secondsPerPlot: WholeCountSchema.positive(),
   maxStayHours: WholeCountSchema.positive(),
-  yieldPerHour: z.record(TerrainSchema, ForageYieldSchema),
+  yieldPerHour: z
+    .record(TerrainSchema, ForageYieldSchema)
+    .meta({ required: TerrainSchema.options }),
 })

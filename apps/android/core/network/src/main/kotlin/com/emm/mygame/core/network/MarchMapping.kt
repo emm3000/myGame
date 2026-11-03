@@ -12,16 +12,12 @@ import java.time.OffsetDateTime
 
 internal fun FiefOverview.toMappedMarch(): MappedMarch? {
     val away: AwayMarch? = march?.toAwayMarch()
-    val terms: ForageTerms? = forageTerms.toForageTerms()
-    val percents: SeasonPercents? = season?.toSeasonPercents()
-    val isMarchUnknown: Boolean = march != null && away == null
-    val isSeasonUnknown: Boolean = season != null && percents == null
-    if (isMarchUnknown || isSeasonUnknown || terms == null) return null
+    if (march != null && away == null) return null
     return MappedMarch(
         coordinates = PlotAddress(province = coordinates.province, plot = coordinates.plot),
         march = away,
-        forageTerms = terms,
-        season = percents,
+        forageTerms = forageTerms.toForageTerms(),
+        season = season?.toSeasonPercents(),
     )
 }
 
@@ -68,13 +64,10 @@ private data class MarchFields(
 
 private fun MarchState.toAwayMarch(): AwayMarch? {
     val fields: MarchFields = fields()
-    val party: List<UnitCount> = UnitKind.entries.map { kind: UnitKind ->
-        UnitCount(kind, fields.units.wireCountOf(kind) ?: return null)
-    }
     return AwayMarch(
         order = fields.order,
         target = PlotAddress(province = fields.province, plot = fields.plot),
-        units = party,
+        units = UnitKind.entries.map { kind: UnitKind -> UnitCount(kind, fields.units.wireCountOf(kind)) },
         departedAt = fields.departedAt.toKotlinInstant(),
         arrivesAt = fields.arrivesAt.toKotlinInstant(),
         leavesAt = fields.leavesAt.toKotlinInstant(),
@@ -123,15 +116,15 @@ private fun MarchState.fields(): MarchFields = when (this) {
     }
 }
 
-private fun FiefOverviewUnits.wireCountOf(kind: UnitKind): Int? = when (kind) {
+private fun FiefOverviewUnits.wireCountOf(kind: UnitKind): Int = when (kind) {
     UnitKind.Infantry -> infantry
     UnitKind.Cavalry -> cavalry
     UnitKind.Archer -> archer
     UnitKind.Settler -> settler
 }
 
-private fun FiefOverviewForageTerms.toForageTerms(): ForageTerms? {
-    val yields: List<Pair<Terrain, FiefOverviewForageTermsYieldPerHourLowlands?>> = listOf(
+private fun FiefOverviewForageTerms.toForageTerms(): ForageTerms {
+    val yields: List<Pair<Terrain, FiefOverviewForageTermsYieldPerHourLowlands>> = listOf(
         Terrain.Lowlands to yieldPerHour.lowlands,
         Terrain.Uplands to yieldPerHour.uplands,
         Terrain.Ridges to yieldPerHour.ridges,
@@ -140,8 +133,8 @@ private fun FiefOverviewForageTerms.toForageTerms(): ForageTerms? {
         secondsPerProvince = secondsPerProvince,
         secondsPerPlot = secondsPerPlot,
         maxStayHours = maxStayHours,
-        yieldPerHour = yields.associate { (terrain: Terrain, rates: FiefOverviewForageTermsYieldPerHourLowlands?) ->
-            terrain to (rates?.toQuantities() ?: return null)
+        yieldPerHour = yields.associate { (terrain: Terrain, rates: FiefOverviewForageTermsYieldPerHourLowlands) ->
+            terrain to rates.toQuantities()
         },
     )
 }
@@ -154,8 +147,8 @@ private fun FiefOverviewForageTermsYieldPerHourLowlands.toQuantities(): List<Res
     ResourceQuantity(ResourceKind.Food, food.toLong()),
 )
 
-private fun FiefOverviewSeason.toSeasonPercents(): SeasonPercents? {
-    val percents: List<Pair<ResourceKind, Int?>> = listOf(
+private fun FiefOverviewSeason.toSeasonPercents(): SeasonPercents {
+    val percents: List<Pair<ResourceKind, Int>> = listOf(
         ResourceKind.Wood to multiplierPercent.wood,
         ResourceKind.Stone to multiplierPercent.stone,
         ResourceKind.Iron to multiplierPercent.iron,
@@ -164,6 +157,6 @@ private fun FiefOverviewSeason.toSeasonPercents(): SeasonPercents? {
     )
     return SeasonPercents(
         road = durationPercent.road,
-        loot = percents.associate { (kind: ResourceKind, percent: Int?) -> kind to (percent ?: return null) },
+        loot = percents.associate { (kind: ResourceKind, percent: Int) -> kind to percent },
     )
 }

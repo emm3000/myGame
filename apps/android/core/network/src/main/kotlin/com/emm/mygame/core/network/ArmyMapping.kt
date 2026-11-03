@@ -13,21 +13,19 @@ import kotlin.time.Duration.Companion.seconds
 
 internal fun FiefOverview.toArmy(): MappedArmy? {
     val away: FiefOverviewUnits? = march?.units()
-    val unitStates: List<UnitState> = UnitKind.entries.map { kind: UnitKind -> unitStateOf(kind, away) ?: return null }
+    val unitStates: List<UnitState> = UnitKind.entries.map { kind: UnitKind -> unitStateOf(kind, away) }
     val levy: RecruitOrder? = recruitOrder?.toRecruitOrder()
     val marching: MappedMarch? = toMappedMarch()
     if ((recruitOrder != null && levy == null) || marching == null) return null
     return MappedArmy(units = unitStates, recruitOrder = levy, marching = marching)
 }
 
-private fun FiefOverview.unitStateOf(kind: UnitKind, away: FiefOverviewUnits?): UnitState? {
-    val count: Int? = units.countOf(kind)
-    val terms: FiefOverviewRecruitTermsInfantry? = recruitTerms.termsOf(kind)
-    val levelTerms: FiefOverviewUnitTermsInfantry? = unitTerms.termsOf(kind)
-    if (count == null || terms == null || levelTerms == null) return null
+private fun FiefOverview.unitStateOf(kind: UnitKind, away: FiefOverviewUnits?): UnitState {
+    val terms: FiefOverviewRecruitTermsInfantry = recruitTerms.termsOf(kind)
+    val levelTerms: FiefOverviewUnitTermsInfantry = unitTerms.termsOf(kind)
     return UnitState(
         kind = kind,
-        count = count,
+        count = units.countOf(kind),
         away = away?.countOf(kind) ?: 0,
         barracksLevel = levelTerms.barracksLevel,
         strength = levelTerms.strength,
@@ -67,7 +65,7 @@ private fun MarchState.units(): FiefOverviewUnits = when (this) {
     is MarchState.TransportWrapper -> value.units
 }
 
-private fun FiefOverviewUnits.countOf(kind: UnitKind): Int? = when (kind) {
+private fun FiefOverviewUnits.countOf(kind: UnitKind): Int = when (kind) {
     UnitKind.Infantry -> infantry
     UnitKind.Cavalry -> cavalry
     UnitKind.Archer -> archer
@@ -76,7 +74,7 @@ private fun FiefOverviewUnits.countOf(kind: UnitKind): Int? = when (kind) {
 
 private fun FiefOverviewRecruitTerms.termsOf(
     kind: UnitKind,
-): FiefOverviewRecruitTermsInfantry? = when (kind) {
+): FiefOverviewRecruitTermsInfantry = when (kind) {
     UnitKind.Infantry -> infantry
     UnitKind.Cavalry -> cavalry
     UnitKind.Archer -> archer
@@ -85,7 +83,7 @@ private fun FiefOverviewRecruitTerms.termsOf(
 
 private fun FiefOverviewUnitTerms.termsOf(
     kind: UnitKind,
-): FiefOverviewUnitTermsInfantry? = when (kind) {
+): FiefOverviewUnitTermsInfantry = when (kind) {
     UnitKind.Infantry -> infantry
     UnitKind.Cavalry -> cavalry
     UnitKind.Archer -> archer

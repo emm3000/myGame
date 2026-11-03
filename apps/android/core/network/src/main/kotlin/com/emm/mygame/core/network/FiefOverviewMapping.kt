@@ -16,11 +16,10 @@ import kotlin.time.Instant
 
 internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
     val buildSlot: BuildSlot? = slot.toBuildSlot()
-    val buildingStates: List<BuildingState>? = buildings.toBuildingStates()
     val buildQueue: BuildQueue? = queue.toBuildQueue()
     val studySlot: StudySlot? = study.toStudySlot()
     val artStates: List<ArtState>? = arts.toArtStates()
-    if (buildSlot == null || buildingStates == null || buildQueue == null) return null
+    if (buildSlot == null || buildQueue == null) return null
     val army: MappedArmy? = toArmy()
     if (studySlot == null || artStates == null || army == null) return null
     val mapped: MappedMarch = army.marching
@@ -37,7 +36,7 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
             resources.food.toStoredResource(ResourceKind.Food),
         ),
         slot = buildSlot,
-        buildings = buildingStates,
+        buildings = buildings.toBuildingStates(),
         peasants = Peasants(
             free = peasants.projectedFree,
             supplied = peasants.projectedSupplied,
@@ -55,8 +54,8 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
     )
 }
 
-private fun FiefOverviewBuildings.toBuildingStates(): List<BuildingState>? {
-    val drawn: List<Pair<BuildingKind, FiefOverviewBuildingsSawmill?>> = listOf(
+private fun FiefOverviewBuildings.toBuildingStates(): List<BuildingState> {
+    val drawn: List<Pair<BuildingKind, FiefOverviewBuildingsSawmill>> = listOf(
         BuildingKind.Sawmill to sawmill,
         BuildingKind.Quarry to quarry,
         BuildingKind.IronMine to ironMine,
@@ -65,9 +64,7 @@ private fun FiefOverviewBuildings.toBuildingStates(): List<BuildingState>? {
         BuildingKind.Library to library,
         BuildingKind.Barracks to barracks,
     )
-    return drawn.map { (kind: BuildingKind, building: FiefOverviewBuildingsSawmill?) ->
-        building?.toBuildingState(kind) ?: return null
-    }
+    return drawn.map { (kind: BuildingKind, building: FiefOverviewBuildingsSawmill) -> building.toBuildingState(kind) }
 }
 
 private fun FiefOverviewBuildingsSawmill.toBuildingState(kind: BuildingKind): BuildingState =

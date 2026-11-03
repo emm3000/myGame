@@ -77,25 +77,21 @@ private fun RecruitsCancelledEvent.toChronicleEvent(): ChronicleEvent? {
     )
 }
 
-private fun MarchReturnedEvent.toChronicleEvent(): ChronicleEvent? {
-    val party: List<UnitCount> = units.toUnitCounts() ?: return null
-    return ChronicleEvent.MarchReturned(
-        plot = PlotAddress(province = province, plot = plot),
-        units = party,
-        loot = loot.toQuantities(),
-        isRecalled = recalled,
-        occurredAt = occurredAt.toKotlinInstant(),
-    )
-}
+private fun MarchReturnedEvent.toChronicleEvent(): ChronicleEvent = ChronicleEvent.MarchReturned(
+    plot = PlotAddress(province = province, plot = plot),
+    units = units.toUnitCounts(),
+    loot = loot.toQuantities(),
+    isRecalled = recalled,
+    occurredAt = occurredAt.toKotlinInstant(),
+)
 
 private fun BattleFoughtEvent.toChronicleEvent(): ChronicleEvent? {
-    val losses: List<UnitCount> = unitsLost.toUnitCounts() ?: return null
     if (tier == BattleFoughtEvent.Tier.unknown_default_open_api) return null
     return ChronicleEvent.BattleFought(
         plot = PlotAddress(province = province, plot = plot),
         campTier = tier.value,
         isWon = won,
-        unitsLost = losses,
+        unitsLost = unitsLost.toUnitCounts(),
         campLost = campLost,
         occurredAt = occurredAt.toKotlinInstant(),
     )
@@ -135,12 +131,9 @@ private fun FiefOverviewBuildingsSawmillNextLevelCost.toQuantities(): List<Resou
     ResourceQuantity(ResourceKind.Food, food.toLong()),
 )
 
-private fun FiefOverviewUnits.toUnitCounts(): List<UnitCount>? {
-    val counts: List<Pair<UnitKind, Int?>> = listOf(
-        UnitKind.Infantry to infantry,
-        UnitKind.Cavalry to cavalry,
-        UnitKind.Archer to archer,
-        UnitKind.Settler to settler,
-    )
-    return counts.map { (unit: UnitKind, count: Int?) -> UnitCount(unit, count ?: return null) }
-}
+private fun FiefOverviewUnits.toUnitCounts(): List<UnitCount> = listOf(
+    UnitCount(UnitKind.Infantry, infantry),
+    UnitCount(UnitKind.Cavalry, cavalry),
+    UnitCount(UnitKind.Archer, archer),
+    UnitCount(UnitKind.Settler, settler),
+)

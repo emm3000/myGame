@@ -29,11 +29,11 @@ private fun BusyStudySlot.Art.toArtKind(): ArtKind? = when (this) {
 }
 
 internal fun FiefOverviewArts.toArtStates(): List<ArtState>? {
-    val drawn: List<Pair<ArtKind, FiefOverviewArtsSmithing?>> = listOf(
+    val drawn: List<Pair<ArtKind, FiefOverviewArtsSmithing>> = listOf(
         ArtKind.Smithing to smithing,
         ArtKind.Masonry to masonry,
     )
-    return drawn.map { (kind: ArtKind, art: FiefOverviewArtsSmithing?) -> art?.toArtState(kind) ?: return null }
+    return drawn.map { (kind: ArtKind, art: FiefOverviewArtsSmithing) -> art.toArtState(kind) ?: return null }
 }
 
 private fun FiefOverviewArtsSmithing.toArtState(kind: ArtKind): ArtState? {
