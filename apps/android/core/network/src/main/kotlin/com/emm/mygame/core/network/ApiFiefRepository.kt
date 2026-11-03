@@ -2,6 +2,7 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.DispatchMarchRequest
 import com.emm.mygame.core.network.generated.models.EnqueueBuildingRequest
 import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.PlaceRecruitOrderRequest
@@ -117,6 +118,50 @@ internal class ApiFiefRepository(
             }
         }
 
+    override suspend fun forage(
+        fief: FiefId,
+        target: PlotAddress,
+        party: List<UnitCount>,
+        stayHours: Int,
+    ): MarchResult = withContext(ioDispatcher) {
+        try {
+            val request = DispatchMarchRequest(
+                province = target.province,
+                plot = target.plot,
+                units = party.toWireUnits(),
+                stayHours = stayHours,
+            )
+            marchedOrRefused(api.fiefsFiefIdMarchesPost(UUID.fromString(fief.value), request))
+        } catch (expectedOutage: IOException) {
+            MarchResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            MarchResult.Unreachable
+        }
+    }
+
+    override suspend fun recall(fief: FiefId, departedAt: Instant): MarchResult = withContext(ioDispatcher) {
+        try {
+            val response: Response<FiefOverview> = api.fiefsFiefIdMarchesDepartedAtRecallPost(
+                fiefId = UUID.fromString(fief.value),
+                departedAt = OffsetDateTime.ofInstant(departedAt.toJavaInstant(), ZoneOffset.UTC),
+            )
+            marchedOrRefused(response)
+        } catch (expectedOutage: IOException) {
+            MarchResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            MarchResult.Unreachable
+        }
+    }
+
+    private fun marchedOrRefused(response: Response<FiefOverview>): MarchResult {
+        val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
+        if (response.isSuccessful) {
+            return if (snapshot == null) MarchResult.Unreachable else MarchResult.Answered(snapshot)
+        }
+        val refusal: ApiError = response.apiError() ?: return MarchResult.Unreachable
+        return MarchResult.Refused(refusal.kind.toMarchRefusal())
+    }
+
     private fun recruitedOrRefused(response: Response<FiefOverview>): RecruitResult {
         val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
         if (response.isSuccessful) {
@@ -187,6 +232,21 @@ private val recruitRefusals: Map<ApiError.Kind, RecruitRefusal> = mapOf(
     ApiError.Kind.InsufficientResources to RecruitRefusal.InsufficientResources,
     ApiError.Kind.NotEnoughPeasants to RecruitRefusal.NotEnoughPeasants,
 )
+
+private val marchRefusals: Map<ApiError.Kind, MarchRefusal> = mapOf(
+    ApiError.Kind.NotEnoughUnitsAtHome to MarchRefusal.NotEnoughUnitsAtHome,
+    ApiError.Kind.MarchSlotBusy to MarchRefusal.MarchSlotBusy,
+    ApiError.Kind.StayOutOfRange to MarchRefusal.StayOutOfRange,
+    ApiError.Kind.MarchTargetOutOfBounds to MarchRefusal.MarchTargetOutOfBounds,
+    ApiError.Kind.PlotHeld to MarchRefusal.PlotHeld,
+    ApiError.Kind.PlotHasCamp to MarchRefusal.PlotHasCamp,
+    ApiError.Kind.PlotReserved to MarchRefusal.PlotReserved,
+    ApiError.Kind.UnitUnfitForOrder to MarchRefusal.UnitUnfitForOrder,
+    ApiError.Kind.MarchNotFound to MarchRefusal.MarchNotFound,
+    ApiError.Kind.MarchAlreadyReturning to MarchRefusal.MarchAlreadyReturning,
+)
+
+private fun ApiError.Kind.toMarchRefusal(): MarchRefusal = marchRefusals[this] ?: MarchRefusal.Unrecognized
 
 private fun ApiError.Kind.toRecruitRefusal(): RecruitRefusal = recruitRefusals[this] ?: RecruitRefusal.Unrecognized
 

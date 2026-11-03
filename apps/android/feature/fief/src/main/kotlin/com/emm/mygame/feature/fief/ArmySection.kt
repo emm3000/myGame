@@ -35,6 +35,7 @@ internal fun ArmySection(army: FiefUiState.ArmyLine, onIntent: (FiefIntent) -> U
                 is FiefUiState.LevySlotLine.Busy -> BusyLevy(slot = slot, isWaiting = isWaiting, onIntent = onIntent)
             }
         }
+        MarchSlot(march = army.march, recall = army.recall, onIntent = onIntent)
         army.units.forEach { card: FiefUiState.UnitCard ->
             UnitItem(card = card, isWaiting = isWaiting, onIntent = onIntent)
         }

@@ -56,7 +56,9 @@ internal fun ProvinceView(content: MapUiState.Content, onIntent: (MapIntent) -> 
                 .background(MyGameTheme.colors.surfaceSunken, RoundedCornerShape(MyGameRadii.md))
                 .padding(MyGameSpacing.step3),
         ) {
-            content.map.plots.forEach { plot: MapPlot -> PlotLine(plot = plot) }
+            content.map.plots.forEach { plot: MapPlot ->
+                PlotLine(plot = plot, content = content, onIntent = onIntent)
+            }
         }
     }
 }
@@ -104,7 +106,26 @@ private fun BrowseControls(content: MapUiState.Content, onIntent: (MapIntent) ->
 }
 
 @Composable
-private fun PlotLine(plot: MapPlot, modifier: Modifier = Modifier) {
+private fun PlotLine(
+    plot: MapPlot,
+    content: MapUiState.Content,
+    onIntent: (MapIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+        PlotHolderLines(plot = plot)
+        if (plot.plot in content.forageablePlots) ForageAction(plot = plot.plot, onIntent = onIntent)
+        content.form?.takeIf { form: MapUiState.ForageForm -> form.target.plot == plot.plot }?.let { form ->
+            ForageFormView(form = form, onIntent = onIntent)
+        }
+        content.sent?.takeIf { sent: MapUiState.SentForage -> sent.target.plot == plot.plot }?.let { sent ->
+            SentForageView(sent = sent)
+        }
+    }
+}
+
+@Composable
+private fun PlotHolderLines(plot: MapPlot, modifier: Modifier = Modifier) {
     val isOwn: Boolean = plot.holder is PlotHolder.Own
     val edge: Color = if (isOwn) MyGameTheme.colors.river else MyGameTheme.colors.line
     val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.sm)

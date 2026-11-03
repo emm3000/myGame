@@ -46,6 +46,8 @@ class FiefArmyRepositoryTest {
                 count = 12,
                 away = 0,
                 barracksLevel = 1,
+                carry = 48,
+                roadPercent = 100,
                 terms = RecruitTerms(
                     cost = listOf(
                         ResourceCost(ResourceKind.Wood, 20),

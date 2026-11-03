@@ -33,5 +33,8 @@ fun FiefRoute(
             }
         }
     }
+    LaunchedEffect(viewModel) {
+        viewModel.onIntent(FiefIntent.ScreenShown)
+    }
     FiefScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
 }
