@@ -10,9 +10,10 @@ interface ChronicleRepository {
 fun ChronicleRepository(
     baseUrl: String,
     tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
 ): ChronicleRepository =
     ApiChronicleRepository(
-        api = defaultApi(baseUrl = baseUrl, tokenStore = tokenStore),
+        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
     )

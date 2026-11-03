@@ -1,50 +1,57 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Test
 
 class NavigatorTest {
 
+    private val signIn: Destination.SignIn = Destination.SignIn(isSessionEnded = false)
+
+    private val sessionEndedSignIn: Destination.SignIn = Destination.SignIn(isSessionEnded = true)
+
     @Test
     fun `opens sign-up above sign-in`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.SignIn)
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
         Navigator(backStack).openSignUp()
 
-        assertEquals(listOf(Destination.SignIn, Destination.SignUp), backStack)
+        assertEquals(listOf(signIn, Destination.SignUp), backStack)
     }
 
     @Test
     fun `returns to sign-in on back from sign-up`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.SignIn, Destination.SignUp)
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
         Navigator(backStack).back()
 
-        assertEquals(listOf(Destination.SignIn), backStack)
+        assertEquals(listOf(signIn), backStack)
     }
 
     @Test
     fun `returns to the sign-in below when sign-up links to it`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.SignIn, Destination.SignUp)
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
         Navigator(backStack).openSignIn()
 
-        assertEquals(listOf(Destination.SignIn), backStack)
+        assertEquals(listOf(signIn), backStack)
     }
 
     @Test
     fun `leaves the last screen to the system on back`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.SignIn)
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
         Navigator(backStack).back()
 
-        assertEquals(listOf(Destination.SignIn), backStack)
+        assertEquals(listOf(signIn), backStack)
     }
 
     @Test
     fun `opens the fief alone once signed up`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.SignIn, Destination.SignUp)
+        val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
         Navigator(backStack).signedIn()
 
@@ -82,9 +89,9 @@ class NavigatorTest {
     fun `returns to sign-in alone once signed out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Chronicle)
 
-        Navigator(backStack).signedOut()
+        Navigator(backStack).signedOut(isSessionEnded = false)
 
-        assertEquals(listOf(Destination.SignIn), backStack)
+        assertEquals(listOf(signIn), backStack)
     }
 
     @Test
@@ -148,8 +155,33 @@ class NavigatorTest {
     fun `returns to sign-in alone once signed out from the map`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief, Destination.Map)
 
-        Navigator(backStack).signedOut()
+        Navigator(backStack).signedOut(isSessionEnded = false)
 
-        assertEquals(listOf(Destination.SignIn), backStack)
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `leaves sign-in alone with the session-ended line when the session ends above the fief`() = runTest {
+        val signedInStacks: List<MutableList<NavKey>> = listOf(
+            mutableListOf(Destination.Fief),
+            mutableListOf(Destination.Fief, Destination.Map),
+            mutableListOf(Destination.Fief, Destination.Chronicle),
+        )
+
+        signedInStacks.forEach { backStack: MutableList<NavKey> ->
+            Navigator(backStack).followSessionEnds(flowOf(Unit))
+
+            assertEquals(listOf(sessionEndedSignIn), backStack)
+        }
+    }
+
+    @Test
+    fun `keeps the sign-in it shows when the session ends again`() = runTest {
+        val shown: Destination.SignIn = Destination.SignIn(isSessionEnded = true)
+        val backStack: MutableList<NavKey> = mutableListOf(shown)
+
+        Navigator(backStack).followSessionEnds(flowOf(Unit, Unit))
+
+        assertSame(shown, backStack.single())
     }
 }

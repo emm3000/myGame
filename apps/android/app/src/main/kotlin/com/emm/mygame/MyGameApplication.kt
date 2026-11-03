@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.MapRepository
+import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TokenStore
 import java.io.File
@@ -22,20 +23,42 @@ class MyGameApplication : Application() {
         )
     }
 
+    val sessionEnds: SessionEnds = SessionEnds()
+
     val sessions: SessionRepository by lazy {
-        SessionRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
+        SessionRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
     }
 
     val fiefs: FiefRepository by lazy {
-        FiefRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
+        FiefRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
     }
 
     val maps: MapRepository by lazy {
-        MapRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
+        MapRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
     }
 
     val chronicles: ChronicleRepository by lazy {
-        ChronicleRepository(baseUrl = BuildConfig.API_BASE_URL, tokenStore = tokenStore, ioDispatcher = Dispatchers.IO)
+        ChronicleRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
     }
 
     private companion object {

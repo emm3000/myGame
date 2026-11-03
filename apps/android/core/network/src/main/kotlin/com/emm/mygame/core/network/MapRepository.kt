@@ -9,8 +9,13 @@ interface MapRepository {
     suspend fun read(province: Int): MapReadResult
 }
 
-fun MapRepository(baseUrl: String, tokenStore: TokenStore, ioDispatcher: CoroutineDispatcher): MapRepository =
+fun MapRepository(
+    baseUrl: String,
+    tokenStore: TokenStore,
+    sessionEnds: SessionEnds,
+    ioDispatcher: CoroutineDispatcher,
+): MapRepository =
     ApiMapRepository(
-        api = defaultApi(baseUrl = baseUrl, tokenStore = tokenStore),
+        api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
     )

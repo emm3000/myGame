@@ -9,8 +9,10 @@ class TokenStore(private val file: File, private val cipher: TokenCipher) {
 
     private val lock: Any = Any()
 
+    private var isErased: Boolean = false
+
     internal fun read(): String? = synchronized(lock) {
-        if (!file.exists()) return null
+        if (isErased || !file.exists()) return null
         try {
             cipher.decrypt(file.readBytes()).decodeToString()
         } catch (expectedLostKey: GeneralSecurityException) {
@@ -23,7 +25,7 @@ class TokenStore(private val file: File, private val cipher: TokenCipher) {
     }
 
     private fun forgotten(): String? {
-        file.delete()
+        erase()
         return null
     }
 
@@ -32,12 +34,28 @@ class TokenStore(private val file: File, private val cipher: TokenCipher) {
             val staging: File = File(file.parentFile, "${file.name}.staging")
             staging.writeBytes(cipher.encrypt(token.encodeToByteArray()))
             if (!staging.renameTo(file)) throw IOException("Could not replace the stored session")
+            isErased = false
         }
     }
 
     internal fun clear() {
         synchronized(lock) {
-            file.delete()
+            erase()
+        }
+    }
+
+    internal fun clearIfHolding(token: String): Boolean = synchronized(lock) {
+        if (read() != token) return false
+        erase()
+        true
+    }
+
+    private fun erase() {
+        if (file.delete() || !file.exists()) return
+        isErased = true
+        try {
+            file.writeBytes(ByteArray(0))
+        } catch (expectedReadOnlyFile: IOException) {
         }
     }
 }

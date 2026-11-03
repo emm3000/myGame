@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import app.cash.turbine.test
 import com.emm.mygame.core.testing.FakeTokenCipher
 import java.io.File
 import java.security.GeneralSecurityException
@@ -27,6 +28,8 @@ class SessionRepositoryTest {
     val folder: TemporaryFolder = TemporaryFolder()
 
     private val api: MockWebServer = MockWebServer()
+
+    private val sessionEnds: SessionEnds = SessionEnds()
 
     @Before
     fun startApi() {
@@ -148,6 +151,56 @@ class SessionRepositoryTest {
     }
 
     @Test
+    fun `ends the session when the restore answers 401`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore().apply { write("expired-session") })
+        api.enqueue(MockResponse.Builder().code(401).build())
+
+        sessionEnds.ended.test {
+            sessions.restore()
+
+            awaitItem()
+        }
+    }
+
+    @Test
+    fun `keeps the session on a refused sign-in`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        val sessions: SessionRepository = repository(store)
+        api.enqueue(refusal(kind = "InvalidCredentials"))
+
+        sessionEnds.ended.test {
+            sessions.signIn("ines@sotoverde.es", "equivocada")
+
+            expectNoEvents()
+            assertEquals("opaque-session", store.read())
+        }
+    }
+
+    @Test
+    fun `reports no end when sign-out answers 401`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore().apply { write("expired-session") })
+        api.enqueue(MockResponse.Builder().code(401).build())
+
+        sessionEnds.ended.test {
+            sessions.signOut()
+
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `asks the api nothing on restore once a read has ended the session`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("expired-session") }
+        api.enqueue(MockResponse.Builder().code(401).build())
+        fiefRepository(store).read()
+
+        val result: RestoreResult = repository(store).restore()
+
+        assertEquals(RestoreResult.SignedOut, result)
+        assertEquals(1, api.requestCount)
+    }
+
+    @Test
     fun `answers signed out without asking the api when no token is stored`() = runTest {
         val result: RestoreResult = repository(tokenStore()).restore()
 
@@ -260,11 +313,7 @@ class SessionRepositoryTest {
     @Test
     fun `sends no bearer on a fief read after signing out`() = runTest {
         val store: TokenStore = tokenStore().apply { write("opaque-session") }
-        val fiefs: FiefRepository = FiefRepository(
-            baseUrl = api.url("/api/").toString(),
-            tokenStore = store,
-            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-        )
+        val fiefs: FiefRepository = fiefRepository(store)
         api.enqueue(MockResponse.Builder().code(204).build())
         api.enqueue(MockResponse.Builder().code(401).build())
         repository(store).signOut()
@@ -369,6 +418,15 @@ class SessionRepositoryTest {
         SessionRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
+            sessionEnds = sessionEnds,
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+        )
+
+    private fun TestScope.fiefRepository(store: TokenStore): FiefRepository =
+        FiefRepository(
+            baseUrl = api.url("/api/").toString(),
+            tokenStore = store,
+            sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
 

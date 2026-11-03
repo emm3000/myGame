@@ -17,6 +17,7 @@ import retrofit2.Response
 
 internal class ApiSessionRepository(
     private val api: DefaultApi,
+    private val openingApi: DefaultApi,
     private val signOutApi: DefaultApi,
     private val tokenStore: TokenStore,
     private val ioDispatcher: CoroutineDispatcher,
@@ -24,13 +25,13 @@ internal class ApiSessionRepository(
 
     override suspend fun signIn(email: String, password: String): SignInResult =
         openingSession(unreachable = SignInResult.Unreachable) {
-            signedInOrRefused(api.authSignInNativePost(SignInRequest(email = email, password = password)))
+            signedInOrRefused(openingApi.authSignInNativePost(SignInRequest(email = email, password = password)))
         }
 
     override suspend fun signUp(email: String, password: String, fiefName: String): SignUpResult =
         openingSession(unreachable = SignUpResult.Unreachable) {
             signedUpOrRefused(
-                api.authSignUpNativePost(SignUpRequest(email = email, password = password, fiefName = fiefName)),
+                openingApi.authSignUpNativePost(SignUpRequest(email = email, password = password, fiefName = fiefName)),
             )
         }
 
@@ -101,10 +102,7 @@ internal class ApiSessionRepository(
         val player: Player? = response.body()
         return when {
             response.isSuccessful && player != null -> RestoreResult.SignedIn(player.toSignedInPlayer())
-            response.code() == HttpURLConnection.HTTP_UNAUTHORIZED -> {
-                tokenStore.clear()
-                RestoreResult.SignedOut
-            }
+            response.code() == HttpURLConnection.HTTP_UNAUTHORIZED -> RestoreResult.SignedOut
             else -> RestoreResult.Unreachable
         }
     }

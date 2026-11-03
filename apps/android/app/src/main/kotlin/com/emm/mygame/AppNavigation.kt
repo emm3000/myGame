@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,11 +28,18 @@ import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = Modifier) {
-    val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn)
+    val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false))
     val navigator: Navigator = remember(backStack) { Navigator(backStack) }
+    LaunchedEffect(navigator) {
+        withContext(Dispatchers.Main.immediate) {
+            navigator.followSessionEnds(application.sessionEnds.ended)
+        }
+    }
     NavDisplay(
         backStack = backStack,
         onBack = navigator::back,
@@ -40,9 +48,10 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
-            entry<Destination.SignIn> {
+            entry<Destination.SignIn> { signIn: Destination.SignIn ->
                 SignInRoute(
                     sessions = application.sessions,
+                    isSessionEnded = signIn.isSessionEnded,
                     onSignedIn = navigator::signedIn,
                     onSignUpOpen = navigator::openSignUp,
                 )
@@ -60,7 +69,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                         fiefs = application.fiefs,
                         sessions = application.sessions,
                         clock = application.clock,
-                        onSignedOut = navigator::signedOut,
+                        onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                     )
                 }
             }

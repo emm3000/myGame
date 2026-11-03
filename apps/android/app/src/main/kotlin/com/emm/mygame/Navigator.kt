@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>) {
 
@@ -9,7 +10,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openSignUp() {
-        if (backStack.lastOrNull() == Destination.SignIn) backStack.add(Destination.SignUp)
+        if (backStack.lastOrNull() is Destination.SignIn) backStack.add(Destination.SignUp)
     }
 
     fun openSignIn() {
@@ -20,8 +21,12 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         showAlone(Destination.Fief)
     }
 
-    fun signedOut() {
-        showAlone(Destination.SignIn)
+    fun signedOut(isSessionEnded: Boolean) {
+        showAlone(Destination.SignIn(isSessionEnded = isSessionEnded))
+    }
+
+    suspend fun followSessionEnds(ended: Flow<Unit>) {
+        ended.collect { signedOut(isSessionEnded = true) }
     }
 
     fun openMap() {
@@ -46,6 +51,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     private fun showAlone(destination: Destination) {
+        if (backStack == listOf(destination)) return
         backStack.add(destination)
         repeat(backStack.size - 1) { backStack.removeAt(0) }
     }

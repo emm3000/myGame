@@ -7,6 +7,7 @@ import java.security.ProviderException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -73,6 +74,50 @@ class TokenStoreTest {
 
         assertNull(storeWithFailingProvider.read())
         assertFalse(file.exists())
+    }
+
+    @Test
+    fun `reads nothing after a clear whose delete failed`() {
+        val file: File = sessionFile()
+        val store: TokenStore = TokenStore(file, FakeTokenCipher())
+        store.write("opaque-session")
+        file.setWritable(false)
+        folder.root.setWritable(false)
+
+        store.clear()
+
+        assertNull(store.read())
+    }
+
+    @Test
+    fun `leaves no readable token on disk after a clear whose delete failed`() {
+        val file: File = sessionFile()
+        val store: TokenStore = TokenStore(file, FakeTokenCipher())
+        store.write("opaque-session")
+        folder.root.setWritable(false)
+
+        store.clear()
+
+        assertNull(TokenStore(file, FakeTokenCipher()).read())
+    }
+
+    @Test
+    fun `leaves no readable token on disk after forgetting one whose delete failed`() {
+        val file: File = sessionFile()
+        TokenStore(file, FakeTokenCipher()).write("opaque-session")
+        val providerFailure: ProviderException = ProviderException("The keystore could not decrypt")
+        val storeWithFailingProvider: TokenStore = TokenStore(file, FakeTokenCipher(decryptFailure = providerFailure))
+        folder.root.setWritable(false)
+
+        storeWithFailingProvider.read()
+
+        assertNull(TokenStore(file, FakeTokenCipher()).read())
+    }
+
+    @After
+    fun restoreWrites() {
+        folder.root.setWritable(true)
+        sessionFile().setWritable(true)
     }
 
     private fun sessionFile(): File = File(folder.root, "session")
