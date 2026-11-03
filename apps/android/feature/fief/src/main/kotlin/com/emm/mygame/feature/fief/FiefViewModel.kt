@@ -2,6 +2,7 @@ package com.emm.mygame.feature.fief
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.AwayMarch
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.CancelRefusal
 import com.emm.mygame.core.network.CancelResult
@@ -251,6 +252,7 @@ class FiefViewModel(
     private fun restartFrom(snapshot: FiefSnapshot, kept: Mutations) {
         projection?.cancel()
         mutations = kept
+        if (snapshot.endsFoundingOf(shown)) _effects.trySend(FiefEffect.FoundingApplied)
         shown = snapshot
         if (isShown) projection = viewModelScope.launch { project(snapshot) }
     }
@@ -273,6 +275,7 @@ class FiefViewModel(
                 }
             }
             val now: Instant = clock.now() + gap
+            if (snapshot.endsFoundingOf(shown)) _effects.send(FiefEffect.FoundingApplied)
             shown = snapshot
             _state.value = snapshot.contentAt(now = now, gap = gap, mutations = mutations)
             delay(repaintDelay(listOfNotNull(snapshot.nextFinishAt(now), snapshot.marchTurnAt(now)).minOrNull()))
@@ -283,6 +286,11 @@ class FiefViewModel(
         gap = read.readAt - clock.now()
         return read
     }
+}
+
+private fun FiefSnapshot.endsFoundingOf(previous: FiefSnapshot?): Boolean {
+    val founding: AwayMarch = previous?.march?.takeIf { away: AwayMarch -> away.isFoundingOnTheWay() } ?: return false
+    return march?.departedAt != founding.departedAt
 }
 
 private fun FiefUiState.Content.drawn(next: Mutations): FiefUiState.Content = copy(

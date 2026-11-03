@@ -71,7 +71,7 @@ private fun AwayMarch.detailAt(phase: MarchPhase): FiefUiState.MarchDetail? {
     }
 }
 
-private fun AwayMarch.isFoundingOnTheWay(): Boolean = order == MarchOrder.Found && recalledAt == null
+internal fun AwayMarch.isFoundingOnTheWay(): Boolean = order == MarchOrder.Found && recalledAt == null
 
 private fun AwayMarch.isBattleAhead(): Boolean = order == MarchOrder.Attack && !isFought && recalledAt == null
 

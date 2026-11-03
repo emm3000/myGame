@@ -8,11 +8,18 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.union
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -23,6 +30,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.emm.mygame.core.designsystem.MyGameNavigationBar
 import com.emm.mygame.core.designsystem.MyGameNavigationItem
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.feature.chronicle.ChronicleRoute
 import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.fief.FirstFiefRoute
@@ -64,24 +72,15 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                 FirstFiefRoute(listings = application.listings, onOpen = navigator::firstFiefOpened)
             }
             entry<Destination.Fief> { shown: Destination.Fief ->
-                SignedInFrame(current = shown, navigator = navigator) {
-                    FiefRoute(
-                        fief = shown.fief,
-                        fiefs = application.fiefs,
-                        sessions = application.sessions,
-                        clock = application.clock,
-                        onSigningOut = navigator::signingOut,
-                        onSignedOut = { navigator.signedOut(isSessionEnded = false) },
-                    )
-                }
+                SignedInFief(shown = shown, application = application, navigator = navigator)
             }
             entry<Destination.Map> { shown: Destination.Map ->
-                SignedInFrame(current = shown, navigator = navigator) {
+                SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
                     MapRoute(fief = shown.fief, maps = application.maps, fiefs = application.fiefs)
                 }
             }
             entry<Destination.Chronicle> { shown: Destination.Chronicle ->
-                SignedInFrame(current = shown, navigator = navigator) {
+                SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
                     ChronicleRoute(fief = shown.fief, chronicles = application.chronicles, clock = application.clock)
                 }
             }
@@ -91,15 +90,60 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
 }
 
 @Composable
-private fun SignedInFrame(
-    current: Destination,
+private fun SignedInFief(
+    shown: Destination.Fief,
+    application: MyGameApplication,
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
 ) {
+    SignedInFrame(
+        current = shown,
+        fief = shown.fief,
+        application = application,
+        navigator = navigator,
+        modifier = modifier,
+    ) { onNewFief: () -> Unit ->
+        FiefRoute(
+            fief = shown.fief,
+            fiefs = application.fiefs,
+            sessions = application.sessions,
+            clock = application.clock,
+            onSigningOut = navigator::signingOut,
+            onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+            onNewFief = onNewFief,
+        )
+    }
+}
+
+@Composable
+private fun SignedInFrame(
+    current: Destination,
+    fief: FiefId,
+    application: MyGameApplication,
+    navigator: Navigator,
+    modifier: Modifier = Modifier,
+    switcher: FiefSwitcherViewModel = viewModel { FiefSwitcherViewModel(fief, application.listings) },
+    content: @Composable (onNewFief: () -> Unit) -> Unit,
+) {
+    val listing: FiefSwitcherUiState by switcher.state.collectAsStateWithLifecycle()
+    DisposableEffect(switcher) {
+        switcher.onIntent(FiefSwitcherIntent.ScreenShown)
+        onDispose { }
+    }
+    val listed: FiefSwitcherUiState.Listed? = listing as? FiefSwitcherUiState.Listed
+    val framedInsets: WindowInsets =
+        if (listed == null) WindowInsets.navigationBars else WindowInsets.navigationBars.union(WindowInsets.statusBars)
     Column(modifier = modifier.fillMaxSize().background(MyGameTheme.colors.surface)) {
-        Box(modifier = Modifier.weight(1f).consumeWindowInsets(WindowInsets.navigationBars)) {
-            content()
+        if (listed != null) {
+            FiefSwitcher(
+                listed = listed,
+                isEnabled = navigator.areTabsEnabled,
+                onChoose = navigator::switchFief,
+                modifier = Modifier.statusBarsPadding(),
+            )
+        }
+        Box(modifier = Modifier.weight(1f).consumeWindowInsets(framedInsets)) {
+            content { switcher.onIntent(FiefSwitcherIntent.FoundingApplied) }
         }
         MyGameNavigationBar(modifier = Modifier.navigationBarsPadding()) {
             MyGameNavigationItem(

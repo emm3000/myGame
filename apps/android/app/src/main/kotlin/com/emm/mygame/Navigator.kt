@@ -60,6 +60,17 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         }
     }
 
+    fun switchFief(fief: FiefId) {
+        if (!areTabsEnabled) return
+        val shown: List<Destination> = when (backStack.lastOrNull()) {
+            is Destination.Fief -> listOf(Destination.Fief(fief))
+            is Destination.Map -> listOf(Destination.Fief(fief), Destination.Map(fief))
+            is Destination.Chronicle -> listOf(Destination.Fief(fief), Destination.Chronicle(fief))
+            else -> return
+        }
+        showAlone(shown)
+    }
+
     private fun openTab(tabOf: (FiefId) -> Destination) {
         if (!areTabsEnabled) return
         when (val top: NavKey? = backStack.lastOrNull()) {
@@ -71,8 +82,13 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     private fun showAlone(destination: Destination) {
-        if (backStack == listOf(destination)) return
-        backStack.add(destination)
-        repeat(backStack.size - 1) { backStack.removeAt(0) }
+        showAlone(listOf(destination))
+    }
+
+    private fun showAlone(destinations: List<Destination>) {
+        if (backStack == destinations) return
+        val replaced: Int = backStack.size
+        backStack.addAll(destinations)
+        repeat(replaced) { backStack.removeAt(0) }
     }
 }

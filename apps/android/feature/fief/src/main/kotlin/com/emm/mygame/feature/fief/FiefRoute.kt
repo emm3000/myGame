@@ -23,16 +23,19 @@ fun FiefRoute(
     clock: Clock,
     onSigningOut: () -> Unit,
     onSignedOut: () -> Unit,
+    onNewFief: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FiefViewModel = viewModel { FiefViewModel(fief, fiefs, sessions, clock) },
 ) {
     val state: FiefUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedOut: () -> Unit by rememberUpdatedState(onSignedOut)
+    val currentOnFoundingApplied: () -> Unit by rememberUpdatedState(onNewFief)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: FiefEffect ->
                 when (effect) {
                     FiefEffect.SignedOut -> currentOnSignedOut()
+                    FiefEffect.FoundingApplied -> currentOnFoundingApplied()
                 }
             }
         }

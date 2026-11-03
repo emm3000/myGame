@@ -4,4 +4,18 @@
     <string name="navigation_fief">Feudo</string>
     <string name="navigation_map">Mapa</string>
     <string name="navigation_chronicle">Crónica</string>
+    <string name="fief_switcher_label">Tus feudos</string>
+    <string name="fief_switcher_current">Feudo actual</string>
+    <string name="fief_switcher_address">%1$s %2$d:%3$d</string>
+    <string name="fief_switcher_kingdom_vadoalto">Vadoalto</string>
+    <string name="fief_switcher_idle_build">Sin obra</string>
+    <string name="fief_switcher_idle_study">Sin estudio</string>
+    <string name="fief_switcher_idle_recruit">Sin leva</string>
+    <string name="fief_switcher_idle_march">Sin marcha</string>
+    <string name="fief_switcher_full_store">Almacén lleno: %1$s</string>
+    <string name="fief_switcher_resource_wood">madera</string>
+    <string name="fief_switcher_resource_stone">piedra</string>
+    <string name="fief_switcher_resource_iron">hierro</string>
+    <string name="fief_switcher_resource_gold">oro</string>
+    <string name="fief_switcher_resource_food">comida</string>
 </resources>
