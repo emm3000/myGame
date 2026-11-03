@@ -223,9 +223,13 @@ export function useMapMarch(
     panelPlot: target?.plot ?? sentPlot,
     isWaiting: march.isWaiting,
     refusalLine:
-      march.refused === undefined
+      march.refused === undefined || overview === undefined
         ? undefined
-        : marchRefusalLineOf(march.refused.refusal, march.refused.message),
+        : marchRefusalLineOf(
+            march.refused.refusal,
+            march.refused.message,
+            overview.forageTerms.maxStayHours,
+          ),
     onEntriesChange: setEntries,
     onNameChange: setName,
     onSend,
