@@ -4592,7 +4592,7 @@
             }
           },
           "409": {
-            "description": "PlotHasCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "description": "PlotHasCamp, StayOutOfRange, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4660,7 +4660,7 @@
             }
           },
           "409": {
-            "description": "PlotHasNoCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "description": "PlotHasNoCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4735,7 +4735,7 @@
             }
           },
           "409": {
-            "description": "FiefCapReached, PlotHasCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "description": "FiefCapReached, PlotHasCamp, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4803,7 +4803,7 @@
             }
           },
           "409": {
-            "description": "EmptyCargo, CargoAboveCarry, InsufficientResources, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
+            "description": "EmptyCargo, CargoAboveCarry, InsufficientResources, MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved.",
             "content": {
               "application/json": {
                 "schema": {

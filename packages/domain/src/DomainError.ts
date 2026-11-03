@@ -88,8 +88,9 @@ export type DomainError =
   | {
       readonly kind: 'StayOutOfRange'
       readonly stayHours: number
-      readonly maxStayHours: number | undefined
+      readonly maxStayHours: number
     }
+  | { readonly kind: 'InvalidMarchStay'; readonly stayHours: number }
   | { readonly kind: 'MarchSlotBusy' }
   | { readonly kind: 'MarchNotFound'; readonly departedAt: Instant }
   | { readonly kind: 'MarchAlreadyReturning' }
