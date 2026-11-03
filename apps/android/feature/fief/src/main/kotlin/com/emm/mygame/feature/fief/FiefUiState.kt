@@ -268,7 +268,17 @@ sealed interface FiefUiState {
 
         data class Peasants(val needed: Int, val free: Int) : BlockReason, RecruitBlock
 
-        data class Resources(val shortfalls: List<Shortfall>) : BlockReason, RecruitBlock, StudyBlock
+        data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyHour?) :
+            BlockReason,
+            RecruitBlock,
+            StudyBlock
+    }
+
+    sealed interface ReadyHour {
+
+        data class InMinutes(val minutes: Int) : ReadyHour
+
+        data class AtClock(val readyAt: Instant, val remaining: Duration) : ReadyHour
     }
 
     sealed interface UpgradeStatus {

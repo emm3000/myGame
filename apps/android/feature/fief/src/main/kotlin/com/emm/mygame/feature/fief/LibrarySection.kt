@@ -162,7 +162,9 @@ private fun NextArt(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = next.block?.let { block: FiefUiState.StudyBlock -> reasonOf(block) }
+    val blocked: BlockedReason? = next.block?.let { block: FiefUiState.StudyBlock ->
+        blockedReasonOf(reasonOf(block), (block as? FiefUiState.BlockReason.Resources)?.ready)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -185,16 +187,9 @@ private fun NextArt(
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.StudyTapped(art)) },
-            blockedReason = reason,
+            blockedReason = blocked?.description,
         )
-        if (reason != null) {
-            MyGameText(
-                text = reason,
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.rust,
-                modifier = Modifier.clearAndSetSemantics { },
-            )
-        }
+        blocked?.let { line: BlockedReason -> BlockedReasonLine(blocked = line) }
     }
 }
 

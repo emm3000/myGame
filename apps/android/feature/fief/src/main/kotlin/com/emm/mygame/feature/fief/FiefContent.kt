@@ -24,6 +24,7 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
         line.kind to line.amount
     }
     val isQueueFull: Boolean = slot is BuildSlot.Busy && queue.isFull()
+    val accrual: Accrual = Accrual(resources = resources, readAt = readAt, now = now, gap = gap)
     val waiting: List<FiefUiState.WaitingLine> = queue.entries.map { entry: WaitingUpgrade ->
         FiefUiState.WaitingLine(
             building = entry.building,
@@ -38,13 +39,13 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
         peasants = FiefUiState.PeasantsLine(free = peasants.free, supplied = peasants.supplied),
         slot = slot.lineAt(now),
         buildings = buildings.map { building: BuildingState ->
-            building.cardWith(amounts = drawnAmounts, peasants = peasants, isQueueFull = isQueueFull)
+            building.cardWith(BuildingContext(drawnAmounts, peasants, isQueueFull, accrual))
         },
         queue = waiting,
         upgrade = mutations.upgrade,
         cancel = mutations.cancel,
-        library = libraryAt(now = now, amounts = drawnAmounts, study = mutations.study),
-        army = armyAt(now = now, amounts = drawnAmounts, mutations = mutations),
+        library = libraryAt(accrual = accrual, amounts = drawnAmounts, study = mutations.study),
+        army = armyAt(accrual = accrual, amounts = drawnAmounts, mutations = mutations),
     )
 }
 
@@ -61,6 +62,13 @@ internal fun FiefSnapshot.nextFinishAt(now: Instant): Duration? =
         marchRemainingAt(now),
         battleRemainingAt(now),
     ).minOrNull()
+
+private data class BuildingContext(
+    val amounts: Map<ResourceKind, Long>,
+    val peasants: Peasants,
+    val isQueueFull: Boolean,
+    val accrual: Accrual,
+)
 
 private fun BuildQueue.isFull(): Boolean = entries.size >= cap
 
@@ -83,17 +91,13 @@ private fun BuildSlot.lineAt(now: Instant): FiefUiState.SlotLine = when (this) {
     )
 }
 
-private fun BuildingState.cardWith(
-    amounts: Map<ResourceKind, Long>,
-    peasants: Peasants,
-    isQueueFull: Boolean,
-): FiefUiState.BuildingCard {
+private fun BuildingState.cardWith(context: BuildingContext): FiefUiState.BuildingCard {
     val next: NextLevel? = nextLevel
     return FiefUiState.BuildingCard(
         kind = kind,
         level = level,
-        next = next?.lineWith(amounts = amounts, peasants = peasants),
-        block = next?.blockWith(amounts = amounts, peasants = peasants, isQueueFull = isQueueFull),
+        next = next?.lineWith(amounts = context.amounts, peasants = context.peasants),
+        block = next?.blockWith(context),
     )
 }
 
@@ -112,17 +116,12 @@ private fun NextLevel.lineWith(amounts: Map<ResourceKind, Long>, peasants: Peasa
         isShortOfPeasants = this.peasants > peasants.free,
     )
 
-private fun NextLevel.blockWith(
-    amounts: Map<ResourceKind, Long>,
-    peasants: Peasants,
-    isQueueFull: Boolean,
-): FiefUiState.BlockReason? {
-    val shortfalls: List<FiefUiState.Shortfall> = cost.shortfallsFrom(amounts)
+private fun NextLevel.blockWith(context: BuildingContext): FiefUiState.BlockReason? {
+    val free: Int = context.peasants.free
     return when {
-        isQueueFull -> FiefUiState.BlockReason.QueueFull
-        this.peasants > peasants.free -> FiefUiState.BlockReason.Peasants(needed = this.peasants, free = peasants.free)
-        shortfalls.isNotEmpty() -> FiefUiState.BlockReason.Resources(shortfalls)
-        else -> null
+        context.isQueueFull -> FiefUiState.BlockReason.QueueFull
+        peasants > free -> FiefUiState.BlockReason.Peasants(needed = peasants, free = free)
+        else -> context.accrual.resourcesBlockOf(cost = cost, amounts = context.amounts)
     }
 }
 

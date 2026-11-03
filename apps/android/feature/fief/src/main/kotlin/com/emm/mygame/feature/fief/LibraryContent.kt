@@ -13,16 +13,20 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 internal fun FiefSnapshot.libraryAt(
-    now: Instant,
+    accrual: Accrual,
     amounts: Map<ResourceKind, Long>,
     study: FiefUiState.StudyStatus,
 ): FiefUiState.LibraryLine? {
     val libraryLevel: Int = libraryLevel()
     if (libraryLevel < 1) return null
-    val context: StudyContext =
-        StudyContext(amounts = amounts, libraryLevel = libraryLevel, isStudyRunning = this.study is StudySlot.Busy)
+    val context: StudyContext = StudyContext(
+        amounts = amounts,
+        libraryLevel = libraryLevel,
+        isStudyRunning = this.study is StudySlot.Busy,
+        accrual = accrual,
+    )
     return FiefUiState.LibraryLine(
-        slot = studySlotLineAt(now),
+        slot = studySlotLineAt(accrual.now),
         arts = arts.map { art: ArtState -> art.cardWith(context) },
         study = study,
     )
@@ -37,6 +41,7 @@ private data class StudyContext(
     val amounts: Map<ResourceKind, Long>,
     val libraryLevel: Int,
     val isStudyRunning: Boolean,
+    val accrual: Accrual,
 )
 
 private fun FiefSnapshot.libraryLevel(): Int =
@@ -82,13 +87,10 @@ private fun NextArtLevel.lineWith(context: StudyContext): FiefUiState.NextArtLin
         block = blockWith(context),
     )
 
-private fun NextArtLevel.blockWith(context: StudyContext): FiefUiState.StudyBlock? {
-    val shortfalls: List<FiefUiState.Shortfall> = cost.shortfallsFrom(context.amounts)
-    return when {
+private fun NextArtLevel.blockWith(context: StudyContext): FiefUiState.StudyBlock? =
+    when {
         context.isStudyRunning -> FiefUiState.StudyBlock.StudyRunning
         requiredLibraryLevel > context.libraryLevel ->
             FiefUiState.StudyBlock.LibraryTooLow(required = requiredLibraryLevel, built = context.libraryLevel)
-        shortfalls.isNotEmpty() -> FiefUiState.BlockReason.Resources(shortfalls)
-        else -> null
+        else -> context.accrual.resourcesBlockOf(cost = cost, amounts = context.amounts)
     }
-}

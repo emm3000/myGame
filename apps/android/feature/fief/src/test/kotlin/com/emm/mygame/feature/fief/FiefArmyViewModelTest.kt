@@ -15,8 +15,10 @@ import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -167,6 +169,34 @@ class FiefArmyViewModelTest {
                     listOf(
                         FiefUiState.Shortfall(ResourceKind.Iron, 10),
                         FiefUiState.Shortfall(ResourceKind.Food, 30),
+                    ),
+                    ready = null,
+                ),
+                openInfantry(awaitContent()).block,
+            )
+        }
+    }
+
+    @Test
+    fun `reads lista with the clock on a unit card when only resources are short`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val ironComing: FiefSnapshot = builtBarracks(level = 1, plenty = true).let { barracksBuilt: FiefSnapshot ->
+            barracksBuilt.copy(
+                resources = barracksBuilt.resources.map { resource: StoredResource ->
+                    if (resource.kind == ResourceKind.Iron) resource.copy(amount = 0, ratePerHour = 5.0) else resource
+                },
+            )
+        }
+        fiefs.answerRead(FiefReadResult.Read(ironComing))
+
+        viewModel.state.test {
+            assertEquals(
+                FiefUiState.BlockReason.Resources(
+                    shortfalls = listOf(FiefUiState.Shortfall(ResourceKind.Iron, 10)),
+                    ready = FiefUiState.ReadyHour.AtClock(
+                        readyAt = Instant.parse("1970-01-01T02:17:00Z"),
+                        remaining = 2.hours + 20.seconds,
                     ),
                 ),
                 openInfantry(awaitContent()).block,

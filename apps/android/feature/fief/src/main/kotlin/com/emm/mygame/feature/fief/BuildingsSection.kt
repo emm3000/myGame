@@ -103,7 +103,9 @@ private fun NextLevel(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = block?.let { blockReason: FiefUiState.BlockReason -> reasonOf(blockReason) }
+    val blocked: BlockedReason? = block?.let { blockReason: FiefUiState.BlockReason ->
+        blockedReasonOf(reasonOf(blockReason), (blockReason as? FiefUiState.BlockReason.Resources)?.ready)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.building_next_level, next.level),
@@ -116,16 +118,9 @@ private fun NextLevel(
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.UpgradeTapped(building)) },
-            blockedReason = reason,
+            blockedReason = blocked?.description,
         )
-        if (reason != null) {
-            MyGameText(
-                text = reason,
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.rust,
-                modifier = Modifier.clearAndSetSemantics { },
-            )
-        }
+        blocked?.let { line: BlockedReason -> BlockedReasonLine(blocked = line) }
     }
 }
 

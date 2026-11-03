@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -84,7 +83,9 @@ private fun OpenUnit(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reason: String? = card.block?.let { block: FiefUiState.RecruitBlock -> reasonOf(block) }
+    val blocked: BlockedReason? = card.block?.let { block: FiefUiState.RecruitBlock ->
+        blockedReasonOf(reasonOf(block), (block as? FiefUiState.BlockReason.Resources)?.ready)
+    }
     val plural: String = stringResource(unitPluralOf(card.kind))
     val action: String = when (val order: FiefUiState.RecruitLine? = card.order) {
         null -> stringResource(R.string.recruit_action, plural)
@@ -106,16 +107,9 @@ private fun OpenUnit(
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.RecruitTapped(card.kind)) },
-            blockedReason = reason,
+            blockedReason = blocked?.description,
         )
-        if (reason != null) {
-            MyGameText(
-                text = reason,
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.rust,
-                modifier = Modifier.clearAndSetSemantics { },
-            )
-        }
+        blocked?.let { line: BlockedReason -> BlockedReasonLine(blocked = line) }
     }
 }
 

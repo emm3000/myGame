@@ -71,6 +71,10 @@
     </plurals>
     <string name="reason_resources_one">Te falta %1$s.</string>
     <string name="reason_resources">Te faltan %1$s.</string>
+    <string name="reason_with_ready">%1$s %2$s</string>
+    <string name="ready_in_minutes">lista en %1$d min</string>
+    <string name="ready_in_an_hour">lista en 1 h</string>
+    <string name="ready_at">lista %1$s</string>
     <string name="refusal_queue_full">Ya no caben más obras en espera. Espera a que avance alguna.</string>
     <string name="refusal_insufficient_resources">No tienes recursos suficientes.</string>
     <string name="refusal_not_enough_peasants">No tienes campesinos libres suficientes.</string>

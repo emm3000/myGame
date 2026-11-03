@@ -18,7 +18,7 @@ internal fun finishLabelOf(remaining: Duration, finishesAt: Instant): String {
 }
 
 @Composable
-private fun clockLabelOf(finish: FinishClock): String {
+internal fun clockLabelOf(finish: FinishClock): String {
     val time: String = finish.at.format(clockFormat)
     return when (finish.day) {
         FinishClock.Day.Today -> time
