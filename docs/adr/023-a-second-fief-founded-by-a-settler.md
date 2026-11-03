@@ -588,3 +588,12 @@ one settler alone stand: `fief_marches_order_terms` holds a founding at
 `archer_count` 0 beside the infantry's and the cavalry's (migration
 0027), and `refuseUnfitUnits` still refuses a settler, and no other
 kind, on a forage, an attack and a transport. Nothing else here changes.
+
+## Third amendment (2026-11-03)
+
+`Fief.restore` refuses a stored founding whose stay is not 0 with
+`InvalidMarchStay { stayHours }`, no longer `StayOutOfRange` (#650): a
+corrupt stored stay is its own `DomainError` member, answered 500 with
+an empty body, and `StayOutOfRange` names only a stay the player typed
+on a forage, answered 409. The stored attack, forage and transport
+checks answer the same member. Nothing else here changes.

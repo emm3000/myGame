@@ -283,12 +283,12 @@ describe('Fief', () => {
     })
   })
 
-  it('refuses a stored march whose stay is not a whole count of hours from one', () => {
+  it('refuses a stored forage whose stay is not a whole count of hours from one as stored state, never as a stay the player typed', () => {
     const fractional = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, stayHours: 1.5 } })
     const none = Fief.restore({ ...storedBusyFief, march: { ...awayMarch, stayHours: 0 } })
 
-    expect(fractional).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1.5 }))
-    expect(none).toEqual(err({ kind: 'StayOutOfRange', stayHours: 0 }))
+    expect(fractional).toStrictEqual(err({ kind: 'InvalidMarchStay', stayHours: 1.5 }))
+    expect(none).toStrictEqual(err({ kind: 'InvalidMarchStay', stayHours: 0 }))
   })
 
   it('refuses a stored march whose road time is negative or fractional', () => {
@@ -379,10 +379,10 @@ describe('Fief', () => {
     expect(restored).toEqual(err({ kind: 'InvalidUnitCount', unit: 'infantry', count: 1 }))
   })
 
-  it('refuses a stored founding with a stay', () => {
+  it('refuses a stored founding with a stay as stored state, never as a stay the player typed', () => {
     const restored = Fief.restore({ ...storedBusyFief, march: { ...foundingMarch, stayHours: 1 } })
 
-    expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
+    expect(restored).toStrictEqual(err({ kind: 'InvalidMarchStay', stayHours: 1 }))
   })
 
   it('restores a transport march with its cargo', () => {
@@ -403,10 +403,10 @@ describe('Fief', () => {
     )
   })
 
-  it('refuses a stored transport with a stay', () => {
+  it('refuses a stored transport with a stay as stored state, never as a stay the player typed', () => {
     const restored = Fief.restore({ ...storedBusyFief, march: { ...transportMarch, stayHours: 1 } })
 
-    expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
+    expect(restored).toStrictEqual(err({ kind: 'InvalidMarchStay', stayHours: 1 }))
   })
 
   it('refuses a stored transport with an empty cargo', () => {
@@ -479,10 +479,10 @@ describe('Fief', () => {
     )
   })
 
-  it('refuses a stored attack with a stay', () => {
+  it('refuses a stored attack with a stay as stored state, never as a stay the player typed', () => {
     const restored = Fief.restore({ ...storedBusyFief, march: { ...attackMarch, stayHours: 1 } })
 
-    expect(restored).toEqual(err({ kind: 'StayOutOfRange', stayHours: 1 }))
+    expect(restored).toStrictEqual(err({ kind: 'InvalidMarchStay', stayHours: 1 }))
   })
 
   it('refuses a stored attack on a camp of no tier or of a strength that is not whole', () => {

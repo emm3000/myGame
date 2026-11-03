@@ -46,7 +46,7 @@ const mutationResponses = (
   onFief({ 200: overviewResponse(success), ...refusals })
 
 const marchRefusals =
-  'MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, StayOutOfRange, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved'
+  'MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved'
 
 export const fiefDeclarations = {
   overview: createRoute(
@@ -159,7 +159,7 @@ export const fiefDeclarations = {
         body: jsonBody(DispatchMarchRequestSchema.meta({ id: 'DispatchMarchRequest' })),
       },
       responses: mutationResponses('The fief with the forage march away.', {
-        409: refusalResponse(`PlotHasCamp, ${marchRefusals}.`),
+        409: refusalResponse(`PlotHasCamp, StayOutOfRange, ${marchRefusals}.`),
       }),
     }),
   ),

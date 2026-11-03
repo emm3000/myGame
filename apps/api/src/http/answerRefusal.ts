@@ -54,7 +54,7 @@ const fiefCapReachedLineOf = ({ cap }: FiefCapReached): string =>
 const cargoAboveCarryLineOf = ({ cargo, carry }: CargoAboveCarry): string =>
   `La carga suma ${cargo} y tus hombres llevan hasta ${carry}. Quita carga o envía más hombres.`
 
-const stayOutOfRangeLineOf = (maxStayHours: number): string =>
+const stayOutOfRangeLineOf = ({ maxStayHours }: StayOutOfRange): string =>
   `Una marcha forrajea de 1 a ${maxStayHours} horas enteras. Ajusta las horas.`
 
 const messages: Readonly<Record<SlotlessKind, string>> = {
@@ -152,14 +152,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   EmptyCargo: { status: 409, kind: 'EmptyCargo' },
   InvalidCamp: internalFailure,
   InvalidLootPercent: internalFailure,
-}
-
-const stayOutOfRangeAnswerOf = (c: Context, { kind, maxStayHours }: StayOutOfRange): Response => {
-  if (maxStayHours === undefined) {
-    return c.body(null, internalFailure.status)
-  }
-  const body: ApiError = { kind, message: stayOutOfRangeLineOf(maxStayHours) }
-  return c.json(body, 409)
+  InvalidMarchStay: internalFailure,
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {
@@ -180,7 +173,8 @@ export const answerRefusal = (c: Context, refusal: Refusal): Response => {
     return c.json(body, 409)
   }
   if (refusal.kind === 'StayOutOfRange') {
-    return stayOutOfRangeAnswerOf(c, refusal)
+    const body: ApiError = { kind: refusal.kind, message: stayOutOfRangeLineOf(refusal) }
+    return c.json(body, 409)
   }
   const { status, kind } = answers[refusal.kind]
   if (kind === undefined) {
