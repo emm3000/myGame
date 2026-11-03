@@ -3,6 +3,8 @@ package com.emm.mygame.core.testing
 import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.MapRepository
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
 
 class FakeMapRepository : MapRepository {
 
@@ -35,12 +37,8 @@ class FakeMapRepository : MapRepository {
         val request: Int = _requests.size
         _requests += province
         queued.removeFirstOrNull()?.let { answer: MapReadResult -> return answer }
-        val read: CompletableDeferred<MapReadResult> = CompletableDeferred()
+        val read: CompletableDeferred<MapReadResult> = CompletableDeferred(parent = currentCoroutineContext().job)
         pending[request] = read
-        try {
-            return read.await()
-        } finally {
-            read.cancel()
-        }
+        return read.await()
     }
 }
