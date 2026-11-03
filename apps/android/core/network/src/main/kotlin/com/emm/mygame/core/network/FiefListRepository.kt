@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 interface FiefListRepository {
 
     suspend fun firstListed(): FirstFiefResult
+
+    suspend fun listed(): FiefListResult
 }
 
 fun FiefListRepository(

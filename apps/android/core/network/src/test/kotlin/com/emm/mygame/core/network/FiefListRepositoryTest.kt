@@ -102,6 +102,69 @@ class FiefListRepositoryTest {
         }
     }
 
+    @Test
+    fun `lists every fief in the api's order`() = runTest {
+        api.enqueue(json(200, TWO_FIEFS))
+
+        val listed: FiefListResult = repository().listed()
+
+        assertEquals(
+            listOf(FiefId(LOWER_PROVINCE_FIEF_ID), FiefId(FOUNDING_FIEF_ID)),
+            (listed as FiefListResult.Listed).fiefs.map { fief: ListedFief -> fief.id },
+        )
+    }
+
+    @Test
+    fun `lists a fief with its name, its address and its badges`() = runTest {
+        api.enqueue(json(200, BADGED_FIEF))
+
+        assertEquals(
+            FiefListResult.Listed(
+                listOf(
+                    ListedFief(
+                        id = FiefId(LOWER_PROVINCE_FIEF_ID),
+                        name = "Sotoverde",
+                        address = FiefAddress(kingdom = 1, province = 3, plot = 12),
+                        freeSlots = listOf(FreeSlot.Build, FreeSlot.Study, FreeSlot.Recruit, FreeSlot.March),
+                        fullStores = listOf(ResourceKind.Stone, ResourceKind.Food),
+                    ),
+                ),
+            ),
+            repository().listed(),
+        )
+    }
+
+    @Test
+    fun `drops a badge the client does not know`() = runTest {
+        api.enqueue(json(200, UNKNOWN_BADGES_FIEF))
+
+        val listed: ListedFief = (repository().listed() as FiefListResult.Listed).fiefs.single()
+
+        assertEquals(listOf(FreeSlot.March), listed.freeSlots)
+    }
+
+    @Test
+    fun `answers unreachable when the full list cannot be read`() = runTest {
+        api.enqueue(MockResponse.Builder().code(500).build())
+
+        assertEquals(FiefListResult.Unreachable, repository().listed())
+    }
+
+    @Test
+    fun `answers unreachable when the full list is not a fief list`() = runTest {
+        api.enqueue(json(200, """{"id":"not a list"}"""))
+
+        assertEquals(FiefListResult.Unreachable, repository().listed())
+    }
+
+    @Test
+    fun `answers unreachable when the full list's api cannot be reached`() = runTest {
+        val listings: FiefListRepository = repository()
+        api.close()
+
+        assertEquals(FiefListResult.Unreachable, listings.listed())
+    }
+
     private fun TestScope.repository(): FiefListRepository {
         val store: TokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply {
             write("opaque-session")
@@ -126,5 +189,13 @@ class FiefListRepositoryTest {
                 """"coordinates":{"kingdom":1,"province":1,"plot":4},"freeSlots":["build"],"fullStores":[]},""" +
                 """{"id":"$FOUNDING_FIEF_ID","name":"Vadoalto",""" +
                 """"coordinates":{"kingdom":1,"province":3,"plot":1},"freeSlots":["build"],"fullStores":[]}]}"""
+        const val BADGED_FIEF: String =
+            """{"fiefs":[{"id":"$LOWER_PROVINCE_FIEF_ID","name":"Sotoverde",""" +
+                """"coordinates":{"kingdom":1,"province":3,"plot":12},""" +
+                """"freeSlots":["build","study","recruit","march"],"fullStores":["stone","food"]}]}"""
+        const val UNKNOWN_BADGES_FIEF: String =
+            """{"fiefs":[{"id":"$LOWER_PROVINCE_FIEF_ID","name":"Sotoverde",""" +
+                """"coordinates":{"kingdom":1,"province":3,"plot":12},""" +
+                """"freeSlots":["forge","march"],"fullStores":["silver"]}]}"""
     }
 }

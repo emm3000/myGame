@@ -24,4 +24,15 @@ internal class ApiFiefListRepository(
             FirstFiefResult.Unreachable
         }
     }
+
+    override suspend fun listed(): FiefListResult = withContext(ioDispatcher) {
+        try {
+            val listed: FiefList = api.fiefsGet().body() ?: return@withContext FiefListResult.Unreachable
+            FiefListResult.Listed(listed.fiefs.map { fief: FiefListFiefsInner -> fief.toListedFief() })
+        } catch (expectedOutage: IOException) {
+            FiefListResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            FiefListResult.Unreachable
+        }
+    }
 }
