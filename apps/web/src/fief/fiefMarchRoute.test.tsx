@@ -385,6 +385,38 @@ it('shows the march returning with its new countdown after the recall', async ()
   expect(recallButton()).toBeNull()
 })
 
+const recalledFiveMinutesAfterTheRead = (readAt: string): FiefOverview => {
+  const recalledAt = instantAfterRead(300)
+  return {
+    ...marchUnderway,
+    march: {
+      ...(marchUnderway.march as NonNullable<FiefOverview['march']>),
+      loot: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
+      arrivesAt: recalledAt,
+      leavesAt: recalledAt,
+      returnsAt: instantAfterRead(630),
+      recalledAt,
+    },
+    readAt,
+  }
+}
+
+it('draws a recalled march as returning', async () => {
+  await showFief({
+    recallMarch: async () => ({
+      ok: true,
+      value: recalledFiveMinutesAfterTheRead(instantAfterRead(300)),
+    }),
+  })
+  await passSeconds(300)
+
+  fireEvent.click(recallButton() as HTMLElement)
+  await passSeconds(0)
+
+  expect(phaseLine('Marcha de vuelta: 10 infantes desde provincia 2, parcela 5')).not.toBeNull()
+  expect(recallButton()).toBeNull()
+})
+
 it('leaves the loot out after a recall on the road', async () => {
   const now = new Date(Date.now()).toISOString()
   const recalledOnTheRoad: FiefOverview = {

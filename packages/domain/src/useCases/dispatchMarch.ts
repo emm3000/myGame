@@ -48,7 +48,16 @@ export const dispatchMarch = async (
     return err({ kind: 'PlotHasCamp', province, plot })
   }
   const now = clock.now()
-  const marching = fief.dispatchMarch(command, now, { forage, units }, marchSeasonAt(now, settings))
+  const settled = fief.accruedTo(catalog, now)
+  if (!settled.ok) {
+    return settled
+  }
+  const marching = settled.value.dispatchMarch(
+    command,
+    now,
+    { forage, units },
+    marchSeasonAt(now, settings),
+  )
   if (!marching.ok) {
     return marching
   }
