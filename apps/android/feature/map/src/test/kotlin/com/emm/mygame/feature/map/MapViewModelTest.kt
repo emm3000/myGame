@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.map
 
 import app.cash.turbine.test
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.MapPlot
 import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.PlotHolder
@@ -22,7 +23,7 @@ class MapViewModelTest {
 
     @Test
     fun `draws the loading state while the api answers`() = runTest {
-        val viewModel: MapViewModel = MapViewModel(FakeMapRepository(), FakeFiefRepository())
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), FakeMapRepository(), FakeFiefRepository())
 
         assertEquals(MapUiState.Loading, viewModel.state.value)
     }
@@ -31,15 +32,47 @@ class MapViewModelTest {
     fun `reads the own province first`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
 
-        MapViewModel(maps, FakeFiefRepository())
+        MapViewModel(FiefId(FIEF_ID), maps, FakeFiefRepository())
 
         assertEquals(listOf<Int?>(null), maps.requests)
     }
 
     @Test
+    fun `reads the map of the fief the route names`() = runTest {
+        val maps: FakeMapRepository = FakeMapRepository()
+        val routeFief: FiefId = FiefId(OTHER_FIEF_ID)
+
+        MapViewModel(routeFief, maps, FakeFiefRepository())
+
+        assertEquals(listOf(routeFief), maps.fiefs)
+    }
+
+    @Test
+    fun `reads the offers from the fief the route names`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val routeFief: FiefId = FiefId(OTHER_FIEF_ID)
+
+        MapViewModel(routeFief, FakeMapRepository(), fiefs)
+
+        assertEquals(listOf(routeFief), fiefs.reads)
+    }
+
+    @Test
+    fun `reads a named province from the fief the route names`() = runTest {
+        val maps: FakeMapRepository = FakeMapRepository()
+        val routeFief: FiefId = FiefId(OTHER_FIEF_ID)
+        val viewModel: MapViewModel = MapViewModel(routeFief, maps, FakeFiefRepository())
+        maps.answerRead(MapReadResult.Read(thirdProvince))
+
+        viewModel.onIntent(MapIntent.NextTapped)
+
+        assertEquals(listOf(routeFief, routeFief), maps.fiefs)
+    }
+
+    @Test
     fun `draws the province the api answers`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, FakeFiefRepository())
 
         maps.answerRead(MapReadResult.Read(thirdProvince))
 
@@ -49,7 +82,7 @@ class MapViewModelTest {
     @Test
     fun `offers a retry when the api cannot be reached`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, FakeFiefRepository())
 
         maps.answerRead(MapReadResult.Unreachable)
 
@@ -71,7 +104,7 @@ class MapViewModelTest {
     @Test
     fun `ignores a retry while the map is read`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, FakeFiefRepository())
 
         viewModel.onIntent(MapIntent.RetryTapped)
 
@@ -220,7 +253,7 @@ class MapViewModelTest {
         MapUiState.Content(map, jumpEntry = jumpEntry, offers = emptyList(), form = null, sent = null)
 
     private fun contentOf(maps: FakeMapRepository, shown: ProvinceMap): MapViewModel {
-        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, FakeFiefRepository())
         maps.answerRead(MapReadResult.Read(shown))
         return viewModel
     }

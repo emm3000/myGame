@@ -22,6 +22,8 @@ class FakeFiefRepository : FiefRepository {
 
     private val answers: Channel<FiefReadResult> = Channel(Channel.UNLIMITED)
 
+    private val _reads: MutableList<FiefId> = mutableListOf()
+
     private val upgradeAnswers: Channel<UpgradeResult> = Channel(Channel.UNLIMITED)
 
     private val cancelAnswers: Channel<CancelResult> = Channel(Channel.UNLIMITED)
@@ -42,8 +44,11 @@ class FakeFiefRepository : FiefRepository {
 
     private val _cancels: MutableList<CancelRequest> = mutableListOf()
 
-    var readCount: Int = 0
-        private set
+    val reads: List<FiefId>
+        get() = _reads.toList()
+
+    val readCount: Int
+        get() = _reads.size
 
     val upgrades: List<Pair<FiefId, BuildingKind>>
         get() = _upgrades.toList()
@@ -84,8 +89,8 @@ class FakeFiefRepository : FiefRepository {
         cancelAnswers.trySend(result)
     }
 
-    override suspend fun read(): FiefReadResult {
-        readCount += 1
+    override suspend fun read(fief: FiefId): FiefReadResult {
+        _reads += fief
         return answers.receive()
     }
 

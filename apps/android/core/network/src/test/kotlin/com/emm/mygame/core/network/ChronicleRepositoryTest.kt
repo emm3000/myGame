@@ -38,20 +38,19 @@ class ChronicleRepositoryTest {
     }
 
     @Test
-    fun `reads the chronicle of the first fief the api lists`() = runTest {
+    fun `reads the chronicle of the fief the route names`() = runTest {
         enqueueChronicle(EMPTY_CHRONICLE)
 
-        repository().read()
+        repository().read(FiefId(SECOND_FIEF_ID))
 
-        assertEquals("/api/fiefs", api.takeRequestWithin().url.encodedPath)
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID/events", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/fiefs/$SECOND_FIEF_ID/events", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
     fun `sends the stored token as a bearer`() = runTest {
         enqueueChronicle(EMPTY_CHRONICLE)
 
-        repository().read()
+        repository().read(FiefId(LISTED_FIEF_ID))
 
         val headers: Headers = api.takeRequestWithin().headers
         assertEquals("Bearer opaque-session", headers["Authorization"])
@@ -61,14 +60,14 @@ class ChronicleRepositoryTest {
     fun `reads every event kind in the order the api answers`() = runTest {
         enqueueChronicle(text("chronicle-every-kind.json"))
 
-        assertEquals(ChronicleReadResult.Read(everyKind), repository().read())
+        assertEquals(ChronicleReadResult.Read(everyKind), repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `reads an empty chronicle`() = runTest {
         enqueueChronicle(EMPTY_CHRONICLE)
 
-        assertEquals(ChronicleReadResult.Read(emptyList()), repository().read())
+        assertEquals(ChronicleReadResult.Read(emptyList()), repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
@@ -78,7 +77,7 @@ class ChronicleRepositoryTest {
                 """$SAWMILL_FINISHED]}""",
         )
 
-        assertEquals(ChronicleReadResult.Read(listOf(sawmillFinished)), repository().read())
+        assertEquals(ChronicleReadResult.Read(listOf(sawmillFinished)), repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
@@ -88,39 +87,37 @@ class ChronicleRepositoryTest {
                 """"occurredAt":"2026-11-02T18:20:00.000Z"},$SAWMILL_FINISHED]}""",
         )
 
-        assertEquals(ChronicleReadResult.Read(listOf(sawmillFinished)), repository().read())
+        assertEquals(ChronicleReadResult.Read(listOf(sawmillFinished)), repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `answers unreachable when an event of a kind it knows is malformed`() = runTest {
         enqueueChronicle("""{"events":[{"kind":"upgradeFinished","building":"sawmill"}]}""")
 
-        assertEquals(ChronicleReadResult.Unreachable, repository().read())
+        assertEquals(ChronicleReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `answers unreachable when the body is not a chronicle`() = runTest {
         enqueueChronicle("""{"id":"not a chronicle"}""")
 
-        assertEquals(ChronicleReadResult.Unreachable, repository().read())
+        assertEquals(ChronicleReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `answers unreachable when the api refuses the chronicle`() = runTest {
-        api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
 
-        assertEquals(ChronicleReadResult.Unreachable, repository().read())
+        assertEquals(ChronicleReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
     }
 
     @Test
     fun `ends the session when the chronicle read answers 401`() = runTest {
-        api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(MockResponse.Builder().code(401).build())
         val chronicles: ChronicleRepository = repository()
 
         sessionEnds.ended.test {
-            chronicles.read()
+            chronicles.read(FiefId(LISTED_FIEF_ID))
 
             awaitItem()
             assertNull(TokenStore(File(folder.root, "session"), FakeTokenCipher()).read())
@@ -128,22 +125,14 @@ class ChronicleRepositoryTest {
     }
 
     @Test
-    fun `answers unreachable when the lord holds no fief`() = runTest {
-        api.enqueue(json(200, """{"fiefs":[]}"""))
-
-        assertEquals(ChronicleReadResult.Unreachable, repository().read())
-    }
-
-    @Test
     fun `answers unreachable when the api cannot be reached`() = runTest {
         val chronicles: ChronicleRepository = repository()
         api.close()
 
-        assertEquals(ChronicleReadResult.Unreachable, chronicles.read())
+        assertEquals(ChronicleReadResult.Unreachable, chronicles.read(FiefId(LISTED_FIEF_ID)))
     }
 
     private fun enqueueChronicle(body: String) {
-        api.enqueue(json(200, text("fief-list.json")))
         api.enqueue(json(200, body))
     }
 
@@ -267,6 +256,7 @@ class ChronicleRepositoryTest {
 
     private companion object {
         const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
+        const val SECOND_FIEF_ID: String = "7c1f0a52-3d4e-4b8a-9f61-2e5d8c0b4a17"
         const val EMPTY_CHRONICLE: String = """{"events":[]}"""
         const val SAWMILL_FINISHED: String =
             """{"kind":"upgradeFinished","building":"sawmill","level":2,"occurredAt":"2026-11-02T18:01:00.000Z"}"""

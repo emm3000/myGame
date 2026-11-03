@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
+import com.emm.mygame.core.network.FiefId
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,11 +14,14 @@ sealed interface Destination : NavKey {
     data object SignUp : Destination
 
     @Serializable
-    data object Fief : Destination
+    data object FirstFief : Destination
 
     @Serializable
-    data object Map : Destination
+    data class Fief(val fief: FiefId) : Destination
 
     @Serializable
-    data object Chronicle : Destination
+    data class Map(val fief: FiefId) : Destination
+
+    @Serializable
+    data class Chronicle(val fief: FiefId) : Destination
 }

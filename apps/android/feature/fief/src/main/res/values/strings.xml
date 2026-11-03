@@ -5,6 +5,7 @@
     <string name="fief_loading">Estamos leyendo tu feudo…</string>
     <string name="fief_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="fief_retry">Volver a intentarlo</string>
+    <string name="first_fief_none">No encontramos tus tierras.</string>
     <string name="sign_out">Salir</string>
     <string name="fief_resources_title">Recursos</string>
     <string name="resource_wood">Madera</string>

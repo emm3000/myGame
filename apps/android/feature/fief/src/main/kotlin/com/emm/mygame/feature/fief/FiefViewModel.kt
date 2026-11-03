@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.CancelRefusal
 import com.emm.mygame.core.network.CancelResult
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class FiefViewModel(
+    private val route: FiefId,
     private val fiefs: FiefRepository,
     private val sessions: SessionRepository,
     private val clock: Clock,
@@ -92,7 +94,7 @@ class FiefViewModel(
         if (_state.value == FiefUiState.Loading) return open()
         val last: FiefSnapshot = shown?.takeIf { _state.value is FiefUiState.Content } ?: return
         viewModelScope.launch {
-            when (val answer: FiefReadResult = fiefs.read()) {
+            when (val answer: FiefReadResult = fiefs.read(route)) {
                 is FiefReadResult.Read -> restartFrom(measured(answer.fief), mutations.keptAfterRead())
                 FiefReadResult.Unreachable -> restartFrom(last, mutations)
             }
@@ -103,7 +105,7 @@ class FiefViewModel(
         projection?.cancel()
         _state.value = FiefUiState.Loading
         projection = viewModelScope.launch {
-            when (val answer: FiefReadResult = fiefs.read()) {
+            when (val answer: FiefReadResult = fiefs.read(route)) {
                 FiefReadResult.Unreachable -> _state.value = FiefUiState.Failed
                 is FiefReadResult.Read -> project(measured(answer.fief))
             }
@@ -240,7 +242,7 @@ class FiefViewModel(
 
     private suspend fun rereadIf(isNeeded: Boolean, answered: () -> Mutations, unanswered: () -> Mutations) {
         if (!isNeeded) return draw(unanswered())
-        when (val answer: FiefReadResult = fiefs.read()) {
+        when (val answer: FiefReadResult = fiefs.read(route)) {
             is FiefReadResult.Read -> restartFrom(measured(answer.fief), answered())
             FiefReadResult.Unreachable -> draw(unanswered())
         }
@@ -264,7 +266,7 @@ class FiefViewModel(
         var snapshot: FiefSnapshot = first
         while (true) {
             if (snapshot.nextFinishAt(clock.now() + gap) == Duration.ZERO) {
-                val answer: FiefReadResult = fiefs.read()
+                val answer: FiefReadResult = fiefs.read(route)
                 if (answer is FiefReadResult.Read) {
                     snapshot = measured(answer.fief)
                     mutations = mutations.keptAfterRead()

@@ -1,0 +1,34 @@
+package com.emm.mygame.feature.fief
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.emm.mygame.core.network.FiefId
+import com.emm.mygame.core.network.FiefListRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+@Composable
+fun FirstFiefRoute(
+    listings: FiefListRepository,
+    onOpen: (FiefId) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: FirstFiefViewModel = viewModel { FirstFiefViewModel(listings) },
+) {
+    val state: FirstFiefUiState by viewModel.state.collectAsStateWithLifecycle()
+    val currentOnOpen: (FiefId) -> Unit by rememberUpdatedState(onOpen)
+    LaunchedEffect(viewModel) {
+        withContext(Dispatchers.Main.immediate) {
+            viewModel.effects.collect { effect: FirstFiefEffect ->
+                when (effect) {
+                    is FirstFiefEffect.Opened -> currentOnOpen(effect.fief)
+                }
+            }
+        }
+    }
+    FirstFiefScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+}

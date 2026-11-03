@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.SessionRepository
 import kotlin.time.Clock
@@ -16,13 +17,14 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun FiefRoute(
+    fief: FiefId,
     fiefs: FiefRepository,
     sessions: SessionRepository,
     clock: Clock,
     onSigningOut: () -> Unit,
     onSignedOut: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: FiefViewModel = viewModel { FiefViewModel(fiefs, sessions, clock) },
+    viewModel: FiefViewModel = viewModel { FiefViewModel(fief, fiefs, sessions, clock) },
 ) {
     val state: FiefUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedOut: () -> Unit by rememberUpdatedState(onSignedOut)

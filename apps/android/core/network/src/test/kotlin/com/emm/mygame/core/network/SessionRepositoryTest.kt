@@ -29,6 +29,8 @@ class SessionRepositoryTest {
 
     private val api: MockWebServer = MockWebServer()
 
+    private val signedInFief: FiefId = FiefId("509eadd5-6b34-4ea3-8e91-2b38744bd385")
+
     private val sessionEnds: SessionEnds = SessionEnds()
 
     @Before
@@ -192,7 +194,7 @@ class SessionRepositoryTest {
     fun `asks the api nothing on restore once a read has ended the session`() = runTest {
         val store: TokenStore = tokenStore().apply { write("expired-session") }
         api.enqueue(MockResponse.Builder().code(401).build())
-        fiefRepository(store).read()
+        fiefRepository(store).read(signedInFief)
 
         val result: RestoreResult = repository(store).restore()
 
@@ -318,7 +320,7 @@ class SessionRepositoryTest {
         api.enqueue(MockResponse.Builder().code(401).build())
         repository(store).signOut()
 
-        fiefs.read()
+        fiefs.read(signedInFief)
 
         api.takeRequestWithin()
         assertNull(api.takeRequestWithin().headers["Authorization"])

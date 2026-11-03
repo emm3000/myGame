@@ -16,17 +16,17 @@ internal class ApiMapRepository(
     private val ioDispatcher: CoroutineDispatcher,
 ) : MapRepository {
 
-    override suspend fun readOwn(): MapReadResult = readOf { fiefId: UUID -> api.fiefsFiefIdMapGet(fiefId) }
+    override suspend fun readOwn(fief: FiefId): MapReadResult =
+        readOf { api.fiefsFiefIdMapGet(UUID.fromString(fief.value)) }
 
-    override suspend fun read(province: Int): MapReadResult =
-        readOf { fiefId: UUID -> api.fiefsFiefIdMapProvinceGet(fiefId, province.toString()) }
+    override suspend fun read(fief: FiefId, province: Int): MapReadResult =
+        readOf { api.fiefsFiefIdMapProvinceGet(UUID.fromString(fief.value), province.toString()) }
 
-    private suspend fun readOf(request: suspend (UUID) -> Response<ProvinceMapBody>): MapReadResult =
+    private suspend fun readOf(request: suspend () -> Response<ProvinceMapBody>): MapReadResult =
         withContext(ioDispatcher) {
             try {
                 val lordsFiefs: List<FiefListFiefsInner> = api.fiefsGet().body()?.fiefs.orEmpty()
-                val fiefId: UUID = lordsFiefs.firstOrNull()?.id ?: return@withContext MapReadResult.Unreachable
-                request(fiefId).toMapReadResult(lordsFiefs)
+                request().toMapReadResult(lordsFiefs)
             } catch (expectedOutage: IOException) {
                 MapReadResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {

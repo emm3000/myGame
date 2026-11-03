@@ -47,7 +47,7 @@ class MapForageViewModelTest {
     @Test
     fun `offers no march until the fief is read`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val viewModel: MapViewModel = MapViewModel(maps, FakeFiefRepository())
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, FakeFiefRepository())
         maps.answerRead(MapReadResult.Read(mixedProvince))
 
         assertEquals(emptyList<Int>(), forageablePlotsOf(viewModel))
@@ -57,7 +57,7 @@ class MapForageViewModelTest {
     fun `reads the fief again with the next province when it could not be read`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
         val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: MapViewModel = MapViewModel(maps, fiefs)
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, fiefs)
         fiefs.answerRead(FiefReadResult.Unreachable)
         maps.answerRead(MapReadResult.Read(mixedProvince))
 
@@ -446,7 +446,7 @@ class MapForageViewModelTest {
         maps: FakeMapRepository = FakeMapRepository(),
     ): MapViewModel {
         fiefs.answerRead(FiefReadResult.Read(read))
-        val viewModel: MapViewModel = MapViewModel(maps, fiefs)
+        val viewModel: MapViewModel = MapViewModel(FiefId(FIEF_ID), maps, fiefs)
         maps.answerRead(MapReadResult.Read(mixedProvince))
         return viewModel
     }
