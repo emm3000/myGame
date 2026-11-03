@@ -198,6 +198,49 @@ class MapFoundingViewModelTest {
     }
 
     @Test
+    fun `draws the newest re-read when an older one answers after it`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val maps: FakeMapRepository = FakeMapRepository()
+        val viewModel: MapViewModel = openOrdersOn(fiefs, maps = maps)
+        sendFounding(viewModel, fiefs)
+        sendFounding(viewModel, fiefs)
+
+        maps.answerRequest(SECOND_REREAD, MapReadResult.Read(ordersProvince.withPlot(reservedOwn)))
+        maps.answerRequest(FIRST_REREAD, MapReadResult.Read(ordersProvince))
+
+        assertEquals(reservedOwn, contentOf(viewModel).map.plots.first { it.plot == 7 })
+    }
+
+    @Test
+    fun `draws the browsed province over a re-read that answers later`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val maps: FakeMapRepository = FakeMapRepository()
+        val viewModel: MapViewModel = openOrdersOn(fiefs, maps = maps)
+        sendFounding(viewModel, fiefs)
+        viewModel.onIntent(MapIntent.NextTapped)
+
+        maps.answerRequest(BROWSE_AFTER_REREAD, MapReadResult.Read(ordersProvince.copy(province = 4)))
+        maps.answerRequest(FIRST_REREAD, MapReadResult.Read(ordersProvince))
+
+        assertEquals(4, contentOf(viewModel).map.province)
+    }
+
+    @Test
+    fun `keeps the content and its sent line when the re-read cannot reach the api`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val maps: FakeMapRepository = FakeMapRepository()
+        val viewModel: MapViewModel = openOrdersOn(fiefs, maps = maps)
+        viewModel.onIntent(MapIntent.FoundingToggled(7, proposedName = "Vega"))
+        fiefs.answerMarch(MarchResult.Answered(fief(settlersAtHome = 0, settlersAway = 1, march = sentFounding)))
+        viewModel.onIntent(MapIntent.SendTapped)
+
+        maps.answerRead(MapReadResult.Unreachable)
+
+        val drawn: MapUiState.Content? = viewModel.state.value as? MapUiState.Content
+        assertEquals(MapUiState.SentFounding::class, drawn?.sent?.let { it::class })
+    }
+
+    @Test
     fun `keeps the api's line for a fief past the cap beside the founding`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs)
@@ -219,9 +262,23 @@ class MapFoundingViewModelTest {
         assertEquals(MapUiState.FoundingForm::class, contentOf(viewModel).form?.let { it::class })
     }
 
+    private val reservedOwn: MapPlot = MapPlot(7, PlotHolder.Reserved(isOwn = true))
+
+    private fun sendFounding(viewModel: MapViewModel, fiefs: FakeFiefRepository) {
+        viewModel.onIntent(MapIntent.FoundingToggled(7, proposedName = "Vega"))
+        fiefs.answerMarch(MarchResult.Answered(fief(settlersAtHome = 1)))
+        viewModel.onIntent(MapIntent.SendTapped)
+    }
+
     private fun foundingForm(viewModel: MapViewModel): MapUiState.FoundingForm =
         contentOf(viewModel).form as MapUiState.FoundingForm
 }
+
+private const val FIRST_REREAD: Int = 1
+
+private const val SECOND_REREAD: Int = 2
+
+private const val BROWSE_AFTER_REREAD: Int = 2
 
 private fun ProvinceMap.withPlot(changed: MapPlot): ProvinceMap =
     copy(plots = plots.map { each: MapPlot -> if (each.plot == changed.plot) changed else each })

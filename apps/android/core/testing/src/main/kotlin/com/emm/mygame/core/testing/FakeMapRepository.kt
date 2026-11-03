@@ -2,11 +2,13 @@ package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.network.MapReadResult
 import com.emm.mygame.core.network.MapRepository
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CompletableDeferred
 
 class FakeMapRepository : MapRepository {
 
-    private val answers: Channel<MapReadResult> = Channel(Channel.UNLIMITED)
+    private val queued: ArrayDeque<MapReadResult> = ArrayDeque()
+
+    private val pending: MutableMap<Int, CompletableDeferred<MapReadResult>> = mutableMapOf()
 
     private val _requests: MutableList<Int?> = mutableListOf()
 
@@ -14,16 +16,31 @@ class FakeMapRepository : MapRepository {
         get() = _requests.toList()
 
     fun answerRead(result: MapReadResult) {
-        answers.trySend(result)
+        val oldest: CompletableDeferred<MapReadResult>? = pending.entries
+            .filter { (_, read: CompletableDeferred<MapReadResult>) -> read.isActive }
+            .minByOrNull { (request: Int, _) -> request }
+            ?.value
+        if (oldest == null) queued.addLast(result) else oldest.complete(result)
     }
 
-    override suspend fun readOwn(): MapReadResult {
-        _requests += null
-        return answers.receive()
+    fun answerRequest(request: Int, result: MapReadResult) {
+        checkNotNull(pending[request]) { "No pending read at request $request" }.complete(result)
     }
 
-    override suspend fun read(province: Int): MapReadResult {
+    override suspend fun readOwn(): MapReadResult = answerTo(province = null)
+
+    override suspend fun read(province: Int): MapReadResult = answerTo(province)
+
+    private suspend fun answerTo(province: Int?): MapReadResult {
+        val request: Int = _requests.size
         _requests += province
-        return answers.receive()
+        queued.removeFirstOrNull()?.let { answer: MapReadResult -> return answer }
+        val read: CompletableDeferred<MapReadResult> = CompletableDeferred()
+        pending[request] = read
+        try {
+            return read.await()
+        } finally {
+            read.cancel()
+        }
     }
 }
