@@ -96,6 +96,18 @@ describe('the OpenAPI document', () => {
             responses: { 200: jsonOf('Player'), 401: refusal },
           },
         },
+        '/auth/sign-up/native': {
+          post: {
+            requestBody: jsonOf('SignUpRequest'),
+            responses: { 201: jsonOf('NativeSession'), 400: refusal, 409: refusal },
+          },
+        },
+        '/auth/sign-in/native': {
+          post: {
+            requestBody: jsonOf('SignInRequest'),
+            responses: { 200: jsonOf('NativeSession'), 401: refusal },
+          },
+        },
         '/auth/sign-out': { post: { responses: { 204: bodiless, 401: bodiless } } },
         '/auth/session': { get: { responses: { 200: jsonOf('Player'), 401: bodiless } } },
         '/auth/verify-email': {
