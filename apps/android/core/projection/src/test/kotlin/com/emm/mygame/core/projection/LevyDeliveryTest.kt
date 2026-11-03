@@ -1,36 +1,28 @@
 package com.emm.mygame.core.projection
 
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-class LevyDeliveryTest {
-
-    private val startedAt: Instant = Instant.fromEpochMilliseconds(0)
+@RunWith(Parameterized::class)
+class LevyDeliveryTest(private val case: LevyDeliveryCase) {
 
     @Test
-    fun `delivers one unit per term since the levy started`() {
-        assertEquals(
-            4,
-            deliveredUnitsAt(startedAt = startedAt, perUnit = 1.minutes, count = 12, now = startedAt + 270.seconds),
+    fun `delivers the units the domain delivers`() {
+        val delivered: Int = deliveredUnitsAt(
+            startedAt = case.startedAt,
+            perUnit = case.perUnit,
+            count = case.count,
+            now = case.at,
         )
+
+        assertEquals(case.name, case.expectedDelivered, delivered)
     }
 
-    @Test
-    fun `never delivers more than the levy counts`() {
-        assertEquals(
-            12,
-            deliveredUnitsAt(startedAt = startedAt, perUnit = 1.minutes, count = 12, now = startedAt + 20.minutes),
-        )
-    }
-
-    @Test
-    fun `delivers none before the levy started`() {
-        assertEquals(
-            0,
-            deliveredUnitsAt(startedAt = startedAt, perUnit = 1.minutes, count = 12, now = startedAt - 5.seconds),
-        )
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun cases(): List<Array<Any>> = readLevyDeliveryCases().map { case: LevyDeliveryCase -> arrayOf(case) }
     }
 }
