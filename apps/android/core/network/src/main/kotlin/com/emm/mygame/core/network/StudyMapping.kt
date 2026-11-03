@@ -42,7 +42,7 @@ private fun FiefOverviewArtsSmithing.toArtState(kind: ArtKind): ArtState? {
         kind = kind,
         level = level,
         resource = resourceKind,
-        ratePercent = ratePercent.toInt(),
+        ratePercent = ratePercent,
         nextLevel = nextLevel?.toNextArtLevel(),
     )
 }
@@ -52,7 +52,7 @@ private fun FiefOverviewArtsSmithingNextLevel.toNextArtLevel(): NextArtLevel = N
     cost = cost.toResourceCosts(),
     duration = durationSeconds.seconds,
     requiredLibraryLevel = requiredLibraryLevel,
-    ratePercent = ratePercent.toInt(),
+    ratePercent = ratePercent,
 )
 
 private fun FiefOverviewArtsSmithing.Resource.toResourceKind(): ResourceKind? = when (this) {

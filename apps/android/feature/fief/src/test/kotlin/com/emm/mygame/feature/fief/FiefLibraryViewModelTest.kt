@@ -8,11 +8,13 @@ import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.StudyRefusal
 import com.emm.mygame.core.network.StudyResult
 import com.emm.mygame.core.network.StudySlot
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.advanceTimeBy
@@ -67,10 +69,10 @@ class FiefLibraryViewModelTest {
                         kind = ArtKind.Smithing,
                         level = 2,
                         resource = ResourceKind.Iron,
-                        ratePercent = 10,
+                        ratePercent = 10.0,
                         next = FiefUiState.NextArtLine(
                             level = 3,
-                            ratePercent = 15,
+                            ratePercent = 15.0,
                             costs = listOf(
                                 FiefUiState.CostLine(ResourceKind.Wood, 120, isShort = false),
                                 FiefUiState.CostLine(ResourceKind.Stone, 80, isShort = true),
@@ -80,6 +82,7 @@ class FiefLibraryViewModelTest {
                             duration = 30.minutes,
                             requiredLibraryLevel = 2,
                             isLibraryTooLow = true,
+                            block = FiefUiState.StudyBlock.LibraryTooLow(required = 2, built = 1),
                         ),
                     ),
                 ),
@@ -244,4 +247,119 @@ class FiefLibraryViewModelTest {
             )
         }
     }
+
+    @Test
+    fun `keeps the fraction of an art's rate`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val fractionalSmithing: ArtState = smithing(level = 1).let { art: ArtState ->
+            art.copy(ratePercent = 7.5, nextLevel = art.nextLevel?.copy(ratePercent = 12.5))
+        }
+        fiefs.answerRead(
+            FiefReadResult.Read(fief(buildings = listOf(library(level = 1)), arts = listOf(fractionalSmithing))),
+        )
+
+        viewModel.state.test {
+            val card: FiefUiState.ArtCard? = awaitContent().library?.arts?.single()
+            assertEquals(7.5, card?.ratePercent ?: 0.0, 0.0)
+            assertEquals(12.5, card?.next?.ratePercent ?: 0.0, 0.0)
+        }
+    }
+
+    @Test
+    fun `blocks a study while another is under way`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val studying: StudySlot = studyingSmithing(targetLevel = 1, finishesIn = 30.minutes)
+        val lowLibrary: FiefSnapshot = fief(
+            buildings = listOf(library(level = 1)),
+            study = studying,
+            arts = listOf(smithing(level = 0, requiredLibraryLevel = 2)),
+        )
+        fiefs.answerRead(FiefReadResult.Read(lowLibrary))
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.StudyBlock.StudyRunning, awaitContent().smithingBlock())
+        }
+    }
+
+    @Test
+    fun `blocks a study while the library is below the level it requires`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val lowLibrary: FiefSnapshot = fief(
+            buildings = listOf(library(level = 1)),
+            arts = listOf(smithing(level = 0, requiredLibraryLevel = 2)),
+        )
+        fiefs.answerRead(FiefReadResult.Read(lowLibrary))
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.StudyBlock.LibraryTooLow(required = 2, built = 1), awaitContent().smithingBlock())
+        }
+    }
+
+    @Test
+    fun `blocks a study for the resources short at the drawn amounts`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val growingWood: StoredResource = wood(amount = 90, ratePerHour = 1800.0)
+        val shortStores: FiefSnapshot = fief(
+            resources = listOf(growingWood, stored(ResourceKind.Stone, 80), stored(ResourceKind.Iron, 100)),
+            buildings = listOf(library(level = 1)),
+            arts = listOf(smithing(level = 0)),
+        )
+        fiefs.answerRead(FiefReadResult.Read(shortStores))
+
+        viewModel.state.test {
+            awaitContent()
+            advanceTimeBy(1.minutes)
+            runCurrent()
+            assertEquals(
+                FiefUiState.BlockReason.Resources(
+                    listOf(
+                        FiefUiState.Shortfall(ResourceKind.Iron, 50),
+                        FiefUiState.Shortfall(ResourceKind.Gold, 60),
+                    ),
+                ),
+                awaitContent().smithingBlock(),
+            )
+        }
+    }
+
+    @Test
+    fun `leaves a study unblocked when nothing stands in its way`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val fullStores: FiefSnapshot = fief(
+            resources = ResourceKind.entries.map { kind: ResourceKind -> stored(kind, 500) },
+            buildings = listOf(library(level = 1)),
+            arts = listOf(smithing(level = 0)),
+        )
+        fiefs.answerRead(FiefReadResult.Read(fullStores))
+
+        viewModel.state.test {
+            assertNull(awaitContent().smithingBlock())
+        }
+    }
+
+    @Test
+    fun `sends a blocked study anyway`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val studying: StudySlot = studyingSmithing(targetLevel = 1, finishesIn = 1.hours)
+        fiefs.answerRead(FiefReadResult.Read(fief(buildings = listOf(library(level = 1)), study = studying)))
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.StudyBlock.StudyRunning, awaitContent().smithingBlock())
+            viewModel.onIntent(FiefIntent.StudyTapped(ArtKind.Smithing))
+            awaitContentWhere { it.library?.study == FiefUiState.StudyStatus.Waiting }
+        }
+        assertEquals(listOf(FakeFiefRepository.StudyRequest.Start(FiefId(FIEF_ID), ArtKind.Smithing)), fiefs.studies)
+    }
+
+    private fun FiefUiState.Content.smithingBlock(): FiefUiState.StudyBlock? =
+        library?.arts?.first { card: FiefUiState.ArtCard -> card.kind == ArtKind.Smithing }?.next?.block
+
+    private fun stored(kind: ResourceKind, amount: Long): StoredResource =
+        StoredResource(kind, amount = amount, ratePerHour = 0.0, capacity = 1000)
 }

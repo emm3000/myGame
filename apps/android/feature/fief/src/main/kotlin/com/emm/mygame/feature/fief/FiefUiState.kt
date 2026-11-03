@@ -192,18 +192,26 @@ sealed interface FiefUiState {
         val kind: ArtKind,
         val level: Int,
         val resource: ResourceKind,
-        val ratePercent: Int,
+        val ratePercent: Double,
         val next: NextArtLine?,
     )
 
     data class NextArtLine(
         val level: Int,
-        val ratePercent: Int,
+        val ratePercent: Double,
         val costs: List<CostLine>,
         val duration: Duration,
         val requiredLibraryLevel: Int,
         val isLibraryTooLow: Boolean,
+        val block: StudyBlock?,
     )
+
+    sealed interface StudyBlock {
+
+        data object StudyRunning : StudyBlock
+
+        data class LibraryTooLow(val required: Int, val built: Int) : StudyBlock
+    }
 
     sealed interface StudyStatus {
 
@@ -260,7 +268,7 @@ sealed interface FiefUiState {
 
         data class Peasants(val needed: Int, val free: Int) : BlockReason, RecruitBlock
 
-        data class Resources(val shortfalls: List<Shortfall>) : BlockReason, RecruitBlock
+        data class Resources(val shortfalls: List<Shortfall>) : BlockReason, RecruitBlock, StudyBlock
     }
 
     sealed interface UpgradeStatus {

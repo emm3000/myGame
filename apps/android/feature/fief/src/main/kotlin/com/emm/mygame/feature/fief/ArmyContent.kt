@@ -123,9 +123,7 @@ private fun RecruitTerms.lineFor(count: Int, context: RecruitContext): FiefUiSta
 
 private fun RecruitTerms.blockFor(count: Int?, context: RecruitContext): FiefUiState.RecruitBlock? {
     val needed: Int = peasants * (count ?: 0)
-    val shortfalls: List<FiefUiState.Shortfall> = cost.times(count ?: 0)
-        .map { resource: ResourceCost -> FiefUiState.Shortfall(resource.kind, resource.shortfallFrom(context.amounts)) }
-        .filter { shortfall: FiefUiState.Shortfall -> shortfall.amount > 0 }
+    val shortfalls: List<FiefUiState.Shortfall> = cost.times(count ?: 0).shortfallsFrom(context.amounts)
     return when {
         context.isLevyRunning -> FiefUiState.RecruitBlock.LevyRunning
         count == null -> FiefUiState.RecruitBlock.InvalidCount

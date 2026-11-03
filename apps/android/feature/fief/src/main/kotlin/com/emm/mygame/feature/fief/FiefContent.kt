@@ -117,9 +117,7 @@ private fun NextLevel.blockWith(
     peasants: Peasants,
     isQueueFull: Boolean,
 ): FiefUiState.BlockReason? {
-    val shortfalls: List<FiefUiState.Shortfall> = cost
-        .map { resource: ResourceCost -> FiefUiState.Shortfall(resource.kind, resource.shortfallFrom(amounts)) }
-        .filter { shortfall: FiefUiState.Shortfall -> shortfall.amount > 0 }
+    val shortfalls: List<FiefUiState.Shortfall> = cost.shortfallsFrom(amounts)
     return when {
         isQueueFull -> FiefUiState.BlockReason.QueueFull
         this.peasants > peasants.free -> FiefUiState.BlockReason.Peasants(needed = this.peasants, free = peasants.free)
@@ -127,6 +125,10 @@ private fun NextLevel.blockWith(
         else -> null
     }
 }
+
+internal fun List<ResourceCost>.shortfallsFrom(amounts: Map<ResourceKind, Long>): List<FiefUiState.Shortfall> =
+    map { resource: ResourceCost -> FiefUiState.Shortfall(resource.kind, resource.shortfallFrom(amounts)) }
+        .filter { shortfall: FiefUiState.Shortfall -> shortfall.amount > 0 }
 
 internal fun ResourceCost.shortfallFrom(amounts: Map<ResourceKind, Long>): Long =
     (amount - (amounts[kind] ?: 0L)).coerceAtLeast(0L)
