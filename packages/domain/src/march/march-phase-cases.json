@@ -45,6 +45,17 @@
       "expectedNextTurnInMilliseconds": 3000000
     },
     {
+      "name": "forages until the leaving",
+      "departedAtEpochMilliseconds": 0,
+      "oneWaySeconds": 600,
+      "stayHours": 1,
+      "arrivesAtEpochMilliseconds": 600000,
+      "leavesAtEpochMilliseconds": 4200000,
+      "atEpochMilliseconds": 4199999,
+      "expectedPhase": "foraging",
+      "expectedNextTurnInMilliseconds": 1
+    },
+    {
       "name": "turns from foraging to returning at the leaving, with no turn left",
       "departedAtEpochMilliseconds": 0,
       "oneWaySeconds": 600,
