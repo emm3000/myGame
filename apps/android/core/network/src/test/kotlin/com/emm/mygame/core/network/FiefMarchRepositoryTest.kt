@@ -166,7 +166,7 @@ class FiefMarchRepositoryTest {
             ),
         )
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches", request.url.encodedPath)
         assertEquals(
@@ -192,7 +192,7 @@ class FiefMarchRepositoryTest {
 
         repository().recall(FiefId(LISTED_FIEF_ID), departedAt = Instant.parse("2026-11-02T15:30:00Z"))
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals(
             "/api/fiefs/$LISTED_FIEF_ID/marches/2026-11-02T15:30:00.000Z/recall",
@@ -256,7 +256,7 @@ class FiefMarchRepositoryTest {
             ),
         )
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches/attack", request.url.encodedPath)
         assertEquals(
@@ -275,7 +275,7 @@ class FiefMarchRepositoryTest {
             MarchDispatch.Found(target = PlotAddress(province = 3, plot = 7), name = "Vega"),
         )
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches/found", request.url.encodedPath)
         assertEquals("""{"province":3,"plot":7,"name":"Vega"}""", request.body?.utf8())
@@ -295,7 +295,7 @@ class FiefMarchRepositoryTest {
             ),
         )
 
-        val request: RecordedRequest = api.takeRequest()
+        val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", request.method)
         assertEquals("/api/fiefs/$LISTED_FIEF_ID/marches/transport", request.url.encodedPath)
         assertEquals(

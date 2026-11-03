@@ -59,8 +59,8 @@ class SessionRepositoryTest {
 
         sessions.restore()
 
-        api.takeRequest()
-        val sessionRequest: RecordedRequest = api.takeRequest()
+        api.takeRequestWithin()
+        val sessionRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("Bearer opaque-session", sessionRequest.headers["Authorization"])
     }
 
@@ -73,8 +73,8 @@ class SessionRepositoryTest {
 
         sessions.restore()
 
-        assertEquals("/api/auth/sign-in/native", api.takeRequest().url.encodedPath)
-        assertEquals("/api/auth/session", api.takeRequest().url.encodedPath)
+        assertEquals("/api/auth/sign-in/native", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/auth/session", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
@@ -227,7 +227,7 @@ class SessionRepositoryTest {
 
         repository(store).signOut()
 
-        val signOutRequest: RecordedRequest = api.takeRequest()
+        val signOutRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("POST", signOutRequest.method)
         assertEquals("/api/auth/sign-out", signOutRequest.url.encodedPath)
         assertEquals("Bearer opaque-session", signOutRequest.headers["Authorization"])
@@ -320,8 +320,8 @@ class SessionRepositoryTest {
 
         fiefs.read()
 
-        api.takeRequest()
-        assertNull(api.takeRequest().headers["Authorization"])
+        api.takeRequestWithin()
+        assertNull(api.takeRequestWithin().headers["Authorization"])
     }
 
     @Test
@@ -334,13 +334,13 @@ class SessionRepositoryTest {
         sessions.restore()
 
         assertEquals(SignUpResult.SignedIn(SignedInPlayer(email = "elena@encinar.es")), result)
-        val signUpRequest: RecordedRequest = api.takeRequest()
+        val signUpRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("/api/auth/sign-up/native", signUpRequest.url.encodedPath)
         assertEquals(
             """{"email":"elena@encinar.es","password":"hierro-y-lana","fiefName":"Encinar"}""",
             signUpRequest.body?.utf8(),
         )
-        assertEquals("Bearer fresh-session", api.takeRequest().headers["Authorization"])
+        assertEquals("Bearer fresh-session", api.takeRequestWithin().headers["Authorization"])
     }
 
     @Test

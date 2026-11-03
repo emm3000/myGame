@@ -43,8 +43,8 @@ class ChronicleRepositoryTest {
 
         repository().read()
 
-        assertEquals("/api/fiefs", api.takeRequest().url.encodedPath)
-        assertEquals("/api/fiefs/$LISTED_FIEF_ID/events", api.takeRequest().url.encodedPath)
+        assertEquals("/api/fiefs", api.takeRequestWithin().url.encodedPath)
+        assertEquals("/api/fiefs/$LISTED_FIEF_ID/events", api.takeRequestWithin().url.encodedPath)
     }
 
     @Test
@@ -53,7 +53,7 @@ class ChronicleRepositoryTest {
 
         repository().read()
 
-        val headers: Headers = api.takeRequest().headers
+        val headers: Headers = api.takeRequestWithin().headers
         assertEquals("Bearer opaque-session", headers["Authorization"])
     }
 
