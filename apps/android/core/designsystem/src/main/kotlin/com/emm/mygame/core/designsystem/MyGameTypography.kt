@@ -25,6 +25,12 @@ object MyGameTypography {
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.06.em,
     )
+    val caption: TextStyle = TextStyle(
+        fontFamily = MyGameTypeFamilies.utility,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        fontWeight = FontWeight.Normal,
+    )
     val body: TextStyle = TextStyle(
         fontFamily = MyGameTypeFamilies.utility,
         fontSize = 16.sp,

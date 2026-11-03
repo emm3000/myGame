@@ -307,4 +307,51 @@ class NavigatorTest {
 
         assertSame(shown, backStack.single())
     }
+
+    @Test
+    fun `opens the chosen fief in place of the fief on screen`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief)
+
+        Navigator(backStack).switchFief(secondFief)
+
+        assertEquals(listOf(Destination.Fief(secondFief)), backStack)
+    }
+
+    @Test
+    fun `keeps the map on screen when another fief is chosen, with that fief below it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+
+        Navigator(backStack).switchFief(secondFief)
+
+        assertEquals(listOf(Destination.Fief(secondFief), Destination.Map(secondFief)), backStack)
+    }
+
+    @Test
+    fun `keeps the chronicle on screen when another fief is chosen, with that fief below it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
+
+        Navigator(backStack).switchFief(secondFief)
+
+        assertEquals(listOf(Destination.Fief(secondFief), Destination.Chronicle(secondFief)), backStack)
+    }
+
+    @Test
+    fun `keeps the screen it shows when the fief on screen is chosen`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+
+        Navigator(backStack).switchFief(firstListed)
+
+        assertSame(map, backStack.last())
+    }
+
+    @Test
+    fun `opens no other fief while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.switchFief(secondFief)
+
+        assertEquals(listOf(fief, map), backStack)
+    }
 }
