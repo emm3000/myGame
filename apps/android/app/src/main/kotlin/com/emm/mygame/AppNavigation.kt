@@ -28,17 +28,13 @@ import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @Composable
 internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = Modifier) {
     val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false))
     val navigator: Navigator = remember(backStack) { Navigator(backStack) }
     LaunchedEffect(navigator) {
-        withContext(Dispatchers.Main.immediate) {
-            navigator.followSessionEnds(application.sessionEnds.ended)
-        }
+        navigator.followSessionEnds(application.sessionEnds.ended)
     }
     NavDisplay(
         backStack = backStack,

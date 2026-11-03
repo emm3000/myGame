@@ -176,6 +176,15 @@ class NavigatorTest {
     }
 
     @Test
+    fun `shows the session-ended line when the session ends on a plain sign-in`() = runTest {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack).followSessionEnds(flowOf(Unit))
+
+        assertEquals(listOf(sessionEndedSignIn), backStack)
+    }
+
+    @Test
     fun `keeps the sign-in it shows when the session ends again`() = runTest {
         val shown: Destination.SignIn = Destination.SignIn(isSessionEnded = true)
         val backStack: MutableList<NavKey> = mutableListOf(shown)
