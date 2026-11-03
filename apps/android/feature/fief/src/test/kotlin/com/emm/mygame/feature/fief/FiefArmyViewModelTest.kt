@@ -4,11 +4,13 @@ import app.cash.turbine.test
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.Peasants
 import com.emm.mygame.core.network.RecruitOrder
 import com.emm.mygame.core.network.RecruitRefusal
 import com.emm.mygame.core.network.RecruitResult
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.testing.FakeFiefRepository
@@ -120,6 +122,93 @@ class FiefArmyViewModelTest {
                 ),
                 openInfantry(awaitContentWhere { openInfantry(it).entry == "3" }).order,
             )
+        }
+    }
+
+    @Test
+    fun `checks the peasants of a levy against the lowest free count`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val dippingPeasants: Peasants = Peasants(free = 10, supplied = 10, lowestFree = 2)
+        fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 1, peasants = dippingPeasants, plenty = true)))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.RecruitEntryChanged(UnitKind.Infantry, "3"))
+            val entered: FiefUiState.UnitCard.Open = openInfantry(awaitContentWhere { openInfantry(it).entry == "3" })
+            assertEquals(
+                FiefUiState.BlockReason.Peasants(needed = 3, free = 2) to true,
+                entered.block to entered.order?.isShortOfPeasants,
+            )
+        }
+    }
+
+    @Test
+    fun `blocks every kind while a levy is running`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val levy: RecruitOrder = levyOfInfantry(count = 12, delivered = 4, startedBefore = 270.seconds)
+        fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 1, recruitOrder = levy, plenty = true)))
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.RecruitBlock.LevyRunning, openInfantry(awaitContent()).block)
+        }
+    }
+
+    @Test
+    fun `blocks a count short of resources with the shortfall`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 1)))
+
+        viewModel.state.test {
+            assertEquals(
+                FiefUiState.BlockReason.Resources(
+                    listOf(
+                        FiefUiState.Shortfall(ResourceKind.Iron, 10),
+                        FiefUiState.Shortfall(ResourceKind.Food, 30),
+                    ),
+                ),
+                openInfantry(awaitContent()).block,
+            )
+        }
+    }
+
+    @Test
+    fun `leaves a count the fief can afford unblocked`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 1, plenty = true)))
+
+        viewModel.state.test {
+            assertNull(openInfantry(awaitContent()).block)
+        }
+    }
+
+    @Test
+    fun `names the running levy before an invalid count`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val levy: RecruitOrder = levyOfInfantry(count = 12, delivered = 4, startedBefore = 270.seconds)
+        fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 1, recruitOrder = levy)))
+
+        viewModel.state.test {
+            awaitContent()
+            viewModel.onIntent(FiefIntent.RecruitEntryChanged(UnitKind.Infantry, ""))
+            val blank: FiefUiState.UnitCard.Open = openInfantry(awaitContentWhere { openInfantry(it).entry == "" })
+            assertEquals(FiefUiState.RecruitBlock.LevyRunning, blank.block)
+        }
+    }
+
+    @Test
+    fun `names the peasants before the resources`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        val fewPeasants: Peasants = Peasants(free = 10, supplied = 10, lowestFree = 0)
+        fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 1, peasants = fewPeasants)))
+
+        viewModel.state.test {
+            assertEquals(FiefUiState.BlockReason.Peasants(needed = 1, free = 0), openInfantry(awaitContent()).block)
         }
     }
 
@@ -307,7 +396,19 @@ class FiefArmyViewModelTest {
         level: Int,
         units: List<UnitState> = army(),
         recruitOrder: RecruitOrder? = null,
-    ): FiefSnapshot = fief(buildings = listOf(barracks(level = level)), units = units, recruitOrder = recruitOrder)
+        peasants: Peasants = Peasants(free = 10, supplied = 10, lowestFree = 10),
+        plenty: Boolean = false,
+    ): FiefSnapshot = fief(
+        resources = if (plenty) plentyOfEverything() else listOf(wood(amount = 500, ratePerHour = 60.0)),
+        buildings = listOf(barracks(level = level)),
+        peasants = peasants,
+        units = units,
+        recruitOrder = recruitOrder,
+    )
+
+    private fun plentyOfEverything(): List<StoredResource> = ResourceKind.entries.map { kind: ResourceKind ->
+        StoredResource(kind, amount = 900, ratePerHour = 0.0, capacity = 1000)
+    }
 
     private fun openInfantry(content: FiefUiState.Content): FiefUiState.UnitCard.Open =
         content.army?.units?.first() as FiefUiState.UnitCard.Open

@@ -80,6 +80,13 @@ class FiefArmyRepositoryTest {
     }
 
     @Test
+    fun `reads the lowest free peasants a levy is checked against`() = runTest {
+        enqueueFief(idleOverview().replace("\"lowestFree\":10", "\"lowestFree\":4"))
+
+        assertEquals(4, readFief().peasants.lowestFree)
+    }
+
+    @Test
     fun `reads no recruit order while the barracks is idle`() = runTest {
         enqueueFief(idleOverview())
 

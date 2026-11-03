@@ -399,7 +399,7 @@ class FiefViewModelTest {
     fun `draws the free peasants out of those supplied`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)
-        fiefs.answerRead(FiefReadResult.Read(fief(peasants = Peasants(free = 5, supplied = 12))))
+        fiefs.answerRead(FiefReadResult.Read(fief(peasants = Peasants(free = 5, supplied = 12, lowestFree = 5))))
 
         viewModel.state.test {
             assertEquals(FiefUiState.PeasantsLine(free = 5, supplied = 12), awaitContent().peasants)
@@ -436,7 +436,7 @@ class FiefViewModelTest {
                 fief(
                     resources = listOf(wood(amount = 0, ratePerHour = 0.0)),
                     buildings = listOf(sawmill()),
-                    peasants = Peasants(free = 0, supplied = 10),
+                    peasants = Peasants(free = 0, supplied = 10, lowestFree = 0),
                 ),
             ),
         )
@@ -459,7 +459,7 @@ class FiefViewModelTest {
                     resources = listOf(wood(amount = 0, ratePerHour = 0.0)),
                     slot = busySlot(finishesIn = 2.hours),
                     buildings = listOf(sawmill()),
-                    peasants = Peasants(free = 0, supplied = 10),
+                    peasants = Peasants(free = 0, supplied = 10, lowestFree = 0),
                     queue = BuildQueue(
                         entries = List(4) { index: Int -> waitingSawmill(index + 4, readAt + 3.hours) },
                         cap = 4,

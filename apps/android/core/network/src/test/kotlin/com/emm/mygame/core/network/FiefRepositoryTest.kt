@@ -174,7 +174,7 @@ class FiefRepositoryTest {
         api.enqueue(resource(200, "fief-list.json"))
         api.enqueue(resource(200, "fief-overview-busy.json"))
 
-        assertEquals(Peasants(free = 9, supplied = 10), readFief().peasants)
+        assertEquals(Peasants(free = 9, supplied = 10, lowestFree = 9), readFief().peasants)
     }
 
     @Test

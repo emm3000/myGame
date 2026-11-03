@@ -36,7 +36,11 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         ),
         slot = buildSlot,
         buildings = buildingStates,
-        peasants = Peasants(free = peasants.projectedFree, supplied = peasants.projectedSupplied),
+        peasants = Peasants(
+            free = peasants.projectedFree,
+            supplied = peasants.projectedSupplied,
+            lowestFree = peasants.lowestFree,
+        ),
         queue = buildQueue,
         study = studySlot,
         arts = artStates,
