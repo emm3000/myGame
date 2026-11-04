@@ -12,6 +12,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -65,6 +67,11 @@ internal fun OrderAction(
 internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
     val resources: Resources = LocalResources.current
     val reason: String? = form.block?.let { block: MapUiState.MarchBlock -> resources.blockLineOf(block) }
+    val focusManager: FocusManager = LocalFocusManager.current
+    val send: () -> Unit = {
+        focusManager.clearFocus()
+        onIntent(MapIntent.SendTapped)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
         MyGameText(
             text = resources.titleOf(form),
@@ -79,7 +86,7 @@ internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> 
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        FormFields(form = form, onIntent = onIntent)
+        FormFields(form = form, onIntent = onIntent, onSend = send)
         resources.previewLinesOf(form).forEach { line: String ->
             MyGameText(text = line, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         }
@@ -87,7 +94,7 @@ internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> 
             label = resources.sendLabelOf(form),
             isBusy = form.send == MapUiState.SendStatus.Waiting,
             busyDescription = resources.getString(R.string.forage_waiting),
-            onClick = { onIntent(MapIntent.SendTapped) },
+            onClick = send,
             blockedReason = reason,
         )
         if (reason != null) {
@@ -121,7 +128,12 @@ internal fun SentMarchView(sent: MapUiState.SentMarch, modifier: Modifier = Modi
 }
 
 @Composable
-private fun FormFields(form: MapUiState.MarchForm, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun FormFields(
+    form: MapUiState.MarchForm,
+    onIntent: (MapIntent) -> Unit,
+    onSend: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val resources: Resources = LocalResources.current
     val numeric: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
     val fields: List<FormField> = fieldsOf(form, resources)
@@ -136,7 +148,7 @@ private fun FormFields(form: MapUiState.MarchForm, onIntent: (MapIntent) -> Unit
                 isReadOnly = form.isFieldLocked,
                 keyboardOptions = if (isLast) options.copy(imeAction = ImeAction.Done) else options,
                 onValueChange = { entry: String -> onIntent(field.changed(entry)) },
-                keyboardActions = KeyboardActions(onDone = { onIntent(MapIntent.SendTapped) }),
+                keyboardActions = KeyboardActions(onDone = { onSend() }),
             )
         }
     }

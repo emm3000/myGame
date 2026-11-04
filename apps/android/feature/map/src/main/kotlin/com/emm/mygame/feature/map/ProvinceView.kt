@@ -13,7 +13,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -66,6 +68,11 @@ internal fun ProvinceView(content: MapUiState.Content, onIntent: (MapIntent) -> 
 @Composable
 private fun BrowseControls(content: MapUiState.Content, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
     val busyDescription: String = stringResource(R.string.map_jump_reading)
+    val focusManager: FocusManager = LocalFocusManager.current
+    val jump: () -> Unit = {
+        focusManager.clearFocus()
+        onIntent(MapIntent.JumpTapped)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             if (content.hasPrevious) {
@@ -94,13 +101,13 @@ private fun BrowseControls(content: MapUiState.Content, onIntent: (MapIntent) ->
             isReadOnly = false,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Go),
             onValueChange = { entry: String -> onIntent(MapIntent.JumpEntryChanged(entry)) },
-            keyboardActions = KeyboardActions(onGo = { onIntent(MapIntent.JumpTapped) }),
+            keyboardActions = KeyboardActions(onGo = { jump() }),
         )
         MyGameButton(
             label = stringResource(R.string.map_jump),
             isBusy = false,
             busyDescription = busyDescription,
-            onClick = { onIntent(MapIntent.JumpTapped) },
+            onClick = jump,
         )
     }
 }
