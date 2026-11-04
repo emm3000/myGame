@@ -68,6 +68,7 @@ internal fun fief(
         yieldPerHour = mapOf(Terrain.Lowlands to rates(wood = 5, food = 3)),
     ),
     season = season,
+    seasonInForce = null,
     seasonEndsAt = null,
     combatTerms = CombatTerms(lootPerStrength = 60),
 )

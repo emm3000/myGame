@@ -23,6 +23,7 @@ import com.emm.mygame.core.network.RecruitTerms
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ResourceQuantity
+import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.StoredResource
 import com.emm.mygame.core.network.StudySlot
 import com.emm.mygame.core.network.UnitCount
@@ -92,6 +93,7 @@ internal fun fief(
     units: List<UnitState> = army(),
     recruitOrder: RecruitOrder? = null,
     march: AwayMarch? = null,
+    seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
 ): FiefSnapshot = FiefSnapshot(
     id = FiefId(FIEF_ID),
@@ -115,6 +117,7 @@ internal fun fief(
         yieldPerHour = emptyMap(),
     ),
     season = null,
+    seasonInForce = seasonInForce,
     seasonEndsAt = seasonEndsAt,
     combatTerms = CombatTerms(lootPerStrength = 60),
 )
