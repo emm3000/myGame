@@ -29,13 +29,13 @@ fun FiefRoute(
 ) {
     val state: FiefUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSignedOut: () -> Unit by rememberUpdatedState(onSignedOut)
-    val currentOnFoundingApplied: () -> Unit by rememberUpdatedState(onNewFief)
+    val currentOnNewFief: () -> Unit by rememberUpdatedState(onNewFief)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: FiefEffect ->
                 when (effect) {
                     FiefEffect.SignedOut -> currentOnSignedOut()
-                    FiefEffect.FoundingApplied -> currentOnFoundingApplied()
+                    FiefEffect.FoundingApplied -> currentOnNewFief()
                 }
             }
         }

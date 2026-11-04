@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MapViewModel(
-    private val route: FiefId,
+    private val fiefOnScreen: FiefId,
     private val maps: MapRepository,
     private val fiefs: FiefRepository,
 ) : ViewModel() {
@@ -163,7 +163,7 @@ class MapViewModel(
         val shown: MapUiState.Content = _state.value as? MapUiState.Content ?: return
         reading?.cancel()
         reading = viewModelScope.launch {
-            val answer: MapReadResult = maps.read(route, shown.map.province)
+            val answer: MapReadResult = maps.read(fiefOnScreen, shown.map.province)
             if (answer !is MapReadResult.Read) return@launch
             val current: MapUiState.Content = _state.value as? MapUiState.Content ?: return@launch
             _state.value = contentOf(answer.map, current.jumpEntry)
@@ -178,8 +178,8 @@ class MapViewModel(
         if (!isFiefRead) readFief()
         viewModelScope.launch {
             val answer: MapReadResult = when (request) {
-                ProvinceRequest.Own -> maps.readOwn(route)
-                is ProvinceRequest.Numbered -> maps.read(route, request.province)
+                ProvinceRequest.Own -> maps.readOwn(fiefOnScreen)
+                is ProvinceRequest.Numbered -> maps.read(fiefOnScreen, request.province)
             }
             _state.value = when (answer) {
                 is MapReadResult.Read -> contentOf(answer.map, jumpEntry = answer.map.province.toString())
@@ -192,7 +192,7 @@ class MapViewModel(
     private fun readFief() {
         isFiefRead = true
         viewModelScope.launch {
-            when (val answer: FiefReadResult = fiefs.read(route)) {
+            when (val answer: FiefReadResult = fiefs.read(fiefOnScreen)) {
                 is FiefReadResult.Read -> {
                     fief = answer.fief
                     redraw()

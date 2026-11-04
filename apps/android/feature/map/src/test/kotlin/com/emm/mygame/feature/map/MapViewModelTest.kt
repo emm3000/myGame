@@ -40,33 +40,33 @@ class MapViewModelTest {
     @Test
     fun `reads the map of the fief the route names`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val routeFief: FiefId = FiefId(OTHER_FIEF_ID)
+        val fiefOnScreen: FiefId = FiefId(OTHER_FIEF_ID)
 
-        MapViewModel(routeFief, maps, FakeFiefRepository())
+        MapViewModel(fiefOnScreen, maps, FakeFiefRepository())
 
-        assertEquals(listOf(routeFief), maps.fiefs)
+        assertEquals(listOf(fiefOnScreen), maps.fiefs)
     }
 
     @Test
     fun `reads the offers from the fief the route names`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val routeFief: FiefId = FiefId(OTHER_FIEF_ID)
+        val fiefOnScreen: FiefId = FiefId(OTHER_FIEF_ID)
 
-        MapViewModel(routeFief, FakeMapRepository(), fiefs)
+        MapViewModel(fiefOnScreen, FakeMapRepository(), fiefs)
 
-        assertEquals(listOf(routeFief), fiefs.reads)
+        assertEquals(listOf(fiefOnScreen), fiefs.reads)
     }
 
     @Test
     fun `reads a named province from the fief the route names`() = runTest {
         val maps: FakeMapRepository = FakeMapRepository()
-        val routeFief: FiefId = FiefId(OTHER_FIEF_ID)
-        val viewModel: MapViewModel = MapViewModel(routeFief, maps, FakeFiefRepository())
+        val fiefOnScreen: FiefId = FiefId(OTHER_FIEF_ID)
+        val viewModel: MapViewModel = MapViewModel(fiefOnScreen, maps, FakeFiefRepository())
         maps.answerRead(MapReadResult.Read(thirdProvince))
 
         viewModel.onIntent(MapIntent.NextTapped)
 
-        assertEquals(listOf(routeFief, routeFief), maps.fiefs)
+        assertEquals(listOf(fiefOnScreen, fiefOnScreen), maps.fiefs)
     }
 
     @Test

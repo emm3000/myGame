@@ -52,7 +52,7 @@ class FiefViewModelTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val secondFief: FiefId = FiefId("7c1f0a52-3d4e-4b8a-9f61-2e5d8c0b4a17")
 
-        openFief(fiefs, route = secondFief)
+        openFief(fiefs, fiefOnScreen = secondFief)
 
         assertEquals(listOf(secondFief), fiefs.reads)
     }
