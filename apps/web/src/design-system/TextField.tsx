@@ -10,6 +10,7 @@ export interface TextFieldProps {
   readonly hint?: string | undefined
   readonly error?: string | undefined
   readonly isDisabled?: boolean | undefined
+  readonly lang?: string | undefined
 }
 
 export function TextField(props: TextFieldProps): ReactElement {
@@ -30,10 +31,11 @@ export function TextField(props: TextFieldProps): ReactElement {
         autoComplete={props.autoComplete}
         value={props.value}
         disabled={props.isDisabled}
+        lang={props.lang}
         onChange={(event) => props.onChange(event.target.value)}
         aria-invalid={hasError}
         aria-describedby={describedBy === '' ? undefined : describedBy}
-        className={`rounded-md border bg-surface-raised px-3 py-2 font-body text-body text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong ${hasError ? 'border-rust' : 'border-line-strong'}`}
+        className={`min-h-control rounded-md border bg-surface-raised px-3 py-2 font-body text-body text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong ${hasError ? 'border-rust' : 'border-line-strong'}`}
       />
       {props.hint === undefined ? null : (
         <span id={hintId} className="font-body text-caption text-ink-muted">
