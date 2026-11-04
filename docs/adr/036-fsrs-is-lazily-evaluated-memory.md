@@ -224,10 +224,11 @@ metric needs (§8.2), not for a claim of more learning.
    trip (N2), and `deriveResourceRates` multiplies each one's resource
    with the art percents, before the season, as one more whole percent
    of the same product, the percents of one resource's levels summed
-   into it as an art's levels are (amended by ADR 039). Earning a level re-bases the stocks of every
-   fief the player holds at the earn instant, in the review's
-   transaction under ADR 024's lock order (rule 1), as any rate change
-   does (ADR 005); the accrual is never split at `earnedAt`.
+   into it as an art's levels are (amended by ADR 039). Earning a
+   level re-bases the stocks of every fief the player holds at the
+   earn instant, in the review's transaction under ADR 024's lock
+   order (rule 1), as any rate change does (ADR 005); the accrual is
+   never split at `earnedAt`.
 8. **The review log is append-only: one row per rating, holding the
    player, the word, the instant, the format, the raw answer, the
    near-miss before it if any, whether a hint was shown, the rating,

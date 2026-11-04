@@ -127,7 +127,9 @@ Check 10 ships with `curriculum.json`, in the lexicon ticket.
 
 Each figure below is computed, never estimated, from the rule and
 trunk's content: food at its ceiling, 604 per hour (above), in summer,
-and at farm level 1 too, 10 + 25 + 5 = 40 per hour. The cycle is the
+and at farm level 1 too, 10 + 25 + 5 = 40 per hour. Both rates come
+from the medieval content, so the rates are indicative until the town
+rebuild's economy exists; the levels and the factors are not. The cycle is the
 town's, *k* = 4, so food is at positions 1, 5, 9…, and after *n* lessons
 the food level is ⌈*n* / 4⌉.
 
@@ -162,10 +164,12 @@ frame words, all within ranks 1 to 100.
 | All | | 550 |
 
 The last band 1 lesson is at position 10 + 182 = 192; the last lesson
-of band 3 at 550. Across 52 to 62 frame words and 18 to 40 chrome words
-outside band 1, the first lies between 191 and 197 and the second
-between 549 and 552, so the food level there is 48 to 50, and 138 in
-every case.
+of band 3 at 550. Across 52 to 62 frame words, 16 to 38 chrome words of
+bands 2 and 3 split between them any way, and the 2 off the list, with
+the chrome held at 50 words in 10 lessons, the first lies between 191
+and 197 and the second between 548 and 551, so the food level there is
+48 to 50 after band 1 and 137 or 138 after band 3: food at 604 ends at
+4 741.4 at level 137 and 4 771.6 at level 138.
 
 | After | Position | Food level | Factor | Food at 604 | Food at 40 | Trunk's compounding, at 604 |
 |---|---|---|---|---|---|---|
@@ -258,6 +262,12 @@ each level of a building or an art adds less of what it already gives.
 - The economy that replaces the medieval content is sized against a
   skill factor that grows by 0.05 per level, to about 3.4 per resource
   after band 1 and 7.9 after band 3, not against trunk's compounding.
+- Issue edits this ADR forces, made on merge: #738 drops `skill` from
+  `lesson-1.json`, adds the `skill: { cycle, ratePercent }` schema of
+  `curriculum.json` and the `LessonContentSchema` change, and ships
+  check 10; #744's tests gain the "and at least one" rule and a lesson
+  whose every word is held out; and a domain ticket sums one resource's
+  percents in `deriveResourceRates`.
 - The curve is per lesson, not per day: how fast a learner climbs it is
   the school's cap on words in learning (ADR 035), which is that
   ticket's.
