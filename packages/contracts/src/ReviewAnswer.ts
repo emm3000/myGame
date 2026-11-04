@@ -21,6 +21,8 @@ const RaisedSkillSchema = EarnedSkillSchema.extend({
   ratePerHourAfter: QuantitySchema,
 })
 
+export type RaisedSkill = z.infer<typeof RaisedSkillSchema>
+
 const CorrectVerdictSchema = RatedVerdictSchema.extend({
   kind: z.literal('correct'),
   earnedSkill: RaisedSkillSchema.nullable(),

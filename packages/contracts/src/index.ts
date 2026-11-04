@@ -48,7 +48,7 @@ export { type RecallMarchRequest, RecallMarchRequestSchema } from './RecallMarch
 export { type ResetPasswordRequest, ResetPasswordRequestSchema } from './ResetPasswordRequest'
 export { type ResourceAmounts, ResourceAmountsSchema } from './ResourceAmounts'
 export { type ResourceKind, ResourceKindSchema } from './ResourceKind'
-export { type ReviewAnswer, ReviewAnswerSchema } from './ReviewAnswer'
+export { type RaisedSkill, type ReviewAnswer, ReviewAnswerSchema } from './ReviewAnswer'
 export { type ReviewAnswerRequest, ReviewAnswerRequestSchema } from './ReviewAnswerRequest'
 export { type ReviewHint, ReviewHintSchema } from './ReviewHint'
 export { type ReviewRequest, ReviewRequestSchema } from './ReviewRequest'

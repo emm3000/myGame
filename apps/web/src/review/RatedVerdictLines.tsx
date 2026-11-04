@@ -1,10 +1,9 @@
+import type { RaisedSkill } from '@mygame/contracts'
 import { type ReactElement, type Ref, useId } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { focusTargetClass } from '../design-system/focusTargetClass'
-import type { GivenAnswer, RatedVerdict } from './useReview'
-
-type RaisedSkill = NonNullable<Extract<RatedVerdict, { readonly kind: 'correct' }>['earnedSkill']>
+import type { GivenAnswer } from './useReview'
 
 export interface RatedVerdictLinesProps {
   readonly answered: GivenAnswer

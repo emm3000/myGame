@@ -322,6 +322,18 @@ it('blocks the check of a recall card while the field is empty', async () => {
   expect(answerReview).not.toHaveBeenCalled()
 })
 
+it('sends nothing when enter is pressed in the empty recall field', async () => {
+  const answerReview = answering({ kind: 'nearMiss' }, recallDue)
+  await showReview(recallDue, { answerReview })
+
+  const field = answerField()
+  fireEvent.keyDown(field, { key: 'Enter' })
+  fireEvent.submit(field)
+  await passSeconds(0)
+
+  expect(answerReview).not.toHaveBeenCalled()
+})
+
 it('keeps the due count of the card on screen until the next card', async () => {
   const answerReview = answering(
     {

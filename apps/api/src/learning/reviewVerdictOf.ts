@@ -1,4 +1,4 @@
-import type { ReviewAnswer } from '@mygame/contracts'
+import type { RaisedSkill, ReviewAnswer } from '@mygame/contracts'
 import {
   type BuildingCatalog,
   type DomainError,
@@ -14,13 +14,11 @@ import {
 import { isoOf } from '../http/isoOf'
 import type { ReviewOutcome } from './answerReviewOf'
 
-type RaisedSkill = Extract<ReviewAnswer['verdict'], { readonly kind: 'correct' }>['earnedSkill']
-
 const raisedSkillOf = (
   skill: EarnedSkill | undefined,
   fief: Fief,
   catalog: BuildingCatalog,
-): Result<RaisedSkill, DomainError> => {
+): Result<RaisedSkill | null, DomainError> => {
   if (skill === undefined) {
     return ok(null)
   }
