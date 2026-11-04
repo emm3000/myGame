@@ -25,6 +25,7 @@ import type { ChronicleReader } from './fief/ChronicleReader'
 import type { FiefReader } from './fief/FiefReader'
 import type { GuidanceDismissals } from './guidance/GuidanceDismissals'
 import type { SeenHints } from './hint/SeenHints'
+import type { FailureSink } from './http/FailureSink'
 import type { CampReader } from './kingdom/CampReader'
 
 const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
@@ -50,6 +51,11 @@ const urlWithProtocol = (
     throw new Error(`${name} must be a ${protocols.join(' or ')} URL, got ${value}`)
   }
   return value
+}
+
+const standardErrorSink: FailureSink = {
+  // biome-ignore lint/suspicious/noConsole: the composition root binds the failure sink to the process's standard error
+  write: (line) => console.error(line),
 }
 
 type MailSettings = {
@@ -87,6 +93,7 @@ export type ComposedServer = MailSettings & {
   readonly sessionTokens: CryptoSessionTokens
   readonly inTransaction: Transaction
   readonly isSessionCookieSecure: boolean
+  readonly failureSink: FailureSink
   readonly close: () => Promise<void>
 }
 
@@ -119,6 +126,7 @@ export function composeServer(
     map: new DrizzleKingdomMapReader(database),
     camps: new DrizzleCampRegistry(database),
     isSessionCookieSecure,
+    failureSink: standardErrorSink,
     ...mail,
   }
   return {

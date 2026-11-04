@@ -4,6 +4,12 @@ import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { Refusal } from './Refusal'
 
+declare module 'hono' {
+  interface ContextVariableMap {
+    readonly refusalKind?: Refusal['kind']
+  }
+}
+
 type UnitsShortAtHome = Extract<Refusal, { readonly kind: 'NotEnoughUnitsAtHome' }>
 
 type BarracksTooLow = Extract<Refusal, { readonly kind: 'BarracksTooLow' }>
@@ -156,6 +162,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
 }
 
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {
+  c.set('refusalKind', refusal.kind)
   if (refusal.kind === 'NotEnoughUnitsAtHome') {
     const body: ApiError = { kind: refusal.kind, message: unitsShortLineOf(refusal) }
     return c.json(body, 409)
