@@ -1,6 +1,6 @@
 # Names the player reads
 
-Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account, the seasons, the army, the marches, the bandit camps and the fief's status. The open questions this page held were settled on 2026-10-09 under the owner's delegation (#540, Decisions 1 and 2; #541), each where it stands, and two stay for W1 (Open questions, below). The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
+Status: accepted by the author on 2026-09-22, except the lines marked as a proposal: the build queue, the library, the arts, the chronicle, the map, the account, the seasons, the army, the marches, the bandit camps, the fief's status and the review. The open questions this page held were settled on 2026-10-09 under the owner's delegation (#540, Decisions 1 and 2; #541), each where it stands, and two stay for W1 (Open questions, below). The Spanish labels below are the words a player sees; the English term stays the identifier in code and in `CONTEXT.md`.
 
 ## Resources
 
@@ -210,6 +210,59 @@ Every line of this section is a proposal for the author, not yet accepted (`arts
 - Cancelling the study in progress reads *Cancelar el estudio*.
 - The **arts section** of the fief screen is titled *Biblioteca*: the library's label, capitalised as a title, since the section shows the library's work. It sits below *Edificios* and is shown from library level 1.
 - An art's **level** is *nivel*, as for buildings: an art at level 2 reads *nivel 2*; an art no one has studied yet reads *sin estudiar*.
+
+## The review
+
+Every line of this section is a proposal for the author, not yet accepted (S39, #710). It is the Spanish chrome, addressed as tú, around lesson 1 on the shipped fief, until ADR 035's town rebuild and ADR 038's catalogs replace it; the English items, their frames and their es glosses are content, never chrome, and live in `docs/setting/lessons.md`. Every rule a line states is ADR 036's. No English identifier is fixed here; #711 and #713 name them. The worked examples are ADR 036's, read in a browser on UTC: lesson 1 starts at 08:57:30 on 10 November 2026 and finishes at 09:00:00, 150 s later, at library level 1 with a study percent of 100.
+
+### The screen
+
+- The **review screen** is titled *Repaso*: what the player does there, in the register of *Crónica* and *Mapa*. Its **URL segment** is `repaso`, without accents, as a URL wants (The fief, above): `/feudo/$fiefId/repaso`. Whether the navigation gains *Repaso* beside *Feudo*, *Mapa* and *Crónica* is the design's call (#721); the Biblioteca links to it in any case (below).
+- **Loading** reads *Estamos leyendo tu repaso…*, in the register of *Estamos leyendo la crónica…*. A failed read reads *No hemos podido leer tu repaso.* and the button *Volver a intentarlo*.
+- Above the cards, the **count due** reads *Por repasar: 5*, the cards due at the read, in the order the api answers them, due first. Slot: the count.
+
+### The Biblioteca's lesson control
+
+- The **lesson card** sits in the *Biblioteca* section beside the art cards, from library level 1, as the section does. Its title reads *Lección 1*; under it the lesson's theme in English, *A day in town*, which is content (`docs/setting/lessons.md`).
+- **Idle**: the button reads *Estudiar la lección 1*, and one line under it, *No cuesta nada. Trae 5 palabras nuevas.*, since a lesson costs nothing and enters its five cards at its finish (ADR 036, rule 6). Slot: the count of words. A busy study slot keeps the button in reach and reads the art card's reason, *Ya hay un estudio en marcha.* (The reasons and the ready hour, above).
+- **Busy**: the card reads *En estudio* and the time of the finish as The time of a finish reads it, *2 min* at 08:58:00 and *0:42* at 08:59:18. The strip's study cell reads *Estudio: lección 1 · 2 min*, the art's shape with the lesson in place of the art and its level, since a lesson has no level. The cancel reads *Cancelar el estudio*, as shipped, and its refund line, since the lesson cost nothing and its cards never entered, *Si lo cancelas, no pierdes nada: la lección queda por estudiar.*
+- **Done**: the card reads *Lección 1 estudiada.* and the link *Ir al repaso*. A lesson is studied once per player (rule 6), so the done card shows no button to study it again.
+- **On the roll**: the finish reads *Estudio terminado: lección 1.*, the art's heading with the lesson in place of the art and its level, since the chronicle records the lesson as it records an art learned (rule 6); the cancel reads *Estudio cancelado: lección 1.* with no *Recuperas* sentence, since nothing is refunded. *Avisarme* and the announced finish read the finish's line, letter for letter.
+
+### Nothing due
+
+- **No card** yet, before lesson 1 finishes: *Aún no tienes palabras que repasar. Estudia la lección 1 en la biblioteca.*
+- **Nothing due** with cards held: *No tienes nada que repasar ahora.* and, under it, *Siguiente repaso:* and the next due instant as The time of a finish reads it. Read at 09:01 with every card due at 09:10, the second learning step: *Siguiente repaso: 9 min*. Read at 09:10:30, the five words answered Good at 09:10 and due at 2026-11-12 09:10: *Siguiente repaso: 47 h 59 min · 12 nov 09:10*. No button offers practice (`decisions.md` §1.2; ADR 036, Only a due card is reviewed).
+
+### The cards
+
+- A **recognition** card, for a card in `learning` (rule 2), shows the English word and its frame, then the prompt *¿Qué significa?* and the lesson's glosses as its choices, at most 5, in the order rule 3 gives them.
+- A **recall** card, from `review` on and in `relearning`, shows the es gloss and the gapped frame, then the prompt *¿Cómo se dice en inglés?* and a field with the visible label *Tu respuesta en inglés*. The card never shows the word: the api never sends it before the verdict (#713).
+- The **hint** button, on a recall card only, reads *Pedir una pista*. The hint reads *Empieza por «s» y tiene 6 letras.* for *school*: the first letter and the letter count the server answers (rule 4), *1 letra* for a word of one letter. The card keeps the hint until its rating.
+- The **check** button reads *Comprobar*, on both cards; while the answer is on its way it reads *Comprobando…*.
+
+### The verdicts
+
+- A **near-miss** (rule 4) reads *Casi. Revisa cómo se escribe y vuelve a comprobar.*, and the field keeps what was typed. It names no rating and shows no correct form: the next answer rates. *Scool* for *school* reads it.
+- A **correct** answer reads *Correcto.*, whatever its rating, Good or Hard; no line names a rating. The button reads *Siguiente*.
+- A **wrong** answer, Again, reads *No es correcto.*, then the player's answer beside the correct form, *Tu respuesta: house* and *La correcta: home*; for a recognition, the gloss chosen beside the right one, *Tu respuesta: dinero* and *La correcta: comida*. Then *Esta palabra volverá en unos minutos.*, true at both of rule 5's steps, 1 min in `learning` and 10 min in `relearning`. The button reads *Siguiente*. How the difference between the two forms is marked is the design's call (#721; `decisions.md` §6.1).
+- The **skill earned** reads, after the verdict of the review that earns it (rule 7), *Habilidad ganada: comida, nivel 1.* and *+5 % de comida / h en todos tus feudos.*, the art card's rate line (`ratePercent`) and the fiefs it raises. Slots: the resource label, the level, the percent. With ADR 036's worked example it reads at 2026-11-23 09:10, after the last of the five words' second recall.
+
+### The refusals
+
+One line per refusal ADR 036 names, each answered 409 by the api (#713), in the register of the shipped refusals: what stops the act, then what to do.
+
+| Refused | Rule | Line |
+|---|---|---|
+| studying with the study slot busy | rule 6, like an art | *La biblioteca ya tiene un estudio en marcha. Espera a que termine.*, the shipped line, unchanged |
+| studying with no library | rule 6, library level 1 | *La lección 1 necesita una biblioteca. Levántala primero.* |
+| studying a lesson whose cards the player holds | rule 6 | *Ya estudiaste la lección 1: sus palabras están en tu repaso.* |
+| studying a lesson a study slot of the player is studying | rule 6 | *La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.* |
+| cancelling with no lesson under study | rule 6, like a study | *La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.*, the shipped line, unchanged |
+| answering, or asking a hint for, a card not due | Only a due card is reviewed; rule 4 | *Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.* |
+| asking a hint for a recognition card | rule 4 | *Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.* |
+
+- One more, which #711 adds and ADR 036 does not name: **answering a word the player holds no card of** reads *Esa palabra no está en tus lecciones. Vuelve al repaso.*
 
 ## The chronicle
 
