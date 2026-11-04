@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun MyGameSeasonMark(icon: ImageVector, words: String, modifier: Modifier = Modifier) {
@@ -21,6 +22,10 @@ fun MyGameSeasonMark(icon: ImageVector, words: String, modifier: Modifier = Modi
             .padding(horizontal = MyGameSpacing.step2),
     ) {
         MyGameIcon(icon = icon, tint = colors.inkMuted)
-        MyGameText(text = words, style = MyGameTypography.caption, color = colors.ink)
+        MyGameText(
+            text = words,
+            style = MyGameTypography.caption.copy(fontWeight = FontWeight.SemiBold),
+            color = colors.ink,
+        )
     }
 }
