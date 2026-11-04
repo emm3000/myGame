@@ -437,6 +437,12 @@ orphans_never_reports_a_live_peer_avd_or_another_repo_avd() {
   [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "kept run (exit $status): $output"
 }
 
+scripts_never_name_a_shared_tool_kill() {
+  local found status=0
+  found=$(rg -n 'p[k]ill|k[i]llall' "$scripts_dir") || status=$?
+  [ "$status" -eq 1 ] || fail "${FUNCNAME[0]}" "rg exit $status: $found"
+}
+
 run() {
   if "$1"; then
     echo "ok   $1"
@@ -461,4 +467,5 @@ run closing_without_android_home_stops_the_emulator_and_keeps_the_avd
 run closing_twice_skips_the_emulator_and_avd_steps_quietly
 run orphans_names_an_avd_without_its_worktree_and_fails
 run orphans_never_reports_a_live_peer_avd_or_another_repo_avd
+run scripts_never_name_a_shared_tool_kill
 [ "$failures" -eq 0 ]

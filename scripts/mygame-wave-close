@@ -63,6 +63,7 @@ avd_serials() {
   command -v adb >/dev/null || return 0
   local serial name
   while read -r serial; do
+    [ -n "$serial" ] || continue
     name=$(adb -s "$serial" emu avd name 2>/dev/null | awk 'NR == 1 { sub(/\r$/, ""); print }') || continue
     if [ "$name" = "$avd" ]; then
       echo "$serial"
