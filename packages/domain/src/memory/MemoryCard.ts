@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
+import { difficultyBounds } from './difficultyBounds'
 import type { MemoryRating } from './MemoryRating'
 
 export type RecalledMemory = {
@@ -29,10 +30,6 @@ export type StoredMemoryCard = {
   | (MemoryPlacement & RecalledMemory)
 )
 
-const MIN_DIFFICULTY = 1
-
-const MAX_DIFFICULTY = 10
-
 const isWholeCount = (value: number): boolean => Number.isInteger(value) && value >= 0
 
 const refuseOutsideInvariants = (stored: StoredMemoryCard): DomainError | undefined => {
@@ -45,7 +42,7 @@ const refuseOutsideInvariants = (stored: StoredMemoryCard): DomainError | undefi
   if (!(Number.isFinite(stored.stability) && stored.stability > 0)) {
     return { kind: 'InvalidMemoryCard', field: 'stability', value: stored.stability }
   }
-  if (!(stored.difficulty >= MIN_DIFFICULTY && stored.difficulty <= MAX_DIFFICULTY)) {
+  if (!(stored.difficulty >= difficultyBounds.min && stored.difficulty <= difficultyBounds.max)) {
     return { kind: 'InvalidMemoryCard', field: 'difficulty', value: stored.difficulty }
   }
   return undefined

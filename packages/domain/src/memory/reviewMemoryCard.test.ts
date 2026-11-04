@@ -27,6 +27,21 @@ const twoLearningGoods: ReadonlyArray<TimedRating> = [
   { rating: 'good', at: daysAfterStart(0) },
 ]
 
+const relearningCard = (): MemoryCard => {
+  const card = MemoryCard.restore({
+    state: 'relearning',
+    step: 0,
+    stability: 0.6077,
+    difficulty: 5,
+    lastReviewAt: daysAfterStart(0),
+    lastRating: 'again',
+    enteredAt: pyFsrsStart,
+    retainedAt: null,
+  })
+  assert(card.ok)
+  return card.value
+}
+
 describe('reviewMemoryCard', () => {
   it('reaches the stability and difficulty of py-fsrs 6.3.2 test_memo_state', () => {
     const memoStateReviews: ReadonlyArray<TimedRating> = [
@@ -126,6 +141,29 @@ describe('reviewMemoryCard', () => {
     ])
 
     expect(card.stored.retainedAt).toBeNull()
+  })
+
+  it('marks a Good recall in relearning 7 whole days after its last review as retained at its instant', () => {
+    const recalledAt = daysAfterStart(7)
+
+    const retained = reviewMemoryCard(relearningCard(), 'good', recalledAt, defaultMemoryTerms)
+
+    assert(retained.ok)
+    expect(retained.value.stored.retainedAt).toEqual(recalledAt)
+  })
+
+  it('leaves a Good recall in relearning under 7 whole days after its last review unretained', () => {
+    const justShortOfAWeek = Instant.fromEpochMilliseconds(daysAfterStart(7).epochMilliseconds - 1)
+
+    const unretained = reviewMemoryCard(
+      relearningCard(),
+      'good',
+      justShortOfAWeek,
+      defaultMemoryTerms,
+    )
+
+    assert(unretained.ok)
+    expect(unretained.value.stored.retainedAt).toBeNull()
   })
 
   it('clears a retained instant at the next review that is not a late Good recall', () => {

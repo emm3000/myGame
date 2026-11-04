@@ -1,4 +1,5 @@
 import type { Instant } from '../time/Instant'
+import { difficultyBounds } from './difficultyBounds'
 import type { MemoryCard, RecalledMemory } from './MemoryCard'
 import type { MemoryRating } from './MemoryRating'
 import type { FsrsParameters, MemoryTerms } from './MemoryTerms'
@@ -9,16 +10,12 @@ export type NextMemory = Pick<RecalledMemory, 'stability' | 'difficulty'>
 
 const STABILITY_MIN = 0.001
 
-const MIN_DIFFICULTY = 1
-
-const MAX_DIFFICULTY = 10
-
 const gradeOf: Readonly<Record<MemoryRating, number>> = { again: 1, hard: 2, good: 3, easy: 4 }
 
 const clampedStability = (stability: number): number => Math.max(stability, STABILITY_MIN)
 
 const clampedDifficulty = (difficulty: number): number =>
-  Math.min(Math.max(difficulty, MIN_DIFFICULTY), MAX_DIFFICULTY)
+  Math.min(Math.max(difficulty, difficultyBounds.min), difficultyBounds.max)
 
 const unclampedInitialDifficulty = (parameters: FsrsParameters, grade: number): number =>
   parameters[4] - Math.E ** (parameters[5] * (grade - 1)) + 1
