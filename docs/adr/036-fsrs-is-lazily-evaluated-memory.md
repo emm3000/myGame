@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 7 amended by ADR 037
+status: proposed, rule 7 amended by ADR 037 and ADR 039
 date: 2026-11-04
 ---
 # FSRS is lazily evaluated memory
@@ -223,7 +223,8 @@ metric needs (§8.2), not for a claim of more learning.
    `earnedAt`; the fief read loads them with the fief in its one round
    trip (N2), and `deriveResourceRates` multiplies each one's resource
    with the art percents, before the season, as one more whole percent
-   of the same product. Earning a level re-bases the stocks of every
+   of the same product, the percents of one resource's levels summed
+   into it as an art's levels are (amended by ADR 039). Earning a level re-bases the stocks of every
    fief the player holds at the earn instant, in the review's
    transaction under ADR 024's lock order (rule 1), as any rate change
    does (ADR 005); the accrual is never split at `earnedAt`.
