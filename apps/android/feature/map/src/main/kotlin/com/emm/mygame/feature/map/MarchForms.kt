@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.map
 
 import com.emm.mygame.core.network.FiefSnapshot
-import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.MarchResult
 import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.ResourceKind
@@ -26,18 +25,7 @@ internal fun FiefSnapshot.formOf(choice: MarchChoice, terrain: Terrain): MapUiSt
         is ChosenOrder.Transport -> transportFormOf(choice)
     }
 
-internal fun MarchResult.Refused.sendStatus(): MapUiState.SendStatus = if (refusal in apiLinedRefusals) {
-    MapUiState.SendStatus.RefusedWithApiLine(message)
-} else {
-    MapUiState.SendStatus.Refused(refusal)
-}
-
-private val apiLinedRefusals: Set<MarchRefusal> = setOf(
-    MarchRefusal.NotEnoughUnitsAtHome,
-    MarchRefusal.StayOutOfRange,
-    MarchRefusal.FiefCapReached,
-    MarchRefusal.CargoAboveCarry,
-)
+internal fun MarchResult.Refused.sendStatus(): MapUiState.SendStatus = MapUiState.SendStatus.Refused(refusal)
 
 private const val FIRST_HOURS: String = "1"
 

@@ -309,7 +309,7 @@ class LearningRepositoryTest {
 
     private fun answerOf(verdict: String): String = """{"verdict":$verdict,"fief":${idleOverview()}}"""
 
-    private fun refused(kind: String): MockResponse = json(409, """{"kind":"$kind","message":"refused"}""")
+    private fun refused(kind: String): MockResponse = json(409, """{"kind":"$kind"}""")
 
     private fun idleOverview(): String = text("fief-overview-idle.json")
 

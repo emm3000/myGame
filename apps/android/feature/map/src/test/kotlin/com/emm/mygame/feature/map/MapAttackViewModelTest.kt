@@ -290,7 +290,7 @@ class MapAttackViewModelTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOrdersOn(fiefs)
         viewModel.onIntent(MapIntent.AttackToggled(5))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.PlotHasNoCamp, NO_CAMP_LINE))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.PlotHasNoCamp))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
@@ -326,5 +326,3 @@ class MapAttackViewModelTest {
     private fun preview(viewModel: MapViewModel): MapUiState.AttackPreview =
         requireNotNull(attackForm(viewModel).preview)
 }
-
-private const val NO_CAMP_LINE: String = "Esa parcela no tiene campamento de bandidos. Elige una que lo tenga."

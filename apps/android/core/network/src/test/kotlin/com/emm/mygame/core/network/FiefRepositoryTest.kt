@@ -269,7 +269,7 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers the cancel of an upgrade the api no longer holds as not found`() = runTest {
-        api.enqueue(json(409, """{"kind":"UpgradeNotFound","message":"Esa obra ya no está en curso."}"""))
+        api.enqueue(json(409, """{"kind":"UpgradeNotFound"}"""))
 
         assertEquals(
             CancelResult.Refused(CancelRefusal.UpgradeNotFound),
@@ -279,7 +279,7 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers an unrecognized cancel refusal when the api names one the screen does not draw`() = runTest {
-        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+        api.enqueue(json(404, """{"kind":"FiefNotFound"}"""))
 
         assertEquals(
             CancelResult.Refused(CancelRefusal.Unrecognized),
@@ -326,9 +326,9 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers the refusal the api names`() = runTest {
-        api.enqueue(json(409, """{"kind":"QueueFull","message":"Ya no caben más obras en espera."}"""))
-        api.enqueue(json(409, """{"kind":"InsufficientResources","message":"No tienes recursos suficientes."}"""))
-        api.enqueue(json(409, """{"kind":"NotEnoughPeasants","message":"No tienes campesinos libres suficientes."}"""))
+        api.enqueue(json(409, """{"kind":"QueueFull"}"""))
+        api.enqueue(json(409, """{"kind":"InsufficientResources"}"""))
+        api.enqueue(json(409, """{"kind":"NotEnoughPeasants"}"""))
         val fiefs: FiefRepository = repository()
 
         val refusals: List<UpgradeResult> = List(3) { fiefs.upgrade(FiefId(LISTED_FIEF_ID), BuildingKind.Farm) }
@@ -345,7 +345,7 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers an unrecognized refusal when the api names one the screen does not draw`() = runTest {
-        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+        api.enqueue(json(404, """{"kind":"FiefNotFound"}"""))
 
         assertEquals(
             UpgradeResult.Refused(UpgradeRefusal.Unrecognized),
@@ -572,7 +572,7 @@ class FiefRepositoryTest {
     fun `answers the study refusal the api names`() = runTest {
         val kinds: List<String> =
             listOf("StudySlotBusy", "LibraryLevelTooLow", "ArtMaxLevelReached", "InsufficientResources")
-        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind","message":"No."}""")) }
+        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind"}""")) }
         val fiefs: FiefRepository = repository()
 
         val refusals: List<StudyResult> = kinds.map { fiefs.startStudy(FiefId(LISTED_FIEF_ID), ArtKind.Smithing) }
@@ -619,7 +619,7 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers the cancel of a study the api no longer holds as not found`() = runTest {
-        api.enqueue(json(409, """{"kind":"StudyNotFound","message":"No."}"""))
+        api.enqueue(json(409, """{"kind":"StudyNotFound"}"""))
 
         assertEquals(
             StudyResult.Refused(StudyRefusal.StudyNotFound),
@@ -629,7 +629,7 @@ class FiefRepositoryTest {
 
     @Test
     fun `answers an unrecognized study refusal when the api names one the screen does not draw`() = runTest {
-        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+        api.enqueue(json(404, """{"kind":"FiefNotFound"}"""))
 
         assertEquals(
             StudyResult.Refused(StudyRefusal.Unrecognized),

@@ -49,11 +49,8 @@ it('posts the transport to the transport route of the fief', async () => {
   expect(JSON.parse(String(init?.body))).toEqual(transport)
 })
 
-it('answers a refusal with the line the server wrote', async () => {
-  answeringFetch(409, {
-    kind: 'FiefCapReached',
-    message: 'Solo puedes tener 2 feudos. Deja al colono en casa.',
-  })
+it('answers a refusal with the params the server sent', async () => {
+  answeringFetch(409, { kind: 'FiefCapReached', params: { cap: 2 } })
 
   const outcome = await createApiClient('/api').dispatchFounding(knownFief.id, {
     province: 2,
@@ -64,8 +61,20 @@ it('answers a refusal with the line the server wrote', async () => {
   expect(outcome).toEqual({
     ok: false,
     refusal: 'FiefCapReached',
-    message: 'Solo puedes tener 2 feudos. Deja al colono en casa.',
+    error: { kind: 'FiefCapReached', params: { cap: 2 } },
   })
+})
+
+it('answers a refusal that still carries a message as unexpected', async () => {
+  answeringFetch(409, { kind: 'PlotHeld', message: 'Esa parcela ya tiene feudo. Elige una libre.' })
+
+  const outcome = await createApiClient('/api').dispatchFounding(knownFief.id, {
+    province: 2,
+    plot: 7,
+    name: 'Sotoverde del Páramo',
+  })
+
+  expect(outcome).toEqual({ ok: false, refusal: 'Unexpected' })
 })
 
 const dueDigest = {
@@ -141,7 +150,7 @@ it('answers a refused hint as unexpected when the body names no kind', async () 
 })
 
 it('answers a refused dismissal by its kind', async () => {
-  answeringFetch(404, { kind: 'FiefNotFound', message: 'No encontramos tus tierras.' })
+  answeringFetch(404, { kind: 'FiefNotFound' })
 
   expect(await createApiClient('/api').dismissGuidance(knownFief.id)).toBe('FiefNotFound')
 })

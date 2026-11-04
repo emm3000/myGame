@@ -160,14 +160,13 @@ class FiefArmyRepositoryTest {
     fun `answers the recruit refusal the api names`() = runTest {
         val kinds: List<String> = listOf(
             "BarracksNotBuilt",
-            "BarracksTooLow",
             "RecruitSlotBusy",
             "RecruitOrderNotFound",
             "InsufficientResources",
             "NotEnoughPeasants",
             "FiefNotFound",
         )
-        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind","message":"No."}""")) }
+        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind"}""")) }
         val fiefs: FiefRepository = repository()
 
         val refusals: List<RecruitResult> = kinds.map { fiefs.recruit(FiefId(LISTED_FIEF_ID), UnitKind.Infantry, 1) }
@@ -175,7 +174,6 @@ class FiefArmyRepositoryTest {
         assertEquals(
             listOf(
                 RecruitRefusal.BarracksNotBuilt,
-                RecruitRefusal.BarracksTooLow,
                 RecruitRefusal.RecruitSlotBusy,
                 RecruitRefusal.RecruitOrderNotFound,
                 RecruitRefusal.InsufficientResources,
@@ -184,6 +182,17 @@ class FiefArmyRepositoryTest {
             ).map { RecruitResult.Refused(it) },
             refusals,
         )
+    }
+
+    @Test
+    fun `answers a barracks too low from its params`() = runTest {
+        api.enqueue(
+            json(409, """{"kind":"BarracksTooLow","params":{"unit":"settler","requiredBarracksLevel":5}}"""),
+        )
+
+        val refused: RecruitResult = repository().recruit(FiefId(LISTED_FIEF_ID), UnitKind.Settler, 1)
+
+        assertEquals(RecruitResult.Refused(RecruitRefusal.BarracksTooLow), refused)
     }
 
     @Test

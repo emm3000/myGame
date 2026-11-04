@@ -1,7 +1,7 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.FiefListFiefsInner
 import java.io.IOException
 import java.util.UUID
@@ -39,8 +39,8 @@ internal class ApiMapRepository(
             val map: ProvinceMap = body()?.toProvinceMap(lordsFiefs) ?: return MapReadResult.Unreachable
             return MapReadResult.Read(map)
         }
-        return when (apiError()?.kind) {
-            ApiError.Kind.ProvinceNotFound -> MapReadResult.ProvinceNotFound
+        return when (wireRefusal()?.bareKind()) {
+            BareApiError.Kind.ProvinceNotFound -> MapReadResult.ProvinceNotFound
             else -> MapReadResult.Unreachable
         }
     }

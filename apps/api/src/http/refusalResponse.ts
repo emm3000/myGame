@@ -3,9 +3,7 @@ import { ApiErrorSchema } from '@mygame/contracts'
 
 export type ResponseDeclaration = RouteConfig['responses'][string]
 
-const ApiErrorComponent = ApiErrorSchema.meta({ id: 'ApiError' })
-
 export const refusalResponse = (description: string): ResponseDeclaration => ({
   description,
-  content: { 'application/json': { schema: ApiErrorComponent } },
+  content: { 'application/json': { schema: ApiErrorSchema } },
 })

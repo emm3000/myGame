@@ -1,4 +1,5 @@
 import type {
+  ApiError,
   ArtKind,
   BuildingKind,
   FiefEvent,
@@ -257,6 +258,33 @@ const buildingsWithDefiniteArticle: Readonly<Record<BuildingKind, string>> = {
   barracks: 'el cuartel',
 }
 
+export type RefusalWithParams = Extract<ApiError, { readonly params: unknown }>
+
+type ParamsOf<Kind extends RefusalWithParams['kind']> = Extract<
+  RefusalWithParams,
+  { readonly kind: Kind }
+>['params']
+
+const barracksTooLowRefusal = (unit: UnitKind, required: number): string =>
+  `Tu cuartel aún no llega al nivel ${required} que piden los ${units[unit].plural}. Mejóralo primero.`
+
+const cargoAboveCarry = (cargo: number, carry: number): string =>
+  `La carga suma ${formatQuantity(cargo)} y tus hombres llevan hasta ${formatQuantity(carry)}.`
+
+const refusalsWithParams: {
+  readonly [Kind in RefusalWithParams['kind']]: (params: ParamsOf<Kind>) => string
+} = {
+  NotEnoughUnitsAtHome: ({ unit, count, atHome }) =>
+    `Necesitas ${countedUnits(unit, count)} en casa y tienes ${atHome}. Ajusta la marcha.`,
+  BarracksTooLow: ({ unit, requiredBarracksLevel }) =>
+    barracksTooLowRefusal(unit, requiredBarracksLevel),
+  FiefCapReached: ({ cap }) => `Solo puedes tener ${cap} feudos. Deja al colono en casa.`,
+  CargoAboveCarry: ({ cargo, carry }) =>
+    `${cargoAboveCarry(cargo, carry)} Quita carga o envía más hombres.`,
+  StayOutOfRange: ({ maxStayHours }) =>
+    `Una marcha forrajea de 1 a ${maxStayHours} horas enteras. Ajusta las horas.`,
+}
+
 const signInTitle = 'Entra en tu feudo'
 
 const invalidCount = 'Un número entero, al menos 1.'
@@ -497,8 +525,7 @@ export const copy = {
     requires: (barracksLevel: number): string => `Requiere cuartel de nivel ${barracksLevel}`,
     barracksTooLow: (required: number, built: number): string =>
       `Necesitas un cuartel de nivel ${required} y el tuyo es de nivel ${built}.`,
-    barracksTooLowRefusal: (unit: UnitKind, required: number): string =>
-      `Tu cuartel aún no llega al nivel ${required} que piden los ${units[unit].plural}. Mejóralo primero.`,
+    barracksTooLowRefusal,
   },
   march: {
     send: 'Enviar una marcha',
@@ -548,8 +575,6 @@ export const copy = {
     invalidCount: 'Un número entero, 0 o más.',
     emptyParty,
     invalidHours: (maxStayHours: number): string => `Un número entero, de 1 a ${maxStayHours}.`,
-    stayOutOfRange: (maxStayHours: number): string =>
-      `Una marcha forrajea de 1 a ${maxStayHours} horas enteras. Ajusta las horas.`,
     notEnoughAtHome: (unit: UnitKind, needed: number, atHome: number): string =>
       `Necesitas ${countedUnits(unit, needed)} en casa y tienes ${atHome}.`,
   },
@@ -578,8 +603,7 @@ export const copy = {
     outboundHeading: 'Marcha de transporte:',
     returningHeading: 'Vuelta del transporte:',
     emptyCargo: refusals.EmptyCargo,
-    cargoAboveCarry: (cargo: number, carry: number): string =>
-      `La carga suma ${formatQuantity(cargo)} y tus hombres llevan hasta ${formatQuantity(carry)}.`,
+    cargoAboveCarry,
   },
   chronicle: {
     title: 'Crónica',
@@ -686,4 +710,5 @@ export const copy = {
     backToOwnProvince: 'Ir a tu provincia',
   },
   refusals,
+  refusalsWithParams,
 } as const

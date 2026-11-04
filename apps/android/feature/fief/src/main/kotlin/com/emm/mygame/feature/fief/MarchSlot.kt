@@ -168,9 +168,9 @@ private fun phaseValueOf(phase: MarchPhase): Int = when (phase) {
 private fun recallRefusalOf(refusal: MarchRefusal): Int = when (refusal) {
     MarchRefusal.MarchNotFound -> R.string.refusal_march_not_found
     MarchRefusal.MarchAlreadyReturning -> R.string.refusal_march_already_returning
-    MarchRefusal.NotEnoughUnitsAtHome,
+    is MarchRefusal.NotEnoughUnitsAtHome,
     MarchRefusal.MarchSlotBusy,
-    MarchRefusal.StayOutOfRange,
+    is MarchRefusal.StayOutOfRange,
     MarchRefusal.MarchTargetOutOfBounds,
     MarchRefusal.PlotHeld,
     MarchRefusal.PlotHasCamp,
@@ -178,10 +178,10 @@ private fun recallRefusalOf(refusal: MarchRefusal): Int = when (refusal) {
     MarchRefusal.PlotReserved,
     MarchRefusal.MarchToOwnPlot,
     MarchRefusal.UnitUnfitForOrder,
-    MarchRefusal.FiefCapReached,
+    is MarchRefusal.FiefCapReached,
     MarchRefusal.BlankFiefName,
     MarchRefusal.EmptyCargo,
-    MarchRefusal.CargoAboveCarry,
+    is MarchRefusal.CargoAboveCarry,
     MarchRefusal.InsufficientResources,
     MarchRefusal.FiefNotFound,
     MarchRefusal.Unrecognized,

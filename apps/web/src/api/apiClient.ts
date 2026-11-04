@@ -1,4 +1,5 @@
 import {
+  type ApiError,
   type ApiErrorKind,
   ApiErrorSchema,
   type ArtKind,
@@ -45,7 +46,7 @@ export type ApiRefusal = ApiErrorKind | 'Unexpected'
 
 export type ApiOutcome<T> =
   | { readonly ok: true; readonly value: T }
-  | { readonly ok: false; readonly refusal: ApiRefusal; readonly message?: string | undefined }
+  | { readonly ok: false; readonly refusal: ApiRefusal; readonly error?: ApiError | undefined }
 
 export interface ApiClient {
   signUp(request: SignUpRequest): Promise<ApiOutcome<Player>>
@@ -102,9 +103,7 @@ const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
 
 const refusalOf = async (response: Response): Promise<ApiOutcome<never>> => {
   const parsed = ApiErrorSchema.safeParse(await response.json().catch(() => undefined))
-  return parsed.success
-    ? { ok: false, refusal: parsed.data.kind, message: parsed.data.message }
-    : unexpected
+  return parsed.success ? { ok: false, refusal: parsed.data.kind, error: parsed.data } : unexpected
 }
 
 const refusalKindOf = async (response: Response): Promise<ApiRefusal> => {

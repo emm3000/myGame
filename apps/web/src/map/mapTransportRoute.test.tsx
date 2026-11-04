@@ -353,7 +353,7 @@ it('reads the cargo above the carry as the server counted it', async () => {
     dispatchTransport: async () => ({
       ok: false,
       refusal: 'CargoAboveCarry',
-      message: 'La carga suma 721 y tus hombres llevan hasta 720. Quita carga o envía más hombres.',
+      error: { kind: 'CargoAboveCarry', params: { cargo: 721, carry: 720 } },
     }),
   })
 
@@ -373,7 +373,7 @@ it('reads stocks drawn down since the read in the one line of short resources', 
     dispatchTransport: async () => ({
       ok: false,
       refusal: 'InsufficientResources',
-      message: 'No tienes recursos suficientes.',
+      error: { kind: 'InsufficientResources' },
     }),
   })
 

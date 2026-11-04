@@ -1,7 +1,7 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.ReviewAnswer
 import com.emm.mygame.core.network.generated.models.ReviewAnswerRequest
@@ -69,14 +69,14 @@ internal class ApiLearningRepository(
         if (response.isSuccessful) {
             return if (hint == null) ReviewHintResult.Unreachable else ReviewHintResult.Hinted(hint.toReviewHint())
         }
-        val refusal: ApiError = response.apiError() ?: return ReviewHintResult.Unreachable
-        return ReviewHintResult.Refused(refusal.kind.toReviewRefusal())
+        val refusal: WireRefusal = response.wireRefusal() ?: return ReviewHintResult.Unreachable
+        return ReviewHintResult.Refused(refusal.toReviewRefusal())
     }
 
     private fun answeredOrRefused(response: Response<ReviewAnswer>): ReviewAnswerResult {
         if (response.isSuccessful) return response.body()?.toAnswered() ?: ReviewAnswerResult.Unreachable
-        val refusal: ApiError = response.apiError() ?: return ReviewAnswerResult.Unreachable
-        return ReviewAnswerResult.Refused(refusal.kind.toReviewRefusal())
+        val refusal: WireRefusal = response.wireRefusal() ?: return ReviewAnswerResult.Unreachable
+        return ReviewAnswerResult.Refused(refusal.toReviewRefusal())
     }
 }
 
@@ -87,12 +87,13 @@ private fun ReviewAnswer.toAnswered(): ReviewAnswerResult.Answered? {
 
 private fun WireReviewHint.toReviewHint(): ReviewHint = ReviewHint(firstLetter = firstLetter, letterCount = letterCount)
 
-private val reviewRefusals: Map<ApiError.Kind, ReviewRefusal> = mapOf(
-    ApiError.Kind.ReviewNotDue to ReviewRefusal.ReviewNotDue,
-    ApiError.Kind.HintOnRecognition to ReviewRefusal.HintOnRecognition,
-    ApiError.Kind.UnknownChoice to ReviewRefusal.UnknownChoice,
-    ApiError.Kind.WordNotHeld to ReviewRefusal.WordNotHeld,
-    ApiError.Kind.UnknownWord to ReviewRefusal.UnknownWord,
+private val reviewRefusals: Map<BareApiError.Kind, ReviewRefusal> = mapOf(
+    BareApiError.Kind.ReviewNotDue to ReviewRefusal.ReviewNotDue,
+    BareApiError.Kind.HintOnRecognition to ReviewRefusal.HintOnRecognition,
+    BareApiError.Kind.UnknownChoice to ReviewRefusal.UnknownChoice,
+    BareApiError.Kind.WordNotHeld to ReviewRefusal.WordNotHeld,
+    BareApiError.Kind.UnknownWord to ReviewRefusal.UnknownWord,
 )
 
-private fun ApiError.Kind.toReviewRefusal(): ReviewRefusal = reviewRefusals[this] ?: ReviewRefusal.Unrecognized
+private fun WireRefusal.toReviewRefusal(): ReviewRefusal =
+    bareKind()?.let(reviewRefusals::get) ?: ReviewRefusal.Unrecognized

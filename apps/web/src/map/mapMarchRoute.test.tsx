@@ -295,6 +295,41 @@ it('shows the refusal the api answered', async () => {
   expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.PlotHeld)
 })
 
+it('renders a stay refusal from its maxStayHours', async () => {
+  const form = await openMarchTo(uplands, 5, {
+    dispatchMarch: async () => ({
+      ok: false,
+      refusal: 'StayOutOfRange',
+      error: { kind: 'StayOutOfRange', params: { maxStayHours: 6 } },
+    }),
+  })
+
+  type(form, 'Infantes a enviar', '10')
+  type(form, 'Horas de forrajeo', '7')
+  fireEvent.click(sendButton(form))
+
+  expect((await screen.findByRole('alert')).textContent).toBe(
+    'Una marcha forrajea de 1 a 6 horas enteras. Ajusta las horas.',
+  )
+})
+
+it('renders a party short at home from its unit and both counts', async () => {
+  const form = await openMarchTo(uplands, 5, {
+    dispatchMarch: async () => ({
+      ok: false,
+      refusal: 'NotEnoughUnitsAtHome',
+      error: { kind: 'NotEnoughUnitsAtHome', params: { unit: 'infantry', count: 10, atHome: 9 } },
+    }),
+  })
+
+  type(form, 'Infantes a enviar', '10')
+  fireEvent.click(sendButton(form))
+
+  expect((await screen.findByRole('alert')).textContent).toBe(
+    'Necesitas 10 infantes en casa y tienes 9. Ajusta la marcha.',
+  )
+})
+
 it('sends one march on a double click', async () => {
   const answer = deferred<ApiOutcome<FiefOverview>>()
   const dispatchMarch = vi.fn(() => answer.promise)

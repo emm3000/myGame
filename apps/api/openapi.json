@@ -57,6 +57,80 @@
         "additionalProperties": false
       },
       "ApiError": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BareApiError"
+          },
+          {
+            "$ref": "#/components/schemas/NotEnoughUnitsAtHomeError"
+          },
+          {
+            "$ref": "#/components/schemas/BarracksTooLowError"
+          },
+          {
+            "$ref": "#/components/schemas/FiefCapReachedError"
+          },
+          {
+            "$ref": "#/components/schemas/CargoAboveCarryError"
+          },
+          {
+            "$ref": "#/components/schemas/StayOutOfRangeError"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "InvalidCredentials": "#/components/schemas/BareApiError",
+            "EmailTaken": "#/components/schemas/BareApiError",
+            "WeakPassword": "#/components/schemas/BareApiError",
+            "MalformedEmail": "#/components/schemas/BareApiError",
+            "FiefNotFound": "#/components/schemas/BareApiError",
+            "UnknownBuilding": "#/components/schemas/BareApiError",
+            "MaxLevelReached": "#/components/schemas/BareApiError",
+            "QueueFull": "#/components/schemas/BareApiError",
+            "UpgradeNotFound": "#/components/schemas/BareApiError",
+            "InsufficientResources": "#/components/schemas/BareApiError",
+            "NotEnoughPeasants": "#/components/schemas/BareApiError",
+            "BlankFiefName": "#/components/schemas/BareApiError",
+            "StudySlotBusy": "#/components/schemas/BareApiError",
+            "LibraryLevelTooLow": "#/components/schemas/BareApiError",
+            "ArtMaxLevelReached": "#/components/schemas/BareApiError",
+            "StudyNotFound": "#/components/schemas/BareApiError",
+            "BarracksNotBuilt": "#/components/schemas/BareApiError",
+            "RecruitSlotBusy": "#/components/schemas/BareApiError",
+            "RecruitOrderNotFound": "#/components/schemas/BareApiError",
+            "PlotHeld": "#/components/schemas/BareApiError",
+            "PlotHasCamp": "#/components/schemas/BareApiError",
+            "PlotHasNoCamp": "#/components/schemas/BareApiError",
+            "MarchToOwnPlot": "#/components/schemas/BareApiError",
+            "MarchSlotBusy": "#/components/schemas/BareApiError",
+            "MarchTargetOutOfBounds": "#/components/schemas/BareApiError",
+            "MarchNotFound": "#/components/schemas/BareApiError",
+            "MarchAlreadyReturning": "#/components/schemas/BareApiError",
+            "UnitUnfitForOrder": "#/components/schemas/BareApiError",
+            "PlotReserved": "#/components/schemas/BareApiError",
+            "EmptyCargo": "#/components/schemas/BareApiError",
+            "ProvinceNotFound": "#/components/schemas/BareApiError",
+            "TokenInvalid": "#/components/schemas/BareApiError",
+            "MailNotSent": "#/components/schemas/BareApiError",
+            "LessonLibraryTooLow": "#/components/schemas/BareApiError",
+            "LessonAlreadyStudied": "#/components/schemas/BareApiError",
+            "LessonUnderStudy": "#/components/schemas/BareApiError",
+            "LessonStudyNotFound": "#/components/schemas/BareApiError",
+            "ReviewNotDue": "#/components/schemas/BareApiError",
+            "HintOnRecognition": "#/components/schemas/BareApiError",
+            "UnknownChoice": "#/components/schemas/BareApiError",
+            "WordNotHeld": "#/components/schemas/BareApiError",
+            "UnknownWord": "#/components/schemas/BareApiError",
+            "NotEnoughUnitsAtHome": "#/components/schemas/NotEnoughUnitsAtHomeError",
+            "BarracksTooLow": "#/components/schemas/BarracksTooLowError",
+            "FiefCapReached": "#/components/schemas/FiefCapReachedError",
+            "CargoAboveCarry": "#/components/schemas/CargoAboveCarryError",
+            "StayOutOfRange": "#/components/schemas/StayOutOfRangeError"
+          }
+        }
+      },
+      "BareApiError": {
         "type": "object",
         "properties": {
           "kind": {
@@ -79,24 +153,19 @@
               "ArtMaxLevelReached",
               "StudyNotFound",
               "BarracksNotBuilt",
-              "BarracksTooLow",
               "RecruitSlotBusy",
               "RecruitOrderNotFound",
               "PlotHeld",
               "PlotHasCamp",
               "PlotHasNoCamp",
               "MarchToOwnPlot",
-              "NotEnoughUnitsAtHome",
               "MarchSlotBusy",
-              "StayOutOfRange",
               "MarchTargetOutOfBounds",
               "MarchNotFound",
               "MarchAlreadyReturning",
               "UnitUnfitForOrder",
-              "FiefCapReached",
               "PlotReserved",
               "EmptyCargo",
-              "CargoAboveCarry",
               "ProvinceNotFound",
               "TokenInvalid",
               "MailNotSent",
@@ -110,13 +179,140 @@
               "WordNotHeld",
               "UnknownWord"
             ]
-          },
-          "message": {
-            "type": "string",
-            "minLength": 1
           }
         },
-        "required": ["kind", "message"]
+        "required": ["kind"],
+        "additionalProperties": false
+      },
+      "NotEnoughUnitsAtHomeError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["NotEnoughUnitsAtHome"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "unit": {
+                "type": "string",
+                "enum": ["infantry", "cavalry", "archer", "settler"]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "atHome": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["unit", "count", "atHome"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "BarracksTooLowError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["BarracksTooLow"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "unit": {
+                "type": "string",
+                "enum": ["infantry", "cavalry", "archer", "settler"]
+              },
+              "requiredBarracksLevel": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["unit", "requiredBarracksLevel"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "FiefCapReachedError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["FiefCapReached"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "cap": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["cap"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "CargoAboveCarryError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["CargoAboveCarry"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "cargo": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "carry": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["cargo", "carry"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "StayOutOfRangeError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["StayOutOfRange"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "maxStayHours": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["maxStayHours"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
       },
       "SignUpRequest": {
         "type": "object",

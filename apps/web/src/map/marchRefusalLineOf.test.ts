@@ -1,33 +1,56 @@
-import { ApiErrorKindSchema } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { marchRefusalLineOf } from './marchRefusalLineOf'
 
-const serverLine = 'Una línea que solo el servidor escribe.'
-
-const shippedLongestStay = 8
-
-it('reads the server message for every march refusal that carries one', () => {
-  const lines = ApiErrorKindSchema.options.map((refusal) =>
-    marchRefusalLineOf(refusal, serverLine, shippedLongestStay),
-  )
-
-  expect(new Set(lines)).toEqual(new Set([serverLine]))
+it('renders a party short at home from its unit and both counts', () => {
+  expect(
+    marchRefusalLineOf('NotEnoughUnitsAtHome', {
+      kind: 'NotEnoughUnitsAtHome',
+      params: { unit: 'cavalry', count: 7, atHome: 6 },
+    }),
+  ).toBe('Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha.')
 })
 
-it('reads the line of the refusal when the server sends no message', () => {
-  expect(marchRefusalLineOf('PlotHeld', undefined, shippedLongestStay)).toBe(
+it('agrees the unit label with a count of one', () => {
+  expect(
+    marchRefusalLineOf('NotEnoughUnitsAtHome', {
+      kind: 'NotEnoughUnitsAtHome',
+      params: { unit: 'settler', count: 1, atHome: 0 },
+    }),
+  ).toBe('Necesitas 1 colono en casa y tienes 0. Ajusta la marcha.')
+})
+
+it('renders a stay out of range from its maxStayHours', () => {
+  expect(
+    marchRefusalLineOf('StayOutOfRange', {
+      kind: 'StayOutOfRange',
+      params: { maxStayHours: 6 },
+    }),
+  ).toBe('Una marcha forrajea de 1 a 6 horas enteras. Ajusta las horas.')
+})
+
+it('renders the fief cap from its cap', () => {
+  expect(marchRefusalLineOf('FiefCapReached', { kind: 'FiefCapReached', params: { cap: 3 } })).toBe(
+    'Solo puedes tener 3 feudos. Deja al colono en casa.',
+  )
+})
+
+it('renders a cargo above the carry from both amounts', () => {
+  expect(
+    marchRefusalLineOf('CargoAboveCarry', {
+      kind: 'CargoAboveCarry',
+      params: { cargo: 721, carry: 720 },
+    }),
+  ).toBe('La carga suma 721 y tus hombres llevan hasta 720. Quita carga o envía más hombres.')
+})
+
+it('renders a kind without params from its line', () => {
+  expect(marchRefusalLineOf('PlotHeld', { kind: 'PlotHeld' })).toBe(
     'Esa parcela ya tiene feudo. Elige una libre.',
   )
 })
 
-it('names the longest stay of the forage terms when a stay refusal has no message', () => {
-  expect(marchRefusalLineOf('StayOutOfRange', undefined, 6)).toBe(
-    'Una marcha forrajea de 1 a 6 horas enteras. Ajusta las horas.',
-  )
-})
-
-it('reads a cargo above the carry without a message as a failed exchange', () => {
-  expect(marchRefusalLineOf('CargoAboveCarry', undefined, shippedLongestStay)).toBe(
+it('reads a refusal the api did not answer as a failed exchange', () => {
+  expect(marchRefusalLineOf('Unexpected', undefined)).toBe(
     'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
   )
 })

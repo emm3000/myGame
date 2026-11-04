@@ -1,5 +1,4 @@
 import type { ApiError, ApiErrorKind } from '@mygame/contracts'
-import type { UnitKind } from '@mygame/domain'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { Refusal } from './Refusal'
@@ -10,22 +9,12 @@ declare module 'hono' {
   }
 }
 
-type UnitsShortAtHome = Extract<Refusal, { readonly kind: 'NotEnoughUnitsAtHome' }>
-
-type BarracksTooLow = Extract<Refusal, { readonly kind: 'BarracksTooLow' }>
-
-type FiefCapReached = Extract<Refusal, { readonly kind: 'FiefCapReached' }>
-
-type CargoAboveCarry = Extract<Refusal, { readonly kind: 'CargoAboveCarry' }>
-
-type StayOutOfRange = Extract<Refusal, { readonly kind: 'StayOutOfRange' }>
-
 type SlottedKind =
-  | UnitsShortAtHome['kind']
-  | BarracksTooLow['kind']
-  | FiefCapReached['kind']
-  | CargoAboveCarry['kind']
-  | StayOutOfRange['kind']
+  | 'NotEnoughUnitsAtHome'
+  | 'BarracksTooLow'
+  | 'FiefCapReached'
+  | 'CargoAboveCarry'
+  | 'StayOutOfRange'
 
 type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
 
@@ -36,79 +25,9 @@ type RefusalAnswer = {
   readonly kind?: SlotlessKind
 }
 
-const unitLabels: Readonly<
-  Record<UnitKind, { readonly singular: string; readonly plural: string }>
-> = {
-  infantry: { singular: 'infante', plural: 'infantes' },
-  cavalry: { singular: 'jinete', plural: 'jinetes' },
-  archer: { singular: 'arquero', plural: 'arqueros' },
-  settler: { singular: 'colono', plural: 'colonos' },
-}
-
-const countedUnits = (unit: UnitKind, count: number): string =>
-  `${count} ${count === 1 ? unitLabels[unit].singular : unitLabels[unit].plural}`
-
-const unitsShortLineOf = ({ unit, count, atHome }: UnitsShortAtHome): string =>
-  `Necesitas ${countedUnits(unit, count)} en casa y tienes ${atHome}. Ajusta la marcha.`
-
-const barracksTooLowLineOf = ({ unit, requiredBarracksLevel }: BarracksTooLow): string =>
-  `Tu cuartel aún no llega al nivel ${requiredBarracksLevel} que piden los ${unitLabels[unit].plural}. Mejóralo primero.`
-
-const fiefCapReachedLineOf = ({ cap }: FiefCapReached): string =>
-  `Solo puedes tener ${cap} feudos. Deja al colono en casa.`
-
-const cargoAboveCarryLineOf = ({ cargo, carry }: CargoAboveCarry): string =>
-  `La carga suma ${cargo} y tus hombres llevan hasta ${carry}. Quita carga o envía más hombres.`
-
-const stayOutOfRangeLineOf = ({ maxStayHours }: StayOutOfRange): string =>
-  `Una marcha forrajea de 1 a ${maxStayHours} horas enteras. Ajusta las horas.`
-
-const messages: Readonly<Record<SlotlessKind, string>> = {
-  InvalidCredentials: 'El correo o la contraseña no son correctos.',
-  EmailTaken: 'Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.',
-  WeakPassword: 'Tu contraseña necesita al menos 8 caracteres.',
-  MalformedEmail: 'Escribe un correo válido, como nombre@ejemplo.com.',
-  FiefNotFound: 'No encontramos tus tierras.',
-  UnknownBuilding: 'Ese edificio no existe.',
-  MaxLevelReached: 'Ese edificio ya está en su nivel más alto.',
-  QueueFull: 'Ya no caben más obras en espera. Espera a que avance alguna.',
-  UpgradeNotFound: 'Esa obra ya no está en tu cola. No queda nada que cancelar.',
-  InsufficientResources: 'No tienes recursos suficientes.',
-  NotEnoughPeasants: 'No tienes campesinos libres suficientes.',
-  BlankFiefName: 'Tu feudo necesita un nombre. Escribe uno que no esté en blanco.',
-  StudySlotBusy: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
-  LibraryLevelTooLow: 'Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.',
-  ArtMaxLevelReached: 'Ese arte ya está en su nivel más alto.',
-  StudyNotFound: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
-  BarracksNotBuilt: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
-  RecruitSlotBusy: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
-  RecruitOrderNotFound: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
-  PlotHeld: 'Esa parcela ya tiene feudo. Elige una libre.',
-  PlotHasCamp: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
-  PlotHasNoCamp: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
-  MarchToOwnPlot:
-    'A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.',
-  MarchSlotBusy: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
-  MarchTargetOutOfBounds: 'Esa parcela no está en el mapa. Elige una que lo esté.',
-  MarchNotFound: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
-  MarchAlreadyReturning: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
-  UnitUnfitForOrder: 'Un colono no forrajea, no ataca ni lleva carga. Envíalo a fundar un feudo.',
-  PlotReserved: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
-  EmptyCargo: 'Un transporte no sale de vacío. Carga al menos un recurso.',
-  ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
-  TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
-  MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
-  LessonLibraryTooLow: 'La lección 1 necesita una biblioteca. Levántala primero.',
-  LessonAlreadyStudied: 'Ya estudiaste la lección 1: sus palabras están en tu repaso.',
-  LessonUnderStudy: 'La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.',
-  LessonStudyNotFound:
-    'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
-  ReviewNotDue: 'Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.',
-  HintOnRecognition:
-    'Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.',
-  WordNotHeld: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
-  UnknownChoice: 'Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.',
-  UnknownWord: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
+type RefusalBody = {
+  readonly status: ContentfulStatusCode
+  readonly body?: ApiError
 }
 
 const internalFailure: RefusalAnswer = { status: 500 }
@@ -185,32 +104,40 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   InvalidMarchStay: internalFailure,
 }
 
+const slotlessBodyOf = (kind: SlotlessRefusalKind): RefusalBody => {
+  const answer = answers[kind]
+  return answer.kind === undefined
+    ? { status: answer.status }
+    : { status: answer.status, body: { kind: answer.kind } }
+}
+
+const refusalBodyOf = (refusal: Refusal): RefusalBody => {
+  switch (refusal.kind) {
+    case 'NotEnoughUnitsAtHome': {
+      const { kind, unit, count, atHome } = refusal
+      return { status: 409, body: { kind, params: { unit, count, atHome } } }
+    }
+    case 'BarracksTooLow': {
+      const { kind, unit, requiredBarracksLevel } = refusal
+      return { status: 409, body: { kind, params: { unit, requiredBarracksLevel } } }
+    }
+    case 'FiefCapReached':
+      return { status: 409, body: { kind: refusal.kind, params: { cap: refusal.cap } } }
+    case 'CargoAboveCarry': {
+      const { kind, cargo, carry } = refusal
+      return { status: 409, body: { kind, params: { cargo, carry } } }
+    }
+    case 'StayOutOfRange': {
+      const { kind, maxStayHours } = refusal
+      return { status: 409, body: { kind, params: { maxStayHours } } }
+    }
+    default:
+      return slotlessBodyOf(refusal.kind)
+  }
+}
+
 export const answerRefusal = (c: Context, refusal: Refusal): Response => {
   c.set('refusalKind', refusal.kind)
-  if (refusal.kind === 'NotEnoughUnitsAtHome') {
-    const body: ApiError = { kind: refusal.kind, message: unitsShortLineOf(refusal) }
-    return c.json(body, 409)
-  }
-  if (refusal.kind === 'BarracksTooLow') {
-    const body: ApiError = { kind: refusal.kind, message: barracksTooLowLineOf(refusal) }
-    return c.json(body, 409)
-  }
-  if (refusal.kind === 'FiefCapReached') {
-    const body: ApiError = { kind: refusal.kind, message: fiefCapReachedLineOf(refusal) }
-    return c.json(body, 409)
-  }
-  if (refusal.kind === 'CargoAboveCarry') {
-    const body: ApiError = { kind: refusal.kind, message: cargoAboveCarryLineOf(refusal) }
-    return c.json(body, 409)
-  }
-  if (refusal.kind === 'StayOutOfRange') {
-    const body: ApiError = { kind: refusal.kind, message: stayOutOfRangeLineOf(refusal) }
-    return c.json(body, 409)
-  }
-  const { status, kind } = answers[refusal.kind]
-  if (kind === undefined) {
-    return c.body(null, status)
-  }
-  const body: ApiError = { kind, message: messages[kind] }
-  return c.json(body, status)
+  const { status, body } = refusalBodyOf(refusal)
+  return body === undefined ? c.body(null, status) : c.json(body, status)
 }

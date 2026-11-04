@@ -2,6 +2,8 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.NotEnoughUnitsAtHomeErrorParams
 import com.emm.mygame.core.network.generated.models.DispatchAttackRequest
 import com.emm.mygame.core.network.generated.models.DispatchFoundingRequest
 import com.emm.mygame.core.network.generated.models.DispatchMarchRequest
@@ -160,8 +162,8 @@ internal class ApiFiefRepository(
         if (response.isSuccessful) {
             return if (snapshot == null) MarchResult.Unreachable else MarchResult.Answered(snapshot)
         }
-        val refusal: ApiError = response.apiError() ?: return MarchResult.Unreachable
-        return MarchResult.Refused(refusal.kind.toMarchRefusal(), refusal.message)
+        val refusal: WireRefusal = response.wireRefusal() ?: return MarchResult.Unreachable
+        return MarchResult.Refused(refusal.toMarchRefusal())
     }
 
     private fun recruitedOrRefused(response: Response<FiefOverview>): RecruitResult {
@@ -169,8 +171,8 @@ internal class ApiFiefRepository(
         if (response.isSuccessful) {
             return if (snapshot == null) RecruitResult.Unreachable else RecruitResult.Answered(snapshot)
         }
-        val refusal: ApiError = response.apiError() ?: return RecruitResult.Unreachable
-        return RecruitResult.Refused(refusal.kind.toRecruitRefusal())
+        val refusal: WireRefusal = response.wireRefusal() ?: return RecruitResult.Unreachable
+        return RecruitResult.Refused(refusal.toRecruitRefusal())
     }
 
     private fun cancelledOrRefused(response: Response<FiefOverview>): CancelResult {
@@ -178,8 +180,8 @@ internal class ApiFiefRepository(
         if (response.isSuccessful) {
             return if (snapshot == null) CancelResult.Unreachable else CancelResult.Cancelled(snapshot)
         }
-        val refusal: ApiError = response.apiError() ?: return CancelResult.Unreachable
-        return CancelResult.Refused(refusal.kind.toCancelRefusal())
+        val refusal: WireRefusal = response.wireRefusal() ?: return CancelResult.Unreachable
+        return CancelResult.Refused(refusal.toCancelRefusal())
     }
 
     private fun upgradedOrRefused(response: Response<FiefOverview>): UpgradeResult {
@@ -187,16 +189,16 @@ internal class ApiFiefRepository(
         if (response.isSuccessful) {
             return if (snapshot == null) UpgradeResult.Unreachable else UpgradeResult.Upgraded(snapshot)
         }
-        val refusal: ApiError = response.apiError() ?: return UpgradeResult.Unreachable
-        return UpgradeResult.Refused(refusal.kind.toUpgradeRefusal())
+        val refusal: WireRefusal = response.wireRefusal() ?: return UpgradeResult.Unreachable
+        return UpgradeResult.Refused(refusal.toUpgradeRefusal())
     }
 }
 
 internal fun Response<FiefOverview>.toStudyResult(): StudyResult {
     val snapshot: FiefSnapshot? = body()?.toSnapshot()
     if (isSuccessful) return if (snapshot == null) StudyResult.Unreachable else StudyResult.Answered(snapshot)
-    val refusal: ApiError = apiError() ?: return StudyResult.Unreachable
-    return StudyResult.Refused(refusal.kind.toStudyRefusal())
+    val refusal: WireRefusal = wireRefusal() ?: return StudyResult.Unreachable
+    return StudyResult.Refused(refusal.toStudyRefusal())
 }
 
 private fun BuildingKind.toWireBuilding(): EnqueueBuildingRequest.Building = when (this) {
@@ -214,65 +216,82 @@ private fun ArtKind.toWireArt(): StartStudyRequest.Art = when (this) {
     ArtKind.Masonry -> StartStudyRequest.Art.masonry
 }
 
-private val studyRefusals: Map<ApiError.Kind, StudyRefusal> = mapOf(
-    ApiError.Kind.StudySlotBusy to StudyRefusal.StudySlotBusy,
-    ApiError.Kind.LibraryLevelTooLow to StudyRefusal.LibraryLevelTooLow,
-    ApiError.Kind.ArtMaxLevelReached to StudyRefusal.ArtMaxLevelReached,
-    ApiError.Kind.StudyNotFound to StudyRefusal.StudyNotFound,
-    ApiError.Kind.InsufficientResources to StudyRefusal.InsufficientResources,
-    ApiError.Kind.LessonLibraryTooLow to StudyRefusal.LessonLibraryTooLow,
-    ApiError.Kind.LessonAlreadyStudied to StudyRefusal.LessonAlreadyStudied,
-    ApiError.Kind.LessonUnderStudy to StudyRefusal.LessonUnderStudy,
-    ApiError.Kind.LessonStudyNotFound to StudyRefusal.LessonStudyNotFound,
+private val studyRefusals: Map<BareApiError.Kind, StudyRefusal> = mapOf(
+    BareApiError.Kind.StudySlotBusy to StudyRefusal.StudySlotBusy,
+    BareApiError.Kind.LibraryLevelTooLow to StudyRefusal.LibraryLevelTooLow,
+    BareApiError.Kind.ArtMaxLevelReached to StudyRefusal.ArtMaxLevelReached,
+    BareApiError.Kind.StudyNotFound to StudyRefusal.StudyNotFound,
+    BareApiError.Kind.InsufficientResources to StudyRefusal.InsufficientResources,
+    BareApiError.Kind.LessonLibraryTooLow to StudyRefusal.LessonLibraryTooLow,
+    BareApiError.Kind.LessonAlreadyStudied to StudyRefusal.LessonAlreadyStudied,
+    BareApiError.Kind.LessonUnderStudy to StudyRefusal.LessonUnderStudy,
+    BareApiError.Kind.LessonStudyNotFound to StudyRefusal.LessonStudyNotFound,
 )
 
-private fun ApiError.Kind.toStudyRefusal(): StudyRefusal = studyRefusals[this] ?: StudyRefusal.Unrecognized
+private fun WireRefusal.toStudyRefusal(): StudyRefusal =
+    bareKind()?.let(studyRefusals::get) ?: StudyRefusal.Unrecognized
 
-private val recruitRefusals: Map<ApiError.Kind, RecruitRefusal> = mapOf(
-    ApiError.Kind.BarracksNotBuilt to RecruitRefusal.BarracksNotBuilt,
-    ApiError.Kind.BarracksTooLow to RecruitRefusal.BarracksTooLow,
-    ApiError.Kind.RecruitSlotBusy to RecruitRefusal.RecruitSlotBusy,
-    ApiError.Kind.RecruitOrderNotFound to RecruitRefusal.RecruitOrderNotFound,
-    ApiError.Kind.InsufficientResources to RecruitRefusal.InsufficientResources,
-    ApiError.Kind.NotEnoughPeasants to RecruitRefusal.NotEnoughPeasants,
+private val recruitRefusals: Map<BareApiError.Kind, RecruitRefusal> = mapOf(
+    BareApiError.Kind.BarracksNotBuilt to RecruitRefusal.BarracksNotBuilt,
+    BareApiError.Kind.RecruitSlotBusy to RecruitRefusal.RecruitSlotBusy,
+    BareApiError.Kind.RecruitOrderNotFound to RecruitRefusal.RecruitOrderNotFound,
+    BareApiError.Kind.InsufficientResources to RecruitRefusal.InsufficientResources,
+    BareApiError.Kind.NotEnoughPeasants to RecruitRefusal.NotEnoughPeasants,
 )
 
-private val marchRefusals: Map<ApiError.Kind, MarchRefusal> = mapOf(
-    ApiError.Kind.NotEnoughUnitsAtHome to MarchRefusal.NotEnoughUnitsAtHome,
-    ApiError.Kind.MarchSlotBusy to MarchRefusal.MarchSlotBusy,
-    ApiError.Kind.StayOutOfRange to MarchRefusal.StayOutOfRange,
-    ApiError.Kind.MarchTargetOutOfBounds to MarchRefusal.MarchTargetOutOfBounds,
-    ApiError.Kind.PlotHeld to MarchRefusal.PlotHeld,
-    ApiError.Kind.PlotHasCamp to MarchRefusal.PlotHasCamp,
-    ApiError.Kind.PlotHasNoCamp to MarchRefusal.PlotHasNoCamp,
-    ApiError.Kind.PlotReserved to MarchRefusal.PlotReserved,
-    ApiError.Kind.MarchToOwnPlot to MarchRefusal.MarchToOwnPlot,
-    ApiError.Kind.UnitUnfitForOrder to MarchRefusal.UnitUnfitForOrder,
-    ApiError.Kind.FiefCapReached to MarchRefusal.FiefCapReached,
-    ApiError.Kind.BlankFiefName to MarchRefusal.BlankFiefName,
-    ApiError.Kind.EmptyCargo to MarchRefusal.EmptyCargo,
-    ApiError.Kind.CargoAboveCarry to MarchRefusal.CargoAboveCarry,
-    ApiError.Kind.InsufficientResources to MarchRefusal.InsufficientResources,
-    ApiError.Kind.FiefNotFound to MarchRefusal.FiefNotFound,
-    ApiError.Kind.MarchNotFound to MarchRefusal.MarchNotFound,
-    ApiError.Kind.MarchAlreadyReturning to MarchRefusal.MarchAlreadyReturning,
+private val marchRefusals: Map<BareApiError.Kind, MarchRefusal> = mapOf(
+    BareApiError.Kind.MarchSlotBusy to MarchRefusal.MarchSlotBusy,
+    BareApiError.Kind.MarchTargetOutOfBounds to MarchRefusal.MarchTargetOutOfBounds,
+    BareApiError.Kind.PlotHeld to MarchRefusal.PlotHeld,
+    BareApiError.Kind.PlotHasCamp to MarchRefusal.PlotHasCamp,
+    BareApiError.Kind.PlotHasNoCamp to MarchRefusal.PlotHasNoCamp,
+    BareApiError.Kind.PlotReserved to MarchRefusal.PlotReserved,
+    BareApiError.Kind.MarchToOwnPlot to MarchRefusal.MarchToOwnPlot,
+    BareApiError.Kind.UnitUnfitForOrder to MarchRefusal.UnitUnfitForOrder,
+    BareApiError.Kind.BlankFiefName to MarchRefusal.BlankFiefName,
+    BareApiError.Kind.EmptyCargo to MarchRefusal.EmptyCargo,
+    BareApiError.Kind.InsufficientResources to MarchRefusal.InsufficientResources,
+    BareApiError.Kind.FiefNotFound to MarchRefusal.FiefNotFound,
+    BareApiError.Kind.MarchNotFound to MarchRefusal.MarchNotFound,
+    BareApiError.Kind.MarchAlreadyReturning to MarchRefusal.MarchAlreadyReturning,
 )
 
-private fun ApiError.Kind.toMarchRefusal(): MarchRefusal = marchRefusals[this] ?: MarchRefusal.Unrecognized
+private fun WireRefusal.toMarchRefusal(): MarchRefusal = when (this) {
+    is WireRefusal.Bare -> marchRefusals[kind] ?: MarchRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toMarchRefusal()
+}
 
-private fun ApiError.Kind.toRecruitRefusal(): RecruitRefusal = recruitRefusals[this] ?: RecruitRefusal.Unrecognized
+private fun ApiError.toMarchRefusal(): MarchRefusal = when (this) {
+    is ApiError.NotenoughunitsathomeWrapper -> value.params.toUnitsShortAtHome()
+    is ApiError.StayoutofrangeWrapper -> MarchRefusal.StayOutOfRange(value.params.maxStayHours)
+    is ApiError.FiefcapreachedWrapper -> MarchRefusal.FiefCapReached(value.params.cap)
+    is ApiError.CargoabovecarryWrapper -> MarchRefusal.CargoAboveCarry(value.params.cargo, value.params.carry)
+    else -> MarchRefusal.Unrecognized
+}
 
-private val upgradeRefusals: Map<ApiError.Kind, UpgradeRefusal> = mapOf(
-    ApiError.Kind.QueueFull to UpgradeRefusal.QueueFull,
-    ApiError.Kind.InsufficientResources to UpgradeRefusal.InsufficientResources,
-    ApiError.Kind.NotEnoughPeasants to UpgradeRefusal.NotEnoughPeasants,
-    ApiError.Kind.MaxLevelReached to UpgradeRefusal.MaxLevelReached,
+private fun NotEnoughUnitsAtHomeErrorParams.toUnitsShortAtHome(): MarchRefusal {
+    val kind: UnitKind = unitOf(unit.value) ?: return MarchRefusal.Unrecognized
+    return MarchRefusal.NotEnoughUnitsAtHome(unit = kind, count = count, atHome = atHome)
+}
+
+private fun WireRefusal.toRecruitRefusal(): RecruitRefusal = when (this) {
+    is WireRefusal.Bare -> recruitRefusals[kind] ?: RecruitRefusal.Unrecognized
+    is WireRefusal.WithParams ->
+        if (error is ApiError.BarrackstoolowWrapper) RecruitRefusal.BarracksTooLow else RecruitRefusal.Unrecognized
+}
+
+private val upgradeRefusals: Map<BareApiError.Kind, UpgradeRefusal> = mapOf(
+    BareApiError.Kind.QueueFull to UpgradeRefusal.QueueFull,
+    BareApiError.Kind.InsufficientResources to UpgradeRefusal.InsufficientResources,
+    BareApiError.Kind.NotEnoughPeasants to UpgradeRefusal.NotEnoughPeasants,
+    BareApiError.Kind.MaxLevelReached to UpgradeRefusal.MaxLevelReached,
 )
 
-private fun ApiError.Kind.toUpgradeRefusal(): UpgradeRefusal = upgradeRefusals[this] ?: UpgradeRefusal.Unrecognized
+private fun WireRefusal.toUpgradeRefusal(): UpgradeRefusal =
+    bareKind()?.let(upgradeRefusals::get) ?: UpgradeRefusal.Unrecognized
 
-private fun ApiError.Kind.toCancelRefusal(): CancelRefusal =
-    if (this == ApiError.Kind.UpgradeNotFound) CancelRefusal.UpgradeNotFound else CancelRefusal.Unrecognized
+private fun WireRefusal.toCancelRefusal(): CancelRefusal =
+    if (bareKind() == BareApiError.Kind.UpgradeNotFound) CancelRefusal.UpgradeNotFound else CancelRefusal.Unrecognized
 
 private fun MarchDispatch.Forage.toRequest(): DispatchMarchRequest = DispatchMarchRequest(
     province = target.province,

@@ -1,7 +1,7 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
-import com.emm.mygame.core.network.generated.models.ApiError
+import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.ForgotPasswordRequest
 import com.emm.mygame.core.network.generated.models.NativeSession
 import com.emm.mygame.core.network.generated.models.Player
@@ -91,7 +91,7 @@ internal class ApiSessionRepository(
             return SignUpResult.SignedIn(session.player.toSignedInPlayer())
         }
         if (response.code() !in clientErrorCodes) return SignUpResult.Unreachable
-        return SignUpResult.Refused(response.apiError()?.kind.toSignUpRefusal())
+        return SignUpResult.Refused(response.wireRefusal()?.bareKind().toSignUpRefusal())
     }
 
     private fun signedInOrRefused(response: Response<NativeSession>): SignInResult {
@@ -100,8 +100,8 @@ internal class ApiSessionRepository(
             tokenStore.write(session.token)
             return SignInResult.SignedIn(session.player.toSignedInPlayer())
         }
-        val refusal: ApiError = response.apiError() ?: return SignInResult.Unreachable
-        return SignInResult.Refused(refusal.kind.toRefusalKind())
+        val refusal: WireRefusal = response.wireRefusal() ?: return SignInResult.Unreachable
+        return SignInResult.Refused(refusal.bareKind().toRefusalKind())
     }
 
     private fun requestedOrRefused(response: Response<Unit>): PasswordResetRequestResult = when (response.code()) {
@@ -120,16 +120,16 @@ internal class ApiSessionRepository(
     }
 }
 
-private fun ApiError.Kind.toRefusalKind(): RefusalKind =
-    if (this == ApiError.Kind.InvalidCredentials) RefusalKind.InvalidCredentials else RefusalKind.Unrecognized
+private fun BareApiError.Kind?.toRefusalKind(): RefusalKind =
+    if (this == BareApiError.Kind.InvalidCredentials) RefusalKind.InvalidCredentials else RefusalKind.Unrecognized
 
 private val clientErrorCodes: IntRange = HttpURLConnection.HTTP_BAD_REQUEST until HttpURLConnection.HTTP_INTERNAL_ERROR
 
-private fun ApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
-    ApiError.Kind.WeakPassword -> SignUpRefusal.WeakPassword
-    ApiError.Kind.BlankFiefName -> SignUpRefusal.BlankFiefName
-    ApiError.Kind.EmailTaken -> SignUpRefusal.EmailTaken
-    ApiError.Kind.MalformedEmail -> SignUpRefusal.MalformedEmail
+private fun BareApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
+    BareApiError.Kind.WeakPassword -> SignUpRefusal.WeakPassword
+    BareApiError.Kind.BlankFiefName -> SignUpRefusal.BlankFiefName
+    BareApiError.Kind.EmailTaken -> SignUpRefusal.EmailTaken
+    BareApiError.Kind.MalformedEmail -> SignUpRefusal.MalformedEmail
     else -> SignUpRefusal.Unrecognized
 }
 

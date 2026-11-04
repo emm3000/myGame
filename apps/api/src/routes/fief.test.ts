@@ -1261,7 +1261,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'QueueFull',
-        message: 'Ya no caben más obras en espera. Espera a que avance alguna.',
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -1311,7 +1310,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'NotEnoughPeasants',
-        message: 'No tienes campesinos libres suficientes.',
       })
     })
 
@@ -1324,7 +1322,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'InsufficientResources',
-        message: 'No tienes recursos suficientes.',
       })
     })
 
@@ -1534,7 +1531,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'UpgradeNotFound',
-        message: 'Esa obra ya no está en tu cola. No queda nada que cancelar.',
       })
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.buildings.sawmill.level).toBe(1)
@@ -1882,7 +1878,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksNotBuilt',
-        message: 'Tu feudo aún no tiene cuartel. Levántalo primero.',
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -1934,7 +1929,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksTooLow',
-        message: 'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
+        params: { unit: 'cavalry', requiredBarracksLevel: 3 },
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -1986,7 +1981,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksTooLow',
-        message: 'Tu cuartel aún no llega al nivel 2 que piden los arqueros. Mejóralo primero.',
+        params: { unit: 'archer', requiredBarracksLevel: 2 },
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -2043,7 +2038,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'BarracksTooLow',
-        message: 'Tu cuartel aún no llega al nivel 5 que piden los colonos. Mejóralo primero.',
+        params: { unit: 'settler', requiredBarracksLevel: 5 },
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -2057,7 +2052,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'RecruitSlotBusy',
-        message: 'El cuartel ya tiene una leva en marcha. Espera a que termine.',
       })
     })
 
@@ -2140,7 +2134,6 @@ describe('the fief route', () => {
 
     const recruitOrderNotFound = {
       kind: 'RecruitOrderNotFound',
-      message: 'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
     }
 
     it('cancels the order and answers the delivered units in the counts', async () => {
@@ -2311,7 +2304,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'StudyNotFound',
-        message: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
       })
       const overview = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(overview.arts.smithing.level).toBe(1)
@@ -2531,7 +2523,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'PlotHeld',
-        message: 'Esa parcela ya tiene feudo. Elige una libre.',
       })
     })
 
@@ -2551,7 +2542,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'PlotHasCamp',
-        message: 'Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.',
       })
     })
 
@@ -2567,8 +2557,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'MarchToOwnPlot',
-        message:
-          'A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.',
       })
     })
 
@@ -2583,7 +2571,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'NotEnoughUnitsAtHome',
-        message: 'Necesitas 6 infantes en casa y tienes 5. Ajusta la marcha.',
+        params: { unit: 'infantry', count: 6, atHome: 5 },
       })
     })
 
@@ -2604,7 +2592,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'MarchSlotBusy',
-        message: 'El cuartel ya tiene una marcha en curso. Espera a que vuelva.',
       })
       const { march: stored } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(stored).toMatchObject({
@@ -2626,7 +2613,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'StayOutOfRange',
-        message: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
+        params: { maxStayHours: 8 },
       })
     })
 
@@ -2650,7 +2637,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'StayOutOfRange',
-        message: 'Una marcha forrajea de 1 a 6 horas enteras. Ajusta las horas.',
+        params: { maxStayHours: 6 },
       })
     })
 
@@ -2665,7 +2652,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({
         kind: 'MarchTargetOutOfBounds',
-        message: 'Esa parcela no está en el mapa. Elige una que lo esté.',
       })
     })
 
@@ -2723,7 +2709,6 @@ describe('the fief route', () => {
 
     const marchNotFound = {
       kind: 'MarchNotFound',
-      message: 'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
     }
 
     it('recalls a march on the way out and answers it returning', async () => {
@@ -2804,7 +2789,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'MarchAlreadyReturning',
-        message: 'Esa marcha ya viene de vuelta. Espera a que llegue.',
       })
       const { march } = FiefOverviewSchema.parse(await (await fiefOf(ana)).json())
       expect(march).toMatchObject({ recalledAt: null, returnsAt: '2026-09-22T10:28:00.000Z' })
@@ -3049,7 +3033,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'PlotHasNoCamp',
-        message: 'Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.',
       })
     })
 
@@ -3173,7 +3156,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'UnitUnfitForOrder',
-        message: 'Un colono no forrajea, no ataca ni lleva carga. Envíalo a fundar un feudo.',
       })
       expect(await storedFiefOf(ana)).toEqual(before)
     })
@@ -3253,7 +3235,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'NotEnoughUnitsAtHome',
-        message: 'Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha.',
+        params: { unit: 'cavalry', count: 7, atHome: 6 },
       })
     })
 
@@ -3268,9 +3250,10 @@ describe('the fief route', () => {
         stayHours: 2,
       })
 
-      expect(ApiErrorSchema.parse(await response.json()).message).toBe(
-        'Necesitas 1 jinete en casa y tienes 0. Ajusta la marcha.',
-      )
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
+        kind: 'NotEnoughUnitsAtHome',
+        params: { unit: 'cavalry', count: 1, atHome: 0 },
+      })
     })
 
     it('answers 400 for a march with no unit', async () => {
@@ -3538,7 +3521,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'PlotReserved',
-        message: 'Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.',
       })
       const { march } = FiefOverviewSchema.parse(await (await fiefOf(bruno)).json())
       expect(march).toBeNull()
@@ -3726,8 +3708,9 @@ describe('the fief route', () => {
       const response = await found(ana, { ...foundingOnFreePlot(), plot: freePlot() + 1 })
 
       expect(response.status).toBe(409)
-      expect(ApiErrorSchema.parse(await response.json())).toMatchObject({
+      expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'FiefCapReached',
+        params: { cap: 2 },
       })
     })
 
@@ -4026,7 +4009,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'InsufficientResources',
-        message: 'No tienes recursos suficientes.',
       })
     })
 
@@ -4042,8 +4024,7 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'CargoAboveCarry',
-        message:
-          'La carga suma 721 y tus hombres llevan hasta 720. Quita carga o envía más hombres.',
+        params: { cargo: 721, carry: 720 },
       })
     })
 
@@ -4059,7 +4040,6 @@ describe('the fief route', () => {
       expect(response.status).toBe(409)
       expect(ApiErrorSchema.parse(await response.json())).toEqual({
         kind: 'EmptyCargo',
-        message: 'Un transporte no sale de vacío. Carga al menos un recurso.',
       })
     })
 

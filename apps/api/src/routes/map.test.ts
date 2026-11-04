@@ -203,7 +203,6 @@ describe('the map route', () => {
     expect(response.status).toBe(404)
     expect(ApiErrorSchema.parse(await response.json())).toEqual({
       kind: 'ProvinceNotFound',
-      message: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
     })
   })
 

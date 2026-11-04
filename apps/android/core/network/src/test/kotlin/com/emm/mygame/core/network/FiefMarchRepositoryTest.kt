@@ -204,9 +204,7 @@ class FiefMarchRepositoryTest {
     @Test
     fun `answers the march refusal the api names`() = runTest {
         val kinds: List<String> = listOf(
-            "NotEnoughUnitsAtHome",
             "MarchSlotBusy",
-            "StayOutOfRange",
             "MarchTargetOutOfBounds",
             "PlotHeld",
             "PlotHasCamp",
@@ -216,7 +214,7 @@ class FiefMarchRepositoryTest {
             "MarchAlreadyReturning",
             "QueueFull",
         )
-        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind","message":"No."}""")) }
+        kinds.forEach { kind: String -> api.enqueue(json(409, """{"kind":"$kind"}""")) }
         val fiefs: FiefRepository = repository()
 
         val refusals: List<MarchResult> = kinds.map {
@@ -228,9 +226,7 @@ class FiefMarchRepositoryTest {
 
         assertEquals(
             listOf(
-                MarchRefusal.NotEnoughUnitsAtHome,
                 MarchRefusal.MarchSlotBusy,
-                MarchRefusal.StayOutOfRange,
                 MarchRefusal.MarchTargetOutOfBounds,
                 MarchRefusal.PlotHeld,
                 MarchRefusal.PlotHasCamp,
@@ -239,7 +235,7 @@ class FiefMarchRepositoryTest {
                 MarchRefusal.MarchNotFound,
                 MarchRefusal.MarchAlreadyReturning,
                 MarchRefusal.Unrecognized,
-            ).map { MarchResult.Refused(it, "No.") },
+            ).map { MarchResult.Refused(it) },
             refusals,
         )
     }
@@ -354,19 +350,41 @@ class FiefMarchRepositoryTest {
     }
 
     @Test
-    fun `carries the api's line with the refusal of a march`() = runTest {
-        val line: String = "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha."
-        api.enqueue(json(409, """{"kind":"NotEnoughUnitsAtHome","message":"$line"}"""))
+    fun `answers each march refusal with the params the api sent`() = runTest {
+        val bodies: List<String> = listOf(
+            """{"kind":"NotEnoughUnitsAtHome","params":{"unit":"cavalry","count":7,"atHome":6}}""",
+            """{"kind":"StayOutOfRange","params":{"maxStayHours":8}}""",
+            """{"kind":"FiefCapReached","params":{"cap":2}}""",
+            """{"kind":"CargoAboveCarry","params":{"cargo":721,"carry":720}}""",
+        )
+        bodies.forEach { body: String -> api.enqueue(json(409, body)) }
+        val fiefs: FiefRepository = repository()
+
+        val refusals: List<MarchResult> = bodies.map {
+            fiefs.dispatch(FiefId(LISTED_FIEF_ID), MarchDispatch.Found(PlotAddress(1, 7), "Vega"))
+        }
+
+        assertEquals(
+            listOf(
+                MarchRefusal.NotEnoughUnitsAtHome(unit = UnitKind.Cavalry, count = 7, atHome = 6),
+                MarchRefusal.StayOutOfRange(maxStayHours = 8),
+                MarchRefusal.FiefCapReached(cap = 2),
+                MarchRefusal.CargoAboveCarry(cargo = 721, carry = 720),
+            ).map { MarchResult.Refused(it) },
+            refusals,
+        )
+    }
+
+    @Test
+    fun `answers an unrecognized refusal for a kind the spec does not list`() = runTest {
+        api.enqueue(json(409, """{"kind":"MarchLost"}"""))
 
         val refused: MarchResult = repository().dispatch(
             FiefId(LISTED_FIEF_ID),
-            MarchDispatch.Forage(PlotAddress(1, 7), listOf(UnitCount(UnitKind.Cavalry, 7)), 1),
+            MarchDispatch.Found(PlotAddress(1, 7), "Vega"),
         )
 
-        assertEquals(
-            MarchResult.Refused(MarchRefusal.NotEnoughUnitsAtHome, line),
-            refused,
-        )
+        assertEquals(MarchResult.Refused(MarchRefusal.Unrecognized), refused)
     }
 
     @Test
@@ -386,14 +404,12 @@ class FiefMarchRepositoryTest {
         val kinds: List<Pair<Int, String>> = listOf(
             409 to "PlotHasNoCamp",
             409 to "MarchToOwnPlot",
-            409 to "FiefCapReached",
             409 to "EmptyCargo",
-            409 to "CargoAboveCarry",
             409 to "InsufficientResources",
             400 to "BlankFiefName",
             404 to "FiefNotFound",
         )
-        kinds.forEach { (code: Int, kind: String) -> api.enqueue(json(code, """{"kind":"$kind","message":"No."}""")) }
+        kinds.forEach { (code: Int, kind: String) -> api.enqueue(json(code, """{"kind":"$kind"}""")) }
         val fiefs: FiefRepository = repository()
 
         val refusals: List<MarchResult> = kinds.map {
@@ -404,13 +420,11 @@ class FiefMarchRepositoryTest {
             listOf(
                 MarchRefusal.PlotHasNoCamp,
                 MarchRefusal.MarchToOwnPlot,
-                MarchRefusal.FiefCapReached,
                 MarchRefusal.EmptyCargo,
-                MarchRefusal.CargoAboveCarry,
                 MarchRefusal.InsufficientResources,
                 MarchRefusal.BlankFiefName,
                 MarchRefusal.FiefNotFound,
-            ).map { MarchResult.Refused(it, "No.") },
+            ).map { MarchResult.Refused(it) },
             refusals,
         )
     }
