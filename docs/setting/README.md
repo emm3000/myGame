@@ -8,6 +8,7 @@ Townword's world: a present-day town the player grows into a city (ADR 035). Thi
 docs/setting/
   README.md      this file
   lessons.md     the lessons: their themes and items, each word with its NGSL 1.2 rank
+  chrome.md      the chrome's closed word list, each word with its rank (ADR 040)
 ```
 
 The town, the region and the people in the news land here with the town rebuild. Until a page lands here, `docs/lore/` names what the shipped medieval game shows, and the Spanish chrome around the first lesson stays in `docs/lore/names.md`, The review.
