@@ -136,7 +136,8 @@ time.
   Recalled 300 seconds out, the six riders are home at 600 seconds with
   the 720.
 - **A two-fief mutation locks every fief of the lord in ascending id**
-  (Decision 7, Default; N4). `mutateFiefPairAfterResolve` reads
+  (Decision 7, Default; N4). `mutateFiefPairAfterResolve` (renamed
+  `mutateEveryFiefAfterResolve`, #713) reads
   `fiefsOf(playerId)` inside one transaction, sorts the ids ascending,
   reads each `FOR UPDATE OF fiefs` in that order, resolves each at one
   instant, the latest of the clock and every locked `storedAt`, and
@@ -346,7 +347,8 @@ time.
   `packages/contracts` gains `DispatchTransportRequestSchema`, the
   `transport` march and `incomingCargo` on `FiefOverviewSchema`, the
   two events and the two refusals. `apps/api` gains
-  `mutateFiefPairAfterResolve`. Postgres gains `transport` in
+  `mutateFiefPairAfterResolve` (renamed `mutateEveryFiefAfterResolve`,
+  #713). Postgres gains `transport` in
   `march_order`, the cargo columns and `fief_incoming_cargo` (0025) and
   the two event kinds (0026).
 - A mutation of one fief can now write another: a dispatch stores the
