@@ -18,7 +18,7 @@ import kotlin.time.Instant
 
 internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Mutations): FiefUiState.Content {
     val lines: List<FiefUiState.ResourceLine> = resources.map { stored: StoredResource ->
-        stored.lineAt(readAt = readAt, now = now)
+        stored.lineAt(readAt = readAt, now = now, seasonMark = seasonMarkOf(stored.kind))
     }
     val drawnAmounts: Map<ResourceKind, Long> = lines.associate { line: FiefUiState.ResourceLine ->
         line.kind to line.amount
@@ -77,13 +77,18 @@ private data class BuildingContext(
 
 private fun BuildQueue.isFull(): Boolean = entries.size >= cap
 
-private fun StoredResource.lineAt(readAt: Instant, now: Instant): FiefUiState.ResourceLine {
+private fun StoredResource.lineAt(
+    readAt: Instant,
+    now: Instant,
+    seasonMark: FiefUiState.SeasonMark?,
+): FiefUiState.ResourceLine {
     val stock: ResourceStock = ResourceStock(amount = amount, ratePerHour = ratePerHour, capacity = capacity)
     return FiefUiState.ResourceLine(
         kind = kind,
         amount = stock.amountAt(readAt = readAt, now = now),
         capacity = capacity,
         ratePerHour = floor(ratePerHour).toLong(),
+        seasonMark = seasonMark,
     )
 }
 

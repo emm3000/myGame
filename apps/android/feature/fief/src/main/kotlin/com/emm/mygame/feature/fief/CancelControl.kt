@@ -11,7 +11,6 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import java.util.Locale
 
 @Composable
 internal fun CancelControl(
@@ -51,5 +50,3 @@ private fun CancelAnswer(
     }
     if (isUnanswered) MyGameInlineAlert(message = stringResource(R.string.fief_unreachable), modifier = modifier)
 }
-
-private val spanish: Locale = Locale.forLanguageTag("es")

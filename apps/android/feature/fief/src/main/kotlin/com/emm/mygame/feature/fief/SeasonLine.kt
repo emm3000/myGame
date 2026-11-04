@@ -60,14 +60,14 @@ private fun seasonTimeLeftOf(countdown: FiefUiState.SeasonCountdown): String = w
     is FiefUiState.SeasonCountdown.InSeconds -> stringResource(R.string.slot_countdown_seconds, countdown.seconds)
 }
 
-private fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
+internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
     SeasonKind.Spring -> R.string.season_spring
     SeasonKind.Summer -> R.string.season_summer
     SeasonKind.Autumn -> R.string.season_autumn
     SeasonKind.Winter -> R.string.season_winter
 }
 
-private fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {
+internal fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {
     SeasonKind.Spring -> MyGameIcons.spring
     SeasonKind.Summer -> MyGameIcons.summer
     SeasonKind.Autumn -> MyGameIcons.autumn

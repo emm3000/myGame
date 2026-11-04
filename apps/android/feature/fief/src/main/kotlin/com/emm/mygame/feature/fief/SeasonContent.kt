@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.projection.countdownTo
@@ -19,6 +20,14 @@ internal fun FiefSnapshot.seasonLineAt(now: Instant): FiefUiState.SeasonLine? {
         countdown = countdownTo(finishesAt = endsAt, now = now).toSeasonCountdown(),
     )
 }
+
+internal fun FiefSnapshot.seasonMarkOf(resource: ResourceKind): FiefUiState.SeasonMark? {
+    val inForce: SeasonInForce = seasonInForce ?: return null
+    val change: Int = season?.loot?.get(resource)?.minus(NEUTRAL_PERCENT) ?: return null
+    return if (change == 0) null else FiefUiState.SeasonMark(season = inForce.kind, change = change)
+}
+
+private const val NEUTRAL_PERCENT: Int = 100
 
 private fun SeasonKind.next(): SeasonKind = when (this) {
     SeasonKind.Spring -> SeasonKind.Summer

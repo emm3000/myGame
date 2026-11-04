@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
@@ -29,4 +28,4 @@ internal fun clockLabelOf(finish: FinishClock): String {
 
 private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("es"))
+private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", spanish)

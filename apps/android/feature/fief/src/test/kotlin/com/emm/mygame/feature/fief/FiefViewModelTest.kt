@@ -67,7 +67,13 @@ class FiefViewModelTest {
             val content: FiefUiState.Content = awaitContent()
             assertEquals("Vadoalto", content.name)
             assertEquals(
-                FiefUiState.ResourceLine(ResourceKind.Wood, amount = 500, capacity = 1000, ratePerHour = 60),
+                FiefUiState.ResourceLine(
+                    ResourceKind.Wood,
+                    amount = 500,
+                    capacity = 1000,
+                    ratePerHour = 60,
+                    seasonMark = null,
+                ),
                 content.resources.single(),
             )
         }

@@ -26,7 +26,6 @@ import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StudyRefusal
-import java.util.Locale
 
 @Composable
 internal fun LibrarySection(
@@ -254,5 +253,3 @@ private fun refusalOf(refusal: StudyRefusal): Int = when (refusal) {
     StudyRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
     StudyRefusal.Unrecognized -> R.string.fief_unreachable
 }
-
-private val spanish: Locale = Locale.forLanguageTag("es")
