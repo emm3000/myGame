@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, holdout narrowed by ADR 037
 date: 2026-11-04
 ---
 # Townword, an English-learning town builder

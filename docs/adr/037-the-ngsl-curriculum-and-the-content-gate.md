@@ -65,8 +65,8 @@ the same licence (§3(b)).
 - **A frame word is never a card.** It is a closed-class word among the
   NGSL's first 100 ranks: an article, a pronoun or possessive, a
   demonstrative or quantifier, *be*, *have* and *do*, a modal, a
-  preposition, a conjunction, *not*. The content lists them; the
-  grammar inventory admits each at a lesson (below); Townword assumes
+  preposition, a conjunction, *not*. They live in `grammar.json` alone,
+  each with the lesson that admits it (below); Townword assumes
   an A1 reader reads them, which is §2.1's entry level. They carry no
   stable scaffold gloss to recall from (*of*, *the*, the auxiliary
   *do*), so a card would drill nothing.
@@ -91,17 +91,22 @@ the same licence (§3(b)).
 
 ### Lessons and their order
 
-- **A lesson teaches exactly 5 card words** under one theme, never a
-  semantic set (§3.2; Nakata and Suzuki 2019). Five keeps ADR 036's
-  recognition choices to the lesson itself and keeps the skill, which
-  waits on every word of the lesson, within reach.
+- **A lesson teaches 5 card words** under one theme, never a semantic
+  set (§3.2; Nakata and Suzuki 2019). Five keeps ADR 036's recognition
+  choices to the lesson itself and keeps the skill, which waits on every
+  word of the lesson, within reach. A band's last lesson is the one
+  exception: once fewer than 10 of the band's card words remain
+  untaught, the next lesson takes them all, 5 to 9, so no band ends on
+  a lesson of 1 to 4; ADR 036's rule 3 already offers 5 choices from a
+  larger lesson.
 - **After the chrome lessons, the bands are taught in order, and every
   lesson holds the lowest-ranked untaught card word of its band and
   draws its other four from the 30 lowest-ranked untaught card words of
-  that band.** The head word is always taken, so a word at the k-th
-  place of that window is taught within k − 1 lessons, so no word waits
-  more than 29 lessons past its turn, and the theme still has 30 words
-  to choose 5 from. Every rank below 30 in the list is a frame word, so, unless a
+  that band.** The head word is always taken, so a word at place k of
+  the window, the head at place 1, is taught by the k-th lesson at the
+  latest, counting the current one: no word waits more than 29 lessons
+  after it enters the window, and the theme still has 30 words to choose
+  5 from. Every rank below 30 in the list is a frame word, so, unless a
   chrome lesson teaches it, the first band lesson holds *say* (30).
 - **A lesson's frames use only what the player is taken to know at that
   lesson** (the frame rule, below). That ties the order to the text:
@@ -115,10 +120,10 @@ the same licence (§3(b)).
 The content keeps one shape, in `apps/api/content/lessons/`, read
 through the domain's `LessonCatalog` port (ADR 008's pattern, N5):
 
-- **`words.json`, the lexicon**: one entry per word any content uses
-  beyond the frame words, keyed by an opaque, permanent id. An entry
-  holds the `lemma`, its `partOfSpeech`, its kind (`frame` or `card`),
-  its `frame` and `gappedFrame` for a card word, one `gloss` per
+- **`words.json`, the lexicon**: one entry per card word any content
+  uses, taught or not yet, keyed by an opaque, permanent id; no frame
+  word has an entry. An entry holds the `lemma`, its `partOfSpeech`,
+  its `frame` and `gappedFrame`, one `gloss` per
   scaffold language (`{ "es": "escuela" }`), an English `definition`,
   and any further accepted form of a typed answer (ADR 036, rule 4). An
   id never changes and is never reused; lesson 1's ids stay
@@ -128,16 +133,20 @@ through the domain's `LessonCatalog` port (ADR 008's pattern, N5):
   `SFI Rank` from `ngsl-1.2.csv` at start-up; a card word outside the
   list has none and counts in no band.
 - **`lesson-<n>.json`**: the lesson's id, theme, duration, required
-  library level (the school's after the town rebuild), skill, and its five word ids in order. The words move
-  out of the lesson file into the lexicon, lesson 1's included, in the
-  ticket that ships lesson 2; one shape, never two (rebuild, never
+  library level (the school's after the town rebuild), skill, and its
+  word ids in order. The words move out of the lesson file into the
+  lexicon, lesson 1's included, in the lexicon ticket, before any
+  lesson after lesson 1 ships; one shape, never two (rebuild, never
   adapt).
 - **`curriculum.json`**: the lessons in order, the count of chrome
   lessons first. The adapter loads what it lists; nothing is read from
   a file name.
-- **`grammar.json`, the grammar inventory**: structures in order, each
-  with its CEFR level, the frame words and the inflections it admits,
-  and the lesson from which it is admitted. Its levels follow the
+- **`grammar.json`, the grammar inventory**, the one home of the frame
+  words: structures in order, each with its CEFR level, the frame words
+  and the inflections it admits, and the lesson from which it is
+  admitted. Its first form lists only the frame words, each with its
+  admitting lesson, which checks 1 and 3 need; the structures, their
+  inflections and levels come with check 6. Its levels follow the
   CEFR-J Grammar Profile (Tono Laboratory, TUFS), which its authors
   allow for commercial use with citation; the British Council and
   EAQUALS Core Inventory forbids reproduction without written
@@ -169,7 +178,8 @@ word it means in the content, or the gate fails it.
 
 1. **The lexicon holds.** Ids unique; every card word's lemma an NGSL
    headword or marked off-list; every card word taught by exactly one
-   lesson; every frame word in `grammar.json`.
+   lesson; no lexicon entry is a frame word, and every frame word is
+   in `grammar.json` with its admitting lesson.
 2. **The order holds.** The chrome lessons first; after them, each
    lesson holds its band's lowest-ranked untaught card word and draws
    the rest from that band's 30 lowest-ranked untaught card words.
@@ -183,7 +193,9 @@ word it means in the content, or the gate fails it.
    max(1, ⌊5 % of its tokens⌋) tokens unknown at its lesson, each one a
    lexicon word with every gloss the shipped scaffolds need: 1 in a text
    of up to 39 tokens, 2 in 40. That is §4's 95 % floor for assisted
-   reading, a heuristic (Kremmel et al. 2023); every Townword text is
+   reading, a heuristic (Kremmel et al. 2023), and it holds from 20
+   tokens up: a shorter text may still hold its one unknown token,
+   glossed. Every Townword text is
    assisted, since every unknown token is glossed, so §3.6's 2 % for
    unassisted reading binds no text.
 5. **Glossary completeness.** Every card word of a listed lesson has a
@@ -195,19 +207,23 @@ word it means in the content, or the gate fails it.
    admits after the lesson or the variant's lesson.
 7. **The owner's review.** Every pull request that adds or changes a
    gloss, a frame, a definition or a text lists each one in a table in
-   its body, and only the owner merges it; no agent and no orchestrator
-   merges it. The owner reads Spanish glosses for meaning and for the
-   tú rule (ADR 038).
+   its body, and it is merged only after the owner approves it on the
+   pull request; then the orchestrator merges it, as every pull request
+   (`docs/agents/multi-session.md`). GitHub refuses an approving review
+   from a pull request's own author, so the owner's approval is a
+   comment saying so. The owner reads Spanish glosses for meaning and
+   for the tú rule (ADR 038).
 8. **After launch, item statistics.** A word whose Again rate or FSRS
    difficulty is an outlier in its band is listed for the owner from the
    review log (ADR 036, rule 8); it never changes a card.
 
-**What ships first**: checks 1, 2, 3 and 5 for `es`, with lesson 2 and
-the lexicon, since no lesson after lesson 1 ships without them. Check 4
-ships with the first running text, check 6 once the inventory is
-written, check 5 for `none` with that scaffold (ADR 038), and check 8
-once players have reviews to measure. Check 7 holds from the first
-content pull request.
+**What ships first**: checks 1, 2, 3 and 5 for `es`, in the lexicon
+ticket, with `grammar.json` in its first form (the frame words and
+their admitting lessons), before any lesson after lesson 1. Check 4
+ships with the first running text, check 6 with the inventory's
+structures, check 5 for `none` with that scaffold (ADR 038), and
+check 8 once players have reviews to measure. Check 7 holds from the
+first content pull request.
 
 **Lesson 1 fails the frame rule** as shipped, 4 frames of 5, and its
 frames are rewritten in the lexicon ticket. Its cards and review log are
@@ -277,7 +293,8 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
 
 ### The holdout
 
-- **Drawn when the player starts a band's first lesson**, never for a
+- **Drawn when the player starts a band's first lesson**, the band's
+  start, never for a
   band placed out: ⌊10 %⌋ of the band's card words that no chrome lesson
   teaches, drawn by the api's random source, never the domain's, and
   stored per player and word. It never changes after the draw; were
@@ -287,19 +304,25 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   recognition choices; and the lesson's skill waits on the words the
   player holds (ADR 036, rule 7, reads "every word of its lesson that
   the player holds" once the holdout ships).
-- **It is read like any untaught word**: game text glosses it. The
-  comparison is therefore cards plus reading against reading alone,
-  which is the effect the reviews claim.
-- **The external check runs at 8 and 24 weeks after the player's first
-  lesson**: every held-out word of the lessons the player has studied,
-  and as many practised words drawn from the same lessons, in the
-  placement's format. Every player who studied a lesson is in the
+- **It is read like any untaught word**: game text glosses it, and so
+  does a later lesson's frame on a recognition or a recall, where any
+  token whose word the player holds no card for is glossed, as
+  ADR 038's "no card" row says for game text. The comparison is
+  therefore cards plus reading against reading alone, which is the
+  effect the reviews claim.
+- **Each band's external check runs 8 and 24 weeks after that band's
+  start**: every held-out word of the band's lessons the player has
+  studied, and as many practised words drawn from the same lessons, in
+  the placement's format. Every player who started the band is in its
   analysis, whether or not they took the check (intention to treat,
   §8.3).
-- **Released after the 24-week check**, taken or skipped: the held-out
-  words enter as released lessons of 5, in rank order, through the
-  lesson slot, earning no skill. The school tells the player that 1
-  word in 10 is kept for a later check and comes back after it.
+- **A band's held-out words are released after its 24-week check**,
+  taken or skipped: they enter as released lessons of 5, in rank order,
+  through the lesson slot, earning no skill. The school tells the player
+  that 1 word in 10 is kept for a later check and comes back after it.
+- **This narrows ADR 035's holdout**, "a random 10 % of each band's
+  words": the draw takes card words outside the chrome lessons only, at
+  the band's start, and ends with the release.
 
 ## Considered options
 
@@ -345,7 +368,7 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   covers structure.
 - **A review mark in the content.** A field an agent can set proves
   nothing, since every commit carries the owner's identity. Rejected
-  for the owner's merge.
+  for the owner's approval on the pull request.
 - **Reuse Hello's provider chain as an offline authoring tool** (the
   dispatch's starting recommendation). Overridden on the evidence
   above: its third link no longer exists and its model's licence is
@@ -378,11 +401,16 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
 - The gate is a test, so `pnpm gate` covers content with no new CI job.
 - Content tickets are dispatched like docs tickets; their model comes
   from the budget tier's table, and their pull requests wait for the
-  owner's merge.
+  owner's approval on the pull request before the orchestrator merges
+  them, a line `docs/agents/multi-session.md` now carries.
+- ADR 035's holdout is narrowed and ADR 036's rule 7 amended, each
+  marked in its status line.
 - The learning content is CC BY-SA 4.0 in a repository otherwise all
   rights reserved.
 - Placement, the holdout and its external check each need storage, a
-  migration each, and screens; the holdout amends ADR 036's rule 7.
+  migration each, and screens. Placement also needs the lessons of
+  bands 2 and 3 drafted, since a player placed out of band 1 starts in
+  band 2.
 - What a skill is worth across hundreds of lessons (which resource each
   lesson raises and by what percent) is an economy decision for the
   school's ticket; each lesson file names its skill, as lesson 1's does.

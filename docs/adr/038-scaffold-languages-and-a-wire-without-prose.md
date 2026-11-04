@@ -125,7 +125,8 @@ L2 study gives the fade point.
 - **`packages/catalog` holds `en.json` and `es.json`, ICU MessageFormat,
   one key set** (§11.3). It is the single source of every string a
   client or the api's mail shows. Its test refuses a key in one
-  language and not the other, a message that does not parse, two
+  language and not the other (one way only until step 4, below), a
+  message that does not parse, two
   languages naming different arguments for one key, and, in `es`, a
   denylist of voseo forms (*vos*, *sos*, *tenés*, *podés*, *querés*,
   *sabés* and their kin); the owner's review is the guarantee, the
@@ -189,21 +190,29 @@ denylist. A gloss that is a verb is glossed in the infinitive, as
 2. **The catalog, `es` only**, generated from today's `copy.ts`,
    `strings.xml` files and `mailCopy.ts`. Strings move; none is
    reworded. `copy.ts` and the hand-written `strings.xml` are deleted,
-   replaced by generated output, and the drift between them ends.
+   replaced by generated output, and the drift between them ends. On
+   Android the generator writes Spanish into each module's `values/`,
+   the default locale, and writes no `values-es/`, since a string
+   missing from `values/` fails Android lint's
+   `MissingDefaultResource`; `values/` turns English and Spanish moves
+   to `values-es/` in step 4. Until step 4 the key check runs one way:
+   every key of `en.json` must be in `es.json`.
 3. **The town rebuild writes its copy into the catalog in English and
    Spanish together**, screen by screen, so no medieval English copy is
    ever written to be thrown away.
 4. **The scaffold field, the sign-up and settings choice, the chrome
-   phases and `none`**, once the English catalog holds every key, the
+   phases and `none`**, once the English catalog holds every key (the
+   key check then runs both ways), the
    chrome lessons exist, and every listed lesson's words have their
    definitions. Until then every player is `es` and the chrome is
    Spanish, as S39 ships it.
 
 ### The PRD
 
-- **M1** reads: *A player creates an account, picking a scaffold
-  language, `es` or `none`, signs in and signs out.*
-- **S7** gains: *each mail in the player's scaffold language*.
+- **M1** gains, from step 4: *sign-up also picks a scaffold language,
+  `es` or `none`*.
+- **S7** gains, from step 4: *each mail in the player's scaffold
+  language*.
 - **N5** and **N6** are rewritten in `docs/PRODUCT_REQUIREMENTS.md`
   with this ADR and ADR 037.
 
