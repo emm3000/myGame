@@ -29,6 +29,9 @@
     <string name="resource_full">Lleno</string>
     <string name="resource_description">%1$s: %2$s de %3$s, más %4$s por hora</string>
     <string name="resource_description_full">%1$s: %2$s de %3$s, lleno</string>
+    <string name="resource_description_with_season_mark">%1$s. %2$s</string>
+    <string name="resource_season_mark_raised">%1$s: +%2$d %% de %3$s</string>
+    <string name="resource_season_mark_lowered">%1$s: -%2$d %% de %3$s</string>
     <string name="slot_title">La obra</string>
     <string name="slot_idle">Tu feudo no tiene obra.</string>
     <string name="slot_busy_title">Una obra en marcha</string>

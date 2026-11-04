@@ -237,11 +237,19 @@ sealed interface FiefUiState {
         data object Unreachable : StudyStatus
     }
 
-    data class ResourceLine(val kind: ResourceKind, val amount: Long, val capacity: Long, val ratePerHour: Long) {
+    data class ResourceLine(
+        val kind: ResourceKind,
+        val amount: Long,
+        val capacity: Long,
+        val ratePerHour: Long,
+        val seasonMark: SeasonMark?,
+    ) {
 
         val isFull: Boolean
             get() = amount >= capacity
     }
+
+    data class SeasonMark(val season: SeasonKind, val change: Int)
 
     data class PeasantsLine(val free: Int, val supplied: Int)
 

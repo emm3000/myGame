@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameRadii
+import com.emm.mygame.core.designsystem.MyGameSeasonMark
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -76,16 +77,12 @@ private fun Divider(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier = Modifier) {
+internal fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier = Modifier) {
     val name: String = stringResource(resourceNameOf(resource.kind))
     val amount: String = formatQuantity(resource.amount)
     val capacity: String = formatQuantity(resource.capacity)
-    val rate: String = formatQuantity(resource.ratePerHour)
-    val description: String = if (resource.isFull) {
-        stringResource(R.string.resource_description_full, name, amount, capacity)
-    } else {
-        stringResource(R.string.resource_description, name, amount, capacity, rate)
-    }
+    val seasonMark: FiefUiState.SeasonMark? = resource.seasonMark
+    val description: String = resourceDescriptionOf(resource = resource, name = name)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier
@@ -107,20 +104,61 @@ private fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier =
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        if (resource.isFull) {
-            MyGameText(
-                text = stringResource(R.string.resource_full),
-                style = MyGameTypography.label,
-                color = MyGameTheme.colors.rust,
-            )
-        } else {
-            MyGameText(
-                text = stringResource(R.string.resource_rate, rate),
-                style = MyGameTypography.label,
-                color = MyGameTheme.colors.inkMuted,
+        RateLine(resource = resource)
+        if (seasonMark != null) {
+            MyGameSeasonMark(
+                icon = seasonIconOf(seasonMark.season),
+                words = seasonMarkWordsOf(mark = seasonMark, resourceName = name),
             )
         }
         ProgressBar(resource = resource)
+    }
+}
+
+@Composable
+private fun RateLine(resource: FiefUiState.ResourceLine, modifier: Modifier = Modifier) {
+    if (resource.isFull) {
+        MyGameText(
+            text = stringResource(R.string.resource_full),
+            style = MyGameTypography.label,
+            color = MyGameTheme.colors.rust,
+            modifier = modifier,
+        )
+    } else {
+        MyGameText(
+            text = stringResource(R.string.resource_rate, formatQuantity(resource.ratePerHour)),
+            style = MyGameTypography.label,
+            color = MyGameTheme.colors.inkMuted,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+private fun resourceDescriptionOf(resource: FiefUiState.ResourceLine, name: String): String {
+    val amount: String = formatQuantity(resource.amount)
+    val capacity: String = formatQuantity(resource.capacity)
+    val rowDescription: String = if (resource.isFull) {
+        stringResource(R.string.resource_description_full, name, amount, capacity)
+    } else {
+        stringResource(R.string.resource_description, name, amount, capacity, formatQuantity(resource.ratePerHour))
+    }
+    val seasonMark: FiefUiState.SeasonMark = resource.seasonMark ?: return rowDescription
+    return stringResource(
+        R.string.resource_description_with_season_mark,
+        rowDescription,
+        seasonMarkWordsOf(mark = seasonMark, resourceName = name),
+    )
+}
+
+@Composable
+private fun seasonMarkWordsOf(mark: FiefUiState.SeasonMark, resourceName: String): String {
+    val season: String = stringResource(seasonNameOf(mark.season))
+    val resource: String = resourceName.lowercase(spanish)
+    return if (mark.change > 0) {
+        stringResource(R.string.resource_season_mark_raised, season, mark.change, resource)
+    } else {
+        stringResource(R.string.resource_season_mark_lowered, season, -mark.change, resource)
     }
 }
 
