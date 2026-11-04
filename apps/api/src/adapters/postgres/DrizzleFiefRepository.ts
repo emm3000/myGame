@@ -730,6 +730,85 @@ const fiefRowOf = (fief: Fief): SavedFiefRow => ({
 
 export type FiefRead = 'lockedForUpdate' | 'lockFree'
 
+const saveHeldRows = async (session: PostgresSession, fief: Fief, id: FiefId): Promise<void> => {
+  const builtLevelRows = Object.values(storedBuildings)
+    .map((stored) => ({
+      fiefId: id,
+      building: stored,
+      level: fief.buildingLevels[buildingKinds[stored]],
+    }))
+    .filter((row) => row.level > 0)
+  const studiedArtRows = Object.values(storedArts)
+    .map((stored) => ({ fiefId: id, art: stored, level: fief.artLevels[artKinds[stored]] }))
+    .filter((row) => row.level > 0)
+  const unitRows = Object.values(storedUnits).map((stored) => ({
+    fiefId: id,
+    kind: stored,
+    count: fief.units.countOf(unitKinds[stored]),
+  }))
+  const countedUnitRows = unitRows.filter((row) => row.count > 0)
+  const emptiedUnits = unitRows.filter((row) => row.count === 0).map((row) => row.kind)
+  if (builtLevelRows.length > 0) {
+    await session
+      .insert(fiefBuildings)
+      .values(builtLevelRows)
+      .onConflictDoUpdate({
+        target: [fiefBuildings.fiefId, fiefBuildings.building],
+        set: { level: sql`excluded.level` },
+      })
+  }
+  if (studiedArtRows.length > 0) {
+    await session
+      .insert(fiefArts)
+      .values(studiedArtRows)
+      .onConflictDoUpdate({
+        target: [fiefArts.fiefId, fiefArts.art],
+        set: { level: sql`excluded.level` },
+      })
+  }
+  if (countedUnitRows.length > 0) {
+    await session
+      .insert(fiefUnits)
+      .values(countedUnitRows)
+      .onConflictDoUpdate({
+        target: [fiefUnits.fiefId, fiefUnits.kind],
+        set: { count: sql`excluded.count` },
+      })
+  }
+  if (emptiedUnits.length > 0) {
+    await session
+      .delete(fiefUnits)
+      .where(and(eq(fiefUnits.fiefId, id), inArray(fiefUnits.kind, emptiedUnits)))
+  }
+}
+
+const replaceInFlightRows = async (
+  session: PostgresSession,
+  fief: Fief,
+  id: FiefId,
+  marchRow: MarchRow | undefined,
+): Promise<void> => {
+  const entryRows = entryRowsOf(fief)
+  const recruitOrderRow = recruitOrderRowOf(fief)
+  const incomingCargoRow = incomingCargoRowOf(fief)
+  await session.delete(fiefQueueEntries).where(eq(fiefQueueEntries.fiefId, id))
+  if (entryRows.length > 0) {
+    await session.insert(fiefQueueEntries).values([...entryRows])
+  }
+  await session.delete(fiefRecruitOrders).where(eq(fiefRecruitOrders.fiefId, id))
+  if (recruitOrderRow !== undefined) {
+    await session.insert(fiefRecruitOrders).values(recruitOrderRow)
+  }
+  await session.delete(fiefMarches).where(eq(fiefMarches.fiefId, id))
+  if (marchRow !== undefined) {
+    await session.insert(fiefMarches).values(marchRow)
+  }
+  await session.delete(fiefIncomingCargo).where(eq(fiefIncomingCargo.fiefId, id))
+  if (incomingCargoRow !== undefined) {
+    await session.insert(fiefIncomingCargo).values(incomingCargoRow)
+  }
+}
+
 export class DrizzleFiefRepository implements FiefRepository {
   constructor(
     private readonly database: PostgresSession,
@@ -830,27 +909,7 @@ export class DrizzleFiefRepository implements FiefRepository {
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
     const { id, ...changes } = fiefRowOf(fief)
-    const builtLevelRows = Object.values(storedBuildings)
-      .map((stored) => ({
-        fiefId: id,
-        building: stored,
-        level: fief.buildingLevels[buildingKinds[stored]],
-      }))
-      .filter((row) => row.level > 0)
-    const studiedArtRows = Object.values(storedArts)
-      .map((stored) => ({ fiefId: id, art: stored, level: fief.artLevels[artKinds[stored]] }))
-      .filter((row) => row.level > 0)
-    const unitRows = Object.values(storedUnits).map((stored) => ({
-      fiefId: id,
-      kind: stored,
-      count: fief.units.countOf(unitKinds[stored]),
-    }))
-    const countedUnitRows = unitRows.filter((row) => row.count > 0)
-    const emptiedUnits = unitRows.filter((row) => row.count === 0).map((row) => row.kind)
-    const recruitOrderRow = recruitOrderRowOf(fief)
     const marchRow = marchRowOf(fief)
-    const incomingCargoRow = incomingCargoRowOf(fief)
-    const entryRows = entryRowsOf(fief)
     const skillRows = skillRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
@@ -858,54 +917,8 @@ export class DrizzleFiefRepository implements FiefRepository {
           .insert(fiefs)
           .values({ id, ...changes })
           .onConflictDoUpdate({ target: fiefs.id, set: changes })
-        if (builtLevelRows.length > 0) {
-          await transaction
-            .insert(fiefBuildings)
-            .values(builtLevelRows)
-            .onConflictDoUpdate({
-              target: [fiefBuildings.fiefId, fiefBuildings.building],
-              set: { level: sql`excluded.level` },
-            })
-        }
-        if (studiedArtRows.length > 0) {
-          await transaction
-            .insert(fiefArts)
-            .values(studiedArtRows)
-            .onConflictDoUpdate({
-              target: [fiefArts.fiefId, fiefArts.art],
-              set: { level: sql`excluded.level` },
-            })
-        }
-        if (countedUnitRows.length > 0) {
-          await transaction
-            .insert(fiefUnits)
-            .values(countedUnitRows)
-            .onConflictDoUpdate({
-              target: [fiefUnits.fiefId, fiefUnits.kind],
-              set: { count: sql`excluded.count` },
-            })
-        }
-        if (emptiedUnits.length > 0) {
-          await transaction
-            .delete(fiefUnits)
-            .where(and(eq(fiefUnits.fiefId, id), inArray(fiefUnits.kind, emptiedUnits)))
-        }
-        await transaction.delete(fiefQueueEntries).where(eq(fiefQueueEntries.fiefId, id))
-        if (entryRows.length > 0) {
-          await transaction.insert(fiefQueueEntries).values([...entryRows])
-        }
-        await transaction.delete(fiefRecruitOrders).where(eq(fiefRecruitOrders.fiefId, id))
-        if (recruitOrderRow !== undefined) {
-          await transaction.insert(fiefRecruitOrders).values(recruitOrderRow)
-        }
-        await transaction.delete(fiefMarches).where(eq(fiefMarches.fiefId, id))
-        if (marchRow !== undefined) {
-          await transaction.insert(fiefMarches).values(marchRow)
-        }
-        await transaction.delete(fiefIncomingCargo).where(eq(fiefIncomingCargo.fiefId, id))
-        if (incomingCargoRow !== undefined) {
-          await transaction.insert(fiefIncomingCargo).values(incomingCargoRow)
-        }
+        await saveHeldRows(transaction, fief, id)
+        await replaceInFlightRows(transaction, fief, id, marchRow)
         if (skillRows.length > 0) {
           await transaction
             .insert(playerSkills)

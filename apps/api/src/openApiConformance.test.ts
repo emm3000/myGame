@@ -479,11 +479,41 @@ const exchanges: ReadonlyArray<Exchange> = [
 const describeExchange = ({ operation, caller, params, status }: Exchange): string =>
   `${operation} ${JSON.stringify(params ?? {})} as ${caller} answers ${status}`
 
+type StandIns = Readonly<Record<string, string | number>>
+
+const pathOf = (
+  template: string,
+  params: Readonly<Record<string, string>>,
+  standIns: StandIns,
+): string =>
+  template.replace(/\{(\w+)\}/g, (_match, name: string) =>
+    encodeURIComponent(standIns[params[name] ?? ''] ?? params[name] ?? ''),
+  )
+
+const bodyWithStandIns = (body: unknown, standIns: StandIns): unknown => {
+  if (body === undefined) {
+    return undefined
+  }
+  return JSON.parse(JSON.stringify(body), (_key, value: unknown) =>
+    typeof value === 'string' && Object.hasOwn(standIns, value) ? standIns[value] : value,
+  )
+}
+
+const declaredSchemaOf = (
+  declaredResponse: RouteConfig['responses'][string] | undefined,
+): unknown => {
+  if (declaredResponse === undefined || !('content' in declaredResponse)) {
+    return undefined
+  }
+  const declaredBody = declaredResponse.content?.['application/json']
+  return declaredBody && 'schema' in declaredBody ? declaredBody.schema : undefined
+}
+
 describe('the OpenAPI conformance', () => {
   let server: ComposedServer
   let app: ReturnType<typeof createApp>
   let cookies: Readonly<Record<Caller, string>>
-  let standIns: Readonly<Record<string, string | number>>
+  let standIns: StandIns
 
   const signUp = async (email: string, fiefName: string): Promise<string> => {
     const response = await app.request('/auth/sign-up', {
@@ -556,15 +586,8 @@ describe('the OpenAPI conformance', () => {
     '%s with a declared status and a body of its schema',
     async (_name, { operation, caller, params = {}, body, status }) => {
       const [method = '', template = ''] = operation.split(' ')
-      const path = template.replace(/\{(\w+)\}/g, (_match, name: string) =>
-        encodeURIComponent(standIns[params[name] ?? ''] ?? params[name] ?? ''),
-      )
-      const resolvedBody =
-        body === undefined
-          ? undefined
-          : JSON.parse(JSON.stringify(body), (_key, value: unknown) =>
-              typeof value === 'string' && Object.hasOwn(standIns, value) ? standIns[value] : value,
-            )
+      const path = pathOf(template, params, standIns)
+      const resolvedBody = bodyWithStandIns(body, standIns)
 
       const response = await app.request(path, {
         method,
@@ -583,11 +606,7 @@ describe('the OpenAPI conformance', () => {
       if (text === '') {
         return
       }
-      const declaredBody =
-        declaredResponse && 'content' in declaredResponse
-          ? declaredResponse.content?.['application/json']
-          : undefined
-      const schema = declaredBody && 'schema' in declaredBody ? declaredBody.schema : undefined
+      const schema = declaredSchemaOf(declaredResponse)
       expect(schema, `${operation} declares a body for ${response.status}`).toBeInstanceOf(ZodType)
       expect(schema instanceof ZodType && schema.safeParse(JSON.parse(text)).success).toBe(true)
     },
