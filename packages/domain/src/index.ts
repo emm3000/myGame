@@ -61,6 +61,18 @@ export type { AwayMarch, March, TransportMarch } from './march/March'
 export { type MarchInstants, marchInstantsOf } from './march/marchInstantsOf'
 export { marchOneWaySeconds } from './march/marchOneWaySeconds'
 export { type MarchPhase, marchPhaseAt } from './march/marchPhaseAt'
+export { dueInstantOf } from './memory/dueInstantOf'
+export {
+  MemoryCard,
+  type MemoryPlacement,
+  type RecalledMemory,
+  type StoredMemoryCard,
+  type UnreviewedMemory,
+} from './memory/MemoryCard'
+export type { MemoryRating } from './memory/MemoryRating'
+export { defaultMemoryTerms, type FsrsParameters, type MemoryTerms } from './memory/MemoryTerms'
+export { retrievabilityOf } from './memory/retrievabilityOf'
+export { reviewMemoryCard } from './memory/reviewMemoryCard'
 export type { PlayerId } from './player/PlayerId'
 export type {
   ArtKind,

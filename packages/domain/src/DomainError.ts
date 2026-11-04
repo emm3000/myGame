@@ -11,6 +11,21 @@ export type DomainError =
   | { readonly kind: 'NegativeDuration'; readonly seconds: number }
   | { readonly kind: 'FractionalDuration'; readonly seconds: number }
   | { readonly kind: 'InstantBeforeStored'; readonly storedAt: Instant; readonly now: Instant }
+  | {
+      readonly kind: 'InvalidMemoryCard'
+      readonly field: 'step' | 'stability' | 'difficulty'
+      readonly value: number
+    }
+  | {
+      readonly kind: 'UnknownMemoryStep'
+      readonly state: 'learning' | 'relearning'
+      readonly step: number
+    }
+  | {
+      readonly kind: 'ReviewBeforeLastReview'
+      readonly lastReviewAt: Instant
+      readonly reviewedAt: Instant
+    }
   | { readonly kind: 'NegativeResourceAmount'; readonly amount: number }
   | { readonly kind: 'NegativeResourceRate'; readonly ratePerHour: number }
   | {
