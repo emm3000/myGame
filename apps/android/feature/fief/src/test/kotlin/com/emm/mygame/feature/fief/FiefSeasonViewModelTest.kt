@@ -72,7 +72,8 @@ class FiefSeasonViewModelTest {
             awaitContent()
             advanceTimeBy(1.minutes)
             runCurrent()
-            assertEquals(501L, awaitContentWhere { it.resources.single().amount == 501L }.resources.single().amount)
+            val atSeasonEnd: FiefUiState.Content = awaitContentWhere { it.resources.single().amount == 501L }
+            assertEquals(3600L, atSeasonEnd.resources.single().ratePerHour)
             advanceTimeBy(1.minutes)
             runCurrent()
             assertEquals(561L, awaitContent().resources.single().amount)
