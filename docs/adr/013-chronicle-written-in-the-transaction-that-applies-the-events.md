@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-28
 ---
 # The chronicle is written in the transaction that applies the events
@@ -217,3 +217,7 @@ adds both to `fief_event_kind` and extends `fief_events_founding_name`
 to cover them. Nothing else here changes: the events are still written
 in the transaction that applies them, the domain never reads the
 chronicle, each fief has its own, and retention stays at 100.
+
+## Sixth amendment (2026-11-04)
+
+ADR 035 renames the chronicle **Town News** and writes each event as English graded to the player's curriculum stage. The rule of this ADR stands: events are written in the same transaction that applies them, and the domain never reads them. The founding and transport events go with the second fief and the transport (ADRs 023 and 024, superseded); the battle event goes with the attack (ADR 020, superseded). Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

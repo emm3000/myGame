@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-29
 ---
 # Units are recruited in a barracks slot and occupy peasants
@@ -487,3 +487,7 @@ recruit events hold an archer in the columns above. The army section
 draws four cards, the archer's third, locked below barracks 2, and the
 settler's fourth, where the fourth amendment drew it third. Nothing
 else here changes.
+
+## Sixth amendment (2026-11-04)
+
+ADR 035 renames the barracks the **office** and the recruit order **hiring**; infantry and cavalry become **workers** and **trucks**, and archers and the settler are cut. The slot, the order, its deliveries on read, its cancel and the occupancy of people stay. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

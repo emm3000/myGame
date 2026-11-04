@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-28
 ---
 # Arts are studied in a study slot of their own on the library
@@ -110,3 +110,7 @@ two defaults at the ticketing (#106); this ADR records both, after PRs #115 to
   `now`, mutate, save), four copies awaiting one shared opening.
 - A study queue, an art that shortens a build, and arts for wood, food or
   gold are open questions of `docs/lore/arts.md`, each a future ADR.
+
+## Amendment (2026-11-04)
+
+ADR 035 rebuilds the library as the **school**, the study slot as the **lesson slot** and the arts as **skills**. A lesson brings in a set of new words, and the school's built level caps how many are in learning at once. A skill level is earned when every word of its lesson is retained past a stability threshold, never bought by a study, and still multiplies one resource's rate by the content's percent. The threshold, the grading and what a lesson costs are ADR 036's. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-28
 ---
 # Account tokens are single-use digests issued and redeemed under the player's lock
@@ -204,3 +204,7 @@ relay it reaches in production, Brevo, is ADR 026's. The Context cited the
 row correctly, for email and password as the only sign-in; that citation
 was dropped only so that one line of this ADR names the row, the
 out-of-scope line. Nothing else here changes.
+
+## Second amendment (2026-11-04)
+
+ADR 035 makes the mail copy per language: the verify and reset mails follow the player's scaffold language, settled by ADR 038 with the rest of the copy. The tokens, their digests and the player lock are unchanged. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

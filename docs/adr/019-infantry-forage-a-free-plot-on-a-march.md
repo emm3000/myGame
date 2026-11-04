@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-29
 ---
 # Infantry forage a free plot on a march
@@ -634,3 +634,7 @@ maxStayHours }`, answered 409, and both Spanish lines build *de 1 a
 stay of any order with `InvalidMarchStay { stayHours }`, answered 500 with
 an empty body, never `StayOutOfRange` (#650, ADR 023 third amendment).
 Nothing else here changes.
+
+## Eighth amendment (2026-11-04)
+
+ADR 035 rebuilds the forage march as a **job**: a team works at a free site for whole hours and comes back with **pay** in what the terrain gives. The timed trip fixed at dispatch, the phases derived on read and the recall, named *call back*, stay. A job is posted as a short English notice, a reading task. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR 035
 date: 2026-10-05
 ---
 # Transport between a lord's fiefs

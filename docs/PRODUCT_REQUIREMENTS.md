@@ -1,6 +1,6 @@
 # Product requirements
 
-A persistent browser game in a medieval setting on OGame's loop: a fief produces resources over time; the player spends them on buildings that produce more. Server-authoritative, resource-lean, Spanish UI addressed as tú. Terms: `CONTEXT.md`. World: `docs/lore/`.
+Townword, a persistent browser game for learning American English on OGame's loop: a town produces resources over time; the player spends them on buildings that produce more, and the words the player retains earn the skills that raise production. Server-authoritative, resource-lean, English as the target with a scaffold language the player picks (ADR 035). The M and S rows below describe the shipped medieval game, which the code still is; the town rebuild's tickets rewrite them by row id. Terms: `CONTEXT.md`. Setting: `docs/setting/` once it exists, `docs/lore/` until then (ADR 035).
 
 ## Must have (MVP)
 
@@ -45,10 +45,10 @@ A persistent browser game in a medieval setting on OGame's loop: a fief produces
 
 | Id | Requirement | Reason |
 |---|---|---|
-| W1 | Armies, marches, combat. ADR 018 admits recruiting units in a barracks slot (S10), ADR 019 forage marches to a free plot (S13), ADR 020 attacks on bandit camps (S15), ADR 021 a second unit kind, cavalry (S16), and ADR 025 archers (S20); rams, armies, PvP, scouting and marches that meet another lord stay out. | A second game system; comes after the economy is fun on its own. |
+| W1 | Armies, marches, combat. ADR 035 re-cuts this row: hiring workers and trucks at the office (S10, S16), jobs at a free site (S13) and clean-ups of waste sites with no battle and no losses (S15) are in; attacks, battles and archers (S20) are cut; armies, PvP, scouting and trips that meet another mayor stay out. | A second game system; comes after the economy is fun on its own. |
 | W2 | Houses, messaging, diplomacy | Needs players. |
 | W3 | Trade or market | Needs more than one player and the gold economy tuned. |
-| W4 | New land. ADR 023 admits a second fief, founded by a settler (S18), and ADR 024 transport between a lord's fiefs (S19); more than two fiefs stay out. | Multiplies every screen; after the first fief is complete. |
+| W4 | New land. ADR 035 re-cuts this row: a player holds one town, which grows into a city; the second fief, the settler (S18) and the transport between holdings (S19) are cut. | Multiplies every screen; after the first fief is complete. |
 | W5 | Real-money purchases | Free game. |
 | W6 | Native mobile clients. ADR 034 admits a native client per platform beside the web: Jetpack Compose on Android first, then SwiftUI on iOS and macOS; Windows, Linux, a store listing before parity, push notifications and offline play stay out. | The web is responsive; a native client is a separate product. |
 | W7 | Background job runner or scheduler | ADR 005; a job is admitted only with a measurement. |
@@ -66,8 +66,8 @@ ADRs amend this table by row id.
 | N2 | Resource-lean: the api idles at zero CPU with no requests; a fief read is one round trip to the store; no process advances state on a timer. |
 | N3 | A fief read answers in under 100 ms on the reference host, the production api function on Vercel with its Neon database (ADR 031), excluding network. |
 | N4 | Every mutation on a fief is one transaction; two concurrent mutations serialize. |
-| N5 | Content (buildings, costs, durations) is data the domain reads, changeable without a code deploy; display names are copy under N6 (ADR 010). |
-| N6 | UI copy is Spanish, tú, and lives in one copy layer; identifiers are English. |
+| N5 | Content (buildings, costs, durations, and the learning content: words, lessons, texts and glosses) is data the domain reads, changeable without a code deploy; learning texts are generated offline and committed behind a coverage gate, never generated at runtime (ADR 035, ADR 037). |
+| N6 | Every player-facing text is American English, the target; the player's scaffold language, `es` or none at launch, glosses it and fades per word as each word is retained. Spanish scaffold copy addresses the reader as tú, never vos. Copy lives in one message catalog per language (ADR 038); until those ship, the shipped copy is Spanish in one layer per client. Identifiers are English (ADR 035). |
 | N7 | Every image ships with the prompt that produced it and complies with the art bible. |
 | N8 | Every signed-in screen meets WCAG 2.2 AA (ADR 027). |
 

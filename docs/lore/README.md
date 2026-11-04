@@ -1,5 +1,7 @@
 # Lore
 
+> **Status: superseded by ADR 035.** Townword moves the game to a present-day town, and `docs/setting/` will replace this directory. Until it does, these pages still name what the shipped medieval game shows.
+
 The world of the game, as a living document. Everything a player reads or sees is named here first.
 
 ## Structure

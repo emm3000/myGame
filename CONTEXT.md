@@ -1,6 +1,8 @@
 # CONTEXT.md
 
-Glossary of the game's domain. One line per term, the term as code and docs use it, and the OGame concept it replaces where one exists. Names a player sees come from `docs/lore/` first and enter here second; their Spanish labels are in `docs/lore/names.md`. Decisions behind the terms: `docs/adr/`.
+Glossary of the game's domain. One line per term, the term as code and docs use it, and the OGame concept it replaces where one exists. Names a player sees come from `docs/setting/` once it exists and from `docs/lore/` until then, and enter here second; the shipped Spanish labels are in `docs/lore/names.md`. Decisions behind the terms: `docs/adr/`.
+
+ADR 035 moves the game from medieval Vadoalto to Townword, a present-day town, and supersedes the medieval terms below. The code still uses them, so their entries stand until the town rebuild's tickets rename them; *Superseded by ADR 035* records each mapping, and *Learning* holds the new terms.
 
 ## Holdings
 
@@ -91,6 +93,46 @@ Glossary of the game's domain. One line per term, the term as code and docs use 
 - **Season** — one of spring, summer, autumn, winter, in force over the whole world at once for a fixed number of days set by the content's calendar, from its start, included, to the instant it ends, excluded. Each season scales every resource's rate by a whole percent from content, applied last (winter lowers food, spring raises it, autumn raises gold), and scales build, study and train durations and the road of a march by a build, a study, a train and a road percent from content, fixed at the enqueue, the study start, the recruit order or the dispatch (summer shortens building, winter shortens study, spring shortens training, autumn shortens the road); its resource percents also scale each resource of a forage loot, fixed at dispatch; there is no season before the calendar's epoch, and every percent reads 100 until then (ADR 016, ADR 017 as amended, ADR 022).
 - **Year** — four seasons, counted from the first spring at the calendar's epoch: *año 1* is the first. There is no named calendar and no era (ADR 016).
 
+## Learning
+
+- **Word** — one NGSL 1.2 lemma the curriculum teaches, with its rank, its example frames and one gloss per scaffold language. A game noun outside the curriculum's core, such as *mayor*, *storage* or *truck*, is taught as a word and never counted toward progress (ADR 035).
+- **Lesson** — a set of new words grouped by a theme, never by a semantic set, brought in through the school's lesson slot; the school's built level caps how many words are in learning at once (ADR 035).
+- **Card** — one player's memory of one word: its stability, its difficulty and the instant and result of its last review. What it can recall now and when it falls due are derived on read, never advanced by a process (ADR 035).
+- **Review** — one answer to a due card, graded by the server and recorded in the review log; it updates the card and pays nothing. Only a due card is reviewed (ADR 035).
+- **Stability** — the days a card holds before its chance of recall falls to the desired retention. A skill level is earned when every word of its lesson passes the stability threshold, and is never taken back (ADR 035).
+- **Skill** — what the town knows at a level, earned by retention and never bought; each level multiplies one resource rate by the content's percent. Replaces *art* (ADR 035).
+- **Scaffold language** — the language a player picks to gloss the English: `es` or `none` at launch. Its gloss of a word fades as that word is retained. English is always the target, never a scaffold (ADR 035).
+- **Holdout** — the random 10 % of each band's words withheld from a player's practice and tested in the external check, so practised against withheld is a comparison within one player (ADR 035).
+
+## Superseded by ADR 035
+
+Each medieval term, then the town term that replaces it. *Cut* means the thing goes with no successor.
+
+| Medieval | Town |
+|---|---|
+| fief | town, labelled city past a people count |
+| lord | mayor |
+| wood, stone, iron | material |
+| gold | money, from tax |
+| food | food |
+| peasants | people, supplied by homes |
+| sawmill, quarry, iron mine | factory, power station |
+| warehouse | storage |
+| library, study, study slot, art | school, lesson, lesson slot, skill |
+| smithing, masonry | skills, renamed in content |
+| barracks, recruit order, recruit slot | office, hiring, the office's slot |
+| infantry, cavalry | workers, trucks |
+| archer, settler, new land, founding, transport, cargo | cut |
+| march, forage, loot, recall | job, work at a site, pay, call back |
+| camp, tier, attack | waste site, size, clean-up |
+| battle, loss order | cut: a clean-up loses nobody |
+| kingdom, province, plot | region, area, site |
+| lowlands, uplands, ridges | fields, river, hills |
+| autumn | fall |
+| chronicle | Town News |
+| digest | the Report |
+| hint | tip |
+
 ## Avoided words
 
-`planet`, `colony` (say new land, or a second fief), `colonist`, `colony ship` (say settler), `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `shipyard`, `troops`, `soldier` (say unit), `train queue` (the recruit slot has no queue), `mission`, `expedition`, `raid` (say attack for a march on a camp, march otherwise; no march meets another lord), `plunder` (say loot), `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle), `confirmed email` (say verified email), `recovery` (say reset).
+`planet`, `colony` (say new land, or a second fief), `colonist`, `colony ship` (say settler), `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `shipyard`, `troops`, `soldier` (say unit), `train queue` (the recruit slot has no queue), `mission`, `expedition`, `raid` (say attack for a march on a camp, march otherwise; no march meets another lord), `plunder` (say loot), `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle), `confirmed email` (say verified email), `recovery` (say reset), `flashcard`, `deck` (say card), `quiz` (say review), `native language`, `L1` (say scaffold language), `XP`, `streak` (retention is the progress; ADR 028 refuses streaks).

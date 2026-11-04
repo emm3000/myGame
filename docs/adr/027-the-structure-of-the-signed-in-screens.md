@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-10-06
 ---
 # The structure of the signed-in screens
@@ -587,3 +587,7 @@ slice (Decision 1), recorded by ADR 029.
   snapshot, daily quests or streaks, a tutorial or a modal, goal kinds
   other than a building level, and any change to a game rule, a formula
   or content other than `goals` and `digest`.
+
+## Amendment (2026-11-04)
+
+ADR 035 replaces the digest with **the Report**: the reviews due first, then the news since the last visit. The fief switcher goes with the second fief (ADR 023, superseded), and the strip's march cell becomes the job cell. The bar, the strip, the repaint rule, the goals and the hints stay; a hint is a *tip* on screen. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

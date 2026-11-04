@@ -1,5 +1,5 @@
 ---
-status: amended by ADR 034
+status: superseded by ADR 035
 date: 2026-10-10
 ---
 # Art in the first viewport

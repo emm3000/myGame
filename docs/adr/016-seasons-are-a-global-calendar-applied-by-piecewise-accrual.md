@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-29
 ---
 # Seasons are a global calendar applied by piecewise accrual
@@ -207,3 +207,7 @@ waits or runs; the wire's `season` gains `durationPercent { build, study }`
 and stays `null` before the epoch. Summer is no longer the neutral season.
 Nothing else here changes: the rates still accrue piecewise, and no
 duration follows the season while the work runs.
+
+## Second amendment (2026-11-04)
+
+ADR 035 keeps the global lazy calendar and its piecewise accrual. Autumn is named **fall**, the American word, glossed until retained, with *autumn* a later synonym. The season percents are re-themed in content for the town's four resources: material, power, money and food. No season-only reward (W10). Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

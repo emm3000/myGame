@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-28
 ---
 # The kingdom map reads one province, bounded one past the last held
@@ -197,3 +197,7 @@ the second amendment added a fourth. Nothing else
 here changes: one province at a time, bounded by `lastProvince`, the
 terrain derived from the province number, the reader lock-free, reading
 no stock and resolving nothing, and only kingdom 1.
+
+## Fourth amendment (2026-11-04)
+
+ADR 035 renames the kingdom map's address `region:area:site` and its terrains fields, river and hills. One area at a time, bounded one past the last held, stays. The founding and transport orders go with ADRs 023 and 024; the attack becomes a clean-up of a waste site (ADR 035). Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

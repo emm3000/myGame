@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR 035
 date: 2026-10-02
 ---
 # A second fief founded by a settler
