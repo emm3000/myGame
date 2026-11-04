@@ -22,6 +22,7 @@ export type LiveFiefState =
 export interface LiveFiefHandle {
   readonly state: LiveFiefState
   readonly adopt: (overview: FiefOverview) => void
+  readonly reread: () => void
 }
 
 interface LastRead {
@@ -147,14 +148,18 @@ export function useLiveFief(
   }, [read])
   useRereadPolicy(lastRead, read)
   const nowMs = useDisplayClock(lastRead)
+  const reread = useCallback((): void => {
+    void read()
+  }, [read])
 
   if (lastRead !== undefined) {
     const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, nowMs)
     const fief = liveFiefAt(lastRead.overview, elapsedSeconds)
-    return { state: { kind: 'live', fief }, adopt }
+    return { state: { kind: 'live', fief }, adopt, reread }
   }
   return {
     state: refusal === undefined ? { kind: 'loading' } : { kind: 'refused', refusal },
     adopt,
+    reread,
   }
 }

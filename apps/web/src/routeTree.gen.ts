@@ -20,6 +20,7 @@ import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
 import { Route as SignedInFeudoFiefIdRouteImport } from './routes/_signedIn/feudo.$fiefId'
 import { Route as SignedInFeudoFiefIdIndexRouteImport } from './routes/_signedIn/feudo.$fiefId/index'
 import { Route as SignedInFeudoFiefIdCronicaRouteImport } from './routes/_signedIn/feudo.$fiefId/cronica'
+import { Route as SignedInFeudoFiefIdRepasoRouteImport } from './routes/_signedIn/feudo.$fiefId/repaso'
 import { Route as SignedInFeudoFiefIdMapaIndexRouteImport } from './routes/_signedIn/feudo.$fiefId/mapa.index'
 import { Route as SignedInFeudoFiefIdMapaProvinceRouteImport } from './routes/_signedIn/feudo.$fiefId/mapa.$province'
 
@@ -78,6 +79,12 @@ const SignedInFeudoFiefIdCronicaRoute =
     path: '/cronica',
     getParentRoute: () => SignedInFeudoFiefIdRoute,
   } as any)
+const SignedInFeudoFiefIdRepasoRoute =
+  SignedInFeudoFiefIdRepasoRouteImport.update({
+    id: '/repaso',
+    path: '/repaso',
+    getParentRoute: () => SignedInFeudoFiefIdRoute,
+  } as any)
 const SignedInFeudoFiefIdMapaIndexRoute =
   SignedInFeudoFiefIdMapaIndexRouteImport.update({
     id: '/mapa/',
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof GuestSignUpRoute
   '/feudo/$fiefId': typeof SignedInFeudoFiefIdRouteWithChildren
   '/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
+  '/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/feudo/$fiefId/': typeof SignedInFeudoFiefIdIndexRoute
   '/feudo/$fiefId/mapa/$province': typeof SignedInFeudoFiefIdMapaProvinceRoute
   '/feudo/$fiefId/mapa/': typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
   '/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
+  '/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/feudo/$fiefId': typeof SignedInFeudoFiefIdIndexRoute
   '/feudo/$fiefId/mapa/$province': typeof SignedInFeudoFiefIdMapaProvinceRoute
   '/feudo/$fiefId/mapa': typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -128,6 +137,7 @@ export interface FileRoutesById {
   '/_signedIn/': typeof SignedInIndexRoute
   '/_signedIn/feudo/$fiefId': typeof SignedInFeudoFiefIdRouteWithChildren
   '/_signedIn/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
+  '/_signedIn/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/_signedIn/feudo/$fiefId/': typeof SignedInFeudoFiefIdIndexRoute
   '/_signedIn/feudo/$fiefId/mapa/$province': typeof SignedInFeudoFiefIdMapaProvinceRoute
   '/_signedIn/feudo/$fiefId/mapa/': typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/feudo/$fiefId'
     | '/feudo/$fiefId/cronica'
+    | '/feudo/$fiefId/repaso'
     | '/feudo/$fiefId/'
     | '/feudo/$fiefId/mapa/$province'
     | '/feudo/$fiefId/mapa/'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/feudo/$fiefId/cronica'
+    | '/feudo/$fiefId/repaso'
     | '/feudo/$fiefId'
     | '/feudo/$fiefId/mapa/$province'
     | '/feudo/$fiefId/mapa'
@@ -170,6 +182,7 @@ export interface FileRouteTypes {
     | '/_signedIn/'
     | '/_signedIn/feudo/$fiefId'
     | '/_signedIn/feudo/$fiefId/cronica'
+    | '/_signedIn/feudo/$fiefId/repaso'
     | '/_signedIn/feudo/$fiefId/'
     | '/_signedIn/feudo/$fiefId/mapa/$province'
     | '/_signedIn/feudo/$fiefId/mapa/'
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInFeudoFiefIdCronicaRouteImport
       parentRoute: typeof SignedInFeudoFiefIdRoute
     }
+    '/_signedIn/feudo/$fiefId/repaso': {
+      id: '/_signedIn/feudo/$fiefId/repaso'
+      path: '/repaso'
+      fullPath: '/feudo/$fiefId/repaso'
+      preLoaderRoute: typeof SignedInFeudoFiefIdRepasoRouteImport
+      parentRoute: typeof SignedInFeudoFiefIdRoute
+    }
     '/_signedIn/feudo/$fiefId/mapa/': {
       id: '/_signedIn/feudo/$fiefId/mapa/'
       path: '/mapa'
@@ -294,6 +314,7 @@ const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 
 interface SignedInFeudoFiefIdRouteChildren {
   SignedInFeudoFiefIdCronicaRoute: typeof SignedInFeudoFiefIdCronicaRoute
+  SignedInFeudoFiefIdRepasoRoute: typeof SignedInFeudoFiefIdRepasoRoute
   SignedInFeudoFiefIdIndexRoute: typeof SignedInFeudoFiefIdIndexRoute
   SignedInFeudoFiefIdMapaProvinceRoute: typeof SignedInFeudoFiefIdMapaProvinceRoute
   SignedInFeudoFiefIdMapaIndexRoute: typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -301,6 +322,7 @@ interface SignedInFeudoFiefIdRouteChildren {
 
 const SignedInFeudoFiefIdRouteChildren: SignedInFeudoFiefIdRouteChildren = {
   SignedInFeudoFiefIdCronicaRoute: SignedInFeudoFiefIdCronicaRoute,
+  SignedInFeudoFiefIdRepasoRoute: SignedInFeudoFiefIdRepasoRoute,
   SignedInFeudoFiefIdIndexRoute: SignedInFeudoFiefIdIndexRoute,
   SignedInFeudoFiefIdMapaProvinceRoute: SignedInFeudoFiefIdMapaProvinceRoute,
   SignedInFeudoFiefIdMapaIndexRoute: SignedInFeudoFiefIdMapaIndexRoute,

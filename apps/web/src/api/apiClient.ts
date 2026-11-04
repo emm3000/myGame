@@ -28,8 +28,14 @@ import {
   ProvinceMapSchema,
   type RecallMarchRequest,
   type ResetPasswordRequest,
+  type ReviewAnswer,
+  type ReviewAnswerRequest,
+  ReviewAnswerSchema,
+  type ReviewHint,
+  ReviewHintSchema,
   type SignInRequest,
   type SignUpRequest,
+  type StartLessonRequest,
   type StartStudyRequest,
   type VerifyEmailRequest,
 } from '@mygame/contracts'
@@ -71,6 +77,10 @@ export interface ApiClient {
     request: DispatchTransportRequest,
   ): Promise<ApiOutcome<FiefOverview>>
   recallMarch(fiefId: string, target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
+  startLesson(fiefId: string, lessonId: string): Promise<ApiOutcome<FiefOverview>>
+  cancelLesson(fiefId: string, lessonId: string): Promise<ApiOutcome<FiefOverview>>
+  reviewHint(fiefId: string, wordId: string): Promise<ApiOutcome<ReviewHint>>
+  answerReview(fiefId: string, answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
   chronicle(fiefId: string): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(fiefId: string, province?: number): Promise<ApiOutcome<ProvinceMap>>
   digest(): Promise<ApiOutcome<Digest>>
@@ -81,6 +91,11 @@ export interface ApiClient {
   resendVerification(): Promise<ApiRefusal | undefined>
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
   resetPassword(request: ResetPasswordRequest): Promise<ApiRefusal | undefined>
+}
+
+export interface AnsweredReview {
+  readonly wordId: string
+  readonly answer: string
 }
 
 const unexpected: ApiOutcome<never> = { ok: false, refusal: 'Unexpected' }
@@ -226,6 +241,32 @@ export const createApiClient = (baseUrl: string): ApiClient => {
         },
       )
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    startLesson: async (fiefId, lessonId) => {
+      const request: StartLessonRequest = { lessonId }
+      const response = await postJson(fiefPathOf(fiefId, '/lessons'), request)
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    cancelLesson: async (fiefId, lessonId) => {
+      const response = await send(fiefPathOf(fiefId, `/lessons/${encodeURIComponent(lessonId)}`), {
+        method: 'DELETE',
+      })
+      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    reviewHint: async (fiefId, wordId) => {
+      const response = await send(
+        fiefPathOf(fiefId, `/reviews/${encodeURIComponent(wordId)}/hint`),
+        { method: 'POST' },
+      )
+      return response === undefined ? unexpected : bodyOf(response, ReviewHintSchema)
+    },
+    answerReview: async (fiefId, { wordId, answer }) => {
+      const request: ReviewAnswerRequest = { answer }
+      const response = await postJson(
+        fiefPathOf(fiefId, `/reviews/${encodeURIComponent(wordId)}/answer`),
+        request,
+      )
+      return response === undefined ? unexpected : bodyOf(response, ReviewAnswerSchema)
     },
     chronicle: async (fiefId) => {
       const response = await send(fiefPathOf(fiefId, '/events'), { method: 'GET' })

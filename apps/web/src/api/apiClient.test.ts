@@ -145,3 +145,21 @@ it('answers a refused dismissal by its kind', async () => {
 
   expect(await createApiClient('/api').dismissGuidance(knownFief.id)).toBe('FiefNotFound')
 })
+
+it('posts the answer exactly as typed, spaces and case kept', async () => {
+  const fetch = answeringFetch(200, {
+    verdict: { kind: 'nearMiss' },
+    fief: knownFief,
+  })
+
+  const outcome = await createApiClient('/api').answerReview(knownFief.id, {
+    wordId: 'lesson-1-2',
+    answer: ' Scool ',
+  })
+
+  expect(outcome).toEqual({ ok: true, value: { verdict: { kind: 'nearMiss' }, fief: knownFief } })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe(`/api/fiefs/${knownFief.id}/reviews/lesson-1-2/answer`)
+  expect(init?.method).toBe('POST')
+  expect(init?.body).toBe('{"answer":" Scool "}')
+})
