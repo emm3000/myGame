@@ -4,4 +4,5 @@ import { MemoryPendingReviewRepository } from './MemoryPendingReviewRepository'
 pendingReviewRepositoryContract('MemoryPendingReviewRepository', async () => ({
   pendingReviews: new MemoryPendingReviewRepository(),
   registerPlayers: async () => {},
+  registerCards: async () => {},
 }))

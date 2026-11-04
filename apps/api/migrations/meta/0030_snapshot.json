@@ -1,5 +1,5 @@
 {
-  "id": "8579ef38-c081-4073-8477-e0dabab6fa3d",
+  "id": "8dac7c04-9ef9-4167-9b10-6da8f9bde59b",
   "prevId": "75af4dc3-7339-45f3-9f18-848640570c4c",
   "version": "7",
   "dialect": "postgresql",
@@ -1763,6 +1763,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pending_reviews_card_fk": {
+          "name": "pending_reviews_card_fk",
+          "tableFrom": "pending_reviews",
+          "tableTo": "cards",
+          "columnsFrom": [
+            "player_id",
+            "word_id"
+          ],
+          "columnsTo": [
+            "player_id",
+            "word_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"

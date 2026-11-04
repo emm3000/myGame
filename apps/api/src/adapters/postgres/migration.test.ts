@@ -39,6 +39,8 @@ const checkViolation = '23514'
 
 const notNullViolation = '23502'
 
+const foreignKeyViolation = '23503'
+
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
   if (!url) {
@@ -300,11 +302,10 @@ describe('the migrations', () => {
 
     await db.delete(players).where(eq(players.id, ana.id))
 
-    const owners = await Promise.all(
-      [cards, pendingReviews, reviewLog, playerSkills].map((table) =>
-        db.select({ playerId: table.playerId }).from(table),
-      ),
-    )
+    const owners: Array<ReadonlyArray<{ playerId: string }>> = []
+    for (const table of [cards, pendingReviews, reviewLog, playerSkills]) {
+      owners.push(await db.select({ playerId: table.playerId }).from(table))
+    }
     expect(owners).toEqual([
       [{ playerId: bruno.id }],
       [{ playerId: bruno.id }],
@@ -320,6 +321,26 @@ describe('the migrations', () => {
     await expect(db.insert(cards).values(enteredCardOf(ana.id))).rejects.toMatchObject({
       cause: { code: uniqueViolation, constraint: 'cards_pkey' },
     })
+  })
+
+  it('refuses a pending review of a word the player holds no card of', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(pendingReviews).values({ playerId: ana.id, wordId: 'school', hintShown: true }),
+    ).rejects.toMatchObject({
+      cause: { code: foreignKeyViolation, constraint: 'pending_reviews_card_fk' },
+    })
+  })
+
+  it("drops a card's pending review with the card", async () => {
+    await db.insert(players).values(ana)
+    await db.insert(cards).values(enteredCardOf(ana.id))
+    await db.insert(pendingReviews).values({ playerId: ana.id, wordId: 'school', hintShown: true })
+
+    await db.delete(cards)
+
+    expect(await db.select().from(pendingReviews)).toEqual([])
   })
 
   it('refuses a card in review that holds a learning step', async () => {

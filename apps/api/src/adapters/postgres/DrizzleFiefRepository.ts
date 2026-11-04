@@ -24,6 +24,7 @@ import {
   type StudySlot,
 } from '@mygame/domain'
 import { and, asc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
+import { byEarnedAt } from '../byEarnedAt'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
 import {
@@ -123,10 +124,6 @@ const unitCountsOf = (joinedRows: ReadonlyArray<JoinedRow>): StoredFief['units']
   }
   return counts
 }
-
-const byEarnedAt = (left: EarnedSkill, right: EarnedSkill): number =>
-  left.earnedAt.epochMilliseconds - right.earnedAt.epochMilliseconds ||
-  (left.lessonId < right.lessonId ? -1 : Number(left.lessonId > right.lessonId))
 
 const skillsOf = (joinedRows: ReadonlyArray<JoinedRow>): ReadonlyArray<EarnedSkill> => {
   const skillsByLesson = new Map<string, EarnedSkill>()
