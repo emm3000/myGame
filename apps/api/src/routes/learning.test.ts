@@ -329,7 +329,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'LessonLibraryTooLow',
-          message: 'La lección 1 necesita una biblioteca. Levántala primero.',
         },
       })
     })
@@ -345,7 +344,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'StudySlotBusy',
-          message: 'La biblioteca ya tiene un estudio en marcha. Espera a que termine.',
         },
       })
     })
@@ -357,7 +355,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'LessonUnderStudy',
-          message: 'La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.',
         },
       })
     })
@@ -370,7 +367,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'LessonAlreadyStudied',
-          message: 'Ya estudiaste la lección 1: sus palabras están en tu repaso.',
         },
       })
     })
@@ -427,7 +423,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'LessonStudyNotFound',
-          message: 'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
         },
       })
     })
@@ -653,8 +648,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'HintOnRecognition',
-          message:
-            'Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.',
         },
       })
     })
@@ -667,7 +660,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'ReviewNotDue',
-          message: 'Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.',
         },
       })
     })
@@ -738,7 +730,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'UnknownChoice',
-          message: 'Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.',
         },
       })
       expect(dueWordsOf((await readFief(lord)).reviews.due)).toContain(
@@ -753,7 +744,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'WordNotHeld',
-          message: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
         },
       })
     })
@@ -766,7 +756,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'UnknownWord',
-          message: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
         },
       })
     })
@@ -782,7 +771,6 @@ describe('the learning routes', () => {
         status: 409,
         body: {
           kind: 'ReviewNotDue',
-          message: 'Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.',
         },
       })
     })

@@ -225,11 +225,7 @@ export function useMapMarch(
     refusalLine:
       march.refused === undefined || overview === undefined
         ? undefined
-        : marchRefusalLineOf(
-            march.refused.refusal,
-            march.refused.message,
-            overview.forageTerms.maxStayHours,
-          ),
+        : marchRefusalLineOf(march.refused.refusal, march.refused.error),
     onEntriesChange: setEntries,
     onNameChange: setName,
     onSend,

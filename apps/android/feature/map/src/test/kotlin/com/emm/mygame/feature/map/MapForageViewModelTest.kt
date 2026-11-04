@@ -381,27 +381,30 @@ class MapForageViewModelTest {
     }
 
     @Test
-    fun `keeps the api's line for a party short at home beside the form`() = runTest {
+    fun `keeps a party short at home with the counts the api sent beside the form`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOn(fiefs)
         viewModel.onIntent(MapIntent.ForageToggled(7))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.NotEnoughUnitsAtHome, SHORT_AT_HOME_LINE))
+        fiefs.answerMarch(MarchResult.Refused(shortAtHome))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(SHORT_AT_HOME_LINE), form(viewModel).send)
+        assertEquals(MapUiState.SendStatus.Refused(shortAtHome), form(viewModel).send)
     }
 
     @Test
-    fun `keeps the api's line for a stay out of range beside the form`() = runTest {
+    fun `keeps a stay out of range with the longest stay the api sent beside the form`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOn(fiefs)
         viewModel.onIntent(MapIntent.ForageToggled(7))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.StayOutOfRange, STAY_OUT_OF_RANGE_LINE))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.StayOutOfRange(maxStayHours = 12)))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(STAY_OUT_OF_RANGE_LINE), form(viewModel).send)
+        assertEquals(
+            MapUiState.SendStatus.Refused(MarchRefusal.StayOutOfRange(maxStayHours = 12)),
+            form(viewModel).send,
+        )
     }
 
     @Test
@@ -409,7 +412,7 @@ class MapForageViewModelTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = openOn(fiefs)
         viewModel.onIntent(MapIntent.ForageToggled(7))
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.PlotReserved, PLOT_RESERVED_LINE))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.PlotReserved))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
@@ -461,9 +464,5 @@ class MapForageViewModelTest {
         .map { offer: MapUiState.PlotOffer -> offer.plot }
 }
 
-private const val SHORT_AT_HOME_LINE: String = "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha."
-
-private const val PLOT_RESERVED_LINE: String =
-    "Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra."
-
-private const val STAY_OUT_OF_RANGE_LINE: String = "Una marcha forrajea de 1 a 12 horas enteras. Ajusta las horas."
+private val shortAtHome: MarchRefusal =
+    MarchRefusal.NotEnoughUnitsAtHome(unit = UnitKind.Cavalry, count = 7, atHome = 6)

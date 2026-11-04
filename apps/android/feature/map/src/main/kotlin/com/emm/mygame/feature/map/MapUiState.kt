@@ -149,8 +149,6 @@ sealed interface MapUiState {
 
         data class Refused(val refusal: MarchRefusal) : SendStatus
 
-        data class RefusedWithApiLine(val line: String) : SendStatus
-
         data object Unreachable : SendStatus
     }
 

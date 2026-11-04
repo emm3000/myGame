@@ -106,7 +106,7 @@ class ChronicleRepositoryTest {
 
     @Test
     fun `answers unreachable when the api refuses the chronicle`() = runTest {
-        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+        api.enqueue(json(404, """{"kind":"FiefNotFound"}"""))
 
         assertEquals(ChronicleReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
     }

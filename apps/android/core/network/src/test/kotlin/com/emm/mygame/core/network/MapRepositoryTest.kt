@@ -146,7 +146,7 @@ class MapRepositoryTest {
     @Test
     fun `answers a province past the last one as not found`() = runTest {
         api.enqueue(json(200, text("fief-list.json")))
-        api.enqueue(json(404, """{"kind":"ProvinceNotFound","message":"Esa provincia no está en el mapa."}"""))
+        api.enqueue(json(404, """{"kind":"ProvinceNotFound"}"""))
 
         assertEquals(MapReadResult.ProvinceNotFound, repository().read(FiefId(LISTED_FIEF_ID), province = 99))
     }
@@ -154,7 +154,7 @@ class MapRepositoryTest {
     @Test
     fun `answers unreachable when the api refuses the fief`() = runTest {
         api.enqueue(json(200, text("fief-list.json")))
-        api.enqueue(json(404, """{"kind":"FiefNotFound","message":"No encontramos tus tierras."}"""))
+        api.enqueue(json(404, """{"kind":"FiefNotFound"}"""))
 
         assertEquals(MapReadResult.Unreachable, repository().readOwn(FiefId(LISTED_FIEF_ID)))
     }

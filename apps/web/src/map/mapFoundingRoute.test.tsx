@@ -209,7 +209,7 @@ it('reads the cap refusal', async () => {
     dispatchFounding: async () => ({
       ok: false,
       refusal: 'FiefCapReached',
-      message: 'Solo puedes tener 3 feudos. Deja al colono en casa.',
+      error: { kind: 'FiefCapReached', params: { cap: 3 } },
     }),
   })
 

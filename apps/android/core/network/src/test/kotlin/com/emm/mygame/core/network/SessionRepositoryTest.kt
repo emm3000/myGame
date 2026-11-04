@@ -559,7 +559,7 @@ class SessionRepositoryTest {
 
     private fun refusal(kind: String): MockResponse = json(401, refusalJson(kind))
 
-    private fun refusalJson(kind: String): String = """{"kind":"$kind","message":"La petición no vale."}"""
+    private fun refusalJson(kind: String): String = """{"kind":"$kind"}"""
 
     private fun playerJson(email: String): String =
         """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":true,"seenHints":[]}"""

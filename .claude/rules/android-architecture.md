@@ -61,7 +61,7 @@ The api's opaque session token travels as `Authorization: Bearer <token>`, added
 - State stores what the player chose (a building id), never the resolved object; the resolved object is a getter over the catalog the same state holds.
 - A visibility flag (a sheet, a dialog, a confirmation) lives in `UiState`. So does a refusal that stays beside the card that asked for it until the next read: it is state, not an `Effect`. `remember` holds only pure UI mechanics: scroll, focus, animation.
 - A ViewModel never switches dispatcher: no `withContext`, no `Dispatchers.`; `core:network` owns its threading.
-- A ViewModel never holds user-facing copy; it emits a typed value the screen resolves with `stringResource`. One exception: where the api builds a refusal's line from the refusal itself (the counts it carries, as `answerRefusal.ts` does), that line reaches `UiState` as a typed value carrying the api's text verbatim (`MapUiState.SendStatus.RefusedWithApiLine`), the one copy a ViewModel holds, as the web draws the api's `message` first.
+- A ViewModel never holds user-facing copy; it emits a typed value the screen resolves with `stringResource`. A refusal with fields reaches `UiState` as a typed value carrying the api's `params` (`MarchRefusal.StayOutOfRange(maxStayHours)`), and the screen renders its line from `strings.xml` (ADR 038).
 - A ViewModel is Compose-free. `./gradlew checkComposeFreeViewModels` fails any `*ViewModel.kt` or `*UiState.kt` importing `androidx.compose`; review also runs, expecting nothing:
 
 ```

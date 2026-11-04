@@ -1,41 +1,47 @@
 package com.emm.mygame.feature.map
 
 import android.content.res.Resources
+import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.UnitCount
 
 internal fun Resources.sendAnswerOf(send: MapUiState.SendStatus): String? = when (send) {
     is MapUiState.SendStatus.Refused -> refusalLineOf(send.refusal)
-    is MapUiState.SendStatus.RefusedWithApiLine -> send.line
     MapUiState.SendStatus.Unreachable -> getString(R.string.map_unreachable)
     MapUiState.SendStatus.Idle, MapUiState.SendStatus.Waiting -> null
 }
 
-internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = getString(
-    when (refusal) {
-        MarchRefusal.MarchSlotBusy -> R.string.refusal_march_slot_busy
-        MarchRefusal.MarchTargetOutOfBounds -> R.string.refusal_march_target_out_of_bounds
-        MarchRefusal.PlotHeld -> R.string.refusal_plot_held
-        MarchRefusal.PlotHasCamp -> R.string.refusal_plot_has_camp
-        MarchRefusal.PlotHasNoCamp -> R.string.refusal_plot_has_no_camp
-        MarchRefusal.PlotReserved -> R.string.refusal_plot_reserved
-        MarchRefusal.MarchToOwnPlot -> R.string.refusal_march_to_own_plot
-        MarchRefusal.UnitUnfitForOrder -> R.string.refusal_unit_unfit_for_order
-        MarchRefusal.BlankFiefName -> R.string.refusal_blank_fief_name
-        MarchRefusal.EmptyCargo -> R.string.refusal_empty_cargo
-        MarchRefusal.InsufficientResources -> R.string.map_refusal_insufficient_resources
-        MarchRefusal.FiefNotFound -> R.string.refusal_fief_not_found
-        MarchRefusal.NotEnoughUnitsAtHome,
-        MarchRefusal.StayOutOfRange,
-        MarchRefusal.FiefCapReached,
-        MarchRefusal.CargoAboveCarry,
-        MarchRefusal.MarchNotFound,
-        MarchRefusal.MarchAlreadyReturning,
-        MarchRefusal.Unrecognized,
-        -> R.string.map_unreachable
-    },
-)
+internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = when (refusal) {
+    is MarchRefusal.NotEnoughUnitsAtHome -> getString(
+        R.string.refusal_not_enough_units_at_home,
+        countedOf(UnitCount(refusal.unit, refusal.count)),
+        refusal.atHome,
+    )
+    is MarchRefusal.StayOutOfRange -> getString(R.string.refusal_stay_out_of_range, refusal.maxStayHours)
+    is MarchRefusal.FiefCapReached -> getString(R.string.refusal_fief_cap_reached, refusal.cap)
+    is MarchRefusal.CargoAboveCarry -> getString(
+        R.string.refusal_cargo_above_carry,
+        formatQuantity(refusal.cargo.toLong()),
+        formatQuantity(refusal.carry.toLong()),
+    )
+    MarchRefusal.MarchSlotBusy -> getString(R.string.refusal_march_slot_busy)
+    MarchRefusal.MarchTargetOutOfBounds -> getString(R.string.refusal_march_target_out_of_bounds)
+    MarchRefusal.PlotHeld -> getString(R.string.refusal_plot_held)
+    MarchRefusal.PlotHasCamp -> getString(R.string.refusal_plot_has_camp)
+    MarchRefusal.PlotHasNoCamp -> getString(R.string.refusal_plot_has_no_camp)
+    MarchRefusal.PlotReserved -> getString(R.string.refusal_plot_reserved)
+    MarchRefusal.MarchToOwnPlot -> getString(R.string.refusal_march_to_own_plot)
+    MarchRefusal.UnitUnfitForOrder -> getString(R.string.refusal_unit_unfit_for_order)
+    MarchRefusal.BlankFiefName -> getString(R.string.refusal_blank_fief_name)
+    MarchRefusal.EmptyCargo -> getString(R.string.refusal_empty_cargo)
+    MarchRefusal.InsufficientResources -> getString(R.string.map_refusal_insufficient_resources)
+    MarchRefusal.FiefNotFound -> getString(R.string.refusal_fief_not_found)
+    MarchRefusal.MarchNotFound,
+    MarchRefusal.MarchAlreadyReturning,
+    MarchRefusal.Unrecognized,
+    -> getString(R.string.map_unreachable)
+}
 
 internal fun Resources.sentLinesOf(sent: MapUiState.SentMarch): List<String> = when (sent) {
     is MapUiState.SentForage -> listOfNotNull(

@@ -22,7 +22,21 @@ describe('answerRefusal', () => {
     expect(response.status).toBe(409)
     expect(await response.json()).toStrictEqual({
       kind: 'StayOutOfRange',
-      message: 'Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.',
+      params: { maxStayHours: 8 },
     })
+  })
+
+  it('answers a kind without fields with the kind alone', async () => {
+    const response = await answerOf({ kind: 'EmailTaken' })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toStrictEqual({ kind: 'EmailTaken' })
+  })
+
+  it('answers a refusal the wire does not name with its status and an empty body', async () => {
+    const response = await answerOf({ kind: 'SignedOut' })
+
+    expect(response.status).toBe(401)
+    expect(await response.text()).toBe('')
   })
 })

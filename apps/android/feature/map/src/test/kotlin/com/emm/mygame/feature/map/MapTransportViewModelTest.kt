@@ -198,14 +198,17 @@ class MapTransportViewModelTest {
     }
 
     @Test
-    fun `keeps the api's line for a cargo above the carry beside the transport`() = runTest {
+    fun `keeps a cargo above the carry with the amounts the api sent beside the transport`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: MapViewModel = loading(cavalry = "5", wood = "300", fiefs = fiefs)
-        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.CargoAboveCarry, CARGO_ABOVE_CARRY_LINE))
+        fiefs.answerMarch(MarchResult.Refused(MarchRefusal.CargoAboveCarry(cargo = 721, carry = 720)))
 
         viewModel.onIntent(MapIntent.SendTapped)
 
-        assertEquals(MapUiState.SendStatus.RefusedWithApiLine(CARGO_ABOVE_CARRY_LINE), transportForm(viewModel).send)
+        assertEquals(
+            MapUiState.SendStatus.Refused(MarchRefusal.CargoAboveCarry(cargo = 721, carry = 720)),
+            transportForm(viewModel).send,
+        )
     }
 
     @Test
@@ -250,6 +253,3 @@ class MapTransportViewModelTest {
     private fun preview(viewModel: MapViewModel): MapUiState.TransportPreview =
         requireNotNull(transportForm(viewModel).preview)
 }
-
-private const val CARGO_ABOVE_CARRY_LINE: String =
-    "La carga suma 300 y tus hombres llevan hasta 168. Quita carga o envía más hombres."

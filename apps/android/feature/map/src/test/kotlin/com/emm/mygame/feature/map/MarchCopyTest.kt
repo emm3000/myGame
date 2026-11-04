@@ -290,12 +290,22 @@ class MarchCopyTest {
     }
 
     @Test
-    fun `draws the api's line for a party short at home`() {
+    fun `renders each refusal with params from its params`() {
         assertEquals(
-            "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha.",
-            resources.sendAnswerOf(
-                MapUiState.SendStatus.RefusedWithApiLine("Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha."),
+            listOf(
+                "Necesitas 7 jinetes en casa y tienes 6. Ajusta la marcha.",
+                "Necesitas 1 colono en casa y tienes 0. Ajusta la marcha.",
+                "Una marcha forrajea de 1 a 8 horas enteras. Ajusta las horas.",
+                "Solo puedes tener 2 feudos. Deja al colono en casa.",
+                "La carga suma 721 y tus hombres llevan hasta 720. Quita carga o envía más hombres.",
             ),
+            listOf(
+                MarchRefusal.NotEnoughUnitsAtHome(unit = UnitKind.Cavalry, count = 7, atHome = 6),
+                MarchRefusal.NotEnoughUnitsAtHome(unit = UnitKind.Settler, count = 1, atHome = 0),
+                MarchRefusal.StayOutOfRange(maxStayHours = 8),
+                MarchRefusal.FiefCapReached(cap = 2),
+                MarchRefusal.CargoAboveCarry(cargo = 721, carry = 720),
+            ).map { resources.sendAnswerOf(MapUiState.SendStatus.Refused(it)) },
         )
     }
 

@@ -1,11 +1,11 @@
-import type { FiefOverview } from '@mygame/contracts'
+import type { ApiError, FiefOverview } from '@mygame/contracts'
 import { useCallback, useRef, useState } from 'react'
 import type { ApiOutcome, ApiRefusal } from '../api/apiClient'
 
 export interface RefusedAction<Subject> {
   readonly subject: Subject
   readonly refusal: ApiRefusal
-  readonly message: string | undefined
+  readonly error: ApiError | undefined
 }
 
 export interface FiefAction<Subject> {
@@ -51,7 +51,7 @@ export function useFiefAction<Subject>(
         onAdopted?.()
         return
       }
-      setRefused({ subject, refusal: outcome.refusal, message: outcome.message, readAt })
+      setRefused({ subject, refusal: outcome.refusal, error: outcome.error, readAt })
     },
     [adopt, readAt],
   )
