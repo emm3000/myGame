@@ -182,7 +182,9 @@ word it means in the content, or the gate fails it.
    in `grammar.json` with its admitting lesson.
 2. **The order holds.** The chrome lessons first; after them, each
    lesson holds its band's lowest-ranked untaught card word and draws
-   the rest from that band's 30 lowest-ranked untaught card words.
+   the rest from that band's 30 lowest-ranked untaught card words; it
+   teaches 5 card words, except that a lesson starting with fewer than
+   10 of its band's card words untaught takes them all, 5 to 9.
 3. **The frame rule.** A frame holds its lemma once, in the lemma's own
    form, and the gapped frame is that frame with the lemma replaced by
    `____`. Every other token is a frame word admitted at or before the
@@ -216,14 +218,18 @@ word it means in the content, or the gate fails it.
 8. **After launch, item statistics.** A word whose Again rate or FSRS
    difficulty is an outlier in its band is listed for the owner from the
    review log (ADR 036, rule 8); it never changes a card.
+9. **The chrome's words.** Every card word of an English chrome message
+   in `packages/catalog` (ADR 038) is taught by a chrome lesson; fixed
+   copy, read before any lesson, is exempt.
 
 **What ships first**: checks 1, 2, 3 and 5 for `es`, in the lexicon
 ticket, with `grammar.json` in its first form (the frame words and
 their admitting lessons), before any lesson after lesson 1. Check 4
 ships with the first running text, check 6 with the inventory's
 structures, check 5 for `none` with that scaffold (ADR 038), and
-check 8 once players have reviews to measure. Check 7 holds from the
-first content pull request.
+check 8 once players have reviews to measure, and check 9 in the
+chrome-lessons ticket, against the English chrome the town rebuild has
+written by then. Check 7 holds from the first content pull request.
 
 **Lesson 1 fails the frame rule** as shipped, 4 frames of 5, and its
 frames are rewritten in the lexicon ticket. Its cards and review log are
@@ -289,6 +295,12 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   band failed; the chrome lessons are never placed out. Since a placed
   learner loses no skill and a beginner gains none, failing on purpose
   buys nothing.
+- **A placed-out word with no card is supported on tap only**, as a
+  word at 7 days of stability is (ADR 038): the placement showed the
+  learner reads it, at 29 of 30, and support shown beside a word the
+  learner knows is the redundant guidance expertise reversal warns of
+  (Kalyuga et al. 2003). Once the player studies its lesson, its card
+  rules it like any other.
 - **The result is stored**: per band, the score and the instant.
 
 ### The holdout
@@ -299,8 +311,9 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   teaches, drawn by the api's random source, never the domain's, and
   stored per player and word. It never changes after the draw; were
   950 of band 1's words eligible, 95 would be held out.
-- **A held-out word never enters as a card.** Its lesson enters four
-  cards for that player; its gloss is not among that player's
+- **A held-out word never enters as a card.** Its lesson enters only
+  its non-held-out words as that player's cards, since a 10 % draw can
+  put two or more held-out words in one lesson; its gloss is not among that player's
   recognition choices; and the lesson's skill waits on the words the
   player holds (ADR 036, rule 7, reads "every word of its lesson that
   the player holds" once the holdout ships).

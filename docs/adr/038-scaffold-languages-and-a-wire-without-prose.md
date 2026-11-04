@@ -71,7 +71,7 @@ L2 study gives the fade point.
 |---|---|---|
 | Recognition (ADR 036, rule 2) | the word and its frame; choices are the lesson's Spanish glosses | the word and its frame; choices are the lesson's English definitions |
 | Recall | the Spanish gloss and the gapped frame | the English definition and the gapped frame |
-| A word in game text, stability under 7 days or no card | marked, its gloss shown beside it on first sight | marked, its definition shown beside it on first sight |
+| A word in game text, stability under 7 days or no card (except a placed-out word, ADR 037, read as at 7 days) | marked, its gloss shown beside it on first sight | marked, its definition shown beside it on first sight |
 | Stability 7 days or more | the gloss on tap | the definition on tap |
 | Stability 30 days or more | the English definition on tap | the definition on tap |
 
@@ -112,7 +112,7 @@ L2 study gives the fade point.
   at 2026-11-10 09:00, when lesson 1 finishes, and to English at
   2026-11-23 09:10, when its skill is earned.
 - **The English chrome uses only words the chrome lessons teach**,
-  besides frame words: ADR 037's gate reads every English chrome
+  besides frame words: ADR 037's check 9 reads every English chrome
   message and fails a card word no chrome lesson teaches. Fixed copy is
   exempt, since it is read before any lesson (*password* is no NGSL
   word, and sign-in needs it).
