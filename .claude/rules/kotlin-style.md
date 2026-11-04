@@ -29,6 +29,9 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 - Extension functions over `object` holders and utility classes.
 - One public top-level type per `.kt` file, named after the file. Private helpers used only by that type may share it.
 - Every catch-all owes a `CancellationException` arm first: rethrow it, then catch `Exception`. `runCatching` and a bare `catch (e: Exception)` swallow cancellation, and a cancelled load overwrites the winner; a `Flow.catch` owes the arm too.
+- A function reference where it fits, `map(::toRow)` over `map { toRow(it) }`: a style preference, since no detekt rule checks it.
+- `return if (...) a else b` is the idiomatic two-way choice; Flat control flow in `principles.md` targets a statement `else` after a branch that already returned.
+- A composable tree too deep to read is flattened by extracting a named composable; composable nesting has no limit to satisfy.
 - Forbidden in production code: `!!`, `lateinit var`, `GlobalScope`, `runBlocking`, a dependency instantiated inside the class that uses it.
 
 ## Names
@@ -40,4 +43,4 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 
 ## detekt
 
-detekt with the Compose rules is the Android leg's linter. Its thresholds live only in `apps/android/config/detekt/detekt.yml`; this file never copies a number. When a function trips a complexity rule, the fix is shape, never a suppression: a guard clause instead of a nested `if`, a `when` instead of an `else if` chain, a named step instead of nested `let` / `also` / `apply` / `run`.
+detekt with the Compose rules is the Android leg's linter. Its thresholds live only in `apps/android/config/detekt/detekt.yml`; this file never copies a number. Guard clauses are the default shape of every function (Flat control flow in `principles.md`), and `ReturnCount` does not count them. When a function trips a complexity rule, the fix is shape, never a suppression: a guard clause instead of a nested `if`, a `when` instead of an `else if` chain, a named step instead of nested `let` / `also` / `apply` / `run`.

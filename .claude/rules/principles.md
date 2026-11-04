@@ -27,6 +27,17 @@ The simplest structure that passes the criteria and respects the layers. A plain
 
 Duplicate knowledge is a defect: a resource formula written twice diverges. Duplicate code that encodes different knowledge is fine: two mappers that look alike today and will not change together stay apart. Extract on the third occurrence, or on the first when the knowledge is a game rule.
 
+## Flat control flow
+
+A function reads top to bottom, its happy path at the lowest indentation.
+
+- **Guards first.** Each precondition, refusal and empty case leaves the function at the top; the happy path comes last.
+- **A branch that leaves stands alone.** After a branch that returns, throws, breaks or continues, the code that follows sits at the same indentation as the branch, outside any `else`.
+- **A two-way choice of a value is one expression.** A single ternary in TypeScript, `if (...) a else b` in Kotlin, on one line when it fits the line width, each operand a plain value. An `if` / `else` block whose branches only pick that value collapses into the expression; a choice among three or more values is a named step with guards, a lookup, or a `switch` / `when`.
+- **A closed union is matched exhaustively.** An exhaustive `switch` over `kind` in TypeScript, a `when` over a `sealed interface` in Kotlin, in place of an `if` chain over the same cases.
+- **A named step instead of nesting.** When a block grows a block inside it, the inner one becomes a function named for what it does, and the outer one calls it.
+- **Chains stay flat.** `async` / `await` in sequence over nested `.then()` callbacks; a `Result` passes through early returns or a pipeline of steps, one level deep.
+
 ## Rebuild, never adapt
 
 A structure that does not fit is replaced. No shims, no adapters over legacy, no `Legacy*` names, no feature flags to keep two paths alive.

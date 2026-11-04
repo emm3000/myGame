@@ -27,7 +27,8 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 - Named exports only. A file exports one primary thing whose name matches the file.
 - No default parameters that hide a dependency (a clock, an id generator, a repository). Dependencies are passed.
 - Pure functions in `packages/domain`; a function that reads a port is a use case and is named as one.
-- Early return over nested `if`. A function longer than about 30 lines or nested deeper than 3 levels is split.
+- Control flow follows Flat control flow in `principles.md`; `biome.json` enforces part of it, and a finding is fixed by shape, never by a `biome-ignore`. A function longer than about 30 lines is split.
+- A callback is a function reference, `rows.map(toRow)`, only when the callee takes exactly one parameter; otherwise it is an arrow, `rows.map((row) => toRow(row))`. `map` passes the index and the array too, so `['1', '2'].map(parseInt)` returns `[1, NaN]`.
 - Prefer `Result<T, E>` over exceptions across every boundary the domain touches. Exceptions are for programmer errors and are never caught for control flow.
 
 ## Modules
