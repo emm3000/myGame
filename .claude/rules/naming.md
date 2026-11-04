@@ -5,7 +5,7 @@ paths:
 ---
 # Naming
 
-English for every identifier, file, directory, branch, commit and doc. Spanish appears only in user-facing copy. A name is a sentence fragment a reader understands without opening the file. The per-language patterns live in `typescript-style.md` and `kotlin-style.md`.
+English for every identifier, file, directory, branch, commit and doc. Player-facing text is American English; a scaffold language appears only in its catalog and glosses (ADR 035). A name is a sentence fragment a reader understands without opening the file. The per-language patterns live in `typescript-style.md` and `kotlin-style.md`.
 
 ## Booleans and collections
 
@@ -15,7 +15,7 @@ English for every identifier, file, directory, branch, commit and doc. Spanish a
 
 ## Game content
 
-Names players see come from `docs/lore/` and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the Spanish label lives in each client's copy layer: `apps/web/src/copy.ts`, string resources on Android.
+Names players see come from `docs/setting/` (`docs/lore/` until it exists) and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the player-facing label lives in each client's copy layer: `apps/web/src/copy.ts`, string resources on Android.
 
 ## Rejected
 

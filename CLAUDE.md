@@ -4,9 +4,9 @@ Operating manifest for this repo. Loaded in every session.
 
 ## Mandatory state
 
-The product is a **server-authoritative** persistent browser game in a medieval setting, built on OGame's mechanics (ADR 003). The server is the only source of truth for every resource, queue and timer; the browser renders and asks. Resources accrue while the player is away by **lazy evaluation** (ADR 005): state is derived on read from stored timestamps and rates, never advanced by a background timer. The lore names the game Vadoalto (`docs/lore/world.md`); the repo, the packages and every identifier keep `myGame`.
+The product is **Townword**, a **server-authoritative** persistent browser game for learning American English, built on OGame's mechanics (ADR 035): a present-day town the player grows into a city, where the words the player retains earn the skills that raise production. The server is the only source of truth for every resource, queue, timer and review; the browser renders and asks. Resources and memory are derived by **lazy evaluation** (ADR 005): state is derived on read from stored timestamps and rates, never advanced by a background timer. The repo, the packages and every identifier keep `myGame`.
 
-No third-party users yet, but the author runs the game from day one, so a schema change is a migration and never a reset.
+No third-party users yet, but the author runs the game from day one, so a schema change is a migration and never a reset, with one signed exception: the one-time reset of the game state for the Townword pivot, accounts kept (ADR 035).
 
 ## Workspace
 
@@ -30,7 +30,7 @@ All four packages exist; each carries its own `CLAUDE.md`. Beside them, `apps/an
 
 ## Product
 
-One fief per player at first: wood, stone, iron, gold and food, peasants as the workforce, a build queue, five buildings, an account. Spanish UI addressed as tú. The Won't-have rows, the NFRs and the acceptance criterion: `docs/PRODUCT_REQUIREMENTS.md`. The lore is a living document under `docs/lore/`; game content names come from it (`docs/lore/README.md`).
+One town per player. Every player-facing text is American English; the player picks a scaffold language, `es` or `none` at launch, which fades per word. Until the town rebuild ships, the code is the medieval fief the PRD's M and S rows describe, with Spanish copy and `CONTEXT.md` recording both vocabularies. The Won't-have rows, the NFRs and the acceptance criterion: `docs/PRODUCT_REQUIREMENTS.md`. Game content names come from `docs/setting/` once it exists, and from `docs/lore/` until then (ADR 035).
 
 ## Non-negotiable rules
 
@@ -43,7 +43,7 @@ These bind on every change, including a new file created before any TypeScript h
 - **Lazy evaluation.** Resource amounts are computed from `(storedAmount, storedAt, rate, capacity, now)`. No cron, no `setInterval`, no worker advancing state.
 - **Rebuild, never adapt.** When existing code, config or structure does not fit the target architecture, replace it with a clean implementation. No shims, wrappers or compatibility patches over legacy.
 - **`pnpm gate` green** before every commit. Its definition is the `gate` script in the root `package.json`, never a prose copy.
-- **English for every identifier, file name, commit and doc; Spanish only in user-facing copy**, addressing the reader as tú, never vos.
+- **English for every identifier, file name, commit and doc. Player-facing text is American English; scaffold copy lives only in the scaffold language's catalog and glosses**, and Spanish scaffold copy addresses the reader as tú, never vos.
 - **Never add `Co-Authored-By`** from Claude, Anthropic or any AI assistant to a commit message; a hook blocks it. Conventional commits, linear history. Never push `trunk` without being asked, with one exception: the orchestrator pushes the docs-only commits that close a wave (the dispatch log) on its own.
 
 ## Detailed rules
@@ -126,7 +126,7 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 - `gh issue list --label ready-for-agent` — the committed work. No doc holds a work list.
 - `docs/PRODUCT_REQUIREMENTS.md` — the Won't-have rows (ADRs amend them by row id), the NFRs, the acceptance criterion. Read before scoping a feature.
-- `docs/lore/` — the world; read before naming anything a player sees. `docs/art/art-bible.md` before generating any image.
+- `docs/setting/` (`docs/lore/` until it exists, ADR 035) — the world; read before naming anything a player sees. `docs/art/art-bible.md` before generating any image.
 
 ### Domain docs
 
