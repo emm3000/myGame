@@ -25,8 +25,10 @@ library (§14). It leaves eight rules open, which the owner delegated on
 2026-11-04: the card's owner, the switch from recognition to recall,
 the recognition choices, what a typed answer accepts, the rating map,
 how lesson 1 uses the study slot, where the skill lives, and the review
-log's contents. Each rule below is stated in one line first, then
-pinned.
+log's contents. A ninth was left open between the design tree, whose
+§14 keeps Android out of the first slice, and the S39 tickets, which
+put it in; the owner delegated it too. Each rule below is stated in one
+line first, then pinned.
 
 The learner is an adult at A1 to A2, a Spanish speaker learning
 American English (§2.1). The evidence behind the scheduler is weaker
@@ -99,7 +101,7 @@ metric needs (§8.2), not for a claim of more learning.
 - **Only a due card is reviewed** (§1.2). A review of a card not yet
   due is refused and changes nothing; there is no extra practice.
 
-### The eight rules
+### The rules
 
 1. **The card belongs to the player, not the fief, and is written in
    the transaction that holds the player's fiefs.** One card per player
@@ -179,6 +181,13 @@ metric needs (§8.2), not for a claim of more learning.
    and after.** It is written in the review's transaction (rule 1,
    ADR 013), never updated and never pruned. The domain writes it
    through a port and never reads it, as with the chronicle.
+9. **The first slice ships on Android as well as on the web, the
+   Android screen after the web one, on the same api and contract.**
+   The slice is done when both draw lesson 1 and its reviews; this ADR
+   overrides decisions.md §14, which left Android out. The recall field
+   on Android turns autocorrect and auto-capitalization off, so the
+   keyboard never fixes a misspelling the server would have called a
+   near-miss, nor types a correct answer the player did not.
 
 ### Worked examples
 
@@ -272,6 +281,24 @@ pinned commit, with the parameters above and no fuzz.
 - **Easy inferred from a fast answer.** Rejected for rule 5: the server
   cannot time a review reliably, and a client-sent timing is a
   client-written score (N1).
+- **The first slice on the web only** (decisions.md §14, which lists
+  Android out of the slice and fourth in the order after it). Rejected
+  for rule 9. What the slice must prove is the learning loop and FSRS on
+  real use, and its evidence is the review log of reviews answered on
+  their due days. The owner plays on an Android phone (ADR 034's first
+  goal), so a review falling due on day 2 meets the owner on the phone;
+  a web-only slice either leaves it unanswered or moves the owner to a
+  desktop the game is not played on, and the log then measures the
+  detour, not the loop. The cost is one wave: the api, its grading and
+  the contract are the same, the client only draws what the api answers
+  (`.claude/rules/android-architecture.md`), and the price is a
+  regenerated OpenAPI client, one review screen in `feature:fief` and
+  the emulator verification row. ADR 034's parity rule owes that screen
+  anyway once the web ships the slice, so deferring it moves the cost
+  without saving it. The risk it carries, a phone keyboard that corrects
+  a typed answer before the server sees it, is closed by rule 9 itself.
+  Shipping Android first was not weighed further: the web screen is the
+  quicker check of the contract, and the Android one follows it.
 - **SM-2, fixed equal intervals, HLR** (§4.1). Rejected there: SM-2 is
   an unvalidated heuristic; equal intervals are defensible on Kim and
   Webb (2022) but blind to item difficulty; HLR is peer-reviewed but
@@ -310,6 +337,9 @@ pinned commit, with the parameters above and no fuzz.
   scaffold `none` are ADR 038's. The curriculum, lessons after lesson 1,
   the holdout and the content gate are ADR 037's, the gate's CI check
   included.
+- The slice owes the Android verification row of
+  `.claude/rules/verification.md` for its review screen, and its
+  OpenAPI client is regenerated from the review routes.
 - The PRD's acceptance criterion gains the review that falls due while
   the browser is closed when S39's slice ships (decisions.md §14.6).
 
