@@ -45,6 +45,7 @@ export const ApiErrorKindSchema = z.enum([
   'LessonStudyNotFound',
   'ReviewNotDue',
   'HintOnRecognition',
+  'UnknownChoice',
   'WordNotHeld',
   'UnknownWord',
 ])

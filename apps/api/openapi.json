@@ -106,6 +106,7 @@
               "LessonStudyNotFound",
               "ReviewNotDue",
               "HintOnRecognition",
+              "UnknownChoice",
               "WordNotHeld",
               "UnknownWord"
             ]
@@ -5616,7 +5617,7 @@
             }
           },
           "409": {
-            "description": "UnknownWord, WordNotHeld or ReviewNotDue.",
+            "description": "UnknownWord, WordNotHeld or ReviewNotDue, or UnknownChoice.",
             "content": {
               "application/json": {
                 "schema": {

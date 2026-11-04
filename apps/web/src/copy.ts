@@ -74,6 +74,7 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   HintOnRecognition:
     'Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.',
   WordNotHeld: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
+  UnknownChoice: 'Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.',
   UnknownWord: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
   Unexpected: unexpectedRefusal,
 }

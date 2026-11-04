@@ -11,7 +11,6 @@ import {
   type FiefBuildingLevels,
   type FiefId,
   type FiefRepository,
-  type HeldCard,
   type IncomingCargo,
   Instant,
   type March,
@@ -31,7 +30,10 @@ import { byEarnedAt } from '../byEarnedAt'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
+import { jsonAggregateOf } from './jsonAggregateOf'
 import {
+  art,
+  building,
   fiefArts,
   fiefBuildings,
   fiefIncomingCargo,
@@ -42,13 +44,11 @@ import {
   fiefUnits,
   playerSkills,
   resource,
+  unit,
 } from './schema'
 import {
   artKinds,
   buildingKinds,
-  type StoredArt,
-  type StoredBuilding,
-  type StoredUnit,
   storedArts,
   storedBuildings,
   storedUnits,
@@ -68,18 +68,80 @@ type IncomingCargoRow = typeof fiefIncomingCargo.$inferSelect
 
 type SkillRow = typeof playerSkills.$inferSelect
 
-type JoinedRow = {
-  readonly building: StoredBuilding | null
-  readonly level: number | null
-  readonly entry: EntryRow | null
-  readonly art: StoredArt | null
-  readonly artLevel: number | null
-  readonly unit: StoredUnit | null
-  readonly unitCount: number | null
+type FiefReadRow = {
+  readonly fief: FiefRow
   readonly recruitOrder: RecruitOrderRow | null
   readonly march: MarchRow | null
   readonly incomingCargo: IncomingCargoRow | null
+  readonly buildings: unknown
+  readonly entries: unknown
+  readonly arts: unknown
+  readonly units: unknown
+  readonly skills: unknown
+  readonly cards: unknown
 }
+
+const AggregatedBuildingsSchema = z.array(
+  z.strictObject({ building: z.enum(building.enumValues), level: z.number().int() }),
+)
+
+const AggregatedEntriesSchema = z.array(
+  z.strictObject({
+    building: z.enum(building.enumValues),
+    targetLevel: z.number().int(),
+    costWood: z.number(),
+    costStone: z.number(),
+    costIron: z.number(),
+    costGold: z.number(),
+    costFood: z.number(),
+    durationSeconds: z.number().int(),
+  }),
+)
+
+const AggregatedArtsSchema = z.array(
+  z.strictObject({ art: z.enum(art.enumValues), level: z.number().int() }),
+)
+
+const AggregatedUnitsSchema = z.array(
+  z.strictObject({ unit: z.enum(unit.enumValues), count: z.number().int() }),
+)
+
+const aggregatedBuildings = jsonAggregateOf(
+  fiefBuildings,
+  { building: fiefBuildings.building, level: fiefBuildings.level },
+  eq(fiefBuildings.fiefId, fiefs.id),
+  sql`${fiefBuildings.building}`,
+)
+
+const aggregatedEntries = jsonAggregateOf(
+  fiefQueueEntries,
+  {
+    building: fiefQueueEntries.building,
+    targetLevel: fiefQueueEntries.targetLevel,
+    costWood: fiefQueueEntries.costWood,
+    costStone: fiefQueueEntries.costStone,
+    costIron: fiefQueueEntries.costIron,
+    costGold: fiefQueueEntries.costGold,
+    costFood: fiefQueueEntries.costFood,
+    durationSeconds: fiefQueueEntries.durationSeconds,
+  },
+  eq(fiefQueueEntries.fiefId, fiefs.id),
+  sql`${fiefQueueEntries.position}`,
+)
+
+const aggregatedArts = jsonAggregateOf(
+  fiefArts,
+  { art: fiefArts.art, level: fiefArts.level },
+  eq(fiefArts.fiefId, fiefs.id),
+  sql`${fiefArts.art}`,
+)
+
+const aggregatedUnits = jsonAggregateOf(
+  fiefUnits,
+  { unit: fiefUnits.kind, count: fiefUnits.count },
+  eq(fiefUnits.fiefId, fiefs.id),
+  sql`${fiefUnits.kind}`,
+)
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
 
@@ -91,7 +153,7 @@ const instantOrNullOf = (date: Date | null): Instant | null =>
 const dateOrNullOf = (instant: Instant | null): Date | null =>
   instant === null ? null : dateOf(instant)
 
-const buildingLevelsOf = (builtRows: ReadonlyArray<JoinedRow>): FiefBuildingLevels => {
+const buildingLevelsOf = (aggregate: unknown): FiefBuildingLevels => {
   const levels = {
     sawmill: 0,
     quarry: 0,
@@ -101,30 +163,24 @@ const buildingLevelsOf = (builtRows: ReadonlyArray<JoinedRow>): FiefBuildingLeve
     library: 0,
     barracks: 0,
   }
-  for (const row of builtRows) {
-    if (row.building !== null && row.level !== null) {
-      levels[buildingKinds[row.building]] = row.level
-    }
+  for (const built of AggregatedBuildingsSchema.parse(aggregate)) {
+    levels[buildingKinds[built.building]] = built.level
   }
   return levels
 }
 
-const artLevelsOf = (joinedRows: ReadonlyArray<JoinedRow>): FiefArtLevels => {
+const artLevelsOf = (aggregate: unknown): FiefArtLevels => {
   const levels = { smithing: 0, masonry: 0 }
-  for (const row of joinedRows) {
-    if (row.art !== null && row.artLevel !== null) {
-      levels[artKinds[row.art]] = row.artLevel
-    }
+  for (const studied of AggregatedArtsSchema.parse(aggregate)) {
+    levels[artKinds[studied.art]] = studied.level
   }
   return levels
 }
 
-const unitCountsOf = (joinedRows: ReadonlyArray<JoinedRow>): StoredFief['units'] => {
+const unitCountsOf = (aggregate: unknown): StoredFief['units'] => {
   const counts = { ...byUnitKind(() => 0) }
-  for (const row of joinedRows) {
-    if (row.unit !== null && row.unitCount !== null) {
-      counts[unitKinds[row.unit]] = row.unitCount
-    }
+  for (const trained of AggregatedUnitsSchema.parse(aggregate)) {
+    counts[unitKinds[trained.unit]] = trained.count
   }
   return counts
 }
@@ -138,7 +194,17 @@ const AggregatedSkillsSchema = z.array(
   }),
 )
 
-const aggregatedSkills = sql<unknown>`(SELECT coalesce(json_agg(json_build_object('lessonId', ${playerSkills.lessonId}, 'resource', ${playerSkills.resource}, 'ratePercent', ${playerSkills.ratePercent}, 'earnedAt', ${playerSkills.earnedAt})), '[]'::json) FROM ${playerSkills} WHERE ${playerSkills.playerId} = ${fiefs.playerId})`
+const aggregatedSkills = jsonAggregateOf(
+  playerSkills,
+  {
+    lessonId: playerSkills.lessonId,
+    resource: playerSkills.resource,
+    ratePercent: playerSkills.ratePercent,
+    earnedAt: playerSkills.earnedAt,
+  },
+  eq(playerSkills.playerId, fiefs.playerId),
+  sql`${playerSkills.earnedAt}, ${playerSkills.lessonId} COLLATE "C"`,
+)
 
 const skillsOf = (aggregate: unknown): ReadonlyArray<EarnedSkill> =>
   AggregatedSkillsSchema.parse(aggregate)
@@ -420,28 +486,19 @@ const incomingCargoRowOf = (fief: Fief): IncomingCargoRow | undefined => {
   }
 }
 
-const buildQueueOf = (joinedRows: ReadonlyArray<JoinedRow>): BuildQueue => {
-  const entriesByPosition = new Map<number, EntryRow>()
-  for (const { entry } of joinedRows) {
-    if (entry !== null) {
-      entriesByPosition.set(entry.position, entry)
-    }
-  }
-  return [...entriesByPosition.values()]
-    .sort((left, right) => left.position - right.position)
-    .map((entry) => ({
-      building: buildingKinds[entry.building],
-      targetLevel: entry.targetLevel,
-      cost: {
-        wood: entry.costWood,
-        stone: entry.costStone,
-        iron: entry.costIron,
-        gold: entry.costGold,
-        food: entry.costFood,
-      },
-      durationSeconds: entry.durationSeconds,
-    }))
-}
+const buildQueueOf = (aggregate: unknown): BuildQueue =>
+  AggregatedEntriesSchema.parse(aggregate).map((entry) => ({
+    building: buildingKinds[entry.building],
+    targetLevel: entry.targetLevel,
+    cost: {
+      wood: entry.costWood,
+      stone: entry.costStone,
+      iron: entry.costIron,
+      gold: entry.costGold,
+      food: entry.costFood,
+    },
+    durationSeconds: entry.durationSeconds,
+  }))
 
 const entryRowsOf = (fief: Fief): ReadonlyArray<EntryRow> =>
   fief.buildQueue.map((entry, position) => ({
@@ -518,25 +575,28 @@ const studySlotOf = (row: FiefRow): StudySlot => {
   }
 }
 
-const storedFiefOf = (
-  row: FiefRow,
-  recruitOrder: RecruitOrderRow | null,
-  march: MarchRow | null,
-  incomingCargo: IncomingCargoRow | null,
-  joinedRows: ReadonlyArray<JoinedRow>,
-  skills: unknown,
-): StoredFief => ({
+const storedFiefOf = ({
+  fief: row,
+  recruitOrder,
+  march,
+  incomingCargo,
+  buildings,
+  entries,
+  arts,
+  units,
+  skills,
+}: FiefReadRow): StoredFief => ({
   id: row.id,
   playerId: row.playerId,
   name: row.name,
   address: { kingdom: row.kingdom, province: row.province, plot: row.plot },
   stocks: { wood: row.wood, stone: row.stone, iron: row.iron, gold: row.gold, food: row.food },
   storedAt: instantOf(row.storedAt),
-  buildingLevels: buildingLevelsOf(joinedRows),
-  artLevels: artLevelsOf(joinedRows),
-  units: unitCountsOf(joinedRows),
+  buildingLevels: buildingLevelsOf(buildings),
+  artLevels: artLevelsOf(arts),
+  units: unitCountsOf(units),
   slot: slotOf(row),
-  buildQueue: buildQueueOf(joinedRows),
+  buildQueue: buildQueueOf(entries),
   studySlot: studySlotOf(row),
   recruitOrder: recruitOrderOf(recruitOrder),
   march: marchOf(march),
@@ -722,74 +782,44 @@ export class DrizzleFiefRepository implements FiefRepository {
   }
 
   async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
-    const rows = await this.joinedRowsOf(fiefId, sql<unknown>`NULL`)
-    const [first] = rows
-    if (first === undefined) {
-      return ok(undefined)
-    }
-    return Fief.restore(
-      storedFiefOf(
-        first.fief,
-        first.recruitOrder,
-        first.march,
-        first.incomingCargo,
-        rows,
-        first.skills,
-      ),
-    )
+    const [row] = await this.fiefRowsOf(fiefId, sql<unknown>`NULL`)
+    return row === undefined ? ok(undefined) : Fief.restore(storedFiefOf(row))
   }
 
   async fiefWithCardsOf(fiefId: FiefId): Promise<Result<FiefWithCards | undefined, DomainError>> {
-    const rows = await this.joinedRowsOf(fiefId, aggregatedCardsOf(fiefs.playerId))
-    const [first] = rows
-    if (first === undefined) {
+    const [row] = await this.fiefRowsOf(fiefId, aggregatedCardsOf(fiefs.playerId))
+    if (row === undefined) {
       return ok(undefined)
     }
-    const fief = Fief.restore(
-      storedFiefOf(
-        first.fief,
-        first.recruitOrder,
-        first.march,
-        first.incomingCargo,
-        rows,
-        first.skills,
-      ),
-    )
+    const fief = Fief.restore(storedFiefOf(row))
     if (!fief.ok) {
       return fief
     }
-    const cards: Result<ReadonlyArray<HeldCard>, DomainError> = heldCardsOf(
-      first.cards,
-      first.fief.playerId,
-    )
+    const cards = heldCardsOf(row.cards, row.fief.playerId)
     if (!cards.ok) {
       return cards
     }
     return ok({ fief: fief.value, cards: cards.value })
   }
 
-  private async joinedRowsOf(fiefId: FiefId, cards: SQL<unknown>) {
+  private async fiefRowsOf(
+    fiefId: FiefId,
+    cards: SQL<unknown>,
+  ): Promise<ReadonlyArray<FiefReadRow>> {
     const query = this.database
       .select({
         fief: fiefs,
-        building: fiefBuildings.building,
-        level: fiefBuildings.level,
-        entry: fiefQueueEntries,
-        art: fiefArts.art,
-        artLevel: fiefArts.level,
-        unit: fiefUnits.kind,
-        unitCount: fiefUnits.count,
         recruitOrder: fiefRecruitOrders,
         march: fiefMarches,
         incomingCargo: fiefIncomingCargo,
+        buildings: aggregatedBuildings,
+        entries: aggregatedEntries,
+        arts: aggregatedArts,
+        units: aggregatedUnits,
         skills: aggregatedSkills,
         cards,
       })
       .from(fiefs)
-      .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
-      .leftJoin(fiefQueueEntries, eq(fiefQueueEntries.fiefId, fiefs.id))
-      .leftJoin(fiefArts, eq(fiefArts.fiefId, fiefs.id))
-      .leftJoin(fiefUnits, eq(fiefUnits.fiefId, fiefs.id))
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
       .leftJoin(fiefMarches, eq(fiefMarches.fiefId, fiefs.id))
       .leftJoin(fiefIncomingCargo, eq(fiefIncomingCargo.fiefId, fiefs.id))

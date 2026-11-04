@@ -107,6 +107,7 @@ const messages: Readonly<Record<SlotlessKind, string>> = {
   HintOnRecognition:
     'Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.',
   WordNotHeld: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
+  UnknownChoice: 'Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.',
   UnknownWord: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
 }
 
@@ -146,6 +147,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   WordNotHeld: { status: 409, kind: 'WordNotHeld' },
   ReviewNotDue: { status: 409, kind: 'ReviewNotDue' },
   HintOnRecognition: { status: 409, kind: 'HintOnRecognition' },
+  UnknownChoice: { status: 409, kind: 'UnknownChoice' },
   LessonNotFound: { status: 404 },
   LessonAlreadyStudied: { status: 409, kind: 'LessonAlreadyStudied' },
   LessonUnderStudy: { status: 409, kind: 'LessonUnderStudy' },

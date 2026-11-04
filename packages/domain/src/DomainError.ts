@@ -31,6 +31,7 @@ export type DomainError =
   | { readonly kind: 'WordNotHeld'; readonly wordId: WordId }
   | { readonly kind: 'ReviewNotDue'; readonly wordId: WordId; readonly dueAt: Instant }
   | { readonly kind: 'HintOnRecognition'; readonly wordId: WordId }
+  | { readonly kind: 'UnknownChoice'; readonly wordId: WordId }
   | { readonly kind: 'LessonNotFound'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonAlreadyStudied'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonUnderStudy'; readonly lessonId: LessonId }

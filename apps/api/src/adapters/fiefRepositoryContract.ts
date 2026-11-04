@@ -503,8 +503,10 @@ export const fiefRepositoryContract = (
       )
 
       const restored = await fiefs.fiefOf(developedFief.id)
+      const second = await fiefs.fiefOf('00000000-0000-4000-8000-00000000000e')
       assert(restored.ok && restored.value !== undefined)
       expect(restored.value.skills).toEqual([foodSkill, woodSkill, stoneSkill])
+      expect(second.ok && second.value?.skills).toEqual([foodSkill, woodSkill, stoneSkill])
       expect([
         restored.value.buildingLevels,
         restored.value.buildQueue,

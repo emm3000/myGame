@@ -287,19 +287,17 @@ describe('answerReview', () => {
     expect(answered.value).toMatchObject({ kind: 'rated', rating: 'again' })
   })
 
-  it('rates a recognition answered with the asked word id Again, since the answer is a choice id', async () => {
-    const { dependencies } = arrange(
-      [ownedBy('school', MemoryCard.entered(lessonFinish))],
-      lessonFinish,
-    )
+  it('refuses a recognition answer that is none of its choice ids, writing nothing', async () => {
+    const entered = MemoryCard.entered(lessonFinish)
+    const { cards, reviewLog, dependencies } = arrange([ownedBy('school', entered)], lessonFinish)
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'school', answer: 'school' },
       dependencies,
     )
 
-    assert(answered.ok)
-    expect(answered.value).toMatchObject({ kind: 'rated', rating: 'again' })
+    expect(answered).toEqual({ ok: false, error: { kind: 'UnknownChoice', wordId: 'school' } })
+    expect([heldCardOf(cards, 'school').card, reviewLog.entries()]).toEqual([entered, []])
   })
 
   it('appends one log entry holding the card before and after', async () => {

@@ -281,7 +281,7 @@ export const fiefDeclarations = {
           'The verdict the server graded and the fief at the review.',
           ReviewAnswerSchema.meta({ id: 'ReviewAnswer' }),
         ),
-        409: refusalResponse(`${reviewRefusals}.`),
+        409: refusalResponse(`${reviewRefusals}, or UnknownChoice.`),
       }),
     }),
   ),

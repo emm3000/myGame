@@ -10,8 +10,18 @@ import {
   ReviewHintSchema,
 } from '@mygame/contracts'
 import { type Clock, campOf, type FiefId, Instant } from '@mygame/domain'
-import { Client } from 'pg'
-import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { Client, Pool } from 'pg'
+import {
+  afterAll,
+  afterEach,
+  assert,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -85,6 +95,16 @@ const choiceIdOf = (recognition: DueReview, chosenWordId: string): string => {
   const choice = recognition.choices.find(({ gloss }) => gloss === glosses[chosenWordId])
   assert(choice !== undefined)
   return choice.choiceId
+}
+
+const statementTextOf = (query: unknown): string => {
+  if (typeof query === 'string') {
+    return query
+  }
+  if (typeof query === 'object' && query !== null && 'text' in query) {
+    return String(query.text)
+  }
+  return ''
 }
 
 const stringsIn = (value: unknown): ReadonlyArray<string> => {
@@ -553,6 +573,50 @@ describe('the learning routes', () => {
     })
   })
 
+  describe('the fief read', () => {
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('reads a developed fief and its five cards in one statement that answers one row', async () => {
+      const lord = await studyToTheFirstRecall()
+      await runSql('UPDATE fiefs SET wood = 900, stone = 900, iron = 900')
+      for (const building of ['sawmill', 'quarry', 'farm']) {
+        expect((await post(lord, '/upgrades', { building })).status).toBe(200)
+      }
+      await runSql(`INSERT INTO fief_units (fief_id, kind, count)
+        SELECT id, kind::unit, 1 FROM fiefs, unnest(ARRAY['infantry', 'cavalry']) AS kind`)
+      const rowCounts: Array<number> = []
+      const query = Pool.prototype.query
+      vi.spyOn(Pool.prototype, 'query').mockImplementation(function (
+        this: Pool,
+        ...parameters: Parameters<typeof query>
+      ) {
+        const result: unknown = Reflect.apply(query, this, parameters)
+        if (statementTextOf(parameters[0]).includes('from "fiefs"')) {
+          Promise.resolve(result).then(
+            (answered) => {
+              if (typeof answered === 'object' && answered !== null && 'rows' in answered) {
+                rowCounts.push(Array.isArray(answered.rows) ? answered.rows.length : -1)
+              }
+            },
+            () => undefined,
+          )
+        }
+        return result
+      })
+
+      const { reviews, queue, units } = await readFief(lord)
+
+      expect([rowCounts, reviews.due.length, queue.entries.length, units.infantry]).toEqual([
+        [1],
+        5,
+        2,
+        1,
+      ])
+    })
+  })
+
   describe('the hint route', () => {
     it('answers the first letter and the letter count of a due recall', async () => {
       const lord = await studyToTheFirstRecall()
@@ -664,13 +728,22 @@ describe('the learning routes', () => {
       })
     })
 
-    it('grades a recognition answered with its word id wrong', async () => {
+    it('refuses a recognition answer that is none of its choice ids and rates nothing', async () => {
       const lord = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
 
-      const { verdict } = await answered(lord, 'lesson-1-5', 'lesson-1-5')
+      const refusal = await refusalOf(await answer(lord, 'lesson-1-5', 'lesson-1-5'))
 
-      expect(verdict.kind).toBe('wrong')
+      expect(refusal).toEqual({
+        status: 409,
+        body: {
+          kind: 'UnknownChoice',
+          message: 'Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.',
+        },
+      })
+      expect(dueWordsOf((await readFief(lord)).reviews.due)).toContain(
+        `lesson-1-5 recognition ${lessonFinishesAt}`,
+      )
     })
 
     it('refuses a word the player holds no card of', async () => {
