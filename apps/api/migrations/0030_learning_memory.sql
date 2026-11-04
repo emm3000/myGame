@@ -75,6 +75,7 @@ ALTER TABLE "fief_events" ADD COLUMN "lesson_id" text;--> statement-breakpoint
 ALTER TABLE "fiefs" ADD COLUMN "study_lesson_id" text;--> statement-breakpoint
 ALTER TABLE "cards" ADD CONSTRAINT "cards_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pending_reviews" ADD CONSTRAINT "pending_reviews_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "pending_reviews" ADD CONSTRAINT "pending_reviews_card_fk" FOREIGN KEY ("player_id","word_id") REFERENCES "public"."cards"("player_id","word_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "player_skills" ADD CONSTRAINT "player_skills_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "review_log" ADD CONSTRAINT "review_log_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "review_log_player_order" ON "review_log" USING btree ("player_id","reviewed_at","id");--> statement-breakpoint

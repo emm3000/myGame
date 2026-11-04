@@ -38,7 +38,21 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
   }
 }
 
+const registerCards = async (playerId: string, wordIds: ReadonlyArray<string>): Promise<void> => {
+  for (const wordId of wordIds) {
+    await pool.query(
+      `INSERT INTO cards (player_id, word_id, state, step, entered_at)
+       VALUES ($1, $2, 'learning', 0, '2026-11-10T09:00:00Z')`,
+      [playerId, wordId],
+    )
+  }
+}
+
 pendingReviewRepositoryContract('DrizzlePendingReviewRepository', async () => {
   await emptyDatabase()
-  return { pendingReviews: new DrizzlePendingReviewRepository(drizzle(pool)), registerPlayers }
+  return {
+    pendingReviews: new DrizzlePendingReviewRepository(drizzle(pool)),
+    registerPlayers,
+    registerCards,
+  }
 })

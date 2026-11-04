@@ -5,6 +5,7 @@ import {
   boolean,
   check,
   doublePrecision,
+  foreignKey,
   index,
   integer,
   pgEnum,
@@ -529,6 +530,11 @@ export const pendingReviews = pgTable(
   },
   (table) => [
     primaryKey({ name: 'pending_reviews_pkey', columns: [table.playerId, table.wordId] }),
+    foreignKey({
+      name: 'pending_reviews_card_fk',
+      columns: [table.playerId, table.wordId],
+      foreignColumns: [cards.playerId, cards.wordId],
+    }).onDelete('cascade'),
   ],
 )
 

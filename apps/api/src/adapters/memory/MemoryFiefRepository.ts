@@ -13,6 +13,7 @@ import {
   type Result,
   type StoredFief,
 } from '@mygame/domain'
+import { byEarnedAt } from '../byEarnedAt'
 import { reservedPlotOf } from './reservedPlotOf'
 
 const sharesPlot = (left: Fief, right: Fief): boolean =>
@@ -111,14 +112,7 @@ export class MemoryFiefRepository implements FiefRepository {
     const earned = fief.skills.filter(
       (skill) => !kept.some(({ lessonId }) => lessonId === skill.lessonId),
     )
-    this.skills.set(
-      fief.playerId,
-      [...kept, ...earned].sort(
-        (left, right) =>
-          left.earnedAt.epochMilliseconds - right.earnedAt.epochMilliseconds ||
-          (left.lessonId < right.lessonId ? -1 : Number(left.lessonId > right.lessonId)),
-      ),
-    )
+    this.skills.set(fief.playerId, [...kept, ...earned].sort(byEarnedAt))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
