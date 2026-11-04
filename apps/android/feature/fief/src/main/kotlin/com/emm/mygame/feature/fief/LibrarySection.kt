@@ -31,16 +31,20 @@ import com.emm.mygame.core.network.StudyRefusal
 internal fun LibrarySection(
     library: FiefUiState.LibraryLine,
     onIntent: (FiefIntent) -> Unit,
+    onReviewOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isWaiting: Boolean = library.study == FiefUiState.StudyStatus.Waiting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         SectionTitle(text = stringResource(R.string.library_title))
-        Card {
-            when (val slot: FiefUiState.StudySlotLine = library.slot) {
-                FiefUiState.StudySlotLine.Idle -> IdleStudy()
-                is FiefUiState.StudySlotLine.Busy -> BusyStudy(slot = slot, isWaiting = isWaiting, onIntent = onIntent)
-            }
+        when (val slot: FiefUiState.StudySlotLine = library.slot) {
+            FiefUiState.StudySlotLine.Idle -> Card { IdleStudy() }
+            is FiefUiState.StudySlotLine.Busy ->
+                Card { BusyStudy(slot = slot, isWaiting = isWaiting, onIntent = onIntent) }
+            FiefUiState.StudySlotLine.Lesson -> Unit
+        }
+        library.lesson?.let { card: FiefUiState.LessonCard ->
+            LessonItem(card = card, isWaiting = isWaiting, onIntent = onIntent, onReviewOpen = onReviewOpen)
         }
         library.arts.forEach { card: FiefUiState.ArtCard ->
             ArtItem(card = card, isWaiting = isWaiting, onIntent = onIntent)
@@ -216,7 +220,7 @@ private fun artLevelOf(level: Int): String =
 
 @Composable
 private fun effectOf(card: FiefUiState.ArtCard): String {
-    val rate: String = stringResource(rateOf(card.resource), percentLabelOf(card.ratePercent))
+    val rate: String = stringResource(rateLineOf(card.resource), percentLabelOf(card.ratePercent))
     return when (val next: FiefUiState.NextArtLine? = card.next) {
         null -> stringResource(R.string.art_effect_at_max_level, rate)
         else -> stringResource(R.string.art_effect, rate, next.level, percentLabelOf(next.ratePercent))
@@ -237,7 +241,7 @@ private fun artNameOf(art: ArtKind): Int = when (art) {
     ArtKind.Masonry -> R.string.art_masonry
 }
 
-private fun rateOf(resource: ResourceKind): Int = when (resource) {
+internal fun rateLineOf(resource: ResourceKind): Int = when (resource) {
     ResourceKind.Wood -> R.string.art_rate_wood
     ResourceKind.Stone -> R.string.art_rate_stone
     ResourceKind.Iron -> R.string.art_rate_iron
@@ -251,5 +255,9 @@ private fun refusalOf(refusal: StudyRefusal): Int = when (refusal) {
     StudyRefusal.ArtMaxLevelReached -> R.string.refusal_art_max_level_reached
     StudyRefusal.StudyNotFound -> R.string.refusal_study_not_found
     StudyRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
+    StudyRefusal.LessonLibraryTooLow -> R.string.lesson_refusal_library_too_low
+    StudyRefusal.LessonAlreadyStudied -> R.string.lesson_refusal_already_studied
+    StudyRefusal.LessonUnderStudy -> R.string.lesson_refusal_under_study
+    StudyRefusal.LessonStudyNotFound -> R.string.refusal_study_not_found
     StudyRefusal.Unrecognized -> R.string.fief_unreachable
 }

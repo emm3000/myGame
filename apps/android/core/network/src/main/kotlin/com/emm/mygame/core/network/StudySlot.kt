@@ -12,4 +12,6 @@ sealed interface StudySlot {
         val finishesAt: Instant,
         val cost: List<ResourceCost>,
     ) : StudySlot
+
+    data class Lesson(val lesson: LessonId, val finishesAt: Instant) : StudySlot
 }

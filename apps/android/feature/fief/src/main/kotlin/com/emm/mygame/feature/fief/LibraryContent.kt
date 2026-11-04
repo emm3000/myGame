@@ -4,6 +4,7 @@ import com.emm.mygame.core.network.ArtState
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.BuildingState
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.LessonState
 import com.emm.mygame.core.network.NextArtLevel
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
@@ -22,11 +23,12 @@ internal fun FiefSnapshot.libraryAt(
     val context: StudyContext = StudyContext(
         amounts = amounts,
         libraryLevel = libraryLevel,
-        isStudyRunning = this.study is StudySlot.Busy,
+        isStudyRunning = this.study != StudySlot.Idle,
         readyTerms = readyTerms,
     )
     return FiefUiState.LibraryLine(
         slot = studySlotLineAt(readyTerms.now),
+        lesson = lessons.firstOrNull()?.cardAt(study = this.study, now = readyTerms.now),
         arts = arts.map { art: ArtState -> art.cardWith(context) },
         study = study,
     )
@@ -35,6 +37,7 @@ internal fun FiefSnapshot.libraryAt(
 internal fun FiefSnapshot.studyRemainingAt(now: Instant): Duration? = when (val current: StudySlot = study) {
     StudySlot.Idle -> null
     is StudySlot.Busy -> countdownTo(finishesAt = current.finishesAt, now = now)
+    is StudySlot.Lesson -> countdownTo(finishesAt = current.finishesAt, now = now)
 }
 
 private data class StudyContext(
@@ -56,7 +59,19 @@ private fun FiefSnapshot.studySlotLineAt(now: Instant): FiefUiState.StudySlotLin
             remaining = countdownTo(finishesAt = current.finishesAt, now = now),
             refund = refundOf(current),
         )
+        is StudySlot.Lesson -> FiefUiState.StudySlotLine.Lesson
     }
+
+private fun LessonState.cardAt(study: StudySlot, now: Instant): FiefUiState.LessonCard =
+    FiefUiState.LessonCard(lesson = id, theme = theme, line = lineAt(study, now))
+
+private fun LessonState.lineAt(study: StudySlot, now: Instant): FiefUiState.LessonLine {
+    if (study is StudySlot.Lesson && study.lesson == id) {
+        return FiefUiState.LessonLine.Busy(remaining = countdownTo(finishesAt = study.finishesAt, now = now))
+    }
+    if (isStudied) return FiefUiState.LessonLine.Done
+    return FiefUiState.LessonLine.Idle(wordCount = wordCount, isStudyRunning = study != StudySlot.Idle)
+}
 
 private fun refundOf(busy: StudySlot.Busy): List<ResourceCost> =
     busy.cost.filter { resource: ResourceCost -> resource.amount > 0 }

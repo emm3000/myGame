@@ -15,6 +15,7 @@ class DestinationTest {
             Destination.Fief(secondFief),
             Destination.Map(secondFief),
             Destination.Chronicle(secondFief),
+            Destination.Review(secondFief),
         )
 
         val restored: List<Destination> = signedIn.map { destination: Destination ->

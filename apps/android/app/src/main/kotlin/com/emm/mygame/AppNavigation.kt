@@ -34,8 +34,10 @@ import com.emm.mygame.core.designsystem.MyGameNavigationItem
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.feature.chronicle.ChronicleRoute
+import com.emm.mygame.feature.fief.FiefNavigation
 import com.emm.mygame.feature.fief.FiefRoute
 import com.emm.mygame.feature.fief.FirstFiefRoute
+import com.emm.mygame.feature.fief.ReviewRoute
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
@@ -91,6 +93,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                     MapRoute(fief = shown.fief, maps = application.maps, fiefs = application.fiefs)
                 }
             }
+            entry<Destination.Review> { shown: Destination.Review -> SignedInReview(shown, application) }
             entry<Destination.Chronicle> { shown: Destination.Chronicle ->
                 SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
                     ChronicleRoute(fief = shown.fief, chronicles = application.chronicles, clock = application.clock)
@@ -118,13 +121,28 @@ private fun SignedInFief(
         FiefRoute(
             fief = shown.fief,
             fiefs = application.fiefs,
+            learning = application.learning,
             sessions = application.sessions,
             clock = application.clock,
-            onSigningOut = navigator::signingOut,
-            onSignedOut = { navigator.signedOut(isSessionEnded = false) },
-            onNewFief = onNewFief,
+            navigation = FiefNavigation(
+                onSigningOut = navigator::signingOut,
+                onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                onNewFief = onNewFief,
+                onReviewOpen = navigator::openReview,
+            ),
         )
     }
+}
+
+@Composable
+private fun SignedInReview(shown: Destination.Review, application: MyGameApplication, modifier: Modifier = Modifier) {
+    ReviewRoute(
+        fief = shown.fief,
+        fiefs = application.fiefs,
+        learning = application.learning,
+        clock = application.clock,
+        modifier = modifier,
+    )
 }
 
 @Composable
