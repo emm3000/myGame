@@ -86,12 +86,16 @@ metric needs (§8.2), not for a claim of more learning.
 - **The tuple of §4.2, `(stability, difficulty, lastReviewAt, state)`,
   lacks `step`**, which the learning and relearning steps need to know
   which step comes next, **and lacks the last rating**, which the due
-  instant needs in `relearning`: a Hard at step 0 waits 1.5 times the
-  single relearning step, 15 min, where an Again at the same state and
-  step waits the step, 10 min. ADR 035 already stores "the moment and
-  the result of its last review"; `lastRating` is that result. In
-  `learning` the rating never splits a step, because a recognition
-  rates only Good or Again (rule 5).
+  instant needs at step 0: a Hard there waits the mean of the first two
+  steps, or 1.5 times a single step, where an Again at the same state
+  and step waits the first step (`fsrs/scheduler.py`, the Hard branch
+  of `review_card`, lines 328 to 333 for `learning`). In `relearning`
+  a Hard at step 0 waits 1.5 times the single relearning step, 15 min,
+  where an Again waits the step, 10 min. In `learning` it waits
+  5.5 min where an Again waits 1 min; the scheduler keeps that branch,
+  as the file wins, though a recognition rates only Good or Again
+  (rule 5) and never reaches it. ADR 035 already stores "the moment
+  and the result of its last review"; `lastRating` is that result.
 - **A pending review is a stored row of its own, keyed by player and
   word, separate from the card: `hintShown` and `nearMissAnswer`.** It
   exists only between a hint or a near-miss and the rating they lead
@@ -107,8 +111,7 @@ metric needs (§8.2), not for a claim of more learning.
 - **The due instant is derived on read**: `enteredAt` before the first
   review; in `review`, `lastReviewAt` plus the interval in days of the
   stored stability; in `learning` or `relearning`, `lastReviewAt` plus
-  the step `step` names, except after a Hard at relearning step 0
-  (above). A card
+  the step `step` names, except after a Hard at step 0 (above). A card
   is due when its due instant is at or before `now`.
 - **Only a due card is reviewed** (§1.2). A review of a card not yet
   due is refused and changes nothing; there is no extra practice.
@@ -388,6 +391,11 @@ pinned commit, with the parameters above and no fuzz.
   and Python's round half to even for the interval; floating point may
   still differ in the last digits between CPython and V8, so stability
   and difficulty match to a relative 1e-9 and intervals exactly.
+- Known gap: a card stored at a learning or relearning step that the
+  terms later drop has no due instant, and the domain answers
+  `UnknownMemoryStep` for it, where py-fsrs moves it to `review` at its
+  next rating. The steps are fixed in S39, so no stored card can reach
+  it; the fix waits for the first change of the steps.
 - Postgres gains the cards, the pending reviews, the review log and the
   player's skill levels, keyed by the player, each a migration; the S39
   tickets are amended so that #712's schema carries all four. ADR 035's reset migration keeps them.
