@@ -14,6 +14,8 @@ docs/lore/
   <topic>.md     one file per topic as the world grows: houses, arts, seasons, places
 ```
 
+Lesson 1's words, the first Townword content, are not medieval and live in `docs/setting/lessons.md` (ADR 035: names and their NGSL ranks are recorded in `docs/setting/`). The Spanish lines around them, the Biblioteca's lesson control and the review screen, are in `names.md`, The review, since they are chrome of the shipped fief.
+
 Each page states what is decided and lists its open questions at the end. A question is resolved by editing the page, never by a code comment.
 
 ## How content reads from the lore
