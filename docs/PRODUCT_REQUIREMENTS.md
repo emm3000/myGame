@@ -6,7 +6,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 
 | Id | Requirement |
 |---|---|
-| M1 | A player creates an account, signs in and signs out. |
+| M1 | A player creates an account, picking a scaffold language, `es` or `none`, signs in and signs out (ADR 038). |
 | M2 | A new player receives one fief at free coordinates with starting stocks. A lord's second fief is never given: it is founded by a settler and starts with the same stocks (ADR 023). |
 | M3 | The fief shows wood, stone, iron, gold and food with current amount, rate per hour and capacity, correct on any read whatever the time elapsed. |
 | M4 | Five buildings with levels: sawmill, quarry, iron mine, farm, warehouse. Each level has a cost, a duration and an effect read from content, not code. |
@@ -25,7 +25,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 | S4 | Every building, resource, bandit camp tier and art, and the convoy of a transport (ADR 024), has an image generated to `docs/art/art-bible.md`; units, seasons and the march keep their hand-drawn SVG icon, as the camp keeps its icon on the map's plot tile. |
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
-| S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015). |
+| S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015); each mail in the player's scaffold language (ADR 038). |
 | S8 | Seasons: one global calendar in content turns spring, summer, autumn and winter over every fief; each season scales production rates by whole percents, a read accrues each season segment at its own rates, the fief header shows the season, the year and a countdown, and the resource bar marks the resource the season changes (ADR 016). |
 | S9 | Seasons on durations: content gives each season a build and a study percent, summer shortens building and winter shortens study; a duration is fixed with the season in force at the enqueue or the study start and never retimed, the overview answers the effective durations and the season's percents, and the buildings and arts section headers mark the season that shortens them (ADR 017). |
 | S10 | Units recruited in a barracks slot: the barracks is the seventh building, whose built level gates recruiting and shortens every unit's training; one order at a time of N infantry, paid and staffed in full at the order, delivered one unit at a time on read and closed at its last delivery with a chronicle line; every unit occupies peasants and eats nothing (ADR 018). |
@@ -66,8 +66,8 @@ ADRs amend this table by row id.
 | N2 | Resource-lean: the api idles at zero CPU with no requests; a fief read is one round trip to the store; no process advances state on a timer. |
 | N3 | A fief read answers in under 100 ms on the reference host, the production api function on Vercel with its Neon database (ADR 031), excluding network. |
 | N4 | Every mutation on a fief is one transaction; two concurrent mutations serialize. |
-| N5 | Content (buildings, costs, durations, and the learning content: words, lessons, texts and glosses) is data the domain reads, changeable without a code deploy; learning texts are generated offline and committed behind a coverage gate, never generated at runtime (ADR 035, ADR 037). |
-| N6 | Every player-facing text is American English, the target; the player's scaffold language, `es` or none at launch, glosses it and fades per word as each word is retained. Spanish scaffold copy addresses the reader as tú, never vos. Copy lives in one message catalog per language (ADR 038); until those ship, the shipped copy is Spanish in one layer per client. Identifiers are English (ADR 035). |
+| N5 | Content (buildings, costs, durations, and the learning content: the lexicon of words with their frames, glosses and definitions, the lessons in their order, the grammar inventory and the texts) is data the domain reads, changeable without a code deploy. Learning content is drafted offline, never generated at runtime, and ships only through the content gate, a test in `pnpm gate` on order, frames, coverage, glosses and grammar, and the owner's review and merge (ADR 035, ADR 037). |
+| N6 | Every learning and game text is American English, the target. The player's scaffold language, `es` or `none` at launch, supports each word by its stability: shown beside it under 7 days, on tap from 7, an English definition on tap from 30; under `none` the support is the English definition. Under `es` the game's chrome is Spanish until every chrome lesson is studied, both languages until their skills are earned, English after; under `none` it is English. Account screens, refusals, review verdicts and mail are always in the scaffold language. Spanish addresses the reader as tú, never vos. Every string a client or a mail shows comes from one message catalog per language, and refusals cross the wire as a kind and its parameters, never as prose (ADR 038); until those ship, the shipped copy is Spanish in one layer per client. Identifiers are English (ADR 035). |
 | N7 | Every image ships with the prompt that produced it and complies with the art bible. |
 | N8 | Every signed-in screen meets WCAG 2.2 AA (ADR 027). |
 

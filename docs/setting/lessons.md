@@ -67,5 +67,6 @@ Worked against ADR 036, rule 4, each with the NGSL 1.2 list above. *Wok* for *wo
 
 ## Open questions
 
-- Whether the owner accepts the five frames and the five es glosses (§3.6), *hogar* above all.
+- Whether the owner accepts the five frames and the five es glosses (§3.6), *hogar* above all. Under ADR 037's frame rule four of the five frames fail, each holding words no earlier lesson teaches (*new*, *town*, *walk*, *every*, *day*, *big*, *office*, *buy*, *week*); only *I do not have much money.* passes. They are rewritten when lesson 1 moves into the lexicon; its cards keep their word ids.
+- Lesson 1 is the first chrome lesson (ADR 037): its five words name the town's homes, school, work, money and food.
 - Whether *A day in town* is read on screen before the town rebuild names the holding a town: the medieval fief still calls it *feudo* (`docs/lore/names.md`, The fief).
