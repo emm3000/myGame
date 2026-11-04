@@ -74,10 +74,8 @@ const dueReviewOf = (due: DueCard, lessons: LessonLibrary): Result<DueReview, Do
     mode: 'recognition',
     word: word.acceptedForms[0],
     frame: word.frame,
-    choices: recognitionChoicesOf(word.id, lesson, due.card).flatMap((wordId) =>
-      lesson.words
-        .filter(({ id }) => id === wordId)
-        .map(({ id, gloss }) => ({ wordId: id, gloss })),
+    choices: recognitionChoicesOf(word.id, lesson, due.card).flatMap(({ choiceId, wordId }) =>
+      lesson.words.filter(({ id }) => id === wordId).map(({ gloss }) => ({ choiceId, gloss })),
     ),
   })
 }

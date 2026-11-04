@@ -233,8 +233,8 @@ const recognitionOfHome = {
   word: 'home',
   frame: 'We have a new home in this town.',
   choices: [
-    { wordId: 'lesson-1-4', gloss: 'dinero' },
-    { wordId: 'lesson-1-1', gloss: 'hogar' },
+    { choiceId: '5c0e91a2', gloss: 'dinero' },
+    { choiceId: 'e17b3f08', gloss: 'hogar' },
   ],
 }
 
@@ -800,6 +800,15 @@ describe('FiefOverviewSchema', () => {
 
     expect(FiefOverviewSchema.parse({ ...overviewWithSlot(busySlot), reviews }).reviews).toEqual(
       reviews,
+    )
+  })
+
+  it('rejects a recognition choice that names its word id', () => {
+    const choices = [{ choiceId: '5c0e91a2', wordId: 'lesson-1-4', gloss: 'dinero' }]
+    const reviews = { due: [{ ...recognitionOfHome, choices }], nextDueAt: null }
+
+    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), reviews }).success).toBe(
+      false,
     )
   })
 

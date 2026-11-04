@@ -26,7 +26,39 @@ describe('recognitionChoicesOf', () => {
   it('offers every word of a lesson of five, the asked word among them', () => {
     const choices = recognitionChoicesOf('school', lessonOne, enteredCard)
 
-    expect([...choices].sort()).toEqual(['food', 'home', 'money', 'school', 'work'])
+    expect(choices.map(({ wordId }) => wordId).sort()).toEqual([
+      'food',
+      'home',
+      'money',
+      'school',
+      'work',
+    ])
+  })
+
+  it('gives each choice an id of its own that is never a word id', () => {
+    const choiceIds = recognitionChoicesOf('school', lessonOne, enteredCard).map(
+      ({ choiceId }) => choiceId,
+    )
+
+    expect(new Set(choiceIds).size).toBe(5)
+    expect(
+      choiceIds.filter((choiceId) => lessonOne.words.some(({ id }) => id === choiceId)),
+    ).toEqual([])
+  })
+
+  it('gives the asked word another choice id after a review moves the key instant', () => {
+    const reviewed = reviewMemoryCard(
+      enteredCard,
+      'good',
+      Instant.fromEpochMilliseconds(lessonFinish.epochMilliseconds + 60_000),
+      defaultMemoryTerms,
+    )
+    assert(reviewed.ok)
+    const choiceIdOfSchool = (card: MemoryCard): string | undefined =>
+      recognitionChoicesOf('school', lessonOne, card).find(({ wordId }) => wordId === 'school')
+        ?.choiceId
+
+    expect(choiceIdOfSchool(reviewed.value)).not.toBe(choiceIdOfSchool(enteredCard))
   })
 
   it('answers the same order on every read of the same card', () => {
@@ -54,8 +86,9 @@ describe('recognitionChoicesOf', () => {
   it('offers at most five words of a longer lesson, the asked word always among them', () => {
     const choices = recognitionChoicesOf('town', lessonOfEightWords, enteredCard)
 
-    expect(choices).toHaveLength(5)
-    expect(choices).toContain('town')
-    expect(new Set(choices).size).toBe(5)
+    const wordIds = choices.map(({ wordId }) => wordId)
+    expect(wordIds).toHaveLength(5)
+    expect(wordIds).toContain('town')
+    expect(new Set(wordIds).size).toBe(5)
   })
 })

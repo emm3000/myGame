@@ -2,7 +2,6 @@ import {
   type CardRepository,
   type DomainError,
   type HeldCard,
-  MemoryCard,
   ok,
   type PlayerId,
   type Result,
@@ -10,7 +9,7 @@ import {
 import { eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { cards } from './schema'
-import { cardColumnsOf, storedMemoryCardOf } from './storedMemoryCards'
+import { cardColumnsOf, heldCardOf } from './storedMemoryCards'
 
 export class DrizzleCardRepository implements CardRepository {
   constructor(private readonly database: PostgresSession) {}
@@ -23,13 +22,11 @@ export class DrizzleCardRepository implements CardRepository {
       .orderBy(sql`${cards.wordId} COLLATE "C"`)
     const held: Array<HeldCard> = []
     for (const row of rows) {
-      const card = MemoryCard.restore(
-        storedMemoryCardOf(row, `Player ${playerId} on word ${row.wordId}`),
-      )
+      const card = heldCardOf(row, playerId)
       if (!card.ok) {
         return card
       }
-      held.push({ wordId: row.wordId, card: card.value })
+      held.push(card.value)
     }
     return ok(held)
   }

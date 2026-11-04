@@ -12,6 +12,7 @@ import type { PendingReview } from '../learning/PendingReview'
 import { reviewFormatOf } from '../learning/ReviewFormat'
 import type { ReviewLogEntry } from '../learning/ReviewLogEntry'
 import { type AnswerGrade, ratingOf } from '../learning/ratingOf'
+import { recognitionChoicesOf } from '../learning/recognitionChoicesOf'
 import type { MemoryCard } from '../memory/MemoryCard'
 import type { MemoryRating } from '../memory/MemoryRating'
 import type { MemoryTerms } from '../memory/MemoryTerms'
@@ -63,7 +64,10 @@ const gradeOf = (
   lessons: LessonCatalog,
 ): Grade => {
   if (reviewFormatOf(review.held.card) === 'recognition') {
-    return answer === review.word.id ? 'correct' : 'wrong'
+    const chosen = recognitionChoicesOf(review.word.id, review.lesson, review.held.card).find(
+      ({ choiceId }) => choiceId === answer,
+    )
+    return chosen?.wordId === review.word.id ? 'correct' : 'wrong'
   }
   const grade = gradeTypedAnswer(answer, review.word.acceptedForms, (word) =>
     lessons.isHeadword(word),

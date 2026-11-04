@@ -72,6 +72,34 @@ const wordIds = Object.keys(lemmas)
 
 const lemmaOf = (wordId: string): string => lemmas[wordId] ?? ''
 
+const glosses: Readonly<Record<string, string>> = {
+  'lesson-1-1': 'hogar',
+  'lesson-1-2': 'escuela',
+  'lesson-1-3': 'trabajar',
+  'lesson-1-4': 'dinero',
+  'lesson-1-5': 'comida',
+}
+
+const choiceIdOf = (recognition: DueReview, chosenWordId: string): string => {
+  assert(recognition.mode === 'recognition')
+  const choice = recognition.choices.find(({ gloss }) => gloss === glosses[chosenWordId])
+  assert(choice !== undefined)
+  return choice.choiceId
+}
+
+const stringsIn = (value: unknown): ReadonlyArray<string> => {
+  if (typeof value === 'string') {
+    return [value]
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(stringsIn)
+  }
+  if (typeof value === 'object' && value !== null) {
+    return Object.values(value).flatMap(stringsIn)
+  }
+  return []
+}
+
 const lessonStartsAt = '2026-11-10T08:57:30.000Z'
 
 const lessonFinishesAt = '2026-11-10T09:00:00.000Z'
@@ -80,7 +108,9 @@ const secondLearningStepAt = '2026-11-10T09:10:00.000Z'
 
 const firstRecallAt = '2026-11-12T09:10:00.000Z'
 
-const secondRecallAt = '2026-11-23T09:10:00.000Z'
+const lateFirstRecallAt = '2026-11-12T15:00:00.000Z'
+
+const secondRecallAt = '2026-11-23T15:00:00.000Z'
 
 describe('the learning routes', () => {
   let server: ComposedServer
@@ -190,18 +220,35 @@ describe('the learning routes', () => {
     return answers
   }
 
+  const dueReviewOf = async (lord: Lord, wordId: string): Promise<DueReview> => {
+    const { reviews } = await readFief(lord)
+    const review = reviews.due.find((due) => due.wordId === wordId)
+    assert(review !== undefined)
+    return review
+  }
+
+  const recognizeEvery = async (lord: Lord): Promise<ReadonlyArray<ReviewAnswer>> => {
+    const { reviews } = await readFief(lord)
+    const answers: Array<ReviewAnswer> = []
+    for (const review of reviews.due) {
+      answers.push(await answered(lord, review.wordId, choiceIdOf(review, review.wordId)))
+    }
+    return answers
+  }
+
   const studyToTheFirstRecall = async (): Promise<Lord> => {
     const lord = await studyLessonOne()
     clock.setTo(lessonFinishesAt)
-    await answerEvery(lord, (wordId) => wordId)
+    await recognizeEvery(lord)
     clock.setTo(secondLearningStepAt)
-    await answerEvery(lord, (wordId) => wordId)
+    await recognizeEvery(lord)
     clock.setTo(firstRecallAt)
     return lord
   }
 
   const studyToTheSecondRecall = async (): Promise<Lord> => {
     const lord = await studyToTheFirstRecall()
+    clock.setTo(lateFirstRecallAt)
     await answerEvery(lord, lemmaOf)
     clock.setTo(secondRecallAt)
     return lord
@@ -436,10 +483,42 @@ describe('the learning routes', () => {
       ])
     })
 
+    it('names the right choice of a recognition by an id no other field of the card holds', async () => {
+      const lord = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      const { reviews } = await readFief(lord)
+
+      const leaks = reviews.due.flatMap((recognition) => {
+        assert(recognition.mode === 'recognition')
+        const rightChoiceId = choiceIdOf(recognition, recognition.wordId)
+        const { choices, ...card } = recognition
+        const fields = [...stringsIn(card), ...choices.map(({ gloss }) => gloss)]
+        return fields.filter((field) => field === rightChoiceId)
+      })
+
+      expect([reviews.due.length, leaks]).toEqual([5, []])
+    })
+
+    it('rates the right choice of a recognition correct', async () => {
+      const lord = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      const recognition = await dueReviewOf(lord, 'lesson-1-2')
+
+      const { verdict } = await answered(lord, 'lesson-1-2', choiceIdOf(recognition, 'lesson-1-2'))
+
+      expect(verdict).toEqual({
+        kind: 'correct',
+        word: 'school',
+        gloss: 'escuela',
+        dueAt: secondLearningStepAt,
+        earnedSkill: null,
+      })
+    })
+
     it('answers the next due instant when nothing is due', async () => {
       const lord = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
-      await answerEvery(lord, (wordId) => wordId)
+      await recognizeEvery(lord)
 
       const { reviews } = await readFief(lord)
 
@@ -570,11 +649,12 @@ describe('the learning routes', () => {
       expect(verdict.kind).toBe('wrong')
     })
 
-    it('grades a recognition by the word id chosen', async () => {
+    it('grades a recognition by the choice chosen', async () => {
       const lord = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
+      const recognition = await dueReviewOf(lord, 'lesson-1-5')
 
-      const { verdict } = await answered(lord, 'lesson-1-5', 'lesson-1-4')
+      const { verdict } = await answered(lord, 'lesson-1-5', choiceIdOf(recognition, 'lesson-1-4'))
 
       expect(verdict).toEqual({
         kind: 'wrong',
@@ -582,6 +662,15 @@ describe('the learning routes', () => {
         gloss: 'comida',
         dueAt: '2026-11-10T09:01:00.000Z',
       })
+    })
+
+    it('grades a recognition answered with its word id wrong', async () => {
+      const lord = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+
+      const { verdict } = await answered(lord, 'lesson-1-5', 'lesson-1-5')
+
+      expect(verdict.kind).toBe('wrong')
     })
 
     it('refuses a word the player holds no card of', async () => {
@@ -612,10 +701,11 @@ describe('the learning routes', () => {
     it('refuses an answer to a card not yet due', async () => {
       const lord = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
-      await answered(lord, 'lesson-1-1', 'lesson-1-1')
+      const recognition = await dueReviewOf(lord, 'lesson-1-1')
+      await answered(lord, 'lesson-1-1', choiceIdOf(recognition, 'lesson-1-1'))
       clock.setTo('2026-11-10T09:05:00Z')
 
-      expect(await refusalOf(await answer(lord, 'lesson-1-1', 'lesson-1-1'))).toEqual({
+      expect(await refusalOf(await answer(lord, 'lesson-1-1', 'home'))).toEqual({
         status: 409,
         body: {
           kind: 'ReviewNotDue',
@@ -634,15 +724,16 @@ describe('the learning routes', () => {
   })
 
   describe('lesson 1 from its study to its skill', () => {
-    it('steps every card as the worked example of ADR 036 does', async () => {
+    it('steps every card as the worked example of ADR 036 does, the first recall answered late', async () => {
       const lord = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
       const firstRead = await readFief(lord)
-      const firstRecognitions = await answerEvery(lord, (wordId) => wordId)
+      const firstRecognitions = await recognizeEvery(lord)
       clock.setTo(secondLearningStepAt)
-      const secondRecognitions = await answerEvery(lord, (wordId) => wordId)
+      const secondRecognitions = await recognizeEvery(lord)
       clock.setTo(firstRecallAt)
       const recallRead = await readFief(lord)
+      clock.setTo(lateFirstRecallAt)
       const firstRecalls = await answerEvery(lord, lemmaOf)
 
       expect(dueWordsOf(firstRead.reviews.due)).toEqual(
@@ -690,7 +781,7 @@ describe('the learning routes', () => {
         kind: 'correct',
         word: 'food',
         gloss: 'comida',
-        dueAt: '2027-01-08T09:10:00.000Z',
+        dueAt: '2027-01-08T15:00:00.000Z',
         earnedSkill: {
           lessonId: 'lesson-1',
           resource: 'food',
@@ -731,7 +822,7 @@ describe('the learning routes', () => {
       })
       const { march } = FiefOverviewSchema.parse(await sent.json())
       assert(march !== null)
-      const earnedAt = '2026-11-23T15:10:00.000Z'
+      const earnedAt = '2026-11-23T21:00:00.000Z'
       clock.setTo(earnedAt)
 
       const { verdict } = await answered(lord, 'lesson-1-5', 'food')

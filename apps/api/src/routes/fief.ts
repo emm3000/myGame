@@ -47,7 +47,12 @@ import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarch
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { storedFiefReadingOf } from '../fief/storedFiefReadingOf'
 import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
-import { answerOverview, type OverviewDependencies, overviewOfPlayer } from '../http/answerOverview'
+import {
+  answerCurrentOverview,
+  answerOverview,
+  type OverviewDependencies,
+  overviewOfPlayer,
+} from '../http/answerOverview'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { honoPathOf } from '../http/honoPath'
@@ -100,7 +105,8 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
     honoPathOf(fiefDeclarations.overview),
     signedInPlayer,
     requireNamedFief,
-    async (c) => answerReading(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
+    async (c) =>
+      answerCurrentOverview(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies), dependencies),
   )
   routes.on(
     fiefDeclarations.events.method,

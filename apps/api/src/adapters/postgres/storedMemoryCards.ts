@@ -1,4 +1,12 @@
-import { Instant, type StoredMemoryCard } from '@mygame/domain'
+import {
+  type DomainError,
+  type HeldCard,
+  Instant,
+  MemoryCard,
+  ok,
+  type Result,
+  type StoredMemoryCard,
+} from '@mygame/domain'
 import type { cards } from './schema'
 
 export type CardColumns = Pick<
@@ -63,4 +71,17 @@ export const storedMemoryCardOf = (columns: CardColumns, owner: string): StoredM
     throw new Error(`${owner} stores a ${state} card without its step`)
   }
   return { ...entered, ...recalled, state, step }
+}
+
+export const heldCardOf = (
+  row: CardColumns & { readonly wordId: string },
+  playerId: string,
+): Result<HeldCard, DomainError> => {
+  const card = MemoryCard.restore(
+    storedMemoryCardOf(row, `Player ${playerId} on word ${row.wordId}`),
+  )
+  if (!card.ok) {
+    return card
+  }
+  return ok({ wordId: row.wordId, card: card.value })
 }

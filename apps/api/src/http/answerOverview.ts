@@ -1,6 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
 import type { DomainError, PlayerId, Result } from '@mygame/domain'
 import type { Context } from 'hono'
+import type { CurrentFief } from '../fief/currentFiefOf'
 import type { FiefReading } from '../fief/FiefReading'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
 import type { CardReader } from '../learning/CardReader'
@@ -21,6 +22,22 @@ export const overviewOfPlayer = async (
     return cards
   }
   return fiefOverviewOf(reading, cards.value, dependencies)
+}
+
+export const answerCurrentOverview = (
+  c: Context,
+  current: Result<CurrentFief, DomainError>,
+  terms: LearnerTerms,
+): Response => {
+  if (!current.ok) {
+    return answerRefusal(c, current.error)
+  }
+  const overview = fiefOverviewOf(current.value, current.value.cards, terms)
+  if (!overview.ok) {
+    return answerRefusal(c, overview.error)
+  }
+  const body: FiefOverview = overview.value
+  return c.json(body)
 }
 
 export const answerOverview = async (

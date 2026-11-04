@@ -2885,7 +2885,7 @@
             "items": {
               "type": "object",
               "properties": {
-                "wordId": {
+                "choiceId": {
                   "type": "string",
                   "minLength": 1
                 },
@@ -2894,7 +2894,7 @@
                   "minLength": 1
                 }
               },
-              "required": ["wordId", "gloss"],
+              "required": ["choiceId", "gloss"],
               "additionalProperties": false
             }
           }
