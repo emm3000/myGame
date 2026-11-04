@@ -12,8 +12,7 @@ import { laterOf } from './laterOf'
 import type { FiefMutation, FiefStores, MutateAfterResolveDependencies } from './mutateAfterResolve'
 import { resolveFiefInTransaction } from './resolveFiefInTransaction'
 
-const inLockOrder = (fiefIds: ReadonlyArray<FiefId>): ReadonlyArray<FiefId> =>
-  [...fiefIds].sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
+const inLockOrder = (fiefIds: ReadonlyArray<FiefId>): ReadonlyArray<FiefId> => [...fiefIds].sort()
 
 const lockedStoredAtsOf = async (
   fiefIds: ReadonlyArray<FiefId>,

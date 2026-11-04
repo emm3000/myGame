@@ -18,6 +18,11 @@ const fiefWithTenInfantry: FiefOverview = {
   units: { infantry: 10, cavalry: 0, archer: 0, settler: 0 },
 }
 
+const campsByPlot: ReadonlyMap<number, ProvinceMap['plots'][number]['camp']> = new Map([
+  [7, { tier: 1, strength: 6 }],
+  [9, { tier: 2, strength: 15 }],
+])
+
 const uplandsWithCamps: ProvinceMap = {
   kingdom: 1,
   province: 2,
@@ -26,12 +31,7 @@ const uplandsWithCamps: ProvinceMap = {
   plots: Array.from({ length: 15 }, (_, index) => ({
     plot: index + 1,
     fief: index + 1 === 3 ? { name: 'Castrofrio', isOwn: false } : null,
-    camp:
-      index + 1 === 7
-        ? { tier: 1, strength: 6 }
-        : index + 1 === 9
-          ? { tier: 2, strength: 15 }
-          : null,
+    camp: campsByPlot.get(index + 1) ?? null,
     reservation: null,
   })),
 }
