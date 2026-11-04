@@ -74,7 +74,12 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                 ForgotPasswordRoute(sessions = application.sessions, onSignInOpen = navigator::openSignIn)
             }
             entry<Destination.FirstFief> {
-                FirstFiefRoute(listings = application.listings, onOpen = navigator::firstFiefOpened)
+                FirstFiefRoute(
+                    listings = application.listings,
+                    sessions = application.sessions,
+                    onOpen = navigator::firstFiefOpened,
+                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                )
             }
             entry<Destination.Fief> { shown: Destination.Fief ->
                 SignedInFief(shown = shown, application = application, navigator = navigator)
