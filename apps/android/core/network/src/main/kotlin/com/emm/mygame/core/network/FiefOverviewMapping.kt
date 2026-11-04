@@ -19,7 +19,9 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
     val buildQueue: BuildQueue? = queue.toBuildQueue()
     val studySlot: StudySlot? = study.toStudySlot()
     val artStates: List<ArtState>? = arts.toArtStates()
-    if (buildSlot == null || buildQueue == null) return null
+    val seasonInForce: SeasonInForce? = season?.toSeasonInForce()
+    val isSeasonUnknown: Boolean = season != null && seasonInForce == null
+    if (buildSlot == null || buildQueue == null || isSeasonUnknown) return null
     val army: MappedArmy? = toArmy()
     if (studySlot == null || artStates == null || army == null) return null
     val mapped: MappedMarch = army.marching
@@ -50,6 +52,7 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         march = mapped.march,
         forageTerms = mapped.forageTerms,
         season = mapped.season,
+        seasonInForce = seasonInForce,
         seasonEndsAt = season?.endsAt?.toKotlinInstant(),
         combatTerms = CombatTerms(lootPerStrength = combatTerms.lootPerStrength),
     )

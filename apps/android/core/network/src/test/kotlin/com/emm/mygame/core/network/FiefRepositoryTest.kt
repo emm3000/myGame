@@ -85,6 +85,27 @@ class FiefRepositoryTest {
     }
 
     @Test
+    fun `reads the season in force and its year`() = runTest {
+        enqueueIdleFief()
+
+        assertEquals(SeasonInForce(kind = SeasonKind.Spring, year = 2), readFief().seasonInForce)
+    }
+
+    @Test
+    fun `reads no season in force when the overview carries no season`() = runTest {
+        api.enqueue(json(200, idleOverview().replace(SPRING_SEASON, """"season":null""")))
+
+        assertNull(readFief().seasonInForce)
+    }
+
+    @Test
+    fun `answers unreachable when the season is one the client does not know`() = runTest {
+        api.enqueue(json(200, idleOverview().replace(""""kind":"spring"""", """"kind":"monsoon"""")))
+
+        assertEquals(FiefReadResult.Unreachable, repository().read(FiefId(LISTED_FIEF_ID)))
+    }
+
+    @Test
     fun `reads the five resources in the order the lord reads them`() = runTest {
         enqueueIdleFief()
 
