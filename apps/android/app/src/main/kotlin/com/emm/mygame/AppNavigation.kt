@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.union
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -136,9 +135,8 @@ private fun SignedInFrame(
     content: @Composable (onNewFief: () -> Unit) -> Unit,
 ) {
     val listing: FiefSwitcherUiState by switcher.state.collectAsStateWithLifecycle()
-    DisposableEffect(switcher) {
+    LaunchedEffect(switcher) {
         switcher.onIntent(FiefSwitcherIntent.ScreenShown)
-        onDispose { }
     }
     val listed: FiefSwitcherUiState.Listed? = listing as? FiefSwitcherUiState.Listed
     val framedInsets: WindowInsets =
