@@ -32,6 +32,8 @@ Run from `apps/android`.
 
 ## Gotchas
 
+- Resource names are one namespace across modules: `android.nonTransitiveRClass=true` gives each module its own `R` class, so a clash compiles, but the merged APK holds one value per name and the dependency `app/build.gradle.kts` declares first wins silently. A module prefixes its own names (`chronicle_`, `map_`). Guard: `rg -No --no-filename 'name="[^"]+"' apps/android -g '**/src/main/res/values/*.xml' | sort | uniq -d` prints nothing.
+
 - Robolectric (4.17, `feature:chronicle`'s, `feature:fief`'s, `feature:map`'s and `feature:signin`'s tests only; the Compose UI tests, `ChronicleLineTest`, `FirstFiefScreenTest`, `SignInScreenTest`, `SignUpScreenTest`, run on it with `ui-test-junit4` and `ui-test-manifest`) needs Java 21 for SDK 35 and above, and CI runs Java 17, so `src/test/resources/robolectric.properties` pins `sdk=34`; each module also sets `testOptions.unitTests.isIncludeAndroidResources`.
 
 - Never add a `package.json` here: pnpm takes every directory with one under `apps/*` as a workspace package.

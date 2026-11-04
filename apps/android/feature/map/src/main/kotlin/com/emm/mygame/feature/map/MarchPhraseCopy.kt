@@ -21,10 +21,10 @@ internal fun Resources.quantitiesOf(quantities: List<ResourceQuantity>): String 
 
 internal fun Resources.countedOf(count: UnitCount): String = getQuantityString(
     when (count.unit) {
-        UnitKind.Infantry -> R.plurals.unit_infantry_counted
-        UnitKind.Cavalry -> R.plurals.unit_cavalry_counted
-        UnitKind.Archer -> R.plurals.unit_archer_counted
-        UnitKind.Settler -> R.plurals.unit_settler_counted
+        UnitKind.Infantry -> R.plurals.map_unit_infantry_counted
+        UnitKind.Cavalry -> R.plurals.map_unit_cavalry_counted
+        UnitKind.Archer -> R.plurals.map_unit_archer_counted
+        UnitKind.Settler -> R.plurals.map_unit_settler_counted
     },
     count.count,
     count.count,
@@ -48,9 +48,9 @@ internal fun Resources.durationOf(duration: Duration): String {
     val hours: Long = wholeSeconds / SECONDS_PER_HOUR
     val minutes: Long = wholeSeconds % SECONDS_PER_HOUR / SECONDS_PER_MINUTE
     return when {
-        hours == 0L -> getString(R.string.duration_minutes_seconds, minutes, wholeSeconds % SECONDS_PER_MINUTE)
-        minutes == 0L -> getString(R.string.duration_hours, hours)
-        else -> getString(R.string.duration_hours_minutes, hours, minutes)
+        hours == 0L -> getString(R.string.map_duration_minutes_seconds, minutes, wholeSeconds % SECONDS_PER_MINUTE)
+        minutes == 0L -> getString(R.string.map_duration_hours, hours)
+        else -> getString(R.string.map_duration_hours_minutes, hours, minutes)
     }
 }
 
