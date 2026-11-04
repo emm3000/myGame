@@ -301,3 +301,7 @@ it, and changes no content.
   a stored cost on the busy slot and the waiting upgrades, a shorter
   art on wide screens, any change to a capacity or a rate, and the
   note's open questions above.
+
+## Note (2026-11-04)
+
+ADR 035 keeps the refused hooks of this ADR as a product rule. Lore first now reads setting first, `docs/setting/` once it replaces `docs/lore/`; *falta* is Spanish copy that ADR 038's catalogs carry; and the warehouse sizing applies to storage once the town rebuild renames it. See ADR 035. Nothing here changes.

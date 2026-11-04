@@ -56,3 +56,7 @@ never written inline.
   upgrade renames or drops it, the guard is replaced by a test that greps
   `apps/web/src` for `-[` before the upgrade lands.
 - Components are still tested by role and text, never by class name.
+
+## Note (2026-11-04)
+
+ADR 035 retires the Parchment and Ledger schemes and their fonts for the town's new direction; the mechanism of this ADR, one token source feeding the Tailwind theme, stays. See ADR 035. Nothing here changes.
