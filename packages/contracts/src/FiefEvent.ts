@@ -132,6 +132,22 @@ const TransportArrivedSchema = z
   })
   .meta({ id: 'TransportArrivedEvent' })
 
+const LessonLearnedSchema = z
+  .strictObject({
+    kind: z.literal('lessonLearned'),
+    lessonId: z.string().min(1),
+    occurredAt: InstantSchema,
+  })
+  .meta({ id: 'LessonLearnedEvent' })
+
+const LessonCancelledSchema = z
+  .strictObject({
+    kind: z.literal('lessonCancelled'),
+    lessonId: z.string().min(1),
+    occurredAt: InstantSchema,
+  })
+  .meta({ id: 'LessonCancelledEvent' })
+
 export const FiefEventSchema = z
   .discriminatedUnion('kind', [
     UpgradeFinishedSchema,
@@ -146,6 +162,8 @@ export const FiefEventSchema = z
     FiefFoundedSchema,
     TransportSentSchema,
     TransportArrivedSchema,
+    LessonLearnedSchema,
+    LessonCancelledSchema,
   ])
   .meta({ id: 'FiefEvent' })
 

@@ -67,13 +67,10 @@ const digestFiefOf = (
   const chronicle = fiefChronicleOf(
     events.filter(({ occurredAt }) => isAfter(occurredAt, acknowledgedAt)),
   )
-  if (!chronicle.ok) {
-    return chronicle
-  }
   return ok({
     id: fief.id,
     name: fief.name.value,
-    events: chronicle.value.events,
+    events: chronicle.events,
     stores: [...stores.value],
   })
 }

@@ -182,6 +182,7 @@ const temporaryDirectory = (): string => mkdtempSync(join(tmpdir(), 'mygame-cont
 const minimalContentDirectory = (): string => {
   const directory = temporaryDirectory()
   mkdirSync(join(directory, 'arts'))
+  cpSync(join(contentDirectory, 'lessons'), join(directory, 'lessons'), { recursive: true })
   for (const [file, content] of Object.entries(minimalContentFiles)) {
     writeFileSync(join(directory, file), JSON.stringify(content))
   }
@@ -193,6 +194,15 @@ const contentCopyWithTruncatedSawmill = (): string => {
   cpSync(contentDirectory, directory, { recursive: true })
   const sawmill = readFileSync(join(directory, 'sawmill.json'), 'utf8')
   writeFileSync(join(directory, 'sawmill.json'), sawmill.slice(0, sawmill.length / 2))
+  return directory
+}
+
+const contentCopyWithTruncatedLesson = (): string => {
+  const directory = temporaryDirectory()
+  cpSync(contentDirectory, directory, { recursive: true })
+  const lessonFile = join(directory, 'lessons', 'lesson-1.json')
+  const lesson = readFileSync(lessonFile, 'utf8')
+  writeFileSync(lessonFile, lesson.slice(0, lesson.length / 2))
   return directory
 }
 
@@ -246,6 +256,25 @@ describe('composeServer', () => {
     } finally {
       removeDirectory(malformedDirectory)
     }
+  })
+
+  it('fails start-up on a malformed lesson file', () => {
+    const malformedDirectory = contentCopyWithTruncatedLesson()
+
+    try {
+      expect(() => composeServer(composableEnvironment, malformedDirectory)).toThrow(
+        'lesson-1.json',
+      )
+    } finally {
+      removeDirectory(malformedDirectory)
+    }
+  })
+
+  it('reads lesson 1 from the content folder at start-up', async () => {
+    const server = composeServer(composableEnvironment, fixtureDirectory)
+
+    expect(server.lessons.lessonOf('lesson-1')?.words).toHaveLength(5)
+    await server.close()
   })
 
   it('refuses to compose without DATABASE_URL', () => {
@@ -530,7 +559,13 @@ const transportBetween = (
       units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
       cargo: { wood: 100, stone: 0, iron: 0, gold: 0, food: 0 },
     },
-    { inTransaction, buildingCatalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },
+    {
+      inTransaction,
+      buildingCatalog: server.buildingCatalog,
+      lessons: server.lessons,
+      clock: frozenClock,
+      ids: server.ids,
+    },
   )
 
 const raceTwoTransportsEachWay = async (
@@ -581,6 +616,7 @@ const raceARecallAndATransportFromTheOtherFief = async (
         await transportIsBlockedOrHasLocked
       }),
       buildingCatalog: server.buildingCatalog,
+      lessons: server.lessons,
       clock: frozenClock,
       ids: server.ids,
     },

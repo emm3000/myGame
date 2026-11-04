@@ -1,0 +1,9 @@
+ngsl-1.2.csv is the New General Service List 1.2 (NGSL 1.2) statistics file,
+NGSL_12_stats.csv, shipped unchanged.
+
+Authors: Charles Browne, Brent Culligan and Joseph Phillips.
+Licence: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0),
+https://creativecommons.org/licenses/by-sa/4.0/
+Source: https://www.newgeneralservicelist.com/s/NGSL_12_stats.csv
+Downloaded: 2026-11-04
+SHA-256: 2098bab8955a120a9766c6282a51d7d578c6cb0a7d946600d2ffb73ba25a0b44

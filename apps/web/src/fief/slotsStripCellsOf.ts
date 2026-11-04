@@ -49,7 +49,7 @@ function buildCellOf(fief: LiveFief): StripCell {
 function studyCellOf(fief: LiveFief): StripCell {
   const { study } = fief.overview
   const cell = { id: 'study', icon: 'slot', section: sectionAnchors.library } as const
-  if (study.kind === 'idle') {
+  if (study.kind !== 'busy') {
     return { ...cell, kind: 'idle', label: status.idleStudy }
   }
   return {

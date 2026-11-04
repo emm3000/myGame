@@ -99,7 +99,15 @@
               "CargoAboveCarry",
               "ProvinceNotFound",
               "TokenInvalid",
-              "MailNotSent"
+              "MailNotSent",
+              "LessonLibraryTooLow",
+              "LessonAlreadyStudied",
+              "LessonUnderStudy",
+              "LessonStudyNotFound",
+              "ReviewNotDue",
+              "HintOnRecognition",
+              "WordNotHeld",
+              "UnknownWord"
             ]
           },
           "message": {
@@ -1826,6 +1834,123 @@
               }
             ]
           },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "theme": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "durationSeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "requiredLibraryLevel": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "skill": {
+                  "type": "object",
+                  "properties": {
+                    "resource": {
+                      "type": "string",
+                      "enum": ["wood", "stone", "iron", "gold", "food"]
+                    },
+                    "ratePercent": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    }
+                  },
+                  "required": ["resource", "ratePercent"],
+                  "additionalProperties": false
+                },
+                "isStudied": {
+                  "type": "boolean"
+                },
+                "words": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "wordId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "isRetained": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["wordId", "isRetained"],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "theme",
+                "durationSeconds",
+                "requiredLibraryLevel",
+                "skill",
+                "isStudied",
+                "words"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lessonId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resource": {
+                  "type": "string",
+                  "enum": ["wood", "stone", "iron", "gold", "food"]
+                },
+                "ratePercent": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "earnedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": ["lessonId", "resource", "ratePercent", "earnedAt"],
+              "additionalProperties": false
+            }
+          },
+          "reviews": {
+            "type": "object",
+            "properties": {
+              "due": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DueReview"
+                }
+              },
+              "nextDueAt": {
+                "type": "string",
+                "nullable": true,
+                "format": "date-time"
+              }
+            },
+            "required": ["due", "nextDueAt"],
+            "additionalProperties": false
+          },
           "readAt": {
             "type": "string",
             "format": "date-time"
@@ -1853,6 +1978,9 @@
           "combatTerms",
           "incomingCargo",
           "goal",
+          "lessons",
+          "skills",
+          "reviews",
           "readAt"
         ]
       },
@@ -1917,13 +2045,17 @@
           },
           {
             "$ref": "#/components/schemas/BusyStudySlot"
+          },
+          {
+            "$ref": "#/components/schemas/LessonStudySlot"
           }
         ],
         "discriminator": {
           "propertyName": "kind",
           "mapping": {
             "idle": "#/components/schemas/IdleStudySlot",
-            "busy": "#/components/schemas/BusyStudySlot"
+            "busy": "#/components/schemas/BusyStudySlot",
+            "lesson": "#/components/schemas/LessonStudySlot"
           }
         }
       },
@@ -1989,6 +2121,29 @@
           }
         },
         "required": ["kind", "art", "targetLevel", "startedAt", "finishesAt", "cost"]
+      },
+      "LessonStudySlot": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lesson"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishesAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "lessonId", "startedAt", "finishesAt"],
+        "additionalProperties": false
       },
       "MarchState": {
         "oneOf": [
@@ -2681,6 +2836,103 @@
         "required": ["position", "count", "building", "level", "state", "missing"],
         "additionalProperties": false
       },
+      "DueReview": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/RecognitionReview"
+          },
+          {
+            "$ref": "#/components/schemas/RecallReview"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "mode",
+          "mapping": {
+            "recognition": "#/components/schemas/RecognitionReview",
+            "recall": "#/components/schemas/RecallReview"
+          }
+        }
+      },
+      "RecognitionReview": {
+        "type": "object",
+        "properties": {
+          "wordId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["recognition"]
+          },
+          "word": {
+            "type": "string",
+            "minLength": 1
+          },
+          "frame": {
+            "type": "string",
+            "minLength": 1
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "wordId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "gloss": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": ["wordId", "gloss"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["wordId", "lessonId", "dueAt", "mode", "word", "frame", "choices"],
+        "additionalProperties": false
+      },
+      "RecallReview": {
+        "type": "object",
+        "properties": {
+          "wordId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["recall"]
+          },
+          "gloss": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gappedFrame": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["wordId", "lessonId", "dueAt", "mode", "gloss", "gappedFrame"],
+        "additionalProperties": false
+      },
       "FiefChronicle": {
         "type": "object",
         "properties": {
@@ -2731,6 +2983,12 @@
           },
           {
             "$ref": "#/components/schemas/TransportArrivedEvent"
+          },
+          {
+            "$ref": "#/components/schemas/LessonLearnedEvent"
+          },
+          {
+            "$ref": "#/components/schemas/LessonCancelledEvent"
           }
         ],
         "discriminator": {
@@ -2747,7 +3005,9 @@
             "foundingSent": "#/components/schemas/FoundingSentEvent",
             "fiefFounded": "#/components/schemas/FiefFoundedEvent",
             "transportSent": "#/components/schemas/TransportSentEvent",
-            "transportArrived": "#/components/schemas/TransportArrivedEvent"
+            "transportArrived": "#/components/schemas/TransportArrivedEvent",
+            "lessonLearned": "#/components/schemas/LessonLearnedEvent",
+            "lessonCancelled": "#/components/schemas/LessonCancelledEvent"
           }
         }
       },
@@ -3288,6 +3548,44 @@
         "required": ["kind", "province", "plot", "name", "cargo", "occurredAt"],
         "additionalProperties": false
       },
+      "LessonLearnedEvent": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonLearned"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "lessonId", "occurredAt"],
+        "additionalProperties": false
+      },
+      "LessonCancelledEvent": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonCancelled"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "lessonId", "occurredAt"],
+        "additionalProperties": false
+      },
       "EnqueueBuildingRequest": {
         "type": "object",
         "properties": {
@@ -3482,6 +3780,175 @@
           }
         },
         "required": ["toFiefId", "units", "cargo"],
+        "additionalProperties": false
+      },
+      "StartLessonRequest": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["lessonId"],
+        "additionalProperties": false
+      },
+      "ReviewHint": {
+        "type": "object",
+        "properties": {
+          "firstLetter": {
+            "type": "string",
+            "minLength": 1
+          },
+          "letterCount": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": ["firstLetter", "letterCount"],
+        "additionalProperties": false
+      },
+      "ReviewAnswer": {
+        "type": "object",
+        "properties": {
+          "verdict": {
+            "$ref": "#/components/schemas/ReviewVerdict"
+          },
+          "fief": {
+            "$ref": "#/components/schemas/FiefOverview"
+          }
+        },
+        "required": ["verdict", "fief"],
+        "additionalProperties": false
+      },
+      "ReviewVerdict": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/NearMissVerdict"
+          },
+          {
+            "$ref": "#/components/schemas/CorrectVerdict"
+          },
+          {
+            "$ref": "#/components/schemas/WrongVerdict"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "nearMiss": "#/components/schemas/NearMissVerdict",
+            "correct": "#/components/schemas/CorrectVerdict",
+            "wrong": "#/components/schemas/WrongVerdict"
+          }
+        }
+      },
+      "NearMissVerdict": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["nearMiss"]
+          }
+        },
+        "required": ["kind"],
+        "additionalProperties": false
+      },
+      "CorrectVerdict": {
+        "type": "object",
+        "properties": {
+          "word": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gloss": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["correct"]
+          },
+          "earnedSkill": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "lessonId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resource": {
+                "type": "string",
+                "enum": ["wood", "stone", "iron", "gold", "food"]
+              },
+              "ratePercent": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "earnedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "ratePerHourBefore": {
+                "type": "number",
+                "minimum": 0
+              },
+              "ratePerHourAfter": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "lessonId",
+              "resource",
+              "ratePercent",
+              "earnedAt",
+              "ratePerHourBefore",
+              "ratePerHourAfter"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": ["word", "gloss", "dueAt", "kind", "earnedSkill"],
+        "additionalProperties": false
+      },
+      "WrongVerdict": {
+        "type": "object",
+        "properties": {
+          "word": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gloss": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["wrong"]
+          }
+        },
+        "required": ["word", "gloss", "dueAt", "kind"],
+        "additionalProperties": false
+      },
+      "ReviewAnswerRequest": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "required": ["answer"],
         "additionalProperties": false
       },
       "Digest": {
@@ -4871,6 +5338,285 @@
           },
           "409": {
             "description": "MarchNotFound or MarchAlreadyReturning.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/lessons": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartLessonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The fief with the lesson under study in its study slot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s; LessonNotFound, for a lesson the content lacks, answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "StudySlotBusy, LessonLibraryTooLow, LessonAlreadyStudied or LessonUnderStudy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/lessons/{lessonId}": {
+      "delete": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "lessonId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The fief with the lesson cancelled; nothing is refunded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiefOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "LessonStudyNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/reviews/{wordId}/hint": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "wordId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The first letter and the letter count of the word a due recall asks for.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewHint"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "UnknownWord, WordNotHeld or ReviewNotDue, or HintOnRecognition.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fiefs/{fiefId}/reviews/{wordId}/answer": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "fiefId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "wordId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewAnswerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The verdict the server graded and the fief at the review.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewAnswer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed fief id, path or body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "FiefNotFound, for an unknown fief or another lord’s.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "UnknownWord, WordNotHeld or ReviewNotDue.",
             "content": {
               "application/json": {
                 "schema": {

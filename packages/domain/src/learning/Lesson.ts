@@ -9,6 +9,7 @@ export type LessonWord = {
   readonly acceptedForms: readonly [string, ...ReadonlyArray<string>]
   readonly gloss: string
   readonly frame: string
+  readonly gappedFrame: string
 }
 
 export type LessonSkill = {

@@ -76,6 +76,9 @@ const subjectOf = (event: FiefEvent): ChronicleSubject => {
         identity: `${event.province}-${event.plot}-${event.name}`,
         text: copy.chronicle.fiefAtPlot(event.name, event.province, event.plot),
       }
+    case 'lessonLearned':
+    case 'lessonCancelled':
+      return { identity: event.lessonId, text: copy.chronicle.lesson }
     default: {
       const unreachable: never = event
       return unreachable

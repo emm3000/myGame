@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'node:url'
-import { err, Fief, Instant, noStoreFull, type Result } from '@mygame/domain'
+import { defaultMemoryTerms, Fief, Instant, noStoreFull, type Result } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { JsonBuildingCatalog } from '../adapters/json/JsonBuildingCatalog'
+import { JsonLessonCatalog } from '../adapters/json/JsonLessonCatalog'
 import { fiefOverviewOf } from './fiefOverviewOf'
 
 const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -51,12 +52,21 @@ const lessonStudyingFief = accepted(
 )
 
 describe('fiefOverviewOf', () => {
-  it('refuses a lesson in the study slot until the overview can answer one', () => {
-    const catalog = JsonBuildingCatalog.fromDirectory(shippedContent)
+  it('answers the lesson the study slot holds with its start and its finish', () => {
+    const terms = {
+      buildingCatalog: JsonBuildingCatalog.fromDirectory(shippedContent),
+      lessons: JsonLessonCatalog.fromDirectory(shippedContent),
+      memoryTerms: defaultMemoryTerms,
+    }
     const fullAt = { wood: null, stone: null, iron: null, gold: null, food: null }
 
-    const overview = fiefOverviewOf({ fief: lessonStudyingFief, fullAt }, catalog)
+    const overview = accepted(fiefOverviewOf({ fief: lessonStudyingFief, fullAt }, [], terms))
 
-    expect(overview).toEqual(err({ kind: 'LessonNotStored', lessonId: 'lesson-1' }))
+    expect(overview.study).toEqual({
+      kind: 'lesson',
+      lessonId: 'lesson-1',
+      startedAt: '2026-11-10T08:57:30.000Z',
+      finishesAt: '2026-11-10T09:00:00.000Z',
+    })
   })
 })

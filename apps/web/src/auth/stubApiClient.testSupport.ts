@@ -136,6 +136,9 @@ export const knownFief: FiefOverview = {
   },
   incomingCargo: null,
   goal: null,
+  lessons: [],
+  skills: [],
+  reviews: { due: [], nextDueAt: null },
   readAt: '2026-09-22T12:00:00.000Z',
 }
 

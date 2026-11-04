@@ -1,17 +1,16 @@
 import {
   type Clock,
   type DomainError,
-  type Fief,
   type FiefId,
   type FiefOfPlayer,
   type Instant,
   ok,
   type Result,
-  resolveUpgrade,
 } from '@mygame/domain'
 import { fiefsOfLordHolding } from './fiefsOfLordHolding'
 import { laterOf } from './laterOf'
 import type { FiefMutation, FiefStores, MutateAfterResolveDependencies } from './mutateAfterResolve'
+import { resolveFiefInTransaction } from './resolveFiefInTransaction'
 
 const inLockOrder = (fiefIds: ReadonlyArray<FiefId>): ReadonlyArray<FiefId> =>
   [...fiefIds].sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
@@ -33,14 +32,13 @@ const lockedStoredAtsOf = async (
   return ok(storedAts)
 }
 
-export const mutateFiefPairAfterResolve = async (
+export const mutateEveryFiefAfterResolve = async <T>(
   fiefOfPlayer: FiefOfPlayer,
-  mutation: FiefMutation,
-  { inTransaction, buildingCatalog, clock, ids }: MutateAfterResolveDependencies,
-): Promise<Result<Fief, DomainError>> =>
-  inTransaction(async ({ fiefs, chronicle, camps }) => {
-    const stores = { fiefs, chronicle, camps }
-    const held = await fiefsOfLordHolding(fiefOfPlayer, fiefs)
+  mutation: FiefMutation<T>,
+  dependencies: MutateAfterResolveDependencies,
+): Promise<Result<T, DomainError>> =>
+  dependencies.inTransaction(async (stores) => {
+    const held = await fiefsOfLordHolding(fiefOfPlayer, stores.fiefs)
     if (!held.ok) {
       return held
     }
@@ -49,12 +47,14 @@ export const mutateFiefPairAfterResolve = async (
     if (!storedAts.ok) {
       return storedAts
     }
-    const mutatedAt = storedAts.value.reduce(laterOf, clock.now())
+    const mutatedAt = storedAts.value.reduce(laterOf, dependencies.clock.now())
     const mutationClock: Clock = { now: () => mutatedAt }
     for (const fiefId of lordsFiefs) {
-      const resolved = await resolveUpgrade(
+      const resolved = await resolveFiefInTransaction(
         { playerId: fiefOfPlayer.playerId, fiefId },
-        { fiefs, chronicle, camps, catalog: buildingCatalog, clock: mutationClock, ids },
+        stores,
+        mutationClock,
+        dependencies,
       )
       if (!resolved.ok) {
         return resolved

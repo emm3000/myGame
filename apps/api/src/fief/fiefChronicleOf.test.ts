@@ -1,23 +1,23 @@
-import { err, type FiefEvent, Instant } from '@mygame/domain'
+import { type FiefEvent, Instant } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { fiefChronicleOf } from './fiefChronicleOf'
 
 const learnedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T09:00:00Z'))
 
-const libraryFinished: FiefEvent = {
-  kind: 'upgradeFinished',
-  building: 'library',
-  level: 1,
-  occurredAt: learnedAt,
-}
+const cancelledAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T08:58:00Z'))
 
 describe('fiefChronicleOf', () => {
-  it('refuses a lesson event until the wire names the lesson kinds', () => {
-    const chronicle = fiefChronicleOf([
-      libraryFinished,
+  it('names the lesson a learned and a cancelled lesson event carry', () => {
+    const events: ReadonlyArray<FiefEvent> = [
       { kind: 'lessonLearned', lessonId: 'lesson-1', occurredAt: learnedAt },
-    ])
+      { kind: 'lessonCancelled', lessonId: 'lesson-1', occurredAt: cancelledAt },
+    ]
 
-    expect(chronicle).toEqual(err({ kind: 'LessonNotStored', lessonId: 'lesson-1' }))
+    expect(fiefChronicleOf(events)).toEqual({
+      events: [
+        { kind: 'lessonLearned', lessonId: 'lesson-1', occurredAt: '2026-11-10T09:00:00.000Z' },
+        { kind: 'lessonCancelled', lessonId: 'lesson-1', occurredAt: '2026-11-10T08:58:00.000Z' },
+      ],
+    })
   })
 })

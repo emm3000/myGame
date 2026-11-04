@@ -8,7 +8,7 @@ import {
   recallMarch,
 } from '@mygame/domain'
 import type { MutateAfterResolveDependencies } from './mutateAfterResolve'
-import { mutateFiefPairAfterResolve } from './mutateFiefPairAfterResolve'
+import { mutateEveryFiefAfterResolve } from './mutateEveryFiefAfterResolve'
 
 export type RecallMarchDependencies = MutateAfterResolveDependencies
 
@@ -17,7 +17,7 @@ export const recallMarchOf = async (
   { departedAt }: RecallMarchRequest,
   dependencies: RecallMarchDependencies,
 ): Promise<Result<Fief, DomainError>> =>
-  mutateFiefPairAfterResolve(
+  mutateEveryFiefAfterResolve(
     fiefOfPlayer,
     ({ fiefs }, clock) =>
       recallMarch(

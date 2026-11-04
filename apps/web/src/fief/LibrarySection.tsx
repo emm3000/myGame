@@ -21,7 +21,7 @@ const { names } = copy
 
 function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void): BuildSlotState {
   const { study: slot } = fief.overview
-  if (slot.kind === 'idle') {
+  if (slot.kind !== 'busy') {
     return { kind: 'idle', title: names.studySlot, invitation: names.idleStudy }
   }
   const art = {

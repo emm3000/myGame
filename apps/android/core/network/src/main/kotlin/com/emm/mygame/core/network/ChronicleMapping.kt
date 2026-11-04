@@ -29,6 +29,8 @@ internal fun FiefEvent.toChronicleEvent(): ChronicleEvent? = when (this) {
     is FiefEvent.FieffoundedWrapper -> value.toChronicleEvent()
     is FiefEvent.TransportsentWrapper -> value.toChronicleEvent()
     is FiefEvent.TransportarrivedWrapper -> value.toChronicleEvent()
+    is FiefEvent.LessonlearnedWrapper -> null
+    is FiefEvent.LessoncancelledWrapper -> null
 }
 
 private fun UpgradeFinishedEvent.toChronicleEvent(): ChronicleEvent? {
