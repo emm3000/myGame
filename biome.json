@@ -39,12 +39,17 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "error"
+      },
       "suspicious": {
         "noExplicitAny": "error",
         "noConsole": "warn"
       },
       "style": {
+        "noNestedTernary": "error",
         "noNonNullAssertion": "error",
+        "noUselessElse": "error",
         "useConst": "error"
       },
       "nursery": {

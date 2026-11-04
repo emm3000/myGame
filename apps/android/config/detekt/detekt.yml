@@ -71,6 +71,7 @@ style:
     active: true
     max: 3
     excludeLabeled: true
+    excludeGuardClauses: true
     excludedFunctions:
       - 'equals'
     ignoreAnnotated:
