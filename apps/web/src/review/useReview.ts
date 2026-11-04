@@ -59,7 +59,7 @@ interface Answer {
 
 function answerOf(card: DueReview, session: Session): Answer | undefined {
   if (card.mode === 'recall') {
-    return { sent: session.typed, given: session.typed }
+    return session.typed === '' ? undefined : { sent: session.typed, given: session.typed }
   }
   if (session.choice === undefined) {
     return undefined
