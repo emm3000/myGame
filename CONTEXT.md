@@ -123,7 +123,7 @@ The terms of the rebuilt town, from ADR 040; each enters the code with its slice
 - **Building work** — the town's one build slot; the **waiting list** holds the work queued behind it, charged at the enqueue, refunded in full by a **stop** (ADR 011, ADR 040).
 - **In learning** — a card whose stability is under 7 days. The **learning cap**, set by the school's level, bounds how many cards are in learning once a lesson's words enter, so a lesson start past it is refused (ADR 040).
 - **Hire** — a worker or a truck, hired at the office in one hiring order at a time, occupying people and eating nothing. A **team** is the hires sent out together (ADR 018, ADR 021, ADR 040).
-- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay. (ADR 019, ADR 040).
+- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay (ADR 019, ADR 040).
 - **Waste site** — a site holding waste of one of three sizes, placed by a hash of its address and regrowing from its last clean-up. A **clean-up** is a team's trip to it: a team whose strength covers the waste cleans it and is paid money and material; a smaller team comes back with nothing; nobody is lost (ADR 020, ADR 040).
 - **The Report** — the screen of the reviews due, then the Town News since the player last closed it (ADR 027, ADR 040).
 - **Town News** — the town's events, each with its instant, written in the transaction that applies them (ADR 013, ADR 040).

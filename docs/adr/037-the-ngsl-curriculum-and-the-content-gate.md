@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
