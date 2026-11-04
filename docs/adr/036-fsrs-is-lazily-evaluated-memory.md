@@ -74,21 +74,32 @@ metric needs (§8.2), not for a claim of more learning.
 ### The stored card
 
 - **A card stores `state`, `step`, `stability`, `difficulty`,
-  `lastReviewAt`, `lastRating` and `enteredAt`; nothing else, and
-  nothing advances it.** `state` is `learning`, `review` or
+  `lastReviewAt`, `lastRating`, `enteredAt` and `retainedAt`; nothing
+  else, and nothing advances it.** `state` is `learning`, `review` or
   `relearning`; `step` is the learning or relearning step, null in
   `review`; `stability` (days), `difficulty` (1 to 10), `lastReviewAt`
   and `lastRating` are null until the first review; `enteredAt` is the
-  instant the card entered with its lesson. Only a review writes a
-  card (N2, W7, ADR 005).
+  instant the card entered with its lesson; `retainedAt` is the instant
+  of the card's last review when that review was a recall rated Good at
+  least 7 whole days after the review before it, and null after any
+  other review (rule 7). Only a rating writes a card (N2, W7, ADR 005).
 - **The tuple of §4.2, `(stability, difficulty, lastReviewAt, state)`,
   lacks `step`**, which the learning and relearning steps need to know
   which step comes next, **and lacks the last rating**, which the due
-  instant needs: a Hard at step 0 waits the mean of the first two
-  learning steps, 5.5 min, or 1.5 times the single relearning step,
-  15 min, where an Again at the same state and step waits 1 min or
-  10 min. ADR 035 already stores "the moment and the result of its last
-  review"; `lastRating` is that result.
+  instant needs in `relearning`: a Hard at step 0 waits 1.5 times the
+  single relearning step, 15 min, where an Again at the same state and
+  step waits the step, 10 min. ADR 035 already stores "the moment and
+  the result of its last review"; `lastRating` is that result. In
+  `learning` the rating never splits a step, because a recognition
+  rates only Good or Again (rule 5).
+- **A pending review is a stored row of its own, keyed by player and
+  word, separate from the card: `hintShown` and `nearMissAnswer`.** It
+  exists only between a hint or a near-miss and the rating they lead
+  to, which deletes it in the rating's transaction. It holds what
+  rule 4 must remember across requests and never changes the card, so
+  the card stays the FSRS state and nothing else. A hint is refused on
+  a card that is not due and on a card reviewed by recognition, and
+  writes nothing then.
 - **Retrievability is derived on read**: 0 before the first review,
   otherwise `R = (1 + FACTOR × t / S)^DECAY`, with `DECAY = −w20`,
   `FACTOR = 0.9^(1 / DECAY) − 1` and `t` the whole days since
@@ -96,7 +107,8 @@ metric needs (§8.2), not for a claim of more learning.
 - **The due instant is derived on read**: `enteredAt` before the first
   review; in `review`, `lastReviewAt` plus the interval in days of the
   stored stability; in `learning` or `relearning`, `lastReviewAt` plus
-  the step `step` names, except after a Hard at step 0 (above). A card
+  the step `step` names, except after a Hard at relearning step 0
+  (above). A card
   is due when its due instant is at or before `now`.
 - **Only a due card is reviewed** (§1.2). A review of a card not yet
   due is refused and changes nothing; there is no extra practice.
@@ -105,10 +117,13 @@ metric needs (§8.2), not for a claim of more learning.
 
 1. **The card belongs to the player, not the fief, and is written in
    the transaction that holds the player's fiefs.** One card per player
-   and word. A review runs in one transaction that holds every fief row
-   of the player, as a fief mutation holds its row (ADR 005), reads
-   `now` once those rows are held, and writes the card, the log and any
-   skill earned there (ADR 013's rule). ADR 035's one-time reset keeps
+   and word. A rating, a hint and a near-miss each run in one
+   transaction that locks every fief of the player in ascending id, as
+   ADR 024's two-fief mutation does (`mutateFiefPairAfterResolve`):
+   each fief is resolved at one instant, the latest of the clock and
+   every locked `storedAt`, and that instant is the review's. The card,
+   the pending review, the log and any skill earned are written there
+   (ADR 013's rule). ADR 035's one-time reset keeps
    the cards, the review log and the earned skills, as it keeps the
    accounts: the memory is the learner's, not the medieval save's.
 2. **A card in `learning` is reviewed by recognition; from `review` on,
@@ -135,18 +150,27 @@ metric needs (§8.2), not for a claim of more learning.
    content accepts.** A **near-miss** is an answer at
    optimal-string-alignment distance 1 (one letter inserted, deleted,
    changed, or two adjacent letters swapped) from an accepted form of 4
-   letters or more that is not itself another word of the content. A
-   near-miss is not rated: the server records it on the card's pending
-   review and answers "check the spelling", and the next answer rates.
-   A **hint** is requested from the server, which records it on the
-   pending review and answers the word's first letter and its letter
-   count. The pending review is cleared by the rating it leads to.
+   letters or more that is not itself a word of the NGSL 1.2 list. A
+   near-miss is not rated: the server stores it as the pending review's
+   `nearMissAnswer` and answers "check the spelling", and the next
+   answer rates. A **hint** is requested from the server, which sets the
+   pending review's `hintShown` and answers the word's first letter and
+   its letter count. The rating the two lead to deletes the pending
+   review. The NGSL 1.2 headword list (Browne, Culligan and Phillips,
+   CC BY-SA 4.0, 2 809 words with their ranks) is api content beside the
+   lessons, read through the lesson port; S39 adds it with lesson 1's
+   file (#713), and ADR 037's curriculum reads the same file.
 5. **The rating: a wrong answer is Again; a correct answer after a hint
    or after a near-miss is Hard; a correct answer otherwise is Good;
    Easy is never inferred.** A recognition is Good when the right
    meaning is chosen and Again otherwise. Every Again shows the correct
    form beside the player's answer (§6.1). No rating pays or costs a
-   resource (§6.3).
+   resource (§6.3). §6.1's "the item comes back once more before the
+   Report closes" is the step an Again sets: the card is due again 1 min
+   later in `learning` and 10 min later in `relearning`, so a player who
+   stays meets it again in the same sitting, and one who leaves finds it
+   waiting (§1.6). No other re-queue exists, since only a due card is
+   reviewed.
 6. **Lesson 1 takes the library's study slot like an art: it costs
    nothing, lasts 300 content seconds, needs library level 1, and its
    cards enter at its finish.** Its duration is shortened by the built
@@ -157,13 +181,20 @@ metric needs (§8.2), not for a claim of more learning.
    enters its words' cards with `enteredAt` at that finish, due there,
    in the transaction of the read that resolves it, and the chronicle
    records the lesson as it records an art learned. A lesson is studied
-   once per player: a start is refused when the player holds its
-   cards, and a finish that finds them enters none.
+   once per player: a start is refused when the player holds its cards
+   or when a study slot of any fief the player holds is studying it,
+   and a finish that finds the cards enters none.
 7. **The skill is the player's: its level is earned at the review after
-   which every word of its lesson stands at stability 7 days or more at
-   once, stored with that instant, and never taken back.** Stability
-   changes only at a review, so that review is the only instant it can
-   be crossed; it is checked there, never on a read. A later lapse,
+   which every word of its lesson holds both a stability of 7 days or
+   more and a `retainedAt`, stored with that instant, and never taken
+   back.** A word holds a `retainedAt` when its last review was a recall
+   rated Good, so with no hint and no near-miss, at least 7 whole days
+   after the review before it. The stability is the floor; the
+   `retainedAt` is the proof: the word was produced from its gloss,
+   unaided, after a week without practice. A Hard never earns it. Both
+   change only at a review, so that review is the only instant the
+   condition can be met; it is checked there, never on a read. A later
+   lapse,
    ADR 035's reset or a missed review never revokes it (§1.6). Lesson 1
    earns level 1 of the food skill, +5 %, the percent an art's level 1
    gives today. The earned levels live in the domain beside
@@ -173,7 +204,8 @@ metric needs (§8.2), not for a claim of more learning.
    with the art percents, before the season, as one more whole percent
    of the same product. Earning a level re-bases the stocks of every
    fief the player holds at the earn instant, in the review's
-   transaction, as any rate change does (ADR 005).
+   transaction under ADR 024's lock order (rule 1), as any rate change
+   does (ADR 005); the accrual is never split at `earnedAt`.
 8. **The review log is append-only: one row per rating, holding the
    player, the word, the instant, the format, the raw answer, the
    near-miss before it if any, whether a hint was shown, the rating,
@@ -205,17 +237,26 @@ pinned commit, with the parameters above and no fuzz.
     never lowers stability, and its short-term factor here is clamped
     to 1), D 2.1112, due in round(2.3065) = 2 days, 2026-11-12 09:10.
   - 2026-11-12 09:10, recall, *school* typed, Good: S 10.9710, D 2.1043,
-    due in 11 days, 2026-11-23 09:10. S is at least 7: if the other
-    four words of lesson 1 already stand at 7 or more, the food skill
-    level 1 is earned at 2026-11-12 09:10 (rule 7).
-  - The same recall after a hint, Hard: S 7.5174, due in 8 days,
-    2026-11-20 09:10, and still at least 7.
-  - The same recall wrong, Again: `relearning`, step 0, S 0.6077,
+    due in 11 days, 2026-11-23 09:10. S is at least 7, but the review
+    came 2 days after the one before it: `retainedAt` stays null and
+    no skill is earned.
+  - 2026-11-23 09:10, recall, *school* typed, Good, 11 days after the
+    review before it: S 46.3169, D 2.0975, due 2027-01-08 09:10,
+    `retainedAt` 2026-11-23 09:10. If the other four words of lesson 1
+    already hold a `retainedAt` and a stability of 7 or more, the food
+    skill level 1 is earned at 2026-11-23 09:10, 13 days after the
+    lesson (rule 7).
+  - The 2026-11-12 recall after a hint instead, Hard: S 7.5174, due in
+    8 days, 2026-11-20 09:10, no `retainedAt`. At 2026-11-20 09:10,
+    typed with no hint, Good, 8 days after the review before it:
+    S 26.4271, due 2026-12-16 09:10, `retainedAt` set.
+  - The 2026-11-12 recall wrong, Again: `relearning`, step 0, S 0.6077,
     due 09:20 (the relearning step). A skill already earned stays.
-- **Why the last rating is stored.** A new card answered Hard at its
-  first review, 09:00: `learning`, step 0, S 1.2931, due 09:05:30.
-  Answered Again instead: `learning`, step 0, S 0.212, due 09:01. Same
-  state, same step, two due instants.
+- **Why the last rating is stored.** The relearning card above,
+  reviewed at 09:20: typed after a hint, Hard, it stays at step 0 with
+  S 0.6077 and is due at 09:35; typed wrong, Again, it stays at step 0
+  with S 0.2229 and is due at 09:30. Same state, same step, two due
+  instants.
 - **Retrievability on read.** The card at S 10.9710 reviewed at
   2026-11-12 09:10 reads R 0.9062 at 2026-11-22 09:10 (10 days), still
   0.9062 at 2026-11-23 09:09 (10 days, floored), and 0.8998 at
@@ -223,8 +264,8 @@ pinned commit, with the parameters above and no fuzz.
 - **Typed answers for *school*.** "  School " is *school*, Good.
   "scool" (a letter deleted) and "shcool" (two letters swapped) are
   near-misses: no rating, a prompt, and the next answer rates, Hard if
-  it is right. For *food*, "fod" is a near-miss, and "foot" is one only
-  while *foot* is no word of the content; once it is, "foot" is Again.
+  it is right. For *food*, "fod" is a near-miss; "foot" is Again when
+  *foot* is an NGSL 1.2 word, a different word and not a slip.
 
 ## Considered options
 
@@ -255,12 +296,43 @@ pinned commit, with the parameters above and no fuzz.
   and Saito 2010; Ellis, Loewen and Erlam 2006), and §6.2 asks for one
   prompt before the answer. One retry costs one stored mark on the
   pending review the hint needs anyway. A distance-1 answer that is
-  itself a content word is a different word, not a slip, and is Again.
+  itself an English word is a different word, not a slip, and is Again.
+- **A near-miss judged against the content's words only.** Rejected for
+  rule 4: lesson 1 holds five words, so "foot" for *food* would pass as
+  a slip while it is a word the learner may well have meant. The NGSL
+  1.2 list is the curriculum's source anyway (ADR 035), small enough to
+  ship as content, and open to ship (CC BY-SA 4.0); a full English
+  dictionary would call nearly every short typo a word.
+- **The hint and the near-miss stored on the card.** Rejected for the
+  pending review: they are not FSRS state, they live only until the
+  rating, and a card that carried them would change between ratings,
+  which the stored card's rule forbids.
 - **Store the due instant**, as py-fsrs's `Card` does. Rejected: with no
   fuzz it follows from the card and the last rating, and storing it
-  would keep two answers to one question. A future change of
-  parameters then moves every due instant at once, which per-player
-  fitting wants.
+  would keep two answers to one question. A future change of the
+  desired retention or of the steps then moves every due instant at
+  once. A change of the parameters alone does not: at retention 0.90
+  the interval is the stability rounded, whatever `w20`.
+- **The skill at a stability of 7 days alone** (the first draft of this
+  ADR, and §1.1's wording). Rejected for rule 7: with the defaults a
+  single cued recall two days after the lesson crosses it, even a Hard
+  after a hint, which rewards short-term recall, not retention.
+  Delayed form recall falls far below immediate form recall, 25.1 %
+  against 58.5 % after intentional word study (Webb, Yanagisawa and
+  Uchihara 2020, `research.md` §10), and longer gaps win on delayed
+  tests (Kim and Webb 2022, §1). An unaided recall after 7 days without
+  practice tests the delayed retention the skill claims; with the
+  defaults it comes at the second recall, about 13 days after the
+  lesson.
+- **Split the accrual at `earnedAt`** instead of re-basing every fief.
+  Rejected for rule 7: a re-base at the instant of the rate change is
+  ADR 005's rule for every mutation, and ADR 024's lock already holds
+  every fief of the player; a split would add a second kind of
+  boundary to the walk for one event.
+- **A wrong word queued again before the Report closes**, apart from
+  FSRS (§6.1 read literally). Rejected for rule 5: the step an Again
+  sets already brings the word back within minutes, and a separate
+  queue would review a card that is not due (§1.2).
 - **Fuzz on**, py-fsrs's default. Rejected: it exists to spread a large
   Anki collection's load across days; here it would make a review
   non-deterministic and put a random draw in the domain.
@@ -268,12 +340,12 @@ pinned commit, with the parameters above and no fuzz.
   stability does not move with time, so a read can only find what the
   last review already decided. Earning at the review stamps the true
   instant and lets the rate change re-base the stocks there.
-- **A higher threshold, 21 or 30 days of stability.** Not taken: with
-  the defaults, a lesson answered Good throughout reaches 21 days only
-  at its second recall, 13 days after it enters, and the threshold is
-  a design choice either way (§7.1: no L2 study gives one). 7 days
-  keeps the first payoff within the first week; the owner's
-  calibration (§8.2) can move it with evidence.
+- **A higher stability floor, 21 or 30 days.** Not taken: the
+  `retainedAt` proof already asks for an unaided recall after a week,
+  which with the defaults leaves the stability far above 21 (46.3 in
+  the worked example), and the floor is a design choice either way
+  (§7.1: no L2 study gives one). The owner's calibration (§8.2) can
+  move either number with evidence.
 - **A lesson paid in resources.** Rejected for rule 6: a toll on
   learning, the pattern ADR 035 rejects (Deci, Koestner and Ryan 1999).
   The economy pays for the library's levels, which gate and shorten the
@@ -313,18 +385,18 @@ pinned commit, with the parameters above and no fuzz.
   and Python's round half to even for the interval; floating point may
   still differ in the last digits between CPython and V8, so stability
   and difficulty match to a relative 1e-9 and intervals exactly.
-- Postgres gains the cards, the review log and the player's skill
-  levels, keyed by the player, each a migration. ADR 035's reset
-  migration keeps the three.
+- Postgres gains the cards, the pending reviews, the review log and the
+  player's skill levels, keyed by the player, each a migration; #712's
+  schema carries all four. ADR 035's reset migration keeps them.
 - A word's card enters only through a lesson finish. The cap on words in
   learning by the school's level (ADR 035) is not needed while lesson 1
   is the only lesson; it enters with lesson 2.
 - With the defaults, a lesson answered Good throughout earns its skill
-  at its first recall, two days after it enters, and a hint there still
-  earns it. The bar is therefore one typed recall of every word of the
-  lesson from its gloss after a gap of at least a day, which is the
-  retrieval with feedback over a day's interval the testing-effect
-  evidence favours (Rowland 2014).
+  at its second recall, about 13 days after it enters; a word recalled
+  after a hint at day 2 can earn it at day 10, on its next unaided
+  recall. A word whose last review was a Hard, or a recall within 7 days
+  of the one before it, holds the skill back until its next unaided
+  recall a week or more after its last review.
 - FSRS's default parameters were fitted on single-format Anki reviews.
   Here a card's first reviews are recognitions, easier than its recalls,
   so early stability is likely optimistic. The owner's calibration
