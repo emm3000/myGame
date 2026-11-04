@@ -208,7 +208,7 @@ private fun ProgressBar(resource: FiefUiState.ResourceLine, modifier: Modifier =
     }
 }
 
-private fun resourceNameOf(kind: ResourceKind): Int = when (kind) {
+internal fun resourceNameOf(kind: ResourceKind): Int = when (kind) {
     ResourceKind.Wood -> R.string.resource_wood
     ResourceKind.Stone -> R.string.resource_stone
     ResourceKind.Iron -> R.string.resource_iron

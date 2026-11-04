@@ -60,6 +60,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         openTab { fief: FiefId -> Destination.Chronicle(fief) }
     }
 
+    fun openReview() {
+        val top: NavKey? = backStack.lastOrNull()
+        if (top is Destination.Fief) backStack.add(Destination.Review(top.fief))
+    }
+
     fun openFief() {
         when (backStack.lastOrNull()) {
             is Destination.Map, is Destination.Chronicle -> back()

@@ -6,5 +6,9 @@ enum class StudyRefusal {
     ArtMaxLevelReached,
     StudyNotFound,
     InsufficientResources,
+    LessonLibraryTooLow,
+    LessonAlreadyStudied,
+    LessonUnderStudy,
+    LessonStudyNotFound,
     Unrecognized,
 }

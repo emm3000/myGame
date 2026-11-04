@@ -27,4 +27,7 @@ sealed interface Destination : NavKey {
 
     @Serializable
     data class Chronicle(val fief: FiefId) : Destination
+
+    @Serializable
+    data class Review(val fief: FiefId) : Destination
 }

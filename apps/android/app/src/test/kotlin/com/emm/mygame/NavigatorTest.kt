@@ -410,4 +410,42 @@ class NavigatorTest {
 
         assertEquals(listOf(fief, map), backStack)
     }
+
+    @Test
+    fun `opens the review above the fief it shows`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief)
+
+        Navigator(backStack).openReview()
+
+        assertEquals(listOf(fief, Destination.Review(firstListed)), backStack)
+    }
+
+    @Test
+    fun `returns to the fief on back from the review`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief, Destination.Review(firstListed))
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(fief), backStack)
+    }
+
+    @Test
+    fun `opens the review only above the fief`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+
+        Navigator(backStack).openReview()
+
+        assertEquals(listOf(fief, map), backStack)
+    }
+
+    @Test
+    fun `keeps one review when it is opened twice`() {
+        val backStack: MutableList<NavKey> = mutableListOf(fief)
+        val navigator: Navigator = Navigator(backStack)
+
+        navigator.openReview()
+        navigator.openReview()
+
+        assertEquals(listOf(fief, Destination.Review(firstListed)), backStack)
+    }
 }

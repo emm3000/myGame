@@ -68,7 +68,7 @@ internal class ApiFiefRepository(
     override suspend fun startStudy(fief: FiefId, art: ArtKind): StudyResult = withContext(ioDispatcher) {
         try {
             val request = StartStudyRequest(art = art.toWireArt())
-            studiedOrRefused(api.fiefsFiefIdStudiesPost(UUID.fromString(fief.value), request))
+            api.fiefsFiefIdStudiesPost(UUID.fromString(fief.value), request).toStudyResult()
         } catch (expectedOutage: IOException) {
             StudyResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -84,7 +84,7 @@ internal class ApiFiefRepository(
                     art = art.toWireArt().value,
                     targetLevel = targetLevel.toString(),
                 )
-                studiedOrRefused(response)
+                response.toStudyResult()
             } catch (expectedOutage: IOException) {
                 StudyResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
@@ -173,15 +173,6 @@ internal class ApiFiefRepository(
         return RecruitResult.Refused(refusal.kind.toRecruitRefusal())
     }
 
-    private fun studiedOrRefused(response: Response<FiefOverview>): StudyResult {
-        val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
-        if (response.isSuccessful) {
-            return if (snapshot == null) StudyResult.Unreachable else StudyResult.Answered(snapshot)
-        }
-        val refusal: ApiError = response.apiError() ?: return StudyResult.Unreachable
-        return StudyResult.Refused(refusal.kind.toStudyRefusal())
-    }
-
     private fun cancelledOrRefused(response: Response<FiefOverview>): CancelResult {
         val snapshot: FiefSnapshot? = response.body()?.toSnapshot()
         if (response.isSuccessful) {
@@ -199,6 +190,13 @@ internal class ApiFiefRepository(
         val refusal: ApiError = response.apiError() ?: return UpgradeResult.Unreachable
         return UpgradeResult.Refused(refusal.kind.toUpgradeRefusal())
     }
+}
+
+internal fun Response<FiefOverview>.toStudyResult(): StudyResult {
+    val snapshot: FiefSnapshot? = body()?.toSnapshot()
+    if (isSuccessful) return if (snapshot == null) StudyResult.Unreachable else StudyResult.Answered(snapshot)
+    val refusal: ApiError = apiError() ?: return StudyResult.Unreachable
+    return StudyResult.Refused(refusal.kind.toStudyRefusal())
 }
 
 private fun BuildingKind.toWireBuilding(): EnqueueBuildingRequest.Building = when (this) {
@@ -222,6 +220,10 @@ private val studyRefusals: Map<ApiError.Kind, StudyRefusal> = mapOf(
     ApiError.Kind.ArtMaxLevelReached to StudyRefusal.ArtMaxLevelReached,
     ApiError.Kind.StudyNotFound to StudyRefusal.StudyNotFound,
     ApiError.Kind.InsufficientResources to StudyRefusal.InsufficientResources,
+    ApiError.Kind.LessonLibraryTooLow to StudyRefusal.LessonLibraryTooLow,
+    ApiError.Kind.LessonAlreadyStudied to StudyRefusal.LessonAlreadyStudied,
+    ApiError.Kind.LessonUnderStudy to StudyRefusal.LessonUnderStudy,
+    ApiError.Kind.LessonStudyNotFound to StudyRefusal.LessonStudyNotFound,
 )
 
 private fun ApiError.Kind.toStudyRefusal(): StudyRefusal = studyRefusals[this] ?: StudyRefusal.Unrecognized

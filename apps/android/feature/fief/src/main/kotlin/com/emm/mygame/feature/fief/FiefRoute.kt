@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefRepository
+import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.SessionRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -19,23 +20,21 @@ import kotlinx.coroutines.withContext
 fun FiefRoute(
     fief: FiefId,
     fiefs: FiefRepository,
+    learning: LearningRepository,
     sessions: SessionRepository,
     clock: Clock,
-    onSigningOut: () -> Unit,
-    onSignedOut: () -> Unit,
-    onNewFief: () -> Unit,
+    navigation: FiefNavigation,
     modifier: Modifier = Modifier,
-    viewModel: FiefViewModel = viewModel { FiefViewModel(fief, fiefs, sessions, clock) },
+    viewModel: FiefViewModel = viewModel { FiefViewModel(fief, fiefs, learning, sessions, clock) },
 ) {
     val state: FiefUiState by viewModel.state.collectAsStateWithLifecycle()
-    val currentOnSignedOut: () -> Unit by rememberUpdatedState(onSignedOut)
-    val currentOnNewFief: () -> Unit by rememberUpdatedState(onNewFief)
+    val currentNavigation: FiefNavigation by rememberUpdatedState(navigation)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: FiefEffect ->
                 when (effect) {
-                    FiefEffect.SignedOut -> currentOnSignedOut()
-                    FiefEffect.FoundingApplied -> currentOnNewFief()
+                    FiefEffect.SignedOut -> currentNavigation.onSignedOut()
+                    FiefEffect.FoundingApplied -> currentNavigation.onNewFief()
                 }
             }
         }
@@ -45,9 +44,13 @@ fun FiefRoute(
         onDispose { viewModel.onIntent(FiefIntent.ScreenHidden) }
     }
     val isSigningOut: Boolean = state == FiefUiState.SigningOut
-    val currentOnSigningOut: () -> Unit by rememberUpdatedState(onSigningOut)
     LaunchedEffect(isSigningOut) {
-        if (isSigningOut) currentOnSigningOut()
+        if (isSigningOut) currentNavigation.onSigningOut()
     }
-    FiefScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+    FiefScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onReviewOpen = { currentNavigation.onReviewOpen() },
+        modifier = modifier,
+    )
 }

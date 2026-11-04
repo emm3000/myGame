@@ -3,6 +3,7 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.network.generated.models.BusyBuildSlot
 import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildings
+import com.emm.mygame.core.network.generated.models.FiefOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmill
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevel
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevelCost
@@ -55,6 +56,9 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         seasonInForce = seasonInForce,
         seasonEndsAt = season?.endsAt?.toKotlinInstant(),
         combatTerms = CombatTerms(lootPerStrength = combatTerms.lootPerStrength),
+        lessons = lessons.map { lesson: FiefOverviewLessonsInner -> lesson.toLessonState() },
+        skills = skills.toEarnedSkills(),
+        reviews = reviews.toDueReviews(),
     )
 }
 

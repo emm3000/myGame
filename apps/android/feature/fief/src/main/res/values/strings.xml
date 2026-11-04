@@ -196,4 +196,47 @@
     <string name="refusal_march_not_found">El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.</string>
     <string name="refusal_march_already_returning">Esa marcha ya viene de vuelta. Espera a que llegue.</string>
     <string name="refusal_recruit_order_not_found">El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.</string>
+    <string name="lesson_title">Lección 1</string>
+    <string name="lesson_start">Estudiar la lección 1</string>
+    <plurals name="lesson_free">
+        <item quantity="one">No cuesta nada. Trae %1$d palabra nueva.</item>
+        <item quantity="other">No cuesta nada. Trae %1$d palabras nuevas.</item>
+    </plurals>
+    <string name="lesson_busy">En estudio</string>
+    <string name="lesson_refund">Si lo cancelas, no pierdes nada: la lección queda por estudiar.</string>
+    <string name="lesson_done">Lección 1 estudiada.</string>
+    <string name="lesson_review_link">Ir al repaso</string>
+    <string name="lesson_refusal_library_too_low">La lección 1 necesita una biblioteca. Levántala primero.</string>
+    <string name="lesson_refusal_already_studied">Ya estudiaste la lección 1: sus palabras están en tu repaso.</string>
+    <string name="lesson_refusal_under_study">La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.</string>
+    <string name="review_title">Repaso</string>
+    <string name="review_loading">Estamos leyendo tu repaso…</string>
+    <string name="review_failed">No hemos podido leer tu repaso.</string>
+    <string name="review_no_cards">Aún no tienes palabras que repasar. Estudia la lección 1 en la biblioteca.</string>
+    <string name="review_nothing_due">No tienes nada que repasar ahora.</string>
+    <string name="review_next_due">Siguiente repaso: %1$s</string>
+    <string name="review_due_count">Por repasar: %1$d</string>
+    <string name="review_recognition_prompt">¿Qué significa?</string>
+    <string name="review_recall_prompt">¿Cómo se dice en inglés?</string>
+    <string name="review_answer_label">Tu respuesta en inglés</string>
+    <string name="review_hint">Pedir una pista</string>
+    <plurals name="review_hint_line">
+        <item quantity="one">Empieza por «%1$s» y tiene %2$d letra.</item>
+        <item quantity="other">Empieza por «%1$s» y tiene %2$d letras.</item>
+    </plurals>
+    <string name="review_check">Comprobar</string>
+    <string name="review_checking">Comprobando…</string>
+    <string name="review_near_miss">Casi. Revisa cómo se escribe y vuelve a comprobar.</string>
+    <string name="review_correct">Correcto.</string>
+    <string name="review_next_card">Siguiente</string>
+    <string name="review_wrong">No es correcto.</string>
+    <string name="review_yours">Tu respuesta: %1$s</string>
+    <string name="review_correct_form">La correcta: %1$s</string>
+    <string name="review_returns">Esta palabra volverá en unos minutos.</string>
+    <string name="review_skill_earned">Habilidad ganada: %1$s, nivel %2$d.</string>
+    <string name="review_skill_rate">%1$s en todos tus feudos.</string>
+    <string name="review_refusal_not_due">Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.</string>
+    <string name="review_refusal_hint_on_recognition">Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.</string>
+    <string name="review_refusal_unknown_choice">Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.</string>
+    <string name="review_refusal_word_not_held">Esa palabra no está en tus lecciones. Vuelve al repaso.</string>
 </resources>

@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.FiefListRepository
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
+import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -46,6 +47,15 @@ class MyGameApplication : Application() {
 
     val fiefs: FiefRepository by lazy {
         FiefRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
+    }
+
+    val learning: LearningRepository by lazy {
+        LearningRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,

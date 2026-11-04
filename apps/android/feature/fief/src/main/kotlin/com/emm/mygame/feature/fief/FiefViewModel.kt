@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.MarchResult
 import com.emm.mygame.core.network.RecruitRefusal
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 class FiefViewModel(
     private val fiefOnScreen: FiefId,
     private val fiefs: FiefRepository,
+    private val learning: LearningRepository,
     private val sessions: SessionRepository,
     private val clock: Clock,
 ) : ViewModel() {
@@ -79,6 +81,12 @@ class FiefViewModel(
             is FiefIntent.StudyTapped -> study { fief: FiefSnapshot -> fiefs.startStudy(fief.id, intent.art) }
             is FiefIntent.StudyCancelTapped -> study { fief: FiefSnapshot ->
                 fiefs.cancelStudy(fief.id, intent.art, intent.targetLevel)
+            }
+            is FiefIntent.LessonStudyTapped -> study { fief: FiefSnapshot ->
+                learning.startLesson(fief.id, intent.lesson)
+            }
+            is FiefIntent.LessonCancelTapped -> study { fief: FiefSnapshot ->
+                learning.cancelLesson(fief.id, intent.lesson)
             }
             is FiefIntent.RecruitEntryChanged -> enter(intent.unit, intent.entry)
             is FiefIntent.RecruitTapped -> recruit(intent.unit)
@@ -224,7 +232,7 @@ class FiefViewModel(
     private suspend fun answerRefusedStudy(refusal: StudyRefusal) {
         val refused: FiefUiState.StudyStatus = FiefUiState.StudyStatus.Refused(refusal)
         rereadIf(
-            isNeeded = refusal == StudyRefusal.StudyNotFound,
+            isNeeded = refusal == StudyRefusal.StudyNotFound || refusal == StudyRefusal.LessonStudyNotFound,
             answered = { mutations.studyAnswered(refused) },
             unanswered = { mutations.copy(study = refused) },
         )

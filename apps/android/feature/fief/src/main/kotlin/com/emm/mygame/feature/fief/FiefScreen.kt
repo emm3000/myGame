@@ -26,7 +26,12 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 
 @Composable
-fun FiefScreen(state: FiefUiState, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
+fun FiefScreen(
+    state: FiefUiState,
+    onIntent: (FiefIntent) -> Unit,
+    onReviewOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -41,7 +46,7 @@ fun FiefScreen(state: FiefUiState, onIntent: (FiefIntent) -> Unit, modifier: Mod
             FiefUiState.Loading -> Loading(onIntent = onIntent)
             FiefUiState.Failed -> Failed(onIntent = onIntent)
             FiefUiState.SigningOut -> SigningOut(onIntent = onIntent)
-            is FiefUiState.Content -> Content(content = state, onIntent = onIntent)
+            is FiefUiState.Content -> Content(content = state, onIntent = onIntent, onReviewOpen = onReviewOpen)
         }
     }
 }
@@ -115,7 +120,12 @@ private fun SigningOut(onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modi
 }
 
 @Composable
-private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun Content(
+    content: FiefUiState.Content,
+    onIntent: (FiefIntent) -> Unit,
+    onReviewOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         Header(title = content.name, isSigningOut = false, onIntent = onIntent, season = content.season)
         ResourcesSection(content = content)
@@ -123,7 +133,7 @@ private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit
         if (content.queue.isNotEmpty()) QueueSection(content = content, onIntent = onIntent)
         BuildingsSection(content = content, onIntent = onIntent)
         content.library?.let { library: FiefUiState.LibraryLine ->
-            LibrarySection(library = library, onIntent = onIntent)
+            LibrarySection(library = library, onIntent = onIntent, onReviewOpen = onReviewOpen)
         }
         content.army?.let { army: FiefUiState.ArmyLine ->
             ArmySection(army = army, onIntent = onIntent)

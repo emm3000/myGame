@@ -10,8 +10,12 @@ import com.emm.mygame.core.network.BuildSlot
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.BuildingState
 import com.emm.mygame.core.network.CombatTerms
+import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.network.EarnedSkill
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.LessonState
 import com.emm.mygame.core.network.ForageTerms
 import com.emm.mygame.core.network.MarchOrder
 import com.emm.mygame.core.network.NextArtLevel
@@ -32,6 +36,7 @@ import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.network.WaitingUpgrade
 import com.emm.mygame.core.testing.FakeFiefRepository
+import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Duration
@@ -51,8 +56,10 @@ internal fun TestScope.openFief(
     deviceNow: Instant = firstReadAt,
     sessions: FakeSessionRepository = FakeSessionRepository(),
     fiefOnScreen: FiefId = FiefId(FIEF_ID),
+    learning: FakeLearningRepository = FakeLearningRepository(),
 ): FiefViewModel {
-    val viewModel: FiefViewModel = FiefViewModel(fiefOnScreen, fiefs, sessions, TestClock(testScheduler, deviceNow))
+    val viewModel: FiefViewModel =
+        FiefViewModel(fiefOnScreen, fiefs, learning, sessions, TestClock(testScheduler, deviceNow))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()
@@ -97,6 +104,9 @@ internal fun fief(
     season: SeasonPercents? = null,
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
+    lessons: List<LessonState> = emptyList(),
+    skills: List<EarnedSkill> = emptyList(),
+    reviews: DueReviews = DueReviews(due = emptyList(), nextDueAt = null),
 ): FiefSnapshot = FiefSnapshot(
     id = FiefId(FIEF_ID),
     name = "Vadoalto",
@@ -122,6 +132,9 @@ internal fun fief(
     seasonInForce = seasonInForce,
     seasonEndsAt = seasonEndsAt,
     combatTerms = CombatTerms(lootPerStrength = 60),
+    lessons = lessons,
+    skills = skills,
+    reviews = reviews,
 )
 
 internal fun sawmill(level: Int = 0): BuildingState = building(BuildingKind.Sawmill, level)
@@ -161,6 +174,12 @@ internal fun studyingSmithing(
     finishesAt = firstReadAt + finishesIn,
     cost = cost,
 )
+
+internal fun lessonOne(isStudied: Boolean = false): LessonState =
+    LessonState(id = LessonId("lesson-1"), theme = "A day in town", isStudied = isStudied, wordCount = 5)
+
+internal fun studyingLessonOne(finishesIn: Duration): StudySlot =
+    StudySlot.Lesson(lesson = LessonId("lesson-1"), finishesAt = firstReadAt + finishesIn)
 
 internal fun army(infantryAtHome: Int = 0, infantryAway: Int = 0): List<UnitState> = listOf(
     unit(UnitKind.Infantry, count = infantryAtHome + infantryAway, away = infantryAway, barracksLevel = 1),
