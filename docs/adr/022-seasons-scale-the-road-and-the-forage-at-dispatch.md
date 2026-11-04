@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-10-01
 ---
 # Seasons scale the road and the forage at dispatch
@@ -378,3 +378,7 @@ alone.
   winter lengthening the road, a season on combat or on the attack loot,
   a season on the stay hours, a road or a loot that follows the season
   after dispatch, a mark on the march card or in the chronicle, PvP.
+
+## Amendment (2026-11-04)
+
+ADR 035 keeps the season's road percent at dispatch and turns the forage loot percent into the job's **pay percent**, fixed at dispatch and kept by a call back. Autumn is named fall. The attack's season rules go with the attack (ADR 020, superseded). Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

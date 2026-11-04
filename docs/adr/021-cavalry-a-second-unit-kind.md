@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-10-01
 ---
 # Cavalry, a second unit kind
@@ -502,3 +502,7 @@ section draws four cards, the archer's third and locked below barracks
 party, the road of the slowest kind, the forage per head, the summed
 carry and strength, the units away per kind and the wire's shapes
 stand.
+
+## Fourth amendment (2026-11-04)
+
+ADR 035 rebuilds cavalry as **trucks**: a truck carries more and travels faster than a worker, as the rider did, with its terms in content and the office level it needs. The loss order goes with the battle (ADR 020, superseded): a clean-up loses nobody. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-29
 ---
 # Seasons scale build and study durations at the enqueue
@@ -314,3 +314,7 @@ never read `multiplierPercent`" stands for the four durations; the forage
 loot, which is not a duration, reads it at dispatch (ADR 022). A road
 that follows the season after dispatch, winter lengthening the road, a
 season on combat and a season on the stay hours stay out.
+
+## Third amendment (2026-11-04)
+
+ADR 035 renames what these percents scale: the build percent scales building work, the study percent becomes the school's lesson percent if ADR 036 keeps a timed lesson, and the train percent scales hiring at the office (ADR 018 as amended). Autumn is named fall. Each duration is still fixed at the enqueue, the start or the order and never retimed. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

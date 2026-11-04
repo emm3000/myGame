@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: amended by ADR 035
 date: 2026-09-22
 ---
 # Peasants are a derived number and food is a plain stock
@@ -40,3 +40,7 @@ supply.
 - Reversing this means adding a population row with a stored-at instant and
   a growth formula, which is a schema migration and a new lazy formula, so it
   is deliberately postponed until the economy is fun without it.
+
+## Amendment (2026-11-04)
+
+ADR 035 moves the game to a present-day town. Peasants become **people**, and **homes** supply them instead of the fief and the farm; the farm grows food alone. The workforce stays derived, supplied less occupied, and food stays a stock (W9 holds). Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.

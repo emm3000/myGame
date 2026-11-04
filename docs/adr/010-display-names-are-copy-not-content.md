@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR 035
 date: 2026-09-25
 ---
 # Display names are copy, not content
