@@ -7,11 +7,13 @@ import { Client } from 'pg'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { tokenDigest } from '../../auth/tokenDigest'
 import { DrizzleAccounts } from './DrizzleAccounts'
+import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 import {
   accountTokens,
   campBattles,
+  cards,
   fiefArts,
   fiefBuildings,
   fiefEvents,
@@ -21,8 +23,11 @@ import {
   fiefRecruitOrders,
   fiefs,
   fiefUnits,
+  pendingReviews,
   playerSeenHints,
+  playerSkills,
   players,
+  reviewLog,
   sessions,
 } from './schema'
 
@@ -120,6 +125,64 @@ function infantryMarchOf(fiefId: string): typeof fiefMarches.$inferInsert {
   }
 }
 
+const lessonFinishedAt = new Date('2026-11-10T09:00:00Z')
+
+function enteredCardOf(playerId: string): typeof cards.$inferInsert {
+  return { playerId, wordId: 'school', state: 'learning', step: 0, enteredAt: lessonFinishedAt }
+}
+
+function reviewedCardOf(playerId: string): typeof cards.$inferInsert {
+  return {
+    playerId,
+    wordId: 'school',
+    state: 'review',
+    step: null,
+    stability: 10.971,
+    difficulty: 2.1043,
+    lastReviewAt: new Date('2026-11-12T09:10:00Z'),
+    lastRating: 'good',
+    enteredAt: lessonFinishedAt,
+  }
+}
+
+function firstReviewOf(playerId: string): typeof reviewLog.$inferInsert {
+  return {
+    playerId,
+    wordId: 'school',
+    reviewedAt: lessonFinishedAt,
+    format: 'recognition',
+    answer: 'school',
+    hintShown: false,
+    rating: 'good',
+    beforeState: 'learning',
+    beforeStep: 0,
+    beforeEnteredAt: lessonFinishedAt,
+    afterState: 'learning',
+    afterStep: 1,
+    afterStability: 2.3065,
+    afterDifficulty: 2.1181,
+    afterLastReviewAt: lessonFinishedAt,
+    afterLastRating: 'good',
+    afterEnteredAt: lessonFinishedAt,
+  }
+}
+
+function foodSkillOf(playerId: string): typeof playerSkills.$inferInsert {
+  return {
+    playerId,
+    lessonId: 'lesson-1',
+    resource: 'food',
+    ratePercent: 5,
+    earnedAt: new Date('2026-11-23T09:10:00Z'),
+  }
+}
+
+const lessonStudyColumns = {
+  studyLessonId: 'lesson-1',
+  studyStartedAt: new Date('2026-11-10T08:57:30Z'),
+  studyFinishesAt: lessonFinishedAt,
+}
+
 const ana = aPlayer('00000000-0000-4000-8000-000000000001', 'Ana@Example.com')
 const bruno = aPlayer('00000000-0000-4000-8000-000000000002', 'bruno@example.com')
 const anasFief = aFief('00000000-0000-4000-8000-00000000000a', ana.id)
@@ -207,6 +270,7 @@ describe('the migrations', () => {
     expect(tables.rows.map((row) => row.name)).toEqual([
       'account_tokens',
       'camp_battles',
+      'cards',
       'fief_arts',
       'fief_buildings',
       'fief_events',
@@ -216,10 +280,147 @@ describe('the migrations', () => {
       'fief_recruit_orders',
       'fief_units',
       'fiefs',
+      'pending_reviews',
       'player_seen_hints',
+      'player_skills',
       'players',
+      'review_log',
       'sessions',
     ])
+  })
+
+  it("drops a deleted player's cards, pending reviews, review log and skills", async () => {
+    await db.insert(players).values([ana, bruno])
+    for (const playerId of [ana.id, bruno.id]) {
+      await db.insert(cards).values(enteredCardOf(playerId))
+      await db.insert(pendingReviews).values({ playerId, wordId: 'school', hintShown: true })
+      await db.insert(reviewLog).values(firstReviewOf(playerId))
+      await db.insert(playerSkills).values(foodSkillOf(playerId))
+    }
+
+    await db.delete(players).where(eq(players.id, ana.id))
+
+    const owners = await Promise.all(
+      [cards, pendingReviews, reviewLog, playerSkills].map((table) =>
+        db.select({ playerId: table.playerId }).from(table),
+      ),
+    )
+    expect(owners).toEqual([
+      [{ playerId: bruno.id }],
+      [{ playerId: bruno.id }],
+      [{ playerId: bruno.id }],
+      [{ playerId: bruno.id }],
+    ])
+  })
+
+  it('refuses a second card of one word for one player', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(cards).values(enteredCardOf(ana.id))
+
+    await expect(db.insert(cards).values(enteredCardOf(ana.id))).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'cards_pkey' },
+    })
+  })
+
+  it('refuses a card in review that holds a learning step', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(cards).values({ ...reviewedCardOf(ana.id), step: 1 }),
+    ).rejects.toMatchObject({ cause: { code: checkViolation, constraint: 'cards_step_terms' } })
+  })
+
+  it('refuses a reviewed card stored without its last rating', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(cards).values({ ...reviewedCardOf(ana.id), lastRating: null }),
+    ).rejects.toMatchObject({ cause: { code: checkViolation, constraint: 'cards_review_terms' } })
+  })
+
+  it('refuses a card retained at an instant other than its last review', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db
+        .insert(cards)
+        .values({ ...reviewedCardOf(ana.id), retainedAt: new Date('2026-11-10T09:00:00Z') }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'cards_retained_at_last_review' },
+    })
+  })
+
+  it('refuses a skill a player earned twice from one lesson', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(playerSkills).values(foodSkillOf(ana.id))
+
+    await expect(db.insert(playerSkills).values(foodSkillOf(ana.id))).rejects.toMatchObject({
+      cause: { code: uniqueViolation, constraint: 'player_skills_pkey' },
+    })
+  })
+
+  it('refuses a review logged with elapsed days before any earlier review', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(reviewLog).values({ ...firstReviewOf(ana.id), elapsedDays: 0 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'review_log_elapsed_days_terms' },
+    })
+  })
+
+  it('refuses a lesson study that holds an art', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(fiefs).values({ ...anasFief, ...lessonStudyColumns, studyArt: 'masonry' }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fiefs_study_lesson_terms' },
+    })
+  })
+
+  it('refuses a lesson study that debited a cost', async () => {
+    await db.insert(players).values(ana)
+
+    await expect(
+      db.insert(fiefs).values({ ...anasFief, ...lessonStudyColumns, studyCostFood: 30 }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fiefs_study_lesson_terms' },
+    })
+  })
+
+  it('refuses a lesson event that also names a building', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'lesson_learned',
+        lessonId: 'lesson-1',
+        building: 'library',
+        level: 1,
+        occurredAt: new Date('2026-11-10T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_one_subject' },
+    })
+  })
+
+  it('refuses a lesson named on an event of another kind', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(fiefs).values(anasFief)
+
+    await expect(
+      db.insert(fiefEvents).values({
+        fiefId: anasFief.id,
+        kind: 'upgrade_finished',
+        lessonId: 'lesson-1',
+        occurredAt: new Date('2026-11-10T09:00:00Z'),
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: checkViolation, constraint: 'fief_events_lesson_terms' },
+    })
   })
 
   it('drops the seen hints of a deleted player', async () => {
@@ -2980,5 +3181,66 @@ describe('the incoming cargo departure migration', () => {
     await migratedWithCargoes()
 
     expect(await departureOfCargoIn(strayCargo.destination)).toEqual(arrival)
+  })
+})
+
+describe('the learning memory migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  const migratedWithAnasFief = async (): Promise<void> =>
+    migratedFrom(client, 30, async () => {
+      await insertPlayersOfFullSinceVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+      await client.query(
+        `INSERT INTO fief_events (fief_id, kind, art, level, occurred_at)
+         VALUES ($1, 'art_learned', 'smithing', 1, '2026-09-22T08:30:00Z')`,
+        [anasFief.id],
+      )
+    })
+
+  it('reads a fief stored before the migration with no skill', async () => {
+    await migratedWithAnasFief()
+
+    const read = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(anasFief.id)
+
+    expect(read.ok && read.value?.skills).toEqual([])
+  })
+
+  it('reads the study slot of a fief stored before the migration as idle', async () => {
+    await migratedWithAnasFief()
+
+    const read = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(anasFief.id)
+
+    expect(read.ok && read.value?.studySlot).toEqual({ kind: 'idle' })
+  })
+
+  it('holds no card for a player stored before the migration', async () => {
+    await migratedWithAnasFief()
+
+    expect(await new DrizzleCardRepository(drizzle(client)).cardsOf(ana.id)).toEqual({
+      ok: true,
+      value: [],
+    })
+  })
+
+  it('keeps the events stored before the migration', async () => {
+    await migratedWithAnasFief()
+
+    expect(await new DrizzleChronicle(drizzle(client)).eventsOf(anasFief.id)).toEqual([
+      {
+        kind: 'artLearned',
+        art: 'smithing',
+        level: 1,
+        occurredAt: instantAt('2026-09-22T08:30:00Z'),
+      },
+    ])
   })
 })

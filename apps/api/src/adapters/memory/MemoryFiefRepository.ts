@@ -1,6 +1,7 @@
 import {
   byUnitKind,
   type DomainError,
+  type EarnedSkill,
   err,
   Fief,
   type FiefId,
@@ -23,7 +24,11 @@ const byProvinceThenPlot = (left: Fief, right: Fief): number =>
   left.coordinates.province - right.coordinates.province ||
   left.coordinates.plot - right.coordinates.plot
 
-const storedFiefOf = (fief: Fief, guidanceDismissedAt: Instant | null): StoredFief => {
+const storedFiefOf = (
+  fief: Fief,
+  guidanceDismissedAt: Instant | null,
+  skills: ReadonlyArray<EarnedSkill>,
+): StoredFief => {
   const { kingdom, province, plot } = fief.coordinates
   return {
     id: fief.id,
@@ -43,13 +48,14 @@ const storedFiefOf = (fief: Fief, guidanceDismissedAt: Instant | null): StoredFi
     ...(fief.incomingCargo === undefined ? {} : { incomingCargo: fief.incomingCargo }),
     fullSince: fief.fullSince,
     guidanceDismissedAt,
-    skills: [],
+    skills,
   }
 }
 
 export class MemoryFiefRepository implements FiefRepository {
   private readonly fiefs = new Map<string, Fief>()
   private readonly guidanceDismissals = new Map<FiefId, Instant>()
+  private readonly skills = new Map<PlayerId, ReadonlyArray<EarnedSkill>>()
 
   heldFiefs(): ReadonlyArray<Fief> {
     return [...this.fiefs.values()]
@@ -91,14 +97,31 @@ export class MemoryFiefRepository implements FiefRepository {
     if (fief === undefined) {
       return ok(undefined)
     }
-    return Fief.restore(storedFiefOf(fief, this.guidanceDismissals.get(fiefId) ?? null))
+    return Fief.restore(
+      storedFiefOf(
+        fief,
+        this.guidanceDismissals.get(fiefId) ?? null,
+        this.skills.get(fief.playerId) ?? [],
+      ),
+    )
+  }
+
+  private keepSkillsOf(fief: Fief): void {
+    const kept = this.skills.get(fief.playerId) ?? []
+    const earned = fief.skills.filter(
+      (skill) => !kept.some(({ lessonId }) => lessonId === skill.lessonId),
+    )
+    this.skills.set(
+      fief.playerId,
+      [...kept, ...earned].sort(
+        (left, right) =>
+          left.earnedAt.epochMilliseconds - right.earnedAt.epochMilliseconds ||
+          (left.lessonId < right.lessonId ? -1 : Number(left.lessonId > right.lessonId)),
+      ),
+    )
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
-    const { studySlot } = fief
-    if (studySlot.kind === 'lesson') {
-      return err({ kind: 'LessonNotStored', lessonId: studySlot.lessonId })
-    }
     const rival = [...this.fiefs.values()].find(
       (stored) => stored.id !== fief.id && sharesPlot(stored, fief),
     )
@@ -120,6 +143,7 @@ export class MemoryFiefRepository implements FiefRepository {
       return err({ kind: 'PlotReserved', province: reserved.province, plot: reserved.plot })
     }
     this.fiefs.set(fief.id, fief)
+    this.keepSkillsOf(fief)
     return ok(undefined)
   }
 }

@@ -3,6 +3,7 @@ import {
   type BuildingCatalog,
   type DomainError,
   err,
+  type FiefEvent,
   fullStoresOf,
   type Instant,
   ok,
@@ -10,7 +11,6 @@ import {
   type Result,
 } from '@mygame/domain'
 import type { ChronicleReader } from '../fief/ChronicleReader'
-import type { ChronicledEvent } from '../fief/chronicledEventsOf'
 import type { CurrentFiefDependencies } from '../fief/currentFiefOf'
 import { currentFiefsOfPlayer } from '../fief/currentFiefsOfPlayer'
 import type { FiefReading } from '../fief/FiefReading'
@@ -55,7 +55,7 @@ const filledStoresOf = (
 
 const digestFiefOf = (
   reading: FiefReading,
-  events: ReadonlyArray<ChronicledEvent>,
+  events: ReadonlyArray<FiefEvent>,
   catalog: BuildingCatalog,
   acknowledgedAt: Instant,
 ): Result<DigestFief, DomainError> => {
@@ -64,11 +64,16 @@ const digestFiefOf = (
     return stores
   }
   const { fief } = reading
-  const eventsSince = events.filter(({ occurredAt }) => isAfter(occurredAt, acknowledgedAt))
+  const chronicle = fiefChronicleOf(
+    events.filter(({ occurredAt }) => isAfter(occurredAt, acknowledgedAt)),
+  )
+  if (!chronicle.ok) {
+    return chronicle
+  }
   return ok({
     id: fief.id,
     name: fief.name.value,
-    events: fiefChronicleOf(eventsSince).events,
+    events: chronicle.value.events,
     stores: [...stores.value],
   })
 }

@@ -13,6 +13,7 @@ import {
   type FiefRepository,
   foundFief,
   Instant,
+  MemoryCard,
   ok,
   type PlayerId,
   type Result,
@@ -361,7 +362,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, player_seen_hints, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2)",
@@ -701,5 +702,35 @@ describe('an account transaction from the composed server', () => {
       ok(await accountTokens.redeem(verifyLink.token, 'verify', foundedAt)),
     )
     expect(redeemed).toEqual(ok(undefined))
+  })
+})
+
+describe('a review transaction from the composed server', () => {
+  let server: ComposedServer
+
+  beforeAll(() => {
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
+  })
+
+  afterAll(async () => {
+    await server.close()
+  })
+
+  it('forgets the card and the pending review a refused transaction wrote', async () => {
+    await foundAnasFief(server)
+
+    await server.inTransaction(async ({ cards, pendingReviews }) => {
+      await cards.save(ana, { wordId: 'school', card: MemoryCard.entered(foundedAt) })
+      await pendingReviews.save(ana, 'school', { hintShown: true, nearMissAnswer: null })
+      return err('refused')
+    })
+
+    const kept = await server.inTransaction(async ({ cards, pendingReviews }) =>
+      ok({
+        cards: await cards.cardsOf(ana),
+        pending: await pendingReviews.pendingReviewOf(ana, 'school'),
+      }),
+    )
+    expect(kept).toEqual(ok({ cards: ok([]), pending: undefined }))
   })
 })

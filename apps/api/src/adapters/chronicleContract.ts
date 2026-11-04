@@ -1,6 +1,5 @@
 import {
   type ChronicleWriter,
-  err,
   type FiefEvent,
   type FiefId,
   Instant,
@@ -50,17 +49,23 @@ export const chronicleContract = (
       expect(await chronicle.eventsOf(valdehierro)).toEqual([])
     })
 
-    it('refuses a lesson event until its storage exists', async () => {
+    it('reads back a learned lesson and a cancelled one', async () => {
       const { chronicle, registerFiefs } = await arrange()
       await registerFiefs([valdehierro])
+      const cancelled: FiefEvent = {
+        kind: 'lessonCancelled',
+        lessonId: 'lesson-1',
+        occurredAt: minutesAfterDawn(2),
+      }
+      const learned: FiefEvent = {
+        kind: 'lessonLearned',
+        lessonId: 'lesson-1',
+        occurredAt: minutesAfterDawn(8),
+      }
 
-      const recorded = await chronicle.record(valdehierro, [
-        sawmillFinishedAt(1),
-        { kind: 'lessonLearned', lessonId: 'lesson-1', occurredAt: minutesAfterDawn(2) },
-      ])
+      await chronicle.record(valdehierro, [cancelled, learned])
 
-      expect(recorded).toEqual(err({ kind: 'LessonNotStored', lessonId: 'lesson-1' }))
-      expect(await chronicle.eventsOf(valdehierro)).toEqual([])
+      expect(await chronicle.eventsOf(valdehierro)).toEqual([learned, cancelled])
     })
 
     it('restores every kind of event with its payload', async () => {

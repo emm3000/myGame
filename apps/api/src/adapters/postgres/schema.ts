@@ -51,7 +51,17 @@ export const fiefEventKind = pgEnum('fief_event_kind', [
   'fief_founded',
   'transport_sent',
   'transport_arrived',
+  'lesson_learned',
+  'lesson_cancelled',
 ])
+
+export const resource = pgEnum('resource', ['wood', 'stone', 'iron', 'gold', 'food'])
+
+export const memoryState = pgEnum('memory_state', ['learning', 'review', 'relearning'])
+
+export const memoryRating = pgEnum('memory_rating', ['again', 'hard', 'good', 'easy'])
+
+export const reviewFormat = pgEnum('review_format', ['recognition', 'recall'])
 
 export const accountTokenKind = pgEnum('account_token_kind', ['reset', 'verify'])
 
@@ -145,6 +155,7 @@ export const fiefs = pgTable(
     studyCostIron: doublePrecision('study_cost_iron').notNull().default(0),
     studyCostGold: doublePrecision('study_cost_gold').notNull().default(0),
     studyCostFood: doublePrecision('study_cost_food').notNull().default(0),
+    studyLessonId: text('study_lesson_id'),
     fullSinceWood: timestamp('full_since_wood', { withTimezone: true }),
     fullSinceStone: timestamp('full_since_stone', { withTimezone: true }),
     fullSinceIron: timestamp('full_since_iron', { withTimezone: true }),
@@ -160,6 +171,10 @@ export const fiefs = pgTable(
     wholeAmount('fiefs_iron_whole', table.iron),
     wholeAmount('fiefs_gold_whole', table.gold),
     wholeAmount('fiefs_food_whole', table.food),
+    check(
+      'fiefs_study_lesson_terms',
+      sql`${table.studyLessonId} IS NULL OR (${table.studyArt} IS NULL AND ${table.studyLevel} IS NULL AND ${table.studyStartedAt} IS NOT NULL AND ${table.studyFinishesAt} IS NOT NULL AND ${table.studyCostWood} = 0 AND ${table.studyCostStone} = 0 AND ${table.studyCostIron} = 0 AND ${table.studyCostGold} = 0 AND ${table.studyCostFood} = 0)`,
+    ),
   ],
 )
 
@@ -407,6 +422,7 @@ export const fiefEvents = pgTable(
     province: integer('province'),
     plot: integer('plot'),
     fiefName: text('fief_name'),
+    lessonId: text('lesson_id'),
     refundWood: doublePrecision('refund_wood').notNull().default(0),
     refundStone: doublePrecision('refund_stone').notNull().default(0),
     refundIron: doublePrecision('refund_iron').notNull().default(0),
@@ -421,7 +437,7 @@ export const fiefEvents = pgTable(
   (table) => [
     check(
       'fief_events_one_subject',
-      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}, ${table.infantryCount}, ${table.fiefName}) = 1 AND (${table.infantryCount} IS NULL) = (${table.cavalryCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.archerCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.settlerCount} IS NULL) AND (${table.level} IS NULL) = (${table.building} IS NULL AND ${table.art} IS NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.infantryCount} IS NULL AND ${table.fiefName} IS NULL) AND (${table.plot} IS NULL) = (${table.infantryCount} IS NULL AND ${table.fiefName} IS NULL) AND (${table.province} IS NULL OR (${table.province} >= 1 AND ${table.plot} >= 1))`,
+      sql`num_nonnulls(${table.building}, ${table.art}, ${table.unit}, ${table.infantryCount}, ${table.fiefName}, ${table.lessonId}) = 1 AND (${table.infantryCount} IS NULL) = (${table.cavalryCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.archerCount} IS NULL) AND (${table.infantryCount} IS NULL) = (${table.settlerCount} IS NULL) AND (${table.level} IS NULL) = (${table.building} IS NULL AND ${table.art} IS NULL) AND (${table.count} IS NULL) = (${table.unit} IS NULL) AND (${table.cancelledCount} IS NULL OR (${table.unit} IS NOT NULL AND ${table.cancelledCount} >= 1)) AND (${table.province} IS NULL) = (${table.infantryCount} IS NULL AND ${table.fiefName} IS NULL) AND (${table.plot} IS NULL) = (${table.infantryCount} IS NULL AND ${table.fiefName} IS NULL) AND (${table.province} IS NULL OR (${table.province} >= 1 AND ${table.plot} >= 1))`,
     ),
     check(
       'fief_events_unit_counts',
@@ -439,6 +455,120 @@ export const fiefEvents = pgTable(
       'fief_events_founding_name',
       sql`(${table.fiefName} IS NOT NULL) = (${table.kind}::text IN ('founding_sent', 'fief_founded', 'transport_sent', 'transport_arrived'))`,
     ),
+    check(
+      'fief_events_lesson_terms',
+      sql`(${table.lessonId} IS NOT NULL) = (${table.kind}::text IN ('lesson_learned', 'lesson_cancelled'))`,
+    ),
     index('fief_events_fief_order').on(table.fiefId, table.occurredAt, table.id),
+  ],
+)
+
+export const playerSkills = pgTable(
+  'player_skills',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    lessonId: text('lesson_id').notNull(),
+    resource: resource('resource').notNull(),
+    ratePercent: integer('rate_percent').notNull(),
+    earnedAt: timestamp('earned_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'player_skills_pkey', columns: [table.playerId, table.lessonId] }),
+    check('player_skills_rate_percent_positive', sql`${table.ratePercent} >= 1`),
+  ],
+)
+
+export const cards = pgTable(
+  'cards',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    wordId: text('word_id').notNull(),
+    state: memoryState('state').notNull(),
+    step: integer('step'),
+    stability: doublePrecision('stability'),
+    difficulty: doublePrecision('difficulty'),
+    lastReviewAt: timestamp('last_review_at', { withTimezone: true }),
+    lastRating: memoryRating('last_rating'),
+    enteredAt: timestamp('entered_at', { withTimezone: true }).notNull(),
+    retainedAt: timestamp('retained_at', { withTimezone: true }),
+  },
+  (table) => [
+    primaryKey({ name: 'cards_pkey', columns: [table.playerId, table.wordId] }),
+    check(
+      'cards_step_terms',
+      sql`(${table.step} IS NULL) = (${table.state}::text = 'review') AND (${table.step} IS NULL OR ${table.step} >= 0)`,
+    ),
+    check(
+      'cards_review_terms',
+      sql`num_nulls(${table.stability}, ${table.difficulty}, ${table.lastReviewAt}, ${table.lastRating}) IN (0, 4) AND (${table.lastReviewAt} IS NOT NULL OR ${table.state}::text = 'learning')`,
+    ),
+    check(
+      'cards_memory_bounds',
+      sql`(${table.stability} IS NULL OR ${table.stability} > 0) AND (${table.difficulty} IS NULL OR ${table.difficulty} BETWEEN 1 AND 10)`,
+    ),
+    check(
+      'cards_retained_at_last_review',
+      sql`${table.retainedAt} IS NULL OR ${table.retainedAt} = ${table.lastReviewAt}`,
+    ),
+  ],
+)
+
+export const pendingReviews = pgTable(
+  'pending_reviews',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    wordId: text('word_id').notNull(),
+    hintShown: boolean('hint_shown').notNull(),
+    nearMissAnswer: text('near_miss_answer'),
+  },
+  (table) => [
+    primaryKey({ name: 'pending_reviews_pkey', columns: [table.playerId, table.wordId] }),
+  ],
+)
+
+export const reviewLog = pgTable(
+  'review_log',
+  {
+    id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    wordId: text('word_id').notNull(),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }).notNull(),
+    format: reviewFormat('format').notNull(),
+    answer: text('answer').notNull(),
+    nearMissAnswer: text('near_miss_answer'),
+    hintShown: boolean('hint_shown').notNull(),
+    rating: memoryRating('rating').notNull(),
+    elapsedDays: integer('elapsed_days'),
+    beforeState: memoryState('before_state').notNull(),
+    beforeStep: integer('before_step'),
+    beforeStability: doublePrecision('before_stability'),
+    beforeDifficulty: doublePrecision('before_difficulty'),
+    beforeLastReviewAt: timestamp('before_last_review_at', { withTimezone: true }),
+    beforeLastRating: memoryRating('before_last_rating'),
+    beforeEnteredAt: timestamp('before_entered_at', { withTimezone: true }).notNull(),
+    beforeRetainedAt: timestamp('before_retained_at', { withTimezone: true }),
+    afterState: memoryState('after_state').notNull(),
+    afterStep: integer('after_step'),
+    afterStability: doublePrecision('after_stability').notNull(),
+    afterDifficulty: doublePrecision('after_difficulty').notNull(),
+    afterLastReviewAt: timestamp('after_last_review_at', { withTimezone: true }).notNull(),
+    afterLastRating: memoryRating('after_last_rating').notNull(),
+    afterEnteredAt: timestamp('after_entered_at', { withTimezone: true }).notNull(),
+    afterRetainedAt: timestamp('after_retained_at', { withTimezone: true }),
+  },
+  (table) => [
+    check(
+      'review_log_elapsed_days_terms',
+      sql`(${table.elapsedDays} IS NULL) = (${table.beforeLastReviewAt} IS NULL) AND (${table.elapsedDays} IS NULL OR ${table.elapsedDays} >= 0)`,
+    ),
+    index('review_log_player_order').on(table.playerId, table.reviewedAt, table.id),
   ],
 )
