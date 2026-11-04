@@ -2,7 +2,7 @@
 
 Status: proposal, decided under the owner's delegation by ADR 040 and signed off with its pull request. The Spanish column is a proposal for `es.json` until the owner reviews it: neutral Latin American, and a card word's label is its gloss where the gloss names the thing, as *Homes* is *Hogares* for *home*, *hogar* (ADR 040).
 
-The **chrome** is the copy of the game's screens (ADR 038). Its English uses only the card words below and frame words (ADR 037). The list is closed: the chrome lessons teach exactly these 80 words, lesson 1's five among them, so there are 16 chrome lessons of 5 (#741). A screen that needs a word not on this list rewrites its line with words that are, or waits for an ADR that appends a chrome lesson (ADR 040, The chrome and its words).
+The **chrome** is the copy of the game's screens (ADR 038). Its English uses only the card words below and frame words (ADR 037). The list is closed: the chrome lessons teach exactly these 80 words, lesson 1's five among them, so there are 16 chrome lessons of 5 (#741). No chrome lesson is ever appended, since ADR 037 keeps the chrome lessons first and a player already in the bands would meet the new word untaught: a line that seems to need a word not on this list is rewritten with words that are, and only an ADR that amends ADR 037's order could add one (ADR 040, The chrome and its words).
 
 Every rank is the `SFI Rank` of `apps/api/content/lessons/ngsl-1.2.csv`. Every word is an NGSL 1.2 headword; none is off the list. Three are in band 3, ADR 035's game nouns *mayor*, *storage* and *truck*; eleven are in band 2; the other 66 are in band 1.
 
