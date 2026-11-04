@@ -53,9 +53,9 @@ private fun marksOf(sentence: String, listed: List<ResourceQuantity>, phrases: L
 
 @StringRes
 private fun quantityLabelOf(resource: ResourceKind): Int = when (resource) {
-    ResourceKind.Wood -> R.string.quantity_wood
-    ResourceKind.Stone -> R.string.quantity_stone
-    ResourceKind.Iron -> R.string.quantity_iron
-    ResourceKind.Gold -> R.string.quantity_gold
-    ResourceKind.Food -> R.string.quantity_food
+    ResourceKind.Wood -> R.string.chronicle_quantity_wood
+    ResourceKind.Stone -> R.string.chronicle_quantity_stone
+    ResourceKind.Iron -> R.string.chronicle_quantity_iron
+    ResourceKind.Gold -> R.string.chronicle_quantity_gold
+    ResourceKind.Food -> R.string.chronicle_quantity_food
 }

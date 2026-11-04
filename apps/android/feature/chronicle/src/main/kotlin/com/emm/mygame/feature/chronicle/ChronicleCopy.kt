@@ -107,19 +107,19 @@ private val spanishListFormat: ListFormatter = ListFormatter.getInstance(Locale.
 
 @StringRes
 private fun buildingLabelOf(building: BuildingKind): Int = when (building) {
-    BuildingKind.Sawmill -> R.string.building_sawmill
-    BuildingKind.Quarry -> R.string.building_quarry
-    BuildingKind.IronMine -> R.string.building_iron_mine
-    BuildingKind.Farm -> R.string.building_farm
-    BuildingKind.Warehouse -> R.string.building_warehouse
-    BuildingKind.Library -> R.string.building_library
-    BuildingKind.Barracks -> R.string.building_barracks
+    BuildingKind.Sawmill -> R.string.chronicle_building_sawmill
+    BuildingKind.Quarry -> R.string.chronicle_building_quarry
+    BuildingKind.IronMine -> R.string.chronicle_building_iron_mine
+    BuildingKind.Farm -> R.string.chronicle_building_farm
+    BuildingKind.Warehouse -> R.string.chronicle_building_warehouse
+    BuildingKind.Library -> R.string.chronicle_building_library
+    BuildingKind.Barracks -> R.string.chronicle_building_barracks
 }
 
 @StringRes
 private fun artLabelOf(art: ArtKind): Int = when (art) {
-    ArtKind.Smithing -> R.string.art_smithing
-    ArtKind.Masonry -> R.string.art_masonry
+    ArtKind.Smithing -> R.string.chronicle_art_smithing
+    ArtKind.Masonry -> R.string.chronicle_art_masonry
 }
 
 @PluralsRes

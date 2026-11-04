@@ -24,7 +24,7 @@ internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = getString(
         MarchRefusal.UnitUnfitForOrder -> R.string.refusal_unit_unfit_for_order
         MarchRefusal.BlankFiefName -> R.string.refusal_blank_fief_name
         MarchRefusal.EmptyCargo -> R.string.refusal_empty_cargo
-        MarchRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
+        MarchRefusal.InsufficientResources -> R.string.map_refusal_insufficient_resources
         MarchRefusal.FiefNotFound -> R.string.refusal_fief_not_found
         MarchRefusal.NotEnoughUnitsAtHome,
         MarchRefusal.StayOutOfRange,

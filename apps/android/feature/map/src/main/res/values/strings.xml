@@ -83,29 +83,29 @@
     <string name="refusal_march_to_own_plot">A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.</string>
     <string name="refusal_blank_fief_name">Tu feudo necesita un nombre. Escribe uno que no esté en blanco.</string>
     <string name="refusal_empty_cargo">Un transporte no sale de vacío. Carga al menos un recurso.</string>
-    <string name="refusal_insufficient_resources">No tienes recursos suficientes.</string>
+    <string name="map_refusal_insufficient_resources">No tienes recursos suficientes.</string>
     <string name="refusal_fief_not_found">No encontramos tus tierras.</string>
-    <string name="duration_minutes_seconds">%1$d:%2$02d</string>
-    <string name="duration_hours">%1$d h</string>
-    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="map_duration_minutes_seconds">%1$d:%2$02d</string>
+    <string name="map_duration_hours">%1$d h</string>
+    <string name="map_duration_hours_minutes">%1$d h %2$d min</string>
     <string name="quantity_wood">%1$s de madera</string>
     <string name="quantity_stone">%1$s de piedra</string>
     <string name="quantity_iron">%1$s de hierro</string>
     <string name="quantity_gold">%1$s de oro</string>
     <string name="quantity_food">%1$s de comida</string>
-    <plurals name="unit_infantry_counted">
+    <plurals name="map_unit_infantry_counted">
         <item quantity="one">%1$d infante</item>
         <item quantity="other">%1$d infantes</item>
     </plurals>
-    <plurals name="unit_cavalry_counted">
+    <plurals name="map_unit_cavalry_counted">
         <item quantity="one">%1$d jinete</item>
         <item quantity="other">%1$d jinetes</item>
     </plurals>
-    <plurals name="unit_archer_counted">
+    <plurals name="map_unit_archer_counted">
         <item quantity="one">%1$d arquero</item>
         <item quantity="other">%1$d arqueros</item>
     </plurals>
-    <plurals name="unit_settler_counted">
+    <plurals name="map_unit_settler_counted">
         <item quantity="one">%1$d colono</item>
         <item quantity="other">%1$d colonos</item>
     </plurals>
