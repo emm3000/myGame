@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -61,6 +63,7 @@ private fun BusyLevy(
     modifier: Modifier = Modifier,
 ) {
     val countdown: String = stringResource(R.string.levy_complete, countdownLabelOf(slot.remaining))
+    val focusManager: FocusManager = LocalFocusManager.current
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.padding(vertical = MyGameSpacing.step4),
@@ -87,7 +90,10 @@ private fun BusyLevy(
             label = stringResource(R.string.levy_cancel),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
-            onClick = { onIntent(FiefIntent.RecruitCancelTapped(slot.unit, slot.startedAt)) },
+            onClick = {
+                focusManager.clearFocus()
+                onIntent(FiefIntent.RecruitCancelTapped(slot.unit, slot.startedAt))
+            },
             accessibleName = stringResource(R.string.levy_cancel_description, countedUnitsOf(slot.unit, slot.count)),
         )
         if (slot.refund.isNotEmpty()) {
