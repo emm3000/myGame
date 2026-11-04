@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, the skill amended by ADR 039
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
@@ -133,13 +133,15 @@ through the domain's `LessonCatalog` port (ADR 008's pattern, N5):
   `SFI Rank` from `ngsl-1.2.csv` at start-up; a card word outside the
   list has none and counts in no band.
 - **`lesson-<n>.json`**: the lesson's id, theme, duration, required
-  library level (the school's after the town rebuild), skill, and its
-  word ids in order. The words move out of the lesson file into the
+  library level (the school's after the town rebuild), and its word ids
+  in order; never its skill, which follows from its position in
+  `curriculum.json` (ADR 039). The words move out of the lesson file into the
   lexicon, lesson 1's included, in the lexicon ticket, before any
   lesson after lesson 1 ships; one shape, never two (rebuild, never
   adapt).
 - **`curriculum.json`**: the lessons in order, the count of chrome
-  lessons first. The adapter loads what it lists; nothing is read from
+  lessons first, and the skill curve, `{ cycle, ratePercent }`, from
+  which each lesson's skill follows (ADR 039). The adapter loads what it lists; nothing is read from
   a file name.
 - **`grammar.json`, the grammar inventory**, the one home of the frame
   words: structures in order, each with its CEFR level, the frame words
@@ -221,8 +223,11 @@ word it means in the content, or the gate fails it.
 9. **The chrome's words.** Every card word of an English chrome message
    in `packages/catalog` (ADR 038) is taught by a chrome lesson; fixed
    copy, read before any lesson, is exempt.
+10. **The skill.** `curriculum.json`'s skill curve names every resource
+    once, food first, at 5 %, and no lesson file names a skill
+    (ADR 039).
 
-**What ships first**: checks 1, 2, 3 and 5 for `es`, in the lexicon
+**What ships first**: checks 1, 2, 3, 5 for `es` and 10, in the lexicon
 ticket, with `grammar.json` in its first form (the frame words and
 their admitting lessons), before any lesson after lesson 1. Check 4
 ships with the first running text, check 6 with the inventory's
@@ -315,8 +320,10 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   its non-held-out words as that player's cards, since a 10 % draw can
   put two or more held-out words in one lesson; its gloss is not among that player's
   recognition choices; and the lesson's skill waits on the words the
-  player holds (ADR 036, rule 7, reads "every word of its lesson that
-  the player holds" once the holdout ships).
+  player holds, and on at least one (ADR 036, rule 7, reads "every word
+  of its lesson that the player holds" once the holdout ships), so a
+  lesson whose every word is held out earns once they are released and
+  retained (ADR 039).
 - **It is read like any untaught word**: game text glosses it, and so
   does a later lesson's frame on a recognition or a recall, where any
   token whose word the player holds no card for is glossed, as
@@ -424,9 +431,9 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   migration each, and screens. Placement also needs the lessons of
   bands 2 and 3 drafted, since a player placed out of band 1 starts in
   band 2.
-- What a skill is worth across hundreds of lessons (which resource each
-  lesson raises and by what percent) is an economy decision for the
-  school's ticket; each lesson file names its skill, as lesson 1's does.
+- What a skill is worth across hundreds of lessons is ADR 039's: the
+  lessons raise the resources in turn, food first, each by 5 %, and one resource's levels add up; no lesson file names
+  its skill (amended by ADR 039).
 - `docs/setting/lessons.md` records each lesson, its theme and its
   words with their ranks, as it does for lesson 1.
 
