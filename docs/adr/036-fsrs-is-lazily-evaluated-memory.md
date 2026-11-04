@@ -150,7 +150,8 @@ metric needs (§8.2), not for a claim of more learning.
    content accepts.** A **near-miss** is an answer at
    optimal-string-alignment distance 1 (one letter inserted, deleted,
    changed, or two adjacent letters swapped) from an accepted form of 4
-   letters or more that is not itself a word of the NGSL 1.2 list. A
+   letters or more, when the answer is not itself a word of the NGSL 1.2
+   list. A
    near-miss is not rated: the server stores it as the pending review's
    `nearMissAnswer` and answers "check the spelling", and the next
    answer rates. A **hint** is requested from the server, which sets the
@@ -158,8 +159,9 @@ metric needs (§8.2), not for a claim of more learning.
    its letter count. The rating the two lead to deletes the pending
    review. The NGSL 1.2 headword list (Browne, Culligan and Phillips,
    CC BY-SA 4.0, 2 809 words with their ranks) is api content beside the
-   lessons, read through the lesson port; S39 adds it with lesson 1's
-   file (#713), and ADR 037's curriculum reads the same file.
+   lessons, read through the lesson port; the S39 tickets are amended
+   to add it with lesson 1's file (#713), and ADR 037's curriculum reads
+   the same file.
 5. **The rating: a wrong answer is Again; a correct answer after a hint
    or after a near-miss is Hard; a correct answer otherwise is Good;
    Easy is never inferred.** A recognition is Good when the right
@@ -181,9 +183,10 @@ metric needs (§8.2), not for a claim of more learning.
    enters its words' cards with `enteredAt` at that finish, due there,
    in the transaction of the read that resolves it, and the chronicle
    records the lesson as it records an art learned. A lesson is studied
-   once per player: a start is refused when the player holds its cards
-   or when a study slot of any fief the player holds is studying it,
-   and a finish that finds the cards enters none.
+   once per player: a start locks all of the player's fiefs in
+   ascending id (rule 1, ADR 024) and is refused when the player holds
+   its cards or when the study slot of any of those fiefs is studying
+   it, and a finish that finds the cards enters none.
 7. **The skill is the player's: its level is earned at the review after
    which every word of its lesson holds both a stability of 7 days or
    more and a `retainedAt`, stored with that instant, and never taken
@@ -296,7 +299,7 @@ pinned commit, with the parameters above and no fuzz.
   and Saito 2010; Ellis, Loewen and Erlam 2006), and §6.2 asks for one
   prompt before the answer. One retry costs one stored mark on the
   pending review the hint needs anyway. A distance-1 answer that is
-  itself an English word is a different word, not a slip, and is Again.
+  itself an NGSL 1.2 word is a different word, not a slip, and is Again.
 - **A near-miss judged against the content's words only.** Rejected for
   rule 4: lesson 1 holds five words, so "foot" for *food* would pass as
   a slip while it is a word the learner may well have meant. The NGSL
@@ -386,8 +389,8 @@ pinned commit, with the parameters above and no fuzz.
   still differ in the last digits between CPython and V8, so stability
   and difficulty match to a relative 1e-9 and intervals exactly.
 - Postgres gains the cards, the pending reviews, the review log and the
-  player's skill levels, keyed by the player, each a migration; #712's
-  schema carries all four. ADR 035's reset migration keeps them.
+  player's skill levels, keyed by the player, each a migration; the S39
+  tickets are amended so that #712's schema carries all four. ADR 035's reset migration keeps them.
 - A word's card enters only through a lesson finish. The cap on words in
   learning by the school's level (ADR 035) is not needed while lesson 1
   is the only lesson; it enters with lesson 2.
@@ -422,5 +425,6 @@ pinned commit, with the parameters above and no fuzz.
   https://github.com/open-spaced-repetition/py-fsrs/blob/9446cb06605c597a063aeee49f7d188d42e34dc2/fsrs/scheduler.py
 - The srs-benchmark, community-run and not peer-reviewed:
   https://github.com/open-spaced-repetition/srs-benchmark
-- `docs/research/english-pivot/decisions.md` §1.1, §1.2, §1.6, §4, §5.1,
-  §6, §7.1, §8.2 to §8.4, §14, and `research.md` §1, §2, §7, §12, §14.
+- `docs/research/english-pivot/decisions.md` §1.1, §1.2, §1.6, §2.1, §4,
+  §5.1, §6, §7.1, §8.2 to §8.4, §14, and `research.md` §1, §2, §7, §10
+  (Webb, Yanagisawa and Uchihara 2020), §12, §14.
