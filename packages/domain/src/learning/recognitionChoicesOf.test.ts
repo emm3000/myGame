@@ -18,6 +18,7 @@ const lessonOfEightWords: Lesson = {
     acceptedForms: [id],
     gloss: id,
     frame: id,
+    gappedFrame: id,
   })),
 }
 

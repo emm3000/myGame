@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { ArtKindSchema } from './ArtKind'
 import { BuildingKindSchema } from './BuildingKind'
 import { CampTiersSchema } from './CampTiers'
+import { EarnedSkillSchema } from './EarnedSkill'
 import { ForageTermsSchema } from './ForageTerms'
 import { PartySchema } from './Party'
 import { ResourceAmountsSchema } from './ResourceAmounts'
@@ -71,6 +72,15 @@ const BusyStudySlotSchema = z
     cost: ResourceAmountsSchema,
   })
   .meta({ id: 'BusyStudySlot' })
+
+const LessonStudySlotSchema = z
+  .strictObject({
+    kind: z.literal('lesson'),
+    lessonId: z.string().min(1),
+    startedAt: InstantSchema,
+    finishesAt: InstantSchema,
+  })
+  .meta({ id: 'LessonStudySlot' })
 
 const NextArtLevelSchema = z.object({
   level: BuildingLevelSchema,
@@ -232,61 +242,115 @@ const BuildSlotSchema = z
   .meta({ id: 'BuildSlot' })
 
 const StudySlotSchema = z
-  .discriminatedUnion('kind', [IdleStudySlotSchema, BusyStudySlotSchema])
+  .discriminatedUnion('kind', [IdleStudySlotSchema, BusyStudySlotSchema, LessonStudySlotSchema])
   .meta({ id: 'StudySlot' })
+
+const LessonStateSchema = z.strictObject({
+  id: z.string().min(1),
+  theme: z.string().min(1),
+  durationSeconds: DurationSecondsSchema.positive(),
+  requiredLibraryLevel: BuildingLevelSchema,
+  skill: z.strictObject({
+    resource: ResourceKindSchema,
+    ratePercent: WholeCountSchema.positive(),
+  }),
+  isStudied: z.boolean(),
+  words: z.array(
+    z.strictObject({
+      wordId: z.string().min(1),
+      isRetained: z.boolean(),
+    }),
+  ),
+})
+
+const ReviewedWordSchema = z.strictObject({
+  wordId: z.string().min(1),
+  lessonId: z.string().min(1),
+  dueAt: InstantSchema,
+})
+
+const RecognitionReviewSchema = ReviewedWordSchema.extend({
+  mode: z.literal('recognition'),
+  word: z.string().min(1),
+  frame: z.string().min(1),
+  choices: z.array(
+    z.strictObject({
+      wordId: z.string().min(1),
+      gloss: z.string().min(1),
+    }),
+  ),
+}).meta({ id: 'RecognitionReview' })
+
+const RecallReviewSchema = ReviewedWordSchema.extend({
+  mode: z.literal('recall'),
+  gloss: z.string().min(1),
+  gappedFrame: z.string().min(1),
+}).meta({ id: 'RecallReview' })
+
+const DueReviewSchema = z
+  .discriminatedUnion('mode', [RecognitionReviewSchema, RecallReviewSchema])
+  .meta({ id: 'DueReview' })
 
 const GoalSchema = z
   .discriminatedUnion('state', [PendingGoalSchema, UnderwayGoalSchema])
   .meta({ id: 'Goal' })
 
-export const FiefOverviewSchema = z.object({
-  id: z.uuid(),
-  name: z.string().min(1),
-  coordinates: z.object({
-    kingdom: z.number().int().positive(),
-    province: z.number().int().positive(),
-    plot: z.number().int().positive(),
-  }),
-  terrain: TerrainSchema,
-  resources: z.object({
-    wood: ResourceStateSchema,
-    stone: ResourceStateSchema,
-    iron: ResourceStateSchema,
-    gold: ResourceStateSchema,
-    food: ResourceStateSchema,
-  }),
-  buildings: z
-    .record(BuildingKindSchema, BuildingStateSchema)
-    .meta({ required: BuildingKindSchema.options }),
-  peasants: z.object({
-    supplied: WholeCountSchema,
-    occupied: WholeCountSchema,
-    free: WholeCountSchema,
-    projectedSupplied: WholeCountSchema,
-    projectedOccupied: WholeCountSchema,
-    projectedFree: WholeCountSchema,
-    lowestFree: WholeCountSchema,
-  }),
-  slot: BuildSlotSchema,
-  queue: z.object({
-    entries: z.array(WaitingUpgradeSchema),
-    cap: WholeCountSchema,
-  }),
-  study: StudySlotSchema,
-  arts: z.record(ArtKindSchema, ArtStateSchema).meta({ required: ArtKindSchema.options }),
-  season: SeasonStateSchema.nullable(),
-  units: UnitCountsSchema,
-  recruitOrder: RecruitOrderStateSchema.nullable(),
-  recruitTerms: z
-    .record(UnitKindSchema, RecruitTermsSchema)
-    .meta({ required: UnitKindSchema.options }),
-  unitTerms: z.record(UnitKindSchema, UnitStatsSchema).meta({ required: UnitKindSchema.options }),
-  march: z.lazy(() => MarchStateSchema).nullable(),
-  forageTerms: ForageTermsSchema,
-  combatTerms: CombatTermsSchema,
-  incomingCargo: IncomingCargoSchema.nullable(),
-  goal: z.lazy(() => GoalSchema).nullable(),
-  readAt: InstantSchema,
-})
+export const FiefOverviewSchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string().min(1),
+    coordinates: z.object({
+      kingdom: z.number().int().positive(),
+      province: z.number().int().positive(),
+      plot: z.number().int().positive(),
+    }),
+    terrain: TerrainSchema,
+    resources: z.object({
+      wood: ResourceStateSchema,
+      stone: ResourceStateSchema,
+      iron: ResourceStateSchema,
+      gold: ResourceStateSchema,
+      food: ResourceStateSchema,
+    }),
+    buildings: z
+      .record(BuildingKindSchema, BuildingStateSchema)
+      .meta({ required: BuildingKindSchema.options }),
+    peasants: z.object({
+      supplied: WholeCountSchema,
+      occupied: WholeCountSchema,
+      free: WholeCountSchema,
+      projectedSupplied: WholeCountSchema,
+      projectedOccupied: WholeCountSchema,
+      projectedFree: WholeCountSchema,
+      lowestFree: WholeCountSchema,
+    }),
+    slot: BuildSlotSchema,
+    queue: z.object({
+      entries: z.array(WaitingUpgradeSchema),
+      cap: WholeCountSchema,
+    }),
+    study: StudySlotSchema,
+    arts: z.record(ArtKindSchema, ArtStateSchema).meta({ required: ArtKindSchema.options }),
+    season: SeasonStateSchema.nullable(),
+    units: UnitCountsSchema,
+    recruitOrder: RecruitOrderStateSchema.nullable(),
+    recruitTerms: z
+      .record(UnitKindSchema, RecruitTermsSchema)
+      .meta({ required: UnitKindSchema.options }),
+    unitTerms: z.record(UnitKindSchema, UnitStatsSchema).meta({ required: UnitKindSchema.options }),
+    march: z.lazy(() => MarchStateSchema).nullable(),
+    forageTerms: ForageTermsSchema,
+    combatTerms: CombatTermsSchema,
+    incomingCargo: IncomingCargoSchema.nullable(),
+    goal: z.lazy(() => GoalSchema).nullable(),
+    lessons: z.array(LessonStateSchema),
+    skills: z.array(EarnedSkillSchema),
+    reviews: z.strictObject({
+      due: z.array(DueReviewSchema),
+      nextDueAt: InstantSchema.nullable(),
+    }),
+    readAt: InstantSchema,
+  })
+  .meta({ id: 'FiefOverview' })
 
 export type FiefOverview = z.infer<typeof FiefOverviewSchema>

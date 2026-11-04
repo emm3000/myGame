@@ -1,11 +1,10 @@
 import type { FiefChronicle } from '@mygame/contracts'
-import { type DomainError, type FiefEvent, ok, type Result } from '@mygame/domain'
+import type { FiefEvent } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
-import { type ChronicledEvent, chronicledEventsOf } from './chronicledEventsOf'
 
 type WireEvent = FiefChronicle['events'][number]
 
-const wireEventOf = (event: ChronicledEvent): WireEvent => {
+const wireEventOf = (event: FiefEvent): WireEvent => {
   const occurredAt = isoOf(event.occurredAt)
   switch (event.kind) {
     case 'upgradeFinished':
@@ -79,6 +78,9 @@ const wireEventOf = (event: ChronicledEvent): WireEvent => {
         cargo: event.cargo,
         occurredAt,
       }
+    case 'lessonLearned':
+    case 'lessonCancelled':
+      return { kind: event.kind, lessonId: event.lessonId, occurredAt }
     default: {
       const unreachable: never = event
       return unreachable
@@ -86,12 +88,6 @@ const wireEventOf = (event: ChronicledEvent): WireEvent => {
   }
 }
 
-export const fiefChronicleOf = (
-  events: ReadonlyArray<FiefEvent>,
-): Result<FiefChronicle, DomainError> => {
-  const chronicled = chronicledEventsOf(events)
-  if (!chronicled.ok) {
-    return chronicled
-  }
-  return ok({ events: chronicled.value.map(wireEventOf) })
-}
+export const fiefChronicleOf = (events: ReadonlyArray<FiefEvent>): FiefChronicle => ({
+  events: events.map(wireEventOf),
+})

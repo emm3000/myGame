@@ -1,10 +1,19 @@
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import type { FiefContent } from '@mygame/contracts'
-import type { BuildingCatalog, Clock, IdGenerator, KingdomMapReader } from '@mygame/domain'
+import {
+  type BuildingCatalog,
+  type Clock,
+  defaultMemoryTerms,
+  type IdGenerator,
+  type KingdomMapReader,
+  type MemoryTerms,
+} from '@mygame/domain'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
+import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleCampRegistry } from './adapters/postgres/DrizzleCampRegistry'
+import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
 import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
 import { DrizzleDigestAcknowledgements } from './adapters/postgres/DrizzleDigestAcknowledgements'
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
@@ -27,6 +36,8 @@ import type { GuidanceDismissals } from './guidance/GuidanceDismissals'
 import type { SeenHints } from './hint/SeenHints'
 import type { FailureSink } from './http/FailureSink'
 import type { CampReader } from './kingdom/CampReader'
+import type { CardReader } from './learning/CardReader'
+import type { LessonLibrary } from './learning/LessonLibrary'
 
 const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
   if (flag === undefined || flag === 'true') {
@@ -78,6 +89,8 @@ const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
 export type ComposedServer = MailSettings & {
   readonly fetch: OpenAPIHono['fetch']
   readonly buildingCatalog: BuildingCatalog
+  readonly lessons: LessonLibrary
+  readonly memoryTerms: MemoryTerms
   readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
   readonly ids: IdGenerator
@@ -85,6 +98,7 @@ export type ComposedServer = MailSettings & {
   readonly chronicle: ChronicleReader
   readonly map: KingdomMapReader
   readonly camps: CampReader
+  readonly cards: CardReader
   readonly accounts: Accounts
   readonly digestAcknowledgements: DigestAcknowledgements
   readonly guidanceDismissals: GuidanceDismissals
@@ -109,8 +123,11 @@ export function composeServer(
   const mail = mailSettingsFrom(environment)
   const { database, close } = connectPostgres(databaseUrl)
   const buildingCatalog = JsonBuildingCatalog.fromDirectory(contentDirectory)
+  const lessons = JsonLessonCatalog.fromDirectory(contentDirectory)
   const dependencies = {
     buildingCatalog,
+    lessons,
+    memoryTerms: defaultMemoryTerms,
     digestTerms: buildingCatalog.digestTerms(),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
@@ -125,6 +142,7 @@ export function composeServer(
     chronicle: new DrizzleChronicle(database),
     map: new DrizzleKingdomMapReader(database),
     camps: new DrizzleCampRegistry(database),
+    cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,
     failureSink: standardErrorSink,
     ...mail,

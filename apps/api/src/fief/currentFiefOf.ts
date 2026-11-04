@@ -6,6 +6,7 @@ import {
   type DomainError,
   type FiefOfPlayer,
   type IdGenerator,
+  type LessonCatalog,
   ok,
   type ResolveUpgradeDependencies,
   type Result,
@@ -14,13 +15,14 @@ import {
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { FiefReader } from './FiefReader'
 import type { FiefReading } from './FiefReading'
-import { laterOf } from './laterOf'
-import { storedFiefReadingOf } from './storedFiefReadingOf'
+import { fiefReadingAt } from './fiefReadingAt'
+import { resolveFiefInTransaction } from './resolveFiefInTransaction'
 
 export type CurrentFiefDependencies = {
   readonly fiefs: FiefReader
   readonly inTransaction: Transaction
   readonly buildingCatalog: BuildingCatalog
+  readonly lessons: Pick<LessonCatalog, 'lessonOf'>
   readonly clock: Clock
   readonly ids: IdGenerator
 }
@@ -42,8 +44,9 @@ const discardingCamps: CampRegistry = {
 
 export const currentFiefOf = async (
   fiefOfPlayer: FiefOfPlayer,
-  { fiefs, inTransaction, buildingCatalog, clock, ids }: CurrentFiefDependencies,
+  dependencies: CurrentFiefDependencies,
 ): Promise<Result<FiefReading, DomainError>> => {
+  const { fiefs, inTransaction, buildingCatalog, clock, ids } = dependencies
   const now = clock.now()
   const readClock: Clock = { now: () => now }
   const preview = await resolveUpgrade(fiefOfPlayer, {
@@ -57,27 +60,11 @@ export const currentFiefOf = async (
   const resolved =
     preview.ok && preview.value.hasChanged
       ? await inTransaction((stores) =>
-          resolveUpgrade(fiefOfPlayer, {
-            fiefs: stores.fiefs,
-            chronicle: stores.chronicle,
-            camps: stores.camps,
-            catalog: buildingCatalog,
-            clock: readClock,
-            ids,
-          }),
+          resolveFiefInTransaction(fiefOfPlayer, stores, readClock, dependencies),
         )
       : preview
   if (!resolved.ok) {
     return resolved
   }
-  const stored = storedFiefReadingOf(resolved.value.fief, buildingCatalog)
-  if (!stored.ok) {
-    return stored
-  }
-  const { fief, fullAt } = stored.value
-  const accrued = fief.accruedTo(buildingCatalog, laterOf(now, fief.storedAt))
-  if (!accrued.ok) {
-    return accrued
-  }
-  return ok({ fief: accrued.value, fullAt })
+  return fiefReadingAt(resolved.value.fief, buildingCatalog, now)
 }

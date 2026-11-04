@@ -10,6 +10,7 @@ import kotlin.time.Duration.Companion.seconds
 internal fun WireStudySlot.toStudySlot(): StudySlot? = when (this) {
     is WireStudySlot.IdleWrapper -> StudySlot.Idle
     is WireStudySlot.BusyWrapper -> value.toBusyStudy()
+    is WireStudySlot.LessonWrapper -> StudySlot.Idle
 }
 
 private fun BusyStudySlot.toBusyStudy(): StudySlot? {

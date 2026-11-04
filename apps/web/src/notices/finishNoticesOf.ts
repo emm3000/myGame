@@ -32,7 +32,7 @@ const upgradesFinished: FinishOf = (previous, next) => {
 const studiesFinished: FinishOf = (previous, next) => {
   const study = previous.study
   if (
-    study.kind === 'idle' ||
+    study.kind !== 'busy' ||
     !hasPassed(study.finishesAt, next) ||
     next.arts[study.art].level < study.targetLevel
   ) {

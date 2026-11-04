@@ -7,7 +7,7 @@ import {
   type Result,
 } from '@mygame/domain'
 import type { MutateAfterResolveDependencies } from './mutateAfterResolve'
-import { mutateFiefPairAfterResolve } from './mutateFiefPairAfterResolve'
+import { mutateEveryFiefAfterResolve } from './mutateEveryFiefAfterResolve'
 
 export type DispatchTransportDependencies = MutateAfterResolveDependencies
 
@@ -16,7 +16,7 @@ export const dispatchTransportOf = async (
   request: DispatchTransportRequest,
   dependencies: DispatchTransportDependencies,
 ): Promise<Result<Fief, DomainError>> =>
-  mutateFiefPairAfterResolve(
+  mutateEveryFiefAfterResolve(
     fiefOfPlayer,
     ({ fiefs, chronicle }, clock) =>
       dispatchTransport(

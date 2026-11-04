@@ -4,6 +4,7 @@ export { type ArtContent, ArtContentSchema } from './ArtContent'
 export { type ArtKind, ArtKindSchema } from './ArtKind'
 export { type BuildingContent, BuildingContentSchema } from './BuildingContent'
 export { type BuildingKind, BuildingKindSchema } from './BuildingKind'
+export { type CancelLessonRequest, CancelLessonRequestSchema } from './CancelLessonRequest'
 export {
   type CancelRecruitOrderRequest,
   CancelRecruitOrderRequestSchema,
@@ -34,6 +35,7 @@ export { type FiefRequest, FiefRequestSchema } from './FiefRequest'
 export { type ForgotPasswordRequest, ForgotPasswordRequestSchema } from './ForgotPasswordRequest'
 export { type HealthResponse, HealthResponseSchema } from './HealthResponse'
 export { type HintKind, HintKindSchema } from './HintKind'
+export { type LessonContent, LessonContentSchema } from './LessonContent'
 export { type NativeSession, NativeSessionSchema } from './NativeSession'
 export {
   type PlaceRecruitOrderRequest,
@@ -46,9 +48,14 @@ export { type RecallMarchRequest, RecallMarchRequestSchema } from './RecallMarch
 export { type ResetPasswordRequest, ResetPasswordRequestSchema } from './ResetPasswordRequest'
 export { type ResourceAmounts, ResourceAmountsSchema } from './ResourceAmounts'
 export { type ResourceKind, ResourceKindSchema } from './ResourceKind'
+export { type ReviewAnswer, ReviewAnswerSchema } from './ReviewAnswer'
+export { type ReviewAnswerRequest, ReviewAnswerRequestSchema } from './ReviewAnswerRequest'
+export { type ReviewHint, ReviewHintSchema } from './ReviewHint'
+export { type ReviewRequest, ReviewRequestSchema } from './ReviewRequest'
 export { type SeasonKind, SeasonKindSchema } from './SeasonKind'
 export { type SignInRequest, SignInRequestSchema } from './SignInRequest'
 export { type SignUpRequest, SignUpRequestSchema } from './SignUpRequest'
+export { type StartLessonRequest, StartLessonRequestSchema } from './StartLessonRequest'
 export { type StartStudyRequest, StartStudyRequestSchema } from './StartStudyRequest'
 export { type Terrain, TerrainSchema } from './Terrain'
 export { type UnitKind, UnitKindSchema } from './UnitKind'

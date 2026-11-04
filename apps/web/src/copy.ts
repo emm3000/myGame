@@ -65,6 +65,16 @@ const refusals: Readonly<Record<ApiRefusal, string>> = {
   ProvinceNotFound: 'Esa provincia no está en el mapa. Vuelve a la tuya.',
   TokenInvalid: 'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   MailNotSent: 'No hemos podido enviar el correo. Vuelve a intentarlo en un momento.',
+  LessonLibraryTooLow: 'La lección 1 necesita una biblioteca. Levántala primero.',
+  LessonAlreadyStudied: 'Ya estudiaste la lección 1: sus palabras están en tu repaso.',
+  LessonUnderStudy: 'La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.',
+  LessonStudyNotFound:
+    'La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.',
+  ReviewNotDue: 'Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.',
+  HintOnRecognition:
+    'Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.',
+  WordNotHeld: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
+  UnknownWord: 'Esa palabra no está en tus lecciones. Vuelve al repaso.',
   Unexpected: unexpectedRefusal,
 }
 
@@ -547,6 +557,8 @@ export const copy = {
       fiefFounded: 'Feudo fundado:',
       transportSent: 'Transporte enviado:',
       transportArrived: 'Transporte recibido:',
+      lessonLearned: 'Estudio terminado:',
+      lessonCancelled: 'Estudio cancelado:',
     } satisfies Readonly<Record<FiefEvent['kind'], string>>,
     marchRecalled: 'Marcha retirada:',
     battleLost: 'Batalla perdida:',
@@ -564,6 +576,7 @@ export const copy = {
       campLost: number,
     ): string =>
       `provincia ${province}, parcela ${plot}, campamento de nivel ${tier}. ${lordLossesClause(unitsLost)} y los bandidos pierden ${campLost} de fuerza.`,
+    lesson: 'lección 1.',
     fiefAtPlot: (name: string, province: number, plot: number): string =>
       `${name}, provincia ${province}, parcela ${plot}.`,
     recovered: 'Recuperas',

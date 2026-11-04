@@ -1,55 +1,49 @@
-import {
-  type BuildingCatalog,
-  type Clock,
-  type DomainError,
-  type Fief,
-  type FiefOfPlayer,
-  type IdGenerator,
-  type Result,
-  resolveUpgrade,
-} from '@mygame/domain'
+import type { Clock, DomainError, FiefOfPlayer, Result } from '@mygame/domain'
 import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
 import { fiefsOfLordHolding } from './fiefsOfLordHolding'
 import { laterOf } from './laterOf'
+import {
+  type ResolveInTransactionDependencies,
+  resolveFiefInTransaction,
+} from './resolveFiefInTransaction'
 
-export type MutateAfterResolveDependencies = {
+export type MutateAfterResolveDependencies = ResolveInTransactionDependencies & {
   readonly inTransaction: Transaction
-  readonly buildingCatalog: BuildingCatalog
   readonly clock: Clock
-  readonly ids: IdGenerator
 }
 
-export type FiefStores = Pick<TransactionStores, 'fiefs' | 'chronicle' | 'camps'>
+export type FiefStores = Pick<
+  TransactionStores,
+  'fiefs' | 'chronicle' | 'camps' | 'cards' | 'pendingReviews' | 'reviewLog'
+>
 
-export type FiefMutation = (stores: FiefStores, clock: Clock) => Promise<Result<Fief, DomainError>>
+export type FiefMutation<T> = (stores: FiefStores, clock: Clock) => Promise<Result<T, DomainError>>
 
-export const mutateAfterResolve = async (
+export const mutateAfterResolve = async <T>(
   fiefOfPlayer: FiefOfPlayer,
-  mutation: FiefMutation,
-  { inTransaction, buildingCatalog, clock, ids }: MutateAfterResolveDependencies,
-): Promise<Result<Fief, DomainError>> =>
-  inTransaction(async ({ fiefs, chronicle, camps }) => {
-    const held = await fiefsOfLordHolding(fiefOfPlayer, fiefs)
+  mutation: FiefMutation<T>,
+  dependencies: MutateAfterResolveDependencies,
+): Promise<Result<T, DomainError>> =>
+  dependencies.inTransaction(async (stores) => {
+    const held = await fiefsOfLordHolding(fiefOfPlayer, stores.fiefs)
     if (!held.ok) {
       return held
     }
-    const locked = await fiefs.fiefOf(fiefOfPlayer.fiefId)
+    const locked = await stores.fiefs.fiefOf(fiefOfPlayer.fiefId)
     if (!locked.ok) {
       return locked
     }
-    const now = clock.now()
+    const now = dependencies.clock.now()
     const mutatedAt = locked.value === undefined ? now : laterOf(now, locked.value.storedAt)
     const mutationClock: Clock = { now: () => mutatedAt }
-    const resolved = await resolveUpgrade(fiefOfPlayer, {
-      fiefs,
-      chronicle,
-      camps,
-      catalog: buildingCatalog,
-      clock: mutationClock,
-      ids,
-    })
+    const resolved = await resolveFiefInTransaction(
+      fiefOfPlayer,
+      stores,
+      mutationClock,
+      dependencies,
+    )
     if (!resolved.ok) {
       return resolved
     }
-    return mutation({ fiefs, chronicle, camps }, mutationClock)
+    return mutation(stores, mutationClock)
   })

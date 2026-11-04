@@ -39,6 +39,14 @@ export const ApiErrorKindSchema = z.enum([
   'ProvinceNotFound',
   'TokenInvalid',
   'MailNotSent',
+  'LessonLibraryTooLow',
+  'LessonAlreadyStudied',
+  'LessonUnderStudy',
+  'LessonStudyNotFound',
+  'ReviewNotDue',
+  'HintOnRecognition',
+  'WordNotHeld',
+  'UnknownWord',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>

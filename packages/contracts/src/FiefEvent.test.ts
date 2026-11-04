@@ -365,4 +365,24 @@ describe('FiefEventSchema', () => {
       false,
     ])
   })
+
+  it('accepts a lesson learned and a lesson cancelled', () => {
+    const events = [
+      { kind: 'lessonLearned', lessonId: 'lesson-1', occurredAt: '2026-11-10T09:00:00.000Z' },
+      { kind: 'lessonCancelled', lessonId: 'lesson-1', occurredAt: '2026-11-10T08:58:00.000Z' },
+    ]
+
+    expect(events.map((event) => FiefEventSchema.parse(event))).toEqual(events)
+  })
+
+  it('rejects a lesson cancel that carries a refund', () => {
+    const cancel = {
+      kind: 'lessonCancelled',
+      lessonId: 'lesson-1',
+      occurredAt: '2026-11-10T08:58:00.000Z',
+      refund,
+    }
+
+    expect(FiefEventSchema.safeParse(cancel).success).toBe(false)
+  })
 })

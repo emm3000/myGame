@@ -3,15 +3,13 @@ import type { Lesson } from './Lesson'
 
 const SKILL_STABILITY_DAYS = 7
 
-const isRetained = (held: HeldCard | undefined): boolean => {
-  const stored = held?.card.stored
-  return (
-    stored !== undefined &&
-    stored.retainedAt !== null &&
-    stored.stability !== null &&
-    stored.stability >= SKILL_STABILITY_DAYS
-  )
+export const isWordRetained = (held: HeldCard): boolean => {
+  const { retainedAt, stability } = held.card.stored
+  return retainedAt !== null && stability !== null && stability >= SKILL_STABILITY_DAYS
 }
 
 export const isLessonRetained = (lesson: Lesson, cards: ReadonlyArray<HeldCard>): boolean =>
-  lesson.words.every(({ id }) => isRetained(cards.find((held) => held.wordId === id)))
+  lesson.words.every(({ id }) => {
+    const held = cards.find(({ wordId }) => wordId === id)
+    return held !== undefined && isWordRetained(held)
+  })
