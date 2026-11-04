@@ -39,7 +39,7 @@ internal fun Response<*>.wireRefusal(): WireRefusal? {
 
 private val json: Json = Serializer.kotlinxSerializationJson
 
-private val kindsWithParams: Set<String> = setOf(
+internal val kindsWithParams: Set<String> = setOf(
     NotEnoughUnitsAtHomeError.Kind.NotEnoughUnitsAtHome.value,
     BarracksTooLowError.Kind.BarracksTooLow.value,
     FiefCapReachedError.Kind.FiefCapReached.value,

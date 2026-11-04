@@ -28,6 +28,15 @@ it('renders a stay out of range from its maxStayHours', () => {
   ).toBe('Una marcha forrajea de 1 a 6 horas enteras. Ajusta las horas.')
 })
 
+it('renders a barracks too low from its unit and required level', () => {
+  expect(
+    marchRefusalLineOf('BarracksTooLow', {
+      kind: 'BarracksTooLow',
+      params: { unit: 'settler', requiredBarracksLevel: 5 },
+    }),
+  ).toBe('Tu cuartel aún no llega al nivel 5 que piden los colonos. Mejóralo primero.')
+})
+
 it('renders the fief cap from its cap', () => {
   expect(marchRefusalLineOf('FiefCapReached', { kind: 'FiefCapReached', params: { cap: 3 } })).toBe(
     'Solo puedes tener 3 feudos. Deja al colono en casa.',

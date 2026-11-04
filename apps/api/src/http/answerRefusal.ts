@@ -9,12 +9,7 @@ declare module 'hono' {
   }
 }
 
-type SlottedKind =
-  | 'NotEnoughUnitsAtHome'
-  | 'BarracksTooLow'
-  | 'FiefCapReached'
-  | 'CargoAboveCarry'
-  | 'StayOutOfRange'
+type SlottedKind = Extract<ApiError, { readonly params: unknown }>['kind']
 
 type SlotlessKind = Exclude<ApiErrorKind, SlottedKind>
 
