@@ -1,5 +1,5 @@
 ---
-status: amended by ADR 035
+status: amended by ADR 035 and ADR 038
 date: 2026-09-28
 ---
 # Account tokens are single-use digests issued and redeemed under the player's lock

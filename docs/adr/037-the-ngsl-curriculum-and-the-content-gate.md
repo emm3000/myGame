@@ -1,0 +1,416 @@
+---
+status: proposed
+date: 2026-11-04
+---
+# The NGSL curriculum and the content gate
+
+## Context
+
+ADR 035 makes the NGSL 1.2 the curriculum's order, groups lessons by
+theme, puts learning content behind an offline gate, and defers here the
+bands, the gate and its human review, the placement check and the
+holdout. ADR 036 pinned lesson 1 and its reviews; it left lessons after
+lesson 1, the holdout and the gate's CI check to this ADR. The owner
+delegated every branch on 2026-11-04 and signs off from the pull
+request: each rule below is decided on evidence, with the option it
+rejected under Considered options.
+
+The learner is an adult at A1 to A2, a Spanish speaker learning
+American English (`docs/research/english-pivot/decisions.md` §2.1).
+The design tree settles the direction: frequency order (§3.1), themes
+never semantic sets (§3.2), a CEFR-aligned grammar order (§3.3), items
+as data behind a port (§3.4), offline generation (§3.5), a gate on
+coverage, grammar and glosses with a human review (§3.6), placement in
+the UVLT's format (§8.1) and a within-player holdout (§8.3).
+
+What trunk holds today, checked at `958d6586`:
+
+- `apps/api/content/lessons/lesson-1.json`: one lesson of five words,
+  each `{ id, lemma, frame, gappedFrame, gloss: { es } }`, parsed by
+  `LessonContentSchema` (`packages/contracts`). No part of speech, no
+  rank, no definition. Word ids are opaque, `lesson-1-1` to
+  `lesson-1-5`, never the lemma, because the recall's path carries the
+  id (`POST /fiefs/:fiefId/reviews/:wordId/answer`, #713) and a lemma
+  there would give the answer away.
+- `apps/api/content/lessons/ngsl-1.2.csv`: `NGSL_12_stats.csv`
+  unchanged, 2 809 lemmas with their `SFI Rank`, CC BY-SA 4.0, its
+  hash asserted by `JsonLessonCatalog.test.ts`. The adapter reads it as
+  the set of headwords for the near-miss rule (ADR 036, rule 4).
+- `JsonLessonCatalog` (`apps/api/src/adapters/json/`) loads a
+  hard-coded list of lesson files and flattens each gloss to `gloss.es`.
+- The repository is public (`emm3000/myGame`) and carries no licence
+  file, so everything in it is all rights reserved except the NGSL
+  file.
+
+Two facts from the NGSL's own site bear on the gate. The authors
+publish `NGSL_12_lemmatized_for_teaching.csv`, CC BY-SA 4.0: one row per
+headword with its inflected forms (`go,goes,went,going,gone,goin,gonna`;
+`i,me,my,mine`), US spelling as the headword and UK variants among the
+forms (`color,…,colour,colours`), derived forms left out, and five
+homographs named in its header: *found*, *left*, *mine*, *rose*,
+*wound*. And CC BY-SA 4.0 makes a database holding a substantial part of
+the list Adapted Material (§4(b) of the legal code), shared only under
+the same licence (§3(b)).
+
+## Decision
+
+### Bands and kinds of word
+
+- **Three bands by NGSL 1.2 `SFI Rank`**: band 1 is ranks 1 to 1 000,
+  band 2 is 1 001 to 2 000, band 3 is 2 001 to 2 809. The bands match
+  the 1 000-word levels of the Updated Vocabulary Levels Test that
+  placement follows (Webb, Sasao and Ballance 2017) and the first
+  1 000 and 2 000 headwords where the NGSL leads other lists (Dang and
+  Webb 2016, `research.md` §4).
+- **A frame word is never a card.** It is a closed-class word among the
+  NGSL's first 100 ranks: an article, a pronoun or possessive, a
+  demonstrative or quantifier, *be*, *have* and *do*, a modal, a
+  preposition, a conjunction, *not*. The content lists them; the
+  grammar inventory admits each at a lesson (below); Townword assumes
+  an A1 reader reads them, which is §2.1's entry level. They carry no
+  stable scaffold gloss to recall from (*of*, *the*, the auxiliary
+  *do*), so a card would drill nothing.
+- **A card word is every other word a lesson teaches**: every NGSL word
+  that is not a frame word, and the few words outside the list that the
+  chrome needs (*upgrade* and *password* are not NGSL words). Each card
+  word is taught by exactly one lesson.
+- **The chrome lessons come first.** They teach every card word the
+  English chrome uses (ADR 038), the game nouns of ADR 035 among them,
+  whatever their band: *home* (161), *money* (201), *mayor* (2779),
+  *cancel* (2390). Lesson 1 is the first of them: *home*, *school*,
+  *work*, *money* and *food* name the town's homes, its school, its
+  people at work, its money and its food. A word the player reads on
+  every screen is read hundreds of times, so a frequent one pays twice
+  (§10.3).
+- **A chrome lesson's words never count in a measure**: not in the
+  progress per band, not in the holdout's draw, not in the placement's
+  sample. The player meets them on every screen, so practised and
+  withheld would not differ by practice alone. This extends ADR 035's
+  rule for *mayor*, *storage* and *truck* to every chrome word, for the
+  same reason. They still count as known when a text is checked.
+
+### Lessons and their order
+
+- **A lesson teaches exactly 5 card words** under one theme, never a
+  semantic set (§3.2; Nakata and Suzuki 2019). Five keeps ADR 036's
+  recognition choices to the lesson itself and keeps the skill, which
+  waits on every word of the lesson, within reach.
+- **After the chrome lessons, the bands are taught in order, and every
+  lesson holds the lowest-ranked untaught card word of its band and
+  draws its other four from the 30 lowest-ranked untaught card words of
+  that band.** The head word is always taken, so a word at the k-th
+  place of that window is taught within k − 1 lessons, so no word waits
+  more than 29 lessons past its turn, and the theme still has 30 words
+  to choose 5 from. Every rank below 30 in the list is a frame word, so, unless a
+  chrome lesson teaches it, the first band lesson holds *say* (30).
+- **A lesson's frames use only what the player is taken to know at that
+  lesson** (the frame rule, below). That ties the order to the text:
+  each lesson widens what the next lesson's frames may say.
+- **The stage of a player is the prefix of lessons the player has
+  studied or placed out of.** A text written for lesson *n* is shown
+  only to a player whose stage reaches *n*.
+
+### The item data
+
+The content keeps one shape, in `apps/api/content/lessons/`, read
+through the domain's `LessonCatalog` port (ADR 008's pattern, N5):
+
+- **`words.json`, the lexicon**: one entry per word any content uses
+  beyond the frame words, keyed by an opaque, permanent id. An entry
+  holds the `lemma`, its `partOfSpeech`, its kind (`frame` or `card`),
+  its `frame` and `gappedFrame` for a card word, one `gloss` per
+  scaffold language (`{ "es": "escuela" }`), an English `definition`,
+  and any further accepted form of a typed answer (ADR 036, rule 4). An
+  id never changes and is never reused; lesson 1's ids stay
+  `lesson-1-1` to `lesson-1-5`, and a new word's id is `word-<n>`, the
+  next free number, never the lemma.
+- **The rank is never copied.** The adapter joins each lemma to its
+  `SFI Rank` from `ngsl-1.2.csv` at start-up; a card word outside the
+  list has none and counts in no band.
+- **`lesson-<n>.json`**: the lesson's id, theme, duration, required
+  library level (the school's after the town rebuild), skill, and its five word ids in order. The words move
+  out of the lesson file into the lexicon, lesson 1's included, in the
+  ticket that ships lesson 2; one shape, never two (rebuild, never
+  adapt).
+- **`curriculum.json`**: the lessons in order, the count of chrome
+  lessons first. The adapter loads what it lists; nothing is read from
+  a file name.
+- **`grammar.json`, the grammar inventory**: structures in order, each
+  with its CEFR level, the frame words and the inflections it admits,
+  and the lesson from which it is admitted. Its levels follow the
+  CEFR-J Grammar Profile (Tono Laboratory, TUFS), which its authors
+  allow for commercial use with citation; the British Council and
+  EAQUALS Core Inventory forbids reproduction without written
+  permission, and the English Grammar Profile's terms could not be
+  confirmed. The order itself is a pragmatic sequence, as §3.3 says: no
+  study establishes a teachable grammar order.
+- **`ngsl-1.2-lemmatized-for-teaching.csv`**, the authors' form list,
+  shipped unchanged beside `ngsl-1.2.csv` with its source, date and
+  SHA-256 in the attribution file, read by the gate only.
+- **Texts** (Town News, notices, the Report's lines) come with their own
+  tickets: each is a set of variants, each variant declaring the lesson
+  from which it may be shown; the server answers the latest variant the
+  player's stage reaches.
+- **Licence.** `words.json` and the lesson files hold a substantial part
+  of the NGSL's headwords, so the directory is Adapted Material and is
+  shared under CC BY-SA 4.0: one `LICENSE.md` in
+  `apps/api/content/lessons/` names the NGSL, its authors, the licence,
+  and what Townword changed. Townword's glosses, frames and
+  definitions share that licence: anyone may reuse the curriculum with
+  attribution.
+
+### The content gate
+
+The gate is a Vitest suite in `apps/api` over the shipped content, so
+`pnpm gate` and CI run it and a red check blocks the merge (§3.6). A
+token is a word of the text as the NGSL teaching file lemmatises it; a
+homograph form (*found*, *left*, *mine*, *rose*, *wound*) must carry the
+word it means in the content, or the gate fails it.
+
+1. **The lexicon holds.** Ids unique; every card word's lemma an NGSL
+   headword or marked off-list; every card word taught by exactly one
+   lesson; every frame word in `grammar.json`.
+2. **The order holds.** The chrome lessons first; after them, each
+   lesson holds its band's lowest-ranked untaught card word and draws
+   the rest from that band's 30 lowest-ranked untaught card words.
+3. **The frame rule.** A frame holds its lemma once, in the lemma's own
+   form, and the gapped frame is that frame with the lemma replaced by
+   `____`. Every other token is a frame word admitted at or before the
+   lesson, or a card word of an earlier lesson. A single sentence of 6
+   to 10 tokens holding one unknown token is already at 83 to 90 %
+   coverage, below any threshold of §4, so a frame admits none.
+4. **Coverage of a running text.** A variant holds at most
+   max(1, ⌊5 % of its tokens⌋) tokens unknown at its lesson, each one a
+   lexicon word with every gloss the shipped scaffolds need: 1 in a text
+   of up to 39 tokens, 2 in 40. That is §4's 95 % floor for assisted
+   reading, a heuristic (Kremmel et al. 2023); every Townword text is
+   assisted, since every unknown token is glossed, so §3.6's 2 % for
+   unassisted reading binds no text.
+5. **Glossary completeness.** Every card word of a listed lesson has a
+   gloss in every shipped scaffold language: `es` needs `gloss.es`;
+   `none` needs the `definition` (ADR 038). A definition uses only frame
+   words and band 1 words, as a learner's dictionary keeps a defining
+   vocabulary, and never holds its own lemma in any form.
+6. **Grammar.** No token is a frame word or an inflection the inventory
+   admits after the lesson or the variant's lesson.
+7. **The owner's review.** Every pull request that adds or changes a
+   gloss, a frame, a definition or a text lists each one in a table in
+   its body, and only the owner merges it; no agent and no orchestrator
+   merges it. The owner reads Spanish glosses for meaning and for the
+   tú rule (ADR 038).
+8. **After launch, item statistics.** A word whose Again rate or FSRS
+   difficulty is an outlier in its band is listed for the owner from the
+   review log (ADR 036, rule 8); it never changes a card.
+
+**What ships first**: checks 1, 2, 3 and 5 for `es`, with lesson 2 and
+the lexicon, since no lesson after lesson 1 ships without them. Check 4
+ships with the first running text, check 6 once the inventory is
+written, check 5 for `none` with that scaffold (ADR 038), and check 8
+once players have reviews to measure. Check 7 holds from the first
+content pull request.
+
+**Lesson 1 fails the frame rule** as shipped, 4 frames of 5, and its
+frames are rewritten in the lexicon ticket. Its cards and review log are
+untouched, since a card is keyed by the word's id, never its frame:
+
+| Frame | Unknown at lesson 1 |
+|---|---|
+| We have a new home in this town. | *new* (79), *town* (364) |
+| I walk to school every day. | *walk* (339), *every* (180), *day* (85) |
+| They work in a big office. | *big* (184), *office* (343) |
+| I do not have much money. | none: *I*, *do*, *not*, *have* and *much* are frame words |
+| We buy food for the week. | *buy* (242), *week* (157) |
+
+A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
+(*I*) are frame words.
+
+### Generation
+
+- **Content is drafted offline and never at runtime.** The api and CI
+  hold no model key and call no model; a text reaches a player only as
+  a committed file that passed the gate and the owner's review (§3.5).
+- **The drafter is a Claude Code authoring session**, dispatched as a
+  content ticket like any other: it reads `docs/setting/` and this ADR,
+  writes the lexicon and lesson files, runs the gate and fixes what it
+  fails until it is green, and opens the pull request check 7 needs.
+  The model's name goes in the pull request body. Anthropic's Consumer
+  Terms assign the outputs to the user (§4) and its Commercial Terms
+  leave them the customer's.
+- **The free-provider chain of the owner's Hello repo is not reused.**
+  Its pattern (`supabase/functions/_shared/providers.ts`: Groq, then
+  Gemini Flash-Lite, then OpenRouter, with cooldowns, per-user credits
+  and a response envelope) solves runtime availability for a player
+  waiting on a request, which offline authoring does not have. Each
+  link, as its terms read on 2026-11-04:
+
+  | Link | Outputs | Training and retention | Verdict |
+  |---|---|---|---|
+  | Groq, `openai/gpt-oss-120b` | The customer's (Services Agreement §1, §8.1, June 2026); weights Apache 2.0 | Groq may not train on inputs or outputs (§4.2); logs kept up to 30 days for abuse only | Clean; the one link worth keeping in reserve |
+  | Gemini API free tier, `gemini-3.1-flash-lite` | Google claims no ownership (terms of March 2026) | Unpaid use trains Google's products; human reviewers may read inputs and outputs | Usable for public content, no gain over the drafter; the paid-only rule for API clients in the EEA, UK and Switzerland is read here as not reaching offline authoring, unconfirmed |
+  | OpenRouter, `minimax/minimax-m3:free` | Set by each model's terms | Some free models may store or train on inputs | Rejected: the id answers 404 on 2026-11-04, and MiniMax M3's Community License grants free use for non-commercial purposes only |
+
+  If the volume ever outgrows authoring sessions, Groq alone is
+  admitted as an offline drafting script outside `apps/`, under the same
+  gate and review; that is a later ticket, not this ADR.
+
+### Placement
+
+- **Optional, once, at the first sign-in.** Skipped, the player starts
+  at lesson 1.
+- **Its format is meaning recognition, after the UVLT** (§8.1): a word,
+  and its meaning chosen among 4, glosses for `es` and definitions for
+  `none`. Per band, 30 card words drawn by the api from the band's
+  words that no chrome lesson teaches; a band passes at 29 of 30, the
+  cut Webb, Sasao and Ballance (2017) recommend for the 1 000, 2 000
+  and 3 000 levels, read in the paper. The check stops at the first band
+  failed. The UVLT samples BNC/COCA word families and matches three
+  meanings to six words; sampling NGSL lemmas one at a time is an
+  adaptation, not the validated test.
+- **A passed band is placed out**: its lessons count in the player's
+  stage, so texts and frames written for them are shown, and they stay
+  open to study at any time, earning their skills as any lesson does.
+  The next lesson is the first after the chrome lessons in the first
+  band failed; the chrome lessons are never placed out. Since a placed
+  learner loses no skill and a beginner gains none, failing on purpose
+  buys nothing.
+- **The result is stored**: per band, the score and the instant.
+
+### The holdout
+
+- **Drawn when the player starts a band's first lesson**, never for a
+  band placed out: ⌊10 %⌋ of the band's card words that no chrome lesson
+  teaches, drawn by the api's random source, never the domain's, and
+  stored per player and word. It never changes after the draw; were
+  950 of band 1's words eligible, 95 would be held out.
+- **A held-out word never enters as a card.** Its lesson enters four
+  cards for that player; its gloss is not among that player's
+  recognition choices; and the lesson's skill waits on the words the
+  player holds (ADR 036, rule 7, reads "every word of its lesson that
+  the player holds" once the holdout ships).
+- **It is read like any untaught word**: game text glosses it. The
+  comparison is therefore cards plus reading against reading alone,
+  which is the effect the reviews claim.
+- **The external check runs at 8 and 24 weeks after the player's first
+  lesson**: every held-out word of the lessons the player has studied,
+  and as many practised words drawn from the same lessons, in the
+  placement's format. Every player who studied a lesson is in the
+  analysis, whether or not they took the check (intention to treat,
+  §8.3).
+- **Released after the 24-week check**, taken or skipped: the held-out
+  words enter as released lessons of 5, in rank order, through the
+  lesson slot, earning no skill. The school tells the player that 1
+  word in 10 is kept for a later check and comes back after it.
+
+## Considered options
+
+- **BNC/COCA2000 instead of the NGSL.** Better average coverage and
+  rated more useful by teachers (`research.md` §4), but its licence is
+  unconfirmed; ADR 035 already ships the NGSL. Not reopened.
+- **500-word bands.** Finer placement, but the UVLT's validated cut is
+  per 1 000 words, and a holdout of 10 % of 500 is 50 words, a thin
+  comparison. Rejected.
+- **Every NGSL word as a card, *the* and *of* included.** A paired
+  associate needs a cue to recall from (`research.md` §2); *of* has
+  none. Rejected for frame words admitted by the grammar.
+- **Strict rank order with no window.** Keeps frequency exactly, but
+  five neighbours in rank rarely share a theme, so lessons turn into
+  lists. Rejected for the window of 30 with the head word fixed.
+- **Free choice of words within a band.** Themes become easy, but a
+  word can wait forever and the gate cannot check order. Rejected.
+- **The words nested in each lesson, as lesson 1 is.** A running text
+  must gloss a word no lesson has taught yet, and lesson 300 is not
+  written when the first Town News is. Rejected for one lexicon.
+- **The lemma as the word's id.** Rejected: the recall's path carries
+  the id (#713).
+- **The rank copied into each entry.** Two sources for one number, and
+  a copied column is one more adaptation of the list. Rejected for the
+  join at start-up.
+- **The 95 % coverage floor on frames too.** One unknown token in a
+  sentence of 8 is 87.5 %; the percentage cannot be met by a single
+  sentence with any unknown word, so it says nothing there. Rejected
+  for the frame rule.
+- **The 98 % threshold as a second gate.** Every Townword text is
+  glossed, which is §4's assisted case. Rejected until a text ships
+  without glosses.
+- **Spanish–English cognates counted as known.** No verified source in
+  `research.md`, false friends (*actually*, *embarrassed*), and a text
+  is checked once for every scaffold, `none` included. Rejected.
+- **A lemmatiser library** (`wink-lemmatizer` 3.0.4 and `compromise`
+  14.19.0, both MIT). Rejected for the authors' own form list: it
+  agrees with the NGSL's headwords by construction, names its
+  homographs, and adds no dependency.
+- **A grammar check by parser.** A part-of-speech tagger would catch
+  structures, not only words and inflections, at the cost of a model in
+  CI whose errors become gate failures. Rejected; the owner's review
+  covers structure.
+- **A review mark in the content.** A field an agent can set proves
+  nothing, since every commit carries the owner's identity. Rejected
+  for the owner's merge.
+- **Reuse Hello's provider chain as an offline authoring tool** (the
+  dispatch's starting recommendation). Overridden on the evidence
+  above: its third link no longer exists and its model's licence is
+  non-commercial; its fallback, cooldowns and credits answer a runtime
+  problem authoring does not have; three models write in three styles;
+  and it adds three keys to manage, where an authoring session also
+  runs the gate it must pass.
+- **Placement that enters known words as cards with a starting
+  stability** (§8.1's wording). A placed A2 learner would hold 1 000
+  cards falling due together. Rejected for placing bands out, their
+  lessons still open.
+- **Placement that locks the placed-out lessons.** Their skills would
+  be lost to the learner who placed, so failing on purpose would pay.
+  Rejected.
+- **A holdout derived from a hash of the player and the word.** No
+  storage, but the set moves when the band's eligible words change,
+  and a word must never move between practised and withheld mid-study.
+  Rejected for a stored draw.
+- **A holdout kept for good, or one the player can turn off.** Keeping
+  it costs the learner 10 % of the words for good; an opt-out breaks
+  intention to treat. Rejected for release after the 24-week check.
+
+## Consequences
+
+- `apps/api/content/lessons/` gains `words.json`, `curriculum.json`,
+  `grammar.json`, the teaching form list and a `LICENSE.md`; lesson 1
+  moves to the lexicon with new frames; `LessonContentSchema` and
+  `JsonLessonCatalog` follow; the domain's `Lesson` changes only where
+  ADR 038's `none` needs the definition. Stored cards and the review log keep their word ids.
+- The gate is a test, so `pnpm gate` covers content with no new CI job.
+- Content tickets are dispatched like docs tickets; their model comes
+  from the budget tier's table, and their pull requests wait for the
+  owner's merge.
+- The learning content is CC BY-SA 4.0 in a repository otherwise all
+  rights reserved.
+- Placement, the holdout and its external check each need storage, a
+  migration each, and screens; the holdout amends ADR 036's rule 7.
+- What a skill is worth across hundreds of lessons (which resource each
+  lesson raises and by what percent) is an economy decision for the
+  school's ticket; each lesson file names its skill, as lesson 1's does.
+- `docs/setting/lessons.md` records each lesson, its theme and its
+  words with their ranks, as it does for lesson 1.
+
+## References
+
+- NGSL 1.2, Browne, Culligan and Phillips, CC BY-SA 4.0:
+  https://www.newgeneralservicelist.com/new-general-service-list, and
+  `NGSL_12_lemmatized_for_teaching.csv` there.
+- CC BY-SA 4.0 legal code, §1, §3, §4:
+  https://creativecommons.org/licenses/by-sa/4.0/legalcode.en
+- Webb, S., Sasao, Y., and Ballance, O. (2017). The updated Vocabulary
+  Levels Test. *ITL*, 168(1). https://doi.org/10.1075/itl.168.1.02web;
+  the cut points read in https://www.lextutor.ca/tests/webb_sasao_ballance_2017.pdf
+- CEFR-J Grammar Profile, Tono Laboratory, TUFS:
+  https://github.com/openlanguageprofiles/olp-en-cefrj
+- Groq Services Agreement and data page:
+  https://console.groq.com/docs/legal/services-agreement,
+  https://console.groq.com/docs/your-data
+- Gemini API terms and models: https://aistudio.google.com/docs/terms,
+  https://aistudio.google.com/docs/models
+- OpenRouter terms and FAQ: https://openrouter.ai/terms,
+  https://openrouter.ai/docs/faq; MiniMax M3 licence:
+  https://huggingface.co/MiniMaxAI/MiniMax-M3
+- Anthropic Consumer and Commercial Terms:
+  https://www.anthropic.com/legal/consumer-terms,
+  https://www.anthropic.com/legal/commercial-terms
+- `docs/research/english-pivot/decisions.md` §2.1, §3, §8.1, §8.3, §10.3,
+  and `research.md` §2, §4, §15 and the addendum.
