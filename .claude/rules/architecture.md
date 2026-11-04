@@ -50,7 +50,7 @@ export type DomainError =
   | { kind: 'UnknownBuilding'; building: string }
 ```
 
-A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status and a Spanish message in one place (`apps/api`), and the web reads the same `kind` from `packages/contracts`. A new failure mode is a new member of the union, never a new `class extends Error`.
+A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status and a player-facing message in one place (`apps/api`), and the web reads the same `kind` from `packages/contracts`. A new failure mode is a new member of the union, never a new `class extends Error`.
 
 ## Time
 
