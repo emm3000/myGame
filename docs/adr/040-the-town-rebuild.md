@@ -46,7 +46,7 @@ What trunk holds, checked at `1f0b1c41`:
   (`apps/web/src/routes/_signedIn/index.tsx`).
 - **Size.** About 555 TypeScript and Kotlin files under `packages/` and
   `apps/` name *fief*; `packages/domain/src` alone holds 229 files and
-  70 `DomainError` members.
+  66 `DomainError` members.
 - **The design.** The Townword Design System
   (https://claude.ai/artifact/BLNf2broSoGPHBKfCNd81f, #720) and the
   mockups (https://claude.ai/artifact/Vic8LoavdANzAvJbUSK8XT, #721) draw
@@ -78,14 +78,29 @@ What trunk holds, checked at `1f0b1c41`:
   and catalog key, and drops the medieval tables. That drop is ADR
   035's one-time reset.
 - **Names that collide while both exist.** The town takes its final
-  names. The domain and the contracts each gain a `./town` subpath
-  export for the coexistence; the cutover folds it into the root index.
-  Where a town wire schema's `.meta({ id })` equals a medieval one's
-  (`ResourceKind`, `ResourceAmounts`, `BuildingKind`,
-  `BuildingContent`, `Terrain`, `EnqueueBuildingRequest`,
-  `CancelUpgradeRequest`), the slice that brings the town schema
-  renames the medieval id with a `Fief` prefix, so the generated
-  Android client keeps a final name for the town.
+  names. In TypeScript, the domain's and the contracts' exports
+  `ResourceKind`, `ResourceAmounts`, `BuildingKind`, `BuildingContent`,
+  `Terrain` and `Coordinates` would collide in one root index, so each
+  package gains a `./town` subpath export for the coexistence; the
+  cutover folds it into the root. On the wire, the town's schemas take
+  the town's words (`TownOverview`, `BuildingWork`, `StartBuildingWork`,
+  `TownNewsItem`), so they collide with no OpenAPI component id of
+  today, `EnqueueBuildingRequest` included. Two kinds of today's ids are
+  the exception. The learning schemas (`DueReview`, `RecallReview`,
+  `RecognitionReview`, `ReviewAnswer`, `ReviewAnswerRequest`,
+  `ReviewHint`, `ReviewVerdict` and its members, `StartLessonRequest`)
+  move to the town's routes in slice 16 and are never copied. The goal's
+  `Goal`, `PendingGoal` and `UnderwayGoal` are renamed `FiefGoal`,
+  `FiefPendingGoal` and `FiefUnderwayGoal` in the town's goals slice,
+  which also updates the medieval readers on the web and on Android in
+  the same pull request.
+- **While both exist, each medieval screen gives way to the town screen
+  that replaces it**: the web's index and Android's home go to the town
+  in slices 9 and 10, *Crónica* gives way to News in 21 and 23, *Mapa*
+  to the map in 30 and 31. A replaced medieval screen loses its
+  navigation entry; on the web it stays reachable at its
+  `/feudo/$fiefId` URL, and on Android it is unreachable, until slices
+  41 and 42 delete it.
 - **Why the coexistence is not a shim.** `.claude/rules/architecture.md`
   rejects "a shim that lets old and new coexist", and
   `.claude/rules/principles.md` rejects "feature flags to keep two paths
@@ -94,8 +109,11 @@ What trunk holds, checked at `1f0b1c41`:
   reads both holdings, no flag picks one, nothing translates a fief into
   a town, and the medieval code is not kept for compatibility; it stays
   only until its replacement merges, and one scheduled ticket deletes
-  it. The `./town` subpaths and the `Fief` prefixes are names, never
-  behavior, and the cutover removes them.
+  it. Shared player data never has two readers: cards and reviews move
+  to the town in one slice, and the skills are copied once into the
+  town's own table, as *The school* below says. The `./town` subpaths
+  and the `Fief` prefixes are names, never behavior, and the cutover
+  removes them.
 - **One shared rename runs first: `autumn` becomes `fall`** across
   content, the domain's `SeasonKind`, the contracts, the api and both
   clients, so the season calendar both holdings read is already the
@@ -164,10 +182,14 @@ What trunk holds, checked at `1f0b1c41`:
   runs lesson 1 today: a lesson costs nothing, its duration shortened by
   the school's level and the season's study percent, its cards entering
   at its finish. `requiredLibraryLevel` becomes `requiredSchoolLevel`.
-  The slice that moves lessons to the school drops the fief's lesson
-  slot in the same migration; a fief studying a lesson then is left
-  idle with the lesson unstudied, as a stop leaves it, since a lesson
-  costs nothing and enters no card before its finish.
+  The slice that moves lessons to the school (slice 16) drops the
+  fief's lesson slot in its migration; a fief studying a lesson then is
+  left idle with the lesson unstudied, as a stop leaves it, since a
+  lesson costs nothing and enters no card before its finish. The same
+  pull request moves both clients' review screens onto the town's
+  routes, puts their entry on the town home, and deletes the library's
+  lesson card. No client calls a deleted route. Until the school screens
+  of slices 17 and 18 land, no screen starts a lesson; the reviews go on.
 - **The learning cap.** A card is *in learning* while its stability is
   under 7 days, the point where its gloss fades (ADR 038) and the floor
   a skill needs (ADR 036). A lesson start is refused
@@ -179,7 +201,31 @@ What trunk holds, checked at `1f0b1c41`:
 - **Skills keep ADR 036's rule 7**: the player's, earned at a review,
   never taken back, multiplying one of the four rates, re-basing the
   town at the earn. Which resource each lesson raises and by how much is
-  #737's ADR; lesson 1's food +5 % stands, since food survives.
+  ADR 039's rule (#747): the cycle of the game's resources over the
+  lessons' positions in `curriculum.json`, +5 % each.
+- **The town's skills get their own table, `earned_skills`**, keyed by
+  player and lesson like `player_skills`, its `resource` on the town's
+  enum (`food`, `material`, `power`, `money`). `player_skills.resource`
+  is the medieval enum `resource`, which cannot hold *money*, *power*
+  or *material*.
+- **The skills move once, in the slice that moves lessons to the school
+  (slice 16).** Its migration copies every `player_skills` row into
+  `earned_skills`, mapping the resource as ADR 039's rule 6 says (wood,
+  stone and iron to material, gold to money, food to food), each row
+  keeping its lesson, percent and `earnedAt` (ADR 039, rule 5). The
+  same slice sets `curriculum.json`'s cycle to the town's four, food
+  first (`food`, `material`, `power`, `money`), so check 10 reads the
+  town's `ResourceKind`. From then on a review earns into
+  `earned_skills` and re-bases the town alone; `earnSkillOnEveryFief`
+  goes.
+- **The fief keeps the skills it had, frozen.** It still reads
+  `player_skills`, which no code writes after slice 16, so no fief rate
+  changes and nothing accrues retroactively (ADR 005); the fief never
+  reads `earned_skills` and the town never reads `player_skills`. The
+  cutover drops `player_skills` with the fief. The mapping happens once,
+  in a migration, on data both holdings read only before it: the one
+  place where the medieval and the town vocabularies meet, and it is
+  SQL that runs once, not code that bridges on every read.
 
 ### The office, jobs and clean-ups
 
@@ -222,8 +268,11 @@ What trunk holds, checked at `1f0b1c41`:
   and wait for that work.
 - **The Report is one screen**: the reviews due, then the Town News
   since the player last closed it (ADR 027's digest, re-shaped). The
-  close stores the instant in `players.digest_acknowledged_at`, which
-  the cutover renames `report_read_at`.
+  close stores the instant in a new `players.report_read_at`, added by
+  the Town News slice (slice 7) at the migration's instant, before any
+  town event exists. The medieval digest keeps
+  `digest_acknowledged_at`, so no path reads both; the cutover drops
+  that column.
 - **Goals and tips keep ADR 027's rules**: one next goal from the
   content's ordered list, learning goals among them (*Study lesson 2*),
   and one tip the first time each concept matters, seen tips per player
@@ -237,15 +286,15 @@ What trunk holds, checked at `1f0b1c41`:
 ### The reset, at the cutover
 
 - **The cutover migration drops** `fiefs`, every `fief_*` table,
-  `camp_battles`, `player_seen_hints` and the medieval enums, and
-  renames `digest_acknowledged_at` to `report_read_at`. It keeps
+  `camp_battles`, `player_seen_hints`, `player_skills`, the column
+  `players.digest_acknowledged_at` and the medieval enums. It keeps
   `players`, `sessions`, `account_tokens`, `cards`, `pending_reviews`,
-  `review_log`, `player_skills` and every town table. It runs once,
+  `review_log`, `earned_skills` and every town table. It runs once,
   through the migrations, never by hand against Neon (ADR 035).
 - **No instant is reset.** ADR 035 set `digest_acknowledged_at` to the
-  reset instant so no medieval event would be told; Town News holds no
-  medieval event, since the town writes its own table from its
-  founding, so the instant the player last closed the Report stands.
+  reset instant so no medieval event would be told; the Report reads
+  `report_read_at` and Town News holds no medieval event, since the town
+  writes its own table from its founding.
 - **The owner's medieval save stays playable until that migration**, so
   the coexistence costs no progress. Reviews wait while a screen moves
   (ADR 035: absence never costs).
@@ -257,8 +306,12 @@ What trunk holds, checked at `1f0b1c41`:
   is fixed before #741 drafts lessons 2 to 16, because a chrome word
   added after a player has started the bands has no lesson before that
   player's stage (ADR 037's stage is a prefix). A later screen writes
-  its English from the list and frame words; a word outside it needs an
-  ADR that appends a chrome lesson.
+  its English from the list and frame words. No chrome lesson is ever
+  appended: check 2 keeps the chrome lessons first, so a player already
+  in the bands would meet the new word on screen untaught. A line that
+  seems to need a new word is rewritten with listed ones; only an ADR
+  that amends ADR 037's order could add a word, and it would have to
+  say how that player is taught it.
 - **Words chosen for the list**: *stop* (347) over *cancel* (2390);
   *build level 3* over *upgrade*, no NGSL word; *close* (239) to dismiss
   a tip, a goal or the Report; *previous* (922) and *next* (151) to
@@ -276,6 +329,16 @@ What trunk holds, checked at `1f0b1c41`:
   player field records one, so *alcalde* or *alcaldesa* is never
   written; *mayor* stays English and the Spanish lines address the
   reader as tú.
+- **Spanish chrome is neutral Latin American** (*costo*, *pago*), never
+  peninsular (*coste*) or Rioplatense. ADR 035 already rules out vos;
+  most Spanish-speaking adults live in Latin America, so its neutral
+  register serves most learners. The owner's review of `es.json` is
+  the check.
+- **A Spanish chrome label of a card word is that word's gloss** where
+  the gloss names the thing: *Homes* is *Hogares*, as *home* is glossed
+  *hogar* (`docs/setting/lessons.md`). The bilingual phase shows the
+  label under the English, and a second translation there would teach
+  a second answer to the word's recall.
 
 ### The order
 
@@ -313,6 +376,19 @@ What trunk holds, checked at `1f0b1c41`:
   domain. Rejected for the naming screen, which founds through the
   domain like any later account.
 - **Keep arts beside skills.** See *Arts are cut*.
+- **One skills table read by both holdings, mapped at the reset** (ADR
+  039's rule 6 as written). While both exist, a skill on money, power or
+  material has no medieval enum value to be stored under, and the town
+  would read medieval resources through a mapper. Rejected for the
+  town's own table, filled by one copy.
+- **The fief stops reading skills in slice 16.** Every fief rate would
+  drop at the deploy with no re-base, so the accrual since each fief's
+  last mutation would be recomputed at the lower rate, against ADR 005.
+  Rejected for the fief's frozen `player_skills`.
+- **The Report closing on `digest_acknowledged_at`, renamed at the
+  cutover.** The close would write the column the medieval digest
+  reads, a path reading both. Rejected for `report_read_at` from the
+  Town News slice.
 - **Power as an energy balance**, production against use, throttling
   the producers as OGame's energy does. A new mechanic that teaches no
   word and adds a formula to read. Rejected for a stock.
@@ -351,6 +427,17 @@ What trunk holds, checked at `1f0b1c41`:
   and no instant is reset. ADR 036's rules 1, 6 and 7 read *the town*
   for *every fief* and *the school* for *the library* from the school's
   slice on. ADR 038's fixed copy gains the review card's prompts.
+  ADR 037's chrome examples change: *cancel* and *upgrade* leave the
+  chrome, and *password* is fixed copy, which check 9 exempts.
+- ADR 039 (#747) is reconciled. Its rule 6 maps stored levels in slice
+  16's copy into `earned_skills`, never in the reset, since no resource
+  column is mapped: the town's stocks start from content. Its chrome
+  estimate, 50 words in 10 lessons, becomes 80 in 16, of which 66 are
+  band 1, 11 band 2 and 3 band 3, none off the list. So its last band 1
+  lesson is at 16 + ⌊(1 000 − 57 − 66) / 5⌋ = 191, and its last lesson
+  of band 3 is at 191 + ⌊989 / 5⌋ + ⌊806 / 5⌋ = 549. Both stay inside
+  its stated ranges, with food at levels ⌈191 / 4⌉ = 48 and
+  ⌈549 / 4⌉ = 138, as in its table.
 - `apps/web/public/art/` loses its medieval images at the cutover; the
   town's images are their own ticket under the rewritten art bible
   (N7).
