@@ -206,8 +206,9 @@ What trunk holds, checked at `1f0b1c41`:
   `fief: FiefOverview`: the route reads the player's cards and, at an
   earn, the town it re-bases, never a fief. Each client re-reads its own
   screen after an answer instead of adopting a holding from it (the
-  web's `useReview` and Android's `ReviewViewModel` and `FiefViewModel`
-  read `answer.fief` today). An earned skill's `ratePerHourBefore` and
+  web's `useReview` and Android's `ReviewViewModel` read the answer's
+  `fief` today). An earned skill's `level` is read from the player's
+  `earned_skills`, and its `ratePerHourBefore` and
   `ratePerHourAfter` are the town's rates, or null while the player
   holds no town, as every player does from slice 16 until slices 9 and
   10 (`apps/api/src/learning/reviewVerdictOf.ts` derives them from a
@@ -405,9 +406,9 @@ What trunk holds, checked at `1f0b1c41`:
   needs a mapping migration of the owner's new save, the shim ADR 035
   refused, and every cut before it destroys game state outside the one
   signed reset. Rejected for building beside and dropping once.
-- **One pull request for the whole rebuild.** Five packages, both
-  clients and the schema in one review that blocks every other ticket
-  while it runs. Rejected for tracer-bullet slices.
+- **One pull request for the whole rebuild.** Six packages,
+  `packages/catalog` included, both clients and the schema in one
+  review that blocks every other ticket while it runs. Rejected for tracer-bullet slices.
 - **Reset first, then rebuild on an empty game.** Accounts would hold
   nothing to play, and the lesson routes hang on a fief id, until the
   town core shipped. Rejected: the medieval save plays on until the
