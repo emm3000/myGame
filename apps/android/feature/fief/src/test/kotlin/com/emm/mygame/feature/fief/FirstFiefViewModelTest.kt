@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FirstFiefResult
 import com.emm.mygame.core.testing.FakeFiefListRepository
+import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -19,7 +20,7 @@ class FirstFiefViewModelTest {
 
     @Test
     fun `draws the loading state while the api lists the fiefs`() = runTest {
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(FakeFiefListRepository())
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(FakeFiefListRepository(), FakeSessionRepository())
 
         assertEquals(FirstFiefUiState.Loading, viewModel.state.value)
     }
@@ -27,7 +28,7 @@ class FirstFiefViewModelTest {
     @Test
     fun `opens the first fief the api lists`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings)
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings, FakeSessionRepository())
 
         viewModel.effects.test {
             listings.answerFirstListed(FirstFiefResult.Listed(firstListed))
@@ -39,7 +40,7 @@ class FirstFiefViewModelTest {
     @Test
     fun `draws the no-fief line when the api lists none`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings)
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings, FakeSessionRepository())
 
         listings.answerFirstListed(FirstFiefResult.NoFief)
 
@@ -49,7 +50,7 @@ class FirstFiefViewModelTest {
     @Test
     fun `offers a retry when the api cannot be reached`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings)
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings, FakeSessionRepository())
 
         listings.answerFirstListed(FirstFiefResult.Unreachable)
 
@@ -59,7 +60,7 @@ class FirstFiefViewModelTest {
     @Test
     fun `opens the first fief a retry finds after an outage`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings)
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings, FakeSessionRepository())
         listings.answerFirstListed(FirstFiefResult.Unreachable)
 
         viewModel.effects.test {
@@ -73,7 +74,7 @@ class FirstFiefViewModelTest {
     @Test
     fun `lists the fiefs again on a retry after an empty list`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings)
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings, FakeSessionRepository())
         listings.answerFirstListed(FirstFiefResult.NoFief)
 
         viewModel.onIntent(FirstFiefIntent.RetryTapped)
@@ -84,7 +85,7 @@ class FirstFiefViewModelTest {
     @Test
     fun `ignores a retry while the fiefs are listed`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings)
+        val viewModel: FirstFiefViewModel = FirstFiefViewModel(listings, FakeSessionRepository())
 
         viewModel.onIntent(FirstFiefIntent.RetryTapped)
 

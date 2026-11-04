@@ -301,6 +301,26 @@ class NavigatorTest {
     }
 
     @Test
+    fun `returns to sign-in alone once signed out from the first-fief screen`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.FirstFief)
+
+        Navigator(backStack).signedOut(isSessionEnded = false)
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `opens no fief once signed out from the first-fief screen`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.FirstFief)
+        val navigator: Navigator = Navigator(backStack)
+
+        navigator.signedOut(isSessionEnded = false)
+        navigator.firstFiefOpened(firstListed)
+
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
     fun `returns to sign-in alone once signed out from the map`() {
         val backStack: MutableList<NavKey> = mutableListOf(fief, map)
 

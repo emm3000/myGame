@@ -7,4 +7,6 @@ sealed interface FirstFiefUiState {
     data object NoFief : FirstFiefUiState
 
     data object Unreachable : FirstFiefUiState
+
+    data object SigningOut : FirstFiefUiState
 }
