@@ -199,6 +199,7 @@ describe('the digest routes', () => {
           coordinates: coordinates.value,
           startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
           at: Instant.fromEpochMilliseconds(signedUpAt),
+          skills: [],
         }),
       ),
     )

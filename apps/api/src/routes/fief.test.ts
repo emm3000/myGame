@@ -3771,6 +3771,7 @@ describe('the fief route', () => {
             coordinates: coordinates.value,
             startingStocks: fullStores,
             at: Instant.fromEpochMilliseconds(signedUpAt),
+            skills: [],
           }),
         ),
       )

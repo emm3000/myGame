@@ -1,5 +1,6 @@
 import type { DomainError } from '../DomainError'
 import { materializeStocks } from '../fief/materializeStocks'
+import { readFiefsInLockOrder } from '../fief/readFiefsInLockOrder'
 import { rebaseFullSince } from '../fief/rebaseFullSince'
 import { admitDueReview, type DueReview } from '../learning/admitDueReview'
 import type { EarnedSkill } from '../learning/EarnedSkill'
@@ -102,17 +103,17 @@ const earnSkillOnEveryFief = async (
   skill: EarnedSkill,
   { fiefs, catalog }: Pick<AnswerReviewDependencies, 'fiefs' | 'catalog'>,
 ): Promise<Result<EarnedSkill | undefined, DomainError>> => {
-  const fiefIds = [...(await fiefs.fiefsOf(playerId))].sort()
-  let earned: EarnedSkill | undefined
-  for (const fiefId of fiefIds) {
-    const stored = await fiefs.fiefOf(fiefId)
-    if (!stored.ok) {
-      return stored
-    }
-    const fief = stored.value
-    if (fief === undefined || fief.skills.some(({ lessonId }) => lessonId === skill.lessonId)) {
-      continue
-    }
+  const locked = await readFiefsInLockOrder(playerId, fiefs)
+  if (!locked.ok) {
+    return locked
+  }
+  const isEarned = locked.value.some((fief) =>
+    fief.skills.some(({ lessonId }) => lessonId === skill.lessonId),
+  )
+  if (isEarned) {
+    return ok(undefined)
+  }
+  for (const fief of locked.value) {
     const stocksAtNow = materializeStocks(fief, catalog, skill.earnedAt)
     if (!stocksAtNow.ok) {
       return stocksAtNow
@@ -129,9 +130,8 @@ const earnSkillOnEveryFief = async (
     if (!saved.ok) {
       return saved
     }
-    earned = skill
   }
-  return ok(earned)
+  return ok(skill)
 }
 
 const skillEarnedBy = async (

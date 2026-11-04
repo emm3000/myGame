@@ -73,6 +73,7 @@ export type FiefFounding = {
   readonly coordinates: Coordinates
   readonly startingStocks: Stocks
   readonly at: Instant
+  readonly skills: ReadonlyArray<EarnedSkill>
 }
 
 export type StoredFief = {
@@ -707,7 +708,7 @@ export class Fief {
       undefined,
       noStoreFull,
       null,
-      [],
+      founding.skills,
     )
   }
 

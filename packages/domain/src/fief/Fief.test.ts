@@ -163,6 +163,7 @@ const fiefInProvince = (province: number): Fief => {
     coordinates: coordinates.value,
     startingStocks: { wood: 40, stone: 30, iron: 20, gold: 5, food: 35 },
     at: foundingInstant,
+    skills: [],
   })
 }
 

@@ -33,6 +33,7 @@ export const fiefFoundedBy = (
       coordinates: coordinates.value,
       startingStocks,
       at: marchInstantsOf(founding).arrivesAt,
+      skills: origin.skills,
     }),
   )
 }

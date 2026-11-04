@@ -188,6 +188,7 @@ const newFiefIn = (id: string, playerId: PlayerId, province: number, plot: numbe
     coordinates: accepted(Coordinates.create(1, province, plot)),
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     at: foundedAt,
+    skills: [],
   })
 
 const newFief = (id: string, playerId: PlayerId, plot: number): Fief =>

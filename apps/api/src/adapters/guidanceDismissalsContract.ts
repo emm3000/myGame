@@ -42,6 +42,7 @@ const anasFief = (id: string, plot: number): Fief =>
     coordinates: accepted(Coordinates.create(1, 1, plot)),
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     at: foundedAt,
+    skills: [],
   })
 
 const dismissedAtOf = async (fiefs: FiefRepository, fiefId: string): Promise<Instant | null> => {

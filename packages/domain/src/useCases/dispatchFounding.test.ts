@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { campOf } from '../camp/campOf'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { noStoreFull } from '../fief/FullSince'
+import type { EarnedSkill } from '../learning/EarnedSkill'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import { err } from '../Result'
@@ -528,6 +529,20 @@ describe('founding at the arrival', () => {
       recruitOrder: { kind: 'idle' },
       march: { kind: 'idle' },
     })
+  })
+
+  it('founds the fief with every skill the player earned', async () => {
+    const earnedSkill: EarnedSkill = {
+      lessonId: 'lesson-1',
+      resource: 'food',
+      ratePercent: 5,
+      earnedAt: secondsAfter(arrival, -3_600),
+    }
+    const dependencies = await sentFoundingFrom(storedFief({ skills: [earnedSkill] }))
+
+    await resolveAt(dependencies, arrival)
+
+    expect(foundedFiefOf(dependencies)?.skills).toEqual([earnedSkill])
   })
 
   it('accrues the new fief from the arrival instant', async () => {
