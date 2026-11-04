@@ -9,6 +9,7 @@ import com.emm.mygame.core.network.RecruitRefusal
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ResourceQuantity
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.StudyRefusal
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
@@ -27,6 +28,7 @@ sealed interface FiefUiState {
 
     data class Content(
         val name: String,
+        val season: SeasonLine?,
         val resources: List<ResourceLine>,
         val peasants: PeasantsLine,
         val slot: SlotLine,
@@ -37,6 +39,15 @@ sealed interface FiefUiState {
         val library: LibraryLine?,
         val army: ArmyLine?,
     ) : FiefUiState
+
+    data class SeasonLine(val kind: SeasonKind, val year: Int, val next: SeasonKind, val countdown: SeasonCountdown)
+
+    sealed interface SeasonCountdown {
+
+        data class InDays(val days: Int) : SeasonCountdown
+
+        data class UnderADay(val remaining: Duration) : SeasonCountdown
+    }
 
     data class ArmyLine(
         val slot: LevySlotLine,

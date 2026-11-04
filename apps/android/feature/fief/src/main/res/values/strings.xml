@@ -7,6 +7,17 @@
     <string name="fief_retry">Volver a intentarlo</string>
     <string name="first_fief_none">No encontramos tus tierras.</string>
     <string name="sign_out">Salir</string>
+    <string name="season_spring">Primavera</string>
+    <string name="season_summer">Verano</string>
+    <string name="season_autumn">Otoño</string>
+    <string name="season_winter">Invierno</string>
+    <string name="season_line">%1$s, año %2$d</string>
+    <string name="season_countdown">%1$s en %2$s</string>
+    <string name="season_separator">·</string>
+    <plurals name="season_days_left">
+        <item quantity="one">%1$d día</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
     <string name="fief_resources_title">Recursos</string>
     <string name="resource_wood">Madera</string>
     <string name="resource_stone">Piedra</string>

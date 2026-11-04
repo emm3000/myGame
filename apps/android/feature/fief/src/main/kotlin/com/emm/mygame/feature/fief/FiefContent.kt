@@ -35,6 +35,7 @@ internal fun FiefSnapshot.contentAt(now: Instant, gap: Duration, mutations: Muta
     }
     return FiefUiState.Content(
         name = name,
+        season = seasonLineAt(now),
         resources = lines,
         peasants = FiefUiState.PeasantsLine(free = peasants.free, supplied = peasants.supplied),
         slot = slot.lineAt(now),
