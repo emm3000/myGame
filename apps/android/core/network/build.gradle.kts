@@ -6,10 +6,12 @@ plugins {
     alias(libs.plugins.openapi.generator)
 }
 
+val apiSpec: File = rootProject.layout.projectDirectory.file("../api/openapi.json").asFile
+
 val generateApiClient: TaskProvider<GenerateTask> = tasks.named<GenerateTask>("openApiGenerate") {
     generatorName.set("kotlin")
     library.set("jvm-retrofit2")
-    inputSpec.set(rootProject.layout.projectDirectory.file("../api/openapi.json").asFile.path)
+    inputSpec.set(apiSpec.path)
     ignoreFileOverride.set(layout.projectDirectory.file("openapi-generator-ignore"))
     cleanupOutput.set(true)
     packageName.set("com.emm.mygame.core.network.generated")
@@ -28,6 +30,11 @@ val generateApiClient: TaskProvider<GenerateTask> = tasks.named<GenerateTask>("o
             "sourceFolder" to "",
         ),
     )
+}
+
+tasks.withType<Test>().configureEach {
+    inputs.file(apiSpec).withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("mygame.apiSpec", apiSpec.path)
 }
 
 androidComponents {
