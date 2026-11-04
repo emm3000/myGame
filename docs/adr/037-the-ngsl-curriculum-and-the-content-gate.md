@@ -135,14 +135,14 @@ through the domain's `LessonCatalog` port (ADR 008's pattern, N5):
 - **`lesson-<n>.json`**: the lesson's id, theme, duration, required
   library level (the school's after the town rebuild), and its word ids
   in order; never its skill, which follows from its position in
-  `curriculum.json` (ADR 039). The words move out of the lesson file into the
-  lexicon, lesson 1's included, in the lexicon ticket, before any
-  lesson after lesson 1 ships; one shape, never two (rebuild, never
+  `curriculum.json` (ADR 039). The words move out of the lesson file
+  into the lexicon, lesson 1's included, in the lexicon ticket, before
+  any lesson after lesson 1 ships; one shape, never two (rebuild, never
   adapt).
 - **`curriculum.json`**: the lessons in order, the count of chrome
   lessons first, and the skill curve, `{ cycle, ratePercent }`, from
-  which each lesson's skill follows (ADR 039). The adapter loads what it lists; nothing is read from
-  a file name.
+  which each lesson's skill follows (ADR 039). The adapter loads what it
+  lists; nothing is read from a file name.
 - **`grammar.json`, the grammar inventory**, the one home of the frame
   words: structures in order, each with its CEFR level, the frame words
   and the inflections it admits, and the lesson from which it is
@@ -316,14 +316,14 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   teaches, drawn by the api's random source, never the domain's, and
   stored per player and word. It never changes after the draw; were
   950 of band 1's words eligible, 95 would be held out.
-- **A held-out word never enters as a card.** Its lesson enters only
-  its non-held-out words as that player's cards, since a 10 % draw can
-  put two or more held-out words in one lesson; its gloss is not among that player's
-  recognition choices; and the lesson's skill waits on the words the
-  player holds, and on at least one (ADR 036, rule 7, reads "every word
-  of its lesson that the player holds" once the holdout ships), so a
-  lesson whose every word is held out earns once they are released and
-  retained (ADR 039).
+- **A held-out word never enters as a card.** Its lesson enters only its
+  non-held-out words as that player's cards, since a 10 % draw can put
+  two or more held-out words in one lesson; its gloss is not among that
+  player's recognition choices; and the lesson's skill waits on the
+  words the player holds, and on at least one (ADR 036, rule 7, reads
+  "every word of its lesson that the player holds" once the holdout
+  ships), so a lesson whose every word is held out earns once they are
+  released and retained (ADR 039).
 - **It is read like any untaught word**: game text glosses it, and so
   does a later lesson's frame on a recognition or a recall, where any
   token whose word the player holds no card for is glossed, as
@@ -432,8 +432,9 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   bands 2 and 3 drafted, since a player placed out of band 1 starts in
   band 2.
 - What a skill is worth across hundreds of lessons is ADR 039's: the
-  lessons raise the resources in turn, food first, each by 5 %, and one resource's levels add up; no lesson file names
-  its skill (amended by ADR 039).
+  lessons raise the resources in turn, food first, each by 5 %, and one
+  resource's levels add up; no lesson file names its skill (amended by
+  ADR 039).
 - `docs/setting/lessons.md` records each lesson, its theme and its
   words with their ranks, as it does for lesson 1.
 
