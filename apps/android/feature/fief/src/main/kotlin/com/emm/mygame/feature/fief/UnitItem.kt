@@ -8,6 +8,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -91,6 +93,11 @@ private fun OpenUnit(
         null -> stringResource(R.string.recruit_action, plural)
         else -> stringResource(R.string.recruit_action_with_duration, plural, durationLabelOf(order.duration))
     }
+    val focusManager: FocusManager = LocalFocusManager.current
+    val send: () -> Unit = {
+        focusManager.clearFocus()
+        onIntent(FiefIntent.RecruitTapped(card.kind))
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameTextField(
             value = card.entry,
@@ -99,14 +106,14 @@ private fun OpenUnit(
             isReadOnly = card.isEntryLocked,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
             onValueChange = { entry: String -> onIntent(FiefIntent.RecruitEntryChanged(card.kind, entry)) },
-            keyboardActions = KeyboardActions(onDone = { onIntent(FiefIntent.RecruitTapped(card.kind)) }),
+            keyboardActions = KeyboardActions(onDone = { send() }),
         )
         card.order?.let { order: FiefUiState.RecruitLine -> RecruitCosts(order = order) }
         MyGameButton(
             label = action,
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
-            onClick = { onIntent(FiefIntent.RecruitTapped(card.kind)) },
+            onClick = send,
             blockedReason = blocked?.description,
         )
         blocked?.let { line: BlockedReason -> BlockedReasonLine(blocked = line) }

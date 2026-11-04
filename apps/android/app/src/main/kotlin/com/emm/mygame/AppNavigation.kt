@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fitInside
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBars
@@ -16,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -139,8 +142,8 @@ private fun SignedInFrame(
         switcher.onIntent(FiefSwitcherIntent.ScreenShown)
     }
     val listed: FiefSwitcherUiState.Listed? = listing as? FiefSwitcherUiState.Listed
-    val framedInsets: WindowInsets =
-        if (listed == null) WindowInsets.navigationBars else WindowInsets.navigationBars.union(WindowInsets.statusBars)
+    val belowContent: WindowInsets = WindowInsets.navigationBars.union(WindowInsets.ime)
+    val framedInsets: WindowInsets = if (listed == null) belowContent else belowContent.union(WindowInsets.statusBars)
     Column(modifier = modifier.fillMaxSize().background(MyGameTheme.colors.surface)) {
         if (listed != null) {
             FiefSwitcher(
@@ -150,7 +153,12 @@ private fun SignedInFrame(
                 modifier = Modifier.statusBarsPadding(),
             )
         }
-        Box(modifier = Modifier.weight(1f).consumeWindowInsets(framedInsets)) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fitInside(WindowInsetsRulers.Ime.current)
+                .consumeWindowInsets(framedInsets),
+        ) {
             content { switcher.onIntent(FiefSwitcherIntent.FoundingApplied) }
         }
         MyGameNavigationBar(modifier = Modifier.navigationBarsPadding()) {
