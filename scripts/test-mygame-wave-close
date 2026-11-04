@@ -27,6 +27,12 @@ qemu_pid=900000003
 neighbor_pid=900000004
 live_pid=900000005
 stranger_pid=900000006
+picantea_emulator_pid=900000007
+medium_phone_emulator_pid=900000008
+live_emulator_pid=900000009
+probe_emulator_pid=900000010
+probe2_emulator_pid=900000011
+serial_only_emulator_pid=900000012
 failures=0
 case_dir=""
 repo=""
@@ -52,8 +58,51 @@ for pid in "$@"; do
   echo "$pid" >>"$FAKE_STATE/killed"
   awk -F '\t' -v pid="$pid" '$1 != pid' "$FAKE_STATE/processes" >"$FAKE_STATE/processes.next"
   mv "$FAKE_STATE/processes.next" "$FAKE_STATE/processes"
+  awk -F '\t' -v pid="$pid" '$3 != pid' "$FAKE_STATE/devices" >"$FAKE_STATE/devices.next"
+  mv "$FAKE_STATE/devices.next" "$FAKE_STATE/devices"
 done
 STUB
+write_stub adb <<'STUB'
+if [ "$1" = devices ]; then
+  echo "List of devices attached"
+  awk -F '\t' '{ print $1 "\tdevice" }' "$FAKE_STATE/devices"
+  exit 0
+fi
+[ "$1" = -s ] || { echo "unexpected adb $*" >&2; exit 1; }
+serial=$2
+shift 2
+device=$(awk -F '\t' -v serial="$serial" '$1 == serial' "$FAKE_STATE/devices")
+[ -n "$device" ] || { echo "adb: device '$serial' not found" >&2; exit 1; }
+case "$*" in
+  "emu avd name") printf '%s\r\nOK\r\n' "$(cut -f 2 <<<"$device")" ;;
+  "emu kill")
+    pid=$(cut -f 3 <<<"$device")
+    echo "$serial" >>"$FAKE_STATE/killed"
+    awk -F '\t' -v serial="$serial" '$1 != serial' "$FAKE_STATE/devices" >"$FAKE_STATE/devices.next"
+    mv "$FAKE_STATE/devices.next" "$FAKE_STATE/devices"
+    awk -F '\t' -v pid="$pid" '$1 != pid' "$FAKE_STATE/processes" >"$FAKE_STATE/processes.next"
+    mv "$FAKE_STATE/processes.next" "$FAKE_STATE/processes"
+    echo "OK" ;;
+  *) echo "unexpected adb -s $serial $*" >&2; exit 1 ;;
+esac
+STUB
+mkdir -p "$sandbox/android/cmdline-tools/latest/bin"
+avdmanager_stub="$sandbox/android/cmdline-tools/latest/bin/avdmanager"
+{
+  echo '#!/usr/bin/env bash'
+  awk 1
+} >"$avdmanager_stub" <<'STUB'
+case $ANDROID_AVD_HOME in
+  "$SANDBOX"/?*) ;;
+  *) echo "refusing avdmanager: ANDROID_AVD_HOME $ANDROID_AVD_HOME is outside the sandbox" >&2; exit 70 ;;
+esac
+[ "$#" -eq 4 ] && [ "$1 $2 $3" = "delete avd -n" ] || { echo "unexpected avdmanager $*" >&2; exit 1; }
+[ -d "$ANDROID_AVD_HOME/$4.avd" ] || { echo "Error: There is no Android Virtual Device named '$4'." >&2; exit 1; }
+rm -rf "${ANDROID_AVD_HOME:?}/$4.avd" "${ANDROID_AVD_HOME:?}/$4.ini"
+echo "$4" >>"$FAKE_STATE/deleted"
+echo "AVD '$4' deleted."
+STUB
+chmod +x "$avdmanager_stub"
 write_stub docker <<'STUB'
 case "$1 $2" in
   "ps -a") awk 1 "$FAKE_STATE/containers" ;;
@@ -82,10 +131,6 @@ write_stub gh <<'STUB'
 echo "unexpected gh $*" >&2
 exit 1
 STUB
-write_stub pkill <<'STUB'
-echo "unexpected pkill $*" >&2
-exit 1
-STUB
 
 build_a_live_peer() {
   case_dir="$sandbox/$1"
@@ -107,6 +152,25 @@ build_a_live_peer() {
   printf '%s\n' mygame-orch-pg mygame-live-pg >"$case_dir/state/containers"
   printf 'mygame-live-pgdata\t\tmygame-live-pg\n' >"$case_dir/state/volumes"
   : >"$case_dir/state/killed"
+  : >"$case_dir/state/deleted"
+  : >"$case_dir/state/devices"
+  for avd in Medium_Phone_5560 hello-1 picantea-reembolso mygame-live; do
+    add_an_avd "$avd"
+  done
+  add_an_emulator "$picantea_emulator_pid" picantea-x 5590 "$case_dir/pichanga-probe"
+  add_an_emulator "$medium_phone_emulator_pid" Medium_Phone_5560 5560 "$case_dir"
+  add_an_emulator "$live_emulator_pid" mygame-live 5562 "$case_dir/mygame-live"
+}
+
+add_an_avd() {
+  mkdir -p "$case_dir/avd/$1.avd"
+  printf 'path=%s\n' "$case_dir/avd/$1.avd" >"$case_dir/avd/$1.ini"
+}
+
+add_an_emulator() {
+  printf '%s\tqemu-system-aarch64-headless\t%s\tqemu-system-aarch64-headless -avd %s -port %s -no-window -no-audio -gpu host\n' \
+    "$1" "$4" "$2" "$3" >>"$case_dir/state/processes"
+  printf 'emulator-%s\t%s\t%s\n' "$3" "$2" "$1" >>"$case_dir/state/devices"
 }
 
 build_a_merged_ticket_beside_a_live_peer() {
@@ -124,10 +188,20 @@ build_a_merged_ticket_beside_a_live_peer() {
   printf 'mygame-probe-pgdata\t\tmygame-probe-pg\n' >>"$case_dir/state/volumes"
 }
 
+build_a_peer_with_its_own_avd() {
+  build_a_merged_ticket_beside_a_live_peer "$1"
+  add_an_avd mygame-probe
+  add_an_emulator "$probe_emulator_pid" mygame-probe 5564 "$case_dir/mygame-probe"
+  mkdir -p "$case_dir/mygame-probe2"
+  add_an_avd mygame-probe2
+  add_an_emulator "$probe2_emulator_pid" mygame-probe2 5566 "$case_dir/mygame-probe2"
+}
+
 with_stubs() {
   (
-    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH"
-    for tool in docker gh kill lsof pkill ps; do
+    export FAKE_STATE="$case_dir/state" PATH="$sandbox/bin:$PATH" SANDBOX="$sandbox"
+    export HOME="$case_dir/home" ANDROID_HOME="$sandbox/android" ANDROID_AVD_HOME="$case_dir/avd"
+    for tool in adb docker gh kill lsof ps; do
       [ "$(type -P "$tool")" = "$sandbox/bin/$tool" ] || { echo "refusing to run: stub $tool is not first on PATH" >&2; exit 70; }
     done
     cd "$repo" && "$@" 2>&1
@@ -136,6 +210,30 @@ with_stubs() {
 
 killed() {
   sort "$case_dir/state/killed" | tr '\n' ' '
+}
+
+deleted() {
+  sort "$case_dir/state/deleted" | tr '\n' ' '
+}
+
+avds() {
+  (cd "$case_dir/avd" && printf '%s\n' *) | LC_ALL=C sort | tr '\n' ' '
+}
+
+decoys_survive() {
+  local avd
+  for avd in Medium_Phone_5560 hello-1 picantea-reembolso; do
+    [ -d "$case_dir/avd/$avd.avd" ] && [ -f "$case_dir/avd/$avd.ini" ] || { echo "decoy avd $avd is gone"; return 1; }
+  done
+  awk -F '\t' -v a="$picantea_emulator_pid" -v b="$medium_phone_emulator_pid" '$1 == a || $1 == b { found++ } END { exit found != 2 }' \
+    "$case_dir/state/processes" || { echo "a decoy emulator process is gone"; return 1; }
+  awk -F '\t' '$1 == "emulator-5590" || $1 == "emulator-5560" { found++ } END { exit found != 2 }' \
+    "$case_dir/state/devices" || { echo "a decoy emulator serial is gone"; return 1; }
+  if awk -v a="$picantea_emulator_pid" -v b="$medium_phone_emulator_pid" '$0 == a || $0 == b || $0 == "emulator-5590" || $0 == "emulator-5560" { found = 1 } END { exit !found }' \
+    "$case_dir/state/killed"; then
+    echo "a decoy emulator was stopped"
+    return 1
+  fi
 }
 
 refs() {
@@ -243,6 +341,102 @@ orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live() {
   [ "$status" -ne 0 ] && [ "$output" = "$expected" ] || fail "${FUNCNAME[0]}" "exit $status: $output"
 }
 
+closing_stops_the_peer_emulator_by_its_avd_and_deletes_the_avd() {
+  build_a_peer_with_its_own_avd avd-plain
+  local output problem
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid $probe_emulator_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(deleted)" = "mygame-probe " ] || fail "${FUNCNAME[0]}" "deleted $(deleted)" || return 1
+  [ "$(avds)" = "Medium_Phone_5560.avd Medium_Phone_5560.ini hello-1.avd hello-1.ini mygame-live.avd mygame-live.ini mygame-probe2.avd mygame-probe2.ini picantea-reembolso.avd picantea-reembolso.ini " ] ||
+    fail "${FUNCNAME[0]}" "avds $(avds)" || return 1
+  [ "$(head -n 3 <<<"$output")" = "killed claude -n probe (pid $claude_pid)"$'\n'"stopped emulator mygame-probe (pid $probe_emulator_pid)"$'\n'"deleted avd mygame-probe" ] ||
+    fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(tail -n 1 <<<"$output")" = "orphans: none" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  problem=$(decoys_survive) || fail "${FUNCNAME[0]}" "$problem"
+}
+
+closing_probe_spares_the_mygame_probe2_emulator_and_avd() {
+  build_a_peer_with_its_own_avd avd-prefix
+  local output
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  awk -F '\t' -v pid="$probe2_emulator_pid" '$1 == pid { found = 1 } END { exit !found }' "$case_dir/state/processes" ||
+    fail "${FUNCNAME[0]}" "the mygame-probe2 emulator was stopped" || return 1
+  [ -d "$case_dir/avd/mygame-probe2.avd" ] || fail "${FUNCNAME[0]}" "the mygame-probe2 avd was deleted" || return 1
+  case $output in
+    *probe2*) fail "${FUNCNAME[0]}" "$output" ;;
+  esac
+}
+
+closing_stops_an_emulator_found_only_by_its_adb_serial() {
+  build_a_merged_ticket_beside_a_live_peer avd-serial
+  add_an_avd mygame-probe
+  printf '%s\tqemu-system-aarch64-headless\t%s\tqemu-system-aarch64-headless @mygame-probe -port 5568\n' \
+    "$serial_only_emulator_pid" "$case_dir" >>"$case_dir/state/processes"
+  printf 'emulator-5568\tmygame-probe\t%s\n' "$serial_only_emulator_pid" >>"$case_dir/state/devices"
+  local output problem
+  output=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid emulator-5568 " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(deleted)" = "mygame-probe " ] || fail "${FUNCNAME[0]}" "deleted $(deleted)" || return 1
+  [ "$(awk 'NR == 2' <<<"$output")" = "stopped emulator mygame-probe (emulator-5568)" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+  problem=$(decoys_survive) || fail "${FUNCNAME[0]}" "$problem"
+}
+
+keep_emulator_keeps_the_peer_emulator_and_its_avd() {
+  build_a_peer_with_its_own_avd avd-keep
+  local output problem
+  output=$(with_stubs scripts/mygame-wave-close probe --keep-emulator) || fail "${FUNCNAME[0]}" "$output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ "$(deleted)" = "" ] || fail "${FUNCNAME[0]}" "deleted $(deleted)" || return 1
+  [ -d "$case_dir/avd/mygame-probe.avd" ] || fail "${FUNCNAME[0]}" "avd mygame-probe deleted" || return 1
+  [ "$(tail -n 4 <<<"$output")" = "kept: avd mygame-probe"$'\n'"kept: emulator $qemu_pid in $case_dir/mygame-probe"$'\n'"kept: emulator $probe_emulator_pid in $case_dir/mygame-probe"$'\n'"orphans: none" ] ||
+    fail "${FUNCNAME[0]}" "$output" || return 1
+  problem=$(decoys_survive) || fail "${FUNCNAME[0]}" "$problem"
+}
+
+closing_without_android_home_stops_the_emulator_and_keeps_the_avd() {
+  build_a_peer_with_its_own_avd avd-no-sdk
+  local output status=0 problem
+  output=$(with_stubs env -u ANDROID_HOME scripts/mygame-wave-close probe) || status=$?
+  [ "$status" -eq 0 ] || fail "${FUNCNAME[0]}" "exit $status: $output" || return 1
+  [ "$(killed)" = "$claude_pid $node_pid $qemu_pid $probe_emulator_pid " ] || fail "${FUNCNAME[0]}" "killed $(killed)" || return 1
+  [ -d "$case_dir/avd/mygame-probe.avd" ] || fail "${FUNCNAME[0]}" "avd mygame-probe deleted" || return 1
+  case $output in
+    *"ANDROID_HOME is unset: avd mygame-probe not deleted"*"orphan: avd mygame-probe"*) ;;
+    *) fail "${FUNCNAME[0]}" "$output" || return 1 ;;
+  esac
+  problem=$(decoys_survive) || fail "${FUNCNAME[0]}" "$problem"
+}
+
+closing_twice_skips_the_emulator_and_avd_steps_quietly() {
+  build_a_peer_with_its_own_avd avd-twice
+  local second
+  with_stubs scripts/mygame-wave-close probe >/dev/null || fail "${FUNCNAME[0]}" "first run failed" || return 1
+  second=$(with_stubs scripts/mygame-wave-close probe) || fail "${FUNCNAME[0]}" "second run failed: $second" || return 1
+  [ "$second" = "orphans: none" ] || fail "${FUNCNAME[0]}" "second run printed $second"
+}
+
+orphans_names_an_avd_without_its_worktree_and_fails() {
+  build_a_live_peer avd-orphan
+  add_an_avd mygame-gone
+  local output status=0 problem
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -ne 0 ] && [ "$output" = "orphan: avd mygame-gone" ] || fail "${FUNCNAME[0]}" "plain run (exit $status): $output" || return 1
+  status=0
+  output=$(with_stubs scripts/mygame-orphans --keep-emulator) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "kept: avd mygame-gone"$'\n'"orphans: none" ] || fail "${FUNCNAME[0]}" "kept run (exit $status): $output" || return 1
+  problem=$(decoys_survive) || fail "${FUNCNAME[0]}" "$problem"
+}
+
+orphans_never_reports_a_live_peer_avd_or_another_repo_avd() {
+  build_a_live_peer avd-clean
+  local output status=0
+  output=$(with_stubs scripts/mygame-orphans) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "plain run (exit $status): $output" || return 1
+  status=0
+  output=$(with_stubs scripts/mygame-orphans --keep-emulator) || status=$?
+  [ "$status" -eq 0 ] && [ "$output" = "orphans: none" ] || fail "${FUNCNAME[0]}" "kept run (exit $status): $output"
+}
+
 run() {
   if "$1"; then
     echo "ok   $1"
@@ -259,4 +453,12 @@ run orphans_keeps_a_spared_emulator_only_under_keep_emulator
 run orphans_reports_only_mygame_dangling_volumes
 run closing_a_session_on_trunk_keeps_trunk
 run orphans_treats_a_same_name_claude_outside_the_worktree_as_not_live
+run closing_stops_the_peer_emulator_by_its_avd_and_deletes_the_avd
+run closing_probe_spares_the_mygame_probe2_emulator_and_avd
+run closing_stops_an_emulator_found_only_by_its_adb_serial
+run keep_emulator_keeps_the_peer_emulator_and_its_avd
+run closing_without_android_home_stops_the_emulator_and_keeps_the_avd
+run closing_twice_skips_the_emulator_and_avd_steps_quietly
+run orphans_names_an_avd_without_its_worktree_and_fails
+run orphans_never_reports_a_live_peer_avd_or_another_repo_avd
 [ "$failures" -eq 0 ]

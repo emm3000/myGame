@@ -51,6 +51,63 @@ while read -r pid; do
   echo "killed claude -n $session (pid $pid)"
 done <<<"$claude_pids"
 
+avd="mygame-$session"
+avd_home=${ANDROID_AVD_HOME:-$HOME/.android/avd}
+
+avd_pids() {
+  ps -axo pid=,command= | awk -v avd="$avd" '
+    { for (i = 2; i < NF; i++) if ($i == "-avd" && $(i + 1) == avd) { print $1; next } }'
+}
+
+avd_serials() {
+  command -v adb >/dev/null || return 0
+  local serial name
+  while read -r serial; do
+    name=$(adb -s "$serial" emu avd name 2>/dev/null | awk 'NR == 1 { sub(/\r$/, ""); print }') || continue
+    if [ "$name" = "$avd" ]; then
+      echo "$serial"
+    fi
+  done <<<"$(adb devices 2>/dev/null | awk '$1 ~ /^emulator-[0-9]+$/ { print $1 }' || true)"
+}
+
+wait_until_empty() {
+  local attempt
+  for attempt in $(seq 60); do
+    [ -n "$("$1")" ] || return 0
+    [ "$attempt" -eq 60 ] || sleep 1
+  done
+  return 1
+}
+
+if [ "$keep_emulator" -eq 0 ]; then
+  emulator_stopped=1
+  pids=$(avd_pids)
+  while read -r pid; do
+    [ -n "$pid" ] || continue
+    stop "$pid"
+    echo "stopped emulator $avd (pid $pid)"
+  done <<<"$pids"
+  [ -z "$pids" ] || wait_until_empty avd_pids || emulator_stopped=0
+  serials=$(avd_serials)
+  while read -r serial; do
+    [ -n "$serial" ] || continue
+    adb -s "$serial" emu kill >/dev/null 2>&1 || true
+    echo "stopped emulator $avd ($serial)"
+  done <<<"$serials"
+  [ -z "$serials" ] || wait_until_empty avd_serials || emulator_stopped=0
+  if [ -e "$avd_home/$avd.avd" ] || [ -e "$avd_home/$avd.ini" ]; then
+    if [ -z "${ANDROID_HOME:-}" ]; then
+      echo "ANDROID_HOME is unset: avd $avd not deleted" >&2
+    elif [ "$emulator_stopped" -eq 0 ]; then
+      echo "emulator $avd still running after 60 s: avd $avd not deleted" >&2
+    elif "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" delete avd -n "$avd" >/dev/null; then
+      echo "deleted avd $avd"
+    else
+      echo "avdmanager failed: avd $avd not deleted" >&2
+    fi
+  fi
+fi
+
 while IFS="$(printf '\t')" read -r pid name; do
   [ -n "$pid" ] || continue
   stop "$pid"
