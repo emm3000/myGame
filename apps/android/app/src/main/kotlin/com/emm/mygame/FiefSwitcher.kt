@@ -74,14 +74,14 @@ internal fun FiefSwitcher(
             listed.entries.chunked(ENTRIES_PER_ROW).forEach { row: List<FiefSwitcherUiState.Entry> ->
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                 ) {
                     row.forEach { entry: FiefSwitcherUiState.Entry ->
                         FiefEntry(
                             entry = entry,
                             isEnabled = isEnabled,
                             onChoose = onChoose,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
                         )
                     }
                     repeat(ENTRIES_PER_ROW - row.size) { Box(modifier = Modifier.weight(1f)) }
@@ -114,8 +114,7 @@ private fun FiefEntry(
             .border(MyGameSizes.hairline, colors.line, shape)
             .clickable(enabled = isEnabled, role = Role.Button) { onChoose(entry.fief) }
     }
-    val heightened: Modifier = if (entry.isCurrent) framed.height(IntrinsicSize.Min) else framed
-    Row(modifier = heightened.heightIn(min = MyGameSizes.control)) {
+    Row(modifier = framed.heightIn(min = MyGameSizes.control)) {
         if (entry.isCurrent) {
             Box(modifier = Modifier.width(MyGameSizes.bar).fillMaxHeight().background(colors.river, shape))
         }
