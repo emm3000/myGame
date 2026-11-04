@@ -108,6 +108,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     buildQueue: [],
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },

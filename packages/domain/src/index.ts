@@ -51,11 +51,20 @@ export {
 export type { PlotAddress } from './fief/PlotAddress'
 export type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './fief/RecruitOrder'
 export { recruitOrderEndsAt } from './fief/recruitOrderEndsAt'
-export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
+export type { BusyStudySlot, LessonStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
 export type { Terrain } from './fief/Terrain'
 export { terrainOf } from './fief/terrainOf'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
+export { type DueCard, dueCardsAt } from './learning/dueCardsAt'
+export type { EarnedSkill } from './learning/EarnedSkill'
+export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
+export type { HeldCard } from './learning/HeldCard'
+export type { Lesson, LessonId, LessonSkill, LessonWord, WordId } from './learning/Lesson'
+export type { PendingReview } from './learning/PendingReview'
+export { type ReviewFormat, reviewFormatOf } from './learning/ReviewFormat'
+export type { ReviewLogEntry } from './learning/ReviewLogEntry'
+export { recognitionChoicesOf } from './learning/recognitionChoicesOf'
 export { forageLootOf } from './march/forageLootOf'
 export type { AwayMarch, March, TransportMarch } from './march/March'
 export { type MarchInstants, marchInstantsOf } from './march/marchInstantsOf'
@@ -92,6 +101,7 @@ export type {
   WarehouseLevel,
 } from './ports/BuildingCatalog'
 export type { CampRegistry } from './ports/CampRegistry'
+export type { CardRepository } from './ports/CardRepository'
 export type { ChronicleWriter } from './ports/ChronicleWriter'
 export type { Clock } from './ports/Clock'
 export type { FiefRepository } from './ports/FiefRepository'
@@ -102,6 +112,9 @@ export type {
   PlotHolder,
   PlotReservation,
 } from './ports/KingdomMapReader'
+export type { LessonCatalog } from './ports/LessonCatalog'
+export type { PendingReviewRepository } from './ports/PendingReviewRepository'
+export type { ReviewLog } from './ports/ReviewLog'
 export { err, ok, type Result } from './Result'
 export { type MaterializedResources, materializeResources } from './resources/materializeResources'
 export type { ResourceKind, Resources } from './resources/Resources'
@@ -112,6 +125,17 @@ export type { SeasonKind } from './season/SeasonKind'
 export { type Season, seasonAt } from './season/seasonAt'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
+export {
+  type AnsweredReview,
+  type AnswerReviewCommand,
+  type AnswerReviewDependencies,
+  answerReview,
+} from './useCases/answerReview'
+export {
+  type CancelLessonCommand,
+  type CancelLessonDependencies,
+  cancelLesson,
+} from './useCases/cancelLesson'
 export {
   type CancelRecruitOrderCommand,
   type CancelRecruitOrderDependencies,
@@ -153,6 +177,11 @@ export {
   enqueueBuilding,
 } from './useCases/enqueueBuilding'
 export {
+  type EnterLessonCardsCommand,
+  type EnterLessonCardsDependencies,
+  enterLessonCards,
+} from './useCases/enterLessonCards'
+export {
   type FoundFiefCommand,
   type FoundFiefDependencies,
   foundFief,
@@ -173,11 +202,22 @@ export {
   recallMarch,
 } from './useCases/recallMarch'
 export {
+  type Hint,
+  type RequestHintCommand,
+  type RequestHintDependencies,
+  requestHint,
+} from './useCases/requestHint'
+export {
   type ResolvedFief,
   type ResolveUpgradeCommand,
   type ResolveUpgradeDependencies,
   resolveUpgrade,
 } from './useCases/resolveUpgrade'
+export {
+  type StartLessonCommand,
+  type StartLessonDependencies,
+  startLesson,
+} from './useCases/startLesson'
 export {
   type StartStudyCommand,
   type StartStudyDependencies,

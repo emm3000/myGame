@@ -91,6 +91,7 @@ const fiefStoredWith = (stocks: Partial<Stocks>, storedAt: Instant): Fief => {
     march: { kind: 'idle' },
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
   })
   assert(restored.ok)
   return restored.value

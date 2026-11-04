@@ -1,4 +1,5 @@
 import type { PlotAddress } from '../fief/PlotAddress'
+import { mixed32 } from '../hash/mixed32'
 import type { CampTerms } from '../ports/BuildingCatalog'
 import type { CampTier } from './CampTier'
 
@@ -6,14 +7,8 @@ const PLACEMENT_RANGE = 2 ** 24
 const TIER_BITS = 0xff
 const TIERS_IN_ROTATION = 3
 
-const mixed = (value: number): number => {
-  const first = Math.imul(value ^ (value >>> 16), 0x7feb352d)
-  const second = Math.imul(first ^ (first >>> 15), 0x846ca68b)
-  return (second ^ (second >>> 16)) >>> 0
-}
-
 const plotHashOf = ({ kingdom, province, plot }: PlotAddress): number =>
-  mixed(mixed(mixed(kingdom) ^ province) ^ plot)
+  mixed32(mixed32(mixed32(kingdom) ^ province) ^ plot)
 
 const tierOf = (hash: number): CampTier => {
   const positionInRotation = (hash & TIER_BITS) % TIERS_IN_ROTATION

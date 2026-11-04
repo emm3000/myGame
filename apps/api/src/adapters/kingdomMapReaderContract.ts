@@ -108,6 +108,7 @@ const fiefSendingSettler = ({
       },
       fullSince: noStoreFull,
       guidanceDismissedAt: null,
+      skills: [],
     }),
   )
 }

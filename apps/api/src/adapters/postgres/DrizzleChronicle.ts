@@ -11,6 +11,7 @@ import {
 } from '@mygame/domain'
 import { and, desc, eq, notInArray } from 'drizzle-orm'
 import { type ChronicleReader, keptEventsPerFief } from '../../fief/ChronicleReader'
+import { type ChronicledEvent, chronicledEventsOf } from '../../fief/chronicledEventsOf'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
 import { fiefEvents } from './schema'
@@ -54,7 +55,7 @@ const unitCountColumnsOf = (counts: UnitCounts) => ({
   settlerCount: counts.settler,
 })
 
-const rowOf = (fiefId: FiefId, event: FiefEvent): NewEventRow => {
+const rowOf = (fiefId: FiefId, event: ChronicledEvent): NewEventRow => {
   const common = { fiefId, occurredAt: new Date(event.occurredAt.epochMilliseconds) }
   switch (event.kind) {
     case 'upgradeFinished':
@@ -265,7 +266,7 @@ const fiefNameOf = (row: EventRow): string => {
   return row.fiefName
 }
 
-const eventOf = (row: EventRow): FiefEvent => {
+const eventOf = (row: EventRow): ChronicledEvent => {
   const occurredAt = Instant.fromEpochMilliseconds(row.occurredAt.getTime())
   switch (row.kind) {
     case 'upgrade_finished':
@@ -373,10 +374,16 @@ export class DrizzleChronicle implements ChronicleWriter, ChronicleReader {
     fiefId: FiefId,
     events: ReadonlyArray<FiefEvent>,
   ): Promise<Result<void, DomainError>> {
-    if (events.length === 0) {
+    const chronicled = chronicledEventsOf(events)
+    if (!chronicled.ok) {
+      return chronicled
+    }
+    if (chronicled.value.length === 0) {
       return ok(undefined)
     }
-    await this.database.insert(fiefEvents).values(events.map((event) => rowOf(fiefId, event)))
+    await this.database
+      .insert(fiefEvents)
+      .values(chronicled.value.map((event) => rowOf(fiefId, event)))
     const kept = this.database
       .select({ id: fiefEvents.id })
       .from(fiefEvents)
@@ -389,7 +396,7 @@ export class DrizzleChronicle implements ChronicleWriter, ChronicleReader {
     return ok(undefined)
   }
 
-  async eventsOf(fiefId: FiefId): Promise<ReadonlyArray<FiefEvent>> {
+  async eventsOf(fiefId: FiefId): Promise<ReadonlyArray<ChronicledEvent>> {
     const rows = await this.database
       .select()
       .from(fiefEvents)

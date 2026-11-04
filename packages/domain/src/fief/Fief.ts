@@ -1,6 +1,8 @@
 import { attackLootOf } from '../camp/attackLootOf'
 import { type Battle, battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
+import type { EarnedSkill } from '../learning/EarnedSkill'
+import type { Lesson, LessonId } from '../learning/Lesson'
 import { carryOf } from '../march/carryOf'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
@@ -56,7 +58,7 @@ import type { PlotAddress } from './PlotAddress'
 import type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './RecruitOrder'
 import { rebaseFullSince } from './rebaseFullSince'
 import { recruitOrderEndsAt } from './recruitOrderEndsAt'
-import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
+import type { BusyStudySlot, LessonStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import { shortfallOf } from './shortfallOf'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
@@ -91,6 +93,7 @@ export type StoredFief = {
   readonly incomingCargo?: IncomingCargo
   readonly fullSince: FullSince
   readonly guidanceDismissedAt: Instant | null
+  readonly skills: ReadonlyArray<EarnedSkill>
 }
 
 export type RecruitRequest = {
@@ -220,7 +223,9 @@ type TimedWork = {
   readonly cost: Stocks
 }
 
-const validateTimedWork = (work: TimedWork, storedAt: Instant): Result<void, DomainError> => {
+type Timing = Pick<TimedWork, 'startedAt' | 'finishesAt'>
+
+const validateTiming = (work: Timing, storedAt: Instant): Result<void, DomainError> => {
   if (work.finishesAt.epochMilliseconds < storedAt.epochMilliseconds) {
     return err({ kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: work.finishesAt })
   }
@@ -230,6 +235,14 @@ const validateTimedWork = (work: TimedWork, storedAt: Instant): Result<void, Dom
       startedAt: work.startedAt,
       finishesAt: work.finishesAt,
     })
+  }
+  return ok(undefined)
+}
+
+const validateTimedWork = (work: TimedWork, storedAt: Instant): Result<void, DomainError> => {
+  const timing = validateTiming(work, storedAt)
+  if (!timing.ok) {
+    return timing
   }
   return refuseNegativeAmount(work.cost)
 }
@@ -247,6 +260,9 @@ const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainEr
 const validateStudySlot = (studySlot: StudySlot, storedAt: Instant): Result<void, DomainError> => {
   if (studySlot.kind === 'idle') {
     return ok(undefined)
+  }
+  if (studySlot.kind === 'lesson') {
+    return validateTiming(studySlot, storedAt)
   }
   if (!isTargetLevel(studySlot.targetLevel)) {
     return err({ kind: 'InvalidArtLevel', art: studySlot.art, level: studySlot.targetLevel })
@@ -516,6 +532,7 @@ type FiefChange = Partial<
     readonly march: March
     readonly incomingCargo: IncomingCargo | undefined
     readonly fullSince: FullSince
+    readonly skills: ReadonlyArray<EarnedSkill>
   }
 >
 
@@ -668,6 +685,7 @@ export class Fief {
     readonly incomingCargo: IncomingCargo | undefined,
     readonly fullSince: FullSince,
     readonly guidanceDismissedAt: Instant | null,
+    readonly skills: ReadonlyArray<EarnedSkill>,
   ) {}
 
   static found(founding: FiefFounding): Fief {
@@ -689,6 +707,7 @@ export class Fief {
       undefined,
       noStoreFull,
       null,
+      [],
     )
   }
 
@@ -729,6 +748,7 @@ export class Fief {
         stored.incomingCargo,
         stored.fullSince,
         stored.guidanceDismissedAt,
+        stored.skills,
       ),
     )
   }
@@ -816,7 +836,7 @@ export class Fief {
   ): Result<ChangedFief, DomainError> {
     const { studySlot } = this
     if (
-      studySlot.kind === 'idle' ||
+      studySlot.kind !== 'busy' ||
       studySlot.art !== target.art ||
       studySlot.targetLevel !== target.targetLevel ||
       isSlotFinishedBy(studySlot, now)
@@ -884,8 +904,8 @@ export class Fief {
     now: Instant,
     studyPercent: number,
   ): Result<Fief, DomainError> {
-    if (this.studySlot.kind === 'busy') {
-      return err({ kind: 'StudySlotBusy', art: this.studySlot.art })
+    if (this.studySlot.kind !== 'idle') {
+      return err({ kind: 'StudySlotBusy' })
     }
     const libraryLevel = this.buildingLevels.library
     if (libraryLevel < line.requiredLibraryLevel) {
@@ -1260,6 +1280,59 @@ export class Fief {
     })
   }
 
+  startLesson(lesson: Lesson, now: Instant, studyPercent: number): Result<Fief, DomainError> {
+    if (this.studySlot.kind !== 'idle') {
+      return err({ kind: 'StudySlotBusy' })
+    }
+    const libraryLevel = this.buildingLevels.library
+    if (libraryLevel < lesson.requiredLibraryLevel) {
+      return err({
+        kind: 'LessonLibraryTooLow',
+        requiredLibraryLevel: lesson.requiredLibraryLevel,
+        libraryLevel,
+      })
+    }
+    const duration = Duration.ofSeconds(
+      deriveStudyDurationSeconds(lesson.durationSeconds, libraryLevel, studyPercent),
+    )
+    if (!duration.ok) {
+      return duration
+    }
+    return ok(
+      this.changed({
+        studySlot: {
+          kind: 'lesson',
+          lessonId: lesson.id,
+          startedAt: now,
+          finishesAt: now.plus(duration.value),
+        },
+      }),
+    )
+  }
+
+  cancelLesson(lessonId: LessonId, now: Instant): Result<ChangedFief, DomainError> {
+    const { studySlot } = this
+    if (
+      studySlot.kind !== 'lesson' ||
+      studySlot.lessonId !== lessonId ||
+      isSlotFinishedBy(studySlot, now)
+    ) {
+      return err({ kind: 'LessonStudyNotFound', lessonId })
+    }
+    return ok({
+      fief: this.changed({ studySlot: { kind: 'idle' } }),
+      events: [{ kind: 'lessonCancelled', lessonId, occurredAt: now }],
+    })
+  }
+
+  completeLesson(finished: LessonStudySlot, stocksAtFinish: Stocks): Fief {
+    return this.changed({
+      stocks: stocksAtFinish,
+      storedAt: finished.finishesAt,
+      studySlot: { kind: 'idle' },
+    })
+  }
+
   completeRecruitOrder(ended: OpenRecruitOrder, stocksAtEnd: Stocks): Fief {
     return this.changed({
       stocks: stocksAtEnd,
@@ -1408,6 +1481,10 @@ export class Fief {
     )
   }
 
+  earnSkill(skill: EarnedSkill, stocksAtNow: Stocks, now: Instant): Fief {
+    return this.changed({ skills: [...this.skills, skill], stocks: stocksAtNow, storedAt: now })
+  }
+
   withFullSince(fullSince: FullSince): Fief {
     return this.changed({ fullSince })
   }
@@ -1431,6 +1508,7 @@ export class Fief {
       'incomingCargo' in change ? change.incomingCargo : this.incomingCargo,
       change.fullSince ?? this.fullSince,
       this.guidanceDismissedAt,
+      change.skills ?? this.skills,
     )
   }
 

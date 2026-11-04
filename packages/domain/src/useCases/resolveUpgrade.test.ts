@@ -9,7 +9,7 @@ import { Fief, type MarchSeason, type Stocks, type StoredFief } from '../fief/Fi
 import type { FiefBuildingLevels } from '../fief/FiefBuildingLevels'
 import { noStoreFull } from '../fief/FullSince'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
-import type { BusyStudySlot } from '../fief/StudySlot'
+import type { BusyStudySlot, LessonStudySlot } from '../fief/StudySlot'
 import type { AwayMarch } from '../march/March'
 import type {
   ArtLevel,
@@ -166,6 +166,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     buildQueue: [],
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: { kind: 'idle' },
@@ -1216,6 +1217,34 @@ describe('resolveUpgrade', () => {
     ])
   })
 
+  it('idles the study slot and answers the lesson learned at its finish', async () => {
+    const lessonStudy: LessonStudySlot = {
+      kind: 'lesson',
+      lessonId: 'lesson-1',
+      startedAt: storedInstant,
+      finishesAt: hoursAfterStored(1),
+    }
+    const fiefs = inMemoryFiefRepository([storedFief({ studySlot: lessonStudy })])
+
+    const result = await resolveUpgrade(
+      { playerId: 'lord', fiefId: 'fief-1' },
+      {
+        fiefs,
+        chronicle: inMemoryChronicle(),
+        camps: inMemoryCampRegistry([]),
+        catalog: studyingCatalog,
+        ids: sequentialIds(),
+        clock: frozenClock(hoursAfterStored(2)),
+      },
+    )
+
+    assert(result.ok)
+    expect(result.value.events).toEqual([
+      { kind: 'lessonLearned', lessonId: 'lesson-1', occurredAt: hoursAfterStored(1) },
+    ])
+    expect(fiefs.storedFiefOf('fief-1')?.studySlot).toEqual({ kind: 'idle' })
+  })
+
   it('answers no event for a read with nothing to resolve', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({ slot: sawmillFinishingAfterHours(2) })])
 
@@ -2179,6 +2208,7 @@ describe('resolveUpgrade with an attack', () => {
       buildQueue: [],
       fullSince: noStoreFull,
       guidanceDismissedAt: null,
+      skills: [],
       studySlot: { kind: 'idle' },
       recruitOrder: { kind: 'idle' },
       march: attacking.march,
@@ -2530,6 +2560,7 @@ describe('resolveUpgrade full-since', () => {
       stocks: { wood: 1000, stone: 100, iron: 100, gold: 100, food: 100 },
       fullSince: { ...noStoreFull, wood: filledAtOneHourBeforeStored },
       guidanceDismissedAt: null,
+      skills: [],
       slot: sawmillFinishingAfterHours(1),
     })
 
@@ -2555,6 +2586,7 @@ describe('resolveUpgrade full-since', () => {
       stocks: { wood: 1000, stone: 100, iron: 100, gold: 100, food: 100 },
       fullSince: { ...noStoreFull, wood: filledAtOneHourBeforeStored },
       guidanceDismissedAt: null,
+      skills: [],
       slot: {
         kind: 'busy',
         building: 'warehouse',

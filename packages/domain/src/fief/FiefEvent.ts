@@ -1,10 +1,21 @@
 import type { CampTier } from '../camp/CampTier'
+import type { LessonId } from '../learning/Lesson'
 import type { ArtKind, BuildingKind, UnitKind } from '../ports/BuildingCatalog'
 import type { Instant } from '../time/Instant'
 import type { Stocks } from './Fief'
 import type { UnitCountsByKind } from './FiefUnitCounts'
 
 export type FiefEvent =
+  | {
+      readonly kind: 'lessonLearned'
+      readonly lessonId: LessonId
+      readonly occurredAt: Instant
+    }
+  | {
+      readonly kind: 'lessonCancelled'
+      readonly lessonId: LessonId
+      readonly occurredAt: Instant
+    }
   | {
       readonly kind: 'upgradeFinished'
       readonly building: BuildingKind

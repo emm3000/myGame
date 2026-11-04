@@ -20,6 +20,7 @@ import {
   deriveUnitDurationSeconds,
   deriveWarehouseCapacity,
   durationPercentAt,
+  err,
   type Fief,
   type FiefBuildingLevels,
   type FullAt,
@@ -56,17 +57,27 @@ const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
         finishesAt: isoOf(slot.finishesAt),
       }
 
-const studyOf = (studySlot: StudySlot): FiefOverview['study'] =>
-  studySlot.kind === 'idle'
-    ? { kind: 'idle' }
-    : {
+const studyOf = (studySlot: StudySlot): Result<FiefOverview['study'], DomainError> => {
+  switch (studySlot.kind) {
+    case 'idle':
+      return ok({ kind: 'idle' })
+    case 'busy':
+      return ok({
         kind: 'busy',
         art: studySlot.art,
         targetLevel: studySlot.targetLevel,
         startedAt: isoOf(studySlot.startedAt),
         finishesAt: isoOf(studySlot.finishesAt),
         cost: { ...studySlot.cost },
-      }
+      })
+    case 'lesson':
+      return err({ kind: 'LessonNotStored', lessonId: studySlot.lessonId })
+    default: {
+      const unknownStudySlot: never = studySlot
+      return unknownStudySlot
+    }
+  }
+}
 
 const unitsOf = (fief: Fief): FiefOverview['units'] => {
   const counts = fief.unitCountsAt(fief.storedAt)
@@ -445,6 +456,7 @@ export const fiefOverviewOf = (
   const rates = deriveResourceRates(
     fief.buildingLevels,
     fief.artLevels,
+    fief.skills,
     fief.terrain,
     catalog,
     fief.storedAt,
@@ -476,6 +488,10 @@ export const fiefOverviewOf = (
   if (!goal.ok) {
     return goal
   }
+  const study = studyOf(fief.studySlot)
+  if (!study.ok) {
+    return study
+  }
   const durations = durationPercentAt(fief.storedAt, catalog.fiefSettings())
   const { kingdom, province, plot } = fief.coordinates
   return ok({
@@ -488,7 +504,7 @@ export const fiefOverviewOf = (
     peasants: peasants.value,
     slot: slotOf(fief.slot),
     queue: queue.value,
-    study: studyOf(fief.studySlot),
+    study: study.value,
     arts: arts.value,
     season: seasonOf(fief, catalog, durations),
     units: unitsOf(fief),

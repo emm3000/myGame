@@ -117,6 +117,7 @@ const settledStoresOf = (
     const rates = deriveResourceRates(
       fief.buildingLevels,
       fief.artLevels,
+      fief.skills,
       fief.terrain,
       catalog,
       segmentStart,

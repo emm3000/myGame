@@ -3,6 +3,7 @@ import {
   type BuildQueue,
   Coordinates,
   type DomainError,
+  err,
   Fief,
   FiefName,
   type FiefRepository,
@@ -233,8 +234,44 @@ const developedFiefWith = (
       march,
       fullSince: noStoreFull,
       guidanceDismissedAt: null,
+      skills: [],
     }),
   )
+
+const lessonStudyingFief = accepted(
+  Fief.restore({
+    id: '00000000-0000-4000-8000-00000000000d',
+    playerId: bruno,
+    name: 'Robledal',
+    address: { kingdom: 1, province: 5, plot: 3 },
+    stocks: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
+    storedAt: foundedAt,
+    buildingLevels: {
+      sawmill: 0,
+      quarry: 0,
+      ironMine: 0,
+      farm: 0,
+      warehouse: 0,
+      library: 1,
+      barracks: 0,
+    },
+    artLevels: { smithing: 0, masonry: 0 },
+    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
+    slot: { kind: 'idle' },
+    buildQueue: [],
+    studySlot: {
+      kind: 'lesson',
+      lessonId: 'lesson-1',
+      startedAt: foundedAt,
+      finishesAt: Instant.fromEpochMilliseconds(foundedAt.epochMilliseconds + 150_000),
+    },
+    recruitOrder: { kind: 'idle' },
+    march: { kind: 'idle' },
+    fullSince: noStoreFull,
+    guidanceDismissedAt: null,
+    skills: [],
+  }),
+)
 
 const settlerFiefWith = (id: string, playerId: PlayerId, plot: number, march: March): Fief =>
   accepted(
@@ -263,6 +300,7 @@ const settlerFiefWith = (id: string, playerId: PlayerId, plot: number, march: Ma
       march,
       fullSince: noStoreFull,
       guidanceDismissedAt: null,
+      skills: [],
     }),
   )
 
@@ -306,6 +344,7 @@ const withIncomingCargo = (fief: Fief, incomingCargo: IncomingCargo): Fief =>
       incomingCargo,
       fullSince: fief.fullSince,
       guidanceDismissedAt: null,
+      skills: [],
     }),
   )
 
@@ -342,6 +381,16 @@ export const fiefRepositoryContract = (
       await fiefs.save(developedFief)
 
       expect(await fiefs.fiefOf(developedFief.id)).toEqual(ok(developedFief))
+    })
+
+    it('refuses to save a lesson in the study slot until its storage exists', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+
+      const saved = await fiefs.save(lessonStudyingFief)
+
+      expect(saved).toEqual(err({ kind: 'LessonNotStored', lessonId: 'lesson-1' }))
+      expect(await fiefs.fiefOf(lessonStudyingFief.id)).toEqual(ok(undefined))
     })
 
     it('restores the full-since a save stored', async () => {

@@ -81,6 +81,7 @@ const smithingFief = (): Fief => {
     march: { kind: 'idle' },
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
   })
   assert(restored.ok)
   return restored.value
@@ -140,6 +141,7 @@ const seasonalFief = (stocks: Partial<Stocks>, storedAt: Instant): Fief => {
     march: { kind: 'idle' },
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
   })
   assert(restored.ok)
   return restored.value

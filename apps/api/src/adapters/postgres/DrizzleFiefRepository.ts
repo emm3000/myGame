@@ -12,6 +12,7 @@ import {
   type FiefRepository,
   type IncomingCargo,
   Instant,
+  type LessonStudySlot,
   type March,
   ok,
   type PlayerId,
@@ -495,6 +496,7 @@ const storedFiefOf = (
     food: instantOrNullOf(row.fullSinceFood),
   },
   guidanceDismissedAt: instantOrNullOf(row.guidanceDismissedAt),
+  skills: [],
 })
 
 type SlotCostColumns = Pick<
@@ -556,7 +558,9 @@ const studyCostColumnsOf = (cost: Stocks): StudyCostColumns => ({
   studyCostFood: cost.food,
 })
 
-const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
+type StoredStudySlot = Exclude<StudySlot, LessonStudySlot>
+
+const studyColumnsOf = (studySlot: StoredStudySlot): StudyColumns => {
   if (studySlot.kind === 'idle') {
     return {
       studyArt: null,
@@ -577,7 +581,7 @@ const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
 
 type SavedFiefRow = Omit<FiefRow, 'guidanceDismissedAt'>
 
-const fiefRowOf = (fief: Fief): SavedFiefRow => ({
+const fiefRowOf = (fief: Fief, studySlot: StoredStudySlot): SavedFiefRow => ({
   id: fief.id,
   playerId: fief.playerId,
   kingdom: fief.coordinates.kingdom,
@@ -588,7 +592,7 @@ const fiefRowOf = (fief: Fief): SavedFiefRow => ({
   ...fief.stocks,
   storedAt: dateOf(fief.storedAt),
   ...slotColumnsOf(fief.slot),
-  ...studyColumnsOf(fief.studySlot),
+  ...studyColumnsOf(studySlot),
   fullSinceWood: dateOrNullOf(fief.fullSince.wood),
   fullSinceStone: dateOrNullOf(fief.fullSince.stone),
   fullSinceIron: dateOrNullOf(fief.fullSince.iron),
@@ -687,7 +691,11 @@ export class DrizzleFiefRepository implements FiefRepository {
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
-    const { id, ...changes } = fiefRowOf(fief)
+    const { studySlot } = fief
+    if (studySlot.kind === 'lesson') {
+      return err({ kind: 'LessonNotStored', lessonId: studySlot.lessonId })
+    }
+    const { id, ...changes } = fiefRowOf(fief, studySlot)
     const builtLevelRows = Object.values(storedBuildings)
       .map((stored) => ({
         fiefId: id,
