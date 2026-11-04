@@ -5,6 +5,7 @@ import { noStoreFull } from '../fief/FullSince'
 import { materializeStocks } from '../fief/materializeStocks'
 import type { EarnedSkill } from '../learning/EarnedSkill'
 import type { HeldCard } from '../learning/HeldCard'
+import { recognitionChoicesOf } from '../learning/recognitionChoicesOf'
 import { dueInstantOf } from '../memory/dueInstantOf'
 import { MemoryCard } from '../memory/MemoryCard'
 import type { MemoryRating } from '../memory/MemoryRating'
@@ -52,6 +53,14 @@ const dueAtOf = (card: MemoryCard): Instant => {
   const dueAt = dueInstantOf(card, defaultMemoryTerms)
   assert(dueAt.ok)
   return dueAt.value
+}
+
+const choiceIdOf = (askedWordId: string, chosenWordId: string, card: MemoryCard): string => {
+  const choice = recognitionChoicesOf(askedWordId, lessonOne, card).find(
+    ({ wordId }) => wordId === chosenWordId,
+  )
+  assert(choice !== undefined)
+  return choice.choiceId
 }
 
 const ownedBy = (wordId: string, card: MemoryCard): OwnedCard => ({
@@ -251,7 +260,7 @@ describe('answerReview', () => {
     const { cards, dependencies } = arrange([ownedBy('school', entered)], lessonFinish)
 
     const answered = await answerReview(
-      { playerId: learner, wordId: 'school', answer: 'school' },
+      { playerId: learner, wordId: 'school', answer: choiceIdOf('school', 'school', entered) },
       dependencies,
     )
 
@@ -266,13 +275,26 @@ describe('answerReview', () => {
   })
 
   it('rates the wrong recognition Again', async () => {
+    const entered = MemoryCard.entered(lessonFinish)
+    const { dependencies } = arrange([ownedBy('school', entered)], lessonFinish)
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: choiceIdOf('school', 'home', entered) },
+      dependencies,
+    )
+
+    assert(answered.ok)
+    expect(answered.value).toMatchObject({ kind: 'rated', rating: 'again' })
+  })
+
+  it('rates a recognition answered with the asked word id Again, since the answer is a choice id', async () => {
     const { dependencies } = arrange(
       [ownedBy('school', MemoryCard.entered(lessonFinish))],
       lessonFinish,
     )
 
     const answered = await answerReview(
-      { playerId: learner, wordId: 'school', answer: 'home' },
+      { playerId: learner, wordId: 'school', answer: 'school' },
       dependencies,
     )
 
@@ -283,8 +305,9 @@ describe('answerReview', () => {
   it('appends one log entry holding the card before and after', async () => {
     const entered = MemoryCard.entered(lessonFinish)
     const { cards, reviewLog, dependencies } = arrange([ownedBy('school', entered)], lessonFinish)
+    const homeChoiceId = choiceIdOf('school', 'home', entered)
 
-    await answerReview({ playerId: learner, wordId: 'school', answer: 'home' }, dependencies)
+    await answerReview({ playerId: learner, wordId: 'school', answer: homeChoiceId }, dependencies)
 
     expect(reviewLog.entries()).toEqual([
       {
@@ -292,7 +315,7 @@ describe('answerReview', () => {
         wordId: 'school',
         reviewedAt: lessonFinish,
         format: 'recognition',
-        answer: 'home',
+        answer: homeChoiceId,
         nearMissAnswer: null,
         hintShown: false,
         rating: 'again',

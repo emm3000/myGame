@@ -275,7 +275,7 @@ const RecognitionReviewSchema = ReviewedWordSchema.extend({
   frame: z.string().min(1),
   choices: z.array(
     z.strictObject({
-      wordId: z.string().min(1),
+      choiceId: z.string().min(1),
       gloss: z.string().min(1),
     }),
   ),

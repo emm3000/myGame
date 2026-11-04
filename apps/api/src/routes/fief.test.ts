@@ -821,7 +821,7 @@ describe('the fief route', () => {
     expect(ApiErrorSchema.parse(await response.json()).kind).toBe('FiefNotFound')
   })
 
-  it('reads a fief with nothing to resolve in one fief read and one card read', async () => {
+  it('reads a fief with nothing to resolve in one round trip to the store', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
     await enqueueSawmill(ana)
     clock.advanceMinutes(1)
@@ -838,12 +838,10 @@ describe('the fief route', () => {
     await fiefOf(ana)
 
     const fiefStatements = statements.filter((statement) => statement.includes('from "fiefs"'))
-    const cardStatements = statements.filter((statement) => statement.includes('from "cards"'))
-    expect([fiefStatements.length, cardStatements.length]).toEqual([1, 1])
-    expect(statements.filter((statement) => !statement.includes('"sessions"'))).toEqual([
-      ...fiefStatements,
-      ...cardStatements,
-    ])
+    expect(fiefStatements).toHaveLength(1)
+    expect(statements.filter((statement) => !statement.includes('"sessions"'))).toEqual(
+      fiefStatements,
+    )
   })
 
   it('answers 401 without a session', async () => {

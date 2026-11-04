@@ -23,11 +23,32 @@ const hashOf = (wordId: WordId, keyMilliseconds: number): number => {
 const byHashThenWord = (left: HashedWord, right: HashedWord): number =>
   left.hash - right.hash || compareWordIds(left.wordId, right.wordId)
 
+export type RecognitionChoice = {
+  readonly choiceId: string
+  readonly wordId: WordId
+}
+
+const HEX_DIGITS = 8
+
+const hexOf = (hash: number): string => hash.toString(16).padStart(HEX_DIGITS, '0')
+
+const withChoiceIds = (offered: ReadonlyArray<HashedWord>): ReadonlyArray<RecognitionChoice> => {
+  const choices: Array<RecognitionChoice> = []
+  for (const { wordId, hash } of offered) {
+    let candidate = hash
+    while (choices.some(({ choiceId }) => choiceId === hexOf(candidate))) {
+      candidate = mixed32(candidate)
+    }
+    choices.push({ choiceId: hexOf(candidate), wordId })
+  }
+  return choices
+}
+
 export const recognitionChoicesOf = (
   wordId: WordId,
   lesson: Lesson,
   card: MemoryCard,
-): ReadonlyArray<WordId> => {
+): ReadonlyArray<RecognitionChoice> => {
   const keyMilliseconds = (card.stored.lastReviewAt ?? card.stored.enteredAt).epochMilliseconds
   const hashed = (id: WordId): HashedWord => ({ wordId: id, hash: hashOf(id, keyMilliseconds) })
   const others = lesson.words
@@ -35,5 +56,5 @@ export const recognitionChoicesOf = (
     .map(({ id }) => hashed(id))
     .sort(byHashThenWord)
     .slice(0, MAXIMUM_CHOICES - 1)
-  return [hashed(wordId), ...others].sort(byHashThenWord).map((word) => word.wordId)
+  return withChoiceIds([hashed(wordId), ...others].sort(byHashThenWord))
 }

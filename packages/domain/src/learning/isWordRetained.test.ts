@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { MemoryCard, type StoredMemoryCard } from '../memory/MemoryCard'
 import { Instant } from '../time/Instant'
-import { isWordRetained } from './isLessonRetained'
+import { isWordRetained } from './isWordRetained'
 
 const reviewedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-23T09:10:00Z'))
 

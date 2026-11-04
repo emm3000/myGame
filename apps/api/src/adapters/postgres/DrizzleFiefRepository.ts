@@ -11,6 +11,7 @@ import {
   type FiefBuildingLevels,
   type FiefId,
   type FiefRepository,
+  type HeldCard,
   type IncomingCargo,
   Instant,
   type March,
@@ -23,8 +24,11 @@ import {
   type StoredFief,
   type StudySlot,
 } from '@mygame/domain'
-import { and, asc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNotNull, isNull, type SQL, sql } from 'drizzle-orm'
+import { z } from 'zod'
+import type { FiefWithCards } from '../../fief/FiefReader'
 import { byEarnedAt } from '../byEarnedAt'
+import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
 import {
@@ -37,6 +41,7 @@ import {
   fiefs,
   fiefUnits,
   playerSkills,
+  resource,
 } from './schema'
 import {
   artKinds,
@@ -74,7 +79,6 @@ type JoinedRow = {
   readonly recruitOrder: RecruitOrderRow | null
   readonly march: MarchRow | null
   readonly incomingCargo: IncomingCargoRow | null
-  readonly skill: SkillRow | null
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
@@ -125,20 +129,24 @@ const unitCountsOf = (joinedRows: ReadonlyArray<JoinedRow>): StoredFief['units']
   return counts
 }
 
-const skillsOf = (joinedRows: ReadonlyArray<JoinedRow>): ReadonlyArray<EarnedSkill> => {
-  const skillsByLesson = new Map<string, EarnedSkill>()
-  for (const { skill } of joinedRows) {
-    if (skill !== null) {
-      skillsByLesson.set(skill.lessonId, {
-        lessonId: skill.lessonId,
-        resource: skill.resource,
-        ratePercent: skill.ratePercent,
-        earnedAt: instantOf(skill.earnedAt),
-      })
-    }
-  }
-  return [...skillsByLesson.values()].sort(byEarnedAt)
-}
+const AggregatedSkillsSchema = z.array(
+  z.strictObject({
+    lessonId: z.string(),
+    resource: z.enum(resource.enumValues),
+    ratePercent: z.number().int(),
+    earnedAt: z.string(),
+  }),
+)
+
+const aggregatedSkills = sql<unknown>`(SELECT coalesce(json_agg(json_build_object('lessonId', ${playerSkills.lessonId}, 'resource', ${playerSkills.resource}, 'ratePercent', ${playerSkills.ratePercent}, 'earnedAt', ${playerSkills.earnedAt})), '[]'::json) FROM ${playerSkills} WHERE ${playerSkills.playerId} = ${fiefs.playerId})`
+
+const skillsOf = (aggregate: unknown): ReadonlyArray<EarnedSkill> =>
+  AggregatedSkillsSchema.parse(aggregate)
+    .map((skill) => ({
+      ...skill,
+      earnedAt: Instant.fromEpochMilliseconds(Date.parse(skill.earnedAt)),
+    }))
+    .sort(byEarnedAt)
 
 const skillRowsOf = (fief: Fief): ReadonlyArray<SkillRow> =>
   fief.skills.map((skill) => ({
@@ -516,6 +524,7 @@ const storedFiefOf = (
   march: MarchRow | null,
   incomingCargo: IncomingCargoRow | null,
   joinedRows: ReadonlyArray<JoinedRow>,
+  skills: unknown,
 ): StoredFief => ({
   id: row.id,
   playerId: row.playerId,
@@ -540,7 +549,7 @@ const storedFiefOf = (
     food: instantOrNullOf(row.fullSinceFood),
   },
   guidanceDismissedAt: instantOrNullOf(row.guidanceDismissedAt),
-  skills: skillsOf(joinedRows),
+  skills: skillsOf(skills),
 })
 
 type SlotCostColumns = Pick<
@@ -713,6 +722,53 @@ export class DrizzleFiefRepository implements FiefRepository {
   }
 
   async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
+    const rows = await this.joinedRowsOf(fiefId, sql<unknown>`NULL`)
+    const [first] = rows
+    if (first === undefined) {
+      return ok(undefined)
+    }
+    return Fief.restore(
+      storedFiefOf(
+        first.fief,
+        first.recruitOrder,
+        first.march,
+        first.incomingCargo,
+        rows,
+        first.skills,
+      ),
+    )
+  }
+
+  async fiefWithCardsOf(fiefId: FiefId): Promise<Result<FiefWithCards | undefined, DomainError>> {
+    const rows = await this.joinedRowsOf(fiefId, aggregatedCardsOf(fiefs.playerId))
+    const [first] = rows
+    if (first === undefined) {
+      return ok(undefined)
+    }
+    const fief = Fief.restore(
+      storedFiefOf(
+        first.fief,
+        first.recruitOrder,
+        first.march,
+        first.incomingCargo,
+        rows,
+        first.skills,
+      ),
+    )
+    if (!fief.ok) {
+      return fief
+    }
+    const cards: Result<ReadonlyArray<HeldCard>, DomainError> = heldCardsOf(
+      first.cards,
+      first.fief.playerId,
+    )
+    if (!cards.ok) {
+      return cards
+    }
+    return ok({ fief: fief.value, cards: cards.value })
+  }
+
+  private async joinedRowsOf(fiefId: FiefId, cards: SQL<unknown>) {
     const query = this.database
       .select({
         fief: fiefs,
@@ -726,7 +782,8 @@ export class DrizzleFiefRepository implements FiefRepository {
         recruitOrder: fiefRecruitOrders,
         march: fiefMarches,
         incomingCargo: fiefIncomingCargo,
-        skill: playerSkills,
+        skills: aggregatedSkills,
+        cards,
       })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
@@ -736,19 +793,9 @@ export class DrizzleFiefRepository implements FiefRepository {
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
       .leftJoin(fiefMarches, eq(fiefMarches.fiefId, fiefs.id))
       .leftJoin(fiefIncomingCargo, eq(fiefIncomingCargo.fiefId, fiefs.id))
-      .leftJoin(playerSkills, eq(playerSkills.playerId, fiefs.playerId))
       .where(eq(fiefs.id, fiefId))
       .$dynamic()
-    const rows = await (this.read === 'lockedForUpdate'
-      ? query.for('update', { of: fiefs })
-      : query)
-    const [first] = rows
-    if (first === undefined) {
-      return ok(undefined)
-    }
-    return Fief.restore(
-      storedFiefOf(first.fief, first.recruitOrder, first.march, first.incomingCargo, rows),
-    )
+    return this.read === 'lockedForUpdate' ? query.for('update', { of: fiefs }) : query
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {

@@ -19,7 +19,7 @@ import {
   type StoredFief,
   type StudySlot,
 } from '@mygame/domain'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
 
 export type FiefRepositoryFixture = {
@@ -208,6 +208,13 @@ const woodSkill: EarnedSkill = {
   resource: 'wood',
   ratePercent: 5,
   earnedAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-30T09:10:00Z')),
+}
+
+const stoneSkill: EarnedSkill = {
+  lessonId: 'lesson-3',
+  resource: 'stone',
+  ratePercent: 5,
+  earnedAt: Instant.fromEpochMilliseconds(Date.parse('2026-12-07T09:10:00Z')),
 }
 
 const fiefWithSkills = (
@@ -480,6 +487,35 @@ export const fiefRepositoryContract = (
 
       const restored = await fiefs.fiefOf(anasFief.id)
       expect(restored.ok && restored.value?.skills).toEqual([foodSkill])
+    })
+
+    it('reads three skills on a developed fief of its player and leaves the rest of it whole', async () => {
+      const { fiefs, registerPlayers } = await arrange()
+      await registerPlayers([bruno])
+      await fiefs.save(developedFief)
+
+      await fiefs.save(
+        fiefWithSkills('00000000-0000-4000-8000-00000000000e', bruno, 8, [
+          stoneSkill,
+          foodSkill,
+          woodSkill,
+        ]),
+      )
+
+      const restored = await fiefs.fiefOf(developedFief.id)
+      assert(restored.ok && restored.value !== undefined)
+      expect(restored.value.skills).toEqual([foodSkill, woodSkill, stoneSkill])
+      expect([
+        restored.value.buildingLevels,
+        restored.value.buildQueue,
+        restored.value.units,
+        restored.value.march,
+      ]).toEqual([
+        developedFief.buildingLevels,
+        developedFief.buildQueue,
+        developedFief.units,
+        developedFief.march,
+      ])
     })
 
     it('keeps the skills of one player from another', async () => {
