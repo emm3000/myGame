@@ -18,6 +18,13 @@ object MyGameTypography {
         lineHeight = 40.sp,
         fontWeight = FontWeight.Medium,
     )
+    val numeral: TextStyle = TextStyle(
+        fontFamily = MyGameTypeFamilies.utility,
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontFeatureSettings = "tnum",
+    )
     val label: TextStyle = TextStyle(
         fontFamily = MyGameTypeFamilies.utility,
         fontSize = 12.sp,

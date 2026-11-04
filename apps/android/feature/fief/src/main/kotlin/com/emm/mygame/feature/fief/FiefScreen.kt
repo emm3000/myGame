@@ -52,6 +52,7 @@ private fun Header(
     isSigningOut: Boolean,
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
+    season: FiefUiState.SeasonLine? = null,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -75,6 +76,7 @@ private fun Header(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
+        season?.let { line: FiefUiState.SeasonLine -> SeasonLine(season = line) }
     }
 }
 
@@ -115,7 +117,7 @@ private fun SigningOut(onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modi
 @Composable
 private fun Content(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        Header(title = content.name, isSigningOut = false, onIntent = onIntent)
+        Header(title = content.name, isSigningOut = false, onIntent = onIntent, season = content.season)
         ResourcesSection(content = content)
         SlotSection(content = content, onIntent = onIntent)
         if (content.queue.isNotEmpty()) QueueSection(content = content, onIntent = onIntent)
