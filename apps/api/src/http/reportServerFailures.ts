@@ -3,9 +3,19 @@ import type { FailureSink } from './FailureSink'
 
 const lowestServerFailureStatus = 500
 
+const codeOf = ({ cause }: Error): string | undefined =>
+  typeof cause === 'object' && cause !== null && 'code' in cause && typeof cause.code === 'string'
+    ? cause.code
+    : undefined
+
+const thrownCauseOf = (error: Error): string => {
+  const code = codeOf(error)
+  return code === undefined ? error.constructor.name : `${error.constructor.name} ${code}`
+}
+
 const causeOf = (c: Context): string | undefined => {
   if (c.error !== undefined) {
-    return `${c.error.name}: ${c.error.message}`
+    return thrownCauseOf(c.error)
   }
   return c.get('refusalKind')
 }
