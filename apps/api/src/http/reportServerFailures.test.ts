@@ -50,6 +50,8 @@ const anasEmail = 'ana@example.com'
 
 const anasPassword = 'hierro-y-lana'
 
+const brunosEmail = 'bruno@example.com'
+
 describe('the server failure report', () => {
   let server: ComposedServer
   let sink: CollectingSink
@@ -160,12 +162,12 @@ describe('the server failure report', () => {
     })
   })
 
-  it('writes one line naming a thrown error and its message', async () => {
+  it('writes one line naming a thrown error by its class, never its message', async () => {
     const ana = await signUpAna()
 
     await signInThroughUnreachableHints(ana)
 
-    expect(sink.lines).toEqual(['POST /auth/sign-in 500 TypeError: the hints store is unreachable'])
+    expect(sink.lines).toEqual(['POST /auth/sign-in 500 TypeError'])
   })
 
   it('writes a line that omits the session token the request carried', async () => {
@@ -176,12 +178,38 @@ describe('the server failure report', () => {
     expect(sink.lines.join('\n')).not.toContain(ana.replace('session=', ''))
   })
 
-  it('writes a line that omits the email and the password the body carried', async () => {
-    const ana = await signUpAna()
+  const refusingPlayerInserts = async (work: () => Promise<void>): Promise<void> => {
+    await runSql(
+      'ALTER TABLE players ADD CONSTRAINT players_refuse_inserts_probe CHECK (false) NOT VALID',
+    )
+    try {
+      await work()
+    } finally {
+      await runSql('ALTER TABLE players DROP CONSTRAINT players_refuse_inserts_probe')
+    }
+  }
 
-    await signInThroughUnreachableHints(ana)
+  const signUpBruno = async (): Promise<Response> =>
+    app.request('/auth/sign-up', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: brunosEmail, password: anasPassword, fiefName: 'Robledal' }),
+    })
+
+  it('writes one line naming a failed query by its class and its Postgres code', async () => {
+    await refusingPlayerInserts(async () => {
+      await signUpBruno()
+    })
+
+    expect(sink.lines).toEqual(['POST /auth/sign-up 500 DrizzleQueryError 23514'])
+  })
+
+  it('writes a line that omits the email and the password hash a failed query carried', async () => {
+    await refusingPlayerInserts(async () => {
+      await signUpBruno()
+    })
 
     const written = sink.lines.join('\n')
-    expect([written.includes(anasEmail), written.includes(anasPassword)]).toEqual([false, false])
+    expect([written.includes(brunosEmail), written.includes('$argon2id')]).toEqual([false, false])
   })
 })
