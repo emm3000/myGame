@@ -44,7 +44,7 @@ These bind on every change, including a new file created before any TypeScript h
 - **Rebuild, never adapt.** When existing code, config or structure does not fit the target architecture, replace it with a clean implementation. No shims, wrappers or compatibility patches over legacy.
 - **`pnpm gate` green** before every commit. Its definition is the `gate` script in the root `package.json`, never a prose copy.
 - **English for every identifier, file name, commit and doc. Player-facing text is American English; scaffold copy lives only in the scaffold language's catalog and glosses**, and Spanish scaffold copy addresses the reader as tú, never vos.
-- **Never add `Co-Authored-By`** from Claude, Anthropic or any AI assistant to a commit message; a hook blocks it. Conventional commits, linear history. Never push `trunk` without being asked, with one exception: the orchestrator pushes the docs-only commits that close a wave (the dispatch log) on its own.
+- **Never add `Co-Authored-By`** from Claude, Anthropic or any AI assistant to a commit message; a hook blocks it. Conventional commits, linear history. Never push `trunk` without being asked, with one exception: the orchestrator pushes the one docs-only commit that closes a sprint (the dispatch log, `docs/agents/multi-session.md`) on its own. Never one log commit per wave.
 
 ## Detailed rules
 
