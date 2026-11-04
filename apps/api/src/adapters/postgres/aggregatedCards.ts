@@ -1,6 +1,7 @@
 import { type DomainError, type HeldCard, ok, type Result } from '@mygame/domain'
-import { type Column, type SQL, sql } from 'drizzle-orm'
+import { type Column, eq, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { jsonAggregateOf } from './jsonAggregateOf'
 import { cards, memoryRating, memoryState } from './schema'
 import { heldCardOf } from './storedMemoryCards'
 
@@ -21,7 +22,22 @@ const AggregatedCardsSchema = z.array(
 )
 
 export const aggregatedCardsOf = (playerId: Column): SQL<unknown> =>
-  sql<unknown>`(SELECT coalesce(json_agg(json_build_object('wordId', ${cards.wordId}, 'state', ${cards.state}, 'step', ${cards.step}, 'stability', ${cards.stability}, 'difficulty', ${cards.difficulty}, 'lastReviewAt', ${cards.lastReviewAt}, 'lastRating', ${cards.lastRating}, 'enteredAt', ${cards.enteredAt}, 'retainedAt', ${cards.retainedAt}) ORDER BY ${cards.wordId} COLLATE "C"), '[]'::json) FROM ${cards} WHERE ${cards.playerId} = ${playerId})`
+  jsonAggregateOf(
+    cards,
+    {
+      wordId: cards.wordId,
+      state: cards.state,
+      step: cards.step,
+      stability: cards.stability,
+      difficulty: cards.difficulty,
+      lastReviewAt: cards.lastReviewAt,
+      lastRating: cards.lastRating,
+      enteredAt: cards.enteredAt,
+      retainedAt: cards.retainedAt,
+    },
+    eq(cards.playerId, playerId),
+    sql`${cards.wordId} COLLATE "C"`,
+  )
 
 export const heldCardsOf = (
   aggregate: unknown,

@@ -26,7 +26,7 @@ import type { FiefRepository } from '../ports/FiefRepository'
 import type { LessonCatalog } from '../ports/LessonCatalog'
 import type { PendingReviewRepository } from '../ports/PendingReviewRepository'
 import type { ReviewLog } from '../ports/ReviewLog'
-import { ok, type Result } from '../Result'
+import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 
 export type AnswerReviewCommand = {
@@ -62,20 +62,23 @@ const gradeOf = (
   answer: string,
   pending: PendingReview | undefined,
   lessons: LessonCatalog,
-): Grade => {
+): Result<Grade, DomainError> => {
   if (reviewFormatOf(review.held.card) === 'recognition') {
     const chosen = recognitionChoicesOf(review.word.id, review.lesson, review.held.card).find(
       ({ choiceId }) => choiceId === answer,
     )
-    return chosen?.wordId === review.word.id ? 'correct' : 'wrong'
+    if (chosen === undefined) {
+      return err({ kind: 'UnknownChoice', wordId: review.word.id })
+    }
+    return ok(chosen.wordId === review.word.id ? 'correct' : 'wrong')
   }
   const grade = gradeTypedAnswer(answer, review.word.acceptedForms, (word) =>
     lessons.isHeadword(word),
   )
   if (grade === 'nearMiss' && pending !== undefined && pending.nearMissAnswer !== null) {
-    return 'wrong'
+    return ok('wrong')
   }
-  return grade
+  return ok(grade)
 }
 
 const logEntryOf = (
@@ -209,10 +212,13 @@ export const answerReview = async (
   }
   const pending = await pendingReviews.pendingReviewOf(playerId, wordId)
   const grade = gradeOf(review.value, answer, pending, lessons)
-  if (grade === 'nearMiss') {
+  if (!grade.ok) {
+    return grade
+  }
+  if (grade.value === 'nearMiss') {
     return markNearMiss(command, pending, pendingReviews)
   }
-  const rating = ratingOf(grade, pending)
+  const rating = ratingOf(grade.value, pending)
   const next = reviewMemoryCard(review.value.held.card, rating, now, terms)
   if (!next.ok) {
     return next
