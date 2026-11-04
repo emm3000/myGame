@@ -6,7 +6,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 
 | Id | Requirement |
 |---|---|
-| M1 | A player creates an account, picking a scaffold language, `es` or `none`, signs in and signs out (ADR 038). |
+| M1 | A player creates an account, signs in and signs out; from ADR 038's step 4, sign-up also picks a scaffold language, `es` or `none`. |
 | M2 | A new player receives one fief at free coordinates with starting stocks. A lord's second fief is never given: it is founded by a settler and starts with the same stocks (ADR 023). |
 | M3 | The fief shows wood, stone, iron, gold and food with current amount, rate per hour and capacity, correct on any read whatever the time elapsed. |
 | M4 | Five buildings with levels: sawmill, quarry, iron mine, farm, warehouse. Each level has a cost, a duration and an effect read from content, not code. |
@@ -25,7 +25,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 | S4 | Every building, resource, bandit camp tier and art, and the convoy of a transport (ADR 024), has an image generated to `docs/art/art-bible.md`; units, seasons and the march keep their hand-drawn SVG icon, as the camp keeps its icon on the map's plot tile. |
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
-| S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015); each mail in the player's scaffold language (ADR 038). |
+| S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015); from ADR 038's step 4, each mail in the player's scaffold language. |
 | S8 | Seasons: one global calendar in content turns spring, summer, autumn and winter over every fief; each season scales production rates by whole percents, a read accrues each season segment at its own rates, the fief header shows the season, the year and a countdown, and the resource bar marks the resource the season changes (ADR 016). |
 | S9 | Seasons on durations: content gives each season a build and a study percent, summer shortens building and winter shortens study; a duration is fixed with the season in force at the enqueue or the study start and never retimed, the overview answers the effective durations and the season's percents, and the buildings and arts section headers mark the season that shortens them (ADR 017). |
 | S10 | Units recruited in a barracks slot: the barracks is the seventh building, whose built level gates recruiting and shortens every unit's training; one order at a time of N infantry, paid and staffed in full at the order, delivered one unit at a time on read and closed at its last delivery with a chronicle line; every unit occupies peasants and eats nothing (ADR 018). |

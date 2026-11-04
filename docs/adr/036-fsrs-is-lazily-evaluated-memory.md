@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, rule 7 amended by ADR 037
 date: 2026-11-04
 ---
 # FSRS is lazily evaluated memory
