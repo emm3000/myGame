@@ -67,6 +67,34 @@ class SessionRepositoryTest {
     }
 
     @Test
+    fun `signs in without a bearer while a token is still stored`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("stale-session") }
+        api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
+
+        repository(store).signIn("ines@sotoverde.es", "contrasena")
+
+        assertNull(api.takeRequestWithin().headers["Authorization"])
+    }
+
+    @Test
+    fun `carries the token of a sign-in that follows an unreachable restore`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("stale-session") }
+        val sessions: SessionRepository = repository(store)
+        api.enqueue(MockResponse.Builder().code(503).build())
+        api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
+        api.enqueue(player(email = "ines@sotoverde.es"))
+        sessions.restore()
+
+        sessions.signIn("ines@sotoverde.es", "contrasena")
+        sessions.restore()
+
+        api.takeRequestWithin()
+        api.takeRequestWithin()
+        assertEquals("opaque-session", store.read())
+        assertEquals("Bearer opaque-session", api.takeRequestWithin().headers["Authorization"])
+    }
+
+    @Test
     fun `asks the api under the base path it was given`() = runTest {
         val sessions: SessionRepository = repository(tokenStore())
         api.enqueue(nativeSession(token = "opaque-session", email = "ines@sotoverde.es"))
@@ -346,6 +374,16 @@ class SessionRepositoryTest {
     }
 
     @Test
+    fun `signs up without a bearer while a token is still stored`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("stale-session") }
+        api.enqueue(createdSession(token = "fresh-session", email = "elena@encinar.es"))
+
+        repository(store).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+
+        assertNull(api.takeRequestWithin().headers["Authorization"])
+    }
+
+    @Test
     fun `answers the sign-up refusal the api names`() = runTest {
         val sessions: SessionRepository = repository(tokenStore())
         api.enqueue(json(400, refusalJson("WeakPassword")))
@@ -430,9 +468,10 @@ class SessionRepositoryTest {
 
     @Test
     fun `asks for the reset link without a bearer`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("stale-session") }
         api.enqueue(MockResponse.Builder().code(202).build())
 
-        repository(tokenStore()).requestPasswordReset("ines@sotoverde.es")
+        repository(store).requestPasswordReset("ines@sotoverde.es")
 
         assertNull(api.takeRequestWithin().headers["Authorization"])
     }

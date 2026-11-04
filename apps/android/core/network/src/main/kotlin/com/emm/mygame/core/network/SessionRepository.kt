@@ -25,8 +25,8 @@ fun SessionRepository(
 ): SessionRepository =
     ApiSessionRepository(
         api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
-        openingApi = authApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = Duration.ZERO),
-        signOutApi = authApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = signOutTimeout),
+        openingApi = accountApi(baseUrl = baseUrl),
+        signOutApi = signOutApi(baseUrl = baseUrl, tokenStore = tokenStore, callTimeout = signOutTimeout),
         tokenStore = tokenStore,
         ioDispatcher = ioDispatcher,
     )
