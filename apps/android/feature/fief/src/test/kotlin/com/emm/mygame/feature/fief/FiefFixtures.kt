@@ -49,9 +49,9 @@ internal fun TestScope.openFief(
     fiefs: FakeFiefRepository,
     deviceNow: Instant = firstReadAt,
     sessions: FakeSessionRepository = FakeSessionRepository(),
-    route: FiefId = FiefId(FIEF_ID),
+    fiefOnScreen: FiefId = FiefId(FIEF_ID),
 ): FiefViewModel {
-    val viewModel: FiefViewModel = FiefViewModel(route, fiefs, sessions, TestClock(testScheduler, deviceNow))
+    val viewModel: FiefViewModel = FiefViewModel(fiefOnScreen, fiefs, sessions, TestClock(testScheduler, deviceNow))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()
@@ -205,19 +205,27 @@ internal fun forageOfInfantry(
     arrivesIn: Duration,
     foragesFor: Duration,
     order: MarchOrder = MarchOrder.Forage,
-): AwayMarch {
+): AwayMarch = awayMarch(order, party = partyOf(infantry = count, settlers = 0), arrivesIn, foragesFor)
+
+internal fun foundingParty(arrivesIn: Duration): AwayMarch =
+    awayMarch(MarchOrder.Found, party = partyOf(infantry = 0, settlers = 1), arrivesIn, foragesFor = Duration.ZERO)
+        .copy(loot = emptyList(), foundingName = "Vega")
+
+private fun partyOf(infantry: Int, settlers: Int): List<UnitCount> = listOf(
+    UnitCount(UnitKind.Infantry, infantry),
+    UnitCount(UnitKind.Cavalry, 0),
+    UnitCount(UnitKind.Archer, 0),
+    UnitCount(UnitKind.Settler, settlers),
+)
+
+private fun awayMarch(order: MarchOrder, party: List<UnitCount>, arrivesIn: Duration, foragesFor: Duration): AwayMarch {
     val arrivesAt: Instant = firstReadAt + arrivesIn
     val departedAt: Instant = arrivesAt - 6.minutes
     val leavesAt: Instant = arrivesAt + foragesFor
     return AwayMarch(
         order = order,
         target = PlotAddress(province = 1, plot = 7),
-        units = listOf(
-            UnitCount(UnitKind.Infantry, count),
-            UnitCount(UnitKind.Cavalry, 0),
-            UnitCount(UnitKind.Archer, 0),
-            UnitCount(UnitKind.Settler, 0),
-        ),
+        units = party,
         departedAt = departedAt,
         arrivesAt = arrivesAt,
         leavesAt = leavesAt,
