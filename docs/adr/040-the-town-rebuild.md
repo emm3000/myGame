@@ -112,7 +112,7 @@ What trunk holds, checked at `1f0b1c41`:
   adapter, a wrapper, a mapper, a dual read or write, a flag choosing a
   path. Code built beside the old is not one only when no code reads or
   writes both, and the ticket deleting the old is filed with its
-  blocking edges before the first slice merges. A data migration that
+  blocking edges before any slice merges. A data migration that
   maps meaning needs the owner's signature. Here no module reads or
   writes both holdings, no flag picks one, nothing translates a fief
   into a town, and the cutover tickets (41 to 43) are filed with the
@@ -190,19 +190,34 @@ What trunk holds, checked at `1f0b1c41`:
   the school's level and the season's study percent, its cards entering
   at its finish. `requiredLibraryLevel` becomes `requiredSchoolLevel`.
   The slice that moves lessons to the school (slice 16) drops the
-  fief's lesson slot in its migration; a fief studying a lesson then is
-  left idle with the lesson unstudied, as a stop leaves it, since a
-  lesson costs nothing and enters no card before its finish. Reviews
-  are the player's, so the slice serves them at player-level routes
-  (`GET /reviews`, `POST /reviews/{wordId}/answer`,
+  fief's lesson slot in its migration. A fief studying a lesson whose
+  finish is still ahead is left idle with the lesson unstudied, as a
+  stop leaves it, since a lesson costs nothing and enters no card
+  before its finish. A slot whose finish is at or before the
+  migration's instant holds cards no read has entered yet, so the
+  migration fails on it; a read of that fief, which applies the finish,
+  clears the way. Reviews are the player's, so the slice serves them at
+  player-level routes (`GET /reviews`, `POST /reviews/{wordId}/answer`,
   `POST /reviews/{wordId}/hint`), which need no town, and a lesson start
   at `POST /town/lessons`. `FiefOverview` loses `lessons`, `skills` and
   `reviews`; `lessons` carries the skill on the medieval enum and
-  `isRetained` read from the cards. The same pull request moves both
-  clients' review screens onto `/reviews` and turns the library's lesson
-  card into a link to them, with no start button. No client calls a
-  deleted route. Until the school screens of slices 17 and 18 land, no
-  screen starts a lesson; the reviews go on.
+  `isRetained` read from the cards.
+- **The review answer reads no holding.** `ReviewAnswer` drops its
+  `fief: FiefOverview`: the route reads the player's cards and, at an
+  earn, the town it re-bases, never a fief. Each client re-reads its own
+  screen after an answer instead of adopting a holding from it (the
+  web's `useReview` and Android's `ReviewViewModel` and `FiefViewModel`
+  read `answer.fief` today). An earned skill's `ratePerHourBefore` and
+  `ratePerHourAfter` are the town's rates, or null while the player
+  holds no town, as every player does from slice 16 until slices 9 and
+  10 (`apps/api/src/learning/reviewVerdictOf.ts` derives them from a
+  fief today).
+- **The clients in slice 16.** The same pull request moves both
+  clients' review screens onto `/reviews`, drops their reading of
+  `answer.fief`, and turns the library's lesson card into a link to the
+  reviews, with no start button. No client calls a deleted route. Until
+  the school screens of slices 17 and 18 land, no screen starts a
+  lesson, lesson 1 included; the reviews go on.
 - **The learning cap.** A card is *in learning* while its stability is
   under 7 days, the point where its gloss fades (ADR 038) and the floor
   a skill needs (ADR 036). A lesson start is refused
@@ -241,7 +256,9 @@ What trunk holds, checked at `1f0b1c41`:
   screens of slices 9 and 10, which are blocked by slice 16. Every town
   is founded after `earned_skills` holds the player's skills and reads
   them from its first instant, so no deploy changes the rate of a
-  stored town (ADR 005).
+  stored town (ADR 005). Slice 8's route is live from its deploy, so
+  slice 16's migration fails if `towns` holds a row, as it fails on a
+  skill that is not food.
 - **The fief keeps the skills it had, frozen.** It still reads
   `player_skills`, which no code writes after slice 16, so no fief rate
   changes and nothing accrues retroactively; the fief never reads
@@ -413,8 +430,8 @@ What trunk holds, checked at `1f0b1c41`:
 - **The town reads skills from its founding, and founding copies the
   player's skill rows.** A skill earned on the fief after the founding
   and before slice 16 would reach the town only if the review wrote
-  both tables, a dual write. Rejected for founding no town before
-  slice 16.
+  both tables or the town read the fief's, a dual write or a dual
+  read. Rejected for founding no town before slice 16.
 - **The fief stops reading skills in slice 16.** Every fief rate would
   drop at the deploy with no re-base, so the accrual since each fief's
   last mutation would be recomputed at the lower rate, against ADR 005.
