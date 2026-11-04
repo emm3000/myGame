@@ -128,22 +128,22 @@ class FiefSeasonViewModelTest {
 
     @Test
     fun `counts down to summer in spring`() = runTest {
-        assertEquals(SeasonKind.Summer, nextSeasonDrawnIn(SeasonKind.Spring))
+        assertNextSeasonDrawn(inForce = SeasonKind.Spring, next = SeasonKind.Summer)
     }
 
     @Test
     fun `counts down to autumn in summer`() = runTest {
-        assertEquals(SeasonKind.Autumn, nextSeasonDrawnIn(SeasonKind.Summer))
+        assertNextSeasonDrawn(inForce = SeasonKind.Summer, next = SeasonKind.Autumn)
     }
 
     @Test
     fun `counts down to winter in autumn`() = runTest {
-        assertEquals(SeasonKind.Winter, nextSeasonDrawnIn(SeasonKind.Autumn))
+        assertNextSeasonDrawn(inForce = SeasonKind.Autumn, next = SeasonKind.Winter)
     }
 
     @Test
     fun `counts down to spring after winter`() = runTest {
-        assertEquals(SeasonKind.Spring, nextSeasonDrawnIn(SeasonKind.Winter))
+        assertNextSeasonDrawn(inForce = SeasonKind.Winter, next = SeasonKind.Spring)
     }
 
     @Test
@@ -205,17 +205,27 @@ class FiefSeasonViewModelTest {
             advanceTimeBy(1.seconds)
             runCurrent()
             val countdown: FiefUiState.SeasonCountdown? = awaitContent().season?.countdown
-            assertEquals(FiefUiState.SeasonCountdown.UnderADay(remaining = 29.seconds), countdown)
+            assertEquals(FiefUiState.SeasonCountdown.InSeconds(seconds = 29), countdown)
         }
     }
 
-    private suspend fun TestScope.nextSeasonDrawnIn(kind: SeasonKind): SeasonKind? {
-        val viewModel: FiefViewModel = openOn(seasonal(kind, endsIn = 3.days))
-        var next: SeasonKind? = null
+    @Test
+    fun `counts zero seconds while the read at the season's end fails`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(seasonal(SeasonKind.Autumn, endsIn = Duration.ZERO)))
+        fiefs.answerRead(FiefReadResult.Unreachable)
+
         viewModel.state.test {
-            next = awaitContent().season?.next
+            assertEquals(FiefUiState.SeasonCountdown.InSeconds(seconds = 0), awaitContent().season?.countdown)
         }
-        return next
+    }
+
+    private suspend fun TestScope.assertNextSeasonDrawn(inForce: SeasonKind, next: SeasonKind) {
+        val viewModel: FiefViewModel = openOn(seasonal(inForce, endsIn = 3.days))
+        viewModel.state.test {
+            assertEquals(next, awaitContent().season?.next)
+        }
     }
 
     private fun TestScope.openOn(read: FiefSnapshot): FiefViewModel {

@@ -5,6 +5,8 @@ import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 internal fun FiefSnapshot.seasonLineAt(now: Instant): FiefUiState.SeasonLine? {
@@ -25,11 +27,8 @@ private fun SeasonKind.next(): SeasonKind = when (this) {
     SeasonKind.Winter -> SeasonKind.Spring
 }
 
-private fun Duration.toSeasonCountdown(): FiefUiState.SeasonCountdown {
-    val days: Long = inWholeDays
-    return if (days >= 1) {
-        FiefUiState.SeasonCountdown.InDays(days = days.toInt())
-    } else {
-        FiefUiState.SeasonCountdown.UnderADay(remaining = this)
-    }
+private fun Duration.toSeasonCountdown(): FiefUiState.SeasonCountdown = when {
+    this >= 1.days -> FiefUiState.SeasonCountdown.InDays(days = inWholeDays.toInt())
+    this >= 1.minutes -> FiefUiState.SeasonCountdown.UnderADay(remaining = this)
+    else -> FiefUiState.SeasonCountdown.InSeconds(seconds = inWholeSeconds.toInt())
 }

@@ -47,6 +47,8 @@ sealed interface FiefUiState {
         data class InDays(val days: Int) : SeasonCountdown
 
         data class UnderADay(val remaining: Duration) : SeasonCountdown
+
+        data class InSeconds(val seconds: Int) : SeasonCountdown
     }
 
     data class ArmyLine(
