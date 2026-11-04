@@ -261,6 +261,7 @@ One line per refusal ADR 036 names, each answered 409 by the api (#713), in the 
 | cancelling with no lesson under study | rule 6, like a study | *La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.*, the shipped line, unchanged |
 | answering, or asking a hint for, a card not due | Only a due card is reviewed; rule 4 | *Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.* |
 | asking a hint for a recognition card | rule 4 | *Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.* |
+| answering a recognition card with a choice it does not offer (a stale tab: the card's choices moved after a review) | rule 3 | *Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.* |
 
 - One more, which #711 adds and ADR 036 does not name: **answering a word the player holds no card of** reads *Esa palabra no está en tus lecciones. Vuelve al repaso.*
 

@@ -146,14 +146,22 @@ metric needs (§8.2), not for a claim of more learning.
    ordered. A tie orders by word id. The hash is a 32-bit integer
    mixing with no `Math.random`, as `campOf`
    (`packages/domain/src/camp/campOf.ts`) places camps. Each choice
-   carries an opaque choice id, never its word id: the 8 hex digits of
-   that same hash, re-mixed until no other choice of the card holds it,
-   so it is unique within the card and changes with the key instant.
-   The answer is the chosen choice's id, and the server grades it by
+   carries a choice id, never its word id: the 8 hex digits of that
+   same hash, re-mixed until no other choice of the card holds it, so
+   it is unique within the card and changes with the key instant. The
+   answer is the chosen choice's id; the server grades every answer by
    recomputing the card's choices at the answer, so grading never
-   depends on the order and no field of the card names the right
-   choice (amended 2026-11-04, #713: the answer was the chosen word's
-   id, which a recognition card's own word id gave away).
+   depends on the order, and refuses an id the card does not offer
+   (`UnknownChoice`) rather than rating it, so a stale tab never costs
+   a lapse. The choice ids are opaque and deterministic, not secret: a
+   modified client can work the answers out from the public lesson
+   content, the asked word's gloss on a recognition and the gloss
+   mapped back to its word on a recall. That cheating hurts only the
+   learner, since no reward one player takes from another rides on a
+   review. The opaque ids exist so that a casual client bug, such as
+   matching the card's own word id against its choices, cannot leak
+   the answer (amended 2026-11-04, #713: the answer was the chosen
+   word's id, which a recognition card's own word id gave away).
 4. **A typed answer is compared after Unicode NFC, the typographic
    apostrophe ’ read as ', trimming, collapsing inner whitespace to one
    space, and lower-casing, against the word and any further form its
@@ -389,6 +397,16 @@ pinned commit, with the parameters above and no fuzz.
   an unvalidated heuristic; equal intervals are defensible on Kim and
   Webb (2022) but blind to item difficulty; HLR is peer-reviewed but
   ranks below FSRS in the benchmark.
+
+- **A server secret in the choice hash.** Rejected (#713): a secret
+  mixed into the hash would hide the right choice from a client that
+  reads the card alone, but not from one that reads the public lesson
+  content, which pairs each word with its gloss, and a recall cannot
+  be hidden that way at all. It would add a secret to manage and
+  rotate for cheating that hurts only the cheater, since no reward one
+  player takes from another rides on a review. Opaque, deterministic
+  ids guard against the casual leak, which is the risk worth paying
+  for.
 
 ## Consequences
 
