@@ -18,7 +18,9 @@ class ForgotPasswordViewModelTest {
     fun `opens on a blank form`() = runTest {
         val viewModel: ForgotPasswordViewModel = ForgotPasswordViewModel(FakeSessionRepository())
 
-        assertEquals(form(email = "", status = ForgotPasswordUiState.FormStatus.Idle), viewModel.state.value)
+        viewModel.state.test {
+            assertEquals(form(email = "", status = ForgotPasswordUiState.FormStatus.Idle), awaitItem())
+        }
     }
 
     @Test
@@ -58,10 +60,12 @@ class ForgotPasswordViewModelTest {
 
         typeAndSubmit(viewModel, email = "ines@sotoverde.es")
 
-        assertEquals(
-            form(email = "ines@sotoverde.es", status = ForgotPasswordUiState.FormStatus.Sending),
-            viewModel.state.value,
-        )
+        viewModel.state.test {
+            assertEquals(
+                form(email = "ines@sotoverde.es", status = ForgotPasswordUiState.FormStatus.Sending),
+                awaitItem(),
+            )
+        }
     }
 
     @Test
