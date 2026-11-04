@@ -48,11 +48,25 @@ class SignInScreenTest {
         assertEquals(1, resetRequestsOpened)
     }
 
+    @Test
+    fun `opens no reset request while a sign-in is in flight`() {
+        var resetRequestsOpened: Int = 0
+        drawForm(state = submittingForm, onForgotPasswordOpen = { resetRequestsOpened += 1 })
+
+        composeRule.onNodeWithText("¿Has olvidado tu contraseña?").performClick()
+
+        assertEquals(0, resetRequestsOpened)
+    }
+
     private fun drawBlankForm(onForgotPasswordOpen: () -> Unit = {}) {
+        drawForm(state = blankForm, onForgotPasswordOpen = onForgotPasswordOpen)
+    }
+
+    private fun drawForm(state: SignInUiState, onForgotPasswordOpen: () -> Unit) {
         composeRule.setContent {
             MyGameTheme {
                 SignInScreen(
-                    state = blankForm,
+                    state = state,
                     onIntent = {},
                     onSignUpOpen = {},
                     onForgotPasswordOpen = onForgotPasswordOpen,
@@ -65,6 +79,13 @@ class SignInScreenTest {
         email = "",
         password = "",
         status = SignInUiState.FormStatus.Idle,
+        isSessionEnded = false,
+    )
+
+    private val submittingForm: SignInUiState = SignInUiState.Form(
+        email = "ines@sotoverde.es",
+        password = "contraseña-larga",
+        status = SignInUiState.FormStatus.Submitting,
         isSessionEnded = false,
     )
 
