@@ -35,6 +35,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
 
@@ -124,7 +125,9 @@ internal fun RecallField(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Done,
         ),
-        onValueChange = { answer: String -> onIntent(ReviewIntent.AnswerChanged(answer)) },
+        onValueChange = { answer: String ->
+            onIntent(ReviewIntent.AnswerChanged(answer.take(REVIEW_ANSWER_MAX_LENGTH)))
+        },
         keyboardActions = KeyboardActions(onDone = { onIntent(ReviewIntent.CheckTapped) }),
         modifier = modifier,
     )

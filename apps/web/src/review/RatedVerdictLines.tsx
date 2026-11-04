@@ -2,13 +2,13 @@ import { type ReactElement, type Ref, useId } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { focusTargetClass } from '../design-system/focusTargetClass'
-import type { EarnedSkill } from './earnedSkillOf'
-import type { GivenAnswer } from './useReview'
+import type { GivenAnswer, RatedVerdict } from './useReview'
+
+type RaisedSkill = NonNullable<Extract<RatedVerdict, { readonly kind: 'correct' }>['earnedSkill']>
 
 export interface RatedVerdictLinesProps {
   readonly answered: GivenAnswer
   readonly answerLang: 'en' | 'es'
-  readonly skill: EarnedSkill | undefined
   readonly verdictRef: Ref<HTMLElement>
   readonly onNext: () => void
 }
@@ -35,7 +35,7 @@ function WrongLines({
   )
 }
 
-function SkillLines({ skill }: { readonly skill: EarnedSkill }): ReactElement {
+function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
   return (
     <>
       <p className="m-0 font-body font-bold text-body text-ink">
@@ -51,12 +51,13 @@ function SkillLines({ skill }: { readonly skill: EarnedSkill }): ReactElement {
 export function RatedVerdictLines({
   answered,
   answerLang,
-  skill,
   verdictRef,
   onNext,
 }: RatedVerdictLinesProps): ReactElement {
   const lineId = useId()
-  const isCorrect = answered.verdict.kind === 'correct'
+  const { verdict } = answered
+  const isCorrect = verdict.kind === 'correct'
+  const skill = verdict.kind === 'correct' ? verdict.earnedSkill : null
   const tone = isCorrect ? 'border-moss bg-moss-soft' : 'border-rust bg-rust-soft'
   return (
     <div className="flex flex-col gap-3">
@@ -70,7 +71,7 @@ export function RatedVerdictLines({
           {isCorrect ? copy.review.correct : copy.review.wrong}
         </p>
         {!isCorrect && <WrongLines answered={answered} answerLang={answerLang} />}
-        {skill !== undefined && <SkillLines skill={skill} />}
+        {skill !== null && <SkillLines skill={skill} />}
       </section>
       <Button type="button" tone="primary" onClick={onNext}>
         {copy.review.next}

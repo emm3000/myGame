@@ -111,12 +111,14 @@ private fun ReviewAction(
         return
     }
     val isChecking: Boolean = reviewing.step == ReviewUiState.ReviewStep.Checking
+    val isRecallEmpty: Boolean = (reviewing.card as? ReviewUiState.ReviewCard.Recall)?.typed?.isEmpty() == true
     MyGameButton(
         label = stringResource(if (isChecking) R.string.review_checking else R.string.review_check),
         isBusy = reviewing.isBusy,
         busyDescription = stringResource(R.string.building_waiting),
         onClick = { onIntent(ReviewIntent.CheckTapped) },
         modifier = modifier,
+        blockedReason = if (isRecallEmpty) stringResource(R.string.review_check_empty) else null,
     )
 }
 

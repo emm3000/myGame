@@ -10,6 +10,7 @@ export interface TextFieldProps {
   readonly hint?: string | undefined
   readonly error?: string | undefined
   readonly isDisabled?: boolean | undefined
+  readonly maxLength?: number | undefined
   readonly lang?: string | undefined
 }
 
@@ -31,6 +32,7 @@ export function TextField(props: TextFieldProps): ReactElement {
         autoComplete={props.autoComplete}
         value={props.value}
         disabled={props.isDisabled}
+        maxLength={props.maxLength}
         lang={props.lang}
         onChange={(event) => props.onChange(event.target.value)}
         aria-invalid={hasError}

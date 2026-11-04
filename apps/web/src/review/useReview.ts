@@ -17,6 +17,7 @@ export interface GivenAnswer {
 
 interface Session {
   readonly card: DueReview | undefined
+  readonly dueCount: number | undefined
   readonly typed: string
   readonly choice: Choice | undefined
   readonly hint: ReviewHint | undefined
@@ -26,6 +27,7 @@ interface Session {
 
 const freshSession: Session = {
   card: undefined,
+  dueCount: undefined,
   typed: '',
   choice: undefined,
   hint: undefined,
@@ -35,6 +37,7 @@ const freshSession: Session = {
 
 export interface ReviewHandle {
   readonly card: DueReview | undefined
+  readonly dueCount: number
   readonly typed: string
   readonly choice: Choice | undefined
   readonly hint: ReviewHint | undefined
@@ -77,7 +80,12 @@ export function useReview(
   const card = session.card ?? due[0]
 
   const holding = (change: Partial<Session>): void => {
-    setSession((current) => ({ ...current, card: current.card ?? card, ...change }))
+    setSession((current) => ({
+      ...current,
+      card: current.card ?? card,
+      dueCount: current.dueCount ?? due.length,
+      ...change,
+    }))
   }
 
   const sending = async (call: () => Promise<void>): Promise<void> => {
@@ -132,6 +140,7 @@ export function useReview(
 
   return {
     card,
+    dueCount: session.dueCount ?? due.length,
     typed: session.typed,
     choice: session.choice,
     hint: session.hint,

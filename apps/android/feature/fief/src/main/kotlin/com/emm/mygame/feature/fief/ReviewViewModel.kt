@@ -3,12 +3,12 @@ package com.emm.mygame.feature.fief
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.EarnedSkill
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.LearningRepository
+import com.emm.mygame.core.network.RaisedSkill
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewHintResult
 import com.emm.mygame.core.network.ReviewVerdict
@@ -143,7 +143,7 @@ class ReviewViewModel(
         val step: ReviewUiState.ReviewStep = when (val verdict: ReviewVerdict = result.verdict) {
             ReviewVerdict.NearMiss -> ReviewUiState.ReviewStep.NearMiss
             is ReviewVerdict.Correct ->
-                ReviewUiState.ReviewStep.Correct(skill = verdict.earnedSkill?.lineIn(result.fief))
+                ReviewUiState.ReviewStep.Correct(skill = verdict.earnedSkill?.toSkillLine())
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
         }
         if (step != ReviewUiState.ReviewStep.NearMiss) answered = result.fief
@@ -196,7 +196,7 @@ private fun DueReview.toCard(): ReviewUiState.ReviewCard = when (this) {
 
 private fun ReviewUiState.ReviewCard.sentAnswer(): String? = when (this) {
     is ReviewUiState.ReviewCard.Recognition -> chosen?.value
-    is ReviewUiState.ReviewCard.Recall -> typed
+    is ReviewUiState.ReviewCard.Recall -> typed.ifEmpty { null }
 }
 
 private fun ReviewUiState.ReviewCard.correctFormOf(verdict: ReviewVerdict.Wrong): String = when (this) {
@@ -204,8 +204,5 @@ private fun ReviewUiState.ReviewCard.correctFormOf(verdict: ReviewVerdict.Wrong)
     is ReviewUiState.ReviewCard.Recall -> verdict.word
 }
 
-private fun EarnedSkill.lineIn(fief: FiefSnapshot): ReviewUiState.SkillLine = ReviewUiState.SkillLine(
-    resource = resource,
-    level = fief.skills.count { skill: EarnedSkill -> skill.resource == resource },
-    ratePercent = ratePercent,
-)
+private fun RaisedSkill.toSkillLine(): ReviewUiState.SkillLine =
+    ReviewUiState.SkillLine(resource = resource, level = level, ratePercent = ratePercent)

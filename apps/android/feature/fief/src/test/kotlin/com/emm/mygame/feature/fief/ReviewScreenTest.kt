@@ -3,10 +3,13 @@ package com.emm.mygame.feature.fief
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.ReviewHint
@@ -27,6 +30,35 @@ class ReviewScreenTest {
         draw(recalling(step = ReviewUiState.ReviewStep.Answering))
 
         composeRule.onNode(hasSetTextAction() and hasContentDescription("Tu respuesta en inglés")).assertExists()
+    }
+
+    @Test
+    fun `caps the recall field at the 100 characters the api accepts`() {
+        val intents: MutableList<ReviewIntent> = mutableListOf()
+        draw(
+            recalling(step = ReviewUiState.ReviewStep.Answering),
+            onIntent = { intent: ReviewIntent -> intents += intent },
+        )
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("a".repeat(101))
+
+        assertEquals(listOf<ReviewIntent>(ReviewIntent.AnswerChanged("a".repeat(100))), intents)
+    }
+
+    @Test
+    fun `blocks comprobar while the recall field is empty`() {
+        draw(recalling(step = ReviewUiState.ReviewStep.Answering))
+
+        composeRule.onNode(hasText("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
+            .assertExists()
+    }
+
+    @Test
+    fun `offers comprobar once the recall field holds an answer`() {
+        draw(recalling(step = ReviewUiState.ReviewStep.Answering, typed = "home"))
+
+        composeRule.onNode(hasText("Comprobar") and hasStateDescription("Escribe tu respuesta para comprobarla."))
+            .assertDoesNotExist()
     }
 
     @Test

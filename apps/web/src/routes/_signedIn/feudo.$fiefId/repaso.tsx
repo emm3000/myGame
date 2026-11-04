@@ -22,8 +22,7 @@ function liveStateOf(fief: LiveFief, review: ReviewHandle): ReviewScreenState {
     return {
       kind: 'card',
       card: review.card,
-      dueCount: overview.reviews.due.length,
-      skills: overview.skills,
+      dueCount: review.dueCount,
       review,
     }
   }

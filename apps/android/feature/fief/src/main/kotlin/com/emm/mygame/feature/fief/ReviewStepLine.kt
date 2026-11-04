@@ -42,13 +42,16 @@ internal fun ReviewStepLine(
 @Composable
 private fun RefusalLine(refusal: ReviewRefusal, onIntent: (ReviewIntent) -> Unit, modifier: Modifier = Modifier) {
     val message: String = stringResource(refusalLineOf(refusal))
-    if (!refusal.asksForAReread()) return MyGameInlineAlert(message = message, modifier = modifier)
-    MyGameErrorBanner(
-        message = message,
-        actionLabel = stringResource(R.string.fief_retry),
-        onAction = { onIntent(ReviewIntent.RetryTapped) },
-        modifier = modifier,
-    )
+    if (refusal.asksForAReread()) {
+        MyGameErrorBanner(
+            message = message,
+            actionLabel = stringResource(R.string.fief_retry),
+            onAction = { onIntent(ReviewIntent.RetryTapped) },
+            modifier = modifier,
+        )
+    } else {
+        MyGameInlineAlert(message = message, modifier = modifier)
+    }
 }
 
 @Composable

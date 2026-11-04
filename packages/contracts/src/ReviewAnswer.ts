@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { EarnedSkillSchema } from './EarnedSkill'
 import { FiefOverviewSchema } from './FiefOverview'
-import { InstantSchema, QuantitySchema } from './Wire'
+import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
 
 const NearMissVerdictSchema = z
   .strictObject({
@@ -16,6 +16,7 @@ const RatedVerdictSchema = z.strictObject({
 })
 
 const RaisedSkillSchema = EarnedSkillSchema.extend({
+  level: WholeCountSchema.positive(),
   ratePerHourBefore: QuantitySchema,
   ratePerHourAfter: QuantitySchema,
 })

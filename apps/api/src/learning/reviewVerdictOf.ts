@@ -9,6 +9,7 @@ import {
   type MemoryTerms,
   ok,
   type Result,
+  skillLevelOf,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 import type { ReviewOutcome } from './answerReviewOf'
@@ -45,6 +46,7 @@ const raisedSkillOf = (
     resource: skill.resource,
     ratePercent: skill.ratePercent,
     earnedAt: isoOf(skill.earnedAt),
+    level: skillLevelOf(fief.skills, skill.resource),
     ratePerHourBefore: before.value[skill.resource],
     ratePerHourAfter: after.value[skill.resource],
   })

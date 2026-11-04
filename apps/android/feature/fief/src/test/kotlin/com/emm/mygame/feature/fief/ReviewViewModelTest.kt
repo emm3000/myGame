@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.RaisedSkill
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewHint
@@ -34,6 +35,8 @@ class ReviewViewModelTest {
 
     private val foodSkill: EarnedSkill =
         EarnedSkill(lesson = LessonId("lesson-1"), resource = ResourceKind.Food, ratePercent = 5)
+
+    private val secondFoodLevel: RaisedSkill = RaisedSkill(resource = ResourceKind.Food, level = 2, ratePercent = 5)
 
     @Test
     fun `draws loading until the read answers`() = runTest {
@@ -208,6 +211,21 @@ class ReviewViewModelTest {
     }
 
     @Test
+    fun `sends nothing for a recall with an empty field`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(fiefs, learning)
+        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            expectNoEvents()
+        }
+        assertEquals(emptyList<FakeLearningRepository.AnswerRequest>(), learning.answers)
+    }
+
+    @Test
     fun `sends one answer while the first one waits`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
@@ -216,6 +234,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             viewModel.onIntent(ReviewIntent.CheckTapped)
             viewModel.onIntent(ReviewIntent.HintTapped)
@@ -291,6 +310,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Correct(skill = null),
@@ -300,21 +320,25 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `draws the skill earned at its level among the answered fief's skills`() = runTest {
+    fun `draws the skill earned at the level the api answers`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(fiefs, learning)
         fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
         learning.answerReview(
-            ReviewAnswerResult.Answered(correctHome(earnedSkill = foodSkill), fiefDue(skills = listOf(foodSkill))),
+            ReviewAnswerResult.Answered(
+                correctHome(earnedSkill = secondFoodLevel),
+                fiefDue(skills = listOf(foodSkill)),
+            ),
         )
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Correct(
-                    skill = ReviewUiState.SkillLine(resource = ResourceKind.Food, level = 1, ratePercent = 5),
+                    skill = ReviewUiState.SkillLine(resource = ResourceKind.Food, level = 2, ratePercent = 5),
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
@@ -331,6 +355,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             awaitStep { it is ReviewUiState.ReviewStep.Correct }
             viewModel.onIntent(ReviewIntent.NextTapped)
@@ -369,6 +394,7 @@ class ReviewViewModelTest {
             awaitReviewing()
             viewModel.onIntent(ReviewIntent.HintTapped)
             awaitStep { it == ReviewUiState.ReviewStep.Answering }
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             val nearMiss: ReviewUiState.Reviewing = awaitStep { it == ReviewUiState.ReviewStep.NearMiss }
             assertEquals(
@@ -388,6 +414,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Refused(ReviewRefusal.ReviewNotDue),
@@ -406,6 +433,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             awaitStep { it == ReviewUiState.ReviewStep.Unreachable }
         }
@@ -423,6 +451,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             awaitStep { it is ReviewUiState.ReviewStep.Refused }
             viewModel.onIntent(ReviewIntent.RetryTapped)
@@ -431,7 +460,7 @@ class ReviewViewModelTest {
         assertEquals(2, fiefs.readCount)
     }
 
-    private fun correctHome(earnedSkill: EarnedSkill?): ReviewVerdict =
+    private fun correctHome(earnedSkill: RaisedSkill?): ReviewVerdict =
         ReviewVerdict.Correct(
             word = "home",
             gloss = "casa",

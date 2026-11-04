@@ -279,7 +279,7 @@ it('moves to the next due card after a correct answer', async () => {
   expect(screen.getByRole('heading', { name: 'home' })).toBeTruthy()
 })
 
-it('names the skill a correct answer earns', async () => {
+it('names the skill a correct answer earns at the level the api answers', async () => {
   const foodSkill = {
     lessonId: 'lesson-1',
     resource: 'food' as const,
@@ -292,7 +292,7 @@ it('names the skill a correct answer earns', async () => {
       word: 'school',
       gloss: 'escuela',
       dueAt: knownFief.readAt,
-      earnedSkill: { ...foodSkill, ratePerHourBefore: 120, ratePerHourAfter: 126 },
+      earnedSkill: { ...foodSkill, level: 2, ratePerHourBefore: 120, ratePerHourAfter: 126 },
     },
     { ...nothingDue, skills: [foodSkill] },
   )
@@ -300,8 +300,45 @@ it('names the skill a correct answer earns', async () => {
 
   await typeAndCheck('school')
 
-  expect(screen.getByText(copy.review.skillEarned('food', 1))).toBeTruthy()
+  expect(screen.getByText(copy.review.skillEarned('food', 2))).toBeTruthy()
   expect(screen.getByText(copy.review.skillRate(5, 'food'))).toBeTruthy()
+})
+
+it('caps the typed answer at the 100 characters the api accepts', async () => {
+  await showReview(recallDue)
+
+  expect(answerField().getAttribute('maxLength')).toBe('100')
+})
+
+it('blocks the check of a recall card while the field is empty', async () => {
+  const answerReview = answering({ kind: 'nearMiss' }, recallDue)
+  await showReview(recallDue, { answerReview })
+
+  const check = screen.getByRole('button', { name: copy.review.check })
+  fireEvent.click(check)
+  await passSeconds(0)
+
+  expect(check.getAttribute('aria-disabled')).toBe('true')
+  expect(answerReview).not.toHaveBeenCalled()
+})
+
+it('keeps the due count of the card on screen until the next card', async () => {
+  const answerReview = answering(
+    {
+      kind: 'correct',
+      word: 'school',
+      gloss: 'escuela',
+      dueAt: knownFief.readAt,
+      earnedSkill: null,
+    },
+    nothingDue,
+  )
+  await showReview(recallDue, { answerReview })
+
+  await typeAndCheck('school')
+
+  expect(screen.getByText(copy.review.correct)).toBeTruthy()
+  expect(screen.getByText(copy.review.dueCount(1))).toBeTruthy()
 })
 
 it('shows a refused answer by its kind', async () => {
