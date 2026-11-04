@@ -730,7 +730,7 @@ const fiefRowOf = (fief: Fief): SavedFiefRow => ({
 
 export type FiefRead = 'lockedForUpdate' | 'lockFree'
 
-const saveHeldRows = async (session: PostgresSession, fief: Fief, id: FiefId): Promise<void> => {
+const saveLevelRows = async (session: PostgresSession, fief: Fief, id: FiefId): Promise<void> => {
   const builtLevelRows = Object.values(storedBuildings)
     .map((stored) => ({
       fiefId: id,
@@ -741,13 +741,6 @@ const saveHeldRows = async (session: PostgresSession, fief: Fief, id: FiefId): P
   const studiedArtRows = Object.values(storedArts)
     .map((stored) => ({ fiefId: id, art: stored, level: fief.artLevels[artKinds[stored]] }))
     .filter((row) => row.level > 0)
-  const unitRows = Object.values(storedUnits).map((stored) => ({
-    fiefId: id,
-    kind: stored,
-    count: fief.units.countOf(unitKinds[stored]),
-  }))
-  const countedUnitRows = unitRows.filter((row) => row.count > 0)
-  const emptiedUnits = unitRows.filter((row) => row.count === 0).map((row) => row.kind)
   if (builtLevelRows.length > 0) {
     await session
       .insert(fiefBuildings)
@@ -766,6 +759,16 @@ const saveHeldRows = async (session: PostgresSession, fief: Fief, id: FiefId): P
         set: { level: sql`excluded.level` },
       })
   }
+}
+
+const saveUnitRows = async (session: PostgresSession, fief: Fief, id: FiefId): Promise<void> => {
+  const unitRows = Object.values(storedUnits).map((stored) => ({
+    fiefId: id,
+    kind: stored,
+    count: fief.units.countOf(unitKinds[stored]),
+  }))
+  const countedUnitRows = unitRows.filter((row) => row.count > 0)
+  const emptiedUnits = unitRows.filter((row) => row.count === 0).map((row) => row.kind)
   if (countedUnitRows.length > 0) {
     await session
       .insert(fiefUnits)
@@ -917,7 +920,8 @@ export class DrizzleFiefRepository implements FiefRepository {
           .insert(fiefs)
           .values({ id, ...changes })
           .onConflictDoUpdate({ target: fiefs.id, set: changes })
-        await saveHeldRows(transaction, fief, id)
+        await saveLevelRows(transaction, fief, id)
+        await saveUnitRows(transaction, fief, id)
         await replaceInFlightRows(transaction, fief, id, marchRow)
         if (skillRows.length > 0) {
           await transaction
