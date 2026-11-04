@@ -13,17 +13,23 @@ internal fun signedInApi(baseUrl: String, tokenStore: TokenStore, sessionEnds: S
     val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) { refusedToken: String ->
         if (tokenStore.clearIfHolding(refusedToken)) sessionEnds.report()
     }
-    return defaultApi(baseUrl = baseUrl, bearer = bearer, callTimeout = Duration.ZERO)
+    return defaultApi(baseUrl = baseUrl, client = bearerClient(bearer = bearer, callTimeout = Duration.ZERO))
 }
 
-internal fun authApi(baseUrl: String, tokenStore: TokenStore, callTimeout: Duration): DefaultApi =
-    defaultApi(baseUrl = baseUrl, bearer = BearerInterceptor(tokenStore = tokenStore) {}, callTimeout = callTimeout)
+internal fun signOutApi(baseUrl: String, tokenStore: TokenStore, callTimeout: Duration): DefaultApi {
+    val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) {}
+    return defaultApi(baseUrl = baseUrl, client = bearerClient(bearer = bearer, callTimeout = callTimeout))
+}
 
-private fun defaultApi(baseUrl: String, bearer: BearerInterceptor, callTimeout: Duration): DefaultApi {
-    val client: OkHttpClient = OkHttpClient.Builder()
+internal fun accountApi(baseUrl: String): DefaultApi = defaultApi(baseUrl = baseUrl, client = OkHttpClient())
+
+private fun bearerClient(bearer: BearerInterceptor, callTimeout: Duration): OkHttpClient =
+    OkHttpClient.Builder()
         .addInterceptor(bearer)
         .callTimeout(callTimeout.toJavaDuration())
         .build()
+
+private fun defaultApi(baseUrl: String, client: OkHttpClient): DefaultApi {
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(client)
