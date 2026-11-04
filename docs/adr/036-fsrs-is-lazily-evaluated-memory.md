@@ -122,7 +122,7 @@ metric needs (§8.2), not for a claim of more learning.
    the transaction that holds the player's fiefs.** One card per player
    and word. A rating, a hint and a near-miss each run in one
    transaction that locks every fief of the player in ascending id, as
-   ADR 024's two-fief mutation does (`mutateFiefPairAfterResolve`):
+   ADR 024's two-fief mutation does (`mutateEveryFiefAfterResolve`):
    each fief is resolved at one instant, the latest of the clock and
    every locked `storedAt`, and that instant is the review's. The card,
    the pending review, the log and any skill earned are written there
@@ -145,8 +145,15 @@ metric needs (§8.2), not for a claim of more learning.
    words, the 4 other words with the lowest hash are taken, then the 5
    ordered. A tie orders by word id. The hash is a 32-bit integer
    mixing with no `Math.random`, as `campOf`
-   (`packages/domain/src/camp/campOf.ts`) places camps. The answer is
-   the chosen word's id, so grading never depends on the order.
+   (`packages/domain/src/camp/campOf.ts`) places camps. Each choice
+   carries an opaque choice id, never its word id: the 8 hex digits of
+   that same hash, re-mixed until no other choice of the card holds it,
+   so it is unique within the card and changes with the key instant.
+   The answer is the chosen choice's id, and the server grades it by
+   recomputing the card's choices at the answer, so grading never
+   depends on the order and no field of the card names the right
+   choice (amended 2026-11-04, #713: the answer was the chosen word's
+   id, which a recognition card's own word id gave away).
 4. **A typed answer is compared after Unicode NFC, the typographic
    apostrophe ’ read as ', trimming, collapsing inner whitespace to one
    space, and lower-casing, against the word and any further form its
@@ -237,11 +244,12 @@ pinned commit, with the parameters above and no fuzz.
   percent at 100: lesson 1 starts at 08:57:30 and finishes at
   2026-11-10 09:00:00, 150 s later (rule 6). The card of *school*
   enters then, due at once.
-  - 09:00, recognition right, Good: `learning`, step 1, S 2.3065,
-    D 2.1181, due 09:10 (the second learning step).
-  - 09:10, recognition right, Good: `review`, S 2.3065 (a same-day Good
-    never lowers stability, and its short-term factor here is clamped
-    to 1), D 2.1112, due in round(2.3065) = 2 days, 2026-11-12 09:10.
+  - 09:00, recognition, the right choice's id, Good: `learning`,
+    step 1, S 2.3065, D 2.1181, due 09:10 (the second learning step).
+  - 09:10, recognition, the right choice's id, Good: `review`,
+    S 2.3065 (a same-day Good never lowers stability, and its
+    short-term factor here is clamped to 1), D 2.1112, due in
+    round(2.3065) = 2 days, 2026-11-12 09:10.
   - 2026-11-12 09:10, recall, *school* typed, Good: S 10.9710, D 2.1043,
     due in 11 days, 2026-11-23 09:10. S is at least 7, but the review
     came 2 days after the one before it: `retainedAt` stays null and
