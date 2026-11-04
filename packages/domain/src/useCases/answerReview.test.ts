@@ -1,7 +1,9 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { DomainError } from '../DomainError'
 import { Fief, type StoredFief } from '../fief/Fief'
 import { noStoreFull } from '../fief/FullSince'
 import { materializeStocks } from '../fief/materializeStocks'
+import type { EarnedSkill } from '../learning/EarnedSkill'
 import type { HeldCard } from '../learning/HeldCard'
 import { dueInstantOf } from '../memory/dueInstantOf'
 import { MemoryCard } from '../memory/MemoryCard'
@@ -10,6 +12,7 @@ import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
+import { ok, type Result } from '../Result'
 import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
 import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -164,6 +167,33 @@ const arrange = (
     terms: defaultMemoryTerms,
   }
   return { fiefs, cards, pendingReviews, reviewLog, dependencies }
+}
+
+const skillsKeptPerPlayer = (repository: ReturnType<typeof inMemoryFiefRepository>) => {
+  const skillsOfPlayer = new Map<string, ReadonlyArray<EarnedSkill>>()
+  return {
+    fiefsOf: repository.fiefsOf,
+    fiefOf: async (fiefId: string): Promise<Result<Fief | undefined, DomainError>> => {
+      const stored = await repository.fiefOf(fiefId)
+      if (!stored.ok || stored.value === undefined) {
+        return stored
+      }
+      const fief = stored.value
+      const shared = (skillsOfPlayer.get(fief.playerId) ?? []).filter(
+        (skill) => !fief.skills.some(({ lessonId }) => lessonId === skill.lessonId),
+      )
+      return ok(
+        shared.reduce(
+          (withSkill, skill) => withSkill.earnSkill(skill, withSkill.stocks, withSkill.storedAt),
+          fief,
+        ),
+      )
+    },
+    save: async (fief: Fief): Promise<Result<void, DomainError>> => {
+      skillsOfPlayer.set(fief.playerId, fief.skills)
+      return repository.save(fief)
+    },
+  }
 }
 
 const heldCardOf = (cards: ReturnType<typeof inMemoryCards>, wordId: string): HeldCard => {
@@ -460,6 +490,26 @@ describe('answerReview', () => {
     expect(fiefs.storedFiefOf('fief-1')?.skills).toHaveLength(1)
     expect(fiefs.storedFiefOf('fief-2')?.skills).toHaveLength(1)
     expect(fiefs.storedFiefOf('fief-2')?.storedAt).toEqual(lastRecallAt)
+  })
+
+  it('re-bases every fief when the store keeps the skill per player', async () => {
+    const heldFiefs = [
+      fiefOfLearner('fief-1', 1, hoursAfter(lastRecallAt, -3)),
+      fiefOfLearner('fief-2', 2, hoursAfter(lastRecallAt, -5)),
+    ]
+    const { fiefs, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+      heldFiefs,
+    )
+
+    await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      { ...dependencies, fiefs: skillsKeptPerPlayer(fiefs) },
+    )
+
+    expect(fiefs.storedFiefOf('fief-2')?.storedAt).toEqual(lastRecallAt)
+    expect(foodAt(fiefs.storedFiefOf('fief-2'), lastRecallAt)).toBe(100 + 5 * 20)
   })
 
   it('raises food by the lesson percent from the instant the skill is earned', async () => {

@@ -47,6 +47,7 @@ export const foundFief = async (
     coordinates: coordinates.value,
     startingStocks: settings.startingStocks,
     at: clock.now(),
+    skills: [],
   })
 
   const saved = await fiefs.save(fief)

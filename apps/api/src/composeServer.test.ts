@@ -489,6 +489,7 @@ const foundAnasSecondFief = async (server: ComposedServer): Promise<FiefId> => {
     coordinates: coordinates.value,
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     at: foundedAt,
+    skills: [],
   })
   const saved = await server.inTransaction(({ fiefs }) => fiefs.save(second))
   assert(saved.ok)

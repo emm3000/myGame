@@ -75,6 +75,7 @@ const neighbourFief = (playerId: string, coordinates: Coordinates): Fief => {
     coordinates,
     startingStocks: fiefSettings(3).startingStocks,
     at: foundingInstant,
+    skills: [],
   })
 }
 

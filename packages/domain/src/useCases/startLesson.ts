@@ -2,6 +2,7 @@ import type { DomainError } from '../DomainError'
 import type { Fief } from '../fief/Fief'
 import type { FiefOfPlayer } from '../fief/FiefOfPlayer'
 import { ownFiefOf } from '../fief/ownFiefOf'
+import { readFiefsInLockOrder } from '../fief/readFiefsInLockOrder'
 import type { HeldCard } from '../learning/HeldCard'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import type { Lesson, LessonId } from '../learning/Lesson'
@@ -25,24 +26,6 @@ export type StartLessonDependencies = {
   readonly clock: Clock
 }
 
-const lockedFiefsOf = async (
-  command: FiefOfPlayer,
-  fiefs: StartLessonDependencies['fiefs'],
-): Promise<Result<ReadonlyArray<Fief>, DomainError>> => {
-  const fiefIds = [...(await fiefs.fiefsOf(command.playerId))].sort()
-  const locked: Array<Fief> = []
-  for (const fiefId of fiefIds) {
-    const stored = await fiefs.fiefOf(fiefId)
-    if (!stored.ok) {
-      return stored
-    }
-    if (stored.value !== undefined) {
-      locked.push(stored.value)
-    }
-  }
-  return ok(locked)
-}
-
 const admitLesson = (
   lesson: Lesson,
   cards: ReadonlyArray<HeldCard>,
@@ -64,7 +47,7 @@ export const startLesson = async (
   command: StartLessonCommand,
   { fiefs, cards, lessons, catalog, clock }: StartLessonDependencies,
 ): Promise<Result<Fief, DomainError>> => {
-  const locked = await lockedFiefsOf(command, fiefs)
+  const locked = await readFiefsInLockOrder(command.playerId, fiefs)
   if (!locked.ok) {
     return locked
   }

@@ -49,6 +49,7 @@ const fiefFounded = ({ id, playerId, name, kingdom, province, plot }: Founding):
     coordinates: accepted(Coordinates.create(kingdom, province, plot)),
     startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
     at: foundedAt,
+    skills: [],
   })
 
 type FoundingOnTheRoad = Founding & {
