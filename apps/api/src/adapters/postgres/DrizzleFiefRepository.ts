@@ -4,6 +4,7 @@ import {
   type BuildSlot,
   byUnitKind,
   type DomainError,
+  type EarnedSkill,
   err,
   Fief,
   type FiefArtLevels,
@@ -12,7 +13,6 @@ import {
   type FiefRepository,
   type IncomingCargo,
   Instant,
-  type LessonStudySlot,
   type March,
   ok,
   type PlayerId,
@@ -35,6 +35,7 @@ import {
   fiefRecruitOrders,
   fiefs,
   fiefUnits,
+  playerSkills,
 } from './schema'
 import {
   artKinds,
@@ -59,6 +60,8 @@ type MarchRow = typeof fiefMarches.$inferSelect
 
 type IncomingCargoRow = typeof fiefIncomingCargo.$inferSelect
 
+type SkillRow = typeof playerSkills.$inferSelect
+
 type JoinedRow = {
   readonly building: StoredBuilding | null
   readonly level: number | null
@@ -70,6 +73,7 @@ type JoinedRow = {
   readonly recruitOrder: RecruitOrderRow | null
   readonly march: MarchRow | null
   readonly incomingCargo: IncomingCargoRow | null
+  readonly skill: SkillRow | null
 }
 
 const instantOf = (date: Date): Instant => Instant.fromEpochMilliseconds(date.getTime())
@@ -119,6 +123,34 @@ const unitCountsOf = (joinedRows: ReadonlyArray<JoinedRow>): StoredFief['units']
   }
   return counts
 }
+
+const byEarnedAt = (left: EarnedSkill, right: EarnedSkill): number =>
+  left.earnedAt.epochMilliseconds - right.earnedAt.epochMilliseconds ||
+  (left.lessonId < right.lessonId ? -1 : Number(left.lessonId > right.lessonId))
+
+const skillsOf = (joinedRows: ReadonlyArray<JoinedRow>): ReadonlyArray<EarnedSkill> => {
+  const skillsByLesson = new Map<string, EarnedSkill>()
+  for (const { skill } of joinedRows) {
+    if (skill !== null) {
+      skillsByLesson.set(skill.lessonId, {
+        lessonId: skill.lessonId,
+        resource: skill.resource,
+        ratePercent: skill.ratePercent,
+        earnedAt: instantOf(skill.earnedAt),
+      })
+    }
+  }
+  return [...skillsByLesson.values()].sort(byEarnedAt)
+}
+
+const skillRowsOf = (fief: Fief): ReadonlyArray<SkillRow> =>
+  fief.skills.map((skill) => ({
+    playerId: fief.playerId,
+    lessonId: skill.lessonId,
+    resource: skill.resource,
+    ratePercent: skill.ratePercent,
+    earnedAt: dateOf(skill.earnedAt),
+  }))
 
 const recruitOrderOf = (row: RecruitOrderRow | null): RecruitOrder => {
   if (row === null) {
@@ -443,7 +475,22 @@ const slotOf = (row: FiefRow): BuildSlot => {
   }
 }
 
+const lessonStudySlotOf = (row: FiefRow, lessonId: string): StudySlot => {
+  if (row.studyStartedAt === null || row.studyFinishesAt === null) {
+    throw new Error(`Fief ${row.id} stores a half-written lesson study`)
+  }
+  return {
+    kind: 'lesson',
+    lessonId,
+    startedAt: instantOf(row.studyStartedAt),
+    finishesAt: instantOf(row.studyFinishesAt),
+  }
+}
+
 const studySlotOf = (row: FiefRow): StudySlot => {
+  if (row.studyLessonId !== null) {
+    return lessonStudySlotOf(row, row.studyLessonId)
+  }
   if (row.studyArt === null) {
     return { kind: 'idle' }
   }
@@ -496,7 +543,7 @@ const storedFiefOf = (
     food: instantOrNullOf(row.fullSinceFood),
   },
   guidanceDismissedAt: instantOrNullOf(row.guidanceDismissedAt),
-  skills: [],
+  skills: skillsOf(joinedRows),
 })
 
 type SlotCostColumns = Pick<
@@ -546,7 +593,7 @@ type StudyCostColumns = Pick<
 
 type StudyColumns = Pick<
   FiefRow,
-  'studyArt' | 'studyLevel' | 'studyStartedAt' | 'studyFinishesAt'
+  'studyArt' | 'studyLevel' | 'studyStartedAt' | 'studyFinishesAt' | 'studyLessonId'
 > &
   StudyCostColumns
 
@@ -558,30 +605,45 @@ const studyCostColumnsOf = (cost: Stocks): StudyCostColumns => ({
   studyCostFood: cost.food,
 })
 
-type StoredStudySlot = Exclude<StudySlot, LessonStudySlot>
-
-const studyColumnsOf = (studySlot: StoredStudySlot): StudyColumns => {
-  if (studySlot.kind === 'idle') {
-    return {
-      studyArt: null,
-      studyLevel: null,
-      studyStartedAt: null,
-      studyFinishesAt: null,
-      ...studyCostColumnsOf(noCost),
+const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
+  switch (studySlot.kind) {
+    case 'idle':
+      return {
+        studyArt: null,
+        studyLevel: null,
+        studyStartedAt: null,
+        studyFinishesAt: null,
+        studyLessonId: null,
+        ...studyCostColumnsOf(noCost),
+      }
+    case 'busy':
+      return {
+        studyArt: storedArts[studySlot.art],
+        studyLevel: studySlot.targetLevel,
+        studyStartedAt: dateOf(studySlot.startedAt),
+        studyFinishesAt: dateOf(studySlot.finishesAt),
+        studyLessonId: null,
+        ...studyCostColumnsOf(studySlot.cost),
+      }
+    case 'lesson':
+      return {
+        studyArt: null,
+        studyLevel: null,
+        studyStartedAt: dateOf(studySlot.startedAt),
+        studyFinishesAt: dateOf(studySlot.finishesAt),
+        studyLessonId: studySlot.lessonId,
+        ...studyCostColumnsOf(noCost),
+      }
+    default: {
+      const unreachable: never = studySlot
+      return unreachable
     }
-  }
-  return {
-    studyArt: storedArts[studySlot.art],
-    studyLevel: studySlot.targetLevel,
-    studyStartedAt: dateOf(studySlot.startedAt),
-    studyFinishesAt: dateOf(studySlot.finishesAt),
-    ...studyCostColumnsOf(studySlot.cost),
   }
 }
 
 type SavedFiefRow = Omit<FiefRow, 'guidanceDismissedAt'>
 
-const fiefRowOf = (fief: Fief, studySlot: StoredStudySlot): SavedFiefRow => ({
+const fiefRowOf = (fief: Fief): SavedFiefRow => ({
   id: fief.id,
   playerId: fief.playerId,
   kingdom: fief.coordinates.kingdom,
@@ -592,7 +654,7 @@ const fiefRowOf = (fief: Fief, studySlot: StoredStudySlot): SavedFiefRow => ({
   ...fief.stocks,
   storedAt: dateOf(fief.storedAt),
   ...slotColumnsOf(fief.slot),
-  ...studyColumnsOf(studySlot),
+  ...studyColumnsOf(fief.studySlot),
   fullSinceWood: dateOrNullOf(fief.fullSince.wood),
   fullSinceStone: dateOrNullOf(fief.fullSince.stone),
   fullSinceIron: dateOrNullOf(fief.fullSince.iron),
@@ -667,6 +729,7 @@ export class DrizzleFiefRepository implements FiefRepository {
         recruitOrder: fiefRecruitOrders,
         march: fiefMarches,
         incomingCargo: fiefIncomingCargo,
+        skill: playerSkills,
       })
       .from(fiefs)
       .leftJoin(fiefBuildings, eq(fiefBuildings.fiefId, fiefs.id))
@@ -676,6 +739,7 @@ export class DrizzleFiefRepository implements FiefRepository {
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
       .leftJoin(fiefMarches, eq(fiefMarches.fiefId, fiefs.id))
       .leftJoin(fiefIncomingCargo, eq(fiefIncomingCargo.fiefId, fiefs.id))
+      .leftJoin(playerSkills, eq(playerSkills.playerId, fiefs.playerId))
       .where(eq(fiefs.id, fiefId))
       .$dynamic()
     const rows = await (this.read === 'lockedForUpdate'
@@ -691,11 +755,7 @@ export class DrizzleFiefRepository implements FiefRepository {
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
-    const { studySlot } = fief
-    if (studySlot.kind === 'lesson') {
-      return err({ kind: 'LessonNotStored', lessonId: studySlot.lessonId })
-    }
-    const { id, ...changes } = fiefRowOf(fief, studySlot)
+    const { id, ...changes } = fiefRowOf(fief)
     const builtLevelRows = Object.values(storedBuildings)
       .map((stored) => ({
         fiefId: id,
@@ -717,6 +777,7 @@ export class DrizzleFiefRepository implements FiefRepository {
     const marchRow = marchRowOf(fief)
     const incomingCargoRow = incomingCargoRowOf(fief)
     const entryRows = entryRowsOf(fief)
+    const skillRows = skillRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
         await transaction
@@ -770,6 +831,12 @@ export class DrizzleFiefRepository implements FiefRepository {
         await transaction.delete(fiefIncomingCargo).where(eq(fiefIncomingCargo.fiefId, id))
         if (incomingCargoRow !== undefined) {
           await transaction.insert(fiefIncomingCargo).values(incomingCargoRow)
+        }
+        if (skillRows.length > 0) {
+          await transaction
+            .insert(playerSkills)
+            .values([...skillRows])
+            .onConflictDoNothing({ target: [playerSkills.playerId, playerSkills.lessonId] })
         }
       })
       return ok(undefined)

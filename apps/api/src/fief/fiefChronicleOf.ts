@@ -1,6 +1,7 @@
 import type { FiefChronicle } from '@mygame/contracts'
+import { type DomainError, type FiefEvent, ok, type Result } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
-import type { ChronicledEvent } from './chronicledEventsOf'
+import { type ChronicledEvent, chronicledEventsOf } from './chronicledEventsOf'
 
 type WireEvent = FiefChronicle['events'][number]
 
@@ -85,6 +86,12 @@ const wireEventOf = (event: ChronicledEvent): WireEvent => {
   }
 }
 
-export const fiefChronicleOf = (events: ReadonlyArray<ChronicledEvent>): FiefChronicle => ({
-  events: events.map(wireEventOf),
-})
+export const fiefChronicleOf = (
+  events: ReadonlyArray<FiefEvent>,
+): Result<FiefChronicle, DomainError> => {
+  const chronicled = chronicledEventsOf(events)
+  if (!chronicled.ok) {
+    return chronicled
+  }
+  return ok({ events: chronicled.value.map(wireEventOf) })
+}

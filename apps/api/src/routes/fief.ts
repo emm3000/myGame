@@ -106,9 +106,13 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
       if (!reading.ok) {
         return answerRefusal(c, reading.error)
       }
-      const body: FiefChronicle = fiefChronicleOf(
+      const chronicle = fiefChronicleOf(
         await dependencies.chronicle.eventsOf(reading.value.fief.id),
       )
+      if (!chronicle.ok) {
+        return answerRefusal(c, chronicle.error)
+      }
+      const body: FiefChronicle = chronicle.value
       return c.json(body)
     },
   )
