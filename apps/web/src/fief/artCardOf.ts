@@ -15,7 +15,7 @@ const { names } = copy
 type NextArtLevel = NonNullable<LiveFief['overview']['arts'][ArtKind]['nextLevel']>
 
 function stateOf(nextLevel: NextArtLevel, fief: LiveFief): CardActionState {
-  if (fief.overview.study.kind === 'busy') {
+  if (fief.overview.study.kind !== 'idle') {
     return { kind: 'blocked', reason: copy.study.studyRunning }
   }
   const libraryLevel = fief.overview.buildings.library.level

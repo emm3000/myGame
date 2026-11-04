@@ -12,7 +12,7 @@ export type BuildSlotState =
       readonly kind: 'busy'
       readonly title: string
       readonly buildingName: string
-      readonly levelLabel: string
+      readonly levelLabel: string | undefined
       readonly remainingSeconds: number
       readonly time: string
       readonly totalSeconds: number
@@ -24,7 +24,7 @@ export type BuildSlotState =
       readonly kind: 'justFinished'
       readonly title: string
       readonly buildingName: string
-      readonly levelLabel: string
+      readonly levelLabel: string | undefined
       readonly message: string
     }
 
@@ -37,13 +37,15 @@ function Building({
   badgeTone,
 }: {
   readonly name: string
-  readonly levelLabel: string
+  readonly levelLabel: string | undefined
   readonly badgeTone: string
 }): ReactElement {
   return (
     <span className="flex items-baseline justify-between gap-2">
       <span className="font-display text-title text-ink">{name}</span>
-      <span className={`${badgeClass} ${badgeTone}`}>{levelLabel}</span>
+      {levelLabel !== undefined && (
+        <span className={`${badgeClass} ${badgeTone}`}>{levelLabel}</span>
+      )}
     </span>
   )
 }

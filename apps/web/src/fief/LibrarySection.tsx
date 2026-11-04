@@ -3,6 +3,7 @@ import { type ReactElement, useId } from 'react'
 import { copy } from '../copy'
 import { ArtCard } from '../design-system/ArtCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
+import type { CancelAction } from '../design-system/CancelAction'
 import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { Hint, type HintProps } from '../design-system/Hint'
@@ -11,6 +12,8 @@ import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
 import { quantitiesOf } from '../resources/quantitiesOf'
 import { formatFinish } from '../time/formatFinish'
 import { artCardOf } from './artCardOf'
+import { LessonCard } from './LessonCard'
+import { lessonCardOf } from './lessonCardOf'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
@@ -19,21 +22,57 @@ import type { Study } from './useStudy'
 
 const { names } = copy
 
-function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void): BuildSlotState {
-  const { study: slot } = fief.overview
-  if (slot.kind !== 'busy') {
-    return { kind: 'idle', title: names.studySlot, invitation: names.idleStudy }
+type StudyWork = Exclude<LiveFief['overview']['study'], { readonly kind: 'idle' }>
+
+function workOf(slot: StudyWork): {
+  readonly buildingName: string
+  readonly levelLabel: string | undefined
+} {
+  if (slot.kind === 'lesson') {
+    return { buildingName: copy.lesson.title, levelLabel: undefined }
   }
-  const art = {
+  return {
     buildingName: capitalize(names.arts[slot.art]),
     levelLabel: names.level(slot.targetLevel),
   }
+}
+
+function cancelOf(slot: StudyWork, study: Study, onCancelled: () => void): CancelAction {
+  if (slot.kind === 'lesson') {
+    return {
+      label: copy.study.cancel,
+      accessibleName: copy.lesson.cancelOf,
+      isWaiting: study.isWaiting,
+      onCancel: () => study.cancelLesson(slot.lessonId, onCancelled),
+    }
+  }
+  return {
+    label: copy.study.cancel,
+    accessibleName: copy.study.cancelOf(slot.art, slot.targetLevel),
+    isWaiting: study.isWaiting,
+    onCancel: () => study.cancel({ art: slot.art, targetLevel: slot.targetLevel }, onCancelled),
+  }
+}
+
+function refundOf(slot: StudyWork): string {
+  if (slot.kind === 'lesson') {
+    return copy.lesson.cancelRefund
+  }
+  return copy.study.cancelRefund(quantitiesOf(slot.cost))
+}
+
+function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void): BuildSlotState {
+  const { study: slot } = fief.overview
+  if (slot.kind === 'idle') {
+    return { kind: 'idle', title: names.studySlot, invitation: names.idleStudy }
+  }
+  const work = workOf(slot)
   if (fief.studyRemainingSeconds <= 0) {
     return {
       kind: 'justFinished',
       title: names.studySlot,
       message: copy.study.justFinished,
-      ...art,
+      ...work,
     }
   }
   return {
@@ -43,14 +82,9 @@ function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void)
     time: formatFinish(fief.studyRemainingSeconds, fief.at),
     totalSeconds: fief.studyTotalSeconds,
     finishedLabel: copy.fief.finished,
-    cancel: {
-      label: copy.study.cancel,
-      accessibleName: copy.study.cancelOf(slot.art, slot.targetLevel),
-      isWaiting: study.isWaiting,
-      onCancel: () => study.cancel({ art: slot.art, targetLevel: slot.targetLevel }, onCancelled),
-    },
-    refund: copy.study.cancelRefund(quantitiesOf(slot.cost)),
-    ...art,
+    cancel: cancelOf(slot, study, onCancelled),
+    refund: refundOf(slot),
+    ...work,
   }
 }
 
@@ -108,6 +142,17 @@ export function LibrarySection({
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:col-span-2">
           {ArtKindSchema.options.map((art) => (
             <ArtItem key={art} art={art} fief={fief} study={study} />
+          ))}
+          {fief.overview.lessons.map((lesson) => (
+            <li key={lesson.id} aria-label={copy.lesson.title} className="flex flex-col">
+              <LessonCard
+                fiefId={fief.overview.id}
+                theme={lesson.theme}
+                state={lessonCardOf(lesson, fief)}
+                isWaiting={study.isWaiting}
+                onStudy={() => study.startLesson(lesson.id)}
+              />
+            </li>
           ))}
         </ul>
       </div>

@@ -46,10 +46,19 @@ function buildCellOf(fief: LiveFief): StripCell {
   }
 }
 
+type StudyWork = Exclude<LiveFief['overview']['study'], { readonly kind: 'idle' }>
+
+function studyWorkOf(study: StudyWork): string {
+  if (study.kind === 'lesson') {
+    return status.lesson
+  }
+  return status.work(names.arts[study.art], study.targetLevel)
+}
+
 function studyCellOf(fief: LiveFief): StripCell {
   const { study } = fief.overview
   const cell = { id: 'study', icon: 'slot', section: sectionAnchors.library } as const
-  if (study.kind !== 'busy') {
+  if (study.kind === 'idle') {
     return { ...cell, kind: 'idle', label: status.idleStudy }
   }
   return {
@@ -58,7 +67,7 @@ function studyCellOf(fief: LiveFief): StripCell {
     lines: [
       {
         heading: status.studyHeading,
-        value: status.work(names.arts[study.art], study.targetLevel),
+        value: studyWorkOf(study),
         timePieces: finishOf(fief, fief.studyRemainingSeconds),
       },
     ],
