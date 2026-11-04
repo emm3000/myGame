@@ -102,6 +102,7 @@ const founderOnTheRoad = (recalledAt: Instant | undefined): Fief => {
     buildQueue: [],
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
     studySlot: { kind: 'idle' },
     recruitOrder: { kind: 'idle' },
     march: {

@@ -1,6 +1,7 @@
 import type { Coordinates } from './fief/Coordinates'
 import type { Stocks } from './fief/Fief'
 import type { FiefId } from './fief/FiefId'
+import type { LessonId, WordId } from './learning/Lesson'
 import type { AwayMarch } from './march/March'
 import type { PlayerId } from './player/PlayerId'
 import type { ArtKind, BuildingKind, UnitKind } from './ports/BuildingCatalog'
@@ -25,6 +26,20 @@ export type DomainError =
       readonly kind: 'ReviewBeforeLastReview'
       readonly lastReviewAt: Instant
       readonly reviewedAt: Instant
+    }
+  | { readonly kind: 'UnknownWord'; readonly wordId: WordId }
+  | { readonly kind: 'WordNotHeld'; readonly wordId: WordId }
+  | { readonly kind: 'ReviewNotDue'; readonly wordId: WordId; readonly dueAt: Instant }
+  | { readonly kind: 'HintOnRecognition'; readonly wordId: WordId }
+  | { readonly kind: 'LessonNotFound'; readonly lessonId: LessonId }
+  | { readonly kind: 'LessonAlreadyStudied'; readonly lessonId: LessonId }
+  | { readonly kind: 'LessonUnderStudy'; readonly lessonId: LessonId }
+  | { readonly kind: 'LessonStudyNotFound'; readonly lessonId: LessonId }
+  | { readonly kind: 'LessonNotStored'; readonly lessonId: LessonId }
+  | {
+      readonly kind: 'LessonLibraryTooLow'
+      readonly requiredLibraryLevel: number
+      readonly libraryLevel: number
     }
   | { readonly kind: 'NegativeResourceAmount'; readonly amount: number }
   | { readonly kind: 'NegativeResourceRate'; readonly ratePerHour: number }
@@ -83,7 +98,7 @@ export type DomainError =
   | { readonly kind: 'ProvinceNotFound'; readonly province: number; readonly lastProvince: number }
   | { readonly kind: 'UnknownBuilding'; readonly building: BuildingKind }
   | { readonly kind: 'MaxLevelReached'; readonly building: BuildingKind; readonly level: number }
-  | { readonly kind: 'StudySlotBusy'; readonly art: ArtKind }
+  | { readonly kind: 'StudySlotBusy' }
   | {
       readonly kind: 'LibraryLevelTooLow'
       readonly requiredLibraryLevel: number

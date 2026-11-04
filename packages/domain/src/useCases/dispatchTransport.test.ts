@@ -81,6 +81,7 @@ const storedFief = (
     march: { kind: 'idle' },
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
     ...stored,
   })
   assert(restored.ok)

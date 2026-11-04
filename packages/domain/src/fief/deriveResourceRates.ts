@@ -1,4 +1,5 @@
 import type { DomainError } from '../DomainError'
+import type { EarnedSkill } from '../learning/EarnedSkill'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
@@ -53,6 +54,14 @@ const withArtPercents = (
   return ok(collected)
 }
 
+const withSkillPercents = (percents: Percents, skills: ReadonlyArray<EarnedSkill>): Percents => {
+  const collected = { ...percents }
+  for (const { resource, ratePercent } of skills) {
+    collected[resource] = [...collected[resource], 100 + ratePercent]
+  }
+  return collected
+}
+
 const withSeasonPercents = (
   percents: Percents,
   at: Instant,
@@ -79,6 +88,7 @@ const scaledBy = (rate: number, percents: ReadonlyArray<number>): number =>
 export const deriveResourceRates = (
   buildingLevels: FiefBuildingLevels,
   artLevels: FiefArtLevels,
+  skills: ReadonlyArray<EarnedSkill>,
   terrain: Terrain,
   catalog: BuildingCatalog,
   at: Instant,
@@ -116,7 +126,7 @@ export const deriveResourceRates = (
   if (!artPercents.ok) {
     return artPercents
   }
-  const percents = withSeasonPercents(artPercents.value, at, catalog)
+  const percents = withSeasonPercents(withSkillPercents(artPercents.value, skills), at, catalog)
   return ok({
     wood: scaledBy(rates.wood, percents.wood),
     stone: scaledBy(rates.stone, percents.stone),

@@ -43,6 +43,7 @@ const storedFiefOf = (fief: Fief, guidanceDismissedAt: Instant | null): StoredFi
     ...(fief.incomingCargo === undefined ? {} : { incomingCargo: fief.incomingCargo }),
     fullSince: fief.fullSince,
     guidanceDismissedAt,
+    skills: [],
   }
 }
 
@@ -94,6 +95,10 @@ export class MemoryFiefRepository implements FiefRepository {
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
+    const { studySlot } = fief
+    if (studySlot.kind === 'lesson') {
+      return err({ kind: 'LessonNotStored', lessonId: studySlot.lessonId })
+    }
     const rival = [...this.fiefs.values()].find(
       (stored) => stored.id !== fief.id && sharesPlot(stored, fief),
     )

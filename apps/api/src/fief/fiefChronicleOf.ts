@@ -1,10 +1,10 @@
 import type { FiefChronicle } from '@mygame/contracts'
-import type { FiefEvent } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
+import type { ChronicledEvent } from './chronicledEventsOf'
 
 type WireEvent = FiefChronicle['events'][number]
 
-const wireEventOf = (event: FiefEvent): WireEvent => {
+const wireEventOf = (event: ChronicledEvent): WireEvent => {
   const occurredAt = isoOf(event.occurredAt)
   switch (event.kind) {
     case 'upgradeFinished':
@@ -85,6 +85,6 @@ const wireEventOf = (event: FiefEvent): WireEvent => {
   }
 }
 
-export const fiefChronicleOf = (events: ReadonlyArray<FiefEvent>): FiefChronicle => ({
+export const fiefChronicleOf = (events: ReadonlyArray<ChronicledEvent>): FiefChronicle => ({
   events: events.map(wireEventOf),
 })

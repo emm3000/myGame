@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { EarnedSkill } from '../learning/EarnedSkill'
 import type {
   ArtLevel,
   BuildingCatalog,
@@ -27,6 +28,15 @@ const noLevels: FiefBuildingLevels = {
 }
 
 const noArts: FiefArtLevels = { smithing: 0, masonry: 0 }
+
+const noSkills: ReadonlyArray<EarnedSkill> = []
+
+const foodSkill = (ratePercent: number): EarnedSkill => ({
+  lessonId: 'lesson-1',
+  resource: 'food',
+  ratePercent,
+  earnedAt: Instant.fromEpochMilliseconds(0),
+})
 
 const tollBaseRates = { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 }
 
@@ -134,7 +144,7 @@ describe('deriveResourceRates', () => {
     })
     const levels: FiefBuildingLevels = { ...noLevels, sawmill: 2 }
 
-    const result = deriveResourceRates(levels, noArts, 'ridges', catalog, beforeEpoch)
+    const result = deriveResourceRates(levels, noArts, noSkills, 'ridges', catalog, beforeEpoch)
 
     assert(result.ok)
     expect(result.value.wood).toBe(40)
@@ -146,7 +156,7 @@ describe('deriveResourceRates', () => {
     })
     const levels: FiefBuildingLevels = { ...noLevels, sawmill: 1 }
 
-    const result = deriveResourceRates(levels, noArts, 'lowlands', catalog, beforeEpoch)
+    const result = deriveResourceRates(levels, noArts, noSkills, 'lowlands', catalog, beforeEpoch)
 
     assert(result.ok)
     expect(result.value.wood).toBe(40)
@@ -159,7 +169,7 @@ describe('deriveResourceRates', () => {
     )
     const levels: FiefBuildingLevels = { ...noLevels, ironMine: 1 }
 
-    const result = deriveResourceRates(levels, noArts, 'ridges', catalog, beforeEpoch)
+    const result = deriveResourceRates(levels, noArts, noSkills, 'ridges', catalog, beforeEpoch)
 
     assert(result.ok)
     expect(result.value.iron).toBe(42)
@@ -180,7 +190,7 @@ describe('deriveResourceRates', () => {
       {},
     )
 
-    const result = deriveResourceRates(noLevels, noArts, 'lowlands', catalog, beforeEpoch)
+    const result = deriveResourceRates(noLevels, noArts, noSkills, 'lowlands', catalog, beforeEpoch)
 
     expect(result).toEqual({
       ok: true,
@@ -192,7 +202,7 @@ describe('deriveResourceRates', () => {
     const catalog = inMemoryCatalog(fiefSettings('gold'), {})
     const levels: FiefBuildingLevels = { ...noLevels, sawmill: 5 }
 
-    const result = deriveResourceRates(levels, noArts, 'ridges', catalog, beforeEpoch)
+    const result = deriveResourceRates(levels, noArts, noSkills, 'ridges', catalog, beforeEpoch)
 
     expect(result).toEqual({
       ok: false,
@@ -204,7 +214,7 @@ describe('deriveResourceRates', () => {
     const catalog = inMemoryCatalog(fiefSettings('gold'), { 'sawmill:1': farmLevel(4) })
     const levels: FiefBuildingLevels = { ...noLevels, sawmill: 1 }
 
-    const result = deriveResourceRates(levels, noArts, 'ridges', catalog, beforeEpoch)
+    const result = deriveResourceRates(levels, noArts, noSkills, 'ridges', catalog, beforeEpoch)
 
     expect(result).toEqual({
       ok: false,
@@ -218,6 +228,7 @@ describe('deriveResourceRates', () => {
     const result = deriveResourceRates(
       minedLevels,
       arts,
+      noSkills,
       'ridges',
       smithingCatalog('gold'),
       beforeEpoch,
@@ -233,6 +244,7 @@ describe('deriveResourceRates', () => {
     const result = deriveResourceRates(
       minedLevels,
       arts,
+      noSkills,
       'ridges',
       smithingCatalog('iron'),
       beforeEpoch,
@@ -246,6 +258,7 @@ describe('deriveResourceRates', () => {
     const result = deriveResourceRates(
       minedLevels,
       noArts,
+      noSkills,
       'ridges',
       smithingCatalog('gold'),
       beforeEpoch,
@@ -263,6 +276,7 @@ describe('deriveResourceRates', () => {
     const result = deriveResourceRates(
       minedLevels,
       arts,
+      noSkills,
       'ridges',
       smithingCatalog('gold'),
       beforeEpoch,
@@ -278,7 +292,7 @@ describe('deriveResourceRates', () => {
     const catalog = inMemoryCatalog(fiefSettings('gold'), {}, { 'masonry:1': smithingLevel(1, 10) })
     const arts: FiefArtLevels = { ...noArts, masonry: 1 }
 
-    const result = deriveResourceRates(noLevels, arts, 'ridges', catalog, beforeEpoch)
+    const result = deriveResourceRates(noLevels, arts, noSkills, 'ridges', catalog, beforeEpoch)
 
     expect(result).toEqual({
       ok: false,
@@ -287,18 +301,78 @@ describe('deriveResourceRates', () => {
   })
 })
 
+describe('deriveResourceRates with earned skills', () => {
+  const catalog = inMemoryCatalog(fiefSettings('wood'), {})
+
+  it('raises the food rate by an earned skill percent', () => {
+    const result = deriveResourceRates(
+      noLevels,
+      noArts,
+      [foodSkill(5)],
+      'ridges',
+      catalog,
+      beforeEpoch,
+    )
+
+    assert(result.ok)
+    expect(result.value.food).toBe(10.5)
+  })
+
+  it('multiplies two earned skills on one resource into one product', () => {
+    const result = deriveResourceRates(
+      noLevels,
+      noArts,
+      [foodSkill(5), foodSkill(10)],
+      'ridges',
+      catalog,
+      beforeEpoch,
+    )
+
+    assert(result.ok)
+    expect(result.value.food).toBe(11.55)
+  })
+
+  it('applies the season after an earned skill', () => {
+    const result = deriveResourceRates(
+      noLevels,
+      noArts,
+      [foodSkill(5)],
+      'ridges',
+      catalog,
+      midWinter,
+    )
+
+    assert(result.ok)
+    expect(result.value.food).toBe(7.875)
+  })
+})
+
 describe('deriveResourceRates in a season', () => {
   const woodlandCatalog = inMemoryCatalog(fiefSettings('wood'), {})
 
   it('lowers the food rate in winter', () => {
-    const result = deriveResourceRates(noLevels, noArts, 'ridges', woodlandCatalog, midWinter)
+    const result = deriveResourceRates(
+      noLevels,
+      noArts,
+      noSkills,
+      'ridges',
+      woodlandCatalog,
+      midWinter,
+    )
 
     assert(result.ok)
     expect(result.value.food).toBe(7.5)
   })
 
   it('raises the gold rate in autumn', () => {
-    const result = deriveResourceRates(noLevels, noArts, 'ridges', woodlandCatalog, midAutumn)
+    const result = deriveResourceRates(
+      noLevels,
+      noArts,
+      noSkills,
+      'ridges',
+      woodlandCatalog,
+      midAutumn,
+    )
 
     assert(result.ok)
     expect(result.value.gold).toBe(2.5)
@@ -315,14 +389,21 @@ describe('deriveResourceRates in a season', () => {
     }
     const catalog = inMemoryCatalog(lowlandsFoodSettings, {})
 
-    const result = deriveResourceRates(noLevels, noArts, 'lowlands', catalog, midWinter)
+    const result = deriveResourceRates(noLevels, noArts, noSkills, 'lowlands', catalog, midWinter)
 
     assert(result.ok)
     expect(result.value.food).toBe(11.25)
   })
 
   it('leaves every rate unchanged before the epoch', () => {
-    const result = deriveResourceRates(noLevels, noArts, 'ridges', woodlandCatalog, beforeEpoch)
+    const result = deriveResourceRates(
+      noLevels,
+      noArts,
+      noSkills,
+      'ridges',
+      woodlandCatalog,
+      beforeEpoch,
+    )
 
     expect(result).toEqual({
       ok: true,
@@ -350,7 +431,7 @@ describe('deriveResourceRates with an art in a season', () => {
     )
     const arts: FiefArtLevels = { ...noArts, smithing: 1 }
 
-    const result = deriveResourceRates(minedLevels, arts, 'ridges', catalog, midAutumn)
+    const result = deriveResourceRates(minedLevels, arts, noSkills, 'ridges', catalog, midAutumn)
 
     assert(result.ok)
     expect(result.value.iron).toBe(40.6875)

@@ -54,6 +54,7 @@ const accrueSegment = (
   const rates = deriveResourceRates(
     fief.buildingLevels,
     fief.artLevels,
+    fief.skills,
     fief.terrain,
     catalog,
     from,

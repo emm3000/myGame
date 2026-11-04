@@ -3,7 +3,6 @@ import {
   type BuildingCatalog,
   type DomainError,
   err,
-  type FiefEvent,
   fullStoresOf,
   type Instant,
   ok,
@@ -11,6 +10,7 @@ import {
   type Result,
 } from '@mygame/domain'
 import type { ChronicleReader } from '../fief/ChronicleReader'
+import type { ChronicledEvent } from '../fief/chronicledEventsOf'
 import type { CurrentFiefDependencies } from '../fief/currentFiefOf'
 import { currentFiefsOfPlayer } from '../fief/currentFiefsOfPlayer'
 import type { FiefReading } from '../fief/FiefReading'
@@ -55,7 +55,7 @@ const filledStoresOf = (
 
 const digestFiefOf = (
   reading: FiefReading,
-  events: ReadonlyArray<FiefEvent>,
+  events: ReadonlyArray<ChronicledEvent>,
   catalog: BuildingCatalog,
   acknowledgedAt: Instant,
 ): Result<DigestFief, DomainError> => {

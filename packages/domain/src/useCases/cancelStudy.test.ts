@@ -132,6 +132,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     march: { kind: 'idle' },
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
     ...overrides,
   })
   assert(restored.ok)
@@ -245,6 +246,26 @@ describe('cancelStudy', () => {
 
   it('refuses to cancel with the study slot idle', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({ studySlot: { kind: 'idle' } })])
+
+    const result = await cancelStudy(
+      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
+      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
+    )
+
+    expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'smithing', targetLevel: 1 }))
+  })
+
+  it('refuses to cancel an art while a lesson holds the study slot', async () => {
+    const fiefs = inMemoryFiefRepository([
+      storedFief({
+        studySlot: {
+          kind: 'lesson',
+          lessonId: 'lesson-1',
+          startedAt: storedInstant,
+          finishesAt: Instant.fromEpochMilliseconds(storedInstant.epochMilliseconds + 150_000),
+        },
+      }),
+    ])
 
     const result = await cancelStudy(
       { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },

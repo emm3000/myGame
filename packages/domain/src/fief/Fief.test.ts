@@ -142,6 +142,14 @@ const storedBusyFief: StoredFief = {
   march: awayMarch,
   fullSince: noStoreFull,
   guidanceDismissedAt: Instant.fromEpochMilliseconds(86_400_000 + 60_000),
+  skills: [
+    {
+      lessonId: 'lesson-1',
+      resource: 'food',
+      ratePercent: 5,
+      earnedAt: Instant.fromEpochMilliseconds(86_400_000 - 60_000),
+    },
+  ],
 }
 
 const fiefInProvince = (province: number): Fief => {
@@ -186,6 +194,7 @@ describe('Fief', () => {
       march,
       fullSince,
       guidanceDismissedAt,
+      skills,
     } = restored.value
     expect({
       id,
@@ -213,6 +222,7 @@ describe('Fief', () => {
       march,
       fullSince,
       guidanceDismissedAt,
+      skills,
     }).toEqual(storedBusyFief)
   })
 
@@ -774,6 +784,38 @@ describe('Fief', () => {
     expect(restored).toEqual({
       ok: false,
       error: { kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt },
+    })
+  })
+
+  it('refuses a stored lesson study that finishes before the stored instant', () => {
+    const finishesAt = Instant.fromEpochMilliseconds(86_399_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      studySlot: {
+        kind: 'lesson',
+        lessonId: 'lesson-1',
+        startedAt: Instant.fromEpochMilliseconds(86_249_000),
+        finishesAt,
+      },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt },
+    })
+  })
+
+  it('refuses a stored lesson study that starts after it finishes', () => {
+    const startedAt = Instant.fromEpochMilliseconds(86_600_000)
+    const finishesAt = Instant.fromEpochMilliseconds(86_500_000)
+    const restored = Fief.restore({
+      ...storedBusyFief,
+      studySlot: { kind: 'lesson', lessonId: 'lesson-1', startedAt, finishesAt },
+    })
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotStartsAfterFinish', startedAt, finishesAt },
     })
   })
 

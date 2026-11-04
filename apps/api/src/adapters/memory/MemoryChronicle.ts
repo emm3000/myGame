@@ -7,10 +7,11 @@ import {
   type Result,
 } from '@mygame/domain'
 import { type ChronicleReader, keptEventsPerFief } from '../../fief/ChronicleReader'
+import { type ChronicledEvent, chronicledEventsOf } from '../../fief/chronicledEventsOf'
 
 type NumberedEvent = {
   readonly id: number
-  readonly event: FiefEvent
+  readonly event: ChronicledEvent
 }
 
 const newestFirst = (left: NumberedEvent, right: NumberedEvent): number =>
@@ -25,7 +26,11 @@ export class MemoryChronicle implements ChronicleWriter, ChronicleReader {
     fiefId: FiefId,
     events: ReadonlyArray<FiefEvent>,
   ): Promise<Result<void, DomainError>> {
-    const numbered = events.map((event) => {
+    const chronicled = chronicledEventsOf(events)
+    if (!chronicled.ok) {
+      return chronicled
+    }
+    const numbered = chronicled.value.map((event) => {
       this.lastId += 1
       return { id: this.lastId, event }
     })
@@ -36,7 +41,7 @@ export class MemoryChronicle implements ChronicleWriter, ChronicleReader {
     return ok(undefined)
   }
 
-  async eventsOf(fiefId: FiefId): Promise<ReadonlyArray<FiefEvent>> {
+  async eventsOf(fiefId: FiefId): Promise<ReadonlyArray<ChronicledEvent>> {
     return (this.events.get(fiefId) ?? []).map(({ event }) => event)
   }
 }

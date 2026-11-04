@@ -122,6 +122,7 @@ const storedFief = (overrides: Partial<StoredFief>): Fief => {
     march: { kind: 'idle' },
     fullSince: noStoreFull,
     guidanceDismissedAt: null,
+    skills: [],
     ...overrides,
   })
   assert(restored.ok)
