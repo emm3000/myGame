@@ -1,5 +1,5 @@
 ---
-status: accepted, holdout narrowed by ADR 037
+status: accepted, holdout narrowed by ADR 037, reset shaped by ADR 040
 date: 2026-11-04
 ---
 # Townword, an English-learning town builder
@@ -117,10 +117,13 @@ three of its five resources, and a mapping migration would be the shim
   player's `digest_acknowledged_at`, a column that admits no null, is
   set to the reset instant, as a new player's is set to the sign-up
   instant (ADR 027), so no event before the reset is ever told.
+  (Amended by ADR 040: no instant is reset, since Town News holds no
+  medieval event.)
 - **The game state goes.** The fiefs and every table that hangs from
   them, `camp_battles` and `player_seen_hints` are emptied. How an
   account without a holding receives its town is the town rebuild's
-  ticket.
+  ticket. (Settled by ADR 040: the tables are dropped at the rebuild's
+  cutover, and an account names its town on its first signed-in visit.)
 - **The reset is a migration.** It runs once, through the migrations
   like any schema change, in the town rebuild; never a manual statement
   against Neon.

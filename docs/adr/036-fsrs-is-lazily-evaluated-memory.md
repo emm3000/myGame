@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 7 amended by ADR 037 and ADR 039
+status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040
 date: 2026-11-04
 ---
 # FSRS is lazily evaluated memory

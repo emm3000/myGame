@@ -114,6 +114,22 @@ ADR 035 moves the game from medieval Vadoalto to Townword, a present-day town, a
 - **Message catalog** — one ICU MessageFormat file per language with one key set, the single source of every string a client or a mail shows, generating the web's copy and Android's `strings.xml` (ADR 038).
 - **Holdout** — the 10 % of a band's card words, outside the chrome lessons, drawn and stored per player when the player starts the band, never entered as cards and tested in the band's external check 8 and 24 weeks after its start against practised words of the same lessons, so practised against withheld is a comparison within one player; released after that band's 24-week check (ADR 035, ADR 037).
 
+## The town
+
+The terms of the rebuilt town, from ADR 040; each enters the code with its slice, beside the medieval term it replaces until the cutover.
+
+- **Town** — the one holding a player develops, named by the player on the first signed-in visit and founded at the lowest free site; labelled **city** once its supplied people reach the content's count. Replaces *planet* and the fief (ADR 035, ADR 040).
+- **People** — the town's workforce, derived and never stored: supplied by a base count and the homes, occupied by building levels and by hires; **free** or **at work** (ADR 007, ADR 040).
+- **Building work** — the town's one build slot; the **waiting list** holds the work queued behind it, charged at the enqueue, refunded in full by a **stop** (ADR 011, ADR 040).
+- **In learning** — a card whose stability is under 7 days. The **learning cap**, set by the school's level, bounds how many cards are in learning once a lesson's words enter, so a lesson start past it is refused (ADR 040).
+- **Hire** — a worker or a truck, hired at the office in one hiring order at a time, occupying people and eating nothing. A **team** is the hires sent out together (ADR 018, ADR 021, ADR 040).
+- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay. (ADR 019, ADR 040).
+- **Waste site** — a site holding waste of one of three sizes, placed by a hash of its address and regrowing from its last clean-up. A **clean-up** is a team's trip to it: a team whose strength covers the waste cleans it and is paid money and material; a smaller team comes back with nothing; nobody is lost (ADR 020, ADR 040).
+- **The Report** — the screen of the reviews due, then the Town News since the player last closed it (ADR 027, ADR 040).
+- **Town News** — the town's events, each with its instant, written in the transaction that applies them (ADR 013, ADR 040).
+- **Tip** — one dismissible line shown the first time a concept matters, seen tips stored per player. Replaces *hint* (ADR 027, ADR 040).
+- **Cutover** — the last slice of the rebuild: it deletes the medieval code and drops the medieval tables, which is ADR 035's one-time reset (ADR 040).
+
 ## Superseded by ADR 035
 
 Each medieval term, then the town term that replaces it. *Cut* means the thing goes with no successor.
@@ -130,7 +146,9 @@ Each medieval term, then the town term that replaces it. *Cut* means the thing g
 | sawmill, quarry, iron mine | factory, power station |
 | warehouse | storage |
 | library, study, study slot, art | school, lesson, lesson slot, skill |
-| smithing, masonry | skills, renamed in content |
+| smithing, masonry | cut: skills earned by retention are the only multiplier (ADR 040) |
+| cancel (an upgrade, a study, a recruit order) | stop |
+| upgrade | build a level |
 | barracks, recruit order, recruit slot | office, hiring, the office's slot |
 | infantry, cavalry | workers, trucks |
 | archer, settler, new land, founding, transport, cargo | cut |

@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, fixed copy widened to the review card by ADR 040
 date: 2026-11-04
 ---
 # Scaffold languages and a wire without prose
