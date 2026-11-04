@@ -104,6 +104,18 @@ if command -v docker >/dev/null; then
   fi
 fi
 
+avd_home=${ANDROID_AVD_HOME:-$HOME/.android/avd}
+for avd_dir in "$avd_home"/mygame-*.avd; do
+  [ -d "$avd_dir" ] || continue
+  avd=$(basename "$avd_dir" .avd)
+  [ ! -d "$(dirname "$repo")/$avd" ] || continue
+  if [ "$keep_emulator" -eq 1 ]; then
+    echo "kept: avd $avd"
+  else
+    report "avd $avd"
+  fi
+done
+
 while IFS="$(printf '\t')" read -r pid name path; do
   case $path in
     */mygame-*) ;;
