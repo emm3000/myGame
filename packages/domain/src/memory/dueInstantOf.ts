@@ -1,14 +1,13 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import { Instant } from '../time/Instant'
+import { forgettingCurveOf } from './forgettingCurveOf'
 import type { MemoryCard, RecalledMemory } from './MemoryCard'
 import type { MemoryTerms } from './MemoryTerms'
 
 const MILLISECONDS_PER_SECOND = 1_000
 
 const SECONDS_PER_DAY = 86_400
-
-const RETRIEVABILITY_AT_STABILITY = 0.9
 
 const HARD_SINGLE_STEP_FACTOR = 1.5
 
@@ -25,8 +24,7 @@ const roundedHalfToEven = (value: number): number => {
 }
 
 const reviewIntervalDays = (stability: number, terms: MemoryTerms): number => {
-  const decay = -terms.parameters[20]
-  const factor = RETRIEVABILITY_AT_STABILITY ** (1 / decay) - 1
+  const { decay, factor } = forgettingCurveOf(terms.parameters)
   const intervalDays = (stability / factor) * (terms.desiredRetention ** (1 / decay) - 1)
   return Math.min(Math.max(roundedHalfToEven(intervalDays), 1), terms.maximumIntervalDays)
 }

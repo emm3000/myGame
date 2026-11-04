@@ -50,7 +50,7 @@ const dueDaysOf = (card: MemoryCard): number => {
 
 describe('dueInstantOf', () => {
   it('gives the whole-day intervals of py-fsrs 6.3.2 test_review_card', () => {
-    const testRatings1: ReadonlyArray<MemoryRating> = [
+    const pyFsrsReviewCardRatings: ReadonlyArray<MemoryRating> = [
       'good',
       'good',
       'good',
@@ -66,7 +66,7 @@ describe('dueInstantOf', () => {
       'good',
     ]
 
-    const intervalsDays = reviewedAtEachDue(testRatings1).map(({ reviewedAt, dueAt }) =>
+    const intervalsDays = reviewedAtEachDue(pyFsrsReviewCardRatings).map(({ reviewedAt, dueAt }) =>
       wholeDaysBetween(reviewedAt, dueAt),
     )
 
