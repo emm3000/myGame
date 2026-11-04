@@ -14,11 +14,12 @@ Totals of rows already folded out of Recent.
 |---|---|---|---|---|---|---|
 | 1 | sonnet:low | 9 | 7 | 0 | 0 | 2 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
-| 2 | opus:medium | 66 | 56 | 5 | 4 | 1 |
+| 2 | opus:medium | 72 | 60 | 5 | 6 | 1 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
+| 2 | opus:high | 6 | 6 | 0 | 0 | 0 |
 | 3 | opus:medium | 24 | 16 | 3 | 4 | 1 |
-| 4 | opus:high | 54 | 48 | 1 | 2 | 3 |
-| 3 | opus:high | 57 | 46 | 4 | 7 | 0 |
+| 4 | opus:high | 57 | 51 | 1 | 2 | 3 |
+| 3 | opus:high | 67 | 51 | 6 | 10 | 0 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
 | 5 | opus:high | 1 | 1 | 0 | 0 | 0 |
@@ -29,23 +30,23 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause |
 |---|---|---|---|---|---|
-| #600 | #591 | 2 | opus:medium | MERGE | |
-| #601 | #593 | 2 | opus:medium | FIX FIRST | judgment |
-| #602 | #594 | 4 | opus:high | MERGE | |
-| #603 | #595 | 2 | opus:medium | MERGE | |
-| #605 | #604 | 3 | opus:high | FIX FIRST | checklist |
-| #606 | #596 | 3 | opus:high | MERGE | |
-| #613 | #582 | 3 | opus:high | MERGE | |
-| #614 | #607 | 2 | opus:medium | MERGE | |
-| #615 | #608 | 3 | opus:high | MERGE | |
-| #617 | #616 | 3 | opus:high | FIX FIRST | judgment |
-| #618 | #609 | 2 | opus:medium | MERGE | |
-| #619 | #610 | 2 | opus:medium | FIX FIRST | judgment |
-| #620 | #611 | 2 | opus:high | MERGE | |
-| #622 | #621 | 4 | opus:high | MERGE | |
-| #623 | #612 | 2 | opus:high | MERGE | |
-| #627 | #624 | 2 | opus:high | MERGE | |
-| #628 | #625 | 4 | opus:high | MERGE | |
-| #629 | #626 | 3 | opus:high | MERGE | |
-| #643 | #639 | 3 | opus:high | FIX FIRST | judgment |
-| #644 | #631 | 3 | opus:high | FIX FIRST | checklist |
+| #655 | #634 | 2 | opus:high | MERGE | |
+| #658 | #633 | 3 | opus:high | MERGE | |
+| #659 | #650 | 2 | opus:high | MERGE | |
+| #661 | #660 | 1 | sonnet:low | MERGE | |
+| #662 | #637 | 2 | opus:high | MERGE | |
+| #663 | #638 | 3 | opus:high | MERGE | |
+| #664 | #651 | 2 | opus:high | MERGE | |
+| #665 | #653 | 2 | opus:high | MERGE | |
+| #666 | #656 | 1 | sonnet:low | MERGE | |
+| #667 | #657 | 2 | opus:high | MERGE | |
+| #672 | #671 | 2 | opus:high | MERGE | |
+| #673 | #668 | 2 | opus:high | MERGE | |
+| #674 | #669 | 2 | opus:high | MERGE | |
+| #675 | #670 | 2 | opus:high | MERGE | |
+| #680 | #676 | 4 | opus:high | MERGE | |
+| #681 | #677 | 2 | opus:high | MERGE | |
+| #682 | #678 | 2 | opus:high | MERGE | |
+| #683 | #679 | 2 | opus:high | MERGE | |
+| #689 | #684 | 1 | sonnet:low | MERGE | |
+| #688 | #685 | 3 | opus:high | FIX FIRST | judgment |
