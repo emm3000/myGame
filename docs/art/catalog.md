@@ -1,5 +1,7 @@
 # Art catalog
 
+Status: retired. Its families are medieval, retired by ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`), and still served under `apps/web/public/art/` until the town rebuild replaces them.
+
 Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D animation the same day before any image was generated. Every image the MVP shows, with the prompt that produces it. The rules come from `art-bible.md`; this page only applies them. When the two disagree, the bible wins and this page is edited.
 
 ## How to run it
