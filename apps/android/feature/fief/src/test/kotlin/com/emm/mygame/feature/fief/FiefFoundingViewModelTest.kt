@@ -4,10 +4,11 @@ import app.cash.turbine.test
 import com.emm.mygame.core.network.AwayMarch
 import com.emm.mygame.core.network.FiefReadResult
 import com.emm.mygame.core.network.FiefSnapshot
-import com.emm.mygame.core.network.MarchOrder
 import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -18,8 +19,7 @@ class FiefFoundingViewModelTest {
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
-    private val founding: AwayMarch =
-        forageOfInfantry(count = 0, arrivesIn = 5.minutes, foragesFor = 0.minutes, order = MarchOrder.Found)
+    private val founding: AwayMarch = foundingParty(arrivesIn = 5.minutes)
 
     @Test
     fun `tells a founding applied when the read at its arrival answers it gone`() = runTest {
@@ -30,6 +30,29 @@ class FiefFoundingViewModelTest {
 
         viewModel.effects.test {
             assertEquals(FiefEffect.FoundingApplied, awaitItem())
+        }
+    }
+
+    @Test
+    fun `tells a founding applied once the read after a failed one at its arrival answers it gone`() = runTest {
+        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val viewModel: FiefViewModel = openFief(fiefs)
+        fiefs.answerRead(FiefReadResult.Read(marching(founding)))
+        fiefs.answerRead(FiefReadResult.Unreachable)
+        fiefs.answerRead(FiefReadResult.Read(marching(march = null)))
+
+        viewModel.effects.test {
+            advanceTimeBy(5.minutes)
+            runCurrent()
+            assertEquals(2, fiefs.readCount)
+            expectNoEvents()
+            advanceTimeBy(1.minutes)
+            runCurrent()
+            assertEquals(3, fiefs.readCount)
+            assertEquals(FiefEffect.FoundingApplied, awaitItem())
+            advanceTimeBy(1.minutes)
+            runCurrent()
+            expectNoEvents()
         }
     }
 
