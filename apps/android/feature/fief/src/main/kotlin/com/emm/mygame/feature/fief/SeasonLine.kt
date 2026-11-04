@@ -57,6 +57,7 @@ private fun seasonTimeLeftOf(countdown: FiefUiState.SeasonCountdown): String = w
     is FiefUiState.SeasonCountdown.InDays ->
         pluralStringResource(R.plurals.season_days_left, countdown.days, countdown.days)
     is FiefUiState.SeasonCountdown.UnderADay -> countdownLabelOf(countdown.remaining)
+    is FiefUiState.SeasonCountdown.InSeconds -> stringResource(R.string.slot_countdown_seconds, countdown.seconds)
 }
 
 private fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
