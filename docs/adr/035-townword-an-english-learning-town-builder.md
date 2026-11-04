@@ -23,8 +23,8 @@ the setting to the present day, because everyday high-frequency
 vocabulary transfers to real English, opened the visual design to a
 rebuild, and named the game Townword. The decisions below come from the
 owner's grilling of that day and are final. The evidence brief and the
-full design tree behind them live outside the repo and enter it with
-the tickets of ADRs 036 to 038.
+full design tree behind them are under `docs/research/english-pivot/`
+(see References).
 
 ## Decision
 
@@ -223,3 +223,11 @@ three of its five resources, and a mapping migration would be the shim
 - Learning claims rest on item-level retention from the review log.
   Gains in proficiency need the external check and the holdout that
   ADR 037 sets.
+
+## References
+
+- `docs/research/english-pivot/decisions.md`: the design tree, every
+  branch settled, with its evidence and the alternative it rejected.
+  This ADR wins where the two differ.
+- `docs/research/english-pivot/research.md`: the evidence brief on
+  learning English as an L2, each source marked verified or unverified.
