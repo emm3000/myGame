@@ -98,8 +98,9 @@ the tickets of ADRs 036 to 038.
   illustration of everyday places, with one highly legible sans-serif
   family set for long reading. The art bible and its catalogue are
   rewritten and the medieval images retired; N7 stays. The token
-  mechanism of ADR 009 and the WCAG 2.2 AA floor (N8) stay. Parchment,
-  Ledger and Cormorant Garamond (`apps/web/src/design/tokens.ts`) go.
+  mechanism of ADR 009 and the WCAG 2.2 AA floor (N8) stay. The palette's
+  light and dark schemes, Parchment and Ledger (ADR 009), and the
+  Cormorant Garamond display face of `apps/web/src/design/tokens.ts` go.
   The design itself is its own ticket.
 
 ### A one-time reset, signed
@@ -112,7 +113,10 @@ three of its five resources, and a mapping migration would be the shim
 "rebuild, never adapt" refuses.
 
 - **Accounts survive.** `players` keeps its ids, emails, password
-  hashes and verifications; `sessions` and `account_tokens` stay.
+  hashes and verifications; `sessions` and `account_tokens` stay. Each
+  player's `digest_acknowledged_at`, a column that admits no null, is
+  set to the reset instant, as a new player's is set to the sign-up
+  instant (ADR 027), so no event before the reset is ever told.
 - **The game state goes.** The fiefs and every table that hangs from
   them, `camp_battles` and `player_seen_hints` are emptied. How an
   account without a holding receives its town is the town rebuild's

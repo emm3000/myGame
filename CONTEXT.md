@@ -98,7 +98,7 @@ ADR 035 moves the game from medieval Vadoalto to Townword, a present-day town, a
 - **Word** — one NGSL 1.2 lemma the curriculum teaches, with its rank, its example frames and one gloss per scaffold language. A game noun outside the curriculum's core, such as *mayor*, *storage* or *truck*, is taught as a word and never counted toward progress (ADR 035).
 - **Lesson** — a set of new words grouped by a theme, never by a semantic set, brought in through the school's lesson slot; the school's built level caps how many words are in learning at once (ADR 035).
 - **Card** — one player's memory of one word: its stability, its difficulty and the instant and result of its last review. What it can recall now and when it falls due are derived on read, never advanced by a process (ADR 035).
-- **Review** — one answer to a due card, graded by the server and recorded in the review log; it updates the card and pays nothing. Only a due card is reviewed (ADR 035).
+- **Review** — one answer to a due card, graded by the server and recorded in the **review log**, the append-only record of every review; it updates the card and pays nothing. Only a due card is reviewed (ADR 035).
 - **Stability** — the days a card holds before its chance of recall falls to the desired retention. A skill level is earned when every word of its lesson passes the stability threshold, and is never taken back (ADR 035).
 - **Skill** — what the town knows at a level, earned by retention and never bought; each level multiplies one resource rate by the content's percent. Replaces *art* (ADR 035).
 - **Scaffold language** — the language a player picks to gloss the English: `es` or `none` at launch. Its gloss of a word fades as that word is retained. English is always the target, never a scaffold (ADR 035).
@@ -113,6 +113,7 @@ Each medieval term, then the town term that replaces it. *Cut* means the thing g
 | fief | town, labelled city past a people count |
 | lord | mayor |
 | wood, stone, iron | material |
+| none | power, produced by the power station |
 | gold | money, from tax |
 | food | food |
 | peasants | people, supplied by homes |
@@ -135,4 +136,4 @@ Each medieval term, then the town term that replaces it. *Cut* means the thing g
 
 ## Avoided words
 
-`planet`, `colony` (say new land, or a second fief), `colonist`, `colony ship` (say settler), `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `shipyard`, `troops`, `soldier` (say unit), `train queue` (the recruit slot has no queue), `mission`, `expedition`, `raid` (say attack for a march on a camp, march otherwise; no march meets another lord), `plunder` (say loot), `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log`, `history`, `feed` (say chronicle), `confirmed email` (say verified email), `recovery` (say reset), `flashcard`, `deck` (say card), `quiz` (say review), `native language`, `L1` (say scaffold language), `XP`, `streak` (retention is the progress; ADR 028 refuses streaks).
+`planet`, `colony` (say new land, or a second fief), `colonist`, `colony ship` (say settler), `galaxy` (say kingdom), `galaxy view` (say kingdom map), `metal`, `crystal`, `deuterium`, `energy`, `fleet`, `ship`, `shipyard`, `troops`, `soldier` (say unit), `train queue` (the recruit slot has no queue), `mission`, `expedition`, `raid` (say attack for a march on a camp, march otherwise; no march meets another lord), `plunder` (say loot), `alliance`, `tech`, `technology`, `research` (say study), `mine` alone (say which one), `tick` (there is no tick), `population` (peasants are derived, never grown), `log` alone, `history`, `feed` (say chronicle; the review log is its own term), `confirmed email` (say verified email), `recovery` (say reset), `flashcard`, `deck` (say card), `quiz` (say review), `native language`, `L1` (say scaffold language), `XP`, `streak` (retention is the progress; ADR 028 refuses streaks).
