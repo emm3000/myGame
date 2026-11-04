@@ -24,7 +24,7 @@ class FiefSwitcherViewModelTest {
 
     private val founded: FiefId = FiefId("1d2e3f40-5a6b-4c7d-8e9f-0a1b2c3d4e5f")
 
-    private val paramo: ListedFief = ListedFief(
+    private val listedOther: ListedFief = ListedFief(
         id = other,
         name = "Páramo",
         address = FiefAddress(kingdom = 1, province = 2, plot = 7),
@@ -32,7 +32,7 @@ class FiefSwitcherViewModelTest {
         fullStores = listOf(ResourceKind.Stone),
     )
 
-    private val sotoverde: ListedFief = ListedFief(
+    private val listedOnScreen: ListedFief = ListedFief(
         id = onScreen,
         name = "Sotoverde",
         address = FiefAddress(kingdom = 1, province = 3, plot = 12),
@@ -40,9 +40,10 @@ class FiefSwitcherViewModelTest {
         fullStores = listOf(ResourceKind.Wood),
     )
 
-    private val vega: ListedFief = paramo.copy(id = founded, name = "Vega", address = FiefAddress(1, 4, 2))
+    private val listedFounded: ListedFief =
+        listedOther.copy(id = founded, name = "Vega", address = FiefAddress(1, 4, 2))
 
-    private val twoFiefs: FiefListResult = FiefListResult.Listed(listOf(paramo, sotoverde))
+    private val twoFiefs: FiefListResult = FiefListResult.Listed(listOf(listedOther, listedOnScreen))
 
     @Test
     fun `draws no switcher before the list is read`() = runTest {
@@ -112,7 +113,7 @@ class FiefSwitcherViewModelTest {
         listings.answerListed(twoFiefs)
 
         viewModel.onIntent(FiefSwitcherIntent.FoundingApplied)
-        listings.answerListed(FiefListResult.Listed(listOf(paramo, sotoverde, vega)))
+        listings.answerListed(FiefListResult.Listed(listOf(listedOther, listedOnScreen, listedFounded)))
 
         assertEquals(
             listOf(other, onScreen, founded),
