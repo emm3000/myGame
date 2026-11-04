@@ -212,7 +212,7 @@ class LearningRepositoryTest {
     }
 
     @Test
-    fun `answers a correct verdict with the skill it earned`() = runTest {
+    fun `answers a correct verdict with the skill it earned at the level the api answers`() = runTest {
         api.enqueue(json(200, answerOf(CORRECT_WITH_SKILL)))
 
         val result: ReviewAnswerResult = learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "school")
@@ -222,7 +222,24 @@ class LearningRepositoryTest {
                 word = "school",
                 gloss = "escuela",
                 dueAt = Instant.parse("2026-11-12T09:10:00.000Z"),
-                earnedSkill = EarnedSkill(lesson = LessonId("lesson-1"), resource = ResourceKind.Food, ratePercent = 5),
+                earnedSkill = RaisedSkill(resource = ResourceKind.Food, level = 2, ratePercent = 5),
+            ),
+            (result as ReviewAnswerResult.Answered).verdict,
+        )
+    }
+
+    @Test
+    fun `answers a correct verdict without the earned skill whose resource the client does not know`() = runTest {
+        api.enqueue(json(200, answerOf(CORRECT_WITH_SKILL.replace("food", "silk"))))
+
+        val result: ReviewAnswerResult = learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "school")
+
+        assertEquals(
+            ReviewVerdict.Correct(
+                word = "school",
+                gloss = "escuela",
+                dueAt = Instant.parse("2026-11-12T09:10:00.000Z"),
+                earnedSkill = null,
             ),
             (result as ReviewAnswerResult.Answered).verdict,
         )
@@ -330,7 +347,8 @@ class LearningRepositoryTest {
         const val CORRECT_WITH_SKILL: String =
             """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
                 """"earnedSkill":{"lessonId":"lesson-1","resource":"food","ratePercent":5,""" +
-                """"earnedAt":"2026-11-23T09:10:00.000Z","ratePerHourBefore":18.75,"ratePerHourAfter":19.6875}}"""
+                """"earnedAt":"2026-11-23T09:10:00.000Z","level":2,""" +
+                """"ratePerHourBefore":18.75,"ratePerHourAfter":19.6875}}"""
         const val WRONG: String =
             """{"kind":"wrong","word":"home","gloss":"casa","dueAt":"2026-11-10T09:11:00.000Z"}"""
     }

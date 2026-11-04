@@ -1,7 +1,6 @@
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { copy } from '../copy'
 import { CheckAction } from './CheckAction'
-import type { EarnedSkill } from './earnedSkillOf'
 import { RatedVerdictLines } from './RatedVerdictLines'
 import type { DueReview, ReviewHandle } from './useReview'
 
@@ -10,16 +9,10 @@ type Recognition = Extract<DueReview, { readonly mode: 'recognition' }>
 export interface RecognitionCardProps {
   readonly card: Recognition
   readonly review: ReviewHandle
-  readonly skill: EarnedSkill | undefined
   readonly verdictRef: Ref<HTMLElement>
 }
 
-export function RecognitionCard({
-  card,
-  review,
-  skill,
-  verdictRef,
-}: RecognitionCardProps): ReactElement {
+export function RecognitionCard({ card, review, verdictRef }: RecognitionCardProps): ReactElement {
   const submit = (event: FormEvent): void => {
     event.preventDefault()
     review.check()
@@ -65,7 +58,6 @@ export function RecognitionCard({
           <RatedVerdictLines
             answered={review.answered}
             answerLang="es"
-            skill={skill}
             verdictRef={verdictRef}
             onNext={review.next}
           />

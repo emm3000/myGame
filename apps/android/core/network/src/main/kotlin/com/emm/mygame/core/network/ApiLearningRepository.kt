@@ -81,9 +81,8 @@ internal class ApiLearningRepository(
 }
 
 private fun ReviewAnswer.toAnswered(): ReviewAnswerResult.Answered? {
-    val answered: ReviewVerdict = verdict.toReviewVerdict() ?: return null
     val snapshot: FiefSnapshot = fief.toSnapshot() ?: return null
-    return ReviewAnswerResult.Answered(verdict = answered, fief = snapshot)
+    return ReviewAnswerResult.Answered(verdict = verdict.toReviewVerdict(), fief = snapshot)
 }
 
 private fun WireReviewHint.toReviewHint(): ReviewHint = ReviewHint(firstLetter = firstLetter, letterCount = letterCount)

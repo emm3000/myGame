@@ -16,6 +16,7 @@ const earnedFood = {
   resource: 'food',
   ratePercent: 5,
   earnedAt: '2026-11-23T09:10:00.000Z',
+  level: 1,
   ratePerHourBefore: 10,
   ratePerHourAfter: 10.5,
 }
@@ -43,6 +44,12 @@ describe('ReviewAnswerSchema', () => {
     const { ratePerHourBefore: _, ...withoutBefore } = earnedFood
 
     expect(verdictSchema.safeParse({ ...correct, earnedSkill: withoutBefore }).success).toBe(false)
+  })
+
+  it('rejects an earned skill without the level it reached', () => {
+    const { level: _, ...withoutLevel } = earnedFood
+
+    expect(verdictSchema.safeParse({ ...correct, earnedSkill: withoutLevel }).success).toBe(false)
   })
 
   it('parses a wrong answer with the correct form', () => {

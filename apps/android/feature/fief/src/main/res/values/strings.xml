@@ -226,6 +226,7 @@
     </plurals>
     <string name="review_check">Comprobar</string>
     <string name="review_checking">Comprobando…</string>
+    <string name="review_check_empty">Escribe tu respuesta para comprobarla.</string>
     <string name="review_near_miss">Casi. Revisa cómo se escribe y vuelve a comprobar.</string>
     <string name="review_correct">Correcto.</string>
     <string name="review_next_card">Siguiente</string>

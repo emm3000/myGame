@@ -51,22 +51,23 @@ private fun RecallReview.toRecall(): DueReview.Recall = DueReview.Recall(
     gappedFrame = gappedFrame,
 )
 
-internal fun WireReviewVerdict.toReviewVerdict(): ReviewVerdict? = when (this) {
+internal fun WireReviewVerdict.toReviewVerdict(): ReviewVerdict = when (this) {
     is WireReviewVerdict.NearmissWrapper -> ReviewVerdict.NearMiss
     is WireReviewVerdict.CorrectWrapper -> value.toCorrect()
     is WireReviewVerdict.WrongWrapper ->
         ReviewVerdict.Wrong(word = value.word, gloss = value.gloss, dueAt = value.dueAt.toKotlinInstant())
 }
 
-private fun CorrectVerdict.toCorrect(): ReviewVerdict? {
-    val skill: CorrectVerdictEarnedSkill? = earnedSkill
-    val earned: EarnedSkill? = skill?.let { raised: CorrectVerdictEarnedSkill -> raised.toEarnedSkill() ?: return null }
-    return ReviewVerdict.Correct(word = word, gloss = gloss, dueAt = dueAt.toKotlinInstant(), earnedSkill = earned)
-}
+private fun CorrectVerdict.toCorrect(): ReviewVerdict.Correct = ReviewVerdict.Correct(
+    word = word,
+    gloss = gloss,
+    dueAt = dueAt.toKotlinInstant(),
+    earnedSkill = earnedSkill?.toRaisedSkill(),
+)
 
-private fun CorrectVerdictEarnedSkill.toEarnedSkill(): EarnedSkill? {
+private fun CorrectVerdictEarnedSkill.toRaisedSkill(): RaisedSkill? {
     val kind: ResourceKind = resource.toResourceKind() ?: return null
-    return EarnedSkill(lesson = LessonId(lessonId), resource = kind, ratePercent = ratePercent)
+    return RaisedSkill(resource = kind, level = level, ratePercent = ratePercent)
 }
 
 private fun FiefOverviewSkillsInner.Resource.toResourceKind(): ResourceKind? = when (this) {

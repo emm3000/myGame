@@ -860,6 +860,7 @@ describe('the learning routes', () => {
           resource: 'food',
           ratePercent: 5,
           earnedAt: secondRecallAt,
+          level: 1,
           ratePerHourBefore: 11.25,
           ratePerHourAfter: 11.8125,
         },

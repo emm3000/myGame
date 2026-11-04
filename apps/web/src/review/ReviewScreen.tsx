@@ -1,4 +1,3 @@
-import type { FiefOverview } from '@mygame/contracts'
 import { type ReactElement, type Ref, useEffect, useId } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
@@ -7,7 +6,6 @@ import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { Panel } from '../design-system/Panel'
 import { useFocusTarget } from '../focus/useFocusTarget'
-import { type EarnedSkill, earnedSkillOf } from './earnedSkillOf'
 import { RecallCard } from './RecallCard'
 import { RecognitionCard } from './RecognitionCard'
 import type { DueReview, ReviewHandle } from './useReview'
@@ -21,18 +19,10 @@ export type ReviewScreenState =
       readonly kind: 'card'
       readonly card: DueReview
       readonly dueCount: number
-      readonly skills: FiefOverview['skills']
       readonly review: ReviewHandle
     }
 
 type CardState = Extract<ReviewScreenState, { readonly kind: 'card' }>
-
-function skillOf(review: ReviewHandle, skills: FiefOverview['skills']): EarnedSkill | undefined {
-  if (review.answered === undefined) {
-    return undefined
-  }
-  return earnedSkillOf(review.answered.verdict, skills)
-}
 
 function CardOfMode({
   card,
@@ -40,7 +30,6 @@ function CardOfMode({
 }: {
   readonly card: DueReview
   readonly review: ReviewHandle
-  readonly skill: EarnedSkill | undefined
   readonly verdictRef: Ref<HTMLElement>
 }): ReactElement {
   if (card.mode === 'recognition') {
@@ -73,14 +62,13 @@ function DueCard({
     },
   }
   const verdictRef = verdict.ref
-  const skill = skillOf(review, state.skills)
   return (
     <div className="flex max-w-form flex-col gap-3">
       <p className="m-0 font-utility text-label uppercase text-ink-muted">
         {copy.review.dueCount(state.dueCount)}
       </p>
       <Panel element="article" toneClass="bg-surface-raised" spacingClass="gap-4 p-5">
-        <CardOfMode card={card} review={review} skill={skill} verdictRef={verdictRef} />
+        <CardOfMode card={card} review={review} verdictRef={verdictRef} />
       </Panel>
       {review.refusal !== undefined && <FormAlert message={copy.refusals[review.refusal]} />}
     </div>

@@ -1,18 +1,19 @@
+import { ReviewAnswerRequestSchema } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
-import type { EarnedSkill } from './earnedSkillOf'
 import { RatedVerdictLines } from './RatedVerdictLines'
 import type { DueReview, ReviewHandle } from './useReview'
 
 type Recall = Extract<DueReview, { readonly mode: 'recall' }>
 
+const answerMaxLength = ReviewAnswerRequestSchema.shape.answer.maxLength ?? undefined
+
 export interface RecallCardProps {
   readonly card: Recall
   readonly review: ReviewHandle
-  readonly skill: EarnedSkill | undefined
   readonly verdictRef: Ref<HTMLElement>
 }
 
@@ -48,14 +49,14 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
         </p>
       )}
       <div className="flex flex-wrap items-center gap-3">
-        <CheckAction isWaiting={review.isWaiting} isReady />
+        <CheckAction isWaiting={review.isWaiting} isReady={review.typed !== ''} />
         <HintLine review={review} />
       </div>
     </>
   )
 }
 
-export function RecallCard({ card, review, skill, verdictRef }: RecallCardProps): ReactElement {
+export function RecallCard({ card, review, verdictRef }: RecallCardProps): ReactElement {
   const submit = (event: FormEvent): void => {
     event.preventDefault()
     review.check()
@@ -79,6 +80,7 @@ export function RecallCard({ card, review, skill, verdictRef }: RecallCardProps)
           autoComplete="off"
           lang="en"
           value={review.typed}
+          maxLength={answerMaxLength}
           onChange={review.type}
           isDisabled={review.answered !== undefined}
         />
@@ -87,7 +89,6 @@ export function RecallCard({ card, review, skill, verdictRef }: RecallCardProps)
           <RatedVerdictLines
             answered={review.answered}
             answerLang="en"
-            skill={skill}
             verdictRef={verdictRef}
             onNext={review.next}
           />
