@@ -128,7 +128,8 @@ What trunk holds, checked at `1f0b1c41`:
   move in one slice, and the skills are copied once, food to food, as
   *The school* below says. The `./town` subpaths
   and the `Fief` prefixes are names, never behavior, and the cutover
-  removes them.
+  removes them. (Amended by ADR 041: no `Fief` prefix is added, since
+  the goals slice follows the cutover.)
 - **One shared rename runs first: `autumn` becomes `fall`** across
   content, the domain's `SeasonKind`, the contracts, the api and both
   clients, so the season calendar both holdings read is already the
@@ -480,7 +481,8 @@ What trunk holds, checked at `1f0b1c41`:
 ## Consequences
 
 - The rebuild is 43 slices; the pull request that brings this ADR lists
-  them with their dispatch rows and blocking edges.
+  them with their dispatch rows and blocking edges. (Amended by ADR
+  041: six merges file the 43 slices as 37 tickets.)
 - Until the cutover the domain, the contracts and the api carry two
   holdings and `CONTEXT.md` records both vocabularies; the cutover
   deletes the medieval one, `docs/lore/` and the *Superseded by ADR 035*

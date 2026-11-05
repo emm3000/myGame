@@ -112,7 +112,10 @@ two waves of one; one migration per wave still holds.
   `testing/lessonOne.ts`, the lesson member of `DomainError`, the fief's
   lesson gate in `Fief.ts`, `lesson-1.json`, `LessonContentSchema`
   (`packages/contracts/src/LessonContent.ts`), `JsonLessonCatalog.ts`,
-  the content gate's test support and `learnerOverviewOf.ts`. #768
+  the content gate's test support and `learnerOverviewOf.ts`, with their
+  tests (`startLesson.test.ts`, `routes/learning.test.ts`,
+  `LessonContent.test.ts`, `JsonLessonCatalog.test.ts`,
+  `FiefOverview.test.ts`). #768
   changes no signature the api calls.
   The school's lesson slot is a domain value with its own port in #768;
   #769's migration adds its table and #769 its adapter, which closes
