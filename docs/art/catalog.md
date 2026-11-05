@@ -17,7 +17,7 @@ Hand-written SVG under `apps/web/public/art/`, drawn to `art-bible.md` and check
 | `factory` | a brick works with one chimney between two pallet stacks, the chimney rising each tier, a sawtooth roof from tier 3, an office annex from tier 4, a low second hall at tier 5 | `material`, the pallets |
 | `powerStation` | a brick station with one transformer between two poles, the station growing each tier with more transformers, a steel fence from tier 3, a pylon at tier 4, two pylons and roof panels at tier 5 | `power`, the transformers |
 | `storage` | a wide shed with one large door and crates, then two, three and four doors, a side shed from tier 4, a loading apron at tier 5 | none |
-| `school` | a one-floor school with a cupola, two floors from tier 2, a flagpole from tier 3, one wing at tier 4, two wings and a tree at tier 5 | none |
+| `school` | a one-floor school with a cupola, two floors from tier 2, a flagpole and a tree from tier 3, one wing at tier 4, two wings at tier 5 | none |
 | `office` | a glass-fronted office of two floors, then three, then a two-floor base with a glass tower rising to four, five and six floors, trees beside it | none |
 
 ### Family: waste
