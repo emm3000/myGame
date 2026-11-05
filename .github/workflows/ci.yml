@@ -156,8 +156,31 @@ jobs:
           pnpm dlx vercel@65.2.0 build
           rm -rf .vercel
 
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      android: ${{ steps.android.outputs.android }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: decide whether the android job runs
+        id: android
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          android="$(bash .github/scripts/android-changed.sh "$BASE_SHA" "$HEAD_SHA" .github/workflows/ci.yml)"
+          echo "base=${BASE_SHA:-none} head=$HEAD_SHA android=$android"
+          echo "android=$android" >> "$GITHUB_OUTPUT"
+
   android:
     name: android
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

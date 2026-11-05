@@ -5,17 +5,39 @@ on:
     branches: [trunk]
   workflow_dispatch:
 
-concurrency:
-  group: app-distribution-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
 
 jobs:
+  changes:
+    name: changes
+    if: github.ref == 'refs/heads/trunk'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      android: ${{ steps.android.outputs.android }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: decide whether this push builds
+        id: android
+        env:
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          android="$(bash .github/scripts/android-changed.sh "$BASE_SHA" "$HEAD_SHA" .github/workflows/app-distribution.yml)"
+          echo "base=${BASE_SHA:-none} head=$HEAD_SHA android=$android"
+          echo "android=$android" >> "$GITHUB_OUTPUT"
+
   build:
     name: build
-    if: github.ref == 'refs/heads/trunk'
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
+    concurrency:
+      group: app-distribution-${{ github.ref }}-${{ needs.changes.outputs.android }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
