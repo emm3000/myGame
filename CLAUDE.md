@@ -13,20 +13,22 @@ No third-party users yet, but the author runs the game from day one, so a schema
 One pnpm workspace (ADR 001). Planned packages and the only allowed dependency direction:
 
 ```
-apps/web           -> packages/contracts, packages/domain
-apps/api           -> packages/contracts, packages/domain
+apps/web           -> packages/contracts, packages/domain, packages/catalog
+apps/api           -> packages/contracts, packages/domain, packages/catalog
 packages/contracts -> packages/domain
 packages/domain    -> nothing
+packages/catalog   -> nothing
 ```
 
 - `packages/domain` — **pure TypeScript**, zero runtime dependencies: entities, value objects, use cases, the port interfaces, `DomainError`. No `node:` imports, no framework.
 - `packages/contracts` — the wire vocabulary web and api share: zod schemas and the types inferred from them. Never a function with behavior.
 - `apps/api` — Hono on Node: HTTP adapters, the persistence adapters that implement the domain ports, auth, the composition root.
 - `apps/web` — TanStack Start: routes, the design system, the game screens. Reads the api through `packages/contracts`, never a raw `fetch` with an ad-hoc shape.
+- `packages/catalog` — the message catalog (ADR 038): one ICU MessageFormat file per language, the checks, and the generator of the typed functions `apps/web` and `apps/api` import and of the Android `strings.xml` files. No runtime dependency, no ICU runtime shipped.
 
 Every package defines `typecheck` and `test` scripts, because `pnpm -r` fails on a package that lacks the script it was asked to run. Versions shared by more than one package are written once in the `catalog` of `pnpm-workspace.yaml`, never repeated per package. Every version, in a `package.json` or in the catalog, is exact: no caret, no tilde, no range; `.npmrc` sets `save-exact` so `pnpm add` writes it that way.
 
-All four packages exist; each carries its own `CLAUDE.md`. Beside them, `apps/android` is a Gradle project outside the pnpm workspace (no `package.json`, ADR 034), with its own `CLAUDE.md`.
+All five packages exist; each carries its own `CLAUDE.md`. `packages/catalog` is the only source of copy: `es.json` (`en.json` from ADR 038 step 4), ICU MessageFormat, generating the typed functions the web and the api import and every Android `strings.xml`. Beside them, `apps/android` is a Gradle project outside the pnpm workspace (no `package.json`, ADR 034), with its own `CLAUDE.md`.
 
 ## Product
 
