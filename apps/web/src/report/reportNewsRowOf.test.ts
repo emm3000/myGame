@@ -17,7 +17,7 @@ it('writes a finished building work with its place and level', () => {
       params: { building: 'powerStation', level: 2 },
       occurredAt,
     }),
-  ).toBe('Central eléctrica ahora es de nivel 2.')
+  ).toBe('Central eléctrica: ahora en nivel 2.')
 })
 
 it('writes a stopped building work with its place and level', () => {
@@ -72,6 +72,16 @@ it('writes a stopped hiring with the hires delivered of the hires ordered', () =
       occurredAt,
     }),
   ).toBe('Paraste la contratación de trabajadores: llegaron 2 de 5.')
+})
+
+it('writes a stopped hiring with one hire delivered in the singular', () => {
+  expect(
+    lineOf({
+      kind: 'hiringStopped',
+      params: { hire: 'truck', delivered: 1, stopped: 4, refund: pay },
+      occurredAt,
+    }),
+  ).toBe('Paraste la contratación de camiones: llegó 1 de 5.')
 })
 
 it('writes a job back with its site', () => {

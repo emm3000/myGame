@@ -13,6 +13,7 @@ import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
+import { formatQuantity } from '../design-system/formatQuantity'
 import { Panel } from '../design-system/Panel'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import type { ReportNewsRow } from './reportNewsRowOf'
@@ -39,7 +40,9 @@ function ReviewsDue({ dueCount }: { readonly dueCount: number }): ReactElement {
   }
   return (
     <Panel element="article" toneClass="bg-surface-raised" spacingClass="max-w-form gap-3 p-5">
-      <p className="m-0 font-sans text-heading text-ink">{reportReviewsDue({ count: dueCount })}</p>
+      <p className="m-0 font-sans text-heading text-ink">
+        {reportReviewsDue({ count: formatQuantity(dueCount) })}
+      </p>
       <div className="flex">
         <ButtonLink to="/reviews" tone="primary">
           {reportStartReviews()}

@@ -1,10 +1,12 @@
+import { townLoading } from '@mygame/catalog'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
+import { ReadingLine } from '../../design-system/ReadingLine'
 import type { LiveTown } from '../../town/liveTown'
 import { NameTownScreen } from '../../town/NameTownScreen'
 import { TownHome } from '../../town/TownHome'
-import { TownReadFailed, TownReading } from '../../town/TownReadStatus'
+import { TownReadFailed } from '../../town/TownReadStatus'
 import { useFoundTown } from '../../town/useFoundTown'
 import { type TownHandle, useTown } from '../../town/useTown'
 import { useTownWork } from '../../town/useTownWork'
@@ -47,7 +49,7 @@ function TownPage(): ReactElement | null {
   const town = useTown(apiClient)
   switch (town.state.kind) {
     case 'loading':
-      return <TownReading />
+      return <ReadingLine line={townLoading()} />
     case 'noTown':
       return <NameTownPage apiClient={apiClient} town={town} />
     case 'refused':

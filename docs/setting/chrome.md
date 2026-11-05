@@ -73,7 +73,7 @@ ADR 037's rule that a lesson is never a semantic set applies when #741 groups th
 | day | 85 | *3 days* | día |
 | today | 246 | *Today, 09:10* in Town News | hoy |
 | tomorrow | 726 | *Ready tomorrow at 09:10* | mañana |
-| now | 70 | *Homes is now level 2.* in Town News | ahora |
+| now | 70 | *Homes: now level 2.* in Town News | ahora |
 | hour | 247 | *Work for 4 hours* on a job | hora |
 
 ### The school and the Report

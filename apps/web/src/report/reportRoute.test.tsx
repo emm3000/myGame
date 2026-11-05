@@ -50,8 +50,8 @@ const farmFinished: TownNewsItem = {
   occurredAt: minutesAgo(5),
 }
 
-const homesLine = 'Hogares ahora es de nivel 2.'
-const farmLine = 'Granja ahora es de nivel 3.'
+const homesLine = 'Hogares: ahora en nivel 2.'
+const farmLine = 'Granja: ahora en nivel 3.'
 
 const homeRecognition: DueReview = {
   wordId: 'lesson-1-1',
@@ -253,6 +253,77 @@ it('marks the Report as the current screen in the navigation', async () => {
   await showReport(reportOf({}))
 
   const report = screen.getByRole('link', { name: shellNavigationReport() })
+  const town = screen.getByRole('link', { name: shellNavigationTown() })
 
   expect(report.getAttribute('aria-current')).toBe('page')
+  expect(town.getAttribute('aria-current')).toBeNull()
+})
+
+const heldClose = (): {
+  readonly closeReport: ApiClient['closeReport']
+  readonly answer: (refusal: ApiRefusal | undefined) => void
+} => {
+  let resolveClose: (refusal: ApiRefusal | undefined) => void = () => undefined
+  return {
+    closeReport: () =>
+      new Promise<ApiRefusal | undefined>((resolve) => {
+        resolveClose = resolve
+      }),
+    answer: (refusal) => resolveClose(refusal),
+  }
+}
+
+it('waits on the close while it is on its way', async () => {
+  const { closeReport } = heldClose()
+  await showReport(newsSinceClose, { closeReport })
+
+  fireEvent.click(closeButton())
+  await passSeconds(0)
+
+  expect(closeButton().getAttribute('aria-busy')).toBe('true')
+})
+
+it('closes on a second click after a refused close, dropping the refusal while it waits', async () => {
+  const held = heldClose()
+  const closeReport = vi
+    .fn<ApiClient['closeReport']>()
+    .mockResolvedValueOnce('Unexpected')
+    .mockImplementationOnce(held.closeReport)
+  await showReport(newsSinceClose, { closeReport })
+
+  fireEvent.click(closeButton())
+  await passSeconds(0)
+  expect(within(newsRegion()).getByText(refusalUnexpected())).toBeDefined()
+
+  fireEvent.click(closeButton())
+  await passSeconds(0)
+  expect(within(newsRegion()).queryByText(refusalUnexpected())).toBeNull()
+
+  await act(async () => held.answer(undefined))
+  expect(within(newsRegion()).getByText(reportNewsClosed())).toBeDefined()
+})
+
+it("draws a job's pay under its line", async () => {
+  await showReport(
+    reportOf({
+      news: [
+        {
+          kind: 'jobBack',
+          params: {
+            site: { region: 1, area: 3, site: 12 },
+            pay: { money: 0, food: 40, power: 0, material: 0 },
+          },
+          occurredAt: minutesAgo(1),
+        },
+      ],
+    }),
+  )
+
+  expect(within(newsRegion()).getByText('Pago: 40 de comida')).toBeDefined()
+})
+
+it('groups the thousands of the reviews due', async () => {
+  await showReport(reportOf({ dueCount: 1200, due: [homeRecognition] }))
+
+  expect(within(reportRegion()).getByText('Repasos pendientes: 1 200')).toBeDefined()
 })

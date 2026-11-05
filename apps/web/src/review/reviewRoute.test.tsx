@@ -145,6 +145,16 @@ it("reads the due reviews from the player's reviews", async () => {
   expect(screen.getByText(reviewDueCount({ count: 1 }))).toBeTruthy()
 })
 
+it('groups the thousands of the reviews due', async () => {
+  const manyDue = Array.from({ length: 1200 }, (_, index) => ({
+    ...schoolRecall,
+    wordId: `word-${index}`,
+  }))
+  await showReview(withReviews(manyDue, null))
+
+  expect(screen.getByText('Por repasar: 1 200')).toBeTruthy()
+})
+
 it('tells a player with no cards there is nothing to review yet', async () => {
   await showReview(noCards)
 

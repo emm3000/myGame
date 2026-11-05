@@ -317,7 +317,7 @@ export const refusalWeakPassword = (): string => `Tu contraseña necesita al men
 export const refusalWordNotHeld = (): string => `Esa palabra no está en tus lecciones. Vuelve al repaso.`
 export const reportLoading = (): string => `Estamos leyendo tu informe…`
 export const reportNewsBecameCity = (): string => `Tu pueblo ahora es una ciudad.`
-export const reportNewsBuildingWorkFinished = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `${String(place)} ahora es de nivel ${String(level)}.`
+export const reportNewsBuildingWorkFinished = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `${String(place)}: ahora en nivel ${String(level)}.`
 export const reportNewsBuildingWorkStopped = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `Paraste la obra: ${String(place)}, nivel ${String(level)}.`
 export const reportNewsCleanUpDone = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Tu equipo limpió los residuos de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
 export const reportNewsCleanUpFailed = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Tu equipo no pudo limpiar los residuos de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
@@ -325,8 +325,8 @@ export const reportNewsClose = (): string => `Cerrar las noticias`
 export const reportNewsClosed = (): string => `Cerraste las noticias.`
 export const reportNewsHiringDeliveredTruck = ({ count }: { readonly count: number }): string => `${count === 1 ? `Contrataste 1 camión.` : `Contrataste ${String(count)} camiones.`}`
 export const reportNewsHiringDeliveredWorker = ({ count }: { readonly count: number }): string => `${count === 1 ? `Contrataste 1 trabajador.` : `Contrataste ${String(count)} trabajadores.`}`
-export const reportNewsHiringStoppedTruck = ({ count, delivered }: { readonly count: string | number; readonly delivered: string | number }): string => `Paraste la contratación de camiones: llegaron ${String(delivered)} de ${String(count)}.`
-export const reportNewsHiringStoppedWorker = ({ count, delivered }: { readonly count: string | number; readonly delivered: string | number }): string => `Paraste la contratación de trabajadores: llegaron ${String(delivered)} de ${String(count)}.`
+export const reportNewsHiringStoppedTruck = ({ count, delivered }: { readonly count: string | number; readonly delivered: number }): string => `Paraste la contratación de camiones: ${delivered === 1 ? `llegó 1` : `llegaron ${String(delivered)}`} de ${String(count)}.`
+export const reportNewsHiringStoppedWorker = ({ count, delivered }: { readonly count: string | number; readonly delivered: number }): string => `Paraste la contratación de trabajadores: ${delivered === 1 ? `llegó 1` : `llegaron ${String(delivered)}`} de ${String(count)}.`
 export const reportNewsJobBack = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Tu equipo volvió de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
 export const reportNewsJobCalledBack = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Llamaste de vuelta a tu equipo de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
 export const reportNewsLessonStopped = (): string => `Paraste el estudio de una lección.`

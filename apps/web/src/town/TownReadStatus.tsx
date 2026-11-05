@@ -1,19 +1,9 @@
-import { townLoading, townTryAgain } from '@mygame/catalog'
+import { townTryAgain } from '@mygame/catalog'
 import type { ReactElement } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { refusalLineOf } from '../refusals/refusalLineOf'
-
-export function TownReading(): ReactElement {
-  return (
-    <section aria-busy="true" className="flex flex-col gap-3">
-      <p role="status" className="m-0 font-sans text-body text-ink-muted">
-        {townLoading()}
-      </p>
-    </section>
-  )
-}
 
 interface TownReadFailedProps {
   readonly refusal: ApiRefusal

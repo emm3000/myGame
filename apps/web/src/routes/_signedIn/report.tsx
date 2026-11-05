@@ -1,9 +1,10 @@
+import { reportLoading } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts/town'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
+import { ReadingLine } from '../../design-system/ReadingLine'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
-import { ReportReading } from '../../report/ReportReading'
 import { ReportScreen } from '../../report/ReportScreen'
 import { reportNewsRowOf } from '../../report/reportNewsRowOf'
 import { useReport } from '../../report/useReport'
@@ -39,7 +40,7 @@ function ReportRoute(): ReactElement {
   const { state, reread } = useReport(apiClient)
   switch (state.kind) {
     case 'loading':
-      return <ReportReading />
+      return <ReadingLine line={reportLoading()} />
     case 'refused':
       return <TownReadFailed refusal={state.refusal} onRetry={reread} />
     case 'read':

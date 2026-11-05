@@ -95,7 +95,7 @@ export function AppShell({
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
           <nav className="flex">
-            <ul className="m-0 flex list-none gap-1 p-0">
+            <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
               {townScreens.map((screen) => (
                 <li key={screen.to} className="flex">
                   <TownScreenLink {...screen} />
