@@ -66,6 +66,9 @@ jobs:
   distribute:
     name: distribute
     needs: build
+    concurrency:
+      group: app-distribution-distribute-${{ github.ref }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:

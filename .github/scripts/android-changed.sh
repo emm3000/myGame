@@ -10,11 +10,14 @@ if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
   exit 0
 fi
 
-changed="$(git diff --no-renames --name-only "$base" "$head")"
+changed="$(git diff --no-renames --name-only "$base" "$head")" || {
+  echo true
+  exit 0
+}
 
 while IFS= read -r file; do
   case "$file" in
-    apps/android/* | apps/api/openapi.json | packages/catalog/*)
+    apps/android/* | apps/api/openapi.json | packages/catalog/* | packages/domain/src/*-cases.json)
       echo true
       exit 0
       ;;
