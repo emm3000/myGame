@@ -1,16 +1,20 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { checkLexicon } from './checkLexicon'
-import { contentOf, entryOf, lessonOneLexicon } from './contentGate.testSupport'
+import {
+  contentOf,
+  entryOf,
+  lessonOneFrameWords,
+  lessonOneLexicon,
+  structureOf,
+} from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
 const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
 
 const lessonOneIds = lessonOneLexicon.map(({ id }) => id)
 
-const lessonOneFrameWords = contentOf().grammar.frameWords.map(
-  ({ word, admittingLessonId }) => [word, admittingLessonId] as const,
-)
+const lessonOneStructure = structureOf('lesson-1', lessonOneFrameWords)
 
 describe('content gate check 1, the lexicon holds', () => {
   it('passes the shipped content', () => {
@@ -67,28 +71,20 @@ describe('content gate check 1, the lexicon holds', () => {
   })
 
   it('fails a frame word listed twice in the grammar', () => {
-    const frameWords = [...lessonOneFrameWords, ['for', 'lesson-1'] as const]
+    const structures = [lessonOneStructure, structureOf('lesson-1', ['for'])]
 
-    expect(checkLexicon(contentOf({ frameWords }))).toEqual([
+    expect(checkLexicon(contentOf({ structures }))).toEqual([
       'frame word for is listed more than once',
     ])
   })
 
   it('fails a frame word outside the first 100 NGSL ranks', () => {
-    const frameWords = [...lessonOneFrameWords, ['money', 'lesson-1'] as const]
+    const structures = [lessonOneStructure, structureOf('lesson-1', ['money'])]
     const lexicon = lessonOneLexicon.filter(({ lemma }) => lemma !== 'money')
     const lessons = [['lesson-1', lexicon.map(({ id }) => id)]] as const
 
-    expect(checkLexicon(contentOf({ frameWords, lexicon, lessons }))).toEqual([
+    expect(checkLexicon(contentOf({ structures, lexicon, lessons }))).toEqual([
       'frame word money is not among the first 100 NGSL ranks',
-    ])
-  })
-
-  it('fails a frame word admitted by a lesson the curriculum does not list', () => {
-    const frameWords = [...lessonOneFrameWords, ['new', 'lesson-9'] as const]
-
-    expect(checkLexicon(contentOf({ frameWords }))).toEqual([
-      'frame word new is admitted by lesson-9, which the curriculum does not list',
     ])
   })
 })

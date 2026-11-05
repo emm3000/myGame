@@ -2,16 +2,19 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { checkFrames } from './checkFrames'
-import { contentOf, entryOf, lessonOneLexicon } from './contentGate.testSupport'
+import {
+  contentOf,
+  entryOf,
+  lessonOneFrameWords,
+  lessonOneInflections,
+  lessonOneLexicon,
+  structureOf,
+} from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
 const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
 
 const lessonOneIds = lessonOneLexicon.map(({ id }) => id)
-
-const lessonOneFrameWords = contentOf().grammar.frameWords.map(
-  ({ word, admittingLessonId }) => [word, admittingLessonId] as const,
-)
 
 const withHomeFrame = (frame: string, gappedFrame = frame.replace('home', '____')) =>
   contentOf({
@@ -59,13 +62,18 @@ describe('content gate check 3, the frame rule', () => {
   })
 
   it('fails a frame holding a frame word admitted after its lesson', () => {
-    const frameWords = lessonOneFrameWords.map(([word, lessonId]) =>
-      word === 'much' ? (['much', 'lesson-2'] as const) : ([word, lessonId] as const),
-    )
+    const structures = [
+      structureOf(
+        'lesson-1',
+        lessonOneFrameWords.filter((word) => word !== 'much'),
+        lessonOneInflections,
+      ),
+      structureOf('lesson-2', ['much']),
+    ]
     const newHome = entryOf('word-1', 'new', 'This is my new home.', { partOfSpeech: 'adjective' })
     const content = afterLessonOne(newHome)
 
-    expect(checkFrames({ ...content, grammar: contentOf({ frameWords }).grammar })).toEqual([
+    expect(checkFrames({ ...content, grammar: contentOf({ structures }).grammar })).toEqual([
       'lesson-1-4: frame holds much, a frame word admitted after lesson-1',
     ])
   })

@@ -42,13 +42,16 @@ describe('gateContentOf', () => {
     ])
   })
 
-  it('reads the frame words of the grammar inventory', () => {
+  it('reads the structures of the grammar inventory in order', () => {
     const { grammar } = gateContentOf(shippedContent)
 
-    expect(grammar.frameWords.slice(0, 3)).toEqual([
-      { word: 'the', admittingLessonId: 'lesson-1' },
-      { word: 'be', admittingLessonId: 'lesson-1' },
-      { word: 'and', admittingLessonId: 'lesson-1' },
-    ])
+    expect(grammar.structures[0]).toEqual({
+      name: 'Present of be, with not',
+      cefr: 'A1.1',
+      cefrjItem: '58',
+      admittingLessonId: 'lesson-1',
+      frameWords: ['be', 'not'],
+      inflections: ['am', 'is', 'are'],
+    })
   })
 })

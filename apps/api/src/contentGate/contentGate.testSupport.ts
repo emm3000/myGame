@@ -1,4 +1,4 @@
-import type { CurriculumContent } from '@mygame/contracts'
+import type { CurriculumContent, GrammarContent } from '@mygame/contracts'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
 
@@ -6,7 +6,7 @@ type ContentParts = {
   readonly lexicon: ReadonlyArray<LexiconEntry>
   readonly lessons: ReadonlyArray<readonly [string, ReadonlyArray<string>]>
   readonly chromeLessonCount: number
-  readonly frameWords: ReadonlyArray<readonly [string, string]>
+  readonly structures: GrammarContent['structures']
   readonly ranks: ReadonlyMap<string, number>
   readonly forms: ReadonlyMap<string, ReadonlySet<string>>
   readonly skill: CurriculumContent['skill']
@@ -36,7 +36,22 @@ export const lessonOneLexicon: ReadonlyArray<LexiconEntry> = [
   entryOf('lesson-1-5', 'food', 'We have food for you.'),
 ]
 
-const lessonOneFrameWords = [
+type GrammarStructure = GrammarContent['structures'][number]
+
+export const structureOf = (
+  admittingLessonId: string,
+  frameWords: ReadonlyArray<string>,
+  inflections: ReadonlyArray<string> = [],
+): GrammarStructure => ({
+  name: `Grammar of ${admittingLessonId}`,
+  cefr: 'A1.1',
+  cefrjItem: '58',
+  admittingLessonId,
+  frameWords: [...frameWords],
+  inflections: [...inflections],
+})
+
+export const lessonOneFrameWords: ReadonlyArray<string> = [
   'the',
   'be',
   'have',
@@ -83,8 +98,21 @@ const fixtureInflections: ReadonlyArray<readonly [string, ReadonlyArray<string>]
   ['i', ['me', 'my']],
   ['we', ['us', 'our']],
   ['home', ['homes']],
-  ['work', ['works', 'worked']],
+  ['work', ['works', 'worked', 'working']],
+  ['new', ['newer', 'newest']],
+  ['go', ['goes']],
+  ['try', ['tries']],
   ['leave', ['left']],
+]
+
+export const lessonOneInflections: ReadonlyArray<string> = [
+  'am',
+  'is',
+  'are',
+  'me',
+  'my',
+  'us',
+  'our',
 ]
 
 const fixtureForms = (): ReadonlyMap<string, ReadonlySet<string>> => {
@@ -103,7 +131,7 @@ const lessonOneParts = (): ContentParts => ({
   lexicon: lessonOneLexicon,
   lessons: [['lesson-1', lessonOneLexicon.map(({ id }) => id)]],
   chromeLessonCount: 1,
-  frameWords: lessonOneFrameWords.map((word) => [word, 'lesson-1'] as const),
+  structures: [structureOf('lesson-1', lessonOneFrameWords, lessonOneInflections)],
   ranks: new Map(fixtureRanks),
   forms: fixtureForms(),
   skill: { cycle: ['food', 'material', 'power', 'money'], ratePercent: 5 },
@@ -130,12 +158,7 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
     })),
     lexicon: [...parts.lexicon],
     ranks: parts.ranks,
-    grammar: {
-      frameWords: parts.frameWords.map(([word, admittingLessonId]) => ({
-        word,
-        admittingLessonId,
-      })),
-    },
+    grammar: { structures: [...parts.structures] },
     forms: parts.forms,
     englishMessages: parts.englishMessages,
   }
