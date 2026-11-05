@@ -1,12 +1,12 @@
 import type { CurriculumContent } from '@mygame/contracts'
-import type {
-  Band,
-  BandWord,
-  Headword,
-  LessonId,
-  LessonSkill,
-  LessonWord,
-  WordId,
+import {
+  type Band,
+  type BandWord,
+  headwordOf,
+  type LessonId,
+  type LessonSkill,
+  type LessonWord,
+  type WordId,
 } from '@mygame/domain'
 import { frameWordsOf } from '../../contentGate/frameWordsOf'
 import type { LessonLibrary, ShelvedLesson } from '../../learning/LessonLibrary'
@@ -52,13 +52,11 @@ const shelvedLessonOf = (
   words: words.map((entry) => lessonWordOf(content.id, entry)),
 })
 
-const headwordOf = ({ lemma }: LexiconEntry): Headword => lemma.toLowerCase()
-
 const bandOfTaughtLesson = (
   { content, words }: LessonOfFiles,
   ranks: ReadonlyMap<string, number>,
 ): Band => {
-  const wordRanks = words.flatMap((entry) => ranks.get(headwordOf(entry)) ?? [])
+  const wordRanks = words.flatMap(({ lemma }) => ranks.get(headwordOf(lemma)) ?? [])
   if (wordRanks.length === 0) {
     throw new Error(`Lesson ${content.id} teaches no word of the list`)
   }
@@ -84,7 +82,9 @@ const bandWordsOf = ({
 }: LessonContentFiles): ReadonlyMap<Band, ReadonlyArray<BandWord>> => {
   const frameWords = frameWordsOf(grammar)
   const chromeWords = new Set(
-    lessons.slice(0, curriculum.chromeLessonCount).flatMap(({ words }) => words.map(headwordOf)),
+    lessons
+      .slice(0, curriculum.chromeLessonCount)
+      .flatMap(({ words }) => words.map(({ lemma }) => headwordOf(lemma))),
   )
   const bands = new Map<Band, ReadonlyArray<BandWord>>()
   for (const [headword, rank] of ranks) {

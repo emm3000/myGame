@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 import { MemoryCard } from '../memory/MemoryCard'
 import type { Clock } from '../ports/Clock'
-import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
+import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
 import { inMemoryCards } from '../testing/inMemoryCards'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -39,12 +39,12 @@ const runningLesson: LessonSlot = {
   finishesAt: hoursAfterEpoch(3),
 }
 
-const schoolOf = (slot: LessonSlot) => {
+const schoolOf = (slot: LessonSlot, bandStarts: ReadonlyArray<OwnedBandStart> = []) => {
   const frozenClock: Clock = { now: () => now }
   const dependencies = {
     towns: inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1) })]),
     lessonSlots: inMemoryLessonSlots([{ townId: 'town-1', slot }]),
-    bandStarts: inMemoryBandStarts([]),
+    bandStarts: inMemoryBandStarts(bandStarts),
     cards: inMemoryCards([]),
     lessons: inMemoryLessons([lessonOne], []),
     news: inMemoryTownNews(),
@@ -57,6 +57,25 @@ const schoolOf = (slot: LessonSlot) => {
 }
 
 describe('settleSchoolLesson', () => {
+  it("enters no card for a word held out by the player's second band", async () => {
+    const school = schoolOf(finishedLesson, [
+      {
+        playerId: 'player-1',
+        start: { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['say'] },
+      },
+      {
+        playerId: 'player-1',
+        start: { band: 2, startedAt: hoursAfterEpoch(1), heldOutWords: ['money'] },
+      },
+    ])
+
+    await school.settle()
+
+    const held = await school.cards.cardsOf('player-1')
+    assert(held.ok)
+    expect(held.value.map(({ wordId }) => wordId)).toEqual(['home', 'school', 'work', 'food'])
+  })
+
   it("enters a finished lesson's cards at its finish", async () => {
     const school = schoolOf(finishedLesson)
 

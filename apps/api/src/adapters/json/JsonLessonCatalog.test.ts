@@ -126,6 +126,18 @@ describe('JsonLessonCatalog', () => {
     expect(catalog.bandOfLesson('lesson-17')).toBe(2)
   })
 
+  it('places a capitalized lemma in the band of its rank', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(contentWithBandLessonOf('TRUE'))
+
+    expect(catalog.bandOfLesson('lesson-17')).toBe(1)
+  })
+
+  it('holds a capitalized lemma of the list under its lowercase headword', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(catalog.wordsOfBand(3)).toContainEqual({ headword: 'false', isChrome: false })
+  })
+
   it('refuses a band lesson that teaches no word of the list', () => {
     const directory = contentWithBandLessonOf('zzz')
 
