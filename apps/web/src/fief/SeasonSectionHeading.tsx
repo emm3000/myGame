@@ -21,7 +21,7 @@ export function SeasonSectionHeading({
         ref={headingRef}
         id={id}
         tabIndex={-1}
-        className={`m-0 rounded-sm font-body text-heading text-ink ${focusTargetClass}`}
+        className={`m-0 rounded-sm font-sans text-heading text-ink ${focusTargetClass}`}
       >
         {title}
       </h3>

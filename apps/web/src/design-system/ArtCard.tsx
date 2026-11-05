@@ -34,7 +34,7 @@ export interface ArtCardProps {
 function Effect({ resource, text }: ArtEffect): ReactElement {
   const { Icon, textClass } = resourceAccent[resource]
   return (
-    <p className="m-0 flex items-center gap-1 font-body text-caption text-ink-muted">
+    <p className="m-0 flex items-center gap-1 font-sans text-caption text-ink-muted">
       <span className={`flex ${textClass}`}>
         <Icon />
       </span>
@@ -57,7 +57,7 @@ export function ArtCard(props: ArtCardProps): ReactElement {
       {!isAtMaxLevel && <CostList costs={props.costs} />}
       {props.requirement !== undefined && (
         <p
-          className={`m-0 font-body text-caption ${props.requirement.isMet ? 'text-ink-muted' : 'text-rust'}`}
+          className={`m-0 font-sans text-caption ${props.requirement.isMet ? 'text-ink-muted' : 'text-miss'}`}
         >
           {props.requirement.label}
         </p>

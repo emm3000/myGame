@@ -22,7 +22,7 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
     case 'verifying':
       return (
         <AuthPanel title={verificationVerifyTitle()}>
-          <p role="status" className="m-0 font-body text-body text-ink-muted">
+          <p role="status" className="m-0 font-sans text-body text-ink-muted">
             {verificationVerifyVerifying()}
           </p>
         </AuthPanel>
@@ -30,7 +30,7 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
     case 'verified':
       return (
         <AuthPanel title={verificationVerifyTitle()}>
-          <p role="status" className="m-0 font-body text-body text-ink">
+          <p role="status" className="m-0 font-sans text-body text-ink">
             {verificationVerifyVerified()}
           </p>
           <span className="flex">

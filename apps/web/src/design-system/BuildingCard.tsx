@@ -31,7 +31,7 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
         titleElement={props.titleElement}
         isAtMaxLevel={isAtMaxLevel}
       />
-      <p className="m-0 font-body text-caption text-ink-muted">{props.effect}</p>
+      <p className="m-0 font-sans text-caption text-ink-muted">{props.effect}</p>
       {!isAtMaxLevel && <CostList costs={props.costs} />}
       <CardAction
         type="button"

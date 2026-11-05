@@ -31,14 +31,14 @@ export function CargoCard({
     >
       <div className="flex items-center gap-2 text-ink-muted">
         <MarchIcon sizeClass="size-icon" />
-        <h3 id={titleId} className="m-0 font-display text-title text-ink">
+        <h3 id={titleId} className="m-0 font-sans text-title text-ink">
           {title}
         </h3>
       </div>
-      <p className="m-0 font-body text-body text-ink">{origin}</p>
-      <p className="m-0 font-body text-body text-ink">{amounts}</p>
+      <p className="m-0 font-sans text-body text-ink">{origin}</p>
+      <p className="m-0 font-sans text-body text-ink">{amounts}</p>
       <CountdownLine {...countdown} />
-      <Track value={elapsedSeconds} total={totalSeconds} fillClass="fill-slate" />
+      <Track value={elapsedSeconds} total={totalSeconds} fillClass="fill-action" />
     </Panel>
   )
 }

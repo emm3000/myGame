@@ -38,11 +38,11 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   free: 'border border-line border-dashed bg-surface',
   camp: 'border border-line border-dashed bg-surface',
   reserved: 'border border-line-strong border-dashed bg-surface-sunken',
-  held: 'bg-surface-raised shadow-card',
-  own: 'border-2 border-river border-l-4 bg-surface-raised shadow-card',
+  held: 'bg-surface-raised shadow-ledge',
+  own: 'border-2 border-action border-l-4 bg-surface-raised shadow-ledge',
 }
 
-const expandedFrameClass = 'bg-surface-raised shadow-card'
+const expandedFrameClass = 'bg-surface-raised shadow-ledge'
 
 const frameClassOf = (holder: PlotHolder): string =>
   (holder.kind === 'free' || holder.kind === 'camp') &&
@@ -50,10 +50,9 @@ const frameClassOf = (holder: PlotHolder): string =>
     ? expandedFrameClass
     : frameClass[holder.kind]
 
-const nameClass = 'font-body text-heading text-ink wrap-anywhere'
+const nameClass = 'font-sans text-heading text-ink wrap-anywhere'
 
-const markerClass =
-  'self-start rounded-sm bg-umber px-2 font-utility text-label uppercase text-on-umber'
+const markerClass = 'self-start rounded-sm bg-action px-2 font-sans text-label text-on-action'
 
 function PlotActionButtons({
   actions,
@@ -87,7 +86,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
     case 'free':
       return (
         <>
-          <span className="font-body text-heading font-normal text-ink-faint">{holder.line}</span>
+          <span className="font-sans text-heading font-normal text-ink-faint">{holder.line}</span>
           <PlotActionButtons actions={holder.actions} />
         </>
       )
@@ -104,14 +103,14 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
               className="mb-1 block size-thumbnail rounded-sm object-cover"
             />
             <span className="flex items-start gap-2">
-              <span className="mt-0.5 flex text-ochre">
+              <span className="mt-0.5 flex text-ink-muted">
                 <CampIcon sizeClass="size-icon" />
               </span>
-              <span className="font-body text-heading font-bold text-ink wrap-anywhere hyphens-auto">
+              <span className="font-sans text-heading font-bold text-ink wrap-anywhere hyphens-auto">
                 {holder.line}
               </span>
             </span>
-            <span className="font-body text-caption text-ink-muted tabular-nums">
+            <span className="font-sans text-caption text-ink-muted tabular-nums">
               {holder.strength}
             </span>
           </span>
@@ -125,7 +124,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
             <span className="mt-0.5 flex">
               <SettlerIcon />
             </span>
-            <span className="font-body text-heading font-normal">{holder.line}</span>
+            <span className="font-sans text-heading font-normal">{holder.line}</span>
           </span>
           {holder.marker !== undefined && <span className={markerClass}>{holder.marker}</span>}
         </>
@@ -150,12 +149,10 @@ export function PlotTile({ plotLabel, terrainLabel, holder }: PlotTileProps): Re
   return (
     <li className={`flex min-h-plot flex-col gap-2 rounded-md p-3 ${frameClassOf(holder)}`}>
       <span className="flex flex-wrap items-baseline justify-between gap-x-2">
-        <span className="whitespace-nowrap font-utility text-label uppercase text-ink-muted tabular-nums">
+        <span className="whitespace-nowrap font-sans text-label text-ink-muted tabular-nums">
           {plotLabel}
         </span>
-        <span className="font-utility font-semibold text-caption text-ink-muted">
-          {terrainLabel}
-        </span>
+        <span className="font-sans font-semibold text-caption text-ink-muted">{terrainLabel}</span>
       </span>
       <Holder holder={holder} />
     </li>

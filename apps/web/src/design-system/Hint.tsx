@@ -12,10 +12,10 @@ export function Hint({ icon, line, dismissLabel, onDismiss }: HintProps): ReactE
   return (
     <p
       role="note"
-      className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md bg-surface-raised px-4 py-3 shadow-card"
+      className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md bg-surface-raised px-4 py-3 shadow-ledge"
     >
       <span className="flex text-ink-muted *:size-icon">{icon}</span>
-      <span className="min-w-0 flex-1 font-body text-body text-ink">{line}</span>
+      <span className="min-w-0 flex-1 font-sans text-body text-ink">{line}</span>
       <Button type="button" tone="quiet" onClick={onDismiss}>
         {dismissLabel}
       </Button>

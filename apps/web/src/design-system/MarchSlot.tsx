@@ -41,31 +41,31 @@ export function MarchSlot({
         className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
       >
         {heading(state.title, titleRef)}
-        <p className="m-0 font-body text-caption">{state.invitation}</p>
+        <p className="m-0 font-sans text-caption">{state.invitation}</p>
       </section>
     )
   }
   return (
-    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-card`}>
+    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-ledge`}>
       {heading(state.title, titleRef)}
-      <p className="m-0 font-body text-body text-ink">
+      <p className="m-0 font-sans text-body text-ink">
         <PreviewLineText line={state.phase} />
       </p>
       {state.detail !== null && (
-        <p className="m-0 font-body text-body text-ink">
+        <p className="m-0 font-sans text-body text-ink">
           <PreviewLineText line={state.detail} />
         </p>
       )}
       <CountdownLine {...state.countdown} />
       {state.loot !== null && (
-        <p className="m-0 font-body text-body text-ink">
+        <p className="m-0 font-sans text-body text-ink">
           <PreviewLineText line={state.loot} />
         </p>
       )}
       <Track
         value={state.elapsedSeconds}
         total={state.totalSeconds}
-        fillClass="fill-slate"
+        fillClass="fill-action"
         marks={state.marks}
       />
       {state.recall !== null && (

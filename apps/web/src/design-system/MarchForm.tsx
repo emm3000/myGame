@@ -53,7 +53,7 @@ function Field({
   const fieldId = useId()
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={fieldId} className="font-utility text-label text-ink-muted uppercase">
+      <label htmlFor={fieldId} className="font-sans text-label text-ink-muted">
         {field.label}
       </label>
       <NumberField
@@ -84,7 +84,7 @@ export function MarchForm(props: MarchFormProps): ReactElement {
             id={titleId}
             ref={props.titleRef}
             tabIndex={-1}
-            className={`m-0 rounded-sm font-display text-title text-ink ${focusTargetClass}`}
+            className={`m-0 rounded-sm font-sans text-title text-ink ${focusTargetClass}`}
           >
             {props.title}
           </h4>

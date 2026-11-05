@@ -268,14 +268,14 @@ export function FiefScreen({
         <Link
           to="/feudo/$fiefId/mapa/$province"
           params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}
-          className="relative -mt-3 -mb-4 self-start pt-3 pb-4 font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
+          className="relative -mt-3 -mb-4 self-start pt-3 pb-4 font-sans text-label text-action tabular-nums underline underline-offset-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
           {addressOf(overview.coordinates)}
         </Link>
         <h2
           ref={fiefName.ref}
           tabIndex={-1}
-          className={`m-0 self-start rounded-sm font-display text-display-xl text-ink ${focusTargetClass}`}
+          className={`m-0 self-start rounded-sm font-sans text-display text-ink ${focusTargetClass}`}
         >
           {overview.name}
         </h2>

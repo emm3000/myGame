@@ -156,11 +156,11 @@ function Province({
         <h3
           ref={provinceHeadingRef}
           tabIndex={-1}
-          className={`m-0 self-start rounded-sm font-display text-title text-ink ${focusTargetClass}`}
+          className={`m-0 self-start rounded-sm font-sans text-title text-ink ${focusTargetClass}`}
         >
           {heading}
         </h3>
-        <p className="m-0 font-body text-caption text-ink-muted">
+        <p className="m-0 font-sans text-caption text-ink-muted">
           {mapTerrain({ terrain: terrainNameOf(map.terrain) })}
         </p>
       </div>
@@ -222,7 +222,7 @@ function MapBody({ state, ...province }: MapScreenProps): ReactElement {
 export function MapScreen(props: MapScreenProps): ReactElement {
   return (
     <section className="flex flex-col gap-6">
-      <h2 className="m-0 font-display text-title text-ink">{mapTitle()}</h2>
+      <h2 className="m-0 font-sans text-title text-ink">{mapTitle()}</h2>
       <MapBody {...props} />
     </section>
   )

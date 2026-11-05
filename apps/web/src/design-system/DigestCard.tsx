@@ -39,16 +39,16 @@ function DigestEntry({ row }: { readonly row: DigestRow }): ReactElement {
     <li className="flex flex-col gap-1 border-line border-t py-3 first:border-t-0">
       <time
         dateTime={row.occurredAt}
-        className="whitespace-nowrap font-utility font-semibold text-caption text-ink-muted tabular-nums"
+        className="whitespace-nowrap font-sans font-semibold text-caption text-ink-muted tabular-nums"
       >
         {row.instant}
       </time>
-      <p className="m-0 font-body text-body text-ink">
+      <p className="m-0 font-sans text-body text-ink">
         <b className="font-bold">{row.heading}</b> {row.subject}
       </p>
       {row.amounts === undefined ? null : (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span aria-hidden="true" className="font-body text-body text-ink-muted">
+          <span aria-hidden="true" className="font-sans text-body text-ink-muted">
             {row.amounts.label}
           </span>
           <span className="sr-only">{row.amounts.sentence}</span>
@@ -64,7 +64,7 @@ function DigestEntry({ row }: { readonly row: DigestRow }): ReactElement {
 function DigestFiefSection({ fief }: { readonly fief: DigestFief }): ReactElement {
   return (
     <section className="flex flex-col gap-1">
-      <h4 className="m-0 font-body text-heading text-ink">{fief.name}</h4>
+      <h4 className="m-0 font-sans text-heading text-ink">{fief.name}</h4>
       <ol aria-label={fief.name} className="m-0 flex list-none flex-col p-0">
         {fief.rows.map((row) => (
           <DigestEntry key={row.key} row={row} />
@@ -90,7 +90,7 @@ export function DigestCard({
       toneClass="bg-surface-raised"
       spacingClass="gap-3 p-5"
     >
-      <h3 id={titleId} className="m-0 font-display text-ink text-title">
+      <h3 id={titleId} className="m-0 font-sans text-ink text-title">
         {title}
       </h3>
       <div className="grid items-start gap-x-6 gap-y-3 md:grid-cols-2">

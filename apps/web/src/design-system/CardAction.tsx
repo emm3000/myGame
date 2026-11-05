@@ -22,7 +22,7 @@ export interface CardActionProps {
 }
 
 const cardTone: Readonly<Record<CardActionState['kind'], string>> = {
-  affordable: 'border border-moss bg-surface-raised',
+  affordable: 'border border-right bg-surface-raised',
   blocked: 'bg-surface-raised',
   atMaxLevel: 'bg-surface-sunken',
 }
@@ -47,11 +47,11 @@ function BlockedAction({
         {label}
       </Button>
       <span id={reasonId} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-body text-caption text-rust">{reason}</span>
+        <span className="font-sans text-caption text-miss">{reason}</span>
         {ready !== undefined && (
           <>
             {' '}
-            <span className="font-utility font-semibold text-caption text-ink tabular-nums">
+            <span className="font-sans font-semibold text-caption text-ink tabular-nums">
               {ready}
             </span>
           </>

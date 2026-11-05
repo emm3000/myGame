@@ -12,7 +12,7 @@ export function ConfirmationLine({ line }: { readonly line: string }): ReactElem
       ref={ref}
       role="status"
       tabIndex={-1}
-      className={`m-0 rounded-sm font-body text-body text-ink ${focusTargetClass}`}
+      className={`m-0 rounded-sm font-sans text-body text-ink ${focusTargetClass}`}
     >
       {line}
     </p>

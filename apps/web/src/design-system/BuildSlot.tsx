@@ -29,7 +29,7 @@ export type BuildSlotState =
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md p-5'
-const badgeClass = 'rounded-pill px-2 font-utility text-label tabular-nums'
+const badgeClass = 'rounded-pill px-2 font-sans text-label tabular-nums'
 
 function Building({
   name,
@@ -42,7 +42,7 @@ function Building({
 }): ReactElement {
   return (
     <span className="flex items-baseline justify-between gap-2">
-      <span className="font-display text-title text-ink">{name}</span>
+      <span className="font-sans text-title text-ink">{name}</span>
       {levelLabel !== undefined && (
         <span className={`${badgeClass} ${badgeTone}`}>{levelLabel}</span>
       )}
@@ -64,12 +64,12 @@ export function BuildSlot({
           className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
         >
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
-          <p className="m-0 font-body text-caption">{state.invitation}</p>
+          <p className="m-0 font-sans text-caption">{state.invitation}</p>
         </section>
       )
     case 'busy':
       return (
-        <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-card`}>
+        <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-ledge`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
@@ -84,21 +84,21 @@ export function BuildSlot({
           <Track
             value={state.totalSeconds - state.remainingSeconds}
             total={state.totalSeconds}
-            fillClass="fill-slate"
+            fillClass="fill-action"
           />
           <CancelRow cancel={state.cancel} refund={state.refund} />
         </section>
       )
     case 'justFinished':
       return (
-        <section className={`${frameClass} border border-moss bg-moss-soft text-moss`}>
+        <section className={`${frameClass} border border-right bg-right-soft text-right`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
             levelLabel={state.levelLabel}
-            badgeTone="bg-moss text-on-moss"
+            badgeTone="bg-surface-raised text-right"
           />
-          <p className="m-0 font-body text-caption">{state.message}</p>
+          <p className="m-0 font-sans text-caption">{state.message}</p>
         </section>
       )
     default: {

@@ -18,7 +18,7 @@ export interface ButtonProps {
 }
 
 const toneClass: Readonly<Record<ButtonTone, string>> = {
-  primary: 'border-umber bg-umber text-on-umber',
+  primary: 'border-action bg-action text-on-action',
   quiet: 'border-line-strong bg-surface-raised text-ink',
 }
 
@@ -29,7 +29,7 @@ const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>
 }
 
 const baseClass =
-  'min-h-control rounded-md border px-3 py-2 font-utility text-button focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
+  'min-h-control rounded-md border px-3 py-2 font-sans text-button focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
 
 export const buttonClassOf = (tone: ButtonTone): string =>
   `${baseClass} cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint ${toneClass[tone]}`

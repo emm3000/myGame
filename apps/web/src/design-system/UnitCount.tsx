@@ -17,14 +17,14 @@ export function UnitCount({
 }): ReactElement {
   const Icon = unitIconOf[unit]
   return (
-    <span className="flex flex-wrap items-center gap-1 font-utility text-ink tabular-nums">
+    <span className="flex flex-wrap items-center gap-1 font-sans text-ink tabular-nums">
       <span className="flex text-ink-muted">
         <Icon />
       </span>
       {tallies.map(({ count, label }, index) => (
         <Fragment key={label}>
           {index > 0 && ' '}
-          <span className="whitespace-nowrap text-numeral-lg">
+          <span className="whitespace-nowrap text-heading tabular-nums">
             {formatQuantity(count)} <span className="text-numeral text-ink-muted">{label}</span>
           </span>
         </Fragment>

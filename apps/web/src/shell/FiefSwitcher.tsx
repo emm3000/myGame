@@ -87,12 +87,12 @@ function FiefBadges({ fief }: { readonly fief: FiefEntry }): ReactElement | null
 }
 
 const entryClass =
-  'flex min-h-control min-w-0 grow flex-col justify-center rounded-md px-3 py-1 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong md:flex-row md:items-center md:justify-start md:gap-2'
-const currentEntryClass = 'border-2 border-l-4 border-river bg-surface-raised'
+  'flex min-h-control min-w-0 grow flex-col justify-center rounded-md px-3 py-1 no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus md:flex-row md:items-center md:justify-start md:gap-2'
+const currentEntryClass = 'border-2 border-l-4 border-action bg-surface-raised'
 const otherEntryClass = 'border border-line bg-surface'
-const nameClass = 'font-utility text-button wrap-anywhere'
+const nameClass = 'font-sans text-button wrap-anywhere'
 const currentNameClass = 'font-bold text-ink'
-const otherNameClass = 'text-umber underline underline-offset-2'
+const otherNameClass = 'text-action underline underline-offset-2'
 
 export function FiefSwitcher({ fiefs }: FiefSwitcherProps): ReactElement {
   const keptScreen = useKeptScreen()
@@ -103,7 +103,7 @@ export function FiefSwitcher({ fiefs }: FiefSwitcherProps): ReactElement {
       aria-label={label}
       className="flex min-w-0 basis-full flex-col gap-1 md:mr-auto md:basis-auto md:flex-row md:items-center md:gap-3"
     >
-      <span className="font-utility text-label uppercase text-ink-muted">{label}</span>
+      <span className="font-sans text-label text-ink-muted">{label}</span>
       <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 md:flex">
         {fiefs.map((fief) => (
           <li key={fief.id} className="flex min-w-0">
@@ -123,7 +123,7 @@ export function FiefSwitcher({ fiefs }: FiefSwitcherProps): ReactElement {
                   <span aria-hidden="true" className="hidden text-ink-muted md:inline">
                     ·
                   </span>
-                  <span className="whitespace-nowrap font-utility text-caption font-semibold text-ink-muted tabular-nums">
+                  <span className="whitespace-nowrap font-sans text-caption font-semibold text-ink-muted tabular-nums">
                     {addressOf(fief.coordinates)}
                   </span>
                   {!isActive && <FiefBadges fief={fief} />}

@@ -9,18 +9,15 @@ interface CountdownProps {
 
 function tone(remainingSeconds: number): { readonly icon: string; readonly digits: string } {
   if (remainingSeconds <= 0) {
-    return { icon: 'text-moss', digits: 'text-numeral text-moss' }
+    return { icon: 'text-right', digits: 'text-numeral text-right' }
   }
-  return { icon: 'text-ink-muted', digits: 'text-numeral-lg text-ink' }
+  return { icon: 'text-ink-muted', digits: 'text-heading tabular-nums text-ink' }
 }
 
 export function Countdown({ remainingSeconds, time, finishedLabel }: CountdownProps): ReactElement {
   const { icon, digits } = tone(remainingSeconds)
   return (
-    <span
-      role="timer"
-      className={`inline-flex items-center gap-2 font-utility tabular-nums ${icon}`}
-    >
+    <span role="timer" className={`inline-flex items-center gap-2 font-sans tabular-nums ${icon}`}>
       <ClockIcon />
       <span className={digits}>{remainingSeconds <= 0 ? finishedLabel : time}</span>
     </span>

@@ -22,7 +22,7 @@ export function TextField(props: TextFieldProps): ReactElement {
   const hasError = props.error !== undefined
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="font-utility text-label uppercase text-ink-muted">
+      <label htmlFor={id} className="font-sans text-label text-ink-muted">
         {props.label}
       </label>
       <input
@@ -37,15 +37,15 @@ export function TextField(props: TextFieldProps): ReactElement {
         onChange={(event) => props.onChange(event.target.value)}
         aria-invalid={hasError}
         aria-describedby={describedBy === '' ? undefined : describedBy}
-        className={`min-h-control rounded-md border bg-surface-raised px-3 py-2 font-body text-body text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong ${hasError ? 'border-rust' : 'border-line-strong'}`}
+        className={`min-h-control rounded-md border bg-surface-raised px-3 py-2 font-sans text-body text-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus ${hasError ? 'border-miss' : 'border-line-strong'}`}
       />
       {props.hint === undefined ? null : (
-        <span id={hintId} className="font-body text-caption text-ink-muted">
+        <span id={hintId} className="font-sans text-caption text-ink-muted">
           {props.hint}
         </span>
       )}
       {props.error === undefined ? null : (
-        <span id={errorId} className="font-body text-caption text-rust">
+        <span id={errorId} className="font-sans text-caption text-miss">
           {props.error}
         </span>
       )}

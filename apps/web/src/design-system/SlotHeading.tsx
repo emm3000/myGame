@@ -16,7 +16,7 @@ export function SlotHeading({
       <span
         ref={titleRef}
         tabIndex={-1}
-        className={`rounded-sm font-utility text-label uppercase ${focusTargetClass}`}
+        className={`rounded-sm font-sans text-label ${focusTargetClass}`}
       >
         {title}
       </span>

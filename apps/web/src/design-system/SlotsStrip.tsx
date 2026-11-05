@@ -44,7 +44,7 @@ export interface SlotsStripProps {
 }
 
 const cellClass =
-  'flex h-full flex-col gap-2 rounded-md p-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
+  'flex h-full flex-col gap-2 rounded-md p-3 no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
 
 function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
   return icon === 'march' ? <MarchIcon sizeClass="size-icon" /> : <SlotIcon sizeClass="size-icon" />
@@ -52,12 +52,12 @@ function CellIcon({ icon }: { readonly icon: StripIcon }): ReactElement {
 
 function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
   return (
-    <span className="font-body text-body text-ink">
+    <span className="font-sans text-body text-ink">
       <b className="font-bold">{line.heading}</b> {line.value}
       {line.timePieces.map((piece) => (
         <Fragment key={piece}>
           {' '}
-          <span className="inline-block font-utility text-numeral text-ink-muted tabular-nums">
+          <span className="inline-block font-sans text-numeral text-ink-muted tabular-nums">
             {`${finishSeparator} ${piece}`}
           </span>
         </Fragment>
@@ -71,7 +71,7 @@ function CellContent({ cell }: { readonly cell: StripCell }): ReactElement {
     return (
       <span className="flex items-center gap-2 text-ink-muted">
         <CellIcon icon={cell.icon} />
-        <span className="font-body text-body font-bold text-umber underline underline-offset-2">
+        <span className="font-sans text-body font-bold text-action underline underline-offset-2">
           {cell.label}
         </span>
       </span>
@@ -88,7 +88,7 @@ function CellContent({ cell }: { readonly cell: StripCell }): ReactElement {
         </span>
       </span>
       <span className="mt-auto">
-        <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-slate" />
+        <Track value={cell.progress.value} total={cell.progress.total} fillClass="fill-action" />
       </span>
     </>
   )
@@ -101,7 +101,7 @@ export function SlotsStrip({ label, link, cells, notices }: SlotsStripProps): Re
       aria-labelledby={labelId}
       className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2"
     >
-      <span id={labelId} className="order-1 font-utility text-label text-ink-muted uppercase">
+      <span id={labelId} className="order-1 font-sans text-label text-ink-muted">
         {label}
       </span>
       <NoticeToggle {...notices} />
@@ -111,7 +111,7 @@ export function SlotsStrip({ label, link, cells, notices }: SlotsStripProps): Re
             <Link
               {...link}
               hash={cell.section}
-              className={`${cellClass} ${cell.kind === 'idle' ? 'border border-dashed border-line bg-surface' : 'bg-surface-raised shadow-card'}`}
+              className={`${cellClass} ${cell.kind === 'idle' ? 'border border-dashed border-line bg-surface' : 'bg-surface-raised shadow-ledge'}`}
             >
               <CellContent cell={cell} />
             </Link>

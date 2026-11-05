@@ -39,25 +39,25 @@ export function RecruitSlot({
           title={state.title}
           titleRef={titleRef}
         />
-        <p className="m-0 font-body text-caption">{state.invitation}</p>
+        <p className="m-0 font-sans text-caption">{state.invitation}</p>
       </section>
     )
   }
   return (
-    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-card`}>
+    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-ledge`}>
       <SlotHeading
         icon={<SlotIcon sizeClass="size-icon" />}
         title={state.title}
         titleRef={titleRef}
       />
-      <p className="m-0 font-body text-body text-ink">
+      <p className="m-0 font-sans text-body text-ink">
         <b>{state.orderHeading}</b> {state.orderLine}
       </p>
       <CountdownLine {...state.countdown} />
       <Track
         value={state.totalSeconds - state.remainingSeconds}
         total={state.totalSeconds}
-        fillClass="fill-slate"
+        fillClass="fill-action"
       />
       <CancelRow cancel={state.cancel} refund={state.refund} />
     </section>
