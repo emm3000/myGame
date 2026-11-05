@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
@@ -332,6 +333,64 @@ class SchoolScreenTest {
         show(idleSchool.copy(slot = busySlot(150.seconds)))
 
         showing("2 min")
+    }
+
+    @Test
+    fun `rounds a running lesson's countdown up to the whole second`() {
+        show(idleSchool.copy(slot = busySlot(42.5.seconds)))
+
+        showing("0:43")
+    }
+
+    @Test
+    fun `rounds a lesson's duration up to the whole second`() {
+        show(idleSchool.copy(lessons = listOf(readyLesson.copy(duration = 149.5.seconds))))
+
+        showing("Estudiar la lección 1 · 2:30")
+    }
+
+    @Test
+    fun `fills the track with the share of the lesson already run`() {
+        show(idleSchool.copy(slot = busySlot(37.5.seconds)))
+
+        composeRule
+            .onNode(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ProgressBarRangeInfo,
+                    ProgressBarRangeInfo(current = 0.75f, range = 0f..1f),
+                ),
+            )
+            .assertExists()
+    }
+
+    @Test
+    fun `keeps a refused stop beside an idle slot`() {
+        show(
+            idleSchool.copy(
+                stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
+            ),
+        )
+
+        showing("La escuela ya no estudia esa lección. No queda nada que parar.")
+    }
+
+    @Test
+    fun `keeps a refused stop beside a finished lesson`() {
+        show(
+            idleSchool.copy(
+                slot = SchoolUiState.SlotLine.Done(number = 1),
+                stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
+            ),
+        )
+
+        showing("La escuela ya no estudia esa lección. No queda nada que parar.")
+    }
+
+    @Test
+    fun `keeps a stop's outage beside an idle slot`() {
+        show(idleSchool.copy(stop = SchoolUiState.LessonRequest.Unreachable(firstLesson)))
+
+        showing("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
     }
 
     @Test
