@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -111,8 +112,9 @@ private fun SignedInFrame(
     content: @Composable () -> Unit,
 ) {
     val listing: FiefSwitcherUiState by switcher.state.collectAsStateWithLifecycle()
-    LaunchedEffect(switcher) {
+    LifecycleStartEffect(switcher) {
         switcher.onIntent(FiefSwitcherIntent.ScreenShown)
+        onStopOrDispose { switcher.onIntent(FiefSwitcherIntent.ScreenHidden) }
     }
     val listed: FiefSwitcherUiState.Listed? = listing as? FiefSwitcherUiState.Listed
     val tabFief: FiefId? = fief ?: listed?.entries?.firstOrNull()?.fief

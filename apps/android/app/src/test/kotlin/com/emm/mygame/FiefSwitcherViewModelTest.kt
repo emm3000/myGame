@@ -135,6 +135,46 @@ class FiefSwitcherViewModelTest {
     }
 
     @Test
+    fun `stops reading a failed list once the screen is hidden`() = runTest {
+        val listings: FakeFiefListRepository = FakeFiefListRepository()
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+        listings.answerListed(FiefListResult.Unreachable)
+
+        viewModel.onIntent(FiefSwitcherIntent.ScreenHidden)
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(1, listings.listedCount)
+    }
+
+    @Test
+    fun `reads a failed list again when the screen comes back`() = runTest {
+        val listings: FakeFiefListRepository = FakeFiefListRepository()
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+        listings.answerListed(FiefListResult.Unreachable)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenHidden)
+
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+
+        assertEquals(2, listings.listedCount)
+    }
+
+    @Test
+    fun `gives up on a list the api failed`() = runTest {
+        val listings: FakeFiefListRepository = FakeFiefListRepository()
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+        listings.answerListed(FiefListResult.Failed)
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(1, listings.listedCount)
+    }
+
+    @Test
     fun `stops reading once the list answers`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
         val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)

@@ -281,6 +281,33 @@ class TownScreenTest {
     }
 
     @Test
+    fun `uses the singular for one free person among the people needed`() {
+        show(blocked(TownUiState.BlockReason.PeopleShort(needed = 5, free = 1)))
+
+        assertBlockedBy("Gente necesaria: 5. Libre: 1.")
+    }
+
+    @Test
+    fun `uses the singular for a waiting list of one`() {
+        show(blocked(TownUiState.BlockReason.WaitingListFull(cap = 1)))
+
+        assertBlockedBy("La lista de espera ya tiene 1 obra. Espera a que termine alguna.")
+    }
+
+    @Test
+    fun `uses the singular for a work that needs one person`() {
+        val refused: TownUiState.StartStatus =
+            TownUiState.StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.NotEnoughPeople(1, 0))
+
+        show(riverton.copy(start = refused))
+
+        composeRule
+            .onNodeWithText("Esta obra necesita 1 persona libre y tienes 0. Sube el nivel de tus hogares.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun `keeps a blocked level tappable`() {
         show(blocked(TownUiState.BlockReason.PeopleShort(needed = 5, free = 2)))
 

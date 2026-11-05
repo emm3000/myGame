@@ -143,6 +143,26 @@ class TownWorkViewModelTest {
     }
 
     @Test
+    fun `lets a level wait for people the waiting work may free`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(
+                people = TownSnapshot.People(supplied = 2, free = 2, atWork = 0),
+                places = placesOf(TownSnapshot.Building(TownBuildingKind.Farm, 1, nextLevelOf(people = 5))),
+                waitingList = listOf(workOf(TownBuildingKind.Homes)),
+            ),
+        )
+
+        assertNull(placeOf(viewModel, TownBuildingKind.Farm).block)
+    }
+
+    @Test
+    fun `leaves the list open while the slot is empty`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf(waitingList = listOf(workOf(), workOf()), cap = 2))
+
+        assertNull(placeOf(viewModel, TownBuildingKind.Homes).block)
+    }
+
+    @Test
     fun `blocks every level while the list is full`() = runTest {
         val viewModel: TownViewModel =
             homeViewModel(townOf(slot = workOf(), waitingList = listOf(workOf(), workOf()), cap = 2))
