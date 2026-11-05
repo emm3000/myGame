@@ -230,7 +230,7 @@ What trunk holds, checked at `1f0b1c41`:
 - **Skills keep ADR 036's rule 7**: the player's, earned at a review,
   never taken back, multiplying one of the four rates, re-basing the
   town at the earn. Which resource each lesson raises and by how much is
-  ADR 039's rule (#747): the cycle of the game's resources over the
+  ADR 039's rule: the cycle of the game's resources over the
   lessons' positions in `curriculum.json`, +5 % each.
 - **The town's skills get their own table, `earned_skills`**, keyed by
   player and lesson like `player_skills`, its `resource` on the town's
@@ -481,7 +481,7 @@ What trunk holds, checked at `1f0b1c41`:
   slice on. ADR 038's fixed copy gains the review card's prompts.
   ADR 037's chrome examples change: *cancel* and *upgrade* leave the
   chrome, and *password* is fixed copy, which check 9 exempts.
-- ADR 039 (#747) is amended on its merge. Its rule 6 ("its migration
+- ADR 039 is amended, each change marked there. Its rule 6 ("its migration
   maps stored levels as it maps every resource column") and its
   Consequences line ("the mapping of stored levels in its reset
   migration") become slice 16's copy, food to food, with no resource
@@ -502,7 +502,7 @@ What trunk holds, checked at `1f0b1c41`:
 
 ## References
 
-- ADR 005, 007, 008, 011, 013, 014, 016–022, 027, 035, 036, 037, 038.
+- ADR 005, 007, 008, 011, 013, 014, 016–022, 027, 035, 036, 037, 038, 039.
 - `docs/research/english-pivot/decisions.md` §1.4, §1.5, §9, §10, §13,
   §14.
 - `docs/setting/chrome.md`: the chrome's words with their NGSL 1.2
