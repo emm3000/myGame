@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.FoundTown
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
+import com.emm.mygame.core.network.generated.models.StartLessonRequest
 import com.emm.mygame.core.network.generated.models.TownOverview
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -45,6 +46,14 @@ internal class ApiTownRepository(
         api.townWorkBuildingLevelDelete(building = building.toWireBuilding().value, level = level.toString())
     }
 
+    override suspend fun startLesson(lesson: LessonId): TownLessonResult = studying {
+        api.townLessonsPost(StartLessonRequest(lessonId = lesson.value))
+    }
+
+    override suspend fun stopLesson(lesson: LessonId): TownLessonResult = studying {
+        api.townLessonsLessonIdDelete(lessonId = lesson.value)
+    }
+
     private suspend fun working(call: suspend () -> Response<TownOverview>): TownWorkResult =
         withContext(ioDispatcher) {
             try {
@@ -53,6 +62,17 @@ internal class ApiTownRepository(
                 TownWorkResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
                 TownWorkResult.Unreachable
+            }
+        }
+
+    private suspend fun studying(call: suspend () -> Response<TownOverview>): TownLessonResult =
+        withContext(ioDispatcher) {
+            try {
+                lessonAnsweredOrRefused(call())
+            } catch (expectedOutage: IOException) {
+                TownLessonResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                TownLessonResult.Unreachable
             }
         }
 
@@ -82,6 +102,15 @@ internal class ApiTownRepository(
         val refusal: WireRefusal = response.wireRefusal() ?: return TownWorkResult.Unreachable
         return TownWorkResult.Refused(refusal.toWorkRefusal())
     }
+
+    private fun lessonAnsweredOrRefused(response: Response<TownOverview>): TownLessonResult {
+        val snapshot: TownSnapshot? = response.body()?.toSnapshot()
+        if (response.isSuccessful) {
+            return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
+        }
+        val refusal: WireRefusal = response.wireRefusal() ?: return TownLessonResult.Unreachable
+        return TownLessonResult.Refused(refusal.toLessonRefusal())
+    }
 }
 
 private fun WireRefusal.toFoundRefusal(): TownFoundRefusal = when (bareKind()) {
@@ -104,4 +133,24 @@ private fun ApiError.toWorkRefusal(): TownWorkRefusal = when (this) {
     is ApiError.NotenoughresourcesWrapper -> TownWorkRefusal.NotEnoughResources
     is ApiError.BuildingworknotfoundWrapper -> TownWorkRefusal.BuildingWorkNotFound(value.params.level)
     else -> TownWorkRefusal.Unrecognized
+}
+
+private val lessonRefusals: Map<BareApiError.Kind, TownLessonRefusal> = mapOf(
+    BareApiError.Kind.StudySlotBusy to TownLessonRefusal.StudySlotBusy,
+    BareApiError.Kind.LessonSchoolTooLow to TownLessonRefusal.LessonSchoolTooLow,
+    BareApiError.Kind.LessonAlreadyStudied to TownLessonRefusal.LessonAlreadyStudied,
+    BareApiError.Kind.LessonUnderStudy to TownLessonRefusal.LessonUnderStudy,
+    BareApiError.Kind.LessonStudyNotFound to TownLessonRefusal.LessonStudyNotFound,
+    BareApiError.Kind.TownNotFound to TownLessonRefusal.TownNotFound,
+)
+
+private fun WireRefusal.toLessonRefusal(): TownLessonRefusal = when (this) {
+    is WireRefusal.Bare -> lessonRefusals[kind] ?: TownLessonRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toLessonRefusal()
+}
+
+private fun ApiError.toLessonRefusal(): TownLessonRefusal = when (this) {
+    is ApiError.LearningcapreachedWrapper ->
+        TownLessonRefusal.LearningCapReached(cap = value.params.learningCap, inLearning = value.params.cardsInLearning)
+    else -> TownLessonRefusal.Unrecognized
 }

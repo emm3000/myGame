@@ -133,7 +133,7 @@ class TownRepositoryTest {
 
         assertEquals(
             listOf(Instant.parse("2026-11-08T00:00:00.000Z"), Instant.parse("2026-11-05T10:20:00.000Z")),
-            listOf(read.seasonEndsAt, read.lessonFinishesAt),
+            listOf(read.seasonEndsAt, read.lessonSlot?.finishesAt),
         )
     }
 

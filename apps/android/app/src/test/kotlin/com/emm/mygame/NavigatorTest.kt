@@ -114,6 +114,80 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the school above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openSchool()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `keeps one school when it is opened twice`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openSchool()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `opens no school above sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack).openSchool()
+
+        assertEquals(listOf<NavKey>(signIn), backStack)
+    }
+
+    @Test
+    fun `opens no school while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openSchool()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to the town on back from the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to the town below the school from the town tab`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens the map in place of the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openMap(firstListed)
+
+        assertEquals(listOf(Destination.Town, map), backStack)
+    }
+
+    @Test
+    fun `opens the chronicle in place of the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openChronicle(firstListed)
+
+        assertEquals(listOf(Destination.Town, chronicle), backStack)
+    }
+
+    @Test
     fun `opens the chronicle above the town`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 

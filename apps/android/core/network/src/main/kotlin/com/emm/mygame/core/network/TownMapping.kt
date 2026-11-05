@@ -6,6 +6,8 @@ import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
+import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
+import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
 import kotlin.time.Duration.Companion.seconds
 
@@ -15,6 +17,12 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         item.toWorkItem() ?: return null
     }
     val slot: TownSnapshot.WorkItem? = work.slot?.let { item: BuildingWork -> item.toWorkItem() ?: return null }
+    val townLessons: List<TownSnapshot.Lesson> = lessons.map { lesson: TownOverviewLessonsInner ->
+        lesson.toLesson() ?: return null
+    }
+    val earnedSkills: List<TownSnapshot.EarnedSkill> = skills.map { skill: TownOverviewSkillsInner ->
+        skill.toEarnedSkill() ?: return null
+    }
     return TownSnapshot(
         name = name,
         label = townLabel,
@@ -36,7 +44,10 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
             buildings.office.toBuilding(TownBuildingKind.Office),
         ),
         work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = work.cap),
-        lessonFinishesAt = lessonSlot?.finishesAt?.toKotlinInstant(),
+        lessons = townLessons,
+        skills = earnedSkills,
+        learning = learning.toLearning(),
+        lessonSlot = lessonSlot?.toLessonSlot(),
         readAt = readAt.toKotlinInstant(),
     )
 }

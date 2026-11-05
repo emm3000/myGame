@@ -33,7 +33,7 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
         ?.let { instant: Instant -> instant - now }
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
-    listOfNotNull(work.slot?.finishesAt, lessonFinishesAt, seasonEndsAt)
+    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt)
 
 private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant): TownUiState.StockLine = TownUiState.StockLine(
     kind = kind,

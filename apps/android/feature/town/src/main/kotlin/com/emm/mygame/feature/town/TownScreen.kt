@@ -29,7 +29,12 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.TownLabel
 
 @Composable
-fun TownScreen(state: TownUiState, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
+fun TownScreen(
+    state: TownUiState,
+    onIntent: (TownIntent) -> Unit,
+    onSchoolOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -66,20 +71,25 @@ fun TownScreen(state: TownUiState, onIntent: (TownIntent) -> Unit, modifier: Mod
                 Header(isSigningOut = false, onIntent = onIntent)
                 NamingSection(naming = state, onIntent = onIntent)
             }
-            is TownUiState.Content -> TownHome(content = state, onIntent = onIntent)
+            is TownUiState.Content -> TownHome(content = state, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
         }
     }
 }
 
 @Composable
-private fun TownHome(content: TownUiState.Content, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun TownHome(
+    content: TownUiState.Content,
+    onIntent: (TownIntent) -> Unit,
+    onSchoolOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         Header(isSigningOut = false, onIntent = onIntent) {
             TownTitle(name = content.name, label = content.label)
         }
         StocksSection(content = content)
         BuildingWorkSection(content = content, onIntent = onIntent)
-        PlacesSection(content = content, onIntent = onIntent)
+        PlacesSection(content = content, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
     }
 }
 

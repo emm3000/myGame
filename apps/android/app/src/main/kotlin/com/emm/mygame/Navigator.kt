@@ -56,9 +56,13 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         openTab(Destination.Chronicle(fief))
     }
 
+    fun openSchool() {
+        if (areTabsEnabled && backStack.lastOrNull() == Destination.Town) backStack.add(Destination.School)
+    }
+
     fun openTown() {
         when (backStack.lastOrNull()) {
-            is Destination.Map, is Destination.Chronicle -> back()
+            Destination.School, is Destination.Map, is Destination.Chronicle -> back()
             else -> Unit
         }
     }
@@ -77,7 +81,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         if (!areTabsEnabled) return
         when (backStack.lastOrNull()) {
             Destination.Town -> backStack.add(tab)
-            is Destination.Map, is Destination.Chronicle -> backStack[backStack.lastIndex] = tab
+            Destination.School, is Destination.Map, is Destination.Chronicle -> backStack[backStack.lastIndex] = tab
             else -> Unit
         }
     }

@@ -11,7 +11,10 @@ data class TownSnapshot(
     val people: People,
     val buildings: List<Building>,
     val work: Work,
-    val lessonFinishesAt: Instant?,
+    val lessons: List<Lesson>,
+    val skills: List<EarnedSkill>,
+    val learning: Learning,
+    val lessonSlot: LessonSlot?,
     val readAt: Instant,
 ) {
 
@@ -33,4 +36,22 @@ data class TownSnapshot(
         val startsAt: Instant,
         val finishesAt: Instant,
     )
+
+    data class Lesson(
+        val id: LessonId,
+        val theme: String,
+        val duration: Duration,
+        val requiredSchoolLevel: Int,
+        val skill: LessonSkill,
+        val isStudied: Boolean,
+        val wordCount: Int,
+    )
+
+    data class LessonSkill(val resource: TownResourceKind, val ratePercent: Int)
+
+    data class EarnedSkill(val lesson: LessonId, val resource: TownResourceKind, val ratePercent: Int)
+
+    data class Learning(val cap: Int, val inLearning: Int)
+
+    data class LessonSlot(val lesson: LessonId, val startedAt: Instant, val finishesAt: Instant)
 }

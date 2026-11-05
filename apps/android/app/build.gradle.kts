@@ -88,6 +88,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":feature:chronicle"))
     implementation(project(":feature:map"))
+    implementation(project(":feature:school"))
     implementation(project(":feature:signin"))
     implementation(project(":feature:town"))
 

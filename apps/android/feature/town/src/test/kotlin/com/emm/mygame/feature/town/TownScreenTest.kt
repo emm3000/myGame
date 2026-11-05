@@ -41,6 +41,8 @@ class TownScreenTest {
 
     private val intents: MutableList<TownIntent> = mutableListOf()
 
+    private var schoolOpens: Int = 0
+
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
@@ -541,6 +543,22 @@ class TownScreenTest {
             .assertIsDisplayed()
     }
 
+    @Test
+    fun `opens the school from the school's card`() {
+        show(riverton.copy(places = listOf(farmOffer.copy(kind = TownBuildingKind.School))))
+
+        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+
+        assertEquals(1, schoolOpens)
+    }
+
+    @Test
+    fun `offers the school only on the school's card`() {
+        show(riverton)
+
+        composeRule.onAllNodesWithText("Ir a la escuela").assertCountEquals(0)
+    }
+
     private fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
 
     private fun blocked(reason: TownUiState.BlockReason): TownUiState.Content =
@@ -549,7 +567,11 @@ class TownScreenTest {
     private fun show(state: TownUiState) {
         composeRule.setContent {
             MyGameTheme {
-                TownScreen(state = state, onIntent = { intent: TownIntent -> intents += intent })
+                TownScreen(
+                    state = state,
+                    onIntent = { intent: TownIntent -> intents += intent },
+                    onSchoolOpen = { schoolOpens += 1 },
+                )
             }
         }
     }

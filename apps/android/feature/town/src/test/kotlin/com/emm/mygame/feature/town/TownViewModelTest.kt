@@ -258,7 +258,7 @@ class TownViewModelTest {
 
     @Test
     fun `reads the town when the lesson finishes`() = runTest {
-        homeViewModel(townOf(lessonFinishesAt = readInstant + 1.minutes))
+        homeViewModel(townOf(lessonSlot = lessonEndingAt(readInstant + 1.minutes)))
 
         advanceTimeBy(1.minutes)
         runCurrent()
