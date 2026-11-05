@@ -73,9 +73,7 @@ export function pathDataOf(tag: ArtTag): string {
         numberOf(tag, 'rx'),
         numberOf(tag, 'ry'),
       )
-    case 'polygon':
-      return polygonOf(tag)
     default:
-      return tag.attributes.d ?? ''
+      return polygonOf(tag)
   }
 }

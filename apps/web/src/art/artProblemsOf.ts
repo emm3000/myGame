@@ -10,7 +10,6 @@ const allowedAttributes: Readonly<Record<string, ReadonlyArray<string>>> = {
   circle: ['cx', 'cy', 'r', 'fill'],
   ellipse: ['cx', 'cy', 'rx', 'ry', 'fill'],
   polygon: ['points', 'fill'],
-  path: ['d', 'fill'],
 }
 
 function viewBoxProblemsOf(root: ArtTag | undefined): ReadonlyArray<string> {

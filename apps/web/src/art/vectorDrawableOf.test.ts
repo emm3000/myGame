@@ -22,7 +22,7 @@ describe('vectorDrawableOf', () => {
 
   it('keeps each shape as a path with its fill, in drawing order', () => {
     const drawable = vectorDrawableOf(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect x="0" y="0" width="9" height="9" fill="${sky}"/><path d="M0 0L9 9z" fill="${palette.food.light}"/></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect x="0" y="0" width="9" height="9" fill="${sky}"/><polygon points="0,0 9,9 0,9" fill="${palette.food.light}"/></svg>`,
     )
 
     expect([...drawable.matchAll(/android:fillColor="([^"]*)"/g)].map(([, fill]) => fill)).toEqual([
@@ -57,9 +57,5 @@ describe('vectorDrawableOf', () => {
 
   it('joins polygon points into a closed path', () => {
     expect(pathDataIn(`<polygon points="0,9 4.5,0 9,9" fill="${sky}"/>`)).toBe('M0,9L4.5,0L9,9z')
-  })
-
-  it('passes path data through unchanged', () => {
-    expect(pathDataIn(`<path d="M0,9 Q4,0 9,9 z" fill="${sky}"/>`)).toBe('M0,9 Q4,0 9,9 z')
   })
 })
