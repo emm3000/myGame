@@ -31,7 +31,7 @@ const deriveOccupiedPeople = (
       continue
     }
     const found = catalog.levelOf(building, level)
-    if (found === undefined) {
+    if (found?.building !== building) {
       return err({ kind: 'UnknownTownBuildingLevel', building, level })
     }
     occupied += found.people

@@ -98,6 +98,16 @@ describe('JsonTownCatalog', () => {
     ])
   })
 
+  it("keeps the fief's season calendar until the fief's content is deleted", () => {
+    const fief = JSON.parse(readFileSync(join(shippedTownContent, '..', 'fief.json'), 'utf8'))
+    const town = JSON.parse(readFileSync(join(shippedTownContent, 'town.json'), 'utf8'))
+
+    expect([town.seasons.epoch, town.seasons.daysPerSeason]).toEqual([
+      fief.seasons.epoch,
+      fief.seasons.daysPerSeason,
+    ])
+  })
+
   it('fails at start-up on a building file that describes another building', () => {
     const directory = withTownContent(
       rewritten('farm.json', (farm) => ({ ...farm, building: 'factory' })),
