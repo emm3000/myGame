@@ -112,7 +112,13 @@ export const accrueTown = (
   while (segmentStart.epochMilliseconds < to.epochMilliseconds) {
     const boundary = nextSeasonBoundaryAfter(segmentStart, catalog.townSettings())
     const segmentEnd = boundary.epochMilliseconds < to.epochMilliseconds ? boundary : to
-    const rates = deriveResourceRates(town.buildingLevels, town.terrain, catalog, segmentStart)
+    const rates = deriveResourceRates(
+      town.buildingLevels,
+      town.terrain,
+      town.skills,
+      catalog,
+      segmentStart,
+    )
     if (!rates.ok) {
       return rates
     }

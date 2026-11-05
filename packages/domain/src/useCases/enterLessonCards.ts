@@ -2,7 +2,7 @@ import type { DomainError } from '../DomainError'
 import type { HeldCard } from '../learning/HeldCard'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import type { LessonId } from '../learning/Lesson'
-import { MemoryCard } from '../memory/MemoryCard'
+import { lessonCardsEnteredAt } from '../learning/lessonCardsEnteredAt'
 import type { PlayerId } from '../player/PlayerId'
 import type { CardRepository } from '../ports/CardRepository'
 import type { LessonCatalog } from '../ports/LessonCatalog'
@@ -35,10 +35,7 @@ export const enterLessonCards = async (
   if (holdsLessonCards(lesson, held.value)) {
     return ok([])
   }
-  const entered = lesson.words.map(({ id }) => ({
-    wordId: id,
-    card: MemoryCard.entered(enteredAt),
-  }))
+  const entered = lessonCardsEnteredAt(lesson, enteredAt)
   for (const card of entered) {
     const saved = await cards.save(playerId, card)
     if (!saved.ok) {

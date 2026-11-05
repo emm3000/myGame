@@ -41,6 +41,12 @@ export type DomainError =
   | { readonly kind: 'LessonUnderStudy'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonStudyNotFound'; readonly lessonId: LessonId }
   | {
+      readonly kind: 'LearningCapReached'
+      readonly learningCap: number
+      readonly cardsInLearning: number
+      readonly lessonWordCount: number
+    }
+  | {
       readonly kind: 'LessonLibraryTooLow'
       readonly requiredLibraryLevel: number
       readonly libraryLevel: number

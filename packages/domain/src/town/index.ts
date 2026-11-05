@@ -22,9 +22,12 @@ export { buildPercentAt } from './buildPercentAt'
 export { derivePeople } from './derivePeople'
 export { deriveResourceRates, type ResourceRates } from './deriveResourceRates'
 export { deriveStorageCapacity } from './deriveStorageCapacity'
+export { earnTownSkill } from './earnTownSkill'
 export { type FullSince, noStoreFull } from './FullSince'
 export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './foundTown'
 export type { HireKind } from './HireKind'
+export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './LessonSlot'
+export type { LessonSlotRepository } from './LessonSlotRepository'
 export type { People } from './People'
 export type { ResourceKind } from './ResourceKind'
 export { rebaseFullSince } from './rebaseFullSince'
@@ -32,11 +35,17 @@ export { type ResolveTownDependencies, resolveTown } from './resolveTown'
 export { resourceKinds } from './resourceKinds'
 export type { SiteAddress } from './SiteAddress'
 export type { Stocks } from './Stocks'
+export type { StudyPercents } from './StudyPercents'
 export {
   type StartBuildingWorkCommand,
   type StartBuildingWorkDependencies,
   startBuildingWork,
 } from './startBuildingWork'
+export {
+  type StartSchoolLessonCommand,
+  type StartSchoolLessonDependencies,
+  startSchoolLesson,
+} from './startSchoolLesson'
 export {
   type StopBuildingWorkCommand,
   type StopBuildingWorkDependencies,
@@ -58,5 +67,6 @@ export type {
   TownSeasons,
   TownSettings,
 } from './TownSettings'
+export type { TownSkill } from './TownSkill'
 export { terrainOf } from './terrainOf'
 export { townLabelOf } from './townLabelOf'

@@ -25,6 +25,7 @@ import type { TownCatalog } from './TownCatalog'
 import type { TownEvent } from './TownEvent'
 import type { TownId } from './TownId'
 import type { TownName } from './TownName'
+import type { TownSkill } from './TownSkill'
 import { terrainOf } from './terrainOf'
 
 export type TownFounding = {
@@ -36,7 +37,7 @@ export type TownFounding = {
   readonly at: Instant
 }
 
-type TownState = {
+type StoredState = {
   readonly stocks: Stocks
   readonly storedAt: Instant
   readonly fullSince: FullSince
@@ -45,7 +46,11 @@ type TownState = {
   readonly waitingList: WaitingList
 }
 
-export type StoredTown = TownState & {
+type TownState = StoredState & {
+  readonly skills: ReadonlyArray<TownSkill>
+}
+
+export type StoredTown = StoredState & {
   readonly id: TownId
   readonly playerId: PlayerId
   readonly name: TownName
@@ -215,6 +220,7 @@ export class Town {
       buildingLevels: foundingLevels,
       workSlot: idleWorkSlot,
       waitingList: [],
+      skills: [],
     })
   }
 
@@ -224,7 +230,7 @@ export class Town {
       return err(refusal)
     }
     const { id, playerId, name, address, ...state } = stored
-    return ok(new Town(id, playerId, name, address, state))
+    return ok(new Town(id, playerId, name, address, { ...state, skills: [] }))
   }
 
   get stocks(): Stocks {
@@ -249,6 +255,10 @@ export class Town {
 
   get waitingList(): WaitingList {
     return this.state.waitingList
+  }
+
+  get skills(): ReadonlyArray<TownSkill> {
+    return this.state.skills
   }
 
   get terrain(): Terrain {
@@ -346,6 +356,14 @@ export class Town {
         waitingList,
       }),
     )
+  }
+
+  earnSkill(skill: TownSkill, stocksAtEarn: Stocks): Town {
+    return this.changed({
+      skills: [...this.skills, skill],
+      stocks: stocksAtEarn,
+      storedAt: skill.earnedAt,
+    })
   }
 
   withFullSince(fullSince: FullSince): Town {
