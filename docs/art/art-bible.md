@@ -1,6 +1,6 @@
 # Art bible
 
-Status: flat vector present-day town, ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`), the Townword Design System (https://claude.ai/artifact/BLNf2broSoGPHBKfCNd81f). Every earlier image is retired; N7 stays. One style for every image the game shows, so assets generated months apart sit together. Read before generating any image. Every generated image is committed with the prompt that produced it (N7 in `docs/PRODUCT_REQUIREMENTS.md`). `catalog.md` lists the retired image families and is not extended until the town's families are generated.
+Status: flat vector present-day town, ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`), the Townword Design System (https://claude.ai/artifact/BLNf2broSoGPHBKfCNd81f). Every earlier image is retired. One style for every image the game shows, so images drawn months apart sit together. Read before drawing any image. Every illustration is hand-written SVG, so the file that ships is the source that produced it, which is how a town image meets N7 (`docs/PRODUCT_REQUIREMENTS.md`). `catalog.md` lists the town's families and the retired medieval ones.
 
 ## Style
 
@@ -48,41 +48,20 @@ A producing building shows its resource's accent as one clearly visible element.
 
 ## Framing
 
-- Places are 1:1, the subject centered and filling about 70 % of the frame, front view slightly elevated, sky behind, a flat ground band and one flat ground shadow.
+- Places are 1:1, the subject centered and filling about 70 % of the frame, front view slightly elevated, sky behind, a flat ground band and one flat ground shadow. The same sky, clouds and ground band sit behind every place and every waste site.
 - No people in place images.
-- Ten levels and five art tiers, tier = ceil(level / 2). A higher tier is the same place grown, never a new style.
-- Files are `places/<word>-<tier>.webp` with `<word>-<tier>.prompt.txt` beside each.
-- Thumbnail: an image drawn at 96 px or less is served from a 96 px WebP derivative, `<name>-96.webp` beside its 768 source, made with `cwebp -q 78 -m 6 -resize 96 0 <in> -o <out>` and weighing at most 10 KB. The derivative is a conversion, never a regeneration: the source keeps its prompt and the derivative has none.
-
-## Base prompt template
-
-```
-<subject>, a present-day <place word> in a small town, flat vector illustration,
-solid flat colors, no outlines, no gradients, no textures, clean geometric shapes,
-gently rounded corners, simplified friendly proportions for an adult audience,
-bright daylight, clear light-blue sky (#cdeaf7) with one or two soft white clouds,
-green ground band (#8bcf6a) with one flat darker ground shadow,
-palette: brick #e0674a, roof blue #3c5ea8, wall cream #f7e6c8, glass #9fdcf5,
-tree green #3f9f5a, sun yellow #ffcf3f, steel #a9b8c4,
-<resource accent> as one clearly visible element,
-front view slightly elevated, subject centered filling 70% of the frame, square 1:1,
-no text, no letters, no numbers, no signs, no logos, no brands, no real places,
-no people, no photorealism, no 3D, no watermark
-```
-
-Fill `<subject>` and `<place word>` from `CONTEXT.md` and the table in ADR 035. Fill `<resource accent>` from the accents above, or drop that line. Add one tier line, from `tier 1: small, new, one floor` up to `tier 5: large, busy, several floors, modern additions`.
+- Ten levels and five art tiers, tier = ceil(level / 2). A higher tier is the same place grown, never a new style: the building of tier 1 stays in view and gains bays, floors, wings and yard pieces, and a tier never covers less of the frame than the one before it.
+- Waste sites (proposal, for the owner's approval) are 1:1 in the place framing: an empty site under the same sky and ground band, the waste piled at the center with one flat ground shadow. Sizes 1 to 3 are the same pile grown wider and taller: bags, cartons, cans, drums and old tires, with a few weeds. No people, no text, no rot, no vermin, no smoke.
 
 ## Consistency rules
 
-- One model and one template per asset family; a template change regenerates the whole family.
-- The square output suffix is output framing for Codex's image tool, which has no size argument, not a template change; it does not regenerate a family.
-- Every asset is checked against a contact sheet of its family before commit; an outlier is regenerated, never kept.
-- File name: `places/<word>-<tier>.webp`, the word as in `CONTEXT.md`.
-- The prompt used is stored next to the image as `<word>-<tier>.prompt.txt`.
+- Every family is checked on a contact sheet of the whole family before commit, the five tiers of a place side by side; an outlier is redrawn, never kept.
+- File names: `places/<word>-<tier>.svg`, the word as in `CONTEXT.md`, and `waste/waste-<size>.svg`, under `apps/web/public/art/`.
+- A shape takes its color from the palette above by its hex, and the resource accents only in their light value.
 
 ## Model and size
 
-GPT Image at 1024×1024 is the generation size of every family; the game serves a 768×768 WebP converted from that output, except the 96 px thumbnail derivatives (Framing), converted from the 768. Codex's image tool takes no size argument, so a prompt it runs ends with a square output suffix. Prompts are written by the agent in the ticket that delivers the family, from the template above; the author or Codex runs them and commits image and prompt together. A ticket Codex runs carries `ready-for-codex` (`docs/agents/triage-labels.md`).
+Every illustration family is hand-written SVG drawn to the Style, Palette and Framing above, never generated by an image model. The file is the source and ships as it is: a square `viewBox` from `0 0`, flat `rect`, `circle`, `ellipse`, `polygon` and `path` shapes, each colored only by its `fill` from the palette, no `<text>`, no gradient, no filter, no stroke, no transform, no raster `<image>`, and at most 12 KB. `artProblemsOf` (`apps/web/src/art/`) holds those rules, and the web suite runs it over every file under `places/` and `waste/`. The browser scales the vector, so no size derivative exists. Android draws the same files as VectorDrawables converted by `pnpm --filter @mygame/web drawables` into `core:designsystem` (`apps/android/CLAUDE.md`); a test fails when a converted file drifts from its SVG.
 
 ## UI icons
 

@@ -7,7 +7,8 @@
     "dev": "vite dev",
     "build": "vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "drawables": "tsx src/art/generateDrawables.ts"
   },
   "dependencies": {
     "@tanstack/react-router": "1.170.38",
@@ -30,6 +31,7 @@
     "jsdom": "30.1.0",
     "nitro": "3.0.260903-beta",
     "tailwindcss": "4.3.3",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "vite": "8.3.0",
     "vitest": "catalog:"

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <rect x="0" y="0" width="240" height="240" fill="#cdeaf7"/>
+  <ellipse cx="44" cy="50" rx="18" ry="9" fill="#ffffff"/>
+  <ellipse cx="60" cy="43" rx="16" ry="12" fill="#ffffff"/>
+  <ellipse cx="76" cy="50" rx="15" ry="8" fill="#ffffff"/>
+  <ellipse cx="176" cy="32" rx="13" ry="7" fill="#ffffff"/>
+  <ellipse cx="190" cy="27" rx="12" ry="9" fill="#ffffff"/>
+  <ellipse cx="203" cy="33" rx="11" ry="6" fill="#ffffff"/>
+  <rect x="0" y="176" width="240" height="64" fill="#8bcf6a"/>
+  <ellipse cx="120" cy="186" rx="90.8" ry="8.3" fill="#5fae4f"/>
+  <rect x="23.9" y="98.6" width="4.7" height="85.4" fill="#a9b8c4"/>
+  <rect x="14.4" y="103.4" width="23.7" height="3.6" rx="1.2" fill="#a9b8c4"/>
+  <rect x="69" y="141.3" width="64" height="42.7" fill="#e0674a"/>
+  <rect x="65.4" y="136.6" width="71.2" height="7.1" rx="1.8" fill="#3c5ea8"/>
+  <rect x="78.5" y="150.8" width="14.2" height="14.2" rx="1.8" fill="#ffffff"/>
+  <rect x="80.9" y="153.2" width="9.5" height="9.5" rx="0.6" fill="#9fdcf5"/>
+  <rect x="109.3" y="155.5" width="16.6" height="28.5" rx="1.2" fill="#a9b8c4"/>
+  <circle cx="117.6" cy="149.6" r="3.6" fill="#ffcf3f"/>
+  <rect x="144.9" y="152" width="3.6" height="7.1" fill="#a9b8c4"/>
+  <rect x="150.8" y="152" width="3.6" height="7.1" fill="#a9b8c4"/>
+  <rect x="140.2" y="157.9" width="19" height="26.1" rx="2.4" fill="#7a5c00"/>
+  <rect x="143.7" y="162.7" width="2.4" height="16.6" fill="#ffcf3f"/>
+  <rect x="148.5" y="162.7" width="2.4" height="16.6" fill="#ffcf3f"/>
+  <rect x="153.2" y="162.7" width="2.4" height="16.6" fill="#ffcf3f"/>
+  <rect x="168.6" y="152" width="3.6" height="7.1" fill="#a9b8c4"/>
+  <rect x="174.6" y="152" width="3.6" height="7.1" fill="#a9b8c4"/>
+  <rect x="163.9" y="157.9" width="19" height="26.1" rx="2.4" fill="#7a5c00"/>
+  <rect x="167.4" y="162.7" width="2.4" height="16.6" fill="#ffcf3f"/>
+  <rect x="172.2" y="162.7" width="2.4" height="16.6" fill="#ffcf3f"/>
+  <rect x="176.9" y="162.7" width="2.4" height="16.6" fill="#ffcf3f"/>
+  <rect x="211.3" y="98.6" width="4.7" height="85.4" fill="#a9b8c4"/>
+  <rect x="201.8" y="103.4" width="23.7" height="3.6" rx="1.2" fill="#a9b8c4"/>
+  <path d="M31.1,103.4 Q52.4,153.2 73.7,143.7 L73.7,145.5 Q52.4,154.9 31.1,105.1 z" fill="#2f4b8a"/>
+  <path d="M133,143.7 Q171,153.2 209,103.4 L209,105.1 Q171,154.9 133,145.5 z" fill="#2f4b8a"/>
+</svg>

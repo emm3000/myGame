@@ -11,6 +11,6 @@ The skills speak in terms of five canonical triage roles. This file maps those r
 | `wontfix`                  | `wontfix`            | Will not be actioned                             |
 | none                       | `ready-for-codex`    | Fully specified, run by Codex (image generation) |
 
-`ready-for-codex` is this repo's own label and maps to no mattpocock role: no skill applies it. It marks the image generation tickets, which Codex runs (`docs/art/art-bible.md`, Model and size).
+`ready-for-codex` is this repo's own label and maps to no mattpocock role: no skill applies it. It marked the image generation tickets Codex ran; every illustration is now hand-written SVG, never generated (`docs/art/art-bible.md`, Model and size), so no art ticket takes it.
 
 When a skill mentions a role (for example "apply the AFK-ready triage label"), use the corresponding label string from this table. The labels are created on the GitHub repo once, with `gh label create <name>`, before the first triage.

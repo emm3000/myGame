@@ -15,6 +15,7 @@
       "!**/routeTree.gen.ts",
       "!packages/catalog/src/generated",
       "!apps/api/migrations/meta",
+      "!apps/web/public/art",
       "!apps/android"
     ]
   },
