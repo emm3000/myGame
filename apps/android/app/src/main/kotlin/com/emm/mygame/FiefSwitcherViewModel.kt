@@ -33,6 +33,7 @@ internal class FiefSwitcherViewModel(
     fun onIntent(intent: FiefSwitcherIntent) {
         when (intent) {
             FiefSwitcherIntent.ScreenShown -> read()
+            FiefSwitcherIntent.ScreenHidden -> reading?.cancel()
         }
     }
 
@@ -46,6 +47,7 @@ internal class FiefSwitcherViewModel(
                         return@launch
                     }
                     FiefListResult.Unreachable -> delay(listingRetryDelay)
+                    FiefListResult.Failed -> return@launch
                 }
             }
         }

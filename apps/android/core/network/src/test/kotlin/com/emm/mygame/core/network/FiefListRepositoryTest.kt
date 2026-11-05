@@ -144,17 +144,17 @@ class FiefListRepositoryTest {
     }
 
     @Test
-    fun `answers unreachable when the full list cannot be read`() = runTest {
+    fun `answers failed when the api refuses the full list`() = runTest {
         api.enqueue(MockResponse.Builder().code(500).build())
 
-        assertEquals(FiefListResult.Unreachable, repository().listed())
+        assertEquals(FiefListResult.Failed, repository().listed())
     }
 
     @Test
-    fun `answers unreachable when the full list is not a fief list`() = runTest {
+    fun `answers failed when the full list is not a fief list`() = runTest {
         api.enqueue(json(200, """{"id":"not a list"}"""))
 
-        assertEquals(FiefListResult.Unreachable, repository().listed())
+        assertEquals(FiefListResult.Failed, repository().listed())
     }
 
     @Test

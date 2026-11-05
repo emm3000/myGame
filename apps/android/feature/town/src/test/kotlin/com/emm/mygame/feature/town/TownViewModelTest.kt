@@ -445,6 +445,17 @@ class TownViewModelTest {
     }
 
     @Test
+    fun `counts waiting work down each second in its last minute`() = runTest {
+        val waiting: TownSnapshot.WorkItem = workOf(TownBuildingKind.School, 3, lasting = 30.seconds)
+        val viewModel: TownViewModel = homeViewModel(townOf(waitingList = listOf(waiting)))
+
+        advanceTimeBy(10.seconds)
+        runCurrent()
+
+        assertEquals(20.seconds, contentOf(viewModel).waitingList.single().remaining)
+    }
+
+    @Test
     fun `gives waiting work its finish on the device's clock`() = runTest {
         val waiting: TownSnapshot.WorkItem =
             workOf(TownBuildingKind.School, 3, startsAt = readInstant + 10.minutes, lasting = 20.minutes)
