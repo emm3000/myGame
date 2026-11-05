@@ -15,14 +15,14 @@ Hono on Node: the HTTP adapters, the persistence adapters that implement the dom
 
 ## Local database
 
-Postgres 18 in Docker, one container, one named volume and one host port per session, never a system service and never the owner's database. The container is named `mygame-<session>-pg`, its data volume `mygame-<session>-pgdata` (mounted at `/var/lib/postgresql`, the path the image declares as its volume), the database `mygame_<session>`, and the dispatch assigns the port:
+Postgres 18.6 in Docker (the exact tag `.github/workflows/ci.yml` pins), one container, one named volume and one host port per session, never a system service and never the owner's database. The container is named `mygame-<session>-pg`, its data volume `mygame-<session>-pgdata` (mounted at `/var/lib/postgresql`, the path the image declares as its volume), the database `mygame_<session>`, and the dispatch assigns the port:
 
 ```
-docker run -d --name mygame-schema-pg -v mygame-schema-pgdata:/var/lib/postgresql -e POSTGRES_PASSWORD=mygame -e POSTGRES_DB=mygame_schema -p 5433:5432 postgres:18
+docker run -d --name mygame-schema-pg -v mygame-schema-pgdata:/var/lib/postgresql -e POSTGRES_PASSWORD=mygame -e POSTGRES_DB=mygame_schema -p 5433:5432 postgres:18.6 -c fsync=off -c synchronous_commit=off -c full_page_writes=off
 export DATABASE_URL=postgres://postgres:mygame@localhost:5433/mygame_schema
 ```
 
-Without `-v` the image creates an anonymous volume that cannot be told apart from another project's once the container is gone; the named one lets `scripts/mygame-wave-close` remove it and `scripts/mygame-orphans` report it. `DATABASE_URL` must be set in the shell that runs `pnpm gate`; the migration test fails without it. CI runs the same image as a service container of the `gate` job.
+Without `-v` the image creates an anonymous volume that cannot be told apart from another project's once the container is gone; the named one lets `scripts/mygame-wave-close` remove it and `scripts/mygame-orphans` report it. The three `-c` flags drop durability, which holds only test data: a crash may lose or corrupt it and the container is recreated, so never on Neon or any database whose data matters. `DATABASE_URL` must be set in the shell that runs `pnpm gate`; the migration test fails without it. CI runs the same image as a service container of the `gate` job, with the same three settings.
 
 ## Local mail
 
