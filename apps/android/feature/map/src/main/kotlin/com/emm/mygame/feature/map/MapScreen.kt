@@ -36,7 +36,7 @@ fun MapScreen(state: MapUiState, onIntent: (MapIntent) -> Unit, modifier: Modifi
     ) {
         MyGameText(
             text = stringResource(R.string.map_title),
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )

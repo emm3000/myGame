@@ -48,7 +48,7 @@ private fun WaitingItem(
         ) {
             MyGameText(
                 text = stringResource(buildingNameOf(waiting.building)),
-                style = MyGameTypography.brand,
+                style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )

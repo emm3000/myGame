@@ -54,7 +54,7 @@ private fun BuildingItem(
             ) {
                 MyGameText(
                     text = stringResource(buildingNameOf(card.kind)),
-                    style = MyGameTypography.brand,
+                    style = MyGameTypography.title,
                     color = MyGameTheme.colors.ink,
                     modifier = Modifier.semantics { heading() },
                 )
@@ -89,7 +89,7 @@ private fun AtMaxLevel(modifier: Modifier = Modifier) {
         )
         MyGameText(
             text = stringResource(R.string.building_max_level),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
     }
@@ -153,7 +153,7 @@ internal fun CostItem(text: String, isShort: Boolean, modifier: Modifier = Modif
     MyGameText(
         text = text,
         style = MyGameTypography.body,
-        color = if (isShort) MyGameTheme.colors.rust else MyGameTheme.colors.ink,
+        color = if (isShort) MyGameTheme.colors.miss else MyGameTheme.colors.ink,
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
     )
 }

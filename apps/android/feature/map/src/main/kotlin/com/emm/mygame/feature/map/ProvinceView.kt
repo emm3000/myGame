@@ -24,8 +24,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameRadii
-import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -41,7 +41,7 @@ internal fun ProvinceView(content: MapUiState.Content, onIntent: (MapIntent) -> 
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1)) {
             MyGameText(
                 text = resources.headingOf(content.map),
-                style = MyGameTypography.title,
+                style = MyGameTypography.display,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
@@ -136,14 +136,14 @@ private fun PlotLine(
 @Composable
 private fun PlotHolderLines(plot: MapPlot, modifier: Modifier = Modifier) {
     val isOwn: Boolean = plot.holder is PlotHolder.Own
-    val edge: Color = if (isOwn) MyGameTheme.colors.river else MyGameTheme.colors.line
+    val edge: Color = if (isOwn) MyGameTheme.colors.action else MyGameTheme.colors.line
     val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.sm)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier
             .fillMaxWidth()
             .background(MyGameTheme.colors.surfaceRaised, shape)
-            .border(MyGameSizes.hairline, edge, shape)
+            .border(MyGameStrokeWidths.hairline, edge, shape)
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step3)
             .semantics(mergeDescendants = true) { },
     ) {

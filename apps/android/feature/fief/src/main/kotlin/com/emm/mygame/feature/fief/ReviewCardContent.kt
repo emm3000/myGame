@@ -30,6 +30,7 @@ import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -48,7 +49,7 @@ internal fun RecognitionCard(
 ) {
     val isLocked: Boolean = reviewing.isBusy || reviewing.isRated
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(text = card.word, style = MyGameTypography.title, color = MyGameTheme.colors.ink)
+        MyGameText(text = card.word, style = MyGameTypography.word, color = MyGameTheme.colors.ink)
         MyGameText(text = card.frame, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
         Prompt(text = stringResource(R.string.review_recognition_prompt))
         Column(
@@ -75,7 +76,7 @@ internal fun RecallCard(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(text = card.gloss, style = MyGameTypography.title, color = MyGameTheme.colors.ink)
+        MyGameText(text = card.gloss, style = MyGameTypography.word, color = MyGameTheme.colors.ink)
         MyGameText(text = card.gappedFrame, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
         Prompt(text = stringResource(R.string.review_recall_prompt))
         RecallField(
@@ -91,7 +92,7 @@ internal fun RecallCard(
                     "letters" to hint.letterCount,
                     "first" to hint.firstLetter,
                 ),
-                style = MyGameTypography.action,
+                style = MyGameTypography.button,
                 color = MyGameTheme.colors.ink,
             )
         }
@@ -134,7 +135,7 @@ internal fun RecallField(
 
 @Composable
 private fun Prompt(text: String, modifier: Modifier = Modifier) {
-    MyGameText(text = text, style = MyGameTypography.action, color = MyGameTheme.colors.ink, modifier = modifier)
+    MyGameText(text = text, style = MyGameTypography.button, color = MyGameTheme.colors.ink, modifier = modifier)
 }
 
 @Composable
@@ -147,7 +148,7 @@ private fun ChoiceRow(
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.md)
-    val edge: Color = if (isChosen) colors.umber else colors.lineStrong
+    val edge: Color = if (isChosen) colors.action else colors.lineStrong
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -155,7 +156,7 @@ private fun ChoiceRow(
             .fillMaxWidth()
             .defaultMinSize(minHeight = MyGameSizes.control)
             .background(colors.surfaceRaised, shape)
-            .border(MyGameSizes.hairline, edge, shape)
+            .border(MyGameStrokeWidths.hairline, edge, shape)
             .selectable(
                 selected = isChosen,
                 enabled = isEnabled,
@@ -175,10 +176,10 @@ private fun ChoiceMark(isChosen: Boolean, edge: Color, modifier: Modifier = Modi
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(MyGameSizes.icon)
-            .border(MyGameSizes.hairline, edge, CircleShape),
+            .border(MyGameStrokeWidths.hairline, edge, CircleShape),
     ) {
         if (isChosen) {
-            Box(modifier = Modifier.size(MyGameSpacing.step2).background(MyGameTheme.colors.umber, CircleShape))
+            Box(modifier = Modifier.size(MyGameSpacing.step2).background(MyGameTheme.colors.action, CircleShape))
         }
     }
 }

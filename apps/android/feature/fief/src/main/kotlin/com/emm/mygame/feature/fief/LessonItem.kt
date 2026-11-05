@@ -23,7 +23,7 @@ internal fun LessonItem(onReviewOpen: () -> Unit, modifier: Modifier = Modifier)
         ) {
             MyGameText(
                 text = stringResource(R.string.lesson_title),
-                style = MyGameTypography.brand,
+                style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )

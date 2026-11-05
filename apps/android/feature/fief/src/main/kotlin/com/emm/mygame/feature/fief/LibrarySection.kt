@@ -82,7 +82,7 @@ private fun BusyStudy(
         )
         MyGameText(
             text = stringResource(artNameOf(slot.art)),
-            style = MyGameTypography.brand,
+            style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
@@ -95,8 +95,8 @@ private fun BusyStudy(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.clearAndSetSemantics { contentDescription = description },
         ) {
-            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.umber)
-            MyGameText(text = countdown, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
+            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.action)
+            MyGameText(text = countdown, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
         }
         MyGameButton(
             label = stringResource(R.string.study_cancel),
@@ -133,7 +133,7 @@ private fun ArtItem(
         ) {
             MyGameText(
                 text = stringResource(artNameOf(card.kind)),
-                style = MyGameTypography.brand,
+                style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
@@ -150,7 +150,7 @@ private fun ArtItem(
             when (val next: FiefUiState.NextArtLine? = card.next) {
                 null -> MyGameText(
                     text = stringResource(R.string.building_max_level),
-                    style = MyGameTypography.action,
+                    style = MyGameTypography.button,
                     color = MyGameTheme.colors.ink,
                 )
                 else -> NextArt(art = card.kind, next = next, isWaiting = isWaiting, onIntent = onIntent)
@@ -185,7 +185,7 @@ private fun NextArt(
         MyGameText(
             text = icuStringResource(R.string.art_requires, "level" to next.requiredLibraryLevel.toString()),
             style = MyGameTypography.body,
-            color = if (next.isLibraryTooLow) MyGameTheme.colors.rust else MyGameTheme.colors.inkMuted,
+            color = if (next.isLibraryTooLow) MyGameTheme.colors.miss else MyGameTheme.colors.inkMuted,
         )
         MyGameButton(
             label = icuStringResource(R.string.study_start, "duration" to durationLabelOf(next.duration)),

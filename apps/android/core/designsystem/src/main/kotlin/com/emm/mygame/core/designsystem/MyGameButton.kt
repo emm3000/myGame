@@ -35,8 +35,8 @@ fun MyGameButton(
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
     val isBlocked: Boolean = blockedReason != null && !isBusy
     val isQuiet: Boolean = isBusy || isBlocked
-    val ground: Color = if (isQuiet) colors.surfaceSunken else colors.umber
-    val ink: Color = if (isQuiet) colors.inkMuted else colors.onUmber
+    val ground: Color = if (isQuiet) colors.surfaceSunken else colors.action
+    val ink: Color = if (isQuiet) colors.inkMuted else colors.onAction
     Row(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
@@ -56,7 +56,7 @@ fun MyGameButton(
         if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
         MyGameText(
             text = label,
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = ink,
             modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
         )
@@ -71,6 +71,6 @@ private fun Modifier.buttonSemantics(accessibleName: String?, state: String?): M
 
 private fun Modifier.edge(isBlocked: Boolean, isBusy: Boolean, colors: MyGameColors, shape: Shape): Modifier = when {
     isBlocked -> dashedFrame(colors.lineStrong)
-    isBusy -> border(MyGameSizes.hairline, colors.lineStrong, shape)
-    else -> border(MyGameSizes.hairline, colors.umber, shape)
+    isBusy -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
+    else -> border(MyGameStrokeWidths.hairline, colors.action, shape)
 }

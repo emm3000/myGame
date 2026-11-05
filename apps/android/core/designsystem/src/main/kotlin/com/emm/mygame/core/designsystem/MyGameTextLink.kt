@@ -19,8 +19,8 @@ fun MyGameTextLink(label: String, onClick: () -> Unit, modifier: Modifier = Modi
     ) {
         MyGameText(
             text = label,
-            style = MyGameTypography.action.copy(textDecoration = TextDecoration.Underline),
-            color = MyGameTheme.colors.umber,
+            style = MyGameTypography.button.copy(textDecoration = TextDecoration.Underline),
+            color = MyGameTheme.colors.action,
         )
     }
 }

@@ -64,7 +64,7 @@ private fun CorrectLine(step: ReviewUiState.ReviewStep.Correct, modifier: Modifi
     ) {
         MyGameText(
             text = stringResource(R.string.review_correct),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
         step.skill?.let { skill: ReviewUiState.SkillLine -> SkillEarned(skill = skill) }
@@ -81,7 +81,7 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
                 "resource" to resource,
                 "level" to skill.level.toString(),
             ),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
@@ -104,8 +104,8 @@ private fun WrongLine(yours: String, correct: String, modifier: Modifier = Modif
     ) {
         MyGameText(
             text = stringResource(R.string.review_wrong),
-            style = MyGameTypography.action,
-            color = MyGameTheme.colors.rust,
+            style = MyGameTypography.button,
+            color = MyGameTheme.colors.miss,
         )
         MyGameText(
             text = icuStringResource(R.string.review_yours, "answer" to yours),
@@ -114,7 +114,7 @@ private fun WrongLine(yours: String, correct: String, modifier: Modifier = Modif
         )
         MyGameText(
             text = icuStringResource(R.string.review_correct_form, "answer" to correct),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(

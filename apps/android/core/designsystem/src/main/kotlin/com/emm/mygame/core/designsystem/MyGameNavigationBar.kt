@@ -22,7 +22,7 @@ fun MyGameNavigationBar(modifier: Modifier = Modifier, content: @Composable RowS
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(MyGameSizes.hairline)
+                .height(MyGameStrokeWidths.hairline)
                 .background(MyGameTheme.colors.line),
         )
         Row(modifier = Modifier.fillMaxWidth().selectableGroup(), content = content)
@@ -50,12 +50,12 @@ fun RowScope.MyGameNavigationItem(
         ) {
             MyGameText(
                 text = label,
-                style = MyGameTypography.action.copy(
+                style = MyGameTypography.button.copy(
                     fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                 ),
                 color = when {
                     !isEnabled -> colors.inkMuted
-                    isCurrent -> colors.river
+                    isCurrent -> colors.action
                     else -> colors.ink
                 },
             )
@@ -63,8 +63,8 @@ fun RowScope.MyGameNavigationItem(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(MyGameSizes.currentMark)
-                .background(if (isCurrent) colors.river else colors.surface),
+                .height(MyGameStrokeWidths.mark)
+                .background(if (isCurrent) colors.action else colors.surface),
         )
     }
 }

@@ -1,7 +1,14 @@
 package com.emm.mygame.core.designsystem
 
-import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Easing
 
 object MyGameTransitions {
-    val track: MyGameTransition = MyGameTransition(durationMillis = 400, easing = EaseOut)
+    const val INSTANT_MILLIS: Int = 0
+    const val QUICK_MILLIS: Int = 120
+    const val BASE_MILLIS: Int = 200
+    const val CALM_MILLIS: Int = 320
+    val standard: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+    val exit: Easing = CubicBezierEasing(0.3f, 0f, 1f, 1f)
+    val track: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
 }

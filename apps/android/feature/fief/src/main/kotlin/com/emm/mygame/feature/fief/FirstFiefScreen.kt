@@ -60,8 +60,8 @@ private fun Header(isSigningOut: Boolean, onIntent: (FirstFiefIntent) -> Unit, m
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()) {
         MyGameText(
             text = stringResource(R.string.fief_brand),
-            style = MyGameTypography.brand,
-            color = MyGameTheme.colors.umber,
+            style = MyGameTypography.title,
+            color = MyGameTheme.colors.action,
             modifier = Modifier.weight(1f).semantics { heading() },
         )
         MyGameButton(

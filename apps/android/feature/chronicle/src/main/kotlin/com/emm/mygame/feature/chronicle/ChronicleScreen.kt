@@ -20,8 +20,8 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameRadii
-import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -43,7 +43,7 @@ fun ChronicleScreen(state: ChronicleUiState, onIntent: (ChronicleIntent) -> Unit
     ) {
         MyGameText(
             text = stringResource(R.string.chronicle_title),
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
@@ -87,7 +87,7 @@ private fun ChronicleList(content: ChronicleUiState.Content, modifier: Modifier 
         modifier = modifier
             .fillMaxWidth()
             .background(MyGameTheme.colors.surfaceRaised, RoundedCornerShape(MyGameRadii.md))
-            .border(MyGameSizes.hairline, MyGameTheme.colors.line, RoundedCornerShape(MyGameRadii.md))
+            .border(MyGameStrokeWidths.hairline, MyGameTheme.colors.line, RoundedCornerShape(MyGameRadii.md))
             .padding(horizontal = MyGameSpacing.step5),
     ) {
         content.events.forEachIndexed { index: Int, event: ChronicleEvent ->
@@ -95,7 +95,7 @@ private fun ChronicleList(content: ChronicleUiState.Content, modifier: Modifier 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(MyGameSizes.hairline)
+                        .height(MyGameStrokeWidths.hairline)
                         .background(MyGameTheme.colors.line),
                 )
             }
