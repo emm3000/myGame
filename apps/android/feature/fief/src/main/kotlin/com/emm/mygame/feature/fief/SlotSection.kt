@@ -69,7 +69,7 @@ private fun BusySlot(
         )
         MyGameText(
             text = stringResource(buildingNameOf(slot.building)),
-            style = MyGameTypography.brand,
+            style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
@@ -82,8 +82,8 @@ private fun BusySlot(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.clearAndSetSemantics { contentDescription = description },
         ) {
-            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.umber)
-            MyGameText(text = countdown, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
+            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.action)
+            MyGameText(text = countdown, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
         }
         if (waitingSummary != null) {
             MyGameText(text = waitingSummary, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)

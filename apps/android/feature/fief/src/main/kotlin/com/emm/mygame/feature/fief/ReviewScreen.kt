@@ -35,7 +35,7 @@ fun ReviewScreen(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, modifie
     ) {
         MyGameText(
             text = stringResource(R.string.review_title),
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
@@ -59,7 +59,7 @@ private fun NothingDue(state: ReviewUiState.NothingDue, modifier: Modifier = Mod
         Line(text = stringResource(R.string.review_nothing_due))
         MyGameText(
             text = icuStringResource(R.string.review_next_due, "due" to finishLabelOf(state.remaining, state.dueAt)),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
     }

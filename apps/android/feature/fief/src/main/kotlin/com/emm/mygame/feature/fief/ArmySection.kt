@@ -87,8 +87,8 @@ private fun BusyLevy(
             horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.clearAndSetSemantics { contentDescription = countdown },
         ) {
-            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.umber)
-            MyGameText(text = countdown, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
+            MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.action)
+            MyGameText(text = countdown, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
         }
         MyGameButton(
             label = stringResource(R.string.levy_cancel),

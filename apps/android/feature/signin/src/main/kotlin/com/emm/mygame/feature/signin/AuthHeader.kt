@@ -17,12 +17,12 @@ internal fun AuthHeader(title: String, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.sign_in_brand),
-            style = MyGameTypography.brand,
-            color = MyGameTheme.colors.umber,
+            style = MyGameTypography.title,
+            color = MyGameTheme.colors.action,
         )
         MyGameText(
             text = title,
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )

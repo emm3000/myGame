@@ -63,8 +63,8 @@ private fun Header(
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             MyGameText(
                 text = stringResource(R.string.fief_brand),
-                style = MyGameTypography.brand,
-                color = MyGameTheme.colors.umber,
+                style = MyGameTypography.title,
+                color = MyGameTheme.colors.action,
                 modifier = Modifier.weight(1f),
             )
             MyGameButton(
@@ -77,7 +77,7 @@ private fun Header(
         }
         MyGameText(
             text = title,
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )

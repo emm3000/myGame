@@ -22,10 +22,10 @@ fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit
         verticalAlignment = Alignment.Top,
         modifier = modifier
             .fillMaxWidth()
-            .background(colors.rustSoft, RoundedCornerShape(MyGameRadii.md))
+            .background(colors.missSoft, RoundedCornerShape(MyGameRadii.md))
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step3),
     ) {
-        MyGameIcon(icon = MyGameIcons.alert, tint = colors.rust)
+        MyGameIcon(icon = MyGameIcons.alert, tint = colors.miss)
         Column {
             MyGameText(
                 text = message,

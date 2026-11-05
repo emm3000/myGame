@@ -31,9 +31,9 @@ internal fun BlockedReasonLine(blocked: BlockedReason, modifier: Modifier = Modi
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier.clearAndSetSemantics { },
     ) {
-        MyGameText(text = blocked.reason, style = MyGameTypography.body, color = MyGameTheme.colors.rust)
+        MyGameText(text = blocked.reason, style = MyGameTypography.body, color = MyGameTheme.colors.miss)
         blocked.ready?.let { ready: String ->
-            MyGameText(text = ready, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
+            MyGameText(text = ready, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
         }
     }
 }

@@ -38,7 +38,7 @@ internal fun UnitItem(
         ) {
             MyGameText(
                 text = stringResource(unitTitleOf(card.kind)),
-                style = MyGameTypography.brand,
+                style = MyGameTypography.title,
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
@@ -71,7 +71,7 @@ private fun LockedUnit(card: FiefUiState.UnitCard.Locked, modifier: Modifier = M
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = icuStringResource(R.string.unit_requires, "level" to card.requiredLevel.toString()),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
@@ -81,7 +81,7 @@ private fun LockedUnit(card: FiefUiState.UnitCard.Locked, modifier: Modifier = M
                 "built" to card.builtLevel.toString(),
             ),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.rust,
+            color = MyGameTheme.colors.miss,
         )
     }
 }

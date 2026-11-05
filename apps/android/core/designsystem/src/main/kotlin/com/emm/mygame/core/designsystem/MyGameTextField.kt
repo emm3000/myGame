@@ -40,7 +40,7 @@ fun MyGameTextField(
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.md)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier.fillMaxWidth()) {
-        MyGameText(text = label.uppercase(), style = MyGameTypography.label, color = colors.inkMuted)
+        MyGameText(text = label, style = MyGameTypography.label, color = colors.inkMuted)
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
@@ -65,7 +65,7 @@ fun MyGameTextField(
                             .fillMaxWidth()
                             .defaultMinSize(minHeight = MyGameSizes.control)
                             .background(colors.surfaceRaised, shape)
-                            .border(MyGameSizes.hairline, colors.lineStrong, shape)
+                            .border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
                             .padding(horizontal = MyGameSpacing.step3),
                     ) {
                         field()

@@ -25,8 +25,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameRadii
-import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -75,7 +75,7 @@ internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> 
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
         MyGameText(
             text = resources.titleOf(form),
-            style = MyGameTypography.brand,
+            style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
@@ -101,7 +101,7 @@ internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> 
             MyGameText(
                 text = reason,
                 style = MyGameTypography.body,
-                color = MyGameTheme.colors.rust,
+                color = MyGameTheme.colors.miss,
                 modifier = Modifier.clearAndSetSemantics { },
             )
         }
@@ -116,8 +116,8 @@ internal fun SentMarchView(sent: MapUiState.SentMarch, modifier: Modifier = Modi
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier
             .fillMaxWidth()
-            .background(MyGameTheme.colors.mossSoft, shape)
-            .border(MyGameSizes.hairline, MyGameTheme.colors.moss, shape)
+            .background(MyGameTheme.colors.rightSoft, shape)
+            .border(MyGameStrokeWidths.hairline, MyGameTheme.colors.right, shape)
             .padding(horizontal = MyGameSpacing.step3, vertical = MyGameSpacing.step2)
             .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {

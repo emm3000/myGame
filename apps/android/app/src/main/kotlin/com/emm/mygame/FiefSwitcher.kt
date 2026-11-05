@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +35,7 @@ import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -66,7 +66,7 @@ internal fun FiefSwitcher(
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step3),
     ) {
         MyGameText(
-            text = resources.getString(R.string.fief_switcher_label).uppercase(),
+            text = resources.getString(R.string.fief_switcher_label),
             style = MyGameTypography.label,
             color = colors.inkMuted,
             modifier = Modifier.semantics { heading() },
@@ -89,7 +89,7 @@ internal fun FiefSwitcher(
                 }
             }
         }
-        Box(modifier = Modifier.fillMaxWidth().height(MyGameSizes.hairline).background(colors.line))
+        Box(modifier = Modifier.fillMaxWidth().height(MyGameStrokeWidths.hairline).background(colors.line))
     }
 }
 
@@ -107,18 +107,15 @@ private fun FiefEntry(
     val framed: Modifier = if (entry.isCurrent) {
         modifier
             .background(colors.surfaceRaised, shape)
-            .border(MyGameSizes.hairline, colors.river, shape)
+            .border(MyGameStrokeWidths.control, colors.action, shape)
             .semantics(mergeDescendants = true) { stateDescription = currentLabel }
     } else {
         modifier
             .background(colors.surface, shape)
-            .border(MyGameSizes.hairline, colors.line, shape)
+            .border(MyGameStrokeWidths.hairline, colors.line, shape)
             .clickable(enabled = isEnabled, role = Role.Button) { onChoose(entry.fief) }
     }
     Row(modifier = framed.heightIn(min = MyGameSizes.control)) {
-        if (entry.isCurrent) {
-            Box(modifier = Modifier.width(MyGameSizes.bar).fillMaxHeight().background(colors.river, shape))
-        }
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1, Alignment.CenterVertically),
             modifier = Modifier
@@ -128,15 +125,15 @@ private fun FiefEntry(
             MyGameText(
                 text = entry.name,
                 style = if (entry.isCurrent) {
-                    MyGameTypography.action.copy(fontWeight = FontWeight.Bold)
+                    MyGameTypography.button.copy(fontWeight = FontWeight.Bold)
                 } else {
-                    MyGameTypography.action.copy(textDecoration = TextDecoration.Underline)
+                    MyGameTypography.button.copy(textDecoration = TextDecoration.Underline)
                 },
-                color = if (entry.isCurrent) colors.ink else colors.umber,
+                color = if (entry.isCurrent) colors.ink else colors.action,
             )
             MyGameText(
                 text = resources.addressOf(entry.address),
-                style = MyGameTypography.caption.copy(fontWeight = FontWeight.SemiBold),
+                style = MyGameTypography.label,
                 color = colors.inkMuted,
             )
             if (entry.badges.isNotEmpty()) FiefBadges(entry = entry)
@@ -165,13 +162,13 @@ private fun FiefBadge(badge: FiefSwitcherUiState.Badge, modifier: Modifier = Mod
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier
             .background(colors.surfaceRaised, shape)
-            .border(MyGameSizes.hairline, colors.line, shape)
+            .border(MyGameStrokeWidths.hairline, colors.line, shape)
             .padding(horizontal = MyGameSpacing.step1),
     ) {
         MyGameIcon(icon = iconOf(badge), tint = tintOf(badge, colors))
         MyGameText(
             text = resources.badgeLineOf(badge),
-            style = MyGameTypography.caption.copy(fontWeight = FontWeight.SemiBold),
+            style = MyGameTypography.label,
             color = colors.ink,
         )
     }
@@ -225,10 +222,10 @@ private fun iconOf(badge: FiefSwitcherUiState.Badge): ImageVector = when (badge)
 private fun tintOf(badge: FiefSwitcherUiState.Badge, colors: MyGameColors): Color = when (badge) {
     is FiefSwitcherUiState.Badge.Idle -> colors.ink
     is FiefSwitcherUiState.Badge.FullStore -> when (badge.resource) {
-        ResourceKind.Wood -> colors.wood
-        ResourceKind.Stone -> colors.stone
-        ResourceKind.Iron -> colors.iron
-        ResourceKind.Gold -> colors.gold
+        ResourceKind.Wood -> colors.material
+        ResourceKind.Stone -> colors.material
+        ResourceKind.Iron -> colors.material
+        ResourceKind.Gold -> colors.money
         ResourceKind.Food -> colors.food
     }
 }

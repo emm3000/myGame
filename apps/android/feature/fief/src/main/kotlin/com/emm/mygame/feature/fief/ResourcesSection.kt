@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSeasonMark
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -64,7 +65,7 @@ internal fun Card(modifier: Modifier = Modifier, content: @Composable () -> Unit
         modifier = modifier
             .fillMaxWidth()
             .background(colors.surfaceRaised, shape)
-            .border(MyGameSizes.hairline, colors.line, shape)
+            .border(MyGameStrokeWidths.hairline, colors.line, shape)
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step1),
     ) {
         content()
@@ -73,7 +74,7 @@ internal fun Card(modifier: Modifier = Modifier, content: @Composable () -> Unit
 
 @Composable
 private fun Divider(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxWidth().height(MyGameSizes.hairline).background(MyGameTheme.colors.line))
+    Box(modifier = modifier.fillMaxWidth().height(MyGameStrokeWidths.hairline).background(MyGameTheme.colors.line))
 }
 
 @Composable
@@ -97,7 +98,7 @@ internal fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier 
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.weight(1f),
             )
-            MyGameText(text = amount, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
+            MyGameText(text = amount, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
             MyGameText(
                 text = icuStringResource(R.string.resource_capacity, "capacity" to capacity),
                 style = MyGameTypography.body,
@@ -121,7 +122,7 @@ private fun RateLine(resource: FiefUiState.ResourceLine, modifier: Modifier = Mo
         MyGameText(
             text = stringResource(R.string.resource_full),
             style = MyGameTypography.label,
-            color = MyGameTheme.colors.rust,
+            color = MyGameTheme.colors.miss,
             modifier = modifier,
         )
     } else {
@@ -214,7 +215,7 @@ private fun PeasantsRow(peasants: FiefUiState.PeasantsLine, modifier: Modifier =
                 "free" to free,
                 "supplied" to supplied,
             ),
-            style = MyGameTypography.action,
+            style = MyGameTypography.button,
             color = MyGameTheme.colors.ink,
         )
     }
@@ -227,13 +228,13 @@ private fun ProgressBar(resource: FiefUiState.ResourceLine, modifier: Modifier =
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(MyGameSizes.bar)
+            .height(MyGameSizes.track)
             .background(MyGameTheme.colors.surfaceSunken, shape),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(filled)
-                .height(MyGameSizes.bar)
+                .height(MyGameSizes.track)
                 .background(resourceColorOf(resource.kind), shape),
         )
     }
@@ -251,10 +252,10 @@ internal fun resourceNameOf(kind: ResourceKind): Int = when (kind) {
 private fun resourceColorOf(kind: ResourceKind): Color {
     val colors: MyGameColors = MyGameTheme.colors
     return when (kind) {
-        ResourceKind.Wood -> colors.wood
-        ResourceKind.Stone -> colors.stone
-        ResourceKind.Iron -> colors.iron
-        ResourceKind.Gold -> colors.gold
+        ResourceKind.Wood -> colors.material
+        ResourceKind.Stone -> colors.material
+        ResourceKind.Iron -> colors.material
+        ResourceKind.Gold -> colors.money
         ResourceKind.Food -> colors.food
     }
 }

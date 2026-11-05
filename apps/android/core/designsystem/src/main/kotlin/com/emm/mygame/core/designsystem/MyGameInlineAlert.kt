@@ -17,7 +17,7 @@ fun MyGameInlineAlert(message: String, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.Top,
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
-        MyGameIcon(icon = MyGameIcons.alert, tint = colors.rust)
-        MyGameText(text = message, style = MyGameTypography.body, color = colors.rust)
+        MyGameIcon(icon = MyGameIcons.alert, tint = colors.miss)
+        MyGameText(text = message, style = MyGameTypography.body, color = colors.miss)
     }
 }

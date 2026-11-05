@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 
 fun Modifier.dashedFrame(color: Color): Modifier = drawBehind {
-    val stroke: Float = MyGameSizes.hairline.toPx()
+    val stroke: Float = MyGameStrokeWidths.hairline.toPx()
     val dash: Float = MyGameSizes.dash.toPx()
     val radius: Float = MyGameRadii.md.toPx()
     drawRoundRect(

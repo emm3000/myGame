@@ -113,10 +113,10 @@ private fun iconOf(resource: ResourceKind): ImageVector = when (resource) {
 }
 
 private fun accentOf(resource: ResourceKind, colors: MyGameColors): Color = when (resource) {
-    ResourceKind.Wood -> colors.wood
-    ResourceKind.Stone -> colors.stone
-    ResourceKind.Iron -> colors.iron
-    ResourceKind.Gold -> colors.gold
+    ResourceKind.Wood -> colors.material
+    ResourceKind.Stone -> colors.material
+    ResourceKind.Iron -> colors.material
+    ResourceKind.Gold -> colors.money
     ResourceKind.Food -> colors.food
 }
 
