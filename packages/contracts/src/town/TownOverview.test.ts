@@ -52,6 +52,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   lessons: [lessonOne],
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
+  learning: { cap: 15, inLearning: 5 },
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
 })
@@ -92,6 +93,18 @@ describe('TownOverviewSchema', () => {
     expect(TownOverviewSchema.safeParse(overview({ lessonSlot: withoutFinish })).success).toBe(
       false,
     )
+  })
+
+  it('rejects an overview without its learning load', () => {
+    const { learning: _, ...withoutLearning } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutLearning).success).toBe(false)
+  })
+
+  it('rejects a fractional count of words in learning', () => {
+    const learning = { cap: 15, inLearning: 2.5 }
+
+    expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
   })
 
   it('rejects an overview without its lessons', () => {

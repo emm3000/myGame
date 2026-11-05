@@ -18,6 +18,7 @@ const BareApiErrorSchema = z
       'NotEnoughResources',
       'TopLevelReached',
       'BuildingWorkNotFound',
+      'LearningCapReached',
     ]),
   })
   .meta({ id: 'BareApiError' })
@@ -105,6 +106,16 @@ const BuildingWorkNotFoundErrorSchema = z
   })
   .meta({ id: 'BuildingWorkNotFoundError' })
 
+const LearningCapReachedErrorSchema = z
+  .strictObject({
+    kind: z.literal('LearningCapReached'),
+    params: z.strictObject({
+      learningCap: WholeCountSchema.positive(),
+      cardsInLearning: WholeCountSchema,
+    }),
+  })
+  .meta({ id: 'LearningCapReachedError' })
+
 export const ApiErrorSchema = z
   .discriminatedUnion('kind', [
     BareApiErrorSchema,
@@ -118,6 +129,7 @@ export const ApiErrorSchema = z
     NotEnoughResourcesErrorSchema,
     TopLevelReachedErrorSchema,
     BuildingWorkNotFoundErrorSchema,
+    LearningCapReachedErrorSchema,
   ])
   .meta({ id: 'ApiError' })
 

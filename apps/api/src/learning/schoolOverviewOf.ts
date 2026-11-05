@@ -1,5 +1,12 @@
 import type { TownOverview } from '@mygame/contracts/town'
-import { type DomainError, type HeldCard, isWordRetained, ok, type Result } from '@mygame/domain'
+import {
+  cardsInLearningOf,
+  type DomainError,
+  type HeldCard,
+  isWordRetained,
+  ok,
+  type Result,
+} from '@mygame/domain'
 import {
   deriveLessonDurationSeconds,
   type LessonSlot,
@@ -11,7 +18,7 @@ import { isoOf } from '../http/isoOf'
 import type { TownReading } from '../town/TownReading'
 import type { LessonLibrary, ShelvedLesson } from './LessonLibrary'
 
-type SchoolOverview = Pick<TownOverview, 'lessons' | 'skills' | 'lessonSlot'>
+type SchoolOverview = Pick<TownOverview, 'lessons' | 'skills' | 'lessonSlot' | 'learning'>
 
 type LessonState = TownOverview['lessons'][number]
 
@@ -78,5 +85,6 @@ export const schoolOverviewOf = (
       earnedAt: isoOf(earnedAt),
     })),
     lessonSlot: lessonSlotOf(lessonSlot),
+    learning: { cap: school.value.learningCap, inLearning: cardsInLearningOf(cards) },
   })
 }
