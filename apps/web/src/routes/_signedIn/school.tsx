@@ -1,8 +1,6 @@
-import { townNamingGoToTown } from '@mygame/catalog'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
-import { TextLink } from '../../design-system/TextLink'
 import { SchoolScreen } from '../../school/SchoolScreen'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
 import type { LiveTown } from '../../town/liveTown'
@@ -29,7 +27,7 @@ function SchoolRoute(): ReactElement {
     case 'loading':
       return <TownReading />
     case 'noTown':
-      return <TextLink to="/">{townNamingGoToTown()}</TextLink>
+      return <Navigate to="/" />
     case 'refused':
       return <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
     case 'live':

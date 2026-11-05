@@ -19,6 +19,7 @@
   "devDependencies": {
     "@mygame/catalog": "workspace:*",
     "@mygame/contracts": "workspace:*",
+    "@mygame/domain": "workspace:*",
     "@tailwindcss/node": "4.3.3",
     "@tailwindcss/vite": "4.3.3",
     "@tanstack/react-start": "1.168.56",
