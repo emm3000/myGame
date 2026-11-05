@@ -1,7 +1,9 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
+import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownWorkResult
@@ -15,11 +17,17 @@ class FakeTownRepository : TownRepository {
 
     private val workAnswers: Channel<TownWorkResult> = Channel(Channel.UNLIMITED)
 
+    private val lessonAnswers: Channel<TownLessonResult> = Channel(Channel.UNLIMITED)
+
     private val _foundings: MutableList<String> = mutableListOf()
 
     private val _starts: MutableList<TownBuildingKind> = mutableListOf()
 
     private val _stops: MutableList<StopRequest> = mutableListOf()
+
+    private val _lessonStarts: MutableList<LessonId> = mutableListOf()
+
+    private val _lessonStops: MutableList<LessonId> = mutableListOf()
 
     var readCount: Int = 0
         private set
@@ -33,6 +41,12 @@ class FakeTownRepository : TownRepository {
     val stops: List<StopRequest>
         get() = _stops.toList()
 
+    val lessonStarts: List<LessonId>
+        get() = _lessonStarts.toList()
+
+    val lessonStops: List<LessonId>
+        get() = _lessonStops.toList()
+
     fun answerRead(result: TownReadResult) {
         readAnswers.trySend(result)
     }
@@ -43,6 +57,10 @@ class FakeTownRepository : TownRepository {
 
     fun answerWork(result: TownWorkResult) {
         workAnswers.trySend(result)
+    }
+
+    fun answerLesson(result: TownLessonResult) {
+        lessonAnswers.trySend(result)
     }
 
     override suspend fun read(): TownReadResult {
@@ -63,6 +81,16 @@ class FakeTownRepository : TownRepository {
     override suspend fun stopWork(building: TownBuildingKind, level: Int): TownWorkResult {
         _stops += StopRequest(building, level)
         return workAnswers.receive()
+    }
+
+    override suspend fun startLesson(lesson: LessonId): TownLessonResult {
+        _lessonStarts += lesson
+        return lessonAnswers.receive()
+    }
+
+    override suspend fun stopLesson(lesson: LessonId): TownLessonResult {
+        _lessonStops += lesson
+        return lessonAnswers.receive()
     }
 
     data class StopRequest(val building: TownBuildingKind, val level: Int)

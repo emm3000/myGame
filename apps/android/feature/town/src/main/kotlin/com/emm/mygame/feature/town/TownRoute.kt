@@ -19,6 +19,7 @@ fun TownRoute(
     towns: TownRepository,
     sessions: SessionRepository,
     clock: Clock,
+    onSchoolOpen: () -> Unit,
     onSigningOut: () -> Unit,
     onSignedOut: () -> Unit,
     modifier: Modifier = Modifier,
@@ -44,5 +45,5 @@ fun TownRoute(
     LaunchedEffect(isSigningOut) {
         if (isSigningOut) currentOnSigningOut()
     }
-    TownScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+    TownScreen(state = state, onIntent = viewModel::onIntent, onSchoolOpen = onSchoolOpen, modifier = modifier)
 }

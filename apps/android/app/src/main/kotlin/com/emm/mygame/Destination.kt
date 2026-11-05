@@ -20,6 +20,9 @@ sealed interface Destination : NavKey {
     data object Town : Destination
 
     @Serializable
+    data object School : Destination
+
+    @Serializable
     data class Map(val fief: FiefId) : Destination
 
     @Serializable

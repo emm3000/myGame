@@ -18,6 +18,7 @@ import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
@@ -31,12 +32,13 @@ import com.emm.mygame.core.ui.icuStringResource
 internal fun PlacesSection(
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
+    onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameSectionTitle(text = stringResource(placesTitleOf(content.label)))
         content.places.forEach { place: TownUiState.PlaceCard ->
-            PlaceItem(place = place, start = content.start, onIntent = onIntent)
+            PlaceItem(place = place, start = content.start, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
         }
     }
 }
@@ -46,6 +48,7 @@ private fun PlaceItem(
     place: TownUiState.PlaceCard,
     start: TownUiState.StartStatus,
     onIntent: (TownIntent) -> Unit,
+    onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
@@ -75,6 +78,9 @@ private fun PlaceItem(
                         isWaiting = start is TownUiState.StartStatus.Waiting,
                         onIntent = onIntent,
                     )
+                }
+                if (place.kind == TownBuildingKind.School) {
+                    MyGameTextLink(label = stringResource(R.string.town_go_to_school), onClick = onSchoolOpen)
                 }
             }
         }

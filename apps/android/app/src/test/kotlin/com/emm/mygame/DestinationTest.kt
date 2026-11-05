@@ -13,6 +13,7 @@ class DestinationTest {
     fun `keeps every signed-in destination through a serializer round trip`() {
         val signedIn: List<Destination> = listOf(
             Destination.Town,
+            Destination.School,
             Destination.Map(secondFief),
             Destination.Chronicle(secondFief),
         )

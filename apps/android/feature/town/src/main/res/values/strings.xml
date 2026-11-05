@@ -12,6 +12,7 @@
     <string name="town_finish_tomorrow">mañana {time}</string>
     <string name="town_finish_with_clock">{timeLeft} · {clock}</string>
     <string name="town_full">Lleno: {capacity}</string>
+    <string name="town_go_to_school">Ir a la escuela</string>
     <string name="town_label_city">Ciudad</string>
     <string name="town_label_town">Pueblo</string>
     <string name="town_level">Nivel {level}</string>

@@ -11,6 +11,10 @@ interface TownRepository {
     suspend fun startWork(building: TownBuildingKind): TownWorkResult
 
     suspend fun stopWork(building: TownBuildingKind, level: Int): TownWorkResult
+
+    suspend fun startLesson(lesson: LessonId): TownLessonResult
+
+    suspend fun stopLesson(lesson: LessonId): TownLessonResult
 }
 
 fun TownRepository(

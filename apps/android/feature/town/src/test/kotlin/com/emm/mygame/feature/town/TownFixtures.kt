@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.town
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
@@ -51,6 +52,9 @@ internal fun workOf(
     lasting: Duration = 10.minutes,
 ): TownSnapshot.WorkItem = TownSnapshot.WorkItem(building, level, startsAt, startsAt + lasting)
 
+internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
+    TownSnapshot.LessonSlot(LessonId("lesson-1"), readInstant, finishesAt)
+
 internal fun townOf(
     name: String = "Riverton",
     label: TownLabel = TownLabel.Town,
@@ -61,7 +65,7 @@ internal fun townOf(
     waitingList: List<TownSnapshot.WorkItem> = emptyList(),
     cap: Int = 2,
     seasonEndsAt: Instant? = null,
-    lessonFinishesAt: Instant? = null,
+    lessonSlot: TownSnapshot.LessonSlot? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = name,
@@ -71,7 +75,10 @@ internal fun townOf(
     people = people,
     buildings = places,
     work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = cap),
-    lessonFinishesAt = lessonFinishesAt,
+    lessons = emptyList(),
+    skills = emptyList(),
+    learning = TownSnapshot.Learning(cap = 10, inLearning = 0),
+    lessonSlot = lessonSlot,
     readAt = readAt,
 )
 

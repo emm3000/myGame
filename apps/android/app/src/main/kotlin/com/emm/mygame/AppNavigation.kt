@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -36,6 +37,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.feature.chronicle.ChronicleRoute
 import com.emm.mygame.feature.map.MapRoute
+import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
@@ -75,30 +77,40 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
             entry<Destination.ForgotPassword> {
                 ForgotPasswordRoute(sessions = application.sessions, onSignInOpen = navigator::openSignIn)
             }
-            entry<Destination.Town> { shown: Destination.Town ->
-                SignedInFrame(current = shown, fief = null, application = application, navigator = navigator) {
-                    TownRoute(
-                        towns = application.towns,
-                        sessions = application.sessions,
-                        clock = application.clock,
-                        onSigningOut = navigator::signingOut,
-                        onSignedOut = { navigator.signedOut(isSessionEnded = false) },
-                    )
-                }
-            }
-            entry<Destination.Map> { shown: Destination.Map ->
-                SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
-                    MapRoute(fief = shown.fief, maps = application.maps, fiefs = application.fiefs)
-                }
-            }
-            entry<Destination.Chronicle> { shown: Destination.Chronicle ->
-                SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
-                    ChronicleRoute(fief = shown.fief, chronicles = application.chronicles, clock = application.clock)
-                }
-            }
+            signedInEntries(application = application, navigator = navigator)
         },
         modifier = modifier,
     )
+}
+
+private fun EntryProviderScope<NavKey>.signedInEntries(application: MyGameApplication, navigator: Navigator) {
+    entry<Destination.Town> { shown: Destination.Town ->
+        SignedInFrame(current = shown, fief = null, application = application, navigator = navigator) {
+            TownRoute(
+                towns = application.towns,
+                sessions = application.sessions,
+                clock = application.clock,
+                onSchoolOpen = navigator::openSchool,
+                onSigningOut = navigator::signingOut,
+                onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+            )
+        }
+    }
+    entry<Destination.School> { shown: Destination.School ->
+        SignedInFrame(current = shown, fief = null, application = application, navigator = navigator) {
+            SchoolRoute(towns = application.towns, clock = application.clock, onNoTown = navigator::openTown)
+        }
+    }
+    entry<Destination.Map> { shown: Destination.Map ->
+        SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
+            MapRoute(fief = shown.fief, maps = application.maps, fiefs = application.fiefs)
+        }
+    }
+    entry<Destination.Chronicle> { shown: Destination.Chronicle ->
+        SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
+            ChronicleRoute(fief = shown.fief, chronicles = application.chronicles, clock = application.clock)
+        }
+    }
 }
 
 @Composable
@@ -156,7 +168,7 @@ private fun SignedInTabs(
     MyGameNavigationBar(modifier = modifier.navigationBarsPadding()) {
         MyGameNavigationItem(
             label = stringResource(R.string.navigation_town),
-            isCurrent = current == Destination.Town,
+            isCurrent = current == Destination.Town || current == Destination.School,
             isEnabled = navigator.areTabsEnabled,
             onClick = navigator::openTown,
         )
