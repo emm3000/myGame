@@ -59,6 +59,12 @@ describe('artProblemsOf', () => {
     expect(artProblemsOf(drawingOf('<filter x="0">'))).toEqual(['<filter> is not allowed'])
   })
 
+  it('refuses a path, whose curves the framing check cannot measure', () => {
+    expect(artProblemsOf(drawingOf(`<path d="M0 0L9 9z" fill="${sky}"/>`))).toEqual([
+      '<path> is not allowed',
+    ])
+  })
+
   it('refuses a raster image', () => {
     expect(artProblemsOf(drawingOf('<image href="a.png"/>'))).toEqual(['<image> is not allowed'])
   })

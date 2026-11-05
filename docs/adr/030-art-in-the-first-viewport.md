@@ -364,3 +364,15 @@ thumbnail (#552, decision 1: `campThumbnailOf` and
 `camp-<tier>-96.webp`, with `CampIcon` kept) and the derivative half of
 Fork 3, *the thumbnail is a derivative, never a regeneration*, which
 still governs `camp-<tier>-96.webp`.
+
+## Amendment, 2026-11-05 (#758)
+
+The owner has no image generator (comment on #758, 2026-11-05), so every
+town illustration is hand-written SVG drawn to `docs/art/art-bible.md`,
+never generated. The file is the image's source: PRD N7 now asks for the
+source, the prompt of a generated image or the SVG itself, and the
+medieval images keep their prompts until #751 removes them. The bible's
+prompt template, the Codex lines and the WebP sizes and thumbnail
+derivatives no longer apply to the town's families; the browser and
+Android scale the vector. The derivative rule above still governs the
+retired `camp-<tier>-96.webp`.
