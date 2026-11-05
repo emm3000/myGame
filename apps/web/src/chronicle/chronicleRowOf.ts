@@ -39,11 +39,11 @@ import { quantitiesOf } from '../resources/quantitiesOf'
 import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
 import type { ResourceQuantity } from '../resources/ResourceQuantity'
 import { resourceNameOf } from '../resources/resourceNameOf'
+import { formatInstant } from '../time/formatInstant'
 import { countedUnitsOf } from '../units/countedUnitsOf'
 import { listedUnitsOf } from '../units/listedUnitsOf'
 import { partyPhraseOf } from '../units/partyPhraseOf'
 import type { UnitCounts } from '../units/UnitCounts'
-import { formatInstant } from './formatInstant'
 
 export interface ChronicleAmounts {
   readonly label: string

@@ -64,7 +64,6 @@ export const chronicleSent = (): string => `Envías`
 export const chronicleSentAmounts = ({ quantities }: { readonly quantities: string | number }): string => `Envías ${String(quantities)}.`
 export const chronicleSubject = ({ label, level }: { readonly label: string | number; readonly level: string | number }): string => `${String(label)}, nivel ${String(level)}.`
 export const chronicleTitle = (): string => `Crónica`
-export const chronicleToday = ({ time }: { readonly time: string | number }): string => `Hoy, ${String(time)}`
 export const digestAcknowledge = (): string => `Entendido`
 export const digestStoreFull = (): string => `Almacén lleno:`
 export const digestStoreSubject = ({ resource }: { readonly resource: string | number }): string => `${String(resource)}.`
@@ -316,6 +315,30 @@ export const refusalUpgradeNotFound = (): string => `Esa obra ya no está en tu 
 export const refusalWaitingListFull = ({ cap }: { readonly cap: number }): string => `${cap === 1 ? `La lista de espera ya tiene 1 obra.` : `La lista de espera ya tiene ${String(cap)} obras.`} Espera a que termine alguna.`
 export const refusalWeakPassword = (): string => `Tu contraseña necesita al menos 8 caracteres.`
 export const refusalWordNotHeld = (): string => `Esa palabra no está en tus lecciones. Vuelve al repaso.`
+export const reportLoading = (): string => `Estamos leyendo tu informe…`
+export const reportNewsBecameCity = (): string => `Tu pueblo ahora es una ciudad.`
+export const reportNewsBuildingWorkFinished = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `${String(place)} ahora es de nivel ${String(level)}.`
+export const reportNewsBuildingWorkStopped = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `Paraste la obra: ${String(place)}, nivel ${String(level)}.`
+export const reportNewsCleanUpDone = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Tu equipo limpió los residuos de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
+export const reportNewsCleanUpFailed = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Tu equipo no pudo limpiar los residuos de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
+export const reportNewsClose = (): string => `Cerrar las noticias`
+export const reportNewsClosed = (): string => `Cerraste las noticias.`
+export const reportNewsHiringDeliveredTruck = ({ count }: { readonly count: number }): string => `${count === 1 ? `Contrataste 1 camión.` : `Contrataste ${String(count)} camiones.`}`
+export const reportNewsHiringDeliveredWorker = ({ count }: { readonly count: number }): string => `${count === 1 ? `Contrataste 1 trabajador.` : `Contrataste ${String(count)} trabajadores.`}`
+export const reportNewsHiringStoppedTruck = ({ count, delivered }: { readonly count: string | number; readonly delivered: string | number }): string => `Paraste la contratación de camiones: llegaron ${String(delivered)} de ${String(count)}.`
+export const reportNewsHiringStoppedWorker = ({ count, delivered }: { readonly count: string | number; readonly delivered: string | number }): string => `Paraste la contratación de trabajadores: llegaron ${String(delivered)} de ${String(count)}.`
+export const reportNewsJobBack = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Tu equipo volvió de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
+export const reportNewsJobCalledBack = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Llamaste de vuelta a tu equipo de la región ${String(region)}, zona ${String(area)}, sitio ${String(site)}.`
+export const reportNewsLessonStopped = (): string => `Paraste el estudio de una lección.`
+export const reportNewsLessonStudied = (): string => `Estudiaste una lección.`
+export const reportNewsNone = (): string => `No hay noticias.`
+export const reportNewsPay = ({ amounts }: { readonly amounts: string | number }): string => `Pago: ${String(amounts)}`
+export const reportNewsSkillEarned = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `Ganaste una habilidad de ${String(resource)}: +${String(percent)} % de ${String(resource)}.`
+export const reportNewsTitle = (): string => `Noticias del pueblo`
+export const reportNoReviewsDue = (): string => `No tienes repasos pendientes ahora.`
+export const reportReviewsDue = ({ count }: { readonly count: string | number }): string => `Repasos pendientes: ${String(count)}`
+export const reportStartReviews = (): string => `Empezar los repasos`
+export const reportTitle = (): string => `Informe`
 export const reviewAnswerField = (): string => `Tu respuesta en inglés`
 export const reviewAskHint = (): string => `Pedir una pista`
 export const reviewCheck = (): string => `Comprobar`
@@ -367,6 +390,7 @@ export const shellFiefSwitcherSeparator = (): string => `,`
 export const shellNavigationChronicle = (): string => `Crónica`
 export const shellNavigationFief = (): string => `Feudo`
 export const shellNavigationMap = (): string => `Mapa`
+export const shellNavigationReport = (): string => `Informe`
 export const shellNavigationTown = (): string => `Pueblo`
 export const shellSignOut = (): string => `Salir`
 export const shellTitle = (): string => `Vadoalto`
@@ -402,6 +426,7 @@ export const studySeasonMark = ({ season }: { readonly season: string | number }
 export const studySection = (): string => `Biblioteca`
 export const studyStart = (): string => `Estudiar`
 export const studyStudyRunning = (): string => `Ya hay un estudio en marcha.`
+export const timeToday = ({ time }: { readonly time: string | number }): string => `Hoy, ${String(time)}`
 export const townAmount = ({ amount, resource }: { readonly amount: string | number; readonly resource: string | number }): string => `${String(amount)} de ${String(resource)}`
 export const townAtTopLevel = (): string => `Ya está en su nivel más alto.`
 export const townBuild = ({ level }: { readonly level: string | number }): string => `Construir nivel ${String(level)}`

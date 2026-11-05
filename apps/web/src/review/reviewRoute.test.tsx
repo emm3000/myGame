@@ -25,12 +25,7 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import {
-  knownFief,
-  knownFiefPath,
-  knownPlayer,
-  stubApiClient,
-} from '../auth/stubApiClient.testSupport'
+import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
 beforeEach(() => {
@@ -45,7 +40,7 @@ const passSeconds = async (seconds: number): Promise<void> => {
   await act(() => vi.advanceTimersByTimeAsync(seconds * 1000))
 }
 
-const reviewPath = `${knownFiefPath}/repaso`
+const reviewPath = '/reviews'
 
 const homeRecognition: DueReview = {
   wordId: 'lesson-1-1',

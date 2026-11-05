@@ -146,7 +146,7 @@ export function LibrarySection({
             <ArtItem key={art} art={art} fief={fief} study={study} />
           ))}
           <li aria-label={lessonTitle()} className="flex flex-col">
-            <LessonCard fiefId={fief.overview.id} />
+            <LessonCard />
           </li>
         </ul>
       </div>

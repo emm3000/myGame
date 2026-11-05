@@ -3,6 +3,7 @@ import {
   shellNavigationChronicle,
   shellNavigationFief,
   shellNavigationMap,
+  shellNavigationReport,
   shellNavigationTown,
 } from '@mygame/catalog'
 import { fireEvent, screen, within } from '@testing-library/react'
@@ -32,6 +33,23 @@ it('marks the town as the current screen at the root', async () => {
   expect(town.getAttribute('aria-current')).toBe('page')
 })
 
+it('reads Town and Report in that order at the root', async () => {
+  renderAppAt('/', signedInClient)
+
+  const links = within(await screensNavigation()).getAllByRole('link')
+
+  expect(links.map((link) => link.textContent)).toEqual([
+    shellNavigationTown(),
+    shellNavigationReport(),
+  ])
+})
+
+it('links the Report to /report', async () => {
+  renderAppAt('/', signedInClient)
+
+  expect((await navigationLink(shellNavigationReport())).getAttribute('href')).toBe('/report')
+})
+
 it('drops Feudo from the navigation', async () => {
   renderAppAt(knownFiefPath, signedInClient)
 
@@ -39,6 +57,7 @@ it('drops Feudo from the navigation', async () => {
 
   expect(links.map((link) => link.textContent)).toEqual([
     shellNavigationTown(),
+    shellNavigationReport(),
     shellNavigationMap(),
     shellNavigationChronicle(),
   ])
@@ -97,6 +116,7 @@ it('keeps the fief id in the navigation', async () => {
 
   expect(links.map((link) => link.getAttribute('href'))).toEqual([
     '/',
+    '/report',
     `${knownFiefPath}/mapa`,
     `${knownFiefPath}/cronica`,
   ])

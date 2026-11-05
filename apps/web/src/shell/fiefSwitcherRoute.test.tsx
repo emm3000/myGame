@@ -174,7 +174,7 @@ it('keeps the navigation when the list fails', async () => {
     within(screens)
       .getAllByRole('link')
       .map((link) => link.textContent),
-  ).toEqual(['Pueblo', 'Mapa', 'Crónica'])
+  ).toEqual(['Pueblo', 'Informe', 'Mapa', 'Crónica'])
   expect(screen.queryByRole('navigation', { name: shellFiefSwitcherLabel() })).toBeNull()
 })
 

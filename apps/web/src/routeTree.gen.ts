@@ -17,11 +17,12 @@ import { Route as GuestForgotPasswordRouteImport } from './routes/_guest/forgot-
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
+import { Route as SignedInReportRouteImport } from './routes/_signedIn/report'
+import { Route as SignedInReviewsRouteImport } from './routes/_signedIn/reviews'
 import { Route as SignedInSchoolRouteImport } from './routes/_signedIn/school'
 import { Route as SignedInFeudoFiefIdRouteImport } from './routes/_signedIn/feudo.$fiefId'
 import { Route as SignedInFeudoFiefIdIndexRouteImport } from './routes/_signedIn/feudo.$fiefId/index'
 import { Route as SignedInFeudoFiefIdCronicaRouteImport } from './routes/_signedIn/feudo.$fiefId/cronica'
-import { Route as SignedInFeudoFiefIdRepasoRouteImport } from './routes/_signedIn/feudo.$fiefId/repaso'
 import { Route as SignedInFeudoFiefIdMapaIndexRouteImport } from './routes/_signedIn/feudo.$fiefId/mapa.index'
 import { Route as SignedInFeudoFiefIdMapaProvinceRouteImport } from './routes/_signedIn/feudo.$fiefId/mapa.$province'
 
@@ -63,6 +64,16 @@ const SignedInIndexRoute = SignedInIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInReportRoute = SignedInReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => SignedInRoute,
+} as any)
+const SignedInReviewsRoute = SignedInReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => SignedInRoute,
+} as any)
 const SignedInSchoolRoute = SignedInSchoolRouteImport.update({
   id: '/school',
   path: '/school',
@@ -85,12 +96,6 @@ const SignedInFeudoFiefIdCronicaRoute =
     path: '/cronica',
     getParentRoute: () => SignedInFeudoFiefIdRoute,
   } as any)
-const SignedInFeudoFiefIdRepasoRoute =
-  SignedInFeudoFiefIdRepasoRouteImport.update({
-    id: '/repaso',
-    path: '/repaso',
-    getParentRoute: () => SignedInFeudoFiefIdRoute,
-  } as any)
 const SignedInFeudoFiefIdMapaIndexRoute =
   SignedInFeudoFiefIdMapaIndexRouteImport.update({
     id: '/mapa/',
@@ -111,10 +116,11 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/report': typeof SignedInReportRoute
+  '/reviews': typeof SignedInReviewsRoute
   '/school': typeof SignedInSchoolRoute
   '/feudo/$fiefId': typeof SignedInFeudoFiefIdRouteWithChildren
   '/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
-  '/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/feudo/$fiefId/': typeof SignedInFeudoFiefIdIndexRoute
   '/feudo/$fiefId/mapa/$province': typeof SignedInFeudoFiefIdMapaProvinceRoute
   '/feudo/$fiefId/mapa/': typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -126,9 +132,10 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/report': typeof SignedInReportRoute
+  '/reviews': typeof SignedInReviewsRoute
   '/school': typeof SignedInSchoolRoute
   '/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
-  '/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/feudo/$fiefId': typeof SignedInFeudoFiefIdIndexRoute
   '/feudo/$fiefId/mapa/$province': typeof SignedInFeudoFiefIdMapaProvinceRoute
   '/feudo/$fiefId/mapa': typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -142,11 +149,12 @@ export interface FileRoutesById {
   '/_guest/forgot-password': typeof GuestForgotPasswordRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
+  '/_signedIn/report': typeof SignedInReportRoute
+  '/_signedIn/reviews': typeof SignedInReviewsRoute
   '/_signedIn/school': typeof SignedInSchoolRoute
   '/_signedIn/': typeof SignedInIndexRoute
   '/_signedIn/feudo/$fiefId': typeof SignedInFeudoFiefIdRouteWithChildren
   '/_signedIn/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
-  '/_signedIn/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/_signedIn/feudo/$fiefId/': typeof SignedInFeudoFiefIdIndexRoute
   '/_signedIn/feudo/$fiefId/mapa/$province': typeof SignedInFeudoFiefIdMapaProvinceRoute
   '/_signedIn/feudo/$fiefId/mapa/': typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -160,10 +168,11 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
+    | '/report'
+    | '/reviews'
     | '/school'
     | '/feudo/$fiefId'
     | '/feudo/$fiefId/cronica'
-    | '/feudo/$fiefId/repaso'
     | '/feudo/$fiefId/'
     | '/feudo/$fiefId/mapa/$province'
     | '/feudo/$fiefId/mapa/'
@@ -175,9 +184,10 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
+    | '/report'
+    | '/reviews'
     | '/school'
     | '/feudo/$fiefId/cronica'
-    | '/feudo/$fiefId/repaso'
     | '/feudo/$fiefId'
     | '/feudo/$fiefId/mapa/$province'
     | '/feudo/$fiefId/mapa'
@@ -190,11 +200,12 @@ export interface FileRouteTypes {
     | '/_guest/forgot-password'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
+    | '/_signedIn/report'
+    | '/_signedIn/reviews'
     | '/_signedIn/school'
     | '/_signedIn/'
     | '/_signedIn/feudo/$fiefId'
     | '/_signedIn/feudo/$fiefId/cronica'
-    | '/_signedIn/feudo/$fiefId/repaso'
     | '/_signedIn/feudo/$fiefId/'
     | '/_signedIn/feudo/$fiefId/mapa/$province'
     | '/_signedIn/feudo/$fiefId/mapa/'
@@ -265,6 +276,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInIndexRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/report': {
+      id: '/_signedIn/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof SignedInReportRouteImport
+      parentRoute: typeof SignedInRoute
+    }
+    '/_signedIn/reviews': {
+      id: '/_signedIn/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof SignedInReviewsRouteImport
+      parentRoute: typeof SignedInRoute
+    }
     '/_signedIn/school': {
       id: '/_signedIn/school'
       path: '/school'
@@ -291,13 +316,6 @@ declare module '@tanstack/react-router' {
       path: '/cronica'
       fullPath: '/feudo/$fiefId/cronica'
       preLoaderRoute: typeof SignedInFeudoFiefIdCronicaRouteImport
-      parentRoute: typeof SignedInFeudoFiefIdRoute
-    }
-    '/_signedIn/feudo/$fiefId/repaso': {
-      id: '/_signedIn/feudo/$fiefId/repaso'
-      path: '/repaso'
-      fullPath: '/feudo/$fiefId/repaso'
-      preLoaderRoute: typeof SignedInFeudoFiefIdRepasoRouteImport
       parentRoute: typeof SignedInFeudoFiefIdRoute
     }
     '/_signedIn/feudo/$fiefId/mapa/': {
@@ -333,7 +351,6 @@ const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 
 interface SignedInFeudoFiefIdRouteChildren {
   SignedInFeudoFiefIdCronicaRoute: typeof SignedInFeudoFiefIdCronicaRoute
-  SignedInFeudoFiefIdRepasoRoute: typeof SignedInFeudoFiefIdRepasoRoute
   SignedInFeudoFiefIdIndexRoute: typeof SignedInFeudoFiefIdIndexRoute
   SignedInFeudoFiefIdMapaProvinceRoute: typeof SignedInFeudoFiefIdMapaProvinceRoute
   SignedInFeudoFiefIdMapaIndexRoute: typeof SignedInFeudoFiefIdMapaIndexRoute
@@ -341,7 +358,6 @@ interface SignedInFeudoFiefIdRouteChildren {
 
 const SignedInFeudoFiefIdRouteChildren: SignedInFeudoFiefIdRouteChildren = {
   SignedInFeudoFiefIdCronicaRoute: SignedInFeudoFiefIdCronicaRoute,
-  SignedInFeudoFiefIdRepasoRoute: SignedInFeudoFiefIdRepasoRoute,
   SignedInFeudoFiefIdIndexRoute: SignedInFeudoFiefIdIndexRoute,
   SignedInFeudoFiefIdMapaProvinceRoute: SignedInFeudoFiefIdMapaProvinceRoute,
   SignedInFeudoFiefIdMapaIndexRoute: SignedInFeudoFiefIdMapaIndexRoute,
@@ -351,12 +367,16 @@ const SignedInFeudoFiefIdRouteWithChildren =
   SignedInFeudoFiefIdRoute._addFileChildren(SignedInFeudoFiefIdRouteChildren)
 
 interface SignedInRouteChildren {
+  SignedInReportRoute: typeof SignedInReportRoute
+  SignedInReviewsRoute: typeof SignedInReviewsRoute
   SignedInSchoolRoute: typeof SignedInSchoolRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
   SignedInFeudoFiefIdRoute: typeof SignedInFeudoFiefIdRouteWithChildren
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
+  SignedInReportRoute: SignedInReportRoute,
+  SignedInReviewsRoute: SignedInReviewsRoute,
   SignedInSchoolRoute: SignedInSchoolRoute,
   SignedInIndexRoute: SignedInIndexRoute,
   SignedInFeudoFiefIdRoute: SignedInFeudoFiefIdRouteWithChildren,

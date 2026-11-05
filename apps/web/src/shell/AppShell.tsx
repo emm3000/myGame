@@ -1,6 +1,7 @@
 import {
   shellNavigationChronicle,
   shellNavigationMap,
+  shellNavigationReport,
   shellNavigationTown,
   shellSignOut,
   shellTitle,
@@ -29,6 +30,11 @@ interface Screen {
   readonly isExact: boolean
 }
 
+const townScreens: ReadonlyArray<Screen> = [
+  { to: '/', label: shellNavigationTown(), isExact: true },
+  { to: '/report', label: shellNavigationReport(), isExact: true },
+]
+
 const fiefScreens: ReadonlyArray<Screen> = [
   { to: '/feudo/$fiefId/mapa', label: shellNavigationMap(), isExact: false },
   { to: '/feudo/$fiefId/cronica', label: shellNavigationChronicle(), isExact: true },
@@ -40,16 +46,16 @@ const linkClass =
 const activeProps = { className: 'border-action font-bold text-action' }
 const inactiveProps = { className: 'border-transparent text-ink-muted' }
 
-function TownLink(): ReactElement {
+function TownScreenLink({ to, label, isExact }: Screen): ReactElement {
   return (
     <Link
-      to="/"
-      activeOptions={{ exact: true }}
+      to={to}
+      activeOptions={{ exact: isExact }}
       className={linkClass}
       activeProps={activeProps}
       inactiveProps={inactiveProps}
     >
-      {shellNavigationTown()}
+      {label}
     </Link>
   )
 }
@@ -90,9 +96,11 @@ export function AppShell({
         <div className="flex grow items-center gap-4 md:grow-0">
           <nav className="flex">
             <ul className="m-0 flex list-none gap-1 p-0">
-              <li className="flex">
-                <TownLink />
-              </li>
+              {townScreens.map((screen) => (
+                <li key={screen.to} className="flex">
+                  <TownScreenLink {...screen} />
+                </li>
+              ))}
               {fiefId === undefined
                 ? null
                 : fiefScreens.map((screen) => (

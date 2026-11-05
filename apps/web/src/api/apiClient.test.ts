@@ -241,3 +241,44 @@ it('answers a town refusal with its params', async () => {
     error: { kind: 'WaitingListFull', params: { cap: 2 } },
   })
 })
+
+const reportWithNews = {
+  dueCount: 0,
+  due: [],
+  news: [
+    {
+      kind: 'buildingWorkFinished',
+      params: { building: 'homes', level: 2 },
+      occurredAt: '2026-11-10T08:50:00.000Z',
+    },
+  ],
+}
+
+it('reads the Report through its schema', async () => {
+  const fetch = answeringFetch(200, reportWithNews)
+
+  const outcome = await createApiClient('/api').report()
+
+  expect(outcome).toEqual({ ok: true, value: reportWithNews })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/report')
+  expect(init?.method).toBe('GET')
+})
+
+it('reads a Report the schema refuses as unexpected', async () => {
+  answeringFetch(200, { ...reportWithNews, dueCount: -1 })
+
+  expect(await createApiClient('/api').report()).toEqual({ ok: false, refusal: 'Unexpected' })
+})
+
+it('posts the close of the Report', async () => {
+  const fetch = vi.fn(
+    async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+
+  expect(await createApiClient('/api').closeReport()).toBeUndefined()
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/report/close')
+  expect(init?.method).toBe('POST')
+})
