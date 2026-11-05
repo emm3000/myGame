@@ -7,6 +7,7 @@ import type {
   Result,
   ReviewLog,
 } from '@mygame/domain'
+import type { TownNews, TownRepository } from '@mygame/domain/town'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
@@ -19,6 +20,8 @@ import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
+import { DrizzleTownNews } from './DrizzleTownNews'
+import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 export type TransactionStores = {
   readonly fiefs: FiefRepository
@@ -29,6 +32,8 @@ export type TransactionStores = {
   readonly cards: CardRepository
   readonly pendingReviews: PendingReviewRepository
   readonly reviewLog: ReviewLog
+  readonly towns: TownRepository
+  readonly townNews: TownNews
 }
 
 export type Transaction = <T, E>(
@@ -52,6 +57,8 @@ export const postgresTransaction =
           cards: new DrizzleCardRepository(transaction),
           pendingReviews: new DrizzlePendingReviewRepository(transaction),
           reviewLog: new DrizzleReviewLog(transaction),
+          towns: new DrizzleTownRepository(transaction, 'lockedForUpdate'),
+          townNews: new DrizzleTownNews(transaction),
         })
         if (!outcome.ok) {
           refused = outcome

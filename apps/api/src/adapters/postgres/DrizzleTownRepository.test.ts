@@ -36,13 +36,14 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
         passwordHash: 'argon2id-hash',
         createdAt: new Date('2026-11-04T08:00:00Z'),
         digestAcknowledgedAt: new Date('2026-11-04T08:00:00Z'),
+        reportReadAt: new Date('2026-11-04T08:00:00Z'),
       })),
     )
 }
 
 townRepositoryContract('DrizzleTownRepository', async () => {
   await pool.query(
-    'TRUNCATE players, towns, town_buildings, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
   )
-  return { towns: new DrizzleTownRepository(drizzle(pool)), registerPlayers }
+  return { towns: new DrizzleTownRepository(drizzle(pool), 'lockFree'), registerPlayers }
 })

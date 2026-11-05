@@ -11,6 +11,7 @@
   "storageBaseCapacity": 1000,
   "sitesPerArea": 15,
   "terrainBonusPerHour": 5,
+  "waitingListCap": 4,
   "seasons": {
     "epoch": "2026-10-05T00:00:00Z",
     "daysPerSeason": 7,
@@ -38,6 +39,20 @@
         "food": 100,
         "power": 75,
         "material": 100
+      }
+    },
+    "durationPercent": {
+      "spring": {
+        "build": 100
+      },
+      "summer": {
+        "build": 75
+      },
+      "fall": {
+        "build": 100
+      },
+      "winter": {
+        "build": 100
       }
     }
   }

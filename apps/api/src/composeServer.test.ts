@@ -18,8 +18,10 @@ import {
   type PlayerId,
   type Result,
 } from '@mygame/domain'
+import { foundTown, startBuildingWork, type Town, type TownRepository } from '@mygame/domain/town'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
+import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import type { Transaction } from './adapters/postgres/postgresTransaction'
 import type { AccountToken } from './auth/AccountTokens'
 import { type ComposedServer, composeServer } from './composeServer'
@@ -389,10 +391,10 @@ const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, towns, town_buildings, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     await client.query(
-      "INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2)",
+      "INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at, report_read_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2, $2)",
       [ana, new Date('2026-09-22T08:00:00Z')],
     )
   } finally {
@@ -703,6 +705,129 @@ describe('a fief transaction from the composed server', () => {
       iron: 200,
       gold: 50,
       food: 300,
+    })
+  })
+})
+
+const townCatalog = JsonTownCatalog.fromDirectory(join(contentDirectory, 'town'))
+
+const lockedTownReadQuery = 'select "id", "player_id", "region", %'
+
+const foundAnasTown = async (server: ComposedServer): Promise<void> => {
+  await foundAnasFief(server)
+  const founded = await server.inTransaction(({ towns }) =>
+    foundTown(
+      { playerId: ana, name: 'Maple Falls' },
+      { towns, catalog: townCatalog, clock: frozenClock, ids: server.ids },
+    ),
+  )
+  assert(founded.ok)
+}
+
+const pausingTownRead = (
+  towns: TownRepository,
+  afterRead: () => Promise<void>,
+): TownRepository => ({
+  holdsTown: (playerId) => towns.holdsTown(playerId),
+  occupiedSites: () => towns.occupiedSites(),
+  save: (town) => towns.save(town),
+  townOf: async (playerId) => {
+    const read = await towns.townOf(playerId)
+    await afterRead()
+    return read
+  },
+})
+
+const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
+  let hasRead = false
+  void secondRead.then(() => {
+    hasRead = true
+  })
+  const observer = new Client({ connectionString: databaseUrl() })
+  await observer.connect()
+  try {
+    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+      if (hasRead || (await isWaitingOnALock(observer, [lockedTownReadQuery]))) {
+        return
+      }
+    }
+    throw new Error('The second read neither waited on the town lock nor finished')
+  } finally {
+    await observer.end()
+  }
+}
+
+const startFarmWork = (
+  server: ComposedServer,
+  afterRead: () => Promise<void>,
+): Promise<Result<Town, DomainError>> =>
+  server.inTransaction(({ towns, townNews }) =>
+    startBuildingWork(
+      { playerId: ana, building: 'farm' },
+      {
+        towns: pausingTownRead(towns, afterRead),
+        news: townNews,
+        catalog: townCatalog,
+        clock: frozenClock,
+      },
+    ),
+  )
+
+const raceTwoStarts = async (server: ComposedServer): Promise<ReadonlyArray<Outcome>> => {
+  const firstHasRead = signal()
+  const secondHasRead = signal()
+  const secondIsBlockedOrHasRead = untilTownBlockedOrRead(secondHasRead.promise)
+  const first = startFarmWork(server, async () => {
+    firstHasRead.resolve()
+    await secondIsBlockedOrHasRead
+  })
+  await firstHasRead.promise
+  const second = startFarmWork(server, async () => {
+    secondHasRead.resolve()
+  })
+  return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
+}
+
+describe('a town transaction from the composed server', () => {
+  let server: ComposedServer
+
+  beforeAll(() => {
+    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
+  })
+
+  afterAll(async () => {
+    await server.close()
+  })
+
+  it('queues the second of two concurrent starts on one town behind the first', async () => {
+    await foundAnasTown(server)
+
+    const outcomes = await raceTwoStarts(server)
+
+    const stored = await server.inTransaction(({ towns }) => towns.townOf(ana))
+    assert(stored.ok && stored.value !== undefined)
+    expect([
+      outcomes,
+      stored.value.workSlot,
+      stored.value.waitingList.map(({ building, level }) => ({ building, level })),
+    ]).toEqual([
+      ['enqueued', 'enqueued'],
+      expect.objectContaining({ kind: 'busy', building: 'farm', level: 1 }),
+      [{ building: 'farm', level: 2 }],
+    ])
+  })
+
+  it('debits both costs when two starts on one town race', async () => {
+    await foundAnasTown(server)
+
+    await raceTwoStarts(server)
+
+    const stored = await server.inTransaction(({ towns }) => towns.townOf(ana))
+    expect(stored.ok && stored.value?.stocks).toEqual({
+      money: 275,
+      food: 300,
+      power: 200,
+      material: 325,
     })
   })
 })

@@ -26,6 +26,7 @@ export class DrizzleAccounts implements Accounts {
         ...player,
         createdAt: dateOf(player.createdAt),
         digestAcknowledgedAt: dateOf(player.createdAt),
+        reportReadAt: dateOf(player.createdAt),
       })
       return 'added'
     } catch (failure) {

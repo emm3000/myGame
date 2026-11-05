@@ -10,6 +10,13 @@ const productionPercent = {
   winter: { ...unscaled, power: 75 },
 }
 
+const durationPercent = {
+  spring: { build: 100 },
+  summer: { build: 75 },
+  fall: { build: 100 },
+  winter: { build: 100 },
+}
+
 const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   startingStocks: { money: 400, food: 300, power: 200, material: 500 },
   taxRatePerHour: 12,
@@ -18,7 +25,13 @@ const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   storageBaseCapacity: 1000,
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
-  seasons: { epoch: '2026-10-05T00:00:00Z', daysPerSeason: 7, productionPercent },
+  waitingListCap: 4,
+  seasons: {
+    epoch: '2026-10-05T00:00:00Z',
+    daysPerSeason: 7,
+    productionPercent,
+    durationPercent,
+  },
   ...overrides,
 })
 
@@ -33,6 +46,18 @@ describe('TownContentSchema', () => {
       epoch: '2026-10-05T00:00:00Z',
       daysPerSeason: 7,
       productionPercent: threeSeasons,
+      durationPercent,
+    }
+
+    expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)
+  })
+
+  it('refuses a build percent of 0', () => {
+    const seasons = {
+      epoch: '2026-10-05T00:00:00Z',
+      daysPerSeason: 7,
+      productionPercent,
+      durationPercent: { ...durationPercent, winter: { build: 0 } },
     }
 
     expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)

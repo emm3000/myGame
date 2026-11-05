@@ -1,5 +1,4 @@
 import type { DomainError } from '../DomainError'
-import { deriveBuildDurationSeconds } from '../fief/deriveBuildDurationSeconds'
 import { derivePeasantsForUpgrade } from '../fief/derivePeasantsForUpgrade'
 import { deriveProjectedFreePeasants } from '../fief/deriveProjectedFreePeasants'
 import type { Fief } from '../fief/Fief'
@@ -12,6 +11,7 @@ import type { BuildingCatalog, BuildingKind, BuildingLevel } from '../ports/Buil
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import { err, ok, type Result } from '../Result'
+import { deriveBuildDurationSeconds } from '../season/deriveBuildDurationSeconds'
 import { durationPercentAt } from '../season/durationPercentAt'
 import type { Instant } from '../time/Instant'
 

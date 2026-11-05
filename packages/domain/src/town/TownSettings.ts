@@ -5,8 +5,13 @@ import type { Stocks } from './Stocks'
 
 export type ProductionPercent = Readonly<Record<ResourceKind, number>>
 
+export type TownDurationPercent = {
+  readonly build: number
+}
+
 export type TownSeasons = SeasonDates & {
   readonly productionPercent: Readonly<Record<SeasonKind, ProductionPercent>>
+  readonly durationPercent: Readonly<Record<SeasonKind, TownDurationPercent>>
 }
 
 export type TownSettings = {
@@ -17,5 +22,6 @@ export type TownSettings = {
   readonly storageBaseCapacity: number
   readonly sitesPerArea: number
   readonly terrainBonusPerHour: number
+  readonly waitingListCap: number
   readonly seasons: TownSeasons
 }
