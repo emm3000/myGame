@@ -1,6 +1,5 @@
 import type { HeldCard } from './HeldCard'
-
-const SKILL_STABILITY_DAYS = 7
+import { SKILL_STABILITY_DAYS } from './skillStabilityDays'
 
 export const isWordRetained = (held: HeldCard): boolean => {
   const { retainedAt, stability } = held.card.stored

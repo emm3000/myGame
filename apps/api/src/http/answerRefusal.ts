@@ -81,6 +81,7 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   LessonUnderStudy: { status: 409, kind: 'LessonUnderStudy' },
   LessonStudyNotFound: { status: 409, kind: 'LessonStudyNotFound' },
   LessonLibraryTooLow: { status: 409, kind: 'LessonLibraryTooLow' },
+  LearningCapReached: internalFailure,
   NegativeResourceAmount: internalFailure,
   NegativeResourceRate: internalFailure,
   UnknownBuildingLevel: internalFailure,

@@ -4,6 +4,7 @@ import { Instant } from '../time/Instant'
 import type { BuildingLevels } from './BuildingLevels'
 import { deriveResourceRates } from './deriveResourceRates'
 import type { TownSettings } from './TownSettings'
+import type { TownSkill } from './TownSkill'
 
 const MILLISECONDS_PER_DAY = 86_400_000
 
@@ -22,6 +23,15 @@ const noBuilding: BuildingLevels = {
   office: 0,
 }
 
+const noSkills: ReadonlyArray<TownSkill> = []
+
+const skillOf = (lessonId: string, resource: TownSkill['resource']): TownSkill => ({
+  lessonId,
+  resource,
+  ratePercent: 5,
+  earnedAt: daysAfterEpoch(1),
+})
+
 const producingLevels: BuildingLevels = { ...noBuilding, farm: 1, factory: 2, powerStation: 1 }
 
 const seasonalSettings: TownSettings = {
@@ -37,7 +47,13 @@ const seasonalSettings: TownSettings = {
 
 describe('deriveResourceRates', () => {
   it('derives money from the base tax rate with no building', () => {
-    const rates = deriveResourceRates(noBuilding, 'hills', townCatalogOf(), daysAfterEpoch(1))
+    const rates = deriveResourceRates(
+      noBuilding,
+      'hills',
+      noSkills,
+      townCatalogOf(),
+      daysAfterEpoch(1),
+    )
 
     assert(rates.ok)
     expect(rates.value.money).toBe(12)
@@ -45,7 +61,13 @@ describe('deriveResourceRates', () => {
 
   it("gives fields food, river power and hills material on the town's own site", () => {
     const ratesOn = (terrain: 'fields' | 'river' | 'hills'): unknown => {
-      const rates = deriveResourceRates(noBuilding, terrain, townCatalogOf(), daysAfterEpoch(1))
+      const rates = deriveResourceRates(
+        noBuilding,
+        terrain,
+        noSkills,
+        townCatalogOf(),
+        daysAfterEpoch(1),
+      )
       assert(rates.ok)
       return rates.value
     }
@@ -63,6 +85,7 @@ describe('deriveResourceRates', () => {
     const rates = deriveResourceRates(
       producingLevels,
       'fields',
+      noSkills,
       townCatalogOf(seasonalSettings),
       midWinter,
     )
@@ -71,10 +94,30 @@ describe('deriveResourceRates', () => {
     expect(rates.value).toEqual({ money: 12, food: 17.5, power: 31.25, material: 32 })
   })
 
+  it("sums a resource's skill percents into one factor", () => {
+    const skills = [
+      skillOf('lesson-1', 'food'),
+      skillOf('lesson-2', 'material'),
+      skillOf('lesson-5', 'food'),
+    ]
+
+    const rates = deriveResourceRates(
+      producingLevels,
+      'fields',
+      skills,
+      townCatalogOf(),
+      daysAfterEpoch(1),
+    )
+
+    assert(rates.ok)
+    expect(rates.value).toEqual({ money: 12, food: 38.5, power: 25, material: 42 })
+  })
+
   it('answers UnknownTownBuildingLevel for a producer level the content lacks', () => {
     const rates = deriveResourceRates(
       { ...noBuilding, farm: 9 },
       'fields',
+      noSkills,
       townCatalogOf(),
       daysAfterEpoch(1),
     )

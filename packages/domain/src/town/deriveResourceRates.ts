@@ -6,6 +6,7 @@ import type { BuildingLevels } from './BuildingLevels'
 import type { ResourceKind } from './ResourceKind'
 import type { Terrain } from './Terrain'
 import type { TownCatalog } from './TownCatalog'
+import type { TownSkill } from './TownSkill'
 
 type ProducerBuilding = 'farm' | 'factory' | 'powerStation'
 
@@ -40,9 +41,26 @@ const seasonPercentsAt = (at: Instant, catalog: TownCatalog): ResourceRates => {
   return season === undefined ? noSeasonBeforeEpoch : seasons.productionPercent[season.kind]
 }
 
+const percentsOf = (
+  resource: ResourceKind,
+  skills: ReadonlyArray<TownSkill>,
+  seasonPercent: number,
+): ReadonlyArray<number> => {
+  const earned = skills.filter((skill) => skill.resource === resource)
+  if (earned.length === 0) {
+    return [seasonPercent]
+  }
+  const skillPercent = earned.reduce((sum, skill) => sum + skill.ratePercent, 100)
+  return [skillPercent, seasonPercent]
+}
+
+const scaledRate = (rate: number, percents: ReadonlyArray<number>): number =>
+  (rate * percents.reduce((product, percent) => product * percent, 1)) / 100 ** percents.length
+
 export const deriveResourceRates = (
   buildingLevels: BuildingLevels,
   terrain: Terrain,
+  skills: ReadonlyArray<TownSkill>,
   catalog: TownCatalog,
   at: Instant,
 ): Result<ResourceRates, DomainError> => {
@@ -68,7 +86,10 @@ export const deriveResourceRates = (
   }
   const percents = seasonPercentsAt(at, catalog)
   const scaled = (resource: ResourceKind): number =>
-    ((base[resource] + (resource === bonus ? terrainBonusPerHour : 0)) * percents[resource]) / 100
+    scaledRate(
+      base[resource] + (resource === bonus ? terrainBonusPerHour : 0),
+      percentsOf(resource, skills, percents[resource]),
+    )
   return ok({
     money: scaled('money'),
     food: scaled('food'),
