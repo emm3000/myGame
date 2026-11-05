@@ -38,6 +38,15 @@ CI runs exactly `pnpm gate`, whose definition is the `gate` script in the root `
 - `permissions: contents: read` and a 5-minute timeout. It checks nothing out and uses no action.
 - GitHub disables a public repo's schedules after 60 days without activity; `gh workflow enable health.yml` turns it back on.
 
+## `app-distribution.yml`
+
+- Triggers: `push` to `trunk` and `workflow_dispatch`, never `pull_request`, so a PR cannot run its own change to it; `actionlint` is the check before merge. The `build` job runs only on `refs/heads/trunk`, so a dispatch on another branch distributes nothing. Concurrency group `app-distribution-<ref>` with `cancel-in-progress: true`: a newer `trunk` push cancels the superseded run.
+- `build` holds no secret: checkout without persisted credentials, `actions/setup-java` (Temurin 17), `gradle/actions/setup-gradle`, then in `apps/android` `./gradlew assembleRelease` with `MYGAME_VERSION_CODE` set to `github.run_number`, so each build installs over the last. With no `MYGAME_RELEASE_*` setting it writes `app-release-unsigned.apk`, uploaded as the artifact `app-release-unsigned` (7 days).
+- `distribute` needs `build` and runs no repo code: no checkout, no Gradle. It downloads the artifact, decodes `MYGAME_RELEASE_KEYSTORE_BASE64` to `$RUNNER_TEMP`, picks the runner's newest stable build tools, aligns with `zipalign -P 16 -f 4` (16 KB pages for native libraries), signs with `apksigner` (passwords through `env:`, never the command line), verifies with `apksigner verify --print-certs`, prints the `versionCode` with `aapt2 dump badging`, then uploads through `wzieba/Firebase-Distribution-Github-Action` to the tester group `owner` with release notes naming the commit and the run number. A last `if: always()` step deletes the keystore and the credentials file the action writes into the workspace.
+- Secrets, each in the one step that needs it: `MYGAME_RELEASE_KEYSTORE_BASE64` in the decode step; `MYGAME_RELEASE_STORE_PASSWORD`, `MYGAME_RELEASE_KEY_ALIAS` and `MYGAME_RELEASE_KEY_PASSWORD` in the signing step; `FIREBASE_APP_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` in the upload step. A missing secret fails its step with its name, never its value.
+- The upload action builds its image from its own Dockerfile, which installs `firebase-tools` unpinned; the action's commit is pinned, the CLI it installs is not.
+- A change to `app-distribution.yml` alone counts as code for `needs-deploy.sh`, so its merge runs a full deploy, as `health.yml` does.
+
 ## Pinning
 
 Third-party actions are pinned to a full commit SHA with the version tag in a trailing comment, updated deliberately. Never `@main`, never a tag alone, not even a major.
@@ -48,4 +57,4 @@ Third-party actions are pinned to a full commit SHA with the version tag in a tr
 
 ## What CI does not do
 
-CI publishes nothing: no image, no release, no tag, no package; the `vercel` job builds and deploys nothing. The deploy to Vercel is its own workflow, outside `ci.yml`'s concurrency group, so a newer push never cancels a deploy halfway (ADR 031).
+CI publishes nothing: no image, no release, no tag, no package; the `vercel` job builds and deploys nothing. The deploy to Vercel is its own workflow, as is the Android build sent to Firebase App Distribution (`app-distribution.yml`), each outside `ci.yml`'s concurrency group, so a newer push never cancels a deploy halfway (ADR 031).
