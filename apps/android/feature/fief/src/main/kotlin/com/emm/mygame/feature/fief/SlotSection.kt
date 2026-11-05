@@ -10,8 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -23,8 +25,8 @@ import kotlin.time.Duration
 @Composable
 internal fun SlotSection(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        SectionTitle(text = stringResource(R.string.slot_title))
-        Card {
+        MyGameSectionTitle(text = stringResource(R.string.slot_title))
+        MyGameCard {
             when (val slot: FiefUiState.SlotLine = content.slot) {
                 FiefUiState.SlotLine.Idle -> IdleSlot()
                 is FiefUiState.SlotLine.Busy -> BusySlot(

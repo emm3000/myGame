@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 internal class FiefSwitcherViewModel(
-    private val current: FiefId,
+    private val current: FiefId?,
     private val listings: FiefListRepository,
 ) : ViewModel() {
 
@@ -27,7 +27,7 @@ internal class FiefSwitcherViewModel(
 
     fun onIntent(intent: FiefSwitcherIntent) {
         when (intent) {
-            FiefSwitcherIntent.ScreenShown, FiefSwitcherIntent.FoundingApplied -> read()
+            FiefSwitcherIntent.ScreenShown -> read()
         }
     }
 

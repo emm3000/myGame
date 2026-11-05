@@ -87,9 +87,9 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
     implementation(project(":feature:chronicle"))
-    implementation(project(":feature:fief"))
     implementation(project(":feature:map"))
     implementation(project(":feature:signin"))
+    implementation(project(":feature:town"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation3.runtime)

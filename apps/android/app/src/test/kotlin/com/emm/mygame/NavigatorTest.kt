@@ -19,8 +19,6 @@ class NavigatorTest {
 
     private val secondFief: FiefId = FiefId("7c1f0a52-3d4e-4b8a-9f61-2e5d8c0b4a17")
 
-    private val fief: Destination.Fief = Destination.Fief(firstListed)
-
     private val map: Destination.Map = Destination.Map(firstListed)
 
     private val chronicle: Destination.Chronicle = Destination.Chronicle(firstListed)
@@ -98,110 +96,53 @@ class NavigatorTest {
     }
 
     @Test
-    fun `lists the fiefs alone once signed up`() {
+    fun `opens the town alone once signed up`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn, Destination.SignUp)
 
         Navigator(backStack).signedIn()
 
-        assertEquals(listOf(Destination.FirstFief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
-    fun `lists the fiefs alone once signed in`() {
+    fun `opens the town alone once signed in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 
         Navigator(backStack).signedIn()
 
-        assertEquals(listOf(Destination.FirstFief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
-    fun `opens the first listed fief alone`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.FirstFief)
+    fun `opens the chronicle above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).firstFiefOpened(firstListed)
+        Navigator(backStack).openChronicle(firstListed)
 
-        assertEquals(listOf(fief), backStack)
-    }
-
-    @Test
-    fun `ignores a listed fief once the list has left the screen`() {
-        val backStack: MutableList<NavKey> = mutableListOf(sessionEndedSignIn)
-
-        Navigator(backStack).firstFiefOpened(firstListed)
-
-        assertEquals(listOf(sessionEndedSignIn), backStack)
-    }
-
-    @Test
-    fun `opens the map of the fief it shows`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief(secondFief))
-
-        Navigator(backStack).openMap()
-
-        assertEquals(Destination.Map(secondFief), backStack.last())
-    }
-
-    @Test
-    fun `opens the chronicle of the fief it shows`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Fief(secondFief))
-
-        Navigator(backStack).openChronicle()
-
-        assertEquals(Destination.Chronicle(secondFief), backStack.last())
-    }
-
-    @Test
-    fun `opens the chronicle of the fief the map shows`() {
-        val backStack: MutableList<NavKey> =
-            mutableListOf(Destination.Fief(secondFief), Destination.Map(secondFief))
-
-        Navigator(backStack).openChronicle()
-
-        assertEquals(listOf(Destination.Fief(secondFief), Destination.Chronicle(secondFief)), backStack)
-    }
-
-    @Test
-    fun `opens no tab while the fiefs are listed`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.FirstFief)
-        val navigator: Navigator = Navigator(backStack)
-
-        navigator.openMap()
-        navigator.openChronicle()
-
-        assertEquals(listOf(Destination.FirstFief), backStack)
-    }
-
-    @Test
-    fun `opens the chronicle above the fief`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
-
-        Navigator(backStack).openChronicle()
-
-        assertEquals(listOf(fief, chronicle), backStack)
+        assertEquals(listOf(Destination.Town, chronicle), backStack)
     }
 
     @Test
     fun `keeps one chronicle when it is opened twice`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, chronicle)
 
-        Navigator(backStack).openChronicle()
+        Navigator(backStack).openChronicle(firstListed)
 
-        assertEquals(listOf(fief, chronicle), backStack)
+        assertEquals(listOf(Destination.Town, chronicle), backStack)
     }
 
     @Test
-    fun `returns to the fief below the chronicle`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
+    fun `returns to the town below the chronicle`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, chronicle)
 
-        Navigator(backStack).openFief()
+        Navigator(backStack).openTown()
 
-        assertEquals(listOf(fief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
     fun `returns to sign-in alone once signed out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, chronicle)
 
         Navigator(backStack).signedOut(isSessionEnded = false)
 
@@ -209,77 +150,77 @@ class NavigatorTest {
     }
 
     @Test
-    fun `opens the map above the fief and pops back to it`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
+    fun `opens the map above the town and pops back to it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
         val navigator: Navigator = Navigator(backStack)
 
-        navigator.openMap()
-        assertEquals(listOf(fief, map), backStack)
-        navigator.openFief()
+        navigator.openMap(firstListed)
+        assertEquals(listOf(Destination.Town, map), backStack)
+        navigator.openTown()
 
-        assertEquals(listOf(fief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
     fun `keeps one map when it is opened twice`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
 
-        Navigator(backStack).openMap()
+        Navigator(backStack).openMap(firstListed)
 
-        assertEquals(listOf(fief, map), backStack)
+        assertEquals(listOf(Destination.Town, map), backStack)
     }
 
     @Test
-    fun `returns to the fief on back from the map`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+    fun `returns to the town on back from the map`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
 
         Navigator(backStack).back()
 
-        assertEquals(listOf(fief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
     fun `opens the map in place of the chronicle`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, chronicle)
 
-        Navigator(backStack).openMap()
+        Navigator(backStack).openMap(firstListed)
 
-        assertEquals(listOf(fief, map), backStack)
+        assertEquals(listOf(Destination.Town, map), backStack)
     }
 
     @Test
     fun `opens the chronicle in place of the map`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
 
-        Navigator(backStack).openChronicle()
+        Navigator(backStack).openChronicle(firstListed)
 
-        assertEquals(listOf(fief, chronicle), backStack)
+        assertEquals(listOf(Destination.Town, chronicle), backStack)
     }
 
     @Test
-    fun `returns to the fief on back from the chronicle`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
+    fun `returns to the town on back from the chronicle`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, chronicle)
 
         Navigator(backStack).back()
 
-        assertEquals(listOf(fief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
     fun `leaves the back stack unchanged when the map or the chronicle is tapped while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
         val navigator: Navigator = Navigator(backStack)
 
         navigator.signingOut()
-        navigator.openMap()
-        navigator.openChronicle()
+        navigator.openMap(firstListed)
+        navigator.openChronicle(firstListed)
 
-        assertEquals(listOf(fief), backStack)
+        assertEquals(listOf(Destination.Town), backStack)
     }
 
     @Test
     fun `disables the tabs while signing out`() {
-        val navigator: Navigator = Navigator(mutableListOf(fief))
+        val navigator: Navigator = Navigator(mutableListOf(Destination.Town))
 
         navigator.signingOut()
 
@@ -288,41 +229,20 @@ class NavigatorTest {
 
     @Test
     fun `enables the tabs again for the next session`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
         val navigator: Navigator = Navigator(backStack)
         navigator.signingOut()
         navigator.signedOut(isSessionEnded = false)
 
         navigator.signedIn()
-        navigator.firstFiefOpened(firstListed)
-        navigator.openMap()
+        navigator.openMap(firstListed)
 
-        assertEquals(true to listOf(fief, map), navigator.areTabsEnabled to backStack)
-    }
-
-    @Test
-    fun `returns to sign-in alone once signed out from the first-fief screen`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.FirstFief)
-
-        Navigator(backStack).signedOut(isSessionEnded = false)
-
-        assertEquals(listOf(signIn), backStack)
-    }
-
-    @Test
-    fun `opens no fief once signed out from the first-fief screen`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.FirstFief)
-        val navigator: Navigator = Navigator(backStack)
-
-        navigator.signedOut(isSessionEnded = false)
-        navigator.firstFiefOpened(firstListed)
-
-        assertEquals(listOf(signIn), backStack)
+        assertEquals(true to listOf(Destination.Town, map), navigator.areTabsEnabled to backStack)
     }
 
     @Test
     fun `returns to sign-in alone once signed out from the map`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
 
         Navigator(backStack).signedOut(isSessionEnded = false)
 
@@ -330,12 +250,12 @@ class NavigatorTest {
     }
 
     @Test
-    fun `leaves sign-in alone with the session-ended line when the session ends above the fief`() = runTest {
+    fun `leaves sign-in alone with the session-ended line when the session ends above the town`() = runTest {
         val signedInStacks: List<MutableList<NavKey>> = listOf(
-            mutableListOf(Destination.FirstFief),
-            mutableListOf(fief),
-            mutableListOf(fief, map),
-            mutableListOf(fief, chronicle),
+            mutableListOf(Destination.Town),
+            mutableListOf(Destination.Town),
+            mutableListOf(Destination.Town, map),
+            mutableListOf(Destination.Town, chronicle),
         )
 
         signedInStacks.forEach { backStack: MutableList<NavKey> ->
@@ -365,35 +285,26 @@ class NavigatorTest {
     }
 
     @Test
-    fun `opens the chosen fief in place of the fief on screen`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
+    fun `keeps the map on screen when another fief is chosen, with the town below it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
 
         Navigator(backStack).switchFief(secondFief)
 
-        assertEquals(listOf(Destination.Fief(secondFief)), backStack)
+        assertEquals(listOf(Destination.Town, Destination.Map(secondFief)), backStack)
     }
 
     @Test
-    fun `keeps the map on screen when another fief is chosen, with that fief below it`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+    fun `keeps the chronicle on screen when another fief is chosen, with the town below it`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, chronicle)
 
         Navigator(backStack).switchFief(secondFief)
 
-        assertEquals(listOf(Destination.Fief(secondFief), Destination.Map(secondFief)), backStack)
-    }
-
-    @Test
-    fun `keeps the chronicle on screen when another fief is chosen, with that fief below it`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, chronicle)
-
-        Navigator(backStack).switchFief(secondFief)
-
-        assertEquals(listOf(Destination.Fief(secondFief), Destination.Chronicle(secondFief)), backStack)
+        assertEquals(listOf(Destination.Town, Destination.Chronicle(secondFief)), backStack)
     }
 
     @Test
     fun `keeps the screen it shows when the fief on screen is chosen`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
 
         Navigator(backStack).switchFief(firstListed)
 
@@ -402,50 +313,88 @@ class NavigatorTest {
 
     @Test
     fun `opens no other fief while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
         val navigator: Navigator = Navigator(backStack)
         navigator.signingOut()
 
         navigator.switchFief(secondFief)
 
-        assertEquals(listOf(fief, map), backStack)
+        assertEquals(listOf(Destination.Town, map), backStack)
     }
 
     @Test
-    fun `opens the review above the fief it shows`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
+    fun `opens the map of the fief the tab names`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).openReview()
+        Navigator(backStack).openMap(secondFief)
 
-        assertEquals(listOf(fief, Destination.Review(firstListed)), backStack)
+        assertEquals(listOf(Destination.Town, Destination.Map(secondFief)), backStack)
     }
 
     @Test
-    fun `returns to the fief on back from the review`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, Destination.Review(firstListed))
+    fun `opens the chronicle of the fief the tab names`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
 
-        Navigator(backStack).back()
+        Navigator(backStack).openChronicle(secondFief)
 
-        assertEquals(listOf(fief), backStack)
+        assertEquals(listOf(Destination.Town, Destination.Chronicle(secondFief)), backStack)
     }
 
     @Test
-    fun `opens the review only above the fief`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief, map)
-
-        Navigator(backStack).openReview()
-
-        assertEquals(listOf(fief, map), backStack)
-    }
-
-    @Test
-    fun `keeps one review when it is opened twice`() {
-        val backStack: MutableList<NavKey> = mutableListOf(fief)
+    fun `opens no tab above sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
         val navigator: Navigator = Navigator(backStack)
 
-        navigator.openReview()
-        navigator.openReview()
+        navigator.openMap(firstListed)
+        navigator.openChronicle(firstListed)
 
-        assertEquals(listOf(fief, Destination.Review(firstListed)), backStack)
+        assertEquals(listOf(signIn), backStack)
+    }
+
+    @Test
+    fun `stays on the town when the town tab is tapped`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no other fief above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).switchFief(secondFief)
+
+        assertEquals(listOf(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `never navigates to the fief`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+        val navigator: Navigator = Navigator(backStack)
+        val visited: MutableSet<NavKey> = mutableSetOf()
+
+        listOf(
+            navigator::signedIn,
+            { navigator.openMap(firstListed) },
+            { navigator.switchFief(secondFief) },
+            { navigator.openChronicle(secondFief) },
+            navigator::openTown,
+            navigator::back,
+        ).forEach { step: () -> Unit ->
+            step()
+            visited += backStack
+        }
+
+        assertEquals(
+            setOf(
+                Destination.Town,
+                Destination.Map(firstListed),
+                Destination.Map(secondFief),
+                Destination.Chronicle(secondFief),
+            ),
+            visited,
+        )
     }
 }

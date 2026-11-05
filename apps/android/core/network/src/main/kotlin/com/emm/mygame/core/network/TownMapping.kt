@@ -1,0 +1,103 @@
+package com.emm.mygame.core.network
+
+import com.emm.mygame.core.network.generated.models.BuildingWork
+import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
+import com.emm.mygame.core.network.generated.models.StartBuildingWork
+import com.emm.mygame.core.network.generated.models.TownOverview
+import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
+import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
+import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
+import kotlin.time.Duration.Companion.seconds
+
+internal fun TownOverview.toSnapshot(): TownSnapshot? {
+    val townLabel: TownLabel = label.toTownLabel() ?: return null
+    val waitingList: List<TownSnapshot.WorkItem> = work.waitingList.map { item: BuildingWork ->
+        item.toWorkItem() ?: return null
+    }
+    val slot: TownSnapshot.WorkItem? = work.slot?.let { item: BuildingWork -> item.toWorkItem() ?: return null }
+    return TownSnapshot(
+        name = name,
+        label = townLabel,
+        seasonEndsAt = season?.endsAt?.toKotlinInstant(),
+        stocks = listOf(
+            stocks.money.toStock(TownResourceKind.Money),
+            stocks.food.toStock(TownResourceKind.Food),
+            stocks.power.toStock(TownResourceKind.Power),
+            stocks.material.toStock(TownResourceKind.Material),
+        ),
+        people = TownSnapshot.People(supplied = people.supplied, free = people.free, atWork = people.atWork),
+        buildings = listOf(
+            buildings.homes.toBuilding(TownBuildingKind.Homes),
+            buildings.farm.toBuilding(TownBuildingKind.Farm),
+            buildings.factory.toBuilding(TownBuildingKind.Factory),
+            buildings.powerStation.toBuilding(TownBuildingKind.PowerStation),
+            buildings.storage.toBuilding(TownBuildingKind.Storage),
+            buildings.school.toBuilding(TownBuildingKind.School),
+            buildings.office.toBuilding(TownBuildingKind.Office),
+        ),
+        work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = work.cap),
+        lessonFinishesAt = lessonSlot?.finishesAt?.toKotlinInstant(),
+        readAt = readAt.toKotlinInstant(),
+    )
+}
+
+internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = when (this) {
+    TownBuildingKind.Homes -> StartBuildingWork.Building.homes
+    TownBuildingKind.Farm -> StartBuildingWork.Building.farm
+    TownBuildingKind.Factory -> StartBuildingWork.Building.factory
+    TownBuildingKind.PowerStation -> StartBuildingWork.Building.powerStation
+    TownBuildingKind.Storage -> StartBuildingWork.Building.storage
+    TownBuildingKind.School -> StartBuildingWork.Building.school
+    TownBuildingKind.Office -> StartBuildingWork.Building.office
+}
+
+private fun TownOverview.Label.toTownLabel(): TownLabel? = when (this) {
+    TownOverview.Label.town -> TownLabel.Town
+    TownOverview.Label.city -> TownLabel.City
+    TownOverview.Label.unknown_default_open_api -> null
+}
+
+private fun TownOverviewStocksMoney.toStock(kind: TownResourceKind): TownSnapshot.Stock = TownSnapshot.Stock(
+    kind = kind,
+    amount = amount.toLong(),
+    ratePerHour = ratePerHour,
+    capacity = capacity.toLong(),
+)
+
+private fun TownOverviewBuildingsHomes.toBuilding(kind: TownBuildingKind): TownSnapshot.Building =
+    TownSnapshot.Building(kind = kind, level = level, next = nextLevel?.toNextLevel())
+
+private fun TownOverviewBuildingsHomesNextLevel.toNextLevel(): TownSnapshot.NextLevel = TownSnapshot.NextLevel(
+    level = level,
+    costs = cost.toCosts(),
+    duration = durationSeconds.seconds,
+    people = people,
+)
+
+private fun NotEnoughResourcesErrorParamsMissing.toCosts(): List<TownSnapshot.Cost> = listOf(
+    TownSnapshot.Cost(TownResourceKind.Money, money.toLong()),
+    TownSnapshot.Cost(TownResourceKind.Food, food.toLong()),
+    TownSnapshot.Cost(TownResourceKind.Power, power.toLong()),
+    TownSnapshot.Cost(TownResourceKind.Material, material.toLong()),
+).filter { cost: TownSnapshot.Cost -> cost.amount > 0 }
+
+private fun BuildingWork.toWorkItem(): TownSnapshot.WorkItem? {
+    val kind: TownBuildingKind = building.toTownBuildingKind() ?: return null
+    return TownSnapshot.WorkItem(
+        building = kind,
+        level = level,
+        startsAt = startsAt.toKotlinInstant(),
+        finishesAt = finishesAt.toKotlinInstant(),
+    )
+}
+
+private fun BuildingWork.Building.toTownBuildingKind(): TownBuildingKind? = when (this) {
+    BuildingWork.Building.homes -> TownBuildingKind.Homes
+    BuildingWork.Building.farm -> TownBuildingKind.Farm
+    BuildingWork.Building.factory -> TownBuildingKind.Factory
+    BuildingWork.Building.powerStation -> TownBuildingKind.PowerStation
+    BuildingWork.Building.storage -> TownBuildingKind.Storage
+    BuildingWork.Building.school -> TownBuildingKind.School
+    BuildingWork.Building.office -> TownBuildingKind.Office
+    BuildingWork.Building.unknown_default_open_api -> null
+}

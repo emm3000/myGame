@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
@@ -36,7 +37,7 @@ internal fun MarchSlot(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        Card {
+        MyGameCard {
             when (march) {
                 FiefUiState.MarchSlotLine.Idle -> MyGameText(
                     text = stringResource(R.string.march_idle),

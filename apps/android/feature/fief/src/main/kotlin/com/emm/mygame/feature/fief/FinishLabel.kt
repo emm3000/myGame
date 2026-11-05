@@ -1,6 +1,8 @@
 package com.emm.mygame.feature.fief
 
 import androidx.compose.runtime.Composable
+import com.emm.mygame.core.projection.FinishClock
+import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.icuStringResource
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

@@ -13,9 +13,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -30,8 +32,8 @@ import com.emm.mygame.core.ui.icuStringResource
 internal fun ArmySection(army: FiefUiState.ArmyLine, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
     val isWaiting: Boolean = army.recruit == FiefUiState.RecruitStatus.Waiting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        SectionTitle(text = stringResource(R.string.army_title))
-        Card {
+        MyGameSectionTitle(text = stringResource(R.string.army_title))
+        MyGameCard {
             when (val slot: FiefUiState.LevySlotLine = army.slot) {
                 FiefUiState.LevySlotLine.Idle -> IdleLevy()
                 is FiefUiState.LevySlotLine.Busy -> BusyLevy(slot = slot, isWaiting = isWaiting, onIntent = onIntent)

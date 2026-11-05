@@ -22,8 +22,6 @@ class FiefSwitcherViewModelTest {
 
     private val other: FiefId = FiefId("509eadd5-6b34-4ea3-8e91-2b38744bd385")
 
-    private val founded: FiefId = FiefId("1d2e3f40-5a6b-4c7d-8e9f-0a1b2c3d4e5f")
-
     private val listedOther: ListedFief = ListedFief(
         id = other,
         name = "Páramo",
@@ -39,9 +37,6 @@ class FiefSwitcherViewModelTest {
         freeSlots = listOf(FreeSlot.Study),
         fullStores = listOf(ResourceKind.Wood),
     )
-
-    private val listedFounded: ListedFief =
-        listedOther.copy(id = founded, name = "Vega", address = FiefAddress(1, 4, 2))
 
     private val twoFiefs: FiefListResult = FiefListResult.Listed(listOf(listedOther, listedOnScreen))
 
@@ -106,18 +101,16 @@ class FiefSwitcherViewModelTest {
     }
 
     @Test
-    fun `lists the founded fief once a founding is applied`() = runTest {
+    fun `marks no entry current above the town`() = runTest {
         val listings: FakeFiefListRepository = FakeFiefListRepository()
-        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(onScreen, listings)
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
         viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+
         listings.answerListed(twoFiefs)
 
-        viewModel.onIntent(FiefSwitcherIntent.FoundingApplied)
-        listings.answerListed(FiefListResult.Listed(listOf(listedOther, listedOnScreen, listedFounded)))
-
         assertEquals(
-            listOf(other, onScreen, founded),
-            entriesOf(viewModel).map { entry: FiefSwitcherUiState.Entry -> entry.fief },
+            listOf(false, false),
+            entriesOf(viewModel).map { entry: FiefSwitcherUiState.Entry -> entry.isCurrent },
         )
     }
 

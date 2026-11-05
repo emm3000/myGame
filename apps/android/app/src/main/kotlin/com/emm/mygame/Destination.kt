@@ -17,17 +17,11 @@ sealed interface Destination : NavKey {
     data object ForgotPassword : Destination
 
     @Serializable
-    data object FirstFief : Destination
-
-    @Serializable
-    data class Fief(val fief: FiefId) : Destination
+    data object Town : Destination
 
     @Serializable
     data class Map(val fief: FiefId) : Destination
 
     @Serializable
     data class Chronicle(val fief: FiefId) : Destination
-
-    @Serializable
-    data class Review(val fief: FiefId) : Destination
 }

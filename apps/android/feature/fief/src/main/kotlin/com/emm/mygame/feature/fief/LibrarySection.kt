@@ -14,9 +14,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -37,11 +39,11 @@ internal fun LibrarySection(
 ) {
     val isWaiting: Boolean = library.study == FiefUiState.StudyStatus.Waiting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        SectionTitle(text = stringResource(R.string.library_title))
+        MyGameSectionTitle(text = stringResource(R.string.library_title))
         when (val slot: FiefUiState.StudySlotLine = library.slot) {
-            FiefUiState.StudySlotLine.Idle -> Card { IdleStudy() }
+            FiefUiState.StudySlotLine.Idle -> MyGameCard { IdleStudy() }
             is FiefUiState.StudySlotLine.Busy ->
-                Card { BusyStudy(slot = slot, isWaiting = isWaiting, onIntent = onIntent) }
+                MyGameCard { BusyStudy(slot = slot, isWaiting = isWaiting, onIntent = onIntent) }
         }
         library.arts.forEach { card: FiefUiState.ArtCard ->
             ArtItem(card = card, isWaiting = isWaiting, onIntent = onIntent)
@@ -126,7 +128,7 @@ private fun ArtItem(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier) {
+    MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.padding(vertical = MyGameSpacing.step3),

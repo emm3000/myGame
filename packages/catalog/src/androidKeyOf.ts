@@ -1,4 +1,4 @@
-export type AndroidModule = 'app' | 'chronicle' | 'fief' | 'map' | 'signin'
+export type AndroidModule = 'app' | 'chronicle' | 'fief' | 'map' | 'signin' | 'town'
 
 export type AndroidKey = {
   readonly module: AndroidModule
@@ -11,6 +11,7 @@ export const androidModules: ReadonlyArray<AndroidModule> = [
   'fief',
   'map',
   'signin',
+  'town',
 ]
 
 const isAndroidModule = (segment: string): segment is AndroidModule =>

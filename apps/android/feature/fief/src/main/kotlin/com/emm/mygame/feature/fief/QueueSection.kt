@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import com.emm.mygame.core.designsystem.MyGameCard
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -17,7 +19,7 @@ import com.emm.mygame.core.ui.icuStringResource
 @Composable
 internal fun QueueSection(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        SectionTitle(text = stringResource(R.string.queue_title))
+        MyGameSectionTitle(text = stringResource(R.string.queue_title))
         content.queue.forEach { waiting: FiefUiState.WaitingLine ->
             WaitingItem(waiting = waiting, cancel = content.cancel, onIntent = onIntent)
         }
@@ -41,7 +43,7 @@ private fun WaitingItem(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier) {
+    MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.padding(vertical = MyGameSpacing.step3),
