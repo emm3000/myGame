@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { GrammarContentSchema } from '@mygame/contracts'
 import { z } from 'zod'
 import { lessonContentFilesOf } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
@@ -28,9 +27,6 @@ export const gateContentOf = (directory: string): GateContent => {
   const lessons = join(directory, 'lessons')
   return {
     ...lessonContentFilesOf(directory),
-    grammar: GrammarContentSchema.parse(
-      JSON.parse(readFileSync(join(lessons, 'grammar.json'), 'utf8')),
-    ),
     forms: formsOfTeachingList(
       readFileSync(join(lessons, 'ngsl-1.2-lemmatized-for-teaching.csv'), 'utf8'),
     ),

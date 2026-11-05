@@ -1,3 +1,4 @@
+import type { Headword } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import { lessonCardsEnteredAt } from '../learning/lessonCardsEnteredAt'
@@ -15,6 +16,7 @@ export type SettledLessonSlot = {
 export const settledLessonSlot = (
   slot: LessonSlot,
   held: ReadonlyArray<HeldCard>,
+  heldOut: ReadonlyArray<Headword>,
   lessons: Pick<LessonCatalog, 'lessonOf'>,
   now: Instant,
 ): SettledLessonSlot => {
@@ -28,7 +30,9 @@ export const settledLessonSlot = (
   const { finishesAt } = slot
   return {
     slot: idleLessonSlot,
-    entered: holdsLessonCards(lesson, held) ? [] : lessonCardsEnteredAt(lesson, finishesAt),
+    entered: holdsLessonCards(lesson, held)
+      ? []
+      : lessonCardsEnteredAt(lesson, heldOut, finishesAt),
     events: [{ kind: 'lessonStudied', lessonId: lesson.id, occurredAt: finishesAt }],
   }
 }

@@ -695,6 +695,38 @@ export const earnedSkills = pgTable(
   ],
 )
 
+export const bandStarts = pgTable(
+  'band_starts',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    band: integer('band').notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'band_starts_pkey', columns: [table.playerId, table.band] }),
+    check('band_starts_band_known', sql`${table.band} BETWEEN 1 AND 3`),
+  ],
+)
+
+export const heldOutWords = pgTable(
+  'held_out_words',
+  {
+    playerId: uuid('player_id').notNull(),
+    band: integer('band').notNull(),
+    headword: text('headword').notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'held_out_words_pkey', columns: [table.playerId, table.headword] }),
+    foreignKey({
+      name: 'held_out_words_band_start_fk',
+      columns: [table.playerId, table.band],
+      foreignColumns: [bandStarts.playerId, bandStarts.band],
+    }).onDelete('cascade'),
+  ],
+)
+
 export const townLessonSlots = pgTable(
   'town_lesson_slots',
   {

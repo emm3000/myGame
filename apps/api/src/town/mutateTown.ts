@@ -13,6 +13,7 @@ export type TownStores = Pick<
   | 'pendingReviews'
   | 'reviewLog'
   | 'earnedSkills'
+  | 'bandStarts'
 >
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
@@ -41,6 +42,7 @@ export const mutateTown = <T>(
       towns: stores.towns,
       lessonSlots: stores.lessonSlots,
       cards: stores.cards,
+      bandStarts: stores.bandStarts,
       lessons,
       news: stores.townNews,
       clock: mutationClock,

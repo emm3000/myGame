@@ -54,8 +54,13 @@ const dueAtOf = (card: MemoryCard): Instant => {
   return dueAt.value
 }
 
+const cardsOfLessonOne: ReadonlyArray<HeldCard> = lessonOne.words.map(({ id }) => ({
+  wordId: id,
+  card: MemoryCard.entered(lessonFinish),
+}))
+
 const choiceIdOf = (askedWordId: string, chosenWordId: string, card: MemoryCard): string => {
-  const choice = recognitionChoicesOf(askedWordId, lessonOne, card).find(
+  const choice = recognitionChoicesOf(askedWordId, lessonOne, card, cardsOfLessonOne).find(
     ({ wordId }) => wordId === chosenWordId,
   )
   assert(choice !== undefined)
@@ -246,7 +251,10 @@ describe('answerReview', () => {
 
   it('rates the wrong recognition Again', async () => {
     const entered = MemoryCard.entered(lessonFinish)
-    const { dependencies } = arrange([ownedBy('school', entered)], lessonFinish)
+    const { dependencies } = arrange(
+      [ownedBy('school', entered), ownedBy('home', entered)],
+      lessonFinish,
+    )
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'school', answer: choiceIdOf('school', 'home', entered) },
@@ -272,7 +280,10 @@ describe('answerReview', () => {
 
   it('appends one log entry holding the card before and after', async () => {
     const entered = MemoryCard.entered(lessonFinish)
-    const { cards, reviewLog, dependencies } = arrange([ownedBy('school', entered)], lessonFinish)
+    const { cards, reviewLog, dependencies } = arrange(
+      [ownedBy('school', entered), ownedBy('home', entered)],
+      lessonFinish,
+    )
     const homeChoiceId = choiceIdOf('school', 'home', entered)
 
     await answerReview({ playerId: learner, wordId: 'school', answer: homeChoiceId }, dependencies)

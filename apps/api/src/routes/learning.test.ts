@@ -9,13 +9,14 @@ import {
   ReviewsSchema,
 } from '@mygame/contracts'
 import { type TownOverview, TownOverviewSchema } from '@mygame/contracts/town'
-import { type CardRepository, type Clock, Instant } from '@mygame/domain'
-import { Client } from 'pg'
+import { type CardRepository, type Clock, Instant, type RandomSource } from '@mygame/domain'
+import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import type { LessonLibrary, ShelvedLesson } from '../learning/LessonLibrary'
 import {
   isWaitingOnALock,
   lockedPlayerReadQuery,
@@ -193,7 +194,7 @@ describe('the learning routes', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     clock = settableClock('2026-11-10T08:00:00Z')
     app = createApp({ ...server, clock })
@@ -899,6 +900,160 @@ describe('the learning routes', () => {
       } finally {
         await client.end()
       }
+    })
+  })
+
+  describe('the holdout', () => {
+    const bandLessonHeadwords = ['say', 'time', 'year', 'think', 'come']
+
+    const bandLesson = (): ShelvedLesson => {
+      const lessonOne = server.lessons.lessonOf('lesson-1')
+      assert(lessonOne !== undefined)
+      return {
+        ...lessonOne,
+        id: 'lesson-17',
+        theme: 'Saying and thinking',
+        words: bandLessonHeadwords.map((headword) => ({
+          id: `word-${headword}`,
+          acceptedForms: [headword] as const,
+          gloss: `gloss of ${headword}`,
+          frame: `They ${headword} it.`,
+          gappedFrame: 'They ____ it.',
+        })),
+      }
+    }
+
+    const libraryWithBandLesson = (): LessonLibrary => {
+      const lesson = bandLesson()
+      const { lessons } = server
+      return {
+        lessonOf: (lessonId) => (lessonId === lesson.id ? lesson : lessons.lessonOf(lessonId)),
+        lessonOfWord: (wordId) =>
+          lesson.words.some(({ id }) => id === wordId) ? lesson : lessons.lessonOfWord(wordId),
+        isHeadword: (word) => lessons.isHeadword(word),
+        bandOfLesson: (lessonId) => (lessonId === lesson.id ? 1 : lessons.bandOfLesson(lessonId)),
+        wordsOfBand: (band) => lessons.wordsOfBand(band),
+        lessons: () => [...lessons.lessons(), lesson],
+      }
+    }
+
+    const holdingOutSayAndTheLastRanks: RandomSource = {
+      sampleOf: <T>(items: ReadonlyArray<T>, count: number): ReadonlyArray<T> => {
+        const others = items.filter((item) => item !== 'say').reverse()
+        return [...items.filter((item) => item === 'say'), ...others].slice(0, count)
+      },
+    }
+
+    const storedRows = async <Row extends QueryResultRow>(
+      statement: string,
+    ): Promise<ReadonlyArray<Row>> => {
+      const client = new Client({ connectionString: databaseUrl() })
+      await client.connect()
+      try {
+        return (await client.query<Row>(statement)).rows
+      } finally {
+        await client.end()
+      }
+    }
+
+    const heldOutCount = async (): Promise<number> => {
+      const [counted] = await storedRows<{ count: number }>(
+        'SELECT count(*)::int AS count FROM held_out_words',
+      )
+      assert(counted !== undefined)
+      return counted.count
+    }
+
+    beforeEach(() => {
+      app = createApp({ ...server, clock, lessons: libraryWithBandLesson() })
+    })
+
+    it("stores a tenth of band 1's card words outside the chrome lessons", async () => {
+      const player = await signUpWithATown()
+
+      expect((await startLesson(player, 'lesson-17')).status).toBe(200)
+
+      expect(await heldOutCount()).toBe(87)
+    })
+
+    it('stores the instant of the band start', async () => {
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+
+      await startLesson(player, 'lesson-17')
+
+      expect(await storedRows('SELECT band, started_at AS "startedAt" FROM band_starts')).toEqual([
+        { band: 1, startedAt: new Date(lessonStartsAt) },
+      ])
+    })
+
+    it('draws nothing when a chrome lesson starts', async () => {
+      const player = await signUpWithATown()
+
+      await startLesson(player, 'lesson-1')
+
+      expect(await storedRows('SELECT band FROM band_starts')).toEqual([])
+    })
+
+    it('stores no draw for a start the busy slot refuses', async () => {
+      const player = await signUpWithATown()
+      await startLesson(player, 'lesson-1')
+
+      expect((await startLesson(player, 'lesson-17')).status).toBe(409)
+
+      expect(await storedRows('SELECT band FROM band_starts')).toEqual([])
+    })
+
+    it('keeps the draw when a stopped lesson starts again', async () => {
+      const player = await signUpWithATown()
+      await startLesson(player, 'lesson-17')
+      const drawn = await storedRows('SELECT headword FROM held_out_words ORDER BY headword')
+      await stopLesson(player, 'lesson-17')
+
+      await startLesson(player, 'lesson-17')
+
+      expect(await storedRows('SELECT headword FROM held_out_words ORDER BY headword')).toEqual(
+        drawn,
+      )
+    })
+
+    it('enters no card for a held-out word when the lesson finishes', async () => {
+      app = createApp({
+        ...server,
+        clock,
+        lessons: libraryWithBandLesson(),
+        random: holdingOutSayAndTheLastRanks,
+      })
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+      await startLesson(player, 'lesson-17')
+      clock.setTo(lessonFinishesAt)
+
+      const { due } = await readReviews(player)
+
+      expect(due.map(({ wordId }) => wordId).sort()).toEqual([
+        'word-come',
+        'word-think',
+        'word-time',
+        'word-year',
+      ])
+    })
+
+    it('offers no held-out gloss among the recognition choices', async () => {
+      app = createApp({
+        ...server,
+        clock,
+        lessons: libraryWithBandLesson(),
+        random: holdingOutSayAndTheLastRanks,
+      })
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+      await startLesson(player, 'lesson-17')
+      clock.setTo(lessonFinishesAt)
+
+      const { due } = await readReviews(player)
+
+      expect(stringsIn(due)).not.toContain('gloss of say')
     })
   })
 })

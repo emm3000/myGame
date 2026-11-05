@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import {
   type CurriculumContent,
   CurriculumContentSchema,
+  type GrammarContent,
+  GrammarContentSchema,
   type LessonContent,
   LessonContentSchema,
   type LexiconContent,
@@ -19,6 +21,7 @@ export type LessonOfFiles = {
 
 export type LessonContentFiles = {
   readonly curriculum: CurriculumContent
+  readonly grammar: GrammarContent
   readonly lessons: ReadonlyArray<LessonOfFiles>
   readonly lexicon: LexiconContent
   readonly ranks: ReadonlyMap<string, number>
@@ -98,6 +101,7 @@ export const lessonContentFilesOf = (directory: string): LessonContentFiles => {
   const lexicon = parsedFile(lessonsFile(directory, 'words.json'), LexiconContentSchema)
   return {
     curriculum,
+    grammar: parsedFile(lessonsFile(directory, 'grammar.json'), GrammarContentSchema),
     lessons: curriculum.lessonIds.map((lessonId) => lessonOfFile(directory, lessonId, lexicon)),
     lexicon,
     ranks: ranksOfFile(directory),

@@ -1,8 +1,7 @@
+import { bandOfRank } from '../adapters/json/bandOfRank'
 import type { LessonOfFiles, LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
-
-const bandSize = 1000
 
 const windowSize = 30
 
@@ -17,11 +16,9 @@ const bandsOf = ({ ranks, grammar }: GateContent): ReadonlyArray<ReadonlyArray<s
   const cardWords = [...ranks]
     .filter(([lemma]) => !frameWords.has(lemma))
     .sort(([, a], [, b]) => a - b)
-  const bandCount = Math.max(0, ...cardWords.map(([, rank]) => Math.ceil(rank / bandSize)))
+  const bandCount = Math.max(0, ...cardWords.map(([, rank]) => bandOfRank(rank)))
   return Array.from({ length: bandCount }, (_, index) =>
-    cardWords
-      .filter(([, rank]) => Math.ceil(rank / bandSize) === index + 1)
-      .map(([lemma]) => lemma),
+    cardWords.filter(([, rank]) => bandOfRank(rank) === index + 1).map(([lemma]) => lemma),
   )
 }
 

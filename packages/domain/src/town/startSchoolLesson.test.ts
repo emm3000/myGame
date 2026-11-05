@@ -2,6 +2,10 @@ import { assert, describe, expect, it } from 'vitest'
 import type { Lesson } from '../learning/Lesson'
 import { MemoryCard } from '../memory/MemoryCard'
 import type { Clock } from '../ports/Clock'
+import { ok } from '../Result'
+import { firstItemsRandom } from '../testing/firstItemsRandom'
+import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
+import { inMemoryBands } from '../testing/inMemoryBands'
 import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -48,7 +52,58 @@ const lessonTwo: Lesson = {
   words: lessonOne.words.map((word) => ({ ...word, id: `${word.id}-2` })),
 }
 
+const bandLesson: Lesson = {
+  ...lessonOne,
+  id: 'lesson-17',
+  words: ['say', 'make', 'know', 'time', 'year'].map((id) => ({
+    ...lessonOne.words[0],
+    id: `word-${id}`,
+    acceptedForms: [id],
+    gloss: id,
+    frame: id,
+    gappedFrame: id,
+  })),
+}
+
+const bandLessonTwo: Lesson = { ...bandLesson, id: 'lesson-18' }
+
+const cardWordsOfBandOne = [
+  'say',
+  'make',
+  'know',
+  'time',
+  'year',
+  'think',
+  'see',
+  'come',
+  'want',
+  'look',
+  'use',
+  'find',
+  'give',
+  'tell',
+  'take',
+  'good',
+  'new',
+  'first',
+  'last',
+  'long',
+  'great',
+].map((headword) => ({ headword, isChrome: false }))
+
+const chromeWordsOfBandOne = ['home', 'school'].map((headword) => ({ headword, isChrome: true }))
+
+const bandsOf = inMemoryBands([
+  {
+    band: 1,
+    lessonIds: ['lesson-17', 'lesson-18'],
+    words: [...chromeWordsOfBandOne, ...cardWordsOfBandOne],
+  },
+])
+
 type Setup = {
+  readonly bandStarts?: ReadonlyArray<OwnedBandStart>
+  readonly placedOut?: ReadonlyArray<number>
   readonly town?: Omit<TownShape, 'storedAt'>
   readonly cards?: ReadonlyArray<OwnedCard>
   readonly slot?: LessonSlot
@@ -57,6 +112,8 @@ type Setup = {
 }
 
 const schoolOf = ({
+  bandStarts = [],
+  placedOut = [],
   town = {},
   cards = [],
   slot,
@@ -69,7 +126,11 @@ const schoolOf = ({
     towns,
     lessonSlots: inMemoryLessonSlots(slot === undefined ? [] : [{ townId: 'town-1', slot }]),
     cards: inMemoryCards(cards),
-    lessons: inMemoryLessons([lessonOne, lessonTwo], []),
+    lessons: inMemoryLessons([lessonOne, lessonTwo, bandLesson, bandLessonTwo], []),
+    bandStarts: inMemoryBandStarts(bandStarts),
+    bands: bandsOf,
+    placedOutBands: { placedOutBandsOf: async () => ok(placedOut) },
+    random: firstItemsRandom,
     news: inMemoryTownNews(),
     catalog,
     clock: frozenClock,
@@ -98,6 +159,88 @@ const farmFinishedAt = (finishesAt: Instant): WorkSlot => ({
 })
 
 describe('startSchoolLesson', () => {
+  it("draws a tenth of the band's card words at the band's start", async () => {
+    const school = schoolOf({})
+
+    await school.start('lesson-17')
+
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
+      ok: true,
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'make'] }],
+    })
+  })
+
+  it("never draws a chrome lesson's word", async () => {
+    const everyWordChrome = inMemoryBands([
+      {
+        band: 1,
+        lessonIds: ['lesson-17'],
+        words: Array.from({ length: 20 }, (_, position) => ({
+          headword: `chrome-${position}`,
+          isChrome: true,
+        })),
+      },
+    ])
+    const school = schoolOf({})
+
+    await startSchoolLesson(
+      { playerId: 'player-1', lessonId: 'lesson-17' },
+      { ...school, bands: everyWordChrome },
+    )
+
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
+      ok: true,
+      value: [{ band: 1, startedAt: springNow, heldOutWords: [] }],
+    })
+  })
+
+  it('draws nothing when a chrome lesson starts', async () => {
+    const school = schoolOf({})
+
+    await school.start('lesson-1')
+
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({ ok: true, value: [] })
+  })
+
+  it('never draws for a placed-out band', async () => {
+    const school = schoolOf({ placedOut: [1] })
+
+    const started = await school.start('lesson-17')
+
+    expect(started.ok).toBe(true)
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({ ok: true, value: [] })
+  })
+
+  it("keeps the draw and the instant of the band's start when a later lesson starts", async () => {
+    const stored = { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['think', 'see'] }
+    const school = schoolOf({ bandStarts: [{ playerId: 'player-1', start: stored }] })
+
+    await school.start('lesson-18')
+
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({ ok: true, value: [stored] })
+  })
+
+  it('stores no draw for a lesson it refuses', async () => {
+    const school = schoolOf({ cards: cardsEnteredFor(13) })
+
+    const refused = await school.start('lesson-17')
+
+    expect(refused.ok).toBe(false)
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({ ok: true, value: [] })
+  })
+
+  it('counts only the words the player will hold against the learning cap', async () => {
+    const withoutMake = { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['make'] }
+    const school = schoolOf({
+      cards: cardsEnteredFor(11),
+      bandStarts: [{ playerId: 'player-1', start: withoutMake }],
+    })
+
+    const started = await school.start('lesson-17')
+
+    expect(started.ok).toBe(true)
+  })
+
   it('starts a lesson in the idle school slot at no cost', async () => {
     const school = schoolOf({ town: { stocks: { money: 0, food: 0, power: 0, material: 0 } } })
 

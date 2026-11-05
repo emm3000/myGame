@@ -1,4 +1,5 @@
 import type {
+  BandStartRepository,
   CampRegistry,
   CardRepository,
   ChronicleWriter,
@@ -20,6 +21,7 @@ import type { AccountTokens } from '../../auth/AccountTokens'
 import type { TownNewsReader } from '../../town/TownNewsReader'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
+import { DrizzleBandStarts } from './DrizzleBandStarts'
 import { DrizzleCampRegistry } from './DrizzleCampRegistry'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleChronicle } from './DrizzleChronicle'
@@ -44,6 +46,7 @@ export type TransactionStores = {
   readonly townNews: TownNews & TownNewsReader
   readonly lessonSlots: LessonSlotRepository
   readonly earnedSkills: EarnedSkillRepository
+  readonly bandStarts: BandStartRepository
 }
 
 export type Transaction = <T, E>(
@@ -71,6 +74,7 @@ export const postgresTransaction =
           townNews: new DrizzleTownNews(transaction),
           lessonSlots: new DrizzleLessonSlots(transaction),
           earnedSkills: new DrizzleEarnedSkills(transaction),
+          bandStarts: new DrizzleBandStarts(transaction),
         })
         if (!outcome.ok) {
           refused = outcome
