@@ -1,5 +1,12 @@
+import {
+  lessonFree,
+  lessonStart,
+  lessonStudied,
+  lessonTitle,
+  lessonToReview,
+  lessonUnderStudy,
+} from '@mygame/catalog'
 import type { ReactElement } from 'react'
-import { copy } from '../copy'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { CardAction, type CardActionState, cardToneOf } from '../design-system/CardAction'
 import { CountdownLine } from '../design-system/CountdownLine'
@@ -30,24 +37,24 @@ function LessonBody({
         <>
           <CardAction
             type="button"
-            label={copy.lesson.start}
+            label={lessonStart()}
             state={state.action}
             isWaiting={isWaiting}
             onAction={onStudy}
           />
           <p className="m-0 font-body text-caption text-ink-muted">
-            {copy.lesson.free(state.wordCount)}
+            {lessonFree({ wordCount: state.wordCount })}
           </p>
         </>
       )
     case 'underStudy':
-      return <CountdownLine words={copy.lesson.underStudy} time={state.time} />
+      return <CountdownLine words={lessonUnderStudy()} time={state.time} />
     case 'studied':
       return (
         <>
-          <p className="m-0 font-body text-body text-ink">{copy.lesson.studied}</p>
+          <p className="m-0 font-body text-body text-ink">{lessonStudied()}</p>
           <ButtonLink to="/feudo/$fiefId/repaso" params={{ fiefId }} tone="quiet">
-            {copy.lesson.toReview}
+            {lessonToReview()}
           </ButtonLink>
         </>
       )
@@ -65,7 +72,7 @@ export function LessonCard({ theme, ...body }: LessonCardProps): ReactElement {
   return (
     <Panel element="article" toneClass={toneOf(body.state)} spacingClass="gap-3 p-5">
       <header className="flex flex-col gap-1">
-        <h4 className="m-0 font-display text-title text-ink">{copy.lesson.title}</h4>
+        <h4 className="m-0 font-display text-title text-ink">{lessonTitle()}</h4>
         <p lang="en" className="m-0 font-body text-body text-ink-muted">
           {theme}
         </p>

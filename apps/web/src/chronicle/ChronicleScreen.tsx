@@ -1,7 +1,8 @@
+import { chronicleEmpty, chronicleLoading, chronicleTitle } from '@mygame/catalog'
 import type { ReactElement } from 'react'
-import { copy } from '../copy'
 import { CostList } from '../design-system/CostList'
 import { FormAlert } from '../design-system/FormAlert'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { type ChronicleRow, chronicleRowOf } from './chronicleRowOf'
 import type { ChronicleState } from './useChronicle'
 
@@ -37,20 +38,20 @@ function ChronicleEntry({ row }: { readonly row: ChronicleRow }): ReactElement {
 function ChronicleBody({ state }: { readonly state: ChronicleState }): ReactElement {
   switch (state.kind) {
     case 'loading':
-      return <p className="m-0">{copy.chronicle.loading}</p>
+      return <p className="m-0">{chronicleLoading()}</p>
     case 'refused':
-      return <FormAlert message={copy.refusals[state.refusal]} />
+      return <FormAlert message={refusalLineOf(state.refusal)} />
     case 'read': {
       if (state.chronicle.events.length === 0) {
         return (
           <p className="m-0 rounded-md border border-line border-dashed p-5 text-ink-faint">
-            {copy.chronicle.empty}
+            {chronicleEmpty()}
           </p>
         )
       }
       return (
         <ol
-          aria-label={copy.chronicle.title}
+          aria-label={chronicleTitle()}
           className="m-0 flex list-none flex-col rounded-md bg-surface-raised px-5 shadow-card"
         >
           {state.chronicle.events.map((event) => {
@@ -70,7 +71,7 @@ function ChronicleBody({ state }: { readonly state: ChronicleState }): ReactElem
 export function ChronicleScreen({ state }: { readonly state: ChronicleState }): ReactElement {
   return (
     <section className="flex flex-col gap-6">
-      <h2 className="m-0 font-display text-title text-ink">{copy.chronicle.title}</h2>
+      <h2 className="m-0 font-display text-title text-ink">{chronicleTitle()}</h2>
       <ChronicleBody state={state} />
     </section>
   )

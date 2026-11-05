@@ -1,3 +1,16 @@
+import {
+  lessonCancelOf,
+  lessonCancelRefund,
+  lessonFree,
+  lessonStart,
+  lessonStudied,
+  lessonTitle,
+  lessonToReview,
+  lessonUnderStudy,
+  namesArtsSmithing,
+  studySection,
+  studyStudyRunning,
+} from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +22,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 beforeEach(() => {
@@ -43,7 +55,7 @@ const libraryBuilt: FiefOverview = {
   lessons: [lessonOne],
 }
 
-const lessonUnderStudy: FiefOverview = {
+const lessonUnderStudyFief: FiefOverview = {
   ...libraryBuilt,
   study: {
     kind: 'lesson',
@@ -53,7 +65,7 @@ const lessonUnderStudy: FiefOverview = {
   },
 }
 
-const lessonStudied: FiefOverview = {
+const lessonStudiedFief: FiefOverview = {
   ...libraryBuilt,
   lessons: [{ ...lessonOne, isStudied: true }],
 }
@@ -82,23 +94,23 @@ const showFief = async (overview: FiefOverview, overrides: Partial<ApiClient> = 
   await passSeconds(0)
 }
 
-const librarySection = (): HTMLElement => screen.getByRole('region', { name: copy.study.section })
+const librarySection = (): HTMLElement => screen.getByRole('region', { name: studySection() })
 
 const lessonCard = (): HTMLElement =>
-  within(librarySection()).getByRole('listitem', { name: copy.lesson.title })
+  within(librarySection()).getByRole('listitem', { name: lessonTitle() })
 
 it('offers lesson 1 with its English theme beside the art cards', async () => {
   await showFief(libraryBuilt)
 
   expect(within(lessonCard()).getByText('A day in town').getAttribute('lang')).toBe('en')
-  expect(within(lessonCard()).getByText(copy.lesson.free(5))).toBeTruthy()
+  expect(within(lessonCard()).getByText(lessonFree({ wordCount: 5 }))).toBeTruthy()
 })
 
 it('starts lesson 1 by its id', async () => {
-  const startLesson = vi.fn(async () => ({ ok: true as const, value: lessonUnderStudy }))
+  const startLesson = vi.fn(async () => ({ ok: true as const, value: lessonUnderStudyFief }))
   await showFief(libraryBuilt, { startLesson })
 
-  fireEvent.click(within(lessonCard()).getByRole('button', { name: copy.lesson.start }))
+  fireEvent.click(within(lessonCard()).getByRole('button', { name: lessonStart() }))
   await passSeconds(0)
 
   expect(startLesson).toHaveBeenCalledWith(knownFief.id, 'lesson-1')
@@ -107,56 +119,56 @@ it('starts lesson 1 by its id', async () => {
 it('keeps the lesson button in reach with the running study as its reason', async () => {
   await showFief(smithingUnderWay)
 
-  const start = within(lessonCard()).getByRole('button', { name: copy.lesson.start })
+  const start = within(lessonCard()).getByRole('button', { name: lessonStart() })
 
   expect(start.getAttribute('aria-disabled')).toBe('true')
-  expect(accessibleDescriptionOf(start)).toBe(copy.study.studyRunning)
+  expect(accessibleDescriptionOf(start)).toBe(studyStudyRunning())
 })
 
 it('reads the lesson under study with the time to its finish', async () => {
-  await showFief(lessonUnderStudy)
+  await showFief(lessonUnderStudyFief)
 
-  expect(within(lessonCard()).getByText(copy.lesson.underStudy)).toBeTruthy()
+  expect(within(lessonCard()).getByText(lessonUnderStudy())).toBeTruthy()
   expect(within(lessonCard()).getByText('2 min')).toBeTruthy()
   expect(within(lessonCard()).queryByRole('button')).toBeNull()
 })
 
 it('cancels the lesson from the study slot by its id', async () => {
   const cancelLesson = vi.fn(async () => ({ ok: true as const, value: libraryBuilt }))
-  await showFief(lessonUnderStudy, { cancelLesson })
+  await showFief(lessonUnderStudyFief, { cancelLesson })
 
-  fireEvent.click(within(librarySection()).getByRole('button', { name: copy.lesson.cancelOf }))
+  fireEvent.click(within(librarySection()).getByRole('button', { name: lessonCancelOf() }))
   await passSeconds(0)
 
   expect(cancelLesson).toHaveBeenCalledWith(knownFief.id, 'lesson-1')
 })
 
 it('tells the player a cancelled lesson loses nothing', async () => {
-  await showFief(lessonUnderStudy)
+  await showFief(lessonUnderStudyFief)
 
-  expect(within(librarySection()).getByText(copy.lesson.cancelRefund)).toBeTruthy()
+  expect(within(librarySection()).getByText(lessonCancelRefund())).toBeTruthy()
 })
 
 it('blocks the art cards while the lesson is under study', async () => {
-  await showFief(lessonUnderStudy)
+  await showFief(lessonUnderStudyFief)
 
-  const art = within(librarySection()).getByRole('listitem', { name: copy.names.arts.smithing })
+  const art = within(librarySection()).getByRole('listitem', { name: namesArtsSmithing() })
 
   expect(within(art).getByRole('button').getAttribute('aria-disabled')).toBe('true')
 })
 
 it('names the lesson in the strip while it is under study', async () => {
-  await showFief(lessonUnderStudy)
+  await showFief(lessonUnderStudyFief)
 
   expect(screen.getByRole('link', { name: /lección 1/ })).toBeTruthy()
 })
 
 it('links a studied lesson to the review and offers no second study', async () => {
-  await showFief(lessonStudied)
+  await showFief(lessonStudiedFief)
 
-  expect(within(lessonCard()).getByText(copy.lesson.studied)).toBeTruthy()
+  expect(within(lessonCard()).getByText(lessonStudied())).toBeTruthy()
   expect(
-    within(lessonCard()).getByRole('link', { name: copy.lesson.toReview }).getAttribute('href'),
+    within(lessonCard()).getByRole('link', { name: lessonToReview() }).getAttribute('href'),
   ).toBe(`${knownFiefPath}/repaso`)
   expect(within(lessonCard()).queryByRole('button')).toBeNull()
 })

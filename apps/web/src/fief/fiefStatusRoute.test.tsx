@@ -1,3 +1,11 @@
+import {
+  marchSendTo,
+  marchTitle,
+  namesBuildQueue,
+  namesResourcesStone,
+  namesResourcesWood,
+  statusLabel,
+} from '@mygame/catalog'
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +17,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
@@ -30,7 +37,7 @@ const showAt = async (path: string, overrides: Partial<ApiClient> = {}): Promise
 }
 
 const woodCell = (): HTMLElement | null =>
-  screen.queryByRole('listitem', { name: copy.names.resources.wood })
+  screen.queryByRole('listitem', { name: namesResourcesWood() })
 
 it('shows the resource bar on the map and the chronicle', async () => {
   await showAt(`${knownFiefPath}/mapa`)
@@ -72,10 +79,10 @@ it('reads the fief once for the bar and the map form', async () => {
   const fief = vi.fn<ApiClient['fief']>(async () => ({ ok: true, value: fiefWithTenInfantry }))
   await showOwnProvince({ fief })
 
-  fireEvent.click(screen.getByRole('button', { name: copy.march.sendTo(2) }))
+  fireEvent.click(screen.getByRole('button', { name: marchSendTo({ plot: 2 }) }))
 
   expect(woodCell()).not.toBeNull()
-  expect(screen.getByRole('form', { name: copy.march.title(1, 2) })).toBeDefined()
+  expect(screen.getByRole('form', { name: marchTitle({ province: 1, plot: 2 }) })).toBeDefined()
   expect(fief).toHaveBeenCalledTimes(1)
 })
 
@@ -88,8 +95,8 @@ it('shows the answer of a dispatch from the map in the bar', async () => {
     },
   }
   await showOwnProvince({ dispatchMarch: async () => ({ ok: true, value: answered }) })
-  fireEvent.click(screen.getByRole('button', { name: copy.march.sendTo(2) }))
-  const form = screen.getByRole('form', { name: copy.march.title(1, 2) })
+  fireEvent.click(screen.getByRole('button', { name: marchSendTo({ plot: 2 }) }))
+  const form = screen.getByRole('form', { name: marchTitle({ province: 1, plot: 2 }) })
 
   fireEvent.click(within(form).getByRole('button', { name: /^Enviar una marcha/ }))
   await passSeconds(0)
@@ -123,7 +130,7 @@ const showFief = async (overview: FiefOverview): Promise<void> => {
   await showAt(knownFiefPath, { fief: async () => ({ ok: true, value: overview }) })
 }
 
-const strip = (): HTMLElement => screen.getByRole('region', { name: copy.status.label })
+const strip = (): HTMLElement => screen.getByRole('region', { name: statusLabel() })
 
 const slotLink = (name: RegExp): HTMLElement | null => within(strip()).queryByRole('link', { name })
 
@@ -235,7 +242,7 @@ it('shows when the build queue empties', async () => {
   await showFief(sawmillWithTwoWaiting)
 
   expect(slotLink(/^Obra:/)?.textContent).toContain('Obras en espera: 2 · 1 h 20 min · 15:20')
-  expect(screen.getByText(copy.names.buildQueue).parentElement?.textContent).toBe(
+  expect(screen.getByText(namesBuildQueue()).parentElement?.textContent).toBe(
     'obras en espera · 1 h 20 min · 15:20',
   )
 })
@@ -316,8 +323,7 @@ const stoneFillingAt = (secondsAfterRead: number): FiefOverview => ({
   },
 })
 
-const stoneCell = (): HTMLElement =>
-  screen.getByRole('listitem', { name: copy.names.resources.stone })
+const stoneCell = (): HTMLElement => screen.getByRole('listitem', { name: namesResourcesStone() })
 
 it('reads lleno with the clock when the store fills within 8 hours', async () => {
   await showFief(stoneFillingAt(5 * 3600))

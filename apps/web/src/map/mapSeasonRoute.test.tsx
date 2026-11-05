@@ -1,3 +1,4 @@
+import { mapHeading } from '@mygame/catalog'
 import type { FiefOverview, ProvinceMap, SeasonKind } from '@mygame/contracts'
 import { fireEvent, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
@@ -8,7 +9,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { kingdomNameOf } from './kingdomNameOf'
 import type { PlotCamp } from './marchFormOf'
 
 const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
@@ -83,7 +84,9 @@ const showMap = async (map: ProvinceMap, fief: FiefOverview): Promise<void> => {
       provinceMap: async () => ({ ok: true, value: map }),
     }),
   )
-  await screen.findByRole('list', { name: copy.map.heading(map.kingdom, map.province) })
+  await screen.findByRole('list', {
+    name: mapHeading({ kingdom: kingdomNameOf(map.kingdom), province: map.province }),
+  })
   await screen.findAllByRole('button', { name: /^(Enviar una marcha|Atacar el campamento)/ })
 }
 

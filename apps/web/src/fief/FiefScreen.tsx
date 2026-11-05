@@ -1,7 +1,24 @@
+import {
+  fiefBuildings,
+  fiefBuildingsSeasonMark,
+  fiefCancel,
+  fiefCancelOf,
+  fiefCancelRefund,
+  fiefCargoArrivalHeading,
+  fiefCargoOrigin,
+  fiefFinished,
+  fiefIncomingCargo,
+  fiefJustFinished,
+  fiefSeasonLine,
+  namesBuildQueue,
+  namesBusySlot,
+  namesIdleSlot,
+  namesLevel,
+  namesSlot,
+} from '@mygame/catalog'
 import { type BuildingKind, BuildingKindSchema, type CancelUpgradeRequest } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
 import { type ReactElement, useId } from 'react'
-import { copy } from '../copy'
 import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
@@ -16,10 +33,17 @@ import { SeasonLine } from '../design-system/SeasonLine'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { type FocusTarget, useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
+import { addressOf } from '../map/addressOf'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
+import { capitalizedSeasonWithArticleOf } from '../seasons/capitalizedSeasonWithArticleOf'
+import { seasonCountdownOf } from '../seasons/seasonCountdownOf'
+import { seasonNameOf } from '../seasons/seasonNameOf'
 import { formatFinish } from '../time/formatFinish'
 import { ArmySection } from './ArmySection'
 import { buildingCardOf } from './buildingCardOf'
+import { buildingNameOf } from './buildingNameOf'
 import { LibrarySection } from './LibrarySection'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
@@ -62,8 +86,6 @@ function StandaloneHint({
   return hint === undefined ? null : <Hint {...hintFocusingAfterDismiss(hint, focusAfterDismiss)} />
 }
 
-const { names } = copy
-
 function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | null {
   const { season } = fief.overview
   if (season === null) {
@@ -72,8 +94,11 @@ function SeasonLineOf({ fief }: { readonly fief: LiveFief }): ReactElement | nul
   return (
     <SeasonLine
       season={season.kind}
-      headerLine={copy.fief.seasonLine(season.kind, season.year)}
-      countdownLine={copy.fief.seasonCountdown(season.kind, fief.seasonRemainingSeconds)}
+      headerLine={fiefSeasonLine({
+        season: capitalize(seasonNameOf(season.kind)),
+        year: season.year,
+      })}
+      countdownLine={seasonCountdownOf(season.kind, fief.seasonRemainingSeconds)}
     />
   )
 }
@@ -87,11 +112,11 @@ function IncomingCargoOf({ fief }: { readonly fief: LiveFief }): ReactElement | 
   return (
     <div id={sectionAnchors.incomingCargo} className="flex flex-col md:scroll-mt-status">
       <CargoCard
-        title={copy.fief.incomingCargo}
-        origin={copy.fief.cargoOrigin(from.name, from.province, from.plot)}
-        amounts={copy.fief.cargoAmounts(quantitiesOf(cargo))}
+        title={fiefIncomingCargo()}
+        origin={fiefCargoOrigin({ name: from.name, province: from.province, plot: from.plot })}
+        amounts={quantitiesPhraseOf(quantitiesOf(cargo))}
         countdown={{
-          words: copy.fief.cargoArrivalHeading,
+          words: fiefCargoArrivalHeading(),
           time: formatFinish(fief.incomingCargoRemainingSeconds, fief.at),
         }}
         elapsedSeconds={fief.incomingCargoTotalSeconds - fief.incomingCargoRemainingSeconds}
@@ -129,8 +154,11 @@ function cancelActionOf(
   onCancelled: () => void,
 ): CancelAction {
   return {
-    label: copy.fief.cancel,
-    accessibleName: copy.fief.cancelOf(target.building, target.targetLevel),
+    label: fiefCancel(),
+    accessibleName: fiefCancelOf({
+      building: buildingNameOf(target.building),
+      level: target.targetLevel,
+    }),
     isWaiting: cancel.isWaiting,
     onCancel: () => cancel.start(target, onCancelled),
   }
@@ -139,28 +167,28 @@ function cancelActionOf(
 function slotStateOf(fief: LiveFief, cancel: Cancel, onCancelled: () => void): BuildSlotState {
   const { slot } = fief.overview
   if (slot.kind === 'idle') {
-    return { kind: 'idle', title: names.slot, invitation: names.idleSlot }
+    return { kind: 'idle', title: namesSlot(), invitation: namesIdleSlot() }
   }
   const building = {
-    buildingName: capitalize(names.buildings[slot.building]),
-    levelLabel: names.level(slot.targetLevel),
+    buildingName: capitalize(buildingNameOf(slot.building)),
+    levelLabel: namesLevel({ level: slot.targetLevel }),
   }
   if (fief.slotRemainingSeconds <= 0) {
-    return { kind: 'justFinished', title: names.slot, message: copy.fief.justFinished, ...building }
+    return { kind: 'justFinished', title: namesSlot(), message: fiefJustFinished(), ...building }
   }
   return {
     kind: 'busy',
-    title: names.busySlot,
+    title: namesBusySlot(),
     remainingSeconds: fief.slotRemainingSeconds,
     time: formatFinish(fief.slotRemainingSeconds, fief.at),
     totalSeconds: fief.slotTotalSeconds,
-    finishedLabel: copy.fief.finished,
+    finishedLabel: fiefFinished(),
     cancel: cancelActionOf(
       cancel,
       { building: slot.building, targetLevel: slot.targetLevel },
       onCancelled,
     ),
-    refund: copy.fief.cancelRefund,
+    refund: fiefCancelRefund(),
     ...building,
   }
 }
@@ -179,19 +207,19 @@ function WaitingUpgradesOf({
     return null
   }
   const upgrades = fief.waitingUpgrades.map(({ building, targetLevel, remainingSeconds }) => ({
-    buildingName: capitalize(names.buildings[building]),
-    levelLabel: names.level(targetLevel),
+    buildingName: capitalize(buildingNameOf(building)),
+    levelLabel: namesLevel({ level: targetLevel }),
     remainingSeconds,
     time: formatFinish(remainingSeconds, fief.at),
     cancel: cancelActionOf(cancel, { building, targetLevel }, onCancelled),
-    refund: copy.fief.cancelRefund,
+    refund: fiefCancelRefund(),
   }))
   return (
     <WaitingUpgrades
-      title={names.buildQueue}
+      title={namesBuildQueue()}
       emptiesAt={formatFinish(last.remainingSeconds, fief.at)}
       upgrades={upgrades}
-      finishedLabel={copy.fief.finished}
+      finishedLabel={fiefFinished()}
     />
   )
 }
@@ -207,14 +235,14 @@ function BuildingItem({
 }): ReactElement {
   const refusal = upgrade.refused?.building === building ? upgrade.refused.refusal : undefined
   return (
-    <li aria-label={names.buildings[building]} className="flex flex-col gap-2">
+    <li aria-label={buildingNameOf(building)} className="flex flex-col gap-2">
       <BuildingCard
         {...buildingCardOf(building, fief)}
         titleElement="h4"
         isWaiting={upgrade.isWaiting}
         onUpgrade={() => upgrade.start(building)}
       />
-      {refusal !== undefined && <FormAlert message={copy.refusals[refusal]} />}
+      {refusal !== undefined && <FormAlert message={refusalLineOf(refusal)} />}
     </li>
   )
 }
@@ -242,7 +270,7 @@ export function FiefScreen({
           params={{ fiefId: overview.id, province: String(overview.coordinates.province) }}
           className="relative -mt-3 -mb-4 self-start pt-3 pb-4 font-utility text-label text-umber tabular-nums underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
         >
-          {names.address(overview.coordinates)}
+          {addressOf(overview.coordinates)}
         </Link>
         <h2
           ref={fiefName.ref}
@@ -260,14 +288,16 @@ export function FiefScreen({
           <IncomingCargoOf fief={fief} />
           <BuildSlot state={slotStateOf(fief, cancel, slotTitle.focus)} titleRef={slotTitle.ref} />
           <StandaloneHint hint={hintAt(hint, 'queue')} focusAfterDismiss={slotTitle.focus} />
-          {cancel.refusal !== undefined && <FormAlert message={copy.refusals[cancel.refusal]} />}
+          {cancel.refusal !== undefined && <FormAlert message={refusalLineOf(cancel.refusal)} />}
           <WaitingUpgradesOf fief={fief} cancel={cancel} onCancelled={slotTitle.focus} />
         </div>
         <section aria-labelledby={buildingsHeadingId} className="flex flex-col gap-3 lg:col-span-2">
           <SeasonSectionHeading
             id={buildingsHeadingId}
-            title={copy.fief.buildings}
-            mark={seasonSectionMarkOf(overview.season, 'build', copy.fief.buildingsSeasonMark)}
+            title={fiefBuildings()}
+            mark={seasonSectionMarkOf(overview.season, 'build', (season) =>
+              fiefBuildingsSeasonMark({ season: capitalizedSeasonWithArticleOf(season) }),
+            )}
           />
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
             {BuildingKindSchema.options.map((building) => (

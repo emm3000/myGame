@@ -1,3 +1,4 @@
+import { armyCancelOf, fiefCancelOf, studyCancelOf } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, screen, within } from '@testing-library/react'
 import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
@@ -8,7 +9,9 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { countedUnitsOf } from '../units/countedUnitsOf'
+import { artNameOf } from './artNameOf'
+import { buildingNameOf } from './buildingNameOf'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -65,13 +68,20 @@ const upgradeRefund =
 it('states the refund of an upgrade beside its cancel', async () => {
   await showFief(sawmillWithQuarryWaiting)
 
-  expect(lineBesideCancel(copy.fief.cancelOf('sawmill', 2), upgradeRefund)).toBeDefined()
+  expect(
+    lineBesideCancel(
+      fiefCancelOf({ building: buildingNameOf('sawmill'), level: 2 }),
+      upgradeRefund,
+    ),
+  ).toBeDefined()
 })
 
 it('states the refund of a waiting upgrade beside its cancel', async () => {
   await showFief(sawmillWithQuarryWaiting)
 
-  expect(lineBesideCancel(copy.fief.cancelOf('quarry', 2), upgradeRefund)).toBeDefined()
+  expect(
+    lineBesideCancel(fiefCancelOf({ building: buildingNameOf('quarry'), level: 2 }), upgradeRefund),
+  ).toBeDefined()
 })
 
 const smithingStudied: FiefOverview = {
@@ -99,7 +109,7 @@ it('states the cost a study debited beside its cancel, not the price of its leve
   })
   expect(
     lineBesideCancel(
-      copy.study.cancelOf('smithing', 1),
+      studyCancelOf({ art: artNameOf('smithing'), level: 1 }),
       'Si lo cancelas, recuperas 100 de madera, 70 de piedra, 130 de hierro y 50 de oro.',
     ),
   ).toBeDefined()
@@ -124,7 +134,7 @@ it('states the cost of the undelivered units beside a levy cancel', async () => 
 
   expect(
     lineBesideCancel(
-      copy.army.cancelOf('infantry', 12),
+      armyCancelOf({ units: countedUnitsOf('infantry', 12) }),
       'Si la cancelas, recuperas lo de 7 infantes de vuelta al campo: 140 de madera, 70 de hierro y 210 de comida.',
     ),
   ).toBeDefined()
@@ -137,7 +147,7 @@ it('counts down the refunded units as the levy delivers them', async () => {
 
   expect(
     lineBesideCancel(
-      copy.army.cancelOf('infantry', 12),
+      armyCancelOf({ units: countedUnitsOf('infantry', 12) }),
       'Si la cancelas, recuperas lo de 6 infantes de vuelta al campo: 120 de madera, 60 de hierro y 180 de comida.',
     ),
   ).toBeDefined()
@@ -174,7 +184,9 @@ it('states no refund beside a levy cancel once every unit is delivered', async (
   )
   await act(() => vi.advanceTimersByTimeAsync(0))
 
-  const cancel = screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) })
+  const cancel = screen.getByRole('button', {
+    name: armyCancelOf({ units: countedUnitsOf('infantry', 12) }),
+  })
   const row = cancel.parentElement
   assert(row !== null)
   expect(within(row).queryByText(/recuperas/)).toBeNull()

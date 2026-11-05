@@ -1,5 +1,5 @@
+import { shellTitle } from '@mygame/catalog'
 import type { FormEvent, ReactElement, ReactNode } from 'react'
-import { copy } from '../copy'
 import { Panel } from '../design-system/Panel'
 
 export interface AuthPanelProps {
@@ -37,7 +37,7 @@ export function AuthPanel(props: AuthPanelProps): ReactElement {
       <div className="flex grow flex-col items-center px-4 py-12">
         <main className="w-full max-w-sm">
           <Panel element="section" toneClass="bg-surface-raised" spacingClass="gap-6 p-6">
-            <p className="m-0 -mb-2 font-display text-title text-umber">{copy.shell.title}</p>
+            <p className="m-0 -mb-2 font-display text-title text-umber">{shellTitle()}</p>
             <h1 className="m-0 font-display text-display-xl text-ink">{props.title}</h1>
             <Body onSubmit={props.onSubmit}>{props.children}</Body>
             {props.footer === undefined ? null : (

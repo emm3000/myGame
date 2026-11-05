@@ -1,4 +1,4 @@
-import { copy } from '../copy'
+import { studyStudyRunning } from '@mygame/catalog'
 import type { CardActionState } from '../design-system/CardAction'
 import { formatFinish } from '../time/formatFinish'
 import type { LessonCardState } from './LessonCard'
@@ -10,7 +10,7 @@ function actionOf(fief: LiveFief): CardActionState {
   if (fief.overview.study.kind === 'idle') {
     return { kind: 'affordable' }
   }
-  return { kind: 'blocked', reason: copy.study.studyRunning }
+  return { kind: 'blocked', reason: studyStudyRunning() }
 }
 
 export function lessonCardOf(lesson: LessonState, fief: LiveFief): LessonCardState {

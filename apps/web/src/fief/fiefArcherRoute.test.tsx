@@ -1,3 +1,4 @@
+import { armySection } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
@@ -10,7 +11,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { ArcherIcon } from '../design-system/icons/ArcherIcon'
 import { CavalryIcon } from '../design-system/icons/CavalryIcon'
 import { InfantryIcon } from '../design-system/icons/InfantryIcon'
@@ -60,10 +60,10 @@ const showFief = async (
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const archerCard = (): HTMLElement =>
-  within(armySection()).getByRole('listitem', { name: 'arqueros' })
+  within(armyRegion()).getByRole('listitem', { name: 'arqueros' })
 
 const archerCountField = (): HTMLElement =>
   within(archerCard()).getByRole('spinbutton', { name: 'Arqueros a reclutar' })
@@ -147,7 +147,7 @@ it('draws the archer with its own icon', async () => {
 it('shows the archer card third of the four', async () => {
   await showFief(barracksAt(1))
 
-  const titles = within(armySection())
+  const titles = within(armyRegion())
     .getAllByRole('heading', { level: 4 })
     .map((heading) => heading.textContent)
   expect(titles).toEqual(['Infantes', 'Jinetes', 'Arqueros', 'Colonos'])

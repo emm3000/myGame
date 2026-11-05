@@ -1,8 +1,9 @@
+import { digestStoreFull, digestStoreSubject } from '@mygame/catalog'
 import type { Digest } from '@mygame/contracts'
 import { chronicleRowOf } from '../chronicle/chronicleRowOf'
 import { formatInstant } from '../chronicle/formatInstant'
-import { copy } from '../copy'
 import type { DigestFief, DigestRow } from '../design-system/DigestCard'
+import { resourceNameOf } from '../resources/resourceNameOf'
 
 type DigestFiefEntry = Digest['fiefs'][number]
 
@@ -14,8 +15,8 @@ const storeRowsOf = (fief: DigestFiefEntry, readAt: Date): ReadonlyArray<DigestR
     key: `store-${resource}-${fullSince}`,
     occurredAt: fullSince,
     instant: formatInstant(new Date(fullSince), readAt),
-    heading: copy.digest.storeFull,
-    subject: copy.digest.storeSubject(resource),
+    heading: digestStoreFull(),
+    subject: digestStoreSubject({ resource: resourceNameOf(resource) }),
     amounts: undefined,
   }))
 

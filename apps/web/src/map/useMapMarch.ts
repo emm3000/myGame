@@ -1,15 +1,26 @@
+import {
+  foundingFound,
+  foundingFoundOn,
+  marchAttack,
+  marchAttackTo,
+  marchSend,
+  marchSendTo,
+  transportSend,
+  transportSendTo,
+} from '@mygame/catalog'
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
-import { copy } from '../copy'
+import { capitalize } from '../design-system/capitalize'
 import type { PlotAction } from '../design-system/PlotTile'
 import { useLayoutFief } from '../fief/useLayoutFief'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { useFiefList } from '../shell/useFiefList'
 import { partyKinds } from '../units/partyKinds'
 import { byUnitKind } from './byUnitKind'
 import { cargoOf } from './cargoOf'
 import type { MarchEntries, MarchTarget, PlotCamp } from './marchFormOf'
-import { marchRefusalLineOf } from './marchRefusalLineOf'
+import { terrainNameOf } from './terrainNameOf'
 import { unitsAtHomeOf } from './unitsAtHomeOf'
 import { useMarch } from './useMarch'
 
@@ -80,14 +91,14 @@ const isSameChoice = (
 
 const labelsOf = (order: PlotOrder, plot: number, camp: PlotCamp | null): [string, string] => {
   if (order.kind === 'found') {
-    return [copy.founding.found, copy.founding.foundOn(plot)]
+    return [foundingFound(), foundingFoundOn({ plot })]
   }
   if (order.kind === 'transport') {
-    return [copy.transport.send, copy.transport.sendTo(plot)]
+    return [transportSend(), transportSendTo({ plot })]
   }
   return camp === null
-    ? [copy.march.send, copy.march.sendTo(plot)]
-    : [copy.march.attack, copy.march.attackTo(plot)]
+    ? [marchSend(), marchSendTo({ plot })]
+    : [marchAttack(), marchAttackTo({ plot })]
 }
 
 export function useMapMarch(
@@ -139,7 +150,7 @@ export function useMapMarch(
       return
     }
     setEntries(firstEntriesOf(fiefRead))
-    setName(copy.founding.proposedName(map.terrain))
+    setName(capitalize(terrainNameOf(map.terrain)))
     setChosen({ province: map.province, plot, terrain: map.terrain, camp, order })
   }
 
@@ -225,7 +236,7 @@ export function useMapMarch(
     refusalLine:
       march.refused === undefined || overview === undefined
         ? undefined
-        : marchRefusalLineOf(march.refused.refusal, march.refused.error),
+        : refusalLineOf(march.refused.refusal, march.refused.error),
     onEntriesChange: setEntries,
     onNameChange: setName,
     onSend,

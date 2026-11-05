@@ -1,3 +1,4 @@
+import { fiefIncomingCargo, namesResourcesWood } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +10,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
@@ -48,7 +48,7 @@ const showFief = async (fief: ApiClient['fief']): Promise<void> => {
 }
 
 const cargoCard = (): HTMLElement | null =>
-  screen.queryByRole('article', { name: copy.fief.incomingCargo })
+  screen.queryByRole('article', { name: fiefIncomingCargo() })
 
 const presentCargoCard = (): HTMLElement => {
   const card = cargoCard()
@@ -115,8 +115,7 @@ it('reads the overview again at the arrival', async () => {
       },
     }))
   await showFief(fief)
-  const woodCell = (): HTMLElement =>
-    screen.getByRole('listitem', { name: copy.names.resources.wood })
+  const woodCell = (): HTMLElement => screen.getByRole('listitem', { name: namesResourcesWood() })
   expect(cargoCard()).not.toBeNull()
   expect(within(woodCell()).getByText('1 000')).toBeDefined()
 

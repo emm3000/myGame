@@ -1,9 +1,16 @@
+import {
+  authSignInTitle,
+  refusalTokenInvalid,
+  refusalUnexpected,
+  verificationVerifyToFief,
+  verificationVerifyVerified,
+  verificationVerifyVerifying,
+} from '@mygame/catalog'
 import { screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { stubApiClient } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 it('verifies the email from the link', async () => {
   const postedTokens: string[] = []
@@ -17,9 +24,9 @@ it('verifies the email from the link', async () => {
     }),
   )
 
-  const link = await screen.findByRole('link', { name: copy.verification.verify.toFief })
+  const link = await screen.findByRole('link', { name: verificationVerifyToFief() })
 
-  expect(screen.getByRole('status').textContent).toBe(copy.verification.verify.verified)
+  expect(screen.getByRole('status').textContent).toBe(verificationVerifyVerified())
   expect(link.getAttribute('href')).toBe('/')
   expect(postedTokens).toEqual(['link-token'])
 })
@@ -37,7 +44,7 @@ it('posts the link token once', async () => {
     { isStrict: true },
   )
 
-  await screen.findByRole('link', { name: copy.verification.verify.toFief })
+  await screen.findByRole('link', { name: verificationVerifyToFief() })
 
   expect(posts).toBe(1)
 })
@@ -48,7 +55,7 @@ it('shows the verifying line while the api answers', async () => {
     stubApiClient({ verifyEmail: () => new Promise<ApiRefusal | undefined>(() => {}) }),
   )
 
-  expect((await screen.findByRole('status')).textContent).toBe(copy.verification.verify.verifying)
+  expect((await screen.findByRole('status')).textContent).toBe(verificationVerifyVerifying())
 })
 
 it('shows the invalid link for a refused token', async () => {
@@ -60,9 +67,9 @@ it('shows the invalid link for a refused token', async () => {
   expect((await screen.findByRole('alert')).textContent).toBe(
     'Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.',
   )
-  expect(
-    screen.getByRole('link', { name: copy.verification.verify.toSignIn }).getAttribute('href'),
-  ).toBe('/sign-in')
+  expect(screen.getByRole('link', { name: authSignInTitle() }).getAttribute('href')).toBe(
+    '/sign-in',
+  )
 })
 
 it('shows the Spanish line of an unexpected answer', async () => {
@@ -71,7 +78,7 @@ it('shows the Spanish line of an unexpected answer', async () => {
     stubApiClient({ verifyEmail: async () => 'Unexpected' }),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.Unexpected)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
 })
 
 it('shows the invalid link without a request when the token is missing', async () => {
@@ -86,6 +93,6 @@ it('shows the invalid link without a request when the token is missing', async (
     }),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.TokenInvalid)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalTokenInvalid())
   expect(posts).toBe(0)
 })

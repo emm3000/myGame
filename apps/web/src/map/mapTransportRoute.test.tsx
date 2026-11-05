@@ -1,3 +1,4 @@
+import { mapHeading } from '@mygame/catalog'
 import type { DispatchTransportRequest, FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
@@ -9,8 +10,8 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { kingdomNameOf } from './kingdomNameOf'
 
 const otherFiefId = '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a'
 
@@ -422,7 +423,10 @@ it('moves focus to the province heading when a transport is sent', async () => {
   await screen.findByRole('status')
   await waitFor(() =>
     expect(document.activeElement).toBe(
-      screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+      screen.getByRole('heading', {
+        level: 3,
+        name: mapHeading({ kingdom: kingdomNameOf(uplands.kingdom), province: 2 }),
+      }),
     ),
   )
 })

@@ -1,3 +1,4 @@
+import { armyCancelOf, statusNoticesDenied, statusNoticesLabel } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, cleanup, fireEvent, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +10,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { countedUnitsOf } from '../units/countedUnitsOf'
 import { stubNotification } from './stubNotification.testSupport'
 
 const readAt = new Date(knownFief.readAt)
@@ -46,7 +47,7 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
   await passSeconds(0)
 }
 
-const avisarme = (): HTMLElement => screen.getByRole('switch', { name: copy.status.notices.label })
+const avisarme = (): HTMLElement => screen.getByRole('switch', { name: statusNoticesLabel() })
 
 const clickAvisarme = async (): Promise<void> => {
   fireEvent.click(avisarme())
@@ -148,7 +149,7 @@ it('stays off when the permission is denied', async () => {
   await clickAvisarme()
 
   expect(avisarme().getAttribute('aria-checked')).toBe('false')
-  expect(screen.getByRole('alert').textContent).toBe(copy.status.notices.denied)
+  expect(screen.getByRole('alert').textContent).toBe(statusNoticesDenied())
 })
 
 it('stays off where the browser has no notifications', async () => {
@@ -159,7 +160,7 @@ it('stays off where the browser has no notifications', async () => {
   await clickAvisarme()
 
   expect(avisarme().getAttribute('aria-checked')).toBe('false')
-  expect(screen.getByRole('alert').textContent).toBe(copy.status.notices.denied)
+  expect(screen.getByRole('alert').textContent).toBe(statusNoticesDenied())
 })
 
 it('keeps the choice across reloads', async () => {
@@ -250,7 +251,9 @@ const levyRereadAfterItsEnd: FiefOverview = {
 }
 
 const cancelTheLevy = async (): Promise<void> => {
-  fireEvent.click(screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) }))
+  fireEvent.click(
+    screen.getByRole('button', { name: armyCancelOf({ units: countedUnitsOf('infantry', 12) }) }),
+  )
   await passSeconds(0)
 }
 
@@ -306,5 +309,7 @@ it('keeps the answered overview when an older read lands after it', async () => 
     heldReads[0]?.({ ...barracksLevying, readAt: '2026-09-22T12:00:02.000Z' })
   })
 
-  expect(screen.queryByRole('button', { name: copy.army.cancelOf('infantry', 12) })).toBeNull()
+  expect(
+    screen.queryByRole('button', { name: armyCancelOf({ units: countedUnitsOf('infantry', 12) }) }),
+  ).toBeNull()
 })

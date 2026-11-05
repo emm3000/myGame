@@ -1,10 +1,17 @@
+import {
+  chronicleEmpty,
+  chronicleLoading,
+  chronicleReceived,
+  chronicleRecovered,
+  chronicleTitle,
+  refusalUnexpected,
+} from '@mygame/catalog'
 import type { FiefChronicle } from '@mygame/contracts'
 import { screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 const noRefund = { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 }
 
@@ -16,7 +23,7 @@ const showChronicle = async (chronicle: FiefChronicle): Promise<HTMLElement[]> =
     `${knownFiefPath}/cronica`,
     signedInClientServing(async () => ({ ok: true, value: chronicle })),
   )
-  const list = await screen.findByRole('list', { name: copy.chronicle.title })
+  const list = await screen.findByRole('list', { name: chronicleTitle() })
   return within(list).getAllByRole('listitem')
 }
 
@@ -153,7 +160,7 @@ it('shows no refund on a recruits-delivered line', async () => {
     ],
   })
 
-  expect(within(row as HTMLElement).queryByText(copy.chronicle.recovered)).toBeNull()
+  expect(within(row as HTMLElement).queryByText(chronicleRecovered())).toBeNull()
 })
 
 it('shows the units a cancelled order delivered and cancelled', async () => {
@@ -217,7 +224,7 @@ it('shows the plot, the infantry and the loot of a returned march', async () => 
     within(row as HTMLElement).getByText('Recibes 200 de madera y 200 de piedra.'),
   ).toBeDefined()
   expect(within(row as HTMLElement).getByText('Recibes')).toBeDefined()
-  expect(within(row as HTMLElement).queryByText(copy.chronicle.recovered)).toBeNull()
+  expect(within(row as HTMLElement).queryByText(chronicleRecovered())).toBeNull()
 })
 
 it('agrees the unit label with one infantry', async () => {
@@ -273,7 +280,7 @@ it('leaves out the loot sentence of a march that brought nothing', async () => {
   })
 
   expect(row?.textContent).toContain('Marcha terminada: provincia 1, parcela 3, 12 infantes.')
-  expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+  expect(within(row as HTMLElement).queryByText(chronicleReceived())).toBeNull()
 })
 
 it('shows a recalled march with the loot it brought', async () => {
@@ -313,7 +320,7 @@ it('shows a march recalled on the way out with no loot', async () => {
   })
 
   expect(row?.textContent).toContain('Marcha retirada: provincia 2, parcela 7, 12 infantes.')
-  expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+  expect(within(row as HTMLElement).queryByText(chronicleReceived())).toBeNull()
 })
 
 it('shows an unrecalled march as before', async () => {
@@ -355,7 +362,7 @@ it('shows a won battle with the losses on each side', async () => {
   expect(row?.textContent).toContain(
     'Batalla ganada: provincia 2, parcela 7, campamento de nivel 1. Pierdes 3 infantes y los bandidos pierden 6 de fuerza.',
   )
-  expect(within(row as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+  expect(within(row as HTMLElement).queryByText(chronicleReceived())).toBeNull()
 })
 
 it('shows a lost battle', async () => {
@@ -646,7 +653,7 @@ it('reads a recalled founding as a return with one settler', async () => {
   })
 
   expect(returnRow?.textContent).toContain('Marcha retirada: provincia 2, parcela 7, 1 colono.')
-  expect(returnRow?.textContent).not.toContain(copy.chronicle.received)
+  expect(returnRow?.textContent).not.toContain(chronicleReceived())
   expect(sentRow?.textContent).toContain(
     'Fundación enviada: Sotoverde del Páramo, provincia 2, parcela 7.',
   )
@@ -714,7 +721,7 @@ it('reads the return of a transport with no loot', async () => {
   })
 
   expect(returnRow?.textContent).toContain('Marcha terminada: provincia 2, parcela 7, 6 jinetes.')
-  expect(within(returnRow as HTMLElement).queryByText(copy.chronicle.received)).toBeNull()
+  expect(within(returnRow as HTMLElement).queryByText(chronicleReceived())).toBeNull()
   expect(sentRow?.textContent).toContain('Transporte enviado:')
 })
 
@@ -761,7 +768,7 @@ it('shows the empty chronicle of a new fief', async () => {
     signedInClientServing(async () => ({ ok: true, value: { events: [] } })),
   )
 
-  expect(await screen.findByText(copy.chronicle.empty)).toBeDefined()
+  expect(await screen.findByText(chronicleEmpty())).toBeDefined()
 })
 
 it('shows the Spanish refusal when the chronicle cannot be read', async () => {
@@ -770,7 +777,7 @@ it('shows the Spanish refusal when the chronicle cannot be read', async () => {
     signedInClientServing(async () => ({ ok: false, refusal: 'Unexpected' })),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.Unexpected)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
 })
 
 it('shows the loading line while the chronicle is being read', async () => {
@@ -779,7 +786,7 @@ it('shows the loading line while the chronicle is being read', async () => {
     signedInClientServing(() => new Promise(() => undefined)),
   )
 
-  expect(await screen.findByText(copy.chronicle.loading)).toBeDefined()
+  expect(await screen.findByText(chronicleLoading())).toBeDefined()
 })
 
 it('reads the chronicle once when the screen opens', async () => {
@@ -792,7 +799,7 @@ it('reads the chronicle once when the screen opens', async () => {
     }),
   )
 
-  await screen.findByText(copy.chronicle.empty)
+  await screen.findByText(chronicleEmpty())
 
   expect(reads).toBe(1)
 })

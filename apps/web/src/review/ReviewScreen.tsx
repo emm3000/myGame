@@ -1,11 +1,21 @@
+import {
+  reviewDueCount,
+  reviewFailed,
+  reviewLoading,
+  reviewNextReview,
+  reviewNoCards,
+  reviewNothingDue,
+  reviewRetry,
+  reviewTitle,
+} from '@mygame/catalog'
 import { type ReactElement, type Ref, useEffect, useId } from 'react'
-import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { CountdownLine } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { Panel } from '../design-system/Panel'
 import { useFocusTarget } from '../focus/useFocusTarget'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { RecallCard } from './RecallCard'
 import { RecognitionCard } from './RecognitionCard'
 import type { DueReview, ReviewHandle } from './useReview'
@@ -65,12 +75,12 @@ function DueCard({
   return (
     <div className="flex max-w-form flex-col gap-3">
       <p className="m-0 font-utility text-label uppercase text-ink-muted">
-        {copy.review.dueCount(state.dueCount)}
+        {reviewDueCount({ count: state.dueCount })}
       </p>
       <Panel element="article" toneClass="bg-surface-raised" spacingClass="gap-4 p-5">
         <CardOfMode card={card} review={review} verdictRef={verdictRef} />
       </Panel>
-      {review.refusal !== undefined && <FormAlert message={copy.refusals[review.refusal]} />}
+      {review.refusal !== undefined && <FormAlert message={refusalLineOf(review.refusal)} />}
     </div>
   )
 }
@@ -78,10 +88,8 @@ function DueCard({
 function NothingDue({ nextReview }: { readonly nextReview: string | undefined }): ReactElement {
   return (
     <div className="flex max-w-form flex-col gap-2 rounded-md border border-line border-dashed p-5">
-      <p className="m-0 font-body text-body text-ink">{copy.review.nothingDue}</p>
-      {nextReview !== undefined && (
-        <CountdownLine words={copy.review.nextReview} time={nextReview} />
-      )}
+      <p className="m-0 font-body text-body text-ink">{reviewNothingDue()}</p>
+      {nextReview !== undefined && <CountdownLine words={reviewNextReview()} time={nextReview} />}
     </div>
   )
 }
@@ -95,20 +103,20 @@ function ReviewBody({
 }): ReactElement {
   switch (state.kind) {
     case 'loading':
-      return <p className="m-0">{copy.review.loading}</p>
+      return <p className="m-0">{reviewLoading()}</p>
     case 'failed':
       return (
         <div className="flex flex-col items-start gap-3">
-          <FormAlert message={copy.review.failed} />
+          <FormAlert message={reviewFailed()} />
           <Button type="button" tone="quiet" onClick={state.onRetry}>
-            {copy.review.retry}
+            {reviewRetry()}
           </Button>
         </div>
       )
     case 'noCards':
       return (
         <p className="m-0 max-w-form rounded-md border border-line border-dashed p-5 text-ink">
-          {copy.review.noCards}
+          {reviewNoCards()}
         </p>
       )
     case 'nothingDue':
@@ -133,7 +141,7 @@ export function ReviewScreen({ state }: { readonly state: ReviewScreenState }): 
         tabIndex={-1}
         className={`m-0 font-display text-title text-ink ${focusTargetClass}`}
       >
-        {copy.review.title}
+        {reviewTitle()}
       </h2>
       <ReviewBody state={state} onNext={title.focus} />
     </section>

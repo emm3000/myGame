@@ -1,3 +1,9 @@
+import {
+  chronicleTitle,
+  shellFiefSwitcherLabel,
+  shellNavigationChronicle,
+  statusIdleBuild,
+} from '@mygame/catalog'
 import type { FiefList } from '@mygame/contracts'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
@@ -9,7 +15,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 const secondFiefId = '4f1e2d3c-6b5a-4978-8a1b-2c3d4e5f6a7b'
 const secondFiefPath = `/feudo/${secondFiefId}`
@@ -36,7 +41,7 @@ const secondEntryName = 'Sotoverde del Páramo, Vadoalto 2:7'
 const knownEntryName = 'Fuenteclara, Vadoalto 3:12'
 
 const switcher = async (): Promise<HTMLElement> =>
-  screen.findByRole('navigation', { name: copy.shell.fiefSwitcher.label })
+  screen.findByRole('navigation', { name: shellFiefSwitcherLabel() })
 
 const switcherEntry = async (name: string): Promise<HTMLElement> =>
   within(await switcher()).getByRole('link', { name })
@@ -50,7 +55,7 @@ it('lists both fiefs of the lord', async () => {
     await switcherEntry(secondEntryName),
     await switcherEntry(knownEntryName),
   ])
-  expect(within(await switcher()).getByText(copy.shell.fiefSwitcher.label)).toBeDefined()
+  expect(within(await switcher()).getByText(shellFiefSwitcherLabel())).toBeDefined()
 })
 
 it('marks the current fief', async () => {
@@ -129,7 +134,7 @@ it('opens the chronicle of the other fief', async () => {
   await chooseSecondFief()
 
   await waitFor(() => expect(fiefIds.at(-1)).toBe(secondFiefId))
-  expect(await screen.findByRole('heading', { level: 2, name: copy.chronicle.title })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 2, name: chronicleTitle() })).toBeDefined()
 })
 
 it('reads one fief as the design draws it', async () => {
@@ -142,7 +147,7 @@ it('reads one fief as the design draws it', async () => {
 
   expect(entries).toEqual([await switcherEntry(knownEntryName)])
   expect(entries[0]?.getAttribute('aria-current')).toBe('page')
-  expect(within(await switcher()).getByText(copy.shell.fiefSwitcher.label)).toBeDefined()
+  expect(within(await switcher()).getByText(shellFiefSwitcherLabel())).toBeDefined()
 })
 
 it('keeps the navigation when the list fails', async () => {
@@ -170,7 +175,7 @@ it('keeps the navigation when the list fails', async () => {
       .getAllByRole('link')
       .map((link) => link.textContent),
   ).toEqual(['Feudo', 'Mapa', 'Crónica'])
-  expect(screen.queryByRole('navigation', { name: copy.shell.fiefSwitcher.label })).toBeNull()
+  expect(screen.queryByRole('navigation', { name: shellFiefSwitcherLabel() })).toBeNull()
 })
 
 it('reads the list again on each navigation', async () => {
@@ -188,7 +193,7 @@ it('reads the list again on each navigation', async () => {
   fireEvent.click(
     within(await screen.findByRole('navigation', { name: (name) => name === '' })).getByRole(
       'link',
-      { name: copy.shell.navigation.chronicle },
+      { name: shellNavigationChronicle() },
     ),
   )
 
@@ -253,7 +258,7 @@ it('shows no badge on a lord of one fief', async () => {
   )
 
   expect(await switcherEntry(knownEntryName)).toBeDefined()
-  expect(within(await switcher()).queryByText(copy.status.idleBuild)).toBeNull()
+  expect(within(await switcher()).queryByText(statusIdleBuild())).toBeNull()
 })
 
 it('shows no badge on a fief with nothing free or full', async () => {

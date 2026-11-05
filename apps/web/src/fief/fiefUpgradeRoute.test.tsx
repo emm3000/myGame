@@ -1,3 +1,4 @@
+import { namesBusySlot, refusalQueueFull } from '@mygame/catalog'
 import type { BuildingKind, FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,8 +10,8 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { buildingNameOf } from './buildingNameOf'
 import { slotTrackFill } from './slotTrackFill.testSupport'
 
 beforeEach(() => {
@@ -34,7 +35,7 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
 }
 
 const cardOf = (building: BuildingKind): HTMLElement =>
-  screen.getByRole('listitem', { name: copy.names.buildings[building] })
+  screen.getByRole('listitem', { name: buildingNameOf(building) })
 
 const upgradeButtonOf = (building: BuildingKind): HTMLElement =>
   within(cardOf(building)).getByRole('button')
@@ -72,7 +73,7 @@ it('starts an upgrade and shows the slot busy', async () => {
   await passSeconds(0)
 
   expect(enqueueUpgrade).toHaveBeenCalledWith(knownFief.id, 'sawmill')
-  expect(screen.getByText(copy.names.busySlot)).toBeDefined()
+  expect(screen.getByText(namesBusySlot())).toBeDefined()
   expect(screen.getByRole('timer').textContent).toContain('3 min')
 })
 
@@ -416,7 +417,7 @@ it('announces a blocked action as unavailable with its reason', async () => {
 
   const blockedButton = within(cardOf('quarry')).getByRole('button', {
     name: 'Mejorar · 3:12',
-    description: copy.refusals.QueueFull,
+    description: refusalQueueFull(),
   })
 
   expect(blockedButton.getAttribute('aria-disabled')).toBe('true')

@@ -1,6 +1,6 @@
+import { digestAcknowledge, digestTitle, fiefLoading } from '@mygame/catalog'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
-import { copy } from '../../../copy'
 import type { DigestCardProps } from '../../../design-system/DigestCard'
 import { FormAlert } from '../../../design-system/FormAlert'
 import { digestFiefsOf } from '../../../fief/digestFiefsOf'
@@ -20,6 +20,7 @@ import { fiefHintOf } from '../../../hints/fiefHintOf'
 import { hintPropsOf } from '../../../hints/hintPropsOf'
 import type { HintsHandle } from '../../../hints/useHints'
 import { useLayoutHints } from '../../../hints/useLayoutHints'
+import { refusalLineOf } from '../../../refusals/refusalLineOf'
 
 function digestCardOf(
   digest: DigestHandle,
@@ -30,11 +31,11 @@ function digestCardOf(
     return undefined
   }
   return {
-    title: copy.digest.title,
+    title: digestTitle(),
     fiefs: digestFiefsOf(state.digest, state.readAt),
-    acknowledgeLabel: copy.digest.acknowledge,
+    acknowledgeLabel: digestAcknowledge(),
     isWaiting: digest.isWaiting,
-    refusal: digest.refusal === undefined ? undefined : copy.refusals[digest.refusal],
+    refusal: digest.refusal === undefined ? undefined : refusalLineOf(digest.refusal),
     onAcknowledge: () => digest.acknowledge(onAcknowledged),
   }
 }
@@ -63,9 +64,9 @@ function FiefOverviewPage(): ReactElement {
   const fiefName = useFiefNameTarget()
   switch (state.kind) {
     case 'loading':
-      return <p className="m-0">{copy.fief.loading}</p>
+      return <p className="m-0">{fiefLoading()}</p>
     case 'refused':
-      return <FormAlert message={copy.refusals[state.refusal]} />
+      return <FormAlert message={refusalLineOf(state.refusal)} />
     case 'live':
       return (
         <FiefScreen

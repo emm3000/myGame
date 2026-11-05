@@ -1,5 +1,5 @@
+import { reviewRecognitionPrompt } from '@mygame/catalog'
 import type { FormEvent, ReactElement, Ref } from 'react'
-import { copy } from '../copy'
 import { CheckAction } from './CheckAction'
 import { RatedVerdictLines } from './RatedVerdictLines'
 import type { DueReview, ReviewHandle } from './useReview'
@@ -31,7 +31,7 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
           className="m-0 flex flex-col gap-2 border-0 p-0"
         >
           <legend className="mb-2 font-utility text-label uppercase text-ink-muted">
-            {copy.review.recognitionPrompt}
+            {reviewRecognitionPrompt()}
           </legend>
           {card.choices.map((choice) => (
             <label

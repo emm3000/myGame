@@ -1,6 +1,12 @@
+import {
+  reviewAnswerField,
+  reviewAskHint,
+  reviewHint,
+  reviewNearMiss,
+  reviewRecallPrompt,
+} from '@mygame/catalog'
 import { ReviewAnswerRequestSchema } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
-import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
@@ -21,7 +27,7 @@ function HintLine({ review }: { readonly review: ReviewHandle }): ReactElement {
   if (review.hint !== undefined) {
     return (
       <p className="m-0 font-body text-body text-ink">
-        {copy.review.hint(review.hint.firstLetter, review.hint.letterCount)}
+        {reviewHint({ firstLetter: review.hint.firstLetter, letterCount: review.hint.letterCount })}
       </p>
     )
   }
@@ -32,7 +38,7 @@ function HintLine({ review }: { readonly review: ReviewHandle }): ReactElement {
       availability={review.isWaiting ? 'waiting' : 'available'}
       onClick={review.askHint}
     >
-      {copy.review.askHint}
+      {reviewAskHint()}
     </Button>
   )
 }
@@ -45,7 +51,7 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
           role="status"
           className="m-0 rounded-md border border-ochre bg-surface px-3 py-2 font-body text-body text-ink"
         >
-          {copy.review.nearMiss}
+          {reviewNearMiss()}
         </p>
       )}
       <div className="flex flex-wrap items-center gap-3">
@@ -71,10 +77,10 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
       </p>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <p className="m-0 font-utility text-label uppercase text-ink-muted">
-          {copy.review.recallPrompt}
+          {reviewRecallPrompt()}
         </p>
         <TextField
-          label={copy.review.answerField}
+          label={reviewAnswerField()}
           name="answer"
           type="text"
           autoComplete="off"

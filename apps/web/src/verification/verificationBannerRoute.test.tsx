@@ -1,9 +1,14 @@
+import {
+  shellTitle,
+  verificationBannerLine,
+  verificationBannerResend,
+  verificationBannerSent,
+} from '@mygame/catalog'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 const unverifiedPlayer = { ...knownPlayer, emailVerified: false }
 
@@ -12,22 +17,22 @@ const unverifiedClientResending = (
 ): ApiClient => stubApiClient({ currentPlayer: async () => unverifiedPlayer, resendVerification })
 
 const resendButton = (): Promise<HTMLElement> =>
-  screen.findByRole('button', { name: copy.verification.banner.resend })
+  screen.findByRole('button', { name: verificationBannerResend() })
 
 it('shows the banner to a player whose email is not verified', async () => {
   renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => unverifiedPlayer }))
 
-  expect(await screen.findByText(copy.verification.banner.line)).toBeDefined()
+  expect(await screen.findByText(verificationBannerLine())).toBeDefined()
   expect(await resendButton()).toBeDefined()
 })
 
 it('shows no banner once the email is verified', async () => {
   renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => knownPlayer }))
 
-  await screen.findByRole('heading', { level: 1, name: copy.shell.title })
+  await screen.findByRole('heading', { level: 1, name: shellTitle() })
 
-  expect(screen.queryByText(copy.verification.banner.line)).toBeNull()
-  expect(screen.queryByRole('button', { name: copy.verification.banner.resend })).toBeNull()
+  expect(screen.queryByText(verificationBannerLine())).toBeNull()
+  expect(screen.queryByRole('button', { name: verificationBannerResend() })).toBeNull()
 })
 
 it('sends one resend per click', async () => {
@@ -58,7 +63,7 @@ it('confirms a resend the api accepted', async () => {
 
   fireEvent.click(await resendButton())
 
-  expect((await screen.findByRole('status')).textContent).toBe(copy.verification.banner.sent)
+  expect((await screen.findByRole('status')).textContent).toBe(verificationBannerSent())
   expect((await resendButton()).hasAttribute('disabled')).toBe(false)
 })
 

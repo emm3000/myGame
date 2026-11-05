@@ -1,3 +1,10 @@
+import {
+  armySection,
+  marchBusySlot,
+  namesResourcesWood,
+  namesUnitsCavalryPlural,
+  namesUnitsInfantryPlural,
+} from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +16,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -109,10 +115,10 @@ const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const infantryCard = (): HTMLElement =>
-  within(armySection()).getByRole('listitem', { name: copy.names.units.infantry.plural })
+  within(armyRegion()).getByRole('listitem', { name: namesUnitsInfantryPlural() })
 
 const textIn = (container: HTMLElement, text: string): HTMLElement | null =>
   within(container).queryByText(
@@ -121,25 +127,24 @@ const textIn = (container: HTMLElement, text: string): HTMLElement | null =>
       Array.from(element.children).every((child) => child.textContent !== text),
   )
 
-const phaseLine = (text: string): HTMLElement | null => textIn(armySection(), text)
+const phaseLine = (text: string): HTMLElement | null => textIn(armyRegion(), text)
 
-const returnCountdown = (): HTMLElement => within(armySection()).getByRole('timer')
+const returnCountdown = (): HTMLElement => within(armyRegion()).getByRole('timer')
 
-const woodCell = (): HTMLElement =>
-  screen.getByRole('listitem', { name: copy.names.resources.wood })
+const woodCell = (): HTMLElement => screen.getByRole('listitem', { name: namesResourcesWood() })
 
 it('shows the march slot idle with no march away', async () => {
   await showFief({ fief: async () => ({ ok: true, value: barracksBuilt }) })
 
-  expect(within(armySection()).getByText('la marcha')).toBeDefined()
-  expect(within(armySection()).getByText('El cuartel no tiene marcha en curso.')).toBeDefined()
-  expect(within(armySection()).queryByRole('timer')).toBeNull()
+  expect(within(armyRegion()).getByText('la marcha')).toBeDefined()
+  expect(within(armyRegion()).getByText('El cuartel no tiene marcha en curso.')).toBeDefined()
+  expect(within(armyRegion()).queryByRole('timer')).toBeNull()
 })
 
 it('shows the march outbound with its countdown to the return', async () => {
   await showFief({})
 
-  expect(within(armySection()).getByText('una marcha en curso')).toBeDefined()
+  expect(within(armyRegion()).getByText('una marcha en curso')).toBeDefined()
   expect(phaseLine('Marcha de ida: 10 infantes a provincia 2, parcela 5')).not.toBeNull()
   expect(within(returnCountdown()).getByText('Vuelta en')).toBeDefined()
   expect(within(returnCountdown()).getByText('2 h 27 min · 16:27')).toBeDefined()
@@ -225,7 +230,7 @@ it('shows the loot in the stocks after the return read', async () => {
   await passSeconds(1)
 
   expect(within(woodCell()).getByText('1 203')).toBeDefined()
-  expect(within(armySection()).getByText('El cuartel no tiene marcha en curso.')).toBeDefined()
+  expect(within(armyRegion()).getByText('El cuartel no tiene marcha en curso.')).toBeDefined()
   expect(textIn(infantryCard(), '16 infantes en casa')).not.toBeNull()
 })
 
@@ -245,7 +250,7 @@ it('waits for the minute re-read when the march returns past the longest timeout
 })
 
 const recallButton = (): HTMLElement | null =>
-  within(armySection()).queryByRole('button', { name: 'Retirar la marcha: 10 infantes' })
+  within(armyRegion()).queryByRole('button', { name: 'Retirar la marcha: 10 infantes' })
 
 const mixedMarchUnderway = (): FiefOverview => {
   const underway = answeredNow(marchUnderway)
@@ -260,7 +265,7 @@ const mixedMarchUnderway = (): FiefOverview => {
 }
 
 const cavalryCard = (): HTMLElement =>
-  within(armySection()).getByRole('listitem', { name: copy.names.units.cavalry.plural })
+  within(armyRegion()).getByRole('listitem', { name: namesUnitsCavalryPlural() })
 
 it('names both kinds on the march card', async () => {
   await showFief({ fief: async () => ({ ok: true, value: mixedMarchUnderway() }) })
@@ -269,7 +274,7 @@ it('names both kinds on the march card', async () => {
     phaseLine('Marcha de ida: 10 infantes y 6 jinetes a provincia 2, parcela 5'),
   ).not.toBeNull()
   expect(
-    within(armySection()).queryByRole('button', {
+    within(armyRegion()).queryByRole('button', {
       name: 'Retirar la marcha: 10 infantes y 6 jinetes',
     }),
   ).not.toBeNull()
@@ -294,7 +299,7 @@ it('names three kinds on the march card', async () => {
     phaseLine('Marcha de ida: 12 infantes, 6 jinetes y 10 arqueros a provincia 2, parcela 5'),
   ).not.toBeNull()
   expect(
-    within(armySection()).queryByRole('button', {
+    within(armyRegion()).queryByRole('button', {
       name: 'Retirar la marcha: 12 infantes, 6 jinetes y 10 arqueros',
     }),
   ).not.toBeNull()
@@ -437,7 +442,7 @@ it('leaves the loot out after a recall on the road', async () => {
   await passSeconds(0)
 
   expect(within(returnCountdown()).getByText('0:30')).toBeDefined()
-  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+  expect(within(armyRegion()).queryByText(/Botín/)).toBeNull()
 })
 
 it('shows the refusal the api answered', async () => {
@@ -450,7 +455,7 @@ it('shows the refusal the api answered', async () => {
   fireEvent.click(recallButton() as HTMLElement)
   await passSeconds(0)
 
-  expect(within(armySection()).getByRole('alert').textContent).toBe(
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
     'Esa marcha ya viene de vuelta. Espera a que llegue.',
   )
 
@@ -464,7 +469,7 @@ it('shows the refusal the api answered', async () => {
   fireEvent.click(recallButton() as HTMLElement)
   await passSeconds(0)
 
-  expect(within(armySection()).getByRole('alert').textContent).toBe(
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
     'El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.',
   )
 })
@@ -508,7 +513,7 @@ it('moves focus to the slot title when the march is recalled', async () => {
 
   await pressRecall()
 
-  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.march.busySlot))
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(marchBusySlot()))
 })
 
 it('keeps focus on Retirar la marcha when the recall is refused', async () => {

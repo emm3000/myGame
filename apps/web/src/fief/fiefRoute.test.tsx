@@ -1,3 +1,10 @@
+import {
+  namesBuildingsFarm,
+  namesBuildQueue,
+  namesPeasants,
+  namesResourcesWood,
+  refusalFiefNotFound,
+} from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -10,7 +17,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 import { busySlot, slotTrackFill } from './slotTrackFill.testSupport'
 
@@ -39,8 +45,7 @@ const showFief = async (apiClient: ApiClient): Promise<void> => {
   await passSeconds(0)
 }
 
-const woodCell = (): HTMLElement =>
-  screen.getByRole('listitem', { name: copy.names.resources.wood })
+const woodCell = (): HTMLElement => screen.getByRole('listitem', { name: namesResourcesWood() })
 
 const woodAtOnePerSecond: FiefOverview = {
   ...knownFief,
@@ -184,7 +189,7 @@ const sawmillWithTwoWaiting: FiefOverview = {
 }
 
 const waitingUpgrades = (): ReadonlyArray<HTMLElement> =>
-  within(screen.getByRole('list', { name: copy.names.buildQueue })).getAllByRole('listitem')
+  within(screen.getByRole('list', { name: namesBuildQueue() })).getAllByRole('listitem')
 
 it('lists the waiting upgrades under the one in progress', async () => {
   await showFief(signedInClientServing(() => sawmillWithTwoWaiting))
@@ -325,7 +330,7 @@ it("shows the tier image on a built building's card", async () => {
   }
   await showFief(signedInClientServing(() => farmAtLevelThree))
 
-  const farmCard = screen.getByRole('listitem', { name: copy.names.buildings.farm })
+  const farmCard = screen.getByRole('listitem', { name: namesBuildingsFarm() })
 
   expect(within(farmCard).getByRole('presentation').getAttribute('src')).toMatch(/\/farm-2\.webp$/)
 })
@@ -425,7 +430,7 @@ const farmWaitingInFullQueue: FiefOverview = {
   },
 }
 
-const peasantCell = (): HTMLElement => screen.getByRole('listitem', { name: copy.names.peasants })
+const peasantCell = (): HTMLElement => screen.getByRole('listitem', { name: namesPeasants() })
 
 it('shows in the peasant cell the free peasants of the projected supply', async () => {
   await showFief(signedInClientServing(() => farmWaitingInFullQueue))
@@ -487,7 +492,7 @@ it('shows the fief not found line for an unknown id', async () => {
   renderAppAt(`/feudo/${unknownFiefId}`, apiClient)
   await passSeconds(0)
 
-  expect(screen.getByText(copy.refusals.FiefNotFound)).toBeDefined()
+  expect(screen.getByText(refusalFiefNotFound())).toBeDefined()
 })
 
 it('shows the fief not found line for an id that is not a uuid', async () => {
@@ -495,6 +500,6 @@ it('shows the fief not found line for an id that is not a uuid', async () => {
   renderAppAt('/feudo/robledal', signedInClientReading(readFiefIds))
   await passSeconds(0)
 
-  expect(screen.getByText(copy.refusals.FiefNotFound)).toBeDefined()
+  expect(screen.getByText(refusalFiefNotFound())).toBeDefined()
   expect(readFiefIds).toEqual([])
 })

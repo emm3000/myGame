@@ -109,6 +109,9 @@ importers:
         specifier: 'catalog:'
         version: 4.6.5
     devDependencies:
+      '@mygame/catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@mygame/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts

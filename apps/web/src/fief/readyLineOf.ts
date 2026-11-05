@@ -1,5 +1,5 @@
+import { statusReadyAt, statusReadyIn } from '@mygame/catalog'
 import { type FiefOverview, ResourceKindSchema } from '@mygame/contracts'
-import { copy } from '../copy'
 import { formatClock } from '../time/formatClock'
 import { formatTimeLeft } from '../time/formatTimeLeft'
 import { amountAfter, type LiveFief } from './liveFief'
@@ -45,10 +45,10 @@ export function readyLineOf(cost: ResourceCost, fief: LiveFief): string | undefi
   const ready = new Date(Date.parse(fief.overview.readAt) + readySeconds * 1000)
   const remainingSeconds = (ready.getTime() - fief.at.getTime()) / 1000
   if (Math.ceil(remainingSeconds) <= secondsPerHour) {
-    return copy.status.readyIn(formatTimeLeft(Math.max(secondsPerMinute, remainingSeconds)))
+    return statusReadyIn({ timeLeft: formatTimeLeft(Math.max(secondsPerMinute, remainingSeconds)) })
   }
   const readyMinute = new Date(
     Math.ceil(ready.getTime() / millisecondsPerMinute) * millisecondsPerMinute,
   )
-  return copy.status.readyAt(formatClock(readyMinute, fief.at))
+  return statusReadyAt({ clock: formatClock(readyMinute, fief.at) })
 }

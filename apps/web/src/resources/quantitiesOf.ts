@@ -1,5 +1,5 @@
 import { type ResourceAmounts, ResourceKindSchema } from '@mygame/contracts'
-import type { ResourceQuantity } from '../copy'
+import type { ResourceQuantity } from './ResourceQuantity'
 
 export function quantitiesOf(amounts: ResourceAmounts): ReadonlyArray<ResourceQuantity> {
   return ResourceKindSchema.options

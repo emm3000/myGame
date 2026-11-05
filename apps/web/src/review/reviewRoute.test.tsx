@@ -1,3 +1,25 @@
+import {
+  refusalReviewNotDue,
+  reviewAnswerField,
+  reviewAskHint,
+  reviewCheck,
+  reviewChecking,
+  reviewComesBack,
+  reviewCorrect,
+  reviewDueCount,
+  reviewFailed,
+  reviewHint,
+  reviewLoading,
+  reviewNearMiss,
+  reviewNext,
+  reviewNoCards,
+  reviewNothingDue,
+  reviewRetry,
+  reviewSkillEarned,
+  reviewSkillRate,
+  reviewTitle,
+  reviewWrong,
+} from '@mygame/catalog'
 import type { FiefOverview, ReviewAnswer } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +31,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { resourceNameOf } from '../resources/resourceNameOf'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -87,13 +109,13 @@ const showReview = async (
 const answering = (verdict: ReviewAnswer['verdict'], fief: FiefOverview) =>
   vi.fn(async () => ({ ok: true as const, value: { verdict, fief } }))
 
-const reviewRegion = (): HTMLElement => screen.getByRole('region', { name: copy.review.title })
+const reviewRegion = (): HTMLElement => screen.getByRole('region', { name: reviewTitle() })
 
-const answerField = (): HTMLElement => screen.getByLabelText(copy.review.answerField)
+const answerField = (): HTMLElement => screen.getByLabelText(reviewAnswerField())
 
 const typeAndCheck = async (answer: string): Promise<void> => {
   fireEvent.change(answerField(), { target: { value: answer } })
-  fireEvent.click(screen.getByRole('button', { name: copy.review.check }))
+  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
   await passSeconds(0)
 }
 
@@ -107,7 +129,7 @@ it('reads the review while the fief is on its way', async () => {
   )
   await passSeconds(0)
 
-  expect(screen.getByText(copy.review.loading)).toBeTruthy()
+  expect(screen.getByText(reviewLoading())).toBeTruthy()
 })
 
 it('offers to read again after a failed read', async () => {
@@ -117,8 +139,8 @@ it('offers to read again after a failed read', async () => {
     .mockResolvedValue({ ok: true, value: recallDue })
   await showReview(recallDue, { fief })
 
-  expect(screen.getByText(copy.review.failed)).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: copy.review.retry }))
+  expect(screen.getByText(reviewFailed())).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: reviewRetry() }))
   await passSeconds(0)
 
   expect(screen.getByText('escuela')).toBeTruthy()
@@ -127,13 +149,13 @@ it('offers to read again after a failed read', async () => {
 it('sends a player with no cards to lesson 1', async () => {
   await showReview(knownFief)
 
-  expect(screen.getByText(copy.review.noCards)).toBeTruthy()
+  expect(screen.getByText(reviewNoCards())).toBeTruthy()
 })
 
 it('offers no practice when nothing is due and names the next review', async () => {
   await showReview(nothingDue)
 
-  expect(screen.getByText(copy.review.nothingDue)).toBeTruthy()
+  expect(screen.getByText(reviewNothingDue())).toBeTruthy()
   expect(screen.getByText('9 min')).toBeTruthy()
   expect(within(reviewRegion()).queryByRole('button')).toBeNull()
 })
@@ -141,7 +163,7 @@ it('offers no practice when nothing is due and names the next review', async () 
 it('draws only the cards the api answers as due, the first one first', async () => {
   await showReview(withReviews([homeRecognition, schoolRecall], null))
 
-  expect(screen.getByText(copy.review.dueCount(2))).toBeTruthy()
+  expect(screen.getByText(reviewDueCount({ count: 2 }))).toBeTruthy()
   expect(screen.getByRole('heading', { name: 'home' })).toBeTruthy()
   expect(screen.queryByText('I walk to ____ every day.')).toBeNull()
 })
@@ -162,7 +184,7 @@ it('sends the chosen meaning by its choice id', async () => {
   await showReview(withReviews([homeRecognition], null), { answerReview })
 
   fireEvent.click(screen.getByRole('radio', { name: 'hogar' }))
-  fireEvent.click(screen.getByRole('button', { name: copy.review.check }))
+  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
   await passSeconds(0)
 
   expect(answerReview).toHaveBeenCalledWith(knownFief.id, {
@@ -197,7 +219,7 @@ it('reads the check as under way while the answer is on its way', async () => {
 
   await typeAndCheck('school')
 
-  expect(screen.getByRole('button', { name: copy.review.checking }).getAttribute('aria-busy')).toBe(
+  expect(screen.getByRole('button', { name: reviewChecking() }).getAttribute('aria-busy')).toBe(
     'true',
   )
 })
@@ -207,23 +229,23 @@ it('keeps the typed field after a near-miss', async () => {
 
   await typeAndCheck('scool')
 
-  expect(screen.getByText(copy.review.nearMiss)).toBeTruthy()
+  expect(screen.getByText(reviewNearMiss())).toBeTruthy()
   expect(screen.getByDisplayValue('scool')).toBe(answerField())
-  expect(screen.getByRole('button', { name: copy.review.check })).toBeTruthy()
+  expect(screen.getByRole('button', { name: reviewCheck() })).toBeTruthy()
 })
 
 it('shows the hint the api answers', async () => {
-  const reviewHint = vi.fn(async () => ({
+  const hintRequest = vi.fn(async () => ({
     ok: true as const,
     value: { firstLetter: 's', letterCount: 6 },
   }))
-  await showReview(recallDue, { reviewHint })
+  await showReview(recallDue, { reviewHint: hintRequest })
 
-  fireEvent.click(screen.getByRole('button', { name: copy.review.askHint }))
+  fireEvent.click(screen.getByRole('button', { name: reviewAskHint() }))
   await passSeconds(0)
 
-  expect(reviewHint).toHaveBeenCalledWith(knownFief.id, 'lesson-1-2')
-  expect(screen.getByText(copy.review.hint('s', 6))).toBeTruthy()
+  expect(hintRequest).toHaveBeenCalledWith(knownFief.id, 'lesson-1-2')
+  expect(screen.getByText(reviewHint({ firstLetter: 's', letterCount: 6 }))).toBeTruthy()
 })
 
 it('shows the correct form beside the answer after a wrong answer', async () => {
@@ -235,10 +257,10 @@ it('shows the correct form beside the answer after a wrong answer', async () => 
 
   await typeAndCheck('house')
 
-  expect(screen.getByText(copy.review.wrong)).toBeTruthy()
+  expect(screen.getByText(reviewWrong())).toBeTruthy()
   expect(screen.getByText('house').getAttribute('lang')).toBe('en')
   expect(screen.getByText('school').getAttribute('lang')).toBe('en')
-  expect(screen.getByText(copy.review.comesBack)).toBeTruthy()
+  expect(screen.getByText(reviewComesBack())).toBeTruthy()
 })
 
 it('shows the gloss chosen beside the right one after a wrong recognition', async () => {
@@ -249,10 +271,10 @@ it('shows the gloss chosen beside the right one after a wrong recognition', asyn
   await showReview(withReviews([homeRecognition], null), { answerReview })
 
   fireEvent.click(screen.getByRole('radio', { name: 'dinero' }))
-  fireEvent.click(screen.getByRole('button', { name: copy.review.check }))
+  fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
   await passSeconds(0)
 
-  const verdict = screen.getByRole('region', { name: copy.review.wrong })
+  const verdict = screen.getByRole('region', { name: reviewWrong() })
   expect(within(verdict).getByText('dinero').getAttribute('lang')).toBe('es')
   expect(within(verdict).getByText('hogar').getAttribute('lang')).toBe('es')
 })
@@ -272,8 +294,8 @@ it('moves to the next due card after a correct answer', async () => {
   await showReview(withReviews([schoolRecall, homeRecognition], null), { answerReview })
 
   await typeAndCheck('school')
-  expect(screen.getByText(copy.review.correct)).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: copy.review.next }))
+  expect(screen.getByText(reviewCorrect())).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: reviewNext() }))
   await passSeconds(0)
 
   expect(screen.getByRole('heading', { name: 'home' })).toBeTruthy()
@@ -300,8 +322,12 @@ it('names the skill a correct answer earns at the level the api answers', async 
 
   await typeAndCheck('school')
 
-  expect(screen.getByText(copy.review.skillEarned('food', 2))).toBeTruthy()
-  expect(screen.getByText(copy.review.skillRate(5, 'food'))).toBeTruthy()
+  expect(
+    screen.getByText(reviewSkillEarned({ resource: resourceNameOf('food'), level: 2 })),
+  ).toBeTruthy()
+  expect(
+    screen.getByText(reviewSkillRate({ percent: 5, resource: resourceNameOf('food') })),
+  ).toBeTruthy()
 })
 
 it('caps the typed answer at the 100 characters the api accepts', async () => {
@@ -314,7 +340,7 @@ it('blocks the check of a recall card while the field is empty', async () => {
   const answerReview = answering({ kind: 'nearMiss' }, recallDue)
   await showReview(recallDue, { answerReview })
 
-  const check = screen.getByRole('button', { name: copy.review.check })
+  const check = screen.getByRole('button', { name: reviewCheck() })
   fireEvent.click(check)
   await passSeconds(0)
 
@@ -349,8 +375,8 @@ it('keeps the due count of the card on screen until the next card', async () => 
 
   await typeAndCheck('school')
 
-  expect(screen.getByText(copy.review.correct)).toBeTruthy()
-  expect(screen.getByText(copy.review.dueCount(1))).toBeTruthy()
+  expect(screen.getByText(reviewCorrect())).toBeTruthy()
+  expect(screen.getByText(reviewDueCount({ count: 1 }))).toBeTruthy()
 })
 
 it('shows a refused answer by its kind', async () => {
@@ -359,5 +385,5 @@ it('shows a refused answer by its kind', async () => {
 
   await typeAndCheck('school')
 
-  expect(screen.getByText(copy.refusals.ReviewNotDue)).toBeTruthy()
+  expect(screen.getByText(refusalReviewNotDue())).toBeTruthy()
 })

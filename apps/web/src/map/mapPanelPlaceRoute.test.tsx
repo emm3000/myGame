@@ -1,3 +1,11 @@
+import {
+  mapHeading,
+  mapNext,
+  mapPlot,
+  marchCountField,
+  marchSendTo,
+  refusalUnexpected,
+} from '@mygame/catalog'
 import type { FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
@@ -9,7 +17,9 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { capitalize } from '../design-system/capitalize'
+import { unitLabelsOf } from '../units/unitLabelsOf'
+import { kingdomNameOf } from './kingdomNameOf'
 import { stubMatchMedia } from './stubMatchMedia.testSupport'
 
 afterEach(() => {
@@ -63,18 +73,20 @@ const showProvince = async (overrides: Partial<ApiClient> = {}): Promise<HTMLEle
       ...overrides,
     }),
   )
-  const list = await screen.findByRole('list', { name: copy.map.heading(1, 2) })
+  const list = await screen.findByRole('list', {
+    name: mapHeading({ kingdom: kingdomNameOf(1), province: 2 }),
+  })
   await screen.findAllByRole('button', { name: /^Enviar una marcha a parcela/ })
   return list
 }
 
 const sendTo = (plot: number): HTMLElement =>
-  screen.getByRole('button', { name: copy.march.sendTo(plot) })
+  screen.getByRole('button', { name: marchSendTo({ plot }) })
 
 const orderOf = (list: HTMLElement): ReadonlyArray<number | 'panel'> =>
   Array.from(list.children).map((item) => {
     const plot = freeProvince.plots.find(
-      ({ plot }) => within(item as HTMLElement).queryByText(copy.map.plot(plot)) !== null,
+      ({ plot }) => within(item as HTMLElement).queryByText(mapPlot({ plot })) !== null,
     )
     return plot === undefined ? 'panel' : plot.plot
   })
@@ -195,8 +207,10 @@ it('opens no panel and keeps focus while the fief is still loading', async () =>
       provinceMap: async () => ({ ok: true, value: freeProvince }),
     }),
   )
-  const list = await screen.findByRole('list', { name: copy.map.heading(1, 2) })
-  const next = screen.getByRole('button', { name: copy.map.next })
+  const list = await screen.findByRole('list', {
+    name: mapHeading({ kingdom: kingdomNameOf(1), province: 2 }),
+  })
+  const next = screen.getByRole('button', { name: mapNext() })
   next.focus()
 
   expect(screen.queryAllByRole('button', { name: /parcela/ })).toHaveLength(0)
@@ -213,10 +227,12 @@ it('reads a fief-load refusal under the list, outside any panel', async () => {
       provinceMap: async () => ({ ok: true, value: freeProvince }),
     }),
   )
-  const list = await screen.findByRole('list', { name: copy.map.heading(1, 2) })
+  const list = await screen.findByRole('list', {
+    name: mapHeading({ kingdom: kingdomNameOf(1), province: 2 }),
+  })
 
   const alert = await screen.findByRole('alert')
-  expect(alert.textContent).toBe(copy.refusals.Unexpected)
+  expect(alert.textContent).toBe(refusalUnexpected())
   expect(list.contains(alert)).toBe(false)
   expect(list.children).toHaveLength(freeProvince.plots.length)
 })
@@ -225,7 +241,9 @@ it('keeps focus in the field when the screen crosses to five columns', async () 
   const media = stubMatchMedia(false)
   const list = await showProvince()
   fireEvent.click(sendTo(3))
-  const field = within(screen.getByRole('form')).getByLabelText(copy.march.countField('infantry'))
+  const field = within(screen.getByRole('form')).getByLabelText(
+    marchCountField({ units: capitalize(unitLabelsOf('infantry').plural) }),
+  )
   field.focus()
 
   act(() => media.matchAll(true))

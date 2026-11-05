@@ -1,6 +1,28 @@
+import {
+  armyBusySlot,
+  armyCancel,
+  armyCancelOf,
+  armyCancelRefund,
+  armyIdleSlot,
+  armyOrderCompleteIn,
+  armyOrderHeading,
+  armyOrderLine,
+  armySeasonMark,
+  armySection,
+  armySlot,
+  foundingNewFiefHeading,
+  mapCampStrength,
+  marchBusySlot,
+  marchCampHeading,
+  marchIdleSlot,
+  marchLootHeading,
+  marchRecall,
+  marchRecallOf,
+  marchSlot,
+  transportCargoHeading,
+} from '@mygame/catalog'
 import { type UnitKind, UnitKindSchema } from '@mygame/contracts'
 import { type ReactElement, useId, useState } from 'react'
-import { copy } from '../copy'
 import type { CancelAction } from '../design-system/CancelAction'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
@@ -12,8 +34,14 @@ import { RecruitSlot, type RecruitSlotState } from '../design-system/RecruitSlot
 import { UnitCard } from '../design-system/UnitCard'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
+import { capitalizedSeasonWithArticleOf } from '../seasons/capitalizedSeasonWithArticleOf'
 import { formatFinish } from '../time/formatFinish'
+import { countedUnitsOf } from '../units/countedUnitsOf'
+import { partyPhraseOf } from '../units/partyPhraseOf'
+import { unitLabelsOf } from '../units/unitLabelsOf'
 import { costTimes } from './costTimes'
 import {
   isFoundingOnTheWay,
@@ -30,23 +58,10 @@ import { recruitCountOf, type UnitCardContent, unitCardOf } from './unitCardOf'
 import type { Recall } from './useRecall'
 import type { Recruit } from './useRecruit'
 
-const { army, march, founding, transport } = copy
-
 const firstEntry = '1'
 
-function recruitRefusalLineOf(refused: NonNullable<Recruit['refused']>, fief: LiveFief): string {
-  const { subject, refusal } = refused
-  if (refusal === 'BarracksTooLow') {
-    return army.barracksTooLowRefusal(
-      subject.unit,
-      fief.overview.unitTerms[subject.unit].barracksLevel,
-    )
-  }
-  return copy.refusals[refusal]
-}
-
 function orderCompleteOf(order: LiveRecruitOrder, at: Date): SlotCountdown {
-  return { words: army.orderCompleteIn, time: formatFinish(order.remainingSeconds, at) }
+  return { words: armyOrderCompleteIn(), time: formatFinish(order.remainingSeconds, at) }
 }
 
 function levyRefundOf(order: LiveRecruitOrder, fief: LiveFief): string | undefined {
@@ -55,7 +70,10 @@ function levyRefundOf(order: LiveRecruitOrder, fief: LiveFief): string | undefin
     return undefined
   }
   const refund = costTimes(fief.overview.recruitTerms[order.unit].cost, undelivered)
-  return army.cancelRefund(order.unit, undelivered, quantitiesOf(refund))
+  return armyCancelRefund({
+    units: countedUnitsOf(order.unit, undelivered),
+    quantities: quantitiesPhraseOf(quantitiesOf(refund)),
+  })
 }
 
 function recruitSlotStateOf(
@@ -66,19 +84,23 @@ function recruitSlotStateOf(
   const order = fief.recruitOrder
   const answered = fief.overview.recruitOrder
   if (order === null || answered === null) {
-    return { kind: 'idle', title: army.slot, invitation: army.idleSlot }
+    return { kind: 'idle', title: armySlot(), invitation: armyIdleSlot() }
   }
   return {
     kind: 'busy',
-    title: army.busySlot,
-    orderHeading: army.orderHeading,
-    orderLine: army.orderLine(order.unit, order.delivered, order.count),
+    title: armyBusySlot(),
+    orderHeading: armyOrderHeading(),
+    orderLine: armyOrderLine({
+      delivered: order.delivered,
+      count: order.count,
+      ...unitLabelsOf(order.unit),
+    }),
     countdown: orderCompleteOf(order, fief.at),
     remainingSeconds: order.remainingSeconds,
     totalSeconds: order.totalSeconds,
     cancel: {
-      label: army.cancel,
-      accessibleName: army.cancelOf(answered.unit, answered.count),
+      label: armyCancel(),
+      accessibleName: armyCancelOf({ units: countedUnitsOf(answered.unit, answered.count) }),
       isWaiting: recruit.isWaiting,
       onCancel: () =>
         recruit.cancel({ unit: answered.unit, startedAt: answered.startedAt }, onCancelled),
@@ -96,13 +118,13 @@ function lootOf(answered: AnsweredMarch): PreviewLine | null {
   const loot = quantitiesOf(answered.loot)
   return loot.length === 0
     ? null
-    : { heading: march.lootHeading, value: march.loot(loot), isNumeral: false }
+    : { heading: marchLootHeading(), value: quantitiesPhraseOf(loot), isNumeral: false }
 }
 
 function recallOf(answered: AnsweredMarch, recall: Recall, onRecalled: () => void): CancelAction {
   return {
-    label: march.recall,
-    accessibleName: march.recallOf(answered.units),
+    label: marchRecall(),
+    accessibleName: marchRecallOf({ party: partyPhraseOf(answered.units) }),
     isWaiting: recall.isWaiting,
     onCancel: () => recall.start({ departedAt: answered.departedAt }, onRecalled),
   }
@@ -113,22 +135,22 @@ function detailLineOf(live: LiveMarch, answered: AnsweredMarch): PreviewLine | n
     const isCarrying = live.phase === 'outbound' || answered.recalledAt !== null
     return isCarrying
       ? {
-          heading: transport.cargoHeading,
-          value: transport.cargo(quantitiesOf(answered.cargo)),
+          heading: transportCargoHeading(),
+          value: quantitiesPhraseOf(quantitiesOf(answered.cargo)),
           isNumeral: false,
         }
       : null
   }
   if (answered.order === 'found') {
     return answered.recalledAt === null
-      ? { heading: founding.newFiefHeading, value: answered.name, isNumeral: false }
+      ? { heading: foundingNewFiefHeading(), value: answered.name, isNumeral: false }
       : null
   }
   return answered.camp === null || answered.recalledAt !== null
     ? null
     : {
-        heading: march.campHeading,
-        value: copy.map.campStrength(answered.camp.tier, answered.camp.strength),
+        heading: marchCampHeading(),
+        value: mapCampStrength({ tier: answered.camp.tier, strength: answered.camp.strength }),
         isNumeral: false,
       }
 }
@@ -146,12 +168,12 @@ function marchSlotStateOf(fief: LiveFief, recall: Recall, onRecalled: () => void
   const live = fief.march
   const answered = fief.overview.march
   if (live === null || answered === null) {
-    return { kind: 'idle', title: march.slot, invitation: march.idleSlot }
+    return { kind: 'idle', title: marchSlot(), invitation: marchIdleSlot() }
   }
   const countdown = marchCountdownOf(live, answered)
   return {
     kind: 'busy',
-    title: march.busySlot,
+    title: marchBusySlot(),
     phase: marchPhaseLineOf(live, answered),
     detail: detailLineOf(live, answered),
     countdown: {
@@ -212,7 +234,7 @@ function UnitItem({
   }
   const card = unitCardOf(unit, entry, fief)
   return (
-    <li aria-label={copy.names.units[unit].plural} className="flex flex-col">
+    <li aria-label={unitLabelsOf(unit).plural} className="flex flex-col">
       {unitCardElementOf(card, entry, recruit, setEntry, onRecruit)}
     </li>
   )
@@ -242,8 +264,10 @@ export function ArmySection({
       <SeasonSectionHeading
         id={headingId}
         headingRef={heading.ref}
-        title={army.section}
-        mark={seasonSectionMarkOf(fief.overview.season, 'train', army.seasonMark)}
+        title={armySection()}
+        mark={seasonSectionMarkOf(fief.overview.season, 'train', (season) =>
+          armySeasonMark({ season: capitalizedSeasonWithArticleOf(season) }),
+        )}
       />
       {hint !== undefined && <Hint {...hintFocusingAfterDismiss(hint, heading.focus)} />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -264,9 +288,9 @@ export function ArmySection({
         </ul>
       </div>
       {recruit.refused !== undefined && (
-        <FormAlert message={recruitRefusalLineOf(recruit.refused, fief)} />
+        <FormAlert message={refusalLineOf(recruit.refused.refusal, recruit.refused.error)} />
       )}
-      {recall.refusal !== undefined && <FormAlert message={copy.refusals[recall.refusal]} />}
+      {recall.refusal !== undefined && <FormAlert message={refusalLineOf(recall.refusal)} />}
     </section>
   )
 }

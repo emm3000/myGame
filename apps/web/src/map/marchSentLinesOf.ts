@@ -1,15 +1,30 @@
+import {
+  foundingArrivalHeading,
+  foundingNewFiefHeading,
+  foundingOutboundHeading,
+  mapCampStrength,
+  marchAttackHeading,
+  marchCampHeading,
+  marchLootHeading,
+  marchPhaseHeadingsOutbound,
+  marchPhaseLinesOutbound,
+  marchReturnHeading,
+  transportCargoHeading,
+  transportOutboundHeading,
+} from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
-import { copy } from '../copy'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
 import { secondsBetween } from '../time/secondsBetween'
+import { partyPhraseOf } from '../units/partyPhraseOf'
 
 type SentMarch = NonNullable<FiefOverview['march']>
 
 function returnLineOf(march: SentMarch, readAt: string): PreviewLine {
   return {
-    heading: copy.march.returnHeading,
+    heading: marchReturnHeading(),
     value: formatDuration(secondsBetween(readAt, march.returnsAt)),
     isNumeral: true,
   }
@@ -17,8 +32,8 @@ function returnLineOf(march: SentMarch, readAt: string): PreviewLine {
 
 function lootLineOf(march: SentMarch): PreviewLine {
   return {
-    heading: copy.march.lootHeading,
-    value: copy.march.loot(quantitiesOf(march.loot)),
+    heading: marchLootHeading(),
+    value: quantitiesPhraseOf(quantitiesOf(march.loot)),
     isNumeral: false,
   }
 }
@@ -29,13 +44,17 @@ function attackLinesOf(
 ): ReadonlyArray<PreviewLine> {
   const lines: ReadonlyArray<PreviewLine> = [
     {
-      heading: copy.march.attackHeading,
-      value: copy.march.phaseLines.outbound(march.units, march.province, march.plot),
+      heading: marchAttackHeading(),
+      value: marchPhaseLinesOutbound({
+        party: partyPhraseOf(march.units),
+        province: march.province,
+        plot: march.plot,
+      }),
       isNumeral: false,
     },
     {
-      heading: copy.march.campHeading,
-      value: copy.map.campStrength(march.camp.tier, march.camp.strength),
+      heading: marchCampHeading(),
+      value: mapCampStrength({ tier: march.camp.tier, strength: march.camp.strength }),
       isNumeral: false,
     },
     returnLineOf(march, readAt),
@@ -49,13 +68,17 @@ function foundingLinesOf(
 ): ReadonlyArray<PreviewLine> {
   return [
     {
-      heading: copy.founding.outboundHeading,
-      value: copy.march.phaseLines.outbound(march.units, march.province, march.plot),
+      heading: foundingOutboundHeading(),
+      value: marchPhaseLinesOutbound({
+        party: partyPhraseOf(march.units),
+        province: march.province,
+        plot: march.plot,
+      }),
       isNumeral: false,
     },
-    { heading: copy.founding.newFiefHeading, value: march.name, isNumeral: false },
+    { heading: foundingNewFiefHeading(), value: march.name, isNumeral: false },
     {
-      heading: copy.founding.arrivalHeading,
+      heading: foundingArrivalHeading(),
       value: formatDuration(secondsBetween(readAt, march.arrivesAt)),
       isNumeral: true,
     },
@@ -68,17 +91,21 @@ function transportLinesOf(
 ): ReadonlyArray<PreviewLine> {
   return [
     {
-      heading: copy.transport.outboundHeading,
-      value: copy.march.phaseLines.outbound(march.units, march.province, march.plot),
+      heading: transportOutboundHeading(),
+      value: marchPhaseLinesOutbound({
+        party: partyPhraseOf(march.units),
+        province: march.province,
+        plot: march.plot,
+      }),
       isNumeral: false,
     },
     {
-      heading: copy.transport.cargoHeading,
-      value: copy.transport.cargo(quantitiesOf(march.cargo)),
+      heading: transportCargoHeading(),
+      value: quantitiesPhraseOf(quantitiesOf(march.cargo)),
       isNumeral: false,
     },
     {
-      heading: copy.founding.arrivalHeading,
+      heading: foundingArrivalHeading(),
       value: formatDuration(secondsBetween(readAt, march.arrivesAt)),
       isNumeral: true,
     },
@@ -97,8 +124,12 @@ export function marchSentLinesOf(march: SentMarch, readAt: string): ReadonlyArra
   }
   return [
     {
-      heading: copy.march.phaseHeadings.outbound,
-      value: copy.march.phaseLines.outbound(march.units, march.province, march.plot),
+      heading: marchPhaseHeadingsOutbound(),
+      value: marchPhaseLinesOutbound({
+        party: partyPhraseOf(march.units),
+        province: march.province,
+        plot: march.plot,
+      }),
       isNumeral: false,
     },
     returnLineOf(march, readAt),

@@ -1,3 +1,4 @@
+import { armySection } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
@@ -10,7 +11,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { CavalryIcon } from '../design-system/icons/CavalryIcon'
 import { InfantryIcon } from '../design-system/icons/InfantryIcon'
 
@@ -58,10 +58,10 @@ const showFief = async (
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const unitCard = (plural: string): HTMLElement =>
-  within(armySection()).getByRole('listitem', { name: plural })
+  within(armyRegion()).getByRole('listitem', { name: plural })
 
 const infantryCard = (): HTMLElement => unitCard('infantes')
 
@@ -87,7 +87,7 @@ const iconsIn = (card: HTMLElement): ReadonlyArray<string> =>
 it('shows a card per unit kind', async () => {
   await showFief(barracksAt(1))
 
-  const titles = within(armySection())
+  const titles = within(armyRegion())
     .getAllByRole('heading', { level: 4 })
     .map((heading) => heading.textContent)
   expect(titles).toEqual(['Infantes', 'Jinetes', 'Arqueros', 'Colonos'])
@@ -171,15 +171,42 @@ it('previews a rider order with its cost, peasants and duration', async () => {
   expect(button.hasAttribute('disabled')).toBe(false)
 })
 
-it('names the riders and their level when the api refuses a rider levy below its barracks', async () => {
-  const placeRecruitOrder = async () => ({ ok: false as const, refusal: 'BarracksTooLow' as const })
+it('names the unit and the level the refusal carries, not the terms the client read', async () => {
+  const placeRecruitOrder = async () => ({
+    ok: false as const,
+    refusal: 'BarracksTooLow' as const,
+    error: {
+      kind: 'BarracksTooLow' as const,
+      params: { unit: 'archer' as const, requiredBarracksLevel: 4 },
+    },
+  })
   await showFief(barracksAtThree, { placeRecruitOrder })
 
   fireEvent.change(riderCountField(), { target: { value: '1' } })
   fireEvent.click(within(riderCard()).getByRole('button'))
   await passSeconds(0)
 
-  expect(within(armySection()).getByRole('alert').textContent).toBe(
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
+    'Tu cuartel aún no llega al nivel 4 que piden los arqueros. Mejóralo primero.',
+  )
+})
+
+it('names the riders and their level when the api refuses a rider levy below its barracks', async () => {
+  const placeRecruitOrder = async () => ({
+    ok: false as const,
+    refusal: 'BarracksTooLow' as const,
+    error: {
+      kind: 'BarracksTooLow' as const,
+      params: { unit: 'cavalry' as const, requiredBarracksLevel: 3 },
+    },
+  })
+  await showFief(barracksAtThree, { placeRecruitOrder })
+
+  fireEvent.change(riderCountField(), { target: { value: '1' } })
+  fireEvent.click(within(riderCard()).getByRole('button'))
+  await passSeconds(0)
+
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
     'Tu cuartel aún no llega al nivel 3 que piden los jinetes. Mejóralo primero.',
   )
 })

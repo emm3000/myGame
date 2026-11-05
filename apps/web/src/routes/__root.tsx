@@ -1,7 +1,7 @@
+import { shellTitle } from '@mygame/catalog'
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
 import type { ApiClient } from '../api/apiClient'
-import { copy } from '../copy'
 import stylesheet from '../styles.css?url'
 
 function RootDocument({ children }: { readonly children: ReactNode }): ReactElement {
@@ -27,7 +27,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: copy.shell.title },
+      { title: shellTitle() },
     ],
     links: [
       { rel: 'stylesheet', href: stylesheet },

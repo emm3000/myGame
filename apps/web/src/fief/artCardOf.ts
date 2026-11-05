@@ -1,35 +1,49 @@
+import {
+  fiefMaxLevel,
+  namesLevel,
+  namesUnstudied,
+  studyEffect,
+  studyEffectAtMaxLevel,
+  studyLibraryTooLow,
+  studyRequires,
+  studyStart,
+  studyStudyRunning,
+} from '@mygame/catalog'
 import type { ArtKind } from '@mygame/contracts'
-import { copy } from '../copy'
 import type { ArtCardProps } from '../design-system/ArtCard'
 import type { CardActionState } from '../design-system/CardAction'
 import { capitalize } from '../design-system/capitalize'
+import { resourceNameOf } from '../resources/resourceNameOf'
+import { artNameOf } from './artNameOf'
 import type { LiveFief } from './liveFief'
 import { readyLineOf } from './readyLineOf'
 import { resourceCostsOf } from './resourceCostsOf'
 import { shortfallsOf } from './shortfallsOf'
+import { tooExpensiveLineOf } from './tooExpensiveLineOf'
 
 export type ArtCardContent = Omit<ArtCardProps, 'titleElement' | 'isWaiting' | 'onStudy'>
-
-const { names } = copy
 
 type NextArtLevel = NonNullable<LiveFief['overview']['arts'][ArtKind]['nextLevel']>
 
 function stateOf(nextLevel: NextArtLevel, fief: LiveFief): CardActionState {
   if (fief.overview.study.kind !== 'idle') {
-    return { kind: 'blocked', reason: copy.study.studyRunning }
+    return { kind: 'blocked', reason: studyStudyRunning() }
   }
   const libraryLevel = fief.overview.buildings.library.level
   if (nextLevel.requiredLibraryLevel > libraryLevel) {
     return {
       kind: 'blocked',
-      reason: copy.study.libraryTooLow(nextLevel.requiredLibraryLevel, libraryLevel),
+      reason: studyLibraryTooLow({
+        required: nextLevel.requiredLibraryLevel,
+        current: libraryLevel,
+      }),
     }
   }
   const shortfalls = shortfallsOf(nextLevel.cost, fief.amounts)
   if (shortfalls.length > 0) {
     return {
       kind: 'blocked',
-      reason: copy.fief.tooExpensive(shortfalls),
+      reason: tooExpensiveLineOf(shortfalls),
       ready: readyLineOf(nextLevel.cost, fief),
     }
   }
@@ -39,27 +53,35 @@ function stateOf(nextLevel: NextArtLevel, fief: LiveFief): CardActionState {
 export function artCardOf(art: ArtKind, fief: LiveFief): ArtCardContent {
   const { level, resource, ratePercent, nextLevel } = fief.overview.arts[art]
   const common = {
-    name: capitalize(names.arts[art]),
-    levelLabel: level === 0 ? names.unstudied : names.level(level),
-    actionLabel: copy.study.start,
+    name: capitalize(artNameOf(art)),
+    levelLabel: level === 0 ? namesUnstudied() : namesLevel({ level }),
+    actionLabel: studyStart(),
   }
   if (nextLevel === null) {
     return {
       ...common,
-      effect: { resource, text: copy.study.effectAtMaxLevel(ratePercent, resource) },
+      effect: {
+        resource,
+        text: studyEffectAtMaxLevel({ percent: ratePercent, resource: resourceNameOf(resource) }),
+      },
       costs: [],
       requirement: undefined,
       durationSeconds: 0,
-      state: { kind: 'atMaxLevel', label: copy.fief.maxLevel },
+      state: { kind: 'atMaxLevel', label: fiefMaxLevel() },
     }
   }
-  const next = { level: nextLevel.level, percent: nextLevel.ratePercent }
+  const effect = studyEffect({
+    percent: ratePercent,
+    resource: resourceNameOf(resource),
+    nextLevel: nextLevel.level,
+    nextPercent: nextLevel.ratePercent,
+  })
   return {
     ...common,
-    effect: { resource, text: copy.study.effect(ratePercent, resource, next) },
+    effect: { resource, text: effect },
     costs: resourceCostsOf(nextLevel.cost, fief.amounts),
     requirement: {
-      label: copy.study.requires(nextLevel.requiredLibraryLevel),
+      label: studyRequires({ libraryLevel: nextLevel.requiredLibraryLevel }),
       isMet: nextLevel.requiredLibraryLevel <= fief.overview.buildings.library.level,
     },
     durationSeconds: nextLevel.durationSeconds,
