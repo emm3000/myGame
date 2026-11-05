@@ -328,7 +328,9 @@ What trunk holds, checked at `1f0b1c41`:
   office open from the town. Web paths are English and need no id,
   since a player holds one town: `/`, `/school`, `/report`, `/map`,
   `/map/$area`, `/news`. The api serves the signed-in player's town at
-  `/town`.
+  `/town`. (Amended by ADR 041: the review screen joins them at
+  `/reviews`, opened from the Report; News and the map join the
+  navigation after the cutover.)
 
 ### The reset, at the cutover
 
@@ -404,7 +406,9 @@ What trunk holds, checked at `1f0b1c41`:
   only once the medieval keys are gone and every key left has its
   English.
 - **#746 writes each mail in the town's words** in both languages; the
-  shipped Spanish mail still says *feudo*.
+  shipped Spanish mail still says *feudo*. (Amended by ADR 041: #745
+  writes the mail's English with the rest of the fixed copy, so its key
+  check runs both ways; #746 writes the Spanish in the town's words.)
 
 ## Considered options
 
@@ -482,7 +486,10 @@ What trunk holds, checked at `1f0b1c41`:
   deletes the medieval one, `docs/lore/` and the *Superseded by ADR 035*
   table.
 - The PRD's M and S rows are rewritten by row id as each slice ships;
-  the cutover rewrites the acceptance criterion for the town.
+  the cutover rewrites the acceptance criterion for the town. (Amended
+  by ADR 041: the cutover also rewrites every row still medieval for
+  the town, marking each unshipped one *not yet shipped*, and the slice
+  that ships it removes the mark.)
 - ADR 035's reset section is amended: its shape is the cutover's drop,
   and no instant is reset. ADR 036's rules 1, 6 and 7 read *the town*
   for *every fief* and *the school* for *the library* from the school's

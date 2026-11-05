@@ -203,7 +203,8 @@ now; both merge in wave 5, each on the owner's approval.
 - **The review screens leave the fief's URL before the deletion.**
   #773 moves the web's review screen to `/reviews`, the path of its api
   route, opened from the Report; #775 opens Android's from the Report
-  with no fief id. That closes the second gap above.
+  with no fief id. That closes the second gap above, and adds
+  `/reviews` to ADR 040's list of web paths.
 
 ### The holdout and placement
 
@@ -335,9 +336,17 @@ pointers and verification rows.
   chronicle, map, army, goals and hints are deleted with none; its
   visual checks, web and emulator, cover the town home, the school and
   the Report, never News or the map.
-- **#753**: its PRD criterion reads: every M and S row describes the
-  town, S18 to S20 are cut, and each row whose slice has not shipped is
-  marked *not yet shipped (ADR 041)*; its `rg` check stays.
+- **#753**: its context calls it the cutover after the Android town
+  and sign-up, no longer *the last slice*. Its PRD criterion reads:
+  every M and S row describes the town, S18 to S20 are cut, and each
+  row whose slice has not shipped is marked *not yet shipped (ADR
+  041)*; its `rg` check stays. Its `CLAUDE.md` step rewrites the *Until
+  the town rebuild ships* paragraph instead of dropping it: the code is
+  the town, and the PRD marks what has not shipped.
+- **Every ticket after the cutover whose PRD row #753 marked** (#774,
+  #776, #777 to #792, #743, and the new holdout-checks ticket where a
+  row covers it) gains: *rewrites its PRD row by id and removes the
+  not yet shipped mark*.
 - **#768**: dispatch `packages/domain` only; the rename criterion moves
   to #769; the lesson slot is a domain value behind its own port.
 - **#769**: gains the rename of the lesson's `requiredLibraryLevel` to
@@ -346,8 +355,14 @@ pointers and verification rows.
   packages/domain/src/testing packages/contracts/src/LessonContent.ts
   apps/api/content/lessons apps/api/src/learning
   apps/api/src/adapters/json/JsonLessonCatalog.ts` returning nothing
-  (the arts keep theirs); and the town's lesson slot table and adapter
-  in its migration.
+  (the arts keep theirs). On the wire the rename reaches the lessons'
+  schema, `LessonStateSchema` (`packages/contracts/src/FiefOverview.ts`,
+  which #769 moves to the town's overview), `apps/api/openapi.json`,
+  the web's lesson and review tests and their stub
+  (`fiefLessonRoute.test.tsx`, `reviewRoute.test.tsx`,
+  `stubApiClient.testSupport.ts`) and Android's
+  `LearningRepositoryTest.kt`. #769 also gains the town's lesson slot
+  table and adapter in its migration.
 - **#744**: blocked by #769 instead of #742; keeps the draw. **A new
   ticket**, *Holdout: the band checks at 8 and 24 weeks and the
   release*, row 4, a wave of one, `ready-for-agent`, takes the rest and
@@ -358,7 +373,13 @@ pointers and verification rows.
 - **#745**: gains the English of every fixed-copy key, the mail's
   included. **#746**: its criterion *`en.json` holds every mail key*
   reads that #745 wrote it; #746 sends each mail in the scaffold and
-  rewords the Spanish mail in the town's words.
+  rewords the Spanish mail in the town's words. The stale lines go with
+  it: #745's known gap reads that the town rebuild and #745 itself
+  write `en.json`'s keys, not *the town rebuild (#754 to #793)* alone;
+  #745's dispatch line names `packages/catalog` and `apps/android`,
+  whose `values/` it turns English; #746's known gap reads that it
+  writes the mail in the town's words in Spanish, #745 having written
+  the English.
 - **#740**: placed in wave 7; no edge changes.
 - **#773** and **#775**: their navigation criterion reads *Town, Report*
   in that order; #773 gains the web review screen's move to
