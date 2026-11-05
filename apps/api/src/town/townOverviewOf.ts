@@ -1,8 +1,9 @@
 import type { TownOverview } from '@mygame/contracts/town'
 import {
   type DomainError,
+  Duration,
   deriveBuildDurationSeconds,
-  Instant,
+  type Instant,
   ok,
   type Result,
   seasonAt,
@@ -30,8 +31,6 @@ type BuildingState = TownOverview['buildings'][BuildingKind]
 
 type BuildingWork = TownOverview['work']['waitingList'][number]
 
-const MILLISECONDS_PER_SECOND = 1000
-
 const stocksOf = (
   { town, at }: TownReading,
   catalog: TownCatalog,
@@ -40,7 +39,7 @@ const stocksOf = (
   if (!accrual.ok) {
     return accrual
   }
-  const rates = deriveResourceRates(town.buildingLevels, town.terrain, catalog, at)
+  const rates = deriveResourceRates(town.buildingLevels, town.terrain, town.skills, catalog, at)
   if (!rates.ok) {
     return rates
   }
@@ -127,13 +126,15 @@ const buildingsOf = (
 const scheduledWaitingListOf = (
   slotFinishesAt: Instant,
   waitingList: WaitingList,
-): Array<BuildingWork> => {
+): Result<Array<BuildingWork>, DomainError> => {
   const scheduled: Array<BuildingWork> = []
   let startsAt = slotFinishesAt
   for (const { building, level, cost, durationSeconds } of waitingList) {
-    const finishesAt = Instant.fromEpochMilliseconds(
-      startsAt.epochMilliseconds + durationSeconds * MILLISECONDS_PER_SECOND,
-    )
+    const duration = Duration.ofSeconds(durationSeconds)
+    if (!duration.ok) {
+      return duration
+    }
+    const finishesAt = startsAt.plus(duration.value)
     scheduled.push({
       building,
       level,
@@ -143,17 +144,21 @@ const scheduledWaitingListOf = (
     })
     startsAt = finishesAt
   }
-  return scheduled
+  return ok(scheduled)
 }
 
-const workOf = (town: Town, catalog: TownCatalog): TownOverview['work'] => {
+const workOf = (town: Town, catalog: TownCatalog): Result<TownOverview['work'], DomainError> => {
   const cap = catalog.townSettings().waitingListCap
   const slot = town.workSlot
   if (slot.kind === 'idle') {
-    return { slot: null, waitingList: [], cap }
+    return ok({ slot: null, waitingList: [], cap })
   }
   const { building, level, cost, startedAt, finishesAt } = slot
-  return {
+  const waitingList = scheduledWaitingListOf(finishesAt, town.waitingList)
+  if (!waitingList.ok) {
+    return waitingList
+  }
+  return ok({
     slot: {
       building,
       level,
@@ -161,9 +166,9 @@ const workOf = (town: Town, catalog: TownCatalog): TownOverview['work'] => {
       startsAt: isoOf(startedAt),
       finishesAt: isoOf(finishesAt),
     },
-    waitingList: scheduledWaitingListOf(finishesAt, town.waitingList),
+    waitingList: waitingList.value,
     cap,
-  }
+  })
 }
 
 const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => {
@@ -171,6 +176,18 @@ const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => 
   return season === undefined
     ? null
     : { kind: season.kind, year: season.year, endsAt: isoOf(season.endsAt) }
+}
+
+const peopleOf = (
+  levels: BuildingLevels,
+  catalog: TownCatalog,
+): Result<TownOverview['people'], DomainError> => {
+  const people = derivePeople(levels, catalog)
+  if (!people.ok) {
+    return people
+  }
+  const { supplied, free, occupied } = people.value
+  return ok({ supplied, free, atWork: occupied })
 }
 
 export const townOverviewOf = (
@@ -182,7 +199,7 @@ export const townOverviewOf = (
   if (!stocks.ok) {
     return stocks
   }
-  const people = derivePeople(town.buildingLevels, catalog)
+  const people = peopleOf(town.buildingLevels, catalog)
   if (!people.ok) {
     return people
   }
@@ -194,6 +211,10 @@ export const townOverviewOf = (
   if (!buildings.ok) {
     return buildings
   }
+  const work = workOf(town, catalog)
+  if (!work.ok) {
+    return work
+  }
   const { region, area, site } = town.address
   return ok({
     name: town.name.value,
@@ -202,13 +223,9 @@ export const townOverviewOf = (
     terrain: town.terrain,
     season: seasonOf(at, catalog),
     stocks: stocks.value,
-    people: {
-      supplied: people.value.supplied,
-      free: people.value.free,
-      atWork: people.value.occupied,
-    },
+    people: people.value,
     buildings: buildings.value,
-    work: workOf(town, catalog),
+    work: work.value,
     readAt: isoOf(at),
   })
 }
