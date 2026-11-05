@@ -55,6 +55,7 @@ export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQ
 export type { Terrain } from './fief/Terrain'
 export { terrainOf } from './fief/terrainOf'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
+export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
 export { type DueCard, dueCardsAt } from './learning/dueCardsAt'
 export type { EarnedSkill } from './learning/EarnedSkill'
@@ -85,6 +86,8 @@ export { defaultMemoryTerms, type FsrsParameters, type MemoryTerms } from './mem
 export { retrievabilityOf } from './memory/retrievabilityOf'
 export { reviewMemoryCard } from './memory/reviewMemoryCard'
 export type { PlayerId } from './player/PlayerId'
+export type { BandCatalog } from './ports/BandCatalog'
+export type { BandStartRepository } from './ports/BandStartRepository'
 export type {
   ArtKind,
   ArtLevel,
@@ -116,6 +119,8 @@ export type {
 } from './ports/KingdomMapReader'
 export type { LessonCatalog } from './ports/LessonCatalog'
 export type { PendingReviewRepository } from './ports/PendingReviewRepository'
+export type { PlacedOutBands } from './ports/PlacedOutBands'
+export type { RandomSource } from './ports/RandomSource'
 export type { ReviewLog } from './ports/ReviewLog'
 export { err, ok, type Result } from './Result'
 export { type MaterializedResources, materializeResources } from './resources/materializeResources'

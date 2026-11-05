@@ -1,6 +1,7 @@
 import { mixed32 } from '../hash/mixed32'
 import type { MemoryCard } from '../memory/MemoryCard'
 import { compareWordIds } from './compareWordIds'
+import type { HeldCard } from './HeldCard'
 import type { Lesson, WordId } from './Lesson'
 
 const MAXIMUM_CHOICES = 5
@@ -48,11 +49,12 @@ export const recognitionChoicesOf = (
   wordId: WordId,
   lesson: Lesson,
   card: MemoryCard,
+  held: ReadonlyArray<HeldCard>,
 ): ReadonlyArray<RecognitionChoice> => {
   const keyMilliseconds = (card.stored.lastReviewAt ?? card.stored.enteredAt).epochMilliseconds
   const hashed = (id: WordId): HashedWord => ({ wordId: id, hash: hashOf(id, keyMilliseconds) })
   const others = lesson.words
-    .filter(({ id }) => id !== wordId)
+    .filter(({ id }) => id !== wordId && held.some((card) => card.wordId === id))
     .map(({ id }) => hashed(id))
     .sort(byHashThenWord)
     .slice(0, MAXIMUM_CHOICES - 1)

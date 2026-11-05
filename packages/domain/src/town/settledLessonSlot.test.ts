@@ -23,10 +23,39 @@ describe('settledLessonSlot', () => {
     const settled = settledLessonSlot(
       finishedSlotOf('lesson-gone'),
       [],
+      [],
       inMemoryLessons([lessonOne], []),
       afterFinish,
     )
 
     expect(settled).toEqual({ slot: { kind: 'idle' }, entered: [], events: [] })
+  })
+
+  it("enters only the lesson's words the player holds", () => {
+    const settled = settledLessonSlot(
+      finishedSlotOf('lesson-1'),
+      [],
+      ['money', 'food'],
+      inMemoryLessons([lessonOne], []),
+      afterFinish,
+    )
+
+    expect(settled.entered.map(({ wordId }) => wordId)).toEqual(['home', 'school', 'work'])
+  })
+
+  it('reports a lesson whose every word is held out as studied, entering no card', () => {
+    const settled = settledLessonSlot(
+      finishedSlotOf('lesson-1'),
+      [],
+      ['home', 'school', 'work', 'money', 'food'],
+      inMemoryLessons([lessonOne], []),
+      afterFinish,
+    )
+
+    expect(settled).toEqual({
+      slot: { kind: 'idle' },
+      entered: [],
+      events: [{ kind: 'lessonStudied', lessonId: 'lesson-1', occurredAt: finishesAt }],
+    })
   })
 })

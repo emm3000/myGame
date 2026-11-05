@@ -7,7 +7,15 @@ import {
   type TownNewsFeed,
   type TownOverview,
 } from '@mygame/contracts/town'
-import { type DomainError, err, type IdGenerator, type PlayerId, type Result } from '@mygame/domain'
+import {
+  type DomainError,
+  err,
+  type IdGenerator,
+  type PlacedOutBands,
+  type PlayerId,
+  type RandomSource,
+  type Result,
+} from '@mygame/domain'
 import {
   startBuildingWork,
   startSchoolLesson,
@@ -37,6 +45,8 @@ export type TownDependencies = CurrentTownDependencies &
   RequirePlayerDependencies & {
     readonly ids: IdGenerator
     readonly lessons: LessonLibrary
+    readonly random: RandomSource
+    readonly placedOutBands: PlacedOutBands
   }
 
 const storedTownReadingOf = async (
@@ -55,7 +65,7 @@ const storedTownReadingOf = async (
 }
 
 export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
-  const { townCatalog: catalog, lessons } = dependencies
+  const { townCatalog: catalog, lessons, random, placedOutBands } = dependencies
   const answerReading = (c: Context, reading: Result<TownReading, DomainError>): Response => {
     if (!reading.ok) {
       return answerRefusal(c, reading.error)
@@ -183,7 +193,16 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         async (stores, clock) => {
           const slot = await startSchoolLesson(
             { playerId, lessonId: request.data.lessonId },
-            { ...stores, news: stores.townNews, lessons, catalog, clock },
+            {
+              ...stores,
+              news: stores.townNews,
+              lessons,
+              bands: lessons,
+              placedOutBands,
+              random,
+              catalog,
+              clock,
+            },
           )
           return slot.ok ? storedTownReadingOf(playerId, stores, clock.now()) : slot
         },

@@ -66,10 +66,11 @@ const gradeOf = (
   review: DueReview,
   answer: string,
   pending: PendingReview | undefined,
+  held: ReadonlyArray<HeldCard>,
   lessons: LessonCatalog,
 ): Result<Grade, DomainError> => {
   if (reviewFormatOf(review.held.card) === 'recognition') {
-    const chosen = recognitionChoicesOf(review.word.id, review.lesson, review.held.card).find(
+    const chosen = recognitionChoicesOf(review.word.id, review.lesson, review.held.card, held).find(
       ({ choiceId }) => choiceId === answer,
     )
     if (chosen === undefined) {
@@ -223,7 +224,7 @@ export const answerReview = async (
     return review
   }
   const pending = await pendingReviews.pendingReviewOf(playerId, wordId)
-  const grade = gradeOf(review.value, answer, pending, lessons)
+  const grade = gradeOf(review.value, answer, pending, held.value, lessons)
   if (!grade.ok) {
     return grade
   }

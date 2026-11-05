@@ -21,7 +21,11 @@ export type ReviewTerms = {
   readonly memoryTerms: MemoryTerms
 }
 
-const dueReviewOf = (due: DueCard, lessons: LessonLibrary): Result<DueReview, DomainError> => {
+const dueReviewOf = (
+  due: DueCard,
+  cards: ReadonlyArray<HeldCard>,
+  lessons: LessonLibrary,
+): Result<DueReview, DomainError> => {
   const lesson = lessons.lessonOfWord(due.wordId)
   const word = lesson?.words.find(({ id }) => id === due.wordId)
   if (lesson === undefined || word === undefined) {
@@ -36,8 +40,9 @@ const dueReviewOf = (due: DueCard, lessons: LessonLibrary): Result<DueReview, Do
     mode: 'recognition',
     word: word.acceptedForms[0],
     frame: word.frame,
-    choices: recognitionChoicesOf(word.id, lesson, due.card).flatMap(({ choiceId, wordId }) =>
-      lesson.words.filter(({ id }) => id === wordId).map(({ gloss }) => ({ choiceId, gloss })),
+    choices: recognitionChoicesOf(word.id, lesson, due.card, cards).flatMap(
+      ({ choiceId, wordId }) =>
+        lesson.words.filter(({ id }) => id === wordId).map(({ gloss }) => ({ choiceId, gloss })),
     ),
   })
 }
@@ -72,7 +77,7 @@ export const reviewsOf = (
   }
   const due: Array<DueReview> = []
   for (const dueCard of dueCards.value) {
-    const review = dueReviewOf(dueCard, lessons)
+    const review = dueReviewOf(dueCard, cards, lessons)
     if (!review.ok) {
       return review
     }

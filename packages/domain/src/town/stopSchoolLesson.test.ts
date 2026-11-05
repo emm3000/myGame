@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Clock } from '../ports/Clock'
+import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
 import { inMemoryCards } from '../testing/inMemoryCards'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -55,6 +56,7 @@ const schoolOf = ({ town = {}, slot }: Setup) => {
   const dependencies = {
     towns: inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1), ...town })]),
     lessonSlots: inMemoryLessonSlots(slot === undefined ? [] : [{ townId: 'town-1', slot }]),
+    bandStarts: inMemoryBandStarts([]),
     cards: inMemoryCards([]),
     lessons: inMemoryLessons([lessonOne], []),
     news: inMemoryTownNews(),

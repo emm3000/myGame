@@ -239,6 +239,13 @@
       "when": 1793883884990,
       "tag": "0033_skills_move",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793909102225,
+      "tag": "0034_band_starts",
+      "breakpoints": true
     }
   ]
 }

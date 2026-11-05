@@ -392,7 +392,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at, report_read_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2, $2)",

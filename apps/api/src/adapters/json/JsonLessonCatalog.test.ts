@@ -75,6 +75,32 @@ const contentOfLessons = (
   return directory
 }
 
+const contentWithBandLessonOf = (lemma: string): string => {
+  const directory = contentCopy()
+  const lexicon: unknown = JSON.parse(readFileSync(lessonsFile(directory, 'words.json'), 'utf8'))
+  const entry = {
+    id: 'band-lesson-word',
+    lemma,
+    partOfSpeech: 'verb',
+    frame: `I ${lemma} it.`,
+    gappedFrame: 'I ____ it.',
+    gloss: { es: 'decir' },
+    definition: 'to speak words',
+  }
+  writeJson(directory, 'words.json', [...(lexicon as ReadonlyArray<unknown>), entry])
+  writeJson(directory, 'lesson-17.json', {
+    id: 'lesson-17',
+    ...lessonOneTerms,
+    wordIds: ['band-lesson-word'],
+  })
+  const curriculum = readJson(directory, 'curriculum.json')
+  writeJson(directory, 'curriculum.json', {
+    ...curriculum,
+    lessonIds: [...(curriculum.lessonIds as ReadonlyArray<string>), 'lesson-17'],
+  })
+  return directory
+}
+
 afterEach(() => {
   for (const directory of copies.splice(0)) {
     rmSync(directory, { recursive: true, force: true })
@@ -82,6 +108,58 @@ afterEach(() => {
 })
 
 describe('JsonLessonCatalog', () => {
+  it('places no chrome lesson in a band', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(catalog.bandOfLesson('lesson-1')).toBeUndefined()
+  })
+
+  it('places a lesson after the chrome lessons in the band of its rank', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(contentWithBandLessonOf('say'))
+
+    expect(catalog.bandOfLesson('lesson-17')).toBe(1)
+  })
+
+  it('places a lesson of ranks past 1 000 in the second band', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(contentWithBandLessonOf('difficulty'))
+
+    expect(catalog.bandOfLesson('lesson-17')).toBe(2)
+  })
+
+  it('refuses a band lesson that teaches no word of the list', () => {
+    const directory = contentWithBandLessonOf('zzz')
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+      'Lesson lesson-17 teaches no word of the list',
+    )
+  })
+
+  it('counts the words of each band as the list ranks them, leaving the frame words out', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect([1, 2, 3].map((band) => catalog.wordsOfBand(band).length)).toEqual([941, 1000, 809])
+  })
+
+  it("marks the chrome lessons' words, whatever their band", () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(
+      [1, 2, 3].map((band) => catalog.wordsOfBand(band).filter(({ isChrome }) => !isChrome).length),
+    ).toEqual([875, 989, 806])
+  })
+
+  it('holds a word no lesson teaches yet in its band', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(catalog.wordsOfBand(1)).toContainEqual({ headword: 'say', isChrome: false })
+  })
+
+  it('leaves a frame word out of its band', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect(catalog.wordsOfBand(1).map(({ headword }) => headword)).not.toContain('the')
+  })
+
   it('reads lesson 1 as the lessons table of the setting writes it, row for row', () => {
     const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
 

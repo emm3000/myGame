@@ -8,6 +8,8 @@ import {
   type IdGenerator,
   type KingdomMapReader,
   type MemoryTerms,
+  type PlacedOutBands,
+  type RandomSource,
 } from '@mygame/domain'
 import type { TownCatalog } from '@mygame/domain/town'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
@@ -30,7 +32,9 @@ import { postgresTransaction, type Transaction } from './adapters/postgres/postg
 import { SmtpMailer } from './adapters/smtp/SmtpMailer'
 import { Argon2Passwords } from './adapters/system/Argon2Passwords'
 import { CryptoIdGenerator } from './adapters/system/CryptoIdGenerator'
+import { CryptoRandomSource } from './adapters/system/CryptoRandomSource'
 import { CryptoSessionTokens } from './adapters/system/CryptoSessionTokens'
+import { NoPlacedOutBands } from './adapters/system/NoPlacedOutBands'
 import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
@@ -104,6 +108,8 @@ export type ComposedServer = MailSettings & {
   readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
   readonly ids: IdGenerator
+  readonly random: RandomSource
+  readonly placedOutBands: PlacedOutBands
   readonly fiefs: FiefReader
   readonly towns: TownReader
   readonly townNews: TownNewsReader
@@ -145,6 +151,8 @@ export function composeServer(
     digestTerms: buildingCatalog.digestTerms(),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
+    random: new CryptoRandomSource(),
+    placedOutBands: new NoPlacedOutBands(),
     accounts: new DrizzleAccounts(database),
     digestAcknowledgements: new DrizzleDigestAcknowledgements(database),
     reportClosings: new DrizzleReportClosings(database),
