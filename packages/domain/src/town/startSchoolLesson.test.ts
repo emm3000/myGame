@@ -11,9 +11,10 @@ import { lessonOne } from '../testing/lessonOne'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { type TownShape, townOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
+import type { WorkSlot } from './BuildingWork'
 import type { LessonSlot } from './LessonSlot'
-import type { StudyPercents } from './StudyPercents'
 import { startSchoolLesson } from './startSchoolLesson'
+import type { TownCatalog } from './TownCatalog'
 
 const MILLISECONDS_PER_HOUR = 3_600_000
 
@@ -29,12 +30,21 @@ const springNow = hoursAfterEpoch(2)
 
 const winterNow = hoursAfterEpoch(24 * 22)
 
-const studyPercents: StudyPercents = { spring: 100, summer: 100, fall: 100, winter: 75 }
+const winterStudyAtThreeQuarters = townCatalogOf({
+  ...plainTownSettings,
+  seasons: {
+    ...plainTownSettings.seasons,
+    durationPercent: {
+      ...plainTownSettings.seasons.durationPercent,
+      winter: { build: 100, study: 75 },
+    },
+  },
+})
 
 const lessonTwo: Lesson = {
   ...lessonOne,
   id: 'lesson-2',
-  requiredLibraryLevel: 2,
+  requiredSchoolLevel: 2,
   words: lessonOne.words.map((word) => ({ ...word, id: `${word.id}-2` })),
 }
 
@@ -43,9 +53,16 @@ type Setup = {
   readonly cards?: ReadonlyArray<OwnedCard>
   readonly slot?: LessonSlot
   readonly now?: Instant
+  readonly catalog?: TownCatalog
 }
 
-const schoolOf = ({ town = {}, cards = [], slot, now = springNow }: Setup) => {
+const schoolOf = ({
+  town = {},
+  cards = [],
+  slot,
+  now = springNow,
+  catalog = townCatalogOf(),
+}: Setup) => {
   const frozenClock: Clock = { now: () => now }
   const towns = inMemoryTowns([townOf({ storedAt: hoursAfterEpoch(1), ...town })])
   const dependencies = {
@@ -54,8 +71,7 @@ const schoolOf = ({ town = {}, cards = [], slot, now = springNow }: Setup) => {
     cards: inMemoryCards(cards),
     lessons: inMemoryLessons([lessonOne, lessonTwo], []),
     news: inMemoryTownNews(),
-    catalog: townCatalogOf(),
-    studyPercents,
+    catalog,
     clock: frozenClock,
   }
   return {
@@ -71,6 +87,15 @@ const cardsEnteredFor = (count: number): ReadonlyArray<OwnedCard> =>
     wordId: `held-${position}`,
     card: MemoryCard.entered(hoursAfterEpoch(1)),
   }))
+
+const farmFinishedAt = (finishesAt: Instant): WorkSlot => ({
+  kind: 'busy',
+  building: 'farm',
+  level: 1,
+  cost: { money: 0, food: 0, power: 0, material: 0 },
+  startedAt: hoursAfterEpoch(1),
+  finishesAt,
+})
 
 describe('startSchoolLesson', () => {
   it('starts a lesson in the idle school slot at no cost', async () => {
@@ -95,8 +120,12 @@ describe('startSchoolLesson', () => {
     })
   })
 
-  it("shortens a lesson by the school's level and the season's study percent", async () => {
-    const school = schoolOf({ town: { buildingLevels: { school: 2 } }, now: winterNow })
+  it("shortens a lesson by the school's level and the study percent the town's season holds", async () => {
+    const school = schoolOf({
+      town: { buildingLevels: { school: 2 } },
+      now: winterNow,
+      catalog: winterStudyAtThreeQuarters,
+    })
 
     const started = await school.start('lesson-1')
 
@@ -111,8 +140,27 @@ describe('startSchoolLesson', () => {
 
     expect(started).toEqual({
       ok: false,
-      error: { kind: 'LessonLibraryTooLow', requiredLibraryLevel: 2, libraryLevel: 1 },
+      error: { kind: 'LessonSchoolTooLow', requiredSchoolLevel: 2, schoolLevel: 1 },
     })
+  })
+
+  it('saves the town its resolve finished building work in', async () => {
+    const school = schoolOf({ town: { workSlot: farmFinishedAt(hoursAfterEpoch(1.5)) } })
+
+    await school.start('lesson-1')
+
+    expect(school.towns.storedTownOf('player-1')?.buildingLevels.farm).toBe(1)
+  })
+
+  it('records the Town News of the work its resolve finished', async () => {
+    const finishesAt = hoursAfterEpoch(1.5)
+    const school = schoolOf({ town: { workSlot: farmFinishedAt(finishesAt) } })
+
+    await school.start('lesson-1')
+
+    expect(school.news.recordedEventsOf('town-1')).toEqual([
+      { kind: 'buildingWorkFinished', building: 'farm', level: 1, occurredAt: finishesAt },
+    ])
   })
 
   it('refuses a lesson with LearningCapReached when cards in learning plus its words pass the cap', async () => {

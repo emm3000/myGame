@@ -255,26 +255,6 @@ describe('cancelStudy', () => {
     expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'smithing', targetLevel: 1 }))
   })
 
-  it('refuses to cancel an art while a lesson holds the study slot', async () => {
-    const fiefs = inMemoryFiefRepository([
-      storedFief({
-        studySlot: {
-          kind: 'lesson',
-          lessonId: 'lesson-1',
-          startedAt: storedInstant,
-          finishesAt: Instant.fromEpochMilliseconds(storedInstant.epochMilliseconds + 150_000),
-        },
-      }),
-    ])
-
-    const result = await cancelStudy(
-      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing', targetLevel: 1 },
-      { fiefs, chronicle: inMemoryChronicle(), catalog, clock: frozenClock(storedInstant) },
-    )
-
-    expect(result).toEqual(err({ kind: 'StudyNotFound', art: 'smithing', targetLevel: 1 }))
-  })
-
   it('refuses to cancel a study of another art', async () => {
     const fiefs = inMemoryFiefRepository([storedFief({})])
 

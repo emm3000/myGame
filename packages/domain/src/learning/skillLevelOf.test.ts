@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { Instant } from '../time/Instant'
-import type { EarnedSkill } from './EarnedSkill'
+import type { TownSkill } from '../town/TownSkill'
 import { skillLevelOf } from './skillLevelOf'
 
 const earnedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-23T09:10:00Z'))
 
-const earnedSkill = (lessonId: string, resource: EarnedSkill['resource']): EarnedSkill => ({
+const earnedSkill = (lessonId: string, resource: TownSkill['resource']): TownSkill => ({
   lessonId,
   resource,
   ratePercent: 5,
@@ -24,7 +24,7 @@ describe('skillLevelOf', () => {
   })
 
   it('counts no lesson that earned the skill of another resource', () => {
-    const skills = [earnedSkill('lesson-1', 'food'), earnedSkill('lesson-2', 'wood')]
+    const skills = [earnedSkill('lesson-1', 'food'), earnedSkill('lesson-2', 'material')]
 
     expect(skillLevelOf(skills, 'food')).toBe(1)
   })

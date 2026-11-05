@@ -50,7 +50,7 @@ export {
 export type { PlotAddress } from './fief/PlotAddress'
 export type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './fief/RecruitOrder'
 export { recruitOrderEndsAt } from './fief/recruitOrderEndsAt'
-export type { BusyStudySlot, LessonStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
+export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
 export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
 export type { Terrain } from './fief/Terrain'
 export { terrainOf } from './fief/terrainOf'
@@ -134,11 +134,6 @@ export {
   answerReview,
 } from './useCases/answerReview'
 export {
-  type CancelLessonCommand,
-  type CancelLessonDependencies,
-  cancelLesson,
-} from './useCases/cancelLesson'
-export {
   type CancelRecruitOrderCommand,
   type CancelRecruitOrderDependencies,
   cancelRecruitOrder,
@@ -179,11 +174,6 @@ export {
   enqueueBuilding,
 } from './useCases/enqueueBuilding'
 export {
-  type EnterLessonCardsCommand,
-  type EnterLessonCardsDependencies,
-  enterLessonCards,
-} from './useCases/enterLessonCards'
-export {
   type FoundFiefCommand,
   type FoundFiefDependencies,
   foundFief,
@@ -215,11 +205,6 @@ export {
   type ResolveUpgradeDependencies,
   resolveUpgrade,
 } from './useCases/resolveUpgrade'
-export {
-  type StartLessonCommand,
-  type StartLessonDependencies,
-  startLesson,
-} from './useCases/startLesson'
 export {
   type StartStudyCommand,
   type StartStudyDependencies,

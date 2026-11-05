@@ -15,13 +15,13 @@ import { deriveLessonDurationSeconds } from './deriveLessonDurationSeconds'
 import type { BusyLessonSlot, LessonSlot } from './LessonSlot'
 import type { LessonSlotRepository } from './LessonSlotRepository'
 import { resolvedTownOf } from './resolvedTownOf'
-import type { StudyPercents } from './StudyPercents'
+import { saveLessonSlot } from './saveLessonSlot'
+import { saveResolvedTown } from './saveResolvedTown'
 import { schoolLevelOf } from './schoolLevelOf'
-import { type SettledLessonSlot, settledLessonSlot } from './settledLessonSlot'
+import { type SettledSchool, settledSchoolOf } from './settledSchoolOf'
 import { studyPercentAt } from './studyPercentAt'
-import type { Town } from './Town'
+import type { ChangedTown } from './Town'
 import type { TownCatalog } from './TownCatalog'
-import type { TownId } from './TownId'
 import type { TownNews } from './TownNews'
 import type { TownRepository } from './TownRepository'
 
@@ -37,7 +37,6 @@ export type StartSchoolLessonDependencies = {
   readonly lessons: Pick<LessonCatalog, 'lessonOf'>
   readonly news: TownNews
   readonly catalog: TownCatalog
-  readonly studyPercents: StudyPercents
   readonly clock: Clock
 }
 
@@ -76,11 +75,11 @@ const admitSchoolLesson = (
         : { kind: 'StudySlotBusy' },
     )
   }
-  if (schoolLevel < lesson.requiredLibraryLevel) {
+  if (schoolLevel < lesson.requiredSchoolLevel) {
     return err({
-      kind: 'LessonLibraryTooLow',
-      requiredLibraryLevel: lesson.requiredLibraryLevel,
-      libraryLevel: schoolLevel,
+      kind: 'LessonSchoolTooLow',
+      requiredSchoolLevel: lesson.requiredSchoolLevel,
+      schoolLevel,
     })
   }
   const school = schoolLevelOf(schoolLevel, catalog)
@@ -95,13 +94,12 @@ const lessonStartedAt = (
   school: SchoolLevel,
   now: Instant,
   catalog: TownCatalog,
-  studyPercents: StudyPercents,
 ): Result<BusyLessonSlot, DomainError> => {
   const duration = Duration.ofSeconds(
     deriveLessonDurationSeconds(
       lesson.durationSeconds,
       school.lessonPercent,
-      studyPercentAt(now, catalog.townSettings(), studyPercents),
+      studyPercentAt(now, catalog.townSettings()),
     ),
   )
   if (!duration.ok) {
@@ -115,63 +113,34 @@ const lessonStartedAt = (
   })
 }
 
-const saveStartedLesson = async (
-  playerId: PlayerId,
-  townId: TownId,
-  settled: SettledLessonSlot,
-  started: BusyLessonSlot,
-  { cards, lessonSlots, news }: StartSchoolLessonDependencies,
-): Promise<Result<void, DomainError>> => {
-  for (const card of settled.entered) {
-    const saved = await cards.save(playerId, card)
-    if (!saved.ok) {
-      return saved
-    }
-  }
-  const saved = await lessonSlots.save(townId, started)
-  if (!saved.ok || settled.events.length === 0) {
-    return saved
-  }
-  return news.record(townId, settled.events)
-}
-
 type AdmittedLesson = {
   readonly lesson: Lesson
   readonly school: SchoolLevel
-  readonly settled: SettledLessonSlot
+  readonly settled: SettledSchool
 }
 
 const admittedLessonOf = async (
   playerId: PlayerId,
-  town: Town,
+  resolved: ChangedTown,
   lessonId: LessonId,
-  { lessonSlots, cards, lessons, catalog }: StartSchoolLessonDependencies,
+  dependencies: StartSchoolLessonDependencies,
   now: Instant,
 ): Promise<Result<AdmittedLesson, DomainError>> => {
-  const lesson = lessons.lessonOf(lessonId)
+  const lesson = dependencies.lessons.lessonOf(lessonId)
   if (lesson === undefined) {
     return err({ kind: 'LessonNotFound', lessonId })
   }
-  const held = await cards.cardsOf(playerId)
-  if (!held.ok) {
-    return held
-  }
-  const stored = await lessonSlots.lessonSlotOf(town.id)
-  if (!stored.ok) {
-    return stored
-  }
-  const settled = settledLessonSlot(stored.value, held.value, lessons, now)
+  const settled = await settledSchoolOf(playerId, resolved.town.id, dependencies, now)
   if (!settled.ok) {
     return settled
   }
-  const { slot, entered } = settled.value
-  const cardsAfterFinish = [...held.value, ...entered]
+  const { slot, held } = settled.value
   const school = admitSchoolLesson(
     lesson,
-    cardsAfterFinish,
+    held,
     slot,
-    town.buildingLevels.school,
-    catalog,
+    resolved.town.buildingLevels.school,
+    dependencies.catalog,
   )
   if (!school.ok) {
     return school
@@ -179,27 +148,51 @@ const admittedLessonOf = async (
   return ok({ lesson, school: school.value, settled: settled.value })
 }
 
+const saveStartedLesson = async (
+  playerId: PlayerId,
+  resolved: ChangedTown,
+  { entered, events }: SettledSchool,
+  started: BusyLessonSlot,
+  dependencies: StartSchoolLessonDependencies,
+): Promise<Result<void, DomainError>> => {
+  const saved = await saveResolvedTown(resolved, dependencies.towns, dependencies.news)
+  if (!saved.ok) {
+    return saved
+  }
+  return saveLessonSlot(
+    playerId,
+    resolved.town.id,
+    { entered, slot: started, events },
+    dependencies,
+  )
+}
+
 export const startSchoolLesson = async (
   { playerId, lessonId }: StartSchoolLessonCommand,
   dependencies: StartSchoolLessonDependencies,
 ): Promise<Result<BusyLessonSlot, DomainError>> => {
-  const { towns, catalog, studyPercents, clock } = dependencies
+  const { towns, catalog, clock } = dependencies
   const now = clock.now()
   const resolved = await resolvedTownOf(playerId, towns, catalog, now)
   if (!resolved.ok) {
     return resolved
   }
-  const { town } = resolved.value
-  const admitted = await admittedLessonOf(playerId, town, lessonId, dependencies, now)
+  const admitted = await admittedLessonOf(playerId, resolved.value, lessonId, dependencies, now)
   if (!admitted.ok) {
     return admitted
   }
   const { lesson, school, settled } = admitted.value
-  const started = lessonStartedAt(lesson, school, now, catalog, studyPercents)
+  const started = lessonStartedAt(lesson, school, now, catalog)
   if (!started.ok) {
     return started
   }
-  const saved = await saveStartedLesson(playerId, town.id, settled, started.value, dependencies)
+  const saved = await saveStartedLesson(
+    playerId,
+    resolved.value,
+    settled,
+    started.value,
+    dependencies,
+  )
   if (!saved.ok) {
     return saved
   }

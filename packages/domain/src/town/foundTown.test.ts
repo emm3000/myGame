@@ -1,14 +1,17 @@
 import { assert, describe, expect, it } from 'vitest'
 import type { Clock } from '../ports/Clock'
+import { inMemoryEarnedSkills } from '../testing/inMemoryEarnedSkills'
 import { inMemoryTowns } from '../testing/inMemoryTowns'
 import { sequentialIds } from '../testing/sequentialIds'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { Instant } from '../time/Instant'
+import { accrueTown } from './accrueTown'
 import { noStoreFull } from './FullSince'
 import { foundTown } from './foundTown'
 import { Town } from './Town'
 import { TownAddress } from './TownAddress'
 import { TownName } from './TownName'
+import type { TownSkill } from './TownSkill'
 
 const foundingInstant = Instant.fromEpochMilliseconds(1_791_244_800_000)
 
@@ -24,6 +27,7 @@ const townAt = (playerId: string, area: number, site: number): Town => {
     name: name.value,
     address: address.value,
     startingStocks: plainTownSettings.startingStocks,
+    skills: [],
     at: foundingInstant,
   })
 }
@@ -31,13 +35,47 @@ const townAt = (playerId: string, area: number, site: number): Town => {
 const sitesPerAreaOf = (sitesPerArea: number): ReturnType<typeof townCatalogOf> =>
   townCatalogOf({ ...plainTownSettings, sitesPerArea })
 
+const noSkills = inMemoryEarnedSkills([])
+
+const foodSkillAtTwentyPercent: TownSkill = {
+  lessonId: 'lesson-1',
+  resource: 'food',
+  ratePercent: 20,
+  earnedAt: Instant.fromEpochMilliseconds(1_791_200_000_000),
+}
+
+const tenHoursAfterFounding = Instant.fromEpochMilliseconds(
+  foundingInstant.epochMilliseconds + 36_000_000,
+)
+
 describe('foundTown', () => {
+  it("raises the new town's production by the skills the player earned before", async () => {
+    const towns = inMemoryTowns([])
+    const skills = inMemoryEarnedSkills([{ playerId: 'learner', skill: foodSkillAtTwentyPercent }])
+
+    const founded = await foundTown(
+      { playerId: 'learner', name: 'Maple Hill' },
+      { towns, catalog: townCatalogOf(), clock: frozenClock, ids: sequentialIds('town'), skills },
+    )
+
+    assert(founded.ok)
+    const accrual = accrueTown(founded.value, townCatalogOf(), tenHoursAfterFounding)
+    assert(accrual.ok)
+    expect(accrual.value.stocks.food).toBe(300 + 60)
+  })
+
   it("starts a town with homes and the school at level 1 and the content's stocks", async () => {
     const towns = inMemoryTowns([])
 
     const founded = await foundTown(
       { playerId: 'newcomer', name: '  Maple Hill ' },
-      { towns, catalog: townCatalogOf(), clock: frozenClock, ids: sequentialIds('town') },
+      {
+        towns,
+        catalog: townCatalogOf(),
+        clock: frozenClock,
+        ids: sequentialIds('town'),
+        skills: noSkills,
+      },
     )
 
     assert(founded.ok)
@@ -64,7 +102,13 @@ describe('foundTown', () => {
 
     const founded = await foundTown(
       { playerId: 'newcomer', name: 'Maple Hill' },
-      { towns, catalog: sitesPerAreaOf(2), clock: frozenClock, ids: sequentialIds('town') },
+      {
+        towns,
+        catalog: sitesPerAreaOf(2),
+        clock: frozenClock,
+        ids: sequentialIds('town'),
+        skills: noSkills,
+      },
     )
 
     assert(founded.ok)
@@ -76,7 +120,13 @@ describe('foundTown', () => {
 
     const founded = await foundTown(
       { playerId: 'ana', name: 'Second Town' },
-      { towns, catalog: townCatalogOf(), clock: frozenClock, ids: sequentialIds('town') },
+      {
+        towns,
+        catalog: townCatalogOf(),
+        clock: frozenClock,
+        ids: sequentialIds('town'),
+        skills: noSkills,
+      },
     )
 
     expect(founded).toEqual({
@@ -93,6 +143,7 @@ describe('foundTown', () => {
         catalog: townCatalogOf(),
         clock: frozenClock,
         ids: sequentialIds('town'),
+        skills: noSkills,
       },
     )
 
@@ -111,6 +162,7 @@ describe('foundTown', () => {
         catalog: townCatalogOf(),
         clock: frozenClock,
         ids: sequentialIds('town'),
+        skills: noSkills,
       },
     )
 

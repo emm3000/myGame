@@ -1,5 +1,4 @@
-import type { ResourceKind } from '../resources/Resources'
-import type { EarnedSkill } from './EarnedSkill'
-
-export const skillLevelOf = (skills: ReadonlyArray<EarnedSkill>, resource: ResourceKind): number =>
-  skills.filter((skill) => skill.resource === resource).length
+export const skillLevelOf = <Resource extends string>(
+  skills: ReadonlyArray<{ readonly resource: Resource }>,
+  resource: Resource,
+): number => skills.filter((skill) => skill.resource === resource).length

@@ -8,6 +8,7 @@ import type { Stocks } from '../town/Stocks'
 import { type StoredTown, Town } from '../town/Town'
 import { TownAddress } from '../town/TownAddress'
 import { TownName } from '../town/TownName'
+import type { TownSkill } from '../town/TownSkill'
 
 export type TownShape = {
   readonly area?: number
@@ -16,6 +17,7 @@ export type TownShape = {
   readonly buildingLevels?: Partial<BuildingLevels>
   readonly workSlot?: WorkSlot
   readonly waitingList?: WaitingList
+  readonly skills?: ReadonlyArray<TownSkill>
 }
 
 export const storedTownOf = ({
@@ -25,6 +27,7 @@ export const storedTownOf = ({
   buildingLevels = {},
   workSlot = idleWorkSlot,
   waitingList = [],
+  skills = [],
 }: TownShape): StoredTown => {
   const address = TownAddress.create(1, area, 1)
   const name = TownName.create('Maple Hill')
@@ -40,6 +43,7 @@ export const storedTownOf = ({
     buildingLevels: { ...foundingLevels, ...buildingLevels },
     workSlot,
     waitingList,
+    skills,
   }
 }
 

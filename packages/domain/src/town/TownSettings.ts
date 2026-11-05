@@ -7,6 +7,7 @@ export type ProductionPercent = Readonly<Record<ResourceKind, number>>
 
 export type TownDurationPercent = {
   readonly build: number
+  readonly study: number
 }
 
 export type TownSeasons = SeasonDates & {

@@ -1,13 +1,9 @@
 import type { DomainError } from '../DomainError'
-import { materializeStocks } from '../fief/materializeStocks'
-import { readFiefsInLockOrder } from '../fief/readFiefsInLockOrder'
-import { rebaseFullSince } from '../fief/rebaseFullSince'
 import { admitDueReview, type DueReview } from '../learning/admitDueReview'
-import type { EarnedSkill } from '../learning/EarnedSkill'
 import { gradeTypedAnswer } from '../learning/gradeTypedAnswer'
 import type { HeldCard } from '../learning/HeldCard'
 import { isLessonRetained } from '../learning/isLessonRetained'
-import type { WordId } from '../learning/Lesson'
+import type { Lesson, WordId } from '../learning/Lesson'
 import type { PendingReview } from '../learning/PendingReview'
 import { reviewFormatOf } from '../learning/ReviewFormat'
 import type { ReviewLogEntry } from '../learning/ReviewLogEntry'
@@ -19,15 +15,22 @@ import type { MemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
 import { wholeDaysBetween } from '../memory/wholeDaysBetween'
 import type { PlayerId } from '../player/PlayerId'
-import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
-import type { FiefRepository } from '../ports/FiefRepository'
 import type { LessonCatalog } from '../ports/LessonCatalog'
 import type { PendingReviewRepository } from '../ports/PendingReviewRepository'
 import type { ReviewLog } from '../ports/ReviewLog'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
+import type { EarnedSkillRepository } from '../town/EarnedSkillRepository'
+import { earnTownSkill } from '../town/earnTownSkill'
+import { finishBuildingWork } from '../town/finishBuildingWork'
+import { saveChangedTown } from '../town/saveChangedTown'
+import type { Town } from '../town/Town'
+import type { TownCatalog } from '../town/TownCatalog'
+import type { TownNews } from '../town/TownNews'
+import type { TownRepository } from '../town/TownRepository'
+import type { TownSkill } from '../town/TownSkill'
 
 export type AnswerReviewCommand = {
   readonly playerId: PlayerId
@@ -36,14 +39,16 @@ export type AnswerReviewCommand = {
 }
 
 export type AnswerReviewDependencies = {
-  readonly fiefs: Pick<FiefRepository, 'fiefsOf' | 'fiefOf' | 'save'>
-  readonly catalog: BuildingCatalog
   readonly cards: CardRepository
   readonly pendingReviews: PendingReviewRepository
   readonly reviewLog: ReviewLog
   readonly lessons: LessonCatalog
   readonly clock: Clock
   readonly terms: MemoryTerms
+  readonly skills: EarnedSkillRepository
+  readonly towns: TownRepository
+  readonly news: TownNews
+  readonly catalog: TownCatalog
 }
 
 export type AnsweredReview =
@@ -52,7 +57,7 @@ export type AnsweredReview =
       readonly kind: 'rated'
       readonly rating: MemoryRating
       readonly card: MemoryCard
-      readonly earnedSkill: EarnedSkill | undefined
+      readonly earnedSkill: TownSkill | undefined
     }
 
 type Grade = AnswerGrade | 'nearMiss'
@@ -105,40 +110,51 @@ const logEntryOf = (
   }
 }
 
-const earnSkillOnEveryFief = async (
-  playerId: PlayerId,
-  skill: EarnedSkill,
-  { fiefs, catalog }: Pick<AnswerReviewDependencies, 'fiefs' | 'catalog'>,
-): Promise<Result<EarnedSkill | undefined, DomainError>> => {
-  const locked = await readFiefsInLockOrder(playerId, fiefs)
-  if (!locked.ok) {
-    return locked
+const rebaseTownAtEarn = async (
+  town: Town,
+  skill: TownSkill,
+  { towns, news, catalog }: AnswerReviewDependencies,
+): Promise<Result<void, DomainError>> => {
+  const finished = finishBuildingWork(town, catalog, skill.earnedAt)
+  if (!finished.ok) {
+    return finished
   }
-  const isEarned = locked.value.some((fief) =>
-    fief.skills.some(({ lessonId }) => lessonId === skill.lessonId),
-  )
-  if (isEarned) {
+  const earned = earnTownSkill(finished.value.town, skill, catalog)
+  if (!earned.ok) {
+    return earned
+  }
+  const events = [...finished.value.events, ...earned.value.events]
+  return saveChangedTown({ town: earned.value.town, events }, towns, news)
+}
+
+const earnSkill = async (
+  playerId: PlayerId,
+  lesson: Lesson,
+  earnedAt: Instant,
+  dependencies: AnswerReviewDependencies,
+): Promise<Result<TownSkill | undefined, DomainError>> => {
+  const { skills, towns } = dependencies
+  const earned = await skills.skillsOf(playerId)
+  if (!earned.ok) {
+    return earned
+  }
+  if (earned.value.some(({ lessonId }) => lessonId === lesson.id)) {
     return ok(undefined)
   }
-  for (const fief of locked.value) {
-    const stocksAtNow = materializeStocks(fief, catalog, skill.earnedAt)
-    if (!stocksAtNow.ok) {
-      return stocksAtNow
-    }
-    const rebased = rebaseFullSince(
-      fief,
-      fief.earnSkill(skill, stocksAtNow.value, skill.earnedAt),
-      catalog,
-    )
-    if (!rebased.ok) {
-      return rebased
-    }
-    const saved = await fiefs.save(rebased.value)
-    if (!saved.ok) {
-      return saved
-    }
+  const town = await towns.townOf(playerId)
+  if (!town.ok) {
+    return town
   }
-  return ok(skill)
+  const skill: TownSkill = { lessonId: lesson.id, ...lesson.skill, earnedAt }
+  const saved = await skills.save(playerId, skill)
+  if (!saved.ok) {
+    return saved
+  }
+  if (town.value === undefined) {
+    return ok(skill)
+  }
+  const rebased = await rebaseTownAtEarn(town.value, skill, dependencies)
+  return rebased.ok ? ok(skill) : rebased
 }
 
 const skillEarnedBy = async (
@@ -148,7 +164,7 @@ const skillEarnedBy = async (
   cards: ReadonlyArray<HeldCard>,
   earnedAt: Instant,
   dependencies: AnswerReviewDependencies,
-): Promise<Result<EarnedSkill | undefined, DomainError>> => {
+): Promise<Result<TownSkill | undefined, DomainError>> => {
   const { lesson } = review
   const afterReview = cards.map((held) =>
     held.wordId === review.word.id ? { wordId: held.wordId, card } : held,
@@ -156,11 +172,7 @@ const skillEarnedBy = async (
   if (!isLessonRetained(lesson, afterReview)) {
     return ok(undefined)
   }
-  return earnSkillOnEveryFief(
-    playerId,
-    { lessonId: lesson.id, ...lesson.skill, earnedAt },
-    dependencies,
-  )
+  return earnSkill(playerId, lesson, earnedAt, dependencies)
 }
 
 const markNearMiss = async (

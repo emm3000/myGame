@@ -22,10 +22,10 @@ export const plainTownSettings: TownSettings = {
     daysPerSeason: 7,
     productionPercent: { spring: unscaled, summer: unscaled, fall: unscaled, winter: unscaled },
     durationPercent: {
-      spring: { build: 100 },
-      summer: { build: 100 },
-      fall: { build: 100 },
-      winter: { build: 100 },
+      spring: { build: 100, study: 100 },
+      summer: { build: 100, study: 100 },
+      fall: { build: 100, study: 100 },
+      winter: { build: 100, study: 100 },
     },
   },
 }
