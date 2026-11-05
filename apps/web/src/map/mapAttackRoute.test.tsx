@@ -1,3 +1,4 @@
+import { mapHeading, refusalPlotHasNoCamp } from '@mygame/catalog'
 import type { DispatchAttackRequest, FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
@@ -9,8 +10,8 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { kingdomNameOf } from './kingdomNameOf'
 
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
@@ -80,7 +81,10 @@ const showMap = async (overrides: Partial<ApiClient> = {}): Promise<HTMLElement[
     }),
   )
   const list = await screen.findByRole('list', {
-    name: copy.map.heading(uplandsWithCamps.kingdom, uplandsWithCamps.province),
+    name: mapHeading({
+      kingdom: kingdomNameOf(uplandsWithCamps.kingdom),
+      province: uplandsWithCamps.province,
+    }),
   })
   await screen.findAllByRole('button', { name: /^Enviar una marcha a parcela/ })
   return within(list).getAllByRole('listitem')
@@ -303,7 +307,7 @@ it('shows the refusal the api answered', async () => {
 
   fireEvent.click(attackButton(form))
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.PlotHasNoCamp)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalPlotHasNoCamp())
 })
 
 it('sends one attack on a double click', async () => {
@@ -336,7 +340,7 @@ it('moves focus to the province heading when an attack is sent', async () => {
     expect(document.activeElement).toBe(
       screen.getByRole('heading', {
         level: 3,
-        name: copy.map.heading(uplandsWithCamps.kingdom, 2),
+        name: mapHeading({ kingdom: kingdomNameOf(uplandsWithCamps.kingdom), province: 2 }),
       }),
     ),
   )

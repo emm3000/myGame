@@ -1,3 +1,4 @@
+import { armyCancelOf } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +10,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { countedUnitsOf } from '../units/countedUnitsOf'
 
 const readAt = new Date(knownFief.readAt)
 
@@ -206,7 +207,9 @@ it('announces nothing for a levy the lord cancels on this screen', async () => {
   )
   await passSeconds(5)
 
-  fireEvent.click(screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) }))
+  fireEvent.click(
+    screen.getByRole('button', { name: armyCancelOf({ units: countedUnitsOf('infantry', 12) }) }),
+  )
   await passSeconds(0)
 
   expect(liveRegion().textContent).toBe('')
@@ -221,7 +224,9 @@ it('keeps the adopted cancel as the baseline of the next re-read', async () => {
     }),
   )
   await passSeconds(5)
-  fireEvent.click(screen.getByRole('button', { name: copy.army.cancelOf('infantry', 12) }))
+  fireEvent.click(
+    screen.getByRole('button', { name: armyCancelOf({ units: countedUnitsOf('infantry', 12) }) }),
+  )
   await passSeconds(0)
 
   await passSeconds(60)

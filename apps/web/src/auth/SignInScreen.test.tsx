@@ -1,6 +1,11 @@
+import {
+  authEmail,
+  authPassword,
+  authSignInSubmit,
+  refusalInvalidCredentials,
+} from '@mygame/catalog'
 import { fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import { copy } from '../copy'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { stubApiClient } from './stubApiClient.testSupport'
 
@@ -10,15 +15,15 @@ it('shows the Spanish message for a refused credential', async () => {
     stubApiClient({ signIn: async () => ({ ok: false, refusal: 'InvalidCredentials' }) }),
   )
 
-  fireEvent.change(await screen.findByLabelText(copy.auth.email), {
+  fireEvent.change(await screen.findByLabelText(authEmail()), {
     target: { value: 'aldonza@example.com' },
   })
-  fireEvent.change(screen.getByLabelText(copy.auth.password), {
+  fireEvent.change(screen.getByLabelText(authPassword()), {
     target: { value: 'piedra-equivocada' },
   })
-  fireEvent.click(screen.getByRole('button', { name: copy.auth.signIn.submit }))
+  fireEvent.click(screen.getByRole('button', { name: authSignInSubmit() }))
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.InvalidCredentials)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalInvalidCredentials())
 })
 
 it('opens the reset request from the sign-in screen', async () => {

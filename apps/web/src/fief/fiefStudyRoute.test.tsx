@@ -1,3 +1,10 @@
+import {
+  namesIdleStudy,
+  namesStudySlot,
+  namesUnstudied,
+  studyCancelOf,
+  studySection,
+} from '@mygame/catalog'
 import type { ArtKind, FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,8 +16,8 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { artNameOf } from './artNameOf'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
 beforeEach(() => {
@@ -61,10 +68,10 @@ const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   await passSeconds(0)
 }
 
-const librarySection = (): HTMLElement => screen.getByRole('region', { name: copy.study.section })
+const librarySection = (): HTMLElement => screen.getByRole('region', { name: studySection() })
 
 const artCard = (art: ArtKind): HTMLElement =>
-  within(librarySection()).getByRole('listitem', { name: copy.names.arts[art] })
+  within(librarySection()).getByRole('listitem', { name: artNameOf(art) })
 
 const studyButtonOf = (art: ArtKind): HTMLElement => within(artCard(art)).getByRole('button')
 
@@ -84,13 +91,13 @@ const deferred = <T,>(): Deferred<T> => {
 it('hides the library section while the library is unbuilt', async () => {
   await showFief({ fief: async () => ({ ok: true, value: knownFief }) })
 
-  expect(screen.queryByRole('region', { name: copy.study.section })).toBeNull()
+  expect(screen.queryByRole('region', { name: studySection() })).toBeNull()
 })
 
 it('shows the idle study slot and a card per art once the library stands', async () => {
   await showFief({})
 
-  expect(within(librarySection()).getByText(copy.names.idleStudy)).toBeDefined()
+  expect(within(librarySection()).getByText(namesIdleStudy())).toBeDefined()
   expect(within(artCard('smithing')).getByText('Herrería')).toBeDefined()
   expect(within(artCard('masonry')).getByText('Cantería')).toBeDefined()
 })
@@ -98,7 +105,7 @@ it('shows the idle study slot and a card per art once the library stands', async
 it('badges an art not yet studied as unstudied', async () => {
   await showFief({})
 
-  expect(within(artCard('masonry')).getByText(copy.names.unstudied)).toBeDefined()
+  expect(within(artCard('masonry')).getByText(namesUnstudied())).toBeDefined()
 })
 
 it('draws no image on an art card', async () => {
@@ -141,7 +148,9 @@ it('starts a study from an art card', async () => {
 
   expect(startStudy).toHaveBeenCalledWith(knownFief.id, 'smithing')
   expect(
-    within(librarySection()).getByRole('button', { name: copy.study.cancelOf('smithing', 1) }),
+    within(librarySection()).getByRole('button', {
+      name: studyCancelOf({ art: artNameOf('smithing'), level: 1 }),
+    }),
   ).toBeDefined()
 })
 
@@ -363,12 +372,14 @@ it('cancels the study in progress', async () => {
   await showFief({ fief: async () => ({ ok: true, value: smithingUnderWay }), cancelStudy })
 
   fireEvent.click(
-    within(librarySection()).getByRole('button', { name: copy.study.cancelOf('smithing', 1) }),
+    within(librarySection()).getByRole('button', {
+      name: studyCancelOf({ art: artNameOf('smithing'), level: 1 }),
+    }),
   )
   await passSeconds(0)
 
   expect(cancelStudy).toHaveBeenCalledWith(knownFief.id, { art: 'smithing', targetLevel: 1 })
-  expect(within(librarySection()).getByText(copy.names.idleStudy)).toBeDefined()
+  expect(within(librarySection()).getByText(namesIdleStudy())).toBeDefined()
 })
 
 it('shows the Spanish reason when the study finished before the cancel', async () => {
@@ -379,7 +390,9 @@ it('shows the Spanish reason when the study finished before the cancel', async (
   await showFief({ fief: async () => ({ ok: true, value: smithingUnderWay }), cancelStudy })
 
   fireEvent.click(
-    within(librarySection()).getByRole('button', { name: copy.study.cancelOf('smithing', 1) }),
+    within(librarySection()).getByRole('button', {
+      name: studyCancelOf({ art: artNameOf('smithing'), level: 1 }),
+    }),
   )
   await passSeconds(0)
 
@@ -400,7 +413,9 @@ it('clears a study refusal once a fresh read of the fief arrives', async () => {
   })
 
   fireEvent.click(
-    within(librarySection()).getByRole('button', { name: copy.study.cancelOf('smithing', 1) }),
+    within(librarySection()).getByRole('button', {
+      name: studyCancelOf({ art: artNameOf('smithing'), level: 1 }),
+    }),
   )
   await passSeconds(60)
 
@@ -424,7 +439,7 @@ it('reads lista with the clock on an art card when only resources are short', as
 
 const pressCancelStudy = async (): Promise<HTMLElement> => {
   const button = within(librarySection()).getByRole('button', {
-    name: copy.study.cancelOf('smithing', 1),
+    name: studyCancelOf({ art: artNameOf('smithing'), level: 1 }),
   })
   button.focus()
   fireEvent.click(button)
@@ -440,7 +455,7 @@ it('moves focus to the slot title when the study is cancelled', async () => {
 
   await pressCancelStudy()
 
-  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.names.studySlot))
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(namesStudySlot()))
 })
 
 it('keeps focus on Cancelar el estudio when the cancel is refused', async () => {

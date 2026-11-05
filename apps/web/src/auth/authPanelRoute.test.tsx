@@ -1,6 +1,6 @@
+import { shellTitle } from '@mygame/catalog'
 import { screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import { copy } from '../copy'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { stubApiClient } from './stubApiClient.testSupport'
 
@@ -21,5 +21,5 @@ it('names the game inside the sign-in panel', async () => {
   const heading = await screen.findByRole('heading', { level: 1 })
 
   const panel = heading.closest('section')
-  expect(panel?.contains(screen.getByText(copy.shell.title))).toBe(true)
+  expect(panel?.contains(screen.getByText(shellTitle()))).toBe(true)
 })

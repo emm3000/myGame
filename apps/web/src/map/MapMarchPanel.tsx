@@ -1,10 +1,18 @@
+import {
+  foundingNameField,
+  marchCountField,
+  marchHoursField,
+  transportAmountField,
+} from '@mygame/catalog'
 import { ResourceKindSchema } from '@mygame/contracts'
 import type { ReactElement, Ref } from 'react'
-import { copy } from '../copy'
+import { capitalize } from '../design-system/capitalize'
 import { FormAlert } from '../design-system/FormAlert'
 import { MarchForm } from '../design-system/MarchForm'
 import { MarchSent } from '../design-system/MarchSent'
+import { resourceNameOf } from '../resources/resourceNameOf'
 import { partyKinds } from '../units/partyKinds'
+import { unitLabelsOf } from '../units/unitLabelsOf'
 import { attackFormOf } from './attackFormOf'
 import { foundingFormOf } from './foundingFormOf'
 import { marchFormOf } from './marchFormOf'
@@ -29,14 +37,14 @@ function OpenForm({
         titleRef={titleRef}
         {...foundingFormOf(target, march.name, overview)}
         counts={[]}
-        name={{ label: copy.founding.nameField, entry: march.name, onChange: march.onNameChange }}
+        name={{ label: foundingNameField(), entry: march.name, onChange: march.onNameChange }}
         isWaiting={march.isWaiting}
         onSend={march.onSend}
       />
     )
   }
   const counts = partyKinds.map((unit) => ({
-    label: copy.march.countField(unit),
+    label: marchCountField({ units: capitalize(unitLabelsOf(unit).plural) }),
     entry: entries.units[unit],
     min: 0,
     onChange: (entry: string) =>
@@ -44,7 +52,7 @@ function OpenForm({
   }))
   if (target.order.kind === 'transport') {
     const amounts = ResourceKindSchema.options.map((resource) => ({
-      label: copy.transport.amountField(resource),
+      label: transportAmountField({ resource: capitalize(resourceNameOf(resource)) }),
       entry: entries.cargo[resource],
       min: 0,
       onChange: (entry: string) =>
@@ -79,7 +87,7 @@ function OpenForm({
       {...marchFormOf(target, entries, overview)}
       counts={counts}
       hours={{
-        label: copy.march.hoursField,
+        label: marchHoursField(),
         entry: entries.hours,
         min: 1,
         max: overview.forageTerms.maxStayHours,

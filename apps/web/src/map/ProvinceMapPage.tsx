@@ -1,13 +1,13 @@
 import { useNavigate } from '@tanstack/react-router'
 import { type ReactElement, useEffect } from 'react'
 import type { ApiClient } from '../api/apiClient'
-import { copy } from '../copy'
 import { useLayoutFief } from '../fief/useLayoutFief'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
 import { hintPropsOf } from '../hints/hintPropsOf'
 import { marchesHintOf } from '../hints/marchesHintOf'
 import { useLayoutHints } from '../hints/useLayoutHints'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { MapMarchPanel } from './MapMarchPanel'
 import { MapScreen } from './MapScreen'
 import { useMapColumns } from './useMapColumns'
@@ -71,7 +71,7 @@ export function ProvinceMapPage({
             }
       }
       fiefRefusalLine={
-        march.fiefRefusal === undefined ? undefined : copy.refusals[march.fiefRefusal]
+        march.fiefRefusal === undefined ? undefined : refusalLineOf(march.fiefRefusal)
       }
       hint={
         hint === undefined

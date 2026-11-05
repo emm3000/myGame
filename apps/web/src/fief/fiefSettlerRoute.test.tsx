@@ -1,3 +1,4 @@
+import { armySection } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
@@ -10,7 +11,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { CavalryIcon } from '../design-system/icons/CavalryIcon'
 import { InfantryIcon } from '../design-system/icons/InfantryIcon'
 import { SettlerIcon } from '../design-system/icons/SettlerIcon'
@@ -67,12 +67,12 @@ const showFief = async (
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const aThousand = '1\u2009000'
 
 const settlerCard = (): HTMLElement =>
-  within(armySection()).getByRole('listitem', { name: 'colonos' })
+  within(armyRegion()).getByRole('listitem', { name: 'colonos' })
 
 const settlerCountField = (): HTMLElement =>
   within(settlerCard()).getByRole('spinbutton', { name: 'Colonos a reclutar' })
@@ -151,14 +151,21 @@ it('draws the settler with its own icon', async () => {
 })
 
 it('names the settlers and their level when the api refuses a settler levy below its barracks', async () => {
-  const placeRecruitOrder = async () => ({ ok: false as const, refusal: 'BarracksTooLow' as const })
+  const placeRecruitOrder = async () => ({
+    ok: false as const,
+    refusal: 'BarracksTooLow' as const,
+    error: {
+      kind: 'BarracksTooLow' as const,
+      params: { unit: 'settler' as const, requiredBarracksLevel: 5 },
+    },
+  })
   await showFief(barracksAtFiveWithSettlerStocks, { placeRecruitOrder })
 
   fireEvent.change(settlerCountField(), { target: { value: '1' } })
   fireEvent.click(within(settlerCard()).getByRole('button'))
   await passSeconds(0)
 
-  expect(within(armySection()).getByRole('alert').textContent).toBe(
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
     'Tu cuartel aún no llega al nivel 5 que piden los colonos. Mejóralo primero.',
   )
 })

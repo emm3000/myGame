@@ -16,6 +16,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@mygame/catalog": "workspace:*",
     "@mygame/contracts": "workspace:*",
     "@tailwindcss/node": "4.3.3",
     "@tailwindcss/vite": "4.3.3",

@@ -1,3 +1,22 @@
+import {
+  armySection,
+  hintsDismiss,
+  hintsLinesBarracks,
+  hintsLinesFullStore,
+  hintsLinesLibrary,
+  hintsLinesMarches,
+  hintsLinesPeasants,
+  hintsLinesQueue,
+  hintsLinesSeasons,
+  mapHeading,
+  namesBuildingsSawmill,
+  namesBusySlot,
+  namesSlot,
+  shellFiefSwitcherLabel,
+  shellNavigationFief,
+  shellNavigationMap,
+  studySection,
+} from '@mygame/catalog'
 import type { FiefList, FiefOverview, HintKind } from '@mygame/contracts'
 import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -10,7 +29,7 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { kingdomNameOf } from '../map/kingdomNameOf'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -115,8 +134,8 @@ it('shows the peasants hint the first time peasants block a building', async () 
   await showAt(knownFiefPath, peasantsShort)
 
   const note = screen.getByRole('note')
-  expect(within(note).getByText(copy.hints.lines.peasants)).toBeDefined()
-  expect(within(note).getByRole('button', { name: copy.hints.dismiss })).toBeDefined()
+  expect(within(note).getByText(hintsLinesPeasants())).toBeDefined()
+  expect(within(note).getByRole('button', { name: hintsDismiss() })).toBeDefined()
 })
 
 it('shows no hint while no trigger holds', async () => {
@@ -135,7 +154,7 @@ it('shows one hint at a time in order', async () => {
   await showAt(knownFiefPath, peasantsShortWithSlotBusy)
 
   expect(screen.getAllByRole('note')).toHaveLength(1)
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.peasants)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesPeasants())
 })
 
 it('shows no peasants hint while the queue is full', async () => {
@@ -154,19 +173,19 @@ it('shows no peasants hint while the queue is full', async () => {
     },
   })
 
-  expect(screen.queryByText(copy.hints.lines.peasants)).toBeNull()
+  expect(screen.queryByText(hintsLinesPeasants())).toBeNull()
 })
 
 it('shows the next hint of the order once the first is seen', async () => {
   await showAt(knownFiefPath, peasantsShortWithSlotBusy, ['peasants'])
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesQueue())
 })
 
 it('shows the seasons hint while a season changes a rate', async () => {
   await showAt(knownFiefPath, winterLoweringFood)
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.seasons)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesSeasons())
 })
 
 it('shows no seasons hint while the season changes no rate', async () => {
@@ -178,14 +197,14 @@ it('shows no seasons hint while the season changes no rate', async () => {
 it('shows the queue hint while the build slot is busy', async () => {
   await showAt(knownFiefPath, slotBusy)
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesQueue())
 })
 
 it('shows the library hint under the library heading at level 1', async () => {
   await showAt(knownFiefPath, libraryBuilt)
 
-  const library = screen.getByRole('region', { name: copy.study.section })
-  expect(within(library).getByRole('note').textContent).toContain(copy.hints.lines.library)
+  const library = screen.getByRole('region', { name: studySection() })
+  expect(within(library).getByRole('note').textContent).toContain(hintsLinesLibrary())
 })
 
 it('shows no library hint at level 2', async () => {
@@ -219,20 +238,20 @@ it('shows no barracks hint at level 2', async () => {
 it('shows the barracks hint under the barracks heading at level 1', async () => {
   await showAt(knownFiefPath, barracksBuilt)
 
-  const barracks = screen.getByRole('region', { name: copy.army.section })
-  expect(within(barracks).getByRole('note').textContent).toContain(copy.hints.lines.barracks)
+  const barracks = screen.getByRole('region', { name: armySection() })
+  expect(within(barracks).getByRole('note').textContent).toContain(hintsLinesBarracks())
 })
 
 it('shows the full store hint while a store is full', async () => {
   await showAt(knownFiefPath, stoneFull)
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.fullStore)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesFullStore())
 })
 
 it('shows the marches hint on the map with units at home', async () => {
   await showAt(mapPath, infantryAtHome)
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.marches)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesMarches())
 })
 
 it('shows no marches hint on the map with nobody at home', async () => {
@@ -251,18 +270,14 @@ it('hides the hint at once when dismissed', async () => {
   const markHintSeen = vi.fn(() => new Promise<undefined>(() => undefined))
   await showAt(knownFiefPath, peasantsShort, [], { markHintSeen })
 
-  fireEvent.click(
-    within(screen.getByRole('note')).getByRole('button', { name: copy.hints.dismiss }),
-  )
+  fireEvent.click(within(screen.getByRole('note')).getByRole('button', { name: hintsDismiss() }))
 
   expect(screen.queryByRole('note')).toBeNull()
   expect(markHintSeen).toHaveBeenCalledWith('peasants')
 })
 
 const dismissHint = async (): Promise<void> => {
-  fireEvent.click(
-    within(screen.getByRole('note')).getByRole('button', { name: copy.hints.dismiss }),
-  )
+  fireEvent.click(within(screen.getByRole('note')).getByRole('button', { name: hintsDismiss() }))
   await passSeconds(0)
 }
 
@@ -273,9 +288,9 @@ it('keeps a dismissed hint hidden on later screens while the session still answe
   await dismissHint()
   expect(currentPlayer).toHaveBeenCalledTimes(sessionReads)
 
-  fireEvent.click(screen.getByRole('link', { name: copy.shell.navigation.map }))
+  fireEvent.click(screen.getByRole('link', { name: shellNavigationMap() }))
   await passSeconds(0)
-  fireEvent.click(screen.getByRole('link', { name: copy.shell.navigation.fief }))
+  fireEvent.click(screen.getByRole('link', { name: shellNavigationFief() }))
   await passSeconds(0)
 
   expect(currentPlayer.mock.calls.length).toBeGreaterThan(sessionReads)
@@ -314,7 +329,7 @@ it('keeps a dismissed hint hidden on the other fief while the session still answ
   await dismissHint()
   expect(currentPlayer).toHaveBeenCalledTimes(sessionReads)
 
-  const switcher = screen.getByRole('navigation', { name: copy.shell.fiefSwitcher.label })
+  const switcher = screen.getByRole('navigation', { name: shellFiefSwitcherLabel() })
   fireEvent.click(within(switcher).getByRole('link', { name: /Sotoverde del Páramo/ }))
   await passSeconds(0)
 
@@ -335,20 +350,20 @@ it('hides a hint whose dismissal was refused for the rest of the visit', async (
 it('keeps focus where it was when a hint appears', async () => {
   const enqueueUpgrade = vi.fn(async () => ({ ok: true as const, value: slotBusy }))
   await showAt(knownFiefPath, knownFief, [], { enqueueUpgrade })
-  const sawmill = screen.getByRole('listitem', { name: copy.names.buildings.sawmill })
+  const sawmill = screen.getByRole('listitem', { name: namesBuildingsSawmill() })
   const upgrade = within(sawmill).getByRole('button')
   upgrade.focus()
 
   fireEvent.click(upgrade)
   await passSeconds(0)
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesQueue())
   await vi.waitFor(() => expect(document.activeElement).toBe(upgrade))
 })
 
 const pressDismiss = async (): Promise<void> => {
   const dismiss = within(screen.getByRole('note')).getByRole('button', {
-    name: copy.hints.dismiss,
+    name: hintsDismiss(),
   })
   dismiss.focus()
   fireEvent.click(dismiss)
@@ -364,7 +379,7 @@ it('moves focus to the section heading when a hint is dismissed', async () => {
 
   await vi.waitFor(() =>
     expect(document.activeElement).toBe(
-      screen.getByRole('heading', { level: 3, name: copy.study.section }),
+      screen.getByRole('heading', { level: 3, name: studySection() }),
     ),
   )
 })
@@ -376,7 +391,7 @@ it('moves focus to the barracks heading when its hint is dismissed', async () =>
 
   await vi.waitFor(() =>
     expect(document.activeElement).toBe(
-      screen.getByRole('heading', { level: 3, name: copy.army.section }),
+      screen.getByRole('heading', { level: 3, name: armySection() }),
     ),
   )
 })
@@ -398,7 +413,7 @@ it('moves focus to the slot title when the queue hint is dismissed', async () =>
 
   await pressDismiss()
 
-  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.names.busySlot))
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(namesBusySlot()))
 })
 
 it('moves focus to the province heading when the marches hint is dismissed', async () => {
@@ -409,7 +424,10 @@ it('moves focus to the province heading when the marches hint is dismissed', asy
   await vi.waitFor(() => expect(document.activeElement?.tagName).toBe('H3'))
   await vi.waitFor(() =>
     expect(document.activeElement?.textContent).toBe(
-      copy.map.heading(knownFief.coordinates.kingdom, knownFief.coordinates.province),
+      mapHeading({
+        kingdom: kingdomNameOf(knownFief.coordinates.kingdom),
+        province: knownFief.coordinates.province,
+      }),
     ),
   )
 })
@@ -419,7 +437,7 @@ it('leaves focus on the fief name when the next hint shows after a dismissal', a
 
   await pressDismiss()
 
-  expect(screen.getByRole('note').textContent).toContain(copy.hints.lines.queue)
+  expect(screen.getByRole('note').textContent).toContain(hintsLinesQueue())
   await vi.waitFor(() => expect(document.activeElement).toBe(fiefName()))
 })
 
@@ -428,11 +446,11 @@ it('adds no tab stop for a focus target', async () => {
 
   expect(fiefName().getAttribute('tabindex')).toBe('-1')
   expect(
-    screen.getByRole('heading', { level: 3, name: copy.study.section }).getAttribute('tabindex'),
+    screen.getByRole('heading', { level: 3, name: studySection() }).getAttribute('tabindex'),
   ).toBe('-1')
   expect(
     within(screen.getByRole('main'))
-      .getByText(copy.names.slot, { selector: 'span' })
+      .getByText(namesSlot(), { selector: 'span' })
       .getAttribute('tabindex'),
   ).toBe('-1')
 
@@ -443,7 +461,10 @@ it('adds no tab stop for a focus target', async () => {
     screen
       .getByRole('heading', {
         level: 3,
-        name: copy.map.heading(knownFief.coordinates.kingdom, knownFief.coordinates.province),
+        name: mapHeading({
+          kingdom: kingdomNameOf(knownFief.coordinates.kingdom),
+          province: knownFief.coordinates.province,
+        }),
       })
       .getAttribute('tabindex'),
   ).toBe('-1')

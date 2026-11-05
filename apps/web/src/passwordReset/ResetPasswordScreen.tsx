@@ -1,11 +1,21 @@
+import {
+  authSignInTitle,
+  passwordResetNewPasswordChanged,
+  passwordResetNewPasswordNewLink,
+  passwordResetNewPasswordPassword,
+  passwordResetNewPasswordPasswordHint,
+  passwordResetNewPasswordSubmit,
+  passwordResetNewPasswordTitle,
+  refusalTokenInvalid,
+} from '@mygame/catalog'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { AuthPanel } from '../auth/AuthPanel'
-import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { TextField } from '../design-system/TextField'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { ConfirmationLine } from './ConfirmationLine'
 
 export type ResetPasswordState =
@@ -28,22 +38,19 @@ interface NewPasswordFormProps {
 function NewPasswordForm(props: NewPasswordFormProps): ReactElement {
   const [password, setPassword] = useState('')
   return (
-    <AuthPanel
-      title={copy.passwordReset.newPassword.title}
-      onSubmit={() => props.onSubmit(password)}
-    >
+    <AuthPanel title={passwordResetNewPasswordTitle()} onSubmit={() => props.onSubmit(password)}>
       <TextField
-        label={copy.passwordReset.newPassword.password}
+        label={passwordResetNewPasswordPassword()}
         name="new-password"
         type="password"
         autoComplete="new-password"
         value={password}
         onChange={setPassword}
-        hint={copy.passwordReset.newPassword.passwordHint}
+        hint={passwordResetNewPasswordPasswordHint()}
       />
-      {props.refusal === undefined ? null : <FormAlert message={copy.refusals[props.refusal]} />}
+      {props.refusal === undefined ? null : <FormAlert message={refusalLineOf(props.refusal)} />}
       <Button type="submit" tone="primary" disabled={props.isSending}>
-        {copy.passwordReset.newPassword.submit}
+        {passwordResetNewPasswordSubmit()}
       </Button>
     </AuthPanel>
   )
@@ -62,22 +69,22 @@ export function ResetPasswordScreen({ state, onSubmit }: ResetPasswordScreenProp
       )
     case 'changed':
       return (
-        <AuthPanel title={copy.passwordReset.newPassword.title}>
-          <ConfirmationLine line={copy.passwordReset.newPassword.changed} />
+        <AuthPanel title={passwordResetNewPasswordTitle()}>
+          <ConfirmationLine line={passwordResetNewPasswordChanged()} />
           <span className="flex">
             <ButtonLink to="/sign-in" tone="primary">
-              {copy.passwordReset.newPassword.toSignIn}
+              {authSignInTitle()}
             </ButtonLink>
           </span>
         </AuthPanel>
       )
     case 'linkRefused':
       return (
-        <AuthPanel title={copy.passwordReset.newPassword.title}>
-          <FormAlert message={copy.refusals.TokenInvalid} />
+        <AuthPanel title={passwordResetNewPasswordTitle()}>
+          <FormAlert message={refusalTokenInvalid()} />
           <span className="flex">
             <ButtonLink to="/forgot-password" tone="quiet">
-              {copy.passwordReset.newPassword.newLink}
+              {passwordResetNewPasswordNewLink()}
             </ButtonLink>
           </span>
         </AuthPanel>

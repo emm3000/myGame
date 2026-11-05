@@ -1,9 +1,16 @@
+import {
+  authSignInTitle,
+  verificationVerifyTitle,
+  verificationVerifyToFief,
+  verificationVerifyVerified,
+  verificationVerifyVerifying,
+} from '@mygame/catalog'
 import type { ReactElement } from 'react'
 import { AuthPanel } from '../auth/AuthPanel'
-import { copy } from '../copy'
 import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { TextLink } from '../design-system/TextLink'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { VerifyEmailState } from './useVerifyEmail'
 
 export interface VerifyEmailScreenProps {
@@ -14,21 +21,21 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
   switch (state.kind) {
     case 'verifying':
       return (
-        <AuthPanel title={copy.verification.verify.title}>
+        <AuthPanel title={verificationVerifyTitle()}>
           <p role="status" className="m-0 font-body text-body text-ink-muted">
-            {copy.verification.verify.verifying}
+            {verificationVerifyVerifying()}
           </p>
         </AuthPanel>
       )
     case 'verified':
       return (
-        <AuthPanel title={copy.verification.verify.title}>
+        <AuthPanel title={verificationVerifyTitle()}>
           <p role="status" className="m-0 font-body text-body text-ink">
-            {copy.verification.verify.verified}
+            {verificationVerifyVerified()}
           </p>
           <span className="flex">
             <ButtonLink to="/" tone="primary">
-              {copy.verification.verify.toFief}
+              {verificationVerifyToFief()}
             </ButtonLink>
           </span>
         </AuthPanel>
@@ -36,10 +43,10 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
     case 'refused':
       return (
         <AuthPanel
-          title={copy.verification.verify.title}
-          footer={<TextLink to="/sign-in">{copy.verification.verify.toSignIn}</TextLink>}
+          title={verificationVerifyTitle()}
+          footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
         >
-          <FormAlert message={copy.refusals[state.refusal]} />
+          <FormAlert message={refusalLineOf(state.refusal)} />
         </AuthPanel>
       )
     default: {

@@ -1,3 +1,9 @@
+import {
+  mapHeading,
+  marchSendTo,
+  refusalProvinceNotFound,
+  refusalUnexpected,
+} from '@mygame/catalog'
 import type { ProvinceMap } from '@mygame/contracts'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
@@ -9,7 +15,7 @@ import {
   knownProvinceMap,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
+import { kingdomNameOf } from './kingdomNameOf'
 
 const signedInClientServing = (provinceMap: ApiClient['provinceMap']): ApiClient =>
   stubApiClient({ currentPlayer: async () => knownPlayer, provinceMap })
@@ -55,7 +61,7 @@ const provinceNumbered = (province: number | undefined): ProvinceMap => ({
 const showPlots = async (path: string, map: ProvinceMap): Promise<HTMLElement[]> => {
   renderAppAt(path, recordingClient(() => map).client)
   const list = await screen.findByRole('list', {
-    name: copy.map.heading(map.kingdom, map.province),
+    name: mapHeading({ kingdom: kingdomNameOf(map.kingdom), province: map.province }),
   })
   return within(list).getAllByRole('listitem')
 }
@@ -248,7 +254,7 @@ it.each([`${knownFiefPath}/mapa/0`, `${knownFiefPath}/mapa/abc`])(
     const { client, requested } = recordingClient(provinceNumbered)
     renderAppAt(path, client)
 
-    expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.ProvinceNotFound)
+    expect((await screen.findByRole('alert')).textContent).toBe(refusalProvinceNotFound())
     expect(screen.getByRole('link', { name: 'Ir a tu provincia' })).toBeDefined()
     expect(requested).toEqual([])
   },
@@ -260,7 +266,7 @@ it('shows the Spanish refusal when the map cannot be read', async () => {
     signedInClientServing(async () => ({ ok: false, refusal: 'Unexpected' })),
   )
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.Unexpected)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalUnexpected())
   expect(screen.queryByRole('link', { name: 'Ir a tu provincia' })).toBeNull()
 })
 
@@ -341,14 +347,14 @@ it('reads a plot the lord reserved', async () => {
 it('offers no action on a reserved plot', async () => {
   const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(true))
 
-  expect(await screen.findByRole('button', { name: copy.march.sendTo(6) })).toBeDefined()
+  expect(await screen.findByRole('button', { name: marchSendTo({ plot: 6 }) })).toBeDefined()
   expect(within(plots[4] as HTMLElement).queryByRole('button')).toBeNull()
 })
 
 it('offers no action on a plot another lord reserved', async () => {
   const plots = await showPlots(`${knownFiefPath}/mapa`, reservedBy(false))
 
-  expect(await screen.findByRole('button', { name: copy.march.sendTo(6) })).toBeDefined()
+  expect(await screen.findByRole('button', { name: marchSendTo({ plot: 6 }) })).toBeDefined()
   expect(within(plots[4] as HTMLElement).queryByRole('button')).toBeNull()
 })
 

@@ -1,3 +1,4 @@
+import { mapHeading, refusalPlotHeld } from '@mygame/catalog'
 import type { DispatchMarchRequest, FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
@@ -9,8 +10,8 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { kingdomNameOf } from './kingdomNameOf'
 
 const fiefWithTenInfantry: FiefOverview = {
   ...knownFief,
@@ -87,7 +88,7 @@ const showMap = async (
     }),
   )
   const list = await screen.findByRole('list', {
-    name: copy.map.heading(map.kingdom, map.province),
+    name: mapHeading({ kingdom: kingdomNameOf(map.kingdom), province: map.province }),
   })
   await screen.findAllByRole('button', { name: /^Enviar una marcha a parcela/ })
   return within(list).getAllByRole('listitem')
@@ -292,7 +293,7 @@ it('shows the refusal the api answered', async () => {
 
   fireEvent.click(sendButton(form))
 
-  expect((await screen.findByRole('alert')).textContent).toBe(copy.refusals.PlotHeld)
+  expect((await screen.findByRole('alert')).textContent).toBe(refusalPlotHeld())
 })
 
 it('renders a stay refusal from its maxStayHours', async () => {
@@ -358,7 +359,10 @@ it('moves focus to the province heading when a march is sent', async () => {
   await screen.findByRole('status')
   await waitFor(() =>
     expect(document.activeElement).toBe(
-      screen.getByRole('heading', { level: 3, name: copy.map.heading(uplands.kingdom, 2) }),
+      screen.getByRole('heading', {
+        level: 3,
+        name: mapHeading({ kingdom: kingdomNameOf(uplands.kingdom), province: 2 }),
+      }),
     ),
   )
 })

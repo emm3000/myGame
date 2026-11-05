@@ -1,3 +1,13 @@
+import {
+  marchInvalidCount,
+  marchInvalidHours,
+  marchLootHeading,
+  marchMarchAway,
+  marchReturnHeading,
+  marchRoadHeading,
+  marchSend,
+  marchTitle,
+} from '@mygame/catalog'
 import type {
   FiefOverview,
   ProvinceMap,
@@ -6,7 +16,6 @@ import type {
   Terrain,
 } from '@mygame/contracts'
 import { ResourceKindSchema } from '@mygame/contracts'
-import { copy } from '../copy'
 import type { MarchActionState } from '../design-system/CardAction'
 import { formatDuration } from '../design-system/formatDuration'
 import type { MarchFormProps } from '../design-system/MarchForm'
@@ -14,7 +23,9 @@ import type { PreviewLine } from '../design-system/PreviewLines'
 import type { SeasonMarkProps } from '../design-system/SeasonMark'
 import { recruitCountOf } from '../fief/unitCardOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
 import { neutralPercent } from '../seasons/neutralPercent'
+import { seasonMarkLineOf } from '../seasons/seasonMarkLineOf'
 import { partyKinds } from '../units/partyKinds'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
@@ -96,7 +107,7 @@ function lootMarksOf(terrain: Terrain, fief: FiefOverview): ReadonlyArray<Season
     )
     .map((resource) => ({
       season: season.kind,
-      words: copy.fief.seasonMark(season.kind, resource, season.multiplierPercent[resource]),
+      words: seasonMarkLineOf(season.kind, resource, season.multiplierPercent[resource]),
     }))
 }
 
@@ -115,19 +126,19 @@ function previewOf(
   const loot = lootOf(target.terrain, party, hours, fief)
   return [
     {
-      heading: copy.march.roadHeading,
+      heading: marchRoadHeading(),
       value: formatDuration(oneWaySeconds),
       isNumeral: true,
       marks: roadMarksOf(fief),
     },
     {
-      heading: copy.march.returnHeading,
+      heading: marchReturnHeading(),
       value: formatDuration(2 * oneWaySeconds + hours * secondsPerHour),
       isNumeral: true,
     },
     {
-      heading: copy.march.lootHeading,
-      value: copy.march.loot(quantitiesOf(loot)),
+      heading: marchLootHeading(),
+      value: quantitiesPhraseOf(quantitiesOf(loot)),
       isNumeral: false,
       marks: lootMarksOf(target.terrain, fief),
     },
@@ -140,13 +151,16 @@ function stateOf(
   fief: FiefOverview,
 ): MarchActionState {
   if (fief.march !== null) {
-    return { kind: 'blocked', reason: copy.march.marchAway }
+    return { kind: 'blocked', reason: marchMarchAway() }
   }
   if (party === undefined) {
-    return { kind: 'blocked', reason: copy.march.invalidCount }
+    return { kind: 'blocked', reason: marchInvalidCount() }
   }
   if (hours === undefined) {
-    return { kind: 'blocked', reason: copy.march.invalidHours(fief.forageTerms.maxStayHours) }
+    return {
+      kind: 'blocked',
+      reason: marchInvalidHours({ maxStayHours: fief.forageTerms.maxStayHours }),
+    }
   }
   const reason = partyReasonOf(party, fief)
   return reason === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason }
@@ -160,14 +174,14 @@ export function marchFormOf(
   const party = partyOf(entries.units)
   const hours = hoursOf(entries.hours, fief.forageTerms.maxStayHours)
   return {
-    title: copy.march.title(target.province, target.plot),
+    title: marchTitle({ province: target.province, plot: target.plot }),
     atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
     preview:
       party === undefined || hours === undefined || isEmptyParty(party)
         ? undefined
         : previewOf(target, party, hours, fief),
-    actionLabel: copy.march.send,
+    actionLabel: marchSend(),
     state: stateOf(party, hours, fief),
   }
 }

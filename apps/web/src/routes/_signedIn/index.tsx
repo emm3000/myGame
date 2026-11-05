@@ -1,11 +1,11 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
-import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
+import { refusalLineOf } from '../../refusals/refusalLineOf'
 
 function FirstFiefRefusal(): ReactElement {
   const refusal = Route.useLoaderData()
-  return <FormAlert message={copy.refusals[refusal]} />
+  return <FormAlert message={refusalLineOf(refusal)} />
 }
 
 export const Route = createFileRoute('/_signedIn/')({

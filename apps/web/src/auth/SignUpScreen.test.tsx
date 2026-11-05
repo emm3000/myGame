@@ -1,21 +1,29 @@
+import {
+  authEmail,
+  authPassword,
+  authSignUpFiefName,
+  authSignUpSubmit,
+  refusalEmailTaken,
+  refusalMalformedEmail,
+  refusalWeakPassword,
+} from '@mygame/catalog'
 import type { SignUpRequest } from '@mygame/contracts'
 import { fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import { copy } from '../copy'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
 const fillSignUp = async (request: SignUpRequest): Promise<void> => {
-  fireEvent.change(await screen.findByLabelText(copy.auth.email), {
+  fireEvent.change(await screen.findByLabelText(authEmail()), {
     target: { value: request.email },
   })
-  fireEvent.change(screen.getByLabelText(copy.auth.password), {
+  fireEvent.change(screen.getByLabelText(authPassword()), {
     target: { value: request.password },
   })
-  fireEvent.change(screen.getByLabelText(copy.auth.signUp.fiefName), {
+  fireEvent.change(screen.getByLabelText(authSignUpFiefName()), {
     target: { value: request.fiefName },
   })
-  fireEvent.click(screen.getByRole('button', { name: copy.auth.signUp.submit }))
+  fireEvent.click(screen.getByRole('button', { name: authSignUpSubmit() }))
 }
 
 const newcomer: SignUpRequest = {
@@ -32,8 +40,8 @@ it('shows the Spanish message for a taken email', async () => {
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByText(copy.refusals.EmailTaken)).toBeDefined()
-  expect(screen.getByLabelText(copy.auth.email).getAttribute('aria-invalid')).toBe('true')
+  expect(await screen.findByText(refusalEmailTaken())).toBeDefined()
+  expect(screen.getByLabelText(authEmail()).getAttribute('aria-invalid')).toBe('true')
 })
 
 it('marks the email field for a malformed email the api refused', async () => {
@@ -44,8 +52,8 @@ it('marks the email field for a malformed email the api refused', async () => {
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByText(copy.refusals.MalformedEmail)).toBeDefined()
-  expect(screen.getByLabelText(copy.auth.email).getAttribute('aria-invalid')).toBe('true')
+  expect(await screen.findByText(refusalMalformedEmail())).toBeDefined()
+  expect(screen.getByLabelText(authEmail()).getAttribute('aria-invalid')).toBe('true')
 })
 
 it('refuses to submit a password shorter than eight characters', async () => {
@@ -62,7 +70,7 @@ it('refuses to submit a password shorter than eight characters', async () => {
 
   await fillSignUp({ ...newcomer, password: 'piedra7' })
 
-  expect(await screen.findByText(copy.refusals.WeakPassword)).toBeDefined()
+  expect(await screen.findByText(refusalWeakPassword())).toBeDefined()
   expect(sentRequests).toEqual([])
 })
 

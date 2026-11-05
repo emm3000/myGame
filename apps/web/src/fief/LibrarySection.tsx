@@ -1,6 +1,21 @@
+import {
+  fiefFinished,
+  lessonCancelOf,
+  lessonCancelRefund,
+  lessonTitle,
+  namesBusyStudy,
+  namesIdleStudy,
+  namesLevel,
+  namesStudySlot,
+  studyCancel,
+  studyCancelOf,
+  studyCancelRefund,
+  studyJustFinished,
+  studySeasonMark,
+  studySection,
+} from '@mygame/catalog'
 import { type ArtKind, ArtKindSchema } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
-import { copy } from '../copy'
 import { ArtCard } from '../design-system/ArtCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
@@ -9,9 +24,13 @@ import { FormAlert } from '../design-system/FormAlert'
 import { Hint, type HintProps } from '../design-system/Hint'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hintFocusingAfterDismiss } from '../hints/hintFocusingAfterDismiss'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
+import { capitalizedSeasonWithArticleOf } from '../seasons/capitalizedSeasonWithArticleOf'
 import { formatFinish } from '../time/formatFinish'
 import { artCardOf } from './artCardOf'
+import { artNameOf } from './artNameOf'
 import { LessonCard } from './LessonCard'
 import { lessonCardOf } from './lessonCardOf'
 import type { LiveFief } from './liveFief'
@@ -20,8 +39,6 @@ import { seasonSectionMarkOf } from './seasonSectionMarkOf'
 import { sectionAnchors } from './sectionAnchors'
 import type { Study } from './useStudy'
 
-const { names } = copy
-
 type StudyWork = Exclude<LiveFief['overview']['study'], { readonly kind: 'idle' }>
 
 function workOf(slot: StudyWork): {
@@ -29,26 +46,26 @@ function workOf(slot: StudyWork): {
   readonly levelLabel: string | undefined
 } {
   if (slot.kind === 'lesson') {
-    return { buildingName: copy.lesson.title, levelLabel: undefined }
+    return { buildingName: lessonTitle(), levelLabel: undefined }
   }
   return {
-    buildingName: capitalize(names.arts[slot.art]),
-    levelLabel: names.level(slot.targetLevel),
+    buildingName: capitalize(artNameOf(slot.art)),
+    levelLabel: namesLevel({ level: slot.targetLevel }),
   }
 }
 
 function cancelOf(slot: StudyWork, study: Study, onCancelled: () => void): CancelAction {
   if (slot.kind === 'lesson') {
     return {
-      label: copy.study.cancel,
-      accessibleName: copy.lesson.cancelOf,
+      label: studyCancel(),
+      accessibleName: lessonCancelOf(),
       isWaiting: study.isWaiting,
       onCancel: () => study.cancelLesson(slot.lessonId, onCancelled),
     }
   }
   return {
-    label: copy.study.cancel,
-    accessibleName: copy.study.cancelOf(slot.art, slot.targetLevel),
+    label: studyCancel(),
+    accessibleName: studyCancelOf({ art: artNameOf(slot.art), level: slot.targetLevel }),
     isWaiting: study.isWaiting,
     onCancel: () => study.cancel({ art: slot.art, targetLevel: slot.targetLevel }, onCancelled),
   }
@@ -56,32 +73,32 @@ function cancelOf(slot: StudyWork, study: Study, onCancelled: () => void): Cance
 
 function refundOf(slot: StudyWork): string {
   if (slot.kind === 'lesson') {
-    return copy.lesson.cancelRefund
+    return lessonCancelRefund()
   }
-  return copy.study.cancelRefund(quantitiesOf(slot.cost))
+  return studyCancelRefund({ quantities: quantitiesPhraseOf(quantitiesOf(slot.cost)) })
 }
 
 function studySlotStateOf(fief: LiveFief, study: Study, onCancelled: () => void): BuildSlotState {
   const { study: slot } = fief.overview
   if (slot.kind === 'idle') {
-    return { kind: 'idle', title: names.studySlot, invitation: names.idleStudy }
+    return { kind: 'idle', title: namesStudySlot(), invitation: namesIdleStudy() }
   }
   const work = workOf(slot)
   if (fief.studyRemainingSeconds <= 0) {
     return {
       kind: 'justFinished',
-      title: names.studySlot,
-      message: copy.study.justFinished,
+      title: namesStudySlot(),
+      message: studyJustFinished(),
       ...work,
     }
   }
   return {
     kind: 'busy',
-    title: names.busyStudy,
+    title: namesBusyStudy(),
     remainingSeconds: fief.studyRemainingSeconds,
     time: formatFinish(fief.studyRemainingSeconds, fief.at),
     totalSeconds: fief.studyTotalSeconds,
-    finishedLabel: copy.fief.finished,
+    finishedLabel: fiefFinished(),
     cancel: cancelOf(slot, study, onCancelled),
     refund: refundOf(slot),
     ...work,
@@ -98,7 +115,7 @@ function ArtItem({
   readonly study: Study
 }): ReactElement {
   return (
-    <li aria-label={names.arts[art]} className="flex flex-col">
+    <li aria-label={artNameOf(art)} className="flex flex-col">
       <ArtCard
         {...artCardOf(art, fief)}
         titleElement="h4"
@@ -130,8 +147,10 @@ export function LibrarySection({
       <SeasonSectionHeading
         id={headingId}
         headingRef={heading.ref}
-        title={copy.study.section}
-        mark={seasonSectionMarkOf(fief.overview.season, 'study', copy.study.seasonMark)}
+        title={studySection()}
+        mark={seasonSectionMarkOf(fief.overview.season, 'study', (season) =>
+          studySeasonMark({ season: capitalizedSeasonWithArticleOf(season) }),
+        )}
       />
       {hint !== undefined && <Hint {...hintFocusingAfterDismiss(hint, heading.focus)} />}
       <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -144,7 +163,7 @@ export function LibrarySection({
             <ArtItem key={art} art={art} fief={fief} study={study} />
           ))}
           {fief.overview.lessons.map((lesson) => (
-            <li key={lesson.id} aria-label={copy.lesson.title} className="flex flex-col">
+            <li key={lesson.id} aria-label={lessonTitle()} className="flex flex-col">
               <LessonCard
                 fiefId={fief.overview.id}
                 theme={lesson.theme}
@@ -156,7 +175,7 @@ export function LibrarySection({
           ))}
         </ul>
       </div>
-      {study.refusal !== undefined && <FormAlert message={copy.refusals[study.refusal]} />}
+      {study.refusal !== undefined && <FormAlert message={refusalLineOf(study.refusal)} />}
     </section>
   )
 }

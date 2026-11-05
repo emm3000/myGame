@@ -1,9 +1,22 @@
+import {
+  foundingArrivalHeading,
+  marchInvalidCount,
+  marchMarchAway,
+  marchRoadHeading,
+  refusalEmptyCargo,
+  transportCargoAboveCarry,
+  transportCargoHeading,
+  transportCarry,
+  transportSend,
+  transportTitle,
+} from '@mygame/catalog'
 import type { FiefOverview, ResourceAmounts } from '@mygame/contracts'
-import { copy } from '../copy'
 import type { MarchActionState } from '../design-system/CardAction'
 import { formatDuration } from '../design-system/formatDuration'
+import { formatQuantity } from '../design-system/formatQuantity'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { shortfallsOf } from '../fief/shortfallsOf'
+import { tooExpensiveLineOf } from '../fief/tooExpensiveLineOf'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
 import { type CargoEntries, cargoOf } from './cargoOf'
@@ -38,8 +51,11 @@ function previewOf(
   fief: FiefOverview,
 ): ReadonlyArray<PreviewLine> {
   const carryLine: PreviewLine = {
-    heading: copy.transport.cargoHeading,
-    value: copy.transport.carry(cargoTotalOf(cargo), carryOf(party, fief)),
+    heading: transportCargoHeading(),
+    value: transportCarry({
+      cargo: formatQuantity(cargoTotalOf(cargo)),
+      carry: formatQuantity(carryOf(party, fief)),
+    }),
     isNumeral: true,
   }
   if (isEmptyParty(party)) {
@@ -48,8 +64,8 @@ function previewOf(
   const oneWay = formatDuration(oneWaySecondsOf(target, party, fief))
   return [
     carryLine,
-    { heading: copy.march.roadHeading, value: oneWay, isNumeral: true, marks: roadMarksOf(fief) },
-    { heading: copy.founding.arrivalHeading, value: oneWay, isNumeral: true },
+    { heading: marchRoadHeading(), value: oneWay, isNumeral: true, marks: roadMarksOf(fief) },
+    { heading: foundingArrivalHeading(), value: oneWay, isNumeral: true },
   ]
 }
 
@@ -60,14 +76,14 @@ function cargoReasonOf(
 ): string | undefined {
   const total = cargoTotalOf(cargo)
   if (total === 0) {
-    return copy.transport.emptyCargo
+    return refusalEmptyCargo()
   }
   const carry = carryOf(party, fief)
   if (total > carry) {
-    return copy.transport.cargoAboveCarry(total, carry)
+    return transportCargoAboveCarry({ cargo: formatQuantity(total), carry: formatQuantity(carry) })
   }
   const shortfalls = shortfallsOf(cargo, stocksOf(fief))
-  return shortfalls.length === 0 ? undefined : copy.fief.tooExpensive(shortfalls)
+  return shortfalls.length === 0 ? undefined : tooExpensiveLineOf(shortfalls)
 }
 
 function stateOf(
@@ -76,10 +92,10 @@ function stateOf(
   fief: FiefOverview,
 ): MarchActionState {
   if (fief.march !== null) {
-    return { kind: 'blocked', reason: copy.march.marchAway }
+    return { kind: 'blocked', reason: marchMarchAway() }
   }
   if (party === undefined || cargo === undefined) {
-    return { kind: 'blocked', reason: copy.march.invalidCount }
+    return { kind: 'blocked', reason: marchInvalidCount() }
   }
   const reason = partyReasonOf(party, fief) ?? cargoReasonOf(party, cargo, fief)
   return reason === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason }
@@ -93,14 +109,14 @@ export function transportFormOf(
   const party = partyOf(entries.units)
   const cargo = cargoOf(entries.cargo)
   return {
-    title: copy.transport.title(target.province, target.plot),
+    title: transportTitle({ province: target.province, plot: target.plot }),
     atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
     preview:
       party === undefined || cargo === undefined
         ? undefined
         : previewOf(target, party, cargo, fief),
-    actionLabel: copy.transport.send,
+    actionLabel: transportSend(),
     state: stateOf(party, cargo, fief),
   }
 }

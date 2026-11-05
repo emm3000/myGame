@@ -1,3 +1,10 @@
+import {
+  goalDismiss,
+  goalTitle,
+  refusalQueueFull,
+  refusalUnexpected,
+  shellFiefSwitcherLabel,
+} from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +16,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -89,10 +95,10 @@ const showFief = async (
   await passSeconds(0)
 }
 
-const goalCard = (): HTMLElement => screen.getByRole('article', { name: copy.goal.title })
+const goalCard = (): HTMLElement => screen.getByRole('article', { name: goalTitle() })
 
 const dismissButton = (): HTMLElement =>
-  within(goalCard()).getByRole('button', { name: copy.goal.dismiss })
+  within(goalCard()).getByRole('button', { name: goalDismiss() })
 
 it('shows the next goal with what is missing', async () => {
   await showFief(barracksShortOfIronAndPeasants)
@@ -119,15 +125,15 @@ it('reads ready when nothing is missing', async () => {
 it('reads the full queue instead of ready when no work can be ordered', async () => {
   await showFief(farmBehindAFullQueue)
 
-  expect(within(goalCard()).getByText(copy.refusals.QueueFull)).toBeDefined()
+  expect(within(goalCard()).getByText(refusalQueueFull())).toBeDefined()
   expect(within(goalCard()).queryByText('Tienes lo que hace falta.')).toBeNull()
 })
 
 it('shows no goal card without a goal', async () => {
   await showFief(knownFief)
 
-  expect(screen.queryByRole('article', { name: copy.goal.title })).toBeNull()
-  expect(screen.queryByText(copy.goal.title)).toBeNull()
+  expect(screen.queryByRole('article', { name: goalTitle() })).toBeNull()
+  expect(screen.queryByText(goalTitle())).toBeNull()
 })
 
 it('removes the goal card after Descartar', async () => {
@@ -138,7 +144,7 @@ it('removes the goal card after Descartar', async () => {
   await passSeconds(0)
 
   expect(dismissGuidance).toHaveBeenCalledWith(knownFief.id)
-  expect(screen.queryByRole('article', { name: copy.goal.title })).toBeNull()
+  expect(screen.queryByRole('article', { name: goalTitle() })).toBeNull()
 })
 
 it('keeps the goal card when Descartar is refused', async () => {
@@ -149,7 +155,7 @@ it('keeps the goal card when Descartar is refused', async () => {
   fireEvent.click(dismissButton())
   await passSeconds(0)
 
-  expect(within(goalCard()).getByRole('alert').textContent).toBe(copy.refusals.Unexpected)
+  expect(within(goalCard()).getByRole('alert').textContent).toBe(refusalUnexpected())
 })
 
 it('sends Descartar once on a double click', async () => {
@@ -203,7 +209,7 @@ it('keeps the goal of the other fief after Descartar', async () => {
 
   fireEvent.click(dismissButton())
   await passSeconds(0)
-  const switcher = screen.getByRole('navigation', { name: copy.shell.fiefSwitcher.label })
+  const switcher = screen.getByRole('navigation', { name: shellFiefSwitcherLabel() })
   fireEvent.click(within(switcher).getByRole('link', { name: /Sotoverde del Páramo/ }))
   await passSeconds(0)
 

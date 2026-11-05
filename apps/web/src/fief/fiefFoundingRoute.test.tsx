@@ -1,3 +1,4 @@
+import { armySection, marchIdleSlot } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +10,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -82,19 +82,19 @@ const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const line = (text: string): HTMLElement | null =>
-  within(armySection()).queryByText(
+  within(armyRegion()).queryByText(
     (_, element) =>
       element?.textContent === text &&
       Array.from(element.children).every((child) => child.textContent !== text),
   )
 
-const countdown = (): HTMLElement => within(armySection()).getByRole('timer')
+const countdown = (): HTMLElement => within(armyRegion()).getByRole('timer')
 
 const recallButton = (): HTMLElement | null =>
-  within(armySection()).queryByRole('button', { name: 'Retirar la marcha: 1 colono' })
+  within(armyRegion()).queryByRole('button', { name: 'Retirar la marcha: 1 colono' })
 
 it('shows the founding march outbound with its recall', async () => {
   const recallMarch = vi.fn(
@@ -109,7 +109,7 @@ it('shows the founding march outbound with its recall', async () => {
   expect(line('Nuevo feudo: Sotoverde del Páramo')).not.toBeNull()
   expect(within(countdown()).getByText('Llegada en')).toBeDefined()
   expect(within(countdown()).getByText('12 min')).toBeDefined()
-  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+  expect(within(armyRegion()).queryByText(/Botín/)).toBeNull()
 
   fireEvent.click(recallButton() as HTMLElement)
   await passSeconds(0)
@@ -125,8 +125,8 @@ it('shows a recalled founding returning with its settler', async () => {
   expect(line('Marcha de vuelta: 1 colono desde provincia 2, parcela 7')).not.toBeNull()
   expect(within(countdown()).getByText('Vuelta en')).toBeDefined()
   expect(within(countdown()).getByText('10 min')).toBeDefined()
-  expect(within(armySection()).queryByText(/Nuevo feudo/)).toBeNull()
-  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+  expect(within(armyRegion()).queryByText(/Nuevo feudo/)).toBeNull()
+  expect(within(armyRegion()).queryByText(/Botín/)).toBeNull()
   expect(recallButton()).toBeNull()
 })
 
@@ -146,5 +146,5 @@ it('reads the founded fief at the arrival', async () => {
 
   await passSeconds(40)
 
-  expect(line(copy.march.idleSlot)).not.toBeNull()
+  expect(line(marchIdleSlot())).not.toBeNull()
 })

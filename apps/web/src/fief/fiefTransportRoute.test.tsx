@@ -1,3 +1,4 @@
+import { armySection } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +10,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -82,19 +82,19 @@ const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const line = (text: string): HTMLElement | null =>
-  within(armySection()).queryByText(
+  within(armyRegion()).queryByText(
     (_, element) =>
       element?.textContent === text &&
       Array.from(element.children).every((child) => child.textContent !== text),
   )
 
-const countdown = (): HTMLElement => within(armySection()).getByRole('timer')
+const countdown = (): HTMLElement => within(armyRegion()).getByRole('timer')
 
 const recallButton = (): HTMLElement | null =>
-  within(armySection()).queryByRole('button', { name: 'Retirar la marcha: 6 jinetes' })
+  within(armyRegion()).queryByRole('button', { name: 'Retirar la marcha: 6 jinetes' })
 
 const cargoLine = 'Carga: 300 de madera, 200 de piedra y 220 de hierro'
 
@@ -114,7 +114,7 @@ it('shows the transport outbound with its cargo and recall', async () => {
   expect(line(cargoLine)).not.toBeNull()
   expect(within(countdown()).getByText('Llegada en')).toBeDefined()
   expect(within(countdown()).getByText('5 min')).toBeDefined()
-  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+  expect(within(armyRegion()).queryByText(/Botín/)).toBeNull()
 
   fireEvent.click(recallButton() as HTMLElement)
   await passSeconds(0)
@@ -151,12 +151,12 @@ it('shows a recalled transport returning with its cargo', async () => {
   expect(within(countdown()).getByText('Vuelta en')).toBeDefined()
   expect(within(countdown()).getByText('5 min')).toBeDefined()
   expect(recallButton()).toBeNull()
-  expect(within(armySection()).queryByText(/Botín/)).toBeNull()
+  expect(within(armyRegion()).queryByText(/Botín/)).toBeNull()
 })
 
 it('reads the cargo once on a recalled transport', async () => {
   await showFief({ fief: async () => ({ ok: true, value: answeredNow(transportRecalled) }) })
 
-  expect(within(armySection()).getAllByText(/Carga:/)).toHaveLength(1)
-  expect(within(armySection()).queryByText(/Botín:/)).toBeNull()
+  expect(within(armyRegion()).getAllByText(/Carga:/)).toHaveLength(1)
+  expect(within(armyRegion()).queryByText(/Botín:/)).toBeNull()
 })

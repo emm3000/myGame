@@ -1,8 +1,13 @@
+import {
+  chronicleTitle,
+  shellNavigationChronicle,
+  shellNavigationFief,
+  shellNavigationMap,
+} from '@mygame/catalog'
 import { fireEvent, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 const signedInClient = stubApiClient({ currentPlayer: async () => knownPlayer })
 
@@ -15,9 +20,9 @@ const navigationLink = async (name: string): Promise<HTMLElement> =>
 it('marks the current screen in the navigation', async () => {
   renderAppAt(knownFiefPath, signedInClient)
 
-  const fief = await navigationLink(copy.shell.navigation.fief)
-  const map = await navigationLink(copy.shell.navigation.map)
-  const chronicle = await navigationLink(copy.shell.navigation.chronicle)
+  const fief = await navigationLink(shellNavigationFief())
+  const map = await navigationLink(shellNavigationMap())
+  const chronicle = await navigationLink(shellNavigationChronicle())
 
   expect(fief.getAttribute('aria-current')).toBe('page')
   expect(map.getAttribute('aria-current')).toBeNull()
@@ -33,8 +38,8 @@ it('lists the fief, the map and the chronicle in the navigation', async () => {
 })
 
 const expectMapMarked = async (): Promise<void> => {
-  const map = await navigationLink(copy.shell.navigation.map)
-  const fief = await navigationLink(copy.shell.navigation.fief)
+  const map = await navigationLink(shellNavigationMap())
+  const fief = await navigationLink(shellNavigationFief())
 
   expect(map.getAttribute('aria-current')).toBe('page')
   expect(fief.getAttribute('aria-current')).toBeNull()
@@ -55,10 +60,10 @@ it('marks the map in the navigation on a numbered province', async () => {
 it('opens the chronicle from the fief screen', async () => {
   renderAppAt(knownFiefPath, signedInClient)
 
-  fireEvent.click(await navigationLink(copy.shell.navigation.chronicle))
+  fireEvent.click(await navigationLink(shellNavigationChronicle()))
 
-  expect(await screen.findByRole('heading', { level: 2, name: copy.chronicle.title })).toBeDefined()
-  expect((await navigationLink(copy.shell.navigation.chronicle)).getAttribute('aria-current')).toBe(
+  expect(await screen.findByRole('heading', { level: 2, name: chronicleTitle() })).toBeDefined()
+  expect((await navigationLink(shellNavigationChronicle())).getAttribute('aria-current')).toBe(
     'page',
   )
 })

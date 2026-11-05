@@ -1,9 +1,27 @@
+import {
+  mapCampStrength,
+  marchAttack,
+  marchAttackTitle,
+  marchBattleHeading,
+  marchBattleLost,
+  marchBattleWon,
+  marchCampHeading,
+  marchCampLossesHeading,
+  marchInvalidCount,
+  marchLootHeading,
+  marchLossesHeading,
+  marchMarchAway,
+  marchReturnHeading,
+  marchRoadHeading,
+  marchSurvivorsHeading,
+} from '@mygame/catalog'
 import type { FiefOverview, ResourceAmounts, Terrain } from '@mygame/contracts'
-import { copy } from '../copy'
 import type { MarchActionState } from '../design-system/CardAction'
 import { formatDuration } from '../design-system/formatDuration'
 import type { PreviewLine } from '../design-system/PreviewLines'
 import { quantitiesOf } from '../resources/quantitiesOf'
+import { quantitiesPhraseOf } from '../resources/quantitiesPhraseOf'
+import { sentPartyPhraseOf } from '../units/sentPartyPhraseOf'
 import type { UnitCounts } from '../units/UnitCounts'
 import { atHomeTalliesOf } from './atHomeTalliesOf'
 import { carryOf } from './carryOf'
@@ -55,52 +73,49 @@ function previewOf(
   const loot = quantitiesOf(lootOf(target.terrain, strength, battle.survivors, fief))
   const lines: ReadonlyArray<PreviewLine> = [
     {
-      heading: copy.march.roadHeading,
+      heading: marchRoadHeading(),
       value: formatDuration(oneWaySeconds),
       isNumeral: true,
       marks: roadMarksOf(fief),
     },
     {
-      heading: copy.march.returnHeading,
+      heading: marchReturnHeading(),
       value: formatDuration(2 * oneWaySeconds),
       isNumeral: true,
     },
     {
-      heading: copy.march.campHeading,
-      value: copy.map.campStrength(tier, strength),
+      heading: marchCampHeading(),
+      value: mapCampStrength({ tier, strength }),
       isNumeral: false,
     },
     {
-      heading: copy.march.battleHeading,
-      value: copy.march.battleOutcome(battle.isWon),
+      heading: marchBattleHeading(),
+      value: battle.isWon ? marchBattleWon() : marchBattleLost(),
       isNumeral: false,
     },
     {
-      heading: copy.march.lossesHeading,
-      value: copy.march.party(battle.unitsLost, party),
+      heading: marchLossesHeading(),
+      value: sentPartyPhraseOf(battle.unitsLost, party),
       isNumeral: false,
     },
-    { heading: copy.march.campLossesHeading, value: String(battle.campLost), isNumeral: true },
+    { heading: marchCampLossesHeading(), value: String(battle.campLost), isNumeral: true },
     {
-      heading: copy.march.survivorsHeading,
-      value: copy.march.party(battle.survivors, party),
+      heading: marchSurvivorsHeading(),
+      value: sentPartyPhraseOf(battle.survivors, party),
       isNumeral: false,
     },
   ]
   return loot.length === 0
     ? lines
-    : [
-        ...lines,
-        { heading: copy.march.lootHeading, value: copy.march.loot(loot), isNumeral: false },
-      ]
+    : [...lines, { heading: marchLootHeading(), value: quantitiesPhraseOf(loot), isNumeral: false }]
 }
 
 function stateOf(party: UnitCounts | undefined, fief: FiefOverview): MarchActionState {
   if (fief.march !== null) {
-    return { kind: 'blocked', reason: copy.march.marchAway }
+    return { kind: 'blocked', reason: marchMarchAway() }
   }
   if (party === undefined) {
-    return { kind: 'blocked', reason: copy.march.invalidCount }
+    return { kind: 'blocked', reason: marchInvalidCount() }
   }
   const reason = partyReasonOf(party, fief)
   return reason === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason }
@@ -113,12 +128,12 @@ export function attackFormOf(
 ): MarchFormContent {
   const party = partyOf(entries)
   return {
-    title: copy.march.attackTitle(target.province, target.plot),
+    title: marchAttackTitle({ province: target.province, plot: target.plot }),
     atHome: atHomeTalliesOf(fief),
     isFieldDisabled: fief.march !== null,
     preview:
       party === undefined || isEmptyParty(party) ? undefined : previewOf(target, party, fief),
-    actionLabel: copy.march.attack,
+    actionLabel: marchAttack(),
     state: stateOf(party, fief),
   }
 }

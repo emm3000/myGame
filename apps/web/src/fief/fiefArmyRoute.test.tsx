@@ -1,3 +1,4 @@
+import { armySection, armySlot, namesUnitsInfantryPlural } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { act, cleanup, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -9,7 +10,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import { servingOnceThenHolding } from './servingOnceThenHolding.testSupport'
 
@@ -72,10 +72,10 @@ const showFief = async (overrides: Partial<ApiClient>): Promise<void> => {
   await passSeconds(0)
 }
 
-const armySection = (): HTMLElement => screen.getByRole('region', { name: copy.army.section })
+const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
 const infantryCard = (): HTMLElement =>
-  within(armySection()).getByRole('listitem', { name: copy.names.units.infantry.plural })
+  within(armyRegion()).getByRole('listitem', { name: namesUnitsInfantryPlural() })
 
 const countField = (): HTMLElement =>
   within(infantryCard()).getByRole('spinbutton', { name: 'Infantes a reclutar' })
@@ -83,7 +83,7 @@ const countField = (): HTMLElement =>
 const recruitButton = (): HTMLElement => within(infantryCard()).getByRole('button')
 
 const cancelButton = (): HTMLElement =>
-  within(armySection()).getByRole('button', { name: 'Cancelar la leva: 12 infantes' })
+  within(armyRegion()).getByRole('button', { name: 'Cancelar la leva: 12 infantes' })
 
 const unitCountOf = (card: HTMLElement, text: string): HTMLElement =>
   within(card).getByText(
@@ -99,13 +99,13 @@ const typeCount = (count: string): void => {
 it('shows no army section without a barracks', async () => {
   await showFief({ fief: async () => ({ ok: true, value: knownFief }) })
 
-  expect(screen.queryByRole('region', { name: copy.army.section })).toBeNull()
+  expect(screen.queryByRole('region', { name: armySection() })).toBeNull()
 })
 
 it('shows the infantry count and the form from barracks level 1', async () => {
   await showFief({})
 
-  expect(within(armySection()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
+  expect(within(armyRegion()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
   expect(within(infantryCard()).getByRole('heading', { name: 'Infantes' })).toBeDefined()
   expect(unitCountOf(infantryCard(), '12 infantes en casa')).toBeDefined()
   expect(countField()).toBeDefined()
@@ -185,7 +185,7 @@ it('places the order and shows it open', async () => {
   await passSeconds(0)
 
   expect(placeRecruitOrder).toHaveBeenCalledWith(knownFief.id, { unit: 'infantry', count: 8 })
-  expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
+  expect(within(armyRegion()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
   expect(accessibleDescriptionOf(recruitButton())).toBe('Ya hay una leva en marcha.')
   expect(countField().hasAttribute('disabled')).toBe(true)
 })
@@ -200,7 +200,7 @@ it('shows the refusal the api answered', async () => {
   fireEvent.click(recruitButton())
   await passSeconds(0)
 
-  expect(within(armySection()).getByRole('alert').textContent).toBe(
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
     'El cuartel ya tiene una leva en marcha. Espera a que termine.',
   )
 
@@ -214,7 +214,7 @@ it('shows the refusal the api answered', async () => {
   fireEvent.click(cancelButton())
   await passSeconds(0)
 
-  expect(within(armySection()).getByRole('alert').textContent).toBe(
+  expect(within(armyRegion()).getByRole('alert').textContent).toBe(
     'El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.',
   )
 })
@@ -255,15 +255,15 @@ it('raises the count one unit per period between reads', async () => {
   await passSeconds(1)
 
   expect(unitCountOf(infantryCard(), '16 infantes en casa')).toBeDefined()
-  expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
+  expect(within(armyRegion()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
 })
 
 it('reads the units delivered and when the levy ends, with no next unit countdown', async () => {
   await showFief({ fief: servingOnceThenHolding(orderOfTwelve) })
 
-  expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
+  expect(within(armyRegion()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
   expect(
-    within(armySection())
+    within(armyRegion())
       .getAllByRole('timer')
       .map((timer) => timer.textContent),
   ).toEqual(['Leva completa en12 min'])
@@ -284,11 +284,11 @@ it('repaints the levy at each delivery', async () => {
   }
   await showFief({ fief: servingOnceThenHolding(unitDueInHalfAMinute) })
   await passSeconds(29)
-  expect(within(armySection()).getByText('3 de 12 infantes', { exact: false })).toBeDefined()
+  expect(within(armyRegion()).getByText('3 de 12 infantes', { exact: false })).toBeDefined()
 
   await passSeconds(1)
 
-  expect(within(armySection()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
+  expect(within(armyRegion()).getByText('4 de 12 infantes', { exact: false })).toBeDefined()
   expect(unitCountOf(infantryCard(), '16 infantes en casa')).toBeDefined()
 })
 
@@ -307,11 +307,11 @@ it('ticks the seconds of the levy only in its last minute', async () => {
   }
   await showFief({ fief: servingOnceThenHolding(levyEndingInFortyFiveSeconds) })
   await passSeconds(1)
-  expect(within(armySection()).getByRole('timer').textContent).toBe('Leva completa en0:44')
+  expect(within(armyRegion()).getByRole('timer').textContent).toBe('Leva completa en0:44')
 
   await passSeconds(1)
 
-  expect(within(armySection()).getByRole('timer').textContent).toBe('Leva completa en0:43')
+  expect(within(armyRegion()).getByRole('timer').textContent).toBe('Leva completa en0:43')
 })
 
 it('reads the fief again when the order ends', async () => {
@@ -346,7 +346,7 @@ it('shows the cancel on the order in progress', async () => {
 it('shows no cancel with the recruit slot idle', async () => {
   await showFief({})
 
-  expect(within(armySection()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
+  expect(within(armyRegion()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
 })
 
 it('cancels the order named by its unit and start', async () => {
@@ -377,9 +377,9 @@ it('shows the slot idle and the delivered units after the cancel', async () => {
   fireEvent.click(cancelButton())
   await passSeconds(0)
 
-  expect(within(armySection()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
+  expect(within(armyRegion()).getByText('El cuartel no tiene leva en marcha.')).toBeDefined()
   expect(unitCountOf(infantryCard(), '17 infantes en casa')).toBeDefined()
-  expect(within(armySection()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
+  expect(within(armyRegion()).queryByRole('button', { name: /Cancelar la leva/ })).toBeNull()
 })
 
 it('sends one cancel on a double click', async () => {
@@ -428,7 +428,7 @@ it('moves focus to the slot title when the order is cancelled', async () => {
 
   await pressCancel()
 
-  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(copy.army.slot))
+  await vi.waitFor(() => expect(document.activeElement?.textContent).toBe(armySlot()))
 })
 
 it('keeps focus on Cancelar la leva when the cancel is refused', async () => {

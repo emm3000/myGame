@@ -1,10 +1,20 @@
+import {
+  shellFiefSwitcherFullStore,
+  shellFiefSwitcherLabel,
+  shellFiefSwitcherSeparator,
+  statusIdleBuild,
+  statusIdleMarch,
+  statusIdleRecruit,
+  statusIdleStudy,
+} from '@mygame/catalog'
 import { Link, type LinkProps, useMatchRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
-import { copy } from '../copy'
 import { Chip } from '../design-system/Chip'
 import { MarchIcon } from '../design-system/icons/MarchIcon'
 import { SlotIcon } from '../design-system/icons/SlotIcon'
 import { resourceAccent } from '../design-system/resourceAccent'
+import { addressOf } from '../map/addressOf'
+import { resourceNameOf } from '../resources/resourceNameOf'
 import type { FiefEntries } from './useFiefList'
 
 export interface FiefSwitcherProps {
@@ -32,10 +42,10 @@ type FiefEntry = FiefEntries[number]
 type FreeSlot = FiefEntry['freeSlots'][number]
 
 const freeSlotLines: Readonly<Record<FreeSlot, string>> = {
-  build: copy.status.idleBuild,
-  study: copy.status.idleStudy,
-  recruit: copy.status.idleRecruit,
-  march: copy.status.idleMarch,
+  build: statusIdleBuild(),
+  study: statusIdleStudy(),
+  recruit: statusIdleRecruit(),
+  march: statusIdleMarch(),
 }
 
 function FreeSlotIcon({ slot }: { readonly slot: FreeSlot }): ReactElement {
@@ -46,7 +56,7 @@ function FiefBadges({ fief }: { readonly fief: FiefEntry }): ReactElement | null
   if (fief.freeSlots.length === 0 && fief.fullStores.length === 0) {
     return null
   }
-  const { separator, fullStore } = copy.shell.fiefSwitcher
+  const separator = shellFiefSwitcherSeparator()
   return (
     <span className="flex flex-wrap gap-1 pt-1 md:pt-0">
       {fief.freeSlots.map((slot) => (
@@ -67,7 +77,7 @@ function FiefBadges({ fief }: { readonly fief: FiefEntry }): ReactElement | null
                 <Icon />
               </span>
             }
-            text={fullStore(resource)}
+            text={shellFiefSwitcherFullStore({ resource: resourceNameOf(resource) })}
             separator={separator}
           />
         )
@@ -86,7 +96,8 @@ const otherNameClass = 'text-umber underline underline-offset-2'
 
 export function FiefSwitcher({ fiefs }: FiefSwitcherProps): ReactElement {
   const keptScreen = useKeptScreen()
-  const { label, separator } = copy.shell.fiefSwitcher
+  const label = shellFiefSwitcherLabel()
+  const separator = shellFiefSwitcherSeparator()
   return (
     <nav
       aria-label={label}
@@ -113,7 +124,7 @@ export function FiefSwitcher({ fiefs }: FiefSwitcherProps): ReactElement {
                     ·
                   </span>
                   <span className="whitespace-nowrap font-utility text-caption font-semibold text-ink-muted tabular-nums">
-                    {copy.names.address(fief.coordinates)}
+                    {addressOf(fief.coordinates)}
                   </span>
                   {!isActive && <FiefBadges fief={fief} />}
                 </>

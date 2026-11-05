@@ -1,12 +1,20 @@
+import {
+  authEmail,
+  authSignInTitle,
+  passwordResetRequestConfirmation,
+  passwordResetRequestSubmit,
+  passwordResetRequestTitle,
+  refusalMalformedEmail,
+} from '@mygame/catalog'
 import { ForgotPasswordRequestSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
 import { AuthPanel } from '../auth/AuthPanel'
-import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { ConfirmationLine } from './ConfirmationLine'
 
 export type ForgotPasswordState =
@@ -31,7 +39,7 @@ function RequestForm(props: RequestFormProps): ReactElement {
 
   const submit = (): void => {
     const isValid = ForgotPasswordRequestSchema.safeParse({ email }).success
-    setEmailError(isValid ? undefined : copy.auth.invalidEmail)
+    setEmailError(isValid ? undefined : refusalMalformedEmail())
     if (isValid) {
       props.onSubmit(email)
     }
@@ -39,12 +47,12 @@ function RequestForm(props: RequestFormProps): ReactElement {
 
   return (
     <AuthPanel
-      title={copy.passwordReset.request.title}
+      title={passwordResetRequestTitle()}
       onSubmit={submit}
-      footer={<TextLink to="/sign-in">{copy.passwordReset.request.toSignIn}</TextLink>}
+      footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
     >
       <TextField
-        label={copy.auth.email}
+        label={authEmail()}
         name="email"
         type="email"
         autoComplete="email"
@@ -52,9 +60,9 @@ function RequestForm(props: RequestFormProps): ReactElement {
         onChange={setEmail}
         error={emailError}
       />
-      {props.refusal === undefined ? null : <FormAlert message={copy.refusals[props.refusal]} />}
+      {props.refusal === undefined ? null : <FormAlert message={refusalLineOf(props.refusal)} />}
       <Button type="submit" tone="primary" disabled={props.isSending}>
-        {copy.passwordReset.request.submit}
+        {passwordResetRequestSubmit()}
       </Button>
     </AuthPanel>
   )
@@ -64,10 +72,10 @@ export function ForgotPasswordScreen({ state, onSubmit }: ForgotPasswordScreenPr
   if (state.kind === 'sent') {
     return (
       <AuthPanel
-        title={copy.passwordReset.request.title}
-        footer={<TextLink to="/sign-in">{copy.passwordReset.request.toSignIn}</TextLink>}
+        title={passwordResetRequestTitle()}
+        footer={<TextLink to="/sign-in">{authSignInTitle()}</TextLink>}
       >
-        <ConfirmationLine line={copy.passwordReset.request.confirmation} />
+        <ConfirmationLine line={passwordResetRequestConfirmation()} />
       </AuthPanel>
     )
   }

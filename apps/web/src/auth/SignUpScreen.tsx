@@ -1,11 +1,24 @@
+import {
+  authEmail,
+  authPassword,
+  authSignUpFiefName,
+  authSignUpPasswordHint,
+  authSignUpSubmit,
+  authSignUpSwitchLink,
+  authSignUpSwitchPrompt,
+  authSignUpTitle,
+  refusalBlankFiefName,
+  refusalMalformedEmail,
+  refusalWeakPassword,
+} from '@mygame/catalog'
 import { type SignUpRequest, SignUpRequestSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import type { ApiRefusal } from '../api/apiClient'
-import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { TextField } from '../design-system/TextField'
 import { TextLink } from '../design-system/TextLink'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 import { AuthPanel } from './AuthPanel'
 
 type SignUpField = keyof SignUpRequest
@@ -19,9 +32,9 @@ export interface SignUpScreenProps {
 }
 
 const fieldMessages: Readonly<Record<SignUpField, string>> = {
-  email: copy.auth.invalidEmail,
-  password: copy.refusals.WeakPassword,
-  fiefName: copy.refusals.BlankFiefName,
+  email: refusalMalformedEmail(),
+  password: refusalWeakPassword(),
+  fiefName: refusalBlankFiefName(),
 }
 
 const refusalFields: Partial<Record<ApiRefusal, SignUpField>> = {
@@ -50,7 +63,7 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
   const errors: FieldErrors =
     props.refusal === undefined || refusedField === undefined
       ? clientErrors
-      : { ...clientErrors, [refusedField]: copy.refusals[props.refusal] }
+      : { ...clientErrors, [refusedField]: refusalLineOf(props.refusal) }
   const formRefusal = refusedField === undefined ? props.refusal : undefined
 
   const edit =
@@ -68,17 +81,17 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
 
   return (
     <AuthPanel
-      title={copy.auth.signUp.title}
+      title={authSignUpTitle()}
       onSubmit={submit}
       footer={
         <>
-          {copy.auth.signUp.switchPrompt}
-          <TextLink to="/sign-in">{copy.auth.signUp.switchLink}</TextLink>
+          {authSignUpSwitchPrompt()}
+          <TextLink to="/sign-in">{authSignUpSwitchLink()}</TextLink>
         </>
       }
     >
       <TextField
-        label={copy.auth.email}
+        label={authEmail()}
         name="email"
         type="email"
         autoComplete="email"
@@ -87,17 +100,17 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         error={errors.email}
       />
       <TextField
-        label={copy.auth.password}
+        label={authPassword()}
         name="password"
         type="password"
         autoComplete="new-password"
         value={request.password}
         onChange={edit('password')}
-        hint={copy.auth.signUp.passwordHint}
+        hint={authSignUpPasswordHint()}
         error={errors.password}
       />
       <TextField
-        label={copy.auth.signUp.fiefName}
+        label={authSignUpFiefName()}
         name="fiefName"
         type="text"
         autoComplete="off"
@@ -105,9 +118,9 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         onChange={edit('fiefName')}
         error={errors.fiefName}
       />
-      {formRefusal === undefined ? null : <FormAlert message={copy.refusals[formRefusal]} />}
+      {formRefusal === undefined ? null : <FormAlert message={refusalLineOf(formRefusal)} />}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>
-        {copy.auth.signUp.submit}
+        {authSignUpSubmit()}
       </Button>
     </AuthPanel>
   )

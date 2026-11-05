@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest'
-import { marchRefusalLineOf } from './marchRefusalLineOf'
+import { refusalLineOf } from './refusalLineOf'
 
 it('renders a party short at home from its unit and both counts', () => {
   expect(
-    marchRefusalLineOf('NotEnoughUnitsAtHome', {
+    refusalLineOf('NotEnoughUnitsAtHome', {
       kind: 'NotEnoughUnitsAtHome',
       params: { unit: 'cavalry', count: 7, atHome: 6 },
     }),
@@ -12,7 +12,7 @@ it('renders a party short at home from its unit and both counts', () => {
 
 it('agrees the unit label with a count of one', () => {
   expect(
-    marchRefusalLineOf('NotEnoughUnitsAtHome', {
+    refusalLineOf('NotEnoughUnitsAtHome', {
       kind: 'NotEnoughUnitsAtHome',
       params: { unit: 'settler', count: 1, atHome: 0 },
     }),
@@ -21,7 +21,7 @@ it('agrees the unit label with a count of one', () => {
 
 it('renders a stay out of range from its maxStayHours', () => {
   expect(
-    marchRefusalLineOf('StayOutOfRange', {
+    refusalLineOf('StayOutOfRange', {
       kind: 'StayOutOfRange',
       params: { maxStayHours: 6 },
     }),
@@ -30,7 +30,7 @@ it('renders a stay out of range from its maxStayHours', () => {
 
 it('renders a barracks too low from its unit and required level', () => {
   expect(
-    marchRefusalLineOf('BarracksTooLow', {
+    refusalLineOf('BarracksTooLow', {
       kind: 'BarracksTooLow',
       params: { unit: 'settler', requiredBarracksLevel: 5 },
     }),
@@ -38,14 +38,14 @@ it('renders a barracks too low from its unit and required level', () => {
 })
 
 it('renders the fief cap from its cap', () => {
-  expect(marchRefusalLineOf('FiefCapReached', { kind: 'FiefCapReached', params: { cap: 3 } })).toBe(
+  expect(refusalLineOf('FiefCapReached', { kind: 'FiefCapReached', params: { cap: 3 } })).toBe(
     'Solo puedes tener 3 feudos. Deja al colono en casa.',
   )
 })
 
 it('renders a cargo above the carry from both amounts', () => {
   expect(
-    marchRefusalLineOf('CargoAboveCarry', {
+    refusalLineOf('CargoAboveCarry', {
       kind: 'CargoAboveCarry',
       params: { cargo: 721, carry: 720 },
     }),
@@ -53,13 +53,19 @@ it('renders a cargo above the carry from both amounts', () => {
 })
 
 it('renders a kind without params from its line', () => {
-  expect(marchRefusalLineOf('PlotHeld', { kind: 'PlotHeld' })).toBe(
+  expect(refusalLineOf('PlotHeld', { kind: 'PlotHeld' })).toBe(
     'Esa parcela ya tiene feudo. Elige una libre.',
   )
 })
 
 it('reads a refusal the api did not answer as a failed exchange', () => {
-  expect(marchRefusalLineOf('Unexpected', undefined)).toBe(
+  expect(refusalLineOf('Unexpected', undefined)).toBe(
+    'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
+  )
+})
+
+it('reads a kind that owes params but carries none as a failed exchange', () => {
+  expect(refusalLineOf('BarracksTooLow')).toBe(
     'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
   )
 })

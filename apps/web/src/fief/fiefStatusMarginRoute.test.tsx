@@ -1,3 +1,4 @@
+import { namesResourcesWood, statusLabel } from '@mygame/catalog'
 import { act, cleanup, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -7,7 +8,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { statusBlockHeightProperty } from '../design/tokens'
 import { type ResizeObserverStub, stubResizeObserver } from './stubResizeObserver.testSupport'
 
@@ -29,8 +29,8 @@ const showFief = async (): Promise<void> => {
 }
 
 const isStatusBlock = (target: Element): boolean =>
-  target.contains(screen.getByRole('listitem', { name: copy.names.resources.wood })) &&
-  target.contains(screen.getByText(copy.status.label)) &&
+  target.contains(screen.getByRole('listitem', { name: namesResourcesWood() })) &&
+  target.contains(screen.getByText(statusLabel())) &&
   !target.contains(screen.getByRole('heading', { level: 2, name: knownFief.name }))
 
 const scrollMargin = (): string =>

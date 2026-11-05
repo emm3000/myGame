@@ -1,3 +1,4 @@
+import { marchTitle } from '@mygame/catalog'
 import type { DispatchMarchRequest, FiefOverview, ProvinceMap } from '@mygame/contracts'
 import { fireEvent, screen, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
@@ -9,7 +10,6 @@ import {
   knownPlayer,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 
 const fiefWithAParty: FiefOverview = {
@@ -214,7 +214,7 @@ it('sends both counts and shows them sent', async () => {
   expect(sent.textContent).toContain(
     'Marcha de ida: 12 infantes y 6 jinetes a provincia 2, parcela 7',
   )
-  expect(screen.queryByRole('form', { name: copy.march.title(2, 7) })).toBeNull()
+  expect(screen.queryByRole('form', { name: marchTitle({ province: 2, plot: 7 }) })).toBeNull()
 })
 
 const fiefWithASettler = async () =>

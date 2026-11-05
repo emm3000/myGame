@@ -1,7 +1,13 @@
+import {
+  shellNavigationChronicle,
+  shellNavigationFief,
+  shellNavigationMap,
+  shellSignOut,
+  shellTitle,
+} from '@mygame/catalog'
 import type { Player } from '@mygame/contracts'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
-import { copy } from '../copy'
 import { Button } from '../design-system/Button'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
@@ -24,9 +30,9 @@ interface Screen {
 }
 
 const screens: ReadonlyArray<Screen> = [
-  { to: '/feudo/$fiefId', label: copy.shell.navigation.fief, isExact: true },
-  { to: '/feudo/$fiefId/mapa', label: copy.shell.navigation.map, isExact: false },
-  { to: '/feudo/$fiefId/cronica', label: copy.shell.navigation.chronicle, isExact: true },
+  { to: '/feudo/$fiefId', label: shellNavigationFief(), isExact: true },
+  { to: '/feudo/$fiefId/mapa', label: shellNavigationMap(), isExact: false },
+  { to: '/feudo/$fiefId/cronica', label: shellNavigationChronicle(), isExact: true },
 ]
 
 const linkClass =
@@ -63,7 +69,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
-        <h1 className="m-0 font-display text-title text-umber">{copy.shell.title}</h1>
+        <h1 className="m-0 font-display text-title text-umber">{shellTitle()}</h1>
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
           {fiefId === undefined ? null : (
@@ -79,7 +85,7 @@ export function AppShell({
           )}
           <span className="ml-auto flex">
             <Button type="button" tone="quiet" onClick={onSignOut}>
-              {copy.shell.signOut}
+              {shellSignOut()}
             </Button>
           </span>
         </div>

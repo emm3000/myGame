@@ -1,8 +1,8 @@
+import { refusalFiefNotFound } from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
 import { FiefRequestSchema } from '@mygame/contracts'
 import { createFileRoute, Outlet, useMatchRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
-import { copy } from '../../copy'
 import { FormAlert } from '../../design-system/FormAlert'
 import { LiveRegion } from '../../design-system/LiveRegion'
 import { FiefNameContext } from '../../fief/FiefNameContext'
@@ -80,7 +80,7 @@ function NamedFiefLayout(): ReactElement {
   return request.success ? (
     <LiveFiefLayout key={request.data.fiefId} fiefId={request.data.fiefId} />
   ) : (
-    <FormAlert message={copy.refusals.FiefNotFound} />
+    <FormAlert message={refusalFiefNotFound()} />
   )
 }
 

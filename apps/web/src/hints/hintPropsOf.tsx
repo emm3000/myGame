@@ -1,5 +1,15 @@
+import {
+  hintsDismiss,
+  hintsLinesBarracks,
+  hintsLinesFullStore,
+  hintsLinesLibrary,
+  hintsLinesMarches,
+  hintsLinesPeasants,
+  hintsLinesQueue,
+  hintsLinesSeasons,
+} from '@mygame/catalog'
+import type { HintKind } from '@mygame/contracts'
 import type { ReactElement } from 'react'
-import { copy } from '../copy'
 import type { HintProps } from '../design-system/Hint'
 import { MarchIcon } from '../design-system/icons/MarchIcon'
 import { PeasantsIcon } from '../design-system/icons/PeasantsIcon'
@@ -8,6 +18,16 @@ import { resourceAccent } from '../design-system/resourceAccent'
 import { seasonIconOf } from '../design-system/seasonIconOf'
 import type { ShownHint } from './ShownHint'
 import type { HintsHandle } from './useHints'
+
+const hintLines: Readonly<Record<HintKind, () => string>> = {
+  peasants: hintsLinesPeasants,
+  seasons: hintsLinesSeasons,
+  queue: hintsLinesQueue,
+  library: hintsLinesLibrary,
+  barracks: hintsLinesBarracks,
+  marches: hintsLinesMarches,
+  fullStore: hintsLinesFullStore,
+}
 
 function iconOf(hint: ShownHint): ReactElement {
   switch (hint.kind) {
@@ -37,8 +57,8 @@ function iconOf(hint: ShownHint): ReactElement {
 export function hintPropsOf(hint: ShownHint, hints: HintsHandle): HintProps {
   return {
     icon: iconOf(hint),
-    line: copy.hints.lines[hint.kind],
-    dismissLabel: copy.hints.dismiss,
+    line: hintLines[hint.kind](),
+    dismissLabel: hintsDismiss(),
     onDismiss: () => hints.dismiss(hint.kind),
   }
 }

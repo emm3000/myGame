@@ -1,7 +1,18 @@
+import {
+  goalDismiss,
+  goalMissingPeasants,
+  goalPosition,
+  goalReady,
+  goalTitle,
+  goalUnderway,
+  refusalQueueFull,
+} from '@mygame/catalog'
 import type { FiefOverview } from '@mygame/contracts'
-import { copy } from '../copy'
 import type { GoalCardProps, GoalStateLine } from '../design-system/GoalCard'
+import { refusalLineOf } from '../refusals/refusalLineOf'
+import { goalLineOf } from './goalLineOf'
 import { isQueueFull } from './isQueueFull'
+import { tooExpensiveLineOf } from './tooExpensiveLineOf'
 import type { GuidanceDismissal } from './useGuidanceDismissal'
 
 type Goal = NonNullable<FiefOverview['goal']>
@@ -12,23 +23,23 @@ const pendingLinesOf = (
 ): ReadonlyArray<GoalStateLine> => {
   const lines: Array<GoalStateLine> = []
   if (missing.resources.length > 0) {
-    lines.push({ text: copy.fief.tooExpensive(missing.resources), tone: 'short' })
+    lines.push({ text: tooExpensiveLineOf(missing.resources), tone: 'short' })
   }
   if (missing.peasants > 0) {
-    lines.push({ text: copy.goal.missingPeasants(missing.peasants), tone: 'short' })
+    lines.push({ text: goalMissingPeasants({ count: missing.peasants }), tone: 'short' })
   }
   if (lines.length > 0) {
     return lines
   }
   if (isQueueFull(overview)) {
-    return [{ text: copy.refusals.QueueFull, tone: 'short' }]
+    return [{ text: refusalQueueFull(), tone: 'short' }]
   }
-  return [{ text: copy.goal.ready, tone: 'ready' }]
+  return [{ text: goalReady(), tone: 'ready' }]
 }
 
 const stateLinesOf = (goal: Goal, overview: FiefOverview): ReadonlyArray<GoalStateLine> =>
   goal.state === 'underway'
-    ? [{ text: copy.goal.underway, tone: 'underway' }]
+    ? [{ text: goalUnderway(), tone: 'underway' }]
     : pendingLinesOf(goal.missing, overview)
 
 export function goalCardOf(
@@ -41,13 +52,13 @@ export function goalCardOf(
     return undefined
   }
   return {
-    title: copy.goal.title,
-    position: copy.goal.position(goal.position, goal.count),
-    goal: copy.goal.line(goal.building, goal.level),
+    title: goalTitle(),
+    position: goalPosition({ position: goal.position, count: goal.count }),
+    goal: goalLineOf(goal.building, goal.level),
     stateLines: stateLinesOf(goal, overview),
-    dismissLabel: copy.goal.dismiss,
+    dismissLabel: goalDismiss(),
     isWaiting: dismissal.isWaiting,
-    refusal: dismissal.refusal === undefined ? undefined : copy.refusals[dismissal.refusal],
+    refusal: dismissal.refusal === undefined ? undefined : refusalLineOf(dismissal.refusal),
     onDismiss: () => dismissal.dismiss(onDismissed),
   }
 }

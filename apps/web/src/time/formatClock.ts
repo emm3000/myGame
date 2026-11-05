@@ -1,4 +1,4 @@
-import { copy } from '../copy'
+import { statusTomorrow } from '@mygame/catalog'
 import { formatLocalDay } from './formatLocalDay'
 import { formatLocalTime } from './formatLocalTime'
 
@@ -14,7 +14,7 @@ export function formatClock(instant: Date, now: Date): string {
     return time
   }
   if (dayOf(instant) === dayAfter(now)) {
-    return copy.status.tomorrow(time)
+    return statusTomorrow({ time })
   }
   return `${formatLocalDay(instant)} ${time}`
 }

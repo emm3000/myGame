@@ -1,3 +1,9 @@
+import {
+  digestAcknowledge,
+  digestTitle,
+  refusalUnexpected,
+  shellFiefSwitcherLabel,
+} from '@mygame/catalog'
 import type { Digest, FiefList } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -11,7 +17,6 @@ import {
   quietDigest,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
-import { copy } from '../copy'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -65,10 +70,10 @@ const showFief = async (overrides: Partial<ApiClient>, path = knownFiefPath): Pr
   await passSeconds(0)
 }
 
-const digestCard = (): HTMLElement => screen.getByRole('article', { name: copy.digest.title })
+const digestCard = (): HTMLElement => screen.getByRole('article', { name: digestTitle() })
 
 const acknowledgeButton = (): HTMLElement =>
-  within(digestCard()).getByRole('button', { name: copy.digest.acknowledge })
+  within(digestCard()).getByRole('button', { name: digestAcknowledge() })
 
 it('shows the digest card when the digest is due', async () => {
   await showFief({ digest: async () => ({ ok: true, value: dueDigest }) })
@@ -79,8 +84,8 @@ it('shows the digest card when the digest is due', async () => {
 it('shows no digest card when it is not due', async () => {
   await showFief({ digest: async () => ({ ok: true, value: quietDigest }) })
 
-  expect(screen.queryByRole('article', { name: copy.digest.title })).toBeNull()
-  expect(screen.queryByText(copy.digest.title)).toBeNull()
+  expect(screen.queryByRole('article', { name: digestTitle() })).toBeNull()
+  expect(screen.queryByText(digestTitle())).toBeNull()
 })
 
 it('names each fief and its full stores in the digest', async () => {
@@ -156,7 +161,7 @@ it('hides the digest card after Entendido', async () => {
   await passSeconds(0)
 
   expect(acknowledgeDigest).toHaveBeenCalledTimes(1)
-  expect(screen.queryByRole('article', { name: copy.digest.title })).toBeNull()
+  expect(screen.queryByRole('article', { name: digestTitle() })).toBeNull()
 })
 
 it('keeps the digest card when Entendido is refused', async () => {
@@ -170,7 +175,7 @@ it('keeps the digest card when Entendido is refused', async () => {
   await passSeconds(0)
 
   expect(digestCard()).toBeDefined()
-  expect(within(digestCard()).getByRole('alert').textContent).toBe(copy.refusals.Unexpected)
+  expect(within(digestCard()).getByRole('alert').textContent).toBe(refusalUnexpected())
 })
 
 it('sends Entendido once on a double click', async () => {
@@ -211,11 +216,11 @@ it('never shows an acknowledged digest again on the other fief', async () => {
 
   fireEvent.click(acknowledgeButton())
   await passSeconds(0)
-  const switcher = screen.getByRole('navigation', { name: copy.shell.fiefSwitcher.label })
+  const switcher = screen.getByRole('navigation', { name: shellFiefSwitcherLabel() })
   fireEvent.click(within(switcher).getByRole('link', { name: /Sotoverde del Páramo/ }))
   await passSeconds(0)
 
-  expect(screen.queryByRole('article', { name: copy.digest.title })).toBeNull()
+  expect(screen.queryByRole('article', { name: digestTitle() })).toBeNull()
 })
 
 const press = async (button: HTMLElement): Promise<void> => {

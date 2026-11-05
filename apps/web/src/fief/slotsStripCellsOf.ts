@@ -1,15 +1,31 @@
-import { copy } from '../copy'
+import {
+  armyOrderLine,
+  fiefFinished,
+  statusBuildHeading,
+  statusCargoFrom,
+  statusCargoHeading,
+  statusIdleBuild,
+  statusIdleMarch,
+  statusIdleRecruit,
+  statusIdleStudy,
+  statusLesson,
+  statusRecruitHeading,
+  statusStudyHeading,
+  statusWaitingHeading,
+  statusWork,
+} from '@mygame/catalog'
 import type { StripCell, StripLine } from '../design-system/SlotsStrip'
 import { formatFinishPieces } from '../time/formatFinishPieces'
+import { unitLabelsOf } from '../units/unitLabelsOf'
+import { artNameOf } from './artNameOf'
+import { buildingNameOf } from './buildingNameOf'
 import type { LiveFief } from './liveFief'
 import { marchCountdownOf } from './marchCountdownOf'
 import { marchPhaseLineOf } from './marchPhaseLineOf'
 import { sectionAnchors } from './sectionAnchors'
 
-const { status, names } = copy
-
 const finishOf = (fief: LiveFief, remainingSeconds: number): ReadonlyArray<string> =>
-  remainingSeconds <= 0 ? [copy.fief.finished] : formatFinishPieces(remainingSeconds, fief.at)
+  remainingSeconds <= 0 ? [fiefFinished()] : formatFinishPieces(remainingSeconds, fief.at)
 
 function waitingLineOf(fief: LiveFief): ReadonlyArray<StripLine> {
   const last = fief.waitingUpgrades.at(-1)
@@ -17,7 +33,7 @@ function waitingLineOf(fief: LiveFief): ReadonlyArray<StripLine> {
     ? []
     : [
         {
-          heading: status.waitingHeading,
+          heading: statusWaitingHeading(),
           value: String(fief.waitingUpgrades.length),
           timePieces: finishOf(fief, last.remainingSeconds),
         },
@@ -28,11 +44,11 @@ function buildCellOf(fief: LiveFief): StripCell {
   const { slot } = fief.overview
   const cell = { id: 'build', icon: 'slot', section: sectionAnchors.build } as const
   if (slot.kind === 'idle') {
-    return { ...cell, kind: 'idle', label: status.idleBuild }
+    return { ...cell, kind: 'idle', label: statusIdleBuild() }
   }
   const work = {
-    heading: status.buildHeading,
-    value: status.work(names.buildings[slot.building], slot.targetLevel),
+    heading: statusBuildHeading(),
+    value: statusWork({ label: buildingNameOf(slot.building), level: slot.targetLevel }),
     timePieces: finishOf(fief, fief.slotRemainingSeconds),
   }
   return {
@@ -50,23 +66,23 @@ type StudyWork = Exclude<LiveFief['overview']['study'], { readonly kind: 'idle' 
 
 function studyWorkOf(study: StudyWork): string {
   if (study.kind === 'lesson') {
-    return status.lesson
+    return statusLesson()
   }
-  return status.work(names.arts[study.art], study.targetLevel)
+  return statusWork({ label: artNameOf(study.art), level: study.targetLevel })
 }
 
 function studyCellOf(fief: LiveFief): StripCell {
   const { study } = fief.overview
   const cell = { id: 'study', icon: 'slot', section: sectionAnchors.library } as const
   if (study.kind === 'idle') {
-    return { ...cell, kind: 'idle', label: status.idleStudy }
+    return { ...cell, kind: 'idle', label: statusIdleStudy() }
   }
   return {
     ...cell,
     kind: 'busy',
     lines: [
       {
-        heading: status.studyHeading,
+        heading: statusStudyHeading(),
         value: studyWorkOf(study),
         timePieces: finishOf(fief, fief.studyRemainingSeconds),
       },
@@ -82,15 +98,19 @@ function recruitCellOf(fief: LiveFief): StripCell {
   const order = fief.recruitOrder
   const cell = { id: 'recruit', icon: 'slot', section: sectionAnchors.barracks } as const
   if (order === null) {
-    return { ...cell, kind: 'idle', label: status.idleRecruit }
+    return { ...cell, kind: 'idle', label: statusIdleRecruit() }
   }
   return {
     ...cell,
     kind: 'busy',
     lines: [
       {
-        heading: status.recruitHeading,
-        value: copy.army.orderLine(order.unit, order.delivered, order.count),
+        heading: statusRecruitHeading(),
+        value: armyOrderLine({
+          delivered: order.delivered,
+          count: order.count,
+          ...unitLabelsOf(order.unit),
+        }),
         timePieces: finishOf(fief, order.remainingSeconds),
       },
     ],
@@ -103,7 +123,7 @@ function marchCellOf(fief: LiveFief): StripCell {
   const answered = fief.overview.march
   const cell = { id: 'march', icon: 'march', section: sectionAnchors.barracks } as const
   if (live === null || answered === null) {
-    return { ...cell, kind: 'idle', label: status.idleMarch }
+    return { ...cell, kind: 'idle', label: statusIdleMarch() }
   }
   const phase = marchPhaseLineOf(live, answered)
   return {
@@ -133,8 +153,8 @@ function cargoCellsOf(fief: LiveFief): ReadonlyArray<StripCell> {
       section: sectionAnchors.incomingCargo,
       lines: [
         {
-          heading: status.cargoHeading,
-          value: status.cargoFrom(incomingCargo.from.name),
+          heading: statusCargoHeading(),
+          value: statusCargoFrom({ name: incomingCargo.from.name }),
           timePieces: finishOf(fief, fief.incomingCargoRemainingSeconds),
         },
       ],

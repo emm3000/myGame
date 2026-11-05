@@ -1,6 +1,6 @@
+import { fiefFree, fiefFull, fiefOccupied } from '@mygame/catalog'
 import { render, screen, within } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import { copy } from '../copy'
 import { ResourceBar, type ResourceBarProps, type ResourceCell } from './ResourceBar'
 
 function storeWithFullGranary(): ResourceBarProps {
@@ -18,7 +18,11 @@ function villageWith(supplied: number, occupied: number): ResourceBarProps {
   return {
     resources: [],
     peasants: { label: 'Campesinos', free: supplied - occupied, supplied, occupied },
-    labels: { full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied },
+    labels: {
+      full: fiefFull(),
+      free: (supplied) => fiefFree({ supplied }),
+      occupied: (occupied) => fiefOccupied({ occupied }),
+    },
   }
 }
 
@@ -83,7 +87,11 @@ function storeMarked(mark: ResourceCell['mark']): ResourceBarProps {
       { kind: 'wood', label: 'Madera', amount: 12480, ratePerHour: 340, capacity: 20000 },
     ],
     peasants: { label: 'Campesinos', free: 36, supplied: 60, occupied: 24 },
-    labels: { full: copy.fief.full, free: copy.fief.free, occupied: copy.fief.occupied },
+    labels: {
+      full: fiefFull(),
+      free: (supplied) => fiefFree({ supplied }),
+      occupied: (occupied) => fiefOccupied({ occupied }),
+    },
   }
 }
 
