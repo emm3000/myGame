@@ -32,12 +32,12 @@ const producerRate = (
   return ok(found.ratePerHour)
 }
 
+const noSeasonBeforeEpoch: ResourceRates = { money: 100, food: 100, power: 100, material: 100 }
+
 const seasonPercentsAt = (at: Instant, catalog: TownCatalog): ResourceRates => {
   const { seasons } = catalog.townSettings()
   const season = seasonAt(at, catalog.townSettings())
-  return season === undefined
-    ? { money: 100, food: 100, power: 100, material: 100 }
-    : seasons.productionPercent[season.kind]
+  return season === undefined ? noSeasonBeforeEpoch : seasons.productionPercent[season.kind]
 }
 
 export const deriveResourceRates = (
