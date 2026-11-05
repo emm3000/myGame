@@ -7,6 +7,7 @@ const lastMinuteSeconds = 60
 const countdownsOf = (town: LiveTown): ReadonlyArray<number> => [
   ...(town.slot === null ? [] : [town.slot.remainingSeconds]),
   ...town.waitingList.map(({ remainingSeconds }) => remainingSeconds),
+  ...(town.lessonSlot === null ? [] : [town.lessonSlot.remainingSeconds]),
 ]
 
 export function townRepaintDelayMsOf(town: LiveTown): number {

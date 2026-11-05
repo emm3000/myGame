@@ -220,6 +220,7 @@ export const knownTown: TownOverview = {
   lessons: [],
   skills: [],
   lessonSlot: null,
+  learning: { cap: 15, inLearning: 0 },
   readAt: '2026-11-10T09:00:00.000Z',
 }
 
@@ -245,6 +246,8 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   foundTown: async () => ({ ok: true, value: knownTown }),
   startBuildingWork: async () => ({ ok: true, value: knownTown }),
   stopBuildingWork: async () => ({ ok: true, value: knownTown }),
+  startLesson: async () => ({ ok: true, value: knownTown }),
+  stopLesson: async () => ({ ok: true, value: knownTown }),
   reviews: async () => ({
     ok: true,
     value: { due: [], nextDueAt: null, readAt: '2026-09-22T12:00:00.000Z' },

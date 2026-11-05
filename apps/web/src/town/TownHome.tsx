@@ -1,4 +1,5 @@
 import {
+  townGoToSchool,
   townLabelCity,
   townLabelTown,
   townLevel,
@@ -23,6 +24,7 @@ import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
 import { FormAlert } from '../design-system/FormAlert'
+import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -129,6 +131,7 @@ function PlaceItem({
       {refused !== undefined && (
         <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
       )}
+      {place === 'school' && <TextLink to="/school">{townGoToSchool()}</TextLink>}
     </li>
   )
 }
