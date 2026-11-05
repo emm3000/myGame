@@ -25,7 +25,7 @@ An import against the arrow is a defect, whatever the reason. The leak check, ex
 ```
 rg -n "from '(node:|hono|drizzle|@tanstack|react|zod|\.\./\.\./apps)" packages/domain/src
 rg -n "from '@mygame/" packages/catalog/src
-rg -l "@mygame/catalog" packages/*/package.json
+rg -l '"@mygame/catalog":' packages/*/package.json
 ```
 
 And the reverse leak, an app reaching into another package's internals instead of its public entry, expected empty:
