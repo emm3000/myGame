@@ -40,7 +40,7 @@ A function reads top to bottom, its happy path at the lowest indentation.
 
 ## Rebuild, never adapt
 
-A structure that does not fit is replaced. No shims, no adapters over legacy, no `Legacy*` names, no feature flags to keep two paths alive.
+A structure that does not fit is replaced. No shims, no adapters over legacy, no `Legacy*` names, no feature flags to keep two paths alive. `architecture.md` defines a shim.
 
 ## Rejected
 

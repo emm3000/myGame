@@ -81,4 +81,4 @@ Routes load data through typed clients built on `packages/contracts`. Screens ar
 
 ## Rebuild, never adapt
 
-When a structure does not fit these rules, it is replaced, not wrapped. A shim that lets old and new coexist is rejected at review.
+When a structure does not fit these rules, it is replaced, not wrapped. A shim that lets old and new coexist is rejected at review. A shim is code that bridges old and new: an adapter, a wrapper, a mapper, a dual read or write, a flag choosing a path. Code built beside the old is not one only when no code reads or writes both and the ticket deleting the old is filed with its blocking edges before any slice merges (ADR 040).

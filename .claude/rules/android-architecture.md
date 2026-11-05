@@ -9,7 +9,7 @@ paths:
 ## The client never decides
 
 - A request names what the player wants (`enqueue sawmill`), never an amount, a finish time or a verdict the client derived. The api's response is the new state.
-- The client never withholds a request on its own arithmetic. A projected amount may color a cost; the api's answer is the only verdict. One exception, as on the web: a march form whose `block` is not `null` sends nothing, so its reason is its only line (#657).
+- The client never withholds a request on its own arithmetic. A projected amount may color a cost; the api's answer is the only verdict. Two exceptions, as on the web: a march form whose `block` is not `null` sends nothing, so its reason is its only line (#657); a recall card with an empty field sends nothing, since an empty answer is no attempt (#732).
 - A refusal arrives as the error `kind` the contract declares and reaches the screen as that typed value.
 
 ## Modules

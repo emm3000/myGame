@@ -11,6 +11,7 @@
       "!**/dist",
       "!**/.output",
       "!**/coverage",
+      "!**/.playwright-mcp",
       "!pnpm-lock.yaml",
       "!**/routeTree.gen.ts",
       "!packages/catalog/src/generated",
