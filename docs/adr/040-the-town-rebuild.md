@@ -1,5 +1,5 @@
 ---
-status: proposed, order amended by ADR 041
+status: proposed, order amended by ADR 041, food, the lesson slot and the review door by ADR 042
 date: 2026-11-04
 ---
 # The town rebuild
@@ -165,7 +165,7 @@ What trunk holds, checked at `1f0b1c41`:
   | Resource | Produced by | Notes |
   |---|---|---|
   | money | tax, a base rate in content, no building | as gold is today |
-  | food | the farm | |
+  | food | the farm | pays for the homes from level 2 (amended by ADR 042) |
   | power | the power station | a stock like the others |
   | material | the factory | |
 
@@ -198,6 +198,8 @@ What trunk holds, checked at `1f0b1c41`:
   runs lesson 1 today: a lesson costs nothing, its duration shortened by
   the school's level and the season's study percent, its cards entering
   at its finish. `requiredLibraryLevel` becomes `requiredSchoolLevel`.
+  (Amended by ADR 042: a word can be read, with its gloss and frame,
+  from its lesson's start until its first review.)
   The slice that moves lessons to the school (slice 16) drops the
   fief's lesson slot in its migration. A fief studying a lesson whose
   finish is still ahead is left idle with the lesson unstudied, as a
@@ -331,7 +333,8 @@ What trunk holds, checked at `1f0b1c41`:
   `/map/$area`, `/news`. The api serves the signed-in player's town at
   `/town`. (Amended by ADR 041: the review screen joins them at
   `/reviews`, opened from the Report; News and the map join the
-  navigation after the cutover.)
+  navigation after the cutover. Amended by ADR 042: the town home's
+  next step opens `/reviews` too.)
 
 ### The reset, at the cutover
 
