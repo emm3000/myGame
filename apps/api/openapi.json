@@ -4243,6 +4243,608 @@
         "required": ["answer"],
         "additionalProperties": false
       },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "dueCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "due": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DueReview"
+            }
+          },
+          "news": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TownNewsItem"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["dueCount", "due", "news"],
+        "additionalProperties": false
+      },
+      "TownNewsItem": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BuildingWorkFinishedNews"
+          },
+          {
+            "$ref": "#/components/schemas/BuildingWorkStoppedNews"
+          },
+          {
+            "$ref": "#/components/schemas/LessonStudiedNews"
+          },
+          {
+            "$ref": "#/components/schemas/LessonStoppedNews"
+          },
+          {
+            "$ref": "#/components/schemas/SkillEarnedNews"
+          },
+          {
+            "$ref": "#/components/schemas/HiringDeliveredNews"
+          },
+          {
+            "$ref": "#/components/schemas/HiringStoppedNews"
+          },
+          {
+            "$ref": "#/components/schemas/JobBackNews"
+          },
+          {
+            "$ref": "#/components/schemas/JobCalledBackNews"
+          },
+          {
+            "$ref": "#/components/schemas/CleanUpDoneNews"
+          },
+          {
+            "$ref": "#/components/schemas/CleanUpFailedNews"
+          },
+          {
+            "$ref": "#/components/schemas/BecameCityNews"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "buildingWorkFinished": "#/components/schemas/BuildingWorkFinishedNews",
+            "buildingWorkStopped": "#/components/schemas/BuildingWorkStoppedNews",
+            "lessonStudied": "#/components/schemas/LessonStudiedNews",
+            "lessonStopped": "#/components/schemas/LessonStoppedNews",
+            "skillEarned": "#/components/schemas/SkillEarnedNews",
+            "hiringDelivered": "#/components/schemas/HiringDeliveredNews",
+            "hiringStopped": "#/components/schemas/HiringStoppedNews",
+            "jobBack": "#/components/schemas/JobBackNews",
+            "jobCalledBack": "#/components/schemas/JobCalledBackNews",
+            "cleanUpDone": "#/components/schemas/CleanUpDoneNews",
+            "cleanUpFailed": "#/components/schemas/CleanUpFailedNews",
+            "becameCity": "#/components/schemas/BecameCityNews"
+          }
+        }
+      },
+      "BuildingWorkFinishedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["buildingWorkFinished"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "building": {
+                "type": "string",
+                "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["building", "level"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "BuildingWorkStoppedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["buildingWorkStopped"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "building": {
+                "type": "string",
+                "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "refund": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["building", "level", "refund"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "LessonStudiedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonStudied"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "lessonId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["lessonId"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "LessonStoppedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonStopped"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "lessonId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["lessonId"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "SkillEarnedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["skillEarned"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "lessonId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "resource": {
+                "type": "string",
+                "enum": ["money", "food", "power", "material"]
+              },
+              "ratePercent": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["lessonId", "resource", "ratePercent"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "HiringDeliveredNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["hiringDelivered"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hire": {
+                "type": "string",
+                "enum": ["worker", "truck"]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["hire", "count"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "HiringStoppedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["hiringStopped"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hire": {
+                "type": "string",
+                "enum": ["worker", "truck"]
+              },
+              "delivered": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stopped": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "refund": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["hire", "delivered", "stopped", "refund"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "JobBackNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["jobBack"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "site": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "area": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "site": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["region", "area", "site"],
+                "additionalProperties": false
+              },
+              "pay": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["site", "pay"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "JobCalledBackNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["jobCalledBack"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "site": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "area": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "site": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["region", "area", "site"],
+                "additionalProperties": false
+              },
+              "pay": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["site", "pay"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "CleanUpDoneNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["cleanUpDone"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "site": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "area": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "site": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["region", "area", "site"],
+                "additionalProperties": false
+              },
+              "reward": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["site", "reward"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "CleanUpFailedNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["cleanUpFailed"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "site": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "area": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "site": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["region", "area", "site"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["site"],
+            "additionalProperties": false
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "params", "occurredAt"],
+        "additionalProperties": false
+      },
+      "BecameCityNews": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["becameCity"]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["kind", "occurredAt"],
+        "additionalProperties": false
+      },
       "TownOverview": {
         "type": "object",
         "properties": {
@@ -5006,6 +5608,20 @@
           }
         },
         "required": ["building", "level", "cost", "startsAt", "finishesAt"],
+        "additionalProperties": false
+      },
+      "TownNewsFeed": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TownNewsItem"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["items"],
         "additionalProperties": false
       },
       "FoundTown": {
@@ -6634,6 +7250,47 @@
         }
       }
     },
+    "/report": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The reviews due, then the Town News since the player last closed the Report; with no town, the reviews and no news.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          }
+        }
+      }
+    },
+    "/report/close": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The Report is closed at the clock instant."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          }
+        }
+      }
+    },
     "/town": {
       "get": {
         "security": [
@@ -6709,6 +7366,40 @@
           },
           "409": {
             "description": "PlayerAlreadyHoldsTown; a founding that lost its site three times answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/news": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The town’s news, newest first, after every finished work is applied: each item its kind, its params and its instant, no prose.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownNewsFeed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
             "content": {
               "application/json": {
                 "schema": {

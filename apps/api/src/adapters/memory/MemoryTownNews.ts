@@ -1,6 +1,6 @@
 import { type DomainError, type Instant, ok, type Result } from '@mygame/domain'
 import type { TownEvent, TownId, TownNews } from '@mygame/domain/town'
-import type { TownNewsReader } from '../../town/TownNewsReader'
+import { keptEventsPerTown, type TownNewsReader } from '../../town/TownNewsReader'
 
 type NumberedEvent = {
   readonly id: number
@@ -20,10 +20,17 @@ export class MemoryTownNews implements TownNews, TownNewsReader {
     events: ReadonlyArray<TownEvent>,
   ): Promise<Result<void, DomainError>> {
     const lastId = this.events.reduce((highest, { id }) => Math.max(highest, id), 0)
-    this.events = [
+    const recorded = [
       ...this.events,
       ...events.map((event, index) => ({ id: lastId + index + 1, townId, event })),
     ]
+    const kept = new Set(
+      recorded
+        .filter((numbered) => numbered.townId === townId)
+        .sort(newestFirst)
+        .slice(0, keptEventsPerTown),
+    )
+    this.events = recorded.filter((numbered) => numbered.townId !== townId || kept.has(numbered))
     return ok(undefined)
   }
 

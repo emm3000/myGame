@@ -24,6 +24,13 @@ const finishedHomes = (time: string): TownEvent => ({
   occurredAt: at(time),
 })
 
+const finishedHomesAtMinute = (minute: number): TownEvent => ({
+  kind: 'buildingWorkFinished',
+  building: 'homes',
+  level: 2,
+  occurredAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-05T00:00:00Z') + minute * 60_000),
+})
+
 const everyKind: ReadonlyArray<TownEvent> = [
   { kind: 'buildingWorkFinished', building: 'powerStation', level: 3, occurredAt: at('08:00:00') },
   {
@@ -121,6 +128,28 @@ export const townNewsContract = (
       await news.record(birch, [finishedHomes('07:00:00')])
 
       expect(await news.newsOf(maple)).toEqual([])
+    })
+
+    it('keeps the latest 100 events of a town', async () => {
+      const { news, registerTowns } = await arrange()
+      await registerTowns([maple])
+      const events = Array.from({ length: 101 }, (_, minute) => finishedHomesAtMinute(minute))
+
+      await news.record(maple, events)
+
+      expect(await news.newsOf(maple)).toEqual(events.slice(1).reverse())
+    })
+
+    it('keeps the latest 100 events across records', async () => {
+      const { news, registerTowns } = await arrange()
+      await registerTowns([maple])
+      const events = Array.from({ length: 101 }, (_, minute) => finishedHomesAtMinute(minute))
+
+      for (const event of events) {
+        await news.record(maple, [event])
+      }
+
+      expect((await news.newsOf(maple)).at(-1)).toEqual(events[1])
     })
 
     it('rolls an event back with the transaction that wrote it', async () => {

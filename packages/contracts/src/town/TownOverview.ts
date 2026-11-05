@@ -13,6 +13,7 @@ import { BuildingKindSchema } from './BuildingKind'
 import { BuildingWorkSchema } from './BuildingWork'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
+import { SiteAddressSchema } from './SiteAddress'
 import { TerrainSchema } from './Terrain'
 
 const StockSchema = z.strictObject({
@@ -49,11 +50,7 @@ export const TownOverviewSchema = z
   .strictObject({
     name: z.string().min(1),
     label: z.enum(['town', 'city']),
-    site: z.strictObject({
-      region: WholeCountSchema.positive(),
-      area: WholeCountSchema.positive(),
-      site: WholeCountSchema.positive(),
-    }),
+    site: SiteAddressSchema,
     terrain: TerrainSchema,
     season: TownSeasonSchema.nullable(),
     stocks: z

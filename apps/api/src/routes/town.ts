@@ -4,6 +4,7 @@ import {
   FoundTownSchema,
   StartBuildingWorkSchema,
   StopBuildingWorkSchema,
+  type TownNewsFeed,
   type TownOverview,
 } from '@mygame/contracts/town'
 import { type DomainError, err, type IdGenerator, type PlayerId, type Result } from '@mygame/domain'
@@ -24,6 +25,7 @@ import { type CurrentTownDependencies, currentTownOf } from '../town/currentTown
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
 import { mutateTown, type TownStores } from '../town/mutateTown'
 import type { TownReading } from '../town/TownReading'
+import { type TownNewsDependencies, townNewsOf } from '../town/townNewsOf'
 import { townOverviewOf } from '../town/townOverviewOf'
 import { townReadingOf } from '../town/townReadingOf'
 import { townDeclarations } from './townDeclarations'
@@ -31,6 +33,7 @@ import { townDeclarations } from './townDeclarations'
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]
 
 export type TownDependencies = CurrentTownDependencies &
+  TownNewsDependencies &
   RequirePlayerDependencies & {
     readonly ids: IdGenerator
     readonly lessons: LessonLibrary
@@ -74,6 +77,19 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
     honoPathOf(townDeclarations.overview),
     signedInPlayer,
     async (c) => answerReading(c, await currentTownOf(c.var.playerId, dependencies)),
+  )
+  routes.on(
+    townDeclarations.news.method,
+    honoPathOf(townDeclarations.news),
+    signedInPlayer,
+    async (c) => {
+      const news = await townNewsOf(c.var.playerId, dependencies)
+      if (!news.ok) {
+        return answerRefusal(c, news.error)
+      }
+      const body: TownNewsFeed = news.value
+      return c.json(body)
+    },
   )
   routes.on(
     townDeclarations.found.method,

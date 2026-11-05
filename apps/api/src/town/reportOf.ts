@@ -1,0 +1,71 @@
+import type { Report } from '@mygame/contracts/town'
+import {
+  type Clock,
+  type DomainError,
+  err,
+  type Instant,
+  ok,
+  type PlayerId,
+  type Result,
+} from '@mygame/domain'
+import { resolveTown, type TownCatalog, type TownEvent } from '@mygame/domain/town'
+import type { Refusal } from '../http/Refusal'
+import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
+import { type MutateTownDependencies, mutateTown, type TownStores } from './mutateTown'
+import type { ReportClosings } from './ReportClosings'
+import { townNewsItemOf } from './townNewsItemOf'
+
+export type ReportDependencies = MutateTownDependencies &
+  ReviewTerms & {
+    readonly reportClosings: ReportClosings
+    readonly townCatalog: TownCatalog
+  }
+
+const newsSinceOf = async (
+  playerId: PlayerId,
+  closedAt: Instant,
+  stores: TownStores,
+  clock: Clock,
+  catalog: TownCatalog,
+): Promise<Result<ReadonlyArray<TownEvent>, DomainError>> => {
+  const resolved = await resolveTown(playerId, {
+    towns: stores.towns,
+    news: stores.townNews,
+    catalog,
+    clock,
+  })
+  if (!resolved.ok) {
+    return resolved.error.kind === 'TownNotFound' ? ok([]) : resolved
+  }
+  return ok(await stores.townNews.newsAfter(resolved.value.town.id, closedAt))
+}
+
+export const reportOf = async (
+  playerId: PlayerId,
+  dependencies: ReportDependencies,
+): Promise<Result<Report, Refusal>> => {
+  const closedAt = await dependencies.reportClosings.closedAt(playerId)
+  if (closedAt === undefined) {
+    return err({ kind: 'SignedOut' })
+  }
+  return mutateTown(
+    playerId,
+    async (stores, clock) => {
+      const cards = await stores.cards.cardsOf(playerId)
+      if (!cards.ok) {
+        return cards
+      }
+      const reviews = reviewsOf(cards.value, clock.now(), dependencies)
+      if (!reviews.ok) {
+        return reviews
+      }
+      const news = await newsSinceOf(playerId, closedAt, stores, clock, dependencies.townCatalog)
+      if (!news.ok) {
+        return news
+      }
+      const { due } = reviews.value
+      return ok({ dueCount: due.length, due, news: news.value.map(townNewsItemOf) })
+    },
+    dependencies,
+  )
+}

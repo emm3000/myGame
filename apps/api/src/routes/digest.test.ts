@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { type Digest, DigestSchema, PlayerSchema } from '@mygame/contracts'
+import { ReportSchema, TownOverviewSchema } from '@mygame/contracts/town'
 import {
   type Clock,
   Coordinates,
@@ -373,5 +374,36 @@ describe('the digest routes', () => {
     await digestOf(ana)
 
     expect(statements).toHaveLength(8)
+  })
+
+  describe('beside the Report', () => {
+    it('never reads digest_acknowledged_at', async () => {
+      const ana = await signUpAna()
+      const send = (method: string, path: string, body?: unknown): Promise<Response> =>
+        Promise.resolve(
+          app.request(path, {
+            method,
+            headers: { cookie: ana.cookie, 'content-type': 'application/json' },
+            ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+          }),
+        )
+      expect((await send('POST', '/town', { name: 'Maple Falls' })).status).toBe(200)
+      const started = TownOverviewSchema.parse(
+        await (await send('POST', '/town/work', { building: 'farm' })).json(),
+      )
+      assert(started.work.slot !== null)
+      clock.advanceHours(1)
+      expect((await acknowledge(ana)).status).toBe(204)
+
+      const report = ReportSchema.parse(await (await send('GET', '/report')).json())
+
+      expect(report.news).toEqual([
+        {
+          kind: 'buildingWorkFinished',
+          params: { building: 'farm', level: 1 },
+          occurredAt: started.work.slot.finishesAt,
+        },
+      ])
+    })
   })
 })

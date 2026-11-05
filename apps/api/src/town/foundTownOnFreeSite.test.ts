@@ -3,6 +3,7 @@ import { type DomainError, Instant, type PlayerId, type Result } from '@mygame/d
 import type { Town, TownRepository } from '@mygame/domain/town'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import type { Accounts } from '../auth/Accounts'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
 import { foundTownOnFreeSite } from './foundTownOnFreeSite'
@@ -22,21 +23,26 @@ function databaseUrl(): string {
   return url
 }
 
-const withSignedUpPlayers = async (playerIds: ReadonlyArray<PlayerId>): Promise<void> => {
+const withSignedUpPlayers = async (
+  accounts: Accounts,
+  playerIds: ReadonlyArray<PlayerId>,
+): Promise<void> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
     await client.query(
       'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
-    for (const playerId of playerIds) {
-      await client.query(
-        'INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at, report_read_at) VALUES ($1, $2, $3, $4, $4, $4)',
-        [playerId, `${playerId}@example.com`, 'argon2id-hash', new Date('2026-11-05T08:00:00Z')],
-      )
-    }
   } finally {
     await client.end()
+  }
+  for (const playerId of playerIds) {
+    await accounts.addPlayer({
+      id: playerId,
+      email: `${playerId}@example.com`,
+      passwordHash: 'argon2id-hash',
+      createdAt: foundedAt,
+    })
   }
 }
 
@@ -128,7 +134,7 @@ describe('foundTownOnFreeSite', () => {
   })
 
   it('refuses the second of two racing foundings for one player as a town already held', async () => {
-    await withSignedUpPlayers([ana])
+    await withSignedUpPlayers(server.accounts, [ana])
 
     const outcomes = await raceTwoFoundings(server, [ana, ana])
 
@@ -136,7 +142,7 @@ describe('foundTownOnFreeSite', () => {
   })
 
   it('seats one town when two foundings for one player race for the same site', async () => {
-    await withSignedUpPlayers([ana])
+    await withSignedUpPlayers(server.accounts, [ana])
 
     await raceTwoFoundings(server, [ana, ana])
 
@@ -144,7 +150,7 @@ describe('foundTownOnFreeSite', () => {
   })
 
   it('founds both towns when two players race for the same site', async () => {
-    await withSignedUpPlayers([ana, bea])
+    await withSignedUpPlayers(server.accounts, [ana, bea])
 
     const outcomes = await raceTwoFoundings(server, [ana, bea])
 

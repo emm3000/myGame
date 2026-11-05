@@ -16,6 +16,7 @@ import { healthDeclarations } from './routes/healthDeclarations'
 import { hintsDeclarations } from './routes/hintsDeclarations'
 import { learningDeclarations } from './routes/learningDeclarations'
 import { mapDeclarations } from './routes/mapDeclarations'
+import { reportDeclarations } from './routes/reportDeclarations'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -55,6 +56,7 @@ const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConf
   ['/digest', digestDeclarations],
   ['/hints', hintsDeclarations],
   ['/reviews', learningDeclarations],
+  ['/report', reportDeclarations],
 ]
 
 const declarationsByOperation = new Map<string, RouteConfig>(
@@ -368,6 +370,8 @@ const exchanges: ReadonlyArray<Exchange> = [
   },
   { operation: 'GET /digest', caller: 'ana', status: 200 },
   { operation: 'POST /digest/acknowledgement', caller: 'ana', status: 204 },
+  { operation: 'GET /report', caller: 'ana', status: 200 },
+  { operation: 'POST /report/close', caller: 'ana', status: 204 },
   { operation: 'POST /hints/{hint}', caller: 'ana', params: { hint: 'peasants' }, status: 204 },
   { operation: 'POST /hints/{hint}', caller: 'ana', params: { hint: 'unknown' }, status: 400 },
   onForeignFief('POST /fiefs/{fiefId}/upgrades', {}, { building: 'sawmill' }),
