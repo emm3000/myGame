@@ -14,10 +14,23 @@ describe('ApiErrorSchema', () => {
     expect(ApiErrorSchema.parse(blankFiefName)).toEqual(blankFiefName)
   })
 
-  it('parses a school too low and a full learning cap as their kinds alone', () => {
-    const refusals = [{ kind: 'LessonSchoolTooLow' }, { kind: 'LearningCapReached' }]
+  it('parses a school too low as its kind alone', () => {
+    const schoolTooLow = { kind: 'LessonSchoolTooLow' }
 
-    expect(refusals.map((refusal) => ApiErrorSchema.parse(refusal))).toEqual(refusals)
+    expect(ApiErrorSchema.parse(schoolTooLow)).toEqual(schoolTooLow)
+  })
+
+  it('parses a full learning cap with the cap and the cards in learning', () => {
+    const capReached = {
+      kind: 'LearningCapReached',
+      params: { learningCap: 15, cardsInLearning: 12 },
+    }
+
+    expect(ApiErrorSchema.parse(capReached)).toEqual(capReached)
+  })
+
+  it('rejects a full learning cap without its params', () => {
+    expect(ApiErrorSchema.safeParse({ kind: 'LearningCapReached' }).success).toBe(false)
   })
 
   it('rejects the library gate of a lesson', () => {

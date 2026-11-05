@@ -40,6 +40,11 @@ const LessonUnderStudySchema = z.strictObject({
   finishesAt: InstantSchema,
 })
 
+const LearningLoadSchema = z.strictObject({
+  cap: WholeCountSchema.positive(),
+  inLearning: WholeCountSchema,
+})
+
 const TownSeasonSchema = z.strictObject({
   kind: SeasonKindSchema,
   year: WholeCountSchema.positive(),
@@ -72,6 +77,7 @@ export const TownOverviewSchema = z
     lessons: z.array(LessonStateSchema),
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),
+    learning: LearningLoadSchema,
     readAt: InstantSchema,
   })
   .meta({ id: 'TownOverview' })

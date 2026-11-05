@@ -385,8 +385,25 @@ describe('the learning routes', () => {
 
       expect(await refusalOf(await startLesson(player))).toEqual({
         status: 409,
-        body: { kind: 'LearningCapReached' },
+        body: { kind: 'LearningCapReached', params: { learningCap: 15, cardsInLearning: 11 } },
       })
+    })
+
+    it('answers the school learning cap and the cards in learning on the town', async () => {
+      const player = await signUpWithATown()
+      await runSql(`INSERT INTO cards (player_id, word_id, state, step, entered_at)
+        SELECT id, 'filler-' || n, 'learning', 0, '2026-11-10T07:00:00Z' FROM players, generate_series(1, 3) AS n`)
+
+      expect((await readTown(player)).learning).toEqual({ cap: 15, inLearning: 3 })
+    })
+
+    it('leaves a card out of the cards in learning from a stability of 7 days, retained or not', async () => {
+      const player = await signUpWithATown()
+      await runSql(`INSERT INTO cards (player_id, word_id, state, stability, difficulty, last_review_at, last_rating, entered_at)
+        SELECT id, 'steady-' || n, 'review', 6 + n, 5, '2026-11-09T07:00:00Z', 'good', '2026-11-01T07:00:00Z'
+        FROM players, generate_series(0, 1) AS n`)
+
+      expect((await readTown(player)).learning).toEqual({ cap: 15, inLearning: 1 })
     })
 
     it('refuses lesson 1 while the school studies it', async () => {
