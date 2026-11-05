@@ -26,7 +26,7 @@ export interface RecallCardProps {
 function HintLine({ review }: { readonly review: ReviewHandle }): ReactElement {
   if (review.hint !== undefined) {
     return (
-      <p className="m-0 font-body text-body text-ink">
+      <p className="m-0 font-sans text-body text-ink">
         {reviewHint({ firstLetter: review.hint.firstLetter, letterCount: review.hint.letterCount })}
       </p>
     )
@@ -49,7 +49,7 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
       {review.isNearMiss && (
         <p
           role="status"
-          className="m-0 rounded-md border border-ochre bg-surface px-3 py-2 font-body text-body text-ink"
+          className="m-0 rounded-md border border-hint bg-hint-soft px-3 py-2 font-sans text-body text-ink"
         >
           {reviewNearMiss()}
         </p>
@@ -69,16 +69,14 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
   }
   return (
     <>
-      <h3 lang="es" className="m-0 font-display text-display-xl text-ink">
+      <h3 lang="es" className="m-0 font-sans text-display text-ink">
         {card.gloss}
       </h3>
-      <p lang="en" className="m-0 font-body text-body text-ink">
+      <p lang="en" className="m-0 font-sans text-body text-ink">
         {card.gappedFrame}
       </p>
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <p className="m-0 font-utility text-label uppercase text-ink-muted">
-          {reviewRecallPrompt()}
-        </p>
+        <p className="m-0 font-sans text-label text-ink-muted">{reviewRecallPrompt()}</p>
         <TextField
           label={reviewAnswerField()}
           name="answer"

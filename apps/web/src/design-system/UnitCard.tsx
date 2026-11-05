@@ -41,7 +41,7 @@ export function UnitCard(props: UnitCardProps): ReactElement {
       />
       <form className="m-0 flex flex-col gap-3" onSubmit={submit}>
         <div className="flex flex-col gap-1">
-          <label htmlFor={fieldId} className="font-utility text-label text-ink-muted uppercase">
+          <label htmlFor={fieldId} className="font-sans text-label text-ink-muted">
             {props.fieldLabel}
           </label>
           <NumberField

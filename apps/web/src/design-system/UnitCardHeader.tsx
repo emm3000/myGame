@@ -17,7 +17,7 @@ export function UnitCardHeader({
 }: UnitCardHeaderProps): ReactElement {
   return (
     <header className="flex flex-wrap items-center justify-between gap-2">
-      <Title className="m-0 font-display text-title text-ink">{name}</Title>
+      <Title className="m-0 font-sans text-title text-ink">{name}</Title>
       <UnitCount unit={unit} tallies={tallies} />
     </header>
   )

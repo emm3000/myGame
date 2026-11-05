@@ -19,10 +19,10 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
   }
   return (
     <>
-      <h3 lang="en" className="m-0 font-display text-display-xl text-ink">
+      <h3 lang="en" className="m-0 font-sans text-display text-ink">
         {card.word}
       </h3>
-      <p lang="en" className="m-0 font-body text-body text-ink">
+      <p lang="en" className="m-0 font-sans text-body text-ink">
         {card.frame}
       </p>
       <form onSubmit={submit} className="flex flex-col gap-4">
@@ -30,14 +30,14 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
           disabled={review.answered !== undefined}
           className="m-0 flex flex-col gap-2 border-0 p-0"
         >
-          <legend className="mb-2 font-utility text-label uppercase text-ink-muted">
+          <legend className="mb-2 font-sans text-label text-ink-muted">
             {reviewRecognitionPrompt()}
           </legend>
           {card.choices.map((choice) => (
             <label
               key={choice.choiceId}
               lang="es"
-              className="flex min-h-control cursor-pointer items-center gap-3 rounded-md border border-line-strong bg-surface px-3 py-2 font-body text-body text-ink has-checked:border-umber has-checked:font-bold"
+              className="flex min-h-control cursor-pointer items-center gap-3 rounded-md border border-line-strong bg-surface px-3 py-2 font-sans text-body text-ink has-checked:border-action has-checked:font-bold"
             >
               <input
                 type="radio"
@@ -45,7 +45,7 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
                 value={choice.choiceId}
                 checked={review.choice?.choiceId === choice.choiceId}
                 onChange={() => review.choose(choice)}
-                className="size-icon accent-umber"
+                className="size-icon accent-action"
               />
               {choice.gloss}
             </label>

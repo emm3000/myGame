@@ -30,16 +30,16 @@ function WrongLines({
   const correctForm = answerLang === 'en' ? verdict.word : verdict.gloss
   return (
     <>
-      <p className="m-0 font-body text-body text-ink">
+      <p className="m-0 font-sans text-body text-ink">
         {reviewYourAnswer()} <span lang={answerLang}>{answered.given}</span>
       </p>
-      <p className="m-0 font-body text-body text-ink">
+      <p className="m-0 font-sans text-body text-ink">
         {reviewRightAnswer()}{' '}
         <b lang={answerLang} className="font-bold">
           {correctForm}
         </b>
       </p>
-      <p className="m-0 font-body text-caption text-ink">{reviewComesBack()}</p>
+      <p className="m-0 font-sans text-caption text-ink">{reviewComesBack()}</p>
     </>
   )
 }
@@ -47,10 +47,10 @@ function WrongLines({
 function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
   return (
     <>
-      <p className="m-0 font-body font-bold text-body text-ink">
+      <p className="m-0 font-sans font-bold text-body text-ink">
         {reviewSkillEarned({ resource: resourceNameOf(skill.resource), level: skill.level })}
       </p>
-      <p className="m-0 font-body text-caption text-ink">
+      <p className="m-0 font-sans text-caption text-ink">
         {reviewSkillRate({ percent: skill.ratePercent, resource: resourceNameOf(skill.resource) })}
       </p>
     </>
@@ -67,7 +67,7 @@ export function RatedVerdictLines({
   const { verdict } = answered
   const isCorrect = verdict.kind === 'correct'
   const skill = verdict.kind === 'correct' ? verdict.earnedSkill : null
-  const tone = isCorrect ? 'border-moss bg-moss-soft' : 'border-rust bg-rust-soft'
+  const tone = isCorrect ? 'border-right bg-right-soft' : 'border-miss bg-miss-soft'
   return (
     <div className="flex flex-col gap-3">
       <section
@@ -76,7 +76,7 @@ export function RatedVerdictLines({
         tabIndex={-1}
         className={`flex flex-col gap-2 rounded-md border px-3 py-2 ${tone} ${focusTargetClass}`}
       >
-        <p id={lineId} className="m-0 font-body font-bold text-body text-ink">
+        <p id={lineId} className="m-0 font-sans font-bold text-body text-ink">
           {isCorrect ? reviewCorrect() : reviewWrong()}
         </p>
         {!isCorrect && <WrongLines answered={answered} answerLang={answerLang} />}

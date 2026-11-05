@@ -15,13 +15,11 @@ export function CardHeader({
 }: CardHeaderProps): ReactElement {
   return (
     <header className="flex items-baseline justify-between gap-2">
-      <Title
-        className={`m-0 font-display text-title ${isAtMaxLevel ? 'text-ink-muted' : 'text-ink'}`}
-      >
+      <Title className={`m-0 font-sans text-title ${isAtMaxLevel ? 'text-ink-muted' : 'text-ink'}`}>
         {name}
       </Title>
       <span
-        className={`rounded-pill px-2 font-utility text-label tabular-nums ${isAtMaxLevel ? 'bg-moss text-on-moss' : 'bg-surface-sunken text-ink'}`}
+        className={`rounded-pill px-2 font-sans text-label tabular-nums ${isAtMaxLevel ? 'bg-right-soft text-right' : 'bg-surface-sunken text-ink'}`}
       >
         {levelLabel}
       </span>

@@ -42,7 +42,7 @@ function LessonBody({
             isWaiting={isWaiting}
             onAction={onStudy}
           />
-          <p className="m-0 font-body text-caption text-ink-muted">
+          <p className="m-0 font-sans text-caption text-ink-muted">
             {lessonFree({ wordCount: state.wordCount })}
           </p>
         </>
@@ -52,7 +52,7 @@ function LessonBody({
     case 'studied':
       return (
         <>
-          <p className="m-0 font-body text-body text-ink">{lessonStudied()}</p>
+          <p className="m-0 font-sans text-body text-ink">{lessonStudied()}</p>
           <ButtonLink to="/feudo/$fiefId/repaso" params={{ fiefId }} tone="quiet">
             {lessonToReview()}
           </ButtonLink>
@@ -72,8 +72,8 @@ export function LessonCard({ theme, ...body }: LessonCardProps): ReactElement {
   return (
     <Panel element="article" toneClass={toneOf(body.state)} spacingClass="gap-3 p-5">
       <header className="flex flex-col gap-1">
-        <h4 className="m-0 font-display text-title text-ink">{lessonTitle()}</h4>
-        <p lang="en" className="m-0 font-body text-body text-ink-muted">
+        <h4 className="m-0 font-sans text-title text-ink">{lessonTitle()}</h4>
+        <p lang="en" className="m-0 font-sans text-body text-ink-muted">
           {theme}
         </p>
       </header>

@@ -32,6 +32,16 @@ function isShadow(key: string): key is Shadow {
 
 const shadowTokens = Object.keys(shadows).filter(isShadow)
 
+function namesTypeStyle(token: ColorToken): boolean {
+  return token in typeScale
+}
+
+function colorsOf(tokens: ReadonlyArray<ColorToken>): Record<string, string> {
+  return Object.fromEntries(tokens.map((token) => [token, color(token)]))
+}
+
+const colorsOutsideText = colorsOf(colorTokens.filter(namesTypeStyle))
+
 function variables(theme: Theme): Record<string, string> {
   return Object.fromEntries([
     ...colorTokens.map((token) => [`--${token}`, palette[token][theme]]),
@@ -42,7 +52,14 @@ function variables(theme: Theme): Record<string, string> {
 const fontSize = Object.fromEntries(
   Object.entries(typeScale).map(([style, { fontSize, ...settings }]) => [
     style,
-    [fontSize, { ...settings, fontWeight: String(settings.fontWeight) }],
+    [
+      fontSize,
+      {
+        ...settings,
+        lineHeight: String(settings.lineHeight),
+        fontWeight: String(settings.fontWeight),
+      },
+    ],
   ]),
 )
 
@@ -63,7 +80,7 @@ export default plugin(
   },
   {
     theme: {
-      colors: Object.fromEntries(colorTokens.map((token) => [token, color(token)])),
+      colors: colorsOf(colorTokens.filter((token) => !namesTypeStyle(token))),
       spacing,
       minHeight: minHeights,
       width: widths,
@@ -73,6 +90,11 @@ export default plugin(
       fontFamily: typeFamilies,
       fontSize,
       extend: {
+        backgroundColor: colorsOutsideText,
+        borderColor: colorsOutsideText,
+        textDecorationColor: colorsOutsideText,
+        outlineColor: colorsOutsideText,
+        fill: colorsOutsideText,
         height: heights,
         maxWidth: maxWidths,
         scrollMargin: scrollMargins,

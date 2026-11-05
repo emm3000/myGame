@@ -5,7 +5,7 @@ function TextAnchor(props: ComponentProps<'a'>): ReactElement {
   return (
     <a
       {...props}
-      className="font-utility text-button text-umber underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong"
+      className="font-sans text-button text-action underline underline-offset-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
     />
   )
 }

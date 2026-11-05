@@ -36,7 +36,7 @@ const screens: ReadonlyArray<Screen> = [
 ]
 
 const linkClass =
-  'flex items-center border-b-3 px-3 py-3 font-utility text-button no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong'
+  'flex items-center border-b-3 px-3 py-3 font-sans text-button no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
 
 function ScreenLink({
   to,
@@ -50,7 +50,7 @@ function ScreenLink({
       params={{ fiefId }}
       activeOptions={{ exact: isExact }}
       className={linkClass}
-      activeProps={{ className: 'border-river font-bold text-river' }}
+      activeProps={{ className: 'border-action font-bold text-action' }}
       inactiveProps={{ className: 'border-transparent text-ink-muted' }}
     >
       {label}
@@ -69,7 +69,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
-        <h1 className="m-0 font-display text-title text-umber">{shellTitle()}</h1>
+        <h1 className="m-0 font-sans text-title text-action">{shellTitle()}</h1>
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
           {fiefId === undefined ? null : (
@@ -90,7 +90,7 @@ export function AppShell({
           </span>
         </div>
       </header>
-      <main className="flex flex-col gap-6 px-4 py-6 font-body text-body text-ink-muted md:px-8">
+      <main className="flex flex-col gap-6 px-4 py-6 font-sans text-body text-ink-muted md:px-8">
         {player.emailVerified ? null : <VerificationBanner {...verification} />}
         <div>{children}</div>
       </main>

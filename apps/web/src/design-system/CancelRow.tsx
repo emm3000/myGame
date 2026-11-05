@@ -12,7 +12,7 @@ export function CancelRow({
   return (
     <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 self-stretch border-line border-t pt-3">
       {refund !== undefined && (
-        <p className="m-0 min-w-0 grow font-body text-caption text-ink-muted">{refund}</p>
+        <p className="m-0 min-w-0 grow font-sans text-caption text-ink-muted">{refund}</p>
       )}
       <Button
         type="button"

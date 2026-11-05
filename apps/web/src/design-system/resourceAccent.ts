@@ -17,10 +17,10 @@ interface AccentStyle {
 }
 
 export const resourceAccent: Readonly<Record<Accent, AccentStyle>> = {
-  wood: { Icon: WoodIcon, textClass: 'text-wood', fillClass: 'fill-wood' },
-  stone: { Icon: StoneIcon, textClass: 'text-stone', fillClass: 'fill-stone' },
-  iron: { Icon: IronIcon, textClass: 'text-iron', fillClass: 'fill-iron' },
-  gold: { Icon: GoldIcon, textClass: 'text-gold', fillClass: 'fill-gold' },
+  wood: { Icon: WoodIcon, textClass: 'text-material', fillClass: 'fill-material' },
+  stone: { Icon: StoneIcon, textClass: 'text-material', fillClass: 'fill-material' },
+  iron: { Icon: IronIcon, textClass: 'text-material', fillClass: 'fill-material' },
+  gold: { Icon: GoldIcon, textClass: 'text-money', fillClass: 'fill-money' },
   food: { Icon: FoodIcon, textClass: 'text-food', fillClass: 'fill-food' },
-  peasants: { Icon: PeasantsIcon, textClass: 'text-peasants', fillClass: 'fill-peasants' },
+  peasants: { Icon: PeasantsIcon, textClass: 'text-people', fillClass: 'fill-people' },
 }

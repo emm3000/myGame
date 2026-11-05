@@ -22,7 +22,7 @@ function Outcome({ outcome }: { readonly outcome: NoticeOutcome }): ReactElement
   return (
     <p
       role="status"
-      className="m-0 rounded-md border border-moss bg-moss-soft px-3 py-2 font-body text-caption text-ink"
+      className="m-0 rounded-md border border-right bg-right-soft px-3 py-2 font-sans text-caption text-ink"
     >
       {outcome.message}
     </p>
@@ -35,14 +35,14 @@ export function NoticeBanner(props: NoticeBannerProps): ReactElement {
     <section
       aria-labelledby={lineId}
       aria-busy={props.isBusy}
-      className="flex flex-col gap-3 rounded-md border-l-4 border-l-ochre bg-surface-raised px-4 py-3 shadow-card"
+      className="flex flex-col gap-3 rounded-md bg-surface-sunken px-4 py-3"
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="flex items-start gap-3 md:flex-1 md:items-center">
-          <span className="flex text-ochre">
+          <span className="flex text-ink">
             <MailIcon />
           </span>
-          <p id={lineId} className="m-0 min-w-0 flex-1 font-body text-body text-ink">
+          <p id={lineId} className="m-0 min-w-0 flex-1 font-sans text-body text-ink">
             {props.line}
           </p>
         </div>

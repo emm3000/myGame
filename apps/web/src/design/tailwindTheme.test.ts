@@ -4,6 +4,7 @@ import { compile } from '@tailwindcss/node'
 import { expect, it } from 'vitest'
 import {
   heights,
+  maxWidths,
   minHeights,
   palette,
   radii,
@@ -11,6 +12,8 @@ import {
   sizes,
   spacing,
   transitions,
+  typeFamilies,
+  typeScale,
   widths,
 } from './tokens'
 
@@ -121,4 +124,37 @@ it('switches every shadow token with the theme', async () => {
   expect(
     names.filter((name) => !ruleOf(css, `.shadow-${name}`).includes(`var(--shadow-${name})`)),
   ).toEqual([])
+})
+
+it('exposes a Tailwind max-width utility for every max-width token', async () => {
+  const stylesheet = await compileStylesheet()
+  const names = Object.keys(maxWidths)
+
+  const css = stylesheet.build(names.map((name) => `max-w-${name}`))
+
+  expect(names.filter((name) => !css.includes(`.max-w-${name} {`))).toEqual([])
+})
+
+it('sets every type style, never a colour, through its text utility', async () => {
+  const stylesheet = await compileStylesheet()
+  const entries = Object.entries(typeScale)
+
+  const css = stylesheet.build(entries.map(([style]) => `text-${style}`))
+
+  expect(
+    entries
+      .filter(([style, { fontSize }]) => {
+        const rule = ruleOf(css, `.text-${style}`)
+        return !rule.includes(`font-size: ${fontSize}`) || rule.includes('color:')
+      })
+      .map(([style]) => style),
+  ).toEqual([])
+})
+
+it('sets the one type family through font-sans', async () => {
+  const stylesheet = await compileStylesheet()
+
+  const css = stylesheet.build(['font-sans'])
+
+  expect(ruleOf(css, '.font-sans')).toContain(`font-family: ${typeFamilies.sans}`)
 })

@@ -74,7 +74,7 @@ function DueCard({
   const verdictRef = verdict.ref
   return (
     <div className="flex max-w-form flex-col gap-3">
-      <p className="m-0 font-utility text-label uppercase text-ink-muted">
+      <p className="m-0 font-sans text-label text-ink-muted">
         {reviewDueCount({ count: state.dueCount })}
       </p>
       <Panel element="article" toneClass="bg-surface-raised" spacingClass="gap-4 p-5">
@@ -88,7 +88,7 @@ function DueCard({
 function NothingDue({ nextReview }: { readonly nextReview: string | undefined }): ReactElement {
   return (
     <div className="flex max-w-form flex-col gap-2 rounded-md border border-line border-dashed p-5">
-      <p className="m-0 font-body text-body text-ink">{reviewNothingDue()}</p>
+      <p className="m-0 font-sans text-body text-ink">{reviewNothingDue()}</p>
       {nextReview !== undefined && <CountdownLine words={reviewNextReview()} time={nextReview} />}
     </div>
   )
@@ -139,7 +139,7 @@ export function ReviewScreen({ state }: { readonly state: ReviewScreenState }): 
         id={titleId}
         ref={title.ref}
         tabIndex={-1}
-        className={`m-0 font-display text-title text-ink ${focusTargetClass}`}
+        className={`m-0 font-sans text-title text-ink ${focusTargetClass}`}
       >
         {reviewTitle()}
       </h2>
