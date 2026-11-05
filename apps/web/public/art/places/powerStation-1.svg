@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <rect x="0" y="0" width="240" height="240" fill="#cdeaf7"/>
+  <ellipse cx="44" cy="50" rx="18" ry="9" fill="#ffffff"/>
+  <ellipse cx="60" cy="43" rx="16" ry="12" fill="#ffffff"/>
+  <ellipse cx="76" cy="50" rx="15" ry="8" fill="#ffffff"/>
+  <ellipse cx="176" cy="32" rx="13" ry="7" fill="#ffffff"/>
+  <ellipse cx="190" cy="27" rx="12" ry="9" fill="#ffffff"/>
+  <ellipse cx="203" cy="33" rx="11" ry="6" fill="#ffffff"/>
+  <rect x="0" y="176" width="240" height="64" fill="#8bcf6a"/>
+  <ellipse cx="120" cy="186" rx="70.5" ry="10.5" fill="#5fae4f"/>
+  <rect x="42.5" y="135.9" width="69.2" height="48.1" fill="#e0674a"/>
+  <rect x="38" y="129.9" width="78.2" height="9" rx="2.3" fill="#3c5ea8"/>
+  <rect x="54.6" y="147.9" width="18" height="18" rx="2.3" fill="#ffffff"/>
+  <rect x="57.6" y="150.9" width="12" height="12" rx="0.8" fill="#9fdcf5"/>
+  <rect x="81.6" y="147.9" width="21.1" height="36.1" rx="1.5" fill="#a9b8c4"/>
+  <circle cx="92.2" cy="140.4" r="4.5" fill="#ffcf3f"/>
+  <rect x="126.8" y="143.4" width="4.5" height="9" fill="#a9b8c4"/>
+  <rect x="134.3" y="143.4" width="4.5" height="9" fill="#a9b8c4"/>
+  <rect x="120.8" y="150.9" width="24.1" height="33.1" rx="3" fill="#7a5c00"/>
+  <rect x="125.3" y="156.9" width="3" height="21.1" fill="#ffcf3f"/>
+  <rect x="131.3" y="156.9" width="3" height="21.1" fill="#ffcf3f"/>
+  <rect x="137.3" y="156.9" width="3" height="21.1" fill="#ffcf3f"/>
+  <rect x="183.9" y="90.8" width="6" height="93.2" fill="#a9b8c4"/>
+  <rect x="171.9" y="96.8" width="30.1" height="4.5" rx="1.5" fill="#a9b8c4"/>
+  <path d="M111.7,138.9 Q146.3,150.9 180.9,96.8 L180.9,99 Q146.3,153.2 111.7,141.1 z" fill="#2f4b8a"/>
+</svg>

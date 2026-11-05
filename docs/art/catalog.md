@@ -1,5 +1,31 @@
 # Art catalog
 
+Every family the game draws. The town's families come first; the medieval ones below them are retired.
+
+## The town
+
+Hand-written SVG under `apps/web/public/art/`, drawn to `art-bible.md` and checked by its rules (Model and size). Each file ships beside its Android VectorDrawable in `apps/android/core/designsystem/src/main/res/drawable/`, converted by `pnpm --filter @mygame/web drawables`. No screen draws them yet.
+
+### Family: places
+
+35 images, `places/<word>-<tier>.svg`, the seven places of `CONTEXT.md` in five tiers each, tier = ceil(level / 2); level 0 shows no image. Android: `designsystem_place_<word>_<tier>`, the word in snake case (`designsystem_place_power_station_3`).
+
+| Word | What grows from tier 1 to tier 5 | Accent |
+|---|---|---|
+| `homes` | one brick house, then a row of two, three, three of two floors, and four with two of three floors, trees and hedges | `people`, the front doors |
+| `farm` | a red barn over two crop rows, then a fence, a silo, a second silo and a tree, then a lean-to annex, a third silo and four full rows | `food`, the crops |
+| `factory` | a brick works with one chimney and a pallet stack, the chimney rising each tier, a sawtooth roof from tier 3, an office annex from tier 4 | `material`, the pallets |
+| `powerStation` | a brick station with one transformer and one pole, then more transformers, a steel fence, a pylon at tier 4, two pylons and roof panels at tier 5 | `power`, the transformers |
+| `storage` | a wide shed with one large door, then two, three and four doors, a side shed from tier 4, a loading apron at tier 5 | none |
+| `school` | a one-floor school with a cupola, two floors from tier 2, a flagpole from tier 3, one wing at tier 4, two at tier 5 | none |
+| `office` | an office with a glass front of one, two, three and four floors, then six at tier 5, low wings from tier 4 | none |
+
+### Family: waste
+
+3 images, `waste/waste-<size>.svg`, one per waste-site size, 1 to 3: a few bags and a carton, then a pile on a mound with a tire and a drum, then a wide heap with tires, drums, cartons and cans. Android: `designsystem_waste_<size>`.
+
+## Retired: the medieval families
+
 Status: retired. Its families are medieval, retired by ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`), and still served under `apps/web/public/art/` until the town rebuild replaces them.
 
 Status: proposal, drafted 2026-09-22 for PRD S4, style switched to stylized 3D animation the same day before any image was generated. Every image the MVP shows, with the prompt that produces it. The rules come from `art-bible.md`; this page only applies them. When the two disagree, the bible wins and this page is edited.

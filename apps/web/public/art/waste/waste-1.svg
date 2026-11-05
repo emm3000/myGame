@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <rect x="0" y="0" width="240" height="240" fill="#cdeaf7"/>
+  <ellipse cx="44" cy="50" rx="18" ry="9" fill="#ffffff"/>
+  <ellipse cx="60" cy="43" rx="16" ry="12" fill="#ffffff"/>
+  <ellipse cx="76" cy="50" rx="15" ry="8" fill="#ffffff"/>
+  <ellipse cx="176" cy="32" rx="13" ry="7" fill="#ffffff"/>
+  <ellipse cx="190" cy="27" rx="12" ry="9" fill="#ffffff"/>
+  <ellipse cx="203" cy="33" rx="11" ry="6" fill="#ffffff"/>
+  <rect x="0" y="176" width="240" height="64" fill="#8bcf6a"/>
+  <ellipse cx="120" cy="186" rx="67.3" ry="11" fill="#5fae4f"/>
+  <polygon points="41.8,190.8 46.9,170.4 50.3,190.8 55.4,175.5 58.8,190.8" fill="#5fae4f"/>
+  <rect x="75.8" y="172.1" width="10.2" height="15.3" rx="1.7" fill="#a9b8c4"/>
+  <polygon points="90.1,158.5 93.3,147.3 99.1,147.3 102.3,158.5" fill="#4f6377"/>
+  <ellipse cx="96.2" cy="146.5" rx="8.6" ry="3.3" fill="#4f6377"/>
+  <path d="M75.8,184 L75.8,171.8 Q75.8,153.4 96.2,152.4 Q116.6,153.4 116.6,171.8 L116.6,184 z" fill="#4f6377"/>
+  <rect x="116.6" y="158.5" width="30.6" height="25.5" rx="1.7" fill="#8a5a3c"/>
+  <rect x="128.5" y="158.5" width="6.8" height="25.5" fill="#e8e3d6"/>
+  <polygon points="152.3,163.6 155,153.4 159.8,153.4 162.5,163.6" fill="#2f4b8a"/>
+  <ellipse cx="157.4" cy="152.7" rx="7.1" ry="2.7" fill="#2f4b8a"/>
+  <path d="M140.4,184 L140.4,173.8 Q140.4,158.5 157.4,157.7 Q174.4,158.5 174.4,173.8 L174.4,184 z" fill="#2f4b8a"/>
+  <polygon points="181.2,190.8 186.3,170.4 189.7,190.8 194.8,175.5 198.2,190.8" fill="#5fae4f"/>
+</svg>
