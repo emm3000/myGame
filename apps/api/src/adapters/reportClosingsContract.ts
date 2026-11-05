@@ -36,6 +36,16 @@ export const reportClosingsContract = (
       expect(await closings.closedAt(ana)).toEqual(hoursAfterSignUp(5))
     })
 
+    it('keeps the later close when an earlier one is stored after it', async () => {
+      const { closings, signUp } = await arrange()
+      await signUp(ana, signedUpAt)
+      await closings.close(ana, hoursAfterSignUp(5))
+
+      await closings.close(ana, hoursAfterSignUp(3))
+
+      expect(await closings.closedAt(ana)).toEqual(hoursAfterSignUp(5))
+    })
+
     it('keeps the close of one player from another', async () => {
       const { closings, signUp } = await arrange()
       await signUp(ana, signedUpAt)

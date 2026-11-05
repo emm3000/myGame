@@ -5,7 +5,11 @@ export class MemoryReportClosings implements ReportClosings {
   private readonly closes = new Map<PlayerId, Instant>()
 
   async close(playerId: PlayerId, now: Instant): Promise<void> {
-    this.closes.set(playerId, now)
+    const stored = this.closes.get(playerId)
+    const isLater = stored === undefined || now.epochMilliseconds > stored.epochMilliseconds
+    if (isLater) {
+      this.closes.set(playerId, now)
+    }
   }
 
   async closedAt(playerId: PlayerId): Promise<Instant | undefined> {

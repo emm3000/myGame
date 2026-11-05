@@ -149,7 +149,7 @@ export const townNewsContract = (
         await news.record(maple, [event])
       }
 
-      expect((await news.newsOf(maple)).at(-1)).toEqual(events[1])
+      expect(await news.newsOf(maple)).toEqual(events.slice(1).reverse())
     })
 
     it('rolls an event back with the transaction that wrote it', async () => {
