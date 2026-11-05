@@ -318,7 +318,7 @@ describe('deriveResourceRates with earned skills', () => {
     expect(result.value.food).toBe(10.5)
   })
 
-  it('multiplies two earned skills on one resource into one product', () => {
+  it("sums a resource's skill percents, never compounds them", () => {
     const result = deriveResourceRates(
       noLevels,
       noArts,
@@ -329,7 +329,7 @@ describe('deriveResourceRates with earned skills', () => {
     )
 
     assert(result.ok)
-    expect(result.value.food).toBe(11.55)
+    expect(result.value.food).toBe(11.5)
   })
 
   it('applies the season after an earned skill', () => {

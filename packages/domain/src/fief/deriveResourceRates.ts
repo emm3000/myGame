@@ -3,6 +3,7 @@ import type { EarnedSkill } from '../learning/EarnedSkill'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import { err, ok, type Result } from '../Result'
 import type { ResourceKind } from '../resources/Resources'
+import { resourceKinds } from '../resources/resourceKinds'
 import { seasonAt } from '../season/seasonAt'
 import type { Instant } from '../time/Instant'
 import { artKinds } from './artKinds'
@@ -56,8 +57,13 @@ const withArtPercents = (
 
 const withSkillPercents = (percents: Percents, skills: ReadonlyArray<EarnedSkill>): Percents => {
   const collected = { ...percents }
-  for (const { resource, ratePercent } of skills) {
-    collected[resource] = [...collected[resource], 100 + ratePercent]
+  for (const resource of resourceKinds) {
+    const earned = skills.filter((skill) => skill.resource === resource)
+    if (earned.length === 0) {
+      continue
+    }
+    const summed = earned.reduce((sum, { ratePercent }) => sum + ratePercent, 0)
+    collected[resource] = [...collected[resource], 100 + summed]
   }
   return collected
 }
