@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TokenStore
+import com.emm.mygame.core.network.TownRepository
 import java.io.File
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +48,15 @@ class MyGameApplication : Application() {
 
     val fiefs: FiefRepository by lazy {
         FiefRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
+    }
+
+    val towns: TownRepository by lazy {
+        TownRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,

@@ -1,0 +1,413 @@
+package com.emm.mygame.feature.town
+
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownFoundRefusal
+import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownWorkRefusal
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class TownScreenTest {
+
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    private val intents: MutableList<TownIntent> = mutableListOf()
+
+    private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
+        kind = TownBuildingKind.Farm,
+        level = 1,
+        next = TownUiState.NextLevelLine(
+            level = 2,
+            costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
+            duration = 90.seconds,
+            people = 3,
+        ),
+        block = null,
+    )
+
+    private val riverton: TownUiState.Content = TownUiState.Content(
+        name = "Riverton",
+        label = TownLabel.Town,
+        stocks = listOf(TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30)),
+        people = TownUiState.PeopleLine(free = 24, atWork = 96),
+        slot = TownUiState.SlotLine.Idle,
+        waitingList = emptyList(),
+        places = listOf(farmOffer),
+        start = TownUiState.StartStatus.Idle,
+        stop = TownUiState.StopStatus.Idle,
+    )
+
+    private val busySlot: TownUiState.SlotLine.Busy = TownUiState.SlotLine.Busy(
+        building = TownBuildingKind.Farm,
+        level = 2,
+        remaining = 12.minutes,
+        total = 20.minutes,
+        finishesAt = readInstant,
+    )
+
+    private val waitingSchool: TownUiState.WaitingLine = TownUiState.WaitingLine(
+        building = TownBuildingKind.School,
+        level = 3,
+        remaining = 20.minutes,
+        finishesAt = readInstant,
+    )
+
+    @Test
+    fun `draws the reading line while loading`() {
+        show(TownUiState.Loading)
+
+        composeRule.onNodeWithText("Estamos leyendo tu pueblo…").assertIsDisplayed()
+    }
+
+    @Test
+    fun `asks for a retry on a failed read`() {
+        show(TownUiState.Failed)
+
+        composeRule.onNodeWithText("Volver a intentarlo").performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.RetryTapped), intents)
+    }
+
+    @Test
+    fun `asks for the town's name`() {
+        show(emptyNaming())
+
+        composeRule.onNodeWithText("Ponle nombre a tu pueblo").assertIsDisplayed()
+    }
+
+    @Test
+    fun `sends what the player writes`() {
+        show(emptyNaming())
+
+        composeRule.onNodeWithContentDescription("Nombre del pueblo").performTextInput("Riverton")
+
+        assertEquals(listOf<TownIntent>(TownIntent.NameChanged("Riverton")), intents)
+    }
+
+    @Test
+    fun `submits the name`() {
+        show(emptyNaming())
+
+        composeRule.onNodeWithText("Empezar").performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.NameSubmitted), intents)
+    }
+
+    @Test
+    fun `draws a blank name refusal`() {
+        show(TownUiState.Naming("", TownUiState.NamingStatus.Refused(TownFoundRefusal.BlankTownName)))
+
+        composeRule.onNodeWithText("Escribe un nombre para tu pueblo.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `offers the town a player already holds`() {
+        show(TownUiState.Naming("R", TownUiState.NamingStatus.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown)))
+
+        composeRule.onNodeWithText("Ir a tu pueblo").performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.GoToTownTapped), intents)
+    }
+
+    @Test
+    fun `draws a failed founding beside its button`() {
+        show(TownUiState.Naming("R", TownUiState.NamingStatus.Unreachable))
+
+        composeRule.onNodeWithText(UNEXPECTED).assertIsDisplayed()
+    }
+
+    @Test
+    fun `labels a town with the word town`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Tu pueblo").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `labels a city with the word city`() {
+        show(riverton.copy(label = TownLabel.City))
+
+        composeRule.onNodeWithText("Ciudad").assertIsDisplayed()
+    }
+
+    @Test
+    fun `titles the places of a city`() {
+        show(riverton.copy(label = TownLabel.City))
+
+        composeRule.onNodeWithText("Tu ciudad").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws a stock with its capacity and rate`() {
+        show(riverton)
+
+        listOf("Dinero", "120", "de 900", "+30 / h").forEach { line: String ->
+            composeRule.onNodeWithText(line).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun `tells a full store in words`() {
+        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30)
+
+        show(riverton.copy(stocks = listOf(full)))
+
+        composeRule.onNodeWithText("Lleno: 900").assertIsDisplayed()
+    }
+
+    @Test
+    fun `counts the free and the working people`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Gente: 24 libres, 96 trabajando").assertIsDisplayed()
+    }
+
+    @Test
+    fun `uses the singular for one free person`() {
+        show(riverton.copy(people = TownUiState.PeopleLine(free = 1, atWork = 0)))
+
+        composeRule.onNodeWithText("Gente: 1 libre, 0 trabajando").assertIsDisplayed()
+    }
+
+    @Test
+    fun `offers a level with its duration on the button`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Construir nivel 2 · 1:30").performScrollTo().performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.BuildTapped(TownBuildingKind.Farm)), intents)
+    }
+
+    @Test
+    fun `draws the cost and the people of a level`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Gente trabajando: +3").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("150 de dinero").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `tells a short cost in words`() {
+        val shortCost: TownUiState.PlaceCard = farmOffer.copy(
+            next = farmOffer.next?.copy(
+                costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 60, isShort = true)),
+            ),
+        )
+
+        show(riverton.copy(places = listOf(shortCost)))
+
+        composeRule.onNodeWithContentDescription("60 de dinero, falta").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `names one shortfall`() {
+        show(blocked(TownUiState.BlockReason.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Food, 20)))))
+
+        assertBlockedBy("Necesitas 20 de comida más.")
+    }
+
+    @Test
+    fun `joins several shortfalls`() {
+        show(
+            blocked(
+                TownUiState.BlockReason.Resources(
+                    listOf(
+                        TownUiState.Shortfall(TownResourceKind.Money, 5),
+                        TownUiState.Shortfall(TownResourceKind.Food, 6),
+                        TownUiState.Shortfall(TownResourceKind.Power, 7),
+                    ),
+                ),
+            ),
+        )
+
+        assertBlockedBy("Necesitas 5 de dinero, 6 de comida y 7 de energía más.")
+    }
+
+    @Test
+    fun `names too few free people`() {
+        show(blocked(TownUiState.BlockReason.PeopleShort(needed = 5, free = 2)))
+
+        assertBlockedBy("Gente necesaria: 5. Libres: 2.")
+    }
+
+    @Test
+    fun `tells the waiting list is full`() {
+        show(blocked(TownUiState.BlockReason.WaitingListFull(cap = 2)))
+
+        assertBlockedBy("La lista de espera ya tiene 2 obras. Espera a que termine alguna.")
+    }
+
+    @Test
+    fun `keeps a blocked level tappable`() {
+        show(blocked(TownUiState.BlockReason.PeopleShort(needed = 5, free = 2)))
+
+        composeRule.onNodeWithText("Construir nivel 2 · 1:30").performScrollTo().performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.BuildTapped(TownBuildingKind.Farm)), intents)
+    }
+
+    @Test
+    fun `draws a place at its top level`() {
+        show(riverton.copy(places = listOf(farmOffer.copy(level = 10, next = null))))
+
+        composeRule.onNodeWithText("Nivel máximo").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws a start refusal with its message`() {
+        val refused: TownUiState.StartStatus =
+            TownUiState.StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.NotEnoughPeople(5, 2))
+
+        show(riverton.copy(start = refused))
+
+        composeRule
+            .onNodeWithText("Esta obra necesita 5 personas libres y tienes 2. Sube el nivel de tus hogares.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws a failed start beside its place`() {
+        show(riverton.copy(start = TownUiState.StartStatus.Unreachable(TownBuildingKind.Farm)))
+
+        composeRule.onNodeWithText(UNEXPECTED).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `invites work into an idle slot`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Ahora no hay ninguna obra.").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `counts a busy slot down in minutes`() {
+        show(riverton.copy(slot = busySlot))
+
+        composeRule.onNodeWithText("12 min").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `counts the last minute in seconds`() {
+        show(riverton.copy(slot = busySlot.copy(remaining = 45.seconds)))
+
+        composeRule.onNodeWithText("0:45").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `names the hours of a long work`() {
+        show(riverton.copy(slot = busySlot.copy(remaining = 45.minutes + 1.hours, total = 2.hours)))
+
+        composeRule.onNodeWithText("1 h 45 min", substring = true).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `stops the slot by its place and level`() {
+        show(riverton.copy(slot = busySlot))
+
+        composeRule.onNodeWithContentDescription("Parar la obra: Granja, nivel 2").performScrollTo().performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.StopTapped(TownBuildingKind.Farm, 2)), intents)
+    }
+
+    @Test
+    fun `tells the refund beside a stop`() {
+        show(riverton.copy(slot = busySlot))
+
+        composeRule.onNodeWithText(REFUND).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `tells a finished work until the next read`() {
+        show(riverton.copy(slot = TownUiState.SlotLine.Done(TownBuildingKind.Farm, 2)))
+
+        composeRule
+            .onNodeWithText("La obra está lista. Estamos leyendo tu pueblo otra vez…")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws waiting work with its stop`() {
+        show(riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool)))
+
+        composeRule.onNodeWithContentDescription("Parar la obra: Escuela, nivel 3").performScrollTo().performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.StopTapped(TownBuildingKind.School, 3)), intents)
+    }
+
+    @Test
+    fun `titles the waiting list with its last finish`() {
+        show(riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool)))
+
+        composeRule.onNodeWithText("Lista de espera · 20 min").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws a refused stop with its message`() {
+        val target: TownUiState.WorkTarget = TownUiState.WorkTarget(TownBuildingKind.Farm, 2)
+        val refused: TownUiState.StopStatus =
+            TownUiState.StopStatus.Refused(target, TownWorkRefusal.BuildingWorkNotFound(level = 2))
+
+        show(riverton.copy(slot = busySlot, stop = refused))
+
+        composeRule
+            .onNodeWithText("La obra del nivel 2 ya no está en la lista. Quizá ya terminó.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `signs out from the home`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Salir").performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
+    }
+
+    private fun assertBlockedBy(reason: String) {
+        composeRule
+            .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, reason))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    private fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)
+
+    private fun blocked(reason: TownUiState.BlockReason): TownUiState.Content =
+        riverton.copy(places = listOf(farmOffer.copy(block = reason)))
+
+    private fun show(state: TownUiState) {
+        composeRule.setContent {
+            MyGameTheme {
+                TownScreen(state = state, onIntent = { intent: TownIntent -> intents += intent })
+            }
+        }
+    }
+
+    private companion object {
+        const val UNEXPECTED: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
+        const val REFUND: String =
+            "Si la paras, recuperas todo lo que costó, y lo mismo por cada obra en espera que dependa de ella."
+    }
+}

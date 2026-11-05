@@ -12,7 +12,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -32,7 +34,7 @@ internal fun BuildingsSection(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        SectionTitle(text = stringResource(R.string.buildings_title))
+        MyGameSectionTitle(text = stringResource(R.string.buildings_title))
         content.buildings.forEach { card: FiefUiState.BuildingCard ->
             BuildingItem(card = card, upgrade = content.upgrade, onIntent = onIntent)
         }
@@ -47,7 +49,7 @@ private fun BuildingItem(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        Card {
+        MyGameCard {
             Column(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
                 modifier = Modifier.padding(vertical = MyGameSpacing.step3),

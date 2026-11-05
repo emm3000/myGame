@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -77,7 +78,7 @@ private fun Reviewing(
             style = MyGameTypography.label,
             color = MyGameTheme.colors.inkMuted,
         )
-        Card {
+        MyGameCard {
             Column(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
                 modifier = Modifier.padding(vertical = MyGameSpacing.step4),

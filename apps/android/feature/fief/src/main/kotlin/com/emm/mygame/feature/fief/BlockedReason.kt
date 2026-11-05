@@ -10,6 +10,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.icuStringResource
 import java.time.ZoneId
 

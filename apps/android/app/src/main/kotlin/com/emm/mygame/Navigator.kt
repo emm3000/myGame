@@ -36,11 +36,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedIn() {
-        showAlone(Destination.FirstFief)
-    }
-
-    fun firstFiefOpened(fief: FiefId) {
-        if (backStack.lastOrNull() == Destination.FirstFief) showAlone(Destination.Fief(fief))
+        showAlone(Destination.Town)
     }
 
     fun signedOut(isSessionEnded: Boolean) {
@@ -52,20 +48,15 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         ended.collect { signedOut(isSessionEnded = true) }
     }
 
-    fun openMap() {
-        openTab { fief: FiefId -> Destination.Map(fief) }
+    fun openMap(fief: FiefId) {
+        openTab(Destination.Map(fief))
     }
 
-    fun openChronicle() {
-        openTab { fief: FiefId -> Destination.Chronicle(fief) }
+    fun openChronicle(fief: FiefId) {
+        openTab(Destination.Chronicle(fief))
     }
 
-    fun openReview() {
-        val top: NavKey? = backStack.lastOrNull()
-        if (top is Destination.Fief) backStack.add(Destination.Review(top.fief))
-    }
-
-    fun openFief() {
+    fun openTown() {
         when (backStack.lastOrNull()) {
             is Destination.Map, is Destination.Chronicle -> back()
             else -> Unit
@@ -75,20 +66,18 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     fun switchFief(fief: FiefId) {
         if (!areTabsEnabled) return
         val shown: List<Destination> = when (backStack.lastOrNull()) {
-            is Destination.Fief -> listOf(Destination.Fief(fief))
-            is Destination.Map -> listOf(Destination.Fief(fief), Destination.Map(fief))
-            is Destination.Chronicle -> listOf(Destination.Fief(fief), Destination.Chronicle(fief))
+            is Destination.Map -> listOf(Destination.Town, Destination.Map(fief))
+            is Destination.Chronicle -> listOf(Destination.Town, Destination.Chronicle(fief))
             else -> return
         }
         showAlone(shown)
     }
 
-    private fun openTab(tabOf: (FiefId) -> Destination) {
+    private fun openTab(tab: Destination) {
         if (!areTabsEnabled) return
-        when (val top: NavKey? = backStack.lastOrNull()) {
-            is Destination.Fief -> backStack.add(tabOf(top.fief))
-            is Destination.Map -> backStack[backStack.lastIndex] = tabOf(top.fief)
-            is Destination.Chronicle -> backStack[backStack.lastIndex] = tabOf(top.fief)
+        when (backStack.lastOrNull()) {
+            Destination.Town -> backStack.add(tab)
+            is Destination.Map, is Destination.Chronicle -> backStack[backStack.lastIndex] = tab
             else -> Unit
         }
     }

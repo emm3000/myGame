@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
@@ -16,7 +17,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 
 @Composable
 internal fun LessonItem(onReviewOpen: () -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+    MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier.padding(vertical = MyGameSpacing.step3),

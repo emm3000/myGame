@@ -1,0 +1,323 @@
+package com.emm.mygame.core.network
+
+import com.emm.mygame.core.testing.FakeTokenCipher
+import java.io.File
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
+import mockwebserver3.RecordedRequest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TemporaryFolder
+
+class TownRepositoryTest {
+
+    @get:Rule
+    val folder: TemporaryFolder = TemporaryFolder()
+
+    private val api: MockWebServer = MockWebServer()
+
+    private val sessionEnds: SessionEnds = SessionEnds()
+
+    @Before
+    fun startApi() {
+        api.start()
+    }
+
+    @After
+    fun stopApi() {
+        api.close()
+    }
+
+    @Test
+    fun `reads the town with its stocks in the catalog order`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val answer: TownReadResult = town().read()
+
+        val read: TownSnapshot = (answer as TownReadResult.Read).town
+        assertEquals(
+            listOf(
+                TownSnapshot.Stock(TownResourceKind.Money, amount = 120, ratePerHour = 30.5, capacity = 1000),
+                TownSnapshot.Stock(TownResourceKind.Food, amount = 80, ratePerHour = 12.0, capacity = 1000),
+                TownSnapshot.Stock(TownResourceKind.Power, amount = 60, ratePerHour = 0.0, capacity = 1000),
+                TownSnapshot.Stock(TownResourceKind.Material, amount = 40, ratePerHour = 7.0, capacity = 1000),
+            ),
+            read.stocks,
+        )
+    }
+
+    @Test
+    fun `reads each place with its next level`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.Building(
+                kind = TownBuildingKind.Homes,
+                level = 1,
+                next = TownSnapshot.NextLevel(
+                    level = 2,
+                    costs = listOf(
+                        TownSnapshot.Cost(TownResourceKind.Money, 60),
+                        TownSnapshot.Cost(TownResourceKind.Material, 30),
+                    ),
+                    duration = 90.seconds,
+                    people = 3,
+                ),
+            ),
+            read.buildings.first(),
+        )
+    }
+
+    @Test
+    fun `reads a place at its top level with no next level`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(TownSnapshot.Building(TownBuildingKind.Office, level = 10, next = null), read.buildings.last())
+    }
+
+    @Test
+    fun `reads the slot and the waiting list of the building work`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.Work(
+                slot = TownSnapshot.WorkItem(
+                    building = TownBuildingKind.Farm,
+                    level = 2,
+                    startsAt = Instant.parse("2026-11-05T10:00:00.000Z"),
+                    finishesAt = Instant.parse("2026-11-05T10:10:00.000Z"),
+                ),
+                waitingList = listOf(
+                    TownSnapshot.WorkItem(
+                        building = TownBuildingKind.School,
+                        level = 3,
+                        startsAt = Instant.parse("2026-11-05T10:10:00.000Z"),
+                        finishesAt = Instant.parse("2026-11-05T10:30:00.000Z"),
+                    ),
+                ),
+                cap = 2,
+            ),
+            read.work,
+        )
+    }
+
+    @Test
+    fun `reads the instants that change the town on their own`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            listOf(Instant.parse("2026-11-08T00:00:00.000Z"), Instant.parse("2026-11-05T10:20:00.000Z")),
+            listOf(read.seasonEndsAt, read.lessonFinishesAt),
+        )
+    }
+
+    @Test
+    fun `answers no town when the api finds none`() = runTest {
+        api.enqueue(json(404, """{"kind":"TownNotFound"}"""))
+
+        assertEquals(TownReadResult.NoTown, town().read())
+    }
+
+    @Test
+    fun `answers unreachable when a read fails`() = runTest {
+        api.enqueue(MockResponse.Builder().code(500).build())
+
+        assertEquals(TownReadResult.Unreachable, town().read())
+    }
+
+    @Test
+    fun `founds the town with the name the player wrote`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        town().found("  Riverton ")
+
+        val request: RecordedRequest = api.takeRequestWithin()
+        assertEquals("POST /api/town", "${request.method} ${request.url.encodedPath}")
+        assertEquals("""{"name":"  Riverton "}""", request.body?.utf8())
+    }
+
+    @Test
+    fun `answers the founded town`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        assertEquals("Riverton", (town().found("Riverton") as TownFoundResult.Founded).town.name)
+    }
+
+    @Test
+    fun `hands a blank name refusal to the caller`() = runTest {
+        api.enqueue(json(400, """{"kind":"BlankTownName"}"""))
+
+        assertEquals(TownFoundResult.Refused(TownFoundRefusal.BlankTownName), town().found(" "))
+    }
+
+    @Test
+    fun `hands the refusal of a second town to the caller`() = runTest {
+        api.enqueue(json(409, """{"kind":"PlayerAlreadyHoldsTown"}"""))
+
+        assertEquals(TownFoundResult.Refused(TownFoundRefusal.PlayerAlreadyHoldsTown), town().found("Riverton"))
+    }
+
+    @Test
+    fun `answers unreachable when a founding loses its site`() = runTest {
+        api.enqueue(MockResponse.Builder().code(409).build())
+
+        assertEquals(TownFoundResult.Unreachable, town().found("Riverton"))
+    }
+
+    @Test
+    fun `starts work by naming only the place`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        town().startWork(TownBuildingKind.PowerStation)
+
+        val request: RecordedRequest = api.takeRequestWithin()
+        assertEquals("POST /api/town/work", "${request.method} ${request.url.encodedPath}")
+        assertEquals("""{"building":"powerStation"}""", request.body?.utf8())
+    }
+
+    @Test
+    fun `stops work by its place and level`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        town().stopWork(TownBuildingKind.PowerStation, level = 3)
+
+        val request: RecordedRequest = api.takeRequestWithin()
+        assertEquals("DELETE /api/town/work/powerStation/3", "${request.method} ${request.url.encodedPath}")
+    }
+
+    @Test
+    fun `carries the cap of a full waiting list`() = runTest {
+        api.enqueue(json(409, """{"kind":"WaitingListFull","params":{"cap":2}}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.WaitingListFull(cap = 2)),
+            town().startWork(TownBuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `carries the people a work needs and the people free`() = runTest {
+        api.enqueue(json(409, """{"kind":"NotEnoughPeople","params":{"requiredPeople":5,"freePeople":2}}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.NotEnoughPeople(required = 5, free = 2)),
+            town().startWork(TownBuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `reads a shortfall refusal`() = runTest {
+        api.enqueue(
+            json(
+                409,
+                """{"kind":"NotEnoughResources","params":{"missing":{"money":1,"food":0,"power":0,"material":0}}}""",
+            ),
+        )
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.NotEnoughResources),
+            town().startWork(TownBuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `carries the level of a place at its top`() = runTest {
+        api.enqueue(json(409, """{"kind":"TopLevelReached","params":{"building":"farm","level":10}}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.TopLevelReached(level = 10)),
+            town().startWork(TownBuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `carries the level of a work no longer on the list`() = runTest {
+        api.enqueue(json(409, """{"kind":"BuildingWorkNotFound","params":{"building":"farm","level":4}}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.BuildingWorkNotFound(level = 4)),
+            town().stopWork(TownBuildingKind.Farm, level = 4),
+        )
+    }
+
+    @Test
+    fun `reads the refusal of work for a player with no town`() = runTest {
+        api.enqueue(json(404, """{"kind":"TownNotFound"}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.TownNotFound),
+            town().startWork(TownBuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `answers an unknown refusal as unrecognized`() = runTest {
+        api.enqueue(json(409, """{"kind":"QueueFull"}"""))
+
+        assertEquals(
+            TownWorkResult.Refused(TownWorkRefusal.Unrecognized),
+            town().startWork(TownBuildingKind.Farm),
+        )
+    }
+
+    @Test
+    fun `answers unreachable when work gets an empty refusal`() = runTest {
+        api.enqueue(MockResponse.Builder().code(400).build())
+
+        assertEquals(TownWorkResult.Unreachable, town().stopWork(TownBuildingKind.Farm, level = 2))
+    }
+
+    private fun TestScope.town(): TownRepository = TownRepository(
+        baseUrl = api.url("/api/").toString(),
+        tokenStore = signedIn(),
+        sessionEnds = sessionEnds,
+        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+    )
+
+    private fun signedIn(): TokenStore =
+        TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
+
+    private fun json(code: Int, body: String): MockResponse =
+        MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
+
+    private companion object {
+        const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
+        const val HOMES_COST: String = """{"money":60,"food":0,"power":0,"material":30}"""
+        const val FLAT: String = """{"level":1,"nextLevel":null}"""
+        const val TOWN: String =
+            """{"name":"Riverton","label":"town","site":{"region":1,"area":1,"site":1},"terrain":"fields",""" +
+                """"season":{"kind":"fall","year":1,"endsAt":"2026-11-08T00:00:00.000Z"},""" +
+                """"stocks":{"money":{"amount":120,"ratePerHour":30.5,"capacity":1000},""" +
+                """"food":{"amount":80,"ratePerHour":12,"capacity":1000},""" +
+                """"power":{"amount":60,"ratePerHour":0,"capacity":1000},""" +
+                """"material":{"amount":40,"ratePerHour":7,"capacity":1000}},""" +
+                """"people":{"supplied":10,"free":4,"atWork":6},""" +
+                """"buildings":{"homes":{"level":1,"nextLevel":{"level":2,"cost":$HOMES_COST,""" +
+                """"durationSeconds":90,"people":3}},"farm":$FLAT,"factory":$FLAT,"powerStation":$FLAT,""" +
+                """"storage":$FLAT,"school":$FLAT,"office":{"level":10,"nextLevel":null}},""" +
+                """"work":{"slot":{"building":"farm","level":2,"cost":$NOTHING,""" +
+                """"startsAt":"2026-11-05T10:00:00.000Z","finishesAt":"2026-11-05T10:10:00.000Z"},""" +
+                """"waitingList":[{"building":"school","level":3,"cost":$NOTHING,""" +
+                """"startsAt":"2026-11-05T10:10:00.000Z","finishesAt":"2026-11-05T10:30:00.000Z"}],"cap":2},""" +
+                """"lessons":[],"skills":[],""" +
+                """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
+                """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +
+                """"learning":{"cap":10,"inLearning":0},"readAt":"2026-11-05T10:05:00.000Z"}"""
+    }
+}

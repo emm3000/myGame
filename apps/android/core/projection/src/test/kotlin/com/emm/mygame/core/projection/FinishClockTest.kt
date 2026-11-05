@@ -1,4 +1,4 @@
-package com.emm.mygame.feature.fief
+package com.emm.mygame.core.projection
 
 import java.time.LocalDateTime
 import java.time.ZoneId
