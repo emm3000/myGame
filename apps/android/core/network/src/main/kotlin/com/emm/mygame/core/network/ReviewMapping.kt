@@ -2,29 +2,18 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.models.CorrectVerdict
 import com.emm.mygame.core.network.generated.models.CorrectVerdictEarnedSkill
-import com.emm.mygame.core.network.generated.models.FiefOverviewLessonsInner
-import com.emm.mygame.core.network.generated.models.FiefOverviewReviews
-import com.emm.mygame.core.network.generated.models.FiefOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.RecallReview
 import com.emm.mygame.core.network.generated.models.RecognitionReview
 import com.emm.mygame.core.network.generated.models.RecognitionReviewChoicesInner
+import com.emm.mygame.core.network.generated.models.Reviews
+import kotlin.time.Instant
 import com.emm.mygame.core.network.generated.models.DueReview as WireDueReview
 import com.emm.mygame.core.network.generated.models.ReviewVerdict as WireReviewVerdict
 
-internal fun FiefOverviewLessonsInner.toLessonState(): LessonState =
-    LessonState(id = LessonId(id), theme = theme, isStudied = isStudied, wordCount = words.size)
-
-internal fun List<FiefOverviewSkillsInner>.toEarnedSkills(): List<EarnedSkill> =
-    mapNotNull { skill: FiefOverviewSkillsInner -> skill.toEarnedSkill() }
-
-private fun FiefOverviewSkillsInner.toEarnedSkill(): EarnedSkill? {
-    val kind: ResourceKind = resource.toResourceKind() ?: return null
-    return EarnedSkill(lesson = LessonId(lessonId), resource = kind, ratePercent = ratePercent)
-}
-
-internal fun FiefOverviewReviews.toDueReviews(): DueReviews = DueReviews(
+internal fun Reviews.toDueReviews(readAt: Instant): DueReviews = DueReviews(
     due = due.map { review: WireDueReview -> review.toDueReview() },
     nextDueAt = nextDueAt?.toKotlinInstant(),
+    readAt = readAt,
 )
 
 private fun WireDueReview.toDueReview(): DueReview = when (this) {
@@ -66,24 +55,20 @@ private fun CorrectVerdict.toCorrect(): ReviewVerdict.Correct = ReviewVerdict.Co
 )
 
 private fun CorrectVerdictEarnedSkill.toRaisedSkill(): RaisedSkill? {
-    val kind: ResourceKind = resource.toResourceKind() ?: return null
-    return RaisedSkill(resource = kind, level = level, ratePercent = ratePercent)
+    val kind: TownResourceKind = resource.toTownResourceKind() ?: return null
+    return RaisedSkill(
+        resource = kind,
+        level = level,
+        ratePercent = ratePercent,
+        ratePerHourBefore = ratePerHourBefore,
+        ratePerHourAfter = ratePerHourAfter,
+    )
 }
 
-private fun FiefOverviewSkillsInner.Resource.toResourceKind(): ResourceKind? = when (this) {
-    FiefOverviewSkillsInner.Resource.wood -> ResourceKind.Wood
-    FiefOverviewSkillsInner.Resource.stone -> ResourceKind.Stone
-    FiefOverviewSkillsInner.Resource.iron -> ResourceKind.Iron
-    FiefOverviewSkillsInner.Resource.gold -> ResourceKind.Gold
-    FiefOverviewSkillsInner.Resource.food -> ResourceKind.Food
-    FiefOverviewSkillsInner.Resource.unknown_default_open_api -> null
-}
-
-private fun CorrectVerdictEarnedSkill.Resource.toResourceKind(): ResourceKind? = when (this) {
-    CorrectVerdictEarnedSkill.Resource.wood -> ResourceKind.Wood
-    CorrectVerdictEarnedSkill.Resource.stone -> ResourceKind.Stone
-    CorrectVerdictEarnedSkill.Resource.iron -> ResourceKind.Iron
-    CorrectVerdictEarnedSkill.Resource.gold -> ResourceKind.Gold
-    CorrectVerdictEarnedSkill.Resource.food -> ResourceKind.Food
+private fun CorrectVerdictEarnedSkill.Resource.toTownResourceKind(): TownResourceKind? = when (this) {
+    CorrectVerdictEarnedSkill.Resource.money -> TownResourceKind.Money
+    CorrectVerdictEarnedSkill.Resource.food -> TownResourceKind.Food
+    CorrectVerdictEarnedSkill.Resource.power -> TownResourceKind.Power
+    CorrectVerdictEarnedSkill.Resource.material -> TownResourceKind.Material
     CorrectVerdictEarnedSkill.Resource.unknown_default_open_api -> null
 }

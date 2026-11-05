@@ -5,13 +5,10 @@ import app.cash.turbine.ReceiveTurbine
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.EarnedSkill
-import com.emm.mygame.core.network.FiefId
-import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.ReviewChoice
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.WordId
-import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Instant
@@ -22,12 +19,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 
 internal fun TestScope.openReview(
-    fiefs: FakeFiefRepository,
-    learning: FakeLearningRepository = FakeLearningRepository(),
+    learning: FakeLearningRepository,
     deviceNow: Instant = firstReadAt,
 ): ReviewViewModel {
-    val viewModel: ReviewViewModel =
-        ReviewViewModel(FiefId(FIEF_ID), fiefs, learning, TestClock(testScheduler, deviceNow))
+    val viewModel: ReviewViewModel = ReviewViewModel(learning, TestClock(testScheduler, deviceNow))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()
@@ -52,8 +47,11 @@ internal suspend fun ReceiveTurbine<ReviewUiState>.awaitStep(
     return reviewing
 }
 
-internal fun fiefDue(vararg due: DueReview, skills: List<EarnedSkill> = emptyList()): FiefSnapshot =
-    fief(reviews = DueReviews(due = due.toList(), nextDueAt = null), skills = skills)
+internal fun dueNow(vararg due: DueReview): ReviewsReadResult =
+    ReviewsReadResult.Read(DueReviews(due = due.toList(), nextDueAt = null, readAt = firstReadAt))
+
+internal fun nothingDueUntil(nextDueAt: Instant): ReviewsReadResult =
+    ReviewsReadResult.Read(DueReviews(due = emptyList(), nextDueAt = nextDueAt, readAt = firstReadAt))
 
 internal val schoolRecognition: DueReview.Recognition = DueReview.Recognition(
     wordId = WordId("lesson-1-2"),

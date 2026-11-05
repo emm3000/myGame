@@ -1,10 +1,10 @@
 package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
 import com.emm.mygame.core.network.ReviewRefusal
+import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.WordId
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -78,5 +78,5 @@ sealed interface ReviewUiState {
         data class Wrong(val correct: String) : ReviewStep
     }
 
-    data class SkillLine(val resource: ResourceKind, val level: Int, val ratePercent: Int)
+    data class SkillLine(val resource: TownResourceKind, val level: Int, val ratePercent: Int?)
 }

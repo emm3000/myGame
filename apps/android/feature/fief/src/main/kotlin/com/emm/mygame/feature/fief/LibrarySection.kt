@@ -42,14 +42,11 @@ internal fun LibrarySection(
             FiefUiState.StudySlotLine.Idle -> Card { IdleStudy() }
             is FiefUiState.StudySlotLine.Busy ->
                 Card { BusyStudy(slot = slot, isWaiting = isWaiting, onIntent = onIntent) }
-            FiefUiState.StudySlotLine.Lesson -> Unit
-        }
-        library.lesson?.let { card: FiefUiState.LessonCard ->
-            LessonItem(card = card, isWaiting = isWaiting, onIntent = onIntent, onReviewOpen = onReviewOpen)
         }
         library.arts.forEach { card: FiefUiState.ArtCard ->
             ArtItem(card = card, isWaiting = isWaiting, onIntent = onIntent)
         }
+        LessonItem(onReviewOpen = onReviewOpen)
         StudyAnswer(study = library.study)
     }
 }
@@ -257,7 +254,7 @@ private fun artNameOf(art: ArtKind): Int = when (art) {
     ArtKind.Masonry -> R.string.art_masonry
 }
 
-internal fun rateLineOf(resource: ResourceKind): Int = when (resource) {
+private fun rateLineOf(resource: ResourceKind): Int = when (resource) {
     ResourceKind.Wood -> R.string.art_rate_wood
     ResourceKind.Stone -> R.string.art_rate_stone
     ResourceKind.Iron -> R.string.art_rate_iron
@@ -271,9 +268,5 @@ private fun refusalOf(refusal: StudyRefusal): Int = when (refusal) {
     StudyRefusal.ArtMaxLevelReached -> R.string.refusal_art_max_level_reached
     StudyRefusal.StudyNotFound -> R.string.refusal_study_not_found
     StudyRefusal.InsufficientResources -> R.string.refusal_insufficient_resources
-    StudyRefusal.LessonLibraryTooLow -> R.string.lesson_refusal_library_too_low
-    StudyRefusal.LessonAlreadyStudied -> R.string.lesson_refusal_already_studied
-    StudyRefusal.LessonUnderStudy -> R.string.lesson_refusal_under_study
-    StudyRefusal.LessonStudyNotFound -> R.string.refusal_study_not_found
     StudyRefusal.Unrecognized -> R.string.fief_unreachable
 }

@@ -2,7 +2,6 @@ package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.MarchCamp
 import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.PlotAddress
@@ -190,27 +189,13 @@ sealed interface FiefUiState {
 
     data class LibraryLine(
         val slot: StudySlotLine,
-        val lesson: LessonCard?,
         val arts: List<ArtCard>,
         val study: StudyStatus,
     )
 
-    data class LessonCard(val lesson: LessonId, val theme: String, val line: LessonLine)
-
-    sealed interface LessonLine {
-
-        data class Idle(val wordCount: Int, val isStudyRunning: Boolean) : LessonLine
-
-        data class Busy(val remaining: Duration) : LessonLine
-
-        data object Done : LessonLine
-    }
-
     sealed interface StudySlotLine {
 
         data object Idle : StudySlotLine
-
-        data object Lesson : StudySlotLine
 
         data class Busy(
             val art: ArtKind,

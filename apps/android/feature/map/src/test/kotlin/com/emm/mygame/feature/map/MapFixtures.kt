@@ -4,7 +4,6 @@ import com.emm.mygame.core.network.AwayMarch
 import com.emm.mygame.core.network.BuildQueue
 import com.emm.mygame.core.network.BuildSlot
 import com.emm.mygame.core.network.CombatTerms
-import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FiefSnapshot
 import com.emm.mygame.core.network.ForageTerms
@@ -72,9 +71,6 @@ internal fun fief(
     seasonInForce = null,
     seasonEndsAt = null,
     combatTerms = CombatTerms(lootPerStrength = 60),
-    lessons = emptyList(),
-    skills = emptyList(),
-    reviews = DueReviews(due = emptyList(), nextDueAt = null),
 )
 
 internal fun forage(target: PlotAddress, infantry: Int): AwayMarch = AwayMarch(

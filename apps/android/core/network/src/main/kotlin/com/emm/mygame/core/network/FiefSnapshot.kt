@@ -22,7 +22,4 @@ data class FiefSnapshot(
     val seasonInForce: SeasonInForce?,
     val seasonEndsAt: Instant?,
     val combatTerms: CombatTerms,
-    val lessons: List<LessonState>,
-    val skills: List<EarnedSkill>,
-    val reviews: DueReviews,
 )

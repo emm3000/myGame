@@ -2,20 +2,15 @@ package com.emm.mygame.feature.fief
 
 import app.cash.turbine.test
 import com.emm.mygame.core.network.ChoiceId
-import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.EarnedSkill
-import com.emm.mygame.core.network.FiefId
-import com.emm.mygame.core.network.FiefReadResult
-import com.emm.mygame.core.network.FiefSnapshot
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.RaisedSkill
-import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewHint
 import com.emm.mygame.core.network.ReviewHintResult
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.ReviewVerdict
-import com.emm.mygame.core.testing.FakeFiefRepository
+import com.emm.mygame.core.network.ReviewsReadResult
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.WordId
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
@@ -33,14 +28,25 @@ class ReviewViewModelTest {
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
-    private val foodSkill: EarnedSkill =
-        EarnedSkill(lesson = LessonId("lesson-1"), resource = ResourceKind.Food, ratePercent = 5)
+    private val secondFoodLevel: RaisedSkill = RaisedSkill(
+        resource = TownResourceKind.Food,
+        level = 2,
+        ratePercent = 5,
+        ratePerHourBefore = 18.75,
+        ratePerHourAfter = 19.6875,
+    )
 
-    private val secondFoodLevel: RaisedSkill = RaisedSkill(resource = ResourceKind.Food, level = 2, ratePercent = 5)
+    private val foodSkillWithoutTown: RaisedSkill = RaisedSkill(
+        resource = TownResourceKind.Food,
+        level = 1,
+        ratePercent = 5,
+        ratePerHourBefore = null,
+        ratePerHourAfter = null,
+    )
 
     @Test
     fun `draws loading until the read answers`() = runTest {
-        val viewModel: ReviewViewModel = openReview(FakeFiefRepository())
+        val viewModel: ReviewViewModel = openReview(FakeLearningRepository())
 
         viewModel.state.test {
             assertEquals(ReviewUiState.Loading, awaitItem())
@@ -48,10 +54,22 @@ class ReviewViewModelTest {
     }
 
     @Test
+    fun `reads the due reviews from the player's reviews`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            assertEquals(schoolRecognition.wordId, awaitReviewing().card.wordId)
+        }
+        assertEquals(1, learning.readCount)
+    }
+
+    @Test
     fun `draws the failed read`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs)
-        fiefs.answerRead(FiefReadResult.Unreachable)
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(ReviewsReadResult.Unreachable)
 
         viewModel.state.test {
             assertEquals(ReviewUiState.Failed, expectMostRecentItem())
@@ -60,24 +78,24 @@ class ReviewViewModelTest {
 
     @Test
     fun `reads again on retry after a failed read`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs)
-        fiefs.answerRead(FiefReadResult.Unreachable)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(schoolRecognition)))
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(ReviewsReadResult.Unreachable)
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             assertEquals(ReviewUiState.Failed, expectMostRecentItem())
             viewModel.onIntent(ReviewIntent.RetryTapped)
             awaitReviewing()
         }
-        assertEquals(listOf(FiefId(FIEF_ID), FiefId(FIEF_ID)), fiefs.reads)
+        assertEquals(2, learning.readCount)
     }
 
     @Test
     fun `draws no card before lesson 1 enters its words`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue()))
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow())
 
         viewModel.state.test {
             assertEquals(ReviewUiState.NoCards, expectMostRecentItem())
@@ -86,11 +104,10 @@ class ReviewViewModelTest {
 
     @Test
     fun `draws nothing due with the next due instant projected with the read's gap`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
+        val learning: FakeLearningRepository = FakeLearningRepository()
         val skewedDevice: Instant = firstReadAt - 30.seconds
-        val viewModel: ReviewViewModel = openReview(fiefs, deviceNow = skewedDevice)
-        val nextDueAt: Instant = firstReadAt + 9.minutes
-        fiefs.answerRead(FiefReadResult.Read(fief(reviews = DueReviews(due = emptyList(), nextDueAt = nextDueAt))))
+        val viewModel: ReviewViewModel = openReview(learning, deviceNow = skewedDevice)
+        learning.answerRead(nothingDueUntil(firstReadAt + 9.minutes))
 
         viewModel.state.test {
             assertEquals(
@@ -102,25 +119,24 @@ class ReviewViewModelTest {
 
     @Test
     fun `reads again when the next review falls due`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs)
-        val nextDueAt: Instant = firstReadAt + 2.seconds
-        fiefs.answerRead(FiefReadResult.Read(fief(reviews = DueReviews(due = emptyList(), nextDueAt = nextDueAt))))
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(schoolRecognition)))
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(nothingDueUntil(firstReadAt + 2.seconds))
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             advanceTimeBy(2.seconds)
             runCurrent()
             awaitReviewing()
         }
-        assertEquals(2, fiefs.readCount)
+        assertEquals(2, learning.readCount)
     }
 
     @Test
     fun `draws only the cards the api answers as due`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall, schoolRecognition)))
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
 
         viewModel.state.test {
             assertEquals(
@@ -142,9 +158,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `draws a recognition card with its word, its frame and its choices`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(schoolRecognition)))
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             assertEquals(
@@ -162,10 +178,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `sends the chosen choice as the answer of a recognition`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(schoolRecognition)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             awaitReviewing()
@@ -174,17 +189,16 @@ class ReviewViewModelTest {
             awaitStep { it == ReviewUiState.ReviewStep.Checking }
         }
         assertEquals(
-            listOf(FakeLearningRepository.AnswerRequest(FiefId(FIEF_ID), schoolRecognition.wordId, "4e5f6a7b")),
+            listOf(FakeLearningRepository.AnswerRequest(schoolRecognition.wordId, "4e5f6a7b")),
             learning.answers,
         )
     }
 
     @Test
     fun `sends nothing for a recognition with no choice`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(schoolRecognition)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             awaitReviewing()
@@ -196,10 +210,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `sends the typed answer of a recall exactly as typed`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
 
         viewModel.state.test {
             awaitReviewing()
@@ -212,10 +225,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `sends nothing for a recall with an empty field`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
 
         viewModel.state.test {
             awaitReviewing()
@@ -227,10 +239,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `sends one answer while the first one waits`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
 
         viewModel.state.test {
             awaitReviewing()
@@ -241,16 +252,15 @@ class ReviewViewModelTest {
             awaitStep { it == ReviewUiState.ReviewStep.Checking }
         }
         assertEquals(1, learning.answers.size)
-        assertEquals(emptyList<FakeLearningRepository.HintRequest>(), learning.hints)
+        assertEquals(emptyList<WordId>(), learning.hints)
     }
 
     @Test
     fun `keeps the typed answer after a near-miss`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
-        learning.answerReview(ReviewAnswerResult.Answered(ReviewVerdict.NearMiss, fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(ReviewVerdict.NearMiss))
 
         viewModel.state.test {
             awaitReviewing()
@@ -263,12 +273,12 @@ class ReviewViewModelTest {
 
     @Test
     fun `shows the correct form after a wrong answer`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
         val wrong: ReviewVerdict = ReviewVerdict.Wrong(word = "home", gloss = "casa", dueAt = firstReadAt + 1.minutes)
-        learning.answerReview(ReviewAnswerResult.Answered(wrong, fiefDue()))
+        learning.answerReview(ReviewAnswerResult.Answered(wrong))
+        learning.answerRead(dueNow())
 
         viewModel.state.test {
             awaitReviewing()
@@ -282,13 +292,13 @@ class ReviewViewModelTest {
 
     @Test
     fun `shows the right gloss beside the chosen one after a wrong recognition`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(schoolRecognition)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(schoolRecognition))
         val wrong: ReviewVerdict =
             ReviewVerdict.Wrong(word = "school", gloss = "escuela", dueAt = firstReadAt + 1.minutes)
-        learning.answerReview(ReviewAnswerResult.Answered(wrong, fiefDue()))
+        learning.answerReview(ReviewAnswerResult.Answered(wrong))
+        learning.answerRead(dueNow())
 
         viewModel.state.test {
             awaitReviewing()
@@ -302,11 +312,11 @@ class ReviewViewModelTest {
 
     @Test
     fun `draws a correct answer with no skill earned`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
-        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null), fiefDue()))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(dueNow())
 
         viewModel.state.test {
             awaitReviewing()
@@ -321,16 +331,11 @@ class ReviewViewModelTest {
 
     @Test
     fun `draws the skill earned at the level the api answers`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
-        learning.answerReview(
-            ReviewAnswerResult.Answered(
-                correctHome(earnedSkill = secondFoodLevel),
-                fiefDue(skills = listOf(foodSkill)),
-            ),
-        )
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = secondFoodLevel)))
+        learning.answerRead(dueNow())
 
         viewModel.state.test {
             awaitReviewing()
@@ -338,7 +343,7 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Correct(
-                    skill = ReviewUiState.SkillLine(resource = ResourceKind.Food, level = 2, ratePercent = 5),
+                    skill = ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 2, ratePercent = 5),
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
@@ -346,12 +351,50 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `draws the due list of the answered fief on next`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
+    fun `draws the skill earned with no rate while the player holds no town`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall, schoolRecognition)))
-        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null), fiefDue(schoolRecognition)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = foodSkillWithoutTown)))
+        learning.answerRead(dueNow())
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            assertEquals(
+                ReviewUiState.ReviewStep.Correct(
+                    skill = ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = null),
+                ),
+                awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
+            )
+        }
+    }
+
+    @Test
+    fun `re-reads the reviews after an answer`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it is ReviewUiState.ReviewStep.Correct }
+        }
+        assertEquals(2, learning.readCount)
+    }
+
+    @Test
+    fun `draws the reviews re-read after the answer on next`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             awaitReviewing()
@@ -363,32 +406,50 @@ class ReviewViewModelTest {
             assertEquals(1, next.dueCount)
             assertEquals(schoolRecognition.wordId, next.card.wordId)
         }
-        assertEquals(1, fiefs.readCount)
+        assertEquals(2, learning.readCount)
+    }
+
+    @Test
+    fun `reads the reviews again on next when the re-read after the answer failed`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(ReviewsReadResult.Unreachable)
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it is ReviewUiState.ReviewStep.Correct }
+            viewModel.onIntent(ReviewIntent.NextTapped)
+            assertEquals(schoolRecognition.wordId, awaitReviewing().card.wordId)
+        }
+        assertEquals(3, learning.readCount)
     }
 
     @Test
     fun `asks the hint of the recall card on screen`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
 
         viewModel.state.test {
             awaitReviewing()
             viewModel.onIntent(ReviewIntent.HintTapped)
             awaitStep { it == ReviewUiState.ReviewStep.Hinting }
         }
-        assertEquals(listOf(FakeLearningRepository.HintRequest(FiefId(FIEF_ID), homeRecall.wordId)), learning.hints)
+        assertEquals(listOf(homeRecall.wordId), learning.hints)
     }
 
     @Test
     fun `keeps the hint after a near-miss`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
         learning.answerHint(ReviewHintResult.Hinted(ReviewHint(firstLetter = "h", letterCount = 4)))
-        learning.answerReview(ReviewAnswerResult.Answered(ReviewVerdict.NearMiss, fiefDue(homeRecall)))
+        learning.answerReview(ReviewAnswerResult.Answered(ReviewVerdict.NearMiss))
 
         viewModel.state.test {
             awaitReviewing()
@@ -406,10 +467,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `keeps the refusal the api names beside the card`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
         learning.answerReview(ReviewAnswerResult.Refused(ReviewRefusal.ReviewNotDue))
 
         viewModel.state.test {
@@ -425,10 +485,9 @@ class ReviewViewModelTest {
 
     @Test
     fun `tells the player the answer could not reach the api`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
         learning.answerReview(ReviewAnswerResult.Unreachable)
 
         viewModel.state.test {
@@ -441,13 +500,11 @@ class ReviewViewModelTest {
 
     @Test
     fun `reads the review again on retry after a refusal`() = runTest {
-        val fiefs: FakeFiefRepository = FakeFiefRepository()
         val learning: FakeLearningRepository = FakeLearningRepository()
-        val viewModel: ReviewViewModel = openReview(fiefs, learning)
-        fiefs.answerRead(FiefReadResult.Read(fiefDue(homeRecall)))
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
         learning.answerReview(ReviewAnswerResult.Refused(ReviewRefusal.WordNotHeld))
-        val reread: FiefSnapshot = fiefDue(schoolRecognition)
-        fiefs.answerRead(FiefReadResult.Read(reread))
+        learning.answerRead(dueNow(schoolRecognition))
 
         viewModel.state.test {
             awaitReviewing()
@@ -457,7 +514,7 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.RetryTapped)
             assertEquals(schoolRecognition.wordId, awaitReviewing().card.wordId)
         }
-        assertEquals(2, fiefs.readCount)
+        assertEquals(2, learning.readCount)
     }
 
     private fun correctHome(earnedSkill: RaisedSkill?): ReviewVerdict =

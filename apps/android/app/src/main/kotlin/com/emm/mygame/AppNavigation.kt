@@ -93,7 +93,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
                     MapRoute(fief = shown.fief, maps = application.maps, fiefs = application.fiefs)
                 }
             }
-            entry<Destination.Review> { shown: Destination.Review -> SignedInReview(shown, application) }
+            entry<Destination.Review> { SignedInReview(application) }
             entry<Destination.Chronicle> { shown: Destination.Chronicle ->
                 SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
                     ChronicleRoute(fief = shown.fief, chronicles = application.chronicles, clock = application.clock)
@@ -121,7 +121,6 @@ private fun SignedInFief(
         FiefRoute(
             fief = shown.fief,
             fiefs = application.fiefs,
-            learning = application.learning,
             sessions = application.sessions,
             clock = application.clock,
             navigation = FiefNavigation(
@@ -135,10 +134,8 @@ private fun SignedInFief(
 }
 
 @Composable
-private fun SignedInReview(shown: Destination.Review, application: MyGameApplication, modifier: Modifier = Modifier) {
+private fun SignedInReview(application: MyGameApplication, modifier: Modifier = Modifier) {
     ReviewRoute(
-        fief = shown.fief,
-        fiefs = application.fiefs,
         learning = application.learning,
         clock = application.clock,
         modifier = modifier,

@@ -2,7 +2,6 @@ package com.emm.mygame.feature.fief
 
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
-import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.UnitKind
 import kotlin.time.Instant
 
@@ -23,10 +22,6 @@ sealed interface FiefIntent {
     data class StudyTapped(val art: ArtKind) : FiefIntent
 
     data class StudyCancelTapped(val art: ArtKind, val targetLevel: Int) : FiefIntent
-
-    data class LessonStudyTapped(val lesson: LessonId) : FiefIntent
-
-    data class LessonCancelTapped(val lesson: LessonId) : FiefIntent
 
     data class RecruitEntryChanged(val unit: UnitKind, val entry: String) : FiefIntent
 

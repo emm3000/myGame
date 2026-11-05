@@ -36,136 +36,72 @@ class LearningRepositoryTest {
     }
 
     @Test
-    fun `reads a lesson in the study slot with its finish`() = runTest {
-        api.enqueue(json(200, idleOverview().replace(IDLE_STUDY, LESSON_UNDER_STUDY)))
+    fun `reads the due reviews from the player's reviews`() = runTest {
+        api.enqueue(reviews(NO_REVIEWS))
 
-        assertEquals(
-            StudySlot.Lesson(lesson = LessonId("lesson-1"), finishesAt = Instant.parse("2026-11-10T09:00:00.000Z")),
-            readFief().study,
-        )
+        learning().reviews()
+
+        val request: RecordedRequest = api.takeRequestWithin()
+        assertEquals("GET /api/reviews", "${request.method} ${request.url.encodedPath}")
     }
 
     @Test
-    fun `reads each lesson with its theme, whether it is studied and its count of words`() = runTest {
-        api.enqueue(json(200, idleOverview().replace(NO_LESSONS, LESSON_ONE)))
+    fun `answers the due reviews in the order the api answers them`() = runTest {
+        api.enqueue(reviews(TWO_DUE))
 
         assertEquals(
-            listOf(LessonState(id = LessonId("lesson-1"), theme = "A day in town", isStudied = true, wordCount = 2)),
-            readFief().lessons,
-        )
-    }
-
-    @Test
-    fun `reads the skills the player earned`() = runTest {
-        api.enqueue(json(200, idleOverview().replace(NO_SKILLS, FOOD_SKILL)))
-
-        assertEquals(
-            listOf(EarnedSkill(lesson = LessonId("lesson-1"), resource = ResourceKind.Food, ratePercent = 5)),
-            readFief().skills,
-        )
-    }
-
-    @Test
-    fun `reads the due reviews in the order the api answers them`() = runTest {
-        api.enqueue(json(200, idleOverview().replace(NO_REVIEWS, TWO_DUE)))
-
-        assertEquals(
-            DueReviews(
-                due = listOf(
-                    DueReview.Recognition(
-                        wordId = WordId("lesson-1-2"),
-                        lesson = LessonId("lesson-1"),
-                        dueAt = Instant.parse("2026-11-10T09:00:00.000Z"),
-                        word = "school",
-                        frame = "The kids walk to school.",
-                        choices = listOf(
-                            ReviewChoice(id = ChoiceId("0a1b2c3d"), gloss = "escuela"),
-                            ReviewChoice(id = ChoiceId("4e5f6a7b"), gloss = "comida"),
+            ReviewsReadResult.Read(
+                DueReviews(
+                    due = listOf(
+                        DueReview.Recognition(
+                            wordId = WordId("lesson-1-2"),
+                            lesson = LessonId("lesson-1"),
+                            dueAt = Instant.parse("2026-11-10T09:00:00.000Z"),
+                            word = "school",
+                            frame = "The kids walk to school.",
+                            choices = listOf(
+                                ReviewChoice(id = ChoiceId("0a1b2c3d"), gloss = "escuela"),
+                                ReviewChoice(id = ChoiceId("4e5f6a7b"), gloss = "comida"),
+                            ),
+                        ),
+                        DueReview.Recall(
+                            wordId = WordId("lesson-1-1"),
+                            lesson = LessonId("lesson-1"),
+                            dueAt = Instant.parse("2026-11-10T09:01:00.000Z"),
+                            gloss = "casa",
+                            gappedFrame = "She goes ___ at six.",
                         ),
                     ),
-                    DueReview.Recall(
-                        wordId = WordId("lesson-1-1"),
-                        lesson = LessonId("lesson-1"),
-                        dueAt = Instant.parse("2026-11-10T09:01:00.000Z"),
-                        gloss = "casa",
-                        gappedFrame = "She goes ___ at six.",
-                    ),
+                    nextDueAt = Instant.parse("2026-11-10T09:10:00.000Z"),
+                    readAt = Instant.parse("2026-11-10T08:59:30Z"),
                 ),
-                nextDueAt = Instant.parse("2026-11-10T09:10:00.000Z"),
             ),
-            readFief().reviews,
+            learning().reviews(),
         )
     }
 
     @Test
-    fun `drops a skill whose resource the client does not know`() = runTest {
-        api.enqueue(json(200, idleOverview().replace(NO_SKILLS, FOOD_SKILL.replace("food", "silk"))))
+    fun `answers unreachable for reviews that carry no server date`() = runTest {
+        api.enqueue(json(200, NO_REVIEWS))
 
-        assertEquals(emptyList<EarnedSkill>(), readFief().skills)
+        assertEquals(ReviewsReadResult.Unreachable, learning().reviews())
     }
 
     @Test
-    fun `posts the start of the lesson it names`() = runTest {
-        api.enqueue(json(200, idleOverview()))
+    fun `answers unreachable when the reviews cannot reach the api`() = runTest {
+        api.close()
 
-        learning().startLesson(FiefId(LISTED_FIEF_ID), LessonId("lesson-1"))
-
-        val request: RecordedRequest = api.takeRequestWithin()
-        assertEquals("POST /api/fiefs/$LISTED_FIEF_ID/lessons", "${request.method} ${request.url.encodedPath}")
-        assertEquals("""{"lessonId":"lesson-1"}""", request.body?.utf8())
+        assertEquals(ReviewsReadResult.Unreachable, learning().reviews())
     }
 
     @Test
-    fun `deletes the study of the lesson it names`() = runTest {
-        api.enqueue(json(200, idleOverview()))
-
-        learning().cancelLesson(FiefId(LISTED_FIEF_ID), LessonId("lesson-1"))
-
-        val request: RecordedRequest = api.takeRequestWithin()
-        assertEquals(
-            "DELETE /api/fiefs/$LISTED_FIEF_ID/lessons/lesson-1",
-            "${request.method} ${request.url.encodedPath}",
-        )
-    }
-
-    @Test
-    fun `answers the overview the lesson start returns`() = runTest {
-        api.enqueue(json(200, idleOverview().replace(IDLE_STUDY, LESSON_UNDER_STUDY)))
-
-        val result: StudyResult = learning().startLesson(FiefId(LISTED_FIEF_ID), LessonId("lesson-1"))
-
-        assertEquals(LessonId("lesson-1"), ((result as StudyResult.Answered).fief.study as StudySlot.Lesson).lesson)
-    }
-
-    @Test
-    fun `answers the lesson refusal the api names`() = runTest {
-        val refusals: Map<String, StudyRefusal> = mapOf(
-            "StudySlotBusy" to StudyRefusal.StudySlotBusy,
-            "LessonLibraryTooLow" to StudyRefusal.LessonLibraryTooLow,
-            "LessonAlreadyStudied" to StudyRefusal.LessonAlreadyStudied,
-            "LessonUnderStudy" to StudyRefusal.LessonUnderStudy,
-            "LessonStudyNotFound" to StudyRefusal.LessonStudyNotFound,
-        )
-        refusals.keys.forEach { kind: String -> api.enqueue(refused(kind)) }
-
-        val answered: List<StudyResult> = refusals.keys.map {
-            learning().startLesson(FiefId(LISTED_FIEF_ID), LessonId("lesson-1"))
-        }
-
-        assertEquals(refusals.values.map { refusal: StudyRefusal -> StudyResult.Refused(refusal) }, answered)
-    }
-
-    @Test
-    fun `posts the hint of the word it names`() = runTest {
+    fun `posts the hint of the word it names on the player's reviews`() = runTest {
         api.enqueue(json(200, """{"firstLetter":"s","letterCount":6}"""))
 
-        learning().hint(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"))
+        learning().hint(WordId("lesson-1-2"))
 
         val request: RecordedRequest = api.takeRequestWithin()
-        assertEquals(
-            "POST /api/fiefs/$LISTED_FIEF_ID/reviews/lesson-1-2/hint",
-            "${request.method} ${request.url.encodedPath}",
-        )
+        assertEquals("POST /api/reviews/lesson-1-2/hint", "${request.method} ${request.url.encodedPath}")
     }
 
     @Test
@@ -174,7 +110,7 @@ class LearningRepositoryTest {
 
         assertEquals(
             ReviewHintResult.Hinted(ReviewHint(firstLetter = "s", letterCount = 6)),
-            learning().hint(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2")),
+            learning().hint(WordId("lesson-1-2")),
         )
     }
 
@@ -184,29 +120,26 @@ class LearningRepositoryTest {
 
         assertEquals(
             ReviewHintResult.Refused(ReviewRefusal.HintOnRecognition),
-            learning().hint(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2")),
+            learning().hint(WordId("lesson-1-2")),
         )
     }
 
     @Test
-    fun `sends the answer exactly as typed`() = runTest {
+    fun `sends the answer exactly as typed on the player's reviews`() = runTest {
         api.enqueue(json(200, answerOf(NEAR_MISS)))
 
-        learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "  School ")
+        learning().answer(WordId("lesson-1-2"), "  School ")
 
         val request: RecordedRequest = api.takeRequestWithin()
-        assertEquals(
-            "POST /api/fiefs/$LISTED_FIEF_ID/reviews/lesson-1-2/answer",
-            "${request.method} ${request.url.encodedPath}",
-        )
+        assertEquals("POST /api/reviews/lesson-1-2/answer", "${request.method} ${request.url.encodedPath}")
         assertEquals("""{"answer":"  School "}""", request.body?.utf8())
     }
 
     @Test
-    fun `answers a near-miss with the fief the answer carried`() = runTest {
+    fun `answers a near-miss`() = runTest {
         api.enqueue(json(200, answerOf(NEAR_MISS)))
 
-        val result: ReviewAnswerResult = learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "scool")
+        val result: ReviewAnswerResult = learning().answer(WordId("lesson-1-2"), "scool")
 
         assertEquals(ReviewVerdict.NearMiss, (result as ReviewAnswerResult.Answered).verdict)
     }
@@ -215,16 +148,40 @@ class LearningRepositoryTest {
     fun `answers a correct verdict with the skill it earned at the level the api answers`() = runTest {
         api.enqueue(json(200, answerOf(CORRECT_WITH_SKILL)))
 
-        val result: ReviewAnswerResult = learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "school")
+        val result: ReviewAnswerResult = learning().answer(WordId("lesson-1-2"), "school")
 
         assertEquals(
             ReviewVerdict.Correct(
                 word = "school",
                 gloss = "escuela",
                 dueAt = Instant.parse("2026-11-12T09:10:00.000Z"),
-                earnedSkill = RaisedSkill(resource = ResourceKind.Food, level = 2, ratePercent = 5),
+                earnedSkill = RaisedSkill(
+                    resource = TownResourceKind.Food,
+                    level = 2,
+                    ratePercent = 5,
+                    ratePerHourBefore = 18.75,
+                    ratePerHourAfter = 19.6875,
+                ),
             ),
             (result as ReviewAnswerResult.Answered).verdict,
+        )
+    }
+
+    @Test
+    fun `answers the earned skill with no rates while the player holds no town`() = runTest {
+        api.enqueue(json(200, answerOf(CORRECT_WITHOUT_TOWN)))
+
+        val result: ReviewAnswerResult = learning().answer(WordId("lesson-1-2"), "school")
+
+        assertEquals(
+            RaisedSkill(
+                resource = TownResourceKind.Power,
+                level = 1,
+                ratePercent = 5,
+                ratePerHourBefore = null,
+                ratePerHourAfter = null,
+            ),
+            ((result as ReviewAnswerResult.Answered).verdict as ReviewVerdict.Correct).earnedSkill,
         )
     }
 
@@ -232,7 +189,7 @@ class LearningRepositoryTest {
     fun `answers a correct verdict without the earned skill whose resource the client does not know`() = runTest {
         api.enqueue(json(200, answerOf(CORRECT_WITH_SKILL.replace("food", "silk"))))
 
-        val result: ReviewAnswerResult = learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "school")
+        val result: ReviewAnswerResult = learning().answer(WordId("lesson-1-2"), "school")
 
         assertEquals(
             ReviewVerdict.Correct(
@@ -249,7 +206,7 @@ class LearningRepositoryTest {
     fun `answers a wrong verdict with the correct form`() = runTest {
         api.enqueue(json(200, answerOf(WRONG)))
 
-        val result: ReviewAnswerResult = learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-1"), "house")
+        val result: ReviewAnswerResult = learning().answer(WordId("lesson-1-1"), "house")
 
         assertEquals(
             ReviewVerdict.Wrong(word = "home", gloss = "casa", dueAt = Instant.parse("2026-11-10T09:11:00.000Z")),
@@ -269,7 +226,7 @@ class LearningRepositoryTest {
         refusals.keys.forEach { kind: String -> api.enqueue(refused(kind)) }
 
         val answered: List<ReviewAnswerResult> = refusals.keys.map {
-            learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "school")
+            learning().answer(WordId("lesson-1-2"), "school")
         }
 
         assertEquals(refusals.values.map { refusal: ReviewRefusal -> ReviewAnswerResult.Refused(refusal) }, answered)
@@ -281,21 +238,9 @@ class LearningRepositoryTest {
 
         assertEquals(
             ReviewAnswerResult.Unreachable,
-            learning().answer(FiefId(LISTED_FIEF_ID), WordId("lesson-1-2"), "school"),
+            learning().answer(WordId("lesson-1-2"), "school"),
         )
     }
-
-    private suspend fun TestScope.readFief(): FiefSnapshot {
-        val result: FiefReadResult = repository().read(FiefId(LISTED_FIEF_ID))
-        return (result as FiefReadResult.Read).fief
-    }
-
-    private fun TestScope.repository(): FiefRepository = FiefRepository(
-        baseUrl = api.url("/api/").toString(),
-        tokenStore = signedIn(),
-        sessionEnds = sessionEnds,
-        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
-    )
 
     private fun TestScope.learning(): LearningRepository = LearningRepository(
         baseUrl = api.url("/api/").toString(),
@@ -307,36 +252,25 @@ class LearningRepositoryTest {
     private fun signedIn(): TokenStore =
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
 
-    private fun answerOf(verdict: String): String = """{"verdict":$verdict,"fief":${idleOverview()}}"""
+    private fun answerOf(verdict: String): String = """{"verdict":$verdict}"""
+
+    private fun reviews(body: String): MockResponse =
+        MockResponse.Builder()
+            .code(200)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Date", "Tue, 10 Nov 2026 08:59:30 GMT")
+            .body(body)
+            .build()
 
     private fun refused(kind: String): MockResponse = json(409, """{"kind":"$kind"}""")
-
-    private fun idleOverview(): String = text("fief-overview-idle.json")
-
-    private fun text(name: String): String =
-        requireNotNull(javaClass.classLoader?.getResource(name)) { "missing $name" }.readText().trim()
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
-        const val LISTED_FIEF_ID: String = "509eadd5-6b34-4ea3-8e91-2b38744bd385"
-        const val IDLE_STUDY: String = """"study":{"kind":"idle"}"""
-        const val LESSON_UNDER_STUDY: String =
-            """"study":{"kind":"lesson","lessonId":"lesson-1",""" +
-                """"startedAt":"2026-11-10T08:57:30.000Z","finishesAt":"2026-11-10T09:00:00.000Z"}"""
-        const val NO_LESSONS: String = """"lessons":[]"""
-        const val LESSON_ONE: String =
-            """"lessons":[{"id":"lesson-1","theme":"A day in town","durationSeconds":150,""" +
-                """"requiredLibraryLevel":1,"skill":{"resource":"food","ratePercent":5},"isStudied":true,""" +
-                """"words":[{"wordId":"lesson-1-1","isRetained":false},{"wordId":"lesson-1-2","isRetained":true}]}]"""
-        const val NO_SKILLS: String = """"skills":[]"""
-        const val FOOD_SKILL: String =
-            """"skills":[{"lessonId":"lesson-1","resource":"food","ratePercent":5,""" +
-                """"earnedAt":"2026-11-23T09:10:00.000Z"}]"""
-        const val NO_REVIEWS: String = """"reviews":{"due":[],"nextDueAt":null}"""
+        const val NO_REVIEWS: String = """{"due":[],"nextDueAt":null}"""
         const val TWO_DUE: String =
-            """"reviews":{"due":[""" +
+            """{"due":[""" +
                 """{"mode":"recognition","wordId":"lesson-1-2","lessonId":"lesson-1",""" +
                 """"dueAt":"2026-11-10T09:00:00.000Z","word":"school","frame":"The kids walk to school.",""" +
                 """"choices":[{"choiceId":"0a1b2c3d","gloss":"escuela"},{"choiceId":"4e5f6a7b","gloss":"comida"}]},""" +
@@ -349,6 +283,11 @@ class LearningRepositoryTest {
                 """"earnedSkill":{"lessonId":"lesson-1","resource":"food","ratePercent":5,""" +
                 """"earnedAt":"2026-11-23T09:10:00.000Z","level":2,""" +
                 """"ratePerHourBefore":18.75,"ratePerHourAfter":19.6875}}"""
+        const val CORRECT_WITHOUT_TOWN: String =
+            """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
+                """"earnedSkill":{"lessonId":"lesson-1","resource":"power","ratePercent":5,""" +
+                """"earnedAt":"2026-11-23T09:10:00.000Z","level":1,""" +
+                """"ratePerHourBefore":null,"ratePerHourAfter":null}}"""
         const val WRONG: String =
             """{"kind":"wrong","word":"home","gloss":"casa","dueAt":"2026-11-10T09:11:00.000Z"}"""
     }

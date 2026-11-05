@@ -4,13 +4,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 
 interface LearningRepository {
 
-    suspend fun startLesson(fief: FiefId, lesson: LessonId): StudyResult
+    suspend fun reviews(): ReviewsReadResult
 
-    suspend fun cancelLesson(fief: FiefId, lesson: LessonId): StudyResult
+    suspend fun hint(word: WordId): ReviewHintResult
 
-    suspend fun hint(fief: FiefId, word: WordId): ReviewHintResult
-
-    suspend fun answer(fief: FiefId, word: WordId, answer: String): ReviewAnswerResult
+    suspend fun answer(word: WordId, answer: String): ReviewAnswerResult
 }
 
 fun LearningRepository(

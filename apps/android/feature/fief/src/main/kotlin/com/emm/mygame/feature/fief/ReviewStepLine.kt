@@ -15,6 +15,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ReviewRefusal
+import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -72,11 +73,7 @@ private fun CorrectLine(step: ReviewUiState.ReviewStep.Correct, modifier: Modifi
 
 @Composable
 private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Modifier) {
-    val resource: String = stringResource(resourceNameOf(skill.resource)).lowercase(spanish)
-    val rate: String = icuStringResource(
-        rateLineOf(skill.resource),
-        "percent" to percentLabelOf(skill.ratePercent.toDouble()),
-    )
+    val resource: String = stringResource(skillResourceNameOf(skill.resource))
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
             text = icuStringResource(
@@ -87,11 +84,17 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )
-        MyGameText(
-            text = icuStringResource(R.string.review_skill_rate, "rate" to rate),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.inkMuted,
-        )
+        skill.ratePercent?.let { percent: Int ->
+            MyGameText(
+                text = icuStringResource(
+                    R.string.review_skill_rate,
+                    "percent" to percentLabelOf(percent.toDouble()),
+                    "resource" to resource,
+                ),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.inkMuted,
+            )
+        }
     }
 }
 
@@ -131,6 +134,13 @@ private fun ReviewRefusal.asksForAReread(): Boolean = when (this) {
     ReviewRefusal.UnknownWord,
     -> true
     ReviewRefusal.HintOnRecognition, ReviewRefusal.Unrecognized -> false
+}
+
+private fun skillResourceNameOf(resource: TownResourceKind): Int = when (resource) {
+    TownResourceKind.Money -> R.string.review_skill_resource_money
+    TownResourceKind.Food -> R.string.review_skill_resource_food
+    TownResourceKind.Power -> R.string.review_skill_resource_power
+    TownResourceKind.Material -> R.string.review_skill_resource_material
 }
 
 private fun refusalLineOf(refusal: ReviewRefusal): Int = when (refusal) {

@@ -3,15 +3,13 @@ package com.emm.mygame.feature.fief
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.DueReview
-import com.emm.mygame.core.network.FiefId
-import com.emm.mygame.core.network.FiefReadResult
-import com.emm.mygame.core.network.FiefRepository
-import com.emm.mygame.core.network.FiefSnapshot
+import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.RaisedSkill
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewHintResult
 import com.emm.mygame.core.network.ReviewVerdict
+import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
@@ -25,8 +23,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ReviewViewModel(
-    private val fiefOnScreen: FiefId,
-    private val fiefs: FiefRepository,
     private val learning: LearningRepository,
     private val clock: Clock,
 ) : ViewModel() {
@@ -37,7 +33,7 @@ class ReviewViewModel(
 
     private var reading: Job? = null
 
-    private var answered: FiefSnapshot? = null
+    private var reread: DueReviews? = null
 
     private var gap: Duration = Duration.ZERO
 
@@ -69,19 +65,19 @@ class ReviewViewModel(
         reading?.cancel()
         _state.value = ReviewUiState.Loading
         reading = viewModelScope.launch {
-            when (val answer: FiefReadResult = fiefs.read(fiefOnScreen)) {
-                FiefReadResult.Unreachable -> _state.value = ReviewUiState.Failed
-                is FiefReadResult.Read -> present(measured(answer.fief))
+            when (val answer: ReviewsReadResult = learning.reviews()) {
+                ReviewsReadResult.Unreachable -> _state.value = ReviewUiState.Failed
+                is ReviewsReadResult.Read -> present(measured(answer.reviews))
             }
         }
     }
 
-    private fun present(snapshot: FiefSnapshot) {
-        val first: DueReview? = snapshot.reviews.due.firstOrNull()
-        val nextDueAt: Instant? = snapshot.reviews.nextDueAt
+    private fun present(reviews: DueReviews) {
+        val first: DueReview? = reviews.due.firstOrNull()
+        val nextDueAt: Instant? = reviews.nextDueAt
         when {
             first != null -> _state.value = ReviewUiState.Reviewing(
-                dueCount = snapshot.reviews.due.size,
+                dueCount = reviews.due.size,
                 card = first.toCard(),
                 step = ReviewUiState.ReviewStep.Answering,
             )
@@ -98,12 +94,12 @@ class ReviewViewModel(
             remaining = countdownTo(finishesAt = nextDueAt, now = clock.now() + gap)
         }
         _state.value = ReviewUiState.NothingDue(remaining = Duration.ZERO, dueAt = nextDueAt - gap)
-        var answer: FiefReadResult = fiefs.read(fiefOnScreen)
-        while (answer !is FiefReadResult.Read) {
+        var answer: ReviewsReadResult = learning.reviews()
+        while (answer !is ReviewsReadResult.Read) {
             delay(repaintDelay(null))
-            answer = fiefs.read(fiefOnScreen)
+            answer = learning.reviews()
         }
-        present(measured(answer.fief))
+        present(measured(answer.reviews))
     }
 
     private fun edit(change: (ReviewUiState.ReviewCard) -> ReviewUiState.ReviewCard) {
@@ -116,7 +112,7 @@ class ReviewViewModel(
         val recall: ReviewUiState.ReviewCard.Recall = reviewing.card as? ReviewUiState.ReviewCard.Recall ?: return
         _state.value = reviewing.copy(step = ReviewUiState.ReviewStep.Hinting)
         viewModelScope.launch {
-            when (val answer: ReviewHintResult = learning.hint(fiefOnScreen, recall.wordId)) {
+            when (val answer: ReviewHintResult = learning.hint(recall.wordId)) {
                 is ReviewHintResult.Hinted -> drawn { current: ReviewUiState.Reviewing ->
                     current.copy(card = recall.copy(hint = answer.hint), step = ReviewUiState.ReviewStep.Answering)
                 }
@@ -131,30 +127,30 @@ class ReviewViewModel(
         val answer: String = reviewing.card.sentAnswer() ?: return
         _state.value = reviewing.copy(step = ReviewUiState.ReviewStep.Checking)
         viewModelScope.launch {
-            when (val result: ReviewAnswerResult = learning.answer(fiefOnScreen, reviewing.card.wordId, answer)) {
-                is ReviewAnswerResult.Answered -> rated(reviewing.card, result)
+            when (val result: ReviewAnswerResult = learning.answer(reviewing.card.wordId, answer)) {
+                is ReviewAnswerResult.Answered -> rated(reviewing.card, result.verdict)
                 is ReviewAnswerResult.Refused -> stepTo(ReviewUiState.ReviewStep.Refused(result.refusal))
                 ReviewAnswerResult.Unreachable -> stepTo(ReviewUiState.ReviewStep.Unreachable)
             }
         }
     }
 
-    private fun rated(card: ReviewUiState.ReviewCard, result: ReviewAnswerResult.Answered) {
-        val step: ReviewUiState.ReviewStep = when (val verdict: ReviewVerdict = result.verdict) {
-            ReviewVerdict.NearMiss -> ReviewUiState.ReviewStep.NearMiss
-            is ReviewVerdict.Correct ->
-                ReviewUiState.ReviewStep.Correct(skill = verdict.earnedSkill?.toSkillLine())
+    private suspend fun rated(card: ReviewUiState.ReviewCard, verdict: ReviewVerdict) {
+        val step: ReviewUiState.ReviewStep = when (verdict) {
+            ReviewVerdict.NearMiss -> return stepTo(ReviewUiState.ReviewStep.NearMiss)
+            is ReviewVerdict.Correct -> ReviewUiState.ReviewStep.Correct(skill = verdict.earnedSkill?.toSkillLine())
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
         }
-        if (step != ReviewUiState.ReviewStep.NearMiss) answered = result.fief
+        reread = (learning.reviews() as? ReviewsReadResult.Read)?.reviews?.let(::measured)
         stepTo(step)
     }
 
     private fun next() {
         val reviewing: ReviewUiState.Reviewing = _state.value as? ReviewUiState.Reviewing ?: return
-        val snapshot: FiefSnapshot = answered?.takeIf { reviewing.isRated } ?: return
-        answered = null
-        present(snapshot)
+        if (!reviewing.isRated) return
+        val reviews: DueReviews = reread ?: return open()
+        reread = null
+        present(reviews)
     }
 
     private fun answerable(): ReviewUiState.Reviewing? =
@@ -171,7 +167,7 @@ class ReviewViewModel(
         _state.value = change(current)
     }
 
-    private fun measured(read: FiefSnapshot): FiefSnapshot {
+    private fun measured(read: DueReviews): DueReviews {
         gap = read.readAt - clock.now()
         return read
     }
@@ -204,5 +200,8 @@ private fun ReviewUiState.ReviewCard.correctFormOf(verdict: ReviewVerdict.Wrong)
     is ReviewUiState.ReviewCard.Recall -> verdict.word
 }
 
-private fun RaisedSkill.toSkillLine(): ReviewUiState.SkillLine =
-    ReviewUiState.SkillLine(resource = resource, level = level, ratePercent = ratePercent)
+private fun RaisedSkill.toSkillLine(): ReviewUiState.SkillLine = ReviewUiState.SkillLine(
+    resource = resource,
+    level = level,
+    ratePercent = ratePercent.takeIf { ratePerHourAfter != null },
+)
