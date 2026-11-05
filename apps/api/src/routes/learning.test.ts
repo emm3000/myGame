@@ -485,10 +485,7 @@ describe('the learning routes', () => {
 
       const recognition = reviews.due.find(({ wordId }) => wordId === 'lesson-1-2')
       assert(recognition?.mode === 'recognition')
-      expect([recognition.word, recognition.frame]).toEqual([
-        'school',
-        'I walk to school every day.',
-      ])
+      expect([recognition.word, recognition.frame]).toEqual(['school', 'We are at school.'])
       expect(recognition.choices.map(({ gloss }) => gloss).sort()).toEqual([
         'comida',
         'dinero',
@@ -556,7 +553,7 @@ describe('the learning routes', () => {
         lessonId: 'lesson-1',
         dueAt: firstRecallAt,
         gloss: 'escuela',
-        gappedFrame: 'I walk to ____ every day.',
+        gappedFrame: 'We are at ____.',
       })
       expect(recalls).toHaveLength(5)
       expect(wordIds.filter((wordId) => JSON.stringify(reviews).includes(lemmaOf(wordId)))).toEqual(

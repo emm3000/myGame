@@ -43,6 +43,38 @@ const contentCopy = (): string => {
   return directory
 }
 
+const lessonsFile = (directory: string, file: string): string => join(directory, 'lessons', file)
+
+const readJson = (directory: string, file: string): Record<string, unknown> =>
+  JSON.parse(readFileSync(lessonsFile(directory, file), 'utf8'))
+
+const writeJson = (directory: string, file: string, value: unknown): void => {
+  writeFileSync(lessonsFile(directory, file), JSON.stringify(value))
+}
+
+const lessonOneTerms = {
+  theme: 'A day in town',
+  durationSeconds: 300,
+  requiredLibraryLevel: 1,
+  wordIds: ['lesson-1-1'],
+}
+
+const contentOfLessons = (
+  lessonIds: ReadonlyArray<string>,
+  cycle: ReadonlyArray<string>,
+): string => {
+  const directory = contentCopy()
+  for (const id of lessonIds) {
+    writeJson(directory, `${id}.json`, { id, ...lessonOneTerms })
+  }
+  writeJson(directory, 'curriculum.json', {
+    chromeLessonCount: 1,
+    lessonIds,
+    skill: { cycle, ratePercent: 5 },
+  })
+  return directory
+}
+
 afterEach(() => {
   for (const directory of copies.splice(0)) {
     rmSync(directory, { recursive: true, force: true })
@@ -63,7 +95,7 @@ describe('JsonLessonCatalog', () => {
     ).toEqual(lessonOneTable())
   })
 
-  it('reads the terms of lesson 1 from its content', () => {
+  it('reads the terms of lesson 1 from its content, its skill food at 5 %', () => {
     const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
 
     expect({ ...lesson, words: undefined }).toEqual({
@@ -105,6 +137,39 @@ describe('JsonLessonCatalog', () => {
     ])
   })
 
+  it('loads the lessons the curriculum lists, in its order', () => {
+    const directory = contentOfLessons(['lesson-b', 'lesson-a'], ['food'])
+
+    expect(
+      JsonLessonCatalog.fromDirectory(directory)
+        .lessons()
+        .map(({ id }) => id),
+    ).toEqual(['lesson-b', 'lesson-a'])
+  })
+
+  it('derives the skill of lessons 1, 2 and k + 1 from their places in the cycle', () => {
+    const lessonIds = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
+    const directory = contentOfLessons(lessonIds, ['stone', 'food', 'gold', 'wood', 'iron'])
+    const catalog = JsonLessonCatalog.fromDirectory(directory)
+
+    expect(['first', 'second', 'sixth'].map((id) => catalog.lessonOf(id)?.skill)).toEqual([
+      { resource: 'stone', ratePercent: 5 },
+      { resource: 'food', ratePercent: 5 },
+      { resource: 'stone', ratePercent: 5 },
+    ])
+  })
+
+  it('accepts the further forms the lexicon lists for a typed answer', () => {
+    const directory = contentCopy()
+    const [home, ...others] = readJson(directory, 'words.json') as unknown as Array<object>
+    writeJson(directory, 'words.json', [{ ...home, acceptedForms: ['homes'] }, ...others])
+
+    expect(
+      JsonLessonCatalog.fromDirectory(directory).lessonOfWord('lesson-1-1')?.words[0]
+        ?.acceptedForms,
+    ).toEqual(['home', 'homes'])
+  })
+
   it('reads a headword of the NGSL 1.2 list whatever its case', () => {
     const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
 
@@ -118,7 +183,7 @@ describe('JsonLessonCatalog', () => {
   })
 
   it('ships the NGSL 1.2 list unchanged from its source', () => {
-    const list = readFileSync(join(shippedContent, 'lessons', 'ngsl-1.2.csv'))
+    const list = readFileSync(lessonsFile(shippedContent, 'ngsl-1.2.csv'))
 
     expect(createHash('sha256').update(list).digest('hex')).toBe(
       '2098bab8955a120a9766c6282a51d7d578c6cb0a7d946600d2ffb73ba25a0b44',
@@ -127,16 +192,63 @@ describe('JsonLessonCatalog', () => {
 
   it('fails start-up on a malformed lesson file', () => {
     const directory = contentCopy()
-    const lessonFile = join(directory, 'lessons', 'lesson-1.json')
-    const lesson = JSON.parse(readFileSync(lessonFile, 'utf8'))
-    writeFileSync(lessonFile, JSON.stringify({ ...lesson, cost: 0 }))
+    const [lessonId] = readJson(directory, 'curriculum.json').lessonIds as Array<string>
+    const lessonFile = lessonsFile(directory, `${lessonId}.json`)
+    writeFileSync(
+      lessonFile,
+      JSON.stringify({ ...readJson(directory, `${lessonId}.json`), cost: 0 }),
+    )
 
-    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-1\.json is malformed/)
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(`${lessonFile} is malformed`)
+  })
+
+  it('fails start-up on a lesson file whose id is not the one the curriculum lists', () => {
+    const directory = contentOfLessons(['lesson-a'], ['food'])
+    writeJson(directory, 'lesson-a.json', { id: 'lesson-b', ...lessonOneTerms })
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-a\.json is malformed/)
+  })
+
+  it('fails start-up on a malformed curriculum', () => {
+    const directory = contentCopy()
+    writeJson(directory, 'curriculum.json', { lessonIds: [] })
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+      /curriculum\.json is malformed/,
+    )
+  })
+
+  it('fails start-up on a malformed lexicon', () => {
+    const directory = contentCopy()
+    writeJson(directory, 'words.json', [{ id: 'lesson-1-1' }])
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/words\.json is malformed/)
+  })
+
+  it('fails start-up on a lesson word the lexicon lacks', () => {
+    const directory = contentOfLessons(['lesson-a'], ['food'])
+    writeJson(directory, 'lesson-a.json', {
+      id: 'lesson-a',
+      ...lessonOneTerms,
+      wordIds: ['word-9'],
+    })
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-a\.json is malformed/)
+  })
+
+  it('fails start-up on a taught word without its es gloss', () => {
+    const directory = contentCopy()
+    const [home, ...others] = readJson(directory, 'words.json') as unknown as Array<object>
+    writeJson(directory, 'words.json', [{ ...home, gloss: {} }, ...others])
+
+    expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(
+      'Word lesson-1-1 of lesson lesson-1 has no es gloss',
+    )
   })
 
   it('fails start-up on a malformed row of the NGSL 1.2 list', () => {
     const directory = contentCopy()
-    const listFile = join(directory, 'lessons', 'ngsl-1.2.csv')
+    const listFile = lessonsFile(directory, 'ngsl-1.2.csv')
     writeFileSync(listFile, `${readFileSync(listFile, 'utf8')}broken row\r\n`)
 
     expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/ngsl-1\.2\.csv is malformed/)

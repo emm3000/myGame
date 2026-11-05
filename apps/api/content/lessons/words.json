@@ -1,0 +1,47 @@
+[
+  {
+    "id": "lesson-1-1",
+    "lemma": "home",
+    "partOfSpeech": "noun",
+    "frame": "This is my home.",
+    "gappedFrame": "This is my ____.",
+    "gloss": { "es": "hogar" },
+    "definition": "the place where you live"
+  },
+  {
+    "id": "lesson-1-2",
+    "lemma": "school",
+    "partOfSpeech": "noun",
+    "frame": "We are at school.",
+    "gappedFrame": "We are at ____.",
+    "gloss": { "es": "escuela" },
+    "definition": "a place where children go to learn"
+  },
+  {
+    "id": "lesson-1-3",
+    "lemma": "work",
+    "partOfSpeech": "verb",
+    "frame": "They work for us.",
+    "gappedFrame": "They ____ for us.",
+    "gloss": { "es": "trabajar" },
+    "definition": "to do a job for money"
+  },
+  {
+    "id": "lesson-1-4",
+    "lemma": "money",
+    "partOfSpeech": "noun",
+    "frame": "I do not have much money.",
+    "gappedFrame": "I do not have much ____.",
+    "gloss": { "es": "dinero" },
+    "definition": "what you pay with when you buy things"
+  },
+  {
+    "id": "lesson-1-5",
+    "lemma": "food",
+    "partOfSpeech": "noun",
+    "frame": "We have food for you.",
+    "gappedFrame": "We have ____ for you.",
+    "gloss": { "es": "comida" },
+    "definition": "what people and animals eat"
+  }
+]

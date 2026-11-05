@@ -14,52 +14,42 @@ Every rank on this page is the `SFI Rank` of `NGSL_12_stats.csv`, the NGSL 1.2 (
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
-| home | noun | 161 | We have a new home in this town. | We have a new ____ in this town. | hogar |
-| school | noun | 146 | I walk to school every day. | I walk to ____ every day. | escuela |
-| work | verb | 67 | They work in a big office. | They ____ in a big office. | trabajar |
+| home | noun | 161 | This is my home. | This is my ____. | hogar |
+| school | noun | 146 | We are at school. | We are at ____. | escuela |
+| work | verb | 67 | They work for us. | They ____ for us. | trabajar |
 | money | noun | 201 | I do not have much money. | I do not have much ____. | dinero |
-| food | noun | 367 | We buy food for the week. | We buy ____ for the week. | comida |
+| food | noun | 367 | We have food for you. | We have ____ for you. | comida |
 
 All five lemmas lie within the first 1 000; the highest rank is *food*'s, 367.
 
-- **The frame** writes its lemma in the lemma's own form, never inflected, so the gapped form's answer is the lemma itself and the typed answer is compared against it alone (ADR 036, rule 4). No frame holds another word of the lesson, so neither a recognition nor a gapped frame gives a second answer away.
+- **The frame** writes its lemma in the lemma's own form, never inflected, so the gapped form's answer is the lemma itself and the typed answer is compared against it alone (ADR 036, rule 4). No frame holds another word of the lesson, so neither a recognition nor a gapped frame gives a second answer away. Every other word of a frame is a frame word (`grammar.json`), since no lesson comes before lesson 1: this is ADR 037's frame rule, which the content gate checks. *I do not have much money.* is the one frame kept from the first draft; the other four held words no earlier lesson teaches (*new*, *town*, *walk*, *every*, *day*, *big*, *office*, *buy*, *week*) and were rewritten. The cards keep their word ids.
 - **The gloss** of *home* is *hogar*, not *casa*: *casa* is the first gloss of *house* (NGSL 1.2 rank 165), and a recall cued by *casa* would ask for either. *Work* is glossed as the verb, *trabajar*, as its frame uses it.
 - **Recognition** shows the lemma and its frame, and offers the five glosses as its choices, ordered as rule 3 orders them. **Recall** shows the gloss and the gapped form, and the player types the lemma (ADR 036, rule 2).
-- Every frame has no contraction, no number and no proper name, so every token is a headword as written.
+- Every frame has no contraction, no number and no proper name, so every token is a form of a headword as the NGSL teaching list lemmatizes it (*is* and *are* of *be*, *my* of *I*, *us* of *we*).
 
 ### Every word of every frame
 
-Each word of the theme and of the five frames, with its NGSL 1.2 rank; *Read in* names the theme or the lemma whose frame holds it. Every one is a headword in the form the frame writes it, and every rank is within the first 1 000.
+Each word of the five frames, with its NGSL 1.2 rank, the headword its form belongs to, and the lemma whose frame holds it. Every word but the lemmas is a frame word admitted from lesson 1.
 
-| Word | Rank | Read in |
-|---|---|---|
-| the | 1 | food |
-| to | 5 | school |
-| a | 6 | theme, home, work |
-| in | 7 | theme, home, work |
-| have | 8 | home, money |
-| for | 12 | food |
-| they | 13 | work |
-| not | 14 | money |
-| we | 16 | home, food |
-| this | 19 | home |
-| I | 20 | school, money |
-| do | 21 | money |
-| work | 67 | work |
-| new | 79 | home |
-| day | 85 | theme, school |
-| much | 91 | money |
-| school | 146 | school |
-| week | 157 | food |
-| home | 161 | home |
-| every | 180 | school |
-| big | 184 | work |
-| money | 201 | money |
-| buy | 242 | food |
-| walk | 339 | school |
-| office | 343 | work |
-| town | 364 | theme, home |
-| food | 367 | food |
+| Word | Headword | Rank | Read in |
+|---|---|---|---|
+| is, are | be | 2 | home, school |
+| have | have | 8 | money, food |
+| you | you | 10 | food |
+| for | for | 12 | work, food |
+| they | they | 13 | work |
+| not | not | 14 | money |
+| we, us | we | 16 | school, work, food |
+| this | this | 19 | home |
+| I, my | I | 20 | home, money |
+| do | do | 21 | money |
+| at | at | 23 | school |
+| work | work | 67 | work |
+| much | much | 91 | money |
+| school | school | 146 | school |
+| home | home | 161 | home |
+| money | money | 201 | money |
+| food | food | 367 | food |
 
 ### The near-miss against this lesson
 
@@ -67,5 +57,4 @@ Worked against ADR 036, rule 4, each with the NGSL 1.2 list above. *Wok* for *wo
 
 ## Open questions
 
-- Whether the owner accepts the five frames and the five es glosses (§3.6), *hogar* above all. Under ADR 037's frame rule four of the five frames fail, each holding words no earlier lesson teaches (*new*, *town*, *walk*, *every*, *day*, *big*, *office*, *buy*, *week*); only *I do not have much money.* passes. They are rewritten when lesson 1 moves into the lexicon; its cards keep their word ids.
 - Whether *A day in town* is read on screen before the town rebuild names the holding a town: the medieval fief still calls it *feudo* (`docs/lore/names.md`, The fief).
