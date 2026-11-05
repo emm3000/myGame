@@ -116,7 +116,7 @@ it('advances the wood amount between reads from the server rate', async () => {
 
   await passSeconds(60)
 
-  expect(woodCell().textContent).toContain('1 060')
+  expect(woodCell().textContent).toContain('1 060')
 })
 
 it('stops the interpolated amount at the capacity', async () => {

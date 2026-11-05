@@ -2,7 +2,8 @@ import {
   townLabelCity,
   townLabelTown,
   townLevel,
-  townPlacesTitle,
+  townPlacesTitleCity,
+  townPlacesTitleTown,
   townWorkDone,
   townWorkIdle,
   townWorkReady,
@@ -12,9 +13,12 @@ import {
   townWorkTitle,
   townWorkWaitingList,
 } from '@mygame/catalog'
-import { type BuildingKind, BuildingKindSchema } from '@mygame/contracts/town'
+import {
+  type BuildingKind,
+  BuildingKindSchema,
+  type StopBuildingWork,
+} from '@mygame/contracts/town'
 import { type ReactElement, useId } from 'react'
-import type { StoppedWork } from '../api/apiClient'
 import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
@@ -34,7 +38,11 @@ export interface TownHomeProps {
   readonly work: TownWork
 }
 
-function stopActionOf(work: TownWork, target: StoppedWork, onStopped: () => void): CancelAction {
+function stopActionOf(
+  work: TownWork,
+  target: StopBuildingWork,
+  onStopped: () => void,
+): CancelAction {
   return {
     label: townWorkStop(),
     accessibleName: townWorkStopOf({ place: placeNameOf(target.building), level: target.level }),
@@ -134,7 +142,7 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="m-0 font-sans text-display text-ink">{overview.name}</h2>
-        <span className="rounded-pill bg-surface-sunken px-2 font-sans text-label text-ink">
+        <span className="rounded-pill border border-line-strong bg-surface-raised px-2 font-sans text-label text-ink">
           {overview.label === 'city' ? townLabelCity() : townLabelTown()}
         </span>
       </header>
@@ -149,7 +157,7 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
         </div>
         <section aria-labelledby={placesTitleId} className="flex flex-col gap-3 lg:col-span-2">
           <h3 id={placesTitleId} className="m-0 font-sans text-heading text-ink">
-            {townPlacesTitle()}
+            {overview.label === 'city' ? townPlacesTitleCity() : townPlacesTitleTown()}
           </h3>
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
             {BuildingKindSchema.options.map((place) => (

@@ -88,7 +88,7 @@ it('renders too few free people from the people the work needs and the free ones
       kind: 'NotEnoughPeople',
       params: { requiredPeople: 1, freePeople: 0 },
     }),
-  ).toBe('Esta obra necesita 1 persona libre y tienes 0. Sube el nivel de las casas.')
+  ).toBe('Esta obra necesita 1 persona libre y tienes 0. Sube el nivel de tus hogares.')
 })
 
 it('renders a town shortfall as its line', () => {

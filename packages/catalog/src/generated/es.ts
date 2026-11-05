@@ -288,7 +288,7 @@ export const refusalMarchTargetOutOfBounds = (): string => `Esa parcela no está
 export const refusalMarchToOwnPlot = (): string => `A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.`
 export const refusalMaxLevelReached = (): string => `Ese edificio ya está en su nivel más alto.`
 export const refusalNotEnoughPeasants = (): string => `No tienes campesinos libres suficientes.`
-export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de las casas.`
+export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
 export const refusalNotEnoughResources = (): string => `No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.`
 export const refusalNotEnoughUnitsAtHome = ({ atHome, units }: { readonly atHome: string | number; readonly units: string | number }): string => `Necesitas ${String(units)} en casa y tienes ${String(atHome)}. Ajusta la marcha.`
 export const refusalPlayerAlreadyHoldsTown = (): string => `Ya tienes un pueblo. Solo puedes tener uno.`
@@ -389,7 +389,6 @@ export const townFull = ({ capacity }: { readonly capacity: string | number }): 
 export const townLabelCity = (): string => `Ciudad`
 export const townLabelTown = (): string => `Pueblo`
 export const townLevel = ({ level }: { readonly level: string | number }): string => `Nivel ${String(level)}`
-export const townLoadFailed = (): string => `No hemos podido leer tu pueblo.`
 export const townLoading = (): string => `Estamos leyendo tu pueblo…`
 export const townNamingField = (): string => `Nombre del pueblo`
 export const townNamingGoToTown = (): string => `Ir a tu pueblo`
@@ -398,8 +397,9 @@ export const townNamingSubmit = (): string => `Empezar`
 export const townNamingTitle = (): string => `Ponle nombre a tu pueblo`
 export const townPeople = ({ atWork, free }: { readonly atWork: string | number; readonly free: number }): string => `Gente: ${free === 1 ? `1 libre` : `${String(free)} libres`}, ${String(atWork)} trabajando`
 export const townPeopleAtWork = ({ people }: { readonly people: string | number }): string => `Gente trabajando: +${String(people)}`
-export const townPeopleShort = ({ free, needed }: { readonly free: string | number; readonly needed: string | number }): string => `Gente necesaria: ${String(needed)}. Libre: ${String(free)}.`
-export const townPlacesTitle = (): string => `Tu pueblo`
+export const townPeopleShort = ({ free, needed }: { readonly free: number; readonly needed: string | number }): string => `Gente necesaria: ${String(needed)}. ${free === 1 ? `Libre: 1` : `Libres: ${String(free)}`}.`
+export const townPlacesTitleCity = (): string => `Tu ciudad`
+export const townPlacesTitleTown = (): string => `Tu pueblo`
 export const townRate = ({ rate }: { readonly rate: string | number }): string => `+${String(rate)} / h`
 export const townShortMark = (): string => `, falta`
 export const townShortfall = ({ missing }: { readonly missing: string | number }): string => `Necesitas ${String(missing)} más.`

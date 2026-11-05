@@ -9,10 +9,10 @@ import {
   townWorkStopOf,
   townWorkWaitingList,
 } from '@mygame/catalog'
-import type { BuildingWork, TownOverview } from '@mygame/contracts/town'
+import type { BuildingWork, StopBuildingWork, TownOverview } from '@mygame/contracts/town'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { ApiClient, ApiOutcome, StoppedWork } from '../api/apiClient'
+import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
@@ -122,6 +122,14 @@ it('disables a level the free people cannot staff', async () => {
   expect(accessibleDescriptionOf(button)).toBe('Gente necesaria: 2. Libre: 1.')
 })
 
+it('agrees the free people with their count', async () => {
+  await showTown({ ...knownTown, people: { supplied: 96, free: 0, atWork: 96 } })
+
+  expect(accessibleDescriptionOf(buildButtonOf(namesPlacesFarm()))).toBe(
+    'Gente necesaria: 2. Libres: 0.',
+  )
+})
+
 it('shows the slot busy with its countdown', async () => {
   await showTown(withWork(homesBeingBuilt, []))
 
@@ -153,7 +161,7 @@ it('blocks every level while the waiting list is full', async () => {
 })
 
 it('stops the work and shows the refund it promises', async () => {
-  const stopped: Array<StoppedWork> = []
+  const stopped: Array<StopBuildingWork> = []
   await showTown(withWork(homesBeingBuilt, []), {
     stopBuildingWork: async (target) => {
       stopped.push(target)
