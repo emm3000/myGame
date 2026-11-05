@@ -1,4 +1,5 @@
 import { createRoute } from '@hono/zod-openapi'
+import { StartLessonRequestSchema, StopLessonRequestSchema } from '@mygame/contracts'
 import {
   FoundTownSchema,
   StartBuildingWorkSchema,
@@ -69,6 +70,36 @@ export const townDeclarations = {
         400: malformedResponse('path'),
         404: townNotFoundResponse,
         409: refusalResponse('BuildingWorkNotFound.'),
+      },
+    }),
+  ),
+  startLesson: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/lessons',
+      request: { body: jsonBody(StartLessonRequestSchema.meta({ id: 'StartLessonRequest' })) },
+      responses: {
+        200: overviewResponse('The town with the lesson under study in its school.'),
+        400: malformedResponse('body'),
+        404: refusalResponse(
+          'TownNotFound; LessonNotFound, for a lesson the content lacks, answers an empty body.',
+        ),
+        409: refusalResponse(
+          'StudySlotBusy, LessonSchoolTooLow, LessonAlreadyStudied, LessonUnderStudy or LearningCapReached.',
+        ),
+      },
+    }),
+  ),
+  stopLesson: createRoute(
+    signedInRoute({
+      method: 'delete',
+      path: '/lessons/{lessonId}',
+      request: { params: StopLessonRequestSchema },
+      responses: {
+        200: overviewResponse('The town with the lesson stopped; nothing is studied.'),
+        400: malformedResponse('path'),
+        404: townNotFoundResponse,
+        409: refusalResponse('LessonStudyNotFound.'),
       },
     }),
   ),

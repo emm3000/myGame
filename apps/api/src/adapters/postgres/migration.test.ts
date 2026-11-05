@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
-import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { tokenDigest } from '../../auth/tokenDigest'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
@@ -15,6 +15,7 @@ import {
   accountTokens,
   campBattles,
   cards,
+  earnedSkills,
   fiefArts,
   fiefBuildings,
   fiefEvents,
@@ -181,12 +182,6 @@ function foodSkillOf(playerId: string): typeof playerSkills.$inferInsert {
   }
 }
 
-const lessonStudyColumns = {
-  studyLessonId: 'lesson-1',
-  studyStartedAt: new Date('2026-11-10T08:57:30Z'),
-  studyFinishesAt: lessonFinishedAt,
-}
-
 const ana = aPlayer('00000000-0000-4000-8000-000000000001', 'Ana@Example.com')
 const bruno = aPlayer('00000000-0000-4000-8000-000000000002', 'bruno@example.com')
 const anasFief = aFief('00000000-0000-4000-8000-00000000000a', ana.id)
@@ -275,6 +270,7 @@ describe('the migrations', () => {
       'account_tokens',
       'camp_battles',
       'cards',
+      'earned_skills',
       'fief_arts',
       'fief_buildings',
       'fief_events',
@@ -292,6 +288,7 @@ describe('the migrations', () => {
       'sessions',
       'town_buildings',
       'town_events',
+      'town_lesson_slots',
       'town_waiting_work',
       'towns',
     ])
@@ -386,6 +383,56 @@ describe('the migrations', () => {
     })
   })
 
+  it('refuses a skill a player earned twice from one lesson in the town', async () => {
+    await db.insert(players).values(ana)
+    await db.insert(earnedSkills).values({ ...foodSkillOf(ana.id), resource: 'material' })
+
+    await expect(
+      db.insert(earnedSkills).values({ ...foodSkillOf(ana.id), resource: 'material' }),
+    ).rejects.toMatchObject({ cause: { code: uniqueViolation, constraint: 'earned_skills_pkey' } })
+  })
+
+  it("drops a deleted player's earned skills", async () => {
+    await db.insert(players).values([ana, bruno])
+    for (const playerId of [ana.id, bruno.id]) {
+      await db.insert(earnedSkills).values({ ...foodSkillOf(playerId), resource: 'food' })
+    }
+
+    await db.delete(players).where(eq(players.id, ana.id))
+
+    expect(await db.select({ playerId: earnedSkills.playerId }).from(earnedSkills)).toEqual([
+      { playerId: bruno.id },
+    ])
+  })
+
+  it('refuses a town lesson that finishes before it starts', async () => {
+    await db.insert(players).values(ana)
+    await insertTownOf(client, ana.id, 1, plainStocks)
+
+    await expect(
+      client.query(
+        `INSERT INTO town_lesson_slots (town_id, lesson_id, started_at, finishes_at)
+         SELECT id, 'lesson-1', '2026-11-10T09:00:00Z', '2026-11-10T08:57:30Z' FROM towns`,
+      ),
+    ).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'town_lesson_slots_started_before_finish',
+    })
+  })
+
+  it("drops a deleted town's lesson slot", async () => {
+    await db.insert(players).values(ana)
+    await insertTownOf(client, ana.id, 1, plainStocks)
+    await client.query(
+      `INSERT INTO town_lesson_slots (town_id, lesson_id, started_at, finishes_at)
+       SELECT id, 'lesson-1', '2026-11-10T08:57:30Z', '2026-11-10T09:00:00Z' FROM towns`,
+    )
+
+    await db.delete(players).where(eq(players.id, ana.id))
+
+    expect((await client.query('SELECT town_id FROM town_lesson_slots')).rows).toEqual([])
+  })
+
   it('refuses a review logged with elapsed days before any earlier review', async () => {
     await db.insert(players).values(ana)
 
@@ -393,26 +440,6 @@ describe('the migrations', () => {
       db.insert(reviewLog).values({ ...firstReviewOf(ana.id), elapsedDays: 0 }),
     ).rejects.toMatchObject({
       cause: { code: checkViolation, constraint: 'review_log_elapsed_days_terms' },
-    })
-  })
-
-  it('refuses a lesson study that holds an art', async () => {
-    await db.insert(players).values(ana)
-
-    await expect(
-      db.insert(fiefs).values({ ...anasFief, ...lessonStudyColumns, studyArt: 'masonry' }),
-    ).rejects.toMatchObject({
-      cause: { code: checkViolation, constraint: 'fiefs_study_lesson_terms' },
-    })
-  })
-
-  it('refuses a lesson study that debited a cost', async () => {
-    await db.insert(players).values(ana)
-
-    await expect(
-      db.insert(fiefs).values({ ...anasFief, ...lessonStudyColumns, studyCostFood: 30 }),
-    ).rejects.toMatchObject({
-      cause: { code: checkViolation, constraint: 'fiefs_study_lesson_terms' },
     })
   })
 
@@ -1764,6 +1791,17 @@ const migratedFrom = async (
   await applyMigrations(client, migrations.slice(0, appliedCount))
   await seed()
   await applyMigrations(client, migrations.slice(appliedCount))
+}
+
+const migratedThroughNext = async (
+  client: Client,
+  appliedCount: number,
+  seed: () => Promise<void>,
+): Promise<void> => {
+  const migrations = readMigrationFiles({ migrationsFolder })
+  await applyMigrations(client, migrations.slice(0, appliedCount))
+  await seed()
+  await applyMigrations(client, migrations.slice(appliedCount, appliedCount + 1))
 }
 
 describe('the one fief per player migration', () => {
@@ -3366,7 +3404,7 @@ describe('the building work and town news migration', () => {
 
   beforeEach(async () => {
     client = await openEmptyDatabase()
-    await migratedFrom(client, 32, async () => {
+    await migratedThroughNext(client, 32, async () => {
       await insertPlayersOfFullSinceVersion(client)
       await insertTownOf(client, ana.id, 1, plainStocks)
     })
@@ -3399,11 +3437,14 @@ describe('the building work and town news migration', () => {
     ])
   })
 
-  it('reads a town stored before the migration idle with nothing waiting', async () => {
-    const read = await new DrizzleTownRepository(drizzle(client), 'lockFree').townOf(ana.id)
+  it('stores a town stored before the migration idle with nothing waiting', async () => {
+    const read = await client.query(
+      `SELECT work_building AS building, (SELECT count(*) FROM town_waiting_work) AS waiting
+       FROM towns WHERE player_id = $1`,
+      [ana.id],
+    )
 
-    assert(read.ok && read.value !== undefined)
-    expect([read.value.workSlot, read.value.waitingList]).toEqual([{ kind: 'idle' }, []])
+    expect(read.rows).toEqual([{ building: null, waiting: '0' }])
   })
 
   it('holds every kind of town event', async () => {
@@ -3479,5 +3520,109 @@ describe('the building work and town news migration', () => {
       'SELECT (SELECT count(*) FROM town_waiting_work) + (SELECT count(*) FROM town_events) AS count',
     )
     expect(left.rows).toEqual([{ count: '0' }])
+  })
+})
+
+describe('the skills move migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  const insertPlayersOfBuildingWorkVersion = async (): Promise<void> => {
+    await client.query(
+      `INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at, report_read_at)
+       VALUES ($1, $2, 'argon2id-hash', '2026-09-22T08:00:00Z', '2026-09-22T08:00:00Z', '2026-09-22T08:00:00Z')`,
+      [ana.id, ana.email],
+    )
+  }
+
+  const insertSkillOfPreviousVersion = async (resource: string): Promise<void> => {
+    await client.query(
+      `INSERT INTO player_skills (player_id, lesson_id, resource, rate_percent, earned_at)
+       VALUES ($1, 'lesson-1', $2, 5, '2026-11-23T09:10:00Z')`,
+      [ana.id, resource],
+    )
+  }
+
+  const insertFiefStudyingLessonOne = async (
+    finishesAt: 'now()' | "now() + interval '1 day'",
+  ): Promise<void> => {
+    await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    await client.query(
+      `UPDATE fiefs SET study_lesson_id = 'lesson-1', study_started_at = now() - interval '150 seconds',
+         study_finishes_at = ${finishesAt} WHERE id = $1`,
+      [anasFief.id],
+    )
+  }
+
+  it('copies a food skill to the town food, keeping its lesson, percent and instant', async () => {
+    await migratedFrom(client, 33, async () => {
+      await insertPlayersOfBuildingWorkVersion()
+      await insertSkillOfPreviousVersion('food')
+    })
+
+    const copied = await drizzle(client).select().from(earnedSkills)
+
+    expect(copied).toEqual([
+      {
+        playerId: ana.id,
+        lessonId: 'lesson-1',
+        resource: 'food',
+        ratePercent: 5,
+        earnedAt: new Date('2026-11-23T09:10:00Z'),
+      },
+    ])
+  })
+
+  it('fails on a skill earned on another resource than food', async () => {
+    await expect(
+      migratedFrom(client, 33, async () => {
+        await insertPlayersOfBuildingWorkVersion()
+        await insertSkillOfPreviousVersion('wood')
+      }),
+    ).rejects.toMatchObject({
+      message: 'player_skills holds a skill on a resource other than food',
+    })
+  })
+
+  it('fails on a town stored before the move', async () => {
+    await expect(
+      migratedFrom(client, 33, async () => {
+        await insertPlayersOfBuildingWorkVersion()
+        await insertTownOf(client, ana.id, 1, plainStocks)
+      }),
+    ).rejects.toMatchObject({ message: 'towns holds a town before the skills move' })
+  })
+
+  it("fails on a fief lesson finished at or before the migration's instant", async () => {
+    await expect(
+      migratedFrom(client, 33, async () => {
+        await insertPlayersOfBuildingWorkVersion()
+        await insertFiefStudyingLessonOne('now()')
+      }),
+    ).rejects.toMatchObject({
+      message: 'a fief holds a lesson finished at or before the skills move',
+    })
+  })
+
+  it("drops the fief's lesson slot, leaving a running lesson unstudied and the fief idle", async () => {
+    await migratedFrom(client, 33, async () => {
+      await insertPlayersOfBuildingWorkVersion()
+      await insertFiefStudyingLessonOne("now() + interval '1 day'")
+    })
+
+    const fief = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(anasFief.id)
+    const cardsHeld = await new DrizzleCardRepository(drizzle(client)).cardsOf(ana.id)
+
+    expect([fief.ok && fief.value?.studySlot, cardsHeld]).toEqual([
+      { kind: 'idle' },
+      { ok: true, value: [] },
+    ])
   })
 })

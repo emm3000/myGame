@@ -1,60 +1,76 @@
-import type { RaisedSkill, ReviewAnswer } from '@mygame/contracts'
+import type { RaisedSkill, ReviewVerdict } from '@mygame/contracts'
 import {
-  type BuildingCatalog,
   type DomainError,
-  deriveResourceRates,
   dueInstantOf,
-  type EarnedSkill,
-  type Fief,
   type MemoryTerms,
   ok,
   type Result,
   skillLevelOf,
 } from '@mygame/domain'
+import {
+  deriveResourceRates,
+  type Town,
+  type TownCatalog,
+  type TownSkill,
+} from '@mygame/domain/town'
 import { isoOf } from '../http/isoOf'
 import type { ReviewOutcome } from './answerReviewOf'
 
+type RatesAtEarn = Pick<RaisedSkill, 'ratePerHourBefore' | 'ratePerHourAfter'>
+
+const ratesAtEarnOf = (
+  skill: TownSkill,
+  skills: ReadonlyArray<TownSkill>,
+  town: Town | undefined,
+  catalog: TownCatalog,
+): Result<RatesAtEarn, DomainError> => {
+  if (town === undefined) {
+    return ok({ ratePerHourBefore: null, ratePerHourAfter: null })
+  }
+  const ratesWith = (held: ReadonlyArray<TownSkill>) =>
+    deriveResourceRates(town.buildingLevels, town.terrain, held, catalog, skill.earnedAt)
+  const before = ratesWith(skills.filter(({ lessonId }) => lessonId !== skill.lessonId))
+  if (!before.ok) {
+    return before
+  }
+  const after = ratesWith(skills)
+  if (!after.ok) {
+    return after
+  }
+  return ok({
+    ratePerHourBefore: before.value[skill.resource],
+    ratePerHourAfter: after.value[skill.resource],
+  })
+}
+
 const raisedSkillOf = (
-  skill: EarnedSkill | undefined,
-  fief: Fief,
-  catalog: BuildingCatalog,
+  skill: TownSkill | undefined,
+  { skills, town }: ReviewOutcome,
+  catalog: TownCatalog,
 ): Result<RaisedSkill | null, DomainError> => {
   if (skill === undefined) {
     return ok(null)
   }
-  const ratesWith = (skills: ReadonlyArray<EarnedSkill>) =>
-    deriveResourceRates(
-      fief.buildingLevels,
-      fief.artLevels,
-      skills,
-      fief.terrain,
-      catalog,
-      skill.earnedAt,
-    )
-  const before = ratesWith(fief.skills.filter(({ lessonId }) => lessonId !== skill.lessonId))
-  if (!before.ok) {
-    return before
-  }
-  const after = ratesWith(fief.skills)
-  if (!after.ok) {
-    return after
+  const rates = ratesAtEarnOf(skill, skills, town, catalog)
+  if (!rates.ok) {
+    return rates
   }
   return ok({
     lessonId: skill.lessonId,
     resource: skill.resource,
     ratePercent: skill.ratePercent,
     earnedAt: isoOf(skill.earnedAt),
-    level: skillLevelOf(fief.skills, skill.resource),
-    ratePerHourBefore: before.value[skill.resource],
-    ratePerHourAfter: after.value[skill.resource],
+    level: skillLevelOf(skills, skill.resource),
+    ...rates.value,
   })
 }
 
 export const reviewVerdictOf = (
-  { answered, word, reading }: ReviewOutcome,
-  catalog: BuildingCatalog,
+  outcome: ReviewOutcome,
+  catalog: TownCatalog,
   terms: MemoryTerms,
-): Result<ReviewAnswer['verdict'], DomainError> => {
+): Result<ReviewVerdict, DomainError> => {
+  const { answered, word } = outcome
   if (answered.kind === 'nearMiss') {
     return ok({ kind: 'nearMiss' })
   }
@@ -66,7 +82,7 @@ export const reviewVerdictOf = (
   if (answered.rating === 'again') {
     return ok({ ...shown, kind: 'wrong' })
   }
-  const earnedSkill = raisedSkillOf(answered.earnedSkill, reading.fief, catalog)
+  const earnedSkill = raisedSkillOf(answered.earnedSkill, outcome, catalog)
   if (!earnedSkill.ok) {
     return earnedSkill
   }

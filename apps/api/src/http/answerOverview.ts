@@ -1,55 +1,19 @@
 import type { FiefOverview } from '@mygame/contracts'
-import type { DomainError, PlayerId, Result } from '@mygame/domain'
+import type { BuildingCatalog, DomainError, Result } from '@mygame/domain'
 import type { Context } from 'hono'
-import type { CurrentFief } from '../fief/currentFiefOf'
 import type { FiefReading } from '../fief/FiefReading'
 import { fiefOverviewOf } from '../fief/fiefOverviewOf'
-import type { CardReader } from '../learning/CardReader'
-import type { LearnerTerms } from '../learning/learnerOverviewOf'
 import { answerRefusal } from './answerRefusal'
 
-export type OverviewDependencies = LearnerTerms & {
-  readonly cards: CardReader
-}
-
-export const overviewOfPlayer = async (
-  playerId: PlayerId,
-  reading: FiefReading,
-  dependencies: OverviewDependencies,
-): Promise<Result<FiefOverview, DomainError>> => {
-  const cards = await dependencies.cards.cardsOf(playerId)
-  if (!cards.ok) {
-    return cards
-  }
-  return fiefOverviewOf(reading, cards.value, dependencies)
-}
-
-export const answerCurrentOverview = (
+export const answerOverview = (
   c: Context,
-  current: Result<CurrentFief, DomainError>,
-  terms: LearnerTerms,
-): Response => {
-  if (!current.ok) {
-    return answerRefusal(c, current.error)
-  }
-  const overview = fiefOverviewOf(current.value, current.value.cards, terms)
-  if (!overview.ok) {
-    return answerRefusal(c, overview.error)
-  }
-  const body: FiefOverview = overview.value
-  return c.json(body)
-}
-
-export const answerOverview = async (
-  c: Context,
-  playerId: PlayerId,
   reading: Result<FiefReading, DomainError>,
-  dependencies: OverviewDependencies,
-): Promise<Response> => {
+  catalog: BuildingCatalog,
+): Response => {
   if (!reading.ok) {
     return answerRefusal(c, reading.error)
   }
-  const overview = await overviewOfPlayer(playerId, reading.value, dependencies)
+  const overview = fiefOverviewOf(reading.value, catalog)
   if (!overview.ok) {
     return answerRefusal(c, overview.error)
   }

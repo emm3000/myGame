@@ -4,21 +4,35 @@ import {
   type BuildingLevels,
   buildingKinds,
   type FullSince,
+  idleLessonSlot,
   idleWorkSlot,
+  type LessonSlot,
   type SiteAddress,
   type Stocks,
   Town,
   TownAddress,
   TownName,
   type TownRepository,
+  type TownSkill,
   type WaitingList,
   type WorkSlot,
 } from '@mygame/domain/town'
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import type { TownReader, TownWithSchool } from '../../town/TownReader'
+import { byEarnedAt } from '../byEarnedAt'
+import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import type { PostgresSession } from './connectPostgres'
 import { jsonAggregateOf } from './jsonAggregateOf'
-import { townBuilding, townBuildings, towns, townWaitingWork } from './schema'
+import {
+  earnedSkills,
+  townBuilding,
+  townBuildings,
+  townLessonSlots,
+  townResource,
+  towns,
+  townWaitingWork,
+} from './schema'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
 
 export type TownRead = 'lockedForUpdate' | 'lockFree'
@@ -66,6 +80,35 @@ const aggregatedWaitingWork = jsonAggregateOf(
   eq(townWaitingWork.townId, towns.id),
   sql`${townWaitingWork.position}`,
 )
+
+const AggregatedSkillsSchema = z.array(
+  z.strictObject({
+    lessonId: z.string(),
+    resource: z.enum(townResource.enumValues),
+    ratePercent: z.number().int(),
+    earnedAt: z.string(),
+  }),
+)
+
+const aggregatedSkills = jsonAggregateOf(
+  earnedSkills,
+  {
+    lessonId: earnedSkills.lessonId,
+    resource: earnedSkills.resource,
+    ratePercent: earnedSkills.ratePercent,
+    earnedAt: earnedSkills.earnedAt,
+  },
+  eq(earnedSkills.playerId, towns.playerId),
+  sql`${earnedSkills.earnedAt}, ${earnedSkills.lessonId} COLLATE "C"`,
+)
+
+const skillsOf = (aggregate: unknown): ReadonlyArray<TownSkill> =>
+  AggregatedSkillsSchema.parse(aggregate)
+    .map((skill) => ({
+      ...skill,
+      earnedAt: Instant.fromEpochMilliseconds(Date.parse(skill.earnedAt)),
+    }))
+    .sort(byEarnedAt)
 
 const storedBuildings: Readonly<Record<BuildingKind, StoredTownBuilding>> = {
   homes: 'homes',
@@ -220,9 +263,15 @@ type ReadRow = {
   readonly town: TownRow
   readonly levels: unknown
   readonly waitingWork: unknown
+  readonly skills: unknown
 }
 
-const townFrom = ({ town: row, levels, waitingWork }: ReadRow): Result<Town, DomainError> => {
+const townFrom = ({
+  town: row,
+  levels,
+  waitingWork,
+  skills,
+}: ReadRow): Result<Town, DomainError> => {
   const name = TownName.create(row.name)
   if (!name.ok) {
     return name
@@ -242,6 +291,7 @@ const townFrom = ({ town: row, levels, waitingWork }: ReadRow): Result<Town, Dom
     buildingLevels: levelsOf(levels),
     workSlot: workSlotOf(row),
     waitingList: waitingListOf(waitingWork),
+    skills: skillsOf(skills),
   })
 }
 
@@ -264,9 +314,19 @@ const rowOf = (town: Town): TownRow => ({
   ...workSlotColumnsOf(town.workSlot),
 })
 
+const lessonSlotOf = (row: typeof townLessonSlots.$inferSelect | null): LessonSlot =>
+  row === null
+    ? idleLessonSlot
+    : {
+        kind: 'busy',
+        lessonId: row.lessonId,
+        startedAt: Instant.fromEpochMilliseconds(row.startedAt.getTime()),
+        finishesAt: Instant.fromEpochMilliseconds(row.finishesAt.getTime()),
+      }
+
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 
-export class DrizzleTownRepository implements TownRepository {
+export class DrizzleTownRepository implements TownReader, TownRepository {
   constructor(
     private readonly database: PostgresSession,
     private readonly read: TownRead,
@@ -288,7 +348,12 @@ export class DrizzleTownRepository implements TownRepository {
 
   async townOf(playerId: PlayerId): Promise<Result<Town | undefined, DomainError>> {
     const query = this.database
-      .select({ town: towns, levels: aggregatedLevels, waitingWork: aggregatedWaitingWork })
+      .select({
+        town: towns,
+        levels: aggregatedLevels,
+        waitingWork: aggregatedWaitingWork,
+        skills: aggregatedSkills,
+      })
       .from(towns)
       .where(eq(towns.playerId, playerId))
     const rows = await (this.read === 'lockedForUpdate'
@@ -299,6 +364,35 @@ export class DrizzleTownRepository implements TownRepository {
       return ok(undefined)
     }
     return townFrom(first)
+  }
+
+  async townWithSchoolOf(
+    playerId: PlayerId,
+  ): Promise<Result<TownWithSchool | undefined, DomainError>> {
+    const [row] = await this.database
+      .select({
+        town: towns,
+        levels: aggregatedLevels,
+        waitingWork: aggregatedWaitingWork,
+        skills: aggregatedSkills,
+        lessonSlot: townLessonSlots,
+        cards: aggregatedCardsOf(towns.playerId),
+      })
+      .from(towns)
+      .leftJoin(townLessonSlots, eq(townLessonSlots.townId, towns.id))
+      .where(eq(towns.playerId, playerId))
+    if (row === undefined) {
+      return ok(undefined)
+    }
+    const town = townFrom(row)
+    if (!town.ok) {
+      return town
+    }
+    const cards = heldCardsOf(row.cards, playerId)
+    if (!cards.ok) {
+      return cards
+    }
+    return ok({ town: town.value, lessonSlot: lessonSlotOf(row.lessonSlot), cards: cards.value })
   }
 
   async save(town: Town): Promise<Result<void, DomainError>> {

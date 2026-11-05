@@ -105,7 +105,7 @@ const lessonOneParts = (): ContentParts => ({
   frameWords: lessonOneFrameWords.map((word) => [word, 'lesson-1'] as const),
   ranks: new Map(fixtureRanks),
   forms: fixtureForms(),
-  skill: { cycle: ['food', 'wood', 'stone', 'iron', 'gold'], ratePercent: 5 },
+  skill: { cycle: ['food', 'material', 'power', 'money'], ratePercent: 5 },
 })
 
 export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent => {
@@ -121,7 +121,7 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
         id,
         theme: 'A day in town',
         durationSeconds: 300,
-        requiredLibraryLevel: 1,
+        requiredSchoolLevel: 1,
         wordIds: [...wordIds],
       },
       words: wordIds.flatMap((wordId) => parts.lexicon.find(({ id }) => id === wordId) ?? []),

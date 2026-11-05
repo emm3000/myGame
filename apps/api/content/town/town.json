@@ -43,16 +43,20 @@
     },
     "durationPercent": {
       "spring": {
-        "build": 100
+        "build": 100,
+        "study": 100
       },
       "summer": {
-        "build": 75
+        "build": 75,
+        "study": 100
       },
       "fall": {
-        "build": 100
+        "build": 100,
+        "study": 100
       },
       "winter": {
-        "build": 100
+        "build": 100,
+        "study": 75
       }
     }
   }

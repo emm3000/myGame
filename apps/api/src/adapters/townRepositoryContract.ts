@@ -1,5 +1,5 @@
 import { Instant, type PlayerId } from '@mygame/domain'
-import type { TownRepository } from '@mygame/domain/town'
+import type { EarnedSkillRepository, TownRepository, TownSkill } from '@mygame/domain/town'
 import {
   foundingLevels,
   idleWorkSlot,
@@ -14,6 +14,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 export type TownRepositoryFixture = {
   readonly towns: TownRepository
+  readonly skills: EarnedSkillRepository
   readonly registerPlayers: (playerIds: ReadonlyArray<PlayerId>) => Promise<void>
 }
 
@@ -24,7 +25,20 @@ const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-04T08:00:00Z
 const grownAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-04T10:30:00Z'))
 const foodFilledAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-04T09:45:00Z'))
 
-const townOf = (id: string, playerId: PlayerId, area: number, site: number): Town => {
+const foodSkill: TownSkill = {
+  lessonId: 'lesson-1',
+  resource: 'food',
+  ratePercent: 5,
+  earnedAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-04T09:00:00Z')),
+}
+
+const townOf = (
+  id: string,
+  playerId: PlayerId,
+  area: number,
+  site: number,
+  skills: ReadonlyArray<TownSkill> = [],
+): Town => {
   const address = TownAddress.create(1, area, site)
   const name = TownName.create(`Town ${id.slice(-1)}`)
   assert(address.ok && name.ok)
@@ -34,6 +48,7 @@ const townOf = (id: string, playerId: PlayerId, area: number, site: number): Tow
     name: name.value,
     address: address.value,
     startingStocks: { money: 400, food: 300, power: 200, material: 500 },
+    skills,
     at: foundedAt,
   })
 }
@@ -76,6 +91,7 @@ const grownTown = (workSlot: WorkSlot = idleWorkSlot, waitingList: WaitingList =
     buildingLevels: { ...foundingLevels, farm: 3, storage: 1, office: 2 },
     workSlot,
     waitingList,
+    skills: [],
   })
   assert(restored.ok)
   return restored.value
@@ -129,6 +145,27 @@ export const townRepositoryContract = (
         ok: true,
         value: grownTown(busyFactory, waitingWork.slice(0, 1)),
       })
+    })
+
+    it('reads the skills its player earned on the town', async () => {
+      const { towns, skills, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(anasTown)
+
+      await skills.save(ana, foodSkill)
+
+      const read = await towns.townOf(ana)
+      expect(read.ok && read.value?.skills).toEqual([foodSkill])
+    })
+
+    it('never stores a skill a saved town carries', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+
+      await towns.save(townOf(anasTown.id, ana, 1, 1, [foodSkill]))
+
+      const read = await towns.townOf(ana)
+      expect(read.ok && read.value?.skills).toEqual([])
     })
 
     it('answers no town for a player who holds none', async () => {

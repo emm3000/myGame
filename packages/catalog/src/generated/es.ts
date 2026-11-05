@@ -268,8 +268,9 @@ export const refusalFiefNotFound = (): string => `No encontramos tus tierras.`
 export const refusalHintOnRecognition = (): string => `Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.`
 export const refusalInsufficientResources = (): string => `No tienes recursos suficientes.`
 export const refusalInvalidCredentials = (): string => `El correo o la contraseña no son correctos.`
+export const refusalLearningCapReached = (): string => `Ya tienes demasiadas palabras en aprendizaje. Repásalas antes de empezar otra lección.`
 export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste la lección 1: sus palabras están en tu repaso.`
-export const refusalLessonLibraryTooLow = (): string => `La lección 1 necesita una biblioteca. Levántala primero.`
+export const refusalLessonSchoolTooLow = (): string => `La lección 1 necesita una escuela. Levántala primero.`
 export const refusalLessonStudyNotFound = (): string => `La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.`
 export const refusalLessonUnderStudy = (): string => `La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.`
 export const refusalLibraryLevelTooLow = (): string => `Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.`

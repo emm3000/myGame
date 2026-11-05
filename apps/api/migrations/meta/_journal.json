@@ -232,6 +232,13 @@
       "when": 1793878373262,
       "tag": "0032_building_work_and_town_news",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793883884990,
+      "tag": "0033_skills_move",
+      "breakpoints": true
     }
   ]
 }

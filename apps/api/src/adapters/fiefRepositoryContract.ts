@@ -26,6 +26,7 @@ export type FiefRepositoryFixture = {
   readonly fiefs: FiefRepository
   readonly dismissals: GuidanceDismissals
   readonly registerPlayers: (playerIds: ReadonlyArray<PlayerId>) => Promise<void>
+  readonly freezeSkills: (playerId: PlayerId, skills: ReadonlyArray<EarnedSkill>) => Promise<void>
 }
 
 const accepted = <T>(result: Result<T, DomainError>): T => {
@@ -276,41 +277,6 @@ const developedFiefWith = (
     }),
   )
 
-const lessonStudyingFief = accepted(
-  Fief.restore({
-    id: '00000000-0000-4000-8000-00000000000d',
-    playerId: bruno,
-    name: 'Robledal',
-    address: { kingdom: 1, province: 5, plot: 3 },
-    stocks: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
-    storedAt: foundedAt,
-    buildingLevels: {
-      sawmill: 0,
-      quarry: 0,
-      ironMine: 0,
-      farm: 0,
-      warehouse: 0,
-      library: 1,
-      barracks: 0,
-    },
-    artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
-    slot: { kind: 'idle' },
-    buildQueue: [],
-    studySlot: {
-      kind: 'lesson',
-      lessonId: 'lesson-1',
-      startedAt: foundedAt,
-      finishesAt: Instant.fromEpochMilliseconds(foundedAt.epochMilliseconds + 150_000),
-    },
-    recruitOrder: { kind: 'idle' },
-    march: { kind: 'idle' },
-    fullSince: noStoreFull,
-    guidanceDismissedAt: null,
-    skills: [],
-  }),
-)
-
 const settlerFiefWith = (id: string, playerId: PlayerId, plot: number, march: March): Fief =>
   accepted(
     Fief.restore({
@@ -421,92 +387,50 @@ export const fiefRepositoryContract = (
       expect(await fiefs.fiefOf(developedFief.id)).toEqual(ok(developedFief))
     })
 
-    it('restores a lesson in the study slot', async () => {
-      const { fiefs, registerPlayers } = await arrange()
-      await registerPlayers([bruno])
-
-      await fiefs.save(lessonStudyingFief)
-
-      expect(await fiefs.fiefOf(lessonStudyingFief.id)).toEqual(ok(lessonStudyingFief))
-    })
-
-    it('restores an idle study slot after a lesson leaves it', async () => {
-      const { fiefs, registerPlayers } = await arrange()
-      await registerPlayers([bruno])
-      await fiefs.save(lessonStudyingFief)
-
-      const cancelled = accepted(lessonStudyingFief.cancelLesson('lesson-1', foundedAt))
-      await fiefs.save(cancelled.fief)
-
-      const restored = await fiefs.fiefOf(lessonStudyingFief.id)
-      expect(restored.ok && restored.value?.studySlot).toEqual({ kind: 'idle' })
-    })
-
-    it('restores the skills its player earned, in the order they were earned', async () => {
-      const { fiefs, registerPlayers } = await arrange()
+    it('restores the frozen skills of its player, in the order they were earned', async () => {
+      const { fiefs, registerPlayers, freezeSkills } = await arrange()
       await registerPlayers([ana])
-      const skilledFief = fiefWithSkills(anasFief.id, ana, 7, [woodSkill, foodSkill])
+      await freezeSkills(ana, [woodSkill, foodSkill])
 
-      await fiefs.save(skilledFief)
+      await fiefs.save(anasFief)
 
       const restored = await fiefs.fiefOf(anasFief.id)
       expect(restored.ok && restored.value?.skills).toEqual([foodSkill, woodSkill])
     })
 
-    it('reads a skill saved with one fief on every fief of its player', async () => {
-      const { fiefs, registerPlayers } = await arrange()
+    it('reads a frozen skill on every fief of its player', async () => {
+      const { fiefs, registerPlayers, freezeSkills } = await arrange()
       await registerPlayers([ana])
+      await freezeSkills(ana, [foodSkill])
       const secondFiefId = '00000000-0000-4000-8000-00000000000e'
-      await fiefs.save(fiefWithSkills(secondFiefId, ana, 8, []))
+      await fiefs.save(anasFief)
 
-      await fiefs.save(fiefWithSkills(anasFief.id, ana, 7, [foodSkill]))
+      await fiefs.save(fiefWithSkills(secondFiefId, ana, 8, []))
 
       const restored = await fiefs.fiefOf(secondFiefId)
       expect(restored.ok && restored.value?.skills).toEqual([foodSkill])
     })
 
-    it('never takes back a skill that a later save of the player omits', async () => {
+    it('never stores a skill a saved fief carries', async () => {
       const { fiefs, registerPlayers } = await arrange()
       await registerPlayers([ana])
+
       await fiefs.save(fiefWithSkills(anasFief.id, ana, 7, [foodSkill]))
 
-      await fiefs.save(fiefWithSkills(anasFief.id, ana, 7, []))
-
       const restored = await fiefs.fiefOf(anasFief.id)
-      expect(restored.ok && restored.value?.skills).toEqual([foodSkill])
+      expect(restored.ok && restored.value?.skills).toEqual([])
     })
 
-    it('keeps the instant a skill was first earned when a later save repeats it', async () => {
-      const { fiefs, registerPlayers } = await arrange()
-      await registerPlayers([ana])
-      await fiefs.save(fiefWithSkills(anasFief.id, ana, 7, [foodSkill]))
-
-      await fiefs.save(
-        fiefWithSkills(anasFief.id, ana, 7, [{ ...foodSkill, earnedAt: woodSkill.earnedAt }]),
-      )
-
-      const restored = await fiefs.fiefOf(anasFief.id)
-      expect(restored.ok && restored.value?.skills).toEqual([foodSkill])
-    })
-
-    it('reads three skills on a developed fief of its player and leaves the rest of it whole', async () => {
-      const { fiefs, registerPlayers } = await arrange()
+    it('reads three frozen skills on a developed fief and leaves the rest of it whole', async () => {
+      const { fiefs, registerPlayers, freezeSkills } = await arrange()
       await registerPlayers([bruno])
+      await freezeSkills(bruno, [stoneSkill, foodSkill, woodSkill])
+
       await fiefs.save(developedFief)
 
-      await fiefs.save(
-        fiefWithSkills('00000000-0000-4000-8000-00000000000e', bruno, 8, [
-          stoneSkill,
-          foodSkill,
-          woodSkill,
-        ]),
-      )
-
       const restored = await fiefs.fiefOf(developedFief.id)
-      const second = await fiefs.fiefOf('00000000-0000-4000-8000-00000000000e')
       assert(restored.ok && restored.value !== undefined)
       expect(restored.value.skills).toEqual([foodSkill, woodSkill, stoneSkill])
-      expect(second.ok && second.value?.skills).toEqual([foodSkill, woodSkill, stoneSkill])
       expect([
         restored.value.buildingLevels,
         restored.value.buildQueue,
@@ -521,9 +445,9 @@ export const fiefRepositoryContract = (
     })
 
     it('keeps the skills of one player from another', async () => {
-      const { fiefs, registerPlayers } = await arrange()
+      const { fiefs, registerPlayers, freezeSkills } = await arrange()
       await registerPlayers([ana, bruno])
-      await fiefs.save(fiefWithSkills(anasFief.id, ana, 7, [foodSkill]))
+      await freezeSkills(ana, [foodSkill])
 
       await fiefs.save(fiefWithSkills('00000000-0000-4000-8000-00000000000e', bruno, 8, []))
 

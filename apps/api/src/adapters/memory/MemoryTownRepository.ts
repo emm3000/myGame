@@ -1,5 +1,10 @@
 import { type DomainError, err, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { SiteAddress, Town, TownRepository } from '@mygame/domain/town'
+import {
+  type EarnedSkillRepository,
+  type SiteAddress,
+  Town,
+  type TownRepository,
+} from '@mygame/domain/town'
 
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 
@@ -8,6 +13,8 @@ const isSameSite = (left: SiteAddress, right: SiteAddress): boolean =>
 
 export class MemoryTownRepository implements TownRepository {
   private readonly towns = new Map<string, Town>()
+
+  constructor(private readonly skills: EarnedSkillRepository) {}
 
   async holdsTown(playerId: PlayerId): Promise<boolean> {
     return this.townHeldBy(playerId) !== undefined
@@ -18,7 +25,28 @@ export class MemoryTownRepository implements TownRepository {
   }
 
   async townOf(playerId: PlayerId): Promise<Result<Town | undefined, DomainError>> {
-    return ok(this.townHeldBy(playerId))
+    const town = this.townHeldBy(playerId)
+    if (town === undefined) {
+      return ok(undefined)
+    }
+    const skills = await this.skills.skillsOf(playerId)
+    if (!skills.ok) {
+      return skills
+    }
+    const { id, name, address, stocks, storedAt, fullSince, buildingLevels } = town
+    return Town.restore({
+      id,
+      playerId,
+      name,
+      address,
+      stocks,
+      storedAt,
+      fullSince,
+      buildingLevels,
+      workSlot: town.workSlot,
+      waitingList: town.waitingList,
+      skills: skills.value,
+    })
   }
 
   async save(town: Town): Promise<Result<void, DomainError>> {

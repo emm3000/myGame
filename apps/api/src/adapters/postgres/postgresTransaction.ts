@@ -7,7 +7,12 @@ import type {
   Result,
   ReviewLog,
 } from '@mygame/domain'
-import type { TownNews, TownRepository } from '@mygame/domain/town'
+import type {
+  EarnedSkillRepository,
+  LessonSlotRepository,
+  TownNews,
+  TownRepository,
+} from '@mygame/domain/town'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
@@ -17,7 +22,9 @@ import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { DrizzleCampRegistry } from './DrizzleCampRegistry'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleChronicle } from './DrizzleChronicle'
+import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
+import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
 import { DrizzleTownNews } from './DrizzleTownNews'
@@ -34,6 +41,8 @@ export type TransactionStores = {
   readonly reviewLog: ReviewLog
   readonly towns: TownRepository
   readonly townNews: TownNews
+  readonly lessonSlots: LessonSlotRepository
+  readonly earnedSkills: EarnedSkillRepository
 }
 
 export type Transaction = <T, E>(
@@ -59,6 +68,8 @@ export const postgresTransaction =
           reviewLog: new DrizzleReviewLog(transaction),
           towns: new DrizzleTownRepository(transaction, 'lockedForUpdate'),
           townNews: new DrizzleTownNews(transaction),
+          lessonSlots: new DrizzleLessonSlots(transaction),
+          earnedSkills: new DrizzleEarnedSkills(transaction),
         })
         if (!outcome.ok) {
           refused = outcome

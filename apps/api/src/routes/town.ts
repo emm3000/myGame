@@ -1,23 +1,31 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+import { StartLessonRequestSchema, StopLessonRequestSchema } from '@mygame/contracts'
 import {
   FoundTownSchema,
   StartBuildingWorkSchema,
   StopBuildingWorkSchema,
   type TownOverview,
 } from '@mygame/contracts/town'
-import { type DomainError, type IdGenerator, ok, type Result } from '@mygame/domain'
-import { startBuildingWork, stopBuildingWork, type Town } from '@mygame/domain/town'
+import { type DomainError, err, type IdGenerator, type PlayerId, type Result } from '@mygame/domain'
+import {
+  startBuildingWork,
+  startSchoolLesson,
+  stopBuildingWork,
+  stopSchoolLesson,
+} from '@mygame/domain/town'
 import type { Context } from 'hono'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { honoPathOf } from '../http/honoPath'
 import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
+import type { LessonLibrary } from '../learning/LessonLibrary'
 import { type CurrentTownDependencies, currentTownOf } from '../town/currentTownOf'
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
-import { mutateTown } from '../town/mutateTown'
+import { mutateTown, type TownStores } from '../town/mutateTown'
 import type { TownReading } from '../town/TownReading'
 import { townOverviewOf } from '../town/townOverviewOf'
+import { townReadingOf } from '../town/townReadingOf'
 import { townDeclarations } from './townDeclarations'
 
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankTownName' }]]
@@ -25,23 +33,37 @@ const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind:
 export type TownDependencies = CurrentTownDependencies &
   RequirePlayerDependencies & {
     readonly ids: IdGenerator
+    readonly lessons: LessonLibrary
   }
 
+const storedTownReadingOf = async (
+  playerId: PlayerId,
+  stores: TownStores,
+  at: TownReading['at'],
+): Promise<Result<TownReading, DomainError>> => {
+  const town = await stores.towns.townOf(playerId)
+  if (!town.ok) {
+    return town
+  }
+  if (town.value === undefined) {
+    return err({ kind: 'TownNotFound', playerId })
+  }
+  return townReadingOf(town.value, at, stores)
+}
+
 export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
-  const { townCatalog: catalog } = dependencies
+  const { townCatalog: catalog, lessons } = dependencies
   const answerReading = (c: Context, reading: Result<TownReading, DomainError>): Response => {
     if (!reading.ok) {
       return answerRefusal(c, reading.error)
     }
-    const overview = townOverviewOf(reading.value, catalog)
+    const overview = townOverviewOf(reading.value, catalog, lessons)
     if (!overview.ok) {
       return answerRefusal(c, overview.error)
     }
     const body: TownOverview = overview.value
     return c.json(body)
   }
-  const answerTown = (c: Context, town: Result<Town, DomainError>): Response =>
-    answerReading(c, town.ok ? ok({ town: town.value, at: town.value.storedAt }) : town)
   const signedInPlayer = requirePlayer(dependencies)
   const routes = new OpenAPIHono()
   for (const declaration of Object.values(townDeclarations)) {
@@ -62,13 +84,20 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       if (!request.success) {
         return answerRefusal(c, requestRefusalOf(foundingIssues, request.error.issues))
       }
-      const founded = await dependencies.inTransaction(({ towns }) =>
-        foundTownOnFreeSite(
+      const founded = await dependencies.inTransaction(async (stores) => {
+        const town = await foundTownOnFreeSite(
           { playerId: c.var.playerId, name: request.data.name },
-          { towns, catalog, clock: dependencies.clock, ids: dependencies.ids },
-        ),
-      )
-      return answerTown(c, founded)
+          {
+            towns: stores.towns,
+            skills: stores.earnedSkills,
+            catalog,
+            clock: dependencies.clock,
+            ids: dependencies.ids,
+          },
+        )
+        return town.ok ? townReadingOf(town.value, town.value.storedAt, stores) : town
+      })
+      return answerReading(c, founded)
     },
   )
   routes.on(
@@ -83,14 +112,16 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       const playerId = c.var.playerId
       const started = await mutateTown(
         playerId,
-        ({ towns, townNews }, clock) =>
-          startBuildingWork(
+        async (stores, clock) => {
+          const town = await startBuildingWork(
             { playerId, building: request.data.building },
-            { towns, news: townNews, catalog, clock },
-          ),
+            { towns: stores.towns, news: stores.townNews, catalog, clock },
+          )
+          return town.ok ? townReadingOf(town.value, town.value.storedAt, stores) : town
+        },
         dependencies,
       )
-      return answerTown(c, started)
+      return answerReading(c, started)
     },
   )
   routes.on(
@@ -105,16 +136,68 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       const playerId = c.var.playerId
       const stopped = await mutateTown(
         playerId,
-        async ({ towns, townNews }, clock) => {
+        async (stores, clock) => {
           const change = await stopBuildingWork(
             { playerId, ...request.data },
-            { towns, news: townNews, catalog, clock },
+            { towns: stores.towns, news: stores.townNews, catalog, clock },
           )
-          return change.ok ? ok(change.value.town) : change
+          if (!change.ok) {
+            return change
+          }
+          const { town } = change.value
+          return townReadingOf(town, town.storedAt, stores)
         },
         dependencies,
       )
-      return answerTown(c, stopped)
+      return answerReading(c, stopped)
+    },
+  )
+  routes.on(
+    townDeclarations.startLesson.method,
+    honoPathOf(townDeclarations.startLesson),
+    signedInPlayer,
+    async (c) => {
+      const request = StartLessonRequestSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const started = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const slot = await startSchoolLesson(
+            { playerId, lessonId: request.data.lessonId },
+            { ...stores, news: stores.townNews, lessons, catalog, clock },
+          )
+          return slot.ok ? storedTownReadingOf(playerId, stores, clock.now()) : slot
+        },
+        dependencies,
+      )
+      return answerReading(c, started)
+    },
+  )
+  routes.on(
+    townDeclarations.stopLesson.method,
+    honoPathOf(townDeclarations.stopLesson),
+    signedInPlayer,
+    async (c) => {
+      const request = StopLessonRequestSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const stopped = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const change = await stopSchoolLesson(
+            { playerId, lessonId: request.data.lessonId },
+            { ...stores, news: stores.townNews, lessons, catalog, clock },
+          )
+          return change.ok ? storedTownReadingOf(playerId, stores, clock.now()) : change
+        },
+        dependencies,
+      )
+      return answerReading(c, stopped)
     },
   )
   return routes

@@ -157,7 +157,6 @@ export const fiefs = pgTable(
     studyCostIron: doublePrecision('study_cost_iron').notNull().default(0),
     studyCostGold: doublePrecision('study_cost_gold').notNull().default(0),
     studyCostFood: doublePrecision('study_cost_food').notNull().default(0),
-    studyLessonId: text('study_lesson_id'),
     fullSinceWood: timestamp('full_since_wood', { withTimezone: true }),
     fullSinceStone: timestamp('full_since_stone', { withTimezone: true }),
     fullSinceIron: timestamp('full_since_iron', { withTimezone: true }),
@@ -173,10 +172,6 @@ export const fiefs = pgTable(
     wholeAmount('fiefs_iron_whole', table.iron),
     wholeAmount('fiefs_gold_whole', table.gold),
     wholeAmount('fiefs_food_whole', table.food),
-    check(
-      'fiefs_study_lesson_terms',
-      sql`${table.studyLessonId} IS NULL OR (${table.studyArt} IS NULL AND ${table.studyLevel} IS NULL AND ${table.studyStartedAt} IS NOT NULL AND ${table.studyFinishesAt} IS NOT NULL AND ${table.studyCostWood} = 0 AND ${table.studyCostStone} = 0 AND ${table.studyCostIron} = 0 AND ${table.studyCostGold} = 0 AND ${table.studyCostFood} = 0)`,
-    ),
   ],
 )
 
@@ -682,6 +677,41 @@ export const townWaitingWork = pgTable(
 export const townResource = pgEnum('town_resource', ['money', 'food', 'power', 'material'])
 
 export const townHire = pgEnum('town_hire', ['worker', 'truck'])
+
+export const earnedSkills = pgTable(
+  'earned_skills',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    lessonId: text('lesson_id').notNull(),
+    resource: townResource('resource').notNull(),
+    ratePercent: integer('rate_percent').notNull(),
+    earnedAt: timestamp('earned_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'earned_skills_pkey', columns: [table.playerId, table.lessonId] }),
+    check('earned_skills_rate_percent_positive', sql`${table.ratePercent} >= 1`),
+  ],
+)
+
+export const townLessonSlots = pgTable(
+  'town_lesson_slots',
+  {
+    townId: uuid('town_id')
+      .primaryKey()
+      .references(() => towns.id, { onDelete: 'cascade' }),
+    lessonId: text('lesson_id').notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+    finishesAt: timestamp('finishes_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    check(
+      'town_lesson_slots_started_before_finish',
+      sql`${table.startedAt} <= ${table.finishesAt}`,
+    ),
+  ],
+)
 
 export const townEventKind = pgEnum('town_event_kind', [
   'building_work_finished',

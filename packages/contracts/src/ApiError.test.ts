@@ -14,6 +14,16 @@ describe('ApiErrorSchema', () => {
     expect(ApiErrorSchema.parse(blankFiefName)).toEqual(blankFiefName)
   })
 
+  it('parses a school too low and a full learning cap as their kinds alone', () => {
+    const refusals = [{ kind: 'LessonSchoolTooLow' }, { kind: 'LearningCapReached' }]
+
+    expect(refusals.map((refusal) => ApiErrorSchema.parse(refusal))).toEqual(refusals)
+  })
+
+  it('rejects the library gate of a lesson', () => {
+    expect(ApiErrorSchema.safeParse({ kind: 'LessonLibraryTooLow' }).success).toBe(false)
+  })
+
   it('rejects a message on the wire', () => {
     const queueFull = { kind: 'QueueFull', message: 'Ya no caben más obras en espera.' }
 

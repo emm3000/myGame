@@ -1,6 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
-  CancelLessonRequestSchema,
   CancelRecruitOrderRequestSchema,
   CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
@@ -12,11 +11,6 @@ import {
   type FiefChronicle,
   PlaceRecruitOrderRequestSchema,
   RecallMarchRequestSchema,
-  type ReviewAnswer,
-  ReviewAnswerRequestSchema,
-  type ReviewHint,
-  ReviewRequestSchema,
-  StartLessonRequestSchema,
   StartStudyRequestSchema,
 } from '@mygame/contracts'
 import type { DomainError, Fief, Result } from '@mygame/domain'
@@ -47,24 +41,13 @@ import { type RecallMarchDependencies, recallMarchOf } from '../fief/recallMarch
 import { type StartStudyDependencies, startStudyOf } from '../fief/startStudyOf'
 import { storedFiefReadingOf } from '../fief/storedFiefReadingOf'
 import type { GuidanceDismissals } from '../guidance/GuidanceDismissals'
-import {
-  answerCurrentOverview,
-  answerOverview,
-  type OverviewDependencies,
-  overviewOfPlayer,
-} from '../http/answerOverview'
+import { answerOverview } from '../http/answerOverview'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import { honoPathOf } from '../http/honoPath'
 import { type NamedIssue, requestRefusalOf } from '../http/requestRefusalOf'
 import { type NamedFief, requireNamedFief } from '../http/requireNamedFief'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
-import { answerReviewOf } from '../learning/answerReviewOf'
-import { cancelLessonOf } from '../learning/cancelLessonOf'
-import type { LearningDependencies } from '../learning/LearningDependencies'
-import { requestHintOf } from '../learning/requestHintOf'
-import { reviewVerdictOf } from '../learning/reviewVerdictOf'
-import { startLessonOf } from '../learning/startLessonOf'
 import { fiefDeclarations } from './fiefDeclarations'
 
 const foundingIssues: ReadonlyArray<NamedIssue> = [['name', 'too_small', { kind: 'BlankFiefName' }]]
@@ -81,9 +64,7 @@ export type FiefDependencies = CurrentFiefDependencies &
   DispatchFoundingDependencies &
   DispatchTransportDependencies &
   RecallMarchDependencies &
-  RequirePlayerDependencies &
-  OverviewDependencies &
-  LearningDependencies & {
+  RequirePlayerDependencies & {
     readonly chronicle: ChronicleReader
     readonly guidanceDismissals: GuidanceDismissals
   }
@@ -92,8 +73,8 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
   const answerReading = (
     c: Context<NamedFief>,
     reading: Result<FiefReading, DomainError>,
-  ): Promise<Response> => answerOverview(c, c.var.fiefOfPlayer.playerId, reading, dependencies)
-  const answerFief = (c: Context<NamedFief>, fief: Result<Fief, DomainError>): Promise<Response> =>
+  ): Response => answerOverview(c, reading, dependencies.buildingCatalog)
+  const answerFief = (c: Context<NamedFief>, fief: Result<Fief, DomainError>): Response =>
     answerReading(c, fief.ok ? storedFiefReadingOf(fief.value, dependencies.buildingCatalog) : fief)
   const signedInPlayer = requirePlayer(dependencies)
   const routes = new OpenAPIHono()
@@ -105,8 +86,7 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
     honoPathOf(fiefDeclarations.overview),
     signedInPlayer,
     requireNamedFief,
-    async (c) =>
-      answerCurrentOverview(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies), dependencies),
+    async (c) => answerReading(c, await currentFiefOf(c.var.fiefOfPlayer, dependencies)),
   )
   routes.on(
     fiefDeclarations.events.method,
@@ -277,97 +257,6 @@ export const fiefRoutes = (dependencies: FiefDependencies): OpenAPIHono => {
         return answerRefusal(c, { kind: 'MalformedRequest' })
       }
       return answerFief(c, await recallMarchOf(c.var.fiefOfPlayer, request.data, dependencies))
-    },
-  )
-  routes.on(
-    fiefDeclarations.startLesson.method,
-    honoPathOf(fiefDeclarations.startLesson),
-    signedInPlayer,
-    requireNamedFief,
-    async (c) => {
-      const request = StartLessonRequestSchema.safeParse(await bodyOf(c))
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      return answerReading(
-        c,
-        await startLessonOf(c.var.fiefOfPlayer, request.data.lessonId, dependencies),
-      )
-    },
-  )
-  routes.on(
-    fiefDeclarations.cancelLesson.method,
-    honoPathOf(fiefDeclarations.cancelLesson),
-    signedInPlayer,
-    requireNamedFief,
-    async (c) => {
-      const request = CancelLessonRequestSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      return answerReading(
-        c,
-        await cancelLessonOf(c.var.fiefOfPlayer, request.data.lessonId, dependencies),
-      )
-    },
-  )
-  routes.on(
-    fiefDeclarations.requestHint.method,
-    honoPathOf(fiefDeclarations.requestHint),
-    signedInPlayer,
-    requireNamedFief,
-    async (c) => {
-      const request = ReviewRequestSchema.safeParse(c.req.param())
-      if (!request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const hint = await requestHintOf(c.var.fiefOfPlayer, request.data.wordId, dependencies)
-      if (!hint.ok) {
-        return answerRefusal(c, hint.error)
-      }
-      const body: ReviewHint = hint.value
-      return c.json(body)
-    },
-  )
-  routes.on(
-    fiefDeclarations.answerReview.method,
-    honoPathOf(fiefDeclarations.answerReview),
-    signedInPlayer,
-    requireNamedFief,
-    async (c) => {
-      const path = ReviewRequestSchema.safeParse(c.req.param())
-      const request = ReviewAnswerRequestSchema.safeParse(await bodyOf(c))
-      if (!path.success || !request.success) {
-        return answerRefusal(c, { kind: 'MalformedRequest' })
-      }
-      const { fiefOfPlayer } = c.var
-      const outcome = await answerReviewOf(
-        fiefOfPlayer,
-        path.data.wordId,
-        request.data.answer,
-        dependencies,
-      )
-      if (!outcome.ok) {
-        return answerRefusal(c, outcome.error)
-      }
-      const verdict = reviewVerdictOf(
-        outcome.value,
-        dependencies.buildingCatalog,
-        dependencies.memoryTerms,
-      )
-      if (!verdict.ok) {
-        return answerRefusal(c, verdict.error)
-      }
-      const fief = await overviewOfPlayer(
-        fiefOfPlayer.playerId,
-        outcome.value.reading,
-        dependencies,
-      )
-      if (!fief.ok) {
-        return answerRefusal(c, fief.error)
-      }
-      const body: ReviewAnswer = { verdict: verdict.value, fief: fief.value }
-      return c.json(body)
     },
   )
   routes.on(

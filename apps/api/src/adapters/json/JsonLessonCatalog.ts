@@ -32,7 +32,7 @@ const shelvedLessonOf = (
   id: content.id,
   theme: content.theme,
   durationSeconds: content.durationSeconds,
-  requiredLibraryLevel: content.requiredLibraryLevel,
+  requiredSchoolLevel: content.requiredSchoolLevel,
   skill: skillAt(position, curriculum),
   words: words.map((entry) => lessonWordOf(content.id, entry)),
 })

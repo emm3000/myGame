@@ -1,5 +1,14 @@
-import { type Clock, type DomainError, ok, type PlayerId, type Result } from '@mygame/domain'
 import {
+  type Clock,
+  type DomainError,
+  err,
+  type Instant,
+  ok,
+  type PlayerId,
+  type Result,
+} from '@mygame/domain'
+import {
+  type LessonSlot,
   resolveTown,
   type Town,
   type TownCatalog,
@@ -10,6 +19,7 @@ import { laterOf } from '../time/laterOf'
 import { type MutateTownDependencies, mutateTown } from './mutateTown'
 import type { TownReader } from './TownReader'
 import type { TownReading } from './TownReading'
+import { townReadingOf } from './townReadingOf'
 
 export type CurrentTownDependencies = MutateTownDependencies & {
   readonly towns: TownReader
@@ -25,20 +35,23 @@ const alreadyRead = (town: Town | undefined, towns: TownReader): TownRepository 
   save: async () => ok(undefined),
 })
 
+const isLessonFinishedBy = (slot: LessonSlot, readAt: Instant): boolean =>
+  slot.kind === 'busy' && slot.finishesAt.epochMilliseconds <= readAt.epochMilliseconds
+
 const persistedResolveOf = (
   playerId: PlayerId,
   dependencies: CurrentTownDependencies,
 ): Promise<Result<TownReading, DomainError>> =>
   mutateTown(
     playerId,
-    async ({ towns, townNews }, clock) => {
+    async (stores, clock) => {
       const changed = await resolveTown(playerId, {
-        towns,
-        news: townNews,
+        towns: stores.towns,
+        news: stores.townNews,
         catalog: dependencies.townCatalog,
         clock,
       })
-      return changed.ok ? ok({ town: changed.value.town, at: clock.now() }) : changed
+      return changed.ok ? townReadingOf(changed.value.town, clock.now(), stores) : changed
     },
     dependencies,
   )
@@ -47,15 +60,15 @@ export const currentTownOf = async (
   playerId: PlayerId,
   dependencies: CurrentTownDependencies,
 ): Promise<Result<TownReading, DomainError>> => {
-  const stored = await dependencies.towns.townOf(playerId)
+  const stored = await dependencies.towns.townWithSchoolOf(playerId)
   if (!stored.ok) {
     return stored
   }
   const now = dependencies.clock.now()
-  const readAt = stored.value === undefined ? now : laterOf(now, stored.value.storedAt)
+  const readAt = stored.value === undefined ? now : laterOf(now, stored.value.town.storedAt)
   const readClock: Clock = { now: () => readAt }
   const dryRun = await resolveTown(playerId, {
-    towns: alreadyRead(stored.value, dependencies.towns),
+    towns: alreadyRead(stored.value?.town, dependencies.towns),
     news: discardingNews,
     catalog: dependencies.townCatalog,
     clock: readClock,
@@ -63,8 +76,12 @@ export const currentTownOf = async (
   if (!dryRun.ok) {
     return dryRun
   }
-  if (dryRun.value.events.length === 0) {
-    return ok({ town: dryRun.value.town, at: readAt })
+  if (stored.value === undefined) {
+    return err({ kind: 'TownNotFound', playerId })
   }
-  return persistedResolveOf(playerId, dependencies)
+  const { lessonSlot, cards } = stored.value
+  const isUnchanged = dryRun.value.events.length === 0 && !isLessonFinishedBy(lessonSlot, readAt)
+  return isUnchanged
+    ? ok({ town: dryRun.value.town, at: readAt, lessonSlot, cards })
+    : persistedResolveOf(playerId, dependencies)
 }

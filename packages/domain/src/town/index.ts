@@ -19,6 +19,7 @@ export {
 } from './BuildingWork'
 export { buildingKinds } from './buildingKinds'
 export { buildPercentAt } from './buildPercentAt'
+export { deriveLessonDurationSeconds } from './deriveLessonDurationSeconds'
 export { derivePeople } from './derivePeople'
 export { deriveResourceRates, type ResourceRates } from './deriveResourceRates'
 export { deriveStorageCapacity } from './deriveStorageCapacity'
@@ -36,6 +37,7 @@ export { type ResolveTownDependencies, resolveTown } from './resolveTown'
 export { resourceKinds } from './resourceKinds'
 export type { SiteAddress } from './SiteAddress'
 export type { Stocks } from './Stocks'
+export { schoolLevelOf } from './schoolLevelOf'
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,
@@ -60,6 +62,7 @@ export {
   type StopSchoolLessonDependencies,
   stopSchoolLesson,
 } from './stopSchoolLesson'
+export { studyPercentAt } from './studyPercentAt'
 export type { Terrain } from './Terrain'
 export { type ChangedTown, type StoredTown, Town, type TownFounding } from './Town'
 export { TownAddress } from './TownAddress'

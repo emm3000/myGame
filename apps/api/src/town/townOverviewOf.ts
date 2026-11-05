@@ -25,6 +25,8 @@ import {
   type WaitingList,
 } from '@mygame/domain/town'
 import { isoOf } from '../http/isoOf'
+import type { LessonLibrary } from '../learning/LessonLibrary'
+import { schoolOverviewOf } from '../learning/schoolOverviewOf'
 import type { TownReading } from './TownReading'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]
@@ -193,6 +195,7 @@ const peopleOf = (
 export const townOverviewOf = (
   reading: TownReading,
   catalog: TownCatalog,
+  lessons: LessonLibrary,
 ): Result<TownOverview, DomainError> => {
   const { town, at } = reading
   const stocks = stocksOf(reading, catalog)
@@ -215,6 +218,10 @@ export const townOverviewOf = (
   if (!work.ok) {
     return work
   }
+  const school = schoolOverviewOf(reading, catalog, lessons)
+  if (!school.ok) {
+    return school
+  }
   const { region, area, site } = town.address
   return ok({
     name: town.name.value,
@@ -226,6 +233,7 @@ export const townOverviewOf = (
     people: people.value,
     buildings: buildings.value,
     work: work.value,
+    ...school.value,
     readAt: isoOf(at),
   })
 }

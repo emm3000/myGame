@@ -12,10 +12,7 @@ export type MutateAfterResolveDependencies = ResolveInTransactionDependencies & 
   readonly clock: Clock
 }
 
-export type FiefStores = Pick<
-  TransactionStores,
-  'fiefs' | 'chronicle' | 'camps' | 'cards' | 'pendingReviews' | 'reviewLog'
->
+export type FiefStores = Pick<TransactionStores, 'fiefs' | 'chronicle' | 'camps'>
 
 export type FiefMutation<T> = (stores: FiefStores, clock: Clock) => Promise<Result<T, DomainError>>
 

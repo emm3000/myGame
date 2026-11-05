@@ -98,6 +98,18 @@ describe('JsonTownCatalog', () => {
     ])
   })
 
+  it("hands the domain the fief's study percent of each season", () => {
+    const fief = JSON.parse(readFileSync(join(shippedTownContent, '..', 'fief.json'), 'utf8'))
+    const { durationPercent } = shippedCatalog().townSettings().seasons
+
+    expect(Object.entries(durationPercent).map(([season, { study }]) => [season, study])).toEqual(
+      Object.entries(fief.seasons.durationPercent).map(([season, percents]) => [
+        season,
+        (percents as { study: number }).study,
+      ]),
+    )
+  })
+
   it("keeps the fief's season calendar until the fief's content is deleted", () => {
     const fief = JSON.parse(readFileSync(join(shippedTownContent, '..', 'fief.json'), 'utf8'))
     const town = JSON.parse(readFileSync(join(shippedTownContent, 'town.json'), 'utf8'))

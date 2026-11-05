@@ -205,53 +205,11 @@ const shippedCombatTerms = {
   },
 }
 
-const lessonOne = {
-  id: 'lesson-1',
-  theme: 'A day in town',
-  durationSeconds: 150,
-  requiredLibraryLevel: 1,
-  skill: { resource: 'food', ratePercent: 5 },
-  isStudied: true,
-  words: [
-    { wordId: 'lesson-1-1', isRetained: true },
-    { wordId: 'lesson-1-2', isRetained: false },
-  ],
-}
-
 const lessonStudy = {
   kind: 'lesson',
   lessonId: 'lesson-1',
   startedAt: '2026-11-10T08:57:30.000Z',
   finishesAt: '2026-11-10T09:00:00.000Z',
-}
-
-const recognitionOfHome = {
-  mode: 'recognition',
-  wordId: 'lesson-1-1',
-  lessonId: 'lesson-1',
-  dueAt: '2026-11-10T09:00:00.000Z',
-  word: 'home',
-  frame: 'We have a new home in this town.',
-  choices: [
-    { choiceId: '5c0e91a2', gloss: 'dinero' },
-    { choiceId: 'e17b3f08', gloss: 'hogar' },
-  ],
-}
-
-const recallOfSchool = {
-  mode: 'recall',
-  wordId: 'lesson-1-2',
-  lessonId: 'lesson-1',
-  dueAt: '2026-11-12T09:10:00.000Z',
-  gloss: 'escuela',
-  gappedFrame: 'I walk to ____ every day.',
-}
-
-const earnedFood = {
-  lessonId: 'lesson-1',
-  resource: 'food',
-  ratePercent: 5,
-  earnedAt: '2026-11-23T09:10:00.000Z',
 }
 
 const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
@@ -295,9 +253,6 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   combatTerms: shippedCombatTerms,
   incomingCargo: null,
   goal: null,
-  lessons: [lessonOne],
-  skills: [],
-  reviews: { due: [], nextDueAt: null },
   readAt: '2026-09-22T14:00:00.000Z',
 })
 
@@ -755,74 +710,17 @@ describe('FiefOverviewSchema', () => {
     ).toBe(false)
   })
 
-  it('parses a lesson under study in the study slot', () => {
+  it('rejects a lesson in the study slot', () => {
     const studyingOverview = { ...overviewWithSlot(busySlot), study: lessonStudy }
 
-    expect(FiefOverviewSchema.parse(studyingOverview)).toEqual(studyingOverview)
+    expect(FiefOverviewSchema.safeParse(studyingOverview).success).toBe(false)
   })
 
-  it('rejects a lesson under study that carries a cost', () => {
-    const study = { ...lessonStudy, cost: busyStudy.cost }
+  it('answers no lessons, skills or reviews', () => {
+    const learning = { lessons: [], skills: [], reviews: { due: [], nextDueAt: null } }
 
-    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), study }).success).toBe(
-      false,
-    )
-  })
-
-  it('parses the lessons with each word retained or not', () => {
-    expect(FiefOverviewSchema.parse(overviewWithSlot(busySlot)).lessons).toEqual([lessonOne])
-  })
-
-  it('rejects a lesson word that carries its lemma', () => {
-    const words = [{ wordId: 'lesson-1-1', isRetained: false, lemma: 'home' }]
-    const lessons = [{ ...lessonOne, words }]
-
-    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), lessons }).success).toBe(
-      false,
-    )
-  })
-
-  it('parses the earned skills with their instant', () => {
-    const overviewWithSkill = { ...overviewWithSlot(busySlot), skills: [earnedFood] }
-
-    expect(FiefOverviewSchema.parse(overviewWithSkill)).toEqual(overviewWithSkill)
-  })
-
-  it('parses the due reviews of each mode', () => {
-    const reviews = { due: [recognitionOfHome, recallOfSchool], nextDueAt: null }
-    const overviewWithReviews = { ...overviewWithSlot(busySlot), reviews }
-
-    expect(FiefOverviewSchema.parse(overviewWithReviews)).toEqual(overviewWithReviews)
-  })
-
-  it('parses the next due instant when nothing is due', () => {
-    const reviews = { due: [], nextDueAt: '2026-11-12T09:10:00.000Z' }
-
-    expect(FiefOverviewSchema.parse({ ...overviewWithSlot(busySlot), reviews }).reviews).toEqual(
-      reviews,
-    )
-  })
-
-  it('rejects a recognition choice that names its word id', () => {
-    const choices = [{ choiceId: '5c0e91a2', wordId: 'lesson-1-4', gloss: 'dinero' }]
-    const reviews = { due: [{ ...recognitionOfHome, choices }], nextDueAt: null }
-
-    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), reviews }).success).toBe(
-      false,
-    )
-  })
-
-  it('rejects a recall review that carries its word', () => {
-    const reviews = { due: [{ ...recallOfSchool, word: 'school' }], nextDueAt: null }
-
-    expect(FiefOverviewSchema.safeParse({ ...overviewWithSlot(busySlot), reviews }).success).toBe(
-      false,
-    )
-  })
-
-  it('rejects an overview without its reviews', () => {
-    const { reviews: _, ...overviewWithoutReviews } = overviewWithSlot(busySlot)
-
-    expect(FiefOverviewSchema.safeParse(overviewWithoutReviews).success).toBe(false)
+    expect(
+      Object.keys(FiefOverviewSchema.parse({ ...overviewWithSlot(busySlot), ...learning })),
+    ).not.toEqual(expect.arrayContaining(['lessons']))
   })
 })

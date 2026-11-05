@@ -89,6 +89,10 @@ export class MemoryFiefRepository implements FiefRepository {
     ).length
   }
 
+  freezeSkills(playerId: PlayerId, skills: ReadonlyArray<EarnedSkill>): void {
+    this.skills.set(playerId, [...skills].sort(byEarnedAt))
+  }
+
   dismissGuidance(fiefId: FiefId, at: Instant): void {
     this.guidanceDismissals.set(fiefId, at)
   }
@@ -105,14 +109,6 @@ export class MemoryFiefRepository implements FiefRepository {
         this.skills.get(fief.playerId) ?? [],
       ),
     )
-  }
-
-  private keepSkillsOf(fief: Fief): void {
-    const kept = this.skills.get(fief.playerId) ?? []
-    const earned = fief.skills.filter(
-      (skill) => !kept.some(({ lessonId }) => lessonId === skill.lessonId),
-    )
-    this.skills.set(fief.playerId, [...kept, ...earned].sort(byEarnedAt))
   }
 
   async save(fief: Fief): Promise<Result<void, DomainError>> {
@@ -137,7 +133,6 @@ export class MemoryFiefRepository implements FiefRepository {
       return err({ kind: 'PlotReserved', province: reserved.province, plot: reserved.plot })
     }
     this.fiefs.set(fief.id, fief)
-    this.keepSkillsOf(fief)
     return ok(undefined)
   }
 }

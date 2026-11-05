@@ -392,7 +392,7 @@ const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     await client.query(
       "INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at, report_read_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2, $2)",
@@ -563,7 +563,6 @@ const transportBetween = (
     {
       inTransaction,
       buildingCatalog: server.buildingCatalog,
-      lessons: server.lessons,
       clock: frozenClock,
       ids: server.ids,
     },
@@ -617,7 +616,6 @@ const raceARecallAndATransportFromTheOtherFief = async (
         await transportIsBlockedOrHasLocked
       }),
       buildingCatalog: server.buildingCatalog,
-      lessons: server.lessons,
       clock: frozenClock,
       ids: server.ids,
     },
@@ -716,10 +714,10 @@ const lockedTownReadQuery = 'select "id", "player_id", "region", %'
 
 const foundAnasTown = async (server: ComposedServer): Promise<void> => {
   await foundAnasFief(server)
-  const founded = await server.inTransaction(({ towns }) =>
+  const founded = await server.inTransaction(({ towns, earnedSkills }) =>
     foundTown(
       { playerId: ana, name: 'Maple Falls' },
-      { towns, catalog: townCatalog, clock: frozenClock, ids: server.ids },
+      { towns, skills: earnedSkills, catalog: townCatalog, clock: frozenClock, ids: server.ids },
     ),
   )
   assert(founded.ok)

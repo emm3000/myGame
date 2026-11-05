@@ -2,7 +2,7 @@
   "chromeLessonCount": 1,
   "lessonIds": ["lesson-1"],
   "skill": {
-    "cycle": ["food", "wood", "stone", "iron", "gold"],
+    "cycle": ["food", "material", "power", "money"],
     "ratePercent": 5
   }
 }

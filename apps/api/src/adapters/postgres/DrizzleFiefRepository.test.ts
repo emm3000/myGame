@@ -1,10 +1,11 @@
+import type { EarnedSkill } from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { fiefRepositoryContract } from '../fiefRepositoryContract'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 import { DrizzleGuidanceDismissals } from './DrizzleGuidanceDismissals'
-import { players } from './schema'
+import { playerSkills, players } from './schema'
 
 function databaseUrl(): string {
   const url = process.env.DATABASE_URL
@@ -26,7 +27,7 @@ afterAll(async () => {
 
 const emptyDatabase = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
   )
 }
 
@@ -48,12 +49,33 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
     )
 }
 
+const freezeSkills = async (
+  playerId: string,
+  skills: ReadonlyArray<EarnedSkill>,
+): Promise<void> => {
+  if (skills.length === 0) {
+    return
+  }
+  await drizzle(pool)
+    .insert(playerSkills)
+    .values(
+      skills.map(({ lessonId, resource, ratePercent, earnedAt }) => ({
+        playerId,
+        lessonId,
+        resource,
+        ratePercent,
+        earnedAt: new Date(earnedAt.epochMilliseconds),
+      })),
+    )
+}
+
 fiefRepositoryContract('DrizzleFiefRepository', async () => {
   await emptyDatabase()
   return {
     fiefs: new DrizzleFiefRepository(drizzle(pool), 'lockFree'),
     dismissals: new DrizzleGuidanceDismissals(drizzle(pool)),
     registerPlayers,
+    freezeSkills,
   }
 })
 
