@@ -134,6 +134,21 @@ describe('JsonLessonCatalog', () => {
 
     expect(catalog.lessons().map(({ id, theme }) => ({ id, theme }))).toEqual([
       { id: 'lesson-1', theme: 'A day in town' },
+      { id: 'lesson-2', theme: 'Moving to town' },
+      { id: 'lesson-3', theme: 'A job in spring' },
+      { id: 'lesson-4', theme: 'Summer on the farm' },
+      { id: 'lesson-5', theme: 'Building a home' },
+      { id: 'lesson-6', theme: 'News from the city' },
+      { id: 'lesson-7', theme: 'A team for the town' },
+      { id: 'lesson-8', theme: 'At the office' },
+      { id: 'lesson-9', theme: 'Life by the river' },
+      { id: 'lesson-10', theme: 'Clean-up day' },
+      { id: 'lesson-11', theme: 'Out in the region' },
+      { id: 'lesson-12', theme: 'Study time' },
+      { id: 'lesson-13', theme: 'Goals for the year' },
+      { id: 'lesson-14', theme: 'Ready for winter' },
+      { id: 'lesson-15', theme: 'A new area' },
+      { id: 'lesson-16', theme: 'The report' },
     ])
   })
 
@@ -230,7 +245,7 @@ describe('JsonLessonCatalog', () => {
     writeJson(directory, 'lesson-a.json', {
       id: 'lesson-a',
       ...lessonOneTerms,
-      wordIds: ['word-9'],
+      wordIds: ['word-0'],
     })
 
     expect(() => JsonLessonCatalog.fromDirectory(directory)).toThrow(/lesson-a\.json is malformed/)

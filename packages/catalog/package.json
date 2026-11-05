@@ -12,7 +12,7 @@
     "generate": "tsx src/generate.ts"
   },
   "devDependencies": {
-    "@formatjs/icu-messageformat-parser": "3.5.22",
+    "@formatjs/icu-messageformat-parser": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",

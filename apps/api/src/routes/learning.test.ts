@@ -347,20 +347,22 @@ describe('the learning routes', () => {
     it('answers lesson 1 on the town with its terms, no lemma and no skill before it is studied', async () => {
       const player = await signUpWithATown()
 
-      const { lessons, skills, lessonSlot } = await readTown(player)
+      const {
+        lessons: [lessonOne],
+        skills,
+        lessonSlot,
+      } = await readTown(player)
 
-      expect({ lessons, skills, lessonSlot }).toEqual({
-        lessons: [
-          {
-            id: 'lesson-1',
-            theme: 'A day in town',
-            durationSeconds: 300,
-            requiredSchoolLevel: 1,
-            skill: { resource: 'food', ratePercent: 5 },
-            isStudied: false,
-            words: wordIds.map((wordId) => ({ wordId, isRetained: false })),
-          },
-        ],
+      expect({ lessonOne, skills, lessonSlot }).toEqual({
+        lessonOne: {
+          id: 'lesson-1',
+          theme: 'A day in town',
+          durationSeconds: 300,
+          requiredSchoolLevel: 1,
+          skill: { resource: 'food', ratePercent: 5 },
+          isStudied: false,
+          words: wordIds.map((wordId) => ({ wordId, isRetained: false })),
+        },
         skills: [],
         lessonSlot: null,
       })
@@ -418,7 +420,7 @@ describe('the learning routes', () => {
     it('answers 404 with an empty body for a lesson the content lacks', async () => {
       const player = await signUpWithATown()
 
-      const response = await startLesson(player, 'lesson-9')
+      const response = await startLesson(player, 'lesson-0')
 
       expect([response.status, await response.text()]).toEqual([404, ''])
     })

@@ -10,6 +10,7 @@ type ContentParts = {
   readonly ranks: ReadonlyMap<string, number>
   readonly forms: ReadonlyMap<string, ReadonlySet<string>>
   readonly skill: CurriculumContent['skill']
+  readonly englishMessages: Readonly<Record<string, string>>
 }
 
 export const entryOf = (
@@ -106,6 +107,7 @@ const lessonOneParts = (): ContentParts => ({
   ranks: new Map(fixtureRanks),
   forms: fixtureForms(),
   skill: { cycle: ['food', 'material', 'power', 'money'], ratePercent: 5 },
+  englishMessages: {},
 })
 
 export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent => {
@@ -135,5 +137,6 @@ export const contentOf = (overrides: Partial<ContentParts> = {}): GateContent =>
       })),
     },
     forms: parts.forms,
+    englishMessages: parts.englishMessages,
   }
 }

@@ -1,6 +1,7 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { tokensOf } from './tokensOf'
 
 const gap = '____'
 
@@ -20,8 +21,6 @@ type FrameTerms = {
   readonly admittedAt: ReadonlyMap<string, number>
   readonly taughtAt: ReadonlyMap<string, number>
 }
-
-const tokensOf = (text: string): ReadonlyArray<string> => text.toLowerCase().match(/[a-z]+/g) ?? []
 
 const offListFormsOf = (lexicon: ReadonlyArray<LexiconEntry>): ReadonlyMap<string, string> =>
   new Map(
