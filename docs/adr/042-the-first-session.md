@@ -56,12 +56,15 @@ What trunk holds, checked at `ceb2bd4c`:
   the words waiting, however short a high school level makes the
   lesson. After the first review a word cannot be read: the review
   asks, and the answer is no longer on the page.
-- **Every door to the reviews goes through unread words first.** While a
-  due card can still be read, the next step, the Report, the school's
-  link and the finish notice open that lesson's words, and the words go
-  on to `/reviews`, so a player who left never lands on the guess. The
-  server cannot know what was read, so each word offers the way on once
-  the lesson has finished, and a player who read them skips the rest.
+- **Every door to the reviews goes through unread words first.** While
+  due cards can still be read, the next step, the Report, the school's
+  link and the finish notice open the first such lesson's words, at
+  `/school/$lessonId`. Each lesson's way on goes to the next such
+  lesson, in curriculum order, and after the last to `/reviews`, so a
+  player who left never lands on the guess, however many lessons
+  finished unread. The server cannot know what was read, so each word
+  offers the way on once its lesson has finished, and a player who read
+  them skips the rest.
 - **Reading changes nothing.** It writes no rating, no card and no log
   row, and pays nothing (ADR 036, rule 5). The lesson finishes on its
   timer, read or not. Which word is on screen is client state.
@@ -233,7 +236,7 @@ state that holds wins:
 
 | Priority | `kind` | When | The button goes to | It also says |
 |---|---|---|---|---|
-| 1 | `reviews` | a card is due | the words if `readFirst` is set, else `/reviews` | how many; a running lesson's time |
+| 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
 | 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
 | 3 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
 | 4 | `caughtUp` | none of the above | the Report | when the next review is due |
@@ -241,9 +244,13 @@ state that holds wins:
 - **`reviews` wins over a running lesson**: the words are due now, and
   the lesson runs on its own.
 - **A finished lesson is `reviews`**, since its cards enter due at its
-  finish. `reviews` carries `readFirst`, the lesson of the earliest due
-  card with no `lastReviewAt`, or null, and `ReportSchema` carries the
-  same field, so each door follows the rule above.
+  finish. `reviews` carries `readFirst`, every lesson holding a due card
+  with no `lastReviewAt`, in curriculum order, empty when none, and
+  `ReportSchema` carries the same list, so each door follows the rule
+  above. It has to be a list: `admitSchoolLesson` ignores due cards, so
+  two lessons can finish unread, and reading writes nothing, so a single
+  lesson read again after its words would name the same lesson for
+  ever.
 - **`lessonRunning` names a producer** while the building that makes the
   lesson's skill resource stands at level 0 and no work is raising it:
   the farm for food, the factory for material, the power station for
@@ -279,7 +286,7 @@ the town rows, and #771 and #775 take the school and the Report.
 | Naming | form alone | the homes' and the school's art |
 | Town home | no card; the school sixth; every place card with its own strong button | the next step first; the school first; the next step holds the one strong button; a place not built drawn with its art |
 | School | every lesson listed, each with its button; the slot first on a phone; no link to `/reviews` | the next lesson first; its reward as one line, words to skill to rate; the school path; a link to the reviews when any is due |
-| Lesson | no screen | the words, one at a time, from `reading`, with the way on to `/reviews` once finished |
+| Lesson | no screen | `/school/$lessonId`: the words, one at a time, from `reading`, with the way on through `readFirst` once finished |
 | Review, end | `nothingDue`, no way out | the next review, the school path, a way back to the town |
 | Review, skill verdict | level and percent, no rates | `ratePerHourBefore` and `ratePerHourAfter`, already on the wire, and the lesson's words |
 | Town stocks | no skill mark | the earned skill beside its resource |
@@ -310,24 +317,36 @@ others is left out here, since no owner decision covers it.
    | 2 | 180, 270, 404 | one | 40 / h | 38.8 h, 111 min | 0 min | 0 min |
    | 3 | 270, 405, 606 | one | 60 / h | 63.1 h, 181 min | 91 min | 0 min |
 
-   - **No share makes a 5 % skill felt.** It shortens a wait on food by
+   - **No share makes one level felt.** It shortens a wait on food by
      4.8 % at most, and a level 2 or 3 farm, 75 or 112 money, shrinks or
      removes the wait. The skill also lands late: from day 7 or day 13 it saves
      0 minutes at level 5 on every row, because those levels are paid
      by then. The first gain is at level 7, 26 minutes, share 3, farm 1,
      landing on day 7; level 10 at share 2 gains 13 hours or 6.
+   - **Stacked, it is felt late, and only with a level 1 farm.** Rates
+     sum, and food recurs at lessons 1, 5, 9 and 13, so the 16 shipped
+     lessons give +20 %. At 2/3 that saves 0 at every homes level, even
+     held from the first hour. Earned on time, on days 13, 15, 17 and 21,
+     with farm 1 on fields, level 10 gains 10.4 hours instead of 6.1 at
+     share 2, and 44.7 instead of 16.8 at share 3, and level 7 gains
+     nothing. With farm 2 on fields it gains 0.
    - **A higher share costs a new player.** From 1.5 up the 300 pays
      one raise, not three, so homes level 3 waits on a farm: 1.3 hours
      at 1.5, 5 at 2, 12.5 at 3. The no-farm dead end falls from 50
      people to 30.
-   - **Money is what binds.** The +5 % on money, lesson 4's, moves level
-     5 from 22.05 to 21 hours and level 10 from 346 to 330.
+   - **Money binds, and no money skill rescues this.** Level 5 moves
+     from 22.05 to 21 hours and level 10 from 346 to 330 only with the
+     +5 % held from the first hour. Lesson 4 lands about day 15 on time,
+     and this run pays level 10 at 14.4 days, so it saves 0 here. Even
+     lesson 1 on money would save about 1.6 hours from day 13, at the
+     price of ADR 039's *food first*.
+   - **These are floors.** The run buys the moment stocks allow; a
+     slower player still has more levels to pay when a skill lands.
 
    Recommendation: keep 2/3 and stop claiming a speed-up. It costs a
    new player nothing, and it makes the first farm necessary. Food's
-   skill then shows as a rate on the verdict, not as a level sooner. A
-   felt reward needs another lever than the share, such as lesson 1
-   raising money, which ADR 039's *food first* refuses.
+   skill then shows as a rate on the verdict, not as a level sooner. No
+   lever weighed here makes the first skill felt in time.
 3. **The material dead end.** Shipped, and independent of food, but a
    new player can reach it by following the strong buttons. Recommended,
    content only: factory level 1 costs money alone, 60, so tax always
@@ -384,7 +403,10 @@ fourth lesson is refused on day 0 and `caughtUp` shows.
 in 30-second steps over `deriveResourceRates`, `deriveStorageCapacity`
 and the content's costs, no season: farm 1, factory 1, then the homes,
 with storage when a cost passes capacity, each paid the moment stocks
-allow, with no other building. Real players buy later. By hand, level 5
+allow, with no other building, a power station added for share 3's level
+10. Real players buy later. Stacked skills land on days 13, 15, 17 and
+21: the cap takes three lessons every 2 days on time, so lessons 1, 5, 9
+and 13 start on days 0, 2, 4 and 8. By hand, level 5
 at a share too low to bind: 290 money after the farm and the factory, 65
 after levels 2 and 3, 6.85 hours to level 4's 202, 15.2 to level 5's
 304, 22.05 hours.

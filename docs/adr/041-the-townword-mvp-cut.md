@@ -78,7 +78,7 @@ What trunk and the issues hold, checked at `0dc33268`:
   for the town, S1 (the school and skills), S3 through the Report's
   news, S5, S6, S8 and S9. (Amended by ADR 042: the town home's next
   step opens the reviews too, and food pays for the homes, so lesson
-  1's skill does raise such a rate.)
+  1's skill does raise such a rate, with no hour saved.)
 - **Web first, Android after.** The web is responsive and the owner can
   play it on the phone; the learning is the same on either client.
   Each client's screen ticket writes `packages/catalog`, so building

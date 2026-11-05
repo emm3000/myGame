@@ -333,8 +333,10 @@ What trunk holds, checked at `1f0b1c41`:
   `/map/$area`, `/news`. The api serves the signed-in player's town at
   `/town`. (Amended by ADR 041: the review screen joins them at
   `/reviews`, opened from the Report; News and the map join the
-  navigation after the cutover. Amended by ADR 042: the town home's
-  next step opens `/reviews` too.)
+  navigation after the cutover. Amended by ADR 042: a lesson's words
+  join them at `/school/$lessonId`, and the town home's next step opens
+  `/reviews` too, through those words while `readFirst` holds a
+  lesson.)
 
 ### The reset, at the cutover
 
