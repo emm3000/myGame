@@ -11,6 +11,7 @@ export {
 } from './CancelRecruitOrderRequest'
 export { type CancelStudyRequest, CancelStudyRequestSchema } from './CancelStudyRequest'
 export { type CancelUpgradeRequest, CancelUpgradeRequestSchema } from './CancelUpgradeRequest'
+export { type CurriculumContent, CurriculumContentSchema } from './CurriculumContent'
 export { type Digest, DigestSchema } from './Digest'
 export {
   type DispatchAttackRequest,
@@ -33,9 +34,11 @@ export { type FiefList, FiefListSchema } from './FiefList'
 export { type FiefOverview, FiefOverviewSchema } from './FiefOverview'
 export { type FiefRequest, FiefRequestSchema } from './FiefRequest'
 export { type ForgotPasswordRequest, ForgotPasswordRequestSchema } from './ForgotPasswordRequest'
+export { type GrammarContent, GrammarContentSchema } from './GrammarContent'
 export { type HealthResponse, HealthResponseSchema } from './HealthResponse'
 export { type HintKind, HintKindSchema } from './HintKind'
 export { type LessonContent, LessonContentSchema } from './LessonContent'
+export { type LexiconContent, LexiconContentSchema } from './LexiconContent'
 export { type NativeSession, NativeSessionSchema } from './NativeSession'
 export {
   type PlaceRecruitOrderRequest,

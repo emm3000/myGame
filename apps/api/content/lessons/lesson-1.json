@@ -3,55 +3,5 @@
   "theme": "A day in town",
   "durationSeconds": 300,
   "requiredLibraryLevel": 1,
-  "skill": {
-    "resource": "food",
-    "ratePercent": 5
-  },
-  "words": [
-    {
-      "id": "lesson-1-1",
-      "lemma": "home",
-      "frame": "We have a new home in this town.",
-      "gappedFrame": "We have a new ____ in this town.",
-      "gloss": {
-        "es": "hogar"
-      }
-    },
-    {
-      "id": "lesson-1-2",
-      "lemma": "school",
-      "frame": "I walk to school every day.",
-      "gappedFrame": "I walk to ____ every day.",
-      "gloss": {
-        "es": "escuela"
-      }
-    },
-    {
-      "id": "lesson-1-3",
-      "lemma": "work",
-      "frame": "They work in a big office.",
-      "gappedFrame": "They ____ in a big office.",
-      "gloss": {
-        "es": "trabajar"
-      }
-    },
-    {
-      "id": "lesson-1-4",
-      "lemma": "money",
-      "frame": "I do not have much money.",
-      "gappedFrame": "I do not have much ____.",
-      "gloss": {
-        "es": "dinero"
-      }
-    },
-    {
-      "id": "lesson-1-5",
-      "lemma": "food",
-      "frame": "We buy food for the week.",
-      "gappedFrame": "We buy ____ for the week.",
-      "gloss": {
-        "es": "comida"
-      }
-    }
-  ]
+  "wordIds": ["lesson-1-1", "lesson-1-2", "lesson-1-3", "lesson-1-4", "lesson-1-5"]
 }

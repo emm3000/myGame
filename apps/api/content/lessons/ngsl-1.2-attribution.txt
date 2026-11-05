@@ -7,3 +7,13 @@ https://creativecommons.org/licenses/by-sa/4.0/
 Source: https://www.newgeneralservicelist.com/s/NGSL_12_stats.csv
 Downloaded: 2026-11-04
 SHA-256: 2098bab8955a120a9766c6282a51d7d578c6cb0a7d946600d2ffb73ba25a0b44
+
+ngsl-1.2-lemmatized-for-teaching.csv is the NGSL 1.2 list lemmatized for
+teaching, served as NGSL_1.2_lemmatized_for_teaching.csv, shipped unchanged.
+
+Authors: Charles Browne, Brent Culligan and Joseph Phillips.
+Licence: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0),
+https://creativecommons.org/licenses/by-sa/4.0/
+Source: https://www.newgeneralservicelist.com/s/NGSL_12_lemmatized_for_teaching.csv
+Downloaded: 2026-11-04
+SHA-256: b54e297244988237457e04f823aa8dca68e3d646938dc76d383e099f04cb7666

@@ -197,12 +197,12 @@ const contentCopyWithTruncatedSawmill = (): string => {
   return directory
 }
 
-const contentCopyWithTruncatedLesson = (): string => {
+const contentCopyWithTruncatedLexicon = (): string => {
   const directory = temporaryDirectory()
   cpSync(contentDirectory, directory, { recursive: true })
-  const lessonFile = join(directory, 'lessons', 'lesson-1.json')
-  const lesson = readFileSync(lessonFile, 'utf8')
-  writeFileSync(lessonFile, lesson.slice(0, lesson.length / 2))
+  const lexiconFile = join(directory, 'lessons', 'words.json')
+  const lexicon = readFileSync(lexiconFile, 'utf8')
+  writeFileSync(lexiconFile, lexicon.slice(0, lexicon.length / 2))
   return directory
 }
 
@@ -258,13 +258,11 @@ describe('composeServer', () => {
     }
   })
 
-  it('fails start-up on a malformed lesson file', () => {
-    const malformedDirectory = contentCopyWithTruncatedLesson()
+  it('fails start-up on a malformed lexicon', () => {
+    const malformedDirectory = contentCopyWithTruncatedLexicon()
 
     try {
-      expect(() => composeServer(composableEnvironment, malformedDirectory)).toThrow(
-        'lesson-1.json',
-      )
+      expect(() => composeServer(composableEnvironment, malformedDirectory)).toThrow('words.json')
     } finally {
       removeDirectory(malformedDirectory)
     }
