@@ -29,7 +29,7 @@ export type BuildSlotState =
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md p-5'
-const badgeClass = 'rounded-pill px-2 font-sans text-label tabular-nums'
+const badgeClass = 'whitespace-nowrap rounded-pill px-2 font-sans text-label tabular-nums'
 
 function Building({
   name,

@@ -158,3 +158,29 @@ it('sets the one type family through font-sans', async () => {
 
   expect(ruleOf(css, '.font-sans')).toContain(`font-family: ${typeFamilies.sans}`)
 })
+
+it('keeps a colour named like a type style on every colour utility but text', async () => {
+  const stylesheet = await compileStylesheet()
+  const utilities = [
+    'bg',
+    'border',
+    'decoration',
+    'outline',
+    'fill',
+    'stroke',
+    'ring',
+    'ring-offset',
+    'divide',
+    'caret',
+    'accent',
+    'placeholder',
+    'shadow',
+  ]
+  const clashing = Object.keys(palette).filter((token) => token in typeScale)
+  const classes = clashing.flatMap((token) => utilities.map((utility) => `${utility}-${token}`))
+
+  const css = stylesheet.build(classes)
+
+  expect(clashing).not.toEqual([])
+  expect(classes.filter((name) => !css.includes(`.${name}`))).toEqual([])
+})
