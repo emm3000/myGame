@@ -69,3 +69,9 @@ it('reads a kind that owes params but carries none as a failed exchange', () => 
     'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
   )
 })
+
+it('reads a march refusal that owes params but arrives without its error as a failed exchange', () => {
+  expect(refusalLineOf('NotEnoughUnitsAtHome')).toBe(
+    'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
+  )
+})

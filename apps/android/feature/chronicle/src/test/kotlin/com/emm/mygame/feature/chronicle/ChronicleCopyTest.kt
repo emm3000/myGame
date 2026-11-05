@@ -61,6 +61,13 @@ class ChronicleCopyTest {
     }
 
     @Test
+    fun `writes a count of ten thousand men without a thousands separator`() {
+        val hugeMarch: ChronicleEvent = march(units = units(infantry = 10_000), isRecalled = false)
+
+        assertEquals("provincia 2, parcela 9, 10000 infantes.", resources.subjectOf(hugeMarch))
+    }
+
+    @Test
     fun `heads a recalled march as withdrawn`() {
         val recalledMarch: ChronicleEvent = march(units = units(infantry = 4), isRecalled = true)
 

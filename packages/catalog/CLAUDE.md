@@ -37,7 +37,7 @@ The generated TypeScript imports nothing and formats nothing at runtime, so it a
 
 A number, date or time argument, a tag, or one argument in two roles (`{n}` beside `{n, plural, ...}`) fails generation with the key named. A message without arguments is a function of none. ICU quoting applies: `'{'` is a literal brace, `''` a literal apostrophe.
 
-Android strings are written as the ICU pattern, XML- and Android-escaped (`\`, `&`, `<`, `'`, `"`, newline, a leading `@` or `?`), with `formatted="false"` on any string holding `%`; the client formats them with `android.icu.text.MessageFormat`.
+Android strings are written as the ICU pattern, XML- and Android-escaped (`\`, `&`, `<`, `'`, `"`, newline, a leading `@` or `?`), with `formatted="false"` on any string holding `%`; the client formats them with `android.icu.text.MessageFormat`. An Android plural writes its count as `{n, number,0}`, a DecimalFormat pattern without grouping and with no space before it, since ICU keeps a style's leading space as a literal prefix, never `#`, which ICU's Spanish format groups (`10.000`); `es.test.ts` fails on a `#` in an Android key. The number argument is allowed there because Android keys never reach the TypeScript generator.
 
 ## Checks
 

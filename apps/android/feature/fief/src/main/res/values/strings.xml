@@ -32,7 +32,7 @@
     <string name="cost_food">{amount} de comida</string>
     <string name="cost_gold">{amount} de oro</string>
     <string name="cost_iron">{amount} de hierro</string>
-    <string name="cost_peasants">{count, plural, =1 {# campesino} other {# campesinos}}</string>
+    <string name="cost_peasants">{count, plural, =1 {{count, number,0} campesino} other {{count, number,0} campesinos}}</string>
     <string name="cost_short">{cost}, falta</string>
     <string name="cost_stone">{amount} de piedra</string>
     <string name="cost_wood">{amount} de madera</string>
@@ -51,7 +51,7 @@
     <string name="first_fief_none">No encontramos tus tierras.</string>
     <string name="lesson_busy">En estudio</string>
     <string name="lesson_done">Lección 1 estudiada.</string>
-    <string name="lesson_free">{count, plural, =1 {No cuesta nada. Trae # palabra nueva.} other {No cuesta nada. Trae # palabras nuevas.}}</string>
+    <string name="lesson_free">{count, plural, =1 {No cuesta nada. Trae {count, number,0} palabra nueva.} other {No cuesta nada. Trae {count, number,0} palabras nuevas.}}</string>
     <string name="lesson_refund">Si lo cancelas, no pierdes nada: la lección queda por estudiar.</string>
     <string name="lesson_refusal_already_studied">Ya estudiaste la lección 1: sus palabras están en tu repaso.</string>
     <string name="lesson_refusal_library_too_low">La lección 1 necesita una biblioteca. Levántala primero.</string>
@@ -103,7 +103,7 @@
     <string name="reason_invalid_count">Un número entero, al menos 1.</string>
     <string name="reason_levy_running">Ya hay una leva en marcha.</string>
     <string name="reason_library_too_low">Necesitas la biblioteca a nivel {required} y está a nivel {built}.</string>
-    <string name="reason_peasants">{needed, plural, =1 {Necesitas # campesino libre y tienes {free}.} other {Necesitas # campesinos libres y tienes {free}.}}</string>
+    <string name="reason_peasants">{needed, plural, =1 {Necesitas {needed, number,0} campesino libre y tienes {free}.} other {Necesitas {needed, number,0} campesinos libres y tienes {free}.}}</string>
     <string name="reason_queue_full">Ya no caben más obras en espera. Espera a que avance alguna.</string>
     <string name="reason_resources">Te faltan {resources}.</string>
     <string name="reason_resources_one">Te falta {resources}.</string>
@@ -149,7 +149,7 @@
     <string name="review_due_count">Por repasar: {count}</string>
     <string name="review_failed">No hemos podido leer tu repaso.</string>
     <string name="review_hint">Pedir una pista</string>
-    <string name="review_hint_line">{letters, plural, =1 {Empieza por «{first}» y tiene # letra.} other {Empieza por «{first}» y tiene # letras.}}</string>
+    <string name="review_hint_line">{letters, plural, =1 {Empieza por «{first}» y tiene {letters, number,0} letra.} other {Empieza por «{first}» y tiene {letters, number,0} letras.}}</string>
     <string name="review_loading">Estamos leyendo tu repaso…</string>
     <string name="review_near_miss">Casi. Revisa cómo se escribe y vuelve a comprobar.</string>
     <string name="review_next_card">Siguiente</string>
@@ -170,7 +170,7 @@
     <string name="review_yours">Tu respuesta: {answer}</string>
     <string name="season_autumn">Otoño</string>
     <string name="season_countdown">{season} en {timeLeft}</string>
-    <string name="season_days_left">{days, plural, =1 {# día} other {# días}}</string>
+    <string name="season_days_left">{days, plural, =1 {{days, number,0} día} other {{days, number,0} días}}</string>
     <string name="season_line">{season}, año {year}</string>
     <string name="season_separator">·</string>
     <string name="season_spring">Primavera</string>
@@ -192,17 +192,17 @@
     <string name="study_idle">La biblioteca no tiene estudio en marcha.</string>
     <string name="study_refund">Si lo cancelas, recuperas {refund}.</string>
     <string name="study_start">Estudiar · {duration}</string>
-    <string name="unit_archer_counted">{count, plural, =1 {# arquero} other {# arqueros}}</string>
+    <string name="unit_archer_counted">{count, plural, =1 {{count, number,0} arquero} other {{count, number,0} arqueros}}</string>
     <string name="unit_archer_plural">arqueros</string>
     <string name="unit_archer_title">Arqueros</string>
-    <string name="unit_cavalry_counted">{count, plural, =1 {# jinete} other {# jinetes}}</string>
+    <string name="unit_cavalry_counted">{count, plural, =1 {{count, number,0} jinete} other {{count, number,0} jinetes}}</string>
     <string name="unit_cavalry_plural">jinetes</string>
     <string name="unit_cavalry_title">Jinetes</string>
-    <string name="unit_infantry_counted">{count, plural, =1 {# infante} other {# infantes}}</string>
+    <string name="unit_infantry_counted">{count, plural, =1 {{count, number,0} infante} other {{count, number,0} infantes}}</string>
     <string name="unit_infantry_plural">infantes</string>
     <string name="unit_infantry_title">Infantes</string>
     <string name="unit_requires">Requiere cuartel de nivel {level}</string>
-    <string name="unit_settler_counted">{count, plural, =1 {# colono} other {# colonos}}</string>
+    <string name="unit_settler_counted">{count, plural, =1 {{count, number,0} colono} other {{count, number,0} colonos}}</string>
     <string name="unit_settler_plural">colonos</string>
     <string name="unit_settler_title">Colonos</string>
     <string name="units_at_home">{units} en casa</string>
