@@ -15,6 +15,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { refusalLineOf } from '../refusals/refusalLineOf'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownTown.readAt) })
@@ -54,11 +55,14 @@ it('offers to read the town again after a failed read', async () => {
     serving(knownTown, {
       town: async (): Promise<ApiOutcome<TownOverview>> => {
         reads += 1
-        return reads === 1 ? { ok: false, refusal: 'Unexpected' } : { ok: true, value: knownTown }
+        return reads === 1
+          ? { ok: false, refusal: 'InvalidCredentials' }
+          : { ok: true, value: knownTown }
       },
     }),
   )
-  expect(screen.getByText(refusalUnexpected())).toBeDefined()
+  expect(screen.getByText(refusalLineOf('InvalidCredentials'))).toBeDefined()
+  expect(screen.queryByText(refusalUnexpected())).toBeNull()
 
   fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
   await passSeconds(0)
@@ -153,7 +157,10 @@ it('reads the town again when its season ends', async () => {
     }),
   )
 
-  await passSeconds(30)
+  await passSeconds(29)
+  expect(reads).toBe(1)
+
+  await passSeconds(1)
 
   expect(reads).toBe(2)
 })
