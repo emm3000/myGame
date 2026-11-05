@@ -751,7 +751,7 @@
   "review.wrong": "No es correcto.",
   "review.yourAnswer": "Tu respuesta:",
   "school.learning": "Palabras en aprendizaje: {inLearning} de {cap}",
-  "school.learningFull": "La siguiente lección trae {count} palabras. Empieza los repasos.",
+  "school.learningFull": "{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae # palabras.}} Empieza los repasos.",
   "school.lesson.capReached": "Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.",
   "school.lesson.needsSchool": "Necesita la escuela en nivel {level}",
   "school.lesson.slotBusy": "La escuela está estudiando la lección {number}.",

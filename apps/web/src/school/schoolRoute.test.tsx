@@ -9,9 +9,11 @@ import {
   schoolSkillName,
   schoolSkillRate,
   schoolSkillsNone,
+  schoolSlotDone,
   schoolSlotStopOf,
   townGoToSchool,
   townLoading,
+  townNamingTitle,
   townTryAgain,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
@@ -131,6 +133,45 @@ it('shows a running lesson’s countdown', async () => {
   expect(screen.getByRole('timer').textContent).toBe('0:50')
 })
 
+it('reads the town again when the lesson finishes and marks it studied', async () => {
+  const finishesAt = readAt + 50_000
+  const studyingAt = (nowMs: number): TownOverview =>
+    schoolOf({
+      lessonSlot: {
+        lessonId: 'lesson-1',
+        startedAt: instantAfter(-250),
+        finishesAt: instantAfter(50),
+      },
+      readAt: new Date(nowMs).toISOString(),
+    })
+  const studied = schoolOf({
+    lessons: [lessonOf(1, { isStudied: true })],
+    readAt: instantAfter(50),
+  })
+  let answerFinishRead: (outcome: ApiOutcome<TownOverview>) => void = () => undefined
+  let reads = 0
+  await showSchool(studyingAt(readAt), {
+    town: () => {
+      reads += 1
+      return Date.now() < finishesAt
+        ? Promise.resolve({ ok: true, value: studyingAt(Date.now()) })
+        : new Promise((resolve) => {
+            answerFinishRead = resolve
+          })
+    },
+  })
+
+  await passSeconds(49)
+  expect(reads).toBe(1)
+
+  await passSeconds(1)
+  expect(reads).toBe(2)
+  expect(screen.getByText(schoolSlotDone())).toBeDefined()
+
+  await act(async () => answerFinishRead({ ok: true, value: studied }))
+  expect(within(lessonCard(1)).getByText(schoolLessonStudied())).toBeDefined()
+})
+
 it('stops a lesson once on a double click', async () => {
   let answer: (outcome: ApiOutcome<TownOverview>) => void = () => undefined
   const stopLesson = vi.fn(
@@ -209,9 +250,9 @@ it('lists each earned skill with its resource and percent', async () => {
 
   const skills = screen.getAllByRole('listitem', { name: /^Habilidad/ })
   expect(skills.map((skill) => skill.textContent)).toEqual([
-    `${schoolSkillName({ resource: 'Comida', level: 1 })}${schoolSkillRate({ percent: 5, resource: 'comida' })}`,
-    `${schoolSkillName({ resource: 'Material', level: 1 })}${schoolSkillRate({ percent: 5, resource: 'material' })}`,
-    `${schoolSkillName({ resource: 'Comida', level: 2 })}${schoolSkillRate({ percent: 5, resource: 'comida' })}`,
+    `${schoolSkillName({ resource: 'comida', level: 1 })}${schoolSkillRate({ percent: 5, resource: 'comida' })}`,
+    `${schoolSkillName({ resource: 'material', level: 1 })}${schoolSkillRate({ percent: 5, resource: 'material' })}`,
+    `${schoolSkillName({ resource: 'comida', level: 2 })}${schoolSkillRate({ percent: 5, resource: 'comida' })}`,
   ])
 })
 
@@ -219,6 +260,16 @@ it('says so when no skill is earned', async () => {
   await showSchool(schoolOf({}))
 
   expect(screen.getByText(schoolSkillsNone())).toBeDefined()
+})
+
+it('sends a player with no town to name one', async () => {
+  await showSchool(schoolOf({}), {
+    town: async () => ({ ok: false, refusal: 'TownNotFound' }),
+  })
+
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 2, name: townNamingTitle() })).toBeDefined()
 })
 
 it('reads the school while the town loads', async () => {

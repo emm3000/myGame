@@ -1,7 +1,7 @@
 import { schoolSkillName, schoolSkillRate } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
+import { skillLevelOf } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
-import { capitalize } from '../design-system/capitalize'
 import { resourceAccent } from '../design-system/resourceAccent'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
@@ -16,14 +16,12 @@ interface SkillLine {
 
 const skillLinesOf = (skills: ReadonlyArray<EarnedSkill>): ReadonlyArray<SkillLine> =>
   skills.map(({ lessonId, resource, ratePercent }, index) => {
-    const level = skills
-      .slice(0, index + 1)
-      .filter((earlier) => earlier.resource === resource).length
+    const level = skillLevelOf(skills.slice(0, index + 1), resource)
     const resourceName = townResourceNameOf(resource)
     return {
       key: lessonId,
       resource,
-      name: schoolSkillName({ resource: capitalize(resourceName), level }),
+      name: schoolSkillName({ resource: resourceName, level }),
       rate: schoolSkillRate({ percent: ratePercent, resource: resourceName }),
     }
   })
