@@ -8,6 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
@@ -46,6 +49,7 @@ internal fun LessonSlotSection(
                 }
             }
         }
+        requestAnswerOf(stop)?.let { line: String -> MyGameInlineAlert(message = line) }
     }
 }
 
@@ -91,7 +95,12 @@ private fun BusySlot(
                 color = MyGameTheme.colors.ink,
             )
         }
-        MyGameTrack(filled = 1f - (slot.remaining / slot.total).toFloat(), color = MyGameTheme.colors.action)
+        val filled: Float = 1f - (slot.remaining / slot.total).toFloat()
+        MyGameTrack(
+            filled = filled,
+            color = MyGameTheme.colors.action,
+            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
+        )
         MyGameText(
             text = stringResource(R.string.school_slot_refund),
             style = MyGameTypography.caption,
@@ -104,6 +113,5 @@ private fun BusySlot(
             onClick = { onIntent(SchoolIntent.StopTapped(slot.lesson)) },
             accessibleName = icuStringResource(R.string.school_slot_stop_of, "number" to slot.number.toString()),
         )
-        requestAnswerOf(stop)?.let { line: String -> MyGameInlineAlert(message = line) }
     }
 }
