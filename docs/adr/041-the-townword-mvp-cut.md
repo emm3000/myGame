@@ -14,7 +14,7 @@ clean-ups, goals and tips), and makes the cutover the last slice. The
 content tickets beside it are #741 (the chrome lessons), #742 (band 1,
 first batch), #743 (placement), #744 (the holdout), #745 (the scaffold
 and the chrome phases) and #746 (mail per language); #739 (the catalog)
-is in flight. The owner asked on 2026-11-04 for the shortest path to a
+was in flight when this ADR was drafted and merged before it. The owner asked on 2026-11-04 for the shortest path to a
 playable Townword that teaches English to an A1–A2 Spanish-speaking
 adult, the owner, who plays it daily, and delegated every branch to
 what serves learning English best.
