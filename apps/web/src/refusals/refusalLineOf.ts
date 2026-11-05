@@ -102,7 +102,6 @@ const slotFreeLines: Readonly<Record<SlotFreeRefusal, () => string>> = {
   TokenInvalid: refusalTokenInvalid,
   MailNotSent: refusalMailNotSent,
   LessonSchoolTooLow: refusalLessonSchoolTooLow,
-  LearningCapReached: refusalLearningCapReached,
   LessonAlreadyStudied: refusalLessonAlreadyStudied,
   LessonUnderStudy: refusalLessonUnderStudy,
   LessonStudyNotFound: refusalLessonStudyNotFound,
@@ -153,6 +152,8 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       return refusalTopLevelReached({ level: error.params.level })
     case 'BuildingWorkNotFound':
       return refusalBuildingWorkNotFound({ level: error.params.level })
+    case 'LearningCapReached':
+      return refusalLearningCapReached(error.params)
   }
 }
 
