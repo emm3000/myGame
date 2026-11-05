@@ -108,7 +108,10 @@ describe('startBuildingWork', () => {
         ...plainTownSettings,
         seasons: {
           ...plainTownSettings.seasons,
-          durationPercent: { ...plainTownSettings.seasons.durationPercent, spring: { build: 75 } },
+          durationPercent: {
+            ...plainTownSettings.seasons.durationPercent,
+            spring: { build: 75, study: 100 },
+          },
         },
       },
       pricedLevels,

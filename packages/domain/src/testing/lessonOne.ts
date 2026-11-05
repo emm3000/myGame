@@ -3,7 +3,7 @@ import type { Lesson } from '../learning/Lesson'
 export const lessonOne: Lesson = {
   id: 'lesson-1',
   durationSeconds: 300,
-  requiredLibraryLevel: 1,
+  requiredSchoolLevel: 1,
   words: [
     {
       id: 'home',

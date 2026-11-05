@@ -34,23 +34,21 @@ export type TownFounding = {
   readonly name: TownName
   readonly address: TownAddress
   readonly startingStocks: Stocks
+  readonly skills: ReadonlyArray<TownSkill>
   readonly at: Instant
 }
 
-type StoredState = {
+type TownState = {
   readonly stocks: Stocks
   readonly storedAt: Instant
   readonly fullSince: FullSince
   readonly buildingLevels: BuildingLevels
   readonly workSlot: WorkSlot
   readonly waitingList: WaitingList
-}
-
-type TownState = StoredState & {
   readonly skills: ReadonlyArray<TownSkill>
 }
 
-export type StoredTown = StoredState & {
+export type StoredTown = TownState & {
   readonly id: TownId
   readonly playerId: PlayerId
   readonly name: TownName
@@ -212,7 +210,7 @@ export class Town {
     private readonly state: TownState,
   ) {}
 
-  static found({ id, playerId, name, address, startingStocks, at }: TownFounding): Town {
+  static found({ id, playerId, name, address, startingStocks, skills, at }: TownFounding): Town {
     return new Town(id, playerId, name, address, {
       stocks: startingStocks,
       storedAt: at,
@@ -220,7 +218,7 @@ export class Town {
       buildingLevels: foundingLevels,
       workSlot: idleWorkSlot,
       waitingList: [],
-      skills: [],
+      skills,
     })
   }
 
@@ -230,7 +228,7 @@ export class Town {
       return err(refusal)
     }
     const { id, playerId, name, address, ...state } = stored
-    return ok(new Town(id, playerId, name, address, { ...state, skills: [] }))
+    return ok(new Town(id, playerId, name, address, state))
   }
 
   get stocks(): Stocks {

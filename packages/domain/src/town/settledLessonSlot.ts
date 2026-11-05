@@ -1,9 +1,7 @@
-import type { DomainError } from '../DomainError'
 import type { HeldCard } from '../learning/HeldCard'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import { lessonCardsEnteredAt } from '../learning/lessonCardsEnteredAt'
 import type { LessonCatalog } from '../ports/LessonCatalog'
-import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { idleLessonSlot, type LessonSlot } from './LessonSlot'
 import type { TownEvent } from './TownEvent'
@@ -19,18 +17,18 @@ export const settledLessonSlot = (
   held: ReadonlyArray<HeldCard>,
   lessons: Pick<LessonCatalog, 'lessonOf'>,
   now: Instant,
-): Result<SettledLessonSlot, DomainError> => {
+): SettledLessonSlot => {
   if (slot.kind === 'idle' || slot.finishesAt.epochMilliseconds > now.epochMilliseconds) {
-    return ok({ slot, entered: [], events: [] })
+    return { slot, entered: [], events: [] }
   }
   const lesson = lessons.lessonOf(slot.lessonId)
   if (lesson === undefined) {
-    return err({ kind: 'LessonNotFound', lessonId: slot.lessonId })
+    return { slot: idleLessonSlot, entered: [], events: [] }
   }
   const { finishesAt } = slot
-  return ok({
+  return {
     slot: idleLessonSlot,
     entered: holdsLessonCards(lesson, held) ? [] : lessonCardsEnteredAt(lesson, finishesAt),
     events: [{ kind: 'lessonStudied', lessonId: lesson.id, occurredAt: finishesAt }],
-  })
+  }
 }

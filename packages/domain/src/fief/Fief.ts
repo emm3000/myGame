@@ -2,7 +2,6 @@ import { attackLootOf } from '../camp/attackLootOf'
 import { type Battle, battleOf } from '../camp/battleOf'
 import type { DomainError } from '../DomainError'
 import type { EarnedSkill } from '../learning/EarnedSkill'
-import type { Lesson, LessonId } from '../learning/Lesson'
 import { carryOf } from '../march/carryOf'
 import { forageLootOf } from '../march/forageLootOf'
 import { forageLootOfMilliseconds } from '../march/forageLootOfMilliseconds'
@@ -58,7 +57,7 @@ import type { PlotAddress } from './PlotAddress'
 import type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './RecruitOrder'
 import { rebaseFullSince } from './rebaseFullSince'
 import { recruitOrderEndsAt } from './recruitOrderEndsAt'
-import type { BusyStudySlot, LessonStudySlot, StudySlot, StudyTarget } from './StudySlot'
+import type { BusyStudySlot, StudySlot, StudyTarget } from './StudySlot'
 import { shortfallOf } from './shortfallOf'
 import type { Terrain } from './Terrain'
 import { terrainOf } from './terrainOf'
@@ -261,9 +260,6 @@ const validateSlot = (slot: BuildSlot, storedAt: Instant): Result<void, DomainEr
 const validateStudySlot = (studySlot: StudySlot, storedAt: Instant): Result<void, DomainError> => {
   if (studySlot.kind === 'idle') {
     return ok(undefined)
-  }
-  if (studySlot.kind === 'lesson') {
-    return validateTiming(studySlot, storedAt)
   }
   if (!isTargetLevel(studySlot.targetLevel)) {
     return err({ kind: 'InvalidArtLevel', art: studySlot.art, level: studySlot.targetLevel })
@@ -1281,59 +1277,6 @@ export class Fief {
     })
   }
 
-  startLesson(lesson: Lesson, now: Instant, studyPercent: number): Result<Fief, DomainError> {
-    if (this.studySlot.kind !== 'idle') {
-      return err({ kind: 'StudySlotBusy' })
-    }
-    const libraryLevel = this.buildingLevels.library
-    if (libraryLevel < lesson.requiredLibraryLevel) {
-      return err({
-        kind: 'LessonLibraryTooLow',
-        requiredLibraryLevel: lesson.requiredLibraryLevel,
-        libraryLevel,
-      })
-    }
-    const duration = Duration.ofSeconds(
-      deriveStudyDurationSeconds(lesson.durationSeconds, libraryLevel, studyPercent),
-    )
-    if (!duration.ok) {
-      return duration
-    }
-    return ok(
-      this.changed({
-        studySlot: {
-          kind: 'lesson',
-          lessonId: lesson.id,
-          startedAt: now,
-          finishesAt: now.plus(duration.value),
-        },
-      }),
-    )
-  }
-
-  cancelLesson(lessonId: LessonId, now: Instant): Result<ChangedFief, DomainError> {
-    const { studySlot } = this
-    if (
-      studySlot.kind !== 'lesson' ||
-      studySlot.lessonId !== lessonId ||
-      isSlotFinishedBy(studySlot, now)
-    ) {
-      return err({ kind: 'LessonStudyNotFound', lessonId })
-    }
-    return ok({
-      fief: this.changed({ studySlot: { kind: 'idle' } }),
-      events: [{ kind: 'lessonCancelled', lessonId, occurredAt: now }],
-    })
-  }
-
-  completeLesson(finished: LessonStudySlot, stocksAtFinish: Stocks): Fief {
-    return this.changed({
-      stocks: stocksAtFinish,
-      storedAt: finished.finishesAt,
-      studySlot: { kind: 'idle' },
-    })
-  }
-
   completeRecruitOrder(ended: OpenRecruitOrder, stocksAtEnd: Stocks): Fief {
     return this.changed({
       stocks: stocksAtEnd,
@@ -1480,10 +1423,6 @@ export class Fief {
       this.changed({ stocks: stocksAtNow.value, storedAt: now }),
       catalog,
     )
-  }
-
-  earnSkill(skill: EarnedSkill, stocksAtNow: Stocks, now: Instant): Fief {
-    return this.changed({ skills: [...this.skills, skill], stocks: stocksAtNow, storedAt: now })
   }
 
   withFullSince(fullSince: FullSince): Fief {

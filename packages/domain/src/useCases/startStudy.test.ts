@@ -227,26 +227,6 @@ describe('startStudy', () => {
     expect(fiefs.storedFiefOf('fief-1')).toBe(studyingFief)
   })
 
-  it('refuses a study while a lesson holds the study slot', async () => {
-    const lessonFief = storedFief({
-      studySlot: {
-        kind: 'lesson',
-        lessonId: 'lesson-1',
-        startedAt: storedInstant,
-        finishesAt: oneHourLater,
-      },
-    })
-    const fiefs = inMemoryFiefRepository([lessonFief])
-
-    const result = await startStudy(
-      { playerId: 'lord', fiefId: 'fief-1', art: 'smithing' },
-      { fiefs, catalog, clock: frozenClock(storedInstant) },
-    )
-
-    expect(result).toEqual(err({ kind: 'StudySlotBusy' }))
-    expect(fiefs.storedFiefOf('fief-1')).toBe(lessonFief)
-  })
-
   it('refuses a study without the library level it requires', async () => {
     const unlettered = storedFief({ buildingLevels: levelsWithLibrary(0) })
     const fiefs = inMemoryFiefRepository([unlettered])

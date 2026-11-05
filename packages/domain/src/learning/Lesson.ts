@@ -1,4 +1,4 @@
-import type { ResourceKind } from '../resources/Resources'
+import type { ResourceKind } from '../town/ResourceKind'
 
 export type LessonId = string
 
@@ -20,7 +20,7 @@ export type LessonSkill = {
 export type Lesson = {
   readonly id: LessonId
   readonly durationSeconds: number
-  readonly requiredLibraryLevel: number
+  readonly requiredSchoolLevel: number
   readonly words: ReadonlyArray<LessonWord>
   readonly skill: LessonSkill
 }

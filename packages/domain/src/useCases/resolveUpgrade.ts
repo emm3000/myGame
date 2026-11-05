@@ -14,7 +14,7 @@ import { ownFiefOf } from '../fief/ownFiefOf'
 import type { OpenRecruitOrder } from '../fief/RecruitOrder'
 import { rebaseFullSince } from '../fief/rebaseFullSince'
 import { recruitOrderEndsAt } from '../fief/recruitOrderEndsAt'
-import type { BusyStudySlot, LessonStudySlot } from '../fief/StudySlot'
+import type { BusyStudySlot } from '../fief/StudySlot'
 import type { AttackMarch, AwayMarch, FoundingMarch } from '../march/March'
 import { marchInstantsOf } from '../march/marchInstantsOf'
 import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
@@ -44,7 +44,6 @@ export type ResolvedFief = ChangedFief & {
 type FinishedWork =
   | { readonly kind: 'upgrade'; readonly slot: BusySlot; readonly finishedAt: Instant }
   | { readonly kind: 'study'; readonly slot: BusyStudySlot; readonly finishedAt: Instant }
-  | { readonly kind: 'lesson'; readonly slot: LessonStudySlot; readonly finishedAt: Instant }
   | { readonly kind: 'recruit'; readonly order: OpenRecruitOrder; readonly finishedAt: Instant }
   | {
       readonly kind: 'battle'
@@ -72,9 +71,6 @@ const finishedStudyOf = (fief: Fief, now: Instant): FinishedWork | undefined => 
   const { studySlot } = fief
   if (studySlot.kind === 'idle' || !isSlotFinishedBy(studySlot, now)) {
     return undefined
-  }
-  if (studySlot.kind === 'lesson') {
-    return { kind: 'lesson', slot: studySlot, finishedAt: studySlot.finishesAt }
   }
   return { kind: 'study', slot: studySlot, finishedAt: studySlot.finishesAt }
 }
@@ -208,14 +204,6 @@ const eventsOf = (finished: FinishedWork): ReadonlyArray<FiefEvent> => {
           occurredAt: finished.finishedAt,
         },
       ]
-    case 'lesson':
-      return [
-        {
-          kind: 'lessonLearned',
-          lessonId: finished.slot.lessonId,
-          occurredAt: finished.finishedAt,
-        },
-      ]
     case 'recruit':
       return [
         {
@@ -299,8 +287,6 @@ const applyFinished = (
       return fief.completeUpgrade(finished.slot, stocksAtFinish)
     case 'study':
       return ok(fief.completeStudy(finished.slot, stocksAtFinish))
-    case 'lesson':
-      return ok(fief.completeLesson(finished.slot, stocksAtFinish))
     case 'recruit':
       return ok(fief.completeRecruitOrder(finished.order, stocksAtFinish))
     case 'battle':

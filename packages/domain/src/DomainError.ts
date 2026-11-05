@@ -47,9 +47,9 @@ export type DomainError =
       readonly lessonWordCount: number
     }
   | {
-      readonly kind: 'LessonLibraryTooLow'
-      readonly requiredLibraryLevel: number
-      readonly libraryLevel: number
+      readonly kind: 'LessonSchoolTooLow'
+      readonly requiredSchoolLevel: number
+      readonly schoolLevel: number
     }
   | { readonly kind: 'NegativeResourceAmount'; readonly amount: number }
   | { readonly kind: 'FractionalResourceAmount'; readonly amount: number }

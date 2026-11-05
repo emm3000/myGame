@@ -4,6 +4,7 @@ import type { PlayerId } from '../player/PlayerId'
 import type { Clock } from '../ports/Clock'
 import type { IdGenerator } from '../ports/IdGenerator'
 import { err, ok, type Result } from '../Result'
+import type { EarnedSkillRepository } from './EarnedSkillRepository'
 import { Town } from './Town'
 import { TownAddress } from './TownAddress'
 import type { TownCatalog } from './TownCatalog'
@@ -22,6 +23,7 @@ export type FoundTownDependencies = {
   readonly catalog: TownCatalog
   readonly clock: Clock
   readonly ids: IdGenerator
+  readonly skills: EarnedSkillRepository
 }
 
 const lowestFreeAddress = async (
@@ -40,7 +42,7 @@ const lowestFreeAddress = async (
 
 export const foundTown = async (
   command: FoundTownCommand,
-  { towns, catalog, clock, ids }: FoundTownDependencies,
+  { towns, catalog, clock, ids, skills }: FoundTownDependencies,
 ): Promise<Result<Town, DomainError>> => {
   const name = TownName.create(command.name)
   if (!name.ok) {
@@ -54,12 +56,17 @@ export const foundTown = async (
   if (!address.ok) {
     return address
   }
+  const earned = await skills.skillsOf(command.playerId)
+  if (!earned.ok) {
+    return earned
+  }
   const town = Town.found({
     id: ids.newId(),
     playerId: command.playerId,
     name: name.value,
     address: address.value,
     startingStocks: settings.startingStocks,
+    skills: earned.value,
     at: clock.now(),
   })
   const saved = await towns.save(town)

@@ -1,9 +1,4 @@
 import { assert, describe, expect, it } from 'vitest'
-import type { DomainError } from '../DomainError'
-import { Fief, type StoredFief } from '../fief/Fief'
-import { noStoreFull } from '../fief/FullSince'
-import { materializeStocks } from '../fief/materializeStocks'
-import type { EarnedSkill } from '../learning/EarnedSkill'
 import type { HeldCard } from '../learning/HeldCard'
 import { recognitionChoicesOf } from '../learning/recognitionChoicesOf'
 import { dueInstantOf } from '../memory/dueInstantOf'
@@ -11,20 +6,24 @@ import { MemoryCard } from '../memory/MemoryCard'
 import type { MemoryRating } from '../memory/MemoryRating'
 import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
-import type { BuildingCatalog, FiefSettings } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
-import { ok, type Result } from '../Result'
 import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
-import { inMemoryFiefRepository } from '../testing/inMemoryFiefRepository'
+import { inMemoryEarnedSkills } from '../testing/inMemoryEarnedSkills'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
 import { inMemoryPendingReviews } from '../testing/inMemoryPendingReviews'
 import { inMemoryReviewLog } from '../testing/inMemoryReviewLog'
+import { inMemoryTownNews } from '../testing/inMemoryTownNews'
+import { type InMemoryTowns, inMemoryTowns } from '../testing/inMemoryTowns'
 import { lessonOne } from '../testing/lessonOne'
-import { neutralSeasons } from '../testing/neutralSeasons'
-import { plainCamps } from '../testing/plainCamps'
-import { plainForage } from '../testing/plainForage'
-import { plainUnits } from '../testing/plainUnits'
+import { townCatalogOf } from '../testing/townCatalogOf'
+import { type TownShape, townOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
+import { accrueTown } from '../town/accrueTown'
+import type { WorkSlot } from '../town/BuildingWork'
+import type { EarnedSkillRepository } from '../town/EarnedSkillRepository'
+import { Town } from '../town/Town'
+import type { TownRepository } from '../town/TownRepository'
+import type { TownSkill } from '../town/TownSkill'
 import { answerReview } from './answerReview'
 
 const MILLISECONDS_PER_MINUTE = 60_000
@@ -36,7 +35,7 @@ const minutesAfterFinish = (minutes: number): Instant =>
 
 const frozenClock = (instant: Instant): Clock => ({ now: () => instant })
 
-const learner = 'player-learner'
+const learner = 'player-1'
 
 const headwords = ['home', 'school', 'work', 'money', 'food', 'foot', 'house']
 
@@ -80,71 +79,7 @@ const MILLISECONDS_PER_HOUR = 3_600_000
 const hoursAfter = (instant: Instant, hours: number): Instant =>
   Instant.fromEpochMilliseconds(instant.epochMilliseconds + hours * MILLISECONDS_PER_HOUR)
 
-const fiefSettings: FiefSettings = {
-  startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
-  startingCapacity: 1_000_000,
-  basePeasantSupply: 4,
-  plotsPerProvince: 15,
-  baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 20 },
-  terrainBonus: {
-    lowlands: { resource: 'stone', ratePerHour: 10 },
-    uplands: { resource: 'stone', ratePerHour: 10 },
-    ridges: { resource: 'stone', ratePerHour: 10 },
-  },
-  buildQueueCap: 4,
-  goals: [],
-  fiefCap: 2,
-  units: plainUnits,
-  forage: plainForage,
-  camps: plainCamps,
-  seasons: neutralSeasons,
-}
-
-const catalog: BuildingCatalog = {
-  levelOf: () => undefined,
-  artLevelOf: () => undefined,
-  fiefSettings: () => fiefSettings,
-}
-
-const fiefOfLearner = (id: string, plot: number, storedAt: Instant): Fief => {
-  const stored: StoredFief = {
-    id,
-    playerId: learner,
-    name: 'Vado Viejo',
-    address: { kingdom: 1, province: 3, plot },
-    stocks: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
-    storedAt,
-    buildingLevels: {
-      sawmill: 0,
-      quarry: 0,
-      ironMine: 0,
-      farm: 0,
-      warehouse: 0,
-      library: 1,
-      barracks: 0,
-    },
-    artLevels: { smithing: 0, masonry: 0 },
-    units: { infantry: 0, cavalry: 0, archer: 0, settler: 0 },
-    slot: { kind: 'idle' },
-    buildQueue: [],
-    studySlot: { kind: 'idle' },
-    recruitOrder: { kind: 'idle' },
-    march: { kind: 'idle' },
-    fullSince: noStoreFull,
-    guidanceDismissedAt: null,
-    skills: [],
-  }
-  const restored = Fief.restore(stored)
-  assert(restored.ok)
-  return restored.value
-}
-
-const foodAt = (fief: Fief | undefined, at: Instant): number => {
-  assert(fief !== undefined)
-  const stocks = materializeStocks(fief, catalog, at)
-  assert(stocks.ok)
-  return stocks.value.food
-}
+const catalog = townCatalogOf()
 
 const lastRecallAt = dueAtOf(firstRecallDoneCard)
 
@@ -156,54 +91,89 @@ const retainedExceptSchool = (schoolCard: MemoryCard): ReadonlyArray<OwnedCard> 
   ownedBy('school', schoolCard),
 ]
 
+const farmingTownStoredAt = (storedAt: Instant, shape: Partial<TownShape> = {}): Town =>
+  townOf({ area: 2, buildingLevels: { farm: 2 }, storedAt, ...shape })
+
+const earnedFoodSkill: TownSkill = {
+  lessonId: lessonOne.id,
+  resource: 'food',
+  ratePercent: 5,
+  earnedAt: lastRecallAt,
+}
+
 const arrange = (
   owned: ReadonlyArray<OwnedCard>,
   now: Instant,
-  heldFiefs: ReadonlyArray<Fief> = [fiefOfLearner('fief-1', 1, now)],
+  heldTowns: ReadonlyArray<Town> = [farmingTownStoredAt(now)],
 ) => {
-  const fiefs = inMemoryFiefRepository(heldFiefs)
+  const towns = inMemoryTowns(heldTowns)
+  const skills = inMemoryEarnedSkills([])
+  const news = inMemoryTownNews()
   const cards = inMemoryCards(owned)
   const pendingReviews = inMemoryPendingReviews()
   const reviewLog = inMemoryReviewLog()
   const dependencies = {
-    fiefs,
-    catalog,
     cards,
     pendingReviews,
     reviewLog,
     lessons: inMemoryLessons([lessonOne], headwords),
     clock: frozenClock(now),
     terms: defaultMemoryTerms,
+    skills,
+    towns,
+    news,
+    catalog,
   }
-  return { fiefs, cards, pendingReviews, reviewLog, dependencies }
+  return { towns, skills, news, cards, pendingReviews, reviewLog, dependencies }
 }
 
-const skillsKeptPerPlayer = (repository: ReturnType<typeof inMemoryFiefRepository>) => {
-  const skillsOfPlayer = new Map<string, ReadonlyArray<EarnedSkill>>()
-  return {
-    fiefsOf: repository.fiefsOf,
-    fiefOf: async (fiefId: string): Promise<Result<Fief | undefined, DomainError>> => {
-      const stored = await repository.fiefOf(fiefId)
-      if (!stored.ok || stored.value === undefined) {
-        return stored
-      }
-      const fief = stored.value
-      const shared = (skillsOfPlayer.get(fief.playerId) ?? []).filter(
-        (skill) => !fief.skills.some(({ lessonId }) => lessonId === skill.lessonId),
-      )
-      return ok(
-        shared.reduce(
-          (withSkill, skill) => withSkill.earnSkill(skill, withSkill.stocks, withSkill.storedAt),
-          fief,
-        ),
-      )
-    },
-    save: async (fief: Fief): Promise<Result<void, DomainError>> => {
-      skillsOfPlayer.set(fief.playerId, fief.skills)
-      return repository.save(fief)
-    },
-  }
+const skillsOf = async (skills: EarnedSkillRepository): Promise<ReadonlyArray<TownSkill>> => {
+  const earned = await skills.skillsOf(learner)
+  assert(earned.ok)
+  return earned.value
 }
+
+const foodAt = (town: Town | undefined, at: Instant): number => {
+  assert(town !== undefined)
+  const accrual = accrueTown(town, catalog, at)
+  assert(accrual.ok)
+  return accrual.value.stocks.food
+}
+
+const townsLoadingSkillsFrom = (
+  towns: InMemoryTowns,
+  skills: EarnedSkillRepository,
+): TownRepository => ({
+  ...towns,
+  townOf: async (playerId) => {
+    const stored = towns.storedTownOf(playerId)
+    const earned = await skills.skillsOf(playerId)
+    assert(stored !== undefined && earned.ok)
+    const { id, name, address, stocks, storedAt, fullSince, buildingLevels } = stored
+    return Town.restore({
+      id,
+      playerId,
+      name,
+      address,
+      stocks,
+      storedAt,
+      fullSince,
+      buildingLevels,
+      workSlot: stored.workSlot,
+      waitingList: stored.waitingList,
+      skills: earned.value,
+    })
+  },
+})
+
+const factoryFinishedAt = (finishesAt: Instant, startedAt: Instant): WorkSlot => ({
+  kind: 'busy',
+  building: 'factory',
+  level: 1,
+  cost: { money: 0, food: 0, power: 0, material: 0 },
+  startedAt,
+  finishesAt,
+})
 
 const heldCardOf = (cards: ReturnType<typeof inMemoryCards>, wordId: string): HeldCard => {
   const held = cards.heldCardOf(learner, wordId)
@@ -421,25 +391,88 @@ describe('answerReview', () => {
   })
 
   it('earns the skill at the review that brings the last word to retention', async () => {
-    const { fiefs, dependencies } = arrange(retainedExceptSchool(firstRecallDoneCard), lastRecallAt)
+    const { skills, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+    )
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'school', answer: 'school' },
       dependencies,
     )
 
-    const earned = {
-      lessonId: lessonOne.id,
-      resource: 'food',
-      ratePercent: 5,
-      earnedAt: lastRecallAt,
-    }
-    expect(answered).toMatchObject({ ok: true, value: { earnedSkill: earned } })
-    expect(fiefs.storedFiefOf('fief-1')?.skills).toEqual([earned])
+    expect(answered).toMatchObject({ ok: true, value: { earnedSkill: earnedFoodSkill } })
+    expect(await skillsOf(skills)).toEqual([earnedFoodSkill])
+  })
+
+  it("re-bases the player's town at the earn", async () => {
+    const { towns, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+      [farmingTownStoredAt(hoursAfter(lastRecallAt, -5))],
+    )
+
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
+
+    expect(towns.storedTownOf(learner)).toMatchObject({
+      storedAt: lastRecallAt,
+      skills: [earnedFoodSkill],
+    })
+  })
+
+  it('records skillEarned in the Town News', async () => {
+    const { news, dependencies } = arrange(retainedExceptSchool(firstRecallDoneCard), lastRecallAt)
+
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
+
+    expect(news.recordedEventsOf('town-1')).toEqual([
+      {
+        kind: 'skillEarned',
+        lessonId: lessonOne.id,
+        resource: 'food',
+        ratePercent: 5,
+        occurredAt: lastRecallAt,
+      },
+    ])
+  })
+
+  it('finishes the building work due before the earn and records its news first', async () => {
+    const finishesAt = hoursAfter(lastRecallAt, -1)
+    const startedAt = hoursAfter(lastRecallAt, -2)
+    const { towns, news, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+      [farmingTownStoredAt(startedAt, { workSlot: factoryFinishedAt(finishesAt, startedAt) })],
+    )
+
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
+
+    expect(towns.storedTownOf(learner)?.buildingLevels.factory).toBe(1)
+    expect(news.recordedEventsOf('town-1').map(({ kind }) => kind)).toEqual([
+      'buildingWorkFinished',
+      'skillEarned',
+    ])
+  })
+
+  it('saves only the skill for a player who holds no town', async () => {
+    const { skills, news, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+      [],
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({ ok: true, value: { earnedSkill: earnedFoodSkill } })
+    expect(await skillsOf(skills)).toEqual([earnedFoodSkill])
+    expect(news.recordedEventsOf('town-1')).toEqual([])
   })
 
   it('earns no skill on a recall that reaches 7 days of stability within a week of the last review', async () => {
-    const { fiefs, dependencies } = arrange(retainedExceptSchool(recallCard), dueAtOf(recallCard))
+    const { skills, dependencies } = arrange(retainedExceptSchool(recallCard), dueAtOf(recallCard))
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'school', answer: 'school' },
@@ -449,11 +482,11 @@ describe('answerReview', () => {
     assert(answered.ok && answered.value.kind === 'rated')
     expect(answered.value.card.stored.stability).toBeGreaterThanOrEqual(7)
     expect(answered.value.earnedSkill).toBeUndefined()
-    expect(fiefs.storedFiefOf('fief-1')?.skills).toEqual([])
+    expect(await skillsOf(skills)).toEqual([])
   })
 
   it('earns no skill on a Hard after a hint', async () => {
-    const { fiefs, pendingReviews, dependencies } = arrange(
+    const { skills, pendingReviews, dependencies } = arrange(
       retainedExceptSchool(firstRecallDoneCard),
       lastRecallAt,
     )
@@ -461,14 +494,16 @@ describe('answerReview', () => {
 
     await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
 
-    expect(fiefs.storedFiefOf('fief-1')?.skills).toEqual([])
+    expect(await skillsOf(skills)).toEqual([])
   })
 
   it('keeps the skill after a lapse', async () => {
-    const { fiefs, dependencies } = arrange(retainedExceptSchool(firstRecallDoneCard), lastRecallAt)
+    const { skills, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+    )
     await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
-    const homeDueAt = dueAtOf(retainedCard)
-    const lapse = { ...dependencies, clock: frozenClock(homeDueAt) }
+    const lapse = { ...dependencies, clock: frozenClock(dueAtOf(retainedCard)) }
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'home', answer: 'house' },
@@ -477,11 +512,14 @@ describe('answerReview', () => {
 
     assert(answered.ok)
     expect(answered.value).toMatchObject({ kind: 'rated', rating: 'again' })
-    expect(fiefs.storedFiefOf('fief-1')?.skills).toHaveLength(1)
+    expect(await skillsOf(skills)).toHaveLength(1)
   })
 
   it('earns the skill once, never again on a later retained review', async () => {
-    const { fiefs, dependencies } = arrange(retainedExceptSchool(firstRecallDoneCard), lastRecallAt)
+    const { towns, skills, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+    )
     await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
     const later = { ...dependencies, clock: frozenClock(dueAtOf(retainedCard)) }
 
@@ -492,67 +530,45 @@ describe('answerReview', () => {
 
     assert(answered.ok && answered.value.kind === 'rated')
     expect(answered.value.earnedSkill).toBeUndefined()
-    expect(fiefs.storedFiefOf('fief-1')?.skills).toHaveLength(1)
+    expect(await skillsOf(skills)).toHaveLength(1)
+    expect(towns.storedTownOf(learner)?.skills).toHaveLength(1)
   })
 
-  it('earns the skill for every fief the player holds', async () => {
-    const heldFiefs = [
-      fiefOfLearner('fief-2', 2, hoursAfter(lastRecallAt, -5)),
-      fiefOfLearner('fief-1', 1, hoursAfter(lastRecallAt, -3)),
-    ]
-    const { fiefs, dependencies } = arrange(
+  it('raises food by the lesson percent from the instant the skill is earned', async () => {
+    const { towns, dependencies } = arrange(
       retainedExceptSchool(firstRecallDoneCard),
       lastRecallAt,
-      heldFiefs,
+      [farmingTownStoredAt(hoursAfter(lastRecallAt, -5))],
     )
 
     await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
 
-    expect(fiefs.storedFiefOf('fief-1')?.skills).toHaveLength(1)
-    expect(fiefs.storedFiefOf('fief-2')?.skills).toHaveLength(1)
-    expect(fiefs.storedFiefOf('fief-2')?.storedAt).toEqual(lastRecallAt)
+    const earnedTown = towns.storedTownOf(learner)
+    expect(foodAt(earnedTown, lastRecallAt)).toBe(5 * 60)
+    expect(foodAt(earnedTown, hoursAfter(lastRecallAt, 5))).toBe(5 * 60 + 5 * 63)
   })
 
-  it('re-bases every fief when the store keeps the skill per player', async () => {
-    const heldFiefs = [
-      fiefOfLearner('fief-1', 1, hoursAfter(lastRecallAt, -3)),
-      fiefOfLearner('fief-2', 2, hoursAfter(lastRecallAt, -5)),
-    ]
-    const { fiefs, dependencies } = arrange(
+  it('re-bases a town whose store loads the earned skills with it', async () => {
+    const { towns, skills, dependencies } = arrange(
       retainedExceptSchool(firstRecallDoneCard),
       lastRecallAt,
-      heldFiefs,
+      [farmingTownStoredAt(hoursAfter(lastRecallAt, -5))],
     )
 
     await answerReview(
       { playerId: learner, wordId: 'school', answer: 'school' },
-      { ...dependencies, fiefs: skillsKeptPerPlayer(fiefs) },
+      { ...dependencies, towns: townsLoadingSkillsFrom(towns, skills) },
     )
 
-    expect(fiefs.storedFiefOf('fief-2')?.storedAt).toEqual(lastRecallAt)
-    expect(foodAt(fiefs.storedFiefOf('fief-2'), lastRecallAt)).toBe(100 + 5 * 20)
-  })
-
-  it('raises food by the lesson percent from the instant the skill is earned', async () => {
-    const storedAt = hoursAfter(lastRecallAt, -10)
-    const { fiefs, dependencies } = arrange(
-      retainedExceptSchool(firstRecallDoneCard),
-      lastRecallAt,
-      [fiefOfLearner('fief-1', 1, storedAt)],
-    )
-
-    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
-
-    const earnedFief = fiefs.storedFiefOf('fief-1')
-    expect(foodAt(earnedFief, lastRecallAt)).toBe(100 + 10 * 20)
-    expect(foodAt(earnedFief, hoursAfter(lastRecallAt, 10))).toBe(100 + 10 * 20 + 10 * 21)
+    const earnedTown = towns.storedTownOf(learner)
+    expect(earnedTown?.skills).toEqual([earnedFoodSkill])
+    expect(foodAt(earnedTown, lastRecallAt)).toBe(5 * 60)
   })
 
   it('credits no stock for a correct answer', async () => {
     const now = dueAtOf(recallCard)
-    const fief = fiefOfLearner('fief-1', 1, hoursAfter(now, -2))
-    const { fiefs, dependencies } = arrange([ownedBy('school', recallCard)], now, [fief])
-    const stocksBefore = materializeStocks(fief, catalog, now)
+    const town = farmingTownStoredAt(hoursAfter(now, -2))
+    const { towns, dependencies } = arrange([ownedBy('school', recallCard)], now, [town])
 
     const answered = await answerReview(
       { playerId: learner, wordId: 'school', answer: 'school' },
@@ -561,8 +577,6 @@ describe('answerReview', () => {
 
     assert(answered.ok)
     expect(answered.value).toMatchObject({ kind: 'rated', rating: 'good' })
-    const stored = fiefs.storedFiefOf('fief-1')
-    assert(stored !== undefined)
-    expect(materializeStocks(stored, catalog, now)).toEqual(stocksBefore)
+    expect(towns.storedTownOf(learner)).toBe(town)
   })
 })

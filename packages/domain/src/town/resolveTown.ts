@@ -3,7 +3,7 @@ import type { PlayerId } from '../player/PlayerId'
 import type { Clock } from '../ports/Clock'
 import { ok, type Result } from '../Result'
 import { resolvedTownOf } from './resolvedTownOf'
-import { saveChangedTown } from './saveChangedTown'
+import { saveResolvedTown } from './saveResolvedTown'
 import type { ChangedTown } from './Town'
 import type { TownCatalog } from './TownCatalog'
 import type { TownNews } from './TownNews'
@@ -24,10 +24,7 @@ export const resolveTown = async (
   if (!resolved.ok) {
     return resolved
   }
-  if (resolved.value.events.length === 0) {
-    return resolved
-  }
-  const saved = await saveChangedTown(resolved.value, towns, news)
+  const saved = await saveResolvedTown(resolved.value, towns, news)
   if (!saved.ok) {
     return saved
   }

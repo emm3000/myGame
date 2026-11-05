@@ -788,38 +788,6 @@ describe('Fief', () => {
     })
   })
 
-  it('refuses a stored lesson study that finishes before the stored instant', () => {
-    const finishesAt = Instant.fromEpochMilliseconds(86_399_000)
-    const restored = Fief.restore({
-      ...storedBusyFief,
-      studySlot: {
-        kind: 'lesson',
-        lessonId: 'lesson-1',
-        startedAt: Instant.fromEpochMilliseconds(86_249_000),
-        finishesAt,
-      },
-    })
-
-    expect(restored).toEqual({
-      ok: false,
-      error: { kind: 'SlotFinishesBeforeStored', storedAt: foundingInstant, finishesAt },
-    })
-  })
-
-  it('refuses a stored lesson study that starts after it finishes', () => {
-    const startedAt = Instant.fromEpochMilliseconds(86_600_000)
-    const finishesAt = Instant.fromEpochMilliseconds(86_500_000)
-    const restored = Fief.restore({
-      ...storedBusyFief,
-      studySlot: { kind: 'lesson', lessonId: 'lesson-1', startedAt, finishesAt },
-    })
-
-    expect(restored).toEqual({
-      ok: false,
-      error: { kind: 'SlotStartsAfterFinish', startedAt, finishesAt },
-    })
-  })
-
   it('refuses a stored busy slot that starts after it finishes', () => {
     const startedAt = Instant.fromEpochMilliseconds(86_600_000)
     const finishesAt = Instant.fromEpochMilliseconds(86_500_000)
