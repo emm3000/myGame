@@ -56,6 +56,12 @@ What trunk holds, checked at `ceb2bd4c`:
   the words waiting, however short a high school level makes the
   lesson. After the first review a word cannot be read: the review
   asks, and the answer is no longer on the page.
+- **Every door to the reviews goes through unread words first.** While a
+  due card can still be read, the next step, the Report, the school's
+  link and the finish notice open that lesson's words, and the words go
+  on to `/reviews`, so a player who left never lands on the guess. The
+  server cannot know what was read, so each word offers the way on once
+  the lesson has finished, and a player who read them skips the rest.
 - **Reading changes nothing.** It writes no rating, no card and no log
   row, and pays nothing (ADR 036, rule 5). The lesson finishes on its
   timer, read or not. Which word is on screen is client state.
@@ -70,17 +76,19 @@ What trunk holds, checked at `ceb2bd4c`:
 ```ts
 {
   wordId: string,
-  pathStop: 'notStarted' | 'recognize' | 'recall' | 'hold' | 'retained',
+  standing: 'notStarted' | 'recognize' | 'recall' | 'hold' | 'retained',
   reading: { word: string, gloss: string, frame: string } | null,
 }
 ```
 
 `reading` is non-null when the word is not held out and either its
-lesson holds the lesson slot or its card has no `lastReviewAt`. `word`
+lesson holds the lesson slot or its card exists and has no
+`lastReviewAt`. A word with no card and no running lesson has none, so
+a stopped lesson and an unstudied one show nothing. `word`
 is `acceptedForms[0]`, as a recognition's is. `gloss` is the word's
 support in the player's scaffold, so under `none` it is the definition,
 as a recall's cue is (ADR 038, step 4). `isRetained` goes, replaced by
-`pathStop: 'retained'`: no screen reads it today, and two fields would
+`standing: 'retained'`: no screen reads it today, and two fields would
 say one thing.
 
 **Against ADR 038's wire without prose.** There is no conflict. ADR 038
@@ -125,23 +133,34 @@ Food to the top is 4 493; to the city, 1 247. Why these numbers:
   which supplies 50 people and leaves 15.
 - **A new town can pay level 2 at once**: 400 money, 300 food, 200 power
   and 500 material become 310, 240, 200 and 380.
-- **Level 5 is where food starts to bind.** With 15 food left it is
-  refused, 187 short, `NotEnoughResources`. A level 1 farm covers that
-  in 6.2 hours on fields (30 per hour) and 7.5 on river or hills (25).
+- **Food binds only until a farm stands.** With no farm, level 5 is
+  refused, 187 food short, `NotEnoughResources`, so what food buys at
+  this share is the first farm. With one, money binds: it is a flat 20
+  per hour and food about two thirds of it, so food binds only under
+  13.3 per hour, and any farm makes 25 or more. Farm, factory, then the
+  homes, level 5 is paid at 22.05 hours with this food column or
+  without it.
 - **Storage binds no earlier than today.** Material already needs more
   than the base 1 000 from homes level 8, where food does not until
   level 9; at level 10 material's 3 075 needs storage level 3, food's
   1 538 storage level 2.
-- **No dead end at these levels.** The farm costs no food and one
-  person, so a town with a free person can always start making food.
-  The one trap needs no farm, no terrain food, the food spent and no
-  free person: on river or hills, homes at level 4 and the other five
-  buildings at level 10, 50 people of 50.
+- **Food adds one dead end, far away.** The farm costs no food, so food
+  alone never blocks it. On river or hills, with no farm, homes at level
+  4 and the other five buildings at level 10, the town holds 15 food,
+  makes none and has no free person: 50 people of 50.
+- **Material holds a nearer dead end, shipped today and not caused
+  here.** The farm costs 70 material, and only a factory or hills make
+  any. On fields or river, farm 1, farm 2, homes 2 and homes 3 spend 475
+  of the 500 and leave 25: the factory is 35 short, the power station
+  55, storage 125, and the rate is 0, for good. It is the same on trunk
+  with no food column. That is not acceptable for a new player; see
+  *Open for the owner*.
 
-**What the skill is worth.** Lesson 1's +5 % takes a level 2 farm on
-fields from 60 to 63 per hour, so homes level 5 takes 3.21 hours of food
-instead of 3.37: about 10 minutes. The reward is now real and still small; it
-grows by 0.05 of the rate per food level (ADR 039).
+**What the skill is worth.** In time, nothing at this share. Lesson 1's
++5 % takes a level 2 farm on fields from 60 to 63 per hour, which the
+verdict can show, but money sets when a homes level is paid, so the
+level comes at the same hour with or without it. This undercuts the
+reason for the decision; see *Open for the owner*.
 
 **Existing towns.** This is content, `homes.json` alone: no schema
 change, no migration, no reset. A town keeps its levels and stocks, and
@@ -156,16 +175,21 @@ nothing for what it holds and owes nothing.
 a week after the review before it, so it cannot fit in the first
 session. What the first session earns is the words.
 
-**When the skill lands.** A player who answers every review on time, all
-Good, earns it on day 13. That is the usual date, not the floor; see
-*Open for the owner*. No screen promises a date.
+**When the skill lands.** The owner kept rule 7 unchanged on 2026-11-05,
+knowing what it allows. A player who answers every review on time, all
+Good, earns the skill on day 13: that is the on-time date. Rule 7 counts
+7 whole days after the review before, so the floor is day 7: a player
+who skips the day 2 recall and answers Good 7 days and 10 minutes after
+the lesson earns it then, 6 days sooner than one who reviews on time,
+and a hint on day 2 lands it on day 10. **No screen promises a date**,
+and no line of copy states one.
 
 **The school path** shows a lesson's words moving, so a player sees
-progress at every visit, long before the skill. Each word stands at one
-**path stop**, derived on read by a new domain function beside
+progress at every visit, long before the skill. Each word has one
+**standing**, derived on read by a new domain function beside
 `isWordRetained`, with no new column:
 
-| `pathStop` | The card | What the player is doing |
+| `standing` | The card | What the player is doing |
 |---|---|---|
 | `notStarted` | none | the lesson is not finished |
 | `recognize` | state `learning` | choosing the meaning |
@@ -173,17 +197,20 @@ progress at every visit, long before the skill. Each word stands at one
 | `hold` | stability 7 or more, not retained | waiting for the recall a week on |
 | `retained` | `isWordRetained` | done |
 
-The path counts the words past each stop, *5 of 5*, among the words the
-player holds: a held-out word stays `notStarted` and is not counted, as
-the skill does not wait on it (ADR 039). Three facts follow from
+The path counts the words past each standing, *5 of 5*, among the words
+the player holds: a held-out word stays `notStarted` and is not counted,
+as the skill does not wait on it (ADR 039). Four facts follow from
 deriving it:
 
 - A wrong recall moves a word back, from `hold` to `recall`, because its
   stability falls. The path is honest and costs nothing; a skill already
   earned is never taken back (ADR 036, rule 7).
-- A player who comes back late can pass `hold` without standing on it.
-- The path shows stops and counts, never days away and never a run of
-  days (PRD W10).
+- A later Hard or Again clears `retainedAt`, a right answer after a hint
+  included, so a word moves back from `retained`. A level already earned
+  stays; a lesson still unearned waits on that word again.
+- A player who comes back late can skip `hold`.
+- The path shows standings and counts, never days away and never a run
+  of days (PRD W10).
 
 ### Word tags stay out, for now
 
@@ -206,7 +233,7 @@ state that holds wins:
 
 | Priority | `kind` | When | The button goes to | It also says |
 |---|---|---|---|---|
-| 1 | `reviews` | a card is due | `/reviews` | how many; a running lesson's time |
+| 1 | `reviews` | a card is due | the words if `readFirst` is set, else `/reviews` | how many; a running lesson's time |
 | 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
 | 3 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
 | 4 | `caughtUp` | none of the above | the Report | when the next review is due |
@@ -214,7 +241,9 @@ state that holds wins:
 - **`reviews` wins over a running lesson**: the words are due now, and
   the lesson runs on its own.
 - **A finished lesson is `reviews`**, since its cards enter due at its
-  finish.
+  finish. `reviews` carries `readFirst`, the lesson of the earliest due
+  card with no `lastReviewAt`, or null, and `ReportSchema` carries the
+  same field, so each door follows the rule above.
 - **`lessonRunning` names a producer** while the building that makes the
   lesson's skill resource stands at level 0 and no work is raising it:
   the farm for food, the factory for material, the power station for
@@ -250,11 +279,11 @@ the town rows, and #771 and #775 take the school and the Report.
 | Naming | form alone | the homes' and the school's art |
 | Town home | no card; the school sixth; every place card with its own strong button | the next step first; the school first; the next step holds the one strong button; a place not built drawn with its art |
 | School | every lesson listed, each with its button; the slot first on a phone; no link to `/reviews` | the next lesson first; its reward as one line, words to skill to rate; the school path; a link to the reviews when any is due |
-| Lesson | no screen | the words, one at a time, from `reading` |
+| Lesson | no screen | the words, one at a time, from `reading`, with the way on to `/reviews` once finished |
 | Review, end | `nothingDue`, no way out | the next review, the school path, a way back to the town |
 | Review, skill verdict | level and percent, no rates | `ratePerHourBefore` and `ratePerHourAfter`, already on the wire, and the lesson's words |
 | Town stocks | no skill mark | the earned skill beside its resource |
-| Report | *No tienes repasos pendientes ahora.* alone | the next review's instant, so `ReportSchema` gains `nextDueAt` |
+| Report | *No tienes repasos pendientes ahora.* alone; its button always goes to `/reviews` | the next review's instant, and unread words first, so `ReportSchema` gains `nextDueAt` and `readFirst` |
 
 Lesson order is not enforced: `admitSchoolLesson` admits any unstudied
 lesson. The card and the school lead to the next one, and refusing the
@@ -262,19 +291,48 @@ others is left out here, since no owner decision covers it.
 
 ### Open for the owner
 
-1. **The first skill can land before day 13.** Rule 7 counts 7 whole
-   days after the review before, and a player who skips the day 2 recall
-   meets that on day 7, with a higher stability. So the earliest is 7
-   days and 10 minutes after the lesson, not 13 days, and a player who
-   stays away earns the skill 6 days sooner than one who reviews on
-   time; a hint on day 2 lands it on day 10. This is shipped behavior,
-   and ADR 036's example holds the day 10 path. The decision "the rule
-   stays" is recorded unchanged; whether the owner accepts this path
-   is open.
-2. **The next step and the goals.** ADR 040 keeps ADR 027's *one next
+1. **The next step and the goals.** ADR 040 keeps ADR 027's *one next
    goal*, learning goals among them (*Study lesson 2*), and #791 puts it
    on the town home. `lessonToStudy` says the same thing, and two cards
    would each claim to be next. This ADR does not settle which yields.
+2. **Food's share of the homes, and what the skill is for.** The owner
+   accepted food so that lesson 1's skill would matter. With a farm
+   standing it does not: timings match trunk's, and the +5 % saves 0
+   minutes. A share *s* of the money makes food bind only under 20 × *s*
+   per hour. Farm, factory, then the homes on fields, buying the moment
+   stocks allow, with the +5 % held from the first hour, which no player
+   has:
+
+   | Share | Homes 2, 3, 4 food | The 300 pays | Food binds under | Farm 1: level 5 paid, saved | Farm 2 | Farm 3 |
+   |---|---|---|---|---|---|---|
+   | 2/3 (above) | 60, 90, 135 | three raises | 13.3 / h | 22.1 h, 0 min | 0 min | 0 min |
+   | 1.5 | 135, 203, 303 | one | 30 / h | 26.6 h, 76 min | 0 min | 0 min |
+   | 2 | 180, 270, 404 | one | 40 / h | 38.8 h, 111 min | 0 min | 0 min |
+   | 3 | 270, 405, 606 | one | 60 / h | 63.1 h, 181 min | 91 min | 0 min |
+
+   - **No share makes a 5 % skill felt.** It shortens a wait on food by
+     4.8 % at most, and a level 2 or 3 farm, 75 or 112 money, shrinks or
+     removes the wait. The skill also lands late: from day 7 or day 13 it saves
+     0 minutes at level 5 on every row, because those levels are paid
+     by then. The first gain is at level 7, 26 minutes, share 3, farm 1,
+     landing on day 7; level 10 at share 2 gains 13 hours or 6.
+   - **A higher share costs a new player.** From 1.5 up the 300 pays
+     one raise, not three, so homes level 3 waits on a farm: 1.3 hours
+     at 1.5, 5 at 2, 12.5 at 3. The no-farm dead end falls from 50
+     people to 30.
+   - **Money is what binds.** The +5 % on money, lesson 4's, moves level
+     5 from 22.05 to 21 hours and level 10 from 346 to 330.
+
+   Recommendation: keep 2/3 and stop claiming a speed-up. It costs a
+   new player nothing, and it makes the first farm necessary. Food's
+   skill then shows as a rate on the verdict, not as a level sooner. A
+   felt reward needs another lever than the share, such as lesson 1
+   raising money, which ADR 039's *food first* refuses.
+3. **The material dead end.** Shipped, and independent of food, but a
+   new player can reach it by following the strong buttons. Recommended,
+   content only: factory level 1 costs money alone, 60, so tax always
+   reaches it. Then material flows, the farm follows, and only *no free
+   person* is left.
 
 ## Worked examples
 
@@ -289,7 +347,7 @@ instants UTC.
 of 100, and finishes at 09:00. Its word can be read from 08:55 until
 09:00 or later, when its first review is answered.
 
-| Instant | Review | Stability | Due next | `pathStop` after |
+| Instant | Review | Stability | Due next | `standing` after |
 |---|---|---|---|---|
 | 11-10 09:00 | recognition, Good | 2.3065 | 11-10 09:10 | `recognize` |
 | 11-10 09:10 | recognition, Good | 2.3065 | 11-12 09:10 | `recall` |
@@ -322,6 +380,22 @@ fourth lesson is refused on day 0 and `caughtUp` shows.
 | fields | 5 | 30 | 31.5 | 60 | 63 |
 | river, hills | 0 | 25 | 26.25 | 55 | 57.75 |
 
+**Paying the homes.** The hours in this ADR come from a throwaway loop
+in 30-second steps over `deriveResourceRates`, `deriveStorageCapacity`
+and the content's costs, no season: farm 1, factory 1, then the homes,
+with storage when a cost passes capacity, each paid the moment stocks
+allow, with no other building. Real players buy later. By hand, level 5
+at a share too low to bind: 290 money after the farm and the factory, 65
+after levels 2 and 3, 6.85 hours to level 4's 202, 15.2 to level 5's
+304, 22.05 hours.
+
+**The material dead end**, through `Town.startWork` with money set
+aside, on trunk's content and with the food column alike: 500 material
+falls to 25 after farm 1, farm 2, homes 2 and homes 3. The factory is
+then refused 35 short, the power station 55, storage 125, farm 3 133.
+`deriveResourceRates` at those levels gives material 0 on fields and
+river, 5 on hills.
+
 **The homes from 300 food**, money and material set aside: level 2
 leaves 240, level 3 150, level 4 15; level 5 is refused, `food: 187`
 missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
@@ -340,11 +414,12 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
 - **A separate lesson-words route** instead of a field on
   `LessonState`. A second read and a second shape for what the school
   already loads. Rejected.
-- **A stored stop per word**, which would never move back. It needs a
+- **A stored standing per word**, which would never move back. It needs a
   column and a write on every review for a value the card already
   holds. Rejected for derivation.
 - **Reuse the word *stage*.** `CONTEXT.md` defines Stage as the lessons a
-  player has studied. Rejected for *path stop*.
+  player has studied. Rejected. *Path stop* collides the same way with
+  **stop**, what ends building work, so the term is *standing*.
 - **A progress bar of retained words, 0 of 5.** All five words become
   retained at about the same review, so it would sit at 0 for days and
   jump. Rejected.
@@ -355,10 +430,7 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
   lesson 1's skill would stay worth nothing until then. Rejected.
 - **A cycle that starts with material.** It breaks *food first* (ADR
   039) and moves every lesson's skill. Rejected.
-- **Twice the food per level.** 120 at level 2 and 180 at level 3 spend
-  all 300 on two raises, so a farm becomes necessary sooner, on terrain
-  where a new player has no food at all. Rejected for three raises on
-  the starting stock.
+- **A larger food share.** See *Open for the owner*, question 2.
 - **A next step computed by each client.** Two copies of one priority
   rule, on two clients. Rejected for the server's answer.
 - **The card on every screen.** The town home is where a player decides;
@@ -369,11 +441,11 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
 
 ## Consequences
 
-- `packages/domain`: the path stop function, the next step function, and
+- `packages/domain`: the standing function, the next step function, and
   the mapping from a skill's resource to its producer.
 - `packages/contracts`: `LessonStateSchema`'s words as above;
   `TownOverview` gains `nextStep` and `nextDueAt`; `ReportSchema` gains
-  `nextDueAt`. The union carries `.meta({ id })`. The OpenAPI client is
+  `nextDueAt` and `readFirst`. The union carries `.meta({ id })`. The OpenAPI client is
   regenerated, so the Android row of `.claude/rules/verification.md` is
   owed.
 - `apps/api`: `TownReading` gains the player's held-out words, which
@@ -383,8 +455,10 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
 - `apps/api/content/town/homes.json` gains the food column; no
   migration. The web's `placeCardOf` and Android's cost lines show a food
   cost once it is above 0, with no new code.
-- #777 re-runs the dead-end check: hires occupy people, so they can
+- #777 re-runs the dead-end checks: hires occupy people, so they can
   reach *no free person* far below level 10.
+- The homes' food column waits on question 2, and any fix of the
+  material dead end on question 3.
 - After homes level 10, food buys nothing again until hires or another
   sink exist. A town at the top holds it to no use.
 - #745 owns the word tags, the `none` reading and the English of every
