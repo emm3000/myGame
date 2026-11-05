@@ -56,7 +56,7 @@ jobs:
           path: unsigned
       - name: pick the build tools
         run: |
-          version=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          version=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | { grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true; } | sort -V | tail -1)
           if [ -z "$version" ]; then
             echo "::error::no stable build tools under $ANDROID_HOME/build-tools"
             exit 1
@@ -99,16 +99,32 @@ jobs:
         run: |
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs dist/app-release.apk
           "$BUILD_TOOLS/aapt2" dump badging dist/app-release.apk | sed -n 1p
-      - uses: wzieba/Firebase-Distribution-Github-Action@bd494989dd4bec0343f78adee87fe66e48279ad6 # v1.7.1
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          groups: owner
-          file: dist/app-release.apk
-          releaseNotes: |
+          node-version: 24
+      - name: write the service account key
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT_JSON is not readable"
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/service-account.json"
+      - name: upload to App Distribution
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service-account.json
+          RELEASE_NOTES: |
             ${{ github.event.head_commit.message || 'workflow_dispatch' }}
             Commit ${{ github.sha }} on ${{ github.ref_name }}, versionCode ${{ github.run_number }}
             ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+        run: |
+          npx --yes firebase-tools@15.34.1 appdistribution:distribute dist/app-release.apk \
+            --app "$FIREBASE_APP_ID" \
+            --groups owner \
+            --release-notes "$RELEASE_NOTES"
       - name: remove the key material
         if: always()
-        run: rm -f "$RUNNER_TEMP/release.keystore" service_credentials_content.json
+        run: rm -f "$RUNNER_TEMP/release.keystore" "$RUNNER_TEMP/service-account.json"
