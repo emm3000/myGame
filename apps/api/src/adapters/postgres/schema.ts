@@ -578,3 +578,63 @@ export const reviewLog = pgTable(
     index('review_log_player_order').on(table.playerId, table.reviewedAt, table.id),
   ],
 )
+
+export const townBuilding = pgEnum('town_building', [
+  'homes',
+  'farm',
+  'factory',
+  'power_station',
+  'storage',
+  'school',
+  'office',
+])
+
+export const towns = pgTable(
+  'towns',
+  {
+    id: uuid('id').primaryKey(),
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    region: integer('region').notNull(),
+    area: integer('area').notNull(),
+    site: integer('site').notNull(),
+    name: text('name').notNull(),
+    money: doublePrecision('money').notNull(),
+    food: doublePrecision('food').notNull(),
+    power: doublePrecision('power').notNull(),
+    material: doublePrecision('material').notNull(),
+    storedAt: timestamp('stored_at', { withTimezone: true }).notNull(),
+    fullSinceMoney: timestamp('full_since_money', { withTimezone: true }),
+    fullSinceFood: timestamp('full_since_food', { withTimezone: true }),
+    fullSincePower: timestamp('full_since_power', { withTimezone: true }),
+    fullSinceMaterial: timestamp('full_since_material', { withTimezone: true }),
+  },
+  (table) => [
+    unique('towns_player_unique').on(table.playerId),
+    unique('towns_site_unique').on(table.region, table.area, table.site),
+    check(
+      'towns_address_positive',
+      sql`${table.region} >= 1 AND ${table.area} >= 1 AND ${table.site} >= 1`,
+    ),
+    wholeAmount('towns_money_whole', table.money),
+    wholeAmount('towns_food_whole', table.food),
+    wholeAmount('towns_power_whole', table.power),
+    wholeAmount('towns_material_whole', table.material),
+  ],
+)
+
+export const townBuildings = pgTable(
+  'town_buildings',
+  {
+    townId: uuid('town_id')
+      .notNull()
+      .references(() => towns.id, { onDelete: 'cascade' }),
+    building: townBuilding('building').notNull(),
+    level: integer('level').notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'town_buildings_pkey', columns: [table.townId, table.building] }),
+    check('town_buildings_level_whole', sql`${table.level} >= 0`),
+  ],
+)

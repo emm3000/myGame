@@ -7,6 +7,9 @@ import type { PlayerId } from './player/PlayerId'
 import type { ArtKind, BuildingKind, UnitKind } from './ports/BuildingCatalog'
 import type { ResourceKind } from './resources/Resources'
 import type { Instant } from './time/Instant'
+import type { BuildingKind as TownBuildingKind } from './town/BuildingKind'
+import type { ResourceKind as TownResourceKind } from './town/ResourceKind'
+import type { SiteAddress } from './town/SiteAddress'
 
 export type DomainError =
   | { readonly kind: 'NegativeDuration'; readonly seconds: number }
@@ -63,10 +66,34 @@ export type DomainError =
       readonly province: number
       readonly plot: number
     }
-  | { readonly kind: 'InvalidPlotsPerProvince'; readonly plotsPerProvince: number }
+  | { readonly kind: 'InvalidCellsPerRow'; readonly cellsPerRow: number }
   | { readonly kind: 'CoordinatesTaken'; readonly coordinates: Coordinates }
   | { readonly kind: 'BlankFiefName' }
   | { readonly kind: 'PlayerAlreadyHoldsFief'; readonly playerId: PlayerId }
+  | {
+      readonly kind: 'InvalidTownAddress'
+      readonly region: number
+      readonly area: number
+      readonly site: number
+    }
+  | { readonly kind: 'BlankTownName' }
+  | { readonly kind: 'PlayerAlreadyHoldsTown'; readonly playerId: PlayerId }
+  | { readonly kind: 'SiteTaken'; readonly site: SiteAddress }
+  | {
+      readonly kind: 'InvalidTownStock'
+      readonly resource: TownResourceKind
+      readonly amount: number
+    }
+  | {
+      readonly kind: 'InvalidTownBuildingLevel'
+      readonly building: TownBuildingKind
+      readonly level: number
+    }
+  | {
+      readonly kind: 'UnknownTownBuildingLevel'
+      readonly building: TownBuildingKind
+      readonly level: number
+    }
   | { readonly kind: 'InsufficientResources'; readonly missing: Stocks }
   | {
       readonly kind: 'NotEnoughPeasants'

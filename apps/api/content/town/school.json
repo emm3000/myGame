@@ -1,0 +1,155 @@
+{
+  "building": "school",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "money": 120,
+        "food": 0,
+        "power": 40,
+        "material": 160
+      },
+      "durationSeconds": 300,
+      "people": 1,
+      "effect": {
+        "lessonPercent": 100,
+        "learningCap": 15
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "money": 180,
+        "food": 0,
+        "power": 60,
+        "material": 240
+      },
+      "durationSeconds": 480,
+      "people": 2,
+      "effect": {
+        "lessonPercent": 95,
+        "learningCap": 20
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "money": 270,
+        "food": 0,
+        "power": 90,
+        "material": 360
+      },
+      "durationSeconds": 768,
+      "people": 3,
+      "effect": {
+        "lessonPercent": 90,
+        "learningCap": 25
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "money": 405,
+        "food": 0,
+        "power": 135,
+        "material": 540
+      },
+      "durationSeconds": 1229,
+      "people": 4,
+      "effect": {
+        "lessonPercent": 85,
+        "learningCap": 30
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "money": 608,
+        "food": 0,
+        "power": 202,
+        "material": 810
+      },
+      "durationSeconds": 1966,
+      "people": 5,
+      "effect": {
+        "lessonPercent": 80,
+        "learningCap": 35
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "money": 911,
+        "food": 0,
+        "power": 304,
+        "material": 1215
+      },
+      "durationSeconds": 3146,
+      "people": 6,
+      "effect": {
+        "lessonPercent": 75,
+        "learningCap": 40
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "money": 1367,
+        "food": 0,
+        "power": 456,
+        "material": 1822
+      },
+      "durationSeconds": 5033,
+      "people": 7,
+      "effect": {
+        "lessonPercent": 70,
+        "learningCap": 45
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "money": 2050,
+        "food": 0,
+        "power": 683,
+        "material": 2734
+      },
+      "durationSeconds": 8053,
+      "people": 8,
+      "effect": {
+        "lessonPercent": 65,
+        "learningCap": 50
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "money": 3075,
+        "food": 0,
+        "power": 1025,
+        "material": 4101
+      },
+      "durationSeconds": 12885,
+      "people": 9,
+      "effect": {
+        "lessonPercent": 60,
+        "learningCap": 55
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "money": 4613,
+        "food": 0,
+        "power": 1538,
+        "material": 6151
+      },
+      "durationSeconds": 20616,
+      "people": 10,
+      "effect": {
+        "lessonPercent": 55,
+        "learningCap": 60
+      }
+    }
+  ]
+}

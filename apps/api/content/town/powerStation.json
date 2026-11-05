@@ -1,0 +1,145 @@
+{
+  "building": "powerStation",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "money": 70,
+        "food": 0,
+        "power": 0,
+        "material": 80
+      },
+      "durationSeconds": 120,
+      "people": 1,
+      "effect": {
+        "ratePerHour": 20
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "money": 105,
+        "food": 0,
+        "power": 0,
+        "material": 120
+      },
+      "durationSeconds": 192,
+      "people": 2,
+      "effect": {
+        "ratePerHour": 44
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "money": 158,
+        "food": 0,
+        "power": 0,
+        "material": 180
+      },
+      "durationSeconds": 307,
+      "people": 3,
+      "effect": {
+        "ratePerHour": 73
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "money": 236,
+        "food": 0,
+        "power": 0,
+        "material": 270
+      },
+      "durationSeconds": 492,
+      "people": 4,
+      "effect": {
+        "ratePerHour": 106
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "money": 354,
+        "food": 0,
+        "power": 0,
+        "material": 405
+      },
+      "durationSeconds": 786,
+      "people": 5,
+      "effect": {
+        "ratePerHour": 146
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "money": 532,
+        "food": 0,
+        "power": 0,
+        "material": 608
+      },
+      "durationSeconds": 1258,
+      "people": 6,
+      "effect": {
+        "ratePerHour": 193
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "money": 797,
+        "food": 0,
+        "power": 0,
+        "material": 911
+      },
+      "durationSeconds": 2013,
+      "people": 7,
+      "effect": {
+        "ratePerHour": 248
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "money": 1196,
+        "food": 0,
+        "power": 0,
+        "material": 1367
+      },
+      "durationSeconds": 3221,
+      "people": 8,
+      "effect": {
+        "ratePerHour": 312
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "money": 1794,
+        "food": 0,
+        "power": 0,
+        "material": 2050
+      },
+      "durationSeconds": 5154,
+      "people": 9,
+      "effect": {
+        "ratePerHour": 386
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "money": 2691,
+        "food": 0,
+        "power": 0,
+        "material": 3075
+      },
+      "durationSeconds": 8246,
+      "people": 10,
+      "effect": {
+        "ratePerHour": 472
+      }
+    }
+  ]
+}

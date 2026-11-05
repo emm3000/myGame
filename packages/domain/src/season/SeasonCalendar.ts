@@ -9,9 +9,12 @@ export type DurationPercent = {
   readonly road: number
 }
 
-export type SeasonCalendar = {
+export type SeasonDates = {
   readonly epoch: Instant
   readonly daysPerSeason: number
+}
+
+export type SeasonCalendar = SeasonDates & {
   readonly multiplierPercent: Readonly<Record<SeasonKind, Readonly<Record<ResourceKind, number>>>>
   readonly durationPercent: Readonly<Record<SeasonKind, DurationPercent>>
 }

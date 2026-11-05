@@ -1,5 +1,5 @@
-import type { FiefSettings } from '../ports/BuildingCatalog'
 import { Instant } from '../time/Instant'
+import type { SeasonedSettings } from './SeasonedSettings'
 import type { SeasonKind } from './SeasonKind'
 
 export type Season = {
@@ -25,7 +25,7 @@ const seasonKindAt = (positionInYear: number): SeasonKind => {
   }
 }
 
-export const seasonAt = (instant: Instant, settings: FiefSettings): Season | undefined => {
+export const seasonAt = (instant: Instant, settings: SeasonedSettings): Season | undefined => {
   const { epoch, daysPerSeason } = settings.seasons
   const sinceEpoch = instant.epochMilliseconds - epoch.epochMilliseconds
   if (sinceEpoch < 0) {

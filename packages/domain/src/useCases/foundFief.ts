@@ -1,13 +1,16 @@
 import type { DomainError } from '../DomainError'
+import { Coordinates } from '../fief/Coordinates'
 import { Fief } from '../fief/Fief'
 import { FiefName } from '../fief/FiefName'
-import { lowestFreeCoordinates } from '../fief/lowestFreeCoordinates'
+import { lowestFreeCell } from '../grid/lowestFreeCell'
 import type { PlayerId } from '../player/PlayerId'
 import type { BuildingCatalog } from '../ports/BuildingCatalog'
 import type { Clock } from '../ports/Clock'
 import type { FiefRepository } from '../ports/FiefRepository'
 import type { IdGenerator } from '../ports/IdGenerator'
 import { err, ok, type Result } from '../Result'
+
+const FIRST_KINGDOM = 1
 
 export type FoundFiefCommand = {
   readonly playerId: PlayerId
@@ -35,7 +38,18 @@ export const foundFief = async (
   }
 
   const settings = catalog.fiefSettings()
-  const coordinates = lowestFreeCoordinates(await fiefs.occupiedPlots(), settings.plotsPerProvince)
+  const takenPlots = (await fiefs.occupiedPlots())
+    .filter(({ kingdom }) => kingdom === FIRST_KINGDOM)
+    .map(({ province, plot }) => ({ row: province, column: plot }))
+  const lowestFree = lowestFreeCell(takenPlots, settings.plotsPerProvince)
+  if (!lowestFree.ok) {
+    return lowestFree
+  }
+  const coordinates = Coordinates.create(
+    FIRST_KINGDOM,
+    lowestFree.value.row,
+    lowestFree.value.column,
+  )
   if (!coordinates.ok) {
     return coordinates
   }

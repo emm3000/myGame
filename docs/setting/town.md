@@ -37,7 +37,7 @@ The map is region : area : site (ADR 040), one area at a time, browsed with *Pre
 
 | Name | Rank | What the player sees | Source |
 |---|---|---|---|
-| region | 677 | *Region 1*: the one region every town is founded in, at its lowest free site, as `lowestFreeCoordinates` places a fief in kingdom 1 today. | ADR 040, `packages/domain/src/fief/lowestFreeCoordinates.ts` |
+| region | 677 | *Region 1*: the one region every town is founded in, at its lowest free site, as `lowestFreeCell` places a fief in kingdom 1 today. | ADR 040, `packages/domain/src/grid/lowestFreeCell.ts` |
 | area | 204 | *Area 3* with its terrain, its sites listed under it. | ADR 040 |
 | site | 494 | *Site 12*: free, a town with its name, or a waste site with its size and waste. How many sites an area holds is the town's content; a province holds 15 plots today (`apps/api/content/fief.json`, `plotsPerProvince`). | ADR 040 |
 

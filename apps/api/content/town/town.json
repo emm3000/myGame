@@ -1,0 +1,44 @@
+{
+  "startingStocks": {
+    "money": 400,
+    "food": 300,
+    "power": 200,
+    "material": 500
+  },
+  "taxRatePerHour": 20,
+  "basePeople": 10,
+  "cityPeople": 80,
+  "storageBaseCapacity": 1000,
+  "sitesPerArea": 15,
+  "terrainBonusPerHour": 5,
+  "seasons": {
+    "epoch": "2026-10-05T00:00:00Z",
+    "daysPerSeason": 7,
+    "productionPercent": {
+      "spring": {
+        "money": 100,
+        "food": 100,
+        "power": 100,
+        "material": 100
+      },
+      "summer": {
+        "money": 100,
+        "food": 125,
+        "power": 100,
+        "material": 100
+      },
+      "fall": {
+        "money": 100,
+        "food": 100,
+        "power": 100,
+        "material": 100
+      },
+      "winter": {
+        "money": 100,
+        "food": 100,
+        "power": 75,
+        "material": 100
+      }
+    }
+  }
+}
