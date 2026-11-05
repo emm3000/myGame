@@ -17,6 +17,7 @@ import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
 import type { AccountTokens } from '../../auth/AccountTokens'
+import type { TownNewsReader } from '../../town/TownNewsReader'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { DrizzleCampRegistry } from './DrizzleCampRegistry'
@@ -40,7 +41,7 @@ export type TransactionStores = {
   readonly pendingReviews: PendingReviewRepository
   readonly reviewLog: ReviewLog
   readonly towns: TownRepository
-  readonly townNews: TownNews
+  readonly townNews: TownNews & TownNewsReader
   readonly lessonSlots: LessonSlotRepository
   readonly earnedSkills: EarnedSkillRepository
 }

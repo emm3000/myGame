@@ -10,6 +10,7 @@ import { type FiefsDependencies, fiefsRoutes } from './routes/fiefs'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { type HintsDependencies, hintsRoutes } from './routes/hints'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
+import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 
 export type AppDependencies = AuthDependencies &
@@ -17,6 +18,7 @@ export type AppDependencies = AuthDependencies &
   DigestDependencies &
   HintsDependencies &
   LearningRouteDependencies &
+  ReportRouteDependencies &
   TownDependencies & {
     readonly failureSink: FailureSink
   }
@@ -41,6 +43,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     .route('/digest', digestRoutes(dependencies))
     .route('/hints', hintsRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
+    .route('/report', reportRoutes(dependencies))
     .route('/town', townRoutes(dependencies))
   app.doc('/openapi.json', {
     openapi: '3.0.0',

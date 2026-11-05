@@ -4,6 +4,7 @@ import {
   FoundTownSchema,
   StartBuildingWorkSchema,
   StopBuildingWorkSchema,
+  TownNewsFeedSchema,
   TownOverviewSchema,
 } from '@mygame/contracts/town'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
@@ -26,6 +27,19 @@ export const townDeclarations = {
       responses: {
         200: overviewResponse(
           'The player’s town, accrued to the read, with every finished work applied.',
+        ),
+        404: townNotFoundResponse,
+      },
+    }),
+  ),
+  news: createRoute(
+    signedInRoute({
+      method: 'get',
+      path: '/news',
+      responses: {
+        200: jsonResponse(
+          'The town’s news, newest first, after every finished work is applied: each item its kind, its params and its instant, no prose.',
+          TownNewsFeedSchema,
         ),
         404: townNotFoundResponse,
       },

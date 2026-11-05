@@ -8,8 +8,8 @@ import type {
   TownId,
   TownNews,
 } from '@mygame/domain/town'
-import { and, desc, eq, gt } from 'drizzle-orm'
-import type { TownNewsReader } from '../../town/TownNewsReader'
+import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
+import { keptEventsPerTown, type TownNewsReader } from '../../town/TownNewsReader'
 import type { PostgresSession } from './connectPostgres'
 import { type townBuilding, townEvents } from './schema'
 
@@ -206,9 +206,19 @@ export class DrizzleTownNews implements TownNews, TownNewsReader {
     townId: TownId,
     events: ReadonlyArray<TownEvent>,
   ): Promise<Result<void, DomainError>> {
-    if (events.length > 0) {
-      await this.database.insert(townEvents).values(events.map((event) => rowOf(townId, event)))
+    if (events.length === 0) {
+      return ok(undefined)
     }
+    await this.database.insert(townEvents).values(events.map((event) => rowOf(townId, event)))
+    const kept = this.database
+      .select({ id: townEvents.id })
+      .from(townEvents)
+      .where(eq(townEvents.townId, townId))
+      .orderBy(desc(townEvents.occurredAt), desc(townEvents.id))
+      .limit(keptEventsPerTown)
+    await this.database
+      .delete(townEvents)
+      .where(and(eq(townEvents.townId, townId), notInArray(townEvents.id, kept)))
     return ok(undefined)
   }
 

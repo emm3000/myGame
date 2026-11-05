@@ -22,7 +22,9 @@ import { DrizzleDigestAcknowledgements } from './adapters/postgres/DrizzleDigest
 import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
 import { DrizzleGuidanceDismissals } from './adapters/postgres/DrizzleGuidanceDismissals'
 import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
+import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings'
 import { DrizzleSeenHints } from './adapters/postgres/DrizzleSeenHints'
+import { DrizzleTownNews } from './adapters/postgres/DrizzleTownNews'
 import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
 import { SmtpMailer } from './adapters/smtp/SmtpMailer'
@@ -42,6 +44,8 @@ import type { FailureSink } from './http/FailureSink'
 import type { CampReader } from './kingdom/CampReader'
 import type { CardReader } from './learning/CardReader'
 import type { LessonLibrary } from './learning/LessonLibrary'
+import type { ReportClosings } from './town/ReportClosings'
+import type { TownNewsReader } from './town/TownNewsReader'
 import type { TownReader } from './town/TownReader'
 
 const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
@@ -102,12 +106,14 @@ export type ComposedServer = MailSettings & {
   readonly ids: IdGenerator
   readonly fiefs: FiefReader
   readonly towns: TownReader
+  readonly townNews: TownNewsReader
   readonly chronicle: ChronicleReader
   readonly map: KingdomMapReader
   readonly camps: CampReader
   readonly cards: CardReader
   readonly accounts: Accounts
   readonly digestAcknowledgements: DigestAcknowledgements
+  readonly reportClosings: ReportClosings
   readonly guidanceDismissals: GuidanceDismissals
   readonly seenHints: SeenHints
   readonly passwords: Argon2Passwords
@@ -141,6 +147,7 @@ export function composeServer(
     ids: new CryptoIdGenerator(),
     accounts: new DrizzleAccounts(database),
     digestAcknowledgements: new DrizzleDigestAcknowledgements(database),
+    reportClosings: new DrizzleReportClosings(database),
     guidanceDismissals: new DrizzleGuidanceDismissals(database),
     seenHints: new DrizzleSeenHints(database),
     passwords: new Argon2Passwords(),
@@ -148,6 +155,7 @@ export function composeServer(
     inTransaction: postgresTransaction(database),
     fiefs: new DrizzleFiefRepository(database, 'lockFree'),
     towns: new DrizzleTownRepository(database, 'lockFree'),
+    townNews: new DrizzleTownNews(database),
     chronicle: new DrizzleChronicle(database),
     map: new DrizzleKingdomMapReader(database),
     camps: new DrizzleCampRegistry(database),
