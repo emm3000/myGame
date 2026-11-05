@@ -1,1 +1,1 @@
-export type SeasonKind = 'spring' | 'summer' | 'autumn' | 'winter'
+export type SeasonKind = 'spring' | 'summer' | 'fall' | 'winter'

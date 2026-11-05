@@ -80,8 +80,8 @@ object MyGameIcons {
         "M12 2.9v2.2M12 18.9v2.2M2.9 12h2.2M18.9 12h2.2M5.6 5.7l1.6 1.5M16.8 16.8l1.6 1.5" +
             "M5.6 18.3l1.6-1.5M16.8 7.2l1.6-1.5",
     )
-    val autumn: ImageVector = strokedIcon(
-        name = "autumn",
+    val fall: ImageVector = strokedIcon(
+        name = "fall",
         "M5.3 18.7C5 11.4 9.7 6.3 18.9 5.2c.9 9.2-4.1 14-13.6 13.5z",
         "M5.5 18.5c3.2-4.5 7.3-8.2 12.3-11.3",
         "M9.2 14.5c1.8.2 3.5.1 5.1-.4M11.9 10.8c1.5.2 2.9.1 4.2-.3",

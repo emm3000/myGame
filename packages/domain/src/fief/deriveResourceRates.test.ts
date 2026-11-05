@@ -51,7 +51,7 @@ const beforeEpoch = daysAfterEpoch(-30)
 
 const midWinter = daysAfterEpoch(24)
 
-const midAutumn = daysAfterEpoch(17)
+const midFall = daysAfterEpoch(17)
 
 const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
 
@@ -61,7 +61,7 @@ const gentleSeasons: SeasonCalendar = {
   multiplierPercent: {
     spring: { ...neutralPercents, food: 125 },
     summer: neutralPercents,
-    autumn: { ...neutralPercents, gold: 125 },
+    fall: { ...neutralPercents, gold: 125 },
     winter: { ...neutralPercents, food: 75 },
   },
   durationPercent: neutralSeasons.durationPercent,
@@ -364,14 +364,14 @@ describe('deriveResourceRates in a season', () => {
     expect(result.value.food).toBe(7.5)
   })
 
-  it('raises the gold rate in autumn', () => {
+  it('raises the gold rate in fall', () => {
     const result = deriveResourceRates(
       noLevels,
       noArts,
       noSkills,
       'ridges',
       woodlandCatalog,
-      midAutumn,
+      midFall,
     )
 
     assert(result.ok)
@@ -414,24 +414,24 @@ describe('deriveResourceRates in a season', () => {
 
 describe('deriveResourceRates with an art in a season', () => {
   it('applies an art and the season with one exact division', () => {
-    const ironAutumn: FiefSettings = {
+    const ironFall: FiefSettings = {
       ...fiefSettings('gold'),
       seasons: {
         ...gentleSeasons,
         multiplierPercent: {
           ...gentleSeasons.multiplierPercent,
-          autumn: { ...neutralPercents, iron: 125 },
+          fall: { ...neutralPercents, iron: 125 },
         },
       },
     }
     const catalog = inMemoryCatalog(
-      ironAutumn,
+      ironFall,
       { 'ironMine:1': { ...producerLevel(26), building: 'ironMine' } },
       { 'smithing:1': smithingLevel(1, 5) },
     )
     const arts: FiefArtLevels = { ...noArts, smithing: 1 }
 
-    const result = deriveResourceRates(minedLevels, arts, noSkills, 'ridges', catalog, midAutumn)
+    const result = deriveResourceRates(minedLevels, arts, noSkills, 'ridges', catalog, midFall)
 
     assert(result.ok)
     expect(result.value.iron).toBe(40.6875)

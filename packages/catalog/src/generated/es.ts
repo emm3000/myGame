@@ -223,11 +223,11 @@ export const namesResourcesGold = (): string => `oro`
 export const namesResourcesIron = (): string => `hierro`
 export const namesResourcesStone = (): string => `piedra`
 export const namesResourcesWood = (): string => `madera`
-export const namesSeasonsAutumn = (): string => `otoño`
+export const namesSeasonsFall = (): string => `otoño`
 export const namesSeasonsSpring = (): string => `primavera`
 export const namesSeasonsSummer = (): string => `verano`
 export const namesSeasonsWinter = (): string => `invierno`
-export const namesSeasonsWithArticleAutumn = (): string => `el otoño`
+export const namesSeasonsWithArticleFall = (): string => `el otoño`
 export const namesSeasonsWithArticleSpring = (): string => `la primavera`
 export const namesSeasonsWithArticleSummer = (): string => `el verano`
 export const namesSeasonsWithArticleWinter = (): string => `el invierno`

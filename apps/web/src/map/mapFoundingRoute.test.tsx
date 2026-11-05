@@ -37,8 +37,8 @@ const uplands: ProvinceMap = {
   })),
 }
 
-const autumn: NonNullable<FiefOverview['season']> = {
-  kind: 'autumn',
+const fall: NonNullable<FiefOverview['season']> = {
+  kind: 'fall',
   year: 1,
   endsAt: '2026-09-25T12:00:00.000Z',
   multiplierPercent: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
@@ -146,9 +146,9 @@ it('previews the road of the settler', async () => {
   expect(previewOf(form)).toEqual(['Camino de ida: 15:00', 'Llegada en 15:00'])
 })
 
-it('marks the road shortened in autumn', async () => {
+it('marks the road shortened in fall', async () => {
   const form = await openFoundingOn(7, {
-    fief: async () => ({ ok: true, value: { ...sotoverdeWithASettler, season: autumn } }),
+    fief: async () => ({ ok: true, value: { ...sotoverdeWithASettler, season: fall } }),
   })
 
   expect(previewOf(form)).toEqual([

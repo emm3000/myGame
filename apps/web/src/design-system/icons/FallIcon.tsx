@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { IconFrame } from './IconFrame'
 
-export function AutumnIcon(): ReactElement {
+export function FallIcon(): ReactElement {
   return (
     <IconFrame>
       <path d="M5.3 18.7C5 11.4 9.7 6.3 18.9 5.2c.9 9.2-4.1 14-13.6 13.5z" />

@@ -10,7 +10,7 @@ internal fun FiefOverviewSeason.toSeasonInForce(): SeasonInForce? {
 private fun FiefOverviewSeason.Kind.toSeasonKind(): SeasonKind? = when (this) {
     FiefOverviewSeason.Kind.spring -> SeasonKind.Spring
     FiefOverviewSeason.Kind.summer -> SeasonKind.Summer
-    FiefOverviewSeason.Kind.autumn -> SeasonKind.Autumn
+    FiefOverviewSeason.Kind.fall -> SeasonKind.Fall
     FiefOverviewSeason.Kind.winter -> SeasonKind.Winter
     FiefOverviewSeason.Kind.unknown_default_open_api -> null
 }

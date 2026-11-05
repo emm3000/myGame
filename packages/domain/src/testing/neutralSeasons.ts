@@ -11,13 +11,13 @@ export const neutralSeasons: SeasonCalendar = {
   multiplierPercent: {
     spring: unchangedRates,
     summer: unchangedRates,
-    autumn: unchangedRates,
+    fall: unchangedRates,
     winter: unchangedRates,
   },
   durationPercent: {
     spring: unchangedDurations,
     summer: unchangedDurations,
-    autumn: unchangedDurations,
+    fall: unchangedDurations,
     winter: unchangedDurations,
   },
 }

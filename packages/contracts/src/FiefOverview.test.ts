@@ -70,8 +70,8 @@ const twoArts = {
   masonry: { level: 10, resource: 'stone', ratePercent: 50, nextLevel: null },
 }
 
-const autumnOfYearOne = {
-  kind: 'autumn',
+const fallOfYearOne = {
+  kind: 'fall',
   year: 1,
   endsAt: '2026-10-26T00:00:00.000Z',
   multiplierPercent: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
@@ -280,7 +280,7 @@ const overviewWithSlot = (slot: unknown): Record<string, unknown> => ({
   queue: { entries: [waitingQuarry], cap: 4 },
   study: { kind: 'idle' },
   arts: twoArts,
-  season: autumnOfYearOne,
+  season: fallOfYearOne,
   units: { infantry: 4, cavalry: 2, archer: 0, settler: 0 },
   recruitOrder: openOrder,
   recruitTerms: {
@@ -468,31 +468,31 @@ describe('FiefOverviewSchema', () => {
   })
 
   it('accepts the road percent of the season in force', () => {
-    const overviewInAutumn = overviewWithSlot(busySlot)
+    const overviewInFall = overviewWithSlot(busySlot)
 
-    expect(FiefOverviewSchema.parse(overviewInAutumn).season?.durationPercent.road).toBe(75)
+    expect(FiefOverviewSchema.parse(overviewInFall).season?.durationPercent.road).toBe(75)
   })
 
   it('rejects a season in year 0', () => {
     const overviewInYearZero = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, year: 0 },
+      season: { ...fallOfYearOne, year: 0 },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewInYearZero).success).toBe(false)
   })
 
   it('rejects a season missing a resource multiplier', () => {
-    const { food: _, ...fourMultipliers } = autumnOfYearOne.multiplierPercent
+    const { food: _, ...fourMultipliers } = fallOfYearOne.multiplierPercent
     const overviewWithFourMultipliers = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, multiplierPercent: fourMultipliers },
+      season: { ...fallOfYearOne, multiplierPercent: fourMultipliers },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithFourMultipliers).success).toBe(false)
   })
   it('rejects a season without duration percents', () => {
-    const { durationPercent: _, ...seasonWithoutDurations } = autumnOfYearOne
+    const { durationPercent: _, ...seasonWithoutDurations } = fallOfYearOne
     const overviewWithoutDurations = {
       ...overviewWithSlot(busySlot),
       season: seasonWithoutDurations,
@@ -504,7 +504,7 @@ describe('FiefOverviewSchema', () => {
   it('rejects a season missing its build percent', () => {
     const overviewWithoutBuildPercent = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, durationPercent: { study: 100, train: 100, road: 75 } },
+      season: { ...fallOfYearOne, durationPercent: { study: 100, train: 100, road: 75 } },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutBuildPercent).success).toBe(false)
@@ -513,7 +513,7 @@ describe('FiefOverviewSchema', () => {
   it('rejects a season missing its train percent', () => {
     const overviewWithoutTrainPercent = {
       ...overviewWithSlot(busySlot),
-      season: { ...autumnOfYearOne, durationPercent: { build: 100, study: 100, road: 75 } },
+      season: { ...fallOfYearOne, durationPercent: { build: 100, study: 100, road: 75 } },
     }
 
     expect(FiefOverviewSchema.safeParse(overviewWithoutTrainPercent).success).toBe(false)
@@ -523,7 +523,7 @@ describe('FiefOverviewSchema', () => {
     const overviewWithZeroStudyPercent = {
       ...overviewWithSlot(busySlot),
       season: {
-        ...autumnOfYearOne,
+        ...fallOfYearOne,
         durationPercent: { build: 100, study: 0, train: 100, road: 75 },
       },
     }

@@ -19,7 +19,7 @@ const seasonKindAt = (positionInYear: number): SeasonKind => {
     case 1:
       return 'summer'
     case 2:
-      return 'autumn'
+      return 'fall'
     default:
       return 'winter'
   }

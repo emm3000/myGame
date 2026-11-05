@@ -118,11 +118,11 @@ class FiefSeasonViewModelTest {
 
     @Test
     fun `draws the season in force with its year`() = runTest {
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, endsIn = 3.days))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, endsIn = 3.days))
 
         viewModel.state.test {
             val season: FiefUiState.SeasonLine? = awaitContent().season
-            assertEquals(SeasonKind.Autumn, season?.kind)
+            assertEquals(SeasonKind.Fall, season?.kind)
             assertEquals(1, season?.year)
         }
     }
@@ -133,13 +133,13 @@ class FiefSeasonViewModelTest {
     }
 
     @Test
-    fun `counts down to autumn in summer`() = runTest {
-        assertNextSeasonDrawn(inForce = SeasonKind.Summer, next = SeasonKind.Autumn)
+    fun `counts down to fall in summer`() = runTest {
+        assertNextSeasonDrawn(inForce = SeasonKind.Summer, next = SeasonKind.Fall)
     }
 
     @Test
-    fun `counts down to winter in autumn`() = runTest {
-        assertNextSeasonDrawn(inForce = SeasonKind.Autumn, next = SeasonKind.Winter)
+    fun `counts down to winter in fall`() = runTest {
+        assertNextSeasonDrawn(inForce = SeasonKind.Fall, next = SeasonKind.Winter)
     }
 
     @Test
@@ -149,7 +149,7 @@ class FiefSeasonViewModelTest {
 
     @Test
     fun `counts the whole days left while at least one day is left`() = runTest {
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, endsIn = 3.days + 23.hours))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, endsIn = 3.days + 23.hours))
 
         viewModel.state.test {
             assertEquals(FiefUiState.SeasonCountdown.InDays(days = 3), awaitContent().season?.countdown)
@@ -158,7 +158,7 @@ class FiefSeasonViewModelTest {
 
     @Test
     fun `counts one day left at exactly a day`() = runTest {
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, endsIn = 1.days))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, endsIn = 1.days))
 
         viewModel.state.test {
             assertEquals(FiefUiState.SeasonCountdown.InDays(days = 1), awaitContent().season?.countdown)
@@ -168,7 +168,7 @@ class FiefSeasonViewModelTest {
     @Test
     fun `counts the time left under a day as a countdown`() = runTest {
         val underADay: Duration = 23.hours + 59.minutes
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, endsIn = underADay))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, endsIn = underADay))
 
         viewModel.state.test {
             assertEquals(FiefUiState.SeasonCountdown.UnderADay(remaining = underADay), awaitContent().season?.countdown)
@@ -186,7 +186,7 @@ class FiefSeasonViewModelTest {
 
     @Test
     fun `repaints the season countdown a minute later`() = runTest {
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, endsIn = 5.hours))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, endsIn = 5.hours))
 
         viewModel.state.test {
             awaitContent()
@@ -199,7 +199,7 @@ class FiefSeasonViewModelTest {
 
     @Test
     fun `repaints the season countdown every second in its last minute`() = runTest {
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, endsIn = 30.seconds))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, endsIn = 30.seconds))
 
         viewModel.state.test {
             awaitContent()
@@ -214,7 +214,7 @@ class FiefSeasonViewModelTest {
     fun `counts zero seconds while the read at the season's end fails`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)
-        fiefs.answerRead(FiefReadResult.Read(seasonal(SeasonKind.Autumn, endsIn = Duration.ZERO)))
+        fiefs.answerRead(FiefReadResult.Read(seasonal(SeasonKind.Fall, endsIn = Duration.ZERO)))
         fiefs.answerRead(FiefReadResult.Unreachable)
 
         viewModel.state.test {

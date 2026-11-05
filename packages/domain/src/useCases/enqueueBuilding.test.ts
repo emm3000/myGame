@@ -619,7 +619,7 @@ const seasonalSettings: FiefSettings = {
     durationPercent: {
       spring: { build: 100, study: 100, train: 100, road: 100 },
       summer: { build: 75, study: 100, train: 100, road: 100 },
-      autumn: { build: 100, study: 100, train: 100, road: 75 },
+      fall: { build: 100, study: 100, train: 100, road: 75 },
       winter: { build: 100, study: 75, train: 100, road: 100 },
     },
   },
@@ -677,7 +677,7 @@ describe('enqueueBuilding across seasons', () => {
   })
 
   it('fixes the summer duration on an entry that waits behind a busy slot', async () => {
-    const busyUntilAutumn = storedFief({
+    const busyUntilFall = storedFief({
       storedAt: midSummer,
       slot: {
         kind: 'busy',
@@ -688,7 +688,7 @@ describe('enqueueBuilding across seasons', () => {
         cost: quarryLevelOne.cost,
       },
     })
-    const fiefs = inMemoryFiefRepository([busyUntilAutumn])
+    const fiefs = inMemoryFiefRepository([busyUntilFall])
 
     const result = await enqueueBuilding(
       { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },

@@ -469,7 +469,7 @@ const seasonalDependencies = (now: Instant) => ({
 })
 
 describe('dispatchAttack across seasons', () => {
-  it('shortens the road to a camp in autumn', async () => {
+  it('shortens the road to a camp in fall', async () => {
     const dependencies = seasonalDependencies(daysAfterSeasonEpoch(17))
 
     await dispatchAttack(tenInfantryOn(tierOnePlot), dependencies)

@@ -20,7 +20,7 @@ class ResourceRowTest {
 
     @Test
     fun `reads the raised season mark after the row's description`() {
-        draw(line(ResourceKind.Gold, FiefUiState.SeasonMark(SeasonKind.Autumn, change = 25)))
+        draw(line(ResourceKind.Gold, FiefUiState.SeasonMark(SeasonKind.Fall, change = 25)))
 
         composeRule.onNodeWithContentDescription("Oro", substring = true)
             .assertContentDescriptionEquals("Oro: 500 de 900, más 60 por hora. Otoño: +25 % de oro")

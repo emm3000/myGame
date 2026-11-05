@@ -240,11 +240,11 @@ describe('dispatchTransport', () => {
     )
   })
 
-  it('rides 338 seconds in an autumn of 75 %', async () => {
-    const autumn = daysAfterSeasonEpoch(17)
+  it('rides 338 seconds in a fall of 75 %', async () => {
+    const fall = daysAfterSeasonEpoch(17)
     const dependencies = dependenciesOver(
-      [sendingFief({ storedAt: autumn }), otherFief({ storedAt: autumn })],
-      autumn,
+      [sendingFief({ storedAt: fall }), otherFief({ storedAt: fall })],
+      fall,
       seasonalCatalogOf(catalog),
     )
 

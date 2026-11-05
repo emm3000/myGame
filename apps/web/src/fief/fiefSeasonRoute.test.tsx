@@ -40,21 +40,21 @@ const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100
 
 const neutralDurations = { build: 100, study: 100, train: 100, road: 100 }
 
-const autumnDurations = { ...neutralDurations, road: 75 }
+const fallDurations = { ...neutralDurations, road: 75 }
 
-const autumnEndingInThreeDaysAndFiveHours: FiefOverview = {
+const fallEndingInThreeDaysAndFiveHours: FiefOverview = {
   ...knownFief,
   season: {
-    kind: 'autumn',
+    kind: 'fall',
     year: 1,
     endsAt: '2026-09-25T17:00:00.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
-    durationPercent: autumnDurations,
+    durationPercent: fallDurations,
   },
 }
 
 it('shows the season and the year the fief read answered', async () => {
-  await showFief(signedInClientServing(() => autumnEndingInThreeDaysAndFiveHours))
+  await showFief(signedInClientServing(() => fallEndingInThreeDaysAndFiveHours))
 
   expect(screen.getByText('Otoño, año 1')).toBeDefined()
   expect(screen.getByText('Invierno en 3 días')).toBeDefined()
@@ -110,21 +110,21 @@ it('reads the fief again when the season ends', async () => {
   expect(fief).toHaveBeenCalledTimes(2)
 })
 
-const autumnReadWhenSummerEnded: FiefOverview = {
+const fallReadWhenSummerEnded: FiefOverview = {
   ...knownFief,
   season: {
-    kind: 'autumn',
+    kind: 'fall',
     year: 1,
     endsAt: '2026-09-29T12:00:30.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
-    durationPercent: autumnDurations,
+    durationPercent: fallDurations,
   },
   readAt: '2026-09-22T12:00:30.000Z',
 }
 
 it('shows the next season after that read', async () => {
-  const reads = [summerEndingInHalfAMinute, autumnReadWhenSummerEnded]
-  await showFief(signedInClientServing(() => reads.shift() ?? autumnReadWhenSummerEnded))
+  const reads = [summerEndingInHalfAMinute, fallReadWhenSummerEnded]
+  await showFief(signedInClientServing(() => reads.shift() ?? fallReadWhenSummerEnded))
   expect(screen.getByText('Verano, año 1')).toBeDefined()
 
   await passSeconds(30)
@@ -160,7 +160,7 @@ it('counts down to summer in spring', async () => {
   expect(screen.getByText('Verano en 6 días')).toBeDefined()
 })
 
-it('counts down to autumn in summer', async () => {
+it('counts down to fall in summer', async () => {
   await showFief(signedInClientServing(() => summerEndingInHalfAMinute))
 
   expect(screen.getByText('Otoño en 0:30')).toBeDefined()
@@ -198,8 +198,8 @@ it('marks the food rate winter lowers', async () => {
   expect(seasonMarkIn('oro')).toBeNull()
 })
 
-it('marks the gold rate autumn raises', async () => {
-  await showFief(signedInClientServing(() => autumnEndingInThreeDaysAndFiveHours))
+it('marks the gold rate fall raises', async () => {
+  await showFief(signedInClientServing(() => fallEndingInThreeDaysAndFiveHours))
 
   expect(seasonMarkIn('oro')?.textContent).toBe('Otoño: +25 % de oro')
   expect(seasonMarkIn('comida')).toBeNull()
@@ -280,8 +280,8 @@ it('marks the arts section winter shortens', async () => {
   expect(seasonMarkIn('comida')?.textContent).toBe('Invierno: -25 % de comida')
 })
 
-it('marks no section in spring or autumn', async () => {
-  for (const kind of ['spring', 'autumn'] as const) {
+it('marks no section in spring or fall', async () => {
+  for (const kind of ['spring', 'fall'] as const) {
     await showFief(
       signedInClientServing(() =>
         withTheLibraryBuilt({
@@ -289,7 +289,7 @@ it('marks no section in spring or autumn', async () => {
           year: 1,
           endsAt: '2026-09-25T12:00:00.000Z',
           multiplierPercent: neutralPercents,
-          durationPercent: kind === 'autumn' ? autumnDurations : neutralDurations,
+          durationPercent: kind === 'fall' ? fallDurations : neutralDurations,
         }),
       ),
     )
@@ -340,7 +340,7 @@ const withTheBarracksBuilt = (season: FiefOverview['season']): FiefOverview => (
 })
 
 const seasonOf = (
-  kind: 'spring' | 'summer' | 'autumn' | 'winter',
+  kind: 'spring' | 'summer' | 'fall' | 'winter',
   durationPercent: { build: number; study: number; train: number; road: number },
 ): NonNullable<FiefOverview['season']> => ({
   kind,
@@ -363,10 +363,10 @@ it('marks the army section spring shortens', async () => {
   expect(seasonMarkIn('comida')?.textContent).toBe('Primavera: +25 % de comida')
 })
 
-it('marks no army section in summer, autumn or winter', async () => {
+it('marks no army section in summer, fall or winter', async () => {
   const seasons = [
     seasonOf('summer', { build: 75, study: 100, train: 100, road: 100 }),
-    seasonOf('autumn', autumnDurations),
+    seasonOf('fall', fallDurations),
     seasonOf('winter', { build: 100, study: 75, train: 100, road: 100 }),
   ]
   for (const season of seasons) {

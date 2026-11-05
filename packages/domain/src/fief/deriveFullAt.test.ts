@@ -59,7 +59,7 @@ const woodDoublingSummerCatalog = catalogOver({
     multiplierPercent: {
       spring: neutralPercents,
       summer: { ...neutralPercents, wood: 200 },
-      autumn: neutralPercents,
+      fall: neutralPercents,
       winter: neutralPercents,
     },
   },

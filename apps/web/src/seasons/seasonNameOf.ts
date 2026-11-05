@@ -1,5 +1,5 @@
 import {
-  namesSeasonsAutumn,
+  namesSeasonsFall,
   namesSeasonsSpring,
   namesSeasonsSummer,
   namesSeasonsWinter,
@@ -9,7 +9,7 @@ import type { SeasonKind } from '@mygame/contracts'
 const seasonNames: Readonly<Record<SeasonKind, () => string>> = {
   spring: namesSeasonsSpring,
   summer: namesSeasonsSummer,
-  autumn: namesSeasonsAutumn,
+  fall: namesSeasonsFall,
   winter: namesSeasonsWinter,
 }
 

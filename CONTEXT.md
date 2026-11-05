@@ -90,7 +90,7 @@ ADR 035 moves the game from medieval Vadoalto to Townword, a present-day town, a
 
 - **Instant** — a point in time from the `Clock` port; the domain never reads the wall clock.
 - **Duration** — a length of time in seconds; build times, study times, a unit's training and marches are durations. A build or study duration is fixed once, at the enqueue or the study start, from the content's seconds and the percents in force at that instant, the season's for both and the built library's for a study, rounded up to whole seconds in one step; it never changes while the work waits or runs (ADR 011, ADR 012, ADR 017). A unit's duration is fixed at the recruit order from the content's seconds, the built barracks level and the season's train percent in force at that instant, in one step, and never changes while the order runs (ADR 018, ADR 017 as amended). A march's road time is fixed at dispatch from the map's seconds, the road percent of the slowest kind sent and the season's road percent in force at that instant, in one step, and never changes while the march is away (ADR 019, ADR 021, ADR 022).
-- **Season** — one of spring, summer, autumn, winter, in force over the whole world at once for a fixed number of days set by the content's calendar, from its start, included, to the instant it ends, excluded. Each season scales every resource's rate by a whole percent from content, applied last (winter lowers food, spring raises it, autumn raises gold), and scales build, study and train durations and the road of a march by a build, a study, a train and a road percent from content, fixed at the enqueue, the study start, the recruit order or the dispatch (summer shortens building, winter shortens study, spring shortens training, autumn shortens the road); its resource percents also scale each resource of a forage loot, fixed at dispatch; there is no season before the calendar's epoch, and every percent reads 100 until then (ADR 016, ADR 017 as amended, ADR 022).
+- **Season** — one of spring, summer, fall, winter, in force over the whole world at once for a fixed number of days set by the content's calendar, from its start, included, to the instant it ends, excluded. Each season scales every resource's rate by a whole percent from content, applied last (winter lowers food, spring raises it, fall raises gold), and scales build, study and train durations and the road of a march by a build, a study, a train and a road percent from content, fixed at the enqueue, the study start, the recruit order or the dispatch (summer shortens building, winter shortens study, spring shortens training, fall shortens the road); its resource percents also scale each resource of a forage loot, fixed at dispatch; there is no season before the calendar's epoch, and every percent reads 100 until then (ADR 016, ADR 017 as amended, ADR 022).
 - **Year** — four seasons, counted from the first spring at the calendar's epoch: *año 1* is the first. There is no named calendar and no era (ADR 016).
 
 ## Learning
@@ -157,7 +157,7 @@ Each medieval term, then the town term that replaces it. *Cut* means the thing g
 | battle, loss order | cut: a clean-up loses nobody |
 | kingdom, province, plot | region, area, site |
 | lowlands, uplands, ridges | fields, river, hills |
-| autumn | fall |
+| fall | fall |
 | chronicle | Town News |
 | digest | the Report |
 | hint | tip |

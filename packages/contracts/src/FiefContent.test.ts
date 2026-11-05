@@ -14,7 +14,7 @@ const unchangedRates = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 
 const multiplierPercent = {
   spring: { ...unchangedRates, food: 125 },
   summer: unchangedRates,
-  autumn: { ...unchangedRates, gold: 125 },
+  fall: { ...unchangedRates, gold: 125 },
   winter: { ...unchangedRates, food: 75 },
 }
 
@@ -23,7 +23,7 @@ const unchangedDurations = { build: 100, study: 100, train: 100, road: 100 }
 const durationPercent = {
   spring: { ...unchangedDurations, train: 75 },
   summer: { ...unchangedDurations, build: 75 },
-  autumn: unchangedDurations,
+  fall: unchangedDurations,
   winter: { ...unchangedDurations, study: 75 },
 }
 
@@ -322,7 +322,7 @@ describe('FiefContentSchema', () => {
         fiefContent({
           seasons: {
             ...seasons,
-            durationPercent: { ...durationPercent, autumn: { build: 100, study: 100, train: 100 } },
+            durationPercent: { ...durationPercent, fall: { build: 100, study: 100, train: 100 } },
           },
         }),
       ).success,
@@ -335,7 +335,7 @@ describe('FiefContentSchema', () => {
         fiefContent({
           seasons: {
             ...seasons,
-            durationPercent: { ...durationPercent, autumn: { ...unchangedDurations, road: 0 } },
+            durationPercent: { ...durationPercent, fall: { ...unchangedDurations, road: 0 } },
           },
         }),
       ).success,
