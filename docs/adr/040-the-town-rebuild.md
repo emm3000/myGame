@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, order amended by ADR 041
 date: 2026-11-04
 ---
 # The town rebuild
