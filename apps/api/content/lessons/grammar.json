@@ -1,240 +1,332 @@
 {
-  "frameWords": [
+  "structures": [
     {
-      "word": "the",
-      "admittingLessonId": "lesson-1"
+      "name": "Present of be, with not",
+      "cefr": "A1.1",
+      "cefrjItem": "58",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["be", "not"],
+      "inflections": ["am", "is", "are"]
     },
     {
-      "word": "be",
-      "admittingLessonId": "lesson-1"
+      "name": "Subject pronouns",
+      "cefr": "A1.1",
+      "cefrjItem": "1",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["I", "you", "he", "she", "it", "we", "they"],
+      "inflections": []
     },
     {
-      "word": "and",
-      "admittingLessonId": "lesson-1"
+      "name": "Possessive determiners",
+      "cefr": "A1.1",
+      "cefrjItem": "6",
+      "admittingLessonId": "lesson-1",
+      "frameWords": [],
+      "inflections": ["my", "your", "his", "her", "its", "our", "their"]
     },
     {
-      "word": "of",
-      "admittingLessonId": "lesson-1"
+      "name": "Object pronouns",
+      "cefr": "A1.1",
+      "cefrjItem": "7",
+      "admittingLessonId": "lesson-1",
+      "frameWords": [],
+      "inflections": ["me", "him", "us", "them"]
     },
     {
-      "word": "to",
-      "admittingLessonId": "lesson-1"
+      "name": "Indefinite article",
+      "cefr": "A1.1",
+      "cefrjItem": "13",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["a"],
+      "inflections": ["an"]
     },
     {
-      "word": "a",
-      "admittingLessonId": "lesson-1"
+      "name": "Definite article",
+      "cefr": "A1.1",
+      "cefrjItem": "14",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["the"],
+      "inflections": []
     },
     {
-      "word": "in",
-      "admittingLessonId": "lesson-1"
+      "name": "Demonstratives this and that",
+      "cefr": "A1.1",
+      "cefrjItem": "8",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["this", "that"],
+      "inflections": []
     },
     {
-      "word": "have",
-      "admittingLessonId": "lesson-1"
+      "name": "Prepositions",
+      "cefr": "A1.1",
+      "cefrjItem": "21",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["of", "in", "for", "on", "with", "at", "from", "by", "about", "into", "over"],
+      "inflections": []
     },
     {
-      "word": "it",
-      "admittingLessonId": "lesson-1"
+      "name": "To-infinitive",
+      "cefr": "A1.1",
+      "cefrjItem": "88",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["to"],
+      "inflections": []
     },
     {
-      "word": "you",
-      "admittingLessonId": "lesson-1"
+      "name": "Particles of phrasal verbs",
+      "cefr": "A1.1",
+      "cefrjItem": "55",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["up", "out"],
+      "inflections": []
     },
     {
-      "word": "he",
-      "admittingLessonId": "lesson-1"
+      "name": "Coordinating conjunctions",
+      "cefr": "A1.1",
+      "cefrjItem": "150",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["and", "but", "or", "so"],
+      "inflections": []
     },
     {
-      "word": "for",
-      "admittingLessonId": "lesson-1"
+      "name": "Subordinate clauses with after, because, than and where",
+      "cefr": "A1.1",
+      "cefrjItem": "161",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["after", "because", "than", "where"],
+      "inflections": []
     },
     {
-      "word": "they",
-      "admittingLessonId": "lesson-1"
+      "name": "Present simple with have and lexical verbs",
+      "cefr": "A1.1",
+      "cefrjItem": "59",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["have"],
+      "inflections": []
     },
     {
-      "word": "not",
-      "admittingLessonId": "lesson-1"
+      "name": "Present simple, third person singular",
+      "cefr": "A1.1",
+      "cefrjItem": "60",
+      "admittingLessonId": "lesson-1",
+      "frameWords": [],
+      "inflections": ["-s", "has", "does"]
     },
     {
-      "word": "that",
-      "admittingLessonId": "lesson-1"
+      "name": "Questions and negatives with do",
+      "cefr": "A1.2",
+      "cefrjItem": "59-2",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["do"],
+      "inflections": []
     },
     {
-      "word": "we",
-      "admittingLessonId": "lesson-1"
+      "name": "Determiners some, any and all",
+      "cefr": "A1.1",
+      "cefrjItem": "15",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["some", "any", "all"],
+      "inflections": []
     },
     {
-      "word": "on",
-      "admittingLessonId": "lesson-1"
+      "name": "Questions with what",
+      "cefr": "A1.1",
+      "cefrjItem": "239",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["what"],
+      "inflections": []
     },
     {
-      "word": "with",
-      "admittingLessonId": "lesson-1"
+      "name": "Quantifiers much, many and more",
+      "cefr": "A2.2",
+      "cefrjItem": "18",
+      "admittingLessonId": "lesson-1",
+      "frameWords": ["much", "many", "more"],
+      "inflections": []
     },
     {
-      "word": "this",
-      "admittingLessonId": "lesson-1"
+      "name": "Determiner no",
+      "cefr": "A1.2",
+      "cefrjItem": "16",
+      "admittingLessonId": "lesson-4",
+      "frameWords": ["no"],
+      "inflections": []
     },
     {
-      "word": "I",
-      "admittingLessonId": "lesson-1"
+      "name": "Future with will",
+      "cefr": "A2.1",
+      "cefrjItem": "69",
+      "admittingLessonId": "lesson-5",
+      "frameWords": ["will"],
+      "inflections": []
     },
     {
-      "word": "do",
-      "admittingLessonId": "lesson-1"
+      "name": "Questions and clauses with when",
+      "cefr": "A1.2",
+      "cefrjItem": "155",
+      "admittingLessonId": "lesson-6",
+      "frameWords": ["when"],
+      "inflections": []
     },
     {
-      "word": "as",
-      "admittingLessonId": "lesson-1"
+      "name": "Modal can",
+      "cefr": "A1.2",
+      "cefrjItem": "123",
+      "admittingLessonId": "lesson-6",
+      "frameWords": ["can"],
+      "inflections": []
     },
     {
-      "word": "at",
-      "admittingLessonId": "lesson-1"
+      "name": "Relative who",
+      "cefr": "A1.3",
+      "cefrjItem": "172",
+      "admittingLessonId": "lesson-11",
+      "frameWords": ["who"],
+      "inflections": []
     },
     {
-      "word": "she",
-      "admittingLessonId": "lesson-1"
+      "name": "Past of be",
+      "cefr": "A1.3",
+      "cefrjItem": "64",
+      "admittingLessonId": "lesson-11",
+      "frameWords": [],
+      "inflections": ["was", "were"]
     },
     {
-      "word": "but",
-      "admittingLessonId": "lesson-1"
+      "name": "Past simple",
+      "cefr": "A1.3",
+      "cefrjItem": "65",
+      "admittingLessonId": "lesson-11",
+      "frameWords": [],
+      "inflections": ["-ed", "did", "had"]
     },
     {
-      "word": "from",
-      "admittingLessonId": "lesson-1"
+      "name": "Present progressive",
+      "cefr": "A1.3",
+      "cefrjItem": "61",
+      "admittingLessonId": "lesson-11",
+      "frameWords": [],
+      "inflections": ["-ing", "being", "doing", "having"]
     },
     {
-      "word": "by",
-      "admittingLessonId": "lesson-1"
+      "name": "Comparatives with -er",
+      "cefr": "A1.3",
+      "cefrjItem": "38",
+      "admittingLessonId": "lesson-11",
+      "frameWords": [],
+      "inflections": ["-er"]
     },
     {
-      "word": "will",
-      "admittingLessonId": "lesson-1"
+      "name": "Superlatives with -est",
+      "cefr": "A1.1",
+      "cefrjItem": "40",
+      "admittingLessonId": "lesson-11",
+      "frameWords": [],
+      "inflections": ["-est"]
     },
     {
-      "word": "or",
-      "admittingLessonId": "lesson-1"
+      "name": "Superlatives with most",
+      "cefr": "A2.1",
+      "cefrjItem": "41",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["most"],
+      "inflections": []
     },
     {
-      "word": "so",
-      "admittingLessonId": "lesson-1"
+      "name": "Present perfect",
+      "cefr": "A2.1",
+      "cefrjItem": "62",
+      "admittingLessonId": "lesson-16",
+      "frameWords": [],
+      "inflections": ["been", "done"]
     },
     {
-      "word": "all",
-      "admittingLessonId": "lesson-1"
+      "name": "Modal would",
+      "cefr": "A2.1",
+      "cefrjItem": "142",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["would"],
+      "inflections": []
     },
     {
-      "word": "if",
-      "admittingLessonId": "lesson-1"
+      "name": "Modal should",
+      "cefr": "A2.1",
+      "cefrjItem": "139",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["should"],
+      "inflections": []
     },
     {
-      "word": "would",
-      "admittingLessonId": "lesson-1"
+      "name": "Clauses with if",
+      "cefr": "A2.1",
+      "cefrjItem": "156",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["if"],
+      "inflections": []
     },
     {
-      "word": "about",
-      "admittingLessonId": "lesson-1"
+      "name": "Clauses with as",
+      "cefr": "A2.1",
+      "cefrjItem": "157",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["as"],
+      "inflections": []
     },
     {
-      "word": "can",
-      "admittingLessonId": "lesson-1"
+      "name": "Modal could",
+      "cefr": "B1.1",
+      "cefrjItem": "124",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["could"],
+      "inflections": []
     },
     {
-      "word": "which",
-      "admittingLessonId": "lesson-1"
+      "name": "Modal may",
+      "cefr": "B1.1",
+      "cefrjItem": "129",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["may"],
+      "inflections": []
     },
     {
-      "word": "who",
-      "admittingLessonId": "lesson-1"
+      "name": "Determiner other and pronoun others",
+      "cefr": "B1.1",
+      "cefrjItem": "29",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["other"],
+      "inflections": ["others"]
     },
     {
-      "word": "when",
-      "admittingLessonId": "lesson-1"
+      "name": "Demonstratives these and those",
+      "cefr": "B1.2",
+      "cefrjItem": "12",
+      "admittingLessonId": "lesson-16",
+      "frameWords": [],
+      "inflections": ["these", "those"]
     },
     {
-      "word": "what",
-      "admittingLessonId": "lesson-1"
+      "name": "Possessive pronouns",
+      "cefr": "B1.2",
+      "cefrjItem": "22",
+      "admittingLessonId": "lesson-16",
+      "frameWords": [],
+      "inflections": ["mine", "yours", "hers", "ours", "theirs"]
     },
     {
-      "word": "up",
-      "admittingLessonId": "lesson-1"
+      "name": "such with a noun",
+      "cefr": "B2.1",
+      "cefrjItem": "46",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["such"],
+      "inflections": []
     },
     {
-      "word": "some",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "other",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "out",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "no",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "because",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "could",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "than",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "into",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "over",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "any",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "after",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "where",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "most",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "should",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "much",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "may",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "many",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "such",
-      "admittingLessonId": "lesson-1"
-    },
-    {
-      "word": "more",
-      "admittingLessonId": "lesson-1"
+      "name": "Relative which",
+      "cefr": "B2.2",
+      "cefrjItem": "173",
+      "admittingLessonId": "lesson-16",
+      "frameWords": ["which"],
+      "inflections": []
     }
   ]
 }

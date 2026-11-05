@@ -1,13 +1,11 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { type Reading, readingOf } from './readingOf'
+import { type ReadingTerms, readingTermsOf } from './readingTermsOf'
 import { tokensOf } from './tokensOf'
 
 const gap = '____'
-
-type Reading =
-  | { readonly kind: 'word'; readonly word: string }
-  | { readonly kind: 'failure'; readonly failure: string }
 
 type LessonFrame = {
   readonly entry: LexiconEntry
@@ -16,26 +14,16 @@ type LessonFrame = {
 }
 
 type FrameTerms = {
-  readonly forms: ReadonlyMap<string, ReadonlySet<string>>
-  readonly offListForms: ReadonlyMap<string, string>
+  readonly reading: ReadingTerms
   readonly admittedAt: ReadonlyMap<string, number>
   readonly taughtAt: ReadonlyMap<string, number>
 }
 
-const offListFormsOf = (lexicon: ReadonlyArray<LexiconEntry>): ReadonlyMap<string, string> =>
-  new Map(
-    lexicon
-      .filter(({ isOffList }) => isOffList === true)
-      .flatMap(({ lemma, acceptedForms = [] }) =>
-        [lemma, ...acceptedForms].map((form) => [form.toLowerCase(), lemma.toLowerCase()] as const),
-      ),
-  )
-
-const termsOf = ({ forms, lexicon, grammar, curriculum, lessons }: GateContent): FrameTerms => {
+const termsOf = (content: GateContent): FrameTerms => {
+  const { grammar, curriculum, lessons } = content
   const positionOf = (lessonId: string): number => curriculum.lessonIds.indexOf(lessonId) + 1
   return {
-    forms,
-    offListForms: offListFormsOf(lexicon),
+    reading: readingTermsOf(content),
     admittedAt: new Map(
       [...frameWordsOf(grammar)].map(([word, lessonId]) => [word, positionOf(lessonId)]),
     ),
@@ -47,35 +35,25 @@ const termsOf = ({ forms, lexicon, grammar, curriculum, lessons }: GateContent):
   }
 }
 
-const readingOf = (token: string, { entry }: LessonFrame, terms: FrameTerms): Reading => {
-  const offList = terms.offListForms.get(token)
-  const candidates = new Set([
-    ...(terms.forms.get(token) ?? []),
-    ...(offList === undefined ? [] : [offList]),
-  ])
-  const named = entry.homographs?.[token]
-  if (named !== undefined) {
-    return candidates.has(named)
-      ? { kind: 'word', word: named }
-      : {
-          kind: 'failure',
-          failure: `${entry.id}: names ${named} for ${token}, which ${token} cannot mean`,
-        }
-  }
-  const [word, ...others] = candidates
-  if (word === undefined) {
-    return {
-      kind: 'failure',
-      failure: `${entry.id}: frame holds ${token}, which no NGSL form or off-list word spells`,
+const readingFailures = (
+  token: string,
+  reading: Reading,
+  { id }: LexiconEntry,
+): ReadonlyArray<string> => {
+  switch (reading.kind) {
+    case 'word':
+      return []
+    case 'unknownForm':
+      return [`${id}: frame holds ${token}, which no NGSL form or off-list word spells`]
+    case 'unnamedHomograph':
+      return [`${id}: frame holds the homograph ${token} and names no word for it`]
+    case 'impossibleHomograph':
+      return [`${id}: names ${reading.named} for ${token}, which ${token} cannot mean`]
+    default: {
+      const unreachable: never = reading
+      return unreachable
     }
   }
-  if (others.length > 0) {
-    return {
-      kind: 'failure',
-      failure: `${entry.id}: frame holds the homograph ${token} and names no word for it`,
-    }
-  }
-  return { kind: 'word', word }
 }
 
 const otherWordFailures = (
@@ -118,9 +96,9 @@ const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<str
   const lemma = frame.entry.lemma.toLowerCase()
   const lemmaTokens: Array<string> = []
   const failures = tokensOf(frame.entry.frame).flatMap((token) => {
-    const reading = readingOf(token, frame, terms)
-    if (reading.kind === 'failure') {
-      return [reading.failure]
+    const reading = readingOf(token, frame.entry, terms.reading)
+    if (reading.kind !== 'word') {
+      return readingFailures(token, reading, frame.entry)
     }
     if (reading.word === lemma) {
       lemmaTokens.push(token)
