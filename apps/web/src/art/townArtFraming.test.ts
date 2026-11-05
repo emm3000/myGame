@@ -21,7 +21,7 @@ describe('the town art framing', () => {
   for (const drawing of drawings) {
     const framing = artFramingOf(drawing.svg)
 
-    it(`fills ${drawing.name} to about 70 % of the frame`, () => {
+    it(`spans 62 to 96 % of the frame on the longer side of ${drawing.name}`, () => {
       const largerSide = Math.max(framing.widthShare, framing.heightShare)
 
       expect(largerSide >= 0.62 && largerSide <= 0.96).toBe(true)
