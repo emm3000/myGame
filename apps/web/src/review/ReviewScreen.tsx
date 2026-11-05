@@ -14,6 +14,7 @@ import { Button } from '../design-system/Button'
 import { CountdownLine } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
+import { formatQuantity } from '../design-system/formatQuantity'
 import { Panel } from '../design-system/Panel'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -76,7 +77,7 @@ function DueCard({
   return (
     <div className="flex max-w-form flex-col gap-3">
       <p className="m-0 font-sans text-label text-ink-muted">
-        {reviewDueCount({ count: state.dueCount })}
+        {reviewDueCount({ count: formatQuantity(state.dueCount) })}
       </p>
       <Panel element="article" toneClass="bg-surface-raised" spacingClass="gap-4 p-5">
         <CardOfMode card={card} review={review} verdictRef={verdictRef} />

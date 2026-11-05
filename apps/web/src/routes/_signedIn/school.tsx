@@ -1,10 +1,12 @@
+import { townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
+import { ReadingLine } from '../../design-system/ReadingLine'
 import { SchoolScreen } from '../../school/SchoolScreen'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
 import type { LiveTown } from '../../town/liveTown'
-import { TownReadFailed, TownReading } from '../../town/TownReadStatus'
+import { TownReadFailed } from '../../town/TownReadStatus'
 import { type TownHandle, useTown } from '../../town/useTown'
 
 function SchoolPage({
@@ -25,7 +27,7 @@ function SchoolRoute(): ReactElement {
   const town = useTown(apiClient)
   switch (town.state.kind) {
     case 'loading':
-      return <TownReading />
+      return <ReadingLine line={townLoading()} />
     case 'noTown':
       return <Navigate to="/" />
     case 'refused':
