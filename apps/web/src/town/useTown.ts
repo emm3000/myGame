@@ -31,6 +31,9 @@ const elapsedSecondsSince = (receivedAtMs: number, nowMs: number): number =>
 const slotFinishSecondsOf = (overview: TownOverview): number =>
   overview.work.slot === null ? 0 : secondsUntil(overview.work.slot.finishesAt, overview, 0)
 
+const seasonEndSecondsOf = (overview: TownOverview): number =>
+  overview.season === null ? 0 : secondsUntil(overview.season.endsAt, overview, 0)
+
 function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void {
   useEffect(() => {
     const readOnFocus = (): void => {
@@ -48,9 +51,12 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
       return
     }
     const timers = [setTimeout(read, rereadIntervalMs)]
-    const slotFinishSeconds = slotFinishSecondsOf(lastRead.overview)
-    if (slotFinishSeconds > 0) {
-      timers.push(setTimeout(read, Math.min(slotFinishSeconds * 1000, longestTimeoutMs)))
+    const finishSeconds = [
+      slotFinishSecondsOf(lastRead.overview),
+      seasonEndSecondsOf(lastRead.overview),
+    ]
+    for (const seconds of finishSeconds.filter((seconds) => seconds > 0)) {
+      timers.push(setTimeout(read, Math.min(seconds * 1000, longestTimeoutMs)))
     }
     return () => {
       for (const timer of timers) {

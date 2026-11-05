@@ -45,6 +45,7 @@ import {
   type FoundTown,
   type BuildingKind as PlaceKind,
   type StartBuildingWork,
+  type StopBuildingWork,
   type TownOverview,
   TownOverviewSchema,
 } from '@mygame/contracts/town'
@@ -89,7 +90,7 @@ export interface ApiClient {
   town(): Promise<ApiOutcome<TownOverview>>
   foundTown(name: string): Promise<ApiOutcome<TownOverview>>
   startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
-  stopBuildingWork(target: StoppedWork): Promise<ApiOutcome<TownOverview>>
+  stopBuildingWork(target: StopBuildingWork): Promise<ApiOutcome<TownOverview>>
   reviews(): Promise<ApiOutcome<Reviews>>
   reviewHint(wordId: string): Promise<ApiOutcome<ReviewHint>>
   answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
@@ -103,11 +104,6 @@ export interface ApiClient {
   resendVerification(): Promise<ApiRefusal | undefined>
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
   resetPassword(request: ResetPasswordRequest): Promise<ApiRefusal | undefined>
-}
-
-export interface StoppedWork {
-  readonly building: PlaceKind
-  readonly level: number
 }
 
 export interface AnsweredReview {

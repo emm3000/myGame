@@ -2,10 +2,11 @@ import {
   namesPlacesFarm,
   namesPlacesHomes,
   namesPlacesPowerStation,
+  refusalUnexpected,
   townLabelCity,
   townLabelTown,
-  townLoadFailed,
   townLoading,
+  townPlacesTitleCity,
   townTryAgain,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
@@ -57,7 +58,7 @@ it('offers to read the town again after a failed read', async () => {
       },
     }),
   )
-  expect(screen.getByText(townLoadFailed())).toBeDefined()
+  expect(screen.getByText(refusalUnexpected())).toBeDefined()
 
   fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
   await passSeconds(0)
@@ -129,4 +130,30 @@ it('labels the town a city once the server does', async () => {
   const main = within(screen.getByRole('main'))
   expect(main.getByText(townLabelCity())).toBeDefined()
   expect(main.queryByText(townLabelTown())).toBeNull()
+})
+
+it('titles the places of a city as the city', async () => {
+  await showTown(serving({ ...knownTown, label: 'city' }))
+
+  expect(screen.getByRole('heading', { level: 3, name: townPlacesTitleCity() })).toBeDefined()
+})
+
+it('reads the town again when its season ends', async () => {
+  let reads = 0
+  const endingSeason: TownOverview = {
+    ...knownTown,
+    season: { kind: 'fall', year: 1, endsAt: '2026-11-10T09:00:30.000Z' },
+  }
+  await showTown(
+    serving(endingSeason, {
+      town: async () => {
+        reads += 1
+        return { ok: true, value: endingSeason }
+      },
+    }),
+  )
+
+  await passSeconds(30)
+
+  expect(reads).toBe(2)
 })

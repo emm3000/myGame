@@ -69,7 +69,7 @@ const showFief = async (
 
 const armyRegion = (): HTMLElement => screen.getByRole('region', { name: armySection() })
 
-const aThousand = '1\u2009000'
+const aThousand = '1\u202f000'
 
 const settlerCard = (): HTMLElement =>
   within(armyRegion()).getByRole('listitem', { name: 'colonos' })

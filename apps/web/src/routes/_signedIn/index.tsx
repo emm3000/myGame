@@ -51,7 +51,7 @@ function TownPage(): ReactElement | null {
     case 'noTown':
       return <NameTownPage apiClient={apiClient} town={town} />
     case 'refused':
-      return <TownReadFailed onRetry={town.reread} />
+      return <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
     case 'live':
       return <TownHomePage apiClient={apiClient} town={town.state.town} adopt={town.adopt} />
     default: {
