@@ -13,7 +13,6 @@ import {
   namesBusySlot,
   namesSlot,
   shellFiefSwitcherLabel,
-  shellNavigationFief,
   shellNavigationMap,
   studySection,
 } from '@mygame/catalog'
@@ -30,6 +29,7 @@ import {
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
 import { kingdomNameOf } from '../map/kingdomNameOf'
+import type { AppRouter } from '../router'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownFief.readAt) })
@@ -118,8 +118,8 @@ const showAt = async (
   overview: FiefOverview,
   seenHints: ReadonlyArray<HintKind> = [],
   overrides: Partial<ApiClient> = {},
-): Promise<void> => {
-  renderAppAt(
+): Promise<AppRouter> => {
+  const router = renderAppAt(
     path,
     stubApiClient({
       currentPlayer: async () => ({ ...knownPlayer, seenHints: [...seenHints] }),
@@ -128,6 +128,7 @@ const showAt = async (
     }),
   )
   await passSeconds(0)
+  return router
 }
 
 it('shows the peasants hint the first time peasants block a building', async () => {
@@ -283,14 +284,14 @@ const dismissHint = async (): Promise<void> => {
 
 it('keeps a dismissed hint hidden on later screens while the session still answers it unseen', async () => {
   const currentPlayer = vi.fn(async () => knownPlayer)
-  await showAt(knownFiefPath, peasantsShort, [], { currentPlayer })
+  const router = await showAt(knownFiefPath, peasantsShort, [], { currentPlayer })
   const sessionReads = currentPlayer.mock.calls.length
   await dismissHint()
   expect(currentPlayer).toHaveBeenCalledTimes(sessionReads)
 
   fireEvent.click(screen.getByRole('link', { name: shellNavigationMap() }))
   await passSeconds(0)
-  fireEvent.click(screen.getByRole('link', { name: shellNavigationFief() }))
+  await act(() => router.navigate({ to: '/feudo/$fiefId', params: { fiefId: knownFief.id } }))
   await passSeconds(0)
 
   expect(currentPlayer.mock.calls.length).toBeGreaterThan(sessionReads)

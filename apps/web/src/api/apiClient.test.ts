@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import { knownFief } from '../auth/stubApiClient.testSupport'
+import { knownFief, knownTown } from '../auth/stubApiClient.testSupport'
 import { createApiClient } from './apiClient'
 
 afterEach(() => {
@@ -195,4 +195,49 @@ it("posts the answer to the player's reviews exactly as typed, spaces and case k
   expect(url).toBe('/api/reviews/lesson-1-2/answer')
   expect(init?.method).toBe('POST')
   expect(init?.body).toBe('{"answer":" Scool "}')
+})
+
+it('posts the town name to the town route', async () => {
+  const fetch = answeringFetch(200, knownTown)
+
+  const outcome = await createApiClient('/api').foundTown('Cedar Creek')
+
+  expect(outcome).toEqual({ ok: true, value: knownTown })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual({ name: 'Cedar Creek' })
+})
+
+it('posts the place to the building work route of the town', async () => {
+  const fetch = answeringFetch(200, knownTown)
+
+  await createApiClient('/api').startBuildingWork('powerStation')
+
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/work')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual({ building: 'powerStation' })
+})
+
+it('deletes the stopped work by its place and level', async () => {
+  const fetch = answeringFetch(200, knownTown)
+
+  await createApiClient('/api').stopBuildingWork({ building: 'homes', level: 2 })
+
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/work/homes/2')
+  expect(init?.method).toBe('DELETE')
+})
+
+it('answers a town refusal with its params', async () => {
+  answeringFetch(409, { kind: 'WaitingListFull', params: { cap: 2 } })
+
+  const outcome = await createApiClient('/api').startBuildingWork('farm')
+
+  expect(outcome).toEqual({
+    ok: false,
+    refusal: 'WaitingListFull',
+    error: { kind: 'WaitingListFull', params: { cap: 2 } },
+  })
 })

@@ -465,15 +465,6 @@ const signedInClientReading = (readFiefIds: Array<string>): ApiClient =>
     },
   })
 
-it('opens the first fief from the root', async () => {
-  const readFiefIds: Array<string> = []
-  renderAppAt('/', signedInClientReading(readFiefIds))
-  await passSeconds(0)
-
-  expect(screen.getByRole('heading', { level: 2, name: knownFief.name })).toBeDefined()
-  expect(readFiefIds).toEqual([knownFief.id])
-})
-
 it('reads the fief named in the URL', async () => {
   const readFiefIds: Array<string> = []
   renderAppAt(`/feudo/${robledal.id}`, signedInClientReading(readFiefIds))

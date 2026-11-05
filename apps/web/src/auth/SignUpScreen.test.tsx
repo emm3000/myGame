@@ -6,12 +6,13 @@ import {
   refusalEmailTaken,
   refusalMalformedEmail,
   refusalWeakPassword,
+  townNamingTitle,
 } from '@mygame/catalog'
 import type { SignUpRequest } from '@mygame/contracts'
 import { fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from './stubApiClient.testSupport'
+import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
 const fillSignUp = async (request: SignUpRequest): Promise<void> => {
   fireEvent.change(await screen.findByLabelText(authEmail()), {
@@ -74,7 +75,7 @@ it('refuses to submit a password shorter than eight characters', async () => {
   expect(sentRequests).toEqual([])
 })
 
-it('lands a new player on the fief once signed up', async () => {
+it('lands a new player on Name your town once signed up', async () => {
   let isSignedIn = false
   renderAppAt(
     '/sign-up',
@@ -84,10 +85,11 @@ it('lands a new player on the fief once signed up', async () => {
         return { ok: true, value: knownPlayer }
       },
       currentPlayer: async () => (isSignedIn ? knownPlayer : undefined),
+      town: async () => ({ ok: false, refusal: 'TownNotFound' }),
     }),
   )
 
   await fillSignUp(newcomer)
 
-  expect(await screen.findByRole('heading', { level: 2, name: knownFief.name })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 2, name: townNamingTitle() })).toBeDefined()
 })

@@ -10,7 +10,7 @@ The message catalog: every line of copy a player reads, per language, as ICU Mes
 
 ## Files
 
-- `es.json`, `en.json` — one flat object per language, key to ICU string, keys sorted. `en.json` stays `{}` until step 4 of ADR 038; its keys are a subset of `es.json`'s.
+- `es.json`, `en.json` — one flat object per language, key to ICU string, keys sorted. `en.json` holds the keys the town rebuild writes in English beside their Spanish (ADR 038 step 3, the town's `town.*`, `names.places.*` and `names.townResources.*` since #762); its keys are a subset of `es.json`'s until step 4. Only `es.json` generates the TypeScript.
 - `src/index.ts` — the only entry; it re-exports `src/generated/es.ts`. Consumers (`apps/api`, `apps/web`) import from `@mygame/catalog`, never a path under `src/`.
 - `src/generated/es.ts` — generated, committed, excluded from Biome in `biome.json`. Never edit it by hand.
 - `apps/android/<module>/src/main/res/values/strings.xml` — generated for a module only once `es.json` holds an `android.<module>.*` key; the whole file is then generated, so every string of that module moves into `es.json` in the same change. A module without keys keeps its hand-written file, which the generator never touches. All five modules (`app`, `chronicle`, `fief`, `map`, `signin`) hold keys, so no `strings.xml` is hand-written.

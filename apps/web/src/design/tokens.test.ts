@@ -128,6 +128,7 @@ const pairs: ReadonlyArray<Pair> = [
   { kind: 'text', foreground: 'money', background: 'surface-raised', usedBy: resourceLabel },
   { kind: 'text', foreground: 'food', background: 'surface-raised', usedBy: resourceLabel },
   { kind: 'text', foreground: 'material', background: 'surface-raised', usedBy: resourceLabel },
+  { kind: 'text', foreground: 'power', background: 'surface-raised', usedBy: resourceLabel },
   { kind: 'text', foreground: 'people', background: 'surface-raised', usedBy: resourceLabel },
   { kind: 'boundary', foreground: 'line-strong', background: 'surface', usedBy: controlBoundary },
   {
@@ -166,10 +167,12 @@ const pairs: ReadonlyArray<Pair> = [
   { kind: 'graphic', foreground: 'money', background: 'surface-raised', usedBy: resourceIcon },
   { kind: 'graphic', foreground: 'food', background: 'surface-raised', usedBy: resourceIcon },
   { kind: 'graphic', foreground: 'material', background: 'surface-raised', usedBy: resourceIcon },
+  { kind: 'graphic', foreground: 'power', background: 'surface-raised', usedBy: resourceIcon },
   { kind: 'graphic', foreground: 'people', background: 'surface-raised', usedBy: resourceIcon },
   { kind: 'graphic', foreground: 'money', background: 'surface-sunken', usedBy: resourceTrack },
   { kind: 'graphic', foreground: 'food', background: 'surface-sunken', usedBy: resourceTrack },
   { kind: 'graphic', foreground: 'material', background: 'surface-sunken', usedBy: resourceTrack },
+  { kind: 'graphic', foreground: 'power', background: 'surface-sunken', usedBy: resourceTrack },
   {
     kind: 'graphic',
     foreground: 'miss',
