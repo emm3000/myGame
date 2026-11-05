@@ -59,10 +59,10 @@
     <string name="map_retry">Volver a intentarlo</string>
     <string name="map_terrain">Terreno: {terrain}</string>
     <string name="map_title">Mapa</string>
-    <string name="map_unit_archer_counted">{count, plural, =1 {# arquero} other {# arqueros}}</string>
-    <string name="map_unit_cavalry_counted">{count, plural, =1 {# jinete} other {# jinetes}}</string>
-    <string name="map_unit_infantry_counted">{count, plural, =1 {# infante} other {# infantes}}</string>
-    <string name="map_unit_settler_counted">{count, plural, =1 {# colono} other {# colonos}}</string>
+    <string name="map_unit_archer_counted">{count, plural, =1 {{count, number,0} arquero} other {{count, number,0} arqueros}}</string>
+    <string name="map_unit_cavalry_counted">{count, plural, =1 {{count, number,0} jinete} other {{count, number,0} jinetes}}</string>
+    <string name="map_unit_infantry_counted">{count, plural, =1 {{count, number,0} infante} other {{count, number,0} infantes}}</string>
+    <string name="map_unit_settler_counted">{count, plural, =1 {{count, number,0} colono} other {{count, number,0} colonos}}</string>
     <string name="map_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="quantity_food">{amount} de comida</string>
     <string name="quantity_gold">{amount} de oro</string>

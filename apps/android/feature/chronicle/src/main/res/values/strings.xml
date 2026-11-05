@@ -49,8 +49,8 @@
     <string name="subject_march">provincia {province}, parcela {plot}, {party}.</string>
     <string name="subject_recruits">{units}.</string>
     <string name="subject_recruits_cancelled">{delivered} en filas, {cancelled} de vuelta al campo.</string>
-    <string name="units_archer">{count, plural, =1 {# arquero} other {# arqueros}}</string>
-    <string name="units_cavalry">{count, plural, =1 {# jinete} other {# jinetes}}</string>
-    <string name="units_infantry">{count, plural, =1 {# infante} other {# infantes}}</string>
-    <string name="units_settler">{count, plural, =1 {# colono} other {# colonos}}</string>
+    <string name="units_archer">{count, plural, =1 {{count, number,0} arquero} other {{count, number,0} arqueros}}</string>
+    <string name="units_cavalry">{count, plural, =1 {{count, number,0} jinete} other {{count, number,0} jinetes}}</string>
+    <string name="units_infantry">{count, plural, =1 {{count, number,0} infante} other {{count, number,0} infantes}}</string>
+    <string name="units_settler">{count, plural, =1 {{count, number,0} colono} other {{count, number,0} colonos}}</string>
 </resources>
