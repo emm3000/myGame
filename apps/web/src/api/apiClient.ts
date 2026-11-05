@@ -34,9 +34,10 @@ import {
   ReviewAnswerSchema,
   type ReviewHint,
   ReviewHintSchema,
+  type Reviews,
+  ReviewsSchema,
   type SignInRequest,
   type SignUpRequest,
-  type StartLessonRequest,
   type StartStudyRequest,
   type VerifyEmailRequest,
 } from '@mygame/contracts'
@@ -78,10 +79,9 @@ export interface ApiClient {
     request: DispatchTransportRequest,
   ): Promise<ApiOutcome<FiefOverview>>
   recallMarch(fiefId: string, target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
-  startLesson(fiefId: string, lessonId: string): Promise<ApiOutcome<FiefOverview>>
-  cancelLesson(fiefId: string, lessonId: string): Promise<ApiOutcome<FiefOverview>>
-  reviewHint(fiefId: string, wordId: string): Promise<ApiOutcome<ReviewHint>>
-  answerReview(fiefId: string, answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
+  reviews(): Promise<ApiOutcome<Reviews>>
+  reviewHint(wordId: string): Promise<ApiOutcome<ReviewHint>>
+  answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
   chronicle(fiefId: string): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(fiefId: string, province?: number): Promise<ApiOutcome<ProvinceMap>>
   digest(): Promise<ApiOutcome<Digest>>
@@ -241,30 +241,19 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       )
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
     },
-    startLesson: async (fiefId, lessonId) => {
-      const request: StartLessonRequest = { lessonId }
-      const response = await postJson(fiefPathOf(fiefId, '/lessons'), request)
-      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    reviews: async () => {
+      const response = await send('/reviews', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, ReviewsSchema)
     },
-    cancelLesson: async (fiefId, lessonId) => {
-      const response = await send(fiefPathOf(fiefId, `/lessons/${encodeURIComponent(lessonId)}`), {
-        method: 'DELETE',
+    reviewHint: async (wordId) => {
+      const response = await send(`/reviews/${encodeURIComponent(wordId)}/hint`, {
+        method: 'POST',
       })
-      return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
-    },
-    reviewHint: async (fiefId, wordId) => {
-      const response = await send(
-        fiefPathOf(fiefId, `/reviews/${encodeURIComponent(wordId)}/hint`),
-        { method: 'POST' },
-      )
       return response === undefined ? unexpected : bodyOf(response, ReviewHintSchema)
     },
-    answerReview: async (fiefId, { wordId, answer }) => {
+    answerReview: async ({ wordId, answer }) => {
       const request: ReviewAnswerRequest = { answer }
-      const response = await postJson(
-        fiefPathOf(fiefId, `/reviews/${encodeURIComponent(wordId)}/answer`),
-        request,
-      )
+      const response = await postJson(`/reviews/${encodeURIComponent(wordId)}/answer`, request)
       return response === undefined ? unexpected : bodyOf(response, ReviewAnswerSchema)
     },
     chronicle: async (fiefId) => {

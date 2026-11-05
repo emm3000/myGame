@@ -5,13 +5,13 @@ import {
   reviewNearMiss,
   reviewRecallPrompt,
 } from '@mygame/catalog'
-import { ReviewAnswerRequestSchema } from '@mygame/contracts'
+import { type DueReview, ReviewAnswerRequestSchema } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { Button } from '../design-system/Button'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
 import { RatedVerdictLines } from './RatedVerdictLines'
-import type { DueReview, ReviewHandle } from './useReview'
+import type { ReviewHandle } from './useReview'
 
 type Recall = Extract<DueReview, { readonly mode: 'recall' }>
 

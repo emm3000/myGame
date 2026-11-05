@@ -8,6 +8,7 @@ import {
   reviewRetry,
   reviewTitle,
 } from '@mygame/catalog'
+import type { DueReview } from '@mygame/contracts'
 import { type ReactElement, type Ref, useEffect, useId } from 'react'
 import { Button } from '../design-system/Button'
 import { CountdownLine } from '../design-system/CountdownLine'
@@ -18,7 +19,7 @@ import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { RecallCard } from './RecallCard'
 import { RecognitionCard } from './RecognitionCard'
-import type { DueReview, ReviewHandle } from './useReview'
+import type { ReviewHandle } from './useReview'
 
 export type ReviewScreenState =
   | { readonly kind: 'loading' }

@@ -12,7 +12,7 @@ import type { RaisedSkill } from '@mygame/contracts'
 import { type ReactElement, type Ref, useId } from 'react'
 import { Button } from '../design-system/Button'
 import { focusTargetClass } from '../design-system/focusTargetClass'
-import { resourceNameOf } from '../resources/resourceNameOf'
+import { townResourceNameOf } from '../resources/townResourceNameOf'
 import type { GivenAnswer } from './useReview'
 
 export interface RatedVerdictLinesProps {
@@ -48,10 +48,13 @@ function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
   return (
     <>
       <p className="m-0 font-sans font-bold text-body text-ink">
-        {reviewSkillEarned({ resource: resourceNameOf(skill.resource), level: skill.level })}
+        {reviewSkillEarned({ resource: townResourceNameOf(skill.resource), level: skill.level })}
       </p>
       <p className="m-0 font-sans text-caption text-ink">
-        {reviewSkillRate({ percent: skill.ratePercent, resource: resourceNameOf(skill.resource) })}
+        {reviewSkillRate({
+          percent: skill.ratePercent,
+          resource: townResourceNameOf(skill.resource),
+        })}
       </p>
     </>
   )

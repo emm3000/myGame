@@ -1,10 +1,6 @@
-import type { FiefOverview, ReviewAnswer, ReviewHint } from '@mygame/contracts'
+import type { DueReview, ReviewHint, ReviewVerdict } from '@mygame/contracts'
 import { useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
-
-export type DueReview = FiefOverview['reviews']['due'][number]
-
-export type ReviewVerdict = ReviewAnswer['verdict']
 
 export type RatedVerdict = Exclude<ReviewVerdict, { readonly kind: 'nearMiss' }>
 
@@ -69,9 +65,8 @@ function answerOf(card: DueReview, session: Session): Answer | undefined {
 
 export function useReview(
   apiClient: ApiClient,
-  fiefId: string,
   due: ReadonlyArray<DueReview>,
-  adopt: (overview: FiefOverview) => void,
+  reread: () => Promise<void>,
 ): ReviewHandle {
   const [session, setSession] = useState<Session>(freshSession)
   const [isWaiting, setIsWaiting] = useState(false)
@@ -105,7 +100,7 @@ export function useReview(
       return
     }
     void sending(async () => {
-      const outcome = await apiClient.reviewHint(fiefId, card.wordId)
+      const outcome = await apiClient.reviewHint(card.wordId)
       if (!outcome.ok) {
         setRefusal(outcome.refusal)
         return
@@ -120,15 +115,12 @@ export function useReview(
       return
     }
     void sending(async () => {
-      const outcome = await apiClient.answerReview(fiefId, {
-        wordId: card.wordId,
-        answer: answer.sent,
-      })
+      const outcome = await apiClient.answerReview({ wordId: card.wordId, answer: answer.sent })
       if (!outcome.ok) {
         setRefusal(outcome.refusal)
         return
       }
-      adopt(outcome.value.fief)
+      await reread()
       const { verdict } = outcome.value
       if (verdict.kind === 'nearMiss') {
         holding({ isNearMiss: true })

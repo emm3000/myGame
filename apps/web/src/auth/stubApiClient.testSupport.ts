@@ -136,9 +136,6 @@ export const knownFief: FiefOverview = {
   },
   incomingCargo: null,
   goal: null,
-  lessons: [],
-  skills: [],
-  reviews: { due: [], nextDueAt: null },
   readAt: '2026-09-22T12:00:00.000Z',
 }
 
@@ -204,13 +201,9 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   dispatchFounding: async () => ({ ok: true, value: knownFief }),
   dispatchTransport: async () => ({ ok: true, value: knownFief }),
   recallMarch: async () => ({ ok: true, value: knownFief }),
-  startLesson: async () => ({ ok: true, value: knownFief }),
-  cancelLesson: async () => ({ ok: true, value: knownFief }),
+  reviews: async () => ({ ok: true, value: { due: [], nextDueAt: null } }),
   reviewHint: async () => ({ ok: true, value: { firstLetter: 's', letterCount: 6 } }),
-  answerReview: async () => ({
-    ok: true,
-    value: { verdict: { kind: 'nearMiss' }, fief: knownFief },
-  }),
+  answerReview: async () => ({ ok: true, value: { verdict: { kind: 'nearMiss' } } }),
   chronicle: async () => ({ ok: true, value: { events: [] } }),
   provinceMap: async () => ({ ok: true, value: knownProvinceMap }),
   digest: async () => ({ ok: true, value: quietDigest }),

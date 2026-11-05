@@ -1,7 +1,5 @@
 import {
   fiefFinished,
-  lessonCancelOf,
-  lessonCancelRefund,
   lessonTitle,
   namesBusyStudy,
   namesIdleStudy,
@@ -32,7 +30,6 @@ import { formatFinish } from '../time/formatFinish'
 import { artCardOf } from './artCardOf'
 import { artNameOf } from './artNameOf'
 import { LessonCard } from './LessonCard'
-import { lessonCardOf } from './lessonCardOf'
 import type { LiveFief } from './liveFief'
 import { SeasonSectionHeading } from './SeasonSectionHeading'
 import { seasonSectionMarkOf } from './seasonSectionMarkOf'
@@ -43,11 +40,8 @@ type StudyWork = Exclude<LiveFief['overview']['study'], { readonly kind: 'idle' 
 
 function workOf(slot: StudyWork): {
   readonly buildingName: string
-  readonly levelLabel: string | undefined
+  readonly levelLabel: string
 } {
-  if (slot.kind === 'lesson') {
-    return { buildingName: lessonTitle(), levelLabel: undefined }
-  }
   return {
     buildingName: capitalize(artNameOf(slot.art)),
     levelLabel: namesLevel({ level: slot.targetLevel }),
@@ -55,14 +49,6 @@ function workOf(slot: StudyWork): {
 }
 
 function cancelOf(slot: StudyWork, study: Study, onCancelled: () => void): CancelAction {
-  if (slot.kind === 'lesson') {
-    return {
-      label: studyCancel(),
-      accessibleName: lessonCancelOf(),
-      isWaiting: study.isWaiting,
-      onCancel: () => study.cancelLesson(slot.lessonId, onCancelled),
-    }
-  }
   return {
     label: studyCancel(),
     accessibleName: studyCancelOf({ art: artNameOf(slot.art), level: slot.targetLevel }),
@@ -72,9 +58,6 @@ function cancelOf(slot: StudyWork, study: Study, onCancelled: () => void): Cance
 }
 
 function refundOf(slot: StudyWork): string {
-  if (slot.kind === 'lesson') {
-    return lessonCancelRefund()
-  }
   return studyCancelRefund({ quantities: quantitiesPhraseOf(quantitiesOf(slot.cost)) })
 }
 
@@ -162,17 +145,9 @@ export function LibrarySection({
           {ArtKindSchema.options.map((art) => (
             <ArtItem key={art} art={art} fief={fief} study={study} />
           ))}
-          {fief.overview.lessons.map((lesson) => (
-            <li key={lesson.id} aria-label={lessonTitle()} className="flex flex-col">
-              <LessonCard
-                fiefId={fief.overview.id}
-                theme={lesson.theme}
-                state={lessonCardOf(lesson, fief)}
-                isWaiting={study.isWaiting}
-                onStudy={() => study.startLesson(lesson.id)}
-              />
-            </li>
-          ))}
+          <li aria-label={lessonTitle()} className="flex flex-col">
+            <LessonCard fiefId={fief.overview.id} />
+          </li>
         </ul>
       </div>
       {study.refusal !== undefined && <FormAlert message={refusalLineOf(study.refusal)} />}

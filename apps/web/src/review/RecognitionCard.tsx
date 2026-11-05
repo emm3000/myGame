@@ -1,8 +1,9 @@
 import { reviewRecognitionPrompt } from '@mygame/catalog'
+import type { DueReview } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { CheckAction } from './CheckAction'
 import { RatedVerdictLines } from './RatedVerdictLines'
-import type { DueReview, ReviewHandle } from './useReview'
+import type { ReviewHandle } from './useReview'
 
 type Recognition = Extract<DueReview, { readonly mode: 'recognition' }>
 

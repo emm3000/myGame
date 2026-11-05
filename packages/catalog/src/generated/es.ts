@@ -120,14 +120,8 @@ export const hintsLinesMarches = (): string => `Tus hombres salen desde el mapa:
 export const hintsLinesPeasants = (): string => `Cada nivel de un edificio y cada hombre de armas ocupa campesinos. Una granja trae más.`
 export const hintsLinesQueue = (): string => `Mientras una obra avanza puedes encargar otras: esperan en orden y empiezan solas.`
 export const hintsLinesSeasons = (): string => `Cada estación dura siete días y cambia alguna cosecha o algún trabajo. Las marcas dicen cuál.`
-export const lessonCancelOf = (): string => `Cancelar el estudio: lección 1`
-export const lessonCancelRefund = (): string => `Si lo cancelas, no pierdes nada: la lección queda por estudiar.`
-export const lessonFree = ({ wordCount }: { readonly wordCount: number }): string => `No cuesta nada. Trae ${wordCount === 1 ? `${String(wordCount)} palabra nueva` : `${String(wordCount)} palabras nuevas`}.`
-export const lessonStart = (): string => `Estudiar la lección 1`
-export const lessonStudied = (): string => `Lección 1 estudiada.`
 export const lessonTitle = (): string => `Lección 1`
 export const lessonToReview = (): string => `Ir al repaso`
-export const lessonUnderStudy = (): string => `En estudio`
 export const mailResetSubject = (): string => `Cambia tu contraseña`
 export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
 export const mailVerificationSubject = (): string => `Confirma tu correo`
@@ -236,6 +230,10 @@ export const namesStudySlot = (): string => `el estudio`
 export const namesTerrainsLowlands = (): string => `vega`
 export const namesTerrainsRidges = (): string => `riscos`
 export const namesTerrainsUplands = (): string => `páramo`
+export const namesTownResourcesFood = (): string => `comida`
+export const namesTownResourcesMaterial = (): string => `material`
+export const namesTownResourcesMoney = (): string => `dinero`
+export const namesTownResourcesPower = (): string => `energía`
 export const namesUnitsArcherPlural = (): string => `arqueros`
 export const namesUnitsArcherSingular = (): string => `arquero`
 export const namesUnitsCavalryPlural = (): string => `jinetes`
@@ -324,14 +322,14 @@ export const reviewLoading = (): string => `Estamos leyendo tu repaso…`
 export const reviewNearMiss = (): string => `Casi. Revisa cómo se escribe y vuelve a comprobar.`
 export const reviewNext = (): string => `Siguiente`
 export const reviewNextReview = (): string => `Siguiente repaso:`
-export const reviewNoCards = (): string => `Aún no tienes palabras que repasar. Estudia la lección 1 en la biblioteca.`
+export const reviewNoCards = (): string => `Aún no tienes palabras que repasar.`
 export const reviewNothingDue = (): string => `No tienes nada que repasar ahora.`
 export const reviewRecallPrompt = (): string => `¿Cómo se dice en inglés?`
 export const reviewRecognitionPrompt = (): string => `¿Qué significa?`
 export const reviewRetry = (): string => `Volver a intentarlo`
 export const reviewRightAnswer = (): string => `La correcta:`
 export const reviewSkillEarned = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Habilidad ganada: ${String(resource)}, nivel ${String(level)}.`
-export const reviewSkillRate = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `+${String(percent)} % de ${String(resource)} / h en todos tus feudos.`
+export const reviewSkillRate = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `+${String(percent)} % de ${String(resource)} / h.`
 export const reviewTitle = (): string => `Repaso`
 export const reviewWrong = (): string => `No es correcto.`
 export const reviewYourAnswer = (): string => `Tu respuesta:`
@@ -351,7 +349,6 @@ export const statusIdleMarch = (): string => `Sin marcha`
 export const statusIdleRecruit = (): string => `Sin leva`
 export const statusIdleStudy = (): string => `Sin estudio`
 export const statusLabel = (): string => `En curso`
-export const statusLesson = (): string => `lección 1`
 export const statusNoticesDenied = (): string => `Tu navegador no permite los avisos. Permítelos en sus ajustes y vuelve a activarlo.`
 export const statusNoticesLabel = (): string => `Avisarme`
 export const statusNoticesOff = (): string => `desactivado`

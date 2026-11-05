@@ -155,20 +155,40 @@ it('answers a refused dismissal by its kind', async () => {
   expect(await createApiClient('/api').dismissGuidance(knownFief.id)).toBe('FiefNotFound')
 })
 
-it('posts the answer exactly as typed, spaces and case kept', async () => {
-  const fetch = answeringFetch(200, {
-    verdict: { kind: 'nearMiss' },
-    fief: knownFief,
-  })
+it("reads the due reviews from the player's reviews", async () => {
+  const reviews = { due: [], nextDueAt: '2026-09-22T12:09:00.000Z' }
+  const fetch = answeringFetch(200, reviews)
 
-  const outcome = await createApiClient('/api').answerReview(knownFief.id, {
+  const outcome = await createApiClient('/api').reviews()
+
+  expect(outcome).toEqual({ ok: true, value: reviews })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/reviews')
+  expect(init?.method).toBe('GET')
+})
+
+it("asks the hint of a word on the player's reviews", async () => {
+  const fetch = answeringFetch(200, { firstLetter: 's', letterCount: 6 })
+
+  const outcome = await createApiClient('/api').reviewHint('lesson-1-2')
+
+  expect(outcome).toEqual({ ok: true, value: { firstLetter: 's', letterCount: 6 } })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/reviews/lesson-1-2/hint')
+  expect(init?.method).toBe('POST')
+})
+
+it("posts the answer to the player's reviews exactly as typed, spaces and case kept", async () => {
+  const fetch = answeringFetch(200, { verdict: { kind: 'nearMiss' } })
+
+  const outcome = await createApiClient('/api').answerReview({
     wordId: 'lesson-1-2',
     answer: ' Scool ',
   })
 
-  expect(outcome).toEqual({ ok: true, value: { verdict: { kind: 'nearMiss' }, fief: knownFief } })
+  expect(outcome).toEqual({ ok: true, value: { verdict: { kind: 'nearMiss' } } })
   const [url, init] = fetch.mock.calls[0] ?? []
-  expect(url).toBe(`/api/fiefs/${knownFief.id}/reviews/lesson-1-2/answer`)
+  expect(url).toBe('/api/reviews/lesson-1-2/answer')
   expect(init?.method).toBe('POST')
   expect(init?.body).toBe('{"answer":" Scool "}')
 })
