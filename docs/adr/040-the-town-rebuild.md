@@ -76,7 +76,10 @@ What trunk holds, checked at `1f0b1c41`:
   moving to the school, and the wire ids below. The cutover is the last
   slice, which deletes every medieval module, route, contract, screen
   and catalog key, and drops the medieval tables. That drop is ADR
-  035's one-time reset.
+  035's one-time reset. (Amended by ADR 041: the cutover is no longer
+  the last slice. It follows the Android town, the Report on both
+  clients and sign-up; Town News, the office, the map, jobs, clean-ups
+  and goals are built after it, on one holding.)
 - **Names that collide while both exist.** The town takes its final
   names. In TypeScript, the domain's and the contracts' exports
   `ResourceKind`, `ResourceAmounts`, `BuildingKind`, `BuildingContent`,
@@ -97,14 +100,19 @@ What trunk holds, checked at `1f0b1c41`:
   `Goal`, `PendingGoal` and `UnderwayGoal` are renamed `FiefGoal`,
   `FiefPendingGoal` and `FiefUnderwayGoal` in the town's goals slice,
   which also updates the medieval readers on the web and on Android in
-  the same pull request.
+  the same pull request. (Amended by ADR 041: the goals slice comes
+  after the cutover, which deletes the medieval goal ids, so no `Fief`
+  prefix is added and the town takes the plain names.)
 - **While both exist, each medieval screen gives way to the town screen
   that replaces it**: the web's index and Android's home go to the town
   in slices 9 and 10, *Crónica* gives way to News in 21 and 23, *Mapa*
   to the map in 30 and 31. A replaced medieval screen loses its
   navigation entry; on the web it stays reachable at its
   `/feudo/$fiefId` URL, and on Android it is unreachable, until slices
-  41 and 42 delete it.
+  41 and 42 delete it. (Amended by ADR 041: *Crónica*, *Mapa*, the
+  army, the goals and the hints are deleted at the cutover with no town
+  screen in their place; News and the map join the navigation when
+  their slices land after it.)
 - **Why the coexistence is not a shim.** `.claude/rules/architecture.md`
   rejects "a shim that lets old and new coexist", and
   `.claude/rules/principles.md` rejects "feature flags to keep two paths
