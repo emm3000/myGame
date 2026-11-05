@@ -75,6 +75,7 @@ export const players = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
     emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
     digestAcknowledgedAt: timestamp('digest_acknowledged_at', { withTimezone: true }).notNull(),
+    reportReadAt: timestamp('report_read_at', { withTimezone: true }).notNull(),
   },
   (table) => [uniqueIndex('players_email_unique').on(sql`lower(${table.email})`)],
 )
@@ -609,9 +610,21 @@ export const towns = pgTable(
     fullSinceFood: timestamp('full_since_food', { withTimezone: true }),
     fullSincePower: timestamp('full_since_power', { withTimezone: true }),
     fullSinceMaterial: timestamp('full_since_material', { withTimezone: true }),
+    workBuilding: townBuilding('work_building'),
+    workLevel: integer('work_level'),
+    workStartedAt: timestamp('work_started_at', { withTimezone: true }),
+    workFinishesAt: timestamp('work_finishes_at', { withTimezone: true }),
+    workCostMoney: doublePrecision('work_cost_money'),
+    workCostFood: doublePrecision('work_cost_food'),
+    workCostPower: doublePrecision('work_cost_power'),
+    workCostMaterial: doublePrecision('work_cost_material'),
   },
   (table) => [
     unique('towns_player_unique').on(table.playerId),
+    check(
+      'towns_work_slot_terms',
+      sql`num_nonnulls(${table.workBuilding}, ${table.workLevel}, ${table.workStartedAt}, ${table.workFinishesAt}, ${table.workCostMoney}, ${table.workCostFood}, ${table.workCostPower}, ${table.workCostMaterial}) = 0 OR (num_nonnulls(${table.workBuilding}, ${table.workLevel}, ${table.workStartedAt}, ${table.workFinishesAt}, ${table.workCostMoney}, ${table.workCostFood}, ${table.workCostPower}, ${table.workCostMaterial}) = 8 AND ${table.workLevel} >= 1 AND ${table.workStartedAt} <= ${table.workFinishesAt} AND ${table.workCostMoney} >= 0 AND ${table.workCostMoney} = trunc(${table.workCostMoney}) AND ${table.workCostFood} >= 0 AND ${table.workCostFood} = trunc(${table.workCostFood}) AND ${table.workCostPower} >= 0 AND ${table.workCostPower} = trunc(${table.workCostPower}) AND ${table.workCostMaterial} >= 0 AND ${table.workCostMaterial} = trunc(${table.workCostMaterial}))`,
+    ),
     unique('towns_site_unique').on(table.region, table.area, table.site),
     check(
       'towns_address_positive',
@@ -636,5 +649,93 @@ export const townBuildings = pgTable(
   (table) => [
     primaryKey({ name: 'town_buildings_pkey', columns: [table.townId, table.building] }),
     check('town_buildings_level_whole', sql`${table.level} >= 0`),
+  ],
+)
+
+export const townWaitingWork = pgTable(
+  'town_waiting_work',
+  {
+    townId: uuid('town_id')
+      .notNull()
+      .references(() => towns.id, { onDelete: 'cascade' }),
+    position: integer('position').notNull(),
+    building: townBuilding('building').notNull(),
+    level: integer('level').notNull(),
+    costMoney: doublePrecision('cost_money').notNull(),
+    costFood: doublePrecision('cost_food').notNull(),
+    costPower: doublePrecision('cost_power').notNull(),
+    costMaterial: doublePrecision('cost_material').notNull(),
+    durationSeconds: integer('duration_seconds').notNull(),
+  },
+  (table) => [
+    primaryKey({ name: 'town_waiting_work_pkey', columns: [table.townId, table.position] }),
+    check('town_waiting_work_position_whole', sql`${table.position} >= 0`),
+    check('town_waiting_work_level_positive', sql`${table.level} >= 1`),
+    check('town_waiting_work_duration_whole', sql`${table.durationSeconds} >= 0`),
+    wholeAmount('town_waiting_work_cost_money_whole', table.costMoney),
+    wholeAmount('town_waiting_work_cost_food_whole', table.costFood),
+    wholeAmount('town_waiting_work_cost_power_whole', table.costPower),
+    wholeAmount('town_waiting_work_cost_material_whole', table.costMaterial),
+  ],
+)
+
+export const townResource = pgEnum('town_resource', ['money', 'food', 'power', 'material'])
+
+export const townHire = pgEnum('town_hire', ['worker', 'truck'])
+
+export const townEventKind = pgEnum('town_event_kind', [
+  'building_work_finished',
+  'building_work_stopped',
+  'lesson_studied',
+  'lesson_stopped',
+  'skill_earned',
+  'hiring_delivered',
+  'hiring_stopped',
+  'job_back',
+  'job_called_back',
+  'clean_up_done',
+  'clean_up_failed',
+  'became_city',
+])
+
+export const townEvents = pgTable(
+  'town_events',
+  {
+    id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+    townId: uuid('town_id')
+      .notNull()
+      .references(() => towns.id, { onDelete: 'cascade' }),
+    kind: townEventKind('kind').notNull(),
+    building: townBuilding('building'),
+    level: integer('level'),
+    lessonId: text('lesson_id'),
+    resource: townResource('resource'),
+    ratePercent: integer('rate_percent'),
+    hire: townHire('hire'),
+    count: integer('count'),
+    stoppedCount: integer('stopped_count'),
+    region: integer('region'),
+    area: integer('area'),
+    site: integer('site'),
+    amountMoney: doublePrecision('amount_money').notNull().default(0),
+    amountFood: doublePrecision('amount_food').notNull().default(0),
+    amountPower: doublePrecision('amount_power').notNull().default(0),
+    amountMaterial: doublePrecision('amount_material').notNull().default(0),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    index('town_events_town_order').on(table.townId, table.occurredAt, table.id),
+    check(
+      'town_events_building_terms',
+      sql`CASE WHEN ${table.kind}::text IN ('building_work_finished', 'building_work_stopped') THEN ${table.building} IS NOT NULL AND ${table.level} IS NOT NULL AND ${table.level} >= 1 ELSE ${table.building} IS NULL AND ${table.level} IS NULL END`,
+    ),
+    check(
+      'town_events_site_terms',
+      sql`num_nonnulls(${table.region}, ${table.area}, ${table.site}) = 0 OR (num_nonnulls(${table.region}, ${table.area}, ${table.site}) = 3 AND ${table.region} >= 1 AND ${table.area} >= 1 AND ${table.site} >= 1)`,
+    ),
+    wholeAmount('town_events_amount_money_whole', table.amountMoney),
+    wholeAmount('town_events_amount_food_whole', table.amountFood),
+    wholeAmount('town_events_amount_power_whole', table.amountPower),
+    wholeAmount('town_events_amount_material_whole', table.amountMaterial),
   ],
 )

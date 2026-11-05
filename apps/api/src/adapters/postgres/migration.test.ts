@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { readMigrationFiles } from 'drizzle-orm/migrator'
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
 import { tokenDigest } from '../../auth/tokenDigest'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
@@ -57,6 +57,7 @@ function aPlayer(id: string, email: string): typeof players.$inferInsert {
     passwordHash: 'argon2id-hash',
     createdAt: new Date('2026-09-22T08:00:00Z'),
     digestAcknowledgedAt: new Date('2026-09-22T08:00:00Z'),
+    reportReadAt: new Date('2026-09-22T08:00:00Z'),
   }
 }
 
@@ -290,6 +291,8 @@ describe('the migrations', () => {
       'review_log',
       'sessions',
       'town_buildings',
+      'town_events',
+      'town_waiting_work',
       'towns',
     ])
   })
@@ -3300,7 +3303,7 @@ describe('the town migration', () => {
   })
 
   it('founds no town for a player stored before the migration', async () => {
-    const towns = new DrizzleTownRepository(drizzle(client))
+    const towns = new DrizzleTownRepository(drizzle(client), 'lockFree')
 
     expect(await towns.holdsTown(ana.id)).toBe(false)
   })
@@ -3355,5 +3358,126 @@ describe('the town migration', () => {
       code: uniqueViolation,
       constraint: 'towns_site_unique',
     })
+  })
+})
+
+describe('the building work and town news migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedFrom(client, 32, async () => {
+      await insertPlayersOfFullSinceVersion(client)
+      await insertTownOf(client, ana.id, 1, plainStocks)
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  const insertEventOf = async (
+    kind: string,
+    building: string | null,
+    level: number | null,
+  ): Promise<void> => {
+    await client.query(
+      `INSERT INTO town_events (town_id, kind, building, level, occurred_at)
+       SELECT id, $1, $2, $3, '2026-11-05T08:00:00Z' FROM towns WHERE player_id = $4`,
+      [kind, building, level, ana.id],
+    )
+  }
+
+  it('reads every stored player at the migration instant', async () => {
+    const read = await client.query<{ id: string; atMigration: boolean }>(
+      'SELECT id, report_read_at = now() AS "atMigration" FROM players ORDER BY id',
+    )
+
+    expect(read.rows).toEqual([
+      { id: ana.id, atMigration: true },
+      { id: bruno.id, atMigration: true },
+    ])
+  })
+
+  it('reads a town stored before the migration idle with nothing waiting', async () => {
+    const read = await new DrizzleTownRepository(drizzle(client), 'lockFree').townOf(ana.id)
+
+    assert(read.ok && read.value !== undefined)
+    expect([read.value.workSlot, read.value.waitingList]).toEqual([{ kind: 'idle' }, []])
+  })
+
+  it('holds every kind of town event', async () => {
+    const kinds = await client.query<{ kind: string }>(
+      'SELECT unnest(enum_range(NULL::town_event_kind))::text AS kind',
+    )
+
+    expect(kinds.rows.map(({ kind }) => kind)).toEqual([
+      'building_work_finished',
+      'building_work_stopped',
+      'lesson_studied',
+      'lesson_stopped',
+      'skill_earned',
+      'hiring_delivered',
+      'hiring_stopped',
+      'job_back',
+      'job_called_back',
+      'clean_up_done',
+      'clean_up_failed',
+      'became_city',
+    ])
+  })
+
+  it('refuses building work in the slot without its finish', async () => {
+    await expect(
+      client.query(
+        `UPDATE towns SET work_building = 'farm', work_level = 1, work_started_at = stored_at,
+           work_cost_money = 0, work_cost_food = 0, work_cost_power = 0, work_cost_material = 0`,
+      ),
+    ).rejects.toMatchObject({ code: checkViolation, constraint: 'towns_work_slot_terms' })
+  })
+
+  it('refuses two waiting entries at one position of a town', async () => {
+    const insertWaiting = (): Promise<unknown> =>
+      client.query(
+        `INSERT INTO town_waiting_work (town_id, position, building, level, cost_money, cost_food, cost_power, cost_material, duration_seconds)
+         SELECT id, 0, 'farm', 1, 0, 0, 0, 0, 60 FROM towns WHERE player_id = $1`,
+        [ana.id],
+      )
+    await insertWaiting()
+
+    await expect(insertWaiting()).rejects.toMatchObject({
+      code: uniqueViolation,
+      constraint: 'town_waiting_work_pkey',
+    })
+  })
+
+  it('refuses a building work event without its building', async () => {
+    await expect(insertEventOf('building_work_finished', null, null)).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'town_events_building_terms',
+    })
+  })
+
+  it('refuses a building named on an event of another kind', async () => {
+    await expect(insertEventOf('became_city', 'homes', 2)).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'town_events_building_terms',
+    })
+  })
+
+  it("drops a deleted town's waiting work and events", async () => {
+    await client.query(
+      `INSERT INTO town_waiting_work (town_id, position, building, level, cost_money, cost_food, cost_power, cost_material, duration_seconds)
+       SELECT id, 0, 'farm', 1, 0, 0, 0, 0, 60 FROM towns WHERE player_id = $1`,
+      [ana.id],
+    )
+    await insertEventOf('became_city', null, null)
+
+    await client.query('DELETE FROM players WHERE id = $1', [ana.id])
+
+    const left = await client.query(
+      'SELECT (SELECT count(*) FROM town_waiting_work) + (SELECT count(*) FROM town_events) AS count',
+    )
+    expect(left.rows).toEqual([{ count: '0' }])
   })
 })

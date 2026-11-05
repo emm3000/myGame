@@ -4,22 +4,68 @@ import {
   type BuildingLevels,
   buildingKinds,
   type FullSince,
+  idleWorkSlot,
   type SiteAddress,
+  type Stocks,
   Town,
   TownAddress,
   TownName,
   type TownRepository,
+  type WaitingList,
+  type WorkSlot,
 } from '@mygame/domain/town'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
+import { z } from 'zod'
 import type { PostgresSession } from './connectPostgres'
-import { type townBuilding, townBuildings, towns } from './schema'
+import { jsonAggregateOf } from './jsonAggregateOf'
+import { townBuilding, townBuildings, towns, townWaitingWork } from './schema'
 import { violatedUniqueConstraint } from './violatedUniqueConstraint'
+
+export type TownRead = 'lockedForUpdate' | 'lockFree'
 
 type StoredTownBuilding = (typeof townBuilding.enumValues)[number]
 
 type TownRow = typeof towns.$inferSelect
 
-type LevelRow = { readonly building: StoredTownBuilding | null; readonly level: number | null }
+type WaitingRow = typeof townWaitingWork.$inferSelect
+
+const AggregatedLevelsSchema = z.array(
+  z.strictObject({ building: z.enum(townBuilding.enumValues), level: z.number().int() }),
+)
+
+const AggregatedWaitingWorkSchema = z.array(
+  z.strictObject({
+    building: z.enum(townBuilding.enumValues),
+    level: z.number().int(),
+    costMoney: z.number(),
+    costFood: z.number(),
+    costPower: z.number(),
+    costMaterial: z.number(),
+    durationSeconds: z.number().int(),
+  }),
+)
+
+const aggregatedLevels = jsonAggregateOf(
+  townBuildings,
+  { building: townBuildings.building, level: townBuildings.level },
+  eq(townBuildings.townId, towns.id),
+  sql`${townBuildings.building}`,
+)
+
+const aggregatedWaitingWork = jsonAggregateOf(
+  townWaitingWork,
+  {
+    building: townWaitingWork.building,
+    level: townWaitingWork.level,
+    costMoney: townWaitingWork.costMoney,
+    costFood: townWaitingWork.costFood,
+    costPower: townWaitingWork.costPower,
+    costMaterial: townWaitingWork.costMaterial,
+    durationSeconds: townWaitingWork.durationSeconds,
+  },
+  eq(townWaitingWork.townId, towns.id),
+  sql`${townWaitingWork.position}`,
+)
 
 const storedBuildings: Readonly<Record<BuildingKind, StoredTownBuilding>> = {
   homes: 'homes',
@@ -47,7 +93,7 @@ const instantOf = (date: Date | null): Instant | null =>
 const dateOf = (instant: Instant | null): Date | null =>
   instant === null ? null : new Date(instant.epochMilliseconds)
 
-const levelsOf = (rows: ReadonlyArray<LevelRow>): BuildingLevels => {
+const levelsOf = (aggregate: unknown): BuildingLevels => {
   const levels: Record<BuildingKind, number> = {
     homes: 0,
     farm: 0,
@@ -57,13 +103,111 @@ const levelsOf = (rows: ReadonlyArray<LevelRow>): BuildingLevels => {
     school: 0,
     office: 0,
   }
-  for (const { building, level } of rows) {
-    if (building !== null && level !== null) {
-      levels[buildingKindOf[building]] = level
-    }
+  for (const { building, level } of AggregatedLevelsSchema.parse(aggregate)) {
+    levels[buildingKindOf[building]] = level
   }
   return levels
 }
+
+const stocksOf = (money: number, food: number, power: number, material: number): Stocks => ({
+  money,
+  food,
+  power,
+  material,
+})
+
+const waitingListOf = (aggregate: unknown): WaitingList =>
+  AggregatedWaitingWorkSchema.parse(aggregate).map((work) => ({
+    building: buildingKindOf[work.building],
+    level: work.level,
+    cost: stocksOf(work.costMoney, work.costFood, work.costPower, work.costMaterial),
+    durationSeconds: work.durationSeconds,
+  }))
+
+const workSlotOf = (row: TownRow): WorkSlot => {
+  const {
+    workBuilding,
+    workLevel,
+    workStartedAt,
+    workFinishesAt,
+    workCostMoney,
+    workCostFood,
+    workCostPower,
+    workCostMaterial,
+  } = row
+  if (workBuilding === null) {
+    return idleWorkSlot
+  }
+  if (
+    workLevel === null ||
+    workStartedAt === null ||
+    workFinishesAt === null ||
+    workCostMoney === null ||
+    workCostFood === null ||
+    workCostPower === null ||
+    workCostMaterial === null
+  ) {
+    throw new Error(`Town ${row.id} stores a half-written work slot`)
+  }
+  return {
+    kind: 'busy',
+    building: buildingKindOf[workBuilding],
+    level: workLevel,
+    cost: stocksOf(workCostMoney, workCostFood, workCostPower, workCostMaterial),
+    startedAt: Instant.fromEpochMilliseconds(workStartedAt.getTime()),
+    finishesAt: Instant.fromEpochMilliseconds(workFinishesAt.getTime()),
+  }
+}
+
+type WorkSlotColumns = Pick<
+  TownRow,
+  | 'workBuilding'
+  | 'workLevel'
+  | 'workStartedAt'
+  | 'workFinishesAt'
+  | 'workCostMoney'
+  | 'workCostFood'
+  | 'workCostPower'
+  | 'workCostMaterial'
+>
+
+const workSlotColumnsOf = (slot: WorkSlot): WorkSlotColumns => {
+  if (slot.kind === 'idle') {
+    return {
+      workBuilding: null,
+      workLevel: null,
+      workStartedAt: null,
+      workFinishesAt: null,
+      workCostMoney: null,
+      workCostFood: null,
+      workCostPower: null,
+      workCostMaterial: null,
+    }
+  }
+  return {
+    workBuilding: storedBuildings[slot.building],
+    workLevel: slot.level,
+    workStartedAt: new Date(slot.startedAt.epochMilliseconds),
+    workFinishesAt: new Date(slot.finishesAt.epochMilliseconds),
+    workCostMoney: slot.cost.money,
+    workCostFood: slot.cost.food,
+    workCostPower: slot.cost.power,
+    workCostMaterial: slot.cost.material,
+  }
+}
+
+const waitingRowsOf = (town: Town): ReadonlyArray<WaitingRow> =>
+  town.waitingList.map((work, position) => ({
+    townId: town.id,
+    position,
+    building: storedBuildings[work.building],
+    level: work.level,
+    costMoney: work.cost.money,
+    costFood: work.cost.food,
+    costPower: work.cost.power,
+    costMaterial: work.cost.material,
+    durationSeconds: work.durationSeconds,
+  }))
 
 const fullSinceOf = (row: TownRow): FullSince => ({
   money: instantOf(row.fullSinceMoney),
@@ -72,7 +216,13 @@ const fullSinceOf = (row: TownRow): FullSince => ({
   material: instantOf(row.fullSinceMaterial),
 })
 
-const townFrom = (row: TownRow, levelRows: ReadonlyArray<LevelRow>): Result<Town, DomainError> => {
+type ReadRow = {
+  readonly town: TownRow
+  readonly levels: unknown
+  readonly waitingWork: unknown
+}
+
+const townFrom = ({ town: row, levels, waitingWork }: ReadRow): Result<Town, DomainError> => {
   const name = TownName.create(row.name)
   if (!name.ok) {
     return name
@@ -89,7 +239,9 @@ const townFrom = (row: TownRow, levelRows: ReadonlyArray<LevelRow>): Result<Town
     stocks: { money: row.money, food: row.food, power: row.power, material: row.material },
     storedAt: Instant.fromEpochMilliseconds(row.storedAt.getTime()),
     fullSince: fullSinceOf(row),
-    buildingLevels: levelsOf(levelRows),
+    buildingLevels: levelsOf(levels),
+    workSlot: workSlotOf(row),
+    waitingList: waitingListOf(waitingWork),
   })
 }
 
@@ -109,12 +261,16 @@ const rowOf = (town: Town): TownRow => ({
   fullSinceFood: dateOf(town.fullSince.food),
   fullSincePower: dateOf(town.fullSince.power),
   fullSinceMaterial: dateOf(town.fullSince.material),
+  ...workSlotColumnsOf(town.workSlot),
 })
 
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 
 export class DrizzleTownRepository implements TownRepository {
-  constructor(private readonly database: PostgresSession) {}
+  constructor(
+    private readonly database: PostgresSession,
+    private readonly read: TownRead,
+  ) {}
 
   async holdsTown(playerId: PlayerId): Promise<boolean> {
     const held = await this.database
@@ -131,16 +287,18 @@ export class DrizzleTownRepository implements TownRepository {
   }
 
   async townOf(playerId: PlayerId): Promise<Result<Town | undefined, DomainError>> {
-    const rows = await this.database
-      .select({ town: towns, building: townBuildings.building, level: townBuildings.level })
+    const query = this.database
+      .select({ town: towns, levels: aggregatedLevels, waitingWork: aggregatedWaitingWork })
       .from(towns)
-      .leftJoin(townBuildings, eq(townBuildings.townId, towns.id))
       .where(eq(towns.playerId, playerId))
+    const rows = await (this.read === 'lockedForUpdate'
+      ? query.for('update', { of: towns })
+      : query)
     const first = rows[0]
     if (first === undefined) {
       return ok(undefined)
     }
-    return townFrom(first.town, rows)
+    return townFrom(first)
   }
 
   async save(town: Town): Promise<Result<void, DomainError>> {
@@ -160,6 +318,11 @@ export class DrizzleTownRepository implements TownRepository {
               target: [townBuildings.townId, townBuildings.building],
               set: { level },
             })
+        }
+        await transaction.delete(townWaitingWork).where(eq(townWaitingWork.townId, id))
+        const waitingRows = waitingRowsOf(town)
+        if (waitingRows.length > 0) {
+          await transaction.insert(townWaitingWork).values([...waitingRows])
         }
       })
       return ok(undefined)

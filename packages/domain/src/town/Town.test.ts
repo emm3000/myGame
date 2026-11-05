@@ -28,6 +28,67 @@ describe('Town', () => {
     })
   })
 
+  it('refuses to restore building work that finishes before the stored instant', () => {
+    const finishesAt = Instant.fromEpochMilliseconds(storedAt.epochMilliseconds - 1000)
+    const restored = Town.restore(
+      storedTownOf({
+        storedAt,
+        workSlot: {
+          kind: 'busy',
+          building: 'farm',
+          level: 1,
+          cost: { money: 0, food: 0, power: 0, material: 0 },
+          startedAt: finishesAt,
+          finishesAt,
+        },
+      }),
+    )
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'SlotFinishesBeforeStored', storedAt, finishesAt },
+    })
+  })
+
+  it('refuses to restore waiting work whose duration is not whole seconds', () => {
+    const restored = Town.restore(
+      storedTownOf({
+        storedAt,
+        waitingList: [
+          {
+            building: 'farm',
+            level: 1,
+            cost: { money: 0, food: 0, power: 0, material: 0 },
+            durationSeconds: 1.5,
+          },
+        ],
+      }),
+    )
+
+    expect(restored).toEqual({ ok: false, error: { kind: 'FractionalDuration', seconds: 1.5 } })
+  })
+
+  it('refuses to restore building work whose cost is not whole', () => {
+    const restored = Town.restore(
+      storedTownOf({
+        storedAt,
+        waitingList: [
+          {
+            building: 'farm',
+            level: 1,
+            cost: { money: 0, food: 0.5, power: 0, material: 0 },
+            durationSeconds: 60,
+          },
+        ],
+      }),
+    )
+
+    expect(restored).toEqual({
+      ok: false,
+      error: { kind: 'FractionalResourceAmount', amount: 0.5 },
+    })
+  })
+
   it('refuses an address whose area is not a whole number from 1', () => {
     expect(TownAddress.create(1, 0, 3)).toEqual({
       ok: false,

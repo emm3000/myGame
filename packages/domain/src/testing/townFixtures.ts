@@ -2,6 +2,7 @@ import { assert } from 'vitest'
 import type { Instant } from '../time/Instant'
 import type { BuildingLevels } from '../town/BuildingLevels'
 import { foundingLevels } from '../town/BuildingLevels'
+import { idleWorkSlot, type WaitingList, type WorkSlot } from '../town/BuildingWork'
 import { noStoreFull } from '../town/FullSince'
 import type { Stocks } from '../town/Stocks'
 import { type StoredTown, Town } from '../town/Town'
@@ -13,6 +14,8 @@ export type TownShape = {
   readonly stocks?: Stocks
   readonly storedAt: Instant
   readonly buildingLevels?: Partial<BuildingLevels>
+  readonly workSlot?: WorkSlot
+  readonly waitingList?: WaitingList
 }
 
 export const storedTownOf = ({
@@ -20,6 +23,8 @@ export const storedTownOf = ({
   stocks = { money: 0, food: 0, power: 0, material: 0 },
   storedAt,
   buildingLevels = {},
+  workSlot = idleWorkSlot,
+  waitingList = [],
 }: TownShape): StoredTown => {
   const address = TownAddress.create(1, area, 1)
   const name = TownName.create('Maple Hill')
@@ -33,6 +38,8 @@ export const storedTownOf = ({
     storedAt,
     fullSince: noStoreFull,
     buildingLevels: { ...foundingLevels, ...buildingLevels },
+    workSlot,
+    waitingList,
   }
 }
 

@@ -16,10 +16,17 @@ export const plainTownSettings: TownSettings = {
   storageBaseCapacity: 1000,
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
+  waitingListCap: 2,
   seasons: {
     epoch: Instant.fromEpochMilliseconds(1_791_158_400_000),
     daysPerSeason: 7,
     productionPercent: { spring: unscaled, summer: unscaled, fall: unscaled, winter: unscaled },
+    durationPercent: {
+      spring: { build: 100 },
+      summer: { build: 100 },
+      fall: { build: 100 },
+      winter: { build: 100 },
+    },
   },
 }
 
@@ -29,7 +36,7 @@ const levelTerms = (level: number): Pick<BuildingLevel, 'level' | 'cost' | 'dura
   durationSeconds: 60 * level,
 })
 
-const plainLevels: ReadonlyArray<BuildingLevel> = [1, 2].flatMap((level) => [
+export const plainTownLevels: ReadonlyArray<BuildingLevel> = [1, 2].flatMap((level) => [
   { ...levelTerms(level), building: 'homes', people: 0, peopleSupplied: 20 * level },
   { ...levelTerms(level), building: 'farm', people: 2 * level, ratePerHour: 30 * level },
   { ...levelTerms(level), building: 'factory', people: 3 * level, ratePerHour: 20 * level },
@@ -49,7 +56,7 @@ const keyOf = (building: BuildingKind, level: number): string => `${building}:${
 
 export const townCatalogOf = (
   settings: TownSettings = plainTownSettings,
-  levels: ReadonlyArray<BuildingLevel> = plainLevels,
+  levels: ReadonlyArray<BuildingLevel> = plainTownLevels,
 ): TownCatalog => {
   const byKey = new Map(levels.map((line) => [keyOf(line.building, line.level), line]))
   return {

@@ -1,6 +1,15 @@
 import { Instant, type PlayerId } from '@mygame/domain'
 import type { TownRepository } from '@mygame/domain/town'
-import { foundingLevels, noStoreFull, Town, TownAddress, TownName } from '@mygame/domain/town'
+import {
+  foundingLevels,
+  idleWorkSlot,
+  noStoreFull,
+  Town,
+  TownAddress,
+  TownName,
+  type WaitingList,
+  type WorkSlot,
+} from '@mygame/domain/town'
 import { assert, describe, expect, it } from 'vitest'
 
 export type TownRepositoryFixture = {
@@ -31,7 +40,31 @@ const townOf = (id: string, playerId: PlayerId, area: number, site: number): Tow
 
 const anasTown = townOf('00000000-0000-4000-8000-00000000000a', ana, 1, 1)
 
-const grownTown = (): Town => {
+const busyFactory: WorkSlot = {
+  kind: 'busy',
+  building: 'factory',
+  level: 1,
+  cost: { money: 60, food: 0, power: 15, material: 120 },
+  startedAt: grownAt,
+  finishesAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-04T10:40:00Z')),
+}
+
+const waitingWork: WaitingList = [
+  {
+    building: 'powerStation',
+    level: 1,
+    cost: { money: 80, food: 0, power: 0, material: 90 },
+    durationSeconds: 900,
+  },
+  {
+    building: 'farm',
+    level: 4,
+    cost: { money: 140, food: 30, power: 20, material: 200 },
+    durationSeconds: 1500,
+  },
+]
+
+const grownTown = (workSlot: WorkSlot = idleWorkSlot, waitingList: WaitingList = []): Town => {
   const restored = Town.restore({
     id: anasTown.id,
     playerId: anasTown.playerId,
@@ -41,6 +74,8 @@ const grownTown = (): Town => {
     storedAt: grownAt,
     fullSince: { ...noStoreFull, food: foodFilledAt },
     buildingLevels: { ...foundingLevels, farm: 3, storage: 1, office: 2 },
+    workSlot,
+    waitingList,
   })
   assert(restored.ok)
   return restored.value
@@ -68,6 +103,32 @@ export const townRepositoryContract = (
       await towns.save(grownTown())
 
       expect(await towns.townOf(ana)).toEqual({ ok: true, value: grownTown() })
+    })
+
+    it('reads back the work slot and the waiting list with their debited costs', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(anasTown)
+
+      await towns.save(grownTown(busyFactory, waitingWork))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown(busyFactory, waitingWork),
+      })
+    })
+
+    it('reads back a waiting list a later save shortened', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(grownTown(busyFactory, waitingWork))
+
+      await towns.save(grownTown(busyFactory, waitingWork.slice(0, 1)))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown(busyFactory, waitingWork.slice(0, 1)),
+      })
     })
 
     it('answers no town for a player who holds none', async () => {

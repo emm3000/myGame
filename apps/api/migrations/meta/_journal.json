@@ -225,6 +225,13 @@
       "when": 1793853916978,
       "tag": "0031_town",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793878373262,
+      "tag": "0032_building_work_and_town_news",
+      "breakpoints": true
     }
   ]
 }

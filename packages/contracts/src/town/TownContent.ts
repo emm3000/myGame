@@ -11,6 +11,10 @@ const TownSeasonsSchema = z.strictObject({
     SeasonKindSchema,
     z.record(ResourceKindSchema, WholeCountSchema.positive()),
   ),
+  durationPercent: z.record(
+    SeasonKindSchema,
+    z.strictObject({ build: WholeCountSchema.positive() }),
+  ),
 })
 
 export const TownContentSchema = z.strictObject({
@@ -21,6 +25,7 @@ export const TownContentSchema = z.strictObject({
   storageBaseCapacity: WholeCountSchema.positive(),
   sitesPerArea: WholeCountSchema.positive(),
   terrainBonusPerHour: QuantitySchema,
+  waitingListCap: WholeCountSchema,
   seasons: TownSeasonsSchema,
 })
 

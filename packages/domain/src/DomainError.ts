@@ -10,6 +10,7 @@ import type { Instant } from './time/Instant'
 import type { BuildingKind as TownBuildingKind } from './town/BuildingKind'
 import type { ResourceKind as TownResourceKind } from './town/ResourceKind'
 import type { SiteAddress } from './town/SiteAddress'
+import type { Stocks as TownStocks } from './town/Stocks'
 
 export type DomainError =
   | { readonly kind: 'NegativeDuration'; readonly seconds: number }
@@ -45,6 +46,7 @@ export type DomainError =
       readonly libraryLevel: number
     }
   | { readonly kind: 'NegativeResourceAmount'; readonly amount: number }
+  | { readonly kind: 'FractionalResourceAmount'; readonly amount: number }
   | { readonly kind: 'NegativeResourceRate'; readonly ratePerHour: number }
   | {
       readonly kind: 'UnknownBuildingLevel'
@@ -91,6 +93,24 @@ export type DomainError =
     }
   | {
       readonly kind: 'UnknownTownBuildingLevel'
+      readonly building: TownBuildingKind
+      readonly level: number
+    }
+  | { readonly kind: 'TownNotFound'; readonly playerId: PlayerId }
+  | { readonly kind: 'WaitingListFull'; readonly cap: number }
+  | {
+      readonly kind: 'TopLevelReached'
+      readonly building: TownBuildingKind
+      readonly level: number
+    }
+  | {
+      readonly kind: 'NotEnoughPeople'
+      readonly requiredPeople: number
+      readonly freePeople: number
+    }
+  | { readonly kind: 'NotEnoughResources'; readonly missing: TownStocks }
+  | {
+      readonly kind: 'BuildingWorkNotFound'
       readonly building: TownBuildingKind
       readonly level: number
     }
