@@ -223,10 +223,6 @@ private val studyRefusals: Map<BareApiError.Kind, StudyRefusal> = mapOf(
     BareApiError.Kind.ArtMaxLevelReached to StudyRefusal.ArtMaxLevelReached,
     BareApiError.Kind.StudyNotFound to StudyRefusal.StudyNotFound,
     BareApiError.Kind.InsufficientResources to StudyRefusal.InsufficientResources,
-    BareApiError.Kind.LessonLibraryTooLow to StudyRefusal.LessonLibraryTooLow,
-    BareApiError.Kind.LessonAlreadyStudied to StudyRefusal.LessonAlreadyStudied,
-    BareApiError.Kind.LessonUnderStudy to StudyRefusal.LessonUnderStudy,
-    BareApiError.Kind.LessonStudyNotFound to StudyRefusal.LessonStudyNotFound,
 )
 
 private fun WireRefusal.toStudyRefusal(): StudyRefusal =

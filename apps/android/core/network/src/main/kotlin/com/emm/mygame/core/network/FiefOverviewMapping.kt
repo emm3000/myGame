@@ -6,7 +6,6 @@ import com.emm.mygame.core.network.generated.models.FiefOverviewBuildings
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmill
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevel
 import com.emm.mygame.core.network.generated.models.FiefOverviewBuildingsSawmillNextLevelCost
-import com.emm.mygame.core.network.generated.models.FiefOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.FiefOverviewQueue
 import com.emm.mygame.core.network.generated.models.FiefOverviewQueueEntriesInner
 import com.emm.mygame.core.network.generated.models.FiefOverviewResourcesWood
@@ -56,9 +55,6 @@ internal fun FiefOverview.toSnapshot(): FiefSnapshot? {
         seasonInForce = seasonInForce,
         seasonEndsAt = season?.endsAt?.toKotlinInstant(),
         combatTerms = CombatTerms(lootPerStrength = combatTerms.lootPerStrength),
-        lessons = lessons.map { lesson: FiefOverviewLessonsInner -> lesson.toLessonState() },
-        skills = skills.toEarnedSkills(),
-        reviews = reviews.toDueReviews(),
     )
 }
 

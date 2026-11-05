@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performTextInput
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.TownResourceKind
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -75,6 +76,26 @@ class ReviewScreenTest {
 
         composeRule.onNodeWithText("Tu respuesta: house").assertIsDisplayed()
         composeRule.onNodeWithText("La correcta: home").assertIsDisplayed()
+    }
+
+    @Test
+    fun `names the town's resource of the earned skill with its rate line`() {
+        val powerSkill: ReviewUiState.SkillLine =
+            ReviewUiState.SkillLine(resource = TownResourceKind.Power, level = 2, ratePercent = 5)
+        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = powerSkill), typed = "home"))
+
+        composeRule.onNodeWithText("Habilidad ganada: energía, nivel 2.").assertIsDisplayed()
+        composeRule.onNodeWithText("+5 % de energía / h.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the earned skill without a rate line while the player holds no town`() {
+        val skillWithoutTown: ReviewUiState.SkillLine =
+            ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = null)
+        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = skillWithoutTown), typed = "home"))
+
+        composeRule.onNodeWithText("Habilidad ganada: comida, nivel 1.").assertIsDisplayed()
+        composeRule.onNodeWithText("+", substring = true).assertDoesNotExist()
     }
 
     @Test

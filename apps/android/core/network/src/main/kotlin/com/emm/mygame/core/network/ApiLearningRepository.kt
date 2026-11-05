@@ -2,12 +2,12 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.BareApiError
-import com.emm.mygame.core.network.generated.models.FiefOverview
 import com.emm.mygame.core.network.generated.models.ReviewAnswer
 import com.emm.mygame.core.network.generated.models.ReviewAnswerRequest
-import com.emm.mygame.core.network.generated.models.StartLessonRequest
+import com.emm.mygame.core.network.generated.models.Reviews
 import java.io.IOException
-import java.util.UUID
+import java.util.Date
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
@@ -19,17 +19,19 @@ internal class ApiLearningRepository(
     private val ioDispatcher: CoroutineDispatcher,
 ) : LearningRepository {
 
-    override suspend fun startLesson(fief: FiefId, lesson: LessonId): StudyResult = studying {
-        api.fiefsFiefIdLessonsPost(UUID.fromString(fief.value), StartLessonRequest(lessonId = lesson.value))
-    }
-
-    override suspend fun cancelLesson(fief: FiefId, lesson: LessonId): StudyResult = studying {
-        api.fiefsFiefIdLessonsLessonIdDelete(fiefId = UUID.fromString(fief.value), lessonId = lesson.value)
-    }
-
-    override suspend fun hint(fief: FiefId, word: WordId): ReviewHintResult = withContext(ioDispatcher) {
+    override suspend fun reviews(): ReviewsReadResult = withContext(ioDispatcher) {
         try {
-            hintedOrRefused(api.fiefsFiefIdReviewsWordIdHintPost(UUID.fromString(fief.value), word.value))
+            readOrUnreachable(api.reviewsGet())
+        } catch (expectedOutage: IOException) {
+            ReviewsReadResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            ReviewsReadResult.Unreachable
+        }
+    }
+
+    override suspend fun hint(word: WordId): ReviewHintResult = withContext(ioDispatcher) {
+        try {
+            hintedOrRefused(api.reviewsWordIdHintPost(word.value))
         } catch (expectedOutage: IOException) {
             ReviewHintResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -37,11 +39,10 @@ internal class ApiLearningRepository(
         }
     }
 
-    override suspend fun answer(fief: FiefId, word: WordId, answer: String): ReviewAnswerResult =
+    override suspend fun answer(word: WordId, answer: String): ReviewAnswerResult =
         withContext(ioDispatcher) {
             try {
-                val response: Response<ReviewAnswer> = api.fiefsFiefIdReviewsWordIdAnswerPost(
-                    fiefId = UUID.fromString(fief.value),
+                val response: Response<ReviewAnswer> = api.reviewsWordIdAnswerPost(
                     wordId = word.value,
                     reviewAnswerRequest = ReviewAnswerRequest(answer = answer),
                 )
@@ -53,16 +54,13 @@ internal class ApiLearningRepository(
             }
         }
 
-    private suspend fun studying(call: suspend () -> Response<FiefOverview>): StudyResult =
-        withContext(ioDispatcher) {
-            try {
-                call().toStudyResult()
-            } catch (expectedOutage: IOException) {
-                StudyResult.Unreachable
-            } catch (expectedMalformedBody: SerializationException) {
-                StudyResult.Unreachable
-            }
-        }
+    private fun readOrUnreachable(response: Response<Reviews>): ReviewsReadResult {
+        val reviews: Reviews? = response.body()
+        val servedAt: Date? = response.headers().getDate("Date")
+        if (!response.isSuccessful || reviews == null || servedAt == null) return ReviewsReadResult.Unreachable
+        val readAt: Instant = Instant.fromEpochMilliseconds(servedAt.time)
+        return ReviewsReadResult.Read(reviews.toDueReviews(readAt))
+    }
 
     private fun hintedOrRefused(response: Response<WireReviewHint>): ReviewHintResult {
         val hint: WireReviewHint? = response.body()
@@ -80,10 +78,8 @@ internal class ApiLearningRepository(
     }
 }
 
-private fun ReviewAnswer.toAnswered(): ReviewAnswerResult.Answered? {
-    val snapshot: FiefSnapshot = fief.toSnapshot() ?: return null
-    return ReviewAnswerResult.Answered(verdict = verdict.toReviewVerdict(), fief = snapshot)
-}
+private fun ReviewAnswer.toAnswered(): ReviewAnswerResult.Answered =
+    ReviewAnswerResult.Answered(verdict = verdict.toReviewVerdict())
 
 private fun WireReviewHint.toReviewHint(): ReviewHint = ReviewHint(firstLetter = firstLetter, letterCount = letterCount)
 

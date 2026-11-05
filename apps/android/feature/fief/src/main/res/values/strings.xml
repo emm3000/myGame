@@ -49,15 +49,7 @@
     <string name="finish_tomorrow">mañana {time}</string>
     <string name="finish_with_clock">{countdown} · {clock}</string>
     <string name="first_fief_none">No encontramos tus tierras.</string>
-    <string name="lesson_busy">En estudio</string>
-    <string name="lesson_done">Lección 1 estudiada.</string>
-    <string name="lesson_free">{count, plural, =1 {No cuesta nada. Trae {count, number,0} palabra nueva.} other {No cuesta nada. Trae {count, number,0} palabras nuevas.}}</string>
-    <string name="lesson_refund">Si lo cancelas, no pierdes nada: la lección queda por estudiar.</string>
-    <string name="lesson_refusal_already_studied">Ya estudiaste la lección 1: sus palabras están en tu repaso.</string>
-    <string name="lesson_refusal_library_too_low">La lección 1 necesita una biblioteca. Levántala primero.</string>
-    <string name="lesson_refusal_under_study">La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.</string>
     <string name="lesson_review_link">Ir al repaso</string>
-    <string name="lesson_start">Estudiar la lección 1</string>
     <string name="lesson_title">Lección 1</string>
     <string name="levy_busy_title">Una leva en marcha</string>
     <string name="levy_cancel">Cancelar la leva</string>
@@ -154,7 +146,7 @@
     <string name="review_near_miss">Casi. Revisa cómo se escribe y vuelve a comprobar.</string>
     <string name="review_next_card">Siguiente</string>
     <string name="review_next_due">Siguiente repaso: {due}</string>
-    <string name="review_no_cards">Aún no tienes palabras que repasar. Estudia la lección 1 en la biblioteca.</string>
+    <string name="review_no_cards">Aún no tienes palabras que repasar.</string>
     <string name="review_nothing_due">No tienes nada que repasar ahora.</string>
     <string name="review_recall_prompt">¿Cómo se dice en inglés?</string>
     <string name="review_recognition_prompt">¿Qué significa?</string>
@@ -164,7 +156,11 @@
     <string name="review_refusal_word_not_held">Esa palabra no está en tus lecciones. Vuelve al repaso.</string>
     <string name="review_returns">Esta palabra volverá en unos minutos.</string>
     <string name="review_skill_earned">Habilidad ganada: {resource}, nivel {level}.</string>
-    <string name="review_skill_rate">{rate} en todos tus feudos.</string>
+    <string name="review_skill_rate" formatted="false">+{percent} % de {resource} / h.</string>
+    <string name="review_skill_resource_food">comida</string>
+    <string name="review_skill_resource_material">material</string>
+    <string name="review_skill_resource_money">dinero</string>
+    <string name="review_skill_resource_power">energía</string>
     <string name="review_title">Repaso</string>
     <string name="review_wrong">No es correcto.</string>
     <string name="review_yours">Tu respuesta: {answer}</string>
