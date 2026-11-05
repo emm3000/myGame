@@ -6,25 +6,12 @@ import {
   parse,
   TYPE,
 } from '@formatjs/icu-messageformat-parser'
+import { fixedCopyKeys } from './fixedCopyKeys'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { tokensOf } from './tokensOf'
 
-const fixedCopyKeys = [
-  'auth',
-  'passwordReset',
-  'verification',
-  'refusal',
-  'review',
-  'mail',
-  'shell.signOut',
-  'android.signin',
-]
-
 const exemptTokens = new Set(['h', 'min', 's', 'townword'])
-
-const isFixedCopy = (key: string): boolean =>
-  fixedCopyKeys.some((fixed) => key === fixed || key.startsWith(`${fixed}.`))
 
 const textsOf = (elements: ReadonlyArray<MessageFormatElement>): ReadonlyArray<string> =>
   elements.flatMap((element) => {
@@ -53,7 +40,7 @@ export const checkChrome = (content: GateContent): ReadonlyArray<string> => {
     admitted.has(token) ||
     [...(content.forms.get(token) ?? [])].some((word) => admitted.has(word))
   return Object.entries(content.englishMessages)
-    .filter(([key]) => !isFixedCopy(key))
+    .filter(([key]) => !fixedCopyKeys.has(key))
     .flatMap(([key, message]) =>
       textsOf(parse(message))
         .flatMap((text) => tokensOf(text))

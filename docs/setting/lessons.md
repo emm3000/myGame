@@ -57,13 +57,13 @@ Worked against ADR 036, rule 4, each with the NGSL 1.2 list above. *Wok* for *wo
 
 ## Lessons 2 to 16
 
-The other fifteen chrome lessons (ADR 037, #741) teach the rest of the closed list of `chrome.md`, 75 words, so the 16 chrome lessons teach its 80 words, lesson 1's five among them. Every lesson teaches 5 card words under one theme, and no lesson is a semantic set: the four seasons go to lessons 3, 4, 6 and 8, *material* and *power* to lessons 5 and 7, and the three terrains (*field*, *river*, *hill*) to lessons 11, 9 and 14; the buildings, the three map units (*region*, *area*, *site*) and *start*, *stop* and *end* are spread the same way.
+The other fifteen chrome lessons (ADR 037, #741) teach the rest of the closed list of `chrome.md`, 75 words, so the 16 chrome lessons teach its 80 words, lesson 1's five among them. Every lesson teaches 5 card words under one theme, and every theme, which the client shows, uses only frame words and words of the list, and no lesson is a semantic set: the four seasons go to lessons 3, 4, 6 and 8, *material* and *power* to lessons 5 and 7, and the three terrains (*field*, *river*, *hill*) to lessons 11, 9 and 14; the buildings, the three map units (*region*, *area*, *site*) and *start*, *stop* and *end* are spread the same way.
 
 Each frame follows the frame rule as lesson 1's does: its lemma once, in its own form, every other word a frame word or a card word of an earlier lesson (inflected forms included, *homes* in lesson 5, *works* in lesson 8). The order of the lessons is the order that rule allows: *people*, *need* and *go* come in lesson 2 so the later frames can say them. Every frame has no contraction, no number and no proper name. Every definition uses only frame words and band 1 words and never its own lemma (ADR 037, check 5). Every lesson lasts 300 content seconds and needs school level 1, as lesson 1 does, and its skill is the cycle's resource at its position (ADR 039): food at positions 1, 5, 9 and 13, material at 2, 6, 10 and 14, power at 3, 7, 11 and 15, money at 4, 8, 12 and 16.
 
 ### Lesson 2
 
-**Theme:** *Moving to town*, es *Mudarse al pueblo*. **Skill:** material, 5 %.
+**Theme:** *A town for people*, es *Un pueblo para la gente*. **Skill:** material, 5 %.
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
@@ -147,7 +147,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 ### Lesson 9
 
-**Theme:** *Life by the river*, es *La vida junto al río*. **Skill:** food, 5 %.
+**Theme:** *Work by the river*, es *Trabajo junto al río*. **Skill:** food, 5 %.
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
@@ -155,7 +155,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | earn | verb | 926 | I earn money at the farm. | I ____ money at the farm. | ganar |
 | river | noun | 1176 | Our town is on a river. | Our town is on a ____. | río |
 | ready | adjective | 774 | Is the food ready? | Is the food ____? | listo |
-| station | noun | 709 | She works at the power station. | She works at the power ____. | central |
+| station | noun | 709 | She works at the power station. | She works at the power ____. | estación |
 
 ### Lesson 10
 
@@ -183,7 +183,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 ### Lesson 12
 
-**Theme:** *Study time*, es *Hora de estudiar*. **Skill:** money, 5 %.
+**Theme:** *Words to study*, es *Palabras para estudiar*. **Skill:** money, 5 %.
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
@@ -202,7 +202,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | goal | noun | 856 | My goal is to work at the office. | My ____ is to work at the office. | meta |
 | factory | noun | 1530 | Many people work at the factory. | Many people work at the ____. | fábrica |
 | learn | verb | 261 | We learn many words at school. | We ____ many words at school. | aprender |
-| call | verb | 105 | Call me when the food is ready. | ____ me when the food is ready. | llamar |
+| call | verb | 105 | Call your team to the farm. | ____ your team to the farm. | llamar |
 | end | verb | 152 | When does the lesson end? | When does the lesson ____? | terminar |
 
 ### Lesson 14
@@ -213,13 +213,13 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 |---|---|---|---|---|---|
 | skill | noun | 685 | She has the skill for this job. | She has the ____ for this job. | habilidad |
 | hill | noun | 1670 | Our home is on a hill. | Our home is on a ____. | colina |
-| storage | noun | 2707 | We have food in storage for the winter. | We have food in ____ for the winter. | almacén |
+| storage | noun | 2707 | Our storage is full of food. | Our ____ is full of food. | almacén |
 | due | adjective | 574 | The pay is due today. | The pay is ____ today. | pendiente |
 | try | verb | 125 | I will try to read the map. | I will ____ to read the map. | intentar |
 
 ### Lesson 15
 
-**Theme:** *A new area*, es *Una zona nueva*. **Skill:** power, 5 %.
+**Theme:** *The next area*, es *La siguiente zona*. **Skill:** power, 5 %.
 
 | Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
 |---|---|---|---|---|---|
@@ -227,7 +227,7 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 | review | noun | 730 | We do a review of the lesson after school. | We do a ____ of the lesson after school. | repaso |
 | next | adjective | 151 | What is the next lesson? | What is the ____ lesson? | siguiente |
 | tip | noun | 1659 | Do you have a tip for me? | Do you have a ____ for me? | consejo |
-| free | adjective | 395 | The food at school is free. | The food at school is ____. | libre |
+| free | adjective | 395 | Are you free today? | Are you ____ today? | libre |
 
 ### Lesson 16
 
@@ -243,12 +243,13 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 
 ### The glosses that leave `chrome.md`'s Spanish column
 
-`chrome.md`'s Spanish column is the chrome's label; a gloss names the word as its frame uses it, so four differ, for the owner's review:
+`chrome.md`'s Spanish column is the chrome's label; a gloss names the word in the sense its frame and definition use, so five differ, for the owner's review:
 
 - *come* is glossed *venir*; the chrome's *volver* labels *come back*.
+- *station* is glossed *estación*; the chrome's *central* labels *power station*.
 - *field* and *hill* are glossed in the singular, *campo* and *colina*, as their frames use them; the terrain labels stay *Campos* and *Colinas*.
 - *mayor* is glossed *alcalde o alcaldesa*: the gloss is content, never the chrome, which never names the player with a gendered noun (ADR 040).
-- *job* is glossed *trabajo*, which is also the first gloss of the noun *work*; lesson 1 glosses *work* as the verb, *trabajar*, so no card asks for both. An open question for the owner.
+- *job* is glossed *trabajo*, which is also the first gloss of the noun *work*; lesson 1 glosses *work* as the verb, *trabajar*, so no card asks for both. The owner decides it on the pull request.
 
 ## Open questions
 

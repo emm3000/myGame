@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { checkChrome } from './checkChrome'
-import { contentOf } from './contentGate.testSupport'
+import { contentOf, entryOf, lessonOneLexicon } from './contentGate.testSupport'
 import { gateContentOf } from './gateContentOf'
 
 const shippedContent = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -49,15 +49,38 @@ describe("content gate check 9, the chrome's words", () => {
       'review.recallPrompt': 'Leave home',
       'mail.reset.subject': 'Leave home',
       'shell.signOut': 'Leave',
-      'android.signin.title': 'Leave home',
+      'android.signin.forgot_password_email': 'Leave home',
     }
 
     expect(checkChrome(withEnglish(fixedCopy))).toEqual([])
   })
 
-  it('reads a key that only begins like a fixed-copy namespace as chrome', () => {
-    expect(checkChrome(withEnglish({ 'reviews.title': 'Leave home' }))).toEqual([
-      'reviews.title: holds leave, a card word no chrome lesson teaches',
+  it('exempts an Android refusal as fixed copy', () => {
+    expect(checkChrome(withEnglish({ 'android.fief.refusal_queue_full': 'Leave home' }))).toEqual(
+      [],
+    )
+  })
+
+  it('reads the count of reviews due as chrome', () => {
+    expect(checkChrome(withEnglish({ 'review.dueCount': 'Leave home' }))).toEqual([
+      'review.dueCount: holds leave, a card word no chrome lesson teaches',
+    ])
+  })
+
+  it('fails a word only a lesson after the chrome lessons teaches', () => {
+    const leave = entryOf('word-1', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+    const content = contentOf({
+      lexicon: [...lessonOneLexicon, leave],
+      lessons: [
+        ['lesson-1', lessonOneLexicon.map(({ id }) => id)],
+        ['lesson-2', ['word-1']],
+      ],
+      chromeLessonCount: 1,
+      englishMessages: { 'town.leave': 'Leave home' },
+    })
+
+    expect(checkChrome(content)).toEqual([
+      'town.leave: holds leave, a card word no chrome lesson teaches',
     ])
   })
 
