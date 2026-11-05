@@ -47,11 +47,11 @@ An area's terrain is set by its number (ADR 040). The rotation below keeps the o
 
 | Terrain | Rank | Areas | What the player sees | Source |
 |---|---|---|---|---|
-| *Fields* | field 540 | 1, 4, 7 … | Flat green ground with crop rows; a town here gains food, and a job here pays food. | ADR 040; areas: proposal |
-| *River* | 1176 | 2, 5, 8 … | A river across the ground; a town here gains power, and a job here pays power. | ADR 040; areas: proposal |
-| *Hills* | hill 1670 | 3, 6, 9 … | Low rolling hills; a town here gains material, and a job here pays material. | ADR 040; areas: proposal |
+| *Fields* | field 540 | 1, 4, 7 … | Flat green ground with crop rows; a town here gains food. | ADR 040; areas: proposal |
+| *River* | 1176 | 2, 5, 8 … | A river across the ground; a town here gains power. | ADR 040; areas: proposal |
+| *Hills* | hill 1670 | 3, 6, 9 … | Low rolling hills; a town here gains material. | ADR 040; areas: proposal |
 
-A job never pays money (ADR 040). What each terrain pays per hour is the town's content.
+The gain is the bonus to the town's own site (ADR 040). A job's pay is fixed at dispatch from the site's terrain, the hours, the team and its carry, and never holds money (ADR 040); which resources each terrain pays, and how much per hour, is the town's content. A pay may hold more than one resource, as *Pay: 40 food, 20 material* in `chrome.md` shows, and each medieval terrain yields two today (`apps/api/content/fief.json`, `yieldPerHour`).
 
 ### The waste sites
 
@@ -71,7 +71,7 @@ Each size's top waste and regrowth time is the town's content; the medieval tier
 |---|---|---|---|
 | worker | 673 | *Hire 5 workers*: the cheap, slow, small carrier, hired from office level 1. | ADR 040 |
 | truck | 2113 | The carrier that holds more and goes faster, hired from office level 3. | ADR 040 |
-| team | 407 | *Send a team*: the hires sent out together, one team out at a time, on a **job** (231) for whole hours with **pay** (220) fixed at dispatch, or on a **clean-up** of a waste site. | ADR 040 |
+| team | 407 | *Send a team*: the hires sent out together, one team out at a time, on a **job** (231) for whole hours with **pay** (220) fixed at dispatch, or on a **clean-up** of a waste site. *Clean-up* is the design term, never screen copy: the screen says *Clean the waste* (clean 842). | ADR 040, `chrome.md` |
 
 ## The people in the news
 
