@@ -3974,9 +3974,13 @@
             "type": "string",
             "nullable": true,
             "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
-        "required": ["due", "nextDueAt"],
+        "required": ["due", "nextDueAt", "readAt"],
         "additionalProperties": false
       },
       "DueReview": {

@@ -408,7 +408,7 @@ describe('the learning routes', () => {
       const player = await studyLessonOne()
       clock.setTo('2026-11-10T08:59:59Z')
 
-      expect(await readReviews(player)).toEqual({ due: [], nextDueAt: null })
+      expect(await readReviews(player)).toMatchObject({ due: [], nextDueAt: null })
     })
   })
 
@@ -416,7 +416,16 @@ describe('the learning routes', () => {
     it('answers no review to a player who holds no town and no card', async () => {
       const player = await signUp()
 
-      expect(await readReviews(player)).toEqual({ due: [], nextDueAt: null })
+      expect(await readReviews(player)).toMatchObject({ due: [], nextDueAt: null })
+    })
+
+    it('answers the instant it derived the due reviews at', async () => {
+      const player = await studyLessonOne()
+      clock.setTo('2026-11-10T09:01:00Z')
+
+      const { readAt } = await readReviews(player)
+
+      expect(readAt).toBe('2026-11-10T09:01:00.000Z')
     })
 
     it('shows a recognition with its word, its frame and the glosses of the lesson', async () => {
@@ -457,7 +466,7 @@ describe('the learning routes', () => {
       clock.setTo(lessonFinishesAt)
       await recognizeEvery(player)
 
-      expect(await readReviews(player)).toEqual({ due: [], nextDueAt: secondLearningStepAt })
+      expect(await readReviews(player)).toMatchObject({ due: [], nextDueAt: secondLearningStepAt })
     })
 
     it('shows a recall with its gloss and its gapped frame and never its word', async () => {

@@ -246,7 +246,7 @@ Every line of this section is a proposal for the author, not yet accepted (S39, 
 - A **near-miss** (rule 4) reads *Casi. Revisa cómo se escribe y vuelve a comprobar.*, and the field keeps what was typed. It names no rating and shows no correct form: the next answer rates. *Scool* for *school* reads it.
 - A **correct** answer reads *Correcto.*, whatever its rating, Good or Hard; no line names a rating. The button reads *Siguiente*.
 - A **wrong** answer, Again, reads *No es correcto.*, then the player's answer beside the correct form, *Tu respuesta: house* and *La correcta: home*; for a recognition, the gloss chosen beside the right one, *Tu respuesta: dinero* and *La correcta: comida*. Then *Esta palabra volverá en unos minutos.*, true at both of rule 5's steps, 1 min in `learning` and 10 min in `relearning`. The button reads *Siguiente*. How the difference between the two forms is marked is the design's call (#721; `decisions.md` §6.1).
-- The **skill earned** reads, after the verdict of the review that earns it (rule 7), *Habilidad ganada: comida, nivel 1.* and *+5 % de comida / h en todos tus feudos.*, the art card's rate line (`ratePercent`) and the fiefs it raises. Slots: the resource label, the level, the percent. With ADR 036's worked example it reads at 2026-11-23 09:10, after the last of the five words' second recall.
+- The **skill earned** reads, after the verdict of the review that earns it (rule 7), *Habilidad ganada: comida, nivel 1.* and *+5 % de comida / h.*, the rate line (`ratePercent`) of the town's resource it raises. Slots: the resource label, the level, the percent. With ADR 036's worked example it reads at 2026-11-23 09:10, after the last of the five words' second recall.
 
 ### The refusals
 

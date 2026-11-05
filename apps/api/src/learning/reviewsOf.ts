@@ -82,5 +82,9 @@ export const reviewsOf = (
   if (!nextDueAt.ok) {
     return nextDueAt
   }
-  return ok({ due, nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value) })
+  return ok({
+    due,
+    nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
+    readAt: isoOf(readAt),
+  })
 }

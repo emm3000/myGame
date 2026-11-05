@@ -37,7 +37,7 @@ class LearningRepositoryTest {
 
     @Test
     fun `reads the due reviews from the player's reviews`() = runTest {
-        api.enqueue(reviews(NO_REVIEWS))
+        api.enqueue(json(200, NO_REVIEWS))
 
         learning().reviews()
 
@@ -47,7 +47,7 @@ class LearningRepositoryTest {
 
     @Test
     fun `answers the due reviews in the order the api answers them`() = runTest {
-        api.enqueue(reviews(TWO_DUE))
+        api.enqueue(json(200, TWO_DUE))
 
         assertEquals(
             ReviewsReadResult.Read(
@@ -81,10 +81,12 @@ class LearningRepositoryTest {
     }
 
     @Test
-    fun `answers unreachable for reviews that carry no server date`() = runTest {
-        api.enqueue(json(200, NO_REVIEWS))
+    fun `paces the next review on the server's read instant`() = runTest {
+        api.enqueue(json(200, NOTHING_DUE))
 
-        assertEquals(ReviewsReadResult.Unreachable, learning().reviews())
+        val read: ReviewsReadResult = learning().reviews()
+
+        assertEquals(Instant.parse("2026-11-10T09:04:00.000Z"), (read as ReviewsReadResult.Read).reviews.readAt)
     }
 
     @Test
@@ -254,13 +256,7 @@ class LearningRepositoryTest {
 
     private fun answerOf(verdict: String): String = """{"verdict":$verdict}"""
 
-    private fun reviews(body: String): MockResponse =
-        MockResponse.Builder()
-            .code(200)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Date", "Tue, 10 Nov 2026 08:59:30 GMT")
-            .body(body)
-            .build()
+    private fun reviews(body: String): MockResponse = json(200, body)
 
     private fun refused(kind: String): MockResponse = json(409, """{"kind":"$kind"}""")
 
@@ -268,7 +264,9 @@ class LearningRepositoryTest {
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
-        const val NO_REVIEWS: String = """{"due":[],"nextDueAt":null}"""
+        const val NO_REVIEWS: String = """{"due":[],"nextDueAt":null,"readAt":"2026-11-10T08:59:30.000Z"}"""
+        const val NOTHING_DUE: String =
+            """{"due":[],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T09:04:00.000Z"}"""
         const val TWO_DUE: String =
             """{"due":[""" +
                 """{"mode":"recognition","wordId":"lesson-1-2","lessonId":"lesson-1",""" +
@@ -276,7 +274,7 @@ class LearningRepositoryTest {
                 """"choices":[{"choiceId":"0a1b2c3d","gloss":"escuela"},{"choiceId":"4e5f6a7b","gloss":"comida"}]},""" +
                 """{"mode":"recall","wordId":"lesson-1-1","lessonId":"lesson-1",""" +
                 """"dueAt":"2026-11-10T09:01:00.000Z","gloss":"casa","gappedFrame":"She goes ___ at six."}""" +
-                """],"nextDueAt":"2026-11-10T09:10:00.000Z"}"""
+                """],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T08:59:30.000Z"}"""
         const val NEAR_MISS: String = """{"kind":"nearMiss"}"""
         const val CORRECT_WITH_SKILL: String =
             """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
