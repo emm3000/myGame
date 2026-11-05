@@ -8,11 +8,16 @@ import com.emm.mygame.core.network.FiefListResult
 import com.emm.mygame.core.network.FreeSlot
 import com.emm.mygame.core.network.ListedFief
 import com.emm.mygame.core.network.ResourceKind
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+private val listingRetryDelay: Duration = 30.seconds
 
 internal class FiefSwitcherViewModel(
     private val current: FiefId?,
@@ -34,10 +39,14 @@ internal class FiefSwitcherViewModel(
     private fun read() {
         reading?.cancel()
         reading = viewModelScope.launch {
-            when (val answer: FiefListResult = listings.listed()) {
-                is FiefListResult.Listed ->
-                    _state.value = FiefSwitcherUiState.Listed(answer.fiefs.map { fief: ListedFief -> fief.entry() })
-                FiefListResult.Unreachable -> Unit
+            while (true) {
+                when (val answer: FiefListResult = listings.listed()) {
+                    is FiefListResult.Listed -> {
+                        _state.value = FiefSwitcherUiState.Listed(answer.fiefs.map { fief: ListedFief -> fief.entry() })
+                        return@launch
+                    }
+                    FiefListResult.Unreachable -> delay(listingRetryDelay)
+                }
             }
         }
     }

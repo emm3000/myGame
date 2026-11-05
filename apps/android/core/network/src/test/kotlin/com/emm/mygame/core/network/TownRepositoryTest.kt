@@ -26,6 +26,16 @@ class TownRepositoryTest {
 
     private val sessionEnds: SessionEnds = SessionEnds()
 
+    private val wireNames: Map<TownBuildingKind, String> = mapOf(
+        TownBuildingKind.Homes to "homes",
+        TownBuildingKind.Farm to "farm",
+        TownBuildingKind.Factory to "factory",
+        TownBuildingKind.PowerStation to "powerStation",
+        TownBuildingKind.Storage to "storage",
+        TownBuildingKind.School to "school",
+        TownBuildingKind.Office to "office",
+    )
+
     @Before
     fun startApi() {
         api.start()
@@ -199,6 +209,54 @@ class TownRepositoryTest {
 
         val request: RecordedRequest = api.takeRequestWithin()
         assertEquals("DELETE /api/town/work/powerStation/3", "${request.method} ${request.url.encodedPath}")
+    }
+
+    @Test
+    fun `names each place on the wire when it starts work`() = runTest {
+        wireNames.forEach { (kind: TownBuildingKind, wire: String) ->
+            api.enqueue(json(200, TOWN))
+
+            town().startWork(kind)
+
+            assertEquals("""{"building":"$wire"}""", api.takeRequestWithin().body?.utf8())
+        }
+    }
+
+    @Test
+    fun `names each place on the wire when it stops work`() = runTest {
+        wireNames.forEach { (kind: TownBuildingKind, wire: String) ->
+            api.enqueue(json(200, TOWN))
+
+            town().stopWork(kind, level = 3)
+
+            assertEquals("/api/town/work/$wire/3", api.takeRequestWithin().url.encodedPath)
+        }
+    }
+
+    @Test
+    fun `reads each place from its own key`() = runTest {
+        val levels: String = TOWN
+            .replace(""""farm":$FLAT""", """"farm":{"level":2,"nextLevel":null}""")
+            .replace(""""factory":$FLAT""", """"factory":{"level":3,"nextLevel":null}""")
+            .replace(""""powerStation":$FLAT""", """"powerStation":{"level":4,"nextLevel":null}""")
+            .replace(""""storage":$FLAT""", """"storage":{"level":5,"nextLevel":null}""")
+            .replace(""""school":$FLAT""", """"school":{"level":6,"nextLevel":null}""")
+        api.enqueue(json(200, levels))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            listOf(
+                TownBuildingKind.Homes to 1,
+                TownBuildingKind.Farm to 2,
+                TownBuildingKind.Factory to 3,
+                TownBuildingKind.PowerStation to 4,
+                TownBuildingKind.Storage to 5,
+                TownBuildingKind.School to 6,
+                TownBuildingKind.Office to 10,
+            ),
+            read.buildings.map { place: TownSnapshot.Building -> place.kind to place.level },
+        )
     }
 
     @Test

@@ -56,7 +56,7 @@
     <string name="town_stocks">En el almacén</string>
     <string name="town_top_level">Nivel máximo</string>
     <string name="town_try_again">Volver a intentarlo</string>
-    <string name="town_waiting">Esperando al servidor</string>
+    <string name="town_waiting">Esperando</string>
     <string name="town_work_done">La obra está lista. Estamos leyendo tu pueblo otra vez…</string>
     <string name="town_work_idle">Ahora no hay ninguna obra.</string>
     <string name="town_work_ready">Lista</string>

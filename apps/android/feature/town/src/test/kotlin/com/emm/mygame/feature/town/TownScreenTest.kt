@@ -2,23 +2,32 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.unit.Dp
+import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +78,14 @@ class TownScreenTest {
         level = 3,
         remaining = 20.minutes,
         finishesAt = readInstant,
+    )
+
+    private val slotTarget: TownUiState.WorkTarget = TownUiState.WorkTarget(TownBuildingKind.Farm, 2)
+
+    private val waitingTarget: TownUiState.WorkTarget = TownUiState.WorkTarget(TownBuildingKind.School, 3)
+
+    private val localFinish: Instant = Instant.fromEpochMilliseconds(
+        LocalDateTime.of(2026, 11, 6, 9, 30).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
     )
 
     @Test
@@ -137,6 +154,13 @@ class TownScreenTest {
 
     @Test
     fun `labels a town with the word town`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Pueblo").assertIsDisplayed()
+    }
+
+    @Test
+    fun `titles the places of a town`() {
         show(riverton)
 
         composeRule.onNodeWithText("Tu pueblo").performScrollTo().assertIsDisplayed()
@@ -385,6 +409,104 @@ class TownScreenTest {
         assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
     }
 
+    @Test
+    fun `draws a start refusal under its own place alone`() {
+        show(twoPlaces(TownUiState.StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.NotEnoughResources)))
+
+        assertDrawnOnceAbove(NOT_ENOUGH, "Escuela")
+    }
+
+    @Test
+    fun `draws a start refusal under the later place it belongs to`() {
+        show(twoPlaces(TownUiState.StartStatus.Refused(TownBuildingKind.School, TownWorkRefusal.NotEnoughResources)))
+
+        assertDrawnOnceBelow(NOT_ENOUGH, "Escuela")
+    }
+
+    @Test
+    fun `draws a failed start under its own place alone`() {
+        show(twoPlaces(TownUiState.StartStatus.Unreachable(TownBuildingKind.Farm)))
+
+        assertDrawnOnceAbove(UNEXPECTED, "Escuela")
+    }
+
+    @Test
+    fun `draws a stop refusal beside its own work alone`() {
+        show(twoWorks(TownUiState.StopStatus.Refused(slotTarget, TownWorkRefusal.BuildingWorkNotFound(level = 2))))
+
+        assertDrawnOnceAbove(WORK_GONE, "Escuela")
+    }
+
+    @Test
+    fun `draws a stop refusal beside the waiting work it belongs to`() {
+        show(twoWorks(TownUiState.StopStatus.Refused(waitingTarget, TownWorkRefusal.BuildingWorkNotFound(level = 2))))
+
+        assertDrawnOnceBelow(WORK_GONE, "Escuela")
+    }
+
+    @Test
+    fun `draws a failed stop beside its own work alone`() {
+        show(twoWorks(TownUiState.StopStatus.Unreachable(slotTarget)))
+
+        assertDrawnOnceAbove(UNEXPECTED, "Escuela")
+    }
+
+    @Test
+    fun `gives no clock to work with exactly one hour left`() {
+        show(riverton.copy(slot = busySlot.copy(remaining = 1.hours)))
+
+        composeRule.onNodeWithText("1 h").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `names tomorrow in the finish of a long work`() {
+        show(riverton.copy(slot = busySlot.copy(remaining = 12.hours, finishesAt = localFinish)))
+
+        composeRule.onNodeWithText("12 h · mañana 09:30").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `names the day in the finish of a longer work`() {
+        show(riverton.copy(slot = busySlot.copy(remaining = 72.hours, finishesAt = localFinish)))
+
+        composeRule.onNodeWithText("72 h · 6 nov 09:30").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the art of a built place above its name`() {
+        show(riverton)
+
+        assertTrue(spaceAbovePlaceName() >= MyGameSizes.placeCard)
+    }
+
+    @Test
+    fun `draws no art for a place at level 0`() {
+        show(riverton.copy(places = listOf(farmOffer.copy(level = 0))))
+
+        assertTrue(spaceAbovePlaceName() < MyGameSizes.placeCard)
+    }
+
+    private fun spaceAbovePlaceName(): Dp =
+        topOf("Granja") - composeRule.onNodeWithText("Tu pueblo").getUnclippedBoundsInRoot().bottom
+
+    private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
+
+    private fun assertDrawnOnceAbove(line: String, later: String) {
+        composeRule.onAllNodesWithText(line).assertCountEquals(1)
+        assertTrue(topOf(line) < topOf(later))
+    }
+
+    private fun assertDrawnOnceBelow(line: String, earlier: String) {
+        composeRule.onAllNodesWithText(line).assertCountEquals(1)
+        assertTrue(topOf(line) > topOf(earlier))
+    }
+
+    private fun twoPlaces(start: TownUiState.StartStatus): TownUiState.Content =
+        riverton.copy(places = listOf(farmOffer, farmOffer.copy(kind = TownBuildingKind.School)), start = start)
+
+    private fun twoWorks(stop: TownUiState.StopStatus): TownUiState.Content =
+        riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool), stop = stop)
+
     private fun assertBlockedBy(reason: String) {
         composeRule
             .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, reason))
@@ -407,6 +529,9 @@ class TownScreenTest {
 
     private companion object {
         const val UNEXPECTED: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
+        const val NOT_ENOUGH: String =
+            "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."
+        const val WORK_GONE: String = "La obra del nivel 2 ya no está en la lista. Quizá ya terminó."
         const val REFUND: String =
             "Si la paras, recuperas todo lo que costó, y lo mismo por cada obra en espera que dependa de ella."
     }
