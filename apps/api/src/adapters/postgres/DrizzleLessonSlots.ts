@@ -1,32 +1,19 @@
-import { type DomainError, Instant, ok, type Result } from '@mygame/domain'
-import {
-  idleLessonSlot,
-  type LessonSlot,
-  type LessonSlotRepository,
-  type TownId,
-} from '@mygame/domain/town'
+import { type DomainError, ok, type Result } from '@mygame/domain'
+import type { LessonSlot, LessonSlotRepository, TownId } from '@mygame/domain/town'
 import { eq } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
+import { lessonSlotOf } from './lessonSlotOf'
 import { townLessonSlots } from './schema'
 
 export class DrizzleLessonSlots implements LessonSlotRepository {
   constructor(private readonly database: PostgresSession) {}
 
   async lessonSlotOf(townId: TownId): Promise<Result<LessonSlot, DomainError>> {
-    const rows = await this.database
+    const [row] = await this.database
       .select()
       .from(townLessonSlots)
       .where(eq(townLessonSlots.townId, townId))
-    const row = rows[0]
-    if (row === undefined) {
-      return ok(idleLessonSlot)
-    }
-    return ok({
-      kind: 'busy',
-      lessonId: row.lessonId,
-      startedAt: Instant.fromEpochMilliseconds(row.startedAt.getTime()),
-      finishesAt: Instant.fromEpochMilliseconds(row.finishesAt.getTime()),
-    })
+    return ok(lessonSlotOf(row ?? null))
   }
 
   async save(townId: TownId, slot: LessonSlot): Promise<Result<void, DomainError>> {

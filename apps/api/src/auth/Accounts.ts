@@ -29,6 +29,7 @@ export interface Accounts {
   addPlayer(player: NewPlayer): Promise<PlayerAdded>
   credentialsOf(email: string): Promise<PlayerCredentials | undefined>
   playerOf(playerId: PlayerId): Promise<StoredPlayer | undefined>
+  lockPlayer(playerId: PlayerId): Promise<void>
   markEmailVerified(playerId: PlayerId, now: Instant): Promise<void>
   storePasswordHash(playerId: PlayerId, passwordHash: string): Promise<void>
   openSession(session: Session): Promise<void>

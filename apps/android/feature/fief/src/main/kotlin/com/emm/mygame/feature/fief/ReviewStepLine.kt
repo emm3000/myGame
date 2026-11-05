@@ -84,17 +84,15 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )
-        skill.ratePercent?.let { percent: Int ->
-            MyGameText(
-                text = icuStringResource(
-                    R.string.review_skill_rate,
-                    "percent" to percentLabelOf(percent.toDouble()),
-                    "resource" to resource,
-                ),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
-        }
+        MyGameText(
+            text = icuStringResource(
+                R.string.review_skill_rate,
+                "percent" to percentLabelOf(skill.ratePercent.toDouble()),
+                "resource" to resource,
+            ),
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.inkMuted,
+        )
     }
 }
 

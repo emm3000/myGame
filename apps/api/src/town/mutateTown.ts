@@ -5,7 +5,14 @@ import { laterOf } from '../time/laterOf'
 
 export type TownStores = Pick<
   TransactionStores,
-  'towns' | 'townNews' | 'lessonSlots' | 'cards' | 'pendingReviews' | 'reviewLog' | 'earnedSkills'
+  | 'accounts'
+  | 'towns'
+  | 'townNews'
+  | 'lessonSlots'
+  | 'cards'
+  | 'pendingReviews'
+  | 'reviewLog'
+  | 'earnedSkills'
 >
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
@@ -22,6 +29,7 @@ export const mutateTown = <T>(
   { inTransaction, clock, lessons }: MutateTownDependencies,
 ): Promise<Result<T, DomainError>> =>
   inTransaction(async (stores) => {
+    await stores.accounts.lockPlayer(playerId)
     const locked = await stores.towns.townOf(playerId)
     if (!locked.ok) {
       return locked

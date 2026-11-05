@@ -78,5 +78,5 @@ sealed interface ReviewUiState {
         data class Wrong(val correct: String) : ReviewStep
     }
 
-    data class SkillLine(val resource: TownResourceKind, val level: Int, val ratePercent: Int?)
+    data class SkillLine(val resource: TownResourceKind, val level: Int, val ratePercent: Int)
 }

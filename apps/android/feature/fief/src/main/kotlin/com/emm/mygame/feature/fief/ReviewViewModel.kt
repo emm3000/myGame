@@ -203,5 +203,5 @@ private fun ReviewUiState.ReviewCard.correctFormOf(verdict: ReviewVerdict.Wrong)
 private fun RaisedSkill.toSkillLine(): ReviewUiState.SkillLine = ReviewUiState.SkillLine(
     resource = resource,
     level = level,
-    ratePercent = ratePercent.takeIf { ratePerHourAfter != null },
+    ratePercent = ratePercent,
 )

@@ -9,15 +9,17 @@ import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
-import { isWaitingOnALock, lockProbeLimit } from '../lockWaitProbe.testSupport'
+import {
+  isWaitingOnALock,
+  lockedPlayerReadQuery,
+  lockProbeLimit,
+} from '../lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
 const millisecondsPerMinute = 60_000
 
 const signedUpAt = Date.parse('2026-11-05T08:00:00Z')
-
-const lockedTownReadQuery = 'select "id", "player_id", "region", %'
 
 type MovableClock = Clock & { readonly advanceMinutes: (minutes: number) => void }
 
@@ -114,7 +116,7 @@ const pausingFirstTransaction = (
   }
 }
 
-const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
+const untilPlayerBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
   let hasRead = false
   void secondRead.then(() => {
     hasRead = true
@@ -123,11 +125,11 @@ const untilTownBlockedOrRead = async (secondRead: Promise<unknown>): Promise<voi
   await observer.connect()
   try {
     for (let probes = 0; probes < lockProbeLimit; probes += 1) {
-      if (hasRead || (await isWaitingOnALock(observer, [lockedTownReadQuery]))) {
+      if (hasRead || (await isWaitingOnALock(observer, [lockedPlayerReadQuery]))) {
         return
       }
     }
-    throw new Error('The second start neither waited on the town lock nor finished')
+    throw new Error('The second start neither waited on the player lock nor finished')
   } finally {
     await observer.end()
   }
@@ -471,7 +473,7 @@ describe('the town route', () => {
       const ana = await signUpWithTown('ana@example.com')
       const firstHasRead = signal()
       const secondHasRead = signal()
-      const secondIsBlockedOrHasRead = untilTownBlockedOrRead(secondHasRead.promise)
+      const secondIsBlockedOrHasRead = untilPlayerBlockedOrRead(secondHasRead.promise)
       const racingApp = createApp({
         ...server,
         clock,
