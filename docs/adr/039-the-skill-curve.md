@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, rule 6 and the chrome count amended by ADR 040
 date: 2026-11-04
 ---
 # The skill curve
@@ -10,7 +10,7 @@ ADR 035 makes retention the game's progress: a skill level is earned when
 every word of its lesson is retained, and it multiplies one resource's
 rate, as an art does today. ADR 036 (rule 7) pinned lesson 1's skill,
 food +5 %, and how it enters the rate. ADR 037 set the curriculum over the
-NGSL 1.2, some 550 lessons by the count below, and left open what a skill is worth across
+NGSL 1.2, some 549 lessons by the count below, and left open what a skill is worth across
 all of them: which resource each lesson raises and by what percent
 (Consequences). Every lesson after lesson 1 needs that rule before it can
 be written. The owner delegated every branch; each is decided on evidence
@@ -88,6 +88,13 @@ What trunk holds, checked at `1f0b1c41`:
    as it maps every resource column (wood, stone and iron to material,
    gold to money). The rule, the percent and the sum do not depend on the
    rebuild; the cycle's members and their order after food do.
+   (Amended by ADR 040: no stored level is mapped. No lesson after
+   lesson 1 ships before the slice that moves lessons to the school, so
+   every stored level is food; that slice writes the town's cycle in
+   `curriculum.json` and copies the levels, food to food, into the
+   town's `earned_skills`, failing on any other resource. The reset
+   maps no resource column, since the town's stocks start from
+   content.)
 
 ### Which lessons earn
 
@@ -146,40 +153,36 @@ frame words, all within ranks 1 to 100.
   *should*, *much*, *may*, *many*: 52. Ten are open to the inventory's
   call: *so*, *one*, *there*, *when*, *up*, *other*, *out*, *where*,
   *how*, *such*.
-- **Chrome words, an estimate until the chrome lessons ship: 50, 10
-  lessons.** The game nouns named outside band 1 so far, in
-  `decisions.md` §9 and ADR 037, are 12 of band 2 (*farm* 1083, *river*
-  1176, *neighbor* 1222, *lesson* 1234, *waste* 1246, *winter* 1328,
-  *spring* 1332, *visitor* 1398, *hire* 1514, *factory* 1530, *tip* 1659,
-  *hill* 1670), 4 of band 3 (*truck* 2113, *cancel* 2390, *storage* 2707,
-  *mayor* 2779) and 2 off the list (*upgrade*, *password*); the other 32
-  are taken from band 1.
+- **Chrome words: 80, 16 lessons**, the closed list of ADR 040
+  (`docs/setting/chrome.md`). 11 are of band 2 (*farm* 1083, *river*
+  1176, *map* 1212, *lesson* 1234, *waste* 1246, *winter* 1328, *spring*
+  1332, *hire* 1514, *factory* 1530, *tip* 1659, *hill* 1670), 3 of band
+  3 (*truck* 2113, *storage* 2707, *mayor* 2779) and none off the list;
+  the other 66 are of band 1.
 
 | Lessons | Card words | Count |
 |---|---|---|
-| Chrome | 32 + 12 + 4 + 2 | 10 |
-| Band 1 | 1 000 − 57 − 32 = 911 | 182 |
-| Band 2 | 1 000 − 12 = 988 | 197 |
-| Band 3 | 809 − 4 = 805 | 161 |
-| All | | 550 |
+| Chrome | 66 + 11 + 3 | 16 |
+| Band 1 | 1 000 − 57 − 66 = 877 | 175 |
+| Band 2 | 1 000 − 11 = 989 | 197 |
+| Band 3 | 809 − 3 = 806 | 161 |
+| All | | 549 |
 
-The last band 1 lesson is at position 10 + 182 = 192; the last lesson
-of band 3 at 550. Across 52 to 62 frame words, 16 to 38 chrome words of
-bands 2 and 3 split between them any way, and the 2 off the list, with
-the chrome held at 50 words in 10 lessons, the first lies between 191
-and 197 and the second between 548 and 551, so the food level there is
-48 to 50 after band 1 and 137 or 138 after band 3: food at 604 ends at
+The last band 1 lesson is at position 16 + 175 = 191; the last lesson
+of band 3 at 549. Across 52 to 62 frame words, the first lies between
+190 and 192 and the second between 548 and 550, so the food level there
+is 48 after band 1 and 137 or 138 after band 3: food at 604 ends at
 4 741.4 at level 137 and 4 771.6 at level 138.
 
 | After | Position | Food level | Factor | Food at 604 | Food at 40 | Trunk's compounding, at 604 |
 |---|---|---|---|---|---|---|
 | Lesson 1 | 1 | 1 | 1.05 | 634.2 | 42 | 634.2 |
-| The last band 1 lesson | 192 | 48 | 3.40 | 2 053.6 | 136 | 6 282.4 (1.05⁴⁸ = 10.40) |
-| The last lesson of band 3 | 550 | 138 | 7.90 | 4 771.6 | 316 | 507 177.8 (1.05¹³⁸ = 839.70) |
+| The last band 1 lesson | 191 | 48 | 3.40 | 2 053.6 | 136 | 6 282.4 (1.05⁴⁸ = 10.40) |
+| The last lesson of band 3 | 549 | 138 | 7.90 | 4 771.6 | 316 | 507 177.8 (1.05¹³⁸ = 839.70) |
 
 In winter each rate is three quarters of these: 475.65, 1 540.2 and
-3 578.7 at 604. After lesson 550 the four resources stand at levels 138,
-138, 137 and 137, since 550 = 4 × 137 + 2. Each lesson adds the same
+3 578.7 at 604. After lesson 549 the four resources stand at levels 138,
+137, 137 and 137, since 549 = 4 × 137 + 1. Each lesson adds the same
 amount, 5 % of the rate without skills, 30.2 per hour at 604; what it
 adds relative to the rate already reached falls, from 5 % at level 1 to
 1.5 % at level 48 (3.45 / 3.40) and 0.6 % at level 138 (7.95 / 7.90), as
@@ -258,7 +261,10 @@ each level of a building or an art adds less of what it already gives.
   `curriculum.json` and the mapping of stored levels in its reset
   migration. Lessons earned before it under the medieval cycle leave
   material ahead of power after the mapping; the owner is the one player,
-  so the gap is a handful of levels and is left.
+  so the gap is a handful of levels and is left. (Amended by ADR 040:
+  the cycle is written, and the levels copied food to food, in the slice
+  that moves lessons to the school; no lesson after lesson 1 ships
+  before it, so no level is mapped and no gap opens.)
 - The economy that replaces the medieval content is sized against a
   skill factor that grows by 0.05 per level, to about 3.4 per resource
   after band 1 and 7.9 after band 3, not against trunk's compounding.
@@ -280,7 +286,8 @@ each level of a building or an art adds less of what it already gives.
   `apps/api/content/fief.json`, `farm.json`, `arts/`,
   `lessons/lesson-1.json`, `lessons/ngsl-1.2.csv`.
 - ADR 035, ADR 036 (rule 7, Consequences), ADR 037 (bands, chrome
-  lessons, placement, the holdout, the gate, Consequences).
+  lessons, placement, the holdout, the gate, Consequences), ADR 040 (the
+  school, the chrome word list).
 - `docs/research/english-pivot/decisions.md` §1.1, §1.6, §2.1, §9, §13, and
   `research.md` §11, §12 (Deci, Koestner and Ryan 1999; Ryan and Deci
   2000).
