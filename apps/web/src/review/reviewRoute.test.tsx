@@ -70,9 +70,14 @@ const schoolRecall: DueReview = {
   gappedFrame: 'I walk to ____ every day.',
 }
 
-const withReviews = (due: ReadonlyArray<DueReview>, nextDueAt: string | null): Reviews => ({
+const withReviews = (
+  due: ReadonlyArray<DueReview>,
+  nextDueAt: string | null,
+  readAt = knownFief.readAt,
+): Reviews => ({
   due: [...due],
   nextDueAt,
+  readAt,
 })
 
 const recallDue = withReviews([schoolRecall], null)
@@ -159,13 +164,20 @@ it('offers no practice when nothing is due and names the next review', async () 
   expect(within(reviewRegion()).queryByRole('button')).toBeNull()
 })
 
-it('reads the reviews again once the next review comes due', async () => {
-  const reviews = readingReviews(nothingDue, recallDue)
-  await showReview(reviews, {
-    fief: async () => ({ ok: true, value: { ...knownFief, readAt: new Date().toISOString() } }),
-  })
+const readFiveMinutesAhead = withReviews([], '2026-09-22T12:09:00.000Z', '2026-09-22T12:05:00.000Z')
+const fiefNeverRead = (): Promise<ApiOutcome<FiefOverview>> => new Promise(() => undefined)
 
-  await passSeconds(9 * 60)
+it('names the next review from the instant the server read the reviews at', async () => {
+  await showReview(readFiveMinutesAhead, { fief: fiefNeverRead })
+
+  expect(screen.getByText('4 min')).toBeTruthy()
+})
+
+it("paces the next review on the server's read instant", async () => {
+  const reviews = readingReviews(readFiveMinutesAhead, recallDue)
+  await showReview(reviews, { fief: fiefNeverRead })
+
+  await passSeconds(4 * 60)
 
   expect(screen.getByText('escuela')).toBeTruthy()
 })

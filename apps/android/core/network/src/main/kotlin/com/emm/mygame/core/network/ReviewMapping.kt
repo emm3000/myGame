@@ -6,14 +6,13 @@ import com.emm.mygame.core.network.generated.models.RecallReview
 import com.emm.mygame.core.network.generated.models.RecognitionReview
 import com.emm.mygame.core.network.generated.models.RecognitionReviewChoicesInner
 import com.emm.mygame.core.network.generated.models.Reviews
-import kotlin.time.Instant
 import com.emm.mygame.core.network.generated.models.DueReview as WireDueReview
 import com.emm.mygame.core.network.generated.models.ReviewVerdict as WireReviewVerdict
 
-internal fun Reviews.toDueReviews(readAt: Instant): DueReviews = DueReviews(
+internal fun Reviews.toDueReviews(): DueReviews = DueReviews(
     due = due.map { review: WireDueReview -> review.toDueReview() },
     nextDueAt = nextDueAt?.toKotlinInstant(),
-    readAt = readAt,
+    readAt = readAt.toKotlinInstant(),
 )
 
 private fun WireDueReview.toDueReview(): DueReview = when (this) {

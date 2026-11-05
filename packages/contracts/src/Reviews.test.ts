@@ -23,15 +23,17 @@ const recallOfSchool = {
   gappedFrame: 'I walk to ____ every day.',
 }
 
+const readAt = '2026-11-12T09:00:00.000Z'
+
 describe('ReviewsSchema', () => {
   it('parses the due reviews of each mode', () => {
-    const reviews = { due: [recognitionOfHome, recallOfSchool], nextDueAt: null }
+    const reviews = { due: [recognitionOfHome, recallOfSchool], nextDueAt: null, readAt }
 
     expect(ReviewsSchema.parse(reviews)).toEqual(reviews)
   })
 
   it('parses the next due instant when nothing is due', () => {
-    const reviews = { due: [], nextDueAt: '2026-11-12T09:10:00.000Z' }
+    const reviews = { due: [], nextDueAt: '2026-11-12T09:10:00.000Z', readAt }
 
     expect(ReviewsSchema.parse(reviews)).toEqual(reviews)
   })
@@ -40,19 +42,28 @@ describe('ReviewsSchema', () => {
     const choices = [{ choiceId: '5c0e91a2', wordId: 'lesson-1-4', gloss: 'dinero' }]
 
     expect(
-      ReviewsSchema.safeParse({ due: [{ ...recognitionOfHome, choices }], nextDueAt: null })
+      ReviewsSchema.safeParse({ due: [{ ...recognitionOfHome, choices }], nextDueAt: null, readAt })
         .success,
     ).toBe(false)
   })
 
   it('rejects a recall review that carries its word', () => {
     expect(
-      ReviewsSchema.safeParse({ due: [{ ...recallOfSchool, word: 'school' }], nextDueAt: null })
-        .success,
+      ReviewsSchema.safeParse({
+        due: [{ ...recallOfSchool, word: 'school' }],
+        nextDueAt: null,
+        readAt,
+      }).success,
     ).toBe(false)
   })
 
+  it('rejects reviews that name no instant they were read at', () => {
+    expect(ReviewsSchema.safeParse({ due: [], nextDueAt: null }).success).toBe(false)
+  })
+
   it('rejects reviews that carry a fief', () => {
-    expect(ReviewsSchema.safeParse({ due: [], nextDueAt: null, fief: {} }).success).toBe(false)
+    expect(ReviewsSchema.safeParse({ due: [], nextDueAt: null, readAt, fief: {} }).success).toBe(
+      false,
+    )
   })
 })

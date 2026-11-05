@@ -6,8 +6,6 @@ import com.emm.mygame.core.network.generated.models.ReviewAnswer
 import com.emm.mygame.core.network.generated.models.ReviewAnswerRequest
 import com.emm.mygame.core.network.generated.models.Reviews
 import java.io.IOException
-import java.util.Date
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
@@ -56,10 +54,8 @@ internal class ApiLearningRepository(
 
     private fun readOrUnreachable(response: Response<Reviews>): ReviewsReadResult {
         val reviews: Reviews? = response.body()
-        val servedAt: Date? = response.headers().getDate("Date")
-        if (!response.isSuccessful || reviews == null || servedAt == null) return ReviewsReadResult.Unreachable
-        val readAt: Instant = Instant.fromEpochMilliseconds(servedAt.time)
-        return ReviewsReadResult.Read(reviews.toDueReviews(readAt))
+        if (!response.isSuccessful || reviews == null) return ReviewsReadResult.Unreachable
+        return ReviewsReadResult.Read(reviews.toDueReviews())
     }
 
     private fun hintedOrRefused(response: Response<WireReviewHint>): ReviewHintResult {

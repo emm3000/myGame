@@ -6,6 +6,7 @@ export const ReviewsSchema = z
   .strictObject({
     due: z.array(DueReviewSchema),
     nextDueAt: InstantSchema.nullable(),
+    readAt: InstantSchema,
   })
   .meta({ id: 'Reviews' })
 
