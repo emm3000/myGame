@@ -1,8 +1,8 @@
+import { mailResetSubject, mailResetText } from '@mygame/catalog'
 import type { ForgotPasswordRequest } from '@mygame/contracts'
 import { type Clock, ok } from '@mygame/domain'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import type { CryptoSessionTokens } from '../adapters/system/CryptoSessionTokens'
-import { mailCopy } from '../mail/mailCopy'
 import { issueAccountToken } from './issueAccountToken'
 import type { Mailer } from './Mailer'
 
@@ -42,7 +42,7 @@ export const requestPasswordReset = async (
   }
   await mailer.send({
     to: issued.value.email,
-    subject: mailCopy.reset.subject,
-    text: mailCopy.reset.textWith(`${webUrl}/reset-password?token=${issued.value.token}`),
+    subject: mailResetSubject(),
+    text: mailResetText({ link: `${webUrl}/reset-password?token=${issued.value.token}` }),
   })
 }

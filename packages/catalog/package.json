@@ -1,0 +1,21 @@
+{
+  "name": "@mygame/catalog",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "generate": "tsx src/generate.ts"
+  },
+  "devDependencies": {
+    "@formatjs/icu-messageformat-parser": "3.5.22",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

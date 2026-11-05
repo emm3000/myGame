@@ -1,4 +1,4 @@
-import { mailCopy } from '../mail/mailCopy'
+import { mailVerificationSubject, mailVerificationText } from '@mygame/catalog'
 import type { MailDelivery, Mailer } from './Mailer'
 
 export type SendVerificationMailDependencies = {
@@ -13,6 +13,6 @@ export const sendVerificationMail = (
 ): Promise<MailDelivery> =>
   mailer.send({
     to: email,
-    subject: mailCopy.verification.subject,
-    text: mailCopy.verification.textWith(`${webUrl}/verify-email?token=${token}`),
+    subject: mailVerificationSubject(),
+    text: mailVerificationText({ link: `${webUrl}/verify-email?token=${token}` }),
   })
