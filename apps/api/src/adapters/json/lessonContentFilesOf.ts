@@ -10,6 +10,7 @@ import {
   type LexiconContent,
   LexiconContentSchema,
 } from '@mygame/contracts'
+import { headwordOf } from '@mygame/domain'
 import { z } from 'zod'
 
 export type LexiconEntry = LexiconContent[number]
@@ -89,7 +90,7 @@ const ranksOfFile = (directory: string): ReadonlyMap<string, number> => {
       rows
         .filter((row) => row !== '')
         .map((row) => HeadwordRowSchema.parse(row.split(',')))
-        .map(([lemma, rank]) => [lemma.toLowerCase(), rank]),
+        .map(([lemma, rank]) => [headwordOf(lemma), rank]),
     )
   } catch (cause) {
     throw malformed(path, cause)

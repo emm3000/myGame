@@ -2,6 +2,7 @@ import { assert, describe, expect, it } from 'vitest'
 import type { Lesson } from '../learning/Lesson'
 import { MemoryCard } from '../memory/MemoryCard'
 import type { Clock } from '../ports/Clock'
+import type { RandomSource } from '../ports/RandomSource'
 import { ok } from '../Result'
 import { firstItemsRandom } from '../testing/firstItemsRandom'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
@@ -104,6 +105,7 @@ const bandsOf = inMemoryBands([
 type Setup = {
   readonly bandStarts?: ReadonlyArray<OwnedBandStart>
   readonly placedOut?: ReadonlyArray<number>
+  readonly random?: RandomSource
   readonly town?: Omit<TownShape, 'storedAt'>
   readonly cards?: ReadonlyArray<OwnedCard>
   readonly slot?: LessonSlot
@@ -114,6 +116,7 @@ type Setup = {
 const schoolOf = ({
   bandStarts = [],
   placedOut = [],
+  random = firstItemsRandom,
   town = {},
   cards = [],
   slot,
@@ -130,7 +133,7 @@ const schoolOf = ({
     bandStarts: inMemoryBandStarts(bandStarts),
     bands: bandsOf,
     placedOutBands: { placedOutBandsOf: async () => ok(placedOut) },
-    random: firstItemsRandom,
+    random,
     news: inMemoryTownNews(),
     catalog,
     clock: frozenClock,
@@ -218,6 +221,33 @@ describe('startSchoolLesson', () => {
     await school.start('lesson-18')
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({ ok: true, value: [stored] })
+  })
+
+  it('never reads the random source once the band has started', async () => {
+    const sampledCounts: Array<number> = []
+    const recordingRandom: RandomSource = {
+      sampleOf: (items, count) => {
+        sampledCounts.push(count)
+        return items.slice(0, count)
+      },
+    }
+    const stored = { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['think', 'see'] }
+    const school = schoolOf({
+      bandStarts: [{ playerId: 'player-1', start: stored }],
+      random: recordingRandom,
+    })
+
+    await school.start('lesson-18')
+
+    expect(sampledCounts).toEqual([])
+  })
+
+  it("admits a lesson its own start's draw brings under the learning cap", async () => {
+    const school = schoolOf({ cards: cardsEnteredFor(12) })
+
+    const started = await school.start('lesson-17')
+
+    expect(started.ok).toBe(true)
   })
 
   it('stores no draw for a lesson it refuses', async () => {
