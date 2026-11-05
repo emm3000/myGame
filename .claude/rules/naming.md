@@ -15,7 +15,7 @@ English for every identifier, file, directory, branch, commit and doc. Player-fa
 
 ## Game content
 
-Names players see come from `docs/setting/` (`docs/lore/` until it exists) and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the player-facing label lives in each client's copy layer: `apps/web/src/copy.ts`, string resources on Android.
+Names players see come from `docs/setting/` (`docs/lore/` until it exists) and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the player-facing label lives only in `packages/catalog` (`es.json`), which generates the web's and the api's functions and the Android string resources (ADR 038).
 
 ## Rejected
 

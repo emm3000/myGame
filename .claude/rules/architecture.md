@@ -13,23 +13,30 @@ Hexagonal. The game rules live in `packages/domain` and know nothing about HTTP,
 ## Layers and the dependency direction
 
 ```
-apps/web           -> packages/contracts, packages/domain
-apps/api           -> packages/contracts, packages/domain
+apps/web           -> packages/contracts, packages/domain, packages/catalog
+apps/api           -> packages/contracts, packages/domain, packages/catalog
 packages/contracts -> packages/domain
 packages/domain    -> nothing
+packages/catalog   -> nothing
 ```
 
 An import against the arrow is a defect, whatever the reason. The leak check, expected empty:
 
 ```
 rg -n "from '(node:|hono|drizzle|@tanstack|react|zod|\.\./\.\./apps)" packages/domain/src
+rg -n "from '@mygame/" packages/catalog/src
+rg -l "@mygame/catalog" packages/*/package.json
 ```
 
 And the reverse leak, an app reaching into another package's internals instead of its public entry, expected empty:
 
 ```
-rg -n "from '@mygame/(domain|contracts)/src" apps packages
+rg -n "from '@mygame/(domain|contracts|catalog)/src" apps packages
 ```
+
+## `packages/catalog`
+
+The only source of copy (ADR 038): `es.json` and `en.json`, ICU MessageFormat, one key set. It generates one typed function per key for `apps/web` and `apps/api`, the ICU parsed at generation so no ICU runtime ships, and every Android `strings.xml`; the generated files are committed and a test fails on any drift. No client or api module writes a player-facing string of its own; `packages/catalog/CLAUDE.md` holds the key shape and the checks.
 
 ## `packages/domain`
 
@@ -50,7 +57,7 @@ export type DomainError =
   | { kind: 'UnknownBuilding'; building: string }
 ```
 
-A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status in one place (`apps/api`, `answerRefusal`) and answers the `kind` with its typed `params`, the refusal's fields, never a player-facing line (ADR 038); each client reads the same `ApiError` from `packages/contracts` and renders the line from its own copy. A new failure mode is a new member of the union, never a new `class extends Error`.
+A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status in one place (`apps/api`, `answerRefusal`) and answers the `kind` with its typed `params`, the refusal's fields, never a player-facing line (ADR 038); each client reads the same `ApiError` from `packages/contracts` and renders the line from `packages/catalog`: the web and the api from `refusal.<Kind>`, Android from its module's `android.<module>.*refusal*` keys until the town rebuild shares one key set. A new failure mode is a new member of the union, never a new `class extends Error`.
 
 ## Time
 
