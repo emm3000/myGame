@@ -1,68 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="chronicle_title">Crónica</string>
-    <string name="chronicle_loading">Estamos leyendo la crónica…</string>
-    <string name="chronicle_empty">La crónica está en blanco: aún no hay nada que contar.</string>
-    <string name="chronicle_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
-    <string name="chronicle_retry">Volver a intentarlo</string>
-    <string name="chronicle_today">Hoy, %1$s</string>
-    <string name="chronicle_day">%1$s, %2$s</string>
-    <string name="chronicle_day_of_year">%1$s %2$d, %3$s</string>
-    <string name="chronicle_line">%1$s %2$s</string>
-    <string name="heading_upgrade_finished">Obra terminada:</string>
-    <string name="heading_art_learned">Estudio terminado:</string>
-    <string name="heading_upgrade_cancelled">Obra cancelada:</string>
-    <string name="heading_study_cancelled">Estudio cancelado:</string>
-    <string name="heading_recruits_delivered">Leva terminada:</string>
-    <string name="heading_recruits_cancelled">Leva cancelada:</string>
-    <string name="heading_march_returned">Marcha terminada:</string>
-    <string name="heading_march_recalled">Marcha retirada:</string>
-    <string name="heading_battle_won">Batalla ganada:</string>
-    <string name="heading_battle_lost">Batalla perdida:</string>
-    <string name="heading_founding_sent">Fundación enviada:</string>
-    <string name="heading_fief_founded">Feudo fundado:</string>
-    <string name="heading_transport_sent">Transporte enviado:</string>
-    <string name="heading_transport_arrived">Transporte recibido:</string>
-    <string name="subject_level">%1$s, nivel %2$d.</string>
-    <string name="subject_recruits">%1$s.</string>
-    <string name="subject_recruits_cancelled">%1$s en filas, %2$s de vuelta al campo.</string>
-    <string name="subject_march">provincia %1$d, parcela %2$d, %3$s.</string>
-    <string name="subject_battle">provincia %1$d, parcela %2$d, campamento de nivel %3$d. %4$s y los bandidos pierden %5$d de fuerza.</string>
-    <string name="subject_fief_at_plot">%1$s, provincia %2$d, parcela %3$d.</string>
-    <string name="losses_none">No pierdes a nadie</string>
-    <string name="losses_one_kind">Pierdes %1$s</string>
-    <string name="losses_several_kinds">Pierdes %1$s,</string>
-    <string name="amounts_refunded">Recuperas %1$s.</string>
-    <string name="amounts_received">Recibes %1$s.</string>
-    <string name="amounts_sent">Envías %1$s.</string>
-    <string name="chronicle_building_sawmill">aserradero</string>
-    <string name="chronicle_building_quarry">cantera</string>
-    <string name="chronicle_building_iron_mine">mina de hierro</string>
-    <string name="chronicle_building_farm">granja</string>
-    <string name="chronicle_building_warehouse">almacén</string>
-    <string name="chronicle_building_library">biblioteca</string>
-    <string name="chronicle_building_barracks">cuartel</string>
-    <string name="chronicle_art_smithing">herrería</string>
+    <string name="amounts_received">Recibes {amounts}.</string>
+    <string name="amounts_refunded">Recuperas {amounts}.</string>
+    <string name="amounts_sent">Envías {amounts}.</string>
     <string name="chronicle_art_masonry">cantería</string>
-    <string name="chronicle_quantity_wood">%1$s de madera</string>
-    <string name="chronicle_quantity_stone">%1$s de piedra</string>
-    <string name="chronicle_quantity_iron">%1$s de hierro</string>
-    <string name="chronicle_quantity_gold">%1$s de oro</string>
-    <string name="chronicle_quantity_food">%1$s de comida</string>
-    <plurals name="units_infantry">
-        <item quantity="one">%1$d infante</item>
-        <item quantity="other">%1$d infantes</item>
-    </plurals>
-    <plurals name="units_cavalry">
-        <item quantity="one">%1$d jinete</item>
-        <item quantity="other">%1$d jinetes</item>
-    </plurals>
-    <plurals name="units_archer">
-        <item quantity="one">%1$d arquero</item>
-        <item quantity="other">%1$d arqueros</item>
-    </plurals>
-    <plurals name="units_settler">
-        <item quantity="one">%1$d colono</item>
-        <item quantity="other">%1$d colonos</item>
-    </plurals>
+    <string name="chronicle_art_smithing">herrería</string>
+    <string name="chronicle_building_barracks">cuartel</string>
+    <string name="chronicle_building_farm">granja</string>
+    <string name="chronicle_building_iron_mine">mina de hierro</string>
+    <string name="chronicle_building_library">biblioteca</string>
+    <string name="chronicle_building_quarry">cantera</string>
+    <string name="chronicle_building_sawmill">aserradero</string>
+    <string name="chronicle_building_warehouse">almacén</string>
+    <string name="chronicle_day">{day}, {time}</string>
+    <string name="chronicle_day_of_year">{day} {year}, {time}</string>
+    <string name="chronicle_empty">La crónica está en blanco: aún no hay nada que contar.</string>
+    <string name="chronicle_line">{heading} {subject}</string>
+    <string name="chronicle_loading">Estamos leyendo la crónica…</string>
+    <string name="chronicle_quantity_food">{amount} de comida</string>
+    <string name="chronicle_quantity_gold">{amount} de oro</string>
+    <string name="chronicle_quantity_iron">{amount} de hierro</string>
+    <string name="chronicle_quantity_stone">{amount} de piedra</string>
+    <string name="chronicle_quantity_wood">{amount} de madera</string>
+    <string name="chronicle_retry">Volver a intentarlo</string>
+    <string name="chronicle_title">Crónica</string>
+    <string name="chronicle_today">Hoy, {time}</string>
+    <string name="chronicle_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="heading_art_learned">Estudio terminado:</string>
+    <string name="heading_battle_lost">Batalla perdida:</string>
+    <string name="heading_battle_won">Batalla ganada:</string>
+    <string name="heading_fief_founded">Feudo fundado:</string>
+    <string name="heading_founding_sent">Fundación enviada:</string>
+    <string name="heading_march_recalled">Marcha retirada:</string>
+    <string name="heading_march_returned">Marcha terminada:</string>
+    <string name="heading_recruits_cancelled">Leva cancelada:</string>
+    <string name="heading_recruits_delivered">Leva terminada:</string>
+    <string name="heading_study_cancelled">Estudio cancelado:</string>
+    <string name="heading_transport_arrived">Transporte recibido:</string>
+    <string name="heading_transport_sent">Transporte enviado:</string>
+    <string name="heading_upgrade_cancelled">Obra cancelada:</string>
+    <string name="heading_upgrade_finished">Obra terminada:</string>
+    <string name="losses_none">No pierdes a nadie</string>
+    <string name="losses_one_kind">Pierdes {units}</string>
+    <string name="losses_several_kinds">Pierdes {units},</string>
+    <string name="subject_battle">provincia {province}, parcela {plot}, campamento de nivel {tier}. {losses} y los bandidos pierden {campLost} de fuerza.</string>
+    <string name="subject_fief_at_plot">{name}, provincia {province}, parcela {plot}.</string>
+    <string name="subject_level">{name}, nivel {level}.</string>
+    <string name="subject_march">provincia {province}, parcela {plot}, {party}.</string>
+    <string name="subject_recruits">{units}.</string>
+    <string name="subject_recruits_cancelled">{delivered} en filas, {cancelled} de vuelta al campo.</string>
+    <string name="units_archer">{count, plural, =1 {# arquero} other {# arqueros}}</string>
+    <string name="units_cavalry">{count, plural, =1 {# jinete} other {# jinetes}}</string>
+    <string name="units_infantry">{count, plural, =1 {# infante} other {# infantes}}</string>
+    <string name="units_settler">{count, plural, =1 {# colono} other {# colonos}}</string>
 </resources>

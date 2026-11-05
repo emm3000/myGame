@@ -6,6 +6,7 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.ChronicleEvent
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ResourceQuantity
+import com.emm.mygame.core.ui.getIcuString
 
 internal data class AmountMark(val resource: ResourceKind, val start: Int)
 
@@ -36,9 +37,9 @@ private fun Resources.listedAmounts(amounts: List<ResourceQuantity>, @StringRes 
     val listed: List<ResourceQuantity> = amounts.filter { it.amount > 0 }
     if (listed.isEmpty()) return null
     val phrases: List<String> = listed.map { quantity: ResourceQuantity ->
-        getString(quantityLabelOf(quantity.kind), formatQuantity(quantity.amount))
+        getIcuString(quantityLabelOf(quantity.kind), "amount" to formatQuantity(quantity.amount))
     }
-    val text: String = getString(sentence, spanishList(phrases))
+    val text: String = getIcuString(sentence, "amounts" to spanishList(phrases))
     return ListedAmounts(sentence = text, marks = marksOf(text, listed, phrases))
 }
 

@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.emm.mygame.core.designsystem.MyGameIcon
@@ -16,6 +15,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.SeasonKind
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun SeasonLine(season: FiefUiState.SeasonLine, modifier: Modifier = Modifier) {
@@ -30,7 +30,11 @@ internal fun SeasonLine(season: FiefUiState.SeasonLine, modifier: Modifier = Mod
             modifier = Modifier.align(Alignment.CenterVertically),
         )
         MyGameText(
-            text = stringResource(R.string.season_line, stringResource(seasonNameOf(season.kind)), season.year),
+            text = icuStringResource(
+                R.string.season_line,
+                "season" to stringResource(seasonNameOf(season.kind)),
+                "year" to season.year.toString(),
+            ),
             style = MyGameTypography.numeral,
             color = MyGameTheme.colors.ink,
         )
@@ -41,10 +45,10 @@ internal fun SeasonLine(season: FiefUiState.SeasonLine, modifier: Modifier = Mod
             modifier = Modifier.clearAndSetSemantics { },
         )
         MyGameText(
-            text = stringResource(
+            text = icuStringResource(
                 R.string.season_countdown,
-                stringResource(seasonNameOf(season.next)),
-                seasonTimeLeftOf(season.countdown),
+                "season" to stringResource(seasonNameOf(season.next)),
+                "timeLeft" to seasonTimeLeftOf(season.countdown),
             ),
             style = MyGameTypography.numeral,
             color = MyGameTheme.colors.inkMuted,
@@ -55,9 +59,12 @@ internal fun SeasonLine(season: FiefUiState.SeasonLine, modifier: Modifier = Mod
 @Composable
 private fun seasonTimeLeftOf(countdown: FiefUiState.SeasonCountdown): String = when (countdown) {
     is FiefUiState.SeasonCountdown.InDays ->
-        pluralStringResource(R.plurals.season_days_left, countdown.days, countdown.days)
+        icuStringResource(R.string.season_days_left, "days" to countdown.days)
     is FiefUiState.SeasonCountdown.UnderADay -> countdownLabelOf(countdown.remaining)
-    is FiefUiState.SeasonCountdown.InSeconds -> stringResource(R.string.slot_countdown_seconds, countdown.seconds)
+    is FiefUiState.SeasonCountdown.InSeconds -> icuStringResource(
+        R.string.slot_countdown_seconds,
+        "seconds" to countdown.seconds.toString(),
+    )
 }
 
 internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {

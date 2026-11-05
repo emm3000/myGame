@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -30,6 +29,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun ResourcesSection(content: FiefUiState.Content, modifier: Modifier = Modifier) {
@@ -99,7 +99,7 @@ internal fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier 
             )
             MyGameText(text = amount, style = MyGameTypography.action, color = MyGameTheme.colors.ink)
             MyGameText(
-                text = stringResource(R.string.resource_capacity, capacity),
+                text = icuStringResource(R.string.resource_capacity, "capacity" to capacity),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -126,7 +126,7 @@ private fun RateLine(resource: FiefUiState.ResourceLine, modifier: Modifier = Mo
         )
     } else {
         MyGameText(
-            text = stringResource(R.string.resource_rate, formatQuantity(resource.ratePerHour)),
+            text = icuStringResource(R.string.resource_rate, "rate" to formatQuantity(resource.ratePerHour)),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.inkMuted,
             modifier = modifier,
@@ -139,15 +139,26 @@ private fun resourceDescriptionOf(resource: FiefUiState.ResourceLine, name: Stri
     val amount: String = formatQuantity(resource.amount)
     val capacity: String = formatQuantity(resource.capacity)
     val rowDescription: String = if (resource.isFull) {
-        stringResource(R.string.resource_description_full, name, amount, capacity)
+        icuStringResource(
+            R.string.resource_description_full,
+            "name" to name,
+            "amount" to amount,
+            "capacity" to capacity,
+        )
     } else {
-        stringResource(R.string.resource_description, name, amount, capacity, formatQuantity(resource.ratePerHour))
+        icuStringResource(
+            R.string.resource_description,
+            "name" to name,
+            "amount" to amount,
+            "capacity" to capacity,
+            "rate" to formatQuantity(resource.ratePerHour),
+        )
     }
     val seasonMark: FiefUiState.SeasonMark = resource.seasonMark ?: return rowDescription
-    return stringResource(
+    return icuStringResource(
         R.string.resource_description_with_season_mark,
-        rowDescription,
-        seasonMarkWordsOf(mark = seasonMark, resourceName = name),
+        "description" to rowDescription,
+        "seasonMark" to seasonMarkWordsOf(mark = seasonMark, resourceName = name),
     )
 }
 
@@ -156,9 +167,19 @@ private fun seasonMarkWordsOf(mark: FiefUiState.SeasonMark, resourceName: String
     val season: String = stringResource(seasonNameOf(mark.season))
     val resource: String = resourceName.lowercase(spanish)
     return if (mark.change > 0) {
-        stringResource(R.string.resource_season_mark_raised, season, mark.change, resource)
+        icuStringResource(
+            R.string.resource_season_mark_raised,
+            "season" to season,
+            "percent" to mark.change.toString(),
+            "resource" to resource,
+        )
     } else {
-        stringResource(R.string.resource_season_mark_lowered, season, -mark.change, resource)
+        icuStringResource(
+            R.string.resource_season_mark_lowered,
+            "season" to season,
+            "percent" to (-mark.change).toString(),
+            "resource" to resource,
+        )
     }
 }
 
@@ -166,7 +187,12 @@ private fun seasonMarkWordsOf(mark: FiefUiState.SeasonMark, resourceName: String
 private fun PeasantsRow(peasants: FiefUiState.PeasantsLine, modifier: Modifier = Modifier) {
     val free: String = formatQuantity(peasants.free.toLong())
     val supplied: String = formatQuantity(peasants.supplied.toLong())
-    val description: String = pluralStringResource(R.plurals.peasants_description, peasants.supplied, free, supplied)
+    val description: String = icuStringResource(
+        R.string.peasants_description,
+        "suppliedCount" to peasants.supplied,
+        "free" to free,
+        "supplied" to supplied,
+    )
     Row(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -182,7 +208,12 @@ private fun PeasantsRow(peasants: FiefUiState.PeasantsLine, modifier: Modifier =
             modifier = Modifier.weight(1f),
         )
         MyGameText(
-            text = pluralStringResource(R.plurals.peasants_free, peasants.supplied, free, supplied),
+            text = icuStringResource(
+                R.string.peasants_free,
+                "suppliedCount" to peasants.supplied,
+                "free" to free,
+                "supplied" to supplied,
+            ),
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )

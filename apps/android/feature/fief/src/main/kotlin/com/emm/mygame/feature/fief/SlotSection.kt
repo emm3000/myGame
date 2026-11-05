@@ -17,6 +17,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.BuildingKind
+import com.emm.mygame.core.ui.icuStringResource
 import kotlin.time.Duration
 
 @Composable
@@ -56,7 +57,7 @@ private fun BusySlot(
     modifier: Modifier = Modifier,
 ) {
     val countdown: String = countdownLabelOf(slot.remaining)
-    val description: String = stringResource(R.string.slot_countdown_description, countdown)
+    val description: String = icuStringResource(R.string.slot_countdown_description, "countdown" to countdown)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.padding(vertical = MyGameSpacing.step4),
@@ -72,7 +73,7 @@ private fun BusySlot(
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(R.string.slot_level, slot.targetLevel),
+            text = icuStringResource(R.string.slot_level, "level" to slot.targetLevel.toString()),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
         )
@@ -98,9 +99,13 @@ private fun BusySlot(
 @Composable
 internal fun countdownLabelOf(remaining: Duration): String = remaining.toComponents { hours, minutes, seconds, _ ->
     when {
-        hours > 0 -> stringResource(R.string.slot_countdown_hours, hours, minutes)
-        minutes > 0 -> stringResource(R.string.slot_countdown_minutes, minutes)
-        seconds > 0 -> stringResource(R.string.slot_countdown_seconds, seconds)
+        hours > 0 -> icuStringResource(
+            R.string.slot_countdown_hours,
+            "hours" to hours.toString(),
+            "minutes" to minutes.toString(),
+        )
+        minutes > 0 -> icuStringResource(R.string.slot_countdown_minutes, "minutes" to minutes.toString())
+        seconds > 0 -> icuStringResource(R.string.slot_countdown_seconds, "seconds" to seconds.toString())
         else -> stringResource(R.string.slot_countdown_finished)
     }
 }

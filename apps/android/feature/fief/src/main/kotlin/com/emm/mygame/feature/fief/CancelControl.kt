@@ -11,6 +11,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun CancelControl(
@@ -26,7 +27,11 @@ internal fun CancelControl(
             isBusy = cancel is FiefUiState.CancelStatus.Waiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.CancelTapped(target.building, target.targetLevel)) },
-            accessibleName = stringResource(R.string.cancel_upgrade_description, building, target.targetLevel),
+            accessibleName = icuStringResource(
+                R.string.cancel_upgrade_description,
+                "building" to building,
+                "level" to target.targetLevel.toString(),
+            ),
         )
         MyGameText(
             text = stringResource(R.string.cancel_refund),

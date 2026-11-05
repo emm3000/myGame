@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
+import com.emm.mygame.core.ui.getIcuString
 import kotlin.time.Duration
 
 internal fun Resources.actionLabelOf(order: MapUiState.OfferedOrder): String = getString(
@@ -18,25 +19,25 @@ internal fun Resources.actionLabelOf(order: MapUiState.OfferedOrder): String = g
     },
 )
 
-internal fun Resources.actionNameOf(order: MapUiState.OfferedOrder, plot: Int): String = getString(
+internal fun Resources.actionNameOf(order: MapUiState.OfferedOrder, plot: Int): String = getIcuString(
     when (order) {
         MapUiState.OfferedOrder.Forage -> R.string.forage_send_to
         MapUiState.OfferedOrder.Attack -> R.string.attack_send_to
         MapUiState.OfferedOrder.Found -> R.string.founding_send_to
         MapUiState.OfferedOrder.Transport -> R.string.transport_send_to
     },
-    plot,
+    "plot" to plot.toString(),
 )
 
-internal fun Resources.titleOf(form: MapUiState.MarchForm): String = getString(
+internal fun Resources.titleOf(form: MapUiState.MarchForm): String = getIcuString(
     when (form) {
         is MapUiState.ForageForm -> R.string.forage_title
         is MapUiState.AttackForm -> R.string.attack_title
         is MapUiState.FoundingForm -> R.string.founding_title
         is MapUiState.TransportForm -> R.string.transport_title
     },
-    form.target.province,
-    form.target.plot,
+    "province" to form.target.province.toString(),
+    "plot" to form.target.plot.toString(),
 )
 
 internal fun Resources.sendLabelOf(form: MapUiState.MarchForm): String = actionLabelOf(
@@ -70,18 +71,24 @@ internal fun Resources.cargoFieldOf(kind: ResourceKind): String = getString(
     },
 )
 
-internal fun Resources.atHomeOf(home: UnitCount): String = getString(R.string.forage_at_home, countedOf(home))
+internal fun Resources.atHomeOf(home: UnitCount): String = getIcuString(
+    R.string.forage_at_home,
+    "units" to countedOf(home),
+)
 
-internal fun Resources.roadLineOf(road: Duration): String = getString(R.string.forage_road, durationOf(road))
+internal fun Resources.roadLineOf(road: Duration): String = getIcuString(
+    R.string.forage_road,
+    "duration" to durationOf(road),
+)
 
 internal fun Resources.returnLineOf(returnIn: Duration): String =
-    getString(R.string.forage_return, durationOf(returnIn))
+    getIcuString(R.string.forage_return, "duration" to durationOf(returnIn))
 
 internal fun Resources.arrivalLineOf(arrivalIn: Duration): String =
-    getString(R.string.founding_arrival, durationOf(arrivalIn))
+    getIcuString(R.string.founding_arrival, "duration" to durationOf(arrivalIn))
 
 internal fun Resources.lootLineOf(loot: List<ResourceQuantity>): String =
-    getString(R.string.forage_loot, quantitiesOf(loot))
+    getIcuString(R.string.forage_loot, "loot" to quantitiesOf(loot))
 
 internal fun Resources.forageLinesOf(preview: MapUiState.ForagePreview): List<String> = listOfNotNull(
     roadLineOf(preview.road),
@@ -94,9 +101,9 @@ internal fun Resources.attackLinesOf(preview: MapUiState.AttackPreview): List<St
     returnLineOf(preview.returnIn),
     campLineOf(preview.camp),
     getString(if (preview.isWon) R.string.attack_battle_won else R.string.attack_battle_lost),
-    getString(R.string.attack_losses, sentPartyOf(preview.unitsLost)),
-    getString(R.string.attack_camp_losses, preview.campLost),
-    getString(R.string.attack_survivors, sentPartyOf(preview.survivors)),
+    getIcuString(R.string.attack_losses, "units" to sentPartyOf(preview.unitsLost)),
+    getIcuString(R.string.attack_camp_losses, "strength" to preview.campLost.toString()),
+    getIcuString(R.string.attack_survivors, "units" to sentPartyOf(preview.survivors)),
     if (preview.loot.isEmpty()) null else lootLineOf(preview.loot),
 )
 
@@ -104,7 +111,11 @@ internal fun Resources.foundingLinesOf(preview: MapUiState.FoundingPreview): Lis
     listOf(roadLineOf(preview.road), arrivalLineOf(preview.road))
 
 internal fun Resources.transportLinesOf(preview: MapUiState.TransportPreview): List<String> = listOfNotNull(
-    getString(R.string.transport_carry, formatQuantity(preview.cargo), formatQuantity(preview.carry)),
+    getIcuString(
+        R.string.transport_carry,
+        "cargo" to formatQuantity(preview.cargo),
+        "carry" to formatQuantity(preview.carry),
+    ),
     preview.road?.let { road: Duration -> roadLineOf(road) },
     preview.road?.let { road: Duration -> arrivalLineOf(road) },
 )
@@ -112,14 +123,25 @@ internal fun Resources.transportLinesOf(preview: MapUiState.TransportPreview): L
 internal fun Resources.blockLineOf(block: MapUiState.MarchBlock): String = when (block) {
     MapUiState.MarchBlock.MarchAway -> getString(R.string.forage_march_away)
     MapUiState.MarchBlock.InvalidCount -> getString(R.string.forage_invalid_count)
-    is MapUiState.MarchBlock.InvalidHours -> getString(R.string.forage_invalid_hours, block.maxStayHours)
+    is MapUiState.MarchBlock.InvalidHours -> getIcuString(
+        R.string.forage_invalid_hours,
+        "maxStayHours" to block.maxStayHours.toString(),
+    )
     MapUiState.MarchBlock.EmptyParty -> getString(R.string.forage_empty_party)
     is MapUiState.MarchBlock.NotEnoughAtHome ->
-        getString(R.string.forage_not_enough_at_home, countedOf(UnitCount(block.unit, block.needed)), block.atHome)
+        getIcuString(
+            R.string.forage_not_enough_at_home,
+            "units" to countedOf(UnitCount(block.unit, block.needed)),
+            "atHome" to block.atHome.toString(),
+        )
     MapUiState.MarchBlock.BlankName -> getString(R.string.refusal_blank_fief_name)
     MapUiState.MarchBlock.EmptyCargo -> getString(R.string.refusal_empty_cargo)
     is MapUiState.MarchBlock.CargoAboveCarry ->
-        getString(R.string.transport_cargo_above_carry, formatQuantity(block.cargo), formatQuantity(block.carry))
+        getIcuString(
+            R.string.transport_cargo_above_carry,
+            "cargo" to formatQuantity(block.cargo),
+            "carry" to formatQuantity(block.carry),
+        )
     is MapUiState.MarchBlock.Shortfalls -> shortfallLineOf(block.missing)
 }
 
@@ -131,5 +153,5 @@ private fun Resources.sentPartyOf(counts: List<UnitCount>): String {
 private fun Resources.shortfallLineOf(missing: List<ResourceQuantity>): String {
     val isSingleOne: Boolean = missing.size == 1 && missing.first().amount == 1L
     val line: Int = if (isSingleOne) R.string.transport_short_one else R.string.transport_short_many
-    return getString(line, quantitiesOf(missing))
+    return getIcuString(line, "resources" to quantitiesOf(missing))
 }

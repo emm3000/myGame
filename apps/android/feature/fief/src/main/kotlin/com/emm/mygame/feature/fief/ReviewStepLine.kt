@@ -15,6 +15,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ReviewRefusal
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun ReviewStepLine(
@@ -72,15 +73,22 @@ private fun CorrectLine(step: ReviewUiState.ReviewStep.Correct, modifier: Modifi
 @Composable
 private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Modifier) {
     val resource: String = stringResource(resourceNameOf(skill.resource)).lowercase(spanish)
-    val rate: String = stringResource(rateLineOf(skill.resource), percentLabelOf(skill.ratePercent.toDouble()))
+    val rate: String = icuStringResource(
+        rateLineOf(skill.resource),
+        "percent" to percentLabelOf(skill.ratePercent.toDouble()),
+    )
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.review_skill_earned, resource, skill.level),
+            text = icuStringResource(
+                R.string.review_skill_earned,
+                "resource" to resource,
+                "level" to skill.level.toString(),
+            ),
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(R.string.review_skill_rate, rate),
+            text = icuStringResource(R.string.review_skill_rate, "rate" to rate),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
         )
@@ -99,12 +107,12 @@ private fun WrongLine(yours: String, correct: String, modifier: Modifier = Modif
             color = MyGameTheme.colors.rust,
         )
         MyGameText(
-            text = stringResource(R.string.review_yours, yours),
+            text = icuStringResource(R.string.review_yours, "answer" to yours),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            text = stringResource(R.string.review_correct_form, correct),
+            text = icuStringResource(R.string.review_correct_form, "answer" to correct),
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )

@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
@@ -38,6 +37,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun RecognitionCard(
@@ -86,11 +86,10 @@ internal fun RecallCard(
         val hint: ReviewHint? = card.hint
         if (hint != null) {
             MyGameText(
-                text = pluralStringResource(
-                    R.plurals.review_hint_line,
-                    hint.letterCount,
-                    hint.firstLetter,
-                    hint.letterCount,
+                text = icuStringResource(
+                    R.string.review_hint_line,
+                    "letters" to hint.letterCount,
+                    "first" to hint.firstLetter,
                 ),
                 style = MyGameTypography.action,
                 color = MyGameTheme.colors.ink,

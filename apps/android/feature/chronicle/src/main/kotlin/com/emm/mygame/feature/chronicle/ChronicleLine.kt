@@ -35,6 +35,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ChronicleEvent
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.ui.getIcuString
 
 @Composable
 internal fun ChronicleLine(line: ChronicleInstant, event: ChronicleEvent, modifier: Modifier = Modifier) {
@@ -121,7 +122,7 @@ private fun accentOf(resource: ResourceKind, colors: MyGameColors): Color = when
 
 private fun Resources.sentenceOf(event: ChronicleEvent): AnnotatedString {
     val heading: String = headingOf(event)
-    val sentence: String = getString(R.string.chronicle_line, heading, subjectOf(event))
+    val sentence: String = getIcuString(R.string.chronicle_line, "heading" to heading, "subject" to subjectOf(event))
     return buildAnnotatedString {
         append(sentence)
         addStyle(SpanStyle(fontWeight = FontWeight.Bold), start = 0, end = heading.length)

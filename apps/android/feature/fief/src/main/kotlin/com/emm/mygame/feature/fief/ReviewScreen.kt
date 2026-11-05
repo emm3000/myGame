@@ -19,6 +19,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 fun ReviewScreen(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -57,7 +58,7 @@ private fun NothingDue(state: ReviewUiState.NothingDue, modifier: Modifier = Mod
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         Line(text = stringResource(R.string.review_nothing_due))
         MyGameText(
-            text = stringResource(R.string.review_next_due, finishLabelOf(state.remaining, state.dueAt)),
+            text = icuStringResource(R.string.review_next_due, "due" to finishLabelOf(state.remaining, state.dueAt)),
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )
@@ -72,7 +73,7 @@ private fun Reviewing(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.review_due_count, reviewing.dueCount),
+            text = icuStringResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
             style = MyGameTypography.label,
             color = MyGameTheme.colors.inkMuted,
         )
