@@ -1,0 +1,7 @@
+{
+  "id": "lesson-6",
+  "theme": "News from the city",
+  "durationSeconds": 300,
+  "requiredSchoolLevel": 1,
+  "wordIds": ["word-21", "word-22", "word-23", "word-24", "word-25"]
+}

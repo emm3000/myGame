@@ -25,6 +25,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@formatjs/icu-messageformat-parser": "catalog:",
     "@hono/node-server": "2.1.1",
     "@types/node": "catalog:",
     "@types/pg": "8.23.1",

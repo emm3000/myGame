@@ -1,8 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { GrammarContentSchema } from '@mygame/contracts'
+import { z } from 'zod'
 import { lessonContentFilesOf } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
+
+const englishCatalog = fileURLToPath(
+  new URL('../../../../packages/catalog/en.json', import.meta.url),
+)
 
 const formsOfTeachingList = (text: string): ReadonlyMap<string, ReadonlySet<string>> => {
   const forms = new Map<string, Set<string>>()
@@ -28,5 +34,8 @@ export const gateContentOf = (directory: string): GateContent => {
     forms: formsOfTeachingList(
       readFileSync(join(lessons, 'ngsl-1.2-lemmatized-for-teaching.csv'), 'utf8'),
     ),
+    englishMessages: z
+      .record(z.string(), z.string())
+      .parse(JSON.parse(readFileSync(englishCatalog, 'utf8'))),
   }
 }

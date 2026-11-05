@@ -19,6 +19,7 @@ The message catalog: every line of copy a player reads, per language, as ICU Mes
 
 - Dot-separated segments. A web or api key is `[a-z][a-zA-Z0-9]*` then segments of `[a-zA-Z][a-zA-Z0-9]*` (`fief.loading`, `refusal.InvalidCredentials`, `mail.reset.text`); a key of any other shape fails generation.
 - An Android key is `android.<module>.<resource_name>`, `<module>` one of `app`, `chronicle`, `fief`, `map`, `signin` (`app` is `apps/android/app`, the others `apps/android/feature/<module>`), `<resource_name>` the Android resource name verbatim, snake_case, so every `R.string.<name>` id stays. A `<plurals>` becomes one string key holding an ICU plural. Android keys never reach the TypeScript output.
+- Fixed copy (ADR 038, ADR 040) lives under `auth.`, `passwordReset.`, `verification.`, `refusal.`, `review.` (the review card: its prompts, verdicts and hint line), `mail.`, `android.signin.` and the one key `shell.signOut`; every other key is chrome. Check 9 of `apps/api`'s content gate (`src/contentGate/checkChrome.ts`) holds every chrome key of `en.json` to the chrome lessons' words and exempts these, so a chrome line never takes a fixed-copy key: the Report's count of reviews due is chrome and lives under the Report's keys, never `review.`.
 - A key becomes one exported function named by the camelCase join of its segments: `mail.verification.text` is `mailVerificationText`, `refusal.InvalidCredentials` is `refusalInvalidCredentials`, each returning `string`.
 
 ```ts
@@ -56,4 +57,4 @@ Android strings are written as the ICU pattern, XML- and Android-escaped (`\`, `
 
 - Every string moved here is byte-identical to the text it replaced; a move never rewords.
 - `@formatjs/icu-messageformat-parser` is a devDependency used only by the generator, the checks and the tests; the package has no runtime dependency, and `intl-messageformat` is not used anywhere.
-- `typescript`, `vitest`, `tsx` and `@types/node` come from `catalog:`; the parser has one consumer, so its exact version lives here.
+- `typescript`, `vitest`, `tsx`, `@types/node` and the parser come from `catalog:`; `apps/api`'s content gate parses `en.json` with the same parser.

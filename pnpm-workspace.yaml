@@ -6,6 +6,7 @@ allowBuilds:
   esbuild: true
 
 catalog:
+  "@formatjs/icu-messageformat-parser": 3.5.22
   "@types/node": 24.13.6
   tsx: 4.23.15
   typescript: 7.0.2
