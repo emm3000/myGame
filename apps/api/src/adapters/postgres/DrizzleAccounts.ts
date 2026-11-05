@@ -58,6 +58,14 @@ export class DrizzleAccounts implements Accounts {
     return found
   }
 
+  async lockPlayer(playerId: PlayerId): Promise<void> {
+    await this.database
+      .select({ id: players.id })
+      .from(players)
+      .where(eq(players.id, playerId))
+      .for('no key update')
+  }
+
   async markEmailVerified(playerId: PlayerId, now: Instant): Promise<void> {
     await this.database
       .update(players)

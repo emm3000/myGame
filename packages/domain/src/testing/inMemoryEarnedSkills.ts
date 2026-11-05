@@ -16,7 +16,12 @@ export const inMemoryEarnedSkills = (
     skillsOf: async (playerId) =>
       ok(skills.filter((stored) => stored.playerId === playerId).map(({ skill }) => skill)),
     save: async (playerId, skill) => {
-      skills.push({ playerId, skill })
+      const isEarned = skills.some(
+        (stored) => stored.playerId === playerId && stored.skill.lessonId === skill.lessonId,
+      )
+      if (!isEarned) {
+        skills.push({ playerId, skill })
+      }
       return ok(undefined)
     },
   }

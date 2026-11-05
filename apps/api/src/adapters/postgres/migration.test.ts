@@ -3580,35 +3580,64 @@ describe('the skills move migration', () => {
     ])
   })
 
-  it('fails on a skill earned on another resource than food', async () => {
-    await expect(
-      migratedFrom(client, 33, async () => {
-        await insertPlayersOfBuildingWorkVersion()
-        await insertSkillOfPreviousVersion('wood')
-      }),
-    ).rejects.toMatchObject({
-      message: 'player_skills holds a skill on a resource other than food',
+  const failedSkillsMove = async (seed: () => Promise<void>): Promise<unknown> => {
+    const migrations = readMigrationFiles({ migrationsFolder })
+    await applyMigrations(client, migrations.slice(0, 33))
+    await seed()
+    await client.query('SAVEPOINT skills_move')
+    const failure = await applyMigrations(client, migrations.slice(33)).then(
+      () => undefined,
+      (refused: unknown) => refused,
+    )
+    await client.query('ROLLBACK TO SAVEPOINT skills_move')
+    return failure
+  }
+
+  const storedLearning = async (): Promise<unknown> => {
+    const stored = await client.query(
+      `SELECT to_regclass('public.earned_skills') IS NOT NULL AS "hasEarnedSkills",
+         (SELECT count(*)::int FROM player_skills) AS "playerSkills",
+         (SELECT array_agg(study_lesson_id) FROM fiefs) AS "studiedLessons"`,
+    )
+    return stored.rows[0]
+  }
+
+  it('fails on a skill earned on another resource than food, writing nothing', async () => {
+    const failure = await failedSkillsMove(async () => {
+      await insertPlayersOfBuildingWorkVersion()
+      await insertSkillOfPreviousVersion('wood')
     })
+
+    expect([failure, await storedLearning()]).toMatchObject([
+      { message: 'player_skills holds a skill on a resource other than food' },
+      { hasEarnedSkills: false, playerSkills: 1, studiedLessons: null },
+    ])
   })
 
-  it('fails on a town stored before the move', async () => {
-    await expect(
-      migratedFrom(client, 33, async () => {
-        await insertPlayersOfBuildingWorkVersion()
-        await insertTownOf(client, ana.id, 1, plainStocks)
-      }),
-    ).rejects.toMatchObject({ message: 'towns holds a town before the skills move' })
+  it('fails on a town stored before the move, writing nothing', async () => {
+    const failure = await failedSkillsMove(async () => {
+      await insertPlayersOfBuildingWorkVersion()
+      await insertSkillOfPreviousVersion('food')
+      await insertTownOf(client, ana.id, 1, plainStocks)
+    })
+
+    expect([failure, await storedLearning()]).toMatchObject([
+      { message: 'towns holds a town before the skills move' },
+      { hasEarnedSkills: false, playerSkills: 1, studiedLessons: null },
+    ])
   })
 
-  it("fails on a fief lesson finished at or before the migration's instant", async () => {
-    await expect(
-      migratedFrom(client, 33, async () => {
-        await insertPlayersOfBuildingWorkVersion()
-        await insertFiefStudyingLessonOne('now()')
-      }),
-    ).rejects.toMatchObject({
-      message: 'a fief holds a lesson finished at or before the skills move',
+  it("fails on a fief lesson finished at or before the migration's instant, writing nothing", async () => {
+    const failure = await failedSkillsMove(async () => {
+      await insertPlayersOfBuildingWorkVersion()
+      await insertSkillOfPreviousVersion('food')
+      await insertFiefStudyingLessonOne('now()')
     })
+
+    expect([failure, await storedLearning()]).toMatchObject([
+      { message: 'a fief holds a lesson finished at or before the skills move' },
+      { hasEarnedSkills: false, playerSkills: 1, studiedLessons: ['lesson-1'] },
+    ])
   })
 
   it("drops the fief's lesson slot, leaving a running lesson unstudied and the fief idle", async () => {

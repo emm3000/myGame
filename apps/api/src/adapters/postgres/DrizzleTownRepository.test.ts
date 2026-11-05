@@ -1,8 +1,12 @@
+import { Instant, MemoryCard, type PlayerId } from '@mygame/domain'
+import { type LessonSlot, Town, TownAddress, TownName } from '@mygame/domain/town'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import { afterAll, beforeAll } from 'vitest'
+import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { townRepositoryContract } from '../townRepositoryContract'
+import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
+import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 import { players } from './schema'
 
@@ -42,13 +46,77 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
     )
 }
 
-townRepositoryContract('DrizzleTownRepository', async () => {
+const truncateAll = async (): Promise<void> => {
   await pool.query(
     'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
   )
+}
+
+townRepositoryContract('DrizzleTownRepository', async () => {
+  await truncateAll()
   return {
     towns: new DrizzleTownRepository(drizzle(pool), 'lockFree'),
     skills: new DrizzleEarnedSkills(drizzle(pool)),
     registerPlayers,
   }
+})
+
+const ana = '00000000-0000-4000-8000-000000000001'
+
+const instantAt = (iso: string): Instant => Instant.fromEpochMilliseconds(Date.parse(iso))
+
+const anasTown = (playerId: PlayerId): Town => {
+  const address = TownAddress.create(1, 1, 1)
+  const name = TownName.create('Maple Falls')
+  assert(address.ok && name.ok)
+  return Town.found({
+    id: '00000000-0000-4000-8000-00000000000a',
+    playerId,
+    name: name.value,
+    address: address.value,
+    startingStocks: { money: 400, food: 300, power: 200, material: 500 },
+    skills: [],
+    at: instantAt('2026-11-10T08:00:00Z'),
+  })
+}
+
+const lessonOneUnderStudy: LessonSlot = {
+  kind: 'busy',
+  lessonId: 'lesson-1',
+  startedAt: instantAt('2026-11-10T08:55:00Z'),
+  finishesAt: instantAt('2026-11-10T09:00:00Z'),
+}
+
+describe('DrizzleTownRepository as a TownReader', () => {
+  it("reads the town with its school's lesson slot and the player's cards", async () => {
+    await truncateAll()
+    await registerPlayers([ana])
+    const town = anasTown(ana)
+    const session = drizzle(pool)
+    const reader = new DrizzleTownRepository(session, 'lockFree')
+    const enteredCard = MemoryCard.entered(instantAt('2026-11-10T09:00:00Z'))
+    assert((await reader.save(town)).ok)
+    await new DrizzleLessonSlots(session).save(town.id, lessonOneUnderStudy)
+    await new DrizzleCardRepository(session).save(ana, { wordId: 'lesson-1-1', card: enteredCard })
+
+    const read = await reader.townWithSchoolOf(ana)
+
+    assert(read.ok && read.value !== undefined)
+    expect([read.value.town.id, read.value.lessonSlot, read.value.cards]).toEqual([
+      town.id,
+      lessonOneUnderStudy,
+      [{ wordId: 'lesson-1-1', card: enteredCard }],
+    ])
+  })
+
+  it('reads an idle school for a town with no lesson slot row', async () => {
+    await truncateAll()
+    await registerPlayers([ana])
+    const reader = new DrizzleTownRepository(drizzle(pool), 'lockFree')
+    assert((await reader.save(anasTown(ana))).ok)
+
+    const read = await reader.townWithSchoolOf(ana)
+
+    expect(read.ok && read.value?.lessonSlot).toEqual({ kind: 'idle' })
+  })
 })

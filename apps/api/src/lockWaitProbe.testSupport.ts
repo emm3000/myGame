@@ -4,6 +4,8 @@ export const lockProbeLimit = 200
 
 export const lockedFiefReadQuery = 'select "fiefs"."id", %'
 
+export const lockedPlayerReadQuery = 'select "id" from "players" %'
+
 export const isWaitingOnALock = async (
   observer: Client | Pool,
   queries: ReadonlyArray<string>,

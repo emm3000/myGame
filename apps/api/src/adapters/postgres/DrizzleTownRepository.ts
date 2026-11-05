@@ -4,9 +4,7 @@ import {
   type BuildingLevels,
   buildingKinds,
   type FullSince,
-  idleLessonSlot,
   idleWorkSlot,
-  type LessonSlot,
   type SiteAddress,
   type Stocks,
   Town,
@@ -24,6 +22,7 @@ import { byEarnedAt } from '../byEarnedAt'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import type { PostgresSession } from './connectPostgres'
 import { jsonAggregateOf } from './jsonAggregateOf'
+import { lessonSlotOf } from './lessonSlotOf'
 import {
   earnedSkills,
   townBuilding,
@@ -313,16 +312,6 @@ const rowOf = (town: Town): TownRow => ({
   fullSinceMaterial: dateOf(town.fullSince.material),
   ...workSlotColumnsOf(town.workSlot),
 })
-
-const lessonSlotOf = (row: typeof townLessonSlots.$inferSelect | null): LessonSlot =>
-  row === null
-    ? idleLessonSlot
-    : {
-        kind: 'busy',
-        lessonId: row.lessonId,
-        startedAt: Instant.fromEpochMilliseconds(row.startedAt.getTime()),
-        finishesAt: Instant.fromEpochMilliseconds(row.finishesAt.getTime()),
-      }
 
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 

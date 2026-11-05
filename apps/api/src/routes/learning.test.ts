@@ -9,12 +9,18 @@ import {
   ReviewsSchema,
 } from '@mygame/contracts'
 import { type TownOverview, TownOverviewSchema } from '@mygame/contracts/town'
-import { type Clock, Instant } from '@mygame/domain'
+import { type CardRepository, type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import {
+  isWaitingOnALock,
+  lockedPlayerReadQuery,
+  lockProbeLimit,
+} from '../lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -45,6 +51,69 @@ const runSql = async (statement: string): Promise<void> => {
     await client.query(statement)
   } finally {
     await client.end()
+  }
+}
+
+const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
+  let resolve = (): void => {}
+  const promise = new Promise<void>((settle) => {
+    resolve = settle
+  })
+  return { promise, resolve }
+}
+
+const pausingFirstCardRead = (
+  cards: CardRepository,
+  afterRead: () => Promise<void>,
+): CardRepository => {
+  let hasRead = false
+  return {
+    save: (playerId, held) => cards.save(playerId, held),
+    cardsOf: async (playerId) => {
+      const read = await cards.cardsOf(playerId)
+      if (!hasRead) {
+        hasRead = true
+        await afterRead()
+      }
+      return read
+    },
+  }
+}
+
+const pausingFirstTransaction = (
+  inTransaction: Transaction,
+  afterFirstCardRead: () => Promise<void>,
+): Transaction => {
+  let transactions = 0
+  return (work) => {
+    transactions += 1
+    const isFirst = transactions === 1
+    return inTransaction((stores) =>
+      work(
+        isFirst
+          ? { ...stores, cards: pausingFirstCardRead(stores.cards, afterFirstCardRead) }
+          : stores,
+      ),
+    )
+  }
+}
+
+const untilPlayerBlockedOrAnswered = async (secondAnswer: Promise<unknown>): Promise<void> => {
+  let hasAnswered = false
+  void secondAnswer.then(() => {
+    hasAnswered = true
+  })
+  const observer = new Client({ connectionString: databaseUrl() })
+  await observer.connect()
+  try {
+    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
+      if (hasAnswered || (await isWaitingOnALock(observer, [lockedPlayerReadQuery]))) {
+        return
+      }
+    }
+    throw new Error('The second answer neither waited on the player lock nor finished')
+  } finally {
+    await observer.end()
   }
 }
 
@@ -617,6 +686,42 @@ describe('the learning routes', () => {
       expect(dueWordsOf((await readReviews(player)).due)).toContain(
         `lesson-1-5 recognition ${lessonFinishesAt}`,
       )
+    })
+
+    it('serializes two concurrent answers to one card of a player with no town', async () => {
+      const player = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      const recognition = await dueReviewOf(player, 'lesson-1-2')
+      await runSql('DELETE FROM towns')
+      const firstHasRead = signal()
+      const secondHasAnswered = signal()
+      const secondIsBlockedOrHasAnswered = untilPlayerBlockedOrAnswered(secondHasAnswered.promise)
+      const racingApp = createApp({
+        ...server,
+        clock,
+        inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+          firstHasRead.resolve()
+          await secondIsBlockedOrHasAnswered
+        }),
+      })
+      const answerRight = (): Promise<Response> =>
+        Promise.resolve(
+          racingApp.request('/reviews/lesson-1-2/answer', {
+            method: 'POST',
+            headers: { cookie: player.cookie, 'content-type': 'application/json' },
+            body: JSON.stringify({ answer: choiceIdOf(recognition, 'lesson-1-2') }),
+          }),
+        )
+
+      const first = answerRight()
+      await firstHasRead.promise
+      const second = answerRight().then((response) => {
+        secondHasAnswered.resolve()
+        return response
+      })
+      const statuses = (await Promise.all([first, second])).map(({ status }) => status)
+
+      expect(statuses).toEqual([200, 409])
     })
 
     it('refuses a word the player holds no card of', async () => {

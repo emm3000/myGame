@@ -351,7 +351,7 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `draws the skill earned with no rate while the player holds no town`() = runTest {
+    fun `draws the percent of the skill earned while the player holds no town`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)
         learning.answerRead(dueNow(homeRecall))
@@ -364,7 +364,7 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Correct(
-                    skill = ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = null),
+                    skill = ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = 5),
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )

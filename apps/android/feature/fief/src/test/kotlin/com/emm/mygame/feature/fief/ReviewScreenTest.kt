@@ -89,16 +89,6 @@ class ReviewScreenTest {
     }
 
     @Test
-    fun `draws the earned skill without a rate line while the player holds no town`() {
-        val skillWithoutTown: ReviewUiState.SkillLine =
-            ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = null)
-        draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = skillWithoutTown), typed = "home"))
-
-        composeRule.onNodeWithText("Habilidad ganada: comida, nivel 1.").assertIsDisplayed()
-        composeRule.onNodeWithText("+", substring = true).assertDoesNotExist()
-    }
-
-    @Test
     fun `reads comprobando while the answer is on its way`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Checking))
 
