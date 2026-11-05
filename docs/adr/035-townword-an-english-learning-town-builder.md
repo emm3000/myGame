@@ -1,5 +1,5 @@
 ---
-status: accepted, holdout narrowed by ADR 037, reset shaped by ADR 040
+status: accepted, holdout narrowed by ADR 037, reset shaped by ADR 040, PRD rows amended by ADR 041
 date: 2026-11-04
 ---
 # Townword, an English-learning town builder
@@ -164,7 +164,9 @@ three of its five resources, and a mapping migration would be the shim
 - **PRD:** the opening sentence, N5, N6, W1 and W4 are amended here.
   The M and S rows describe the shipped medieval game, which the code
   still is; the town rebuild's tickets rewrite them by row id as each
-  one ships, and cut S18, S19 and S20. W9 and W10 hold. The acceptance
+  one ships, and cut S18, S19 and S20. (Amended by ADR 041: the cutover
+  rewrites every row still medieval, marking each unshipped one *not
+  yet shipped*.) W9 and W10 hold. The acceptance
   criterion gains a review that falls due while the browser is closed
   with ADR 036.
 
