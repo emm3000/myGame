@@ -24,12 +24,19 @@ if (!isReleaseSigned && releaseSettings.any { it.isPresent }) {
 
 val localApiBaseUrl: String = providers.gradleProperty("mygame.apiBaseUrl").orElse("http://10.0.2.2:3141/").get()
 
+val appVersionCode: Int =
+    providers.gradleProperty("mygame.versionCode")
+        .orElse(providers.environmentVariable("MYGAME_VERSION_CODE"))
+        .map { it.toInt() }
+        .orElse(1)
+        .get()
+
 android {
     namespace = "com.emm.mygame"
 
     defaultConfig {
         applicationId = "com.emm.mygame"
-        versionCode = 1
+        versionCode = appVersionCode
         versionName = "0.1.0"
     }
 
