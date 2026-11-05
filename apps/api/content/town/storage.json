@@ -1,0 +1,145 @@
+{
+  "building": "storage",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "money": 100,
+        "food": 0,
+        "power": 20,
+        "material": 150
+      },
+      "durationSeconds": 180,
+      "people": 1,
+      "effect": {
+        "capacity": 1500
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "money": 150,
+        "food": 0,
+        "power": 30,
+        "material": 225
+      },
+      "durationSeconds": 288,
+      "people": 2,
+      "effect": {
+        "capacity": 2250
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "money": 225,
+        "food": 0,
+        "power": 45,
+        "material": 338
+      },
+      "durationSeconds": 461,
+      "people": 3,
+      "effect": {
+        "capacity": 3400
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "money": 338,
+        "food": 0,
+        "power": 68,
+        "material": 506
+      },
+      "durationSeconds": 737,
+      "people": 4,
+      "effect": {
+        "capacity": 5050
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "money": 506,
+        "food": 0,
+        "power": 101,
+        "material": 759
+      },
+      "durationSeconds": 1180,
+      "people": 5,
+      "effect": {
+        "capacity": 7600
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "money": 759,
+        "food": 0,
+        "power": 152,
+        "material": 1139
+      },
+      "durationSeconds": 1887,
+      "people": 6,
+      "effect": {
+        "capacity": 11400
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "money": 1139,
+        "food": 0,
+        "power": 228,
+        "material": 1709
+      },
+      "durationSeconds": 3020,
+      "people": 7,
+      "effect": {
+        "capacity": 17100
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "money": 1709,
+        "food": 0,
+        "power": 342,
+        "material": 2563
+      },
+      "durationSeconds": 4832,
+      "people": 8,
+      "effect": {
+        "capacity": 25650
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "money": 2563,
+        "food": 0,
+        "power": 513,
+        "material": 3844
+      },
+      "durationSeconds": 7731,
+      "people": 9,
+      "effect": {
+        "capacity": 38450
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "money": 3844,
+        "food": 0,
+        "power": 769,
+        "material": 5767
+      },
+      "durationSeconds": 12370,
+      "people": 10,
+      "effect": {
+        "capacity": 57650
+      }
+    }
+  ]
+}

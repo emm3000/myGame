@@ -10,6 +10,7 @@ import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
 import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleFiefRepository } from './DrizzleFiefRepository'
+import { DrizzleTownRepository } from './DrizzleTownRepository'
 import {
   accountTokens,
   campBattles,
@@ -288,6 +289,8 @@ describe('the migrations', () => {
       'players',
       'review_log',
       'sessions',
+      'town_buildings',
+      'towns',
     ])
   })
 
@@ -3263,5 +3266,94 @@ describe('the learning memory migration', () => {
         occurredAt: instantAt('2026-09-22T08:30:00Z'),
       },
     ])
+  })
+})
+
+const insertTownOf = async (
+  client: Client,
+  playerId: string,
+  site: number,
+  stocks: { readonly money: number; readonly food: number },
+): Promise<void> => {
+  await client.query(
+    `INSERT INTO towns (id, player_id, region, area, site, name, money, food, power, material, stored_at)
+     VALUES (gen_random_uuid(), $1, 1, 1, $2, 'Maple Hill', $3, $4, 0, 0, '2026-11-04T08:00:00Z')`,
+    [playerId, site, stocks.money, stocks.food],
+  )
+}
+
+const plainStocks = { money: 400, food: 300 }
+
+describe('the town migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedFrom(client, 31, async () => {
+      await insertPlayersOfFullSinceVersion(client)
+      await insertFiefOfPreviousVersion(client, anasFief.id, ana.id, 7, null)
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('founds no town for a player stored before the migration', async () => {
+    const towns = new DrizzleTownRepository(drizzle(client))
+
+    expect(await towns.holdsTown(ana.id)).toBe(false)
+  })
+
+  it('keeps the fief stored before the migration', async () => {
+    const read = await new DrizzleFiefRepository(drizzle(client), 'lockFree').fiefOf(anasFief.id)
+
+    expect(read.ok && read.value?.id).toBe(anasFief.id)
+  })
+
+  it('refuses a fractional stock', async () => {
+    await expect(
+      insertTownOf(client, ana.id, 1, { ...plainStocks, food: 2.5 }),
+    ).rejects.toMatchObject({ code: checkViolation, constraint: 'towns_food_whole' })
+  })
+
+  it('refuses a negative stock', async () => {
+    await expect(
+      insertTownOf(client, ana.id, 1, { ...plainStocks, money: -1 }),
+    ).rejects.toMatchObject({ code: checkViolation, constraint: 'towns_money_whole' })
+  })
+
+  it('refuses a second town for one player', async () => {
+    await insertTownOf(client, ana.id, 1, plainStocks)
+
+    await expect(insertTownOf(client, ana.id, 2, plainStocks)).rejects.toMatchObject({
+      code: uniqueViolation,
+      constraint: 'towns_player_unique',
+    })
+  })
+
+  it("drops a deleted player's town and its building levels", async () => {
+    await insertTownOf(client, ana.id, 1, plainStocks)
+    await client.query(
+      `INSERT INTO town_buildings (town_id, building, level)
+       SELECT id, 'homes', 1 FROM towns WHERE player_id = $1`,
+      [ana.id],
+    )
+
+    await client.query('DELETE FROM players WHERE id = $1', [ana.id])
+
+    const left = await client.query(
+      'SELECT (SELECT count(*) FROM towns) + (SELECT count(*) FROM town_buildings) AS count',
+    )
+    expect(left.rows).toEqual([{ count: '0' }])
+  })
+
+  it('refuses two towns on one site', async () => {
+    await insertTownOf(client, ana.id, 1, plainStocks)
+
+    await expect(insertTownOf(client, bruno.id, 1, plainStocks)).rejects.toMatchObject({
+      code: uniqueViolation,
+      constraint: 'towns_site_unique',
+    })
   })
 })

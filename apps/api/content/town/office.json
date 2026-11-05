@@ -1,0 +1,145 @@
+{
+  "building": "office",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "money": 200,
+        "food": 0,
+        "power": 60,
+        "material": 120
+      },
+      "durationSeconds": 360,
+      "people": 1,
+      "effect": {
+        "hires": ["worker"]
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "money": 300,
+        "food": 0,
+        "power": 90,
+        "material": 180
+      },
+      "durationSeconds": 576,
+      "people": 2,
+      "effect": {
+        "hires": ["worker"]
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "money": 450,
+        "food": 0,
+        "power": 135,
+        "material": 270
+      },
+      "durationSeconds": 922,
+      "people": 3,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "money": 675,
+        "food": 0,
+        "power": 202,
+        "material": 405
+      },
+      "durationSeconds": 1475,
+      "people": 4,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "money": 1012,
+        "food": 0,
+        "power": 304,
+        "material": 608
+      },
+      "durationSeconds": 2360,
+      "people": 5,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "money": 1519,
+        "food": 0,
+        "power": 456,
+        "material": 911
+      },
+      "durationSeconds": 3776,
+      "people": 6,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "money": 2278,
+        "food": 0,
+        "power": 683,
+        "material": 1367
+      },
+      "durationSeconds": 6042,
+      "people": 7,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "money": 3417,
+        "food": 0,
+        "power": 1025,
+        "material": 2050
+      },
+      "durationSeconds": 9667,
+      "people": 8,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "money": 5126,
+        "food": 0,
+        "power": 1538,
+        "material": 3075
+      },
+      "durationSeconds": 15467,
+      "people": 9,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "money": 7689,
+        "food": 0,
+        "power": 2307,
+        "material": 4613
+      },
+      "durationSeconds": 24747,
+      "people": 10,
+      "effect": {
+        "hires": ["worker", "truck"]
+      }
+    }
+  ]
+}

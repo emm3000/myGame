@@ -376,7 +376,7 @@ describe('foundFief', () => {
 
     expect(result).toEqual({
       ok: false,
-      error: { kind: 'InvalidPlotsPerProvince', plotsPerProvince: 0 },
+      error: { kind: 'InvalidCellsPerRow', cellsPerRow: 0 },
     })
   })
 })

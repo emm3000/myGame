@@ -1,0 +1,145 @@
+{
+  "building": "homes",
+  "levels": [
+    {
+      "level": 1,
+      "cost": {
+        "money": 60,
+        "food": 0,
+        "power": 0,
+        "material": 80
+      },
+      "durationSeconds": 120,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 10
+      }
+    },
+    {
+      "level": 2,
+      "cost": {
+        "money": 90,
+        "food": 0,
+        "power": 0,
+        "material": 120
+      },
+      "durationSeconds": 192,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 20
+      }
+    },
+    {
+      "level": 3,
+      "cost": {
+        "money": 135,
+        "food": 0,
+        "power": 0,
+        "material": 180
+      },
+      "durationSeconds": 307,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 30
+      }
+    },
+    {
+      "level": 4,
+      "cost": {
+        "money": 202,
+        "food": 0,
+        "power": 0,
+        "material": 270
+      },
+      "durationSeconds": 492,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 40
+      }
+    },
+    {
+      "level": 5,
+      "cost": {
+        "money": 304,
+        "food": 0,
+        "power": 0,
+        "material": 405
+      },
+      "durationSeconds": 786,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 50
+      }
+    },
+    {
+      "level": 6,
+      "cost": {
+        "money": 456,
+        "food": 0,
+        "power": 0,
+        "material": 608
+      },
+      "durationSeconds": 1258,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 60
+      }
+    },
+    {
+      "level": 7,
+      "cost": {
+        "money": 683,
+        "food": 0,
+        "power": 0,
+        "material": 911
+      },
+      "durationSeconds": 2013,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 70
+      }
+    },
+    {
+      "level": 8,
+      "cost": {
+        "money": 1025,
+        "food": 0,
+        "power": 0,
+        "material": 1367
+      },
+      "durationSeconds": 3221,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 80
+      }
+    },
+    {
+      "level": 9,
+      "cost": {
+        "money": 1538,
+        "food": 0,
+        "power": 0,
+        "material": 2050
+      },
+      "durationSeconds": 5154,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 90
+      }
+    },
+    {
+      "level": 10,
+      "cost": {
+        "money": 2307,
+        "food": 0,
+        "power": 0,
+        "material": 3075
+      },
+      "durationSeconds": 8246,
+      "people": 0,
+      "effect": {
+        "peopleSupplied": 100
+      }
+    }
+  ]
+}
