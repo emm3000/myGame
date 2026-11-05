@@ -341,7 +341,7 @@ export const reviewTitle = (): string => `Repaso`
 export const reviewWrong = (): string => `No es correcto.`
 export const reviewYourAnswer = (): string => `Tu respuesta:`
 export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}`
-export const schoolLearningFull = ({ count }: { readonly count: string | number }): string => `La siguiente lección trae ${String(count)} palabras. Empieza los repasos.`
+export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} Empieza los repasos.`
 export const schoolLessonCapReached = ({ cap, count, inLearning }: { readonly cap: string | number; readonly count: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}. Esta lección trae ${String(count)}.`
 export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | number }): string => `Necesita la escuela en nivel ${String(level)}`
 export const schoolLessonSlotBusy = ({ number }: { readonly number: string | number }): string => `La escuela está estudiando la lección ${String(number)}.`
