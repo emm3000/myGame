@@ -1,9 +1,4 @@
-import type {
-  ArtKind,
-  CancelLessonRequest,
-  CancelStudyRequest,
-  FiefOverview,
-} from '@mygame/contracts'
+import type { ArtKind, CancelStudyRequest, FiefOverview } from '@mygame/contracts'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { useFiefAction } from './useFiefAction'
 
@@ -12,11 +7,9 @@ export interface Study {
   readonly refusal: ApiRefusal | undefined
   readonly start: (art: ArtKind) => void
   readonly cancel: (target: CancelStudyRequest, onCancelled: () => void) => void
-  readonly startLesson: (lessonId: string) => void
-  readonly cancelLesson: (lessonId: string, onCancelled: () => void) => void
 }
 
-type StudySubject = ArtKind | CancelStudyRequest | CancelLessonRequest
+type StudySubject = ArtKind | CancelStudyRequest
 
 export function useStudy(
   apiClient: ApiClient,
@@ -32,8 +25,5 @@ export function useStudy(
     start: (art) => run(art, () => apiClient.startStudy(fiefId, art)),
     cancel: (target, onCancelled) =>
       run(target, () => apiClient.cancelStudy(fiefId, target), onCancelled),
-    startLesson: (lessonId) => run({ lessonId }, () => apiClient.startLesson(fiefId, lessonId)),
-    cancelLesson: (lessonId, onCancelled) =>
-      run({ lessonId }, () => apiClient.cancelLesson(fiefId, lessonId), onCancelled),
   }
 }

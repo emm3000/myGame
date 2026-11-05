@@ -8,7 +8,6 @@ import {
   statusIdleMarch,
   statusIdleRecruit,
   statusIdleStudy,
-  statusLesson,
   statusRecruitHeading,
   statusStudyHeading,
   statusWaitingHeading,
@@ -65,9 +64,6 @@ function buildCellOf(fief: LiveFief): StripCell {
 type StudyWork = Exclude<LiveFief['overview']['study'], { readonly kind: 'idle' }>
 
 function studyWorkOf(study: StudyWork): string {
-  if (study.kind === 'lesson') {
-    return statusLesson()
-  }
   return statusWork({ label: artNameOf(study.art), level: study.targetLevel })
 }
 
