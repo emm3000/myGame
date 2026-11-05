@@ -8,6 +8,10 @@ import com.emm.mygame.core.network.ListedFief
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.testing.FakeFiefListRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -98,6 +102,49 @@ class FiefSwitcherViewModelTest {
         viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
 
         assertEquals(2, listings.listedCount)
+    }
+
+    @Test
+    fun `reads the list again after a failed read`() = runTest {
+        val listings: FakeFiefListRepository = FakeFiefListRepository()
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+        listings.answerListed(FiefListResult.Unreachable)
+        listings.answerListed(twoFiefs)
+
+        advanceTimeBy(30.seconds)
+        runCurrent()
+
+        assertEquals(
+            listOf(other, onScreen),
+            entriesOf(viewModel).map { entry: FiefSwitcherUiState.Entry -> entry.fief },
+        )
+    }
+
+    @Test
+    fun `waits before it reads a failed list again`() = runTest {
+        val listings: FakeFiefListRepository = FakeFiefListRepository()
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+        listings.answerListed(FiefListResult.Unreachable)
+
+        advanceTimeBy(29.seconds)
+        runCurrent()
+
+        assertEquals(1, listings.listedCount)
+    }
+
+    @Test
+    fun `stops reading once the list answers`() = runTest {
+        val listings: FakeFiefListRepository = FakeFiefListRepository()
+        val viewModel: FiefSwitcherViewModel = FiefSwitcherViewModel(null, listings)
+        viewModel.onIntent(FiefSwitcherIntent.ScreenShown)
+        listings.answerListed(twoFiefs)
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(1, listings.listedCount)
     }
 
     @Test

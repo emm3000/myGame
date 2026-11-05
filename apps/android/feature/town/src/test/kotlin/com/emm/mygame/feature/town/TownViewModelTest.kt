@@ -386,6 +386,75 @@ class TownViewModelTest {
         assertEquals(emptyList<TownBuildingKind>(), towns.starts)
     }
 
+    @Test
+    fun `measures the clock gap again at the read of a finished work`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf(slot = workOf(lasting = 1.minutes)))
+        towns.answerRead(TownReadResult.Read(risingTownReadAt(readInstant + 1.minutes + 3.hours)))
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(101L, moneyOf(viewModel).amount)
+    }
+
+    @Test
+    fun `measures the clock gap again when the screen comes back`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        towns.answerRead(TownReadResult.Read(risingTownReadAt(readInstant + 3.hours)))
+        viewModel.onIntent(TownIntent.ScreenShown)
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(101L, moneyOf(viewModel).amount)
+    }
+
+    @Test
+    fun `reads once when the screen is shown twice`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        towns.answerRead(TownReadResult.Read(townOf()))
+        viewModel.onIntent(TownIntent.ScreenShown)
+
+        viewModel.onIntent(TownIntent.ScreenShown)
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `asks for a name when the town is gone on return`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        towns.answerRead(TownReadResult.NoTown)
+
+        viewModel.onIntent(TownIntent.ScreenShown)
+
+        assertEquals(TownUiState.Naming("", TownUiState.NamingStatus.Idle), viewModel.state.value)
+    }
+
+    @Test
+    fun `ignores a retry unless the read failed`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+
+        viewModel.onIntent(TownIntent.RetryTapped)
+
+        assertEquals(1, towns.readCount)
+    }
+
+    @Test
+    fun `gives waiting work its finish on the device's clock`() = runTest {
+        val waiting: TownSnapshot.WorkItem =
+            workOf(TownBuildingKind.School, 3, startsAt = readInstant + 10.minutes, lasting = 20.minutes)
+
+        val viewModel: TownViewModel =
+            homeViewModel(townOf(slot = workOf(), waitingList = listOf(waiting)), start = readInstant - 3.hours)
+
+        assertEquals(readInstant + 30.minutes - 3.hours, contentOf(viewModel).waitingList.single().finishesAt)
+    }
+
     private fun TestScope.namingViewModel(start: Instant = readInstant): TownViewModel {
         towns.answerRead(TownReadResult.NoTown)
         return viewModelOf(start)
@@ -395,6 +464,11 @@ class TownViewModelTest {
         towns.answerRead(TownReadResult.Read(town))
         return viewModelOf(start)
     }
+
+    private fun risingTownReadAt(readAt: Instant): TownSnapshot = townOf(
+        stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 100, ratePerHour = 60.0)),
+        readAt = readAt,
+    )
 
     private fun TestScope.viewModelOf(start: Instant = readInstant): TownViewModel =
         townViewModelOf(towns, sessions, start)

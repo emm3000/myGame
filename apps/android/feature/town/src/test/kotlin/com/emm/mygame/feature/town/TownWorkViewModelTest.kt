@@ -343,6 +343,87 @@ class TownWorkViewModelTest {
     }
 
     @Test
+    fun `keeps the clock gap of the last read after a stop`() = runTest {
+        val skewed: TownViewModel =
+            homeViewModel(townOf(slot = workOf(TownBuildingKind.Farm, 2)), start = readInstant - 3.hours)
+        val rising: TownSnapshot = townOf(
+            stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 100, ratePerHour = 60.0)),
+            readAt = readInstant - 1.minutes,
+        )
+        towns.answerWork(TownWorkResult.Answered(rising))
+
+        skewed.onIntent(TownIntent.StopTapped(TownBuildingKind.Farm, level = 2))
+
+        assertEquals(101L, moneyOf(skewed).amount)
+    }
+
+    @Test
+    fun `projects nothing after an answer that lands on a hidden screen`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+        viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        towns.answerWork(TownWorkResult.Answered(townOf(slot = workOf(lasting = 1.minutes))))
+        runCurrent()
+
+        advanceTimeBy(2.minutes)
+        runCurrent()
+
+        assertEquals(1, towns.readCount)
+    }
+
+    @Test
+    fun `clears a stop refusal at the next read`() = runTest {
+        val viewModel: TownViewModel =
+            homeViewModel(townOf(slot = workOf(TownBuildingKind.Farm, 2, lasting = 1.minutes)))
+        towns.answerWork(TownWorkResult.Refused(TownWorkRefusal.BuildingWorkNotFound(level = 2)))
+        viewModel.onIntent(TownIntent.StopTapped(TownBuildingKind.Farm, level = 2))
+        towns.answerRead(TownReadResult.Read(townOf(readAt = readInstant + 1.minutes)))
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(TownUiState.StopStatus.Idle, contentOf(viewModel).stop)
+    }
+
+    @Test
+    fun `clears a refusal when the screen comes back`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(townOf())
+        towns.answerWork(TownWorkResult.Refused(TownWorkRefusal.NotEnoughResources))
+        viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        towns.answerRead(TownReadResult.Read(townOf()))
+
+        viewModel.onIntent(TownIntent.ScreenShown)
+
+        assertEquals(TownUiState.StartStatus.Idle, contentOf(viewModel).start)
+    }
+
+    @Test
+    fun `lets a level take exactly the free people`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(
+                people = TownSnapshot.People(supplied = 5, free = 5, atWork = 0),
+                places = placesOf(TownSnapshot.Building(TownBuildingKind.Farm, 1, nextLevelOf(people = 5))),
+            ),
+        )
+
+        assertNull(placeOf(viewModel, TownBuildingKind.Farm).block)
+    }
+
+    @Test
+    fun `lets a stock pay exactly its cost`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(
+                stocks = stocksOf(stockOf(TownResourceKind.Money, amount = 60)),
+                places = placesOf(costlyFarm(money = 60)),
+            ),
+        )
+
+        val farm: TownUiState.PlaceCard = placeOf(viewModel, TownBuildingKind.Farm)
+        assertEquals(false to null, farm.next?.costs?.single()?.isShort to farm.block)
+    }
+
+    @Test
     fun `ignores a stale read answered after a mutation`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(name = "Riverton"))
         viewModel.onIntent(TownIntent.ScreenHidden)
