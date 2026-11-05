@@ -1,3 +1,4 @@
+import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import type { FiefContent } from '@mygame/contracts'
 import {
@@ -8,8 +9,10 @@ import {
   type KingdomMapReader,
   type MemoryTerms,
 } from '@mygame/domain'
+import type { TownCatalog } from '@mygame/domain/town'
 import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
+import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleCampRegistry } from './adapters/postgres/DrizzleCampRegistry'
@@ -20,6 +23,7 @@ import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository
 import { DrizzleGuidanceDismissals } from './adapters/postgres/DrizzleGuidanceDismissals'
 import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
 import { DrizzleSeenHints } from './adapters/postgres/DrizzleSeenHints'
+import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
 import { SmtpMailer } from './adapters/smtp/SmtpMailer'
 import { Argon2Passwords } from './adapters/system/Argon2Passwords'
@@ -38,6 +42,7 @@ import type { FailureSink } from './http/FailureSink'
 import type { CampReader } from './kingdom/CampReader'
 import type { CardReader } from './learning/CardReader'
 import type { LessonLibrary } from './learning/LessonLibrary'
+import type { TownReader } from './town/TownReader'
 
 const isSessionCookieSecureFrom = (flag: string | undefined): boolean => {
   if (flag === undefined || flag === 'true') {
@@ -90,11 +95,13 @@ export type ComposedServer = MailSettings & {
   readonly fetch: OpenAPIHono['fetch']
   readonly buildingCatalog: BuildingCatalog
   readonly lessons: LessonLibrary
+  readonly townCatalog: TownCatalog
   readonly memoryTerms: MemoryTerms
   readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly fiefs: FiefReader
+  readonly towns: TownReader
   readonly chronicle: ChronicleReader
   readonly map: KingdomMapReader
   readonly camps: CampReader
@@ -127,6 +134,7 @@ export function composeServer(
   const dependencies = {
     buildingCatalog,
     lessons,
+    townCatalog: JsonTownCatalog.fromDirectory(join(contentDirectory, 'town')),
     memoryTerms: defaultMemoryTerms,
     digestTerms: buildingCatalog.digestTerms(),
     clock: new SystemClock(),
@@ -139,6 +147,7 @@ export function composeServer(
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database),
     fiefs: new DrizzleFiefRepository(database, 'lockFree'),
+    towns: new DrizzleTownRepository(database, 'lockFree'),
     chronicle: new DrizzleChronicle(database),
     map: new DrizzleKingdomMapReader(database),
     camps: new DrizzleCampRegistry(database),

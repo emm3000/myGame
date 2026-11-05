@@ -1,7 +1,7 @@
 import type { BuildingCatalog, DomainError, Fief, Instant, Result } from '@mygame/domain'
 import { ok } from '@mygame/domain'
+import { laterOf } from '../time/laterOf'
 import type { FiefReading } from './FiefReading'
-import { laterOf } from './laterOf'
 import { storedFiefReadingOf } from './storedFiefReadingOf'
 
 export const fiefReadingAt = (
