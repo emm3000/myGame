@@ -1,7 +1,7 @@
 import type { Clock, DomainError, FiefOfPlayer, Result } from '@mygame/domain'
 import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
+import { laterOf } from '../time/laterOf'
 import { fiefsOfLordHolding } from './fiefsOfLordHolding'
-import { laterOf } from './laterOf'
 import {
   type ResolveInTransactionDependencies,
   resolveFiefInTransaction,

@@ -51,18 +51,13 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   CoordinatesTaken: { status: 409 },
   PlayerAlreadyHoldsFief: { status: 409 },
   InvalidTownAddress: internalFailure,
-  BlankTownName: internalFailure,
-  PlayerAlreadyHoldsTown: internalFailure,
-  SiteTaken: internalFailure,
+  BlankTownName: { status: 400, kind: 'BlankTownName' },
+  PlayerAlreadyHoldsTown: { status: 409, kind: 'PlayerAlreadyHoldsTown' },
+  SiteTaken: { status: 409 },
   InvalidTownStock: internalFailure,
   InvalidTownBuildingLevel: internalFailure,
   UnknownTownBuildingLevel: internalFailure,
-  TownNotFound: internalFailure,
-  WaitingListFull: internalFailure,
-  TopLevelReached: internalFailure,
-  NotEnoughPeople: internalFailure,
-  NotEnoughResources: internalFailure,
-  BuildingWorkNotFound: internalFailure,
+  TownNotFound: { status: 404, kind: 'TownNotFound' },
   FractionalResourceAmount: internalFailure,
   ProvinceNotFound: { status: 404, kind: 'ProvinceNotFound' },
   NegativeDuration: internalFailure,
@@ -140,6 +135,19 @@ const refusalBodyOf = (refusal: Refusal): RefusalBody => {
     case 'StayOutOfRange': {
       const { kind, maxStayHours } = refusal
       return { status: 409, body: { kind, params: { maxStayHours } } }
+    }
+    case 'WaitingListFull':
+      return { status: 409, body: { kind: refusal.kind, params: { cap: refusal.cap } } }
+    case 'NotEnoughPeople': {
+      const { kind, requiredPeople, freePeople } = refusal
+      return { status: 409, body: { kind, params: { requiredPeople, freePeople } } }
+    }
+    case 'NotEnoughResources':
+      return { status: 409, body: { kind: refusal.kind, params: { missing: refusal.missing } } }
+    case 'TopLevelReached':
+    case 'BuildingWorkNotFound': {
+      const { kind, building, level } = refusal
+      return { status: 409, body: { kind, params: { building, level } } }
     }
     default:
       return slotlessBodyOf(refusal.kind)

@@ -75,6 +75,21 @@
           },
           {
             "$ref": "#/components/schemas/StayOutOfRangeError"
+          },
+          {
+            "$ref": "#/components/schemas/WaitingListFullError"
+          },
+          {
+            "$ref": "#/components/schemas/NotEnoughPeopleError"
+          },
+          {
+            "$ref": "#/components/schemas/NotEnoughResourcesError"
+          },
+          {
+            "$ref": "#/components/schemas/TopLevelReachedError"
+          },
+          {
+            "$ref": "#/components/schemas/BuildingWorkNotFoundError"
           }
         ],
         "discriminator": {
@@ -122,11 +137,19 @@
             "UnknownChoice": "#/components/schemas/BareApiError",
             "WordNotHeld": "#/components/schemas/BareApiError",
             "UnknownWord": "#/components/schemas/BareApiError",
+            "TownNotFound": "#/components/schemas/BareApiError",
+            "PlayerAlreadyHoldsTown": "#/components/schemas/BareApiError",
+            "BlankTownName": "#/components/schemas/BareApiError",
             "NotEnoughUnitsAtHome": "#/components/schemas/NotEnoughUnitsAtHomeError",
             "BarracksTooLow": "#/components/schemas/BarracksTooLowError",
             "FiefCapReached": "#/components/schemas/FiefCapReachedError",
             "CargoAboveCarry": "#/components/schemas/CargoAboveCarryError",
-            "StayOutOfRange": "#/components/schemas/StayOutOfRangeError"
+            "StayOutOfRange": "#/components/schemas/StayOutOfRangeError",
+            "WaitingListFull": "#/components/schemas/WaitingListFullError",
+            "NotEnoughPeople": "#/components/schemas/NotEnoughPeopleError",
+            "NotEnoughResources": "#/components/schemas/NotEnoughResourcesError",
+            "TopLevelReached": "#/components/schemas/TopLevelReachedError",
+            "BuildingWorkNotFound": "#/components/schemas/BuildingWorkNotFoundError"
           }
         }
       },
@@ -177,7 +200,10 @@
               "HintOnRecognition",
               "UnknownChoice",
               "WordNotHeld",
-              "UnknownWord"
+              "UnknownWord",
+              "TownNotFound",
+              "PlayerAlreadyHoldsTown",
+              "BlankTownName"
             ]
           }
         },
@@ -308,6 +334,148 @@
               }
             },
             "required": ["maxStayHours"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "WaitingListFullError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["WaitingListFull"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "cap": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["cap"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "NotEnoughPeopleError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["NotEnoughPeople"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "requiredPeople": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "freePeople": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["requiredPeople", "freePeople"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "NotEnoughResourcesError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["NotEnoughResources"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "missing": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["missing"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "TopLevelReachedError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["TopLevelReached"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "building": {
+                "type": "string",
+                "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["building", "level"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "BuildingWorkNotFoundError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["BuildingWorkNotFound"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "building": {
+                "type": "string",
+                "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+              },
+              "level": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["building", "level"],
             "additionalProperties": false
           }
         },
@@ -4209,6 +4377,671 @@
         },
         "required": ["acknowledgedAt", "isDue", "fiefs"],
         "additionalProperties": false
+      },
+      "TownOverview": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "enum": ["town", "city"]
+          },
+          "site": {
+            "type": "object",
+            "properties": {
+              "region": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "area": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "site": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["region", "area", "site"],
+            "additionalProperties": false
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["fields", "river", "hills"]
+          },
+          "season": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["spring", "summer", "fall", "winter"]
+              },
+              "year": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "endsAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["kind", "year", "endsAt"],
+            "additionalProperties": false
+          },
+          "stocks": {
+            "type": "object",
+            "properties": {
+              "money": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity"],
+                "additionalProperties": false
+              },
+              "food": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity"],
+                "additionalProperties": false
+              },
+              "power": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity"],
+                "additionalProperties": false
+              },
+              "material": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "ratePerHour": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "capacity": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["amount", "ratePerHour", "capacity"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["money", "food", "power", "material"]
+          },
+          "people": {
+            "type": "object",
+            "properties": {
+              "supplied": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "free": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "atWork": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["supplied", "free", "atWork"],
+            "additionalProperties": false
+          },
+          "buildings": {
+            "type": "object",
+            "properties": {
+              "homes": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              },
+              "farm": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              },
+              "factory": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              },
+              "powerStation": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              },
+              "storage": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              },
+              "school": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              },
+              "office": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "nextLevel": {
+                    "type": "object",
+                    "nullable": true,
+                    "properties": {
+                      "level": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "durationSeconds": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": ["level", "cost", "durationSeconds", "people"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["level", "nextLevel"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+          },
+          "work": {
+            "type": "object",
+            "properties": {
+              "slot": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/BuildingWork"
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              },
+              "waitingList": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BuildingWork"
+                }
+              },
+              "cap": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["slot", "waitingList", "cap"],
+            "additionalProperties": false
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name",
+          "label",
+          "site",
+          "terrain",
+          "season",
+          "stocks",
+          "people",
+          "buildings",
+          "work",
+          "readAt"
+        ],
+        "additionalProperties": false
+      },
+      "BuildingWork": {
+        "type": "object",
+        "properties": {
+          "building": {
+            "type": "string",
+            "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "cost": {
+            "type": "object",
+            "properties": {
+              "money": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "power": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "material": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["money", "food", "power", "material"],
+            "additionalProperties": false
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishesAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["building", "level", "cost", "startsAt", "finishesAt"],
+        "additionalProperties": false
+      },
+      "FoundTown": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      },
+      "StartBuildingWork": {
+        "type": "object",
+        "properties": {
+          "building": {
+            "type": "string",
+            "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+          }
+        },
+        "required": ["building"],
+        "additionalProperties": false
       }
     },
     "parameters": {}
@@ -5948,6 +6781,216 @@
           },
           "401": {
             "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          }
+        }
+      }
+    },
+    "/town": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The player’s town, accrued to the read, with every finished work applied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoundTown"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The town founded at the lowest free site of region 1.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BlankTownName; any other malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "PlayerAlreadyHoldsTown; a founding that lost its site three times answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/work": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartBuildingWork"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The town with the work started in the slot or on the waiting list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "WaitingListFull, TopLevelReached, NotEnoughPeople or NotEnoughResources.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/work/{building}/{level}": {
+      "delete": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["homes", "farm", "factory", "powerStation", "storage", "school", "office"]
+            },
+            "required": true,
+            "name": "building",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9]\\d*$"
+            },
+            "required": true,
+            "name": "level",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The town with the work stopped and its cost refunded in full.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed path. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "BuildingWorkNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }

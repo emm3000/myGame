@@ -3,6 +3,8 @@ import {
   refusalBarracksNotBuilt,
   refusalBarracksTooLow,
   refusalBlankFiefName,
+  refusalBlankTownName,
+  refusalBuildingWorkNotFound,
   refusalCargoAboveCarry,
   refusalEmailTaken,
   refusalEmptyCargo,
@@ -25,7 +27,10 @@ import {
   refusalMarchToOwnPlot,
   refusalMaxLevelReached,
   refusalNotEnoughPeasants,
+  refusalNotEnoughPeople,
+  refusalNotEnoughResources,
   refusalNotEnoughUnitsAtHome,
+  refusalPlayerAlreadyHoldsTown,
   refusalPlotHasCamp,
   refusalPlotHasNoCamp,
   refusalPlotHeld,
@@ -39,12 +44,15 @@ import {
   refusalStudyNotFound,
   refusalStudySlotBusy,
   refusalTokenInvalid,
+  refusalTopLevelReached,
+  refusalTownNotFound,
   refusalUnexpected,
   refusalUnitUnfitForOrder,
   refusalUnknownBuilding,
   refusalUnknownChoice,
   refusalUnknownWord,
   refusalUpgradeNotFound,
+  refusalWaitingListFull,
   refusalWeakPassword,
   refusalWordNotHeld,
 } from '@mygame/catalog'
@@ -101,6 +109,9 @@ const slotFreeLines: Readonly<Record<SlotFreeRefusal, () => string>> = {
   UnknownChoice: refusalUnknownChoice,
   WordNotHeld: refusalWordNotHeld,
   UnknownWord: refusalUnknownWord,
+  TownNotFound: refusalTownNotFound,
+  PlayerAlreadyHoldsTown: refusalPlayerAlreadyHoldsTown,
+  BlankTownName: refusalBlankTownName,
   Unexpected: refusalUnexpected,
 }
 
@@ -130,6 +141,16 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       })
     case 'StayOutOfRange':
       return refusalStayOutOfRange(error.params)
+    case 'WaitingListFull':
+      return refusalWaitingListFull(error.params)
+    case 'NotEnoughPeople':
+      return refusalNotEnoughPeople(error.params)
+    case 'NotEnoughResources':
+      return refusalNotEnoughResources()
+    case 'TopLevelReached':
+      return refusalTopLevelReached({ level: error.params.level })
+    case 'BuildingWorkNotFound':
+      return refusalBuildingWorkNotFound({ level: error.params.level })
   }
 }
 

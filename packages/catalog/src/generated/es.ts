@@ -258,6 +258,8 @@ export const refusalArtMaxLevelReached = (): string => `Ese arte ya está en su 
 export const refusalBarracksNotBuilt = (): string => `Tu feudo aún no tiene cuartel. Levántalo primero.`
 export const refusalBarracksTooLow = ({ plural, requiredBarracksLevel }: { readonly plural: string | number; readonly requiredBarracksLevel: string | number }): string => `Tu cuartel aún no llega al nivel ${String(requiredBarracksLevel)} que piden los ${String(plural)}. Mejóralo primero.`
 export const refusalBlankFiefName = (): string => `Tu feudo necesita un nombre. Escribe uno que no esté en blanco.`
+export const refusalBlankTownName = (): string => `Escribe un nombre para tu pueblo.`
+export const refusalBuildingWorkNotFound = ({ level }: { readonly level: string | number }): string => `La obra del nivel ${String(level)} ya no está en la lista. Quizá ya terminó.`
 export const refusalCargoAboveCarry = ({ cargo, carry }: { readonly cargo: string | number; readonly carry: string | number }): string => `La carga suma ${String(cargo)} y tus hombres llevan hasta ${String(carry)}. Quita carga o envía más hombres.`
 export const refusalEmailTaken = (): string => `Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.`
 export const refusalEmptyCargo = (): string => `Un transporte no sale de vacío. Carga al menos un recurso.`
@@ -280,7 +282,10 @@ export const refusalMarchTargetOutOfBounds = (): string => `Esa parcela no está
 export const refusalMarchToOwnPlot = (): string => `A un feudo tuyo solo puedes enviar un transporte, y nunca al mismo del que sale. Elige otro destino.`
 export const refusalMaxLevelReached = (): string => `Ese edificio ya está en su nivel más alto.`
 export const refusalNotEnoughPeasants = (): string => `No tienes campesinos libres suficientes.`
+export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de las casas.`
+export const refusalNotEnoughResources = (): string => `No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.`
 export const refusalNotEnoughUnitsAtHome = ({ atHome, units }: { readonly atHome: string | number; readonly units: string | number }): string => `Necesitas ${String(units)} en casa y tienes ${String(atHome)}. Ajusta la marcha.`
+export const refusalPlayerAlreadyHoldsTown = (): string => `Ya tienes un pueblo. Solo puedes tener uno.`
 export const refusalPlotHasCamp = (): string => `Esa parcela tiene un campamento de bandidos. Atácalo o forrajea en otra.`
 export const refusalPlotHasNoCamp = (): string => `Esa parcela no tiene campamento de bandidos. Elige una que lo tenga.`
 export const refusalPlotHeld = (): string => `Esa parcela ya tiene feudo. Elige una libre.`
@@ -294,12 +299,15 @@ export const refusalStayOutOfRange = ({ maxStayHours }: { readonly maxStayHours:
 export const refusalStudyNotFound = (): string => `La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.`
 export const refusalStudySlotBusy = (): string => `La biblioteca ya tiene un estudio en marcha. Espera a que termine.`
 export const refusalTokenInvalid = (): string => `Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.`
+export const refusalTopLevelReached = ({ level }: { readonly level: string | number }): string => `Este edificio ya está en su nivel más alto, el ${String(level)}.`
+export const refusalTownNotFound = (): string => `Aún no tienes pueblo. Ponle nombre para fundarlo.`
 export const refusalUnexpected = (): string => `No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.`
 export const refusalUnitUnfitForOrder = (): string => `Un colono no forrajea, no ataca ni lleva carga. Envíalo a fundar un feudo.`
 export const refusalUnknownBuilding = (): string => `Ese edificio no existe.`
 export const refusalUnknownChoice = (): string => `Esa opción ya no está en la tarjeta. Vuelve al repaso para verla de nuevo.`
 export const refusalUnknownWord = (): string => `Esa palabra no está en tus lecciones. Vuelve al repaso.`
 export const refusalUpgradeNotFound = (): string => `Esa obra ya no está en tu cola. No queda nada que cancelar.`
+export const refusalWaitingListFull = ({ cap }: { readonly cap: number }): string => `${cap === 1 ? `La lista de espera ya tiene 1 obra.` : `La lista de espera ya tiene ${String(cap)} obras.`} Espera a que termine alguna.`
 export const refusalWeakPassword = (): string => `Tu contraseña necesita al menos 8 caracteres.`
 export const refusalWordNotHeld = (): string => `Esa palabra no está en tus lecciones. Vuelve al repaso.`
 export const reviewAnswerField = (): string => `Tu respuesta en inglés`

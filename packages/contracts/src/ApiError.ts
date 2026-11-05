@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { ApiErrorKindSchema } from './ApiErrorKind'
+import { BuildingKindSchema as TownBuildingKindSchema } from './town/BuildingKind'
+import { ResourceAmountsSchema as TownResourceAmountsSchema } from './town/ResourceAmounts'
 import { UnitKindSchema } from './UnitKind'
 import { WholeCountSchema } from './Wire'
 
@@ -11,6 +13,11 @@ const BareApiErrorSchema = z
       'FiefCapReached',
       'CargoAboveCarry',
       'StayOutOfRange',
+      'WaitingListFull',
+      'NotEnoughPeople',
+      'NotEnoughResources',
+      'TopLevelReached',
+      'BuildingWorkNotFound',
     ]),
   })
   .meta({ id: 'BareApiError' })
@@ -57,6 +64,47 @@ const StayOutOfRangeErrorSchema = z
   })
   .meta({ id: 'StayOutOfRangeError' })
 
+const WaitingListFullErrorSchema = z
+  .strictObject({
+    kind: z.literal('WaitingListFull'),
+    params: z.strictObject({ cap: WholeCountSchema }),
+  })
+  .meta({ id: 'WaitingListFullError' })
+
+const NotEnoughPeopleErrorSchema = z
+  .strictObject({
+    kind: z.literal('NotEnoughPeople'),
+    params: z.strictObject({
+      requiredPeople: WholeCountSchema,
+      freePeople: WholeCountSchema,
+    }),
+  })
+  .meta({ id: 'NotEnoughPeopleError' })
+
+const NotEnoughResourcesErrorSchema = z
+  .strictObject({
+    kind: z.literal('NotEnoughResources'),
+    params: z.strictObject({ missing: TownResourceAmountsSchema }),
+  })
+  .meta({ id: 'NotEnoughResourcesError' })
+
+const TopLevelReachedErrorSchema = z
+  .strictObject({
+    kind: z.literal('TopLevelReached'),
+    params: z.strictObject({ building: TownBuildingKindSchema, level: WholeCountSchema }),
+  })
+  .meta({ id: 'TopLevelReachedError' })
+
+const BuildingWorkNotFoundErrorSchema = z
+  .strictObject({
+    kind: z.literal('BuildingWorkNotFound'),
+    params: z.strictObject({
+      building: TownBuildingKindSchema,
+      level: WholeCountSchema.positive(),
+    }),
+  })
+  .meta({ id: 'BuildingWorkNotFoundError' })
+
 export const ApiErrorSchema = z
   .discriminatedUnion('kind', [
     BareApiErrorSchema,
@@ -65,6 +113,11 @@ export const ApiErrorSchema = z
     FiefCapReachedErrorSchema,
     CargoAboveCarryErrorSchema,
     StayOutOfRangeErrorSchema,
+    WaitingListFullErrorSchema,
+    NotEnoughPeopleErrorSchema,
+    NotEnoughResourcesErrorSchema,
+    TopLevelReachedErrorSchema,
+    BuildingWorkNotFoundErrorSchema,
   ])
   .meta({ id: 'ApiError' })
 

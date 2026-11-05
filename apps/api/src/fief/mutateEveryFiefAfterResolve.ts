@@ -7,8 +7,8 @@ import {
   ok,
   type Result,
 } from '@mygame/domain'
+import { laterOf } from '../time/laterOf'
 import { fiefsOfLordHolding } from './fiefsOfLordHolding'
-import { laterOf } from './laterOf'
 import type { FiefMutation, FiefStores, MutateAfterResolveDependencies } from './mutateAfterResolve'
 import { resolveFiefInTransaction } from './resolveFiefInTransaction'
 

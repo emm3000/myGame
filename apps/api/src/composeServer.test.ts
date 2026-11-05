@@ -185,6 +185,7 @@ const minimalContentDirectory = (): string => {
   const directory = temporaryDirectory()
   mkdirSync(join(directory, 'arts'))
   cpSync(join(contentDirectory, 'lessons'), join(directory, 'lessons'), { recursive: true })
+  cpSync(join(contentDirectory, 'town'), join(directory, 'town'), { recursive: true })
   for (const [file, content] of Object.entries(minimalContentFiles)) {
     writeFileSync(join(directory, file), JSON.stringify(content))
   }

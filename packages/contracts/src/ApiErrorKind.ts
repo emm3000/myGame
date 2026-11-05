@@ -48,6 +48,14 @@ export const ApiErrorKindSchema = z.enum([
   'UnknownChoice',
   'WordNotHeld',
   'UnknownWord',
+  'TownNotFound',
+  'PlayerAlreadyHoldsTown',
+  'BlankTownName',
+  'WaitingListFull',
+  'NotEnoughPeople',
+  'NotEnoughResources',
+  'TopLevelReached',
+  'BuildingWorkNotFound',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>

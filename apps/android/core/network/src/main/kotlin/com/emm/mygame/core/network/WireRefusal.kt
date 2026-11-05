@@ -4,10 +4,15 @@ import com.emm.mygame.core.network.generated.infrastructure.Serializer
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.BarracksTooLowError
+import com.emm.mygame.core.network.generated.models.BuildingWorkNotFoundError
 import com.emm.mygame.core.network.generated.models.CargoAboveCarryError
 import com.emm.mygame.core.network.generated.models.FiefCapReachedError
+import com.emm.mygame.core.network.generated.models.NotEnoughPeopleError
+import com.emm.mygame.core.network.generated.models.NotEnoughResourcesError
 import com.emm.mygame.core.network.generated.models.NotEnoughUnitsAtHomeError
 import com.emm.mygame.core.network.generated.models.StayOutOfRangeError
+import com.emm.mygame.core.network.generated.models.TopLevelReachedError
+import com.emm.mygame.core.network.generated.models.WaitingListFullError
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -45,6 +50,11 @@ internal val kindsWithParams: Set<String> = setOf(
     FiefCapReachedError.Kind.FiefCapReached.value,
     CargoAboveCarryError.Kind.CargoAboveCarry.value,
     StayOutOfRangeError.Kind.StayOutOfRange.value,
+    WaitingListFullError.Kind.WaitingListFull.value,
+    NotEnoughPeopleError.Kind.NotEnoughPeople.value,
+    NotEnoughResourcesError.Kind.NotEnoughResources.value,
+    TopLevelReachedError.Kind.TopLevelReached.value,
+    BuildingWorkNotFoundError.Kind.BuildingWorkNotFound.value,
 )
 
 private fun refusalOf(body: String): WireRefusal {
