@@ -183,7 +183,7 @@ sealed interface FiefUiState {
 
         data object Waiting : RecruitStatus
 
-        data class Refused(val refusal: RecruitRefusal, val unit: UnitKind, val barracksLevel: Int) : RecruitStatus
+        data class Refused(val refusal: RecruitRefusal) : RecruitStatus
 
         data object Unreachable : RecruitStatus
     }

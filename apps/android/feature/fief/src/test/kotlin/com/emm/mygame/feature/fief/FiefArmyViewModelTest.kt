@@ -397,7 +397,7 @@ class FiefArmyViewModelTest {
             viewModel.onIntent(FiefIntent.RecruitCancelTapped(UnitKind.Infantry, levy.startedAt))
             val reread: FiefUiState.Content = awaitContentWhere { it.army?.slot == FiefUiState.LevySlotLine.Idle }
             assertEquals(
-                FiefUiState.RecruitStatus.Refused(RecruitRefusal.RecruitOrderNotFound, UnitKind.Infantry, 1),
+                FiefUiState.RecruitStatus.Refused(RecruitRefusal.RecruitOrderNotFound),
                 reread.army?.recruit,
             )
         }
@@ -405,17 +405,18 @@ class FiefArmyViewModelTest {
     }
 
     @Test
-    fun `keeps a refusal beside the section with the level the kind requires`() = runTest {
+    fun `keeps a barracks too low beside the section with the unit and level the api names`() = runTest {
         val fiefs: FakeFiefRepository = FakeFiefRepository()
         val viewModel: FiefViewModel = openFief(fiefs)
+        val apiRefusal: RecruitRefusal = RecruitRefusal.BarracksTooLow(UnitKind.Archer, 4)
         fiefs.answerRead(FiefReadResult.Read(builtBarracks(level = 3)))
-        fiefs.answerRecruit(RecruitResult.Refused(RecruitRefusal.BarracksTooLow))
+        fiefs.answerRecruit(RecruitResult.Refused(apiRefusal))
 
         viewModel.state.test {
             awaitContent()
             viewModel.onIntent(FiefIntent.RecruitTapped(UnitKind.Cavalry))
             assertEquals(
-                FiefUiState.RecruitStatus.Refused(RecruitRefusal.BarracksTooLow, UnitKind.Cavalry, 3),
+                FiefUiState.RecruitStatus.Refused(apiRefusal),
                 awaitContentWhere { it.army?.recruit is FiefUiState.RecruitStatus.Refused }.army?.recruit,
             )
         }

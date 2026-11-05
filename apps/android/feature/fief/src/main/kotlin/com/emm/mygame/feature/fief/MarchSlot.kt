@@ -25,6 +25,8 @@ import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.projection.MarchPhase
+import com.emm.mygame.core.ui.getIcuString
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun MarchSlot(
@@ -57,7 +59,10 @@ private fun BusyMarch(
     modifier: Modifier = Modifier,
 ) {
     val party: String = partyPhraseOf(march)
-    val countdown: String = stringResource(countdownOf(march.countdown), countdownLabelOf(march.remaining))
+    val countdown: String = icuStringResource(
+        countdownOf(march.countdown),
+        "countdown" to countdownLabelOf(march.remaining),
+    )
     val detail: String? = march.detail?.let { shown: FiefUiState.MarchDetail -> detailOf(shown) }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -69,10 +74,15 @@ private fun BusyMarch(
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            text = stringResource(
+            text = icuStringResource(
                 R.string.march_line,
-                stringResource(headingOf(march.heading)),
-                stringResource(phaseValueOf(march.phase), party, march.target.province, march.target.plot),
+                "heading" to stringResource(headingOf(march.heading)),
+                "value" to icuStringResource(
+                    phaseValueOf(march.phase),
+                    "party" to party,
+                    "province" to march.target.province.toString(),
+                    "plot" to march.target.plot.toString(),
+                ),
             ),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
@@ -90,7 +100,7 @@ private fun BusyMarch(
         }
         if (march.loot.isNotEmpty()) {
             MyGameText(
-                text = stringResource(R.string.march_loot, lootOf(march)),
+                text = icuStringResource(R.string.march_loot, "loot" to lootOf(march)),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -101,7 +111,7 @@ private fun BusyMarch(
                 isBusy = recall == FiefUiState.RecallStatus.Waiting,
                 busyDescription = stringResource(R.string.building_waiting),
                 onClick = { onIntent(FiefIntent.RecallTapped(march.departedAt)) },
-                accessibleName = stringResource(R.string.march_recall_description, party),
+                accessibleName = icuStringResource(R.string.march_recall_description, "party" to party),
             )
         }
     }
@@ -129,7 +139,7 @@ private fun lootOf(march: FiefUiState.MarchSlotLine.Busy): String = LocalResourc
 
 private fun Resources.quantitiesOf(quantities: List<ResourceQuantity>): String = spanishListOf(
     items = quantities.map { quantity: ResourceQuantity ->
-        getString(costNameOf(quantity.kind), formatQuantity(quantity.amount))
+        getIcuString(costNameOf(quantity.kind), "amount" to formatQuantity(quantity.amount))
     },
     pairPattern = getString(R.string.list_pair),
     morePattern = getString(R.string.list_more),
@@ -137,10 +147,14 @@ private fun Resources.quantitiesOf(quantities: List<ResourceQuantity>): String =
 
 @Composable
 private fun detailOf(detail: FiefUiState.MarchDetail): String = when (detail) {
-    is FiefUiState.MarchDetail.Camp -> stringResource(R.string.march_camp, detail.camp.tier, detail.camp.strength)
-    is FiefUiState.MarchDetail.NewFief -> stringResource(R.string.march_new_fief, detail.name)
+    is FiefUiState.MarchDetail.Camp -> icuStringResource(
+        R.string.march_camp,
+        "tier" to detail.camp.tier.toString(),
+        "strength" to detail.camp.strength.toString(),
+    )
+    is FiefUiState.MarchDetail.NewFief -> icuStringResource(R.string.march_new_fief, "name" to detail.name)
     is FiefUiState.MarchDetail.Cargo ->
-        stringResource(R.string.march_cargo, LocalResources.current.quantitiesOf(detail.cargo))
+        icuStringResource(R.string.march_cargo, "cargo" to LocalResources.current.quantitiesOf(detail.cargo))
 }
 
 private fun countdownOf(countdown: FiefUiState.MarchCountdown): Int = when (countdown) {

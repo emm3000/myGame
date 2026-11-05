@@ -10,6 +10,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.ui.icuStringResource
 import java.time.ZoneId
 
 internal data class BlockedReason(val reason: String, val ready: String?, val description: String)
@@ -18,7 +19,7 @@ internal data class BlockedReason(val reason: String, val ready: String?, val de
 internal fun blockedReasonOf(reason: String, ready: FiefUiState.ReadyHour?): BlockedReason {
     val readyLine: String? = ready?.let { readyHour: FiefUiState.ReadyHour -> readyLabelOf(readyHour) }
     val description: String = readyLine
-        ?.let { line: String -> stringResource(R.string.reason_with_ready, reason, line) }
+        ?.let { line: String -> icuStringResource(R.string.reason_with_ready, "reason" to reason, "ready" to line) }
         ?: reason
     return BlockedReason(reason = reason, ready = readyLine, description = description)
 }
@@ -39,10 +40,13 @@ internal fun BlockedReasonLine(blocked: BlockedReason, modifier: Modifier = Modi
 
 @Composable
 private fun readyLabelOf(ready: FiefUiState.ReadyHour): String = when (ready) {
-    is FiefUiState.ReadyHour.InMinutes -> stringResource(R.string.ready_in_minutes, ready.minutes)
+    is FiefUiState.ReadyHour.InMinutes -> icuStringResource(
+        R.string.ready_in_minutes,
+        "minutes" to ready.minutes.toString(),
+    )
     FiefUiState.ReadyHour.InAnHour -> stringResource(R.string.ready_in_an_hour)
-    is FiefUiState.ReadyHour.AtClock -> stringResource(
+    is FiefUiState.ReadyHour.AtClock -> icuStringResource(
         R.string.ready_at,
-        clockLabelOf(finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())),
+        "clock" to clockLabelOf(finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())),
     )
 }

@@ -90,7 +90,7 @@ class FiefViewModel(
             }
             is FiefIntent.RecruitEntryChanged -> enter(intent.unit, intent.entry)
             is FiefIntent.RecruitTapped -> recruit(intent.unit)
-            is FiefIntent.RecruitCancelTapped -> levy(intent.unit) { fief: FiefSnapshot ->
+            is FiefIntent.RecruitCancelTapped -> levy { fief: FiefSnapshot ->
                 fiefs.cancelRecruit(fief.id, intent.unit, intent.startedAt)
             }
             is FiefIntent.RecallTapped -> recall(intent.departedAt)
@@ -181,10 +181,10 @@ class FiefViewModel(
 
     private fun recruit(unit: UnitKind) {
         val count: Int = recruitCountOf(mutations.entryOf(unit)) ?: return
-        levy(unit) { fief: FiefSnapshot -> fiefs.recruit(fief.id, unit, count) }
+        levy { fief: FiefSnapshot -> fiefs.recruit(fief.id, unit, count) }
     }
 
-    private fun levy(unit: UnitKind, call: suspend (FiefSnapshot) -> RecruitResult) {
+    private fun levy(call: suspend (FiefSnapshot) -> RecruitResult) {
         val fief: FiefSnapshot = shown ?: return
         if (mutations.recruit == FiefUiState.RecruitStatus.Waiting) return
         draw(mutations.copy(recruit = FiefUiState.RecruitStatus.Waiting))
@@ -192,7 +192,7 @@ class FiefViewModel(
             when (val answer: RecruitResult = call(fief)) {
                 is RecruitResult.Answered ->
                     restartFrom(answer.fief, mutations.recruitAnswered(FiefUiState.RecruitStatus.Idle))
-                is RecruitResult.Refused -> answerRefusedLevy(fief, unit, answer.refusal)
+                is RecruitResult.Refused -> answerRefusedLevy(answer.refusal)
                 RecruitResult.Unreachable -> draw(mutations.copy(recruit = FiefUiState.RecruitStatus.Unreachable))
             }
         }
@@ -219,9 +219,8 @@ class FiefViewModel(
         }
     }
 
-    private suspend fun answerRefusedLevy(fief: FiefSnapshot, unit: UnitKind, refusal: RecruitRefusal) {
-        val refused: FiefUiState.RecruitStatus =
-            FiefUiState.RecruitStatus.Refused(refusal, unit, fief.barracksLevelOf(unit))
+    private suspend fun answerRefusedLevy(refusal: RecruitRefusal) {
+        val refused: FiefUiState.RecruitStatus = FiefUiState.RecruitStatus.Refused(refusal)
         rereadIf(
             isNeeded = refusal == RecruitRefusal.RecruitOrderNotFound,
             answered = { mutations.recruitAnswered(refused) },

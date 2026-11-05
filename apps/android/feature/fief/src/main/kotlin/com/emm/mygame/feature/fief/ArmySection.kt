@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -25,6 +24,7 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.RecruitRefusal
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.UnitKind
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun ArmySection(army: FiefUiState.ArmyLine, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -62,7 +62,7 @@ private fun BusyLevy(
     onIntent: (FiefIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val countdown: String = stringResource(R.string.levy_complete, countdownLabelOf(slot.remaining))
+    val countdown: String = icuStringResource(R.string.levy_complete, "countdown" to countdownLabelOf(slot.remaining))
     val focusManager: FocusManager = LocalFocusManager.current
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -74,7 +74,11 @@ private fun BusyLevy(
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
-            text = stringResource(R.string.levy_order, slot.delivered, countedUnitsOf(slot.unit, slot.count)),
+            text = icuStringResource(
+                R.string.levy_order,
+                "delivered" to slot.delivered.toString(),
+                "units" to countedUnitsOf(slot.unit, slot.count),
+            ),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
@@ -94,14 +98,17 @@ private fun BusyLevy(
                 focusManager.clearFocus()
                 onIntent(FiefIntent.RecruitCancelTapped(slot.unit, slot.startedAt))
             },
-            accessibleName = stringResource(R.string.levy_cancel_description, countedUnitsOf(slot.unit, slot.count)),
+            accessibleName = icuStringResource(
+                R.string.levy_cancel_description,
+                "units" to countedUnitsOf(slot.unit, slot.count),
+            ),
         )
         if (slot.refund.isNotEmpty()) {
             MyGameText(
-                text = stringResource(
+                text = icuStringResource(
                     R.string.levy_refund,
-                    countedUnitsOf(slot.unit, slot.undelivered),
-                    refundOf(slot),
+                    "units" to countedUnitsOf(slot.unit, slot.undelivered),
+                    "refund" to refundOf(slot),
                 ),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.inkMuted,
@@ -113,7 +120,7 @@ private fun BusyLevy(
 @Composable
 private fun RecruitAnswer(recruit: FiefUiState.RecruitStatus, modifier: Modifier = Modifier) {
     val message: String? = when (recruit) {
-        is FiefUiState.RecruitStatus.Refused -> refusalLineOf(recruit)
+        is FiefUiState.RecruitStatus.Refused -> refusalLineOf(recruit.refusal)
         FiefUiState.RecruitStatus.Unreachable -> stringResource(R.string.fief_unreachable)
         FiefUiState.RecruitStatus.Idle, FiefUiState.RecruitStatus.Waiting -> null
     }
@@ -121,11 +128,11 @@ private fun RecruitAnswer(recruit: FiefUiState.RecruitStatus, modifier: Modifier
 }
 
 @Composable
-private fun refusalLineOf(refused: FiefUiState.RecruitStatus.Refused): String = when (refused.refusal) {
-    RecruitRefusal.BarracksTooLow -> stringResource(
+private fun refusalLineOf(refusal: RecruitRefusal): String = when (refusal) {
+    is RecruitRefusal.BarracksTooLow -> icuStringResource(
         R.string.refusal_barracks_too_low,
-        refused.barracksLevel,
-        stringResource(unitPluralOf(refused.unit)),
+        "level" to refusal.requiredBarracksLevel.toString(),
+        "units" to stringResource(unitPluralOf(refusal.unit)),
     )
     RecruitRefusal.BarracksNotBuilt -> stringResource(R.string.refusal_barracks_not_built)
     RecruitRefusal.RecruitSlotBusy -> stringResource(R.string.refusal_recruit_slot_busy)
@@ -138,7 +145,7 @@ private fun refusalLineOf(refused: FiefUiState.RecruitStatus.Refused): String = 
 @Composable
 private fun refundOf(slot: FiefUiState.LevySlotLine.Busy): String = spanishListOf(
     items = slot.refund.map { cost: ResourceCost ->
-        stringResource(costNameOf(cost.kind), formatQuantity(cost.amount))
+        icuStringResource(costNameOf(cost.kind), "amount" to formatQuantity(cost.amount))
     },
     pairPattern = stringResource(R.string.list_pair),
     morePattern = stringResource(R.string.list_more),
@@ -146,7 +153,7 @@ private fun refundOf(slot: FiefUiState.LevySlotLine.Busy): String = spanishListO
 
 @Composable
 internal fun countedUnitsOf(unit: UnitKind, count: Int): String =
-    pluralStringResource(unitCountedOf(unit), count, count)
+    icuStringResource(unitCountedOf(unit), "count" to count)
 
 internal fun unitTitleOf(unit: UnitKind): Int = when (unit) {
     UnitKind.Infantry -> R.string.unit_infantry_title
@@ -163,8 +170,8 @@ internal fun unitPluralOf(unit: UnitKind): Int = when (unit) {
 }
 
 private fun unitCountedOf(unit: UnitKind): Int = when (unit) {
-    UnitKind.Infantry -> R.plurals.unit_infantry_counted
-    UnitKind.Cavalry -> R.plurals.unit_cavalry_counted
-    UnitKind.Archer -> R.plurals.unit_archer_counted
-    UnitKind.Settler -> R.plurals.unit_settler_counted
+    UnitKind.Infantry -> R.string.unit_infantry_counted
+    UnitKind.Cavalry -> R.string.unit_cavalry_counted
+    UnitKind.Archer -> R.string.unit_archer_counted
+    UnitKind.Settler -> R.string.unit_settler_counted
 }

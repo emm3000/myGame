@@ -2,23 +2,32 @@ package com.emm.mygame.feature.chronicle
 
 import android.content.res.Resources
 import android.icu.text.ListFormatter
-import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.ChronicleEvent
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
+import com.emm.mygame.core.ui.getIcuString
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 internal fun Resources.instantLabelOf(line: ChronicleInstant): String {
     val time: String = line.at.format(clockFormat)
     return when (line.day) {
-        ChronicleInstant.Day.Today -> getString(R.string.chronicle_today, time)
-        ChronicleInstant.Day.ThisYear -> getString(R.string.chronicle_day, line.at.format(dayFormat), time)
+        ChronicleInstant.Day.Today -> getIcuString(R.string.chronicle_today, "time" to time)
+        ChronicleInstant.Day.ThisYear -> getIcuString(
+            R.string.chronicle_day,
+            "day" to line.at.format(dayFormat),
+            "time" to time,
+        )
         ChronicleInstant.Day.EarlierYear ->
-            getString(R.string.chronicle_day_of_year, line.at.format(dayFormat), line.at.year, time)
+            getIcuString(
+                R.string.chronicle_day_of_year,
+                "day" to line.at.format(dayFormat),
+                "year" to line.at.year.toString(),
+                "time" to time,
+            )
     }
 }
 
@@ -46,21 +55,26 @@ internal fun Resources.subjectOf(event: ChronicleEvent): String = when (event) {
     is ChronicleEvent.ArtLearned -> artSubject(event.art, event.level)
     is ChronicleEvent.StudyCancelled -> artSubject(event.art, event.level)
     is ChronicleEvent.RecruitsDelivered ->
-        getString(R.string.subject_recruits, countedUnits(event.unit, event.count))
-    is ChronicleEvent.RecruitsCancelled -> getString(
+        getIcuString(R.string.subject_recruits, "units" to countedUnits(event.unit, event.count))
+    is ChronicleEvent.RecruitsCancelled -> getIcuString(
         R.string.subject_recruits_cancelled,
-        countedUnits(event.unit, event.delivered),
-        countedUnits(event.unit, event.cancelled),
+        "delivered" to countedUnits(event.unit, event.delivered),
+        "cancelled" to countedUnits(event.unit, event.cancelled),
     )
     is ChronicleEvent.MarchReturned ->
-        getString(R.string.subject_march, event.plot.province, event.plot.plot, partyPhrase(event.units))
-    is ChronicleEvent.BattleFought -> getString(
+        getIcuString(
+            R.string.subject_march,
+            "province" to event.plot.province.toString(),
+            "plot" to event.plot.plot.toString(),
+            "party" to partyPhrase(event.units),
+        )
+    is ChronicleEvent.BattleFought -> getIcuString(
         R.string.subject_battle,
-        event.plot.province,
-        event.plot.plot,
-        event.campTier,
-        lossesClause(event.unitsLost),
-        event.campLost,
+        "province" to event.plot.province.toString(),
+        "plot" to event.plot.plot.toString(),
+        "tier" to event.campTier.toString(),
+        "losses" to lossesClause(event.unitsLost),
+        "campLost" to event.campLost.toString(),
     )
     is ChronicleEvent.FoundingSent -> fiefAtPlot(event.fiefName, event.plot.province, event.plot.plot)
     is ChronicleEvent.FiefFounded -> fiefAtPlot(event.fiefName, event.plot.province, event.plot.plot)
@@ -69,16 +83,21 @@ internal fun Resources.subjectOf(event: ChronicleEvent): String = when (event) {
 }
 
 private fun Resources.buildingSubject(building: BuildingKind, level: Int): String =
-    getString(R.string.subject_level, getString(buildingLabelOf(building)), level)
+    getIcuString(R.string.subject_level, "name" to getString(buildingLabelOf(building)), "level" to level.toString())
 
 private fun Resources.artSubject(art: ArtKind, level: Int): String =
-    getString(R.string.subject_level, getString(artLabelOf(art)), level)
+    getIcuString(R.string.subject_level, "name" to getString(artLabelOf(art)), "level" to level.toString())
 
 private fun Resources.fiefAtPlot(name: String, province: Int, plot: Int): String =
-    getString(R.string.subject_fief_at_plot, name, province, plot)
+    getIcuString(
+        R.string.subject_fief_at_plot,
+        "name" to name,
+        "province" to province.toString(),
+        "plot" to plot.toString(),
+    )
 
 private fun Resources.countedUnits(unit: UnitKind, count: Int): String =
-    getQuantityString(unitLabelOf(unit), count, count)
+    getIcuString(unitLabelOf(unit), "count" to count)
 
 private fun Resources.listedUnits(counts: List<UnitCount>): List<String> =
     counts.filter { it.count > 0 }.map { countedUnits(it.unit, it.count) }
@@ -92,8 +111,8 @@ private fun Resources.lossesClause(unitsLost: List<UnitCount>): String {
     val listed: List<String> = listedUnits(unitsLost)
     return when (listed.size) {
         0 -> getString(R.string.losses_none)
-        1 -> getString(R.string.losses_one_kind, spanishList(listed))
-        else -> getString(R.string.losses_several_kinds, spanishList(listed))
+        1 -> getIcuString(R.string.losses_one_kind, "units" to spanishList(listed))
+        else -> getIcuString(R.string.losses_several_kinds, "units" to spanishList(listed))
     }
 }
 
@@ -122,10 +141,10 @@ private fun artLabelOf(art: ArtKind): Int = when (art) {
     ArtKind.Masonry -> R.string.chronicle_art_masonry
 }
 
-@PluralsRes
+@StringRes
 private fun unitLabelOf(unit: UnitKind): Int = when (unit) {
-    UnitKind.Infantry -> R.plurals.units_infantry
-    UnitKind.Cavalry -> R.plurals.units_cavalry
-    UnitKind.Archer -> R.plurals.units_archer
-    UnitKind.Settler -> R.plurals.units_settler
+    UnitKind.Infantry -> R.string.units_infantry
+    UnitKind.Cavalry -> R.string.units_cavalry
+    UnitKind.Archer -> R.string.units_archer
+    UnitKind.Settler -> R.string.units_settler
 }

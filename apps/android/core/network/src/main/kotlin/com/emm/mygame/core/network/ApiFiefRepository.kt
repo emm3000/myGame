@@ -3,6 +3,7 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.BarracksTooLowErrorParams
 import com.emm.mygame.core.network.generated.models.NotEnoughUnitsAtHomeErrorParams
 import com.emm.mygame.core.network.generated.models.DispatchAttackRequest
 import com.emm.mygame.core.network.generated.models.DispatchFoundingRequest
@@ -277,8 +278,11 @@ private fun NotEnoughUnitsAtHomeErrorParams.toUnitsShortAtHome(): MarchRefusal {
 private fun WireRefusal.toRecruitRefusal(): RecruitRefusal = when (this) {
     is WireRefusal.Bare -> recruitRefusals[kind] ?: RecruitRefusal.Unrecognized
     is WireRefusal.WithParams ->
-        if (error is ApiError.BarrackstoolowWrapper) RecruitRefusal.BarracksTooLow else RecruitRefusal.Unrecognized
+        (error as? ApiError.BarrackstoolowWrapper)?.value?.params?.toBarracksTooLow() ?: RecruitRefusal.Unrecognized
 }
+
+private fun BarracksTooLowErrorParams.toBarracksTooLow(): RecruitRefusal? =
+    unitOf(unit.value)?.let { kind: UnitKind -> RecruitRefusal.BarracksTooLow(kind, requiredBarracksLevel) }
 
 private val upgradeRefusals: Map<BareApiError.Kind, UpgradeRefusal> = mapOf(
     BareApiError.Kind.QueueFull to UpgradeRefusal.QueueFull,

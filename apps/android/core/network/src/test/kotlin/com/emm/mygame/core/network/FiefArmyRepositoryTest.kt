@@ -192,7 +192,7 @@ class FiefArmyRepositoryTest {
 
         val refused: RecruitResult = repository().recruit(FiefId(LISTED_FIEF_ID), UnitKind.Settler, 1)
 
-        assertEquals(RecruitResult.Refused(RecruitRefusal.BarracksTooLow), refused)
+        assertEquals(RecruitResult.Refused(RecruitRefusal.BarracksTooLow(UnitKind.Settler, 5)), refused)
     }
 
     @Test

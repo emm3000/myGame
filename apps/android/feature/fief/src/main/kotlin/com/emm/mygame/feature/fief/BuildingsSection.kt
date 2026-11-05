@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -22,6 +21,8 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.BuildingKind
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.UpgradeRefusal
+import com.emm.mygame.core.ui.formatIcu
+import com.emm.mygame.core.ui.icuStringResource
 import kotlin.time.Duration
 
 @Composable
@@ -58,7 +59,7 @@ private fun BuildingItem(
                     modifier = Modifier.semantics { heading() },
                 )
                 MyGameText(
-                    text = stringResource(R.string.building_level, card.level),
+                    text = icuStringResource(R.string.building_level, "level" to card.level.toString()),
                     style = MyGameTypography.label,
                     color = MyGameTheme.colors.inkMuted,
                 )
@@ -108,13 +109,13 @@ private fun NextLevel(
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.building_next_level, next.level),
+            text = icuStringResource(R.string.building_next_level, "level" to next.level.toString()),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         Costs(next = next)
         MyGameButton(
-            label = stringResource(R.string.building_upgrade, durationLabelOf(next.duration)),
+            label = icuStringResource(R.string.building_upgrade, "duration" to durationLabelOf(next.duration)),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.UpgradeTapped(building)) },
@@ -132,11 +133,14 @@ private fun Costs(next: FiefUiState.NextLevelLine, modifier: Modifier = Modifier
         modifier = modifier,
     ) {
         next.costs.forEach { cost: FiefUiState.CostLine ->
-            CostItem(text = stringResource(costNameOf(cost), formatQuantity(cost.amount)), isShort = cost.isShort)
+            CostItem(
+                text = icuStringResource(costNameOf(cost), "amount" to formatQuantity(cost.amount)),
+                isShort = cost.isShort,
+            )
         }
         if (next.peasants > 0) {
             CostItem(
-                text = pluralStringResource(R.plurals.cost_peasants, next.peasants, next.peasants),
+                text = icuStringResource(R.string.cost_peasants, "count" to next.peasants),
                 isShort = next.isShortOfPeasants,
             )
         }
@@ -145,7 +149,7 @@ private fun Costs(next: FiefUiState.NextLevelLine, modifier: Modifier = Modifier
 
 @Composable
 internal fun CostItem(text: String, isShort: Boolean, modifier: Modifier = Modifier) {
-    val description: String = if (isShort) stringResource(R.string.cost_short, text) else text
+    val description: String = if (isShort) icuStringResource(R.string.cost_short, "cost" to text) else text
     MyGameText(
         text = text,
         style = MyGameTypography.body,
@@ -170,14 +174,14 @@ private fun UpgradeAnswer(building: BuildingKind, upgrade: FiefUiState.UpgradeSt
 private fun reasonOf(block: FiefUiState.BlockReason): String = when (block) {
     FiefUiState.BlockReason.QueueFull -> stringResource(R.string.reason_queue_full)
     is FiefUiState.BlockReason.Peasants ->
-        pluralStringResource(R.plurals.reason_peasants, block.needed, block.needed, block.free)
+        icuStringResource(R.string.reason_peasants, "needed" to block.needed, "free" to block.free.toString())
     is FiefUiState.BlockReason.Resources -> shortfallReasonOf(block)
 }
 
 @Composable
 internal fun shortfallReasonOf(block: FiefUiState.BlockReason.Resources): String {
     val quantities: List<String> = block.shortfalls.map { shortfall: FiefUiState.Shortfall ->
-        stringResource(costNameOf(shortfall.kind), formatQuantity(shortfall.amount))
+        icuStringResource(costNameOf(shortfall.kind), "amount" to formatQuantity(shortfall.amount))
     }
     val listed: String = spanishListOf(
         items = quantities,
@@ -185,22 +189,35 @@ internal fun shortfallReasonOf(block: FiefUiState.BlockReason.Resources): String
         morePattern = stringResource(R.string.list_more),
     )
     val isSingleOne: Boolean = block.shortfalls.singleOrNull()?.amount == 1L
-    return stringResource(if (isSingleOne) R.string.reason_resources_one else R.string.reason_resources, listed)
+    return icuStringResource(
+        if (isSingleOne) R.string.reason_resources_one else R.string.reason_resources,
+        "resources" to listed,
+    )
 }
 
 internal fun spanishListOf(items: List<String>, pairPattern: String, morePattern: String): String {
     if (items.size < 2) return items.joinToString()
-    val head: String = items.dropLast(1).reduce { listed: String, item: String -> morePattern.format(listed, item) }
-    return pairPattern.format(head, items.last())
+    val head: String = items.dropLast(1).reduce { listed: String, item: String ->
+        morePattern.formatIcu("listed" to listed, "item" to item)
+    }
+    return pairPattern.formatIcu("listed" to head, "last" to items.last())
 }
 
 @Composable
 internal fun durationLabelOf(duration: Duration): String =
     duration.toComponents { hours: Long, minutes: Int, seconds: Int, _: Int ->
         when {
-            hours == 0L -> stringResource(R.string.duration_minutes_seconds, minutes, seconds)
-            minutes == 0 -> stringResource(R.string.duration_hours, hours)
-            else -> stringResource(R.string.duration_hours_minutes, hours, minutes)
+            hours == 0L -> icuStringResource(
+                R.string.duration_minutes_seconds,
+                "minutes" to minutes.toString(),
+                "seconds" to seconds.toString().padStart(2, '0'),
+            )
+            minutes == 0 -> icuStringResource(R.string.duration_hours, "hours" to hours.toString())
+            else -> icuStringResource(
+                R.string.duration_hours_minutes,
+                "hours" to hours.toString(),
+                "minutes" to minutes.toString(),
+            )
         }
     }
 

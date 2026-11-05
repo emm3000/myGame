@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -23,6 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun UnitItem(
@@ -55,9 +55,13 @@ internal fun UnitItem(
 private fun Tallies(card: FiefUiState.UnitCard, modifier: Modifier = Modifier) {
     val atHome: String = countedUnitsOf(card.kind, card.atHome)
     val text: String = if (card.away == 0) {
-        stringResource(R.string.units_at_home, atHome)
+        icuStringResource(R.string.units_at_home, "units" to atHome)
     } else {
-        stringResource(R.string.units_at_home_and_away, atHome, countedUnitsOf(card.kind, card.away))
+        icuStringResource(
+            R.string.units_at_home_and_away,
+            "atHome" to atHome,
+            "away" to countedUnitsOf(card.kind, card.away),
+        )
     }
     MyGameText(text = text, style = MyGameTypography.label, color = MyGameTheme.colors.inkMuted, modifier = modifier)
 }
@@ -66,12 +70,16 @@ private fun Tallies(card: FiefUiState.UnitCard, modifier: Modifier = Modifier) {
 private fun LockedUnit(card: FiefUiState.UnitCard.Locked, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
-            text = stringResource(R.string.unit_requires, card.requiredLevel),
+            text = icuStringResource(R.string.unit_requires, "level" to card.requiredLevel.toString()),
             style = MyGameTypography.action,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(R.string.reason_barracks_too_low, card.requiredLevel, card.builtLevel),
+            text = icuStringResource(
+                R.string.reason_barracks_too_low,
+                "required" to card.requiredLevel.toString(),
+                "built" to card.builtLevel.toString(),
+            ),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.rust,
         )
@@ -90,8 +98,12 @@ private fun OpenUnit(
     }
     val plural: String = stringResource(unitPluralOf(card.kind))
     val action: String = when (val order: FiefUiState.RecruitLine? = card.order) {
-        null -> stringResource(R.string.recruit_action, plural)
-        else -> stringResource(R.string.recruit_action_with_duration, plural, durationLabelOf(order.duration))
+        null -> icuStringResource(R.string.recruit_action, "units" to plural)
+        else -> icuStringResource(
+            R.string.recruit_action_with_duration,
+            "units" to plural,
+            "duration" to durationLabelOf(order.duration),
+        )
     }
     val focusManager: FocusManager = LocalFocusManager.current
     val send: () -> Unit = {
@@ -101,7 +113,7 @@ private fun OpenUnit(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameTextField(
             value = card.entry,
-            label = stringResource(R.string.recruit_field, stringResource(unitTitleOf(card.kind))),
+            label = icuStringResource(R.string.recruit_field, "unit" to stringResource(unitTitleOf(card.kind))),
             isSecret = false,
             isReadOnly = card.isEntryLocked,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
@@ -128,11 +140,14 @@ private fun RecruitCosts(order: FiefUiState.RecruitLine, modifier: Modifier = Mo
         modifier = modifier,
     ) {
         order.costs.forEach { cost: FiefUiState.CostLine ->
-            CostItem(text = stringResource(costNameOf(cost.kind), formatQuantity(cost.amount)), isShort = cost.isShort)
+            CostItem(
+                text = icuStringResource(costNameOf(cost.kind), "amount" to formatQuantity(cost.amount)),
+                isShort = cost.isShort,
+            )
         }
         if (order.peasants > 0) {
             CostItem(
-                text = pluralStringResource(R.plurals.cost_peasants, order.peasants, order.peasants),
+                text = icuStringResource(R.string.cost_peasants, "count" to order.peasants),
                 isShort = order.isShortOfPeasants,
             )
         }
@@ -144,6 +159,6 @@ private fun reasonOf(block: FiefUiState.RecruitBlock): String = when (block) {
     FiefUiState.RecruitBlock.LevyRunning -> stringResource(R.string.reason_levy_running)
     FiefUiState.RecruitBlock.InvalidCount -> stringResource(R.string.reason_invalid_count)
     is FiefUiState.BlockReason.Peasants ->
-        pluralStringResource(R.plurals.reason_peasants, block.needed, block.needed, block.free)
+        icuStringResource(R.string.reason_peasants, "needed" to block.needed, "free" to block.free.toString())
     is FiefUiState.BlockReason.Resources -> shortfallReasonOf(block)
 }

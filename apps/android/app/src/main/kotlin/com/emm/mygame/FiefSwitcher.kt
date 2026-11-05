@@ -43,6 +43,7 @@ import com.emm.mygame.core.network.FiefAddress
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.FreeSlot
 import com.emm.mygame.core.network.ResourceKind
+import com.emm.mygame.core.ui.getIcuString
 
 private const val ENTRIES_PER_ROW: Int = 2
 
@@ -177,7 +178,12 @@ private fun FiefBadge(badge: FiefSwitcherUiState.Badge, modifier: Modifier = Mod
 }
 
 private fun Resources.addressOf(address: FiefAddress): String =
-    getString(R.string.fief_switcher_address, kingdomOf(address.kingdom), address.province, address.plot)
+    getIcuString(
+        R.string.fief_switcher_address,
+        "kingdom" to kingdomOf(address.kingdom),
+        "province" to address.province.toString(),
+        "plot" to address.plot.toString(),
+    )
 
 private fun Resources.kingdomOf(kingdom: Int): String = when (kingdom) {
     VADOALTO -> getString(R.string.fief_switcher_kingdom_vadoalto)
@@ -187,7 +193,7 @@ private fun Resources.kingdomOf(kingdom: Int): String = when (kingdom) {
 private fun Resources.badgeLineOf(badge: FiefSwitcherUiState.Badge): String = when (badge) {
     is FiefSwitcherUiState.Badge.Idle -> getString(idleLineOf(badge.slot))
     is FiefSwitcherUiState.Badge.FullStore ->
-        getString(R.string.fief_switcher_full_store, getString(resourceNameOf(badge.resource)))
+        getIcuString(R.string.fief_switcher_full_store, "resource" to getString(resourceNameOf(badge.resource)))
 }
 
 private fun idleLineOf(slot: FreeSlot): Int = when (slot) {

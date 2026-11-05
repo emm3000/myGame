@@ -8,7 +8,6 @@ import com.emm.mygame.core.network.RecruitOrder
 import com.emm.mygame.core.network.RecruitTerms
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
-import com.emm.mygame.core.network.UnitKind
 import com.emm.mygame.core.network.UnitState
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.deliveredUnitsAt
@@ -46,9 +45,6 @@ internal fun FiefSnapshot.armyAt(
 
 internal fun FiefSnapshot.levyRemainingAt(now: Instant): Duration? =
     recruitOrder?.let { order: RecruitOrder -> countdownTo(finishesAt = order.endsAt, now = now) }
-
-internal fun FiefSnapshot.barracksLevelOf(unit: UnitKind): Int =
-    units.firstOrNull { state: UnitState -> state.kind == unit }?.barracksLevel ?: 0
 
 internal fun recruitCountOf(entry: String): Int? {
     if (!wholeCount.matches(entry)) return null

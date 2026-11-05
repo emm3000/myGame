@@ -12,6 +12,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun QueueSection(content: FiefUiState.Content, onIntent: (FiefIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -26,7 +27,11 @@ internal fun QueueSection(content: FiefUiState.Content, onIntent: (FiefIntent) -
 @Composable
 internal fun waitingSummaryOf(content: FiefUiState.Content): String? {
     val last: FiefUiState.WaitingLine = content.queue.lastOrNull() ?: return null
-    return stringResource(R.string.queue_summary, content.queue.size, finishLabelOf(last.remaining, last.finishesAt))
+    return icuStringResource(
+        R.string.queue_summary,
+        "count" to content.queue.size.toString(),
+        "finish" to finishLabelOf(last.remaining, last.finishesAt),
+    )
 }
 
 @Composable
@@ -48,12 +53,15 @@ private fun WaitingItem(
                 modifier = Modifier.semantics { heading() },
             )
             MyGameText(
-                text = stringResource(R.string.slot_level, waiting.targetLevel),
+                text = icuStringResource(R.string.slot_level, "level" to waiting.targetLevel.toString()),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.inkMuted,
             )
             MyGameText(
-                text = stringResource(R.string.queue_finish, finishLabelOf(waiting.remaining, waiting.finishesAt)),
+                text = icuStringResource(
+                    R.string.queue_finish,
+                    "finish" to finishLabelOf(waiting.remaining, waiting.finishesAt),
+                ),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )

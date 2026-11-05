@@ -5,6 +5,7 @@ import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.MarchRefusal
 import com.emm.mygame.core.network.PlotAddress
 import com.emm.mygame.core.network.UnitCount
+import com.emm.mygame.core.ui.getIcuString
 
 internal fun Resources.sendAnswerOf(send: MapUiState.SendStatus): String? = when (send) {
     is MapUiState.SendStatus.Refused -> refusalLineOf(send.refusal)
@@ -13,17 +14,20 @@ internal fun Resources.sendAnswerOf(send: MapUiState.SendStatus): String? = when
 }
 
 internal fun Resources.refusalLineOf(refusal: MarchRefusal): String = when (refusal) {
-    is MarchRefusal.NotEnoughUnitsAtHome -> getString(
+    is MarchRefusal.NotEnoughUnitsAtHome -> getIcuString(
         R.string.refusal_not_enough_units_at_home,
-        countedOf(UnitCount(refusal.unit, refusal.count)),
-        refusal.atHome,
+        "units" to countedOf(UnitCount(refusal.unit, refusal.count)),
+        "atHome" to refusal.atHome.toString(),
     )
-    is MarchRefusal.StayOutOfRange -> getString(R.string.refusal_stay_out_of_range, refusal.maxStayHours)
-    is MarchRefusal.FiefCapReached -> getString(R.string.refusal_fief_cap_reached, refusal.cap)
-    is MarchRefusal.CargoAboveCarry -> getString(
+    is MarchRefusal.StayOutOfRange -> getIcuString(
+        R.string.refusal_stay_out_of_range,
+        "maxStayHours" to refusal.maxStayHours.toString(),
+    )
+    is MarchRefusal.FiefCapReached -> getIcuString(R.string.refusal_fief_cap_reached, "cap" to refusal.cap.toString())
+    is MarchRefusal.CargoAboveCarry -> getIcuString(
         R.string.refusal_cargo_above_carry,
-        formatQuantity(refusal.cargo.toLong()),
-        formatQuantity(refusal.carry.toLong()),
+        "cargo" to formatQuantity(refusal.cargo.toLong()),
+        "carry" to formatQuantity(refusal.carry.toLong()),
     )
     MarchRefusal.MarchSlotBusy -> getString(R.string.refusal_march_slot_busy)
     MarchRefusal.MarchTargetOutOfBounds -> getString(R.string.refusal_march_target_out_of_bounds)
@@ -57,15 +61,20 @@ internal fun Resources.sentLinesOf(sent: MapUiState.SentMarch): List<String> = w
     )
     is MapUiState.SentFounding -> listOf(
         outboundOf(R.string.founding_outbound, sent.units, sent.target),
-        getString(R.string.founding_new_fief, sent.name),
+        getIcuString(R.string.founding_new_fief, "name" to sent.name),
         arrivalLineOf(sent.arrivalIn),
     )
     is MapUiState.SentTransport -> listOf(
         outboundOf(R.string.transport_outbound, sent.units, sent.target),
-        getString(R.string.transport_cargo, quantitiesOf(sent.cargo)),
+        getIcuString(R.string.transport_cargo, "cargo" to quantitiesOf(sent.cargo)),
         arrivalLineOf(sent.arrivalIn),
     )
 }
 
 private fun Resources.outboundOf(line: Int, units: List<UnitCount>, target: PlotAddress): String =
-    getString(line, partyOf(units), target.province, target.plot)
+    getIcuString(
+        line,
+        "party" to partyOf(units),
+        "province" to target.province.toString(),
+        "plot" to target.plot.toString(),
+    )

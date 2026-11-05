@@ -26,6 +26,7 @@ import com.emm.mygame.core.network.ArtKind
 import com.emm.mygame.core.network.ResourceCost
 import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.StudyRefusal
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun LibrarySection(
@@ -71,7 +72,7 @@ private fun BusyStudy(
     modifier: Modifier = Modifier,
 ) {
     val countdown: String = countdownLabelOf(slot.remaining)
-    val description: String = stringResource(R.string.slot_countdown_description, countdown)
+    val description: String = icuStringResource(R.string.slot_countdown_description, "countdown" to countdown)
     val art: String = stringResource(artNameOf(slot.art)).lowercase(spanish)
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -88,7 +89,7 @@ private fun BusyStudy(
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = stringResource(R.string.slot_level, slot.targetLevel),
+            text = icuStringResource(R.string.slot_level, "level" to slot.targetLevel.toString()),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
         )
@@ -105,11 +106,15 @@ private fun BusyStudy(
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.StudyCancelTapped(slot.art, slot.targetLevel)) },
-            accessibleName = stringResource(R.string.study_cancel_description, art, slot.targetLevel),
+            accessibleName = icuStringResource(
+                R.string.study_cancel_description,
+                "art" to art,
+                "level" to slot.targetLevel.toString(),
+            ),
         )
         if (slot.refund.isNotEmpty()) {
             MyGameText(
-                text = stringResource(R.string.study_refund, refundOf(slot)),
+                text = icuStringResource(R.string.study_refund, "refund" to refundOf(slot)),
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -175,18 +180,18 @@ private fun NextArt(
         ) {
             next.costs.forEach { cost: FiefUiState.CostLine ->
                 CostItem(
-                    text = stringResource(costNameOf(cost.kind), formatQuantity(cost.amount)),
+                    text = icuStringResource(costNameOf(cost.kind), "amount" to formatQuantity(cost.amount)),
                     isShort = cost.isShort,
                 )
             }
         }
         MyGameText(
-            text = stringResource(R.string.art_requires, next.requiredLibraryLevel),
+            text = icuStringResource(R.string.art_requires, "level" to next.requiredLibraryLevel.toString()),
             style = MyGameTypography.body,
             color = if (next.isLibraryTooLow) MyGameTheme.colors.rust else MyGameTheme.colors.inkMuted,
         )
         MyGameButton(
-            label = stringResource(R.string.study_start, durationLabelOf(next.duration)),
+            label = icuStringResource(R.string.study_start, "duration" to durationLabelOf(next.duration)),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
             onClick = { onIntent(FiefIntent.StudyTapped(art)) },
@@ -200,7 +205,11 @@ private fun NextArt(
 private fun reasonOf(block: FiefUiState.StudyBlock): String = when (block) {
     FiefUiState.StudyBlock.StudyRunning -> stringResource(R.string.reason_study_running)
     is FiefUiState.StudyBlock.LibraryTooLow ->
-        stringResource(R.string.reason_library_too_low, block.required, block.built)
+        icuStringResource(
+            R.string.reason_library_too_low,
+            "required" to block.required.toString(),
+            "built" to block.built.toString(),
+        )
     is FiefUiState.BlockReason.Resources -> shortfallReasonOf(block)
 }
 
@@ -215,22 +224,29 @@ private fun StudyAnswer(study: FiefUiState.StudyStatus, modifier: Modifier = Mod
 }
 
 @Composable
-private fun artLevelOf(level: Int): String =
-    if (level == 0) stringResource(R.string.art_unstudied) else stringResource(R.string.building_level, level)
+private fun artLevelOf(level: Int): String {
+    if (level == 0) return stringResource(R.string.art_unstudied)
+    return icuStringResource(R.string.building_level, "level" to level.toString())
+}
 
 @Composable
 private fun effectOf(card: FiefUiState.ArtCard): String {
-    val rate: String = stringResource(rateLineOf(card.resource), percentLabelOf(card.ratePercent))
+    val rate: String = icuStringResource(rateLineOf(card.resource), "percent" to percentLabelOf(card.ratePercent))
     return when (val next: FiefUiState.NextArtLine? = card.next) {
-        null -> stringResource(R.string.art_effect_at_max_level, rate)
-        else -> stringResource(R.string.art_effect, rate, next.level, percentLabelOf(next.ratePercent))
+        null -> icuStringResource(R.string.art_effect_at_max_level, "rate" to rate)
+        else -> icuStringResource(
+            R.string.art_effect,
+            "rate" to rate,
+            "level" to next.level.toString(),
+            "percent" to percentLabelOf(next.ratePercent),
+        )
     }
 }
 
 @Composable
 private fun refundOf(slot: FiefUiState.StudySlotLine.Busy): String = spanishListOf(
     items = slot.refund.map { cost: ResourceCost ->
-        stringResource(costNameOf(cost.kind), formatQuantity(cost.amount))
+        icuStringResource(costNameOf(cost.kind), "amount" to formatQuantity(cost.amount))
     },
     pairPattern = stringResource(R.string.list_pair),
     morePattern = stringResource(R.string.list_more),

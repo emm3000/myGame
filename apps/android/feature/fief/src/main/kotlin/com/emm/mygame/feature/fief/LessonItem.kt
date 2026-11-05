@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -22,6 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun LessonItem(
@@ -72,7 +72,7 @@ private fun IdleLesson(
             blockedReason = reason,
         )
         MyGameText(
-            text = pluralStringResource(R.plurals.lesson_free, line.wordCount, line.wordCount),
+            text = icuStringResource(R.string.lesson_free, "count" to line.wordCount),
             style = MyGameTypography.body,
             color = MyGameTheme.colors.inkMuted,
         )
@@ -91,7 +91,7 @@ private fun BusyLesson(
     modifier: Modifier = Modifier,
 ) {
     val countdown: String = countdownLabelOf(line.remaining)
-    val description: String = stringResource(R.string.slot_countdown_description, countdown)
+    val description: String = icuStringResource(R.string.slot_countdown_description, "countdown" to countdown)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.lesson_busy),

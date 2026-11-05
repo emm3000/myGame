@@ -8,10 +8,15 @@ import com.emm.mygame.core.network.ResourceKind
 import com.emm.mygame.core.network.ResourceQuantity
 import com.emm.mygame.core.network.UnitCount
 import com.emm.mygame.core.network.UnitKind
+import com.emm.mygame.core.ui.getIcuString
 import java.util.Locale
 import kotlin.time.Duration
 
-internal fun Resources.campLineOf(camp: MarchCamp): String = getString(R.string.attack_camp, camp.tier, camp.strength)
+internal fun Resources.campLineOf(camp: MarchCamp): String = getIcuString(
+    R.string.attack_camp,
+    "tier" to camp.tier.toString(),
+    "strength" to camp.strength.toString(),
+)
 
 internal fun Resources.partyOf(units: List<UnitCount>): String =
     spanishListFormat.format(units.map { count: UnitCount -> countedOf(count) })
@@ -19,18 +24,17 @@ internal fun Resources.partyOf(units: List<UnitCount>): String =
 internal fun Resources.quantitiesOf(quantities: List<ResourceQuantity>): String =
     spanishListFormat.format(quantities.map { quantity: ResourceQuantity -> quantityOf(quantity) })
 
-internal fun Resources.countedOf(count: UnitCount): String = getQuantityString(
+internal fun Resources.countedOf(count: UnitCount): String = getIcuString(
     when (count.unit) {
-        UnitKind.Infantry -> R.plurals.map_unit_infantry_counted
-        UnitKind.Cavalry -> R.plurals.map_unit_cavalry_counted
-        UnitKind.Archer -> R.plurals.map_unit_archer_counted
-        UnitKind.Settler -> R.plurals.map_unit_settler_counted
+        UnitKind.Infantry -> R.string.map_unit_infantry_counted
+        UnitKind.Cavalry -> R.string.map_unit_cavalry_counted
+        UnitKind.Archer -> R.string.map_unit_archer_counted
+        UnitKind.Settler -> R.string.map_unit_settler_counted
     },
-    count.count,
-    count.count,
+    "count" to count.count,
 )
 
-private fun Resources.quantityOf(quantity: ResourceQuantity): String = getString(
+private fun Resources.quantityOf(quantity: ResourceQuantity): String = getIcuString(
     when (quantity.kind) {
         ResourceKind.Wood -> R.string.quantity_wood
         ResourceKind.Stone -> R.string.quantity_stone
@@ -38,7 +42,7 @@ private fun Resources.quantityOf(quantity: ResourceQuantity): String = getString
         ResourceKind.Gold -> R.string.quantity_gold
         ResourceKind.Food -> R.string.quantity_food
     },
-    formatQuantity(quantity.amount),
+    "amount" to formatQuantity(quantity.amount),
 )
 
 internal fun Resources.durationOf(duration: Duration): String {
@@ -48,9 +52,17 @@ internal fun Resources.durationOf(duration: Duration): String {
     val hours: Long = wholeSeconds / SECONDS_PER_HOUR
     val minutes: Long = wholeSeconds % SECONDS_PER_HOUR / SECONDS_PER_MINUTE
     return when {
-        hours == 0L -> getString(R.string.map_duration_minutes_seconds, minutes, wholeSeconds % SECONDS_PER_MINUTE)
-        minutes == 0L -> getString(R.string.map_duration_hours, hours)
-        else -> getString(R.string.map_duration_hours_minutes, hours, minutes)
+        hours == 0L -> getIcuString(
+            R.string.map_duration_minutes_seconds,
+            "minutes" to minutes.toString(),
+            "seconds" to (wholeSeconds % SECONDS_PER_MINUTE).toString().padStart(2, '0'),
+        )
+        minutes == 0L -> getIcuString(R.string.map_duration_hours, "hours" to hours.toString())
+        else -> getIcuString(
+            R.string.map_duration_hours_minutes,
+            "hours" to hours.toString(),
+            "minutes" to minutes.toString(),
+        )
     }
 }
 
