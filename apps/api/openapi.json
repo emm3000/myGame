@@ -90,6 +90,9 @@
           },
           {
             "$ref": "#/components/schemas/BuildingWorkNotFoundError"
+          },
+          {
+            "$ref": "#/components/schemas/LearningCapReachedError"
           }
         ],
         "discriminator": {
@@ -129,7 +132,6 @@
             "TokenInvalid": "#/components/schemas/BareApiError",
             "MailNotSent": "#/components/schemas/BareApiError",
             "LessonSchoolTooLow": "#/components/schemas/BareApiError",
-            "LearningCapReached": "#/components/schemas/BareApiError",
             "LessonAlreadyStudied": "#/components/schemas/BareApiError",
             "LessonUnderStudy": "#/components/schemas/BareApiError",
             "LessonStudyNotFound": "#/components/schemas/BareApiError",
@@ -150,7 +152,8 @@
             "NotEnoughPeople": "#/components/schemas/NotEnoughPeopleError",
             "NotEnoughResources": "#/components/schemas/NotEnoughResourcesError",
             "TopLevelReached": "#/components/schemas/TopLevelReachedError",
-            "BuildingWorkNotFound": "#/components/schemas/BuildingWorkNotFoundError"
+            "BuildingWorkNotFound": "#/components/schemas/BuildingWorkNotFoundError",
+            "LearningCapReached": "#/components/schemas/LearningCapReachedError"
           }
         }
       },
@@ -194,7 +197,6 @@
               "TokenInvalid",
               "MailNotSent",
               "LessonSchoolTooLow",
-              "LearningCapReached",
               "LessonAlreadyStudied",
               "LessonUnderStudy",
               "LessonStudyNotFound",
@@ -478,6 +480,33 @@
               }
             },
             "required": ["building", "level"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "LearningCapReachedError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["LearningCapReached"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "learningCap": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "cardsInLearning": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["learningCap", "cardsInLearning"],
             "additionalProperties": false
           }
         },
@@ -5541,6 +5570,22 @@
             "required": ["lessonId", "startedAt", "finishesAt"],
             "additionalProperties": false
           },
+          "learning": {
+            "type": "object",
+            "properties": {
+              "cap": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "inLearning": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["cap", "inLearning"],
+            "additionalProperties": false
+          },
           "readAt": {
             "type": "string",
             "format": "date-time"
@@ -5559,6 +5604,7 @@
           "lessons",
           "skills",
           "lessonSlot",
+          "learning",
           "readAt"
         ],
         "additionalProperties": false

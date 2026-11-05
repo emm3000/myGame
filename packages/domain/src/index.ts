@@ -55,6 +55,7 @@ export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQ
 export type { Terrain } from './fief/Terrain'
 export { terrainOf } from './fief/terrainOf'
 export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
+export { cardsInLearningOf } from './learning/cardsInLearningOf'
 export { type DueCard, dueCardsAt } from './learning/dueCardsAt'
 export type { EarnedSkill } from './learning/EarnedSkill'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'

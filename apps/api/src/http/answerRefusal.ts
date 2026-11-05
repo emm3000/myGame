@@ -76,7 +76,6 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   LessonUnderStudy: { status: 409, kind: 'LessonUnderStudy' },
   LessonStudyNotFound: { status: 409, kind: 'LessonStudyNotFound' },
   LessonSchoolTooLow: { status: 409, kind: 'LessonSchoolTooLow' },
-  LearningCapReached: { status: 409, kind: 'LearningCapReached' },
   NegativeResourceAmount: internalFailure,
   NegativeResourceRate: internalFailure,
   UnknownBuildingLevel: internalFailure,
@@ -144,6 +143,10 @@ const refusalBodyOf = (refusal: Refusal): RefusalBody => {
     }
     case 'NotEnoughResources':
       return { status: 409, body: { kind: refusal.kind, params: { missing: refusal.missing } } }
+    case 'LearningCapReached': {
+      const { kind, learningCap, cardsInLearning } = refusal
+      return { status: 409, body: { kind, params: { learningCap, cardsInLearning } } }
+    }
     case 'TopLevelReached':
     case 'BuildingWorkNotFound': {
       const { kind, building, level } = refusal

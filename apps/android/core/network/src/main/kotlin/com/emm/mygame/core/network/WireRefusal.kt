@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.generated.models.BarracksTooLowError
 import com.emm.mygame.core.network.generated.models.BuildingWorkNotFoundError
 import com.emm.mygame.core.network.generated.models.CargoAboveCarryError
 import com.emm.mygame.core.network.generated.models.FiefCapReachedError
+import com.emm.mygame.core.network.generated.models.LearningCapReachedError
 import com.emm.mygame.core.network.generated.models.NotEnoughPeopleError
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesError
 import com.emm.mygame.core.network.generated.models.NotEnoughUnitsAtHomeError
@@ -55,6 +56,7 @@ internal val kindsWithParams: Set<String> = setOf(
     NotEnoughResourcesError.Kind.NotEnoughResources.value,
     TopLevelReachedError.Kind.TopLevelReached.value,
     BuildingWorkNotFoundError.Kind.BuildingWorkNotFound.value,
+    LearningCapReachedError.Kind.LearningCapReached.value,
 )
 
 private fun refusalOf(body: String): WireRefusal {
