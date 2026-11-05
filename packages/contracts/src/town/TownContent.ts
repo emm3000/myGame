@@ -13,7 +13,10 @@ const TownSeasonsSchema = z.strictObject({
   ),
   durationPercent: z.record(
     SeasonKindSchema,
-    z.strictObject({ build: WholeCountSchema.positive() }),
+    z.strictObject({
+      build: WholeCountSchema.positive(),
+      study: WholeCountSchema.positive(),
+    }),
   ),
 })
 

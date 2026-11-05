@@ -4,7 +4,7 @@ import { CurriculumContentSchema } from './index'
 const curriculum = {
   chromeLessonCount: 1,
   lessonIds: ['lesson-1'],
-  skill: { cycle: ['food', 'wood', 'stone', 'iron', 'gold'], ratePercent: 5 },
+  skill: { cycle: ['food', 'material', 'power', 'money'], ratePercent: 5 },
 }
 
 describe('CurriculumContentSchema', () => {
@@ -14,6 +14,12 @@ describe('CurriculumContentSchema', () => {
 
   it('rejects a cycle naming a resource the game does not have', () => {
     const skill = { cycle: ['food', 'wisdom'], ratePercent: 5 }
+
+    expect(CurriculumContentSchema.safeParse({ ...curriculum, skill }).success).toBe(false)
+  })
+
+  it('rejects a cycle naming a medieval resource', () => {
+    const skill = { cycle: ['food', 'wood'], ratePercent: 5 }
 
     expect(CurriculumContentSchema.safeParse({ ...curriculum, skill }).success).toBe(false)
   })

@@ -15,25 +15,23 @@ describe('content gate check 10, the skill', () => {
   })
 
   it('fails a cycle that misses a resource', () => {
-    expect(checkSkill(skillOf(['food', 'wood', 'stone', 'iron']))).toEqual([
-      'skill cycle misses gold',
-    ])
+    expect(checkSkill(skillOf(['food', 'material', 'power']))).toEqual(['skill cycle misses money'])
   })
 
   it('fails a cycle that names a resource twice', () => {
-    expect(checkSkill(skillOf(['food', 'wood', 'stone', 'iron', 'gold', 'wood']))).toEqual([
-      'skill cycle names wood more than once',
+    expect(checkSkill(skillOf(['food', 'material', 'power', 'money', 'power']))).toEqual([
+      'skill cycle names power more than once',
     ])
   })
 
   it('fails a cycle that does not start at food', () => {
-    expect(checkSkill(skillOf(['wood', 'food', 'stone', 'iron', 'gold']))).toEqual([
-      'skill cycle starts at wood, not food',
+    expect(checkSkill(skillOf(['material', 'food', 'power', 'money']))).toEqual([
+      'skill cycle starts at material, not food',
     ])
   })
 
   it('fails a rate other than 5 %', () => {
-    expect(checkSkill(skillOf(['food', 'wood', 'stone', 'iron', 'gold'], 10))).toEqual([
+    expect(checkSkill(skillOf(['food', 'material', 'power', 'money'], 10))).toEqual([
       'skill rate is 10 %, not 5 %',
     ])
   })

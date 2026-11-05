@@ -23,7 +23,6 @@ import {
   type Fief,
   type FiefBuildingLevels,
   type FullAt,
-  type HeldCard,
   type IncomingCargo,
   type Instant,
   type March,
@@ -44,7 +43,6 @@ import {
   type UnitKind,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
-import { type LearnerTerms, learnerOverviewOf } from '../learning/learnerOverviewOf'
 import type { FiefReading } from './FiefReading'
 
 const slotOf = (slot: BuildSlot): FiefOverview['slot'] =>
@@ -70,13 +68,6 @@ const studyOf = (studySlot: StudySlot): FiefOverview['study'] => {
         startedAt: isoOf(studySlot.startedAt),
         finishesAt: isoOf(studySlot.finishesAt),
         cost: { ...studySlot.cost },
-      }
-    case 'lesson':
-      return {
-        kind: 'lesson',
-        lessonId: studySlot.lessonId,
-        startedAt: isoOf(studySlot.startedAt),
-        finishesAt: isoOf(studySlot.finishesAt),
       }
     default: {
       const unknownStudySlot: never = studySlot
@@ -457,10 +448,8 @@ const goalOf = (
 
 export const fiefOverviewOf = (
   { fief, fullAt }: FiefReading,
-  cards: ReadonlyArray<HeldCard>,
-  terms: LearnerTerms,
+  catalog: BuildingCatalog,
 ): Result<FiefOverview, DomainError> => {
-  const catalog = terms.buildingCatalog
   const rates = deriveResourceRates(
     fief.buildingLevels,
     fief.artLevels,
@@ -496,10 +485,6 @@ export const fiefOverviewOf = (
   if (!goal.ok) {
     return goal
   }
-  const learner = learnerOverviewOf(fief, cards, terms)
-  if (!learner.ok) {
-    return learner
-  }
   const durations = durationPercentAt(fief.storedAt, catalog.fiefSettings())
   const { kingdom, province, plot } = fief.coordinates
   return ok({
@@ -524,7 +509,6 @@ export const fiefOverviewOf = (
     combatTerms: combatTermsOf(catalog),
     incomingCargo: incomingCargoOf(fief.incomingCargo),
     goal: goal.value,
-    ...learner.value,
     readAt: isoOf(fief.storedAt),
   })
 }

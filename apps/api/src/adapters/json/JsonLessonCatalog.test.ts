@@ -55,7 +55,7 @@ const writeJson = (directory: string, file: string, value: unknown): void => {
 const lessonOneTerms = {
   theme: 'A day in town',
   durationSeconds: 300,
-  requiredLibraryLevel: 1,
+  requiredSchoolLevel: 1,
   wordIds: ['lesson-1-1'],
 }
 
@@ -102,7 +102,7 @@ describe('JsonLessonCatalog', () => {
       id: 'lesson-1',
       theme: 'A day in town',
       durationSeconds: 300,
-      requiredLibraryLevel: 1,
+      requiredSchoolLevel: 1,
       skill: { resource: 'food', ratePercent: 5 },
       words: undefined,
     })
@@ -149,13 +149,13 @@ describe('JsonLessonCatalog', () => {
 
   it('derives the skill of lessons 1, 2 and k + 1 from their places in the cycle', () => {
     const lessonIds = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']
-    const directory = contentOfLessons(lessonIds, ['stone', 'food', 'gold', 'wood', 'iron'])
+    const directory = contentOfLessons(lessonIds, ['power', 'food', 'money', 'material'])
     const catalog = JsonLessonCatalog.fromDirectory(directory)
 
-    expect(['first', 'second', 'sixth'].map((id) => catalog.lessonOf(id)?.skill)).toEqual([
-      { resource: 'stone', ratePercent: 5 },
+    expect(['first', 'second', 'fifth'].map((id) => catalog.lessonOf(id)?.skill)).toEqual([
+      { resource: 'power', ratePercent: 5 },
       { resource: 'food', ratePercent: 5 },
-      { resource: 'stone', ratePercent: 5 },
+      { resource: 'power', ratePercent: 5 },
     ])
   })
 

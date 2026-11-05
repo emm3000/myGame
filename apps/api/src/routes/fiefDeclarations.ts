@@ -1,6 +1,5 @@
 import { createRoute } from '@hono/zod-openapi'
 import {
-  CancelLessonRequestSchema,
   CancelRecruitOrderRequestSchema,
   CancelStudyRequestSchema,
   CancelUpgradeRequestSchema,
@@ -14,11 +13,6 @@ import {
   FiefRequestSchema,
   PlaceRecruitOrderRequestSchema,
   RecallMarchRequestSchema,
-  ReviewAnswerRequestSchema,
-  ReviewAnswerSchema,
-  ReviewHintSchema,
-  ReviewRequestSchema,
-  StartLessonRequestSchema,
   StartStudyRequestSchema,
 } from '@mygame/contracts'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
@@ -48,8 +42,6 @@ const mutationResponses = (
   refusals: Readonly<Record<number, ResponseDeclaration>>,
 ): Readonly<Record<number, ResponseDeclaration>> =>
   onFief({ 200: overviewResponse(success), ...refusals })
-
-const reviewRefusals = 'UnknownWord, WordNotHeld or ReviewNotDue'
 
 const marchRefusals =
   'MarchSlotBusy, NotEnoughUnitsAtHome, UnitUnfitForOrder, MarchTargetOutOfBounds, MarchToOwnPlot, PlotHeld and PlotReserved'
@@ -223,65 +215,6 @@ export const fiefDeclarations = {
       request: { params: FiefRequestSchema.extend(RecallMarchRequestSchema.shape) },
       responses: mutationResponses('The fief with the march turned back.', {
         409: refusalResponse('MarchNotFound or MarchAlreadyReturning.'),
-      }),
-    }),
-  ),
-  startLesson: createRoute(
-    signedInRoute({
-      method: 'post',
-      path: '/lessons',
-      request: {
-        params: FiefRequestSchema,
-        body: jsonBody(StartLessonRequestSchema.meta({ id: 'StartLessonRequest' })),
-      },
-      responses: mutationResponses('The fief with the lesson under study in its study slot.', {
-        404: refusalResponse(
-          'FiefNotFound, for an unknown fief or another lord’s; LessonNotFound, for a lesson the content lacks, answers an empty body.',
-        ),
-        409: refusalResponse(
-          'StudySlotBusy, LessonLibraryTooLow, LessonAlreadyStudied or LessonUnderStudy.',
-        ),
-      }),
-    }),
-  ),
-  cancelLesson: createRoute(
-    signedInRoute({
-      method: 'delete',
-      path: '/lessons/{lessonId}',
-      request: { params: FiefRequestSchema.extend(CancelLessonRequestSchema.shape) },
-      responses: mutationResponses('The fief with the lesson cancelled; nothing is refunded.', {
-        409: refusalResponse('LessonStudyNotFound.'),
-      }),
-    }),
-  ),
-  requestHint: createRoute(
-    signedInRoute({
-      method: 'post',
-      path: '/reviews/{wordId}/hint',
-      request: { params: FiefRequestSchema.extend(ReviewRequestSchema.shape) },
-      responses: onFief({
-        200: jsonResponse(
-          'The first letter and the letter count of the word a due recall asks for.',
-          ReviewHintSchema.meta({ id: 'ReviewHint' }),
-        ),
-        409: refusalResponse(`${reviewRefusals}, or HintOnRecognition.`),
-      }),
-    }),
-  ),
-  answerReview: createRoute(
-    signedInRoute({
-      method: 'post',
-      path: '/reviews/{wordId}/answer',
-      request: {
-        params: FiefRequestSchema.extend(ReviewRequestSchema.shape),
-        body: jsonBody(ReviewAnswerRequestSchema.meta({ id: 'ReviewAnswerRequest' })),
-      },
-      responses: onFief({
-        200: jsonResponse(
-          'The verdict the server graded and the fief at the review.',
-          ReviewAnswerSchema.meta({ id: 'ReviewAnswer' }),
-        ),
-        409: refusalResponse(`${reviewRefusals}, or UnknownChoice.`),
       }),
     }),
   ),

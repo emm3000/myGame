@@ -3,44 +3,46 @@ import {
   answerReview,
   type DomainError,
   err,
-  type FiefOfPlayer,
   type LessonWord,
   ok,
+  type PlayerId,
   type Result,
   type WordId,
 } from '@mygame/domain'
-import type { FiefReading } from '../fief/FiefReading'
-import { fiefReadingAt } from '../fief/fiefReadingAt'
-import { mutateEveryFiefAfterResolve } from '../fief/mutateEveryFiefAfterResolve'
+import type { Town, TownSkill } from '@mygame/domain/town'
+import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 
 export type ReviewOutcome = {
   readonly answered: AnsweredReview
   readonly word: LessonWord
-  readonly reading: FiefReading
+  readonly skills: ReadonlyArray<TownSkill>
+  readonly town: Town | undefined
 }
 
-export const answerReviewOf = async (
-  fiefOfPlayer: FiefOfPlayer,
+export const answerReviewOf = (
+  playerId: PlayerId,
   wordId: WordId,
   answer: string,
   dependencies: LearningDependencies,
 ): Promise<Result<ReviewOutcome, DomainError>> =>
-  mutateEveryFiefAfterResolve(
-    fiefOfPlayer,
-    async ({ fiefs, cards, pendingReviews, reviewLog }, clock) => {
-      const { lessons, buildingCatalog, memoryTerms } = dependencies
+  mutateTown(
+    playerId,
+    async (stores, clock) => {
+      const { lessons, memoryTerms, townCatalog } = dependencies
       const answered = await answerReview(
-        { playerId: fiefOfPlayer.playerId, wordId, answer },
+        { playerId, wordId, answer },
         {
-          fiefs,
-          catalog: buildingCatalog,
-          cards,
-          pendingReviews,
-          reviewLog,
+          cards: stores.cards,
+          pendingReviews: stores.pendingReviews,
+          reviewLog: stores.reviewLog,
           lessons,
           clock,
           terms: memoryTerms,
+          skills: stores.earnedSkills,
+          towns: stores.towns,
+          news: stores.townNews,
+          catalog: townCatalog,
         },
       )
       if (!answered.ok) {
@@ -50,18 +52,15 @@ export const answerReviewOf = async (
       if (word === undefined) {
         return err({ kind: 'UnknownWord', wordId })
       }
-      const stored = await fiefs.fiefOf(fiefOfPlayer.fiefId)
-      if (!stored.ok) {
-        return stored
+      const skills = await stores.earnedSkills.skillsOf(playerId)
+      if (!skills.ok) {
+        return skills
       }
-      if (stored.value === undefined) {
-        return err({ kind: 'FiefNotFound', fiefId: fiefOfPlayer.fiefId })
+      const town = await stores.towns.townOf(playerId)
+      if (!town.ok) {
+        return town
       }
-      const reading = fiefReadingAt(stored.value, buildingCatalog, clock.now())
-      if (!reading.ok) {
-        return reading
-      }
-      return ok({ answered: answered.value, word, reading: reading.value })
+      return ok({ answered: answered.value, word, skills: skills.value, town: town.value })
     },
     dependencies,
   )

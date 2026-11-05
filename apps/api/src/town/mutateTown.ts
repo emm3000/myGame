@@ -1,20 +1,25 @@
-import type { Clock, DomainError, PlayerId, Result } from '@mygame/domain'
+import type { Clock, DomainError, LessonCatalog, PlayerId, Result } from '@mygame/domain'
+import { settleSchoolLesson } from '@mygame/domain/town'
 import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
 import { laterOf } from '../time/laterOf'
 
-export type TownStores = Pick<TransactionStores, 'towns' | 'townNews'>
+export type TownStores = Pick<
+  TransactionStores,
+  'towns' | 'townNews' | 'lessonSlots' | 'cards' | 'pendingReviews' | 'reviewLog' | 'earnedSkills'
+>
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>
 
 export type MutateTownDependencies = {
   readonly inTransaction: Transaction
   readonly clock: Clock
+  readonly lessons: Pick<LessonCatalog, 'lessonOf'>
 }
 
 export const mutateTown = <T>(
   playerId: PlayerId,
   mutation: TownMutation<T>,
-  { inTransaction, clock }: MutateTownDependencies,
+  { inTransaction, clock, lessons }: MutateTownDependencies,
 ): Promise<Result<T, DomainError>> =>
   inTransaction(async (stores) => {
     const locked = await stores.towns.townOf(playerId)
@@ -23,5 +28,17 @@ export const mutateTown = <T>(
     }
     const now = clock.now()
     const mutatedAt = locked.value === undefined ? now : laterOf(now, locked.value.storedAt)
-    return mutation(stores, { now: () => mutatedAt })
+    const mutationClock: Clock = { now: () => mutatedAt }
+    const settled = await settleSchoolLesson(playerId, {
+      towns: stores.towns,
+      lessonSlots: stores.lessonSlots,
+      cards: stores.cards,
+      lessons,
+      news: stores.townNews,
+      clock: mutationClock,
+    })
+    if (!settled.ok) {
+      return settled
+    }
+    return mutation(stores, mutationClock)
   })

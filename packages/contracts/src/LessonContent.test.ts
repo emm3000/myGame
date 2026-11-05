@@ -5,13 +5,21 @@ const lessonOne = {
   id: 'lesson-1',
   theme: 'A day in town',
   durationSeconds: 300,
-  requiredLibraryLevel: 1,
+  requiredSchoolLevel: 1,
   wordIds: ['lesson-1-1', 'lesson-1-2'],
 }
 
 describe('LessonContentSchema', () => {
   it('parses a lesson with its word ids in order', () => {
     expect(LessonContentSchema.parse(lessonOne)).toEqual(lessonOne)
+  })
+
+  it('rejects a lesson that still names a library level', () => {
+    const { requiredSchoolLevel: _, ...withoutSchool } = lessonOne
+
+    expect(
+      LessonContentSchema.safeParse({ ...withoutSchool, requiredLibraryLevel: 1 }).success,
+    ).toBe(false)
   })
 
   it('rejects a lesson that names its skill', () => {

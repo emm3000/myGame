@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { EarnedSkillSchema } from '../EarnedSkill'
+import { LessonStateSchema } from '../LessonState'
 import { SeasonKindSchema } from '../SeasonKind'
 import {
   BuildingLevelSchema,
@@ -29,6 +31,12 @@ const NextLevelSchema = z.strictObject({
 const BuildingStateSchema = z.strictObject({
   level: WholeCountSchema,
   nextLevel: NextLevelSchema.nullable(),
+})
+
+const LessonUnderStudySchema = z.strictObject({
+  lessonId: z.string().min(1),
+  startedAt: InstantSchema,
+  finishesAt: InstantSchema,
 })
 
 const TownSeasonSchema = z.strictObject({
@@ -64,6 +72,9 @@ export const TownOverviewSchema = z
       waitingList: z.array(BuildingWorkSchema),
       cap: WholeCountSchema,
     }),
+    lessons: z.array(LessonStateSchema),
+    skills: z.array(EarnedSkillSchema),
+    lessonSlot: LessonUnderStudySchema.nullable(),
     readAt: InstantSchema,
   })
   .meta({ id: 'TownOverview' })

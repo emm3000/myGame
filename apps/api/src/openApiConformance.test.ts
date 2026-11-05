@@ -14,6 +14,7 @@ import { fiefDeclarations } from './routes/fiefDeclarations'
 import { fiefsDeclarations } from './routes/fiefsDeclarations'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { hintsDeclarations } from './routes/hintsDeclarations'
+import { learningDeclarations } from './routes/learningDeclarations'
 import { mapDeclarations } from './routes/mapDeclarations'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
@@ -53,6 +54,7 @@ const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConf
   ['/fiefs/{fiefId}/map', mapDeclarations],
   ['/digest', digestDeclarations],
   ['/hints', hintsDeclarations],
+  ['/reviews', learningDeclarations],
 ]
 
 const declarationsByOperation = new Map<string, RouteConfig>(
@@ -244,56 +246,24 @@ const exchanges: ReadonlyArray<Exchange> = [
     params: { fiefId: 'own', art: 'smithing', targetLevel: '1' },
     status: 409,
   },
+  { operation: 'GET /reviews', caller: 'ana', status: 200 },
   {
-    operation: 'POST /fiefs/{fiefId}/lessons',
+    operation: 'POST /reviews/{wordId}/hint',
     caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { lessonId: 'lesson-1' },
-    status: 200,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/lessons',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { lessonId: 'lesson-1' },
+    params: { wordId: 'lesson-1-1' },
     status: 409,
   },
   {
-    operation: 'POST /fiefs/{fiefId}/lessons',
+    operation: 'POST /reviews/{wordId}/answer',
     caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { lessonId: 'lesson-9' },
-    status: 404,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/lessons/{lessonId}',
-    caller: 'ana',
-    params: { fiefId: 'own', lessonId: 'lesson-1' },
-    status: 200,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/lessons/{lessonId}',
-    caller: 'ana',
-    params: { fiefId: 'own', lessonId: 'lesson-1' },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/reviews/{wordId}/hint',
-    caller: 'ana',
-    params: { fiefId: 'own', wordId: 'lesson-1-1' },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/reviews/{wordId}/answer',
-    caller: 'ana',
-    params: { fiefId: 'own', wordId: 'lesson-1-1' },
+    params: { wordId: 'lesson-1-1' },
     body: { answer: 'home' },
     status: 409,
   },
   {
-    operation: 'POST /fiefs/{fiefId}/reviews/{wordId}/answer',
+    operation: 'POST /reviews/{wordId}/answer',
     caller: 'ana',
-    params: { fiefId: 'own', wordId: 'lesson-1-1' },
+    params: { wordId: 'lesson-1-1' },
     body: { answer: 'home', rating: 'good' },
     status: 400,
   },
@@ -438,14 +408,6 @@ const exchanges: ReadonlyArray<Exchange> = [
   onForeignFief('POST /fiefs/{fiefId}/marches/{departedAt}/recall', {
     departedAt: '2026-01-01T00:00:00.000Z',
   }),
-  onForeignFief('POST /fiefs/{fiefId}/lessons', {}, { lessonId: 'lesson-1' }),
-  onForeignFief('DELETE /fiefs/{fiefId}/lessons/{lessonId}', { lessonId: 'lesson-1' }),
-  onForeignFief('POST /fiefs/{fiefId}/reviews/{wordId}/hint', { wordId: 'lesson-1-1' }),
-  onForeignFief(
-    'POST /fiefs/{fiefId}/reviews/{wordId}/answer',
-    { wordId: 'lesson-1-1' },
-    { answer: 'home' },
-  ),
   onForeignFief('GET /fiefs/{fiefId}/map'),
   onForeignFief('GET /fiefs/{fiefId}/map/{province}', { province: 'ownProvince' }),
   {
@@ -547,7 +509,7 @@ describe('the OpenAPI conformance', () => {
   beforeAll(async () => {
     server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, player_seen_hints, player_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
     )
     app = createApp({ ...server, clock: frozenClock })
     const ana = await signUp('ana@example.com', 'Valdehierro')

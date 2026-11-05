@@ -11,10 +11,10 @@ const productionPercent = {
 }
 
 const durationPercent = {
-  spring: { build: 100 },
-  summer: { build: 75 },
-  fall: { build: 100 },
-  winter: { build: 100 },
+  spring: { build: 100, study: 100 },
+  summer: { build: 75, study: 100 },
+  fall: { build: 100, study: 100 },
+  winter: { build: 100, study: 75 },
 }
 
 const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
@@ -57,7 +57,25 @@ describe('TownContentSchema', () => {
       epoch: '2026-10-05T00:00:00Z',
       daysPerSeason: 7,
       productionPercent,
-      durationPercent: { ...durationPercent, winter: { build: 0 } },
+      durationPercent: { ...durationPercent, winter: { build: 0, study: 75 } },
+    }
+
+    expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)
+  })
+
+  it('parses the study percent of each season', () => {
+    expect(TownContentSchema.parse(townContent()).seasons.durationPercent.winter).toEqual({
+      build: 100,
+      study: 75,
+    })
+  })
+
+  it('refuses a season without a study percent', () => {
+    const seasons = {
+      epoch: '2026-10-05T00:00:00Z',
+      daysPerSeason: 7,
+      productionPercent,
+      durationPercent: { ...durationPercent, winter: { build: 100 } },
     }
 
     expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)

@@ -23,11 +23,9 @@ import {
   type StoredFief,
   type StudySlot,
 } from '@mygame/domain'
-import { and, asc, eq, inArray, isNotNull, isNull, type SQL, sql } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import type { FiefWithCards } from '../../fief/FiefReader'
 import { byEarnedAt } from '../byEarnedAt'
-import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
 import type { PostgresSession } from './connectPostgres'
 import { isCampTier } from './isCampTier'
 import { jsonAggregateOf } from './jsonAggregateOf'
@@ -66,8 +64,6 @@ type MarchRow = typeof fiefMarches.$inferSelect
 
 type IncomingCargoRow = typeof fiefIncomingCargo.$inferSelect
 
-type SkillRow = typeof playerSkills.$inferSelect
-
 type FiefReadRow = {
   readonly fief: FiefRow
   readonly recruitOrder: RecruitOrderRow | null
@@ -78,7 +74,6 @@ type FiefReadRow = {
   readonly arts: unknown
   readonly units: unknown
   readonly skills: unknown
-  readonly cards: unknown
 }
 
 const AggregatedBuildingsSchema = z.array(
@@ -213,15 +208,6 @@ const skillsOf = (aggregate: unknown): ReadonlyArray<EarnedSkill> =>
       earnedAt: Instant.fromEpochMilliseconds(Date.parse(skill.earnedAt)),
     }))
     .sort(byEarnedAt)
-
-const skillRowsOf = (fief: Fief): ReadonlyArray<SkillRow> =>
-  fief.skills.map((skill) => ({
-    playerId: fief.playerId,
-    lessonId: skill.lessonId,
-    resource: skill.resource,
-    ratePercent: skill.ratePercent,
-    earnedAt: dateOf(skill.earnedAt),
-  }))
 
 const recruitOrderOf = (row: RecruitOrderRow | null): RecruitOrder => {
   if (row === null) {
@@ -537,22 +523,7 @@ const slotOf = (row: FiefRow): BuildSlot => {
   }
 }
 
-const lessonStudySlotOf = (row: FiefRow, lessonId: string): StudySlot => {
-  if (row.studyStartedAt === null || row.studyFinishesAt === null) {
-    throw new Error(`Fief ${row.id} stores a half-written lesson study`)
-  }
-  return {
-    kind: 'lesson',
-    lessonId,
-    startedAt: instantOf(row.studyStartedAt),
-    finishesAt: instantOf(row.studyFinishesAt),
-  }
-}
-
 const studySlotOf = (row: FiefRow): StudySlot => {
-  if (row.studyLessonId !== null) {
-    return lessonStudySlotOf(row, row.studyLessonId)
-  }
   if (row.studyArt === null) {
     return { kind: 'idle' }
   }
@@ -659,7 +630,7 @@ type StudyCostColumns = Pick<
 
 type StudyColumns = Pick<
   FiefRow,
-  'studyArt' | 'studyLevel' | 'studyStartedAt' | 'studyFinishesAt' | 'studyLessonId'
+  'studyArt' | 'studyLevel' | 'studyStartedAt' | 'studyFinishesAt'
 > &
   StudyCostColumns
 
@@ -679,7 +650,6 @@ const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
         studyLevel: null,
         studyStartedAt: null,
         studyFinishesAt: null,
-        studyLessonId: null,
         ...studyCostColumnsOf(noCost),
       }
     case 'busy':
@@ -688,17 +658,7 @@ const studyColumnsOf = (studySlot: StudySlot): StudyColumns => {
         studyLevel: studySlot.targetLevel,
         studyStartedAt: dateOf(studySlot.startedAt),
         studyFinishesAt: dateOf(studySlot.finishesAt),
-        studyLessonId: null,
         ...studyCostColumnsOf(studySlot.cost),
-      }
-    case 'lesson':
-      return {
-        studyArt: null,
-        studyLevel: null,
-        studyStartedAt: dateOf(studySlot.startedAt),
-        studyFinishesAt: dateOf(studySlot.finishesAt),
-        studyLessonId: studySlot.lessonId,
-        ...studyCostColumnsOf(noCost),
       }
     default: {
       const unreachable: never = studySlot
@@ -864,30 +824,11 @@ export class DrizzleFiefRepository implements FiefRepository {
   }
 
   async fiefOf(fiefId: FiefId): Promise<Result<Fief | undefined, DomainError>> {
-    const [row] = await this.fiefRowsOf(fiefId, sql<unknown>`NULL`)
+    const [row] = await this.fiefRowsOf(fiefId)
     return row === undefined ? ok(undefined) : Fief.restore(storedFiefOf(row))
   }
 
-  async fiefWithCardsOf(fiefId: FiefId): Promise<Result<FiefWithCards | undefined, DomainError>> {
-    const [row] = await this.fiefRowsOf(fiefId, aggregatedCardsOf(fiefs.playerId))
-    if (row === undefined) {
-      return ok(undefined)
-    }
-    const fief = Fief.restore(storedFiefOf(row))
-    if (!fief.ok) {
-      return fief
-    }
-    const cards = heldCardsOf(row.cards, row.fief.playerId)
-    if (!cards.ok) {
-      return cards
-    }
-    return ok({ fief: fief.value, cards: cards.value })
-  }
-
-  private async fiefRowsOf(
-    fiefId: FiefId,
-    cards: SQL<unknown>,
-  ): Promise<ReadonlyArray<FiefReadRow>> {
+  private async fiefRowsOf(fiefId: FiefId): Promise<ReadonlyArray<FiefReadRow>> {
     const query = this.database
       .select({
         fief: fiefs,
@@ -899,7 +840,6 @@ export class DrizzleFiefRepository implements FiefRepository {
         arts: aggregatedArts,
         units: aggregatedUnits,
         skills: aggregatedSkills,
-        cards,
       })
       .from(fiefs)
       .leftJoin(fiefRecruitOrders, eq(fiefRecruitOrders.fiefId, fiefs.id))
@@ -913,7 +853,6 @@ export class DrizzleFiefRepository implements FiefRepository {
   async save(fief: Fief): Promise<Result<void, DomainError>> {
     const { id, ...changes } = fiefRowOf(fief)
     const marchRow = marchRowOf(fief)
-    const skillRows = skillRowsOf(fief)
     try {
       await this.database.transaction(async (transaction) => {
         await transaction
@@ -923,12 +862,6 @@ export class DrizzleFiefRepository implements FiefRepository {
         await saveLevelRows(transaction, fief, id)
         await saveUnitRows(transaction, fief, id)
         await replaceInFlightRows(transaction, fief, id, marchRow)
-        if (skillRows.length > 0) {
-          await transaction
-            .insert(playerSkills)
-            .values([...skillRows])
-            .onConflictDoNothing({ target: [playerSkills.playerId, playerSkills.lessonId] })
-        }
       })
       return ok(undefined)
     } catch (failure) {

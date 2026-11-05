@@ -1,24 +1,24 @@
 import {
   type DomainError,
-  type FiefOfPlayer,
   type Hint,
+  type PlayerId,
   type Result,
   requestHint,
   type WordId,
 } from '@mygame/domain'
-import { mutateEveryFiefAfterResolve } from '../fief/mutateEveryFiefAfterResolve'
+import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 
-export const requestHintOf = async (
-  fiefOfPlayer: FiefOfPlayer,
+export const requestHintOf = (
+  playerId: PlayerId,
   wordId: WordId,
   dependencies: LearningDependencies,
 ): Promise<Result<Hint, DomainError>> =>
-  mutateEveryFiefAfterResolve(
-    fiefOfPlayer,
+  mutateTown(
+    playerId,
     ({ cards, pendingReviews }, clock) =>
       requestHint(
-        { playerId: fiefOfPlayer.playerId, wordId },
+        { playerId, wordId },
         {
           cards,
           pendingReviews,

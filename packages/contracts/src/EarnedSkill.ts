@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ResourceKindSchema } from './ResourceKind'
+import { ResourceKindSchema } from './town/ResourceKind'
 import { InstantSchema, WholeCountSchema } from './Wire'
 
 export const EarnedSkillSchema = z.strictObject({
