@@ -662,22 +662,22 @@ describe('the fief route', () => {
     expect(season).toBeNull()
   })
 
-  const minutesToFirstAutumnRead =
+  const minutesToFirstFallRead =
     (Date.parse('2026-10-20T08:00:00Z') - signedUpAt) / millisecondsPerMinute
 
-  it('answers autumn of year 1 and the instant it ends', async () => {
+  it('answers fall of year 1 and the instant it ends', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    clock.advanceMinutes(minutesToFirstAutumnRead)
+    clock.advanceMinutes(minutesToFirstFallRead)
 
     const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
-    expect(season).toMatchObject({ kind: 'autumn', year: 1, endsAt: '2026-10-26T00:00:00.000Z' })
+    expect(season).toMatchObject({ kind: 'fall', year: 1, endsAt: '2026-10-26T00:00:00.000Z' })
   })
 
-  it('answers the autumn gold rate raised by its multiplier', async () => {
+  it('answers the fall gold rate raised by its multiplier', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    clock.advanceMinutes(minutesToFirstAutumnRead)
+    clock.advanceMinutes(minutesToFirstFallRead)
 
     const response = await fiefOf(ana)
 
@@ -751,14 +751,14 @@ describe('the fief route', () => {
     expect(season?.durationPercent).toEqual({ build: 100, study: 75, train: 100, road: 100 })
   })
 
-  it('answers the road percent of autumn', async () => {
+  it('answers the road percent of fall', async () => {
     const ana = await signUp('ana@example.com', 'Valdehierro')
-    clock.advanceMinutes(minutesToFirstAutumnRead)
+    clock.advanceMinutes(minutesToFirstFallRead)
 
     const response = await fiefOf(ana)
 
     const { season } = FiefOverviewSchema.parse(await response.json())
-    expect(season?.kind).toBe('autumn')
+    expect(season?.kind).toBe('fall')
     expect(season?.durationPercent).toEqual({ build: 100, study: 100, train: 100, road: 75 })
   })
 

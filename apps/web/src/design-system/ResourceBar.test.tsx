@@ -105,7 +105,7 @@ it('marks a lowered rate with its effect', () => {
 })
 
 it('marks a raised rate with its effect', () => {
-  render(<ResourceBar {...storeMarked({ season: 'autumn', words: 'Otoño: +25 % de oro' })} />)
+  render(<ResourceBar {...storeMarked({ season: 'fall', words: 'Otoño: +25 % de oro' })} />)
 
   const granary = screen.getByRole('listitem', { name: 'Comida' })
   expect(within(granary).getByText('Otoño: +25 % de oro')).toBeDefined()

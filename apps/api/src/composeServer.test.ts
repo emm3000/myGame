@@ -107,13 +107,13 @@ const minimalContentFiles: Readonly<Record<string, object>> = {
       multiplierPercent: {
         spring: { wood: 100, stone: 100, iron: 100, gold: 100, food: 125 },
         summer: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
-        autumn: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
+        fall: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
         winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
       },
       durationPercent: {
         spring: { build: 100, study: 100, train: 75, road: 100 },
         summer: { build: 75, study: 100, train: 100, road: 100 },
-        autumn: { build: 100, study: 100, train: 100, road: 75 },
+        fall: { build: 100, study: 100, train: 100, road: 75 },
         winter: { build: 100, study: 75, train: 100, road: 100 },
       },
     },

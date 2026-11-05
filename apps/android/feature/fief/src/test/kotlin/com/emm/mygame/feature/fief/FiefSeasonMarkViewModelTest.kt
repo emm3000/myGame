@@ -24,11 +24,11 @@ class FiefSeasonMarkViewModelTest {
 
     @Test
     fun `marks the resource the season raises with its change from the neutral rate`() = runTest {
-        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Autumn, ResourceKind.Gold to 125))
+        val viewModel: FiefViewModel = openOn(seasonal(SeasonKind.Fall, ResourceKind.Gold to 125))
 
         viewModel.state.test {
             val mark: FiefUiState.SeasonMark? = markOf(awaitContent(), ResourceKind.Gold)
-            assertEquals(FiefUiState.SeasonMark(SeasonKind.Autumn, change = 25), mark)
+            assertEquals(FiefUiState.SeasonMark(SeasonKind.Fall, change = 25), mark)
         }
     }
 

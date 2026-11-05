@@ -8,8 +8,8 @@ const secondsPerDay = 86_400
 
 const seasonAfter: Readonly<Record<SeasonKind, SeasonKind>> = {
   spring: 'summer',
-  summer: 'autumn',
-  autumn: 'winter',
+  summer: 'fall',
+  fall: 'winter',
   winter: 'spring',
 }
 

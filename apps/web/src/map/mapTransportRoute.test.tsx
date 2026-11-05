@@ -53,8 +53,8 @@ const ridges = provinceWithPlots(3, 'ridges', {
   13: { name: 'Hontanar', isOwn: false },
 })
 
-const autumn: NonNullable<FiefOverview['season']> = {
-  kind: 'autumn',
+const fall: NonNullable<FiefOverview['season']> = {
+  kind: 'fall',
   year: 1,
   endsAt: '2026-09-25T12:00:00.000Z',
   multiplierPercent: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
@@ -244,9 +244,9 @@ it('previews the road of the slowest kind', async () => {
   expect(linesOf(form).slice(1)).toEqual(['Camino de ida: 15:00', 'Llegada en 15:00'])
 })
 
-it('marks the road shortened in autumn', async () => {
+it('marks the road shortened in fall', async () => {
   const form = await openTransport({
-    fief: async () => ({ ok: true, value: { ...sotoverde, season: autumn } }),
+    fief: async () => ({ ok: true, value: { ...sotoverde, season: fall } }),
   })
 
   typeSixRiders(form)

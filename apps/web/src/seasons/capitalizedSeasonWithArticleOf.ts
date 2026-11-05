@@ -1,5 +1,5 @@
 import {
-  namesSeasonsWithArticleAutumn,
+  namesSeasonsWithArticleFall,
   namesSeasonsWithArticleSpring,
   namesSeasonsWithArticleSummer,
   namesSeasonsWithArticleWinter,
@@ -10,7 +10,7 @@ import { capitalize } from '../design-system/capitalize'
 const seasonsWithArticle: Readonly<Record<SeasonKind, () => string>> = {
   spring: namesSeasonsWithArticleSpring,
   summer: namesSeasonsWithArticleSummer,
-  autumn: namesSeasonsWithArticleAutumn,
+  fall: namesSeasonsWithArticleFall,
   winter: namesSeasonsWithArticleWinter,
 }
 

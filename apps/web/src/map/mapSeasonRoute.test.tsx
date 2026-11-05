@@ -31,8 +31,8 @@ const seasons: Readonly<Record<SeasonKind, NonNullable<FiefOverview['season']>>>
     multiplierPercent: neutralPercents,
     durationPercent: { ...neutralDurations, build: 75 },
   },
-  autumn: {
-    kind: 'autumn',
+  fall: {
+    kind: 'fall',
     year: 1,
     endsAt: '2026-09-25T12:00:00.000Z',
     multiplierPercent: { ...neutralPercents, gold: 125 },
@@ -131,8 +131,8 @@ const lineOf = (form: HTMLElement, heading: string): HTMLElement => {
 
 const roadMark = 'El otoño acorta el camino'
 
-it('shortens the road in autumn and marks it', async () => {
-  const form = await openMarchTo(lowlands, 12, fiefIn(seasons.autumn))
+it('shortens the road in fall and marks it', async () => {
+  const form = await openMarchTo(lowlands, 12, fiefIn(seasons.fall))
 
   sendParty(form, '12', '0')
   type(form, 'Horas de forrajeo', '2')
@@ -201,7 +201,7 @@ it('shortens the attack road and keeps its loot', async () => {
   const form = await openAttackOn(
     uplandsWithCamp,
     7,
-    fiefIn(seasons.autumn, { infantry: 10, cavalry: 0, archer: 0, settler: 0 }),
+    fiefIn(seasons.fall, { infantry: 10, cavalry: 0, archer: 0, settler: 0 }),
   )
 
   type(form, 'Infantes a enviar', '10')
@@ -224,7 +224,7 @@ it('marks nothing before the calendar starts', async () => {
 })
 
 it('draws the province grid with no scene band', async () => {
-  await showMap(uplands, fiefIn(seasons.autumn))
+  await showMap(uplands, fiefIn(seasons.fall))
 
   expect(document.querySelector('[data-terrain]')).toBeNull()
   expect(document.querySelector('img')).toBeNull()

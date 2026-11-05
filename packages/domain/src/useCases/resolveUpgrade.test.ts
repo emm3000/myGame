@@ -107,7 +107,7 @@ const springDoublingWoodFrom = (epoch: Instant): BuildingCatalog => ({
       multiplierPercent: {
         spring: { ...unchangedPercents, wood: 200 },
         summer: unchangedPercents,
-        autumn: unchangedPercents,
+        fall: unchangedPercents,
         winter: unchangedPercents,
       },
       durationPercent: neutralSeasons.durationPercent,
@@ -1356,7 +1356,7 @@ const seasonalDurationsOver = (base: BuildingCatalog): BuildingCatalog => ({
       durationPercent: {
         spring: { build: 100, study: 100, train: 100, road: 100 },
         summer: { build: 75, study: 100, train: 100, road: 100 },
-        autumn: { build: 100, study: 100, train: 100, road: 75 },
+        fall: { build: 100, study: 100, train: 100, road: 75 },
         winter: { build: 100, study: 75, train: 100, road: 100 },
       },
     },
@@ -1364,21 +1364,21 @@ const seasonalDurationsOver = (base: BuildingCatalog): BuildingCatalog => ({
 })
 
 describe('resolveUpgrade across seasons', () => {
-  it('keeps the summer duration of an entry that starts in autumn', async () => {
+  it('keeps the summer duration of an entry that starts in fall', async () => {
     const midSummer = daysAfterSeasonEpoch(10)
-    const firstDayOfAutumn = daysAfterSeasonEpoch(15)
+    const firstDayOfFall = daysAfterSeasonEpoch(15)
     const seasonalCatalog = seasonalDurationsOver(
       inMemoryCatalog([sawmillLevel(1, 30), { ...sawmillLevel(2, 60), durationSeconds: 307 }]),
     )
-    const sawmillBuildingIntoAutumn = storedFief({
+    const sawmillBuildingIntoFall = storedFief({
       storedAt: midSummer,
       slot: {
         ...sawmillFinishingAfterHours(1),
         startedAt: midSummer,
-        finishesAt: firstDayOfAutumn,
+        finishesAt: firstDayOfFall,
       },
     })
-    const fiefs = inMemoryFiefRepository([sawmillBuildingIntoAutumn])
+    const fiefs = inMemoryFiefRepository([sawmillBuildingIntoFall])
     const enqueued = await enqueueBuilding(
       { playerId: 'lord', fiefId: 'fief-1', building: 'sawmill' },
       { fiefs, catalog: seasonalCatalog, clock: frozenClock(midSummer) },
@@ -1393,7 +1393,7 @@ describe('resolveUpgrade across seasons', () => {
         camps: inMemoryCampRegistry([]),
         catalog: seasonalCatalog,
         ids: sequentialIds(),
-        clock: frozenClock(secondsAfter(firstDayOfAutumn, 10)),
+        clock: frozenClock(secondsAfter(firstDayOfFall, 10)),
       },
     )
 
@@ -1401,8 +1401,8 @@ describe('resolveUpgrade across seasons', () => {
     expect(result.value.fief.slot).toMatchObject({
       kind: 'busy',
       targetLevel: 2,
-      startedAt: firstDayOfAutumn,
-      finishesAt: secondsAfter(firstDayOfAutumn, 231),
+      startedAt: firstDayOfFall,
+      finishesAt: secondsAfter(firstDayOfFall, 231),
     })
   })
 

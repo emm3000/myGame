@@ -823,17 +823,17 @@ const seasonalDependencies = (now: Instant) => ({
 describe('dispatchMarch across seasons', () => {
   it('fixes the road and the loot with the season in force at dispatch', async () => {
     const inSpring = seasonalDependencies(daysAfterSeasonEpoch(3))
-    const inAutumn = seasonalDependencies(daysAfterSeasonEpoch(17))
+    const inFall = seasonalDependencies(daysAfterSeasonEpoch(17))
 
     await dispatchMarch(twelveInfantryToTheLowlands, inSpring)
-    await dispatchMarch(twelveInfantryToTheLowlands, inAutumn)
+    await dispatchMarch(twelveInfantryToTheLowlands, inFall)
 
     expect(inSpring.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       oneWaySeconds: 600,
       loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 90 },
       lootPercent: { ...unscaled, food: 125 },
     })
-    expect(inAutumn.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
+    expect(inFall.fiefs.storedFiefOf('fief-1')?.march).toMatchObject({
       oneWaySeconds: 450,
       loot: { wood: 72, stone: 0, iron: 0, gold: 0, food: 72 },
       lootPercent: { ...unscaled, gold: 125 },

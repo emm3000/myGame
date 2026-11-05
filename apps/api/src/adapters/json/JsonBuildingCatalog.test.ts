@@ -56,13 +56,13 @@ const plainFief: FiefContent = {
     multiplierPercent: {
       spring: { wood: 100, stone: 100, iron: 100, gold: 100, food: 125 },
       summer: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
-      autumn: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
+      fall: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
       winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
     },
     durationPercent: {
       spring: { build: 100, study: 100, train: 100, road: 100 },
       summer: { build: 100, study: 100, train: 100, road: 100 },
-      autumn: { build: 100, study: 100, train: 100, road: 75 },
+      fall: { build: 100, study: 100, train: 100, road: 75 },
       winter: { build: 100, study: 100, train: 100, road: 100 },
     },
   },
@@ -456,7 +456,7 @@ describe('JsonBuildingCatalog', () => {
       multiplierPercent: {
         spring: { ...unchangedRates, food: 125 },
         summer: unchangedRates,
-        autumn: { ...unchangedRates, gold: 125 },
+        fall: { ...unchangedRates, gold: 125 },
         winter: { ...unchangedRates, food: 75 },
       },
     })
@@ -470,23 +470,23 @@ describe('JsonBuildingCatalog', () => {
     ).toEqual({
       spring: { ...unchangedDurations, train: 75 },
       summer: { ...unchangedDurations, build: 75 },
-      autumn: { ...unchangedDurations, road: 75 },
+      fall: { ...unchangedDurations, road: 75 },
       winter: { ...unchangedDurations, study: 75 },
     })
   })
 
   it('reads the train percents from the shipped content', () => {
-    const { spring, summer, autumn, winter } =
+    const { spring, summer, fall, winter } =
       JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent
 
-    expect([spring.train, summer.train, autumn.train, winter.train]).toEqual([75, 100, 100, 100])
+    expect([spring.train, summer.train, fall.train, winter.train]).toEqual([75, 100, 100, 100])
   })
 
-  it('reads the shipped road percents: autumn 75, every other season 100', () => {
-    const { spring, summer, autumn, winter } =
+  it('reads the shipped road percents: fall 75, every other season 100', () => {
+    const { spring, summer, fall, winter } =
       JsonBuildingCatalog.fromDirectory(shippedContent).fiefSettings().seasons.durationPercent
 
-    expect([spring.road, summer.road, autumn.road, winter.road]).toEqual([100, 100, 75, 100])
+    expect([spring.road, summer.road, fall.road, winter.road]).toEqual([100, 100, 75, 100])
   })
 
   it('reads the infantry terms from the shipped content', () => {
@@ -570,12 +570,12 @@ describe('JsonBuildingCatalog', () => {
 
   it('fails at start-up on a season without a road percent', () => {
     const directory = withFiefContent((content) => {
-      const { road: _, ...autumnWithoutRoad } = content.seasons.durationPercent.autumn
+      const { road: _, ...fallWithoutRoad } = content.seasons.durationPercent.fall
       return {
         ...content,
         seasons: {
           ...content.seasons,
-          durationPercent: { ...content.seasons.durationPercent, autumn: autumnWithoutRoad },
+          durationPercent: { ...content.seasons.durationPercent, fall: fallWithoutRoad },
         },
       }
     })
@@ -590,7 +590,7 @@ describe('JsonBuildingCatalog', () => {
         ...content.seasons,
         durationPercent: {
           ...content.seasons.durationPercent,
-          autumn: { ...content.seasons.durationPercent.autumn, road: 0 },
+          fall: { ...content.seasons.durationPercent.fall, road: 0 },
         },
       },
     }))

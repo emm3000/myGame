@@ -31,8 +31,8 @@ private const val NEUTRAL_PERCENT: Int = 100
 
 private fun SeasonKind.next(): SeasonKind = when (this) {
     SeasonKind.Spring -> SeasonKind.Summer
-    SeasonKind.Summer -> SeasonKind.Autumn
-    SeasonKind.Autumn -> SeasonKind.Winter
+    SeasonKind.Summer -> SeasonKind.Fall
+    SeasonKind.Fall -> SeasonKind.Winter
     SeasonKind.Winter -> SeasonKind.Spring
 }
 

@@ -1353,7 +1353,7 @@
             "properties": {
               "kind": {
                 "type": "string",
-                "enum": ["spring", "summer", "autumn", "winter"]
+                "enum": ["spring", "summer", "fall", "winter"]
               },
               "year": {
                 "type": "integer",

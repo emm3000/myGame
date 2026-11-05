@@ -70,13 +70,13 @@ private fun seasonTimeLeftOf(countdown: FiefUiState.SeasonCountdown): String = w
 internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
     SeasonKind.Spring -> R.string.season_spring
     SeasonKind.Summer -> R.string.season_summer
-    SeasonKind.Autumn -> R.string.season_autumn
+    SeasonKind.Fall -> R.string.season_fall
     SeasonKind.Winter -> R.string.season_winter
 }
 
 internal fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {
     SeasonKind.Spring -> MyGameIcons.spring
     SeasonKind.Summer -> MyGameIcons.summer
-    SeasonKind.Autumn -> MyGameIcons.autumn
+    SeasonKind.Fall -> MyGameIcons.fall
     SeasonKind.Winter -> MyGameIcons.winter
 }

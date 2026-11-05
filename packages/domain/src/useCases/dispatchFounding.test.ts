@@ -375,7 +375,7 @@ describe('dispatchFounding', () => {
 })
 
 describe('dispatchFounding across seasons', () => {
-  it('walks the settler 675 seconds in an autumn of 75 %', async () => {
+  it('walks the settler 675 seconds in a fall of 75 %', async () => {
     const dependencies = {
       ...dependenciesOver([storedFief({})], seasonalCatalogOf(catalog)),
       clock: frozenClock(daysAfterSeasonEpoch(17)),

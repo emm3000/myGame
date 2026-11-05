@@ -24,12 +24,12 @@ export const seasonalCatalogOf = (catalog: BuildingCatalog): BuildingCatalog => 
       multiplierPercent: {
         spring: { ...unscaled, food: 125 },
         summer: unscaled,
-        autumn: { ...unscaled, gold: 125 },
+        fall: { ...unscaled, gold: 125 },
         winter: { ...unscaled, food: 75 },
       },
       durationPercent: {
         ...neutralSeasons.durationPercent,
-        autumn: { ...neutralSeasons.durationPercent.autumn, road: 75 },
+        fall: { ...neutralSeasons.durationPercent.fall, road: 75 },
       },
     },
   }),

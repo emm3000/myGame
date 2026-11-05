@@ -38,13 +38,13 @@ const shippedSettings: FiefSettings = {
     multiplierPercent: {
       spring: neutralRates,
       summer: neutralRates,
-      autumn: neutralRates,
+      fall: neutralRates,
       winter: neutralRates,
     },
     durationPercent: {
       spring: { build: 90, study: 90, train: 75, road: 100 },
       summer: { build: 75, study: 100, train: 100, road: 100 },
-      autumn: { build: 100, study: 100, train: 100, road: 75 },
+      fall: { build: 100, study: 100, train: 100, road: 75 },
       winter: { build: 100, study: 75, train: 100, road: 100 },
     },
   },

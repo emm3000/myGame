@@ -39,7 +39,7 @@ const weeklySettings: FiefSettings = {
     multiplierPercent: {
       spring: neutralPercents,
       summer: neutralPercents,
-      autumn: neutralPercents,
+      fall: neutralPercents,
       winter: neutralPercents,
     },
     durationPercent: neutralSeasons.durationPercent,
@@ -71,16 +71,32 @@ describe('seasonAt', () => {
     })
   })
 
+  it('turns summer into fall at the season boundary', () => {
+    const lastInstantOfSummer = Instant.fromEpochMilliseconds(
+      daysAfterEpoch(14).epochMilliseconds - 1,
+    )
+
+    expect(seasonAt(lastInstantOfSummer, weeklySettings)?.kind).toBe('summer')
+    expect(seasonAt(daysAfterEpoch(14), weeklySettings)).toEqual({
+      kind: 'fall',
+      year: 1,
+      endsAt: daysAfterEpoch(21),
+    })
+    expect(
+      [0, 7, 14, 21].map((days) => seasonAt(daysAfterEpoch(days), weeklySettings)?.kind),
+    ).toEqual(['spring', 'summer', 'fall', 'winter'])
+  })
+
   it('answers no season before the epoch', () => {
     expect(seasonAt(daysAfterEpoch(-0.001), weeklySettings)).toBeUndefined()
   })
 
   it('ends a season at the instant the next begins', () => {
-    const lastInstantOfAutumn = Instant.fromEpochMilliseconds(
+    const lastInstantOfFall = Instant.fromEpochMilliseconds(
       daysAfterEpoch(21).epochMilliseconds - 1,
     )
 
-    expect(seasonAt(lastInstantOfAutumn, weeklySettings)?.kind).toBe('autumn')
+    expect(seasonAt(lastInstantOfFall, weeklySettings)?.kind).toBe('fall')
     expect(seasonAt(daysAfterEpoch(21), weeklySettings)).toEqual({
       kind: 'winter',
       year: 1,

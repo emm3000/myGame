@@ -168,9 +168,9 @@
     <string name="review_title">Repaso</string>
     <string name="review_wrong">No es correcto.</string>
     <string name="review_yours">Tu respuesta: {answer}</string>
-    <string name="season_autumn">Otoño</string>
     <string name="season_countdown">{season} en {timeLeft}</string>
     <string name="season_days_left">{days, plural, =1 {{days, number,0} día} other {{days, number,0} días}}</string>
+    <string name="season_fall">Otoño</string>
     <string name="season_line">{season}, año {year}</string>
     <string name="season_separator">·</string>
     <string name="season_spring">Primavera</string>
