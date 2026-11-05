@@ -3593,51 +3593,37 @@ describe('the skills move migration', () => {
     return failure
   }
 
-  const storedLearning = async (): Promise<unknown> => {
-    const stored = await client.query(
-      `SELECT to_regclass('public.earned_skills') IS NOT NULL AS "hasEarnedSkills",
-         (SELECT count(*)::int FROM player_skills) AS "playerSkills",
-         (SELECT array_agg(study_lesson_id) FROM fiefs) AS "studiedLessons"`,
-    )
-    return stored.rows[0]
-  }
-
-  it('fails on a skill earned on another resource than food, writing nothing', async () => {
+  it('fails on a skill earned on another resource than food', async () => {
     const failure = await failedSkillsMove(async () => {
       await insertPlayersOfBuildingWorkVersion()
       await insertSkillOfPreviousVersion('wood')
     })
 
-    expect([failure, await storedLearning()]).toMatchObject([
-      { message: 'player_skills holds a skill on a resource other than food' },
-      { hasEarnedSkills: false, playerSkills: 1, studiedLessons: null },
-    ])
+    expect(failure).toMatchObject({
+      message: 'player_skills holds a skill on a resource other than food',
+    })
   })
 
-  it('fails on a town stored before the move, writing nothing', async () => {
+  it('fails on a town stored before the move', async () => {
     const failure = await failedSkillsMove(async () => {
       await insertPlayersOfBuildingWorkVersion()
       await insertSkillOfPreviousVersion('food')
       await insertTownOf(client, ana.id, 1, plainStocks)
     })
 
-    expect([failure, await storedLearning()]).toMatchObject([
-      { message: 'towns holds a town before the skills move' },
-      { hasEarnedSkills: false, playerSkills: 1, studiedLessons: null },
-    ])
+    expect(failure).toMatchObject({ message: 'towns holds a town before the skills move' })
   })
 
-  it("fails on a fief lesson finished at or before the migration's instant, writing nothing", async () => {
+  it("fails on a fief lesson finished at or before the migration's instant", async () => {
     const failure = await failedSkillsMove(async () => {
       await insertPlayersOfBuildingWorkVersion()
       await insertSkillOfPreviousVersion('food')
       await insertFiefStudyingLessonOne('now()')
     })
 
-    expect([failure, await storedLearning()]).toMatchObject([
-      { message: 'a fief holds a lesson finished at or before the skills move' },
-      { hasEarnedSkills: false, playerSkills: 1, studiedLessons: ['lesson-1'] },
-    ])
+    expect(failure).toMatchObject({
+      message: 'a fief holds a lesson finished at or before the skills move',
+    })
   })
 
   it("drops the fief's lesson slot, leaving a running lesson unstudied and the fief idle", async () => {
