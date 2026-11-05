@@ -46,7 +46,7 @@ Android strings are written as the ICU pattern, XML- and Android-escaped (`\`, `
 1. `missingFromEs` — a key of `en.json` missing from `es.json`.
 2. `unparsable` — a message, in either language, that does not parse.
 3. `argumentsDiffer` — the two languages name different arguments for one key.
-4. `voseo` — a voseo form in `es` (`vos`, `sos`, `tenés`, `podés`, `querés`, `sabés`, `mirá`, `elegí` and the rest of the list in `catalogProblemsOf.ts`), matched as a whole word with Unicode letter lookarounds, case-insensitive. JavaScript's `\b` breaks on accented letters, so never rewrite it with `\b`. The list holds forms that are also standard first-person preterites (`salí`, `elegí`, `escribí`); reword the line rather than shorten the list.
+4. `voseo` — a voseo form in `es` (`vos`, `sos`, `tenés`, `podés`, `querés`, `sabés`, `mirá` and the rest of the list in `catalogProblemsOf.ts`), matched as a whole word with Unicode letter lookarounds, case-insensitive. JavaScript's `\b` breaks on accented letters, so never rewrite it with `\b`. The list leaves out voseo imperatives that are also standard first-person preterites (`salí`, `elegí`, `escribí`), which a tú line may use.
 
 ## Drift test
 
