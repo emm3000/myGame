@@ -45,6 +45,8 @@ import {
 import {
   type FoundTown,
   type BuildingKind as PlaceKind,
+  type Report,
+  ReportSchema,
   type StartBuildingWork,
   type StopBuildingWork,
   type TownOverview,
@@ -97,6 +99,8 @@ export interface ApiClient {
   reviews(): Promise<ApiOutcome<Reviews>>
   reviewHint(wordId: string): Promise<ApiOutcome<ReviewHint>>
   answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
+  report(): Promise<ApiOutcome<Report>>
+  closeReport(): Promise<ApiRefusal | undefined>
   chronicle(fiefId: string): Promise<ApiOutcome<FiefChronicle>>
   provinceMap(fiefId: string, province?: number): Promise<ApiOutcome<ProvinceMap>>
   digest(): Promise<ApiOutcome<Digest>>
@@ -300,6 +304,11 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await postJson(`/reviews/${encodeURIComponent(wordId)}/answer`, request)
       return response === undefined ? unexpected : bodyOf(response, ReviewAnswerSchema)
     },
+    report: async () => {
+      const response = await send('/report', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, ReportSchema)
+    },
+    closeReport: async () => refusalOrNothing(await send('/report/close', { method: 'POST' })),
     chronicle: async (fiefId) => {
       const response = await send(fiefPathOf(fiefId, '/events'), { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, FiefChronicleSchema)

@@ -1,9 +1,9 @@
 import { digestStoreFull, digestStoreSubject } from '@mygame/catalog'
 import type { Digest } from '@mygame/contracts'
 import { chronicleRowOf } from '../chronicle/chronicleRowOf'
-import { formatInstant } from '../chronicle/formatInstant'
 import type { DigestFief, DigestRow } from '../design-system/DigestCard'
 import { resourceNameOf } from '../resources/resourceNameOf'
+import { formatInstant } from '../time/formatInstant'
 
 type DigestFiefEntry = Digest['fiefs'][number]
 

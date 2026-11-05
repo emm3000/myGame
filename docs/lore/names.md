@@ -217,7 +217,7 @@ Every line of this section is a proposal for the author, not yet accepted (S39, 
 
 ### The screen
 
-- The **review screen** is titled *Repaso*: what the player does there, in the register of *Crónica* and *Mapa*. Its **URL segment** is `repaso`, without accents, as a URL wants (The fief, above): `/feudo/$fiefId/repaso`. Whether the navigation gains *Repaso* beside *Feudo*, *Mapa* and *Crónica* is the design's call (#721); the Biblioteca links to it in any case (below).
+- The **review screen** is titled *Repaso*: what the player does there, in the register of *Crónica* and *Mapa*. Its URL is `/reviews`, with no fief id, opened from the Report (ADR 041); the navigation carries no *Repaso*, and the Biblioteca links to it too (below).
 - **Loading** reads *Estamos leyendo tu repaso…*, in the register of *Estamos leyendo la crónica…*. A failed read reads *No hemos podido leer tu repaso.* and the button *Volver a intentarlo*.
 - Above the cards, the **count due** reads *Por repasar: 5*, the cards due at the read, in the order the api answers them, due first. Slot: the count.
 

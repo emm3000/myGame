@@ -1,6 +1,6 @@
-import { chronicleToday } from '@mygame/catalog'
-import { formatLocalDay } from '../time/formatLocalDay'
-import { formatLocalTime } from '../time/formatLocalTime'
+import { timeToday } from '@mygame/catalog'
+import { formatLocalDay } from './formatLocalDay'
+import { formatLocalTime } from './formatLocalTime'
 
 const isSameDay = (instant: Date, now: Date): boolean =>
   instant.getFullYear() === now.getFullYear() &&
@@ -10,7 +10,7 @@ const isSameDay = (instant: Date, now: Date): boolean =>
 export function formatInstant(instant: Date, now: Date): string {
   const time = formatLocalTime(instant)
   if (isSameDay(instant, now)) {
-    return chronicleToday({ time })
+    return timeToday({ time })
   }
   const day = formatLocalDay(instant)
   const date = instant.getFullYear() === now.getFullYear() ? day : `${day} ${instant.getFullYear()}`

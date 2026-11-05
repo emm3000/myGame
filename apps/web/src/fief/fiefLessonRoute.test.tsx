@@ -47,6 +47,6 @@ it("links the library's lesson card to the reviews with no start button", async 
 
   expect(
     within(lessonCard()).getByRole('link', { name: lessonToReview() }).getAttribute('href'),
-  ).toBe(`${knownFiefPath}/repaso`)
+  ).toBe('/reviews')
   expect(within(lessonCard()).queryByRole('button')).toBeNull()
 })

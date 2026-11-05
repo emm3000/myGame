@@ -1,11 +1,11 @@
 import type { Reviews } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
-import { ReviewScreen, type ReviewScreenState } from '../../../review/ReviewScreen'
-import { type ReviewHandle, useReview } from '../../../review/useReview'
-import { useReviews } from '../../../review/useReviews'
-import { formatFinish } from '../../../time/formatFinish'
-import { secondsBetween } from '../../../time/secondsBetween'
+import { ReviewScreen, type ReviewScreenState } from '../../review/ReviewScreen'
+import { type ReviewHandle, useReview } from '../../review/useReview'
+import { useReviews } from '../../review/useReviews'
+import { formatFinish } from '../../time/formatFinish'
+import { secondsBetween } from '../../time/secondsBetween'
 
 function nextReviewOf(nextDueAt: string, at: Date): string {
   const remainingSeconds = Math.max(0, secondsBetween(at.toISOString(), nextDueAt))
@@ -41,6 +41,6 @@ function ReviewPage(): ReactElement {
   }
 }
 
-export const Route = createFileRoute('/_signedIn/feudo/$fiefId/repaso')({
+export const Route = createFileRoute('/_signedIn/reviews')({
   component: ReviewPage,
 })
