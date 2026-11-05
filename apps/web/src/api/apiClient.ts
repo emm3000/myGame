@@ -38,6 +38,7 @@ import {
   ReviewsSchema,
   type SignInRequest,
   type SignUpRequest,
+  type StartLessonRequest,
   type StartStudyRequest,
   type VerifyEmailRequest,
 } from '@mygame/contracts'
@@ -91,6 +92,8 @@ export interface ApiClient {
   foundTown(name: string): Promise<ApiOutcome<TownOverview>>
   startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
   stopBuildingWork(target: StopBuildingWork): Promise<ApiOutcome<TownOverview>>
+  startLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
+  stopLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   reviews(): Promise<ApiOutcome<Reviews>>
   reviewHint(wordId: string): Promise<ApiOutcome<ReviewHint>>
   answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
@@ -269,6 +272,17 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     },
     stopBuildingWork: async ({ building, level }) => {
       const response = await send(`/town/work/${building}/${level}`, { method: 'DELETE' })
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    startLesson: async (lessonId) => {
+      const request: StartLessonRequest = { lessonId }
+      const response = await postJson('/town/lessons', request)
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    stopLesson: async (lessonId) => {
+      const response = await send(`/town/lessons/${encodeURIComponent(lessonId)}`, {
+        method: 'DELETE',
+      })
       return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
     },
     reviews: async () => {

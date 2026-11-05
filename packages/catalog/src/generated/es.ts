@@ -273,11 +273,11 @@ export const refusalFiefNotFound = (): string => `No encontramos tus tierras.`
 export const refusalHintOnRecognition = (): string => `Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.`
 export const refusalInsufficientResources = (): string => `No tienes recursos suficientes.`
 export const refusalInvalidCredentials = (): string => `El correo o la contraseña no son correctos.`
-export const refusalLearningCapReached = (): string => `Ya tienes demasiadas palabras en aprendizaje. Repásalas antes de empezar otra lección.`
-export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste la lección 1: sus palabras están en tu repaso.`
-export const refusalLessonSchoolTooLow = (): string => `La lección 1 necesita una escuela. Levántala primero.`
-export const refusalLessonStudyNotFound = (): string => `La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.`
-export const refusalLessonUnderStudy = (): string => `La lección 1 ya está en estudio en uno de tus feudos. Espera a que termine.`
+export const refusalLearningCapReached = ({ cardsInLearning, learningCap }: { readonly cardsInLearning: string | number; readonly learningCap: string | number }): string => `Palabras en aprendizaje: ${String(cardsInLearning)} de ${String(learningCap)}. Repásalas antes de empezar otra lección.`
+export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste esa lección: sus palabras están en tu repaso.`
+export const refusalLessonSchoolTooLow = (): string => `Esa lección necesita una escuela de más nivel. Súbela primero.`
+export const refusalLessonStudyNotFound = (): string => `La escuela ya no estudia esa lección. No queda nada que parar.`
+export const refusalLessonUnderStudy = (): string => `La escuela ya está estudiando esa lección. Espera a que termine.`
 export const refusalLibraryLevelTooLow = (): string => `Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.`
 export const refusalMailNotSent = (): string => `No hemos podido enviar el correo. Vuelve a intentarlo en un momento.`
 export const refusalMalformedEmail = (): string => `Escribe un correo válido, como nombre@ejemplo.com.`
@@ -340,6 +340,27 @@ export const reviewSkillRate = ({ percent, resource }: { readonly percent: strin
 export const reviewTitle = (): string => `Repaso`
 export const reviewWrong = (): string => `No es correcto.`
 export const reviewYourAnswer = (): string => `Tu respuesta:`
+export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}`
+export const schoolLearningFull = ({ count }: { readonly count: string | number }): string => `La siguiente lección trae ${String(count)} palabras. Empieza los repasos.`
+export const schoolLessonCapReached = ({ cap, count, inLearning }: { readonly cap: string | number; readonly count: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}. Esta lección trae ${String(count)}.`
+export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | number }): string => `Necesita la escuela en nivel ${String(level)}`
+export const schoolLessonSlotBusy = ({ number }: { readonly number: string | number }): string => `La escuela está estudiando la lección ${String(number)}.`
+export const schoolLessonStudied = (): string => `Estudiada`
+export const schoolLessonStudy = ({ number }: { readonly number: string | number }): string => `Estudiar la lección ${String(number)}`
+export const schoolLessonStudying = (): string => `En estudio`
+export const schoolLessonTitle = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)}`
+export const schoolLessonWords = ({ count }: { readonly count: number }): string => `${count === 1 ? `1 palabra` : `${String(count)} palabras`}`
+export const schoolLessons = (): string => `Lecciones`
+export const schoolSkillName = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Habilidad de ${String(resource)}, nivel ${String(level)}`
+export const schoolSkillRate = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `+${String(percent)} % de ${String(resource)}`
+export const schoolSkills = (): string => `Tus habilidades`
+export const schoolSkillsNone = (): string => `Aún no tienes habilidades.`
+export const schoolSlotDone = (): string => `La lección está lista. Estamos leyendo tu pueblo otra vez…`
+export const schoolSlotIdle = (): string => `Ahora no hay ninguna lección en estudio.`
+export const schoolSlotRefund = (): string => `Si lo paras, la lección queda por estudiar y puedes volver a empezarla.`
+export const schoolSlotStop = (): string => `Parar el estudio`
+export const schoolSlotStopOf = ({ number }: { readonly number: string | number }): string => `Parar el estudio de la lección ${String(number)}`
+export const schoolSlotTitle = (): string => `En estudio`
 export const shellFiefSwitcherFullStore = ({ resource }: { readonly resource: string | number }): string => `Almacén lleno: ${String(resource)}`
 export const shellFiefSwitcherLabel = (): string => `Tus feudos`
 export const shellFiefSwitcherSeparator = (): string => `,`
@@ -386,6 +407,7 @@ export const townAtTopLevel = (): string => `Ya está en su nivel más alto.`
 export const townBuild = ({ level }: { readonly level: string | number }): string => `Construir nivel ${String(level)}`
 export const townCostName = ({ resource }: { readonly resource: string | number }): string => `de ${String(resource)}`
 export const townFull = ({ capacity }: { readonly capacity: string | number }): string => `Lleno: ${String(capacity)}`
+export const townGoToSchool = (): string => `Ir a la escuela`
 export const townLabelCity = (): string => `Ciudad`
 export const townLabelTown = (): string => `Pueblo`
 export const townLevel = ({ level }: { readonly level: string | number }): string => `Nivel ${String(level)}`

@@ -17,6 +17,7 @@ import { Route as GuestForgotPasswordRouteImport } from './routes/_guest/forgot-
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
+import { Route as SignedInSchoolRouteImport } from './routes/_signedIn/school'
 import { Route as SignedInFeudoFiefIdRouteImport } from './routes/_signedIn/feudo.$fiefId'
 import { Route as SignedInFeudoFiefIdIndexRouteImport } from './routes/_signedIn/feudo.$fiefId/index'
 import { Route as SignedInFeudoFiefIdCronicaRouteImport } from './routes/_signedIn/feudo.$fiefId/cronica'
@@ -62,6 +63,11 @@ const SignedInIndexRoute = SignedInIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInSchoolRoute = SignedInSchoolRouteImport.update({
+  id: '/school',
+  path: '/school',
+  getParentRoute: () => SignedInRoute,
+} as any)
 const SignedInFeudoFiefIdRoute = SignedInFeudoFiefIdRouteImport.update({
   id: '/feudo/$fiefId',
   path: '/feudo/$fiefId',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/school': typeof SignedInSchoolRoute
   '/feudo/$fiefId': typeof SignedInFeudoFiefIdRouteWithChildren
   '/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
   '/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/school': typeof SignedInSchoolRoute
   '/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
   '/feudo/$fiefId/repaso': typeof SignedInFeudoFiefIdRepasoRoute
   '/feudo/$fiefId': typeof SignedInFeudoFiefIdIndexRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/_guest/forgot-password': typeof GuestForgotPasswordRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
+  '/_signedIn/school': typeof SignedInSchoolRoute
   '/_signedIn/': typeof SignedInIndexRoute
   '/_signedIn/feudo/$fiefId': typeof SignedInFeudoFiefIdRouteWithChildren
   '/_signedIn/feudo/$fiefId/cronica': typeof SignedInFeudoFiefIdCronicaRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
+    | '/school'
     | '/feudo/$fiefId'
     | '/feudo/$fiefId/cronica'
     | '/feudo/$fiefId/repaso'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
+    | '/school'
     | '/feudo/$fiefId/cronica'
     | '/feudo/$fiefId/repaso'
     | '/feudo/$fiefId'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/_guest/forgot-password'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
+    | '/_signedIn/school'
     | '/_signedIn/'
     | '/_signedIn/feudo/$fiefId'
     | '/_signedIn/feudo/$fiefId/cronica'
@@ -251,6 +263,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof SignedInIndexRouteImport
+      parentRoute: typeof SignedInRoute
+    }
+    '/_signedIn/school': {
+      id: '/_signedIn/school'
+      path: '/school'
+      fullPath: '/school'
+      preLoaderRoute: typeof SignedInSchoolRouteImport
       parentRoute: typeof SignedInRoute
     }
     '/_signedIn/feudo/$fiefId': {
@@ -332,11 +351,13 @@ const SignedInFeudoFiefIdRouteWithChildren =
   SignedInFeudoFiefIdRoute._addFileChildren(SignedInFeudoFiefIdRouteChildren)
 
 interface SignedInRouteChildren {
+  SignedInSchoolRoute: typeof SignedInSchoolRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
   SignedInFeudoFiefIdRoute: typeof SignedInFeudoFiefIdRouteWithChildren
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
+  SignedInSchoolRoute: SignedInSchoolRoute,
   SignedInIndexRoute: SignedInIndexRoute,
   SignedInFeudoFiefIdRoute: SignedInFeudoFiefIdRouteWithChildren,
 }

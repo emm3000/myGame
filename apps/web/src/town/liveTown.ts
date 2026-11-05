@@ -8,12 +8,19 @@ export interface LiveWork {
   readonly remainingSeconds: number
 }
 
+export interface LiveLesson {
+  readonly lessonId: string
+  readonly remainingSeconds: number
+  readonly totalSeconds: number
+}
+
 export interface LiveTown {
   readonly overview: TownOverview
   readonly at: Date
   readonly stocks: LiveStocks
   readonly slot: (LiveWork & { readonly totalSeconds: number }) | null
   readonly waitingList: ReadonlyArray<LiveWork>
+  readonly lessonSlot: LiveLesson | null
 }
 
 const secondsPerHour = 3600
@@ -55,6 +62,18 @@ const slotAt = (overview: TownOverview, elapsedSeconds: number): LiveTown['slot'
   }
 }
 
+const lessonSlotAt = (overview: TownOverview, elapsedSeconds: number): LiveLesson | null => {
+  const { lessonSlot } = overview
+  if (lessonSlot === null) {
+    return null
+  }
+  return {
+    lessonId: lessonSlot.lessonId,
+    remainingSeconds: secondsUntil(lessonSlot.finishesAt, overview, elapsedSeconds),
+    totalSeconds: (Date.parse(lessonSlot.finishesAt) - Date.parse(lessonSlot.startedAt)) / 1000,
+  }
+}
+
 export function liveTownAt(overview: TownOverview, elapsedSeconds: number): LiveTown {
   return {
     overview,
@@ -66,5 +85,6 @@ export function liveTownAt(overview: TownOverview, elapsedSeconds: number): Live
       level,
       remainingSeconds: secondsUntil(finishesAt, overview, elapsedSeconds),
     })),
+    lessonSlot: lessonSlotAt(overview, elapsedSeconds),
   }
 }

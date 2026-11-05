@@ -31,6 +31,9 @@ const elapsedSecondsSince = (receivedAtMs: number, nowMs: number): number =>
 const slotFinishSecondsOf = (overview: TownOverview): number =>
   overview.work.slot === null ? 0 : secondsUntil(overview.work.slot.finishesAt, overview, 0)
 
+const lessonFinishSecondsOf = (overview: TownOverview): number =>
+  overview.lessonSlot === null ? 0 : secondsUntil(overview.lessonSlot.finishesAt, overview, 0)
+
 const seasonEndSecondsOf = (overview: TownOverview): number =>
   overview.season === null ? 0 : secondsUntil(overview.season.endsAt, overview, 0)
 
@@ -53,6 +56,7 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
     const timers = [setTimeout(read, rereadIntervalMs)]
     const finishSeconds = [
       slotFinishSecondsOf(lastRead.overview),
+      lessonFinishSecondsOf(lastRead.overview),
       seasonEndSecondsOf(lastRead.overview),
     ]
     for (const seconds of finishSeconds.filter((seconds) => seconds > 0)) {
