@@ -1,7 +1,7 @@
 import {
   shellNavigationChronicle,
-  shellNavigationFief,
   shellNavigationMap,
+  shellNavigationTown,
   shellSignOut,
   shellTitle,
 } from '@mygame/catalog'
@@ -29,14 +29,30 @@ interface Screen {
   readonly isExact: boolean
 }
 
-const screens: ReadonlyArray<Screen> = [
-  { to: '/feudo/$fiefId', label: shellNavigationFief(), isExact: true },
+const fiefScreens: ReadonlyArray<Screen> = [
   { to: '/feudo/$fiefId/mapa', label: shellNavigationMap(), isExact: false },
   { to: '/feudo/$fiefId/cronica', label: shellNavigationChronicle(), isExact: true },
 ]
 
 const linkClass =
   'flex items-center border-b-3 px-3 py-3 font-sans text-button no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
+
+const activeProps = { className: 'border-action font-bold text-action' }
+const inactiveProps = { className: 'border-transparent text-ink-muted' }
+
+function TownLink(): ReactElement {
+  return (
+    <Link
+      to="/"
+      activeOptions={{ exact: true }}
+      className={linkClass}
+      activeProps={activeProps}
+      inactiveProps={inactiveProps}
+    >
+      {shellNavigationTown()}
+    </Link>
+  )
+}
 
 function ScreenLink({
   to,
@@ -50,8 +66,8 @@ function ScreenLink({
       params={{ fiefId }}
       activeOptions={{ exact: isExact }}
       className={linkClass}
-      activeProps={{ className: 'border-action font-bold text-action' }}
-      inactiveProps={{ className: 'border-transparent text-ink-muted' }}
+      activeProps={activeProps}
+      inactiveProps={inactiveProps}
     >
       {label}
     </Link>
@@ -72,17 +88,20 @@ export function AppShell({
         <h1 className="m-0 font-sans text-title text-action">{shellTitle()}</h1>
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
-          {fiefId === undefined ? null : (
-            <nav className="flex">
-              <ul className="m-0 flex list-none gap-1 p-0">
-                {screens.map((screen) => (
-                  <li key={screen.to} className="flex">
-                    <ScreenLink {...screen} fiefId={fiefId} />
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+          <nav className="flex">
+            <ul className="m-0 flex list-none gap-1 p-0">
+              <li className="flex">
+                <TownLink />
+              </li>
+              {fiefId === undefined
+                ? null
+                : fiefScreens.map((screen) => (
+                    <li key={screen.to} className="flex">
+                      <ScreenLink {...screen} fiefId={fiefId} />
+                    </li>
+                  ))}
+            </ul>
+          </nav>
           <span className="ml-auto flex">
             <Button type="button" tone="quiet" onClick={onSignOut}>
               {shellSignOut()}

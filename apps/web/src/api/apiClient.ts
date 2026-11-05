@@ -41,6 +41,13 @@ import {
   type StartStudyRequest,
   type VerifyEmailRequest,
 } from '@mygame/contracts'
+import {
+  type FoundTown,
+  type BuildingKind as PlaceKind,
+  type StartBuildingWork,
+  type TownOverview,
+  TownOverviewSchema,
+} from '@mygame/contracts/town'
 import type { ZodType } from 'zod'
 
 export type ApiRefusal = ApiErrorKind | 'Unexpected'
@@ -79,6 +86,10 @@ export interface ApiClient {
     request: DispatchTransportRequest,
   ): Promise<ApiOutcome<FiefOverview>>
   recallMarch(fiefId: string, target: RecallMarchRequest): Promise<ApiOutcome<FiefOverview>>
+  town(): Promise<ApiOutcome<TownOverview>>
+  foundTown(name: string): Promise<ApiOutcome<TownOverview>>
+  startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
+  stopBuildingWork(target: StoppedWork): Promise<ApiOutcome<TownOverview>>
   reviews(): Promise<ApiOutcome<Reviews>>
   reviewHint(wordId: string): Promise<ApiOutcome<ReviewHint>>
   answerReview(answer: AnsweredReview): Promise<ApiOutcome<ReviewAnswer>>
@@ -92,6 +103,11 @@ export interface ApiClient {
   resendVerification(): Promise<ApiRefusal | undefined>
   forgotPassword(email: string): Promise<ApiRefusal | undefined>
   resetPassword(request: ResetPasswordRequest): Promise<ApiRefusal | undefined>
+}
+
+export interface StoppedWork {
+  readonly building: PlaceKind
+  readonly level: number
 }
 
 export interface AnsweredReview {
@@ -240,6 +256,24 @@ export const createApiClient = (baseUrl: string): ApiClient => {
         },
       )
       return response === undefined ? unexpected : bodyOf(response, FiefOverviewSchema)
+    },
+    town: async () => {
+      const response = await send('/town', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    foundTown: async (name) => {
+      const request: FoundTown = { name }
+      const response = await postJson('/town', request)
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    startBuildingWork: async (building) => {
+      const request: StartBuildingWork = { building }
+      const response = await postJson('/town/work', request)
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    stopBuildingWork: async ({ building, level }) => {
+      const response = await send(`/town/work/${building}/${level}`, { method: 'DELETE' })
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
     },
     reviews: async () => {
       const response = await send('/reviews', { method: 'GET' })

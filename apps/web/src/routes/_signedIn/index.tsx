@@ -1,24 +1,66 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
-import { FormAlert } from '../../design-system/FormAlert'
-import { refusalLineOf } from '../../refusals/refusalLineOf'
+import type { ApiClient } from '../../api/apiClient'
+import type { LiveTown } from '../../town/liveTown'
+import { NameTownScreen } from '../../town/NameTownScreen'
+import { TownHome } from '../../town/TownHome'
+import { TownReadFailed, TownReading } from '../../town/TownReadStatus'
+import { useFoundTown } from '../../town/useFoundTown'
+import { type TownHandle, useTown } from '../../town/useTown'
+import { useTownWork } from '../../town/useTownWork'
 
-function FirstFiefRefusal(): ReactElement {
-  const refusal = Route.useLoaderData()
-  return <FormAlert message={refusalLineOf(refusal)} />
+function NameTownPage({
+  apiClient,
+  town,
+}: {
+  readonly apiClient: ApiClient
+  readonly town: TownHandle
+}): ReactElement {
+  const founding = useFoundTown(apiClient, town.adopt)
+  return (
+    <NameTownScreen
+      name={founding.name}
+      isSubmitting={founding.isSubmitting}
+      refusal={founding.refusal}
+      onNameChange={founding.setName}
+      onSubmit={founding.submit}
+      onGoToTown={town.reread}
+    />
+  )
+}
+
+function TownHomePage({
+  apiClient,
+  town,
+  adopt,
+}: {
+  readonly apiClient: ApiClient
+  readonly town: LiveTown
+  readonly adopt: TownHandle['adopt']
+}): ReactElement {
+  const work = useTownWork(apiClient, adopt, town.overview.readAt)
+  return <TownHome town={town} work={work} />
+}
+
+function TownPage(): ReactElement | null {
+  const { apiClient } = Route.useRouteContext()
+  const town = useTown(apiClient)
+  switch (town.state.kind) {
+    case 'loading':
+      return <TownReading />
+    case 'noTown':
+      return <NameTownPage apiClient={apiClient} town={town} />
+    case 'refused':
+      return <TownReadFailed onRetry={town.reread} />
+    case 'live':
+      return <TownHomePage apiClient={apiClient} town={town.state.town} adopt={town.adopt} />
+    default: {
+      const unreachable: never = town.state
+      return unreachable
+    }
+  }
 }
 
 export const Route = createFileRoute('/_signedIn/')({
-  loader: async ({ context }) => {
-    const fiefs = await context.apiClient.fiefs()
-    if (!fiefs.ok) {
-      return fiefs.refusal
-    }
-    const [firstFief] = fiefs.value.fiefs
-    if (firstFief === undefined) {
-      return 'FiefNotFound'
-    }
-    throw redirect({ to: '/feudo/$fiefId', params: { fiefId: firstFief.id } })
-  },
-  component: FirstFiefRefusal,
+  component: TownPage,
 })

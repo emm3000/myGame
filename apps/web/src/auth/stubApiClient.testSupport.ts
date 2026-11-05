@@ -1,4 +1,5 @@
 import type { Digest, FiefList, FiefOverview, Player, ProvinceMap } from '@mygame/contracts'
+import type { TownOverview } from '@mygame/contracts/town'
 import type { ApiClient } from '../api/apiClient'
 
 export const knownPlayer: Player = {
@@ -183,6 +184,45 @@ export const quietDigest: Digest = {
   fiefs: [],
 }
 
+const placeAtLevel = (level: number): TownOverview['buildings']['farm'] => ({
+  level,
+  nextLevel: {
+    level: level + 1,
+    cost: { money: 60, food: 40, power: 0, material: 80 },
+    durationSeconds: 300,
+    people: 2,
+  },
+})
+
+export const knownTown: TownOverview = {
+  name: 'Maple Falls',
+  label: 'town',
+  site: { region: 1, area: 1, site: 1 },
+  terrain: 'fields',
+  season: null,
+  stocks: {
+    money: { amount: 500, ratePerHour: 60, capacity: 5000 },
+    food: { amount: 400, ratePerHour: 120, capacity: 5000 },
+    power: { amount: 300, ratePerHour: 20, capacity: 5000 },
+    material: { amount: 600, ratePerHour: 90, capacity: 5000 },
+  },
+  people: { supplied: 120, free: 24, atWork: 96 },
+  buildings: {
+    homes: placeAtLevel(1),
+    farm: placeAtLevel(0),
+    factory: placeAtLevel(0),
+    powerStation: placeAtLevel(0),
+    storage: placeAtLevel(0),
+    school: placeAtLevel(1),
+    office: placeAtLevel(0),
+  },
+  work: { slot: null, waitingList: [], cap: 2 },
+  lessons: [],
+  skills: [],
+  lessonSlot: null,
+  readAt: '2026-11-10T09:00:00.000Z',
+}
+
 export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => ({
   signUp: async () => ({ ok: true, value: knownPlayer }),
   signIn: async () => ({ ok: true, value: knownPlayer }),
@@ -201,6 +241,10 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   dispatchFounding: async () => ({ ok: true, value: knownFief }),
   dispatchTransport: async () => ({ ok: true, value: knownFief }),
   recallMarch: async () => ({ ok: true, value: knownFief }),
+  town: async () => ({ ok: true, value: knownTown }),
+  foundTown: async () => ({ ok: true, value: knownTown }),
+  startBuildingWork: async () => ({ ok: true, value: knownTown }),
+  stopBuildingWork: async () => ({ ok: true, value: knownTown }),
   reviews: async () => ({
     ok: true,
     value: { due: [], nextDueAt: null, readAt: '2026-09-22T12:00:00.000Z' },

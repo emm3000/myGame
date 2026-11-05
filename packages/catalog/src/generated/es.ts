@@ -211,6 +211,13 @@ export const namesIdleStudy = (): string => `La biblioteca no tiene estudio en m
 export const namesKingdomsVadoalto = (): string => `Vadoalto`
 export const namesLevel = ({ level }: { readonly level: string | number }): string => `nivel ${String(level)}`
 export const namesPeasants = (): string => `campesinos`
+export const namesPlacesFactory = (): string => `Fábrica`
+export const namesPlacesFarm = (): string => `Granja`
+export const namesPlacesHomes = (): string => `Hogares`
+export const namesPlacesOffice = (): string => `Oficina`
+export const namesPlacesPowerStation = (): string => `Central eléctrica`
+export const namesPlacesSchool = (): string => `Escuela`
+export const namesPlacesStorage = (): string => `Almacén`
 export const namesQuantity = ({ amount, resource }: { readonly amount: string | number; readonly resource: string | number }): string => `${String(amount)} de ${String(resource)}`
 export const namesResourcesFood = (): string => `comida`
 export const namesResourcesGold = (): string => `oro`
@@ -339,6 +346,7 @@ export const shellFiefSwitcherSeparator = (): string => `,`
 export const shellNavigationChronicle = (): string => `Crónica`
 export const shellNavigationFief = (): string => `Feudo`
 export const shellNavigationMap = (): string => `Mapa`
+export const shellNavigationTown = (): string => `Pueblo`
 export const shellSignOut = (): string => `Salir`
 export const shellTitle = (): string => `Vadoalto`
 export const statusBuildHeading = (): string => `Obra:`
@@ -373,6 +381,40 @@ export const studySeasonMark = ({ season }: { readonly season: string | number }
 export const studySection = (): string => `Biblioteca`
 export const studyStart = (): string => `Estudiar`
 export const studyStudyRunning = (): string => `Ya hay un estudio en marcha.`
+export const townAmount = ({ amount, resource }: { readonly amount: string | number; readonly resource: string | number }): string => `${String(amount)} de ${String(resource)}`
+export const townAtTopLevel = (): string => `Ya está en su nivel más alto.`
+export const townBuild = ({ level }: { readonly level: string | number }): string => `Construir nivel ${String(level)}`
+export const townCostName = ({ resource }: { readonly resource: string | number }): string => `de ${String(resource)}`
+export const townFull = ({ capacity }: { readonly capacity: string | number }): string => `Lleno: ${String(capacity)}`
+export const townLabelCity = (): string => `Ciudad`
+export const townLabelTown = (): string => `Pueblo`
+export const townLevel = ({ level }: { readonly level: string | number }): string => `Nivel ${String(level)}`
+export const townLoadFailed = (): string => `No hemos podido leer tu pueblo.`
+export const townLoading = (): string => `Estamos leyendo tu pueblo…`
+export const townNamingField = (): string => `Nombre del pueblo`
+export const townNamingGoToTown = (): string => `Ir a tu pueblo`
+export const townNamingMayor = (): string => `Ahora diriges tu propio pueblo.`
+export const townNamingSubmit = (): string => `Empezar`
+export const townNamingTitle = (): string => `Ponle nombre a tu pueblo`
+export const townPeople = ({ atWork, free }: { readonly atWork: string | number; readonly free: number }): string => `Gente: ${free === 1 ? `1 libre` : `${String(free)} libres`}, ${String(atWork)} trabajando`
+export const townPeopleAtWork = ({ people }: { readonly people: string | number }): string => `Gente trabajando: +${String(people)}`
+export const townPeopleShort = ({ free, needed }: { readonly free: string | number; readonly needed: string | number }): string => `Gente necesaria: ${String(needed)}. Libre: ${String(free)}.`
+export const townPlacesTitle = (): string => `Tu pueblo`
+export const townRate = ({ rate }: { readonly rate: string | number }): string => `+${String(rate)} / h`
+export const townShortMark = (): string => `, falta`
+export const townShortfall = ({ missing }: { readonly missing: string | number }): string => `Necesitas ${String(missing)} más.`
+export const townStockOf = ({ capacity }: { readonly capacity: string | number }): string => `de ${String(capacity)}`
+export const townStocks = (): string => `En el almacén`
+export const townTopLevel = (): string => `Nivel máximo`
+export const townTryAgain = (): string => `Volver a intentarlo`
+export const townWorkDone = (): string => `La obra está lista. Estamos leyendo tu pueblo otra vez…`
+export const townWorkIdle = (): string => `Ahora no hay ninguna obra.`
+export const townWorkReady = (): string => `Lista`
+export const townWorkRefund = (): string => `Si la paras, recuperas todo lo que costó, y lo mismo por cada obra en espera que dependa de ella.`
+export const townWorkStop = (): string => `Parar la obra`
+export const townWorkStopOf = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `Parar la obra: ${String(place)}, nivel ${String(level)}`
+export const townWorkTitle = (): string => `Obra`
+export const townWorkWaitingList = (): string => `Lista de espera`
 export const transportAmountField = ({ resource }: { readonly resource: string | number }): string => `${String(resource)} a enviar`
 export const transportCargoAboveCarry = ({ cargo, carry }: { readonly cargo: string | number; readonly carry: string | number }): string => `La carga suma ${String(cargo)} y tus hombres llevan hasta ${String(carry)}.`
 export const transportCargoHeading = (): string => `Carga:`
