@@ -32,7 +32,7 @@ All five packages exist; each carries its own `CLAUDE.md`. `packages/catalog` is
 
 ## Product
 
-One town per player. Every player-facing text is American English; the player picks a scaffold language, `es` or `none` at launch, which fades per word. Until the town rebuild ships, the code is the medieval fief the PRD's M and S rows describe, with Spanish copy and `CONTEXT.md` recording both vocabularies. The Won't-have rows, the NFRs and the acceptance criterion: `docs/PRODUCT_REQUIREMENTS.md`. Game content names come from `docs/setting/` once it exists, and from `docs/lore/` until then (ADR 035).
+One town per player. Every player-facing text is American English; the player picks a scaffold language, `es` or `none` at launch, which fades per word. Until the town rebuild ships, the code is the medieval fief the PRD's M and S rows describe, with Spanish copy and `CONTEXT.md` recording both vocabularies. The Won't-have rows, the NFRs and the acceptance criterion: `docs/PRODUCT_REQUIREMENTS.md`. Learning content and town names come from `docs/setting/`; the shipped fief keeps its names in `docs/lore/` until the town rebuild (ADR 035).
 
 ## Non-negotiable rules
 
@@ -128,7 +128,7 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 - `gh issue list --label ready-for-agent` — the committed work. No doc holds a work list.
 - `docs/PRODUCT_REQUIREMENTS.md` — the Won't-have rows (ADRs amend them by row id), the NFRs, the acceptance criterion. Read before scoping a feature.
-- `docs/setting/` (`docs/lore/` until it exists, ADR 035) — the world; read before naming anything a player sees. `docs/art/art-bible.md` before generating any image.
+- `docs/setting/` (and `docs/lore/` for the shipped fief until the town rebuild, ADR 035) — the world; read before naming anything a player sees. `docs/art/art-bible.md` before generating any image.
 
 ### Domain docs
 
