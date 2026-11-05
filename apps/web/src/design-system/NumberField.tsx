@@ -25,7 +25,7 @@ export function NumberField(props: NumberFieldProps): ReactElement {
       disabled={props.isDisabled}
       aria-label={props.accessibleName}
       onChange={(event) => props.onChange(event.target.value)}
-      className="min-h-control w-numeral rounded-sm border border-line-strong bg-surface-raised px-3 py-2 font-sans text-numeral text-ink tabular-nums focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-faint"
+      className="min-h-control w-numeral rounded-sm border border-line-strong bg-surface-raised px-3 py-2 font-sans text-numeral text-ink tabular-nums focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-line-strong"
     />
   )
 }

@@ -19,7 +19,7 @@ export function CardHeader({
         {name}
       </Title>
       <span
-        className={`rounded-pill px-2 font-sans text-label tabular-nums ${isAtMaxLevel ? 'bg-right-soft text-right' : 'bg-surface-sunken text-ink'}`}
+        className={`whitespace-nowrap rounded-pill px-2 font-sans text-label tabular-nums ${isAtMaxLevel ? 'bg-right-soft text-right' : 'bg-surface-sunken text-ink'}`}
       >
         {levelLabel}
       </span>

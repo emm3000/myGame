@@ -39,7 +39,7 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   camp: 'border border-line border-dashed bg-surface',
   reserved: 'border border-line-strong border-dashed bg-surface-sunken',
   held: 'bg-surface-raised shadow-ledge',
-  own: 'border-2 border-action border-l-4 bg-surface-raised shadow-ledge',
+  own: 'border-2 border-action bg-surface-raised shadow-ledge',
 }
 
 const expandedFrameClass = 'bg-surface-raised shadow-ledge'
