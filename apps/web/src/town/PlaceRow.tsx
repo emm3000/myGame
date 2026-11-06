@@ -39,6 +39,7 @@ export function PlaceRow({ place, town, isWaiting, onBuild }: PlaceRowProps): Re
           state={state}
           isWaiting={isWaiting}
           tone="quiet"
+          keepsLabelWidth
           onAction={onBuild}
         />
       </div>
