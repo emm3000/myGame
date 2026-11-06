@@ -200,7 +200,7 @@ Atkinson Hyperlegible Next leaves too. This is where the look leaves
 Hello, and the largest change from what the owner saw.
 
 **The method.** The words come from `docs/setting/lessons.md`, and 9 of
-the 80 frames hold a capital *I*. Each string was drawn on a Chromium
+the 80 frames hold the pronoun *I*. Each string was drawn on a Chromium
 canvas at 3×, kerned, in the size, weight and tracking the screen uses,
 Bricolage with its `opsz` axis on automatic, and cut to black and white
 at 50 %. The two bitmaps sit on one baseline
@@ -248,9 +248,11 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
     and *learn* are lemmas.
   - Its x-height is 6 % larger, 0.527 of the size against 0.496.
 
-  Reversing this takes a new ADR. The Android device check of item 2 runs
-  this method at 20/400, and its bar is no pair under 0.15. Schibsted's
-  lowest from 1.5× to 8× is 0.154.
+  Reversing this takes a new ADR. The device check of item 2 runs this
+  method at 20/400 at 3× alone, and its bar is no pair under 0.15; the
+  lowest there is *I will*, *l will* at 0.210. It is pinned to one density
+  because density alone moves that score, from 0.108 to 0.281 between
+  1.5× and 4×, with 0.108 at 2.25×, Android's 360 dpi bucket.
 - **Digits.** Atkinson leads on *l*, *1* at word and reading size, and
   neither leads at 16. No frame or lemma holds a digit. Schibsted's zero
   has no slash, so the stock figures lose Atkinson's noise, and it still
@@ -265,8 +267,7 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
   Fonts files are under the SIL OFL.
 
 This is a measure of shapes, not a study of readers, and it ran on
-Chromium's text rendering. The Android row of the first ticket checks the
-same words on a device.
+Chromium's text rendering. Item 2 checks the same words on a device.
 
 | Style | Size | Line height | Weight | Tracking | Sets |
 |---|---|---|---|---|---|
@@ -529,16 +530,18 @@ moves its `bg-badge`, its `bg-right-soft` and the tab bar's due count.
 
 The look goes first on the screens too. Items 4 to 6 below land before
 #841, #842, #843, #846 and #847, so the remaining ADR 042 screens are
-built once, in the new look. #840 lands after item 2 and draws the new
-look, and item 6 owns that row.
+built once, in the new look. #840 is blocked by items 2 and 3, so it draws
+the new look from the start and uses no deleted art. It owns the Android
+words screen, and item 6 keeps no words row on Android.
 It does not wait on #751. Those medieval files take each dropped token's
 successor from the table above, a value change in code that is going, and
 no token survives for them. That is no shim: nothing bridges old and new.
 
 It does not wait on the art either. `artPalette.ts` builds the allowed
-fills from `scene-*` and the accents, and `townArtFraming.test.ts` reads
-`palette['scene-grass-deep']`, so dropping the tokens alone would fail all
-38 SVGs. Item 1 moves those hex values into `artPalette.ts` and that test
+fills from `scene-*` and the accents, and four tests read `scene-*`:
+`townArtFraming.test.ts`, `artFramingOf.test.ts`, `artProblemsOf.test.ts`
+and `vectorDrawableOf.test.ts`. Dropping the tokens alone would fail all 38
+SVGs. Item 1 moves those hex values into `artPalette.ts` and those tests
 as the old art's own constants, used by no screen, and item 3 deletes them with the
 files they check.
 
@@ -547,10 +550,11 @@ ticket:
 
 1. **The web's tokens and type.** `tokens.ts` to this ADR's values,
    `tailwindTheme.ts`, the font link, `tokens.test.ts` with every pair
-   above and the three exemptions, every use of a dropped token moved. The
+   above and the four exemptions, every use of a dropped token moved. The
    `ledge` shadow removed from its 12 files, the accents from their 9.
-   The old art's colors kept in `artPalette.ts` and
-   `townArtFraming.test.ts`.
+   The old art's colors kept in `artPalette.ts`,
+   `townArtFraming.test.ts`, `artFramingOf.test.ts`,
+   `artProblemsOf.test.ts` and `vectorDrawableOf.test.ts`.
 2. **The token generator and the Android values.** `tokens` writes
    `core:designsystem`, its drift test in the web suite, the bundled TTF
    and OFL, every read of a dropped color moved, in about 17 Kotlin
@@ -559,15 +563,16 @@ ticket:
    lands*.
 3. **The silhouettes.** Seven `places/<word>.svg` from the artifact's
    shapes, `artProblemsOf`, `artFramingOf`, the drawables' level loop; the
-   35 place and 3 waste files and their drawables deleted; `placeArtOf`
-   and `wordArtOf` rewritten; the art bible and catalog rewritten so their
+   35 place and 3 waste files and their drawables deleted; `placeArtOf`,
+   `wordArtOf`, `PlaceArt.kt` and `PlaceArtTest.kt` rewritten; the art bible and catalog rewritten so their
    amendment notes go.
 4. **The web's shell.** The doors, the back link and every text link at
    `control` height, the header, the thin mail line, sign-out on the
    Report, the due count from the tab bar to the door.
 5. **The web's screens.** The town home, the school, the words, the
    review, the Report, each with one ink pill and a test that says so.
-6. **Android's shell and screens**, the same rows, with `MyGameNavigationBar`
+6. **Android's shell and screens**, the same rows but the words screen,
+   which #840 owns, with `MyGameNavigationBar`
    off the town.
 7. **The ring.** `TownOverview.learning` gains the count and the total,
    the ring on both clients, `openapi.json` regenerated. This is the
@@ -577,15 +582,15 @@ ticket:
 9. **The notes and the open tickets.** `apps/web/CLAUDE.md` and
    `apps/android/CLAUDE.md` for each change above, including the Android
    note *Labels are sentence case, never `uppercase()`*, which `meta` ends.
-   #753's PRD rewrite keeps S4's amendment. The open tickets' criteria
-   that this look contradicts change:
+   #753's PRD rewrite keeps S4's amendment. When the tickets are written,
+   the open tickets' criteria that this look contradicts change:
    - #774, #776, #783, #784: *joins the navigation* becomes the row.
    - #841: *the card holds the one strong button* becomes the pill under
      the block.
-   - #842: *the lesson slot and the learning load after the other lessons*
+   - #842: *the lesson slot and the learning load after it on a phone*
      becomes this ADR's order, under the next lesson.
-   - #844: its check that the navigation fits at 320 px with *Salir* ends
-     with the bar, which item 4 removes.
+   - #840: *draws the place's art where the word names one* reads the
+     silhouette, and it gains its two blocking edges.
    - #845: *shows the due count on Report* reads the door, and
      `SignedInFrame` loses the bar.
    - #787, #788: *draws each waste site with its image* reads the
