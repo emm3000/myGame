@@ -7,6 +7,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
@@ -263,6 +264,19 @@ class AppNavigationTest {
         waitForLine("Aún no tienes palabras que repasar.")
 
         assertEquals(1, learningFake.readCount)
+    }
+
+    @Test
+    fun `disables every tab while signing out`() {
+        signedInAtTown(fiefs = listOf(listedFief))
+        waitForLine("Mapa")
+
+        composeRule.onNodeWithText("Salir").performClick()
+        composeRule.waitForIdle()
+
+        listOf("Pueblo", "Informe", "Mapa", "Crónica").forEach { label: String ->
+            tab(label).assertIsNotEnabled()
+        }
     }
 
     private companion object {

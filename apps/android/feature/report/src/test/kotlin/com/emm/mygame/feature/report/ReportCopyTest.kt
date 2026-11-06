@@ -261,4 +261,18 @@ class ReportCopyTest {
 
         assertEquals("5 nov 2026, 09:56", resources.instantLabelOf(at, readAt, lima))
     }
+
+    @Test
+    fun `dates news of the same day of another month with its day`() {
+        val readAt: Instant = Instant.parse("2026-12-05T20:00:00Z")
+
+        assertEquals("5 nov, 09:56", resources.instantLabelOf(at, readAt, lima))
+    }
+
+    @Test
+    fun `dates news of the same date of another year with their year`() {
+        val readAt: Instant = Instant.parse("2027-11-05T20:00:00Z")
+
+        assertEquals("5 nov 2026, 09:56", resources.instantLabelOf(at, readAt, lima))
+    }
 }
