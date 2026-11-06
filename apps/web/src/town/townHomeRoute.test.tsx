@@ -1,12 +1,27 @@
 import {
   namesPlacesFarm,
   namesPlacesHomes,
+  namesPlacesOffice,
   namesPlacesPowerStation,
+  namesPlacesSchool,
+  namesTownResourcesMoney,
   refusalUnexpected,
+  townAmount,
+  townBuild,
+  townCostName,
+  townInWork,
   townLabelCity,
   townLabelTown,
+  townLevel,
   townLoading,
+  townNotBuilt,
   townPlacesTitleCity,
+  townSeasonDays,
+  townSeasonEndsIn,
+  townSeasonLine,
+  townShortfall,
+  townSkylineBuilt,
+  townStocks,
   townTryAgain,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
@@ -130,6 +145,120 @@ it('draws each place with one window per level, a place not built with none', as
   )
   expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(7)
   expect(builtLevels).toEqual([4, 0, 0])
+})
+
+it('holds one top heading on the town home, with the name of the town', async () => {
+  await showTown(serving(knownTown))
+
+  const [heading, ...others] = screen.getAllByRole('heading', { level: 1 })
+
+  expect(heading?.textContent).toContain(knownTown.name)
+  expect(others).toEqual([])
+})
+
+it('orders the stocks money, food, power, material', async () => {
+  await showTown(serving(knownTown))
+
+  const stocks = within(screen.getByRole('list', { name: townStocks() }))
+    .getAllByRole('listitem')
+    .map((stock) => stock.getAttribute('aria-label'))
+
+  expect(stocks).toEqual(['Dinero', 'Comida', 'Energía', 'Material'])
+})
+
+it('says how many places are built on the skyline', async () => {
+  await showTown(serving(knownTown))
+
+  expect(screen.getByRole('img', { name: townSkylineBuilt({ built: 2, total: 7 }) })).toBeDefined()
+})
+
+const workOnFarm: TownOverview['work'] = {
+  slot: {
+    building: 'farm',
+    level: 1,
+    cost: { money: 60, food: 40, power: 0, material: 80 },
+    startsAt: '2026-11-10T08:59:00.000Z',
+    finishesAt: '2026-11-10T09:04:00.000Z',
+  },
+  waitingList: [
+    {
+      building: 'homes',
+      level: 2,
+      cost: { money: 60, food: 40, power: 0, material: 80 },
+      startsAt: '2026-11-10T09:04:00.000Z',
+      finishesAt: '2026-11-10T09:09:00.000Z',
+    },
+  ],
+  cap: 2,
+}
+
+it('writes the level beside every place', async () => {
+  await showTown(serving({ ...knownTown, work: workOnFarm }))
+
+  const row = (place: string): ReturnType<typeof within> =>
+    within(screen.getByRole('listitem', { name: place }))
+
+  expect(row(namesPlacesOffice()).getByText(townNotBuilt())).toBeDefined()
+  expect(row(namesPlacesFarm()).getByText(townInWork())).toBeDefined()
+  expect(
+    row(namesPlacesHomes()).getByText(`${townLevel({ level: 1 })} · ${townInWork()}`),
+  ).toBeDefined()
+  expect(row(namesPlacesSchool()).getByText(townLevel({ level: 1 }))).toBeDefined()
+})
+
+const farmToBuild: TownOverview['buildings']['farm'] = {
+  level: 0,
+  nextLevel: {
+    level: 1,
+    cost: { money: 900, food: 0, power: 0, material: 0 },
+    people: 2,
+    durationSeconds: 60,
+  },
+}
+
+it('says a shortfall in words', async () => {
+  await showTown(
+    serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmToBuild } }),
+  )
+
+  const farm = within(screen.getByRole('listitem', { name: namesPlacesFarm() }))
+
+  expect(
+    farm.getByRole('button', {
+      name: new RegExp(townBuild({ level: 1 })),
+      description: townShortfall({
+        missing: townAmount({ amount: '400', resource: namesTownResourcesMoney() }),
+      }),
+    }),
+  ).toBeDefined()
+})
+
+it("keeps a cost's name for a screen reader", async () => {
+  await showTown(
+    serving({ ...knownTown, buildings: { ...knownTown.buildings, farm: farmToBuild } }),
+  )
+
+  const costs = within(screen.getByRole('listitem', { name: namesPlacesFarm() })).getByRole('list')
+
+  expect(within(costs).getByRole('listitem').textContent).toContain(
+    townCostName({ resource: namesTownResourcesMoney() }),
+  )
+})
+
+it('writes the season under the stocks', async () => {
+  await showTown(
+    serving({
+      ...knownTown,
+      season: { kind: 'fall', year: 2, endsAt: '2026-11-13T09:00:00.000Z' },
+    }),
+  )
+
+  const stocks = within(screen.getByRole('region', { name: townStocks() }))
+
+  expect(stocks.getByText(townSeasonLine({ season: 'Otoño', year: 2 }))).toBeDefined()
+  expect(
+    stocks.getByText(townSeasonEndsIn({ season: 'Otoño', timeLeft: townSeasonDays({ days: 3 }) })),
+  ).toBeDefined()
 })
 
 it('labels the town a city once the server does', async () => {

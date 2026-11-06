@@ -18,12 +18,9 @@ import {
   type StopBuildingWork,
 } from '@mygame/contracts/town'
 import { type ReactElement, useId } from 'react'
-import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
 import { FormAlert } from '../design-system/FormAlert'
-import { PlaceArt } from '../design-system/PlaceArt'
-import { placeArtOf } from '../design-system/placeArtOf'
 import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -32,9 +29,10 @@ import { formatFinish } from '../time/formatFinish'
 import { dueCountOf } from './dueCountOf'
 import type { LiveTown } from './liveTown'
 import { NextStepCard } from './NextStepCard'
-import { placeCardOf } from './placeCardOf'
+import { PlaceRow } from './PlaceRow'
 import { placeNameOf } from './placeNameOf'
 import { TownDoors } from './TownDoors'
+import { TownSkyline } from './TownSkyline'
 import { TownStocks } from './TownStocks'
 import type { TownWork } from './useTownWork'
 
@@ -128,14 +126,15 @@ function PlaceItem({
 }): ReactElement {
   const refused = work.startRefused?.subject === place ? work.startRefused : undefined
   return (
-    <li aria-label={placeNameOf(place)} className="flex flex-col gap-2">
-      <BuildingCard
-        {...placeCardOf(place, town)}
-        art={<PlaceArt shapes={placeArtOf(place, town.overview.buildings[place].level)} />}
-        actionTone="quiet"
-        titleElement="h4"
+    <li
+      aria-label={placeNameOf(place)}
+      className="flex flex-col gap-2 border-line border-t py-4 first:border-t-0"
+    >
+      <PlaceRow
+        place={place}
+        town={town}
         isWaiting={work.isStarting}
-        onUpgrade={() => work.start(place)}
+        onBuild={() => work.start(place)}
       />
       {refused !== undefined && (
         <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
@@ -151,29 +150,32 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
   const slotTitle = useFocusTarget<HTMLSpanElement>()
   const stopRefused = work.stopRefused
   return (
-    <div className="flex flex-col gap-6">
-      <NextStepCard town={town} />
-      <TownDoors dueCount={dueCountOf(town)} />
-      <div className="grid items-start gap-6 lg:grid-cols-3">
-        <div className="flex flex-col gap-4">
-          <TownStocks overview={overview} stocks={town.stocks} />
-          <BuildSlot state={slotStateOf(town, work, slotTitle.focus)} titleRef={slotTitle.ref} />
-          {stopRefused !== undefined && (
-            <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
-          )}
-          <WaitingList town={town} work={work} onStopped={slotTitle.focus} />
-        </div>
-        <section aria-labelledby={placesTitleId} className="flex flex-col gap-3 lg:col-span-2">
-          <h3 id={placesTitleId} className="m-0 font-sans text-heading text-ink">
-            {overview.label === 'city' ? townPlacesTitleCity() : townPlacesTitleTown()}
-          </h3>
-          <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
-            {placesInOrder.map((place) => (
-              <PlaceItem key={place} place={place} town={town} work={work} />
-            ))}
-          </ul>
-        </section>
+    <div className="grid items-start gap-6 lg:grid-cols-2">
+      <div className="flex min-w-0 flex-col gap-6">
+        <NextStepCard town={town} />
+        <TownDoors dueCount={dueCountOf(town)} />
       </div>
+      <div className="flex min-w-0 flex-col gap-6">
+        <TownSkyline buildings={overview.buildings} />
+        <TownStocks town={town} />
+      </div>
+      <div className="flex min-w-0 flex-col gap-4">
+        <BuildSlot state={slotStateOf(town, work, slotTitle.focus)} titleRef={slotTitle.ref} />
+        {stopRefused !== undefined && (
+          <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
+        )}
+        <WaitingList town={town} work={work} onStopped={slotTitle.focus} />
+      </div>
+      <section aria-labelledby={placesTitleId} className="flex min-w-0 flex-col gap-1">
+        <h3 id={placesTitleId} className="m-0 font-sans text-heading text-ink">
+          {overview.label === 'city' ? townPlacesTitleCity() : townPlacesTitleTown()}
+        </h3>
+        <ul className="m-0 flex list-none flex-col p-0">
+          {placesInOrder.map((place) => (
+            <PlaceItem key={place} place={place} town={town} work={work} />
+          ))}
+        </ul>
+      </section>
     </div>
   )
 }

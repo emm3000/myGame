@@ -4,12 +4,13 @@ import { placeViewBox } from '../art/placeShapesOf'
 
 export interface PlaceArtProps {
   readonly shapes: ReadonlyArray<ArtTag>
+  readonly sizeClass?: string
 }
 
-export function PlaceArt({ shapes }: PlaceArtProps): ReactElement {
+export function PlaceArt({ shapes, sizeClass = 'size-place-card' }: PlaceArtProps): ReactElement {
   return createElement(
     'svg',
-    { viewBox: placeViewBox, 'aria-hidden': true, className: 'size-place-card self-center' },
+    { viewBox: placeViewBox, 'aria-hidden': true, className: `${sizeClass} shrink-0 self-center` },
     ...shapes.map(({ name, attributes }) => createElement(name, attributes)),
   )
 }

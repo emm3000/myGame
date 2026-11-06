@@ -19,8 +19,14 @@ export interface ButtonProps {
 
 const toneClass: Readonly<Record<ButtonTone, string>> = {
   primary: 'border-action bg-action text-on-action',
-  quiet: 'border-line-strong bg-surface-raised text-ink',
+  quiet: 'border-line-strong bg-transparent text-ink',
   text: 'border-transparent bg-transparent text-ink underline underline-offset-2',
+}
+
+const shapeClass: Readonly<Record<ButtonTone, string>> = {
+  primary: 'min-h-action rounded-pill px-6 text-button',
+  quiet: 'min-h-secondary rounded-pill px-5 text-label',
+  text: 'min-h-control rounded-sm px-1 text-label',
 }
 
 const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>, string>> = {
@@ -30,15 +36,15 @@ const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>
 }
 
 const baseClass =
-  'min-h-control rounded-md border px-3 py-2 font-sans text-button focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
+  'border py-2 font-sans focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
 
 export const buttonClassOf = (tone: ButtonTone): string =>
-  `${baseClass} cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-line-strong ${toneClass[tone]}`
+  `${baseClass} ${shapeClass[tone]} cursor-pointer disabled:cursor-not-allowed disabled:border-dashed disabled:border-line disabled:bg-surface-sunken disabled:text-ink-muted ${toneClass[tone]}`
 
 const classOf = (tone: ButtonTone, availability: ButtonAvailability): string =>
   availability === 'available'
     ? buttonClassOf(tone)
-    : `${baseClass} ${unavailableClass[availability]}`
+    : `${baseClass} ${shapeClass[tone]} ${unavailableClass[availability]}`
 
 export function Button(props: ButtonProps): ReactElement {
   const availability = props.availability ?? 'available'

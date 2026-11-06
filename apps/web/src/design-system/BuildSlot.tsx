@@ -29,22 +29,21 @@ export type BuildSlotState =
     }
 
 const frameClass = 'flex flex-col gap-3 rounded-md p-5'
-const badgeClass = 'whitespace-nowrap rounded-pill px-2 font-sans text-label tabular-nums'
 
 function Building({
   name,
   levelLabel,
-  badgeTone,
 }: {
   readonly name: string
   readonly levelLabel: string | undefined
-  readonly badgeTone: string
 }): ReactElement {
   return (
     <span className="flex items-baseline justify-between gap-2">
       <span className="font-sans text-title text-ink">{name}</span>
       {levelLabel !== undefined && (
-        <span className={`${badgeClass} ${badgeTone}`}>{levelLabel}</span>
+        <span className="whitespace-nowrap font-sans text-caption text-ink-muted tabular-nums">
+          {levelLabel}
+        </span>
       )}
     </span>
   )
@@ -60,9 +59,7 @@ export function BuildSlot({
   switch (state.kind) {
     case 'idle':
       return (
-        <section
-          className={`${frameClass} border border-dashed border-line bg-surface text-ink-muted`}
-        >
+        <section className={`${frameClass} border border-line bg-surface-raised text-ink-muted`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <p className="m-0 font-sans text-caption">{state.invitation}</p>
         </section>
@@ -71,11 +68,7 @@ export function BuildSlot({
       return (
         <section className={`${frameClass} border border-line bg-surface-raised text-ink-muted`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
-          <Building
-            name={state.buildingName}
-            levelLabel={state.levelLabel}
-            badgeTone="bg-surface-sunken text-ink"
-          />
+          <Building name={state.buildingName} levelLabel={state.levelLabel} />
           <Countdown
             remainingSeconds={state.remainingSeconds}
             time={state.time}
@@ -93,11 +86,7 @@ export function BuildSlot({
       return (
         <section className={`${frameClass} border border-ink bg-surface-sunken text-ink`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
-          <Building
-            name={state.buildingName}
-            levelLabel={state.levelLabel}
-            badgeTone="bg-surface-raised text-ink"
-          />
+          <Building name={state.buildingName} levelLabel={state.levelLabel} />
           <p className="m-0 font-sans text-caption">{state.message}</p>
         </section>
       )
