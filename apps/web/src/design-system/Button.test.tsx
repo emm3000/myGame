@@ -69,10 +69,31 @@ it('keeps a blocked quiet action at its secondary height', () => {
   expect(classesOf('quiet', 'blocked')).toContain('min-h-secondary')
 })
 
-it('fills the primary action alone', () => {
-  expect(classesOf('quiet')).not.toContain('bg-action')
+it.each<[ButtonTone, boolean]>([
+  ['primary', true],
+  ['quiet', false],
+  ['text', false],
+])('fills the primary action alone: %s filled is %s', (tone, isFilled) => {
+  expect(classesOf(tone).includes('bg-action')).toBe(isFilled)
 })
 
 it('centers the label of a waiting action in its pill', () => {
   expect(classesOf('quiet', 'waiting')).toContain('justify-center')
+})
+
+it('keeps the padding of a waiting pill', () => {
+  expect(classesOf('quiet', 'waiting')).toContain('px-5')
+})
+
+it('gives the padding of a pill waiting in place to its clock', () => {
+  const classes = classesOf('quiet', 'waitingInPlace')
+
+  expect(classes).toContain('px-2')
+  expect(classes).not.toContain('px-5')
+})
+
+it('marks a pill waiting in place as busy', () => {
+  classesOf('quiet', 'waitingInPlace')
+
+  expect(screen.getByRole('button', { name: 'Upgrade' }).getAttribute('aria-busy')).toBe('true')
 })

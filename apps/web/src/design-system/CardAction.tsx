@@ -19,6 +19,7 @@ export interface CardActionProps {
   readonly state: CardActionState
   readonly isWaiting: boolean
   readonly tone?: ButtonTone | undefined
+  readonly keepsLabelWidth?: boolean | undefined
   readonly onAction?: (() => void) | undefined
 }
 
@@ -70,6 +71,7 @@ export function CardAction({
   state,
   isWaiting,
   tone = 'primary',
+  keepsLabelWidth = false,
   onAction,
 }: CardActionProps): ReactElement {
   if (state.kind === 'atMaxLevel') {
@@ -92,8 +94,8 @@ export function CardAction({
   }
   if (isWaiting) {
     return (
-      <Button type={type} tone={tone} availability="waiting">
-        <ClockIcon sizeClass="size-icon" />
+      <Button type={type} tone={tone} availability={keepsLabelWidth ? 'waitingInPlace' : 'waiting'}>
+        <ClockIcon sizeClass={keepsLabelWidth ? 'size-icon-small' : 'size-icon'} />
         <span>{label}</span>
       </Button>
     )
