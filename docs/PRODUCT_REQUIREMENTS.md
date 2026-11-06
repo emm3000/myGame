@@ -22,7 +22,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 | S1 | The library and two arts that raise production. |
 | S2 | A kingdom map showing one province at a time and its plots, the player's own first, browsable from province 1 to one past the last province holding a fief (ADR 014). |
 | S3 | A chronicle of the fief's events, each with the instant it happened: an upgrade finished, an art learned, an upgrade cancelled and a study cancelled, the two cancels with their refund (ADR 013). |
-| S4 | Every building, resource, bandit camp tier and art, and the convoy of a transport (ADR 024), has an image generated to `docs/art/art-bible.md`; units, seasons and the march keep their hand-drawn SVG icon, as the camp keeps its icon on the map's plot tile. |
+| S4 | Every building, resource, bandit camp tier and art, and the convoy of a transport (ADR 024), has an image generated to `docs/art/art-bible.md`; units, seasons and the march keep their hand-drawn SVG icon, as the camp keeps its icon on the map's plot tile. Amended by ADR 043: in the town a place has one hand-written silhouette and a resource has its icon, never an image. |
 | S5 | A build queue: upgrades wait behind the busy slot and start in order. |
 | S6 | Cancelling the upgrade in progress with a refund. |
 | S7 | Password reset and email verification: single-use mailed links, a reset only to a verified email, an unverified email a banner and never a block (ADR 015); from ADR 038's step 4, each mail in the player's scaffold language. |

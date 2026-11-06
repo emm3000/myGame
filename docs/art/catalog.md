@@ -2,6 +2,8 @@
 
 Every family the game draws. The town's families come first; the medieval ones below them are retired.
 
+Amended by ADR 043: *places* and *waste* below describe the shipped files, which retire with its art ticket. The places become seven files, `places/<word>.svg`, a silhouette and ten windows each, and Android gets one drawable per place and level; a waste site is one single-fill silhouette, drawn when #787 needs it.
+
 ## The town
 
 Hand-written SVG under `apps/web/public/art/`, drawn to `art-bible.md` and checked by its rules (Model and size). Every tier and size is measured by the Framing's rules in the web suite. Each file ships beside its Android VectorDrawable in `apps/android/core/designsystem/src/main/res/drawable/`, converted by `pnpm --filter @mygame/web drawables`. No screen draws them yet.

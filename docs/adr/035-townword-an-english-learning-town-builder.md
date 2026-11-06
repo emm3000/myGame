@@ -1,5 +1,5 @@
 ---
-status: accepted, holdout narrowed by ADR 037, reset shaped by ADR 040, PRD rows amended by ADR 041
+status: accepted, holdout narrowed by ADR 037, reset shaped by ADR 040, PRD rows amended by ADR 041, the visual direction by ADR 043
 date: 2026-11-04
 ---
 # Townword, an English-learning town builder
@@ -101,7 +101,9 @@ full design tree behind them are under `docs/research/english-pivot/`
   mechanism of ADR 009 and the WCAG 2.2 AA floor (N8) stay. The palette's
   light and dark schemes, Parchment and Ledger (ADR 009), and the
   Cormorant Garamond display face of `apps/web/src/design/tokens.ts` go.
-  The design itself is its own ticket.
+  The design itself is its own ticket. (Amended by ADR 043: the places
+  are flat silhouettes on paper, not bright illustration. The one
+  legible family stands, and it is Schibsted Grotesk.)
 
 ### A one-time reset, signed
 

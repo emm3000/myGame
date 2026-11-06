@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the token check shaped by ADR 043
 date: 2026-11-02
 ---
 # A native client per platform
@@ -53,7 +53,9 @@ generated contract covers the first two; the projection is a few lines.
 - **One design system, implemented per platform.** The premium,
   minimal redesign is defined once as tokens (color, type, spacing,
   radius, motion) and each client implements them idiomatically; a
-  check fails when a client's tokens drift from the source.
+  check fails when a client's tokens drift from the source. (Amended by
+  ADR 043: `tokens.ts` is the source, a generator writes the Android
+  values and a test fails on a drift.)
 - **The gate grows by platform.** `pnpm gate` keeps the TypeScript
   leg; the Android leg runs Gradle (detekt with the Compose rules, the
   unit tests, the build); the Apple legs join when their projects
