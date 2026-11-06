@@ -6,8 +6,8 @@
       "cost": {
         "money": 60,
         "food": 0,
-        "power": 15,
-        "material": 60
+        "power": 0,
+        "material": 0
       },
       "durationSeconds": 120,
       "people": 1,
