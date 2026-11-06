@@ -8,18 +8,19 @@ import {
   townGoToSchool,
   townWorkReady,
 } from '@mygame/catalog'
-import { type ReactElement, useState } from 'react'
+import { type ReactElement, useId } from 'react'
+import { Block } from '../design-system/Block'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
-import { blockClassOf } from '../design-system/blockClassOf'
+import { blockHueOf } from '../design-system/blockClassOf'
 import { Countdown } from '../design-system/Countdown'
-import { focusTargetClass } from '../design-system/focusTargetClass'
-import { Panel } from '../design-system/Panel'
+import { blockFocusTargetClass } from '../design-system/focusTargetClass'
 import { PlaceArt } from '../design-system/PlaceArt'
 import { TextLink } from '../design-system/TextLink'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import type { LessonWord, LessonWords, RunningLesson } from './lessonWordsOf'
+import { useWordWalk } from './useWordWalk'
 import type { WayOn } from './wayOnOf'
 
 function RunningTime({ running }: { readonly running: RunningLesson }): ReactElement {
@@ -30,11 +31,6 @@ function RunningTime({ running }: { readonly running: RunningLesson }): ReactEle
         remainingSeconds={running.remainingSeconds}
         time={running.time}
         finishedLabel={townWorkReady()}
-      />
-      <Track
-        value={running.totalSeconds - running.remainingSeconds}
-        total={running.totalSeconds}
-        fillClass="fill-action"
       />
     </div>
   )
@@ -61,46 +57,42 @@ function WayOnLink({
   )
 }
 
-function WordCard({
+function WordBlock({
   word,
   number,
   count,
+  walked,
   headingRef,
 }: {
   readonly word: LessonWord
   readonly number: number
   readonly count: number
+  readonly walked: number
   readonly headingRef: ReturnType<typeof useFocusTarget<HTMLHeadingElement>>['ref']
 }): ReactElement {
+  const wordId = useId()
   return (
-    <Panel
-      element="article"
-      toneClass="border-line bg-surface-raised"
-      spacingClass="items-center gap-2 p-5 text-center"
-    >
-      <p className="m-0 font-sans text-label text-ink-muted tabular-nums">
+    <Block hue={blockHueOf(walked)} labelledBy={wordId}>
+      <p className="m-0 text-label text-on-block-muted tabular-nums">
         {schoolLessonWordPosition({ number, count })}
       </p>
-      {word.art !== undefined && (
-        <div className={`rounded-lg p-3 ${blockClassOf(number - 1)}`}>
-          <PlaceArt shapes={word.art} />
-        </div>
-      )}
-      <h3
+      {word.art !== undefined && <PlaceArt shapes={word.art} />}
+      <h2
+        id={wordId}
         ref={headingRef}
         tabIndex={-1}
         lang="en"
-        className={`m-0 font-sans text-word text-ink ${focusTargetClass}`}
+        className={`m-0 rounded-sm text-word wrap-anywhere ${blockFocusTargetClass}`}
       >
         {word.word}
-      </h3>
-      <p lang="es" className="m-0 rounded-md bg-surface-sunken px-2 font-sans text-gloss text-ink">
+      </h2>
+      <p lang="es" className="m-0 text-gloss text-on-block-muted wrap-anywhere">
         {word.gloss}
       </p>
-      <p lang="en" className="m-0 font-sans text-reading text-ink">
+      <p lang="en" className="m-0 text-reading wrap-anywhere">
         {word.frame}
       </p>
-    </Panel>
+    </Block>
   )
 }
 
@@ -116,7 +108,7 @@ function WordActions({
   readonly onNextWord: () => void
 }): ReactElement {
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col gap-3">
       {!isLastWord && (
         <Button type="button" tone="primary" onClick={onNextWord}>
           {schoolLessonWordNext()}
@@ -125,7 +117,7 @@ function WordActions({
       {!isRunning && <WayOnLink wayOn={wayOn} tone={isLastWord ? 'primary' : 'quiet'} />}
       {isRunning && isLastWord && (
         <>
-          <p className="m-0 w-full font-sans text-body text-ink">{schoolLessonWordThen()}</p>
+          <p className="m-0 font-sans text-body text-ink">{schoolLessonWordThen()}</p>
           <TextLink to="/school">{townGoToSchool()}</TextLink>
         </>
       )}
@@ -134,34 +126,41 @@ function WordActions({
 }
 
 export interface LessonWordsScreenProps {
+  readonly lessonId: string
   readonly lesson: LessonWords
   readonly wayOn: WayOn
 }
 
-export function LessonWordsScreen({ lesson, wayOn }: LessonWordsScreenProps): ReactElement {
-  const [wordIndex, setWordIndex] = useState(0)
+export function LessonWordsScreen({
+  lessonId,
+  lesson,
+  wayOn,
+}: LessonWordsScreenProps): ReactElement {
+  const { wordIndex, walked, walkOn } = useWordWalk(lessonId)
   const wordHeading = useFocusTarget<HTMLHeadingElement>()
   const { words, running } = lesson
   const lastIndex = words.length - 1
   const shownIndex = Math.min(wordIndex, lastIndex)
   const word = words[shownIndex] ?? words[0]
   const showNextWord = (): void => {
-    setWordIndex(shownIndex + 1)
+    walkOn(shownIndex + 1)
     wordHeading.focus()
   }
   return (
     <div className="mx-auto flex w-full max-w-form flex-col gap-4">
       <header className="flex flex-col gap-1">
-        <h2 className="m-0 font-sans text-title text-ink">{lesson.title}</h2>
+        <h1 className="m-0 font-sans text-title text-ink">{lesson.title}</h1>
         <p lang="en" className="m-0 font-sans text-reading text-ink">
           {lesson.theme}
         </p>
       </header>
       {running !== null && <RunningTime running={running} />}
-      <WordCard
+      <Track value={shownIndex + 1} total={words.length} fillClass="fill-action" />
+      <WordBlock
         word={word}
         number={shownIndex + 1}
         count={words.length}
+        walked={walked}
         headingRef={wordHeading.ref}
       />
       <WordActions

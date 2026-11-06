@@ -80,7 +80,7 @@ it('opens the school and the Report from the two doors', async () => {
 
   fireEvent.click(await schoolDoor())
   expect(
-    await screen.findByRole('heading', { level: 2, name: placeNameOf('school') }),
+    await screen.findByRole('heading', { level: 1, name: placeNameOf('school') }),
   ).toBeDefined()
 
   await act(() => router.navigate({ to: '/' }))

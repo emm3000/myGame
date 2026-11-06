@@ -56,9 +56,9 @@ export function SkillList({
       aria-labelledby={titleId}
       className="flex flex-col gap-3 rounded-md border border-line bg-surface-raised p-5"
     >
-      <h3 id={titleId} className="m-0 font-sans text-heading text-ink">
+      <h2 id={titleId} className="m-0 font-sans text-heading text-ink">
         {title}
-      </h3>
+      </h2>
       {skills.length === 0 ? (
         <p className="m-0 font-sans text-body text-ink-muted">{empty}</p>
       ) : (
