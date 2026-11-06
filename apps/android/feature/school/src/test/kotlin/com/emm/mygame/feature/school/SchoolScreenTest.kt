@@ -5,9 +5,12 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -15,7 +18,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
+import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -186,6 +191,23 @@ class SchoolScreenTest {
         show(idleSchool.copy(lessons = listOf(readyLesson.copy(wordCount = 1))))
 
         showing("1 palabra · +5 % de comida")
+    }
+
+    @Test
+    fun `draws the ink pill on the first open lesson alone`() {
+        show(idleSchool.copy(lessons = listOf(readyLesson, secondCard)))
+
+        composeRule
+            .onNodeWithTag(INK_PILL)
+            .assert(hasText("Estudiar la lección 1 · 2:30"))
+        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(1)
+    }
+
+    @Test
+    fun `draws no ink pill while a lesson runs`() {
+        show(idleSchool.copy(slot = busySlot(remaining = 1.minutes)))
+
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
     }
 
     @Test

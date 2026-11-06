@@ -15,8 +15,8 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
@@ -122,7 +122,7 @@ private fun OpenUnit(
             keyboardActions = KeyboardActions(onDone = { send() }),
         )
         card.order?.let { order: FiefUiState.RecruitLine -> RecruitCosts(order = order) }
-        MyGameButton(
+        MyGameOutlinedButton(
             label = action,
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),

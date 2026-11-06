@@ -25,8 +25,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameColors
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -97,7 +97,7 @@ internal fun RecallCard(
             )
         }
         if (hint == null && !reviewing.isRated) {
-            MyGameButton(
+            MyGameOutlinedButton(
                 label = stringResource(R.string.review_hint),
                 isBusy = reviewing.isBusy,
                 busyDescription = stringResource(R.string.building_waiting),

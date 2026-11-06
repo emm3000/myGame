@@ -5,7 +5,6 @@ import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.hours
@@ -22,8 +21,6 @@ class TownNamingViewModelTest {
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
     private val towns: FakeTownRepository = FakeTownRepository()
-
-    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
     @Test
     fun `shows Name your town to a player with no town`() = runTest {
@@ -156,5 +153,5 @@ class TownNamingViewModelTest {
     }
 
     private fun TestScope.viewModelOf(start: Instant = readInstant): TownViewModel =
-        townViewModelOf(towns, sessions, start)
+        townViewModelOf(towns, start)
 }

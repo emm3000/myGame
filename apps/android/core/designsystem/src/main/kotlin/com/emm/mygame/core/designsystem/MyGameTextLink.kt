@@ -11,16 +11,28 @@ import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
 fun MyGameTextLink(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.CenterStart,
-        modifier = modifier
-            .defaultMinSize(minWidth = MyGameSizes.control, minHeight = MyGameSizes.control)
-            .clickable(role = Role.Button, onClick = onClick),
-    ) {
+    MyGameTextTarget(isEnabled = true, onClick = onClick, modifier = modifier) {
         MyGameText(
             text = label,
             style = MyGameTypography.button.copy(textDecoration = TextDecoration.Underline),
             color = MyGameTheme.colors.action,
         )
+    }
+}
+
+@Composable
+internal fun MyGameTextTarget(
+    isEnabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        contentAlignment = Alignment.CenterStart,
+        modifier = modifier
+            .defaultMinSize(minWidth = MyGameSizes.control, minHeight = MyGameSizes.control)
+            .clickable(enabled = isEnabled, role = Role.Button, onClick = onClick),
+    ) {
+        content()
     }
 }

@@ -13,11 +13,11 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -100,7 +100,7 @@ private fun BusyStudy(
             MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.action)
             MyGameText(text = countdown, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
         }
-        MyGameButton(
+        MyGameOutlinedButton(
             label = stringResource(R.string.study_cancel),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),
@@ -189,7 +189,7 @@ private fun NextArt(
             style = MyGameTypography.body,
             color = if (next.isLibraryTooLow) MyGameTheme.colors.destructiveInk else MyGameTheme.colors.inkMuted,
         )
-        MyGameButton(
+        MyGameOutlinedButton(
             label = icuStringResource(R.string.study_start, "duration" to durationLabelOf(next.duration)),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),

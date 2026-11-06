@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameButton
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameStrokeWidths
@@ -76,7 +77,7 @@ private fun BrowseControls(content: MapUiState.Content, onIntent: (MapIntent) ->
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             if (content.hasPrevious) {
-                MyGameButton(
+                MyGameOutlinedButton(
                     label = stringResource(R.string.map_previous),
                     isBusy = false,
                     busyDescription = busyDescription,
@@ -85,7 +86,7 @@ private fun BrowseControls(content: MapUiState.Content, onIntent: (MapIntent) ->
                 )
             }
             if (content.hasNext) {
-                MyGameButton(
+                MyGameOutlinedButton(
                     label = stringResource(R.string.map_next),
                     isBusy = false,
                     busyDescription = busyDescription,

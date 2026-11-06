@@ -10,14 +10,15 @@ import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>) {
 
-    var areTabsEnabled: Boolean by mutableStateOf(true)
+    var areLinksEnabled: Boolean by mutableStateOf(true)
         private set
 
     fun signingOut() {
-        areTabsEnabled = false
+        areLinksEnabled = false
     }
 
     fun back() {
+        if (!areLinksEnabled) return
         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
     }
 
@@ -41,7 +42,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedOut(isSessionEnded: Boolean) {
-        areTabsEnabled = true
+        areLinksEnabled = true
         showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
     }
 
@@ -50,15 +51,15 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openMap(fief: FiefId) {
-        openTab(Destination.Map(fief))
+        openFromTown(Destination.Map(fief))
     }
 
     fun openChronicle(fief: FiefId) {
-        openTab(Destination.Chronicle(fief))
+        openFromTown(Destination.Chronicle(fief))
     }
 
     fun openSchool() {
-        if (!areTabsEnabled) return
+        if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
             Destination.Town -> backStack.add(Destination.School)
             is Destination.LessonWords -> {
@@ -70,7 +71,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openLesson(lesson: LessonId, walked: List<LessonId>) {
-        if (!areTabsEnabled) return
+        if (!areLinksEnabled) return
         val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
         when (backStack.lastOrNull()) {
             Destination.Report, Destination.School -> backStack.add(words)
@@ -80,11 +81,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openReport() {
-        openTab(Destination.Report)
+        openFromTown(Destination.Report)
     }
 
     fun openReviews() {
-        if (!areTabsEnabled) return
+        if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
             Destination.Report, Destination.School, is Destination.LessonWords -> backStack.add(Destination.Review)
             else -> Unit
@@ -96,7 +97,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun switchFief(fief: FiefId) {
-        if (!areTabsEnabled) return
+        if (!areLinksEnabled) return
         val shown: List<Destination> = when (backStack.lastOrNull()) {
             is Destination.Map -> listOf(Destination.Town, Destination.Map(fief))
             is Destination.Chronicle -> listOf(Destination.Town, Destination.Chronicle(fief))
@@ -105,12 +106,12 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         showAlone(shown)
     }
 
-    private fun openTab(tab: Destination) {
-        if (!areTabsEnabled) return
+    private fun openFromTown(shownNext: Destination) {
+        if (!areLinksEnabled) return
         val shown: NavKey? = backStack.lastOrNull()
         if (shown != Destination.Town && !shown.isAboveTown()) return
         backToTown()
-        backStack.add(tab)
+        backStack.add(shownNext)
     }
 
     private fun backToTown() {

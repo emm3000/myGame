@@ -12,11 +12,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -92,7 +92,7 @@ private fun BusyLevy(
             MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.action)
             MyGameText(text = countdown, style = MyGameTypography.button, color = MyGameTheme.colors.ink)
         }
-        MyGameButton(
+        MyGameOutlinedButton(
             label = stringResource(R.string.levy_cancel),
             isBusy = isWaiting,
             busyDescription = stringResource(R.string.building_waiting),

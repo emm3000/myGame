@@ -12,11 +12,11 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -107,7 +107,7 @@ private fun BusyMarch(
             )
         }
         if (march.isRecallable) {
-            MyGameButton(
+            MyGameOutlinedButton(
                 label = stringResource(R.string.march_recall),
                 isBusy = recall == FiefUiState.RecallStatus.Waiting,
                 busyDescription = stringResource(R.string.building_waiting),

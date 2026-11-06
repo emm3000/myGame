@@ -2,7 +2,6 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownReadResult
@@ -14,30 +13,21 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class TownViewModel(
     private val towns: TownRepository,
-    private val sessions: SessionRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<TownUiState> = MutableStateFlow(TownUiState.Loading)
 
     val state: StateFlow<TownUiState> = _state.asStateFlow()
-
-    private val _effects: Channel<TownEffect> = Channel(Channel.BUFFERED)
-
-    val effects: Flow<TownEffect> = _effects.receiveAsFlow()
 
     private var projection: Job? = null
 
@@ -54,7 +44,6 @@ class TownViewModel(
     }
 
     fun onIntent(intent: TownIntent) {
-        if (_state.value == TownUiState.SigningOut) return
         when (intent) {
             TownIntent.ScreenShown -> show()
             TownIntent.ScreenHidden -> {
@@ -63,7 +52,6 @@ class TownViewModel(
             }
             TownIntent.RetryTapped -> if (_state.value == TownUiState.Failed) open()
             TownIntent.GoToTownTapped -> open()
-            TownIntent.SignOutTapped -> signOut()
             is TownIntent.NameChanged -> rename(intent.name)
             TownIntent.NameSubmitted -> found()
             is TownIntent.BuildTapped -> start(intent.building)
@@ -162,15 +150,6 @@ class TownViewModel(
                 TownWorkResult.Unreachable ->
                     drawMutations(mutations.copy(stop = TownUiState.StopStatus.Unreachable(target)))
             }
-        }
-    }
-
-    private fun signOut() {
-        viewModelScope.coroutineContext.cancelChildren()
-        _state.value = TownUiState.SigningOut
-        viewModelScope.launch {
-            sessions.signOut()
-            _effects.send(TownEffect.SignedOut)
         }
     }
 

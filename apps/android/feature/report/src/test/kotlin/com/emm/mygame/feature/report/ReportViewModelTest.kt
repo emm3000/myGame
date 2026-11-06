@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
+import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -23,9 +24,61 @@ class ReportViewModelTest {
 
     private val reports: FakeReportRepository = FakeReportRepository()
 
+    private val sessions: FakeSessionRepository = FakeSessionRepository()
+
     private val newsToClose: TownReport = reportOf(dueCount = 2, news = listOf(finishedFarm))
 
     private fun TestScope.reportReading(report: TownReport): ReportViewModel = reportReadingFrom(reports, report)
+
+    private fun TestScope.signedInReport(report: TownReport = reportOf(dueCount = 1)): ReportViewModel {
+        val viewModel: ReportViewModel = reportViewModelOf(reports, sessions)
+        reports.answerRead(ReportReadResult.Read(report))
+        runCurrent()
+        return viewModel
+    }
+
+    @Test
+    fun `signs out and tells the route`() = runTest {
+        val viewModel: ReportViewModel = signedInReport()
+        sessions.answerSignOut()
+
+        viewModel.effects.test {
+            viewModel.onIntent(ReportIntent.SignOutTapped)
+
+            assertEquals(ReportEffect.SignedOut, awaitItem())
+        }
+    }
+
+    @Test
+    fun `draws signing out while the session ends`() = runTest {
+        val viewModel: ReportViewModel = signedInReport()
+
+        viewModel.onIntent(ReportIntent.SignOutTapped)
+
+        assertEquals(ReportUiState.SigningOut, viewModel.state.value)
+    }
+
+    @Test
+    fun `ignores every tap while signing out`() = runTest {
+        val viewModel: ReportViewModel = signedInReport(newsToClose)
+        viewModel.onIntent(ReportIntent.SignOutTapped)
+
+        viewModel.onIntent(ReportIntent.CloseTapped)
+        runCurrent()
+
+        assertEquals(0, reports.closeCount)
+    }
+
+    @Test
+    fun `keeps signing out when a read lands late`() = runTest {
+        val viewModel: ReportViewModel = reportViewModelOf(reports, sessions)
+        viewModel.onIntent(ReportIntent.SignOutTapped)
+
+        reports.answerRead(ReportReadResult.Read(reportOf(dueCount = 3)))
+        runCurrent()
+
+        assertEquals(ReportUiState.SigningOut, viewModel.state.value)
+    }
 
     @Test
     fun `draws loading until the report answers`() = runTest {

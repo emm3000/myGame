@@ -1,14 +1,11 @@
 package com.emm.mygame
 
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -16,8 +13,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FiefAddress
@@ -55,6 +54,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -153,7 +153,7 @@ class AppNavigationTest {
                 AppNavigation(dependencies = dependencies)
             }
         }
-        waitForLine("Riverton")
+        waitForLine(TOWN_HEADER)
     }
 
     private fun waitForLine(line: String) {
@@ -162,13 +162,30 @@ class AppNavigationTest {
         }
     }
 
-    private fun tab(label: String): SemanticsNodeInteraction = composeRule.onNode(hasText(label).and(isTab()))
+    private fun backLink(): SemanticsNodeInteraction = composeRule.onNodeWithText("PUEBLO")
 
-    private fun isTab(): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+    private fun door(label: String): SemanticsNodeInteraction =
+        composeRule.onNode(hasText(label).and(hasTestTag(OUTLINED_PILL)))
+
+    private fun assertLinksBackToTheTown() {
+        backLink().performClick()
+        waitForLine(TOWN_HEADER)
+        composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(0)
+    }
+
+    private fun showingStack(vararg destinations: Destination) {
+        listingsFake.answerListed(FiefListResult.Listed(listOf(listedFief)))
+        repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(townOf())) }
+        composeRule.setContent {
+            MyGameTheme {
+                AppNavigation(dependencies = dependencies, backStack = rememberNavBackStack(*destinations))
+            }
+        }
+    }
 
     private fun openReport(report: TownReport) {
         reportsFake.answerRead(ReportReadResult.Read(report))
-        tab("Informe").performClick()
+        door("Informe").performClick()
         waitForLine("Noticias del pueblo")
     }
 
@@ -183,50 +200,12 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `draws the town and the Report tabs with no fief listed`() {
-        signedInAtTown()
-
-        tab("Pueblo").assertIsDisplayed()
-        tab("Informe").assertIsDisplayed()
-    }
-
-    @Test
-    fun `draws no medieval tab with no fief listed`() {
-        signedInAtTown()
-
-        composeRule.onAllNodesWithText("Mapa").assertCountEquals(0)
-        composeRule.onAllNodesWithText("Crónica").assertCountEquals(0)
-    }
-
-    @Test
-    fun `reads the navigation in the order town, Report, map, chronicle`() {
-        signedInAtTown(fiefs = listOf(listedFief))
-        waitForLine("Mapa")
-
-        val lefts: List<Float> = listOf("Pueblo", "Informe", "Mapa", "Crónica").map { label: String ->
-            tab(label).fetchSemanticsNode().boundsInRoot.left
-        }
-
-        assertEquals(lefts.sorted(), lefts)
-        assertEquals(lefts.size, lefts.toSet().size)
-    }
-
-    @Test
-    fun `opens the Report from its tab`() {
+    fun `opens the Report from its door`() {
         signedInAtTown()
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
 
         composeRule.onNodeWithText("Repasos pendientes: 3").assertIsDisplayed()
-    }
-
-    @Test
-    fun `marks the Report tab current on the Report`() {
-        signedInAtTown()
-
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
-
-        tab("Informe").assertIsSelected()
     }
 
     @Test
@@ -239,13 +218,6 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Leer las palabras").performClick()
 
         waitForLine("I drink water.")
-    }
-
-    @Test
-    fun `marks the town tab current on a lesson's words`() {
-        onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
-
-        tab("Pueblo").assertIsSelected()
     }
 
     @Test
@@ -293,18 +265,6 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `keeps the Report tab current on the reviews`() {
-        signedInAtTown()
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
-        learningFake.answerRead(noReviews)
-
-        composeRule.onNodeWithText("Empezar los repasos").performClick()
-        waitForLine("Aún no tienes palabras que repasar.")
-
-        tab("Informe").assertIsSelected()
-    }
-
-    @Test
     fun `reads the Report again on the way back from the reviews`() {
         signedInAtTown()
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
@@ -314,21 +274,10 @@ class AppNavigationTest {
         val nothingDue: TownReport = TownReport(dueCount = 0, readFirst = emptyList(), news = emptyList())
         reportsFake.answerRead(ReportReadResult.Read(nothingDue))
 
-        tab("Informe").performClick()
+        composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         waitForLine("No tienes repasos pendientes ahora.")
 
         assertEquals(2, reportsFake.readCount)
-    }
-
-    @Test
-    fun `returns to the town from the Report on its tab`() {
-        signedInAtTown()
-        openReport(TownReport(dueCount = 0, readFirst = emptyList(), news = emptyList()))
-
-        tab("Pueblo").performClick()
-        waitForLine("Riverton")
-
-        tab("Pueblo").assertIsSelected()
     }
 
     @Test
@@ -345,19 +294,85 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `disables every tab while signing out`() {
-        signedInAtTown(fiefs = listOf(listedFief))
-        waitForLine("Mapa")
+    fun `draws no back link on the town home`() {
+        signedInAtTown()
 
-        composeRule.onNodeWithText("Salir").performClick()
+        composeRule.onAllNodesWithText("PUEBLO").assertCountEquals(0)
+    }
+
+    @Test
+    fun `links back to the town from every screen but the town home`() {
+        signedInAtTown()
+        door("Escuela").performClick()
+        waitForLine("Lecciones")
+        assertLinksBackToTheTown()
+
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
+        learningFake.answerRead(noReviews)
+        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+        waitForLine("Aún no tienes palabras que repasar.")
+        assertLinksBackToTheTown()
+    }
+
+    @Test
+    fun `links back to the town from a lesson's words`() {
+        onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
+
+        assertLinksBackToTheTown()
+    }
+
+    @Test
+    fun `links back to the town from the map`() {
+        showingStack(Destination.Town, Destination.Map(listedFief.id))
+        waitForLine("PUEBLO")
+
+        assertLinksBackToTheTown()
+    }
+
+    @Test
+    fun `links back to the town from the chronicle`() {
+        showingStack(Destination.Town, Destination.Chronicle(listedFief.id))
+        waitForLine("PUEBLO")
+
+        assertLinksBackToTheTown()
+    }
+
+    @Test
+    fun `keeps the fief switcher under the back link on a medieval screen`() {
+        showingStack(Destination.Town, Destination.Map(listedFief.id))
+        waitForLine("Sotoverde")
+
+        assertTrue(
+            backLink().fetchSemanticsNode().boundsInRoot.top <
+                composeRule.onNodeWithText("Sotoverde").fetchSemanticsNode().boundsInRoot.top,
+        )
+    }
+
+    @Test
+    fun `disables the back link while signing out`() {
+        signedInAtTown()
+        openReport(TownReport(dueCount = 0, readFirst = emptyList(), news = emptyList()))
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()
 
-        listOf("Pueblo", "Informe", "Mapa", "Crónica").forEach { label: String ->
-            tab(label).assertIsNotEnabled()
-        }
+        backLink().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `signs out from the foot of the Report`() {
+        signedInAtTown()
+        openReport(TownReport(dueCount = 0, readFirst = emptyList(), news = emptyList()))
+        sessionsFake.answerSignOut()
+        sessionsFake.answerRestore(RestoreResult.SignedOut)
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+
+        waitForLine("Entrar")
     }
 
     private companion object {
+        const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
         const val READS_AVAILABLE: Int = 5
         const val WAIT_MILLIS: Long = 5_000
     }

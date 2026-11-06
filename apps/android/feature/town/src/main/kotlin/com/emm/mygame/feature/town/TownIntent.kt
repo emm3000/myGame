@@ -10,8 +10,6 @@ sealed interface TownIntent {
 
     data object RetryTapped : TownIntent
 
-    data object SignOutTapped : TownIntent
-
     data class NameChanged(val name: String) : TownIntent
 
     data object NameSubmitted : TownIntent

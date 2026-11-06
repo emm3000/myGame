@@ -4,11 +4,17 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -18,6 +24,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -45,6 +52,8 @@ class TownScreenTest {
     private val intents: MutableList<TownIntent> = mutableListOf()
 
     private var schoolOpens: Int = 0
+
+    private var reportOpens: Int = 0
 
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
@@ -161,7 +170,7 @@ class TownScreenTest {
     fun `labels a town with the word town`() {
         show(riverton)
 
-        composeRule.onNodeWithText("Pueblo").assertIsDisplayed()
+        composeRule.onNodeWithText("RIVERTON · PUEBLO").assertIsDisplayed()
     }
 
     @Test
@@ -175,7 +184,7 @@ class TownScreenTest {
     fun `labels a city with the word city`() {
         show(riverton.copy(label = TownLabel.City))
 
-        composeRule.onNodeWithText("Ciudad").assertIsDisplayed()
+        composeRule.onNodeWithText("RIVERTON · CIUDAD").assertIsDisplayed()
     }
 
     @Test
@@ -456,15 +465,6 @@ class TownScreenTest {
     }
 
     @Test
-    fun `signs out from the home`() {
-        show(riverton)
-
-        composeRule.onNodeWithText("Salir").performClick()
-
-        assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
-    }
-
-    @Test
     fun `draws a start refusal under its own place alone`() {
         show(twoPlaces(TownUiState.StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.NotEnoughResources)))
 
@@ -544,7 +544,7 @@ class TownScreenTest {
     private fun spaceAbovePlaceName(): Dp =
         topOf("Granja") - composeRule.onNodeWithText("Tu pueblo").getUnclippedBoundsInRoot().bottom
 
-    private fun topOf(text: String): Dp = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot().top
+    private fun topOf(text: String): Dp = composeRule.onAllNodesWithText(text).onLast().getUnclippedBoundsInRoot().top
 
     private fun assertDrawnOnceAbove(line: String, later: String) {
         composeRule.onAllNodesWithText(line).assertCountEquals(1)
@@ -597,6 +597,52 @@ class TownScreenTest {
     private fun blocked(reason: TownUiState.BlockReason): TownUiState.Content =
         riverton.copy(places = listOf(farmOffer.copy(block = reason)))
 
+    @Test
+    fun `opens the school and the Report from the two doors`() {
+        show(riverton.copy(places = emptyList()))
+
+        composeRule.onNodeWithText("Escuela").performClick()
+        composeRule.onNodeWithText("Informe").performClick()
+
+        assertEquals(1 to 1, schoolOpens to reportOpens)
+    }
+
+    @Test
+    fun `sets the doors under the header and above the stocks`() {
+        show(riverton)
+
+        val doorTop: Dp = composeRule.onNodeWithText("Escuela").getUnclippedBoundsInRoot().top
+
+        assertTrue(composeRule.onNodeWithText("RIVERTON · PUEBLO").getUnclippedBoundsInRoot().top < doorTop)
+        assertTrue(doorTop < composeRule.onNodeWithText("de 900").getUnclippedBoundsInRoot().top)
+    }
+
+    @Test
+    fun `shows a player with no town no doors`() {
+        show(TownUiState.Naming("", TownUiState.NamingStatus.Idle))
+
+        doors().assertCountEquals(0)
+    }
+
+    @Test
+    fun `shows a town that failed to read no doors`() {
+        show(TownUiState.Failed)
+
+        doors().assertCountEquals(0)
+    }
+
+    @Test
+    fun `heads the home with the town's name and label in meta`() {
+        show(riverton)
+
+        composeRule
+            .onNodeWithText("RIVERTON · PUEBLO")
+            .assert(hasContentDescription("Riverton · Pueblo"))
+            .assert(isHeading())
+    }
+
+    private fun doors(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(OUTLINED_PILL)
+
     private fun show(state: TownUiState) {
         composeRule.setContent {
             MyGameTheme {
@@ -604,6 +650,7 @@ class TownScreenTest {
                     state = state,
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { schoolOpens += 1 },
+                    onReportOpen = { reportOpens += 1 },
                 )
             }
         }

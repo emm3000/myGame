@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
+import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
@@ -39,8 +40,11 @@ internal fun contentOf(viewModel: ReportViewModel): ReportUiState.Content =
 internal fun unreadOf(viewModel: ReportViewModel): ReportUiState.ReportNews.Unread =
     contentOf(viewModel).news as ReportUiState.ReportNews.Unread
 
-internal fun TestScope.reportViewModelOf(reports: FakeReportRepository): ReportViewModel {
-    val viewModel: ReportViewModel = ReportViewModel(reports, TestClock(testScheduler, readInstant))
+internal fun TestScope.reportViewModelOf(
+    reports: FakeReportRepository,
+    sessions: FakeSessionRepository = FakeSessionRepository(),
+): ReportViewModel {
+    val viewModel: ReportViewModel = ReportViewModel(reports, sessions, TestClock(testScheduler, readInstant))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()

@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -22,7 +22,7 @@ internal fun CancelControl(
 ) {
     val building: String = stringResource(buildingNameOf(target.building)).lowercase(spanish)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameButton(
+        MyGameOutlinedButton(
             label = stringResource(R.string.cancel_upgrade),
             isBusy = cancel is FiefUiState.CancelStatus.Waiting,
             busyDescription = stringResource(R.string.building_waiting),
