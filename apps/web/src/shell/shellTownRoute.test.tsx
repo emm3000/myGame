@@ -533,7 +533,7 @@ it('drops the notice for good once no review is due', async () => {
   expect(queryFinishNotice(2)).toBeNull()
 })
 
-it('tells a second finish on the same page', async () => {
+const twoFinishesClient = (): ApiClient => {
   const lessonOneRunning: TownOverview = {
     ...lessonTwoFinished([]),
     lessonSlot: {
@@ -557,10 +557,37 @@ it('tells a second finish on the same page', async () => {
     }
     return elapsedMs < 540_000 ? lessonOneRunning : lessonOneFinished
   }
-  renderAppAt(
-    '/report',
-    signedInClient({ town: async () => ({ ok: true, value: townAt(Date.now() - readAt) }) }),
-  )
+  return signedInClient({ town: async () => ({ ok: true, value: townAt(Date.now() - readAt) }) })
+}
+
+it('reopens the notice for a second finish after a Close', async () => {
+  renderAppAt('/report', twoFinishesClient())
+  await passSeconds(0)
+  await passSeconds(240)
+  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+
+  await passSeconds(60)
+  await passSeconds(240)
+
+  expect(finishNotice(1)).toBeDefined()
+})
+
+it('reopens the notice for a second finish after a drop', async () => {
+  const router = renderAppAt('/report', twoFinishesClient())
+  await passSeconds(0)
+  await passSeconds(240)
+  await act(() => router.navigate({ href: '/reviews' }))
+  await passSeconds(0)
+  await act(() => router.navigate({ href: '/report' }))
+
+  await passSeconds(60)
+  await passSeconds(240)
+
+  expect(finishNotice(1)).toBeDefined()
+})
+
+it('tells a second finish on the same page', async () => {
+  renderAppAt('/report', twoFinishesClient())
   await passSeconds(0)
   await passSeconds(240)
   const firstAnnouncement = shellLiveRegion().firstElementChild
