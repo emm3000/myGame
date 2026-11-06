@@ -57,6 +57,13 @@ class ReportRepositoryTest {
     }
 
     @Test
+    fun `reads the lessons to read first in the order the api answers`() = runTest {
+        api.enqueue(json(200, reportOf(dueCount = 3, readFirst = """"lesson-2","lesson-3"""")))
+
+        assertEquals(listOf(LessonId("lesson-2"), LessonId("lesson-3")), read().readFirst)
+    }
+
+    @Test
     fun `reads a building work finished`() = runTest {
         api.enqueue(json(200, reportOf(news = buildingWork("buildingWorkFinished", "powerStation"))))
 
@@ -311,8 +318,8 @@ class ReportRepositoryTest {
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
-    private fun reportOf(dueCount: Int = 0, news: String = ""): String =
-        """{"dueCount":$dueCount,"due":[],"readFirst":[],"nextDueAt":null,"news":[$news]}"""
+    private fun reportOf(dueCount: Int = 0, news: String = "", readFirst: String = ""): String =
+        """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":null,"news":[$news]}"""
 
     private fun buildingWork(kind: String, building: String): String =
         """{"kind":"$kind","params":{"building":"$building","level":2},"occurredAt":"$OCCURRED_AT"}"""

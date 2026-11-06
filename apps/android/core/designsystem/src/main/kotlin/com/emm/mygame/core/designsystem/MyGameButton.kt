@@ -20,6 +20,9 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
+
+const val INK_PILL: String = "ink_pill"
 
 @Composable
 fun MyGameButton(
@@ -65,6 +68,7 @@ fun MyGameButton(
 
 private fun Modifier.buttonSemantics(accessibleName: String?, state: String?): Modifier =
     semantics(mergeDescendants = true) {
+        testTag = INK_PILL
         if (accessibleName != null) contentDescription = accessibleName
         if (state != null) stateDescription = state
     }

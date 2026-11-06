@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.sp
 object MyGameTypography {
     val word: TextStyle = style(size = 44.sp, lineHeight = 1.05.em, weight = FontWeight.ExtraBold)
         .copy(letterSpacing = (-0.02).em)
+    val wordFromMd: TextStyle = style(size = 52.sp, lineHeight = 1.05.em, weight = FontWeight.ExtraBold)
+        .copy(letterSpacing = (-0.02).em)
     val display: TextStyle = style(size = 40.sp, lineHeight = 1.05.em, weight = FontWeight.ExtraBold)
         .copy(letterSpacing = (-0.02).em)
     val numeral: TextStyle = style(size = 26.sp, lineHeight = 1.15.em, weight = FontWeight.Bold)

@@ -45,7 +45,10 @@ data class TownSnapshot(
         val skill: LessonSkill,
         val isStudied: Boolean,
         val wordCount: Int,
+        val readings: List<WordReading>,
     )
+
+    data class WordReading(val word: String, val gloss: String, val frame: String)
 
     data class LessonSkill(val resource: TownResourceKind, val ratePercent: Int)
 

@@ -35,10 +35,14 @@ import com.emm.mygame.core.designsystem.MyGameNavigationBar
 import com.emm.mygame.core.designsystem.MyGameNavigationItem
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.FiefId
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.feature.chronicle.ChronicleRoute
 import com.emm.mygame.feature.fief.ReviewRoute
 import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.report.ReportRoute
+import com.emm.mygame.feature.school.LessonWalk
+import com.emm.mygame.feature.school.LessonWordsNavigation
+import com.emm.mygame.feature.school.LessonWordsRoute
 import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
@@ -105,6 +109,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependen
                 clock = dependencies.clock,
                 onNoTown = navigator::openTown,
                 onReviewsOpen = navigator::openReviews,
+                onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
             )
         }
     }
@@ -114,9 +119,11 @@ private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependen
                 reports = dependencies.reports,
                 clock = dependencies.clock,
                 onReviewsOpen = navigator::openReviews,
+                onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
             )
         }
     }
+    lessonWordsEntry(dependencies = dependencies, navigator = navigator)
     entry<Destination.Review> { shown: Destination.Review ->
         SignedInFrame(current = shown, fief = null, dependencies = dependencies, navigator = navigator) {
             ReviewRoute(learning = dependencies.learning, clock = dependencies.clock)
@@ -130,6 +137,25 @@ private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependen
     entry<Destination.Chronicle> { shown: Destination.Chronicle ->
         SignedInFrame(current = shown, fief = shown.fief, dependencies = dependencies, navigator = navigator) {
             ChronicleRoute(fief = shown.fief, chronicles = dependencies.chronicles, clock = dependencies.clock)
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.lessonWordsEntry(dependencies: AppDependencies, navigator: Navigator) {
+    entry<Destination.LessonWords> { shown: Destination.LessonWords ->
+        SignedInFrame(current = shown, fief = null, dependencies = dependencies, navigator = navigator) {
+            LessonWordsRoute(
+                walk = LessonWalk(shown.lesson, shown.walked),
+                towns = dependencies.towns,
+                reports = dependencies.reports,
+                clock = dependencies.clock,
+                navigation = LessonWordsNavigation(
+                    onNoTown = navigator::openTown,
+                    onLessonOpen = navigator::openLesson,
+                    onReviewsOpen = navigator::openReviews,
+                    onSchoolOpen = navigator::openSchool,
+                ),
+            )
         }
     }
 }
@@ -186,7 +212,9 @@ private fun SignedInTabs(
     MyGameNavigationBar(modifier = modifier.navigationBarsPadding()) {
         MyGameNavigationItem(
             label = stringResource(R.string.navigation_town),
-            isCurrent = current == Destination.Town || current == Destination.School,
+            isCurrent = current == Destination.Town ||
+                current == Destination.School ||
+                current is Destination.LessonWords,
             isEnabled = navigator.areTabsEnabled,
             onClick = navigator::openTown,
         )

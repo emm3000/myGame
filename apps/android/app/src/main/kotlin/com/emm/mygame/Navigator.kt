@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.network.FiefId
+import com.emm.mygame.core.network.LessonId
 import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>) {
@@ -36,12 +37,12 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun signedIn() {
-        showAlone(Destination.Town)
+        showAlone(listOf(Destination.Town))
     }
 
     fun signedOut(isSessionEnded: Boolean) {
         areTabsEnabled = true
-        showAlone(Destination.SignIn(isSessionEnded = isSessionEnded))
+        showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
     }
 
     suspend fun followSessionEnds(ended: Flow<Unit>) {
@@ -57,7 +58,25 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     }
 
     fun openSchool() {
-        if (areTabsEnabled && backStack.lastOrNull() == Destination.Town) backStack.add(Destination.School)
+        if (!areTabsEnabled) return
+        when (backStack.lastOrNull()) {
+            Destination.Town -> backStack.add(Destination.School)
+            is Destination.LessonWords -> {
+                backToTown()
+                backStack.add(Destination.School)
+            }
+            else -> Unit
+        }
+    }
+
+    fun openLesson(lesson: LessonId, walked: List<LessonId>) {
+        if (!areTabsEnabled) return
+        val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
+        when (backStack.lastOrNull()) {
+            Destination.Report, Destination.School -> backStack.add(words)
+            is Destination.LessonWords -> backStack[backStack.lastIndex] = words
+            else -> Unit
+        }
     }
 
     fun openReport() {
@@ -67,7 +86,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     fun openReviews() {
         if (!areTabsEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.Report, Destination.School -> backStack.add(Destination.Review)
+            Destination.Report, Destination.School, is Destination.LessonWords -> backStack.add(Destination.Review)
             else -> Unit
         }
     }
@@ -98,10 +117,6 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         backStack.subList(backStack.indexOf(Destination.Town) + 1, backStack.size).clear()
     }
 
-    private fun showAlone(destination: Destination) {
-        showAlone(listOf(destination))
-    }
-
     private fun showAlone(destinations: List<Destination>) {
         if (backStack == destinations) return
         val replaced: Int = backStack.size
@@ -111,6 +126,12 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
 }
 
 private fun NavKey?.isAboveTown(): Boolean = when (this) {
-    Destination.School, Destination.Report, Destination.Review, is Destination.Map, is Destination.Chronicle -> true
+    Destination.School,
+    Destination.Report,
+    Destination.Review,
+    is Destination.LessonWords,
+    is Destination.Map,
+    is Destination.Chronicle,
+    -> true
     else -> false
 }

@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ fun SchoolRoute(
     clock: Clock,
     onNoTown: () -> Unit,
     onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
@@ -37,5 +39,11 @@ fun SchoolRoute(
         viewModel.onIntent(SchoolIntent.ScreenShown)
         onStopOrDispose { viewModel.onIntent(SchoolIntent.ScreenHidden) }
     }
-    SchoolScreen(state = state, onIntent = viewModel::onIntent, onReviewsOpen = onReviewsOpen, modifier = modifier)
+    SchoolScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onReviewsOpen = onReviewsOpen,
+        onLessonOpen = onLessonOpen,
+        modifier = modifier,
+    )
 }

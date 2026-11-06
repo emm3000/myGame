@@ -2,6 +2,7 @@ package com.emm.mygame
 
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.network.FiefId
+import com.emm.mygame.core.network.LessonId
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -22,6 +23,15 @@ class NavigatorTest {
     private val map: Destination.Map = Destination.Map(firstListed)
 
     private val chronicle: Destination.Chronicle = Destination.Chronicle(firstListed)
+
+    private val firstLesson: LessonId = LessonId("lesson-1")
+
+    private val secondLesson: LessonId = LessonId("lesson-2")
+
+    private val firstWords: Destination.LessonWords = Destination.LessonWords(firstLesson, walked = emptyList())
+
+    private val secondWords: Destination.LessonWords =
+        Destination.LessonWords(secondLesson, walked = listOf(firstLesson))
 
     @Test
     fun `opens sign-up above sign-in`() {
@@ -663,6 +673,89 @@ class NavigatorTest {
         navigator.signingOut()
 
         navigator.openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `opens a lesson's words above the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+
+        assertEquals(listOf(Destination.Town, Destination.Report, firstWords), backStack)
+    }
+
+    @Test
+    fun `opens a lesson's words above the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+
+        assertEquals(listOf(Destination.Town, Destination.School, firstWords), backStack)
+    }
+
+    @Test
+    fun `takes the place of the lesson it walks on from`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, firstWords)
+
+        Navigator(backStack).openLesson(secondLesson, walked = listOf(firstLesson))
+
+        assertEquals(listOf(Destination.Town, Destination.Report, secondWords), backStack)
+    }
+
+    @Test
+    fun `opens no lesson above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no lesson while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openLesson(firstLesson, walked = emptyList())
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `opens the reviews above a lesson's words`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, firstWords)
+
+        Navigator(backStack).openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report, firstWords, Destination.Review), backStack)
+    }
+
+    @Test
+    fun `goes back to the school from a lesson's words`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, firstWords)
+
+        Navigator(backStack).openSchool()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `returns to the town from a lesson's words`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstWords)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens the Report tab from a lesson's words`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, firstWords)
+
+        Navigator(backStack).openReport()
 
         assertEquals(listOf(Destination.Town, Destination.Report), backStack)
     }

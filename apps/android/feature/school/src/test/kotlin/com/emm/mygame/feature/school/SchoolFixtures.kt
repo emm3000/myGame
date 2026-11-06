@@ -31,6 +31,7 @@ internal fun lessonOf(
     isStudied: Boolean = false,
     wordCount: Int = 5,
     duration: Duration = 150.seconds,
+    readings: List<TownSnapshot.WordReading> = emptyList(),
 ): TownSnapshot.Lesson = TownSnapshot.Lesson(
     id = id,
     theme = "A day in town",
@@ -39,6 +40,7 @@ internal fun lessonOf(
     skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
     isStudied = isStudied,
     wordCount = wordCount,
+    readings = readings,
 )
 
 internal fun slotOf(

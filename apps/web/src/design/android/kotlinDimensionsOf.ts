@@ -1,4 +1,5 @@
 import {
+  breakpoints,
   heights,
   maxWidths,
   minHeights,
@@ -12,6 +13,8 @@ import { camelCaseOf } from './camelCaseOf'
 import type { DesignSystemFile } from './DesignSystemFile'
 import { kotlinPackage } from './kotlinPackage'
 import { numberBefore } from './numberBefore'
+
+const pixelsPerRem = 16
 
 function dpLineOf(name: string, dp: number): string {
   return `    val ${name}: Dp = ${dp}.dp`
@@ -55,6 +58,7 @@ function sizesOf(): DesignSystemFile {
       ...Object.fromEntries(named),
       measureForm: maxWidths.form,
       track: heights.track,
+      widthMd: `${numberBefore('rem', breakpoints.md) * pixelsPerRem}px`,
     }),
   )
 }

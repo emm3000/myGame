@@ -23,6 +23,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -30,6 +31,7 @@ fun SchoolScreen(
     state: SchoolUiState,
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -66,7 +68,12 @@ fun SchoolScreen(
             is SchoolUiState.Content -> {
                 SchoolTitle(level = state.schoolLevel)
                 LearningSection(learning = state.learning, onReviewsOpen = onReviewsOpen)
-                LessonSlotSection(slot = state.slot, stop = state.stop, onIntent = onIntent)
+                LessonSlotSection(
+                    slot = state.slot,
+                    stop = state.stop,
+                    onIntent = onIntent,
+                    onLessonOpen = onLessonOpen,
+                )
                 LessonsSection(content = state, onIntent = onIntent, onReviewsOpen = onReviewsOpen)
                 SkillsSection(content = state)
             }

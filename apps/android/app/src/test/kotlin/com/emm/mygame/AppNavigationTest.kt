@@ -120,6 +120,7 @@ class AppNavigationTest {
                 skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
                 isStudied = false,
                 wordCount = 5,
+                readings = listOf(TownSnapshot.WordReading("water", "agua", "I drink water.")),
             ),
         ),
         skills = emptyList(),
@@ -189,7 +190,7 @@ class AppNavigationTest {
     fun `opens the Report from its tab`() {
         signedInAtTown()
 
-        openReport(TownReport(dueCount = 3, news = emptyList()))
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
 
         composeRule.onNodeWithText("Repasos pendientes: 3").assertIsDisplayed()
     }
@@ -198,15 +199,27 @@ class AppNavigationTest {
     fun `marks the Report tab current on the Report`() {
         signedInAtTown()
 
-        openReport(TownReport(dueCount = 3, news = emptyList()))
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
 
         tab("Informe").assertIsSelected()
     }
 
     @Test
+    fun `opens the unread lesson's words from the Report`() {
+        signedInAtTown()
+        val unread: TownReport = TownReport(dueCount = 3, readFirst = listOf(LessonId("lesson-1")), news = emptyList())
+        openReport(unread)
+        reportsFake.answerRead(ReportReadResult.Read(unread))
+
+        composeRule.onNodeWithText("Leer las palabras").performClick()
+
+        waitForLine("I drink water.")
+    }
+
+    @Test
     fun `opens the reviews from the Report`() {
         signedInAtTown()
-        openReport(TownReport(dueCount = 3, news = emptyList()))
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
         learningFake.answerRead(noReviews)
 
         composeRule.onNodeWithText("Empezar los repasos").performClick()
@@ -218,7 +231,7 @@ class AppNavigationTest {
     @Test
     fun `keeps the Report tab current on the reviews`() {
         signedInAtTown()
-        openReport(TownReport(dueCount = 3, news = emptyList()))
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
         learningFake.answerRead(noReviews)
 
         composeRule.onNodeWithText("Empezar los repasos").performClick()
@@ -230,11 +243,12 @@ class AppNavigationTest {
     @Test
     fun `reads the Report again on the way back from the reviews`() {
         signedInAtTown()
-        openReport(TownReport(dueCount = 3, news = emptyList()))
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
         learningFake.answerRead(noReviews)
         composeRule.onNodeWithText("Empezar los repasos").performClick()
         waitForLine("Aún no tienes palabras que repasar.")
-        reportsFake.answerRead(ReportReadResult.Read(TownReport(dueCount = 0, news = emptyList())))
+        val nothingDue: TownReport = TownReport(dueCount = 0, readFirst = emptyList(), news = emptyList())
+        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
 
         tab("Informe").performClick()
         waitForLine("No tienes repasos pendientes ahora.")
@@ -245,7 +259,7 @@ class AppNavigationTest {
     @Test
     fun `returns to the town from the Report on its tab`() {
         signedInAtTown()
-        openReport(TownReport(dueCount = 0, news = emptyList()))
+        openReport(TownReport(dueCount = 0, readFirst = emptyList(), news = emptyList()))
 
         tab("Pueblo").performClick()
         waitForLine("Riverton")

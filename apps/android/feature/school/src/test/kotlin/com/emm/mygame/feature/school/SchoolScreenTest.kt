@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
@@ -65,6 +66,8 @@ class SchoolScreenTest {
 
     private var reviewOpens: Int = 0
 
+    private val lessonOpens: MutableList<LessonId> = mutableListOf()
+
     private fun show(state: SchoolUiState) {
         composeRule.setContent {
             MyGameTheme {
@@ -72,6 +75,7 @@ class SchoolScreenTest {
                     state = state,
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onReviewsOpen = { reviewOpens += 1 },
+                    onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                 )
             }
         }
@@ -328,6 +332,15 @@ class SchoolScreenTest {
         composeRule
             .onAllNodesWithText("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
             .assertCountEquals(1)
+    }
+
+    @Test
+    fun `opens the words of the running lesson`() {
+        show(idleSchool.copy(slot = busySlot(150.seconds)))
+
+        composeRule.onNodeWithText("Leer las palabras").performScrollTo().performClick()
+
+        assertEquals(listOf(firstLesson), lessonOpens)
     }
 
     @Test

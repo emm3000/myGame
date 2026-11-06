@@ -30,6 +30,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.ui.icuStringResource
 import java.time.ZoneId
@@ -40,6 +41,7 @@ fun ReportScreen(
     state: ReportUiState,
     onIntent: (ReportIntent) -> Unit,
     onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -74,7 +76,7 @@ fun ReportScreen(
                 onAction = { onIntent(ReportIntent.RetryTapped) },
             )
             is ReportUiState.Content -> {
-                ReviewsDueSection(dueCount = state.dueCount, onReviewsOpen = onReviewsOpen)
+                ReviewsDueSection(content = state, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
                 NewsSection(content = state, onIntent = onIntent)
             }
         }
@@ -82,7 +84,14 @@ fun ReportScreen(
 }
 
 @Composable
-private fun ReviewsDueSection(dueCount: Int, onReviewsOpen: () -> Unit, modifier: Modifier = Modifier) {
+private fun ReviewsDueSection(
+    content: ReportUiState.Content,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dueCount: Int = content.dueCount
+    val firstUnread: LessonId? = content.firstUnread
     if (dueCount == 0) {
         EmptyLine(line = stringResource(R.string.report_no_reviews_due), modifier = modifier)
         return
@@ -98,10 +107,12 @@ private fun ReviewsDueSection(dueCount: Int, onReviewsOpen: () -> Unit, modifier
                 color = MyGameTheme.colors.ink,
             )
             MyGameButton(
-                label = stringResource(R.string.report_start_reviews),
+                label = stringResource(
+                    if (firstUnread == null) R.string.report_start_reviews else R.string.report_read_words,
+                ),
                 isBusy = false,
                 busyDescription = stringResource(R.string.report_waiting),
-                onClick = onReviewsOpen,
+                onClick = { if (firstUnread == null) onReviewsOpen() else onLessonOpen(firstUnread) },
             )
         }
     }

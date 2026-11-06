@@ -112,6 +112,7 @@ class ReportViewModel(private val reports: ReportRepository, private val clock: 
     private fun draw(report: TownReport) {
         _state.value = ReportUiState.Content(
             dueCount = report.dueCount,
+            firstUnread = report.readFirst.firstOrNull(),
             news = newsOf(report),
             receivedAt = clock.now(),
         )
