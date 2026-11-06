@@ -1,0 +1,31 @@
+package com.emm.mygame.core.designsystem
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextDecoration
+
+@Composable
+fun MyGameTextButton(
+    label: String,
+    isBusy: Boolean,
+    busyDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors: MyGameColors = MyGameTheme.colors
+    MyGameTextTarget(
+        isEnabled = !isBusy,
+        onClick = onClick,
+        modifier = modifier.semantics(mergeDescendants = true) {
+            if (isBusy) stateDescription = busyDescription
+        },
+    ) {
+        MyGameText(
+            text = label,
+            style = MyGameTypography.label.copy(textDecoration = TextDecoration.Underline),
+            color = if (isBusy) colors.inkMuted else colors.ink,
+        )
+    }
+}

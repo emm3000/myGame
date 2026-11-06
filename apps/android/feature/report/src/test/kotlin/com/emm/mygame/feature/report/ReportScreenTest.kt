@@ -7,12 +7,16 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.Dp
+import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownAmount
@@ -265,4 +269,34 @@ class ReportScreenTest {
             .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
         return "Hoy, $time"
     }
+
+    @Test
+    fun `keeps sign-out at the foot of the Report`() {
+        show(contentWith(dueCount = 1, news = unreadFarm))
+
+        val signOutTop: Dp = unclippedTopOf("Salir")
+
+        listOf("Repasos pendientes: 1", "Noticias del pueblo", "Cerrar las noticias").forEach { line: String ->
+            assertTrue(unclippedTopOf(line) < signOutTop)
+        }
+    }
+
+    @Test
+    fun `keeps sign-out on a Report that failed to read`() {
+        show(ReportUiState.Failed)
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+
+        assertEquals(listOf<ReportIntent>(ReportIntent.SignOutTapped), intents)
+    }
+
+    @Test
+    fun `draws a text button while signing out, never an ink pill`() {
+        show(ReportUiState.SigningOut)
+
+        composeRule.onNodeWithText("Salir").assertIsDisplayed()
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+    }
+
+    private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top
 }

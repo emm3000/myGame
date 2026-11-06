@@ -11,9 +11,9 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -121,7 +121,7 @@ private fun NextLevel(
             color = MyGameTheme.colors.ink,
         )
         Costs(next = next)
-        MyGameButton(
+        MyGameOutlinedButton(
             label = icuStringResource(
                 R.string.town_build_with_duration,
                 "action" to icuStringResource(R.string.town_build, "level" to next.level.toString()),

@@ -5,25 +5,38 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.ReportCloseResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
+import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TownReport
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 private val failedReadRetry: Duration = 1.minutes
 
-class ReportViewModel(private val reports: ReportRepository, private val clock: Clock) : ViewModel() {
+class ReportViewModel(
+    private val reports: ReportRepository,
+    private val sessions: SessionRepository,
+    private val clock: Clock,
+) : ViewModel() {
 
     private val _state: MutableStateFlow<ReportUiState> = MutableStateFlow(ReportUiState.Loading)
 
     val state: StateFlow<ReportUiState> = _state.asStateFlow()
+
+    private val _effects: Channel<ReportEffect> = Channel(Channel.BUFFERED)
+
+    val effects: Flow<ReportEffect> = _effects.receiveAsFlow()
 
     private var reading: Job? = null
 
@@ -34,11 +47,13 @@ class ReportViewModel(private val reports: ReportRepository, private val clock: 
     }
 
     fun onIntent(intent: ReportIntent) {
+        if (_state.value == ReportUiState.SigningOut) return
         when (intent) {
             ReportIntent.ScreenShown -> show()
             ReportIntent.ScreenHidden -> hide()
             ReportIntent.RetryTapped -> if (_state.value == ReportUiState.Failed) open()
             ReportIntent.CloseTapped -> close()
+            ReportIntent.SignOutTapped -> signOut()
         }
     }
 
@@ -47,7 +62,7 @@ class ReportViewModel(private val reports: ReportRepository, private val clock: 
         isShown = true
         when (_state.value) {
             ReportUiState.Loading -> open()
-            ReportUiState.Failed -> Unit
+            ReportUiState.Failed, ReportUiState.SigningOut -> Unit
             is ReportUiState.Content -> readAgain()
         }
     }
@@ -87,6 +102,15 @@ class ReportViewModel(private val reports: ReportRepository, private val clock: 
                 ReportCloseResult.Closed -> drawClosed()
                 ReportCloseResult.Unreachable -> drawClose(ReportUiState.CloseRequest.Unreachable)
             }
+        }
+    }
+
+    private fun signOut() {
+        viewModelScope.coroutineContext.cancelChildren()
+        _state.value = ReportUiState.SigningOut
+        viewModelScope.launch {
+            sessions.signOut()
+            _effects.send(ReportEffect.SignedOut)
         }
     }
 

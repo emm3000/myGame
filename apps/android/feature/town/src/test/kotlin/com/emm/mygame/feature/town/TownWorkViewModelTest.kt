@@ -6,7 +6,6 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownWorkRefusal
 import com.emm.mygame.core.network.TownWorkResult
-import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.hours
@@ -29,8 +28,6 @@ class TownWorkViewModelTest {
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
     private val towns: FakeTownRepository = FakeTownRepository()
-
-    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
     @Test
     fun `offers the next level with its cost and duration`() = runTest {
@@ -469,5 +466,5 @@ class TownWorkViewModelTest {
     }
 
     private fun TestScope.viewModelOf(start: Instant = readInstant): TownViewModel =
-        townViewModelOf(towns, sessions, start)
+        townViewModelOf(towns, start)
 }

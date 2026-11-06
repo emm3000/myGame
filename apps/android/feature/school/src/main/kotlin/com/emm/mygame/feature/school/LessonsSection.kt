@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -38,8 +39,15 @@ internal fun LessonsSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameSectionTitle(text = stringResource(R.string.school_lessons))
+        val leadLesson: LessonId? = leadLessonOf(content)
         content.lessons.forEach { card: SchoolUiState.LessonCard ->
-            LessonItem(card = card, start = content.start, onIntent = onIntent, onReviewsOpen = onReviewsOpen)
+            LessonItem(
+                card = card,
+                isLead = card.lesson == leadLesson,
+                start = content.start,
+                onIntent = onIntent,
+                onReviewsOpen = onReviewsOpen,
+            )
         }
     }
 }
@@ -47,6 +55,7 @@ internal fun LessonsSection(
 @Composable
 private fun LessonItem(
     card: SchoolUiState.LessonCard,
+    isLead: Boolean,
     start: SchoolUiState.LessonRequest,
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
@@ -75,6 +84,7 @@ private fun LessonItem(
                     SchoolUiState.LessonState.Studying -> LessonStatus(label = R.string.school_lesson_studying)
                     is SchoolUiState.LessonState.Open -> StudyAction(
                         card = card,
+                        isLead = isLead,
                         block = state.block,
                         isWaiting = start == SchoolUiState.LessonRequest.Waiting,
                         onIntent = onIntent,
@@ -112,24 +122,38 @@ private fun LessonStatus(@StringRes label: Int, modifier: Modifier = Modifier) {
 @Composable
 private fun StudyAction(
     card: SchoolUiState.LessonCard,
+    isLead: Boolean,
     block: SchoolUiState.LessonBlock?,
     isWaiting: Boolean,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val reason: String? = block?.let { blocked: SchoolUiState.LessonBlock -> blockLineOf(blocked) }
+    val label: String = icuStringResource(
+        R.string.school_study_with_duration,
+        "action" to icuStringResource(R.string.school_lesson_study, "number" to card.number.toString()),
+        "duration" to durationLabelOf(card.duration),
+    )
+    val busyDescription: String = stringResource(R.string.school_waiting)
+    val onClick: () -> Unit = { onIntent(SchoolIntent.StudyTapped(card.lesson)) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameButton(
-            label = icuStringResource(
-                R.string.school_study_with_duration,
-                "action" to icuStringResource(R.string.school_lesson_study, "number" to card.number.toString()),
-                "duration" to durationLabelOf(card.duration),
-            ),
-            isBusy = isWaiting,
-            busyDescription = stringResource(R.string.school_waiting),
-            onClick = { onIntent(SchoolIntent.StudyTapped(card.lesson)) },
-            blockedReason = reason,
-        )
+        if (isLead) {
+            MyGameButton(
+                label = label,
+                isBusy = isWaiting,
+                busyDescription = busyDescription,
+                onClick = onClick,
+                blockedReason = reason,
+            )
+        } else {
+            MyGameOutlinedButton(
+                label = label,
+                isBusy = isWaiting,
+                busyDescription = busyDescription,
+                onClick = onClick,
+                blockedReason = reason,
+            )
+        }
         reason?.let { line: String ->
             MyGameText(
                 text = line,
@@ -140,6 +164,15 @@ private fun StudyAction(
         }
     }
 }
+
+private fun leadLessonOf(content: SchoolUiState.Content): LessonId? =
+    if (content.slot == SchoolUiState.SlotLine.Idle) {
+        content.lessons.firstOrNull { card: SchoolUiState.LessonCard ->
+            card.state is SchoolUiState.LessonState.Open
+        }?.lesson
+    } else {
+        null
+    }
 
 @Composable
 private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block) {

@@ -22,8 +22,8 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameStrokeWidths
@@ -44,7 +44,7 @@ internal fun OrderAction(
     modifier: Modifier = Modifier,
 ) {
     val resources: Resources = LocalResources.current
-    MyGameButton(
+    MyGameOutlinedButton(
         label = resources.actionLabelOf(order),
         isBusy = false,
         busyDescription = resources.getString(R.string.forage_waiting),
@@ -90,7 +90,7 @@ internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> 
         resources.previewLinesOf(form).forEach { line: String ->
             MyGameText(text = line, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
         }
-        MyGameButton(
+        MyGameOutlinedButton(
             label = resources.sendLabelOf(form),
             isBusy = form.send == MapUiState.SendStatus.Waiting,
             busyDescription = resources.getString(R.string.forage_waiting),

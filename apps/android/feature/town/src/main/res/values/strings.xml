@@ -4,6 +4,7 @@
     <string name="town_at_top_level">Ya está en su nivel más alto.</string>
     <string name="town_build">Construir nivel {level}</string>
     <string name="town_build_with_duration">{action} · {duration}</string>
+    <string name="town_door_report">Informe</string>
     <string name="town_duration_hours">{hours} h</string>
     <string name="town_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="town_duration_minutes">{minutes} min</string>
@@ -52,9 +53,9 @@
     <string name="town_resource_power">energía</string>
     <string name="town_short_mark">, falta</string>
     <string name="town_shortfall">Necesitas {missing} más.</string>
-    <string name="town_sign_out">Salir</string>
     <string name="town_stock_of">de {capacity}</string>
     <string name="town_stocks">En el almacén</string>
+    <string name="town_title">{name} · {label}</string>
     <string name="town_top_level">Nivel máximo</string>
     <string name="town_try_again">Volver a intentarlo</string>
     <string name="town_waiting">Esperando</string>

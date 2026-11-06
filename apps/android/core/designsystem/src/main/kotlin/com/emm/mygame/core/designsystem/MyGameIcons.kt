@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 
 object MyGameIcons {
+    val back: ImageVector = strokedIcon(name = "back", "m15 6-6 6 6 6")
     val hourglass: ImageVector = strokedIcon(
         name = "hourglass",
         "M6.5 3.4h11M6.5 20.6h11",

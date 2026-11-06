@@ -151,6 +151,17 @@ class NavigatorTest {
     }
 
     @Test
+    fun `stays on the Report on a back gesture while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.back()
+
+        assertEquals(listOf<NavKey>(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
     fun `opens no school while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
         val navigator: Navigator = Navigator(backStack)
@@ -308,7 +319,7 @@ class NavigatorTest {
 
         navigator.signingOut()
 
-        assertFalse(navigator.areTabsEnabled)
+        assertFalse(navigator.areLinksEnabled)
     }
 
     @Test
@@ -321,7 +332,7 @@ class NavigatorTest {
         navigator.signedIn()
         navigator.openMap(firstListed)
 
-        assertEquals(true to listOf(Destination.Town, map), navigator.areTabsEnabled to backStack)
+        assertEquals(true to listOf(Destination.Town, map), navigator.areLinksEnabled to backStack)
     }
 
     @Test

@@ -14,8 +14,6 @@ sealed interface TownUiState {
 
     data object Failed : TownUiState
 
-    data object SigningOut : TownUiState
-
     data class Naming(val name: String, val status: NamingStatus) : TownUiState
 
     data class Content(

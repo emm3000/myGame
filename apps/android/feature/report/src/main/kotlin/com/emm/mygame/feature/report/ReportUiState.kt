@@ -10,6 +10,8 @@ sealed interface ReportUiState {
 
     data object Failed : ReportUiState
 
+    data object SigningOut : ReportUiState
+
     data class Content(
         val dueCount: Int,
         val firstUnread: LessonId?,

@@ -1,13 +1,11 @@
 package com.emm.mygame.feature.town
 
-import app.cash.turbine.test
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import kotlin.time.Duration.Companion.hours
@@ -29,8 +27,6 @@ class TownViewModelTest {
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
     private val towns: FakeTownRepository = FakeTownRepository()
-
-    private val sessions: FakeSessionRepository = FakeSessionRepository()
 
     @Test
     fun `draws the loading state while the api reads the town`() = runTest {
@@ -356,37 +352,6 @@ class TownViewModelTest {
     }
 
     @Test
-    fun `signs out and tells the route`() = runTest {
-        val viewModel: TownViewModel = homeViewModel(townOf())
-        sessions.answerSignOut()
-
-        viewModel.effects.test {
-            viewModel.onIntent(TownIntent.SignOutTapped)
-
-            assertEquals(TownEffect.SignedOut, awaitItem())
-        }
-    }
-
-    @Test
-    fun `draws signing out while the session ends`() = runTest {
-        val viewModel: TownViewModel = homeViewModel(townOf())
-
-        viewModel.onIntent(TownIntent.SignOutTapped)
-
-        assertEquals(TownUiState.SigningOut, viewModel.state.value)
-    }
-
-    @Test
-    fun `ignores every tap while signing out`() = runTest {
-        val viewModel: TownViewModel = homeViewModel(townOf())
-        viewModel.onIntent(TownIntent.SignOutTapped)
-
-        viewModel.onIntent(TownIntent.BuildTapped(TownBuildingKind.Farm))
-
-        assertEquals(emptyList<TownBuildingKind>(), towns.starts)
-    }
-
-    @Test
     fun `measures the clock gap again at the read of a finished work`() = runTest {
         val viewModel: TownViewModel = homeViewModel(townOf(slot = workOf(lasting = 1.minutes)))
         towns.answerRead(TownReadResult.Read(risingTownReadAt(readInstant + 1.minutes + 3.hours)))
@@ -482,5 +447,5 @@ class TownViewModelTest {
     )
 
     private fun TestScope.viewModelOf(start: Instant = readInstant): TownViewModel =
-        townViewModelOf(towns, sessions, start)
+        townViewModelOf(towns, start)
 }

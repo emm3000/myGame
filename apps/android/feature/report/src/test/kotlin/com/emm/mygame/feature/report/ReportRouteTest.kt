@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
+import com.emm.mygame.core.testing.FakeSessionRepository
 import kotlin.time.Clock
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -32,7 +33,17 @@ class ReportRouteTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides screenOwner) {
                 MyGameTheme {
-                    ReportRoute(reports = reports, clock = Clock.System, onReviewsOpen = {}, onLessonOpen = {})
+                    ReportRoute(
+                        reports = reports,
+                        sessions = FakeSessionRepository(),
+                        clock = Clock.System,
+                        navigation = ReportNavigation(
+                            onReviewsOpen = {},
+                            onLessonOpen = {},
+                            onSigningOut = {},
+                            onSignedOut = {},
+                        ),
+                    )
                 }
             }
         }

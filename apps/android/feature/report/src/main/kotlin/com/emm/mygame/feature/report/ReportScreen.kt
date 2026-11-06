@@ -23,9 +23,11 @@ import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.dashedFrame
@@ -75,11 +77,18 @@ fun ReportScreen(
                 actionLabel = stringResource(R.string.report_try_again),
                 onAction = { onIntent(ReportIntent.RetryTapped) },
             )
+            ReportUiState.SigningOut -> Unit
             is ReportUiState.Content -> {
                 ReviewsDueSection(content = state, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
                 NewsSection(content = state, onIntent = onIntent)
             }
         }
+        MyGameTextButton(
+            label = stringResource(R.string.report_sign_out),
+            isBusy = state == ReportUiState.SigningOut,
+            busyDescription = stringResource(R.string.report_waiting),
+            onClick = { onIntent(ReportIntent.SignOutTapped) },
+        )
     }
 }
 
@@ -153,7 +162,7 @@ private fun UnreadNews(
         if (unread.close == ReportUiState.CloseRequest.Unreachable) {
             MyGameInlineAlert(message = stringResource(R.string.report_refusal_unexpected))
         }
-        MyGameButton(
+        MyGameOutlinedButton(
             label = stringResource(R.string.report_news_close),
             isBusy = unread.close == ReportUiState.CloseRequest.Waiting,
             busyDescription = stringResource(R.string.report_waiting),

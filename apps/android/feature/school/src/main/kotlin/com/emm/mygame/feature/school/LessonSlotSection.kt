@@ -11,11 +11,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -119,7 +119,7 @@ private fun BusySlot(
             label = stringResource(R.string.school_lesson_read_words),
             onClick = { onLessonOpen(slot.lesson) },
         )
-        MyGameButton(
+        MyGameOutlinedButton(
             label = stringResource(R.string.school_slot_stop),
             isBusy = stop == SchoolUiState.LessonRequest.Waiting,
             busyDescription = stringResource(R.string.school_waiting),

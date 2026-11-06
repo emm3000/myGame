@@ -1,26 +1,7 @@
 package com.emm.mygame.core.designsystem
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.semantics.testTag
 
 const val INK_PILL: String = "ink_pill"
 
@@ -35,46 +16,22 @@ fun MyGameButton(
     accessibleName: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
-    val shape: Shape = RoundedCornerShape(MyGameRadii.md)
-    val isBlocked: Boolean = blockedReason != null && !isBusy
-    val isQuiet: Boolean = isBusy || isBlocked
-    val ground: Color = if (isQuiet) colors.surfaceSunken else colors.action
-    val ink: Color = if (isQuiet) colors.inkMuted else colors.onAction
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = MyGameSizes.control)
-            .clip(shape)
-            .background(ground)
-            .edge(isBlocked = isBlocked, isBusy = isBusy, colors = colors, shape = shape)
-            .buttonSemantics(
-                accessibleName = accessibleName,
-                state = if (isBusy) busyDescription else blockedReason,
-            )
-            .clickable(enabled = !isBusy, role = Role.Button, onClick = onClick)
-            .padding(horizontal = MyGameSpacing.step4),
-    ) {
-        if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
-        MyGameText(
-            text = label,
+    MyGamePill(
+        look = MyGamePillLook(
+            tag = INK_PILL,
+            height = MyGameSizes.action,
+            sidePadding = MyGameSpacing.step6,
             style = MyGameTypography.button,
-            color = ink,
-            modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
-        )
-    }
-}
-
-private fun Modifier.buttonSemantics(accessibleName: String?, state: String?): Modifier =
-    semantics(mergeDescendants = true) {
-        testTag = INK_PILL
-        if (accessibleName != null) contentDescription = accessibleName
-        if (state != null) stateDescription = state
-    }
-
-private fun Modifier.edge(isBlocked: Boolean, isBusy: Boolean, colors: MyGameColors, shape: Shape): Modifier = when {
-    isBlocked -> dashedFrame(colors.lineStrong)
-    isBusy -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
-    else -> border(MyGameStrokeWidths.hairline, colors.action, shape)
+            ground = colors.action,
+            ink = colors.onAction,
+            edge = colors.action,
+        ),
+        label = label,
+        isBusy = isBusy,
+        busyDescription = busyDescription,
+        onClick = onClick,
+        modifier = modifier,
+        blockedReason = blockedReason,
+        accessibleName = accessibleName,
+    )
 }

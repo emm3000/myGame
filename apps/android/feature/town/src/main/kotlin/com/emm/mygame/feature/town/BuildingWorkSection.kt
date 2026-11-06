@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -176,7 +176,7 @@ private fun StopControl(
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
-        MyGameButton(
+        MyGameOutlinedButton(
             label = stringResource(R.string.town_work_stop),
             isBusy = stop is TownUiState.StopStatus.Waiting,
             busyDescription = stringResource(R.string.town_waiting),
