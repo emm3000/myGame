@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.report
 
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownNews
 import kotlin.time.Instant
 
@@ -9,7 +10,12 @@ sealed interface ReportUiState {
 
     data object Failed : ReportUiState
 
-    data class Content(val dueCount: Int, val news: ReportNews, val receivedAt: Instant) : ReportUiState
+    data class Content(
+        val dueCount: Int,
+        val firstUnread: LessonId?,
+        val news: ReportNews,
+        val receivedAt: Instant,
+    ) : ReportUiState
 
     sealed interface ReportNews {
 

@@ -19,9 +19,11 @@ import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -29,6 +31,7 @@ internal fun LessonSlotSection(
     slot: SchoolUiState.SlotLine,
     stop: SchoolUiState.LessonRequest,
     onIntent: (SchoolIntent) -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
@@ -45,7 +48,12 @@ internal fun LessonSlotSection(
                         color = MyGameTheme.colors.inkMuted,
                     )
                     is SchoolUiState.SlotLine.Done -> DoneSlot(slot = slot)
-                    is SchoolUiState.SlotLine.Busy -> BusySlot(slot = slot, stop = stop, onIntent = onIntent)
+                    is SchoolUiState.SlotLine.Busy -> BusySlot(
+                        slot = slot,
+                        stop = stop,
+                        onIntent = onIntent,
+                        onLessonOpen = onLessonOpen,
+                    )
                 }
             }
         }
@@ -80,6 +88,7 @@ private fun BusySlot(
     slot: SchoolUiState.SlotLine.Busy,
     stop: SchoolUiState.LessonRequest,
     onIntent: (SchoolIntent) -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
@@ -105,6 +114,10 @@ private fun BusySlot(
             text = stringResource(R.string.school_slot_refund),
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
+        )
+        MyGameTextLink(
+            label = stringResource(R.string.school_lesson_read_words),
+            onClick = { onLessonOpen(slot.lesson) },
         )
         MyGameButton(
             label = stringResource(R.string.school_slot_stop),

@@ -15,8 +15,11 @@ import com.emm.mygame.core.network.generated.models.SkillEarnedNews
 import com.emm.mygame.core.network.generated.models.SkillEarnedNewsParams
 import com.emm.mygame.core.network.generated.models.TownNewsItem
 
-internal fun Report.toTownReport(): TownReport =
-    TownReport(dueCount = dueCount, news = news.mapNotNull(TownNewsItem::toTownNews))
+internal fun Report.toTownReport(): TownReport = TownReport(
+    dueCount = dueCount,
+    readFirst = readFirst.map(::LessonId),
+    news = news.mapNotNull(TownNewsItem::toTownNews),
+)
 
 private fun TownNewsItem.toTownNews(): TownNews? = when (this) {
     is TownNewsItem.BuildingworkfinishedWrapper -> value.toFinishedWork()

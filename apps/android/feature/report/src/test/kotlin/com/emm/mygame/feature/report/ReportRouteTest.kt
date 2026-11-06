@@ -32,7 +32,7 @@ class ReportRouteTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides screenOwner) {
                 MyGameTheme {
-                    ReportRoute(reports = reports, clock = Clock.System, onReviewsOpen = {})
+                    ReportRoute(reports = reports, clock = Clock.System, onReviewsOpen = {}, onLessonOpen = {})
                 }
             }
         }

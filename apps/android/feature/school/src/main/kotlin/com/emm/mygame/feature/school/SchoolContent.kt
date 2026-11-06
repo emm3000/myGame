@@ -29,7 +29,7 @@ internal fun TownSnapshot.lessonRemainingAt(now: Instant): Duration? =
 private fun TownSnapshot.schoolLevel(): Int =
     buildings.first { building: TownSnapshot.Building -> building.kind == TownBuildingKind.School }.level
 
-private fun TownSnapshot.numberOf(lesson: LessonId): Int =
+internal fun TownSnapshot.numberOf(lesson: LessonId): Int =
     lessons.indexOfFirst { candidate: TownSnapshot.Lesson -> candidate.id == lesson } + 1
 
 private fun TownSnapshot.isPastCap(lesson: TownSnapshot.Lesson): Boolean =

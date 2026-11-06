@@ -21,13 +21,25 @@ function copiedArgumentsOf(name: TypeStyle, style: TypeStyleValues): ReadonlyArr
   ]
 }
 
-function styleOf(name: TypeStyle): string {
-  const style = typeScale[name]
-  const size = numberBefore('px', style.fontSize)
+function declarationOf(
+  identifier: string,
+  fontSize: string,
+  style: TypeStyleValues,
+  copied: ReadonlyArray<string>,
+): string {
+  const size = numberBefore('px', fontSize)
   const weight = fontWeightNameOf(style.fontWeight)
-  const declaration = `    val ${name}: TextStyle = style(size = ${size}.sp, lineHeight = ${style.lineHeight}.em, weight = ${weight})`
-  const copied = copiedArgumentsOf(name, style)
+  const declaration = `    val ${identifier}: TextStyle = style(size = ${size}.sp, lineHeight = ${style.lineHeight}.em, weight = ${weight})`
   return copied.length === 0 ? declaration : `${declaration}\n        .copy(${copied.join(', ')})`
+}
+
+function declarationsOf(name: TypeStyle): ReadonlyArray<string> {
+  const style = typeScale[name]
+  const copied = copiedArgumentsOf(name, style)
+  const declaration = declarationOf(name, style.fontSize, style, copied)
+  return style.fontSizeFromMd === undefined
+    ? [declaration]
+    : [declaration, declarationOf(`${name}FromMd`, style.fontSizeFromMd, style, copied)]
 }
 
 export function kotlinTypographyOf(): DesignSystemFile {
@@ -43,7 +55,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 object MyGameTypography {
-${styles.map(styleOf).join('\n')}
+${styles.flatMap(declarationsOf).join('\n')}
 }
 
 private fun style(size: TextUnit, lineHeight: TextUnit, weight: FontWeight): TextStyle = TextStyle(

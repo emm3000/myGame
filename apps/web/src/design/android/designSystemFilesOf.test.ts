@@ -54,6 +54,13 @@ describe('MyGameTypography', () => {
     )
   })
 
+  it('writes the size word grows to from md as a style of its own', () => {
+    expect(contentsOf('MyGameTypography.kt')).toContain(
+      'val wordFromMd: TextStyle = style(size = 52.sp, lineHeight = 1.05.em, weight = FontWeight.ExtraBold)\n' +
+        '        .copy(letterSpacing = (-0.02).em)\n',
+    )
+  })
+
   it('writes a positive tracking without parentheses', () => {
     expect(contentsOf('MyGameTypography.kt')).toContain(
       'val meta: TextStyle = style(size = 14.sp, lineHeight = 1.3.em, weight = FontWeight.Medium)\n' +
@@ -115,6 +122,10 @@ describe('the dimensions', () => {
     expect(sizes).toContain('val measureForm: Dp = 640.dp\n')
     expect(sizes).toContain('val track: Dp = 3.dp\n')
     expect(sizes).toContain('val dash: Dp = 4.dp\n')
+  })
+
+  it('reads the md step as a width in dp', () => {
+    expect(contentsOf('MyGameSizes.kt')).toContain('val widthMd: Dp = 768.dp\n')
   })
 
   it('writes the icon stroke as a float on the viewport and the others in dp', () => {

@@ -4,16 +4,23 @@
     <string name="school_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="school_duration_minutes">{minutes} min</string>
     <string name="school_duration_minutes_seconds">{minutes}:{seconds}</string>
+    <string name="school_go_to_school">Ir a la escuela</string>
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
     <string name="school_lesson_cap_reached">Palabras en aprendizaje: {inLearning} de {cap}. Esta lección trae {count}.</string>
     <string name="school_lesson_needs_school">Necesita la escuela en nivel {level}</string>
+    <string name="school_lesson_next">Siguiente lección</string>
+    <string name="school_lesson_nothing_to_read">Ahora no hay palabras para leer.</string>
+    <string name="school_lesson_read_words">Leer las palabras</string>
     <string name="school_lesson_slot_busy">La escuela está estudiando la lección {number}.</string>
     <string name="school_lesson_studied">Estudiada</string>
     <string name="school_lesson_study">Estudiar la lección {number}</string>
     <string name="school_lesson_studying">En estudio</string>
     <string name="school_lesson_summary">{words} · {skill}</string>
     <string name="school_lesson_title">Lección {number}</string>
+    <string name="school_lesson_word_next">Siguiente palabra</string>
+    <string name="school_lesson_word_position">Palabra {number} de {count}</string>
+    <string name="school_lesson_word_then">Cuando termine la lección, empiezan los repasos.</string>
     <string name="school_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>
     <string name="school_lessons">Lecciones</string>
     <string name="school_level">Nivel {level}</string>

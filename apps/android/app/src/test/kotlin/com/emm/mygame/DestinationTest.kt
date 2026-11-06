@@ -1,6 +1,7 @@
 package com.emm.mygame
 
 import com.emm.mygame.core.network.FiefId
+import com.emm.mygame.core.network.LessonId
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -16,6 +17,7 @@ class DestinationTest {
             Destination.School,
             Destination.Report,
             Destination.Review,
+            Destination.LessonWords(LessonId("lesson-2"), walked = listOf(LessonId("lesson-1"))),
             Destination.Map(secondFief),
             Destination.Chronicle(secondFief),
         )

@@ -52,6 +52,7 @@ class TownLessonsRepositoryTest {
                     skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
                     isStudied = true,
                     wordCount = 2,
+                    readings = listOf(TownSnapshot.WordReading("home", "hogar", "This is my home.")),
                 ),
             ),
             read.lessons,

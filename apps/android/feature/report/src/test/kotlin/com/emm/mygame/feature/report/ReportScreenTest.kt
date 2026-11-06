@@ -14,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownAmount
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownResourceKind
@@ -35,13 +36,20 @@ class ReportScreenTest {
 
     private var reviewOpens: Int = 0
 
+    private val lessonOpens: MutableList<LessonId> = mutableListOf()
+
     private val unreadFarm: ReportUiState.ReportNews =
         ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Idle)
 
     private fun show(state: ReportUiState) {
         composeRule.setContent {
             MyGameTheme {
-                ReportScreen(state = state, onIntent = { intents += it }, onReviewsOpen = { reviewOpens += 1 })
+                ReportScreen(
+                    state = state,
+                    onIntent = { intents += it },
+                    onReviewsOpen = { reviewOpens += 1 },
+                    onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                )
             }
         }
     }
@@ -49,7 +57,13 @@ class ReportScreenTest {
     private fun contentWith(
         dueCount: Int = 0,
         news: ReportUiState.ReportNews = ReportUiState.ReportNews.None,
-    ): ReportUiState.Content = ReportUiState.Content(dueCount = dueCount, news = news, receivedAt = readInstant)
+        firstUnread: LessonId? = null,
+    ): ReportUiState.Content = ReportUiState.Content(
+        dueCount = dueCount,
+        firstUnread = firstUnread,
+        news = news,
+        receivedAt = readInstant,
+    )
 
     @Test
     fun `titles every state`() {
@@ -104,6 +118,22 @@ class ReportScreenTest {
         composeRule.onNodeWithText("Empezar los repasos").performClick()
 
         assertEquals(1, reviewOpens)
+    }
+
+    @Test
+    fun `opens the unread lesson from the Report`() {
+        show(contentWith(dueCount = 3, firstUnread = unreadLesson))
+
+        composeRule.onNodeWithText("Leer las palabras").performClick()
+
+        assertEquals(listOf(unreadLesson), lessonOpens)
+    }
+
+    @Test
+    fun `keeps the reviews behind the unread words`() {
+        show(contentWith(dueCount = 3, firstUnread = unreadLesson))
+
+        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
     }
 
     @Test

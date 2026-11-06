@@ -43,6 +43,21 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `points at the first lesson to read first`() = runTest {
+        val viewModel: ReportViewModel =
+            reportReading(reportOf(readFirst = listOf(unreadLesson, laterUnreadLesson)))
+
+        assertEquals(unreadLesson, contentOf(viewModel).firstUnread)
+    }
+
+    @Test
+    fun `points at no lesson when nothing is left to read first`() = runTest {
+        val viewModel: ReportViewModel = reportReading(reportOf(dueCount = 3))
+
+        assertEquals(null, contentOf(viewModel).firstUnread)
+    }
+
+    @Test
     fun `draws the news the report answers`() = runTest {
         val viewModel: ReportViewModel = reportReading(reportOf(news = listOf(finishedFarm, stoppedLesson)))
 

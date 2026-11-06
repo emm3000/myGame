@@ -14,4 +14,5 @@ object MyGameSizes {
     val dash: Dp = 4.dp
     val measureForm: Dp = 640.dp
     val track: Dp = 3.dp
+    val widthMd: Dp = 768.dp
 }

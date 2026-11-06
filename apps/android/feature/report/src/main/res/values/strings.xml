@@ -31,6 +31,7 @@
     <string name="report_place_power_station">Central eléctrica</string>
     <string name="report_place_school">Escuela</string>
     <string name="report_place_storage">Almacén</string>
+    <string name="report_read_words">Leer las palabras</string>
     <string name="report_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="report_resource_food">comida</string>
     <string name="report_resource_material">material</string>

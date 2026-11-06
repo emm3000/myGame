@@ -4,6 +4,8 @@ import com.emm.mygame.core.network.generated.models.TownOverviewLearning
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonSlot
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerSkill
+import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerWordsInner
+import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerWordsInnerReading
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import kotlin.time.Duration.Companion.seconds
 
@@ -17,8 +19,12 @@ internal fun TownOverviewLessonsInner.toLesson(): TownSnapshot.Lesson? {
         skill = TownSnapshot.LessonSkill(resource, skill.ratePercent),
         isStudied = isStudied,
         wordCount = words.size,
+        readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.reading?.toWordReading() },
     )
 }
+
+private fun TownOverviewLessonsInnerWordsInnerReading.toWordReading(): TownSnapshot.WordReading =
+    TownSnapshot.WordReading(word = word, gloss = gloss, frame = frame)
 
 internal fun TownOverviewSkillsInner.toEarnedSkill(): TownSnapshot.EarnedSkill? {
     val kind: TownResourceKind = resource.toTownResourceKind() ?: return null
