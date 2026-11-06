@@ -13,8 +13,12 @@ const lessonOne = {
   skill: { resource: 'food', ratePercent: 5 },
   isStudied: true,
   words: [
-    { wordId: 'lesson-1-1', isRetained: true },
-    { wordId: 'lesson-1-2', isRetained: false },
+    { wordId: 'lesson-1-1', standing: 'retained', reading: null },
+    {
+      wordId: 'lesson-1-2',
+      standing: 'recognize',
+      reading: { word: 'school', gloss: 'escuela', frame: 'We are at school.' },
+    },
   ],
 }
 
@@ -73,8 +77,25 @@ describe('TownOverviewSchema', () => {
     expect(TownOverviewSchema.safeParse(overview({ lessons })).success).toBe(false)
   })
 
-  it('rejects a lesson word that carries its lemma', () => {
-    const words = [{ wordId: 'lesson-1-1', isRetained: false, lemma: 'home' }]
+  it("rejects a lemma outside a lesson word's reading", () => {
+    const words = [{ wordId: 'lesson-1-1', standing: 'recall', reading: null, lemma: 'home' }]
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
+    ).toBe(false)
+  })
+
+  it('rejects a standing the school path does not have', () => {
+    const words = [{ wordId: 'lesson-1-1', standing: 'learned', reading: null }]
+
+    expect(
+      TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,
+    ).toBe(false)
+  })
+
+  it('rejects a reading without its frame', () => {
+    const reading = { word: 'home', gloss: 'hogar' }
+    const words = [{ wordId: 'lesson-1-1', standing: 'notStarted', reading }]
 
     expect(
       TownOverviewSchema.safeParse(overview({ lessons: [{ ...lessonOne, words }] })).success,

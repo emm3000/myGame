@@ -24,6 +24,7 @@ function ReportPage({
   return (
     <ReportScreen
       dueCount={report.dueCount}
+      readFirst={report.readFirst}
       news={report.news.map((item) => reportNewsRowOf(item, receivedAt))}
       close={{
         isClosed: close.isClosed,

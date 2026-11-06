@@ -245,6 +245,7 @@ it('answers a town refusal with its params', async () => {
 const reportWithNews = {
   dueCount: 0,
   due: [],
+  readFirst: [],
   news: [
     {
       kind: 'buildingWorkFinished',

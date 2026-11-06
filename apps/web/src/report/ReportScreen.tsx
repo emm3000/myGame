@@ -7,6 +7,7 @@ import {
   reportReviewsDue,
   reportStartReviews,
   reportTitle,
+  schoolLessonReadWords,
 } from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
 import { Button } from '../design-system/Button'
@@ -27,6 +28,7 @@ export interface ReportNewsClose {
 
 export interface ReportScreenProps {
   readonly dueCount: number
+  readonly readFirst: ReadonlyArray<string>
   readonly news: ReadonlyArray<ReportNewsRow>
   readonly close: ReportNewsClose
 }
@@ -34,7 +36,29 @@ export interface ReportScreenProps {
 const emptyClass =
   'm-0 max-w-form rounded-md border border-line border-dashed p-5 font-sans text-body text-ink'
 
-function ReviewsDue({ dueCount }: { readonly dueCount: number }): ReactElement {
+function ReviewsDoor({ readFirst }: { readonly readFirst: ReadonlyArray<string> }): ReactElement {
+  const [firstUnread] = readFirst
+  if (firstUnread === undefined) {
+    return (
+      <ButtonLink to="/reviews" tone="primary">
+        {reportStartReviews()}
+      </ButtonLink>
+    )
+  }
+  return (
+    <ButtonLink to="/school/$lessonId" params={{ lessonId: firstUnread }} tone="primary">
+      {schoolLessonReadWords()}
+    </ButtonLink>
+  )
+}
+
+function ReviewsDue({
+  dueCount,
+  readFirst,
+}: {
+  readonly dueCount: number
+  readonly readFirst: ReadonlyArray<string>
+}): ReactElement {
   if (dueCount === 0) {
     return <p className={emptyClass}>{reportNoReviewsDue()}</p>
   }
@@ -44,9 +68,7 @@ function ReviewsDue({ dueCount }: { readonly dueCount: number }): ReactElement {
         {reportReviewsDue({ count: formatQuantity(dueCount) })}
       </p>
       <div className="flex">
-        <ButtonLink to="/reviews" tone="primary">
-          {reportStartReviews()}
-        </ButtonLink>
+        <ReviewsDoor readFirst={readFirst} />
       </div>
     </Panel>
   )
@@ -111,7 +133,7 @@ export function ReportScreen(props: ReportScreenProps): ReactElement {
       <h2 id={titleId} className="m-0 font-sans text-title text-ink">
         {reportTitle()}
       </h2>
-      <ReviewsDue dueCount={props.dueCount} />
+      <ReviewsDue dueCount={props.dueCount} readFirst={props.readFirst} />
       <Panel
         element="section"
         labelledBy={newsId}

@@ -4285,6 +4285,13 @@
               "$ref": "#/components/schemas/DueReview"
             }
           },
+          "readFirst": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
           "news": {
             "type": "array",
             "items": {
@@ -4293,7 +4300,7 @@
             "maxItems": 100
           }
         },
-        "required": ["dueCount", "due", "news"],
+        "required": ["dueCount", "due", "readFirst", "news"],
         "additionalProperties": false
       },
       "TownNewsItem": {
@@ -5502,11 +5509,32 @@
                         "type": "string",
                         "minLength": 1
                       },
-                      "isRetained": {
-                        "type": "boolean"
+                      "standing": {
+                        "type": "string",
+                        "enum": ["notStarted", "recognize", "recall", "hold", "retained"]
+                      },
+                      "reading": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "word": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "gloss": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "frame": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": ["word", "gloss", "frame"],
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["wordId", "isRetained"],
+                    "required": ["wordId", "standing", "reading"],
                     "additionalProperties": false
                   }
                 }

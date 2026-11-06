@@ -79,9 +79,9 @@ export const currentTownOf = async (
   if (stored.value === undefined) {
     return err({ kind: 'TownNotFound', playerId })
   }
-  const { lessonSlot, cards } = stored.value
+  const { lessonSlot, cards, heldOutWords } = stored.value
   const isUnchanged = dryRun.value.events.length === 0 && !isLessonFinishedBy(lessonSlot, readAt)
   return isUnchanged
-    ? ok({ town: dryRun.value.town, at: readAt, lessonSlot, cards })
+    ? ok({ town: dryRun.value.town, at: readAt, lessonSlot, cards, heldOutWords })
     : persistedResolveOf(playerId, dependencies)
 }
