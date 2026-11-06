@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.MapRepository
+import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TokenStore
@@ -15,9 +16,9 @@ import java.io.File
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 
-class MyGameApplication : Application() {
+class MyGameApplication : Application(), AppDependencies {
 
-    val clock: Clock = Clock.System
+    override val clock: Clock = Clock.System
 
     private val tokenStore: TokenStore by lazy {
         TokenStore(
@@ -26,9 +27,9 @@ class MyGameApplication : Application() {
         )
     }
 
-    val sessionEnds: SessionEnds = SessionEnds()
+    override val sessionEnds: SessionEnds = SessionEnds()
 
-    val sessions: SessionRepository by lazy {
+    override val sessions: SessionRepository by lazy {
         SessionRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
@@ -37,7 +38,7 @@ class MyGameApplication : Application() {
         )
     }
 
-    val listings: FiefListRepository by lazy {
+    override val listings: FiefListRepository by lazy {
         FiefListRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
@@ -46,7 +47,7 @@ class MyGameApplication : Application() {
         )
     }
 
-    val fiefs: FiefRepository by lazy {
+    override val fiefs: FiefRepository by lazy {
         FiefRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
@@ -55,7 +56,7 @@ class MyGameApplication : Application() {
         )
     }
 
-    val towns: TownRepository by lazy {
+    override val towns: TownRepository by lazy {
         TownRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
@@ -64,7 +65,7 @@ class MyGameApplication : Application() {
         )
     }
 
-    val learning: LearningRepository by lazy {
+    override val learning: LearningRepository by lazy {
         LearningRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
@@ -73,7 +74,16 @@ class MyGameApplication : Application() {
         )
     }
 
-    val maps: MapRepository by lazy {
+    override val reports: ReportRepository by lazy {
+        ReportRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
+    }
+
+    override val maps: MapRepository by lazy {
         MapRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
@@ -82,7 +92,7 @@ class MyGameApplication : Application() {
         )
     }
 
-    val chronicles: ChronicleRepository by lazy {
+    override val chronicles: ChronicleRepository by lazy {
         ChronicleRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,

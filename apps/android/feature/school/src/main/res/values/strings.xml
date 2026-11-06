@@ -40,6 +40,7 @@
     <string name="school_slot_stop">Parar el estudio</string>
     <string name="school_slot_stop_of">Parar el estudio de la lección {number}</string>
     <string name="school_slot_title">En estudio</string>
+    <string name="school_start_reviews">Empezar los repasos</string>
     <string name="school_study_with_duration">{action} · {duration}</string>
     <string name="school_title">Escuela</string>
     <string name="school_try_again">Volver a intentarlo</string>

@@ -18,6 +18,7 @@ fun SchoolRoute(
     towns: TownRepository,
     clock: Clock,
     onNoTown: () -> Unit,
+    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
@@ -36,5 +37,5 @@ fun SchoolRoute(
         viewModel.onIntent(SchoolIntent.ScreenShown)
         onStopOrDispose { viewModel.onIntent(SchoolIntent.ScreenHidden) }
     }
-    SchoolScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+    SchoolScreen(state = state, onIntent = viewModel::onIntent, onReviewsOpen = onReviewsOpen, modifier = modifier)
 }

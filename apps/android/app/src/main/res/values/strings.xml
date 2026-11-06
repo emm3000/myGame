@@ -17,5 +17,6 @@
     <string name="fief_switcher_resource_wood">madera</string>
     <string name="navigation_chronicle">Crónica</string>
     <string name="navigation_map">Mapa</string>
+    <string name="navigation_report">Informe</string>
     <string name="navigation_town">Pueblo</string>
 </resources>

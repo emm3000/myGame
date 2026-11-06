@@ -60,11 +60,20 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         if (areTabsEnabled && backStack.lastOrNull() == Destination.Town) backStack.add(Destination.School)
     }
 
-    fun openTown() {
+    fun openReport() {
+        openTab(Destination.Report)
+    }
+
+    fun openReviews() {
+        if (!areTabsEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.School, is Destination.Map, is Destination.Chronicle -> back()
+            Destination.Report, Destination.School -> backStack.add(Destination.Review)
             else -> Unit
         }
+    }
+
+    fun openTown() {
+        if (backStack.lastOrNull().isAboveTown()) backToTown()
     }
 
     fun switchFief(fief: FiefId) {
@@ -79,11 +88,14 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
 
     private fun openTab(tab: Destination) {
         if (!areTabsEnabled) return
-        when (backStack.lastOrNull()) {
-            Destination.Town -> backStack.add(tab)
-            Destination.School, is Destination.Map, is Destination.Chronicle -> backStack[backStack.lastIndex] = tab
-            else -> Unit
-        }
+        val shown: NavKey? = backStack.lastOrNull()
+        if (shown != Destination.Town && !shown.isAboveTown()) return
+        backToTown()
+        backStack.add(tab)
+    }
+
+    private fun backToTown() {
+        backStack.subList(backStack.indexOf(Destination.Town) + 1, backStack.size).clear()
     }
 
     private fun showAlone(destination: Destination) {
@@ -96,4 +108,9 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         backStack.addAll(destinations)
         repeat(replaced) { backStack.removeAt(0) }
     }
+}
+
+private fun NavKey?.isAboveTown(): Boolean = when (this) {
+    Destination.School, Destination.Report, Destination.Review, is Destination.Map, is Destination.Chronicle -> true
+    else -> false
 }

@@ -20,9 +20,11 @@ import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.ui.icuStringResource
 
 internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
@@ -31,12 +33,13 @@ internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
 internal fun LessonsSection(
     content: SchoolUiState.Content,
     onIntent: (SchoolIntent) -> Unit,
+    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameSectionTitle(text = stringResource(R.string.school_lessons))
         content.lessons.forEach { card: SchoolUiState.LessonCard ->
-            LessonItem(card = card, start = content.start, onIntent = onIntent)
+            LessonItem(card = card, start = content.start, onIntent = onIntent, onReviewsOpen = onReviewsOpen)
         }
     }
 }
@@ -46,6 +49,7 @@ private fun LessonItem(
     card: SchoolUiState.LessonCard,
     start: SchoolUiState.LessonRequest,
     onIntent: (SchoolIntent) -> Unit,
+    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
@@ -78,7 +82,7 @@ private fun LessonItem(
                 }
             }
         }
-        StartAnswer(lesson = card.lesson, start = start)
+        StartAnswer(lesson = card.lesson, start = start, onReviewsOpen = onReviewsOpen)
     }
 }
 
@@ -152,7 +156,12 @@ private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block)
 }
 
 @Composable
-private fun StartAnswer(lesson: LessonId, start: SchoolUiState.LessonRequest, modifier: Modifier = Modifier) {
+private fun StartAnswer(
+    lesson: LessonId,
+    start: SchoolUiState.LessonRequest,
+    onReviewsOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val asked: LessonId? = when (start) {
         is SchoolUiState.LessonRequest.Refused -> start.lesson
         is SchoolUiState.LessonRequest.Unreachable -> start.lesson
@@ -160,4 +169,10 @@ private fun StartAnswer(lesson: LessonId, start: SchoolUiState.LessonRequest, mo
     }
     if (asked != lesson) return
     requestAnswerOf(start)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
+    if (start.isLearningCapRefusal()) {
+        MyGameTextLink(label = stringResource(R.string.school_start_reviews), onClick = onReviewsOpen)
+    }
 }
+
+private fun SchoolUiState.LessonRequest.isLearningCapRefusal(): Boolean =
+    this is SchoolUiState.LessonRequest.Refused && refusal is TownLessonRefusal.LearningCapReached

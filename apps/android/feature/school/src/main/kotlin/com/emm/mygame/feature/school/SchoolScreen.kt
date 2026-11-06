@@ -18,13 +18,19 @@ import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
-fun SchoolScreen(state: SchoolUiState, onIntent: (SchoolIntent) -> Unit, modifier: Modifier = Modifier) {
+fun SchoolScreen(
+    state: SchoolUiState,
+    onIntent: (SchoolIntent) -> Unit,
+    onReviewsOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -58,9 +64,9 @@ fun SchoolScreen(state: SchoolUiState, onIntent: (SchoolIntent) -> Unit, modifie
             }
             is SchoolUiState.Content -> {
                 SchoolTitle(level = state.schoolLevel)
-                LearningSection(learning = state.learning)
+                LearningSection(learning = state.learning, onReviewsOpen = onReviewsOpen)
                 LessonSlotSection(slot = state.slot, stop = state.stop, onIntent = onIntent)
-                LessonsSection(content = state, onIntent = onIntent)
+                LessonsSection(content = state, onIntent = onIntent, onReviewsOpen = onReviewsOpen)
                 SkillsSection(content = state)
             }
         }
@@ -87,7 +93,11 @@ private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
 }
 
 @Composable
-private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modifier = Modifier) {
+private fun LearningSection(
+    learning: SchoolUiState.LearningLine,
+    onReviewsOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -109,6 +119,7 @@ private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modi
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.miss,
                 )
+                MyGameTextLink(label = stringResource(R.string.school_start_reviews), onClick = onReviewsOpen)
             }
         }
     }
