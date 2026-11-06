@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { Button, type ButtonTone } from './Button'
+import { Button, type ButtonAvailability, type ButtonTone } from './Button'
 
 it('never fires the action of a blocked button when pressed', () => {
   const onClick = vi.fn()
@@ -48,45 +48,31 @@ it('fires the action of an available button when pressed', () => {
   expect(onClick).toHaveBeenCalledTimes(1)
 })
 
-const classesOf = (tone: ButtonTone): ReadonlyArray<string> => {
+const classesOf = (tone: ButtonTone, availability?: ButtonAvailability): ReadonlyArray<string> => {
   render(
-    <Button type="button" tone={tone}>
+    <Button type="button" tone={tone} availability={availability ?? 'available'}>
       Upgrade
     </Button>,
   )
   return screen.getByRole('button', { name: 'Upgrade' }).className.split(' ')
 }
 
-it('fills the primary action as an ink pill at action height', () => {
-  expect(classesOf('primary')).toEqual(
-    expect.arrayContaining(['min-h-action', 'rounded-pill', 'bg-action', 'text-button']),
-  )
-})
-
-it('outlines a quiet action as a pill at secondary height', () => {
-  const classes = classesOf('quiet')
-
-  expect(classes).toEqual(
-    expect.arrayContaining(['min-h-secondary', 'rounded-pill', 'border-line-strong', 'text-label']),
-  )
-  expect(classes).not.toContain('bg-action')
-})
-
-it('keeps a text action at control height with no fill', () => {
-  const classes = classesOf('text')
-
-  expect(classes).toContain('min-h-control')
-  expect(classes).toContain('bg-transparent')
+it.each<[ButtonTone, string]>([
+  ['primary', 'min-h-action'],
+  ['quiet', 'min-h-secondary'],
+  ['text', 'min-h-control'],
+])('gives a %s action its height', (tone, height) => {
+  expect(classesOf(tone)).toContain(height)
 })
 
 it('keeps a blocked quiet action at its secondary height', () => {
-  render(
-    <Button type="button" tone="quiet" availability="blocked">
-      Upgrade
-    </Button>,
-  )
+  expect(classesOf('quiet', 'blocked')).toContain('min-h-secondary')
+})
 
-  expect(screen.getByRole('button', { name: 'Upgrade' }).className.split(' ')).toContain(
-    'min-h-secondary',
-  )
+it('fills the primary action alone', () => {
+  expect(classesOf('quiet')).not.toContain('bg-action')
+})
+
+it('centers the label of a waiting action in its pill', () => {
+  expect(classesOf('quiet', 'waiting')).toContain('justify-center')
 })

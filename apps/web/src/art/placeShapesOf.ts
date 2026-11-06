@@ -1,7 +1,11 @@
 import type { ArtTag } from './ArtTag'
 import { artTagsOf } from './artTagsOf'
 
-export const placeViewBox = '0 0 100 142'
+export const placeWidth = 100
+
+export const placeHeight = 142
+
+export const placeViewBox = `0 0 ${placeWidth} ${placeHeight}`
 
 export const windowCount = 10
 
