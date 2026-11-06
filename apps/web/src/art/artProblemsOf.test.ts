@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { palette } from '../design/tokens'
 import { artProblemsOf, maxArtBytes } from './artProblemsOf'
 
-const sky = palette['scene-sky'].light
-const food = palette.food.light
+const sky = '#cdeaf7'
+const food = '#b8303f'
+const darkFood = '#ff8f97'
 
 const drawingOf = (shapes: string, viewBox = '0 0 240 240'): string =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">\n  ${shapes}\n</svg>\n`
@@ -24,11 +24,9 @@ describe('artProblemsOf', () => {
   })
 
   it('refuses a dark-scheme accent, since the art keeps the light one in both schemes', () => {
-    const darkAccent = drawingOf(
-      `<rect x="0" y="0" width="9" height="9" fill="${palette.food.dark}"/>`,
-    )
+    const darkAccent = drawingOf(`<rect x="0" y="0" width="9" height="9" fill="${darkFood}"/>`)
 
-    expect(artProblemsOf(darkAccent)).toEqual([`fill ${palette.food.dark} is off the palette`])
+    expect(artProblemsOf(darkAccent)).toEqual([`fill ${darkFood} is off the palette`])
   })
 
   it('refuses a shape without a fill', () => {

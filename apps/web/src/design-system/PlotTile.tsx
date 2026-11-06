@@ -38,11 +38,11 @@ const frameClass: Readonly<Record<PlotHolder['kind'], string>> = {
   free: 'border border-line border-dashed bg-surface',
   camp: 'border border-line border-dashed bg-surface',
   reserved: 'border border-line-strong border-dashed bg-surface-sunken',
-  held: 'bg-surface-raised shadow-ledge',
-  own: 'border-2 border-action bg-surface-raised shadow-ledge',
+  held: 'border border-line bg-surface-raised',
+  own: 'border-2 border-action bg-surface-raised',
 }
 
-const expandedFrameClass = 'bg-surface-raised shadow-ledge'
+const expandedFrameClass = 'border border-line bg-surface-raised'
 
 const frameClassOf = (holder: PlotHolder): string =>
   (holder.kind === 'free' || holder.kind === 'camp') &&
@@ -86,7 +86,7 @@ function Holder({ holder }: { readonly holder: PlotHolder }): ReactElement {
     case 'free':
       return (
         <>
-          <span className="font-sans text-heading font-normal text-ink-faint">{holder.line}</span>
+          <span className="font-sans text-heading font-normal text-ink-muted">{holder.line}</span>
           <PlotActionButtons actions={holder.actions} />
         </>
       )

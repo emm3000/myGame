@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { palette } from '../design/tokens'
 import { artFramingOf, sceneShapeCount } from './artFramingOf'
 
-const sky = palette['scene-sky'].light
-const brick = palette['scene-brick'].light
+const sky = '#cdeaf7'
+const brick = '#e0674a'
 
 const sceneOf = (): string =>
   Array.from(

@@ -26,7 +26,7 @@ export function CargoCard({
     <Panel
       element="article"
       labelledBy={titleId}
-      toneClass="bg-surface-raised"
+      toneClass="border-line bg-surface-raised"
       spacingClass="gap-3 p-5"
     >
       <div className="flex items-center gap-2 text-ink-muted">

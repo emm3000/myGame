@@ -73,7 +73,11 @@ function ReviewsDue({
     return <NoReviewsDue nextReview={nextReview} />
   }
   return (
-    <Panel element="article" toneClass="bg-surface-raised" spacingClass="max-w-form gap-3 p-5">
+    <Panel
+      element="article"
+      toneClass="border-line bg-surface-raised"
+      spacingClass="max-w-form gap-3 p-5"
+    >
       <p className="m-0 font-sans text-heading text-ink">
         {reportReviewsDue({ count: formatQuantity(dueCount) })}
       </p>
@@ -151,7 +155,7 @@ export function ReportScreen(props: ReportScreenProps): ReactElement {
       <Panel
         element="section"
         labelledBy={newsId}
-        toneClass="bg-surface-raised"
+        toneClass="border-line bg-surface-raised"
         spacingClass="max-w-form gap-3 p-5"
       >
         <h3

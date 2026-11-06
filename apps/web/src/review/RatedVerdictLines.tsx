@@ -70,14 +70,13 @@ export function RatedVerdictLines({
   const { verdict } = answered
   const isCorrect = verdict.kind === 'correct'
   const skill = verdict.kind === 'correct' ? verdict.earnedSkill : null
-  const tone = isCorrect ? 'border-right bg-right-soft' : 'border-miss bg-miss-soft'
   return (
     <div className="flex flex-col gap-3">
       <section
         ref={verdictRef}
         aria-labelledby={lineId}
         tabIndex={-1}
-        className={`flex flex-col gap-2 rounded-md border px-3 py-2 ${tone} ${focusTargetClass}`}
+        className={`flex flex-col gap-2 rounded-md border border-ink bg-surface-sunken px-3 py-2 ${focusTargetClass}`}
       >
         <p id={lineId} className="m-0 font-sans font-bold text-body text-ink">
           {isCorrect ? reviewCorrect() : reviewWrong()}

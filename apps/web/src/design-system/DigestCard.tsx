@@ -87,7 +87,7 @@ export function DigestCard({
     <Panel
       element="article"
       labelledBy={titleId}
-      toneClass="bg-surface-raised"
+      toneClass="border-line bg-surface-raised"
       spacingClass="gap-3 p-5"
     >
       <h3 id={titleId} className="m-0 font-sans text-ink text-title">

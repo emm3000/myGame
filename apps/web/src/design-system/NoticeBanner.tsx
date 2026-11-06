@@ -22,7 +22,7 @@ function Outcome({ outcome }: { readonly outcome: NoticeOutcome }): ReactElement
   return (
     <p
       role="status"
-      className="m-0 rounded-md border border-right bg-right-soft px-3 py-2 font-sans text-caption text-ink"
+      className="m-0 rounded-md border border-ink bg-surface-sunken px-3 py-2 font-sans text-caption text-ink"
     >
       {outcome.message}
     </p>

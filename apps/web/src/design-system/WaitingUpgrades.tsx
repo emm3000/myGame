@@ -29,7 +29,7 @@ export function WaitingUpgrades({
     <section className="flex flex-col gap-2 rounded-md border border-line bg-surface p-5">
       <span className="font-sans text-ink-muted tabular-nums">
         <span className="text-label">{title}</span>
-        <span className="text-numeral">{` · ${emptiesAt}`}</span>
+        <span className="text-caption">{` · ${emptiesAt}`}</span>
       </span>
       <ol aria-label={title} className="m-0 flex list-none flex-col gap-3 p-0">
         {upgrades.map(({ buildingName, levelLabel, remainingSeconds, time, cancel, refund }) => (

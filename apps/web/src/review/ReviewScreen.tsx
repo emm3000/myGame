@@ -79,7 +79,7 @@ function DueCard({
       <p className="m-0 font-sans text-label text-ink-muted">
         {reviewDueCount({ count: formatQuantity(state.dueCount) })}
       </p>
-      <Panel element="article" toneClass="bg-surface-raised" spacingClass="gap-4 p-5">
+      <Panel element="article" toneClass="border-line bg-surface-raised" spacingClass="gap-4 p-5">
         <CardOfMode card={card} review={review} verdictRef={verdictRef} />
       </Panel>
       {review.refusal !== undefined && <FormAlert message={refusalLineOf(review.refusal)} />}

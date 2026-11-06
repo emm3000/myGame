@@ -36,7 +36,11 @@ export function AuthPanel(props: AuthPanelProps): ReactElement {
     <div className="flex min-h-screen flex-col bg-surface text-ink">
       <div className="flex grow flex-col items-center px-4 py-12">
         <main className="w-full max-w-sm">
-          <Panel element="section" toneClass="bg-surface-raised" spacingClass="gap-6 p-6">
+          <Panel
+            element="section"
+            toneClass="border-line bg-surface-raised"
+            spacingClass="gap-6 p-6"
+          >
             <p className="m-0 -mb-2 font-sans text-title text-action">{shellTitle()}</p>
             <h1 className="m-0 font-sans text-display text-ink">{props.title}</h1>
             <Body onSubmit={props.onSubmit}>{props.children}</Body>

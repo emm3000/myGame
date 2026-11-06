@@ -57,7 +57,7 @@ function BusyLine({ line }: { readonly line: StripLine }): ReactElement {
       {line.timePieces.map((piece) => (
         <Fragment key={piece}>
           {' '}
-          <span className="inline-block font-sans text-numeral text-ink-muted tabular-nums">
+          <span className="inline-block font-sans text-caption text-ink-muted tabular-nums">
             {`${finishSeparator} ${piece}`}
           </span>
         </Fragment>
@@ -111,7 +111,7 @@ export function SlotsStrip({ label, link, cells, notices }: SlotsStripProps): Re
             <Link
               {...link}
               hash={cell.section}
-              className={`${cellClass} ${cell.kind === 'idle' ? 'border border-dashed border-line bg-surface' : 'bg-surface-raised shadow-ledge'}`}
+              className={`${cellClass} ${cell.kind === 'idle' ? 'border border-dashed border-line bg-surface' : 'border border-line bg-surface-raised'}`}
             >
               <CellContent cell={cell} />
             </Link>

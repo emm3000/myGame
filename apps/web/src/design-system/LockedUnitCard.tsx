@@ -21,8 +21,8 @@ export function LockedUnitCard(props: LockedUnitCardProps): ReactElement {
         tallies={props.tallies}
         titleElement={props.titleElement}
       />
-      <p className="m-0 font-sans text-caption text-miss">{props.requirement}</p>
-      <p className="m-0 font-sans text-caption text-miss">{props.reason}</p>
+      <p className="m-0 font-sans text-caption text-destructive-ink">{props.requirement}</p>
+      <p className="m-0 font-sans text-caption text-destructive-ink">{props.reason}</p>
     </article>
   )
 }

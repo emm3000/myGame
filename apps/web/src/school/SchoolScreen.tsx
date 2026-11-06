@@ -82,13 +82,13 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
     (lesson) => !lesson.isStudied && town.overview.lessonSlot?.lessonId !== lesson.id,
   )
   return (
-    <section className="flex flex-col gap-2 rounded-md bg-surface-raised p-5 shadow-ledge">
+    <section className="flex flex-col gap-2 rounded-md border border-line bg-surface-raised p-5">
       <p className="m-0 font-sans text-body text-ink tabular-nums">
         {schoolLearning({ inLearning: learning.inLearning, cap: learning.cap })}
       </p>
       <Track value={learning.inLearning} total={learning.cap} fillClass="fill-action" />
       {next !== undefined && isPastLearningCap(next, town.overview) && (
-        <p className="m-0 font-sans text-caption text-miss">
+        <p className="m-0 font-sans text-caption text-warning-ink">
           {schoolLearningFull({ count: next.words.length })}
         </p>
       )}
@@ -141,7 +141,8 @@ function LessonItem({
   readonly lessons: SchoolLessons
 }): ReactElement {
   const refused = lessons.startRefused?.subject === card.lessonId ? lessons.startRefused : undefined
-  const tone = card.state.kind === 'open' ? cardToneOf(card.state.action) : 'bg-surface-sunken'
+  const tone =
+    card.state.kind === 'open' ? cardToneOf(card.state.action) : 'border-line bg-surface-sunken'
   return (
     <li aria-label={card.title} className="flex flex-col gap-2">
       <Panel element="article" toneClass={tone} spacingClass="gap-3 p-5">

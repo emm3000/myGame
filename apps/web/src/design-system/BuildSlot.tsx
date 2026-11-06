@@ -61,7 +61,7 @@ export function BuildSlot({
     case 'idle':
       return (
         <section
-          className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
+          className={`${frameClass} border border-dashed border-line bg-surface text-ink-muted`}
         >
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <p className="m-0 font-sans text-caption">{state.invitation}</p>
@@ -69,7 +69,7 @@ export function BuildSlot({
       )
     case 'busy':
       return (
-        <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-ledge`}>
+        <section className={`${frameClass} border border-line bg-surface-raised text-ink-muted`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
@@ -91,12 +91,12 @@ export function BuildSlot({
       )
     case 'justFinished':
       return (
-        <section className={`${frameClass} border border-right bg-right-soft text-right`}>
+        <section className={`${frameClass} border border-ink bg-surface-sunken text-ink`}>
           <SlotHeading icon={<SlotIcon />} title={state.title} titleRef={titleRef} />
           <Building
             name={state.buildingName}
             levelLabel={state.levelLabel}
-            badgeTone="bg-surface-raised text-right"
+            badgeTone="bg-surface-raised text-ink"
           />
           <p className="m-0 font-sans text-caption">{state.message}</p>
         </section>

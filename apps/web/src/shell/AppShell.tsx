@@ -60,7 +60,7 @@ function DueCount({ count }: { readonly count: number }): ReactElement {
       <span className="sr-only">{reportReviewsDue({ count: figure })}</span>
       <span
         aria-hidden="true"
-        className="ml-2 rounded-pill bg-badge px-2 font-sans text-label text-on-badge tabular-nums"
+        className="ml-2 rounded-pill bg-action px-2 font-sans text-label text-on-action tabular-nums"
       >
         {figure}
       </span>

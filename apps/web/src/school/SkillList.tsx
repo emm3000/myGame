@@ -27,15 +27,15 @@ const skillLinesOf = (skills: ReadonlyArray<EarnedSkill>): ReadonlyArray<SkillLi
   })
 
 function SkillItem({ line }: { readonly line: SkillLine }): ReactElement {
-  const { Icon, textClass } = resourceAccent[line.resource]
+  const Icon = resourceAccent[line.resource]
   return (
     <li aria-label={line.name} className="flex items-center gap-3">
-      <span className={`flex ${textClass}`}>
+      <span className={'flex text-ink'}>
         <Icon sizeClass="size-icon" />
       </span>
       <span className="flex flex-wrap items-baseline gap-x-3">
         <span className="font-sans text-body text-ink">{line.name}</span>
-        <span className="font-sans text-numeral text-ink-muted tabular-nums">{line.rate}</span>
+        <span className="font-sans text-caption text-ink-muted tabular-nums">{line.rate}</span>
       </span>
     </li>
   )
@@ -54,7 +54,7 @@ export function SkillList({
   return (
     <section
       aria-labelledby={titleId}
-      className="flex flex-col gap-3 rounded-md bg-surface-raised p-5 shadow-ledge"
+      className="flex flex-col gap-3 rounded-md border border-line bg-surface-raised p-5"
     >
       <h3 id={titleId} className="m-0 font-sans text-heading text-ink">
         {title}

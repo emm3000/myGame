@@ -35,7 +35,7 @@ export interface ResourceBarProps {
 const numeralClass = 'font-sans tabular-nums'
 
 function CellIcon({ accent }: { readonly accent: Accent }): ReactElement {
-  const { Icon } = resourceAccent[accent]
+  const Icon = resourceAccent[accent]
   return <Icon sizeClass="size-4 md:size-icon" />
 }
 
@@ -47,11 +47,10 @@ function ResourceItem({
   readonly fullLabel: string
 }): ReactElement {
   const labelId = useId()
-  const { textClass, fillClass } = resourceAccent[cell.kind]
   const isFull = cell.amount >= cell.capacity
   return (
     <li aria-labelledby={labelId} className="flex min-w-0 flex-col gap-1">
-      <span className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${textClass}`}>
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ink">
         <CellIcon accent={cell.kind} />
         <span id={labelId} className="font-sans text-label">
           {cell.label}
@@ -61,19 +60,17 @@ function ResourceItem({
         <span className="whitespace-nowrap text-heading tabular-nums text-ink">
           {formatQuantity(cell.amount)}
         </span>
-        <span className="whitespace-nowrap text-numeral text-ink-muted">
+        <span className="whitespace-nowrap text-caption text-ink-muted">
           / {formatQuantity(cell.capacity)}
         </span>
       </span>
-      <span className={`${numeralClass} text-numeral ${isFull ? 'text-miss' : 'text-ink-muted'}`}>
+      <span
+        className={`${numeralClass} text-caption ${isFull ? 'text-warning-ink' : 'text-ink-muted'}`}
+      >
         {isFull ? fullLabel : (cell.fillingLine ?? `+${formatQuantity(cell.ratePerHour)} / h`)}
       </span>
       {cell.mark !== undefined && <SeasonMark {...cell.mark} />}
-      <Track
-        value={cell.amount}
-        total={cell.capacity}
-        fillClass={isFull ? 'fill-miss' : fillClass}
-      />
+      <Track value={cell.amount} total={cell.capacity} fillClass="fill-ink" />
     </li>
   )
 }
@@ -86,13 +83,12 @@ function PeasantItem({
   readonly labels: ResourceBarProps['labels']
 }): ReactElement {
   const labelId = useId()
-  const { textClass } = resourceAccent.peasants
   return (
     <li
       aria-labelledby={labelId}
       className="flex min-w-0 flex-col gap-1 border-line md:border-l md:pl-3"
     >
-      <span className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${textClass}`}>
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ink">
         <CellIcon accent="peasants" />
         <span id={labelId} className="font-sans text-label">
           {cell.label}
@@ -100,11 +96,11 @@ function PeasantItem({
       </span>
       <span className={`${numeralClass} text-heading tabular-nums text-ink`}>
         {formatQuantity(cell.free)}{' '}
-        <span className="text-numeral text-ink-muted">
+        <span className="text-caption text-ink-muted">
           / {formatQuantity(cell.supplied)} {labels.free(cell.supplied)}
         </span>
       </span>
-      <span className={`${numeralClass} text-numeral text-ink-muted`}>
+      <span className={`${numeralClass} text-caption text-ink-muted`}>
         {formatQuantity(cell.occupied)} {labels.occupied(cell.occupied)}
       </span>
     </li>
@@ -113,7 +109,7 @@ function PeasantItem({
 
 export function ResourceBar({ resources, peasants, labels }: ResourceBarProps): ReactElement {
   return (
-    <ul className="m-0 grid list-none grid-cols-3 gap-3 rounded-md bg-surface-raised p-4 shadow-ledge md:grid-cols-6">
+    <ul className="m-0 grid list-none grid-cols-3 gap-3 rounded-md border border-line bg-surface-raised p-4 md:grid-cols-6">
       {resources.map((cell) => (
         <ResourceItem key={cell.kind} cell={cell} fullLabel={labels.full} />
       ))}

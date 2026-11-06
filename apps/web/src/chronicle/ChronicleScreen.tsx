@@ -44,7 +44,7 @@ function ChronicleBody({ state }: { readonly state: ChronicleState }): ReactElem
     case 'read': {
       if (state.chronicle.events.length === 0) {
         return (
-          <p className="m-0 rounded-md border border-line border-dashed p-5 text-ink-faint">
+          <p className="m-0 rounded-md border border-line border-dashed p-5 text-ink-muted">
             {chronicleEmpty()}
           </p>
         )
@@ -52,7 +52,7 @@ function ChronicleBody({ state }: { readonly state: ChronicleState }): ReactElem
       return (
         <ol
           aria-label={chronicleTitle()}
-          className="m-0 flex list-none flex-col rounded-md bg-surface-raised px-5 shadow-ledge"
+          className="m-0 flex list-none flex-col rounded-md border border-line bg-surface-raised px-5"
         >
           {state.chronicle.events.map((event) => {
             const row = chronicleRowOf(event, state.readAt)

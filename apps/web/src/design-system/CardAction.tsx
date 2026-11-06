@@ -23,9 +23,9 @@ export interface CardActionProps {
 }
 
 const cardTone: Readonly<Record<CardActionState['kind'], string>> = {
-  affordable: 'border border-right bg-surface-raised',
-  blocked: 'bg-surface-raised',
-  atMaxLevel: 'bg-surface-sunken',
+  affordable: 'border-ink bg-surface-raised',
+  blocked: 'border-line bg-surface-raised',
+  atMaxLevel: 'border-line bg-surface-sunken',
 }
 
 export const cardToneOf = (state: CardActionState): string => cardTone[state.kind]
@@ -50,7 +50,7 @@ function BlockedAction({
         {label}
       </Button>
       <span id={reasonId} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-sans text-caption text-miss">{reason}</span>
+        <span className="font-sans text-caption text-destructive-ink">{reason}</span>
         {ready !== undefined && (
           <>
             {' '}
