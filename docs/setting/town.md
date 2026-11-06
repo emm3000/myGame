@@ -17,7 +17,7 @@ Every rank is the `SFI Rank` of `apps/api/content/lessons/ngsl-1.2.csv`. *Mayor*
 
 ## The seven places
 
-A new town starts with homes and the school at level 1 (ADR 040). Each place is one flat silhouette that gains a window at each of its ten levels, with no people in it (ADR 043, `docs/art/art-bible.md`). The rows below describe the place in words, never a picture. Until the art ticket ships, the shipped files are illustrations grown through five tiers.
+A new town starts with homes and the school at level 1 (ADR 040). Each place is one flat silhouette that gains a window at each of its ten levels, with no people in it (ADR 043, `docs/art/art-bible.md`). The rows below describe the place in words, never a picture.
 
 | Content id | Label | Rank | What the player sees | Source |
 |---|---|---|---|---|
