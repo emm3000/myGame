@@ -16,7 +16,3 @@ export function hueClassOf(hue: BlockHue): string {
 export function blockHueOf(index: number): BlockHue {
   return huesInOrder[index % huesInOrder.length] ?? 'peach'
 }
-
-export function blockClassOf(index: number): string {
-  return hueClassOf(blockHueOf(index))
-}

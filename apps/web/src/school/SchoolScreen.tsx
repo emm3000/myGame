@@ -95,11 +95,11 @@ const shownCardOf = (
   cards: ReadonlyArray<LessonCardContent>,
   selectedId: string | undefined,
 ): LessonCardContent | undefined => {
-  const open = cards.filter(({ state }) => state.kind === 'open')
+  const unstudied = cards.filter(({ state }) => state.kind !== 'studied')
   return (
-    open.find(({ lessonId }) => lessonId === selectedId) ??
-    open[0] ??
-    cards.find(({ state }) => state.kind === 'studying')
+    unstudied.find(({ lessonId }) => lessonId === selectedId) ??
+    unstudied.find(({ state }) => state.kind === 'open') ??
+    unstudied[0]
   )
 }
 
