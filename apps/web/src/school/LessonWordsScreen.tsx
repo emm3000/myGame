@@ -1,7 +1,6 @@
 import {
   reportStartReviews,
   schoolLessonNext,
-  schoolLessonNothingToRead,
   schoolLessonWordNext,
   schoolLessonWordPosition,
   schoolLessonWordThen,
@@ -21,15 +20,6 @@ import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import type { LessonWord, LessonWords, RunningLesson } from './lessonWordsOf'
 import type { WayOn } from './wayOnOf'
-
-export function NothingToRead(): ReactElement {
-  return (
-    <div className="flex max-w-form flex-col items-start gap-3 rounded-md border border-line border-dashed p-5">
-      <p className="m-0 font-sans text-body text-ink">{schoolLessonNothingToRead()}</p>
-      <TextLink to="/school">{townGoToSchool()}</TextLink>
-    </div>
-  )
-}
 
 function RunningTime({ running }: { readonly running: RunningLesson }): ReactElement {
   return (

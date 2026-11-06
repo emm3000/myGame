@@ -57,11 +57,12 @@ export const reportOf = async (
       if (!cards.ok) {
         return cards
       }
-      const reviews = reviewsOf(cards.value, clock.now(), dependencies)
+      const readAt = clock.now()
+      const reviews = reviewsOf(cards.value, readAt, dependencies)
       if (!reviews.ok) {
         return reviews
       }
-      const dueCards = dueCardsAt(cards.value, clock.now(), dependencies.memoryTerms)
+      const dueCards = dueCardsAt(cards.value, readAt, dependencies.memoryTerms)
       if (!dueCards.ok) {
         return dueCards
       }
