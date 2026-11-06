@@ -218,6 +218,8 @@
   "school.slot.stop": "Stop studying",
   "school.slot.stopOf": "Stop studying lesson {number}",
   "school.slot.title": "Studying",
+  "shell.lessonFinish.close": "Close",
+  "shell.lessonFinish.line": "Lesson {number} is done.",
   "shell.navigation.report": "Report",
   "shell.navigation.town": "Town",
   "time.today": "Today, {time}",

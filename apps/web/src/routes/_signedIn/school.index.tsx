@@ -7,7 +7,8 @@ import { SchoolScreen } from '../../school/SchoolScreen'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
 import type { LiveTown } from '../../town/liveTown'
 import { TownReadFailed } from '../../town/TownReadStatus'
-import { type TownHandle, useTown } from '../../town/useTown'
+import { useLayoutTown } from '../../town/useLayoutTown'
+import type { TownHandle } from '../../town/useTown'
 
 function SchoolPage({
   apiClient,
@@ -24,7 +25,7 @@ function SchoolPage({
 
 function SchoolRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
-  const town = useTown(apiClient)
+  const town = useLayoutTown()
   switch (town.state.kind) {
     case 'loading':
       return <ReadingLine line={townLoading()} />

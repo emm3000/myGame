@@ -51,7 +51,7 @@ const showFiefReading = async (reads: ReadonlyArray<FiefOverview>): Promise<void
 }
 
 const liveRegion = (): Element => {
-  const regions = document.querySelectorAll('[aria-live="polite"]')
+  const regions = document.querySelectorAll('main [aria-live="polite"]')
   expect(regions).toHaveLength(1)
   const [region] = regions
   assert(region !== undefined)

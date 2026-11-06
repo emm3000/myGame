@@ -1,25 +1,10 @@
 import { townNextTitle } from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
-import { ButtonLink } from '../design-system/ButtonLink'
 import { CountdownLine } from '../design-system/CountdownLine'
 import { Panel } from '../design-system/Panel'
 import type { LiveTown } from './liveTown'
-import { type NextStepAction, nextStepCardOf } from './nextStepCardOf'
-
-function NextStepLink({ action }: { readonly action: NextStepAction }): ReactElement {
-  if (action.to === '/school/$lessonId') {
-    return (
-      <ButtonLink to={action.to} params={{ lessonId: action.lessonId }} tone="primary">
-        {action.label}
-      </ButtonLink>
-    )
-  }
-  return (
-    <ButtonLink to={action.to} tone="primary">
-      {action.label}
-    </ButtonLink>
-  )
-}
+import { NextStepLink } from './NextStepLink'
+import { nextStepCardOf } from './nextStepCardOf'
 
 export function NextStepCard({ town }: { readonly town: LiveTown }): ReactElement {
   const titleId = useId()
@@ -38,7 +23,7 @@ export function NextStepCard({ town }: { readonly town: LiveTown }): ReactElemen
       {detail !== undefined && <p className="m-0 font-sans text-body text-ink">{detail}</p>}
       {countdown !== undefined && <CountdownLine {...countdown} />}
       <div className="flex">
-        <NextStepLink action={action} />
+        <NextStepLink action={action} tone="primary" />
       </div>
     </Panel>
   )

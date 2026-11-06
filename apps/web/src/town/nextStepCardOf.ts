@@ -42,7 +42,11 @@ const buildLines: Readonly<Record<Producer, () => string>> = {
   powerStation: townNextBuildPowerStation,
 }
 
-const lessonCountdownOf = ({ lessonSlot, overview, at }: LiveTown): SlotCountdown | undefined =>
+export const lessonCountdownOf = ({
+  lessonSlot,
+  overview,
+  at,
+}: LiveTown): SlotCountdown | undefined =>
   lessonSlot === null
     ? undefined
     : {
@@ -61,16 +65,17 @@ const readWords = (lessonId: string): NextStepAction => ({
   lessonId,
 })
 
+export const reviewsActionOf = ([firstUnread]: ReadonlyArray<string>): NextStepAction =>
+  firstUnread === undefined
+    ? { label: reportStartReviews(), to: '/reviews' }
+    : readWords(firstUnread)
+
 function reviewsCardOf({ count, readFirst }: Step<'reviews'>, town: LiveTown): NextStepCardContent {
-  const [firstUnread] = readFirst
   return {
     line: reportReviewsDue({ count: formatQuantity(count) }),
     detail: undefined,
     countdown: lessonCountdownOf(town),
-    action:
-      firstUnread === undefined
-        ? { label: reportStartReviews(), to: '/reviews' }
-        : readWords(firstUnread),
+    action: reviewsActionOf(readFirst),
   }
 }
 

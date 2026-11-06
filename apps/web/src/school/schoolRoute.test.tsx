@@ -116,7 +116,7 @@ it('starts lesson 1 from the school', async () => {
   await passSeconds(0)
 
   expect(started).toEqual(['lesson-1'])
-  expect(screen.getByRole('timer').textContent).toBe('4 min')
+  expect(within(screen.getByRole('main')).getByRole('timer').textContent).toBe('4 min')
 })
 
 it("opens a running lesson's words from the school", async () => {
@@ -142,11 +142,11 @@ it('shows a running lesson’s countdown', async () => {
     }),
   })
 
-  expect(screen.getByRole('timer').textContent).toBe('4 min')
+  expect(within(screen.getByRole('main')).getByRole('timer').textContent).toBe('4 min')
 
   await passSeconds(190)
 
-  expect(screen.getByRole('timer').textContent).toBe('0:50')
+  expect(within(screen.getByRole('main')).getByRole('timer').textContent).toBe('0:50')
 })
 
 it('reads the town again when the lesson finishes and marks it studied', async () => {

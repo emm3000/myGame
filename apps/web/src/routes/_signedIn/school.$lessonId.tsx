@@ -1,8 +1,9 @@
 import { reportLoading, townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
-import { type ReactElement, useEffect, useRef } from 'react'
+import type { ReactElement } from 'react'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import { type ReportHandle, useReport } from '../../report/useReport'
+import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { LessonWordsScreen } from '../../school/LessonWordsScreen'
 import { lessonWordsOf } from '../../school/lessonWordsOf'
 import { NothingToRead } from '../../school/NothingToRead'
@@ -10,17 +11,7 @@ import { useOpenedLessons } from '../../school/useOpenedLessons'
 import { wayOnOf } from '../../school/wayOnOf'
 import type { LiveTown } from '../../town/liveTown'
 import { TownReadFailed } from '../../town/TownReadStatus'
-import { useTown } from '../../town/useTown'
-
-function useReportAtLessonFinish(isStudying: boolean, reread: () => void): void {
-  const wasStudying = useRef(isStudying)
-  useEffect(() => {
-    if (wasStudying.current && !isStudying) {
-      reread()
-    }
-    wasStudying.current = isStudying
-  }, [isStudying, reread])
-}
+import { useLayoutTown } from '../../town/useLayoutTown'
 
 function LessonPage({
   town,
@@ -60,10 +51,9 @@ function LessonPage({
 function LessonRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { lessonId } = Route.useParams()
-  const town = useTown(apiClient)
+  const town = useLayoutTown()
   const report = useReport(apiClient)
-  const isStudying = town.state.kind === 'live' && town.state.town.lessonSlot !== null
-  useReportAtLessonFinish(isStudying, report.reread)
+  useReportAtLessonFinish(town.state, report.reread)
   switch (town.state.kind) {
     case 'loading':
       return <ReadingLine line={townLoading()} />

@@ -393,6 +393,8 @@ export const schoolSlotTitle = (): string => `En estudio`
 export const shellFiefSwitcherFullStore = ({ resource }: { readonly resource: string | number }): string => `Almacén lleno: ${String(resource)}`
 export const shellFiefSwitcherLabel = (): string => `Tus feudos`
 export const shellFiefSwitcherSeparator = (): string => `,`
+export const shellLessonFinishClose = (): string => `Cerrar`
+export const shellLessonFinishLine = ({ number }: { readonly number: string | number }): string => `La lección ${String(number)} terminó.`
 export const shellNavigationChronicle = (): string => `Crónica`
 export const shellNavigationFief = (): string => `Feudo`
 export const shellNavigationMap = (): string => `Mapa`
