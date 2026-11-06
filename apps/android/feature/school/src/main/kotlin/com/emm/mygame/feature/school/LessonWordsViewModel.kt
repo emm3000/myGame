@@ -132,11 +132,9 @@ class LessonWordsViewModel(
             TownReadResult.NoTown -> return LessonAnswer.NoTown
             TownReadResult.Unreachable -> return LessonAnswer.Unreachable
         }
+        gap = town.readAt - clock.now()
         return when (val answer: ReportReadResult = reports.read()) {
-            is ReportReadResult.Read -> {
-                gap = town.readAt - clock.now()
-                LessonAnswer.Read(LessonRead(town, answer.report.readFirst))
-            }
+            is ReportReadResult.Read -> LessonAnswer.Read(LessonRead(town, answer.report.readFirst))
             ReportReadResult.Unreachable -> LessonAnswer.Unreachable
         }
     }

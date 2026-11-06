@@ -28,13 +28,13 @@ import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWordArt
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.withTabularFigures
@@ -165,7 +165,7 @@ private fun WordBlock(reading: LessonWordsUiState.Reading, modifier: Modifier = 
             color = MyGameTheme.colors.onBlockMuted,
         )
         wordArtOf(word.word)?.let { art: MyGameArt ->
-            MyGamePlaceArt(art = art, modifier = Modifier.semantics { testTag = WORD_SILHOUETTE })
+            MyGameWordArt(art = art, modifier = Modifier.semantics { testTag = WORD_SILHOUETTE })
         }
         MyGameText(
             text = word.word,

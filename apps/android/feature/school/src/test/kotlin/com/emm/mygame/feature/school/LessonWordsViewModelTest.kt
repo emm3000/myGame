@@ -140,12 +140,51 @@ class LessonWordsViewModelTest {
     fun `reads the town and the report again when the lesson finishes`() = runTest {
         val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, runningTown)
         towns.answerRead(TownReadResult.Read(finishedTown.copy(readAt = readInstant + 150.seconds)))
+        reports.answerRead(readReportOf(readFirst = listOf(secondLesson)))
+
+        advanceTimeBy(150.seconds)
+        runCurrent()
+
+        assertEquals(LessonWordsUiState.WayOn.Lesson(secondLesson), readingOf(viewModel).wayOn)
+    }
+
+    @Test
+    fun `stays on the last word when a fresh read shortens the lesson`() = runTest {
+        val threeWords: TownSnapshot.Lesson = lessonOf(readings = listOf(homeWord, waterWord, farmWord))
+        val studying: TownSnapshot = townOf(lessons = listOf(threeWords), lessonSlot = slotOf())
+        val viewModel: LessonWordsViewModel = lessonWordsReadingFrom(towns, reports, studying)
+        repeat(2) { viewModel.onIntent(LessonWordsIntent.NextWordTapped) }
+        towns.answerRead(TownReadResult.Read(finishedTown.copy(readAt = readInstant + 150.seconds)))
         reports.answerRead(readReportOf())
 
         advanceTimeBy(150.seconds)
         runCurrent()
 
-        assertEquals(LessonWordsUiState.WayOn.Reviews, readingOf(viewModel).wayOn)
+        assertEquals(waterWord, readingOf(viewModel).word)
+    }
+
+    @Test
+    fun `projects the countdown from the server's instant on a skewed device`() = runTest {
+        towns.answerRead(TownReadResult.Read(runningTown))
+        reports.answerRead(readReportOf())
+
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports, start = readInstant + 2.minutes)
+        runCurrent()
+
+        assertEquals(150.seconds, readingOf(viewModel).remaining)
+    }
+
+    @Test
+    fun `measures the gap when the town arrives, not when the report does`() = runTest {
+        towns.answerRead(TownReadResult.Read(runningTown))
+        val viewModel: LessonWordsViewModel = lessonWordsViewModelOf(towns, reports)
+        runCurrent()
+        advanceTimeBy(10.seconds)
+
+        reports.answerRead(readReportOf())
+        runCurrent()
+
+        assertEquals(140.seconds, readingOf(viewModel).remaining)
     }
 
     @Test
@@ -272,8 +311,15 @@ class LessonWordsViewModelTest {
         runCurrent()
 
         assertEquals(
-            listOf(0, 0, 0),
-            listOf(towns.lessonStarts.size, towns.lessonStops.size, reports.closeCount),
+            listOf(0, 0, 0, 0, 0, 0),
+            listOf(
+                towns.foundings.size,
+                towns.starts.size,
+                towns.stops.size,
+                towns.lessonStarts.size,
+                towns.lessonStops.size,
+                reports.closeCount,
+            ),
         )
     }
 }

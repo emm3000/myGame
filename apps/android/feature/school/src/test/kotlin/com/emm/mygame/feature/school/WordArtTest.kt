@@ -32,13 +32,13 @@ class WordArtTest {
 
         assertEquals(
             listOf(
-                DesignSystemR.drawable.designsystem_place_homes_0,
-                DesignSystemR.drawable.designsystem_place_farm_0,
-                DesignSystemR.drawable.designsystem_place_factory_0,
-                DesignSystemR.drawable.designsystem_place_power_station_0,
-                DesignSystemR.drawable.designsystem_place_storage_0,
-                DesignSystemR.drawable.designsystem_place_school_0,
-                DesignSystemR.drawable.designsystem_place_office_0,
+                DesignSystemR.drawable.designsystem_word_homes,
+                DesignSystemR.drawable.designsystem_word_farm,
+                DesignSystemR.drawable.designsystem_word_factory,
+                DesignSystemR.drawable.designsystem_word_power_station,
+                DesignSystemR.drawable.designsystem_word_storage,
+                DesignSystemR.drawable.designsystem_word_school,
+                DesignSystemR.drawable.designsystem_word_office,
             ),
             drawables,
         )
