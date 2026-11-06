@@ -47,10 +47,10 @@ export function useLessonFinish(
   const isDone = readFirst === undefined || isDoorToReviews(pathname, readFirst)
 
   useEffect(() => {
-    if (isDone) {
+    if (isDone && isOpen) {
       setIsOpen(false)
     }
-  }, [isDone])
+  }, [isDone, isOpen])
 
   const close = useCallback(
     (): void => setAnnounced(({ sequence }) => ({ lessonId: undefined, sequence })),

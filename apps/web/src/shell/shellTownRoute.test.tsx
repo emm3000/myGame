@@ -419,6 +419,81 @@ it('draws no notice for a lesson finishing on the words it would open', async ()
   expect(queryFinishNotice(2)).toBeNull()
 })
 
+it('draws no notice after a finish on the words it would open', async () => {
+  const router = renderAppAt('/school/lesson-2', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  await act(() => router.navigate({ href: '/report' }))
+  await passSeconds(0)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('draws no notice after a finish during the reviews', async () => {
+  const router = renderAppAt('/reviews', finishingClient(lessonTwoFinished([])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  await act(() => router.navigate({ href: '/report' }))
+  await passSeconds(0)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('draws no notice when a review comes due after a finish on the words', async () => {
+  const finished = lessonTwoFinished(['lesson-2'])
+  const townAt = (elapsedMs: number): TownOverview => {
+    if (elapsedMs < 240_000) {
+      return lessonTwoRunning
+    }
+    if (elapsedMs < 300_000) {
+      return finished
+    }
+    return elapsedMs < 360_000
+      ? { ...finished, nextStep: { kind: 'caughtUp' }, readAt: instantAfter(300) }
+      : { ...finished, readAt: instantAfter(360) }
+  }
+  const router = renderAppAt(
+    '/school/lesson-2',
+    signedInClient({ town: async () => ({ ok: true, value: townAt(Date.now() - readAt) }) }),
+  )
+  await passSeconds(0)
+  await passSeconds(240)
+  await passSeconds(60)
+  await act(() => router.navigate({ href: '/reviews' }))
+  await passSeconds(0)
+  await act(() => router.navigate({ href: '/report' }))
+
+  await passSeconds(60)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('draws no notice for a finish with no review due', async () => {
+  renderAppAt(
+    '/report',
+    finishingClient({ ...lessonTwoFinished([]), nextStep: { kind: 'caughtUp' } }),
+  )
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('still announces a finish with no review due', async () => {
+  renderAppAt(
+    '/report',
+    finishingClient({ ...lessonTwoFinished([]), nextStep: { kind: 'caughtUp' } }),
+  )
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(shellLiveRegion().textContent).toBe(shellLessonFinishLine({ number: 2 }))
+})
+
 it('still announces a lesson finishing on the words it would open', async () => {
   renderAppAt('/school/lesson-2', finishingClient(lessonTwoFinished(['lesson-2'])))
   await passSeconds(0)
