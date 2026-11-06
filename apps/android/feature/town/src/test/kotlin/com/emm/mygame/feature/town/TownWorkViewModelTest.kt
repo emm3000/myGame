@@ -48,6 +48,7 @@ class TownWorkViewModelTest {
             TownUiState.PlaceCard(
                 kind = TownBuildingKind.Farm,
                 level = 1,
+                isInWork = false,
                 next = TownUiState.NextLevelLine(
                     level = 2,
                     costs = listOf(TownUiState.CostLine(TownResourceKind.Food, 50, isShort = false)),

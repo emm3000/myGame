@@ -68,6 +68,26 @@ object MyGameIcons {
         "M12.1 8.9c2.1.4 3.4 2.3 3.4 4.2-2-.4-3.3-1.9-3.4-4.2z",
         "M12.3 13.4c2.1.4 3.4 2.4 3.5 4.3-2.1-.4-3.4-2-3.5-4.3z",
     )
+    val money: ImageVector = strokedIcon(
+        name = "money",
+        "M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z",
+        "M9.5 12a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0z",
+        "M6.5 9.5v5M17.5 9.5v5",
+    )
+    val power: ImageVector = strokedIcon(name = "power", "M13.5 2.5 5.5 13.5h6l-1 8 8-11h-6z")
+    val material: ImageVector = strokedIcon(
+        name = "material",
+        "M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5z",
+        "M3 9.7h18M3 14.3h18M9 5v4.7M15 5v4.7M12 9.7v4.6M8 14.3V19M16 14.3V19",
+    )
+    val people: ImageVector = strokedIcon(
+        name = "people",
+        "M6 8a3 3 0 1 0 6 0a3 3 0 1 0-6 0z",
+        "M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6",
+        "M14.5 9a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0z",
+        "M16.5 14c2.6.3 4.5 2.6 4.5 5.5",
+    )
+    val check: ImageVector = strokedIcon(name = "check", "m5 12.5 4.5 4.5L19 7")
     val spring: ImageVector = strokedIcon(
         name = "spring",
         "M12.1 20.7c.2-4.3.1-8.1-.4-11.3",

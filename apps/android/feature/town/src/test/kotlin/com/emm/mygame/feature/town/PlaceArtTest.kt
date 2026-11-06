@@ -120,7 +120,7 @@ class PlaceArtTest {
         val bounds: DpRect = composeRule.onNodeWithTag(ART_TAG).getUnclippedBoundsInRoot()
         val widthOverHeight: Float = (bounds.right - bounds.left) / (bounds.bottom - bounds.top)
 
-        assertEquals(MyGameSizes.placeCard, bounds.bottom - bounds.top)
+        assertEquals(MyGameSizes.thumbnail, bounds.bottom - bounds.top)
         assertTrue(widthOverHeight in 0.69f..0.72f)
     }
 

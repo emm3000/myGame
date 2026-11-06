@@ -3,7 +3,6 @@ package com.emm.mygame.feature.report
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,18 +18,20 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import com.emm.mygame.core.designsystem.MyGameBlock
+import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownNews
@@ -62,7 +63,7 @@ fun ReportScreen(
     ) {
         MyGameText(
             text = stringResource(R.string.report_title),
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
@@ -102,28 +103,38 @@ private fun ReviewsDueSection(
     val dueCount: Int = content.dueCount
     val firstUnread: LessonId? = content.firstUnread
     if (dueCount == 0) {
-        EmptyLine(line = stringResource(R.string.report_no_reviews_due), modifier = modifier)
+        NothingDue(modifier = modifier)
         return
     }
-    MyGameCard(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        ) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+        MyGameBlock(hue = MyGameBlockHue.Periwinkle) {
             MyGameText(
                 text = icuStringResource(R.string.report_reviews_due, "count" to formatQuantity(dueCount.toLong())),
-                style = MyGameTypography.heading,
-                color = MyGameTheme.colors.ink,
-            )
-            MyGameButton(
-                label = stringResource(
-                    if (firstUnread == null) R.string.report_start_reviews else R.string.report_read_words,
-                ),
-                isBusy = false,
-                busyDescription = stringResource(R.string.report_waiting),
-                onClick = { if (firstUnread == null) onReviewsOpen() else onLessonOpen(firstUnread) },
+                style = MyGameTypography.display,
+                color = MyGameTheme.colors.onBlock,
+                modifier = Modifier.semantics { heading() },
             )
         }
+        MyGameButton(
+            label = stringResource(
+                if (firstUnread == null) R.string.report_start_reviews else R.string.report_read_words,
+            ),
+            isBusy = false,
+            busyDescription = stringResource(R.string.report_waiting),
+            onClick = { if (firstUnread == null) onReviewsOpen() else onLessonOpen(firstUnread) },
+        )
+    }
+}
+
+@Composable
+private fun NothingDue(modifier: Modifier = Modifier) {
+    MyGameCard(modifier = modifier) {
+        MyGameText(
+            text = stringResource(R.string.report_no_reviews_due),
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
+        )
     }
 }
 
@@ -134,7 +145,11 @@ private fun NewsSection(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameSectionTitle(text = stringResource(R.string.report_news_title))
+        MyGameMetaText(
+            text = stringResource(R.string.report_news_title),
+            color = MyGameTheme.colors.inkMuted,
+            modifier = Modifier.semantics { heading() },
+        )
         when (val news: ReportUiState.ReportNews = content.news) {
             ReportUiState.ReportNews.None -> EmptyLine(line = stringResource(R.string.report_news_none))
             ReportUiState.ReportNews.Closed -> EmptyLine(
@@ -156,8 +171,11 @@ private fun UnreadNews(
 ) {
     val zone: ZoneId = ZoneId.systemDefault()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameCard {
-            unread.items.forEach { news: TownNews -> NewsItem(news = news, receivedAt = receivedAt, zone = zone) }
+        Column {
+            unread.items.forEach { news: TownNews ->
+                MyGameHairline()
+                NewsItem(news = news, receivedAt = receivedAt, zone = zone)
+            }
         }
         if (unread.close == ReportUiState.CloseRequest.Unreachable) {
             MyGameInlineAlert(message = stringResource(R.string.report_refusal_unexpected))
@@ -192,12 +210,13 @@ private fun NewsItem(news: TownNews, receivedAt: Instant, zone: ZoneId, modifier
 
 @Composable
 private fun EmptyLine(line: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .dashedFrame(MyGameTheme.colors.line)
-            .padding(MyGameSpacing.step5),
-    ) {
-        MyGameText(text = line, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+    Column(modifier = modifier.fillMaxWidth()) {
+        MyGameHairline()
+        MyGameText(
+            text = line,
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.padding(vertical = MyGameSpacing.step3),
+        )
     }
 }

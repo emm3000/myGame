@@ -3,25 +3,31 @@ package com.emm.mygame.feature.town
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameCard
+import com.emm.mygame.core.designsystem.MyGameHairline
+import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePlaceArt
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
+import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
@@ -35,9 +41,15 @@ internal fun PlacesSection(
     onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameSectionTitle(text = stringResource(placesTitleOf(content.label)))
-        content.places.forEach { place: TownUiState.PlaceCard ->
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
+        MyGameText(
+            text = stringResource(placesTitleOf(content.label)),
+            style = MyGameTypography.heading,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { heading() },
+        )
+        content.places.forEachIndexed { index: Int, place: TownUiState.PlaceCard ->
+            if (index > 0) MyGameHairline()
             PlaceItem(place = place, start = content.start, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
         }
     }
@@ -51,24 +63,20 @@ private fun PlaceItem(
     onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameCard {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier.padding(vertical = MyGameSpacing.step4),
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
+            MyGamePlaceArt(
+                art = placeArtOf(place.kind, place.level),
+                modifier = Modifier.align(Alignment.CenterVertically),
+            )
             Column(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-                modifier = Modifier.padding(vertical = MyGameSpacing.step3),
+                modifier = Modifier.weight(1f),
             ) {
-                MyGamePlaceArt(art = placeArtOf(place.kind, place.level))
-                MyGameText(
-                    text = stringResource(placeNameOf(place.kind)),
-                    style = MyGameTypography.heading,
-                    color = MyGameTheme.colors.ink,
-                    modifier = Modifier.semantics { heading() },
-                )
-                MyGameText(
-                    text = icuStringResource(R.string.town_level, "level" to place.level.toString()),
-                    style = MyGameTypography.label,
-                    color = MyGameTheme.colors.inkMuted,
-                )
+                PlaceName(place = place)
                 when (val next: TownUiState.NextLevelLine? = place.next) {
                     null -> AtTopLevel()
                     else -> NextLevel(
@@ -79,12 +87,41 @@ private fun PlaceItem(
                         onIntent = onIntent,
                     )
                 }
-                if (place.kind == TownBuildingKind.School) {
-                    MyGameTextLink(label = stringResource(R.string.town_go_to_school), onClick = onSchoolOpen)
-                }
             }
         }
         StartAnswer(building = place.kind, start = start)
+        if (place.kind == TownBuildingKind.School) {
+            MyGameTextLink(label = stringResource(R.string.town_go_to_school), onClick = onSchoolOpen)
+        }
+    }
+}
+
+@Composable
+private fun PlaceName(place: TownUiState.PlaceCard, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        MyGameText(
+            text = stringResource(placeNameOf(place.kind)),
+            style = MyGameTypography.title,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { heading() },
+        )
+        MyGameText(
+            text = levelLabelOf(place),
+            style = MyGameTypography.caption.withTabularFigures(),
+            color = MyGameTheme.colors.inkMuted,
+        )
+    }
+}
+
+@Composable
+private fun levelLabelOf(place: TownUiState.PlaceCard): String {
+    val inWork: String = stringResource(R.string.town_in_work)
+    if (place.level == 0) return if (place.isInWork) inWork else stringResource(R.string.town_not_built)
+    val level: String = icuStringResource(R.string.town_level, "level" to place.level.toString())
+    return if (place.isInWork) {
+        icuStringResource(R.string.town_level_in_work, "level" to level, "inWork" to inWork)
+    } else {
+        level
     }
 }
 
@@ -93,12 +130,12 @@ private fun AtTopLevel(modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.town_at_top_level),
-            style = MyGameTypography.body,
+            style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(
             text = stringResource(R.string.town_top_level),
-            style = MyGameTypography.button,
+            style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
         )
     }
@@ -114,11 +151,11 @@ private fun NextLevel(
     modifier: Modifier = Modifier,
 ) {
     val reason: String? = block?.let { blocked: TownUiState.BlockReason -> blockLineOf(blocked) }
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = icuStringResource(R.string.town_people_at_work, "people" to next.people.toString()),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.inkMuted,
         )
         Costs(next = next)
         MyGameOutlinedButton(
@@ -135,9 +172,9 @@ private fun NextLevel(
         reason?.let { line: String ->
             MyGameText(
                 text = line,
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.destructiveInk,
-                modifier = Modifier.clearAndSetSemantics { },
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.warningInk,
+                modifier = Modifier.semantics { hideFromAccessibility() },
             )
         }
     }
@@ -147,7 +184,7 @@ private fun NextLevel(
 private fun Costs(next: TownUiState.NextLevelLine, modifier: Modifier = Modifier) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier,
     ) {
         next.costs.forEach { cost: TownUiState.CostLine -> CostItem(cost = cost) }
@@ -156,14 +193,24 @@ private fun Costs(next: TownUiState.NextLevelLine, modifier: Modifier = Modifier
 
 @Composable
 private fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) {
-    val text: String = amountLineOf(cost.kind, cost.amount)
-    val description: String = if (cost.isShort) text + stringResource(R.string.town_short_mark) else text
-    MyGameText(
-        text = text,
-        style = MyGameTypography.body,
-        color = if (cost.isShort) MyGameTheme.colors.warningInk else MyGameTheme.colors.ink,
+    val spoken: String = amountLineOf(cost.kind, cost.amount)
+    val description: String = if (cost.isShort) spoken + stringResource(R.string.town_short_mark) else spoken
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
-    )
+    ) {
+        MyGameIcon(
+            icon = resourceIconOf(cost.kind),
+            tint = MyGameTheme.colors.ink,
+            modifier = Modifier.size(MyGameSizes.iconSmall),
+        )
+        MyGameText(
+            text = formatQuantity(cost.amount),
+            style = MyGameTypography.caption.withTabularFigures(),
+            color = if (cost.isShort) MyGameTheme.colors.warningInk else MyGameTheme.colors.ink,
+        )
+    }
 }
 
 @Composable

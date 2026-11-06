@@ -20,6 +20,6 @@ fun MyGamePlaceArt(art: MyGameArt, modifier: Modifier = Modifier) {
         painter = painter,
         contentDescription = null,
         colorFilter = tint?.let { color: Color -> ColorFilter.tint(color) },
-        modifier = modifier.height(MyGameSizes.placeCard).aspectRatio(frame.width / frame.height),
+        modifier = modifier.height(MyGameSizes.thumbnail).aspectRatio(frame.width / frame.height),
     )
 }

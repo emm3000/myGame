@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -21,6 +22,7 @@ sealed interface TownUiState {
         val label: TownLabel,
         val stocks: List<StockLine>,
         val people: PeopleLine,
+        val season: SeasonLine?,
         val slot: SlotLine,
         val waitingList: List<WaitingLine>,
         val places: List<PlaceCard>,
@@ -46,6 +48,8 @@ sealed interface TownUiState {
     }
 
     data class PeopleLine(val free: Int, val atWork: Int)
+
+    data class SeasonLine(val kind: SeasonKind, val year: Int, val remaining: Duration)
 
     sealed interface SlotLine {
 
@@ -74,6 +78,7 @@ sealed interface TownUiState {
     data class PlaceCard(
         val kind: TownBuildingKind,
         val level: Int,
+        val isInWork: Boolean,
         val next: NextLevelLine?,
         val block: BlockReason?,
     )

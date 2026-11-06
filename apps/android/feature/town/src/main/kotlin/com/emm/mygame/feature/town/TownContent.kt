@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.SeasonInForce
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.projection.ResourceStock
@@ -8,16 +10,21 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 internal fun TownSnapshot.contentAt(now: Instant, gap: Duration, mutations: TownMutations): TownUiState.Content {
-    val lines: List<TownUiState.StockLine> = stocks.map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now) }
+    val lines: List<TownUiState.StockLine> = stocks
+        .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
+        .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now) }
     val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
     return TownUiState.Content(
         name = name,
         label = label,
         stocks = lines,
         people = TownUiState.PeopleLine(free = people.free, atWork = people.atWork),
+        season = seasonLineAt(now),
         slot = work.slot?.slotLineAt(now, gap) ?: TownUiState.SlotLine.Idle,
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
-        places = buildings.map { place: TownSnapshot.Building -> place.cardWith(drawn, this) },
+        places = buildings
+            .sortedBy { place: TownSnapshot.Building -> place.kind != TownBuildingKind.School }
+            .map { place: TownSnapshot.Building -> place.cardWith(drawn, this) },
         start = mutations.start,
         stop = mutations.stop,
     )
@@ -31,6 +38,12 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
         .filter { instant: Instant -> instant > now }
         .minOrNull()
         ?.let { instant: Instant -> instant - now }
+
+private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
+    val inForce: SeasonInForce = seasonInForce ?: return null
+    val endsAt: Instant = seasonEndsAt ?: return null
+    return TownUiState.SeasonLine(inForce.kind, inForce.year, countdownTo(finishesAt = endsAt, now = now))
+}
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt)
@@ -67,8 +80,17 @@ private fun TownSnapshot.Building.cardWith(
     town: TownSnapshot,
 ): TownUiState.PlaceCard {
     val line: TownUiState.NextLevelLine? = next?.lineWith(drawn)
-    return TownUiState.PlaceCard(kind = kind, level = level, next = line, block = next?.blockIn(town, drawn))
+    return TownUiState.PlaceCard(
+        kind = kind,
+        level = level,
+        isInWork = town.isWorkingOn(kind),
+        next = line,
+        block = next?.blockIn(town, drawn),
+    )
 }
+
+private fun TownSnapshot.isWorkingOn(kind: TownBuildingKind): Boolean =
+    (listOfNotNull(work.slot) + work.waitingList).any { item: TownSnapshot.WorkItem -> item.building == kind }
 
 private fun TownSnapshot.NextLevel.lineWith(drawn: Map<TownResourceKind, Long>): TownUiState.NextLevelLine =
     TownUiState.NextLevelLine(
