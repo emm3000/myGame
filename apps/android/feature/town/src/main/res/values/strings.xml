@@ -64,6 +64,7 @@
     <string name="town_season_winter">invierno</string>
     <string name="town_short_mark">, falta</string>
     <string name="town_shortfall">Necesitas {missing} más.</string>
+    <string name="town_sign_out">Salir</string>
     <string name="town_skyline_built">{built} de {total} construidos</string>
     <string name="town_stock_of">de {capacity}</string>
     <string name="town_stocks">En el almacén</string>

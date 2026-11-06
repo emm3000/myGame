@@ -22,7 +22,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameSizes
+import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.TownBuildingKind
@@ -643,6 +645,119 @@ class TownScreenTest {
             .assert(isHeading())
     }
 
+    @Test
+    fun `offers sign-out under the naming form`() {
+        show(emptyNaming())
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
+    }
+
+    @Test
+    fun `offers sign-out under a failed read`() {
+        show(TownUiState.Failed)
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+
+        assertEquals(listOf<TownIntent>(TownIntent.SignOutTapped), intents)
+    }
+
+    @Test
+    fun `offers no sign-out while loading`() {
+        show(TownUiState.Loading)
+
+        composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
+    }
+
+    @Test
+    fun `offers no sign-out on the town home`() {
+        show(riverton)
+
+        composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
+    }
+
+    @Test
+    fun `announces the sign-out as waiting while the session ends`() {
+        show(TownUiState.SigningOut)
+
+        composeRule
+            .onNodeWithText("Salir")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
+    }
+
+    @Test
+    fun `sends nothing from the sign-out while the session ends`() {
+        show(TownUiState.SigningOut)
+
+        composeRule.onNodeWithText("Salir").performClick()
+
+        assertEquals(emptyList<TownIntent>(), intents)
+    }
+
+    @Test
+    fun `holds the sign-out at the touch minimum in height`() {
+        show(TownUiState.Failed)
+
+        val target: DpRect = composeRule.onNodeWithText("Salir").getUnclippedBoundsInRoot()
+
+        assertTrue(target.bottom - target.top >= MyGameSizes.control)
+    }
+
+    @Test
+    fun `holds the sign-out at the touch minimum in width`() {
+        show(TownUiState.Failed)
+
+        val target: DpRect = composeRule.onNodeWithText("Salir").getUnclippedBoundsInRoot()
+
+        assertTrue(target.right - target.left >= MyGameSizes.control)
+    }
+
+    @Test
+    fun `keeps the smaller top padding to the town home`() {
+        show(riverton)
+
+        assertTrue(topOf("RIVERTON · PUEBLO") < MyGameSpacing.step8)
+    }
+
+    @Test
+    fun `sets the reading line under the larger top padding`() {
+        show(TownUiState.Loading)
+
+        assertEquals(MyGameSpacing.step8.value, topOf("Estamos leyendo tu pueblo…").value, PIXEL_TOLERANCE)
+    }
+
+    @Test
+    fun `sets a failed read under the larger top padding`() {
+        show(TownUiState.Failed)
+
+        val bannerInset: Dp = MyGameSpacing.step3
+        assertEquals(
+            (MyGameSpacing.step8 + bannerInset).value,
+            topOf(UNEXPECTED).value,
+            PIXEL_TOLERANCE,
+        )
+    }
+
+    @Test
+    fun `sets the naming form under the larger top padding`() {
+        show(emptyNaming())
+
+        val cardInset: Dp = MyGameSpacing.step1 + MyGameSpacing.step4
+        assertEquals(
+            (MyGameSpacing.step8 + cardInset).value,
+            topOf("Ponle nombre a tu pueblo").value,
+            PIXEL_TOLERANCE,
+        )
+    }
+
+    @Test
+    fun `sets signing out under the larger top padding`() {
+        show(TownUiState.SigningOut)
+
+        assertEquals(MyGameSpacing.step8.value, topOf("Salir").value, PIXEL_TOLERANCE)
+    }
+
     private fun doors(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(OUTLINED_PILL)
 
     private fun show(state: TownUiState) {
@@ -659,6 +774,7 @@ class TownScreenTest {
     }
 
     private companion object {
+        const val PIXEL_TOLERANCE: Float = 0.5f
         const val UNEXPECTED: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val NOT_ENOUGH: String =
             "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."

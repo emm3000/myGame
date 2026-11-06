@@ -19,4 +19,6 @@ sealed interface TownIntent {
     data class BuildTapped(val building: TownBuildingKind) : TownIntent
 
     data class StopTapped(val building: TownBuildingKind, val level: Int) : TownIntent
+
+    data object SignOutTapped : TownIntent
 }

@@ -102,6 +102,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.town.town_refusal_town_not_found',
   'android.town.town_refusal_unexpected',
   'android.town.town_refusal_waiting_list_full',
+  'android.town.town_sign_out',
   'auth.email',
   'auth.password',
   'auth.signIn.forgotPassword',

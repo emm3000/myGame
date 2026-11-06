@@ -18,6 +18,7 @@ import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.TownLabel
@@ -41,7 +42,7 @@ fun TownScreen(
             .padding(
                 start = MyGameSpacing.step4,
                 end = MyGameSpacing.step4,
-                top = MyGameSpacing.step2,
+                top = if (state is TownUiState.Content) MyGameSpacing.step2 else MyGameSpacing.step8,
                 bottom = MyGameSpacing.step8,
             ),
     ) {
@@ -51,12 +52,19 @@ fun TownScreen(
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.inkMuted,
             )
-            TownUiState.Failed -> MyGameErrorBanner(
-                message = stringResource(R.string.town_refusal_unexpected),
-                actionLabel = stringResource(R.string.town_try_again),
-                onAction = { onIntent(TownIntent.RetryTapped) },
-            )
-            is TownUiState.Naming -> NamingSection(naming = state, onIntent = onIntent)
+            TownUiState.Failed -> {
+                MyGameErrorBanner(
+                    message = stringResource(R.string.town_refusal_unexpected),
+                    actionLabel = stringResource(R.string.town_try_again),
+                    onAction = { onIntent(TownIntent.RetryTapped) },
+                )
+                SignOut(isBusy = false, onIntent = onIntent)
+            }
+            TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
+            is TownUiState.Naming -> {
+                NamingSection(naming = state, onIntent = onIntent)
+                SignOut(isBusy = false, onIntent = onIntent)
+            }
             is TownUiState.Content -> TownHome(
                 content = state,
                 onIntent = onIntent,
@@ -65,6 +73,17 @@ fun TownScreen(
             )
         }
     }
+}
+
+@Composable
+private fun SignOut(isBusy: Boolean, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
+    MyGameTextButton(
+        label = stringResource(R.string.town_sign_out),
+        isBusy = isBusy,
+        busyDescription = stringResource(R.string.town_waiting),
+        onClick = { onIntent(TownIntent.SignOutTapped) },
+        modifier = modifier,
+    )
 }
 
 @Composable
