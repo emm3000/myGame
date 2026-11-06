@@ -19,7 +19,7 @@ export function SeasonLine({ season, headerLine, countdownLine }: SeasonLineProp
       <span aria-hidden="true" className="text-ink-muted">
         ·
       </span>
-      <span role="timer" className="text-ink-muted">
+      <span role="timer" className="text-ink-muted tabular-nums">
         {countdownLine}
       </span>
     </p>
