@@ -32,11 +32,11 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 72 | 60 | 5 | 6 | 1 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 26 | 24 | 1 | 0 | 1 |
+| 2 | opus:high | 29 | 25 | 2 | 1 | 1 |
 | 3 | opus:medium | 24 | 16 | 3 | 4 | 1 |
-| 4 | opus:high | 59 | 53 | 1 | 2 | 3 |
-| 3 | opus:high | 78 | 60 | 6 | 11 | 1 |
-| 1 | opus:high | 7 | 2 | 1 | 4 | 0 |
+| 4 | opus:high | 63 | 55 | 1 | 3 | 4 |
+| 3 | opus:high | 85 | 65 | 7 | 12 | 1 |
+| 1 | opus:high | 9 | 2 | 1 | 6 | 0 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
 | 5 | opus:high | 3 | 3 | 0 | 0 | 0 |
@@ -47,23 +47,23 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #799 | #739 | 4 | opus:high | MERGE | | 13268 | 51 | 115 | 22.20 | 1 | 52 | +255/-18 | |
-| #801 | #800 | 3 | opus:high | MERGE | | 2719 | 21 | 42 | 1.67 | 1 | 3 | +106/-0 | |
-| #802 | #797 | 3 | opus:high | MERGE | | 1943 | 13 | 29 | 1.22 | 1 | 2 | +13/-8 | |
-| #798 | ADR 041 | 1 | opus:high | FIX FIRST | judgment | 23412 | 121 | 283 | 9.88 | 3 | 23 | +770/-108 | |
-| #805 | #759 | 4 | opus:high | MERGE | | 28452 | 95 | 95 | 10.37 | 1 | 15 | +16/-0 | |
-| #806 | #764 | 4 | opus:high | FIX FIRST | spec | 32158 | 131 | 157 | 13.53 | 2 | 20 | +1496/-60 | |
-| #807 | #768 | 2 | opus:high | MERGE | | 11311 | 60 | 80 | | 1 | | | |
-| #808 | #755 | 3 | opus:high | FIX FIRST | judgment | 19269 | 66 | 150 | | 2 | | | |
-| #809 | #765 | 3 | opus:high | FIX FIRST | checklist | 24806 | 93 | 126 | | 2 | | | |
-| #810 | #769 | 4 | opus:high | FIX FIRST | judgment | 14485 | 53 | 184 | 37.13 | 3 | 67 | +705/-89 | |
-| #811 | #803 | 3 | opus:high | MERGE | | 1053 | 7 | 37 | 0.78 | 1 | 1 | +27/-11 | |
-| #812 | #741 | 2 | opus:high | FIX FIRST | judgment | 16326 | 78 | 186 | 6.82 | 2 | 12 | +1392/-25 | |
-| #813 | #758 | lore | opus:high | FIX FIRST | judgment | 36971 | 159 | 167 | 14.77 | 3 | 27 | +8306/-35 | |
-| #814 | #772 | 3 | opus:high | MERGE | | 14735 | 58 | 87 | 5.95 | 1 | 9 | +1811/-25 | |
-| #816 | #756 | 3 | opus:high | MERGE | | 16875 | 58 | 87 | 6.43 | 1 | 9 | +554/-238 | |
-| #817 | #762 | 2 | opus:high | FIX FIRST | checklist | 44787 | 118 | 171 | 15.83 | 3 | 19 | +1943/-91 | |
 | #818 | #740 | 2 | opus:high | FIX FIRST | checklist | 17159 | 99 | 165 | 7.39 | 2 | 16 | +893/-301 | |
 | #821 | #770 | 3 | opus:high | FIX FIRST | checklist | 29918 | 89 | 198 | 11.89 | 2 | 15 | +1023/-29 | |
 | #824 | #823 | 3 | opus:high | FIX FIRST | spec | 1402 | 24 | 70 | 1.48 | 2 | 3 | +93/-7 | |
 | #822 | #773 | 2 | opus:high | FIX FIRST | judgment | 33292 | 97 | 260 | 13.18 | 2 | 19 | +1153/-79 | |
+| #826 | #744 | 4 | opus:high | MERGE | | 12563 | 98 | 183 | 6.75 | 1 | 13 | +4757/-109 | |
+| #828 | #763 | 2 | opus:high | FIX FIRST | checklist | 20891 | 210 | 521 | 13.45 | 3 | 30 | +4761/-386 | |
+| #833 | #771 | 2 | opus:high | MERGE | | 22563 | 170 | 330 | 13.09 | 1 | 26 | +3322/-39 | |
+| #835 | #775 | 2 | opus:high | FIX FIRST | checklist | 16155 | 149 | 391 | 10.34 | 2 | 21 | +3370/-63 | |
+| #832 | ADR 042 | 1 | opus:high | FIX FIRST | judgment | 22491 | 231 | 530 | 16.27 | 5 | 40 | +561/-6 | |
+| #851 | #836 | 4 | opus:high | FIX FIRST | checklist | 16750 | 112 | 269 | 9.94 | 2 | 17 | +1522/-66 | |
+| #853 | #837 | 3 | opus:high | FIX FIRST | spec | 20403 | 122 | 393 | 11.22 | 2 | 18 | +1611/-94 | |
+| #857 | #839 | 1 | sonnet:low | MERGE | | 691 | 3 | 81 | 0.28 | 1 | 0 | +2/-2 | |
+| #858 | #838 | 2 | opus:high | MERGE | | 3777 | 23 | 100 | 2.36 | 1 | 3 | +110/-11 | |
+| #860 | ADR 043 | 1 | opus:high | FIX FIRST | spec | 24007 | 230 | 426 | 16.61 | 4 | 45 | +671/-27 | |
+| #859 | #844 | 2 | opus:high | FIX FIRST | spec | 28206 | 171 | 388 | 13.92 | 3 | 27 | +1182/-69 | |
+| #875 | #861 | 3 | opus:high | MERGE | | 17150 | 107 | 332 | 9.55 | 2 | 18 | +489/-549 | |
+| #877 | #862 | 3 | opus:high | FIX FIRST | judgment | 27932 | 148 | 300 | 13.24 | 2 | 23 | +809/-276 | |
+| #880 | #863 | 3 | opus:high | FIX FIRST | checklist | 19127 | 129 | 244 | 10.45 | 2 | 20 | +3143/-7716 | |
+| #884 | #864 | 3 | opus:high | FIX FIRST | spec | 17107 | 109 | 259 | 12.63 | 2 | 17 | +401/-374 | |
+| #885 | #840 | 2 | opus:high | FIX FIRST | checklist | 29704 | 179 | 359 | 18.63 | 2 | 28 | +2317/-92 | |
