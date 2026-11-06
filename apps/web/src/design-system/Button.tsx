@@ -32,7 +32,7 @@ const shapeClass: Readonly<Record<ButtonTone, string>> = {
 const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>, string>> = {
   blocked: 'cursor-not-allowed border-dashed border-line-strong bg-surface-sunken text-ink-muted',
   waiting:
-    'inline-flex cursor-progress items-center gap-2 border-line-strong bg-surface-sunken text-ink-muted',
+    'inline-flex cursor-progress items-center justify-center gap-2 border-line-strong bg-surface-sunken text-ink-muted',
 }
 
 const baseClass =

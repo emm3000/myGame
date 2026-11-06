@@ -21,17 +21,6 @@ function quarryShortOfStone(): BuildingCardProps {
   }
 }
 
-it.each<[string, Partial<BuildingCardProps>]>([
-  ['affordable', { state: { kind: 'affordable' } }],
-  ['blocked', { state: { kind: 'blocked', reason: 'You lack 985 stone.' } }],
-  ['at its top level', { state: { kind: 'atMaxLevel', label: 'Max level' } }],
-  ['waiting', { state: { kind: 'affordable' }, isWaiting: true }],
-])('draws a quiet card %s with a quiet button', (_state, props) => {
-  render(<BuildingCard {...quarryShortOfStone()} {...props} actionTone="quiet" />)
-
-  expect(screen.getByRole('button').getAttribute('data-tone')).toBe('quiet')
-})
-
 it('marks a building card as too expensive when the cost exceeds the amounts', () => {
   render(<BuildingCard {...quarryShortOfStone()} />)
 

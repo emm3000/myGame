@@ -1,6 +1,7 @@
 import { townSkylineBuilt } from '@mygame/catalog'
 import type { BuildingKind, TownOverview } from '@mygame/contracts/town'
 import { createElement, type ReactElement } from 'react'
+import { placeHeight, placeWidth } from '../art/placeShapesOf'
 import { color } from '../design/tokens'
 import { placeArtOf } from '../design-system/placeArtOf'
 
@@ -14,8 +15,6 @@ const placesAlongTheLine: ReadonlyArray<BuildingKind> = [
   'storage',
 ]
 
-const placeWidth = 100
-const placeHeight = 142
 const groundY = 140
 const groundHeight = 2
 const placeStep = 72
