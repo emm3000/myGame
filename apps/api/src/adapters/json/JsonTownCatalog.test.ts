@@ -80,6 +80,15 @@ describe('JsonTownCatalog', () => {
     ])
   })
 
+  it('costs the homes the money of the level below in food, from level 2', () => {
+    const catalog = shippedCatalog()
+    const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    expect(levels.map((level) => catalog.levelOf('homes', level)?.cost.food)).toEqual([
+      0, 60, 90, 135, 202, 304, 456, 683, 1025, 1538,
+    ])
+  })
+
   it('reads the hires of an office level and the terms of a school level', () => {
     const catalog = shippedCatalog()
 

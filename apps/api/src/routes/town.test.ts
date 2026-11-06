@@ -301,7 +301,7 @@ describe('the town route', () => {
           level: 1,
           nextLevel: {
             level: 2,
-            cost: { money: 90, food: 0, power: 0, material: 120 },
+            cost: { money: 90, food: 60, power: 0, material: 120 },
             durationSeconds: 192,
             people: 0,
           },
@@ -557,6 +557,96 @@ describe('the town route', () => {
     })
   })
 
+  describe('the food of the homes', () => {
+    const setMoneyAndMaterialAside = (): Promise<void> =>
+      runSql('UPDATE towns SET money = 100000, material = 100000')
+
+    const raiseHomesThreeTimes = async (cookie: string): Promise<TownOverview> => {
+      await startWork(cookie, 'homes')
+      await startWork(cookie, 'homes')
+      return overviewOf(await startWork(cookie, 'homes'))
+    }
+
+    it('lets a new town pay homes level 2 at once', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const response = await startWork(ana, 'homes')
+
+      expect(response.status).toBe(200)
+      expect(amountsOf(await overviewOf(response))).toEqual({
+        money: 310,
+        food: 240,
+        power: 200,
+        material: 380,
+      })
+    })
+
+    it('pays homes levels 2 to 4 from the starting food and leaves 15', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await setMoneyAndMaterialAside()
+
+      const overview = await raiseHomesThreeTimes(ana)
+
+      expect([overview.work.waitingList.at(-1)?.level, overview.stocks.food.amount]).toEqual([
+        4, 15,
+      ])
+    })
+
+    it('refuses homes level 5 with no farm, 187 food short', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await setMoneyAndMaterialAside()
+      await raiseHomesThreeTimes(ana)
+
+      const response = await startWork(ana, 'homes')
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'NotEnoughResources',
+        params: { missing: { money: 0, food: 187, power: 0, material: 0 } },
+      })
+    })
+
+    it('keeps the stored cost of work charged before the food column and refunds it at a stop', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await startWork(ana, 'homes')
+      await startWork(ana, 'homes')
+      await runSql('UPDATE towns SET food = 300, work_cost_food = 0')
+      await runSql('UPDATE town_waiting_work SET cost_food = 0')
+
+      const { work } = await overviewOf(await readTown(ana))
+      await stopWork(ana, 'homes', 3)
+      const overview = await overviewOf(await stopWork(ana, 'homes', 2))
+
+      expect([work.slot?.cost.food, work.waitingList[0]?.cost.food, amountsOf(overview)]).toEqual([
+        0,
+        0,
+        { money: 400, food: 300, power: 200, material: 500 },
+      ])
+    })
+
+    it('reaches homes level 5 through a farm from a river town left with 15 food', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await runSql('UPDATE towns SET area = 2')
+      await startWork(ana, 'factory')
+      await startWork(ana, 'homes')
+      await startWork(ana, 'homes')
+      clock.advanceMinutes(300)
+      const afterHomesFour = await overviewOf(await startWork(ana, 'homes'))
+      clock.advanceMinutes(180)
+      const farm = await startWork(ana, 'farm')
+      clock.advanceMinutes(24 * 60)
+
+      const homesFive = await overviewOf(await startWork(ana, 'homes'))
+
+      expect([
+        afterHomesFour.terrain,
+        afterHomesFour.stocks.food.amount,
+        farm.status,
+        homesFive.work.slot?.level,
+      ]).toEqual(['river', 15, 200, 5])
+    })
+  })
+
   describe('the next step', () => {
     const startLesson = (cookie: string, lessonId: string): Promise<Response> =>
       Promise.resolve(app.request('/town/lessons', jsonRequest('POST', cookie, { lessonId })))
@@ -695,7 +785,7 @@ describe('the town route', () => {
           params: {
             building: 'homes',
             level: 2,
-            refund: { money: 90, food: 0, power: 0, material: 120 },
+            refund: { money: 90, food: 60, power: 0, material: 120 },
           },
           occurredAt: '2026-11-05T08:04:00.000Z',
         },
