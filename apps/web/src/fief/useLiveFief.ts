@@ -1,6 +1,7 @@
 import type { FiefOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
+import { longestTimeoutMs } from '../time/longestTimeoutMs'
 import {
   battleRemainingSecondsAt,
   incomingCargoRemainingSecondsAt,
@@ -32,7 +33,6 @@ interface LastRead {
 
 const rereadIntervalMs = 60_000
 const focusFloorMs = 1000
-const longestTimeoutMs = 2_147_483_647
 
 const elapsedSecondsSince = (receivedAtMs: number, nowMs: number): number =>
   Math.max(0, (nowMs - receivedAtMs) / 1000)

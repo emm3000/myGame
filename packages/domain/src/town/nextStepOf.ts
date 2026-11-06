@@ -6,7 +6,7 @@ import type { Lesson, LessonId } from '../learning/Lesson'
 import { readFirstOf } from '../learning/readFirstOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import type { MemoryTerms } from '../memory/MemoryTerms'
-import { err, ok, type Result } from '../Result'
+import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { admitSchoolLesson } from './admitSchoolLesson'
 import type { BusyLessonSlot, LessonSlot } from './LessonSlot'
@@ -42,14 +42,14 @@ const lessonRunningStep = (
   { lessonId }: BusyLessonSlot,
   town: Town,
   lessons: ReadonlyArray<Lesson>,
-): Result<NextStep, DomainError> => {
+): NextStep => {
   const lesson = lessons.find(({ id }) => id === lessonId)
   if (lesson === undefined) {
-    return err({ kind: 'LessonNotFound', lessonId })
+    return { kind: 'lessonRunning', producer: null }
   }
   const producer = producerOf(lesson.skill.resource)
   const isStanding = producer === null || town.projectedLevels[producer] > 0
-  return ok({ kind: 'lessonRunning', producer: isStanding ? null : producer })
+  return { kind: 'lessonRunning', producer: isStanding ? null : producer }
 }
 
 const lessonStep = (
@@ -91,7 +91,7 @@ export const nextStepOf = (
     })
   }
   if (lessonSlot.kind === 'busy') {
-    return lessonRunningStep(lessonSlot, town, terms.lessons)
+    return ok(lessonRunningStep(lessonSlot, town, terms.lessons))
   }
   return lessonStep(reading, terms)
 }

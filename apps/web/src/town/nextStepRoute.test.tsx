@@ -247,14 +247,49 @@ it('re-reads at nextDueAt', async () => {
   expect([readsBefore, town.mock.calls.length]).toEqual([1, 2])
 })
 
-it('holds one strong button on the town home', async () => {
-  await showTown(townAt({ kind: 'lessonToStudy', lessonId: 'lesson-1' }))
+const workUnderWay: TownOverview['work'] = {
+  slot: {
+    building: 'farm',
+    level: 1,
+    cost: { money: 60, food: 40, power: 0, material: 80 },
+    startsAt: secondsAfterRead(-60),
+    finishesAt: secondsAfterRead(240),
+  },
+  waitingList: [],
+  cap: 2,
+}
+
+it.each<[string, NextStep, Partial<TownOverview>, () => string]>([
+  ['the reviews', reviewsStep(3, []), {}, reportStartReviews],
+  ['an unread lesson', reviewsStep(3, ['lesson-1']), {}, schoolLessonReadWords],
+  [
+    'the reviews beside a running lesson',
+    reviewsStep(3, []),
+    { lessonSlot: runningLessonTwo },
+    reportStartReviews,
+  ],
+  [
+    'a running lesson',
+    { kind: 'lessonRunning', producer: 'farm' },
+    { lessonSlot: runningLessonTwo },
+    schoolLessonReadWords,
+  ],
+  [
+    'a lesson to study',
+    { kind: 'lessonToStudy', lessonId: 'lesson-1' },
+    {},
+    () => schoolLessonStudy({ number: 1 }),
+  ],
+  ['caught up', { kind: 'caughtUp' }, {}, townNextGoToReport],
+  ['building work under way', { kind: 'caughtUp' }, { work: workUnderWay }, townNextGoToReport],
+])('holds one strong button on the town home at %s', async (_state, step, overrides, label) => {
+  await showTown(townAt(step, overrides))
 
   const strong = [...screen.getAllByRole('button'), ...screen.getAllByRole('link')].filter(
     (control) => control.getAttribute('data-tone') === 'primary',
   )
 
-  expect(strong).toEqual([linkInCard(schoolLessonStudy({ number: 1 }))])
+  expect(strong).toEqual([linkInCard(label())])
 })
 
 it('draws the school first', async () => {

@@ -200,15 +200,23 @@ describe('nextStepOf', () => {
     })
   })
 
-  it('refuses a running lesson the curriculum lacks', () => {
-    const step = stepOf(readingOf({ lessonSlot: runningLessonOne }), [lessonNumbered(2)])
+  it('names no producer for a running lesson the curriculum lacks', () => {
+    const reading = readingOf({ lessonSlot: runningLessonOne })
 
-    expect(step).toEqual({ ok: false, error: { kind: 'LessonNotFound', lessonId: 'lesson-1' } })
+    expect(answered(reading, [lessonNumbered(2)])).toEqual({
+      kind: 'lessonRunning',
+      producer: null,
+    })
   })
 
   it('answers the first unstudied lesson the school and the cap admit', () => {
     const studied = lessonNumbered(1)
-    const lessons = [studied, lessonNumbered(2, { requiredSchoolLevel: 2 }), lessonNumbered(3)]
+    const lessons = [
+      studied,
+      lessonNumbered(2, { requiredSchoolLevel: 2 }),
+      lessonNumbered(3),
+      lessonNumbered(4),
+    ]
     const reading = readingOf({ cards: waitingCardsOf(studied) })
 
     expect(answered(reading, lessons)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-3' })
@@ -225,6 +233,15 @@ describe('nextStepOf', () => {
 
   it('answers caughtUp when the cap is full', () => {
     const reading = readingOf({ cards: curriculum.slice(0, 3).flatMap(waitingCardsOf) })
+
+    expect(answered(reading)).toEqual({ kind: 'caughtUp' })
+  })
+
+  it('answers caughtUp at a full cap while a school raise is under way', () => {
+    const reading = readingOf({
+      cards: curriculum.slice(0, 3).flatMap(waitingCardsOf),
+      town: { workSlot: { ...farmUnderWork, building: 'school', level: 2 } },
+    })
 
     expect(answered(reading)).toEqual({ kind: 'caughtUp' })
   })
