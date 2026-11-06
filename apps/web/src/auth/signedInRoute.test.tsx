@@ -13,7 +13,7 @@ it('sends a signed-out visitor to the sign-in screen', async () => {
 it('returns a player who signs out to the sign-in screen', async () => {
   let isSignedIn = true
   renderAppAt(
-    '/',
+    '/report',
     stubApiClient({
       currentPlayer: async () => (isSignedIn ? knownPlayer : undefined),
       signOut: async () => {

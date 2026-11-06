@@ -24,7 +24,7 @@ function FinishNotice({
   return (
     <section
       aria-label={line}
-      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-ink bg-surface-sunken px-4 py-3 md:px-8"
+      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-ink bg-surface-sunken px-5 py-3 md:px-8"
     >
       <p className="m-0 font-sans text-label text-ink">{line}</p>
       <div className="flex flex-wrap items-center gap-2">
@@ -57,7 +57,7 @@ export function TownStatus({ town, finish, onFocusAfterClose }: TownStatusProps)
     <>
       <LiveRegion line={line ?? ''} sequence={finish.sequence} />
       {countdown !== undefined && (
-        <div className="bg-surface-sunken px-4 py-1 md:px-8">
+        <div className="bg-surface-sunken px-5 py-1 md:px-8">
           <CountdownLine {...countdown} />
         </div>
       )}

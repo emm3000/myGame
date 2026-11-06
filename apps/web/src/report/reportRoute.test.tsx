@@ -12,8 +12,8 @@ import {
   reviewNextReview,
   reviewTitle,
   schoolLessonReadWords,
-  shellNavigationReport,
   shellNavigationTown,
+  shellSignOut,
   townTryAgain,
 } from '@mygame/catalog'
 import type { DueReview } from '@mygame/contracts'
@@ -345,14 +345,28 @@ it('keeps the news with the refusal when the close is refused', async () => {
   expect(document.activeElement).toBe(closeButton())
 })
 
-it('marks the Report as the current screen in the navigation', async () => {
+const signOutButton = (): HTMLElement =>
+  within(screen.getByRole('main')).getByRole('button', { name: shellSignOut() })
+
+it('keeps sign-out at the foot of the Report and off the header', async () => {
+  await showReport(newsSinceClose)
+
+  expect(newsRegion().compareDocumentPosition(signOutButton())).toBe(
+    Node.DOCUMENT_POSITION_FOLLOWING,
+  )
+  expect(within(screen.getByRole('banner')).queryByRole('button')).toBeNull()
+})
+
+it('draws sign-out as a text button', async () => {
   await showReport(reportOf({}))
 
-  const report = screen.getByRole('link', { name: shellNavigationReport() })
-  const town = screen.getByRole('link', { name: shellNavigationTown() })
+  expect(signOutButton().dataset.tone).toBe('text')
+})
 
-  expect(report.getAttribute('aria-current')).toBe('page')
-  expect(town.getAttribute('aria-current')).toBeNull()
+it('keeps sign-out on a refused read', async () => {
+  await showReport(async () => ({ ok: false, refusal: 'Unexpected', error: undefined }))
+
+  expect(signOutButton()).toBeDefined()
 })
 
 const heldClose = (): {

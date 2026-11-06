@@ -1,8 +1,9 @@
-import { reportLoading } from '@mygame/catalog'
+import { reportLoading, shellSignOut } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts/town'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
+import { Button } from '../../design-system/Button'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
 import { ReportScreen } from '../../report/ReportScreen'
@@ -42,8 +43,7 @@ function ReportPage({
   )
 }
 
-function ReportRoute(): ReactElement {
-  const { apiClient } = Route.useRouteContext()
+function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElement {
   const { state, reread } = useReport(apiClient)
   useReportAtLessonFinish(useLayoutTown().state, reread)
   switch (state.kind) {
@@ -60,6 +60,25 @@ function ReportRoute(): ReactElement {
       return unreachable
     }
   }
+}
+
+function ReportRoute(): ReactElement {
+  const { apiClient } = Route.useRouteContext()
+  const navigate = useNavigate()
+  const signOut = async (): Promise<void> => {
+    await apiClient.signOut()
+    await navigate({ to: '/sign-in' })
+  }
+  return (
+    <div className="flex flex-col gap-6">
+      <ReportBody apiClient={apiClient} />
+      <div className="-ml-3 flex">
+        <Button type="button" tone="text" onClick={signOut}>
+          {shellSignOut()}
+        </Button>
+      </div>
+    </div>
+  )
 }
 
 export const Route = createFileRoute('/_signedIn/report')({

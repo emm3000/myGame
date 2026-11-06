@@ -13,7 +13,6 @@ import {
   namesBusySlot,
   namesSlot,
   shellFiefSwitcherLabel,
-  shellNavigationMap,
   studySection,
 } from '@mygame/catalog'
 import type { FiefList, FiefOverview, HintKind } from '@mygame/contracts'
@@ -289,7 +288,7 @@ it('keeps a dismissed hint hidden on later screens while the session still answe
   await dismissHint()
   expect(currentPlayer).toHaveBeenCalledTimes(sessionReads)
 
-  fireEvent.click(screen.getByRole('link', { name: shellNavigationMap() }))
+  await act(() => router.navigate({ href: `${knownFiefPath}/mapa` }))
   await passSeconds(0)
   await act(() => router.navigate({ to: '/feudo/$fiefId', params: { fiefId: knownFief.id } }))
   await passSeconds(0)

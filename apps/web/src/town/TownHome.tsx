@@ -1,7 +1,5 @@
 import {
   townGoToSchool,
-  townLabelCity,
-  townLabelTown,
   townLevel,
   townPlacesTitleCity,
   townPlacesTitleTown,
@@ -31,10 +29,12 @@ import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
+import { dueCountOf } from './dueCountOf'
 import type { LiveTown } from './liveTown'
 import { NextStepCard } from './NextStepCard'
 import { placeCardOf } from './placeCardOf'
 import { placeNameOf } from './placeNameOf'
+import { TownDoors } from './TownDoors'
 import { TownStocks } from './TownStocks'
 import type { TownWork } from './useTownWork'
 
@@ -152,13 +152,8 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
   const stopRefused = work.stopRefused
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="m-0 font-sans text-display text-ink">{overview.name}</h2>
-        <span className="rounded-pill border border-line-strong bg-surface-raised px-2 font-sans text-label text-ink">
-          {overview.label === 'city' ? townLabelCity() : townLabelTown()}
-        </span>
-      </header>
       <NextStepCard town={town} />
+      <TownDoors dueCount={dueCountOf(town)} />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-4">
           <TownStocks overview={overview} stocks={town.stocks} />

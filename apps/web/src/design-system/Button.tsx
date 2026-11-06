@@ -1,6 +1,6 @@
 import type { MouseEvent, ReactElement, ReactNode } from 'react'
 
-export type ButtonTone = 'primary' | 'quiet'
+export type ButtonTone = 'primary' | 'quiet' | 'text'
 
 export type ButtonAvailability = 'available' | 'blocked' | 'waiting'
 
@@ -20,6 +20,7 @@ export interface ButtonProps {
 const toneClass: Readonly<Record<ButtonTone, string>> = {
   primary: 'border-action bg-action text-on-action',
   quiet: 'border-line-strong bg-surface-raised text-ink',
+  text: 'border-transparent bg-transparent text-ink underline underline-offset-2',
 }
 
 const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>, string>> = {

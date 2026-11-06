@@ -68,7 +68,7 @@ it('offers to read the town again after a failed read', async () => {
   fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 2, name: knownTown.name })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: new RegExp(knownTown.name) })).toBeDefined()
 })
 
 it('shows each stock with its rate and its storage', async () => {
@@ -135,9 +135,9 @@ it('draws each place with one window per level, a place not built with none', as
 it('labels the town a city once the server does', async () => {
   await showTown(serving({ ...knownTown, label: 'city' }))
 
-  const main = within(screen.getByRole('main'))
-  expect(main.getByText(townLabelCity())).toBeDefined()
-  expect(main.queryByText(townLabelTown())).toBeNull()
+  const heading = screen.getByRole('heading', { level: 1 })
+  expect(heading.textContent).toContain(townLabelCity())
+  expect(heading.textContent).not.toContain(townLabelTown())
 })
 
 it('titles the places of a city as the city', async () => {

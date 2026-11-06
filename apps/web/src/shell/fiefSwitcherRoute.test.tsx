@@ -1,7 +1,7 @@
 import {
   chronicleTitle,
   shellFiefSwitcherLabel,
-  shellNavigationChronicle,
+  shellNavigationTown,
   statusIdleBuild,
 } from '@mygame/catalog'
 import type { FiefList } from '@mygame/contracts'
@@ -150,7 +150,7 @@ it('reads one fief as the design draws it', async () => {
   expect(within(await switcher()).getByText(shellFiefSwitcherLabel())).toBeDefined()
 })
 
-it('keeps the navigation when the list fails', async () => {
+it('keeps the way back to the town when the list fails', async () => {
   const refusedList: ReturnType<ApiClient['fiefs']> = Promise.resolve({
     ok: false,
     refusal: 'Unexpected',
@@ -168,19 +168,14 @@ it('keeps the navigation when the list fails', async () => {
   await act(async () => {
     await refusedList
   })
-  const screens = await screen.findByRole('navigation')
 
-  expect(
-    within(screens)
-      .getAllByRole('link')
-      .map((link) => link.textContent),
-  ).toEqual(['Pueblo', 'Informe', 'Mapa', 'Crónica'])
+  expect(await screen.findByRole('link', { name: shellNavigationTown() })).toBeDefined()
   expect(screen.queryByRole('navigation', { name: shellFiefSwitcherLabel() })).toBeNull()
 })
 
 it('reads the list again on each navigation', async () => {
   const reads: Array<string> = []
-  renderAppAt(
+  const router = renderAppAt(
     knownFiefPath,
     signedInClient(async () => {
       reads.push('fiefs')
@@ -190,12 +185,7 @@ it('reads the list again on each navigation', async () => {
   await switcher()
   expect(reads).toHaveLength(1)
 
-  fireEvent.click(
-    within(await screen.findByRole('navigation', { name: (name) => name === '' })).getByRole(
-      'link',
-      { name: shellNavigationChronicle() },
-    ),
-  )
+  await act(() => router.navigate({ href: `${knownFiefPath}/cronica` }))
 
   await waitFor(() => expect(reads).toHaveLength(2))
 })

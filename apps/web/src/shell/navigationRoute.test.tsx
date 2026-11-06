@@ -1,13 +1,19 @@
 import {
-  chronicleTitle,
-  shellNavigationChronicle,
-  shellNavigationFief,
-  shellNavigationMap,
+  reportReviewsDue,
+  reportTitle,
+  shellFiefSwitcherLabel,
   shellNavigationReport,
   shellNavigationTown,
+  shellSignOut,
+  shellTitle,
+  townGoToSchool,
+  townLabelCity,
+  townLabelTown,
 } from '@mygame/catalog'
-import { fireEvent, screen, within } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import type { TownOverview } from '@mygame/contracts/town'
+import { act, fireEvent, screen, within } from '@testing-library/react'
+import { assert, expect, it } from 'vitest'
+import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import {
   knownFief,
@@ -16,52 +22,174 @@ import {
   knownTown,
   stubApiClient,
 } from '../auth/stubApiClient.testSupport'
+import { placeNameOf } from '../town/placeNameOf'
 
 const signedInClient = stubApiClient({ currentPlayer: async () => knownPlayer })
 
-const screensNavigation = async (): Promise<HTMLElement> =>
-  screen.findByRole('navigation', { name: (accessibleName) => accessibleName === '' })
+const servingTown = (town: TownOverview): ApiClient =>
+  stubApiClient({
+    currentPlayer: async () => knownPlayer,
+    town: async () => ({ ok: true, value: town }),
+  })
 
-const navigationLink = async (name: string): Promise<HTMLElement> =>
-  within(await screensNavigation()).getByRole('link', { name })
-
-it('marks the town as the current screen at the root', async () => {
-  renderAppAt('/', signedInClient)
-
-  const town = await navigationLink(shellNavigationTown())
-
-  expect(town.getAttribute('aria-current')).toBe('page')
+const noTownClient = stubApiClient({
+  currentPlayer: async () => knownPlayer,
+  town: async () => ({ ok: false, refusal: 'TownNotFound', error: undefined }),
 })
 
-it('reads Town and Report in that order at the root', async () => {
-  renderAppAt('/', signedInClient)
-
-  const links = within(await screensNavigation()).getAllByRole('link')
-
-  expect(links.map((link) => link.textContent)).toEqual([
-    shellNavigationTown(),
-    shellNavigationReport(),
-  ])
+const townDue = (count: number): TownOverview => ({
+  ...knownTown,
+  nextStep: { kind: 'reviews', count, readFirst: [] },
 })
 
-it('links the Report to /report', async () => {
-  renderAppAt('/', signedInClient)
+const townHeading = (): Promise<HTMLElement> =>
+  screen.findByRole('heading', { level: 1, name: new RegExp(knownTown.name) })
 
-  expect((await navigationLink(shellNavigationReport())).getAttribute('href')).toBe('/report')
+const schoolDoor = async (): Promise<HTMLElement> =>
+  within(await screen.findByRole('main')).findByRole('link', { name: placeNameOf('school') })
+
+const reportDoor = async (name: string): Promise<HTMLElement> =>
+  within(await screen.findByRole('main')).findByRole('link', { name })
+
+const shellHeader = async (): Promise<HTMLElement> => {
+  const [header] = await screen.findAllByRole('banner')
+  assert(header !== undefined)
+  return header
+}
+
+const backLink = async (): Promise<HTMLElement> =>
+  within(await shellHeader()).findByRole('link', { name: shellNavigationTown() })
+
+it('draws no navigation bar', async () => {
+  renderAppAt('/', signedInClient)
+  await townHeading()
+
+  expect(screen.queryByRole('navigation')).toBeNull()
 })
 
-it('drops Feudo from the navigation', async () => {
+it('draws no navigation bar over a medieval screen', async () => {
   renderAppAt(knownFiefPath, signedInClient)
 
-  const links = within(await screensNavigation()).getAllByRole('link')
+  await screen.findByRole('navigation', { name: shellFiefSwitcherLabel() })
 
-  expect(links.map((link) => link.textContent)).toEqual([
-    shellNavigationTown(),
-    shellNavigationReport(),
-    shellNavigationMap(),
-    shellNavigationChronicle(),
-  ])
-  expect(links.map((link) => link.textContent)).not.toContain(shellNavigationFief())
+  expect(screen.getAllByRole('navigation')).toHaveLength(1)
+})
+
+it('opens the school and the Report from the two doors', async () => {
+  const router = renderAppAt('/', signedInClient)
+
+  fireEvent.click(await schoolDoor())
+  expect(
+    await screen.findByRole('heading', { level: 2, name: placeNameOf('school') }),
+  ).toBeDefined()
+
+  await act(() => router.navigate({ to: '/' }))
+  fireEvent.click(await reportDoor(shellNavigationReport()))
+  expect(await screen.findByRole('heading', { level: 2, name: reportTitle() })).toBeDefined()
+})
+
+it('shows the due count on the Report door', async () => {
+  renderAppAt('/', servingTown(townDue(5)))
+
+  const door = await reportDoor(`${shellNavigationReport()} ${reportReviewsDue({ count: '5' })}`)
+
+  expect(door.getAttribute('href')).toBe('/report')
+})
+
+it('shows a due count of 1 on the Report door', async () => {
+  renderAppAt('/', servingTown(townDue(1)))
+
+  expect(
+    await reportDoor(`${shellNavigationReport()} ${reportReviewsDue({ count: '1' })}`),
+  ).toBeDefined()
+})
+
+it('shows no count with nothing due', async () => {
+  renderAppAt('/', servingTown(knownTown))
+
+  expect((await reportDoor(shellNavigationReport())).textContent).toBe(shellNavigationReport())
+})
+
+it('shows no door to a player with no town', async () => {
+  renderAppAt('/', noTownClient)
+
+  await screen.findByRole('textbox')
+
+  expect(screen.queryByRole('link', { name: placeNameOf('school') })).toBeNull()
+  expect(screen.queryByRole('link', { name: shellNavigationReport() })).toBeNull()
+})
+
+it('holds the name and the label of the town in the header of the town home', async () => {
+  renderAppAt('/', signedInClient)
+
+  const heading = await townHeading()
+
+  expect((await shellHeader()).contains(heading)).toBe(true)
+  expect(heading.textContent).toBe(`${knownTown.name} · ${townLabelTown()}`)
+})
+
+it('names a city as a city in the header', async () => {
+  renderAppAt('/', servingTown({ ...knownTown, label: 'city' }))
+
+  expect((await townHeading()).textContent).toBe(`${knownTown.name} · ${townLabelCity()}`)
+})
+
+it('writes the name of the town once on the town home', async () => {
+  renderAppAt('/', signedInClient)
+  await townHeading()
+
+  expect(within(screen.getByRole('main')).queryByText(knownTown.name)).toBeNull()
+})
+
+it('links back to the town from every screen but the town home', async () => {
+  const router = renderAppAt('/report', signedInClient)
+
+  const screens = [
+    '/report',
+    '/reviews',
+    '/school',
+    '/school/lesson-1',
+    knownFiefPath,
+    `${knownFiefPath}/mapa`,
+    `${knownFiefPath}/mapa/3`,
+    `${knownFiefPath}/cronica`,
+  ]
+  for (const path of screens) {
+    await act(() => router.navigate({ href: path }))
+    expect((await backLink()).getAttribute('href'), path).toBe('/')
+  }
+
+  await act(() => router.navigate({ href: '/' }))
+  await townHeading()
+  expect(within(await shellHeader()).queryByRole('link')).toBeNull()
+})
+
+it('opens the town from the back link of a medieval screen', async () => {
+  renderAppAt(knownFiefPath, signedInClient)
+
+  fireEvent.click(await backLink())
+
+  expect(await townHeading()).toBeDefined()
+})
+
+it('holds the town in the back link for a player with no town', async () => {
+  renderAppAt('/report', noTownClient)
+
+  expect((await backLink()).getAttribute('href')).toBe('/')
+})
+
+it('gives the back link, a text link and a text button control height', async () => {
+  const router = renderAppAt('/report', signedInClient)
+  const back = await backLink()
+  const signOut = await screen.findByRole('button', { name: shellSignOut() })
+
+  await act(() => router.navigate({ to: '/' }))
+  const textLink = await screen.findByRole('link', { name: townGoToSchool() })
+
+  const heights = [back, signOut, textLink].map((control) =>
+    control.className.split(' ').includes('min-h-control'),
+  )
+  expect(heights).toEqual([true, true, true])
 })
 
 it('keeps /feudo/$fiefId reachable', async () => {
@@ -70,54 +198,20 @@ it('keeps /feudo/$fiefId reachable', async () => {
   expect(await screen.findByRole('heading', { level: 2, name: knownFief.name })).toBeDefined()
 })
 
-it('opens the town from a fief screen', async () => {
-  renderAppAt(knownFiefPath, signedInClient)
+it('keeps room on the page for the sticky foot under a focused control', async () => {
+  renderAppAt('/', signedInClient)
+  await townHeading()
 
-  fireEvent.click(await navigationLink(shellNavigationTown()))
-
-  expect(await screen.findByRole('heading', { level: 2, name: knownTown.name })).toBeDefined()
+  expect(document.querySelector('html')?.className).toContain('scroll-pb-12')
 })
 
-const expectMapMarked = async (): Promise<void> => {
-  const map = await navigationLink(shellNavigationMap())
-  const town = await navigationLink(shellNavigationTown())
+it("keeps Townword off the signed-in header and in the browser's title", async () => {
+  const router = renderAppAt('/', signedInClient)
+  await townHeading()
+  expect(within(await shellHeader()).queryByText(shellTitle())).toBeNull()
 
-  expect(map.getAttribute('aria-current')).toBe('page')
-  expect(town.getAttribute('aria-current')).toBeNull()
-}
+  await act(() => router.navigate({ to: '/report' }))
 
-it('marks the map in the navigation on the province of the fief', async () => {
-  renderAppAt(`${knownFiefPath}/mapa`, signedInClient)
-
-  await expectMapMarked()
-})
-
-it('marks the map in the navigation on a numbered province', async () => {
-  renderAppAt(`${knownFiefPath}/mapa/3`, signedInClient)
-
-  await expectMapMarked()
-})
-
-it('opens the chronicle from the fief screen', async () => {
-  renderAppAt(knownFiefPath, signedInClient)
-
-  fireEvent.click(await navigationLink(shellNavigationChronicle()))
-
-  expect(await screen.findByRole('heading', { level: 2, name: chronicleTitle() })).toBeDefined()
-  expect((await navigationLink(shellNavigationChronicle())).getAttribute('aria-current')).toBe(
-    'page',
-  )
-})
-
-it('keeps the fief id in the navigation', async () => {
-  renderAppAt(`${knownFiefPath}/cronica`, signedInClient)
-
-  const links = within(await screensNavigation()).getAllByRole('link')
-
-  expect(links.map((link) => link.getAttribute('href'))).toEqual([
-    '/',
-    '/report',
-    `${knownFiefPath}/mapa`,
-    `${knownFiefPath}/cronica`,
-  ])
+  expect(within(await shellHeader()).queryByText(shellTitle())).toBeNull()
+  expect(document.title).toBe(shellTitle())
 })

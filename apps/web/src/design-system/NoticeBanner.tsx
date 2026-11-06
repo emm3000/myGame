@@ -1,7 +1,5 @@
 import { type ReactElement, useId } from 'react'
 import { Button } from './Button'
-import { FormAlert } from './FormAlert'
-import { MailIcon } from './icons/MailIcon'
 
 export type NoticeOutcome =
   | { readonly kind: 'sent'; readonly message: string }
@@ -15,15 +13,26 @@ export interface NoticeBannerProps {
   readonly outcome: NoticeOutcome | undefined
 }
 
-function Outcome({ outcome }: { readonly outcome: NoticeOutcome }): ReactElement {
-  if (outcome.kind === 'failed') {
-    return <FormAlert message={outcome.message} />
+const lineClass = 'm-0 min-w-0 py-1 font-sans text-caption'
+
+function NoticeLine({
+  id,
+  line,
+  outcome,
+}: Pick<NoticeBannerProps, 'line' | 'outcome'> & { readonly id: string }): ReactElement {
+  if (outcome === undefined) {
+    return (
+      <p id={id} className={`${lineClass} text-ink-muted`}>
+        {line}
+      </p>
+    )
   }
-  return (
-    <p
-      role="status"
-      className="m-0 rounded-md border border-ink bg-surface-sunken px-3 py-2 font-sans text-caption text-ink"
-    >
+  return outcome.kind === 'failed' ? (
+    <p id={id} role="alert" className={`${lineClass} text-destructive-ink`}>
+      {outcome.message}
+    </p>
+  ) : (
+    <p id={id} role="status" className={`${lineClass} text-ink`}>
       {outcome.message}
     </p>
   )
@@ -35,24 +44,14 @@ export function NoticeBanner(props: NoticeBannerProps): ReactElement {
     <section
       aria-labelledby={lineId}
       aria-busy={props.isBusy}
-      className="flex flex-col gap-3 rounded-md bg-surface-sunken px-4 py-3"
+      className="sticky bottom-0 flex items-center justify-between gap-2 border-line border-t bg-surface px-5 md:px-8"
     >
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        <div className="flex items-start gap-3 md:flex-1 md:items-center">
-          <span className="flex text-ink">
-            <MailIcon />
-          </span>
-          <p id={lineId} className="m-0 min-w-0 flex-1 font-sans text-body text-ink">
-            {props.line}
-          </p>
-        </div>
-        <span className="flex flex-col">
-          <Button type="button" tone="quiet" disabled={props.isBusy} onClick={props.onAction}>
-            {props.actionLabel}
-          </Button>
-        </span>
-      </div>
-      {props.outcome === undefined ? null : <Outcome outcome={props.outcome} />}
+      <NoticeLine id={lineId} line={props.line} outcome={props.outcome} />
+      <span className="-mr-3 flex shrink-0">
+        <Button type="button" tone="text" disabled={props.isBusy} onClick={props.onAction}>
+          {props.actionLabel}
+        </Button>
+      </span>
     </section>
   )
 }

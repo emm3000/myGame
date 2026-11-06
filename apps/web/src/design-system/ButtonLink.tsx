@@ -9,7 +9,7 @@ function ButtonAnchor({ tone, ...props }: ButtonAnchorProps): ReactElement {
     <a
       {...props}
       data-tone={tone}
-      className={`inline-flex items-center no-underline ${buttonClassOf(tone)}`}
+      className={`inline-flex items-center justify-center no-underline ${buttonClassOf(tone)}`}
     />
   )
 }
