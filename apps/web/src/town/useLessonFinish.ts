@@ -5,16 +5,27 @@ import { lessonFinishedBetween } from './lessonFinishedBetween'
 export interface LessonFinish {
   readonly lessonId: string | undefined
   readonly sequence: number
+  readonly noticeReadFirst: ReadonlyArray<string> | undefined
   readonly close: () => void
 }
 
-interface Finished {
+interface Announced {
   readonly lessonId: string | undefined
   readonly sequence: number
 }
 
-export function useLessonFinish(overview: TownOverview | undefined): LessonFinish {
-  const [finished, setFinished] = useState<Finished>({ lessonId: undefined, sequence: 0 })
+const isDoorToReviews = (pathname: string, [firstUnread]: ReadonlyArray<string>): boolean =>
+  pathname === '/reviews' || pathname === `/school/${firstUnread}`
+
+const readFirstOf = (overview: TownOverview | undefined): ReadonlyArray<string> | undefined =>
+  overview?.nextStep.kind === 'reviews' ? overview.nextStep.readFirst : undefined
+
+export function useLessonFinish(
+  overview: TownOverview | undefined,
+  pathname: string,
+): LessonFinish {
+  const [announced, setAnnounced] = useState<Announced>({ lessonId: undefined, sequence: 0 })
+  const [isOpen, setIsOpen] = useState(false)
   const heldOverview = useRef(overview)
 
   useEffect(() => {
@@ -27,13 +38,21 @@ export function useLessonFinish(overview: TownOverview | undefined): LessonFinis
         : lessonFinishedBetween(heldOverview.current, overview)
     heldOverview.current = overview
     if (lessonId !== undefined) {
-      setFinished(({ sequence }) => ({ lessonId, sequence: sequence + 1 }))
+      setAnnounced(({ sequence }) => ({ lessonId, sequence: sequence + 1 }))
+      setIsOpen(true)
     }
   }, [overview])
 
-  const close = useCallback((): void => {
-    setFinished(({ sequence }) => ({ lessonId: undefined, sequence }))
-  }, [])
+  const readFirst = readFirstOf(overview)
+  const isDone = readFirst === undefined || isDoorToReviews(pathname, readFirst)
 
-  return { ...finished, close }
+  useEffect(() => {
+    if (isDone) {
+      setIsOpen(false)
+    }
+  }, [isDone])
+
+  const close = useCallback((): void => setIsOpen(false), [])
+
+  return { ...announced, noticeReadFirst: isOpen && !isDone ? readFirst : undefined, close }
 }

@@ -9,8 +9,9 @@ import {
 } from '@mygame/catalog'
 import type { Player } from '@mygame/contracts'
 import { Link, type LinkProps } from '@tanstack/react-router'
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactElement, ReactNode, RefObject } from 'react'
 import { Button } from '../design-system/Button'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
@@ -23,6 +24,7 @@ export interface AppShellProps {
   readonly fiefs: FiefEntries | undefined
   readonly verification: ResendVerification
   readonly dueCount: number
+  readonly titleRef: RefObject<HTMLHeadingElement | null>
   readonly townStatus: ReactNode
   readonly onSignOut: () => void
   readonly children: ReactNode
@@ -112,6 +114,7 @@ export function AppShell({
   fiefs,
   verification,
   dueCount,
+  titleRef,
   townStatus,
   onSignOut,
   children,
@@ -119,7 +122,13 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-surface text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
-        <h1 className="m-0 font-sans text-title text-action">{shellTitle()}</h1>
+        <h1
+          ref={titleRef}
+          tabIndex={-1}
+          className={`m-0 font-sans text-title text-action ${focusTargetClass}`}
+        >
+          {shellTitle()}
+        </h1>
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
         <div className="flex grow items-center gap-4 md:grow-0">
           <nav className="flex">

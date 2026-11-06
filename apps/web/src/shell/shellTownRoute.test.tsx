@@ -138,13 +138,19 @@ it('reads the town once for the layout and the screen', async () => {
   expect(town).toHaveBeenCalledTimes(1)
 })
 
-it("counts a running lesson down on the server's clock", async () => {
-  vi.setSystemTime(readAt + 3_600_000)
-  renderAppAt('/report', signedInClient(servingTown(lessonTwoRunning)))
-  await passSeconds(0)
+it.each([
+  ['ahead of', 3_600_000],
+  ['behind', -3_600_000],
+])(
+  "counts a running lesson down on the server's clock with the device %s it",
+  async (_, skewMs) => {
+    vi.setSystemTime(readAt + skewMs)
+    renderAppAt('/report', signedInClient(servingTown(lessonTwoRunning)))
+    await passSeconds(0)
 
-  expect(shellTimers()[0]?.textContent).toBe(`${townNextLessonReadyIn({ number: 2 })}4 min`)
-})
+    expect(shellTimers()[0]?.textContent).toBe(`${townNextLessonReadyIn({ number: 2 })}4 min`)
+  },
+)
 
 it('shows the due count on Report', async () => {
   renderAppAt('/report', signedInClient(servingTown(dueTown(5))))
@@ -263,7 +269,16 @@ it('shows a closed notice no more', async () => {
   await passSeconds(120)
 
   expect(queryFinishNotice(2)).toBeNull()
-  expect(shellLiveRegion().textContent).toBe('')
+})
+
+it('moves focus to the shell title when the notice closes', async () => {
+  renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+
+  expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1 }))
 })
 
 it('closes the notice once its link is followed', async () => {
@@ -300,6 +315,29 @@ it("reads the Report again at a lesson's finish", async () => {
   expect(within(screen.getByRole('main')).getByText(reportReviewsDue({ count: '3' }))).toBeDefined()
 })
 
+it("reads the Report no more at a lesson's start", async () => {
+  const report = vi.fn<ApiClient['report']>(async () => ({
+    ok: true,
+    value: { dueCount: 0, due: [], readFirst: [], nextDueAt: null, news: [] },
+  }))
+  renderAppAt(
+    '/report',
+    signedInClient({
+      report,
+      town: async () => ({
+        ok: true,
+        value: Date.now() < readAt + 60_000 ? knownTown : lessonTwoRunning,
+      }),
+    }),
+  )
+  await passSeconds(0)
+
+  await passSeconds(60)
+
+  expect(shellTimers()).toHaveLength(1)
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
 it('keeps the notice on the next screen', async () => {
   const router = renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
   await passSeconds(0)
@@ -310,6 +348,158 @@ it('keeps the notice on the next screen', async () => {
   await passSeconds(0)
 
   expect(finishNotice(2)).toBeDefined()
+})
+
+it('leaves the strong link to the next step on the town home', async () => {
+  renderAppAt('/', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  const tones = screen
+    .getAllByRole('link', { name: schoolLessonReadWords() })
+    .map((link) => link.dataset.tone)
+  expect(tones.sort()).toEqual(['primary', 'quiet'])
+})
+
+it('keeps the notice on the school', async () => {
+  const router = renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  await act(() => router.navigate({ href: '/school' }))
+  await passSeconds(0)
+
+  expect(finishNotice(2)).toBeDefined()
+})
+
+it('drops the notice for good on the reviews', async () => {
+  const router = renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  await act(() => router.navigate({ href: '/reviews' }))
+  await passSeconds(0)
+  await act(() => router.navigate({ href: '/report' }))
+  await passSeconds(0)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('drops the notice for good on the words it opens', async () => {
+  const router = renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  await act(() => router.navigate({ href: '/school/lesson-2' }))
+  await passSeconds(0)
+  await act(() => router.navigate({ href: '/report' }))
+  await passSeconds(0)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('draws no notice for a lesson finishing on the words it would open', async () => {
+  renderAppAt('/school/lesson-2', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('still announces a lesson finishing on the words it would open', async () => {
+  renderAppAt('/school/lesson-2', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(shellLiveRegion().textContent).toBe(shellLessonFinishLine({ number: 2 }))
+})
+
+it('drops the notice for good once no review is due', async () => {
+  const finished = lessonTwoFinished([])
+  const caughtUp: TownOverview = {
+    ...finished,
+    nextStep: { kind: 'caughtUp' },
+    readAt: instantAfter(300),
+  }
+  const townAt = (elapsedMs: number): TownOverview => {
+    if (elapsedMs < 240_000) {
+      return lessonTwoRunning
+    }
+    if (elapsedMs < 300_000) {
+      return finished
+    }
+    return elapsedMs < 360_000 ? caughtUp : { ...finished, readAt: instantAfter(360) }
+  }
+  renderAppAt(
+    '/report',
+    signedInClient({ town: async () => ({ ok: true, value: townAt(Date.now() - readAt) }) }),
+  )
+  await passSeconds(0)
+  await passSeconds(240)
+  expect(finishNotice(2)).toBeDefined()
+
+  await passSeconds(60)
+  await passSeconds(60)
+
+  expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('tells a second finish on the same page', async () => {
+  const lessonOneRunning: TownOverview = {
+    ...lessonTwoFinished([]),
+    lessonSlot: {
+      lessonId: 'lesson-1',
+      startedAt: instantAfter(300),
+      finishesAt: instantAfter(540),
+    },
+    readAt: instantAfter(300),
+  }
+  const lessonOneFinished: TownOverview = {
+    ...lessonTwoFinished(['lesson-1']),
+    lessons: lessons.map((lesson) => ({ ...lesson, isStudied: true })),
+    readAt: instantAfter(540),
+  }
+  const townAt = (elapsedMs: number): TownOverview => {
+    if (elapsedMs < 240_000) {
+      return lessonTwoRunning
+    }
+    if (elapsedMs < 300_000) {
+      return lessonTwoFinished([])
+    }
+    return elapsedMs < 540_000 ? lessonOneRunning : lessonOneFinished
+  }
+  renderAppAt(
+    '/report',
+    signedInClient({ town: async () => ({ ok: true, value: townAt(Date.now() - readAt) }) }),
+  )
+  await passSeconds(0)
+  await passSeconds(240)
+  const firstAnnouncement = shellLiveRegion().firstElementChild
+
+  await passSeconds(60)
+  await passSeconds(240)
+
+  expect(finishNotice(1)).toBeDefined()
+  expect(shellLiveRegion().firstElementChild).not.toBe(firstAnnouncement)
+})
+
+it('tells no finish of a studied lesson when another lesson stops', async () => {
+  const lessonOneStudied = { ...lessonOf(1), isStudied: true }
+  renderAppAt(
+    '/report',
+    finishingClient({
+      ...lessonTwoFinished([]),
+      lessons: [lessonOneStudied, lessonOf(2)],
+    }),
+  )
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(queryFinishNotice(1)).toBeNull()
 })
 
 it('shows no notice for a lesson the player stops', async () => {
