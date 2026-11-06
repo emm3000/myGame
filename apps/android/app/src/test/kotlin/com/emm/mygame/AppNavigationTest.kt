@@ -132,6 +132,7 @@ class AppNavigationTest {
     ): TownSnapshot = TownSnapshot(
         name = "Riverton",
         label = TownLabel.Town,
+        seasonInForce = null,
         seasonEndsAt = null,
         stocks = emptyList(),
         people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
@@ -186,7 +187,7 @@ class AppNavigationTest {
     private fun openReport(report: TownReport) {
         reportsFake.answerRead(ReportReadResult.Read(report))
         door("Informe").performClick()
-        waitForLine("Noticias del pueblo")
+        waitForLine("NOTICIAS DEL PUEBLO")
     }
 
     private fun onTheFirstLessonOfTheWalk(secondReadings: List<TownSnapshot.WordReading>) {

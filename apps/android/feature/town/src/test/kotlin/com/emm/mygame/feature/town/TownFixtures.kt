@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
@@ -63,12 +64,14 @@ internal fun townOf(
     slot: TownSnapshot.WorkItem? = null,
     waitingList: List<TownSnapshot.WorkItem> = emptyList(),
     cap: Int = 2,
+    seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = name,
     label = label,
+    seasonInForce = seasonInForce,
     seasonEndsAt = seasonEndsAt,
     stocks = stocks,
     people = people,

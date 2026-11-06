@@ -58,6 +58,7 @@ class TownScreenTest {
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
+        isInWork = false,
         next = TownUiState.NextLevelLine(
             level = 2,
             costs = listOf(TownUiState.CostLine(TownResourceKind.Money, 150, isShort = false)),
@@ -72,6 +73,7 @@ class TownScreenTest {
         label = TownLabel.Town,
         stocks = listOf(TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30)),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
+        season = null,
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
@@ -528,21 +530,21 @@ class TownScreenTest {
     }
 
     @Test
-    fun `draws the art of a built place above its name`() {
+    fun `draws the art of a built place beside its name`() {
         show(riverton)
 
-        assertTrue(spaceAbovePlaceName() >= MyGameSizes.placeCard)
+        assertTrue(placeNameLeft() >= MyGameSizes.thumbnail / 2)
     }
 
     @Test
     fun `draws a place at level 0 with its silhouette`() {
         show(riverton.copy(places = listOf(farmOffer.copy(level = 0))))
 
-        assertTrue(spaceAbovePlaceName() >= MyGameSizes.placeCard)
+        assertTrue(placeNameLeft() >= MyGameSizes.thumbnail / 2)
     }
 
-    private fun spaceAbovePlaceName(): Dp =
-        topOf("Granja") - composeRule.onNodeWithText("Tu pueblo").getUnclippedBoundsInRoot().bottom
+    private fun placeNameLeft(): Dp =
+        composeRule.onAllNodesWithText("Granja").onLast().performScrollTo().getUnclippedBoundsInRoot().left
 
     private fun topOf(text: String): Dp = composeRule.onAllNodesWithText(text).onLast().getUnclippedBoundsInRoot().top
 

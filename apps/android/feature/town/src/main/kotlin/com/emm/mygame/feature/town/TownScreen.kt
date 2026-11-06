@@ -80,6 +80,7 @@ private fun TownHome(
             TownTitle(name = content.name, label = content.label)
         }
         TownDoors(onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)
+        TownSkyline(content = content)
         StocksSection(content = content)
         BuildingWorkSection(content = content, onIntent = onIntent)
         PlacesSection(content = content, onIntent = onIntent, onSchoolOpen = onSchoolOpen)

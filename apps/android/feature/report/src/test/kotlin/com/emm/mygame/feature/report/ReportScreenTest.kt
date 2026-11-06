@@ -8,16 +8,24 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
+import com.emm.mygame.core.designsystem.BLOCK_HUE
+import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownAmount
 import com.emm.mygame.core.network.TownNews
@@ -153,7 +161,7 @@ class ReportScreenTest {
         show(contentWith(dueCount = 3, news = unreadFarm))
 
         val dueTop: Float = topOf("Repasos pendientes: 3")
-        val newsTop: Float = topOf("Noticias del pueblo")
+        val newsTop: Float = topOf("NOTICIAS DEL PUEBLO")
 
         assertTrue(dueTop < newsTop)
     }
@@ -162,7 +170,7 @@ class ReportScreenTest {
     fun `lists no review due before the news`() {
         show(contentWith(dueCount = 0, news = unreadFarm))
 
-        assertTrue(topOf("No tienes repasos pendientes ahora.") < topOf("Noticias del pueblo"))
+        assertTrue(topOf("No tienes repasos pendientes ahora.") < topOf("NOTICIAS DEL PUEBLO"))
     }
 
     @Test
@@ -276,7 +284,7 @@ class ReportScreenTest {
 
         val signOutTop: Dp = unclippedTopOf("Salir")
 
-        listOf("Repasos pendientes: 1", "Noticias del pueblo", "Cerrar las noticias").forEach { line: String ->
+        listOf("Repasos pendientes: 1", "NOTICIAS DEL PUEBLO", "Cerrar las noticias").forEach { line: String ->
             assertTrue(unclippedTopOf(line) < signOutTop)
         }
     }
@@ -296,6 +304,75 @@ class ReportScreenTest {
 
         composeRule.onNodeWithText("Salir").assertIsDisplayed()
         composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+    }
+
+    @Test
+    fun `keeps the Report's block periwinkle`() {
+        show(contentWith(dueCount = 3))
+
+        composeRule.onNode(
+            hasText("Repasos pendientes: 3") and
+                hasAnyAncestor(SemanticsMatcher.expectValue(BLOCK_HUE, MyGameBlockHue.Periwinkle)),
+        ).assertExists()
+    }
+
+    @Test
+    fun `holds no pill inside a block`() {
+        show(contentWith(dueCount = 3, news = unreadFarm))
+
+        val inTheBlock: SemanticsMatcher = hasAnyAncestor(SemanticsMatcher.keyIsDefined(BLOCK_HUE))
+        composeRule.onNode(SemanticsMatcher.keyIsDefined(BLOCK_HUE)).assertExists()
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
+        composeRule.onAllNodes(hasTestTag(INK_PILL) and inTheBlock).assertCountEquals(0)
+        composeRule.onAllNodes(hasTestTag(OUTLINED_PILL) and inTheBlock).assertCountEquals(0)
+    }
+
+    @Test
+    fun `sets the pill under the block`() {
+        show(contentWith(dueCount = 3))
+
+        val blockBottom: Dp = composeRule.onNode(SemanticsMatcher.keyIsDefined(BLOCK_HUE))
+            .getUnclippedBoundsInRoot().bottom
+        val pillTop: Dp = composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().top
+
+        assertTrue(blockBottom <= pillTop)
+    }
+
+    @Test
+    fun `holds no pill with nothing due`() {
+        show(contentWith(dueCount = 0, news = unreadFarm))
+
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(BLOCK_HUE)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `holds one ink pill on a Report with reviews due and unread words`() {
+        show(contentWith(dueCount = 3, news = unreadFarm, firstUnread = LessonId("lesson-1")))
+
+        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(1)
+    }
+
+    @Test
+    fun `holds at most one ink pill on a Report that failed to read`() {
+        show(ReportUiState.Failed)
+
+        assertTrue(composeRule.onAllNodesWithTag(INK_PILL).fetchSemanticsNodes().size <= 1)
+    }
+
+    @Test
+    fun `sets each news on a hairline row`() {
+        val news = ReportUiState.ReportNews.Unread(listOf(finishedFarm, finishedFarm), ReportUiState.CloseRequest.Idle)
+        show(contentWith(news = news))
+
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2)
+    }
+
+    @Test
+    fun `sets the empty news on a hairline row`() {
+        show(contentWith(news = ReportUiState.ReportNews.None))
+
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1)
     }
 
     private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top

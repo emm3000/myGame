@@ -1,7 +1,10 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
@@ -43,6 +46,27 @@ internal fun resourceNameOf(kind: TownResourceKind): Int = when (kind) {
     TownResourceKind.Food -> R.string.town_resource_food
     TownResourceKind.Power -> R.string.town_resource_power
     TownResourceKind.Material -> R.string.town_resource_material
+}
+
+internal fun resourceIconOf(kind: TownResourceKind): ImageVector = when (kind) {
+    TownResourceKind.Money -> MyGameIcons.money
+    TownResourceKind.Food -> MyGameIcons.food
+    TownResourceKind.Power -> MyGameIcons.power
+    TownResourceKind.Material -> MyGameIcons.material
+}
+
+internal fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {
+    SeasonKind.Spring -> MyGameIcons.spring
+    SeasonKind.Summer -> MyGameIcons.summer
+    SeasonKind.Fall -> MyGameIcons.fall
+    SeasonKind.Winter -> MyGameIcons.winter
+}
+
+internal fun seasonNameOf(kind: SeasonKind): Int = when (kind) {
+    SeasonKind.Spring -> R.string.town_season_spring
+    SeasonKind.Summer -> R.string.town_season_summer
+    SeasonKind.Fall -> R.string.town_season_fall
+    SeasonKind.Winter -> R.string.town_season_winter
 }
 
 internal fun capitalized(name: String): String = name.replaceFirstChar { first: Char -> first.titlecase(spanish) }

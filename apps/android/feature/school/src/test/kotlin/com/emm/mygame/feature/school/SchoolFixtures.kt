@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
@@ -59,11 +60,13 @@ internal fun townOf(
     lessonSlot: TownSnapshot.LessonSlot? = null,
     workSlot: TownSnapshot.WorkItem? = null,
     schoolLevel: Int = 1,
+    seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
     label = TownLabel.Town,
+    seasonInForce = seasonInForce,
     seasonEndsAt = seasonEndsAt,
     stocks = emptyList(),
     people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),

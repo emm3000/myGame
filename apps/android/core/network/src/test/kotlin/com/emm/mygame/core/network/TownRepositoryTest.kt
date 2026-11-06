@@ -126,6 +126,15 @@ class TownRepositoryTest {
     }
 
     @Test
+    fun `reads the season in force`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(SeasonInForce(SeasonKind.Fall, year = 1), read.seasonInForce)
+    }
+
+    @Test
     fun `reads the instants that change the town on their own`() = runTest {
         api.enqueue(json(200, TOWN))
 

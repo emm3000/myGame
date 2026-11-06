@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
+import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
 import kotlin.time.Duration.Companion.seconds
@@ -26,6 +27,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
     return TownSnapshot(
         name = name,
         label = townLabel,
+        seasonInForce = season?.toSeasonInForce(),
         seasonEndsAt = season?.endsAt?.toKotlinInstant(),
         stocks = listOf(
             stocks.money.toStock(TownResourceKind.Money),
@@ -60,6 +62,19 @@ internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = whe
     TownBuildingKind.Storage -> StartBuildingWork.Building.storage
     TownBuildingKind.School -> StartBuildingWork.Building.school
     TownBuildingKind.Office -> StartBuildingWork.Building.office
+}
+
+private fun TownOverviewSeason.toSeasonInForce(): SeasonInForce? {
+    val seasonKind: SeasonKind = kind.toSeasonKind() ?: return null
+    return SeasonInForce(kind = seasonKind, year = year)
+}
+
+private fun TownOverviewSeason.Kind.toSeasonKind(): SeasonKind? = when (this) {
+    TownOverviewSeason.Kind.spring -> SeasonKind.Spring
+    TownOverviewSeason.Kind.summer -> SeasonKind.Summer
+    TownOverviewSeason.Kind.fall -> SeasonKind.Fall
+    TownOverviewSeason.Kind.winter -> SeasonKind.Winter
+    TownOverviewSeason.Kind.unknown_default_open_api -> null
 }
 
 private fun TownOverview.Label.toTownLabel(): TownLabel? = when (this) {

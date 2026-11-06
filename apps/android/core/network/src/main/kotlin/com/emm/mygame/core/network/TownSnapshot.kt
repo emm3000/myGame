@@ -6,6 +6,7 @@ import kotlin.time.Instant
 data class TownSnapshot(
     val name: String,
     val label: TownLabel,
+    val seasonInForce: SeasonInForce?,
     val seasonEndsAt: Instant?,
     val stocks: List<Stock>,
     val people: People,
