@@ -44,6 +44,8 @@ android {
         buildConfig = true
     }
 
+    testOptions.unitTests.isIncludeAndroidResources = true
+
     signingConfigs {
         if (isReleaseSigned) {
             create("release") {
@@ -87,7 +89,9 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
     implementation(project(":feature:chronicle"))
+    implementation(project(":feature:fief"))
     implementation(project(":feature:map"))
+    implementation(project(":feature:report"))
     implementation(project(":feature:school"))
     implementation(project(":feature:signin"))
     implementation(project(":feature:town"))
@@ -103,4 +107,7 @@ dependencies {
 
     testImplementation(project(":core:testing"))
     testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

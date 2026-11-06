@@ -36,7 +36,9 @@ import com.emm.mygame.core.designsystem.MyGameNavigationItem
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.feature.chronicle.ChronicleRoute
+import com.emm.mygame.feature.fief.ReviewRoute
 import com.emm.mygame.feature.map.MapRoute
+import com.emm.mygame.feature.report.ReportRoute
 import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
@@ -44,11 +46,11 @@ import com.emm.mygame.feature.signin.SignUpRoute
 import com.emm.mygame.feature.town.TownRoute
 
 @Composable
-internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = Modifier) {
+internal fun AppNavigation(dependencies: AppDependencies, modifier: Modifier = Modifier) {
     val backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false))
     val navigator: Navigator = remember(backStack) { Navigator(backStack) }
     LaunchedEffect(navigator) {
-        navigator.followSessionEnds(application.sessionEnds.ended)
+        navigator.followSessionEnds(dependencies.sessionEnds.ended)
     }
     NavDisplay(
         backStack = backStack,
@@ -60,7 +62,7 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
         entryProvider = entryProvider {
             entry<Destination.SignIn> { signIn: Destination.SignIn ->
                 SignInRoute(
-                    sessions = application.sessions,
+                    sessions = dependencies.sessions,
                     isSessionEnded = signIn.isSessionEnded,
                     onSignedIn = navigator::signedIn,
                     onSignUpOpen = navigator::openSignUp,
@@ -69,27 +71,27 @@ internal fun AppNavigation(application: MyGameApplication, modifier: Modifier = 
             }
             entry<Destination.SignUp> {
                 SignUpRoute(
-                    sessions = application.sessions,
+                    sessions = dependencies.sessions,
                     onSignedIn = navigator::signedIn,
                     onSignInOpen = navigator::openSignIn,
                 )
             }
             entry<Destination.ForgotPassword> {
-                ForgotPasswordRoute(sessions = application.sessions, onSignInOpen = navigator::openSignIn)
+                ForgotPasswordRoute(sessions = dependencies.sessions, onSignInOpen = navigator::openSignIn)
             }
-            signedInEntries(application = application, navigator = navigator)
+            signedInEntries(dependencies = dependencies, navigator = navigator)
         },
         modifier = modifier,
     )
 }
 
-private fun EntryProviderScope<NavKey>.signedInEntries(application: MyGameApplication, navigator: Navigator) {
+private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.Town> { shown: Destination.Town ->
-        SignedInFrame(current = shown, fief = null, application = application, navigator = navigator) {
+        SignedInFrame(current = shown, fief = null, dependencies = dependencies, navigator = navigator) {
             TownRoute(
-                towns = application.towns,
-                sessions = application.sessions,
-                clock = application.clock,
+                towns = dependencies.towns,
+                sessions = dependencies.sessions,
+                clock = dependencies.clock,
                 onSchoolOpen = navigator::openSchool,
                 onSigningOut = navigator::signingOut,
                 onSignedOut = { navigator.signedOut(isSessionEnded = false) },
@@ -97,18 +99,37 @@ private fun EntryProviderScope<NavKey>.signedInEntries(application: MyGameApplic
         }
     }
     entry<Destination.School> { shown: Destination.School ->
-        SignedInFrame(current = shown, fief = null, application = application, navigator = navigator) {
-            SchoolRoute(towns = application.towns, clock = application.clock, onNoTown = navigator::openTown)
+        SignedInFrame(current = shown, fief = null, dependencies = dependencies, navigator = navigator) {
+            SchoolRoute(
+                towns = dependencies.towns,
+                clock = dependencies.clock,
+                onNoTown = navigator::openTown,
+                onReviewsOpen = navigator::openReviews,
+            )
+        }
+    }
+    entry<Destination.Report> { shown: Destination.Report ->
+        SignedInFrame(current = shown, fief = null, dependencies = dependencies, navigator = navigator) {
+            ReportRoute(
+                reports = dependencies.reports,
+                clock = dependencies.clock,
+                onReviewsOpen = navigator::openReviews,
+            )
+        }
+    }
+    entry<Destination.Review> { shown: Destination.Review ->
+        SignedInFrame(current = shown, fief = null, dependencies = dependencies, navigator = navigator) {
+            ReviewRoute(learning = dependencies.learning, clock = dependencies.clock)
         }
     }
     entry<Destination.Map> { shown: Destination.Map ->
-        SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
-            MapRoute(fief = shown.fief, maps = application.maps, fiefs = application.fiefs)
+        SignedInFrame(current = shown, fief = shown.fief, dependencies = dependencies, navigator = navigator) {
+            MapRoute(fief = shown.fief, maps = dependencies.maps, fiefs = dependencies.fiefs)
         }
     }
     entry<Destination.Chronicle> { shown: Destination.Chronicle ->
-        SignedInFrame(current = shown, fief = shown.fief, application = application, navigator = navigator) {
-            ChronicleRoute(fief = shown.fief, chronicles = application.chronicles, clock = application.clock)
+        SignedInFrame(current = shown, fief = shown.fief, dependencies = dependencies, navigator = navigator) {
+            ChronicleRoute(fief = shown.fief, chronicles = dependencies.chronicles, clock = dependencies.clock)
         }
     }
 }
@@ -117,10 +138,10 @@ private fun EntryProviderScope<NavKey>.signedInEntries(application: MyGameApplic
 private fun SignedInFrame(
     current: Destination,
     fief: FiefId?,
-    application: MyGameApplication,
+    dependencies: AppDependencies,
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    switcher: FiefSwitcherViewModel = viewModel { FiefSwitcherViewModel(fief, application.listings) },
+    switcher: FiefSwitcherViewModel = viewModel { FiefSwitcherViewModel(fief, dependencies.listings) },
     content: @Composable () -> Unit,
 ) {
     val listing: FiefSwitcherUiState by switcher.state.collectAsStateWithLifecycle()
@@ -131,8 +152,7 @@ private fun SignedInFrame(
     val listed: FiefSwitcherUiState.Listed? = listing as? FiefSwitcherUiState.Listed
     val tabFief: FiefId? = fief ?: listed?.entries?.firstOrNull()?.fief
     val shownSwitcher: FiefSwitcherUiState.Listed? = listed?.takeIf { fief != null }
-    val belowContent: WindowInsets =
-        if (tabFief == null) WindowInsets.ime else WindowInsets.navigationBars.union(WindowInsets.ime)
+    val belowContent: WindowInsets = WindowInsets.navigationBars.union(WindowInsets.ime)
     val framedInsets: WindowInsets =
         if (shownSwitcher == null) belowContent else belowContent.union(WindowInsets.statusBars)
     Column(modifier = modifier.fillMaxSize().background(MyGameTheme.colors.surface)) {
@@ -152,16 +172,14 @@ private fun SignedInFrame(
         ) {
             content()
         }
-        if (tabFief != null) {
-            SignedInTabs(current = current, fief = tabFief, navigator = navigator)
-        }
+        SignedInTabs(current = current, fief = tabFief, navigator = navigator)
     }
 }
 
 @Composable
 private fun SignedInTabs(
     current: Destination,
-    fief: FiefId,
+    fief: FiefId?,
     navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
@@ -173,16 +191,24 @@ private fun SignedInTabs(
             onClick = navigator::openTown,
         )
         MyGameNavigationItem(
-            label = stringResource(R.string.navigation_map),
-            isCurrent = current is Destination.Map,
+            label = stringResource(R.string.navigation_report),
+            isCurrent = current == Destination.Report || current == Destination.Review,
             isEnabled = navigator.areTabsEnabled,
-            onClick = { navigator.openMap(fief) },
+            onClick = navigator::openReport,
         )
-        MyGameNavigationItem(
-            label = stringResource(R.string.navigation_chronicle),
-            isCurrent = current is Destination.Chronicle,
-            isEnabled = navigator.areTabsEnabled,
-            onClick = { navigator.openChronicle(fief) },
-        )
+        if (fief != null) {
+            MyGameNavigationItem(
+                label = stringResource(R.string.navigation_map),
+                isCurrent = current is Destination.Map,
+                isEnabled = navigator.areTabsEnabled,
+                onClick = { navigator.openMap(fief) },
+            )
+            MyGameNavigationItem(
+                label = stringResource(R.string.navigation_chronicle),
+                isCurrent = current is Destination.Chronicle,
+                isEnabled = navigator.areTabsEnabled,
+                onClick = { navigator.openChronicle(fief) },
+            )
+        }
     }
 }

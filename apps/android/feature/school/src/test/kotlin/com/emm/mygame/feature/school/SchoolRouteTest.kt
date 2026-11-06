@@ -35,7 +35,12 @@ class SchoolRouteTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides screenOwner) {
                 MyGameTheme {
-                    SchoolRoute(towns = towns, clock = Clock.System, onNoTown = { noTownCount += 1 })
+                    SchoolRoute(
+                        towns = towns,
+                        clock = Clock.System,
+                        onNoTown = { noTownCount += 1 },
+                        onReviewsOpen = {},
+                    )
                 }
             }
         }

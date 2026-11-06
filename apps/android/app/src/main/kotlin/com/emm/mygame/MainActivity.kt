@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         val application: MyGameApplication = application as MyGameApplication
         setContent {
             MyGameTheme {
-                AppNavigation(application = application)
+                AppNavigation(dependencies = application)
             }
         }
     }

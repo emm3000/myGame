@@ -14,6 +14,8 @@ class DestinationTest {
         val signedIn: List<Destination> = listOf(
             Destination.Town,
             Destination.School,
+            Destination.Report,
+            Destination.Review,
             Destination.Map(secondFief),
             Destination.Chronicle(secondFief),
         )

@@ -471,4 +471,199 @@ class NavigatorTest {
             visited,
         )
     }
+
+    @Test
+    fun `opens the Report above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `keeps one Report on a second tap of its tab`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `replaces the school with the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `replaces the map with the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, map)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `replaces the Report with the map`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openMap(firstListed)
+
+        assertEquals(listOf(Destination.Town, map), backStack)
+    }
+
+    @Test
+    fun `returns to the Report from the review on its tab`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `leaves the school behind on the Report tab from a review opened there`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, Destination.Review)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `opens no Report from sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack).openReport()
+
+        assertEquals(listOf<NavKey>(signIn), backStack)
+    }
+
+    @Test
+    fun `opens the reviews above the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report, Destination.Review), backStack)
+    }
+
+    @Test
+    fun `opens the reviews above the school`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School)
+
+        Navigator(backStack).openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.School, Destination.Review), backStack)
+    }
+
+    @Test
+    fun `opens the reviews once on a double tap`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack)
+
+        navigator.openReviews()
+        navigator.openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report, Destination.Review), backStack)
+    }
+
+    @Test
+    fun `opens no reviews from the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openReviews()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to the Report on back from the review`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `returns to the school on back from a review opened there`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, Destination.Review)
+
+        Navigator(backStack).back()
+
+        assertEquals(listOf(Destination.Town, Destination.School), backStack)
+    }
+
+    @Test
+    fun `returns to the town on its tab from the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `returns to the town on its tab from a review`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `leaves the Report for the map from a review`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
+
+        Navigator(backStack).openMap(firstListed)
+
+        assertEquals(listOf(Destination.Town, map), backStack)
+    }
+
+    @Test
+    fun `keeps the Report on screen when a fief is chosen`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+
+        Navigator(backStack).switchFief(secondFief)
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
+
+    @Test
+    fun `leaves sign-in alone when the session ends on the Report`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report, Destination.Review)
+
+        Navigator(backStack).signedOut(isSessionEnded = true)
+
+        assertEquals(listOf<NavKey>(sessionEndedSignIn), backStack)
+    }
+
+    @Test
+    fun `opens no Report while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openReport()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no reviews while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.Report), backStack)
+    }
 }

@@ -83,6 +83,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.signin.sign_up_switch_link',
   'android.signin.sign_up_switch_prompt',
   'android.signin.sign_up_title',
+  'android.report.report_refusal_unexpected',
   'android.school.school_refusal_learning_cap_reached',
   'android.school.school_refusal_lesson_already_studied',
   'android.school.school_refusal_lesson_school_too_low',

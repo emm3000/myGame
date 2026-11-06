@@ -60,10 +60,16 @@ class SchoolScreenTest {
     private fun busySlot(remaining: Duration): SchoolUiState.SlotLine.Busy =
         SchoolUiState.SlotLine.Busy(firstLesson, number = 1, remaining = remaining, total = 150.seconds)
 
+    private var reviewOpens: Int = 0
+
     private fun show(state: SchoolUiState) {
         composeRule.setContent {
             MyGameTheme {
-                SchoolScreen(state = state, onIntent = { intent: SchoolIntent -> intents += intent })
+                SchoolScreen(
+                    state = state,
+                    onIntent = { intent: SchoolIntent -> intents += intent },
+                    onReviewsOpen = { reviewOpens += 1 },
+                )
             }
         }
     }
@@ -531,5 +537,37 @@ class SchoolScreenTest {
 
         showing("+5 % de dinero")
         showing("+5 % de material")
+    }
+
+    @Test
+    fun `opens the reviews from the learning line past the cap`() {
+        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, wordsPastCap = 5)))
+
+        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+
+        assertEquals(1, reviewOpens)
+    }
+
+    @Test
+    fun `offers no reviews while the next lesson fits the cap`() {
+        show(idleSchool.copy(learning = SchoolUiState.LearningLine(0, 10, wordsPastCap = null)))
+
+        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
+    }
+
+    @Test
+    fun `opens the reviews from the learning cap refusal`() {
+        show(refusedStart(TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 8)))
+
+        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+
+        assertEquals(1, reviewOpens)
+    }
+
+    @Test
+    fun `offers no reviews beside any other refusal`() {
+        show(refusedStart(TownLessonRefusal.StudySlotBusy))
+
+        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
     }
 }

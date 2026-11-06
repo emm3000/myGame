@@ -35,6 +35,7 @@ private fun defaultApi(baseUrl: String, client: OkHttpClient): DefaultApi {
         .client(client)
         .addConverterFactory(IsoInstantConverterFactory())
         .addConverterFactory(KnownFiefEventsConverterFactory(Serializer.kotlinxSerializationJson))
+        .addConverterFactory(KnownTownNewsConverterFactory(Serializer.kotlinxSerializationJson))
         .addConverterFactory(Serializer.kotlinxSerializationJson.asConverterFactory("application/json".toMediaType()))
         .build()
     return retrofit.create(DefaultApi::class.java)
