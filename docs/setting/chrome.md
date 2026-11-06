@@ -22,9 +22,9 @@ ADR 037's rule that a lesson is never a semantic set applies when #741 groups th
 | city | 269 | the header past the content's people count | ciudad |
 | mayor | 2779 | *You are the mayor.* on the naming screen | none: the Spanish chrome never names the player with a gendered noun (ADR 040); the word's gloss is content |
 | name | 206 | *Name your town*, *Town name* | nombre |
-| map | 1212 | navigation | mapa |
-| news | 546 | navigation, *Town News* | noticias |
-| report | 166 | navigation, the Report | informe |
+| map | 1212 | a row on the town home (ADR 043) | mapa |
+| news | 546 | a row on the Report (ADR 043), *Town News* | noticias |
+| report | 166 | a door on the town home (ADR 043), the Report | informe |
 
 ### Resources and people
 

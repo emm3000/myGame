@@ -17,17 +17,17 @@ Every rank is the `SFI Rank` of `apps/api/content/lessons/ngsl-1.2.csv`. *Mayor*
 
 ## The seven places
 
-A new town starts with homes and the school at level 1 (ADR 040). Each place is one illustration, grown through five tiers over ten levels, with no people in it (`docs/art/art-bible.md`, Framing); the picture named here is a proposal, which the art ticket draws as hand-written SVG (`docs/art/art-bible.md`, Model and size).
+A new town starts with homes and the school at level 1 (ADR 040). Each place is one flat silhouette that gains a window at each of its ten levels, with no people in it (ADR 043, `docs/art/art-bible.md`). The rows below describe the place in words, never a picture. Until the art ticket ships, the shipped files are illustrations grown through five tiers.
 
 | Content id | Label | Rank | What the player sees | Source |
 |---|---|---|---|---|
-| `homes` | *Homes* | home 161 | A short row of brick houses; each level raises the people the town supplies. | ADR 040; picture: proposal |
-| `farm` | *Farm* | 1083 | A red barn beside rows of crops; produces food. | ADR 040; picture: proposal |
-| `factory` | *Factory* | 1530 | A low brick works with one chimney; produces material. | ADR 040; picture: proposal |
-| `powerStation` | *Power station* | power 331, station 709 | A small station with steel poles and power lines; produces power. | ADR 040; picture: proposal |
-| `storage` | *Storage* | 2707 | A wide shed with large doors; one capacity for all four stocks. | ADR 040; picture: proposal |
-| `school` | *School* | 146 | A two-floor school with tall windows; runs one lesson at a time, shortens it and raises the learning cap with its level. | ADR 040; picture: proposal |
-| `office` | *Office* | 343 | An office block with a glass front; hires workers from level 1 and trucks from level 3. | ADR 040; picture: proposal |
+| `homes` | *Homes* | home 161 | A short row of brick houses; each level raises the people the town supplies. | ADR 040 |
+| `farm` | *Farm* | 1083 | A red barn beside rows of crops; produces food. | ADR 040 |
+| `factory` | *Factory* | 1530 | A low brick works with one chimney; produces material. | ADR 040 |
+| `powerStation` | *Power station* | power 331, station 709 | A small station with steel poles and power lines; produces power. | ADR 040 |
+| `storage` | *Storage* | 2707 | A wide shed with large doors; one capacity for all four stocks. | ADR 040 |
+| `school` | *School* | 146 | A two-floor school with tall windows; runs one lesson at a time, shortens it and raises the learning cap with its level. | ADR 040 |
+| `office` | *Office* | 343 | An office block with a glass front; hires workers from level 1 and trucks from level 3. | ADR 040 |
 
 Money has no place: it comes from **tax** (787, graded reading only), a base rate in content (ADR 040, `decisions.md` §9). The money card shows *Money* alone.
 

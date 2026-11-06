@@ -1,5 +1,5 @@
 ---
-status: proposed, order amended by ADR 041, food, the lesson slot, the review door and the goals by ADR 042
+status: proposed, order amended by ADR 041, food, the lesson slot, the review door and the goals by ADR 042, the design, the navigation and the images by ADR 043
 date: 2026-11-04
 ---
 # The town rebuild
@@ -338,7 +338,9 @@ What trunk holds, checked at `1f0b1c41`:
   navigation after the cutover. Amended by ADR 042: a lesson's words
   join them at `/school/$lessonId`, and the town home's next step opens
   `/reviews` too, through those words while `readFirst` holds a
-  lesson.)
+  lesson. Amended by ADR 043: the paths stay and the bar goes. The town
+  home carries two doors, *School* and *Report*, every other screen a
+  link back to the town, and News and the map arrive as rows.)
 
 ### The reset, at the cutover
 
@@ -402,7 +404,8 @@ What trunk holds, checked at `1f0b1c41`:
 - **Before the town's screens**: #739 (the catalog), so every town
   screen writes `en.json` and `es.json` together (ADR 038, step 3), and
   the Townword tokens and type in both design layers, so no town screen
-  is drawn twice. #736, merged, already makes every refusal the town
+  is drawn twice (amended by ADR 043: those tokens and that type are
+  now its own, and the rule holds for them). #736, merged, already makes every refusal the town
   adds a kind and its params. The domain and schema slices wait on
   none of them.
 - **#741 needs this ADR's word list, not the screens, but ships after
@@ -518,7 +521,7 @@ What trunk holds, checked at `1f0b1c41`:
   ⌈191 / 4⌉ = 48 and 138, as in its table.
 - `apps/web/public/art/` loses its medieval images at the cutover; the
   town's images are their own ticket under the rewritten art bible
-  (N7).
+  (N7). (Amended by ADR 043: they are silhouettes.)
 - With 16 chrome lessons, the `es` chrome stays Spanish until the
   sixteenth is studied and bilingual until its skill is earned, longer
   than the under three weeks of ADR 038's one-lesson example; how much

@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed, the shell and the art of its screens drawn by ADR 043
 date: 2026-11-05
 ---
 # The first session
@@ -354,6 +354,11 @@ the town rows, and #771 and #775 take the school and the Report.
 | Review, skill verdict | level and percent, no rates | `ratePerHourBefore` and `ratePerHourAfter`, already on the wire, and the lesson's words |
 | Town stocks | no skill mark | the earned skill beside its resource |
 | Report | *No tienes repasos pendientes ahora.* alone; its button always goes to `/reviews` | the next review's instant, and unread words first, so `ReportSchema` gains `nextDueAt` and `readFirst` |
+
+(Amended by ADR 043: every row stands, drawn in its look. *Art* is a
+silhouette, a place not built is gray, *Report* is a door on the town
+home with its due count, the running lesson sits in the header, and
+the signed-in header drops `shell.title`.)
 
 Lesson order is not enforced: `admitSchoolLesson` admits any unstudied
 lesson. The card and the school lead to the next one, and refusing the

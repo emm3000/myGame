@@ -1,5 +1,5 @@
 ---
-status: proposed, the review door amended by ADR 042
+status: proposed, the review door amended by ADR 042, the navigation by ADR 043
 date: 2026-11-04
 ---
 # The Townword MVP cut
@@ -178,6 +178,9 @@ now; both merge in wave 5, each on the owner's approval.
   #784, land, each in its place in ADR 040's final order: Town, Report,
   Map, News. Until the cutover the medieval entries that have no town
   successor yet, *Crónica* and *Mapa*, stay as ADR 040 has them.
+  (Amended by ADR 043: the bar goes. The town home carries *School* and
+  *Report* as doors, News arrives as a row on the Report, and the map as
+  a row on the town home.)
 - **The PRD is rewritten whole at the cutover.** ADR 035 and ADR 040
   have the M and S rows rewritten as each slice ships, which assumed the
   breadth would ship before the cutover. With the medieval code gone,
@@ -393,12 +396,13 @@ pointers and verification rows.
 - **#774** and **#776**: blocked by #753 and #772 instead of #762 or
   #763; their *Crónica leaves the navigation* criteria go, and each
   gains *News joins the navigation in ADR 040's order: Town, Report,
-  Map, News*.
+  Map, News*. (Amended by ADR 043: *News is a row on the Report*.)
 - **#777**: blocked by #753 instead of #769.
 - **#783** and **#784**: their *Mapa leaves the navigation* and
   *`/feudo/$fiefId/mapa` stays reachable* criteria go, and each gains
-  *Map joins the navigation in ADR 040's order*; #784's town map module
-  may take the name `feature:map`.
+  *Map joins the navigation in ADR 040's order* (amended by ADR 043:
+  *the map is a row on the town home*); #784's town map module may take
+  the name `feature:map`.
 - **The Android screen tickets** #763, #771, #775, #776, #780, #784,
   #788 and #792: their dispatch line names `packages/catalog` beside
   `apps/android`, as their criteria already require.

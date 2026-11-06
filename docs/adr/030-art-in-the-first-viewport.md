@@ -1,5 +1,5 @@
 ---
-status: superseded by ADR 035
+status: superseded by ADR 035, the town's art amended by ADR 043
 date: 2026-10-10
 ---
 # Art in the first viewport
@@ -376,3 +376,10 @@ prompt template, the Codex lines and the WebP sizes and thumbnail
 derivatives no longer apply to the town's families; the browser and
 Android scale the vector. The derivative rule above still governs the
 retired `camp-<tier>-96.webp`.
+
+## Amendment, 2026-11-06 (#855)
+
+ADR 043 replaces the town's illustrations with one hand-written
+silhouette per place, whose windows follow the level. The file is still
+the image's source, so N7 stands unchanged; the amendment above holds
+with *silhouette* for *illustration*.
