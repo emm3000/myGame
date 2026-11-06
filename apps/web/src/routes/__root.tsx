@@ -6,7 +6,7 @@ import stylesheet from '../styles.css?url'
 
 function RootDocument({ children }: { readonly children: ReactNode }): ReactElement {
   return (
-    <html lang="es">
+    <html lang="es" className="scroll-pb-12">
       <head>
         <HeadContent />
       </head>

@@ -1,18 +1,10 @@
-import {
-  reportReviewsDue,
-  shellNavigationChronicle,
-  shellNavigationMap,
-  shellNavigationReport,
-  shellNavigationTown,
-  shellSignOut,
-  shellTitle,
-} from '@mygame/catalog'
+import { shellNavigationTown, townLabelCity, townLabelTown } from '@mygame/catalog'
 import type { Player } from '@mygame/contracts'
-import { Link, type LinkProps } from '@tanstack/react-router'
+import type { TownOverview } from '@mygame/contracts/town'
+import { Link } from '@tanstack/react-router'
 import type { ReactElement, ReactNode, RefObject } from 'react'
-import { Button } from '../design-system/Button'
 import { focusTargetClass } from '../design-system/focusTargetClass'
-import { formatQuantity } from '../design-system/formatQuantity'
+import { BackIcon } from '../design-system/icons/BackIcon'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
 import { FiefSwitcher } from './FiefSwitcher'
@@ -23,89 +15,42 @@ export interface AppShellProps {
   readonly fiefId: string | undefined
   readonly fiefs: FiefEntries | undefined
   readonly verification: ResendVerification
-  readonly dueCount: number
-  readonly titleRef: RefObject<HTMLHeadingElement | null>
+  readonly town: TownOverview | undefined
+  readonly isTownHome: boolean
+  readonly headerRef: RefObject<HTMLElement | null>
   readonly townStatus: ReactNode
-  readonly onSignOut: () => void
   readonly children: ReactNode
 }
 
-interface Screen {
-  readonly to: NonNullable<LinkProps['to']>
-  readonly label: string
-  readonly isExact: boolean
-}
-
-const townScreens: ReadonlyArray<Screen> = [
-  { to: '/', label: shellNavigationTown(), isExact: true },
-  { to: '/report', label: shellNavigationReport(), isExact: true },
-]
-
-const fiefScreens: ReadonlyArray<Screen> = [
-  { to: '/feudo/$fiefId/mapa', label: shellNavigationMap(), isExact: false },
-  { to: '/feudo/$fiefId/cronica', label: shellNavigationChronicle(), isExact: true },
-]
-
-const linkClass =
-  'flex items-center border-b-3 px-3 py-3 font-sans text-button no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus'
-
-const activeProps = { className: 'border-action font-bold text-action' }
-const inactiveProps = { className: 'border-transparent text-ink-muted' }
-
-function DueCount({ count }: { readonly count: number }): ReactElement {
-  const figure = formatQuantity(count)
+function TownTitle({ town }: { readonly town: TownOverview }): ReactElement {
   return (
-    <>
-      {' '}
-      <span className="sr-only">{reportReviewsDue({ count: figure })}</span>
-      <span
-        aria-hidden="true"
-        className="ml-2 rounded-pill bg-action px-2 font-sans text-label text-on-action tabular-nums"
-      >
-        {figure}
-      </span>
-    </>
+    <h1 className="m-0 font-sans text-meta text-ink-muted wrap-anywhere">
+      {town.name} <span aria-hidden="true">·</span>{' '}
+      {town.label === 'city' ? townLabelCity() : townLabelTown()}
+    </h1>
   )
 }
 
-function TownScreenLink({
-  to,
-  label,
-  isExact,
-  dueCount,
-}: Screen & { readonly dueCount: number }): ReactElement {
+function BackLink(): ReactElement {
   return (
     <Link
-      to={to}
-      activeOptions={{ exact: isExact }}
-      className={linkClass}
-      activeProps={activeProps}
-      inactiveProps={inactiveProps}
+      to="/"
+      className={`inline-flex min-h-control items-center gap-1 font-sans text-meta text-ink-muted no-underline ${focusTargetClass}`}
     >
-      {label}
-      {to === '/report' && dueCount > 0 && <DueCount count={dueCount} />}
+      <BackIcon />
+      {shellNavigationTown()}
     </Link>
   )
 }
 
-function ScreenLink({
-  to,
-  label,
-  isExact,
-  fiefId,
-}: Screen & { readonly fiefId: string }): ReactElement {
-  return (
-    <Link
-      to={to}
-      params={{ fiefId }}
-      activeOptions={{ exact: isExact }}
-      className={linkClass}
-      activeProps={activeProps}
-      inactiveProps={inactiveProps}
-    >
-      {label}
-    </Link>
-  )
+function HeaderStart({
+  town,
+  isTownHome,
+}: Pick<AppShellProps, 'town' | 'isTownHome'>): ReactElement | null {
+  if (!isTownHome) {
+    return <BackLink />
+  }
+  return town === undefined ? null : <TownTitle town={town} />
 }
 
 export function AppShell({
@@ -113,52 +58,29 @@ export function AppShell({
   fiefId,
   fiefs,
   verification,
-  dueCount,
-  titleRef,
+  town,
+  isTownHome,
+  headerRef,
   townStatus,
-  onSignOut,
   children,
 }: AppShellProps): ReactElement {
   return (
-    <div className="min-h-screen bg-surface text-ink">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface-raised px-4 py-4 md:px-8">
-        <h1
-          ref={titleRef}
-          tabIndex={-1}
-          className={`m-0 font-sans text-title text-action ${focusTargetClass}`}
-        >
-          {shellTitle()}
-        </h1>
-        {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
-        <div className="flex grow items-center gap-4 md:grow-0">
-          <nav className="flex">
-            <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
-              {townScreens.map((screen) => (
-                <li key={screen.to} className="flex">
-                  <TownScreenLink {...screen} dueCount={dueCount} />
-                </li>
-              ))}
-              {fiefId === undefined
-                ? null
-                : fiefScreens.map((screen) => (
-                    <li key={screen.to} className="flex">
-                      <ScreenLink {...screen} fiefId={fiefId} />
-                    </li>
-                  ))}
-            </ul>
-          </nav>
-          <span className="ml-auto flex">
-            <Button type="button" tone="quiet" onClick={onSignOut}>
-              {shellSignOut()}
-            </Button>
-          </span>
+    <div className="flex min-h-screen flex-col bg-surface text-ink">
+      <header
+        ref={headerRef}
+        tabIndex={-1}
+        className="flex flex-wrap items-center justify-between gap-x-4 px-5 py-2 focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-focus md:px-8"
+      >
+        <div className="flex min-h-control min-w-0 items-center">
+          <HeaderStart town={town} isTownHome={isTownHome} />
         </div>
+        {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
       </header>
       {townStatus}
-      <main className="flex flex-col gap-6 px-4 py-6 font-sans text-body text-ink-muted md:px-8">
-        {player.emailVerified ? null : <VerificationBanner {...verification} />}
-        <div>{children}</div>
+      <main className="grow px-5 pt-2 pb-6 font-sans text-body text-ink-muted md:px-8">
+        {children}
       </main>
+      {player.emailVerified ? null : <VerificationBanner {...verification} />}
     </div>
   )
 }

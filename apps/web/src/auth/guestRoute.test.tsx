@@ -7,6 +7,8 @@ import { knownPlayer, knownTown, stubApiClient } from './stubApiClient.testSuppo
 it('keeps a signed-in visitor away from the sign-in screen', async () => {
   renderAppAt('/sign-in', stubApiClient({ currentPlayer: async () => knownPlayer }))
 
-  expect(await screen.findByRole('heading', { level: 2, name: knownTown.name })).toBeDefined()
+  expect(
+    await screen.findByRole('heading', { level: 1, name: new RegExp(knownTown.name) }),
+  ).toBeDefined()
   expect(screen.queryByRole('heading', { name: authSignInTitle() })).toBeNull()
 })

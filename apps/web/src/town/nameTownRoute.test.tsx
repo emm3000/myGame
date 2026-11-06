@@ -54,7 +54,7 @@ it('founds the town and opens its home', async () => {
   typeName('  Cedar Creek ')
   fireEvent.click(submitButton())
 
-  expect(await screen.findByRole('heading', { level: 2, name: 'Cedar Creek' })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: /Cedar Creek/ })).toBeDefined()
   expect(sentNames).toEqual(['Cedar Creek'])
 })
 
@@ -113,7 +113,9 @@ it('offers the town to a player who already holds one', async () => {
   expect(await screen.findByText(refusalPlayerAlreadyHoldsTown())).toBeDefined()
   fireEvent.click(screen.getByRole('button', { name: townNamingGoToTown() }))
 
-  expect(await screen.findByRole('heading', { level: 2, name: knownTown.name })).toBeDefined()
+  expect(
+    await screen.findByRole('heading', { level: 1, name: new RegExp(knownTown.name) }),
+  ).toBeDefined()
 })
 
 it('keeps the name to try again after a failed request', async () => {
@@ -134,5 +136,5 @@ it('keeps the name to try again after a failed request', async () => {
   expect(await screen.findByText(refusalUnexpected())).toBeDefined()
   fireEvent.click(submitButton())
 
-  expect(await screen.findByRole('heading', { level: 2, name: 'Cedar Creek' })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: /Cedar Creek/ })).toBeDefined()
 })

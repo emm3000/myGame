@@ -1,14 +1,18 @@
 import {
-  shellTitle,
-  verificationBannerLine,
-  verificationBannerResend,
+  passwordResetRequestSubmit,
   verificationBannerSent,
+  verificationVerifyTitle,
 } from '@mygame/catalog'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFiefPath, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  knownFief,
+  knownFiefPath,
+  knownPlayer,
+  stubApiClient,
+} from '../auth/stubApiClient.testSupport'
 
 const unverifiedPlayer = { ...knownPlayer, emailVerified: false }
 
@@ -17,22 +21,45 @@ const unverifiedClientResending = (
 ): ApiClient => stubApiClient({ currentPlayer: async () => unverifiedPlayer, resendVerification })
 
 const resendButton = (): Promise<HTMLElement> =>
-  screen.findByRole('button', { name: verificationBannerResend() })
+  screen.findByRole('button', { name: passwordResetRequestSubmit() })
 
 it('shows the banner to a player whose email is not verified', async () => {
   renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => unverifiedPlayer }))
 
-  expect(await screen.findByText(verificationBannerLine())).toBeDefined()
+  expect(await screen.findByText(verificationVerifyTitle())).toBeDefined()
   expect(await resendButton()).toBeDefined()
+})
+
+it('draws the unconfirmed mail as one line at the foot', async () => {
+  renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => unverifiedPlayer }))
+
+  const line = await screen.findByRole('region', { name: verificationVerifyTitle() })
+  const main = screen.getByRole('main')
+
+  expect(line.textContent).toBe(`${verificationVerifyTitle()}${passwordResetRequestSubmit()}`)
+  expect(main.contains(line)).toBe(false)
+  expect(main.compareDocumentPosition(line)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+})
+
+it('swaps the line for the confirmation of a resend', async () => {
+  renderAppAt(
+    knownFiefPath,
+    unverifiedClientResending(async () => undefined),
+  )
+
+  fireEvent.click(await resendButton())
+  await screen.findByRole('status')
+
+  expect(screen.queryByText(verificationVerifyTitle())).toBeNull()
 })
 
 it('shows no banner once the email is verified', async () => {
   renderAppAt(knownFiefPath, stubApiClient({ currentPlayer: async () => knownPlayer }))
 
-  await screen.findByRole('heading', { level: 1, name: shellTitle() })
+  await screen.findByRole('heading', { level: 2, name: knownFief.name })
 
-  expect(screen.queryByText(verificationBannerLine())).toBeNull()
-  expect(screen.queryByRole('button', { name: verificationBannerResend() })).toBeNull()
+  expect(screen.queryByText(verificationVerifyTitle())).toBeNull()
+  expect(screen.queryByRole('button', { name: passwordResetRequestSubmit() })).toBeNull()
 })
 
 it('sends one resend per click', async () => {

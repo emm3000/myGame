@@ -7,7 +7,6 @@ import {
   shellLessonFinishClose,
   shellLessonFinishLine,
   shellNavigationReport,
-  shellNavigationTown,
   shellSignOut,
   townNextLessonReadyIn,
 } from '@mygame/catalog'
@@ -90,8 +89,10 @@ const dueTown = (count: number): TownOverview => ({
   nextStep: { kind: 'reviews', count, readFirst: [] },
 })
 
-const screensNavigation = (): HTMLElement =>
-  screen.getByRole('navigation', { name: (accessibleName) => accessibleName === '' })
+const reportDoor = (count: number): HTMLElement =>
+  within(screen.getByRole('main')).getByRole('link', {
+    name: `${shellNavigationReport()} ${reportReviewsDue({ count: String(count) })}`,
+  })
 
 const finishNotice = (number: number): HTMLElement =>
   screen.getByRole('region', { name: shellLessonFinishLine({ number }) })
@@ -152,45 +153,6 @@ it.each([
   },
 )
 
-it('shows the due count on Report', async () => {
-  renderAppAt('/report', signedInClient(servingTown(dueTown(5))))
-  await passSeconds(0)
-
-  const report = within(screensNavigation()).getByRole('link', {
-    name: `${shellNavigationReport()} ${reportReviewsDue({ count: '5' })}`,
-  })
-  expect(report.getAttribute('href')).toBe('/report')
-})
-
-it('leaves the count off Town', async () => {
-  renderAppAt('/report', signedInClient(servingTown(dueTown(5))))
-  await passSeconds(0)
-
-  expect(
-    within(screensNavigation()).getByRole('link', { name: shellNavigationTown() }).textContent,
-  ).toBe(shellNavigationTown())
-})
-
-it('shows a due count of 1 on Report', async () => {
-  renderAppAt('/', signedInClient(servingTown(dueTown(1))))
-  await passSeconds(0)
-
-  expect(
-    within(screensNavigation()).getByRole('link', {
-      name: `${shellNavigationReport()} ${reportReviewsDue({ count: '1' })}`,
-    }),
-  ).toBeDefined()
-})
-
-it('shows no count with nothing due', async () => {
-  renderAppAt('/', signedInClient(servingTown(knownTown)))
-  await passSeconds(0)
-
-  expect(
-    within(screensNavigation()).getByRole('link', { name: shellNavigationReport() }).textContent,
-  ).toBe(shellNavigationReport())
-})
-
 it('lowers the due count once a review is answered', async () => {
   const dueReview: Reviews['due'][number] = {
     wordId: 'word-2',
@@ -212,18 +174,16 @@ it('lowers the due count once a review is answered', async () => {
       return { ok: true, value: { verdict: { kind: 'nearMiss' } } }
     },
   })
-  renderAppAt('/reviews', client)
+  const router = renderAppAt('/reviews', client)
   await passSeconds(0)
 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'lake' } })
   fireEvent.click(screen.getByRole('button', { name: reviewCheck() }))
   await passSeconds(0)
+  await act(() => router.navigate({ href: '/' }))
+  await passSeconds(0)
 
-  expect(
-    within(screensNavigation()).getByRole('link', {
-      name: `${shellNavigationReport()} ${reportReviewsDue({ count: '1' })}`,
-    }),
-  ).toBeDefined()
+  expect(reportDoor(1)).toBeDefined()
 })
 
 it('opens the unread lesson from the finish notice', async () => {
@@ -282,14 +242,14 @@ it('empties the live region once the notice closes', async () => {
   expect(shellLiveRegion().textContent).toBe('')
 })
 
-it('moves focus to the shell title when the notice closes', async () => {
+it('moves focus to the shell header when the notice closes', async () => {
   renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
   await passSeconds(0)
   await passSeconds(240)
 
   fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
 
-  expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1 }))
+  expect(document.activeElement).toBe(screen.getByRole('banner'))
 })
 
 it('closes the notice once its link is followed', async () => {
@@ -682,9 +642,6 @@ it('shows nothing with no town', async () => {
   await passSeconds(0)
 
   expect(shellTimers()).toEqual([])
-  expect(
-    within(screensNavigation()).getByRole('link', { name: shellNavigationReport() }).textContent,
-  ).toBe(shellNavigationReport())
   expect(shellLiveRegion().textContent).toBe('')
 })
 
@@ -696,9 +653,6 @@ it('shows nothing when the first read fails', async () => {
   await passSeconds(0)
 
   expect(shellTimers()).toEqual([])
-  expect(
-    within(screensNavigation()).getByRole('link', { name: shellNavigationReport() }).textContent,
-  ).toBe(shellNavigationReport())
 })
 
 it('leaves the shell as it is when a later read fails', async () => {

@@ -1,4 +1,4 @@
 import type { LiveTown } from './liveTown'
 
-export const dueCountOf = (town: LiveTown | undefined): number =>
-  town?.overview.nextStep.kind === 'reviews' ? town.overview.nextStep.count : 0
+export const dueCountOf = ({ overview }: LiveTown): number =>
+  overview.nextStep.kind === 'reviews' ? overview.nextStep.count : 0
