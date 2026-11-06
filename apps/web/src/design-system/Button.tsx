@@ -26,7 +26,7 @@ const toneClass: Readonly<Record<ButtonTone, string>> = {
 const shapeClass: Readonly<Record<ButtonTone, string>> = {
   primary: 'min-h-action rounded-pill text-button',
   quiet: 'min-h-secondary rounded-pill text-label',
-  text: 'min-h-control rounded-sm text-label',
+  text: 'min-h-control min-w-12 rounded-sm text-label',
 }
 
 const paddingClass: Readonly<Record<ButtonTone, string>> = {
