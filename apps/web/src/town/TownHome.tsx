@@ -155,11 +155,11 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
         <NextStepCard town={town} />
         <TownDoors dueCount={dueCountOf(town)} />
       </div>
-      <div className="flex min-w-0 flex-col gap-6">
+      <div className="flex min-w-0 flex-col gap-6 lg:row-span-2">
         <TownSkyline buildings={overview.buildings} />
         <TownStocks town={town} />
       </div>
-      <div className="flex min-w-0 flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4 lg:row-span-2">
         <BuildSlot state={slotStateOf(town, work, slotTitle.focus)} titleRef={slotTitle.ref} />
         {stopRefused !== undefined && (
           <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
