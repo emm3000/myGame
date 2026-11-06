@@ -2,6 +2,7 @@ import { townLoading } from '@mygame/catalog'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
+import { SignOutColumn } from '../../auth/SignOutColumn'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import type { LiveTown } from '../../town/liveTown'
 import { NameTownScreen } from '../../town/NameTownScreen'
@@ -52,9 +53,17 @@ function TownPage(): ReactElement | null {
     case 'loading':
       return <ReadingLine line={townLoading()} />
     case 'noTown':
-      return <NameTownPage apiClient={apiClient} town={town} />
+      return (
+        <SignOutColumn apiClient={apiClient}>
+          <NameTownPage apiClient={apiClient} town={town} />
+        </SignOutColumn>
+      )
     case 'refused':
-      return <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+      return (
+        <SignOutColumn apiClient={apiClient}>
+          <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+        </SignOutColumn>
+      )
     case 'live':
       return <TownHomePage apiClient={apiClient} town={town.state.town} adopt={town.adopt} />
     default: {

@@ -1,7 +1,9 @@
 import {
+  authSignInTitle,
   refusalBlankTownName,
   refusalPlayerAlreadyHoldsTown,
   refusalUnexpected,
+  shellSignOut,
   townNamingField,
   townNamingGoToTown,
   townNamingSubmit,
@@ -38,6 +40,32 @@ it('shows Name your town to a player with no town', async () => {
   await showNaming(withNoTown())
 
   expect(screen.getByRole('textbox', { name: townNamingField() })).toBeDefined()
+})
+
+const signOutButton = (): HTMLElement => screen.getByRole('button', { name: shellSignOut() })
+
+it('signs out from the naming form', async () => {
+  let isSignedIn = true
+  await showNaming(
+    withNoTown({
+      currentPlayer: async () => (isSignedIn ? knownPlayer : undefined),
+      signOut: async () => {
+        isSignedIn = false
+        return { ok: true, value: undefined }
+      },
+    }),
+  )
+
+  fireEvent.click(signOutButton())
+
+  expect(await screen.findByRole('heading', { level: 1, name: authSignInTitle() })).toBeDefined()
+  expect(isSignedIn).toBe(false)
+})
+
+it('draws the naming form sign-out as a text button', async () => {
+  await showNaming(withNoTown())
+
+  expect(signOutButton().dataset.tone).toBe('text')
 })
 
 it('founds the town and opens its home', async () => {

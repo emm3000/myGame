@@ -1,4 +1,5 @@
 import {
+  authSignInTitle,
   namesPlacesFarm,
   namesPlacesHomes,
   namesPlacesOffice,
@@ -6,6 +7,7 @@ import {
   namesPlacesSchool,
   namesTownResourcesMoney,
   refusalUnexpected,
+  shellSignOut,
   townAmount,
   townBuild,
   townCostName,
@@ -84,6 +86,45 @@ it('offers to read the town again after a failed read', async () => {
   await passSeconds(0)
 
   expect(screen.getByRole('heading', { level: 1, name: new RegExp(knownTown.name) })).toBeDefined()
+})
+
+const failedRead = async (): Promise<ApiOutcome<TownOverview>> => ({
+  ok: false,
+  refusal: 'Unexpected',
+})
+
+const signOutButton = (): HTMLElement => screen.getByRole('button', { name: shellSignOut() })
+
+it('signs out from a failed town read', async () => {
+  let isSignedIn = true
+  await showTown(
+    serving(knownTown, {
+      currentPlayer: async () => (isSignedIn ? knownPlayer : undefined),
+      signOut: async () => {
+        isSignedIn = false
+        return { ok: true, value: undefined }
+      },
+      town: failedRead,
+    }),
+  )
+
+  fireEvent.click(signOutButton())
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 1, name: authSignInTitle() })).toBeDefined()
+  expect(isSignedIn).toBe(false)
+})
+
+it('draws the failed read sign-out as a text button', async () => {
+  await showTown(serving(knownTown, { town: failedRead }))
+
+  expect(signOutButton().dataset.tone).toBe('text')
+})
+
+it('keeps sign-out off the live town home', async () => {
+  await showTown(serving(knownTown))
+
+  expect(screen.queryByRole('button', { name: shellSignOut() })).toBeNull()
 })
 
 it('shows each stock with its rate and its storage', async () => {

@@ -1,9 +1,9 @@
-import { reportLoading, shellSignOut } from '@mygame/catalog'
+import { reportLoading } from '@mygame/catalog'
 import type { Report } from '@mygame/contracts/town'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
-import { Button } from '../../design-system/Button'
+import { SignOutColumn } from '../../auth/SignOutColumn'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
 import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
@@ -72,20 +72,10 @@ function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElem
 
 function ReportRoute(): ReactElement {
   const { apiClient } = Route.useRouteContext()
-  const navigate = useNavigate()
-  const signOut = async (): Promise<void> => {
-    await apiClient.signOut()
-    await navigate({ to: '/sign-in' })
-  }
   return (
-    <div className="mx-auto flex w-full max-w-form flex-col gap-6">
+    <SignOutColumn apiClient={apiClient}>
       <ReportBody apiClient={apiClient} />
-      <div className="-ml-1 flex">
-        <Button type="button" tone="text" onClick={signOut}>
-          {shellSignOut()}
-        </Button>
-      </div>
-    </div>
+    </SignOutColumn>
   )
 }
 
