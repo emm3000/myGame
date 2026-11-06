@@ -17,26 +17,26 @@ function StockItem({
   readonly amount: number
   readonly stock: TownOverview['stocks'][ResourceKind]
 }): ReactElement {
-  const { Icon, textClass, fillClass } = resourceAccent[resource]
+  const Icon = resourceAccent[resource]
   const shown = Math.floor(amount)
   const capacity = formatQuantity(stock.capacity)
   const isFull = shown >= stock.capacity
   return (
     <li aria-label={capitalize(townResourceNameOf(resource))} className="flex flex-col gap-1">
-      <span className={`flex items-center gap-2 font-sans text-label ${textClass}`}>
+      <span className="flex items-center gap-2 font-sans text-label text-ink">
         <Icon sizeClass="size-icon" />
         {capitalize(townResourceNameOf(resource))}
       </span>
       <span className="flex flex-wrap items-baseline justify-between gap-x-3 font-sans tabular-nums">
         <span className="text-heading text-ink">{formatQuantity(shown)}</span>
-        <span className="text-numeral text-ink-muted">
+        <span className="text-caption text-ink-muted">
           {isFull ? townFull({ capacity }) : townStockOf({ capacity })}
         </span>
-        <span className="text-numeral text-ink-muted">
+        <span className="text-caption text-ink-muted">
           {townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })}
         </span>
       </span>
-      <Track value={shown} total={stock.capacity} fillClass={fillClass} />
+      <Track value={shown} total={stock.capacity} fillClass="fill-ink" />
     </li>
   )
 }
@@ -49,11 +49,11 @@ export function TownStocks({
   readonly stocks: LiveStocks
 }): ReactElement {
   const titleId = useId()
-  const { Icon, textClass } = resourceAccent.people
+  const Icon = resourceAccent.people
   return (
     <section
       aria-labelledby={titleId}
-      className="flex flex-col gap-3 rounded-md bg-surface-raised p-5 shadow-ledge"
+      className="flex flex-col gap-3 rounded-md border border-line bg-surface-raised p-5"
     >
       <h3 id={titleId} className="m-0 font-sans text-heading text-ink">
         {townStocks()}
@@ -69,7 +69,7 @@ export function TownStocks({
         ))}
       </ul>
       <p className="m-0 flex items-center gap-2 border-line border-t pt-3 font-sans text-body text-ink">
-        <span className={`flex ${textClass}`}>
+        <span className="flex text-ink">
           <Icon sizeClass="size-icon" />
         </span>
         {townPeople({ free: overview.people.free, atWork: overview.people.atWork })}

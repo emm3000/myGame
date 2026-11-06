@@ -8,91 +8,45 @@ export type ColorToken =
   | 'line-strong'
   | 'ink'
   | 'ink-muted'
-  | 'ink-faint'
   | 'action'
   | 'on-action'
-  | 'action-soft'
-  | 'gloss'
-  | 'gloss-soft'
-  | 'right'
-  | 'right-soft'
-  | 'miss'
-  | 'miss-soft'
-  | 'hint'
-  | 'hint-soft'
   | 'focus'
-  | 'badge'
-  | 'on-badge'
-  | 'money'
-  | 'food'
-  | 'power'
-  | 'material'
-  | 'people'
-  | 'scene-sky'
-  | 'scene-cloud'
-  | 'scene-grass'
-  | 'scene-grass-deep'
-  | 'scene-tree'
-  | 'scene-trunk'
-  | 'scene-wall'
-  | 'scene-brick'
-  | 'scene-brick-deep'
-  | 'scene-barn'
-  | 'scene-roof'
-  | 'scene-roof-deep'
-  | 'scene-window'
-  | 'scene-sun'
-  | 'scene-steel'
-  | 'scene-path'
+  | 'warning-ink'
+  | 'warning-soft'
+  | 'destructive-ink'
+  | 'destructive-soft'
+  | 'block-peach'
+  | 'block-mint'
+  | 'block-periwinkle'
+  | 'block-lavender'
+  | 'on-block'
+  | 'on-block-muted'
 
 function inBothThemes(value: string): Readonly<Record<Theme, string>> {
   return { light: value, dark: value }
 }
 
 export const palette: Readonly<Record<ColorToken, Readonly<Record<Theme, string>>>> = {
-  surface: { light: '#f3f6f4', dark: '#0f1a1d' },
-  'surface-raised': { light: '#ffffff', dark: '#172429' },
-  'surface-sunken': { light: '#e4ebe8', dark: '#0a1316' },
-  line: { light: '#cfd9d5', dark: '#2b3c42' },
-  'line-strong': { light: '#6a7c78', dark: '#7d9198' },
-  ink: { light: '#14232a', dark: '#e9f1ef' },
-  'ink-muted': { light: '#455860', dark: '#b2c2c3' },
-  'ink-faint': { light: '#5a6c72', dark: '#93a5a8' },
-  action: { light: '#0b6670', dark: '#5ccfc4' },
-  'on-action': { light: '#ffffff', dark: '#062024' },
-  'action-soft': { light: '#d6efec', dark: '#11383a' },
-  gloss: { light: '#0b6670', dark: '#5ccfc4' },
-  'gloss-soft': { light: '#e2f4f1', dark: '#143437' },
-  right: { light: '#1f58a8', dark: '#8db8ff' },
-  'right-soft': { light: '#e0ebfb', dark: '#152a49' },
-  miss: { light: '#9b4708', dark: '#ffad6b' },
-  'miss-soft': { light: '#fcebdc', dark: '#3d2412' },
-  hint: { light: '#6a5200', dark: '#f0cf5a' },
-  'hint-soft': { light: '#fbf1c9', dark: '#342c0c' },
-  focus: { light: '#b0157f', dark: '#ff86d6' },
-  badge: { light: '#14232a', dark: '#e9f1ef' },
-  'on-badge': { light: '#ffffff', dark: '#0f1a1d' },
-  money: { light: '#2a7034', dark: '#7fd08a' },
-  food: { light: '#b8303f', dark: '#ff8f97' },
-  power: { light: '#7a5c00', dark: '#f2c84b' },
-  material: { light: '#4f6377', dark: '#a9bed1' },
-  people: { light: '#7046ad', dark: '#c3a6f2' },
-  'scene-sky': inBothThemes('#cdeaf7'),
-  'scene-cloud': inBothThemes('#ffffff'),
-  'scene-grass': inBothThemes('#8bcf6a'),
-  'scene-grass-deep': inBothThemes('#5fae4f'),
-  'scene-tree': inBothThemes('#3f9f5a'),
-  'scene-trunk': inBothThemes('#8a5a3c'),
-  'scene-wall': inBothThemes('#f7e6c8'),
-  'scene-brick': inBothThemes('#e0674a'),
-  'scene-brick-deep': inBothThemes('#c24e36'),
-  'scene-barn': inBothThemes('#d24a3f'),
-  'scene-roof': inBothThemes('#3c5ea8'),
-  'scene-roof-deep': inBothThemes('#2f4b8a'),
-  'scene-window': inBothThemes('#9fdcf5'),
-  'scene-sun': inBothThemes('#ffcf3f'),
-  'scene-steel': inBothThemes('#a9b8c4'),
-  'scene-path': inBothThemes('#e8e3d6'),
+  surface: { light: '#f4f3f1', dark: '#15141a' },
+  'surface-raised': { light: '#fbfaf9', dark: '#1e1d24' },
+  'surface-sunken': { light: '#e9e7e3', dark: '#2b2a32' },
+  line: { light: '#dad9d8', dark: '#2e2d35' },
+  'line-strong': { light: '#858389', dark: '#85838c' },
+  ink: { light: '#15141a', dark: '#f4f3f1' },
+  'ink-muted': { light: '#5f5d65', dark: '#aeacb4' },
+  action: { light: '#15141a', dark: '#f4f3f1' },
+  'on-action': { light: '#f4f3f1', dark: '#15141a' },
+  focus: { light: '#15141a', dark: '#f4f3f1' },
+  'warning-ink': { light: '#7f5210', dark: '#e8bf74' },
+  'warning-soft': { light: '#f3e6c8', dark: '#3a2e16' },
+  'destructive-ink': { light: '#a33a3a', dark: '#f0a6a6' },
+  'destructive-soft': { light: '#f3dada', dark: '#3f2224' },
+  'block-peach': inBothThemes('#f5c9a8'),
+  'block-mint': inBothThemes('#bfe3cb'),
+  'block-periwinkle': inBothThemes('#c6d3f5'),
+  'block-lavender': inBothThemes('#dcc8f0'),
+  'on-block': inBothThemes('#15141a'),
+  'on-block-muted': inBothThemes('#45444c'),
 }
 
 export function color(token: ColorToken): string {
@@ -102,7 +56,7 @@ export function color(token: ColorToken): string {
 export type TypeFamily = 'sans'
 
 export const typeFamilies: Readonly<Record<TypeFamily, string>> = {
-  sans: "'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif",
+  sans: "'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif",
 }
 
 export type SpaceStep = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 12
@@ -121,9 +75,11 @@ export const spacing: Readonly<Record<SpaceStep, string>> = {
 
 const controlMin = '48px'
 
-export type MinHeight = 'control' | 'plot'
+export type MinHeight = 'action' | 'secondary' | 'control' | 'plot'
 
 export const minHeights: Readonly<Record<MinHeight, string>> = {
+  action: '60px',
+  secondary: '52px',
   control: controlMin,
   plot: '96px',
 }
@@ -169,7 +125,7 @@ export const sizes: Readonly<Record<Size, string>> = {
 export type Height = 'track'
 
 export const heights: Readonly<Record<Height, string>> = {
-  track: '6px',
+  track: '3px',
 }
 
 export type StrokeWidth = 'hairline' | 'control' | 'icon' | 'mark' | 'focus'
@@ -185,16 +141,10 @@ export const strokeWidths: Readonly<Record<StrokeWidth, number>> = {
 export type Radius = 'sm' | 'md' | 'lg' | 'pill'
 
 export const radii: Readonly<Record<Radius, string>> = {
-  sm: '6px',
-  md: '12px',
-  lg: '20px',
+  sm: '8px',
+  md: '16px',
+  lg: '28px',
   pill: '999px',
-}
-
-export type Shadow = 'ledge'
-
-export const shadows: Readonly<Record<Shadow, Readonly<Record<Theme, string>>>> = {
-  ledge: { light: `0 2px 0 ${palette.line.light}`, dark: `0 2px 0 ${palette.line.dark}` },
 }
 
 export type Duration = 'instant' | 'quick' | 'base' | 'calm'
@@ -220,35 +170,58 @@ export const transitions: Readonly<Record<Transition, string>> = {
 }
 
 export type TypeStyle =
-  | 'display'
-  | 'title'
-  | 'heading'
   | 'word'
+  | 'display'
+  | 'numeral'
   | 'reading'
-  | 'body'
-  | 'gloss'
+  | 'heading'
   | 'button'
+  | 'title'
+  | 'gloss'
+  | 'body'
   | 'label'
   | 'caption'
-  | 'numeral'
+  | 'meta'
 
 export interface TypeStyleValues {
   readonly fontSize: string
+  readonly fontSizeFromMd?: string
   readonly lineHeight: number
   readonly fontWeight: number
   readonly letterSpacing?: string
+  readonly textTransform?: 'uppercase'
+  readonly fontVariantNumeric?: 'tabular-nums'
 }
 
 export const typeScale: Readonly<Record<TypeStyle, TypeStyleValues>> = {
-  display: { fontSize: '40px', lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.01em' },
-  title: { fontSize: '28px', lineHeight: 1.3, fontWeight: 700 },
-  heading: { fontSize: '22px', lineHeight: 1.4, fontWeight: 700 },
-  word: { fontSize: '36px', lineHeight: 1.25, fontWeight: 700 },
+  word: {
+    fontSize: '44px',
+    fontSizeFromMd: '52px',
+    lineHeight: 1.05,
+    fontWeight: 800,
+    letterSpacing: '-0.02em',
+  },
+  display: { fontSize: '40px', lineHeight: 1.05, fontWeight: 800, letterSpacing: '-0.02em' },
+  numeral: {
+    fontSize: '26px',
+    lineHeight: 1.15,
+    fontWeight: 700,
+    letterSpacing: '-0.02em',
+    fontVariantNumeric: 'tabular-nums',
+  },
   reading: { fontSize: '20px', lineHeight: 1.5, fontWeight: 400 },
-  body: { fontSize: '18px', lineHeight: 1.5, fontWeight: 400 },
-  gloss: { fontSize: '17px', lineHeight: 1.5, fontWeight: 400 },
+  heading: { fontSize: '20px', lineHeight: 1.35, fontWeight: 600 },
   button: { fontSize: '18px', lineHeight: 1.33, fontWeight: 700 },
-  label: { fontSize: '16px', lineHeight: 1.5, fontWeight: 700 },
-  caption: { fontSize: '16px', lineHeight: 1.5, fontWeight: 400 },
-  numeral: { fontSize: '18px', lineHeight: 1.33, fontWeight: 700 },
+  title: { fontSize: '17px', lineHeight: 1.35, fontWeight: 600 },
+  gloss: { fontSize: '17px', lineHeight: 1.5, fontWeight: 400 },
+  body: { fontSize: '16px', lineHeight: 1.5, fontWeight: 400 },
+  label: { fontSize: '15px', lineHeight: 1.4, fontWeight: 600 },
+  caption: { fontSize: '15px', lineHeight: 1.5, fontWeight: 400 },
+  meta: {
+    fontSize: '14px',
+    lineHeight: 1.3,
+    fontWeight: 500,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+  },
 }

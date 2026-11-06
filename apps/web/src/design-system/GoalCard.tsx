@@ -22,7 +22,7 @@ export interface GoalCardProps {
 }
 
 const toneClass: Readonly<Record<GoalStateTone, string>> = {
-  short: 'text-miss',
+  short: 'text-warning-ink',
   underway: 'text-ink-muted',
   ready: 'text-ink',
 }
@@ -42,14 +42,14 @@ export function GoalCard({
     <Panel
       element="article"
       labelledBy={titleId}
-      toneClass="bg-surface-raised"
+      toneClass="border-line bg-surface-raised"
       spacingClass="gap-3 p-5"
     >
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 id={titleId} className="m-0 font-sans text-ink text-title">
           {title}
         </h3>
-        <span className="font-sans text-ink-muted text-numeral tabular-nums">{position}</span>
+        <span className="font-sans text-ink-muted text-caption tabular-nums">{position}</span>
       </header>
       <p className="m-0 font-sans text-heading text-ink">{goal}</p>
       <div className="flex flex-col gap-1">

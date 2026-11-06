@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { palette } from '../design/tokens'
 import { vectorDrawableOf } from './vectorDrawableOf'
 
-const sky = palette['scene-sky'].light
+const sky = '#cdeaf7'
+const food = '#b8303f'
 
 const pathDataIn = (shape: string): string => {
   const drawable = vectorDrawableOf(
@@ -22,12 +22,12 @@ describe('vectorDrawableOf', () => {
 
   it('keeps each shape as a path with its fill, in drawing order', () => {
     const drawable = vectorDrawableOf(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect x="0" y="0" width="9" height="9" fill="${sky}"/><polygon points="0,0 9,9 0,9" fill="${palette.food.light}"/></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240"><rect x="0" y="0" width="9" height="9" fill="${sky}"/><polygon points="0,0 9,9 0,9" fill="${food}"/></svg>`,
     )
 
     expect([...drawable.matchAll(/android:fillColor="([^"]*)"/g)].map(([, fill]) => fill)).toEqual([
       sky,
-      palette.food.light,
+      food,
     ])
   })
 

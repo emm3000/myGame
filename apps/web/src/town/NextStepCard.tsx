@@ -13,7 +13,7 @@ export function NextStepCard({ town }: { readonly town: LiveTown }): ReactElemen
     <Panel
       element="section"
       labelledBy={titleId}
-      toneClass="bg-action-soft"
+      toneClass="border-line bg-surface-sunken"
       spacingClass="gap-3 p-5"
     >
       <h3 id={titleId} className="m-0 font-sans text-label text-ink">

@@ -11,15 +11,15 @@ export interface CardCost {
 
 export function CostList({ costs }: { readonly costs: ReadonlyArray<CardCost> }): ReactElement {
   return (
-    <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-2 p-0 font-sans text-numeral tabular-nums">
+    <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-2 p-0 font-sans text-caption tabular-nums">
       {costs.map((cost) => {
-        const { Icon, textClass } = resourceAccent[cost.kind]
+        const Icon = resourceAccent[cost.kind]
         return (
           <li
             key={cost.kind}
-            className={`flex items-center gap-1 ${cost.shortMark === undefined ? 'text-ink' : 'text-miss'}`}
+            className={`flex items-center gap-1 ${cost.shortMark === undefined ? 'text-ink' : 'text-warning-ink'}`}
           >
-            <span className={`flex ${textClass}`}>
+            <span className="flex text-ink">
               <Icon />
             </span>
             {formatQuantity(cost.amount)}

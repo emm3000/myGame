@@ -32,7 +32,7 @@ export function RecruitSlot({
   if (state.kind === 'idle') {
     return (
       <section
-        className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
+        className={`${frameClass} border border-dashed border-line bg-surface text-ink-muted`}
       >
         <SlotHeading
           icon={<SlotIcon sizeClass="size-icon" />}
@@ -44,7 +44,7 @@ export function RecruitSlot({
     )
   }
   return (
-    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-ledge`}>
+    <section className={`${frameClass} border border-line bg-surface-raised text-ink-muted`}>
       <SlotHeading
         icon={<SlotIcon sizeClass="size-icon" />}
         title={state.title}

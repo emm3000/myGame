@@ -38,7 +38,7 @@ export function MarchSlot({
   if (state.kind === 'idle') {
     return (
       <section
-        className={`${frameClass} border border-dashed border-line bg-surface text-ink-faint`}
+        className={`${frameClass} border border-dashed border-line bg-surface text-ink-muted`}
       >
         {heading(state.title, titleRef)}
         <p className="m-0 font-sans text-caption">{state.invitation}</p>
@@ -46,7 +46,7 @@ export function MarchSlot({
     )
   }
   return (
-    <section className={`${frameClass} bg-surface-raised text-ink-muted shadow-ledge`}>
+    <section className={`${frameClass} border border-line bg-surface-raised text-ink-muted`}>
       {heading(state.title, titleRef)}
       <p className="m-0 font-sans text-body text-ink">
         <PreviewLineText line={state.phase} />

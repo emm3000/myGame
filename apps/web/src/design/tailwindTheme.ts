@@ -8,12 +8,11 @@ import {
   minHeights,
   palette,
   radii,
-  type Shadow,
   scrollMargins,
-  shadows,
   sizes,
   spacing,
   type Theme,
+  type TypeStyleValues,
   transitions,
   typeFamilies,
   typeScale,
@@ -26,41 +25,48 @@ function isColorToken(key: string): key is ColorToken {
 
 const colorTokens = Object.keys(palette).filter(isColorToken)
 
-function isShadow(key: string): key is Shadow {
-  return key in shadows
-}
-
-const shadowTokens = Object.keys(shadows).filter(isShadow)
-
-function namesTypeStyle(token: ColorToken): boolean {
-  return token in typeScale
-}
-
 function colorsOf(tokens: ReadonlyArray<ColorToken>): Record<string, string> {
   return Object.fromEntries(tokens.map((token) => [token, color(token)]))
 }
 
-const colorsOutsideText = colorsOf(colorTokens.filter(namesTypeStyle))
-
 function variables(theme: Theme): Record<string, string> {
-  return Object.fromEntries([
-    ...colorTokens.map((token) => [`--${token}`, palette[token][theme]]),
-    ...shadowTokens.map((token) => [`--shadow-${token}`, shadows[token][theme]]),
-  ])
+  return Object.fromEntries(colorTokens.map((token) => [`--${token}`, palette[token][theme]]))
 }
 
 const fontSize = Object.fromEntries(
-  Object.entries(typeScale).map(([style, { fontSize, ...settings }]) => [
+  Object.entries(typeScale).map(([style, { fontSize, lineHeight, fontWeight, letterSpacing }]) => [
     style,
     [
       fontSize,
       {
-        ...settings,
-        lineHeight: String(settings.lineHeight),
-        fontWeight: String(settings.fontWeight),
+        lineHeight: String(lineHeight),
+        fontWeight: String(fontWeight),
+        ...(letterSpacing === undefined ? {} : { letterSpacing }),
       },
     ],
   ]),
+)
+
+type TypeExtras = Record<string, string | Record<string, string>>
+
+function typeExtrasOf({
+  fontSizeFromMd,
+  textTransform,
+  fontVariantNumeric,
+}: TypeStyleValues): TypeExtras {
+  return {
+    ...(textTransform === undefined ? {} : { 'text-transform': textTransform }),
+    ...(fontVariantNumeric === undefined ? {} : { 'font-variant-numeric': fontVariantNumeric }),
+    ...(fontSizeFromMd === undefined
+      ? {}
+      : { [`@media (min-width: ${breakpoints.md})`]: { 'font-size': fontSizeFromMd } }),
+  }
+}
+
+const typeExtras = Object.fromEntries(
+  Object.entries(typeScale)
+    .map(([style, values]) => [`.text-${style}`, typeExtrasOf(values)] as const)
+    .filter(([, extras]) => Object.keys(extras).length > 0),
 )
 
 export default plugin(
@@ -77,32 +83,19 @@ export default plugin(
         ]),
       ),
     )
+    addUtilities(typeExtras)
   },
   {
     theme: {
-      colors: colorsOf(colorTokens.filter((token) => !namesTypeStyle(token))),
+      colors: colorsOf(colorTokens),
       spacing,
       minHeight: minHeights,
       width: widths,
       size: sizes,
       borderRadius: radii,
-      boxShadow: Object.fromEntries(shadowTokens.map((token) => [token, `var(--shadow-${token})`])),
       fontFamily: typeFamilies,
       fontSize,
       extend: {
-        backgroundColor: colorsOutsideText,
-        borderColor: colorsOutsideText,
-        textDecorationColor: colorsOutsideText,
-        outlineColor: colorsOutsideText,
-        fill: colorsOutsideText,
-        stroke: colorsOutsideText,
-        ringColor: colorsOutsideText,
-        ringOffsetColor: colorsOutsideText,
-        divideColor: colorsOutsideText,
-        caretColor: colorsOutsideText,
-        accentColor: colorsOutsideText,
-        placeholderColor: colorsOutsideText,
-        boxShadowColor: colorsOutsideText,
         height: heights,
         maxWidth: maxWidths,
         scrollMargin: scrollMargins,

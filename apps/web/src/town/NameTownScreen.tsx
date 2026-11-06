@@ -32,7 +32,7 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
     <div className="mx-auto flex w-full max-w-form flex-col">
       <Panel
         element="section"
-        toneClass="bg-surface-raised"
+        toneClass="border-line bg-surface-raised"
         spacingClass="gap-4 p-5"
         labelledBy={titleId}
       >

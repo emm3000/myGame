@@ -18,7 +18,7 @@ export function Panel({
   return (
     <Element
       aria-labelledby={labelledBy}
-      className={`flex flex-col rounded-md shadow-ledge ${spacingClass} ${toneClass}`}
+      className={`flex flex-col rounded-md border ${spacingClass} ${toneClass}`}
     >
       {children}
     </Element>

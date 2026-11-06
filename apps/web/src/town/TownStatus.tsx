@@ -24,7 +24,7 @@ function FinishNotice({
   return (
     <section
       aria-label={line}
-      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-right bg-right-soft px-4 py-3 md:px-8"
+      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-ink bg-surface-sunken px-4 py-3 md:px-8"
     >
       <p className="m-0 font-sans text-label text-ink">{line}</p>
       <div className="flex flex-wrap items-center gap-2">

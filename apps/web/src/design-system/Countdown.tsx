@@ -9,7 +9,7 @@ interface CountdownProps {
 
 function tone(remainingSeconds: number): { readonly icon: string; readonly digits: string } {
   if (remainingSeconds <= 0) {
-    return { icon: 'text-right', digits: 'text-numeral text-right' }
+    return { icon: 'text-ink', digits: 'text-caption text-ink' }
   }
   return { icon: 'text-ink-muted', digits: 'text-heading tabular-nums text-ink' }
 }

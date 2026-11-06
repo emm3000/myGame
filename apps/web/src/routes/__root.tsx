@@ -32,9 +32,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     links: [
       { rel: 'stylesheet', href: stylesheet },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..800&display=swap',
       },
     ],
   }),

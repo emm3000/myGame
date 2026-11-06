@@ -8,7 +8,6 @@ import {
   minHeights,
   palette,
   radii,
-  shadows,
   sizes,
   spacing,
   transitions,
@@ -50,15 +49,6 @@ it('exposes a Tailwind radius utility for every radius token', async () => {
   const css = stylesheet.build(names.map((name) => `rounded-${name}`))
 
   expect(names.filter((name) => !css.includes(`.rounded-${name} {`))).toEqual([])
-})
-
-it('exposes a Tailwind shadow utility for every shadow token', async () => {
-  const stylesheet = await compileStylesheet()
-  const names = Object.keys(shadows)
-
-  const css = stylesheet.build(names.map((name) => `shadow-${name}`))
-
-  expect(names.filter((name) => !css.includes(`.shadow-${name} {`))).toEqual([])
 })
 
 it('exposes a Tailwind min-height utility for every min-height token', async () => {
@@ -111,21 +101,6 @@ function ruleOf(css: string, selector: string): string {
   return start === -1 ? '' : css.slice(start, css.indexOf('}', start))
 }
 
-it('switches every shadow token with the theme', async () => {
-  const stylesheet = await compileStylesheet()
-  const names = Object.keys(shadows)
-  const declarations = Object.entries(shadows).flatMap(([name, byTheme]) =>
-    Object.values(byTheme).map((value) => `--shadow-${name}: ${value}`),
-  )
-
-  const css = stylesheet.build(names.map((name) => `shadow-${name}`))
-
-  expect(declarations.filter((declaration) => !css.includes(declaration))).toEqual([])
-  expect(
-    names.filter((name) => !ruleOf(css, `.shadow-${name}`).includes(`var(--shadow-${name})`)),
-  ).toEqual([])
-})
-
 it('exposes a Tailwind max-width utility for every max-width token', async () => {
   const stylesheet = await compileStylesheet()
   const names = Object.keys(maxWidths)
@@ -159,28 +134,33 @@ it('sets the one type family through font-sans', async () => {
   expect(ruleOf(css, '.font-sans')).toContain(`font-family: ${typeFamilies.sans}`)
 })
 
-it('keeps a colour named like a type style on every colour utility but text', async () => {
+it('raises the word style to its larger size from md', async () => {
   const stylesheet = await compileStylesheet()
-  const utilities = [
-    'bg',
-    'border',
-    'decoration',
-    'outline',
-    'fill',
-    'stroke',
-    'ring',
-    'ring-offset',
-    'divide',
-    'caret',
-    'accent',
-    'placeholder',
-    'shadow',
-  ]
-  const clashing = Object.keys(palette).filter((token) => token in typeScale)
-  const classes = clashing.flatMap((token) => utilities.map((utility) => `${utility}-${token}`))
 
-  const css = stylesheet.build(classes)
+  const css = stylesheet.build(['text-word'])
+  const mediaRule = css.slice(css.indexOf('@media (min-width: 48rem)'))
 
-  expect(clashing).not.toEqual([])
-  expect(classes.filter((name) => !css.includes(`.${name}`))).toEqual([])
+  expect(ruleOf(css, '.text-word')).toContain('font-size: 44px')
+  expect(mediaRule).toContain('font-size: 52px')
+  expect(css.indexOf('font-size: 44px')).toBeLessThan(css.indexOf('font-size: 52px'))
+})
+
+it('sets meta alone in uppercase', async () => {
+  const stylesheet = await compileStylesheet()
+  const styles = Object.keys(typeScale)
+
+  const css = stylesheet.build(styles.map((style) => `text-${style}`))
+
+  expect(css.match(/text-transform: uppercase/g)).toHaveLength(1)
+  expect(css.slice(css.indexOf('.text-meta'))).toContain('text-transform: uppercase')
+})
+
+it('sets numeral alone with tabular figures', async () => {
+  const stylesheet = await compileStylesheet()
+  const styles = Object.keys(typeScale)
+
+  const css = stylesheet.build(styles.map((style) => `text-${style}`))
+
+  expect(css.match(/font-variant-numeric: tabular-nums/g)).toHaveLength(1)
+  expect(css.slice(css.indexOf('.text-numeral'))).toContain('font-variant-numeric: tabular-nums')
 })

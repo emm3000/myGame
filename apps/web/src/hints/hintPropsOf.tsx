@@ -44,7 +44,7 @@ function iconOf(hint: ShownHint): ReactElement {
     case 'marches':
       return <MarchIcon />
     case 'fullStore': {
-      const { Icon } = resourceAccent[hint.resource]
+      const Icon = resourceAccent[hint.resource]
       return <Icon />
     }
     default: {

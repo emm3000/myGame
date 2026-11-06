@@ -1,234 +1,117 @@
 import { expect, it } from 'vitest'
 import { type ColorToken, palette, type Theme } from './tokens'
 
-type PairKind = 'text' | 'boundary' | 'graphic'
+type PairKind = 'text' | 'boundary'
 
-type Exemption = 'inactive component, WCAG 1.4.3'
+type WcagClause = 'WCAG 1.4.3' | 'WCAG 1.4.11'
 
 interface Pair {
   readonly kind: PairKind
   readonly foreground: ColorToken
   readonly background: ColorToken
-  readonly usedBy: string
-  readonly exemption?: Exemption
+  readonly usedAs: string
 }
 
-const minimumOf: Readonly<Record<PairKind, number>> = { text: 4.5, boundary: 3, graphic: 3 }
+interface Exemption {
+  readonly clause: WcagClause
+  readonly kind: PairKind
+  readonly foregrounds: ReadonlyArray<ColorToken>
+  readonly backgrounds: ReadonlyArray<ColorToken>
+  readonly reason: string
+}
+
+const minimumOf: Readonly<Record<PairKind, number>> = { text: 4.5, boundary: 3 }
 
 const themes: ReadonlyArray<Theme> = ['light', 'dark']
 
-const resourceLabel = 'ResourceBar label'
+const blocks: ReadonlyArray<ColorToken> = [
+  'block-peach',
+  'block-mint',
+  'block-periwinkle',
+  'block-lavender',
+]
 
-const resourceIcon = 'resource icon in ResourceBar, CostList, ArtCard and FiefSwitcher chip'
+const surfaces: ReadonlyArray<ColorToken> = ['surface', 'surface-raised', 'surface-sunken']
 
-const resourceTrack = 'ResourceBar track'
-
-const controlBoundary = 'border of every Button, TextField, NumberField and recognition choice'
-
-const focusRing = 'focus ring, 3 px at a 2 px offset'
+const onBlockUse = 'text, a window, focus on a block'
 
 const pairs: ReadonlyArray<Pair> = [
-  { kind: 'text', foreground: 'ink', background: 'surface', usedBy: 'running text' },
-  { kind: 'text', foreground: 'ink', background: 'surface-raised', usedBy: 'card text' },
-  { kind: 'text', foreground: 'ink', background: 'action-soft', usedBy: 'NextStepCard text' },
-  {
-    kind: 'text',
-    foreground: 'ink-muted',
-    background: 'action-soft',
-    usedBy: 'NextStepCard countdown words',
-  },
+  { kind: 'text', foreground: 'ink', background: 'surface', usedAs: 'text' },
+  { kind: 'text', foreground: 'ink', background: 'surface-raised', usedAs: 'text' },
   {
     kind: 'text',
     foreground: 'ink',
     background: 'surface-sunken',
-    usedBy: 'CardHeader, BuildSlot and WaitingUpgrades level badges, NoticeBanner line',
+    usedAs: "text, the ring's fill on its track",
   },
-  { kind: 'text', foreground: 'on-badge', background: 'badge', usedBy: 'AppShell due count' },
-  {
-    kind: 'text',
-    foreground: 'ink',
-    background: 'right-soft',
-    usedBy: 'MarchSent, NoticeBanner sent outcome, right verdict, TownStatus finish notice',
-  },
-  { kind: 'text', foreground: 'ink', background: 'miss-soft', usedBy: 'FormAlert, missed verdict' },
-  { kind: 'text', foreground: 'ink', background: 'hint-soft', usedBy: 'near-miss prompt' },
-  { kind: 'text', foreground: 'ink-muted', background: 'surface', usedBy: 'captions on the page' },
-  {
-    kind: 'text',
-    foreground: 'ink-muted',
-    background: 'surface-raised',
-    usedBy: 'captions in a card',
-  },
+  { kind: 'text', foreground: 'ink-muted', background: 'surface', usedAs: 'text' },
+  { kind: 'text', foreground: 'ink-muted', background: 'surface-raised', usedAs: 'text' },
   {
     kind: 'text',
     foreground: 'ink-muted',
     background: 'surface-sunken',
-    usedBy: 'waiting Button label, TownStatus countdown words',
+    usedAs: 'text, the track',
   },
+  { kind: 'text', foreground: 'on-action', background: 'action', usedAs: 'text' },
+  ...blocks.map(
+    (block): Pair => ({
+      kind: 'text',
+      foreground: 'on-block',
+      background: block,
+      usedAs: onBlockUse,
+    }),
+  ),
+  ...blocks.map(
+    (block): Pair => ({
+      kind: 'text',
+      foreground: 'on-block-muted',
+      background: block,
+      usedAs: 'text',
+    }),
+  ),
+  { kind: 'text', foreground: 'warning-ink', background: 'surface', usedAs: 'text' },
+  { kind: 'text', foreground: 'warning-ink', background: 'surface-raised', usedAs: 'text' },
+  { kind: 'text', foreground: 'warning-ink', background: 'warning-soft', usedAs: 'text' },
+  { kind: 'text', foreground: 'destructive-ink', background: 'surface', usedAs: 'text' },
+  { kind: 'text', foreground: 'destructive-ink', background: 'surface-raised', usedAs: 'text' },
+  { kind: 'text', foreground: 'destructive-ink', background: 'destructive-soft', usedAs: 'text' },
+  { kind: 'boundary', foreground: 'action', background: 'surface', usedAs: 'boundary' },
+  { kind: 'boundary', foreground: 'line-strong', background: 'surface', usedAs: 'boundary' },
+  { kind: 'boundary', foreground: 'line-strong', background: 'surface-raised', usedAs: 'boundary' },
+  { kind: 'boundary', foreground: 'line-strong', background: 'surface-sunken', usedAs: 'boundary' },
+  { kind: 'boundary', foreground: 'focus', background: 'surface', usedAs: 'boundary' },
+  { kind: 'boundary', foreground: 'focus', background: 'surface-raised', usedAs: 'boundary' },
+  { kind: 'boundary', foreground: 'focus', background: 'surface-sunken', usedAs: 'boundary' },
+]
+
+const exemptions: ReadonlyArray<Exemption> = [
   {
-    kind: 'text',
-    foreground: 'ink-faint',
-    background: 'surface',
-    usedBy: 'idle BuildSlot, RecruitSlot and MarchSlot, free PlotTile, empty chronicle',
-  },
-  {
-    kind: 'text',
-    foreground: 'ink-faint',
-    background: 'surface-raised',
-    usedBy: 'free PlotTile with an action open',
-  },
-  {
-    kind: 'text',
-    foreground: 'line-strong',
-    background: 'surface-sunken',
-    usedBy: 'disabled Button and NumberField',
-    exemption: 'inactive component, WCAG 1.4.3',
-  },
-  {
-    kind: 'text',
-    foreground: 'action',
-    background: 'surface',
-    usedBy: 'SlotsStrip idle cell, FiefSwitcher other fief',
-  },
-  {
-    kind: 'text',
-    foreground: 'action',
-    background: 'surface-raised',
-    usedBy: 'AppShell title and current link, AuthPanel title, TextLink, FiefScreen address',
-  },
-  {
-    kind: 'text',
-    foreground: 'on-action',
-    background: 'action',
-    usedBy: 'primary Button, PlotTile marker',
-  },
-  {
-    kind: 'text',
-    foreground: 'right',
-    background: 'surface',
-    usedBy: 'Countdown at zero in WaitingUpgrades',
-  },
-  {
-    kind: 'text',
-    foreground: 'right',
-    background: 'surface-raised',
-    usedBy: 'Countdown at zero in BuildSlot, just-finished BuildSlot badge',
-  },
-  {
-    kind: 'text',
-    foreground: 'right',
-    background: 'right-soft',
-    usedBy: 'just-finished BuildSlot, CardHeader max-level badge',
-  },
-  {
-    kind: 'text',
-    foreground: 'miss',
-    background: 'surface',
-    usedBy: 'LockedUnitCard requirement and reason',
-  },
-  {
-    kind: 'text',
-    foreground: 'miss',
-    background: 'surface-raised',
-    usedBy:
-      'CostList short line, ArtCard requirement, CardAction reason, TextField error, full store rate',
-  },
-  { kind: 'text', foreground: 'money', background: 'surface-raised', usedBy: resourceLabel },
-  { kind: 'text', foreground: 'food', background: 'surface-raised', usedBy: resourceLabel },
-  { kind: 'text', foreground: 'material', background: 'surface-raised', usedBy: resourceLabel },
-  { kind: 'text', foreground: 'power', background: 'surface-raised', usedBy: resourceLabel },
-  { kind: 'text', foreground: 'people', background: 'surface-raised', usedBy: resourceLabel },
-  { kind: 'boundary', foreground: 'line-strong', background: 'surface', usedBy: controlBoundary },
-  {
+    clause: 'WCAG 1.4.11',
     kind: 'boundary',
-    foreground: 'line-strong',
-    background: 'surface-raised',
-    usedBy: controlBoundary,
+    foregrounds: ['line'],
+    backgrounds: surfaces,
+    reason: "a divider, never a control's boundary",
   },
   {
+    clause: 'WCAG 1.4.11',
     kind: 'boundary',
-    foreground: 'line-strong',
-    background: 'surface-sunken',
-    usedBy: 'disabled and waiting Button border, NoticeToggle off thumb',
+    foregrounds: blocks,
+    backgrounds: ['surface'],
+    reason: 'a ground, and the text on it is measured',
   },
   {
+    clause: 'WCAG 1.4.11',
     kind: 'boundary',
-    foreground: 'action',
-    background: 'surface',
-    usedBy: 'checked recognition choice, own PlotTile frame against the map',
+    foregrounds: ['surface-sunken'],
+    backgrounds: ['surface'],
+    reason: 'a silhouette not built yet, decorative, its level always written beside it',
   },
   {
-    kind: 'boundary',
-    foreground: 'action',
-    background: 'surface-raised',
-    usedBy: 'primary Button, NoticeToggle on, own PlotTile frame, FiefSwitcher current entry',
-  },
-  {
-    kind: 'boundary',
-    foreground: 'on-action',
-    background: 'action',
-    usedBy: 'NoticeToggle on thumb',
-  },
-  { kind: 'boundary', foreground: 'focus', background: 'surface', usedBy: focusRing },
-  { kind: 'boundary', foreground: 'focus', background: 'surface-raised', usedBy: focusRing },
-  { kind: 'boundary', foreground: 'focus', background: 'surface-sunken', usedBy: focusRing },
-  { kind: 'boundary', foreground: 'focus', background: 'action-soft', usedBy: focusRing },
-  {
-    kind: 'boundary',
-    foreground: 'action',
-    background: 'action-soft',
-    usedBy: 'NextStepCard primary link',
-  },
-  { kind: 'graphic', foreground: 'money', background: 'surface-raised', usedBy: resourceIcon },
-  { kind: 'graphic', foreground: 'food', background: 'surface-raised', usedBy: resourceIcon },
-  { kind: 'graphic', foreground: 'material', background: 'surface-raised', usedBy: resourceIcon },
-  { kind: 'graphic', foreground: 'power', background: 'surface-raised', usedBy: resourceIcon },
-  { kind: 'graphic', foreground: 'people', background: 'surface-raised', usedBy: resourceIcon },
-  { kind: 'graphic', foreground: 'money', background: 'surface-sunken', usedBy: resourceTrack },
-  { kind: 'graphic', foreground: 'food', background: 'surface-sunken', usedBy: resourceTrack },
-  { kind: 'graphic', foreground: 'material', background: 'surface-sunken', usedBy: resourceTrack },
-  { kind: 'graphic', foreground: 'power', background: 'surface-sunken', usedBy: resourceTrack },
-  {
-    kind: 'graphic',
-    foreground: 'miss',
-    background: 'surface-sunken',
-    usedBy: 'ResourceBar track of a full store',
-  },
-  {
-    kind: 'graphic',
-    foreground: 'action',
-    background: 'surface-sunken',
-    usedBy: 'BuildSlot, RecruitSlot, MarchSlot, CargoCard and SlotsStrip track',
-  },
-  {
-    kind: 'graphic',
-    foreground: 'right',
-    background: 'right-soft',
-    usedBy: 'MarchSent, NoticeBanner outcome, BuildSlot and right verdict frames',
-  },
-  {
-    kind: 'graphic',
-    foreground: 'miss',
-    background: 'miss-soft',
-    usedBy: 'FormAlert and missed verdict frames',
-  },
-  {
-    kind: 'graphic',
-    foreground: 'hint',
-    background: 'hint-soft',
-    usedBy: 'near-miss prompt frame',
-  },
-  {
-    kind: 'graphic',
-    foreground: 'ink-muted',
-    background: 'surface',
-    usedBy: 'PlotTile camp icon',
-  },
-  {
-    kind: 'graphic',
-    foreground: 'ink',
-    background: 'surface-sunken',
-    usedBy: 'NoticeBanner mail icon',
+    clause: 'WCAG 1.4.3',
+    kind: 'text',
+    foregrounds: ['line-strong'],
+    backgrounds: ['surface-sunken'],
+    reason: 'the label of a disabled control',
   },
 ]
 
@@ -246,44 +129,118 @@ function contrast(first: string, second: string): number {
   return (Math.max(...luminances) + 0.05) / (Math.min(...luminances) + 0.05)
 }
 
-function ratioOf(pair: Pair, theme: Theme): number {
-  return contrast(palette[pair.foreground][theme], palette[pair.background][theme])
+function ratioOf(foreground: ColorToken, background: ColorToken, theme: Theme): number {
+  return contrast(palette[foreground][theme], palette[background][theme])
 }
 
-function labelOf(pair: Pair, theme: Theme): string {
-  return `${theme} ${pair.foreground} on ${pair.background} (${pair.usedBy}): ${ratioOf(pair, theme).toFixed(2)}`
+function pairsUnderTheirFloor(theme: Theme): ReadonlyArray<string> {
+  return pairs
+    .filter((pair) => ratioOf(pair.foreground, pair.background, theme) < minimumOf[pair.kind])
+    .map((pair) => `${theme} ${pair.foreground} on ${pair.background} (${pair.usedAs})`)
 }
 
-function checkedPairsUnderMinimum(kind: PairKind): ReadonlyArray<string> {
-  return themes.flatMap((theme) =>
-    pairs
-      .filter((pair) => pair.kind === kind && pair.exemption === undefined)
-      .filter((pair) => ratioOf(pair, theme) < minimumOf[kind])
-      .map((pair) => labelOf(pair, theme)),
+function exemptPairsOf(exemption: Exemption): ReadonlyArray<readonly [ColorToken, ColorToken]> {
+  return exemption.foregrounds.flatMap((foreground) =>
+    exemption.backgrounds.map((background) => [foreground, background] as const),
   )
+}
+
+function namesOf(pair: readonly [ColorToken, ColorToken]): string {
+  return `${pair[0]} on ${pair[1]}`
+}
+
+function needlessPairsOf(checked: ReadonlyArray<Exemption>): ReadonlyArray<string> {
+  return checked.flatMap((exemption) =>
+    exemptPairsOf(exemption)
+      .filter(([foreground, background]) =>
+        themes.every(
+          (theme) => ratioOf(foreground, background, theme) >= minimumOf[exemption.kind],
+        ),
+      )
+      .map(namesOf),
+  )
+}
+
+function exemptPairNamesUnder(clause: WcagClause): ReadonlyArray<string> {
+  return exemptions
+    .filter((exemption) => exemption.clause === clause)
+    .flatMap(exemptPairsOf)
+    .map(namesOf)
 }
 
 it('measures black on white at 21:1', () => {
   expect(contrast('#000000', '#ffffff')).toBeCloseTo(21, 5)
 })
 
-it('keeps every text pair at 4.5:1 in both themes', () => {
-  expect(checkedPairsUnderMinimum('text')).toEqual([])
+it('declares the 28 pairs of ADR 043', () => {
+  expect(pairs.map((pair) => namesOf([pair.foreground, pair.background]))).toEqual([
+    'ink on surface',
+    'ink on surface-raised',
+    'ink on surface-sunken',
+    'ink-muted on surface',
+    'ink-muted on surface-raised',
+    'ink-muted on surface-sunken',
+    'on-action on action',
+    'on-block on block-peach',
+    'on-block on block-mint',
+    'on-block on block-periwinkle',
+    'on-block on block-lavender',
+    'on-block-muted on block-peach',
+    'on-block-muted on block-mint',
+    'on-block-muted on block-periwinkle',
+    'on-block-muted on block-lavender',
+    'warning-ink on surface',
+    'warning-ink on surface-raised',
+    'warning-ink on warning-soft',
+    'destructive-ink on surface',
+    'destructive-ink on surface-raised',
+    'destructive-ink on destructive-soft',
+    'action on surface',
+    'line-strong on surface',
+    'line-strong on surface-raised',
+    'line-strong on surface-sunken',
+    'focus on surface',
+    'focus on surface-raised',
+    'focus on surface-sunken',
+  ])
 })
 
-it('keeps every control boundary at 3:1', () => {
-  expect(checkedPairsUnderMinimum('boundary')).toEqual([])
+it('holds every pair at its floor in both themes', () => {
+  expect(themes.flatMap(pairsUnderTheirFloor)).toEqual([])
 })
 
-it('keeps every graphic at 3:1 in both themes', () => {
-  expect(checkedPairsUnderMinimum('graphic')).toEqual([])
+it('keeps each block and on-block one value in both themes', () => {
+  const shared: ReadonlyArray<ColorToken> = [...blocks, 'on-block', 'on-block-muted']
+
+  expect(shared.filter((token) => palette[token].light !== palette[token].dark)).toEqual([])
 })
 
-it('exempts only a pair that falls under its minimum in some theme', () => {
-  const needlessExemptions = pairs
-    .filter((pair) => pair.exemption !== undefined)
-    .filter((pair) => themes.every((theme) => ratioOf(pair, theme) >= minimumOf[pair.kind]))
-    .map((pair) => `${pair.foreground} on ${pair.background} (${pair.usedBy})`)
+it('exempts line, a block and a silhouette on a surface under WCAG 1.4.11', () => {
+  expect(exemptPairNamesUnder('WCAG 1.4.11')).toEqual([
+    'line on surface',
+    'line on surface-raised',
+    'line on surface-sunken',
+    'block-peach on surface',
+    'block-mint on surface',
+    'block-periwinkle on surface',
+    'block-lavender on surface',
+    'surface-sunken on surface',
+  ])
+})
 
-  expect(needlessExemptions).toEqual([])
+it('exempts the disabled line-strong label under WCAG 1.4.3', () => {
+  expect(exemptPairNamesUnder('WCAG 1.4.3')).toEqual(['line-strong on surface-sunken'])
+})
+
+it('fails an exempt pair once it passes on its own', () => {
+  const passing: Exemption = {
+    clause: 'WCAG 1.4.3',
+    kind: 'text',
+    foregrounds: ['ink'],
+    backgrounds: ['surface'],
+    reason: 'a pair that needs no exemption',
+  }
+
+  expect(needlessPairsOf([passing])).toEqual(['ink on surface'])
+  expect(needlessPairsOf(exemptions)).toEqual([])
 })

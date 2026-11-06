@@ -1,6 +1,5 @@
 import { basename } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { palette } from '../design/tokens'
 import { artFramingOf, sceneShapeCount } from './artFramingOf'
 import { artTagsOf } from './artTagsOf'
 import { townDrawablesOf } from './townDrawablesOf'
@@ -45,7 +44,7 @@ describe('the town art framing', () => {
       expect([sceneTagsOf(drawing.svg), shadow?.name, shadow?.attributes.fill]).toEqual([
         sceneTagsOf(drawings[0]?.svg ?? ''),
         'ellipse',
-        palette['scene-grass-deep'].light,
+        '#5fae4f',
       ])
     })
   }

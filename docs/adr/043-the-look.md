@@ -281,8 +281,12 @@ Chromium's text rendering. Item 2 checks the same words on a device.
 | `gloss` | 17 | 1.5 | 400 | | a review choice |
 | `body` | 16 | 1.5 | 400 | | running text |
 | `label` | 15 | 1.4 | 600 | | an outlined pill |
-| `caption` | 15 | 1.5 | 400 | tabular | a rate, a cost, a time |
+| `caption` | 15 | 1.5 | 400 | | a rate, a cost, a time |
 | `meta` | 14 | 1.3 | 500 | 0.12em, uppercase | a section's label |
+
+`numeral` alone is tabular by style. `caption` sets prose as well as figures,
+and `tnum` widens the punctuation around them, so tabular figures go on the
+element that shows the number, never on the style.
 
 `meta` is new, and it is the only uppercase style. It sets short section
 labels alone, never the word on a card, a frame or a gloss, where the

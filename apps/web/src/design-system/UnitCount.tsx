@@ -25,7 +25,7 @@ export function UnitCount({
         <Fragment key={label}>
           {index > 0 && ' '}
           <span className="whitespace-nowrap text-heading tabular-nums">
-            {formatQuantity(count)} <span className="text-numeral text-ink-muted">{label}</span>
+            {formatQuantity(count)} <span className="text-caption text-ink-muted">{label}</span>
           </span>
         </Fragment>
       ))}

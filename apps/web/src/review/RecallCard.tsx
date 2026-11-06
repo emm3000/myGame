@@ -49,7 +49,7 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
       {review.isNearMiss && (
         <p
           role="status"
-          className="m-0 rounded-md border border-hint bg-hint-soft px-3 py-2 font-sans text-body text-ink"
+          className="m-0 rounded-md border border-ink bg-surface-sunken px-3 py-2 font-sans text-body text-ink"
         >
           {reviewNearMiss()}
         </p>

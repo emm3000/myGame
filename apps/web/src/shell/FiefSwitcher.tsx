@@ -68,12 +68,12 @@ function FiefBadges({ fief }: { readonly fief: FiefEntry }): ReactElement | null
         />
       ))}
       {fief.fullStores.map((resource) => {
-        const { Icon, textClass } = resourceAccent[resource]
+        const Icon = resourceAccent[resource]
         return (
           <Chip
             key={resource}
             icon={
-              <span className={`flex ${textClass}`}>
+              <span className="flex text-ink">
                 <Icon />
               </span>
             }

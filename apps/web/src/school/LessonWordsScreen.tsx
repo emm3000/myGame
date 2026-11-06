@@ -74,7 +74,7 @@ function WordCard({
   return (
     <Panel
       element="article"
-      toneClass="bg-surface-raised"
+      toneClass="border-line bg-surface-raised"
       spacingClass="items-center gap-2 p-5 text-center"
     >
       <p className="m-0 font-sans text-label text-ink-muted tabular-nums">
@@ -89,7 +89,7 @@ function WordCard({
       >
         {word.word}
       </h3>
-      <p lang="es" className="m-0 rounded-md bg-gloss-soft px-2 font-sans text-gloss text-ink">
+      <p lang="es" className="m-0 rounded-md bg-surface-sunken px-2 font-sans text-gloss text-ink">
         {word.gloss}
       </p>
       <p lang="en" className="m-0 font-sans text-reading text-ink">

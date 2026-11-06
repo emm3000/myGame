@@ -13,7 +13,7 @@ export function CountdownLine({ words, time }: SlotCountdown): ReactElement {
       className="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-ink-muted tabular-nums"
     >
       <ClockIcon sizeClass="size-icon" />
-      <span className="text-numeral">{words}</span>
+      <span className="text-caption">{words}</span>
       <span className="text-heading tabular-nums text-ink">{time}</span>
     </span>
   )

@@ -15,21 +15,17 @@ import { WoodIcon } from './icons/WoodIcon'
 
 export type Accent = ResourceKind | TownResourceKind | 'peasants' | 'people'
 
-interface AccentStyle {
-  readonly Icon: (props: Pick<IconFrameProps, 'sizeClass'>) => ReactElement
-  readonly textClass: string
-  readonly fillClass: string
-}
+type AccentIcon = (props: Pick<IconFrameProps, 'sizeClass'>) => ReactElement
 
-export const resourceAccent: Readonly<Record<Accent, AccentStyle>> = {
-  wood: { Icon: WoodIcon, textClass: 'text-material', fillClass: 'fill-material' },
-  stone: { Icon: StoneIcon, textClass: 'text-material', fillClass: 'fill-material' },
-  iron: { Icon: IronIcon, textClass: 'text-material', fillClass: 'fill-material' },
-  gold: { Icon: GoldIcon, textClass: 'text-money', fillClass: 'fill-money' },
-  food: { Icon: FoodIcon, textClass: 'text-food', fillClass: 'fill-food' },
-  peasants: { Icon: PeasantsIcon, textClass: 'text-people', fillClass: 'fill-people' },
-  money: { Icon: MoneyIcon, textClass: 'text-money', fillClass: 'fill-money' },
-  power: { Icon: PowerIcon, textClass: 'text-power', fillClass: 'fill-power' },
-  material: { Icon: MaterialIcon, textClass: 'text-material', fillClass: 'fill-material' },
-  people: { Icon: PeopleIcon, textClass: 'text-people', fillClass: 'fill-people' },
+export const resourceAccent: Readonly<Record<Accent, AccentIcon>> = {
+  wood: WoodIcon,
+  stone: StoneIcon,
+  iron: IronIcon,
+  gold: GoldIcon,
+  food: FoodIcon,
+  peasants: PeasantsIcon,
+  money: MoneyIcon,
+  power: PowerIcon,
+  material: MaterialIcon,
+  people: PeopleIcon,
 }
