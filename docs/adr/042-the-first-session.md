@@ -161,9 +161,13 @@ Food to the top is 4 493; to the city, 1 247. Why these numbers:
 
 **Factory level 1 costs 60 money alone.** The owner settled the material
 dead end on 2026-11-05: it drops 15 power and 60 material, in its own
-ticket, content only, no migration. Tax always reaches it. The town
-above holds 50 money, so the factory starts 30 minutes later, and any
-town within 3 hours. Material then flows at 30 per hour, the power
+ticket, content only, no migration. Tax always reaches it, given a free
+person and room on the waiting list. The town above holds 50 money, so
+left idle it starts the factory 30 minutes later, and with its four
+works queued at once about 34.5 minutes later. An idle town at 0 money
+needs 3 hours. Stocks are stored as whole numbers, so each stored write,
+such as a finished work, drops a fraction of a money, up to 3 minutes of
+tax. Material then flows at 30 per hour, the power
 station needs no power, and the farm follows, so only *no free person*
 is left. The hours in this ADR stand, since the factory's money does not
 change.
@@ -406,7 +410,8 @@ in 30-second steps over `deriveResourceRates`, `deriveStorageCapacity`
 and the content's costs, no season: farm 1, factory 1, then the homes,
 with storage when a cost passes capacity, each paid the moment stocks
 allow, with no other building, a power station added for share 3's level
-10. Real players buy later. Stacked skills land on days 13, 15, 17 and
+10. It does not floor stocks, so the game pays minutes later, and real
+players buy later. Stacked skills land on days 13, 15, 17 and
 21: the cap takes three lessons every 2 days on time, so lessons 1, 5, 9
 and 13 start on days 0, 2, 4 and 8. By hand, level 5
 at a share too low to bind: 290 money after the farm and the factory, 65
@@ -418,10 +423,14 @@ aside, on trunk's content and with the food column alike: 500 material
 falls to 25 after farm 1, farm 2, homes 2 and homes 3. The factory is
 then refused 35 short, the power station 55, storage 125, farm 3 133.
 `deriveResourceRates` at those levels gives material 0 on fields and
-river, 5 on hills. With the factory at 60 money alone, the same town is
-refused at the start, 10 money short, and at 29 minutes, 0.33 short, and
-admitted at 30 on fields and river, with or without the food column. It
-then makes 30 material per hour, 35 on hills.
+river, 5 on hills. With the factory at 60 money alone, through
+`accrueTown`, an idle town at 50 money holds 59 at minute 29, refused 1
+short, and 60 at minute 30, admitted; from 0 it is refused at minute 179
+and admitted at 180. Through `finishBuildingWork`, the four works queued
+at once finish holding 50, 51, 52 and 53 money, against 54.5 unfloored,
+and the factory is admitted at 2 071 seconds, on fields and river, with
+or without the food column. It then makes 30 material per hour, 35 on
+hills.
 
 **The homes from 300 food**, money and material set aside: level 2
 leaves 240, level 3 150, level 4 15; level 5 is refused, `food: 187`
