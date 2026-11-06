@@ -79,7 +79,7 @@ function NewsEntry({ row }: { readonly row: ReportNewsRow }): ReactElement {
     <li className="flex flex-col gap-1 border-line border-t py-3">
       <time
         dateTime={row.occurredAt}
-        className="whitespace-nowrap font-sans text-caption text-ink-muted tabular-nums"
+        className="whitespace-nowrap font-sans text-caption text-ink-muted"
       >
         {row.instant}
       </time>

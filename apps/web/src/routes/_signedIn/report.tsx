@@ -80,7 +80,7 @@ function ReportRoute(): ReactElement {
   return (
     <div className="mx-auto flex w-full max-w-form flex-col gap-6">
       <ReportBody apiClient={apiClient} />
-      <div className="-ml-3 flex">
+      <div className="-ml-1 flex">
         <Button type="button" tone="text" onClick={signOut}>
           {shellSignOut()}
         </Button>
