@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
@@ -12,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -198,6 +201,29 @@ class TownScreenTest {
         show(riverton.copy(stocks = listOf(full)))
 
         composeRule.onNodeWithText("Lleno: 900").assertIsDisplayed()
+    }
+
+    @Test
+    fun `keeps a stock's capacity in tabular figures`() {
+        show(riverton)
+
+        assertEquals("tnum", fontFeaturesOf(text = "de 900"))
+    }
+
+    @Test
+    fun `keeps a stock's rate in tabular figures`() {
+        show(riverton)
+
+        assertEquals("tnum", fontFeaturesOf(text = "+30 / h"))
+    }
+
+    @Test
+    fun `keeps a full store's capacity in tabular figures`() {
+        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30)
+
+        show(riverton.copy(stocks = listOf(full)))
+
+        assertEquals("tnum", fontFeaturesOf(text = "Lleno: 900"))
     }
 
     @Test
@@ -557,6 +583,13 @@ class TownScreenTest {
         show(riverton)
 
         composeRule.onAllNodesWithText("Ir a la escuela").assertCountEquals(0)
+    }
+
+    private fun fontFeaturesOf(text: String): String? {
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        val node: SemanticsNode = composeRule.onNodeWithText(text).fetchSemanticsNode()
+        node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single().layoutInput.style.fontFeatureSettings
     }
 
     private fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", TownUiState.NamingStatus.Idle)

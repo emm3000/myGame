@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -117,7 +118,7 @@ private fun LearningSection(
                 MyGameText(
                     text = icuStringResource(R.string.school_learning_full, "count" to count),
                     style = MyGameTypography.caption,
-                    color = MyGameTheme.colors.miss,
+                    color = MyGameTheme.colors.warningInk,
                 )
                 MyGameTextLink(label = stringResource(R.string.school_start_reviews), onClick = onReviewsOpen)
             }
@@ -165,7 +166,7 @@ private fun SkillItem(skill: SchoolUiState.SkillLine, modifier: Modifier = Modif
                 "percent" to skill.ratePercent.toString(),
                 "resource" to resource,
             ),
-            style = MyGameTypography.numeral,
+            style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
     }

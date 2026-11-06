@@ -134,7 +134,7 @@ private fun StudyAction(
             MyGameText(
                 text = line,
                 style = MyGameTypography.body,
-                color = MyGameTheme.colors.miss,
+                color = MyGameTheme.colors.destructiveInk,
                 modifier = Modifier.clearAndSetSemantics { testTag = LESSON_BLOCK_LINE },
             )
         }

@@ -82,7 +82,7 @@ private fun LockedUnit(card: FiefUiState.UnitCard.Locked, modifier: Modifier = M
                 "built" to card.builtLevel.toString(),
             ),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.miss,
+            color = MyGameTheme.colors.destructiveInk,
         )
     }
 }

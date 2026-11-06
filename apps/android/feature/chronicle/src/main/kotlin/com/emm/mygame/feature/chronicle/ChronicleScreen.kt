@@ -75,7 +75,7 @@ private fun EmptyChronicle(modifier: Modifier = Modifier) {
         MyGameText(
             text = stringResource(R.string.chronicle_empty),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.inkFaint,
+            color = MyGameTheme.colors.inkMuted,
         )
     }
 }

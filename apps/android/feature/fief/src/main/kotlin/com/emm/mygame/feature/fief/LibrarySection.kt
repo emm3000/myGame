@@ -187,7 +187,7 @@ private fun NextArt(
         MyGameText(
             text = icuStringResource(R.string.art_requires, "level" to next.requiredLibraryLevel.toString()),
             style = MyGameTypography.body,
-            color = if (next.isLibraryTooLow) MyGameTheme.colors.miss else MyGameTheme.colors.inkMuted,
+            color = if (next.isLibraryTooLow) MyGameTheme.colors.destructiveInk else MyGameTheme.colors.inkMuted,
         )
         MyGameButton(
             label = icuStringResource(R.string.study_start, "duration" to durationLabelOf(next.duration)),

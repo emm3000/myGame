@@ -101,7 +101,7 @@ internal fun MarchFormView(form: MapUiState.MarchForm, onIntent: (MapIntent) -> 
             MyGameText(
                 text = reason,
                 style = MyGameTypography.body,
-                color = MyGameTheme.colors.miss,
+                color = MyGameTheme.colors.destructiveInk,
                 modifier = Modifier.clearAndSetSemantics { },
             )
         }
@@ -116,8 +116,8 @@ internal fun SentMarchView(sent: MapUiState.SentMarch, modifier: Modifier = Modi
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = modifier
             .fillMaxWidth()
-            .background(MyGameTheme.colors.rightSoft, shape)
-            .border(MyGameStrokeWidths.hairline, MyGameTheme.colors.right, shape)
+            .background(MyGameTheme.colors.surfaceSunken, shape)
+            .border(MyGameStrokeWidths.hairline, MyGameTheme.colors.ink, shape)
             .padding(horizontal = MyGameSpacing.step3, vertical = MyGameSpacing.step2)
             .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {

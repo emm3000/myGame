@@ -70,7 +70,7 @@ private fun DoneSlot(slot: SchoolUiState.SlotLine.Done, modifier: Modifier = Mod
         MyGameText(
             text = stringResource(R.string.school_slot_done),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.right,
+            color = MyGameTheme.colors.ink,
         )
     }
 }

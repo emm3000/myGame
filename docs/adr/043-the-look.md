@@ -253,6 +253,22 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
   lowest there is *I will*, *l will* at 0.210. It is pinned to one density
   because density alone moves that score, from 0.108 to 0.281 between
   1.5× and 4×, with 0.108 at 2.25×, Android's 360 dpi bucket.
+
+  **On Android, `reading` sets `TextMotion.Animated`** (#862). Compose's
+  default, `TextMotion.Static`, hints the glyphs and keeps them off
+  subpixel positions, and on an emulator at 480 dpi it put *I will*,
+  *l will* at 0.142, under the bar. `Animated` drops the hinting and sets
+  them at subpixel positions, and the same pair reads 0.280. The generator
+  writes it on `reading` alone, the style this check measures. The nine
+  pairs on Android, drawn by `MyGameText` on the screen, in the table's
+  order: 0.293, 0.254, 0.281, 0.398, 0.650, 0.486, 0.589, 0.280, 0.546.
+  Single glyphs barely move, *I*, *l* is 0.293 both ways, and with one
+  shared *will* the pair still scores 0.189, so part of 0.280 is
+  positioning. Frames drawn both ways show stems slightly softer at
+  160 dpi and no loss at 480 or at 120, the lowest Android bucket, since
+  the app declares no limit. The share of grey edge pixels moves from
+  0.179 to 0.185 at 480 and from 0.401 to 0.432 at 160, and falls from
+  0.646 to 0.485 at 120. No Android screen draws `reading` until #870.
 - **Digits.** Atkinson leads on *l*, *1* at word and reading size, and
   neither leads at 16. No frame or lemma holds a digit. Schibsted's zero
   has no slash, so the stock figures lose Atkinson's noise, and it still
@@ -267,7 +283,7 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
   Fonts files are under the SIL OFL.
 
 This is a measure of shapes, not a study of readers, and it ran on
-Chromium's text rendering. Item 2 checks the same words on a device.
+Chromium's text rendering. Item 2 checks the same words on Android's.
 
 | Style | Size | Line height | Weight | Tracking | Sets |
 |---|---|---|---|---|---|

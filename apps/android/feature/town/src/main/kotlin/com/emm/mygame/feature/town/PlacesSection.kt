@@ -136,7 +136,7 @@ private fun NextLevel(
             MyGameText(
                 text = line,
                 style = MyGameTypography.body,
-                color = MyGameTheme.colors.miss,
+                color = MyGameTheme.colors.destructiveInk,
                 modifier = Modifier.clearAndSetSemantics { },
             )
         }
@@ -161,7 +161,7 @@ private fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) 
     MyGameText(
         text = text,
         style = MyGameTypography.body,
-        color = if (cost.isShort) MyGameTheme.colors.miss else MyGameTheme.colors.ink,
+        color = if (cost.isShort) MyGameTheme.colors.warningInk else MyGameTheme.colors.ink,
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
     )
 }

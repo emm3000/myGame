@@ -113,13 +113,14 @@ export const scrollMargins: Readonly<Record<ScrollMargin, string>> = {
   status: `calc(var(${statusBlockHeightProperty}) + 1px)`,
 }
 
-export type Size = 'icon' | 'icon-small' | 'thumbnail' | 'place-card'
+export type Size = 'icon' | 'icon-small' | 'thumbnail' | 'place-card' | 'dash'
 
 export const sizes: Readonly<Record<Size, string>> = {
   icon: '24px',
   'icon-small': '20px',
   thumbnail: '96px',
   'place-card': '160px',
+  dash: '4px',
 }
 
 export type Height = 'track'

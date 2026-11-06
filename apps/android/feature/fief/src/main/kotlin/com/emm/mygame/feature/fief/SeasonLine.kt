@@ -14,6 +14,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.ui.icuStringResource
 
@@ -35,12 +36,12 @@ internal fun SeasonLine(season: FiefUiState.SeasonLine, modifier: Modifier = Mod
                 "season" to stringResource(seasonNameOf(season.kind)),
                 "year" to season.year.toString(),
             ),
-            style = MyGameTypography.numeral,
+            style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
             text = stringResource(R.string.season_separator),
-            style = MyGameTypography.numeral,
+            style = MyGameTypography.caption,
             color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.clearAndSetSemantics { },
         )
@@ -50,7 +51,7 @@ internal fun SeasonLine(season: FiefUiState.SeasonLine, modifier: Modifier = Mod
                 "season" to stringResource(seasonNameOf(season.next)),
                 "timeLeft" to seasonTimeLeftOf(season.countdown),
             ),
-            style = MyGameTypography.numeral,
+            style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
     }

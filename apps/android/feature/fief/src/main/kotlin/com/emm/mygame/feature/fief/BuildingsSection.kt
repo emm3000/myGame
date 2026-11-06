@@ -155,7 +155,7 @@ internal fun CostItem(text: String, isShort: Boolean, modifier: Modifier = Modif
     MyGameText(
         text = text,
         style = MyGameTypography.body,
-        color = if (isShort) MyGameTheme.colors.miss else MyGameTheme.colors.ink,
+        color = if (isShort) MyGameTheme.colors.warningInk else MyGameTheme.colors.ink,
         modifier = modifier.clearAndSetSemantics { contentDescription = description },
     )
 }
