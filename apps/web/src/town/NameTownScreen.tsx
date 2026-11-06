@@ -29,43 +29,41 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
     props.onSubmit()
   }
   return (
-    <div className="mx-auto flex w-full max-w-form flex-col">
-      <Panel
-        element="section"
-        toneClass="border-line bg-surface-raised"
-        spacingClass="gap-4 p-5"
-        labelledBy={titleId}
-      >
-        <h2 id={titleId} className="m-0 font-sans text-display text-ink">
-          {townNamingTitle()}
-        </h2>
-        <p className="m-0 font-sans text-body text-ink">{townNamingMayor()}</p>
-        <form aria-labelledby={titleId} className="flex flex-col gap-4" onSubmit={submit}>
-          <TextField
-            label={townNamingField()}
-            name="name"
-            type="text"
-            autoComplete="off"
-            value={props.name}
-            onChange={props.onNameChange}
-            isDisabled={props.isSubmitting}
-          />
-          {props.refusal !== undefined && <FormAlert message={refusalLineOf(props.refusal)} />}
-          {props.refusal === 'PlayerAlreadyHoldsTown' ? (
-            <Button type="button" tone="primary" onClick={props.onGoToTown}>
-              {townNamingGoToTown()}
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              tone="primary"
-              availability={props.isSubmitting ? 'waiting' : 'available'}
-            >
-              {townNamingSubmit()}
-            </Button>
-          )}
-        </form>
-      </Panel>
-    </div>
+    <Panel
+      element="section"
+      toneClass="border-line bg-surface-raised"
+      spacingClass="gap-4 p-5"
+      labelledBy={titleId}
+    >
+      <h2 id={titleId} className="m-0 font-sans text-display text-ink">
+        {townNamingTitle()}
+      </h2>
+      <p className="m-0 font-sans text-body text-ink">{townNamingMayor()}</p>
+      <form aria-labelledby={titleId} className="flex flex-col gap-4" onSubmit={submit}>
+        <TextField
+          label={townNamingField()}
+          name="name"
+          type="text"
+          autoComplete="off"
+          value={props.name}
+          onChange={props.onNameChange}
+          isDisabled={props.isSubmitting}
+        />
+        {props.refusal !== undefined && <FormAlert message={refusalLineOf(props.refusal)} />}
+        {props.refusal === 'PlayerAlreadyHoldsTown' ? (
+          <Button type="button" tone="primary" onClick={props.onGoToTown}>
+            {townNamingGoToTown()}
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            tone="primary"
+            availability={props.isSubmitting ? 'waiting' : 'available'}
+          >
+            {townNamingSubmit()}
+          </Button>
+        )}
+      </form>
+    </Panel>
   )
 }
