@@ -69,6 +69,10 @@ it('keeps a blocked quiet action at its secondary height', () => {
   expect(classesOf('quiet', 'blocked')).toContain('min-h-secondary')
 })
 
+it('holds a text action at the touch target width', () => {
+  expect(classesOf('text')).toContain('min-w-12')
+})
+
 it.each<[ButtonTone, boolean]>([
   ['primary', true],
   ['quiet', false],
