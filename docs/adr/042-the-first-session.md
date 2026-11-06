@@ -156,14 +156,65 @@ Food to the top is 4 493; to the city, 1 247. Why these numbers:
   any. On fields or river, farm 1, farm 2, homes 2 and homes 3 spend 475
   of the 500 and leave 25: the factory is 35 short, the power station
   55, storage 125, and the rate is 0, for good. It is the same on trunk
-  with no food column. That is not acceptable for a new player; see
-  *Open for the owner*.
+  with no food column. That is not acceptable for a new player, who
+  can reach it by following the strong buttons.
 
-**What the skill is worth.** In time, nothing at this share. Lesson 1's
-+5 % takes a level 2 farm on fields from 60 to 63 per hour, which the
-verdict can show, but money sets when a homes level is paid, so the
-level comes at the same hour with or without it. This undercuts the
-reason for the decision; see *Open for the owner*.
+**Factory level 1 costs 60 money alone.** The owner settled the material
+dead end on 2026-11-05: it drops 15 power and 60 material, in its own
+ticket, content only, no migration. Tax always reaches it. The town
+above holds 50 money, so the factory starts 30 minutes later, and any
+town within 3 hours. Material then flows at 30 per hour, the power
+station needs no power, and the farm follows, so only *no free person*
+is left. The hours in this ADR stand, since the factory's money does not
+change.
+
+**What the skill is worth.** In time, nothing, and nothing claims
+otherwise. The owner accepted food so that lesson 1's skill would
+matter, and on 2026-11-05, shown what follows, kept the 2/3 share. No
+screen and no doc claims a speed-up. Lesson 1's +5 % takes a level 2
+farm on fields from 60 to 63 per hour, which the verdict can show, but
+money sets when a homes level is paid, so the level comes at the same
+hour with or without it. What the 2/3 share buys is the first farm, at
+no cost to a new player.
+
+**Making learning felt in the game is a separate design, after this
+ADR.** No lever weighed here does it. A share *s* of the money makes
+food bind only under 20 × *s* per hour. Farm, factory, then the homes on
+fields, buying the moment stocks allow, with the +5 % held from the
+first hour, which no player has:
+
+| Share | Homes 2, 3, 4 food | The 300 pays | Food binds under | Farm 1: level 5 paid, saved | Farm 2 | Farm 3 |
+|---|---|---|---|---|---|---|
+| 2/3 (above) | 60, 90, 135 | three raises | 13.3 / h | 22.1 h, 0 min | 0 min | 0 min |
+| 1.5 | 135, 203, 303 | one | 30 / h | 26.6 h, 76 min | 0 min | 0 min |
+| 2 | 180, 270, 404 | one | 40 / h | 38.8 h, 111 min | 0 min | 0 min |
+| 3 | 270, 405, 606 | one | 60 / h | 63.1 h, 181 min | 91 min | 0 min |
+
+- **No share makes one level felt.** It shortens a wait on food by
+  4.8 % at most, and a level 2 or 3 farm, 75 or 112 money, shrinks or
+  removes the wait. The skill also lands late: from day 7 or day 13 it
+  saves 0 minutes at level 5 on every row, because those levels are paid
+  by then. The first gain is at level 7, 26 minutes, share 3, farm 1,
+  landing on day 7; level 10 at share 2 gains 13 hours or 6.
+- **Stacked, it is felt late, and only with a level 1 farm.** Rates
+  sum, and food recurs at lessons 1, 5, 9 and 13, so the 16 shipped
+  lessons give +20 %. At 2/3 that saves 0 at every homes level, even
+  held from the first hour. Earned on time, on days 13, 15, 17 and 21,
+  with farm 1 on fields, level 10 gains 10.4 hours instead of 6.1 at
+  share 2, and 44.7 instead of 16.8 at share 3, and level 7 gains
+  nothing. With farm 2 on fields it gains 0.
+- **A higher share costs a new player.** From 1.5 up the 300 pays
+  one raise, not three, so homes level 3 waits on a farm: 1.3 hours
+  at 1.5, 5 at 2, 12.5 at 3. The no-farm dead end falls from 50
+  people to 30.
+- **Money binds, and no money skill rescues this.** Level 5 moves
+  from 22.05 to 21 hours and level 10 from 346 to 330 only with the
+  +5 % held from the first hour. Lesson 4 lands about day 15 on time,
+  and this run pays level 10 at 14.4 days, so it saves 0 here. Even
+  lesson 1 on money would save about 1.6 hours from day 13, at the
+  price of ADR 039's *food first*.
+- **These are floors.** The run buys the moment stocks allow; a
+  slower player still has more levels to pay when a skill lands.
 
 **Existing towns.** This is content, `homes.json` alone: no schema
 change, no migration, no reset. A town keeps its levels and stocks, and
@@ -239,7 +290,7 @@ state that holds wins:
 | 1 | `reviews` | a card is due | the first lesson of `readFirst`, else `/reviews` | how many; a running lesson's time |
 | 2 | `lessonRunning` | the lesson slot is busy | the lesson's words | the producer to build, if any |
 | 3 | `lessonToStudy` | the next lesson can start | the school | when the next review is due |
-| 4 | `caughtUp` | none of the above | the Report | when the next review is due |
+| 4 | `caughtUp` | none of the above | the Report | the next building goal, if any; when the next review is due |
 
 - **`reviews` wins over a running lesson**: the words are due now, and
   the lesson runs on its own.
@@ -263,6 +314,14 @@ state that holds wins:
   full, the school's level is too low or the lessons are done. At school
   level 1 the cap of 15 holds three lessons, until recalls lift words
   past stability 7.
+- **The next step wins over the goals.** The owner settled this on
+  2026-11-05, so a town home never shows two *next* cards. Learning goals
+  leave the content's list, since `lessonToStudy` already says *Study
+  lesson 2*. A building goal shows only inside `caughtUp`, as the
+  variant's nullable `goal`, so no client can draw it beside another
+  state. It is a line: the button stays on the Report, and the place
+  card opens the building. A dismissed guidance leaves `goal` null. Tips
+  keep ADR 040's rule, since a tip does not say where to go.
 - **`nextDueAt` joins it**, from `reviewsOf`'s logic, nullable as
   `Reviews.nextDueAt` is. A client that holds the page open re-reads at
   `lessonSlot.finishesAt` and at `nextDueAt`; no timer advances state
@@ -295,63 +354,6 @@ the town rows, and #771 and #775 take the school and the Report.
 Lesson order is not enforced: `admitSchoolLesson` admits any unstudied
 lesson. The card and the school lead to the next one, and refusing the
 others is left out here, since no owner decision covers it.
-
-### Open for the owner
-
-1. **The next step and the goals.** ADR 040 keeps ADR 027's *one next
-   goal*, learning goals among them (*Study lesson 2*), and #791 puts it
-   on the town home. `lessonToStudy` says the same thing, and two cards
-   would each claim to be next. This ADR does not settle which yields.
-2. **Food's share of the homes, and what the skill is for.** The owner
-   accepted food so that lesson 1's skill would matter. With a farm
-   standing it does not: timings match trunk's, and the +5 % saves 0
-   minutes. A share *s* of the money makes food bind only under 20 × *s*
-   per hour. Farm, factory, then the homes on fields, buying the moment
-   stocks allow, with the +5 % held from the first hour, which no player
-   has:
-
-   | Share | Homes 2, 3, 4 food | The 300 pays | Food binds under | Farm 1: level 5 paid, saved | Farm 2 | Farm 3 |
-   |---|---|---|---|---|---|---|
-   | 2/3 (above) | 60, 90, 135 | three raises | 13.3 / h | 22.1 h, 0 min | 0 min | 0 min |
-   | 1.5 | 135, 203, 303 | one | 30 / h | 26.6 h, 76 min | 0 min | 0 min |
-   | 2 | 180, 270, 404 | one | 40 / h | 38.8 h, 111 min | 0 min | 0 min |
-   | 3 | 270, 405, 606 | one | 60 / h | 63.1 h, 181 min | 91 min | 0 min |
-
-   - **No share makes one level felt.** It shortens a wait on food by
-     4.8 % at most, and a level 2 or 3 farm, 75 or 112 money, shrinks or
-     removes the wait. The skill also lands late: from day 7 or day 13 it saves
-     0 minutes at level 5 on every row, because those levels are paid
-     by then. The first gain is at level 7, 26 minutes, share 3, farm 1,
-     landing on day 7; level 10 at share 2 gains 13 hours or 6.
-   - **Stacked, it is felt late, and only with a level 1 farm.** Rates
-     sum, and food recurs at lessons 1, 5, 9 and 13, so the 16 shipped
-     lessons give +20 %. At 2/3 that saves 0 at every homes level, even
-     held from the first hour. Earned on time, on days 13, 15, 17 and 21,
-     with farm 1 on fields, level 10 gains 10.4 hours instead of 6.1 at
-     share 2, and 44.7 instead of 16.8 at share 3, and level 7 gains
-     nothing. With farm 2 on fields it gains 0.
-   - **A higher share costs a new player.** From 1.5 up the 300 pays
-     one raise, not three, so homes level 3 waits on a farm: 1.3 hours
-     at 1.5, 5 at 2, 12.5 at 3. The no-farm dead end falls from 50
-     people to 30.
-   - **Money binds, and no money skill rescues this.** Level 5 moves
-     from 22.05 to 21 hours and level 10 from 346 to 330 only with the
-     +5 % held from the first hour. Lesson 4 lands about day 15 on time,
-     and this run pays level 10 at 14.4 days, so it saves 0 here. Even
-     lesson 1 on money would save about 1.6 hours from day 13, at the
-     price of ADR 039's *food first*.
-   - **These are floors.** The run buys the moment stocks allow; a
-     slower player still has more levels to pay when a skill lands.
-
-   Recommendation: keep 2/3 and stop claiming a speed-up. It costs a
-   new player nothing, and it makes the first farm necessary. Food's
-   skill then shows as a rate on the verdict, not as a level sooner. No
-   lever weighed here makes the first skill felt in time.
-3. **The material dead end.** Shipped, and independent of food, but a
-   new player can reach it by following the strong buttons. Recommended,
-   content only: factory level 1 costs money alone, 60, so tax always
-   reaches it. Then material flows, the farm follows, and only *no free
-   person* is left.
 
 ## Worked examples
 
@@ -416,7 +418,10 @@ aside, on trunk's content and with the food column alike: 500 material
 falls to 25 after farm 1, farm 2, homes 2 and homes 3. The factory is
 then refused 35 short, the power station 55, storage 125, farm 3 133.
 `deriveResourceRates` at those levels gives material 0 on fields and
-river, 5 on hills.
+river, 5 on hills. With the factory at 60 money alone, the same town is
+refused at the start, 10 money short, and at 29 minutes, 0.33 short, and
+admitted at 30 on fields and river, with or without the food column. It
+then makes 30 material per hour, 35 on hills.
 
 **The homes from 300 food**, money and material set aside: level 2
 leaves 240, level 3 150, level 4 15; level 5 is refused, `food: 187`
@@ -452,12 +457,17 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
   lesson 1's skill would stay worth nothing until then. Rejected.
 - **A cycle that starts with material.** It breaks *food first* (ADR
   039) and moves every lesson's skill. Rejected.
-- **A larger food share.** See *Open for the owner*, question 2.
+- **A larger food share.** No share makes one skill level felt, and each
+  costs a new player two of the three raises the 300 pays. See *What
+  the skill is worth*. Rejected by the owner.
 - **A next step computed by each client.** Two copies of one priority
   rule, on two clients. Rejected for the server's answer.
 - **The card on every screen.** The town home is where a player decides;
   the shell's lesson time and due count serve the other screens.
   Rejected.
+- **The goal beside the next step.** ADR 040's one next goal on the town
+  home, learning goals included, and `lessonToStudy` would each claim to
+  be next. Rejected by the owner.
 - **Word tags now.** See *Word tags stay out*; the owner sent them to
   #745.
 
@@ -479,14 +489,34 @@ missing. `derivePeople` supplies 30, 40, 50 and 60 at levels 2 to 5.
   cost once it is above 0, with no new code.
 - #777 re-runs the dead-end checks: hires occupy people, so they can
   reach *no free person* far below level 10.
-- The homes' food column waits on question 2, and any fix of the
-  material dead end on question 3.
+- A ticket of its own changes `apps/api/content/town/factory.json`:
+  level 1 costs 60 money alone. No migration. Work already charged keeps
+  its stored cost, as with the food column.
+- The food skill saves no time. A separate design, after this ADR, makes
+  learning felt in the game.
 - After homes level 10, food buys nothing again until hires or another
   sink exist. A town at the top holds it to no use.
 - #745 owns the word tags, the `none` reading and the English of every
   new line. Each line passes check 9 in its ticket.
+- A building goal is rare early on. `lessonToStudy` outranks `caughtUp`,
+  so until the cap fills `lessonRunning`'s producer is the card's only
+  pointer to a building.
+- The goals tickets change before dispatch, and #790 waits on the ticket
+  that adds `nextStep`, which does not exist yet:
+  - **#789:** the goal list holds buildings alone; the rule *reaches a
+    learning goal when the lesson is studied* goes, and the PR body
+    lists no learning goal. `player_seen_tips` and the dismissal stay.
+  - **#790:** `TownOverview` carries no goal of its own: `goal` is on
+    `nextStep`'s `caughtUp`, and the tip stays on `TownOverview`. The
+    test *answers the town's next goal* becomes *answers the next goal
+    only when caught up*.
+  - **#791 and #792:** no separate goal card; the goal is a line in the
+    next step. The state *a learning goal* and the test *shows a
+    learning goal* go; *a building goal* means `caughtUp` with a goal;
+    a new test is *shows no goal beside any other next step*. Tips and
+    the guidance dismissal stay.
 - ADR 040 and ADR 041 are amended, each passage marked inline: food's
-  row, the lesson slot and the review door. ADR 036, ADR 037, ADR 038 and
+  row, the lesson slot, the review door and the goals. ADR 036, ADR 037, ADR 038 and
   ADR 039 stand.
 
 ## References

@@ -1,5 +1,5 @@
 ---
-status: proposed, order amended by ADR 041, food, the lesson slot and the review door by ADR 042
+status: proposed, order amended by ADR 041, food, the lesson slot, the review door and the goals by ADR 042
 date: 2026-11-04
 ---
 # The town rebuild
@@ -326,7 +326,9 @@ What trunk holds, checked at `1f0b1c41`:
 - **Goals and tips keep ADR 027's rules**: one next goal from the
   content's ordered list, learning goals among them (*Study lesson 2*),
   and one tip the first time each concept matters, seen tips per player
-  in a new `player_seen_tips`.
+  in a new `player_seen_tips`. (Amended by ADR 042: the next step wins.
+  Learning goals leave the list, and a building goal shows only in the
+  next step's `caughtUp` state. Tips stand.)
 - **Navigation is Town, Report, Map and News.** The school and the
   office open from the town. Web paths are English and need no id,
   since a player holds one town: `/`, `/school`, `/report`, `/map`,
