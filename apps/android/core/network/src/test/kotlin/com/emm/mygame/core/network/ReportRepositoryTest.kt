@@ -232,6 +232,13 @@ class ReportRepositoryTest {
     }
 
     @Test
+    fun `answers unreachable for a news with no kind`() = runTest {
+        api.enqueue(json(200, reportOf(news = """{"occurredAt":"2026-11-05T09:10:00.000Z"}""")))
+
+        assertEquals(ReportReadResult.Unreachable, reports().read())
+    }
+
+    @Test
     fun `answers unreachable for a malformed news of a known kind`() = runTest {
         api.enqueue(json(200, reportOf(news = """{"kind":"becameCity"}""")))
 

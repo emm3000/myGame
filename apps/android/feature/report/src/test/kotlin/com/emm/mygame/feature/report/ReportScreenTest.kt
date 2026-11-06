@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -54,7 +55,7 @@ class ReportScreenTest {
     fun `titles every state`() {
         show(ReportUiState.Loading)
 
-        composeRule.onNodeWithText("Informe").assertIsDisplayed()
+        composeRule.onNodeWithText("Informe").assertIsDisplayed().assert(isHeading())
     }
 
     @Test
