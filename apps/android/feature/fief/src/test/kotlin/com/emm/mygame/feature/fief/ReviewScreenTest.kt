@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ChoiceId
@@ -67,7 +68,7 @@ class ReviewScreenTest {
         val oneLetter: ReviewHint = ReviewHint(firstLetter = "a", letterCount = 1)
         draw(recalling(step = ReviewUiState.ReviewStep.Answering, hint = oneLetter))
 
-        composeRule.onNodeWithText("Empieza por «a» y tiene 1 letra.").assertIsDisplayed()
+        composeRule.onNodeWithText("Empieza por «a» y tiene 1 letra.").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -99,6 +100,7 @@ class ReviewScreenTest {
     fun `sends the choice the player taps`() {
         val intents: MutableList<ReviewIntent> = mutableListOf()
         val recognizing: ReviewUiState.Reviewing = ReviewUiState.Reviewing(
+            walked = 0,
             dueCount = 5,
             card = ReviewUiState.ReviewCard.Recognition(
                 wordId = schoolRecognition.wordId,
@@ -121,6 +123,7 @@ class ReviewScreenTest {
         typed: String = "",
         hint: ReviewHint? = null,
     ): ReviewUiState.Reviewing = ReviewUiState.Reviewing(
+        walked = 0,
         dueCount = 1,
         card = ReviewUiState.ReviewCard.Recall(
             wordId = homeRecall.wordId,

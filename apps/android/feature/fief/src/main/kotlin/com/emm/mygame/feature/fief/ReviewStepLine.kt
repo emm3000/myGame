@@ -1,22 +1,44 @@
 package com.emm.mygame.feature.fief
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGameIcon
+import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.icuStringResource
+
+internal const val RIGHT_ICON: String = "review_right_icon"
+
+internal const val WRONG_ICON: String = "review_wrong_icon"
 
 @Composable
 internal fun ReviewStepLine(
@@ -29,8 +51,7 @@ internal fun ReviewStepLine(
         ReviewUiState.ReviewStep.Checking,
         ReviewUiState.ReviewStep.Hinting,
         -> Unit
-        ReviewUiState.ReviewStep.NearMiss ->
-            MyGameInlineAlert(message = stringResource(R.string.review_near_miss), modifier = modifier)
+        ReviewUiState.ReviewStep.NearMiss -> NearMissLine(modifier = modifier)
         is ReviewUiState.ReviewStep.Refused ->
             RefusalLine(refusal = step.refusal, onIntent = onIntent, modifier = modifier)
         ReviewUiState.ReviewStep.Unreachable ->
@@ -57,16 +78,41 @@ private fun RefusalLine(refusal: ReviewRefusal, onIntent: (ReviewIntent) -> Unit
 }
 
 @Composable
+private fun NearMissLine(modifier: Modifier = Modifier) {
+    val colors: MyGameColors = MyGameTheme.colors
+    val shape: RoundedCornerShape = RoundedCornerShape(MyGameRadii.md)
+    MyGameText(
+        text = stringResource(R.string.review_near_miss),
+        style = MyGameTypography.body,
+        color = colors.ink,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colors.surfaceSunken, shape)
+            .border(MyGameStrokeWidths.hairline, colors.ink, shape)
+            .padding(horizontal = MyGameSpacing.step3, vertical = MyGameSpacing.step2)
+            .semantics { liveRegion = LiveRegionMode.Polite },
+    )
+}
+
+@Composable
+private fun VerdictLine(icon: ImageVector, tag: String, text: String, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier,
+    ) {
+        MyGameIcon(icon = icon, tint = MyGameTheme.colors.ink, modifier = Modifier.testTag(tag))
+        MyGameText(text = text, style = MyGameTypography.title, color = MyGameTheme.colors.ink)
+    }
+}
+
+@Composable
 private fun CorrectLine(step: ReviewUiState.ReviewStep.Correct, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
-        MyGameText(
-            text = stringResource(R.string.review_correct),
-            style = MyGameTypography.button,
-            color = MyGameTheme.colors.ink,
-        )
+        VerdictLine(icon = MyGameIcons.check, tag = RIGHT_ICON, text = stringResource(R.string.review_correct))
         step.skill?.let { skill: ReviewUiState.SkillLine -> SkillEarned(skill = skill) }
     }
 }
@@ -81,7 +127,7 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
                 "resource" to resource,
                 "level" to skill.level.toString(),
             ),
-            style = MyGameTypography.button,
+            style = MyGameTypography.title,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
@@ -90,8 +136,8 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
                 "percent" to percentLabelOf(skill.ratePercent.toDouble()),
                 "resource" to resource,
             ),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.inkMuted,
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.ink,
         )
     }
 }
@@ -99,30 +145,32 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
 @Composable
 private fun WrongLine(yours: String, correct: String, modifier: Modifier = Modifier) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
-        MyGameText(
-            text = stringResource(R.string.review_wrong),
-            style = MyGameTypography.button,
-            color = MyGameTheme.colors.ink,
-        )
+        VerdictLine(icon = MyGameIcons.cross, tag = WRONG_ICON, text = stringResource(R.string.review_wrong))
         MyGameText(
             text = icuStringResource(R.string.review_yours, "answer" to yours),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.inkMuted,
+            color = MyGameTheme.colors.ink,
         )
         MyGameText(
-            text = icuStringResource(R.string.review_correct_form, "answer" to correct),
-            style = MyGameTypography.button,
+            text = withBoldForm(icuStringResource(R.string.review_correct_form, "answer" to correct), correct),
+            style = MyGameTypography.body,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
             text = stringResource(R.string.review_returns),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.inkMuted,
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.ink,
         )
     }
+}
+
+private fun withBoldForm(line: String, form: String): AnnotatedString = buildAnnotatedString {
+    append(line)
+    val start: Int = line.lastIndexOf(form)
+    addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, start + form.length)
 }
 
 private fun ReviewRefusal.asksForAReread(): Boolean = when (this) {

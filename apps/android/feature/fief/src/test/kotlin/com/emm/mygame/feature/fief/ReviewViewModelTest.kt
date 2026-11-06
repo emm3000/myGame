@@ -141,6 +141,7 @@ class ReviewViewModelTest {
         viewModel.state.test {
             assertEquals(
                 ReviewUiState.Reviewing(
+                    walked = 0,
                     dueCount = 2,
                     card = ReviewUiState.ReviewCard.Recall(
                         wordId = homeRecall.wordId,
@@ -524,4 +525,59 @@ class ReviewViewModelTest {
             dueAt = firstReadAt + 10.minutes,
             earnedSkill = earnedSkill,
         )
+
+    @Test
+    fun `counts a rated card walked when the same card heads the due list again`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        val wrongHome: ReviewVerdict = ReviewVerdict.Wrong(word = "home", gloss = "casa", dueAt = firstReadAt)
+        learning.answerReview(ReviewAnswerResult.Answered(wrongHome))
+        learning.answerRead(dueNow(homeRecall))
+
+        viewModel.state.test {
+            assertEquals(0, awaitReviewing().walked)
+            viewModel.onIntent(ReviewIntent.AnswerChanged("house"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it is ReviewUiState.ReviewStep.Wrong }
+            viewModel.onIntent(ReviewIntent.NextTapped)
+            val next: ReviewUiState.Reviewing = awaitReviewing()
+            assertEquals(homeRecall.wordId, next.card.wordId)
+            assertEquals(1, next.walked)
+        }
+    }
+
+    @Test
+    fun `keeps the walked count through a read after next`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Answered(correctHome(earnedSkill = null)))
+        learning.answerRead(ReviewsReadResult.Unreachable)
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it is ReviewUiState.ReviewStep.Correct }
+            viewModel.onIntent(ReviewIntent.NextTapped)
+            assertEquals(1, awaitReviewing().walked)
+        }
+    }
+
+    @Test
+    fun `walks nothing on a near miss`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Answered(ReviewVerdict.NearMiss))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("hme"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            assertEquals(0, awaitStep { it == ReviewUiState.ReviewStep.NearMiss }.walked)
+        }
+    }
 }

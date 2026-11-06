@@ -88,6 +88,7 @@ object MyGameIcons {
         "M16.5 14c2.6.3 4.5 2.6 4.5 5.5",
     )
     val check: ImageVector = strokedIcon(name = "check", "m5 12.5 4.5 4.5L19 7")
+    val cross: ImageVector = strokedIcon(name = "cross", "m6 6 12 12M18 6 6 18")
     val spring: ImageVector = strokedIcon(
         name = "spring",
         "M12.1 20.7c.2-4.3.1-8.1-.4-11.3",

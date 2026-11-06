@@ -21,10 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
@@ -35,6 +41,8 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.blockHueOf
+import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
@@ -48,21 +56,22 @@ internal fun RecognitionCard(
     modifier: Modifier = Modifier,
 ) {
     val isLocked: Boolean = reviewing.isBusy || reviewing.isRated
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(text = card.word, style = MyGameTypography.word, color = MyGameTheme.colors.ink)
-        MyGameText(text = card.frame, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
-        Prompt(text = stringResource(R.string.review_recognition_prompt))
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-            modifier = Modifier.selectableGroup(),
-        ) {
-            card.choices.forEach { choice: ReviewChoice ->
-                ChoiceRow(
-                    choice = choice,
-                    isChosen = choice.id == card.chosen,
-                    isEnabled = !isLocked,
-                    onIntent = onIntent,
-                )
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+        ReviewBlock(cue = card.word, frame = card.frame, walked = reviewing.walked)
+        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
+            Prompt(text = stringResource(R.string.review_recognition_prompt))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+                modifier = Modifier.selectableGroup(),
+            ) {
+                card.choices.forEach { choice: ReviewChoice ->
+                    ChoiceRow(
+                        choice = choice,
+                        isChosen = choice.id == card.chosen,
+                        isEnabled = !isLocked,
+                        onIntent = onIntent,
+                    )
+                }
             }
         }
     }
@@ -75,35 +84,60 @@ internal fun RecallCard(
     onIntent: (ReviewIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(text = card.gloss, style = MyGameTypography.word, color = MyGameTheme.colors.ink)
-        MyGameText(text = card.gappedFrame, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+        ReviewBlock(cue = card.gloss, frame = card.gappedFrame, walked = reviewing.walked)
         Prompt(text = stringResource(R.string.review_recall_prompt))
         RecallField(
             typed = card.typed,
             isReadOnly = reviewing.isBusy || reviewing.isRated,
             onIntent = onIntent,
         )
-        val hint: ReviewHint? = card.hint
-        if (hint != null) {
-            MyGameText(
-                text = icuStringResource(
-                    R.string.review_hint_line,
-                    "letters" to hint.letterCount,
-                    "first" to hint.firstLetter,
-                ),
-                style = MyGameTypography.button,
-                color = MyGameTheme.colors.ink,
-            )
-        }
-        if (hint == null && !reviewing.isRated) {
-            MyGameOutlinedButton(
-                label = stringResource(R.string.review_hint),
-                isBusy = reviewing.isBusy,
-                busyDescription = stringResource(R.string.building_waiting),
-                onClick = { onIntent(ReviewIntent.HintTapped) },
-            )
-        }
+    }
+}
+
+@Composable
+internal fun HintLine(
+    card: ReviewUiState.ReviewCard.Recall,
+    isBusy: Boolean,
+    onIntent: (ReviewIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val hint: ReviewHint? = card.hint
+    if (hint == null) {
+        MyGameOutlinedButton(
+            label = stringResource(R.string.review_hint),
+            isBusy = isBusy,
+            busyDescription = stringResource(R.string.building_waiting),
+            onClick = { onIntent(ReviewIntent.HintTapped) },
+            modifier = modifier,
+        )
+        return
+    }
+    MyGameText(
+        text = icuStringResource(
+            R.string.review_hint_line,
+            "letters" to hint.letterCount,
+            "first" to hint.firstLetter,
+        ),
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun ReviewBlock(cue: String, frame: String, walked: Int, modifier: Modifier = Modifier) {
+    MyGameBlock(
+        hue = blockHueOf(walked),
+        modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+    ) {
+        MyGameText(
+            text = cue,
+            style = wordStyle(),
+            color = MyGameTheme.colors.onBlock,
+            modifier = Modifier.semantics { heading() },
+        )
+        MyGameText(text = frame, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
     }
 }
 
@@ -135,7 +169,7 @@ internal fun RecallField(
 
 @Composable
 private fun Prompt(text: String, modifier: Modifier = Modifier) {
-    MyGameText(text = text, style = MyGameTypography.button, color = MyGameTheme.colors.ink, modifier = modifier)
+    MyGameText(text = text, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted, modifier = modifier)
 }
 
 @Composable
@@ -154,8 +188,8 @@ private fun ChoiceRow(
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = MyGameSizes.control)
-            .background(colors.surfaceRaised, shape)
+            .defaultMinSize(minHeight = MyGameSizes.secondary)
+            .background(colors.surface, shape)
             .border(MyGameStrokeWidths.hairline, edge, shape)
             .selectable(
                 selected = isChosen,
@@ -166,7 +200,11 @@ private fun ChoiceRow(
             .padding(horizontal = MyGameSpacing.step3),
     ) {
         ChoiceMark(isChosen = isChosen, edge = edge)
-        MyGameText(text = choice.gloss, style = MyGameTypography.body, color = colors.ink)
+        MyGameText(
+            text = choice.gloss,
+            style = if (isChosen) MyGameTypography.gloss.copy(fontWeight = FontWeight.Bold) else MyGameTypography.gloss,
+            color = colors.ink,
+        )
     }
 }
 
