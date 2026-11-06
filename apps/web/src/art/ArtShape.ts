@@ -7,7 +7,7 @@ export type ArtShape =
       readonly bottom: number
     }
   | {
-      readonly kind: 'oval'
+      readonly kind: 'circle'
       readonly centerX: number
       readonly centerY: number
       readonly radius: number

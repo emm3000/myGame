@@ -30,7 +30,7 @@ export function artShapeOf(tag: ArtTag): ArtShape {
     }
     case 'circle':
       return {
-        kind: 'oval',
+        kind: 'circle',
         centerX: numberOf(tag, 'cx'),
         centerY: numberOf(tag, 'cy'),
         radius: numberOf(tag, 'r'),

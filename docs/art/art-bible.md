@@ -31,7 +31,7 @@ Two colors come from the client, never from the file: level 0 takes `surface-sun
 - A place fills a `0 0 100 142` frame, over half of its width, and stands on one base line at y 140.
 - A place has ten levels and ten windows, added in level order, so every level changes the drawing. A client draws the silhouette and the first `level` windows.
 - Level 0 is the silhouette alone, in `surface-sunken`. From level 1 the silhouette takes its hue and shows `level` windows.
-- Every window sits wholly on the silhouette, since `on-block` off it is lost on a dark surface.
+- Every window sits wholly on the silhouette, since `on-block` off it is lost on a dark surface, and clear of every other window, since a window under another changes nothing at its level.
 - No people.
 - A word's silhouette is its place's, with no windows.
 - A waste site is one single-fill silhouette tinted `ink-muted` by the client, so it never reads as a place or a resource. #787 and #788 draw the files.

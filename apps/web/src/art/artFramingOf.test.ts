@@ -59,4 +59,20 @@ describe('artFramingOf', () => {
       artFramingOf(drawingOf(tallWall, `${oneOff}${windowAt(50, 36)}`)).windowsOffSilhouette,
     ).toBe(1)
   })
+
+  it('counts no overlap when the ten windows stand apart', () => {
+    expect(artFramingOf(drawingOf(wall)).overlappingWindows).toBe(0)
+  })
+
+  it('counts no overlap for two windows that only touch', () => {
+    const nine = Array.from({ length: 9 }, (_, index) => windowAt(10 + index * 8, 80)).join('')
+
+    expect(artFramingOf(drawingOf(wall, `${nine}${windowAt(10, 89)}`)).overlappingWindows).toBe(0)
+  })
+
+  it('counts each window that lands on an earlier one, since its level would change nothing', () => {
+    const stacked = Array.from({ length: 10 }, () => windowAt(10, 80)).join('')
+
+    expect(artFramingOf(drawingOf(wall, stacked)).overlappingWindows).toBe(9)
+  })
 })

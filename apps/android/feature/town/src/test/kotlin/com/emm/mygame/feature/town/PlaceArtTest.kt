@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import android.content.res.XmlResourceParser
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -28,6 +29,15 @@ private const val MINT: Int = 0xFFBFE3CB.toInt()
 private const val PERIWINKLE: Int = 0xFFC6D3F5.toInt()
 private const val LAVENDER: Int = 0xFFDCC8F0.toInt()
 private const val ART_TAG: String = "art"
+private val drawableWords: Map<TownBuildingKind, String> = mapOf(
+    TownBuildingKind.Homes to "homes",
+    TownBuildingKind.Farm to "farm",
+    TownBuildingKind.School to "school",
+    TownBuildingKind.Office to "office",
+    TownBuildingKind.Factory to "factory",
+    TownBuildingKind.PowerStation to "power_station",
+    TownBuildingKind.Storage to "storage",
+)
 
 @RunWith(RobolectricTestRunner::class)
 class PlaceArtTest {
@@ -83,6 +93,20 @@ class PlaceArtTest {
     }
 
     @Test
+    fun `draws each place from the drawable of its own name at every level`() {
+        val levels: IntRange = 0..10
+        val expected: List<String> = drawableWords.values.flatMap { word: String ->
+            levels.map { level: Int -> "designsystem_place_${word}_$level" }
+        }
+
+        val drawn: List<String> = drawableWords.keys.flatMap { kind: TownBuildingKind ->
+            levels.map { level: Int -> drawableNameOf(placeArtOf(kind, level)) }
+        }
+
+        assertEquals(expected, drawn)
+    }
+
+    @Test
     fun `keeps the silhouette at the proportions of its file`() {
         composeRule.setContent {
             MyGameTheme {
@@ -100,10 +124,13 @@ class PlaceArtTest {
         assertTrue(widthOverHeight in 0.69f..0.72f)
     }
 
+    private fun drawableNameOf(art: MyGameArt): String =
+        RuntimeEnvironment.getApplication().resources.getResourceEntryName(art.drawable)
+
     private fun windowsOf(art: MyGameArt): Int = fillsOf(art).count { fill: Int -> fill == ON_BLOCK }
 
     private fun fillsOf(art: MyGameArt): List<Int> {
-        val parser = RuntimeEnvironment.getApplication().resources.getXml(art.drawable)
+        val parser: XmlResourceParser = RuntimeEnvironment.getApplication().resources.getXml(art.drawable)
         return buildList {
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                 if (parser.eventType == XmlPullParser.START_TAG && parser.name == "path") {
