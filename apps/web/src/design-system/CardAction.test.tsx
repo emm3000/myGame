@@ -27,6 +27,10 @@ it('keeps the padding of a waiting pill by default', () => {
   expect(showWaitingPill().className.split(' ')).toContain('px-5')
 })
 
+it('keeps the gap to the clock of a waiting pill by default', () => {
+  expect(showWaitingPill().className.split(' ')).toContain('gap-2')
+})
+
 it('draws the small clock on a pill that keeps its label width', () => {
   expect(clockClassesOf(showWaitingPill(true))).toContain('size-icon-small')
 })
