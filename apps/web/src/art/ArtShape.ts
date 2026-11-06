@@ -10,7 +10,6 @@ export type ArtShape =
       readonly kind: 'oval'
       readonly centerX: number
       readonly centerY: number
-      readonly radiusX: number
-      readonly radiusY: number
+      readonly radius: number
     }
   | { readonly kind: 'polygon'; readonly points: ReadonlyArray<readonly [number, number]> }

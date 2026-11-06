@@ -1,17 +1,16 @@
 import type { ArtShape } from './ArtShape'
 import { artShapeOf } from './artShapeOf'
 import { artTagsOf } from './artTagsOf'
-
-export const sceneShapeCount = 10
+import { placeShapesOf } from './placeShapesOf'
 
 const sampleStep = 2
 
 export type ArtFraming = {
   readonly widthShare: number
   readonly heightShare: number
-  readonly centerXShare: number
-  readonly centerYShare: number
+  readonly baseLine: number
   readonly coverageShare: number
+  readonly windowsOffSilhouette: number
 }
 
 type Bounds = {
@@ -27,10 +26,10 @@ function boundsOf(shape: ArtShape): Bounds {
       return shape
     case 'oval':
       return {
-        left: shape.centerX - shape.radiusX,
-        top: shape.centerY - shape.radiusY,
-        right: shape.centerX + shape.radiusX,
-        bottom: shape.centerY + shape.radiusY,
+        left: shape.centerX - shape.radius,
+        top: shape.centerY - shape.radius,
+        right: shape.centerX + shape.radius,
+        bottom: shape.centerY + shape.radius,
       }
     case 'polygon': {
       const xs = shape.points.map(([x]) => x)
@@ -68,9 +67,7 @@ function covers(shape: ArtShape, x: number, y: number): boolean {
     case 'box':
       return x >= shape.left && x <= shape.right && y >= shape.top && y <= shape.bottom
     case 'oval':
-      return (
-        ((x - shape.centerX) / shape.radiusX) ** 2 + ((y - shape.centerY) / shape.radiusY) ** 2 <= 1
-      )
+      return (x - shape.centerX) ** 2 + (y - shape.centerY) ** 2 <= shape.radius ** 2
     case 'polygon':
       return isInsidePolygon(shape.points, x, y)
     default:
@@ -78,11 +75,11 @@ function covers(shape: ArtShape, x: number, y: number): boolean {
   }
 }
 
-function coverageShareOf(shapes: ReadonlyArray<ArtShape>, side: number): number {
+function coverageShareOf(shapes: ReadonlyArray<ArtShape>, width: number, height: number): number {
   let covered = 0
   let sampled = 0
-  for (let y = sampleStep / 2; y < side; y += sampleStep) {
-    for (let x = sampleStep / 2; x < side; x += sampleStep) {
+  for (let y = sampleStep / 2; y < height; y += sampleStep) {
+    for (let x = sampleStep / 2; x < width; x += sampleStep) {
       sampled += 1
       covered += shapes.some((shape) => covers(shape, x, y)) ? 1 : 0
     }
@@ -90,20 +87,34 @@ function coverageShareOf(shapes: ReadonlyArray<ArtShape>, side: number): number 
   return covered / sampled
 }
 
+function isOnSilhouette(window: Bounds, silhouette: ReadonlyArray<ArtShape>): boolean {
+  const corners = [
+    [window.left, window.top],
+    [window.right, window.top],
+    [window.left, window.bottom],
+    [window.right, window.bottom],
+  ] as const
+  return corners.every(([x, y]) => silhouette.some((shape) => covers(shape, x, y)))
+}
+
 export function artFramingOf(svg: string): ArtFraming {
-  const [root, ...tags] = artTagsOf(svg)
-  const side = Number((root?.attributes.viewBox ?? '').split(/\s+/)[2])
-  const subject = tags.slice(sceneShapeCount).map(artShapeOf)
-  const bounds = subject.map(boundsOf)
-  const left = Math.max(0, Math.min(...bounds.map((b) => b.left)))
-  const top = Math.max(0, Math.min(...bounds.map((b) => b.top)))
-  const right = Math.min(side, Math.max(...bounds.map((b) => b.right)))
-  const bottom = Math.min(side, Math.max(...bounds.map((b) => b.bottom)))
+  const [root] = artTagsOf(svg)
+  const [, , width = 0, height = 0] = (root?.attributes.viewBox ?? '').split(/\s+/).map(Number)
+  const { silhouette: silhouetteTags, windows } = placeShapesOf(svg)
+  const silhouette = silhouetteTags.map(artShapeOf)
+  const bounds = silhouette.map(boundsOf)
+  const left = Math.min(...bounds.map((b) => b.left))
+  const top = Math.min(...bounds.map((b) => b.top))
+  const right = Math.max(...bounds.map((b) => b.right))
+  const bottom = Math.max(...bounds.map((b) => b.bottom))
   return {
-    widthShare: (right - left) / side,
-    heightShare: (bottom - top) / side,
-    centerXShare: (left + right) / 2 / side,
-    centerYShare: (top + bottom) / 2 / side,
-    coverageShare: coverageShareOf(subject, side),
+    widthShare: (right - left) / width,
+    heightShare: (bottom - top) / height,
+    baseLine: bottom,
+    coverageShare: coverageShareOf(silhouette, width, height),
+    windowsOffSilhouette: windows
+      .map(artShapeOf)
+      .map(boundsOf)
+      .filter((window) => !isOnSilhouette(window, silhouette)).length,
   }
 }

@@ -22,6 +22,7 @@ import { type ReactElement, useId } from 'react'
 import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
+import { CardArt } from '../design-system/CardArt'
 import { CargoCard } from '../design-system/CargoCard'
 import { capitalize } from '../design-system/capitalize'
 import { DigestCard, type DigestCardProps } from '../design-system/DigestCard'
@@ -234,10 +235,12 @@ function BuildingItem({
   readonly upgrade: Upgrade
 }): ReactElement {
   const refusal = upgrade.refused?.building === building ? upgrade.refused.refusal : undefined
+  const { artSrc, ...card } = buildingCardOf(building, fief)
   return (
     <li aria-label={buildingNameOf(building)} className="flex flex-col gap-2">
       <BuildingCard
-        {...buildingCardOf(building, fief)}
+        {...card}
+        art={artSrc !== undefined && <CardArt src={artSrc} />}
         titleElement="h4"
         isWaiting={upgrade.isWaiting}
         onUpgrade={() => upgrade.start(building)}

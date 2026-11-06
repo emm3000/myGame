@@ -535,10 +535,10 @@ class TownScreenTest {
     }
 
     @Test
-    fun `draws no art for a place at level 0`() {
+    fun `draws a place at level 0 with its silhouette`() {
         show(riverton.copy(places = listOf(farmOffer.copy(level = 0))))
 
-        assertTrue(spaceAbovePlaceName() < MyGameSizes.placeCard)
+        assertTrue(spaceAbovePlaceName() >= MyGameSizes.placeCard)
     }
 
     private fun spaceAbovePlaceName(): Dp =

@@ -1,5 +1,6 @@
 import { schoolLessonTitle } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
+import type { ArtTag } from '../art/ArtTag'
 import { formatFinish } from '../time/formatFinish'
 import type { LiveLesson, LiveTown } from '../town/liveTown'
 import { lessonNumberOf } from './lessonCardOf'
@@ -7,7 +8,7 @@ import { wordArtOf } from './wordArtOf'
 
 type WordReading = NonNullable<TownOverview['lessons'][number]['words'][number]['reading']>
 
-export type LessonWord = WordReading & { readonly art: string | undefined }
+export type LessonWord = WordReading & { readonly art: ReadonlyArray<ArtTag> | undefined }
 
 export type RunningLesson = LiveLesson & { readonly time: string }
 
@@ -22,7 +23,7 @@ export function lessonWordsOf(town: LiveTown, lessonId: string): LessonWords | u
   const { overview, lessonSlot, at } = town
   const lesson = overview.lessons.find(({ id }) => id === lessonId)
   const [first, ...rest] = (lesson?.words ?? []).flatMap(({ reading }) =>
-    reading === null ? [] : [{ ...reading, art: wordArtOf(reading.word, overview.buildings) }],
+    reading === null ? [] : [{ ...reading, art: wordArtOf(reading.word) }],
   )
   if (lesson === undefined || first === undefined) {
     return undefined

@@ -25,8 +25,8 @@ import { tooExpensiveLineOf } from './tooExpensiveLineOf'
 
 export type BuildingCardContent = Omit<
   BuildingCardProps,
-  'titleElement' | 'isWaiting' | 'onUpgrade'
->
+  'titleElement' | 'isWaiting' | 'onUpgrade' | 'art'
+> & { readonly artSrc: string | undefined }
 
 type NextLevel = NonNullable<LiveFief['overview']['buildings'][BuildingKind]['nextLevel']>
 

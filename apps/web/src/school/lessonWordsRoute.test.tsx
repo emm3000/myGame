@@ -137,33 +137,20 @@ it('shows one word at a time with its gloss and frame', async () => {
   expect(screen.queryByText('first1')).toBeNull()
 })
 
-it("draws the place's art where the word names one", async () => {
+it("draws the place's silhouette where the word names one", async () => {
   const town = townOf({
     lessons: [lessonOf(1, [readableWord('school'), readableWord('money')])],
     lessonSlot: running('lesson-1'),
-    buildings: {
-      ...knownTown.buildings,
-      school: { ...knownTown.buildings.school, level: 3 },
-    },
   })
   await showLesson('/school/lesson-1', town)
+  const silhouetteOnCard = (): Element | null =>
+    screen.getByRole('article').querySelector('svg [fill="var(--on-block)"]')
 
-  expect(screen.getByRole('presentation').getAttribute('src')).toBe('/art/places/school-2.svg')
+  expect(silhouetteOnCard()).not.toBeNull()
 
   await follow(nextWord())
 
-  expect(screen.queryByRole('presentation')).toBeNull()
-})
-
-it('draws a place not built yet with its first art', async () => {
-  const town = townOf({
-    lessons: [lessonOf(1, [readableWord('farm')])],
-    lessonSlot: running('lesson-1'),
-    buildings: { ...knownTown.buildings, farm: { ...knownTown.buildings.farm, level: 0 } },
-  })
-  await showLesson('/school/lesson-1', town)
-
-  expect(screen.getByRole('presentation').getAttribute('src')).toBe('/art/places/farm-1.svg')
+  expect(silhouetteOnCard()).toBeNull()
 })
 
 it('shows a running lesson with its time', async () => {

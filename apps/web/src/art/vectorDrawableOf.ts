@@ -12,14 +12,14 @@ function vectorPathOf(tag: ArtTag): string {
 
 export function vectorDrawableOf(svg: string): string {
   const [root, ...shapes] = artTagsOf(svg)
-  const side = (root?.attributes.viewBox ?? '').split(/\s+/)[2] ?? ''
+  const [, , width = '', height = ''] = (root?.attributes.viewBox ?? '').split(/\s+/)
   return [
     '<?xml version="1.0" encoding="utf-8"?>',
     '<vector xmlns:android="http://schemas.android.com/apk/res/android"',
-    `    android:width="${side}dp"`,
-    `    android:height="${side}dp"`,
-    `    android:viewportWidth="${side}"`,
-    `    android:viewportHeight="${side}">`,
+    `    android:width="${width}dp"`,
+    `    android:height="${height}dp"`,
+    `    android:viewportWidth="${width}"`,
+    `    android:viewportHeight="${height}">`,
     ...shapes.map(vectorPathOf),
     '</vector>',
     '',

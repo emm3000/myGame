@@ -1,6 +1,7 @@
 import type { ArtTag } from './ArtTag'
-import { artPalette } from './artPalette'
+import { artPalette, blockFills, windowFill } from './artPalette'
 import { artTagsOf } from './artTagsOf'
+import { placeShapesOf, placeViewBox } from './placeShapesOf'
 
 export const maxArtBytes = 12 * 1024
 
@@ -8,7 +9,6 @@ const allowedAttributes: Readonly<Record<string, ReadonlyArray<string>>> = {
   svg: ['xmlns', 'viewBox'],
   rect: ['x', 'y', 'width', 'height', 'rx', 'fill'],
   circle: ['cx', 'cy', 'r', 'fill'],
-  ellipse: ['cx', 'cy', 'rx', 'ry', 'fill'],
   polygon: ['points', 'fill'],
 }
 
@@ -16,11 +16,8 @@ function viewBoxProblemsOf(root: ArtTag | undefined): ReadonlyArray<string> {
   if (root?.name !== 'svg') {
     return ['the file does not open with <svg>']
   }
-  const [minX, minY, width, height] = (root.attributes.viewBox ?? '').split(/\s+/).map(Number)
-  if (minX !== 0 || minY !== 0 || width === undefined || width <= 0 || width !== height) {
-    return [`the viewBox "${root.attributes.viewBox ?? ''}" is not a square from 0 0`]
-  }
-  return []
+  const viewBox = root.attributes.viewBox ?? ''
+  return viewBox === placeViewBox ? [] : [`the viewBox "${viewBox}" is not ${placeViewBox}`]
 }
 
 function tagProblemsOf(tag: ArtTag, index: number): ReadonlyArray<string> {
@@ -40,7 +37,30 @@ function tagProblemsOf(tag: ArtTag, index: number): ReadonlyArray<string> {
   }
   return artPalette.has(fill)
     ? strayAttributes
-    : [...strayAttributes, `fill ${fill} is off the palette`]
+    : [...strayAttributes, `fill ${fill} is off the blocks`]
+}
+
+const paletteFillsOf = (shapes: ReadonlyArray<ArtTag>): ReadonlyArray<string> => [
+  ...new Set(
+    shapes.flatMap(({ attributes: { fill } }) => (fill && artPalette.has(fill) ? [fill] : [])),
+  ),
+]
+
+function placeProblemsOf(svg: string): ReadonlyArray<string> {
+  const { silhouette, windows } = placeShapesOf(svg)
+  if (silhouette.length === 0) {
+    return ['the file holds no silhouette']
+  }
+  const hues = paletteFillsOf(silhouette)
+  return [
+    ...hues
+      .filter((fill) => !blockFills.has(fill))
+      .map((fill) => `the silhouette fill ${fill} is not a block`),
+    ...(hues.length > 1 ? [`the silhouette takes ${hues.length} hues, not one`] : []),
+    ...paletteFillsOf(windows)
+      .filter((fill) => fill !== windowFill)
+      .map((fill) => `the window fill ${fill} is not on-block`),
+  ]
 }
 
 export function artProblemsOf(svg: string): ReadonlyArray<string> {
@@ -50,6 +70,7 @@ export function artProblemsOf(svg: string): ReadonlyArray<string> {
   return [
     ...viewBoxProblemsOf(tags[0]),
     ...tags.flatMap((tag, index) => tagProblemsOf(tag, index)),
+    ...placeProblemsOf(svg),
     ...sizeProblems,
   ]
 }

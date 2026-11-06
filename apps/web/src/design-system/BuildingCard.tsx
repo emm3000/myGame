@@ -1,7 +1,6 @@
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import type { ButtonTone } from './Button'
 import { CardAction, type CardActionState, cardToneOf } from './CardAction'
-import { CardArt, type CardArtShape } from './CardArt'
 import { CardHeader } from './CardHeader'
 import { type CardCost, CostList } from './CostList'
 import { formatDuration } from './formatDuration'
@@ -16,8 +15,7 @@ export interface BuildingCardProps {
   readonly durationSeconds: number
   readonly state: CardActionState
   readonly titleElement: 'h3' | 'h4'
-  readonly artSrc: string | undefined
-  readonly artShape?: CardArtShape | undefined
+  readonly art: ReactNode
   readonly isWaiting?: boolean
   readonly actionTone?: ButtonTone | undefined
   readonly onUpgrade?: (() => void) | undefined
@@ -27,7 +25,7 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
   const isAtMaxLevel = props.state.kind === 'atMaxLevel'
   return (
     <Panel element="article" toneClass={cardToneOf(props.state)} spacingClass="gap-3 p-5">
-      {props.artSrc !== undefined && <CardArt src={props.artSrc} shape={props.artShape} />}
+      {props.art}
       <CardHeader
         name={props.name}
         levelLabel={props.levelLabel}

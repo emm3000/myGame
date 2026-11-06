@@ -22,14 +22,13 @@ import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { conjunctionOf } from '../design-system/conjunctionOf'
 import { formatQuantity } from '../design-system/formatQuantity'
-import { placeArtOf } from '../design-system/placeArtOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import type { LiveStocks, LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
 
 export type PlaceCardContent = Omit<
   BuildingCardProps,
-  'titleElement' | 'isWaiting' | 'onUpgrade' | 'artShape' | 'actionTone'
+  'titleElement' | 'isWaiting' | 'onUpgrade' | 'art' | 'actionTone'
 >
 
 type NextLevel = NonNullable<LiveTown['overview']['buildings'][BuildingKind]['nextLevel']>
@@ -95,7 +94,6 @@ export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardConte
   const common = {
     name: placeNameOf(place),
     levelLabel: townLevel({ level }),
-    artSrc: placeArtOf(place, level),
   }
   if (nextLevel === null) {
     return {
