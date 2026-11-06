@@ -2,7 +2,6 @@ import {
   reviewDueCount,
   reviewFailed,
   reviewLoading,
-  reviewNextReview,
   reviewNoCards,
   reviewNothingDue,
   reviewRetry,
@@ -10,16 +9,16 @@ import {
 } from '@mygame/catalog'
 import type { DueReview } from '@mygame/contracts'
 import { type ReactElement, type Ref, useEffect, useId } from 'react'
-import { Button } from '../design-system/Button'
-import { CountdownLine } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
-import { Panel } from '../design-system/Panel'
+import { ReadFailed } from '../design-system/ReadFailed'
+import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { RecallCard } from './RecallCard'
 import { RecognitionCard } from './RecognitionCard'
+import { ReviewsAhead } from './ReviewsAhead'
 import type { ReviewHandle } from './useReview'
 
 export type ReviewScreenState =
@@ -75,23 +74,17 @@ function DueCard({
   }
   const verdictRef = verdict.ref
   return (
-    <div className="flex max-w-form flex-col gap-3">
-      <p className="m-0 font-sans text-label text-ink-muted">
+    <div className="flex flex-col gap-4">
+      <p className="m-0 font-sans text-caption text-ink-muted">
         {reviewDueCount({ count: formatQuantity(state.dueCount) })}
       </p>
-      <Panel element="article" toneClass="border-line bg-surface-raised" spacingClass="gap-4 p-5">
-        <CardOfMode card={card} review={review} verdictRef={verdictRef} />
-      </Panel>
+      <Track
+        value={review.walked + (hasAnswered ? 1 : 0)}
+        total={review.walked + state.dueCount}
+        fillClass="fill-action"
+      />
+      <CardOfMode card={card} review={review} verdictRef={verdictRef} />
       {review.refusal !== undefined && <FormAlert message={refusalLineOf(review.refusal)} />}
-    </div>
-  )
-}
-
-function NothingDue({ nextReview }: { readonly nextReview: string | undefined }): ReactElement {
-  return (
-    <div className="flex max-w-form flex-col gap-2 rounded-md border border-line border-dashed p-5">
-      <p className="m-0 font-sans text-body text-ink">{reviewNothingDue()}</p>
-      {nextReview !== undefined && <CountdownLine words={reviewNextReview()} time={nextReview} />}
     </div>
   )
 }
@@ -108,21 +101,12 @@ function ReviewBody({
       return <p className="m-0">{reviewLoading()}</p>
     case 'failed':
       return (
-        <div className="flex flex-col items-start gap-3">
-          <FormAlert message={reviewFailed()} />
-          <Button type="button" tone="quiet" onClick={state.onRetry}>
-            {reviewRetry()}
-          </Button>
-        </div>
+        <ReadFailed message={reviewFailed()} retryLabel={reviewRetry()} onRetry={state.onRetry} />
       )
     case 'noCards':
-      return (
-        <p className="m-0 max-w-form rounded-md border border-line border-dashed p-5 text-ink">
-          {reviewNoCards()}
-        </p>
-      )
+      return <ReviewsAhead line={reviewNoCards()} nextReview={undefined} />
     case 'nothingDue':
-      return <NothingDue nextReview={state.nextReview} />
+      return <ReviewsAhead line={reviewNothingDue()} nextReview={state.nextReview} />
     case 'card':
       return <DueCard state={state} onNext={onNext} />
     default: {
@@ -136,15 +120,15 @@ export function ReviewScreen({ state }: { readonly state: ReviewScreenState }): 
   const title = useFocusTarget<HTMLHeadingElement>()
   const titleId = useId()
   return (
-    <section aria-labelledby={titleId} className="flex flex-col gap-6">
-      <h2
+    <section aria-labelledby={titleId} className="mx-auto flex w-full max-w-form flex-col gap-6">
+      <h1
         id={titleId}
         ref={title.ref}
         tabIndex={-1}
-        className={`m-0 font-sans text-title text-ink ${focusTargetClass}`}
+        className={`m-0 font-sans text-display text-ink ${focusTargetClass}`}
       >
         {reviewTitle()}
-      </h2>
+      </h1>
       <ReviewBody state={state} onNext={title.focus} />
     </section>
   )

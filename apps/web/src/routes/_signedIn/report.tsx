@@ -6,13 +6,13 @@ import type { ApiClient } from '../../api/apiClient'
 import { Button } from '../../design-system/Button'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
-import { ReportScreen } from '../../report/ReportScreen'
+import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
 import { reportNewsRowOf } from '../../report/reportNewsRowOf'
 import { useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { useReportClose } from '../../report/useReportClose'
 import { formatClock } from '../../time/formatClock'
-import { TownReadFailed } from '../../town/TownReadStatus'
+import { TownReadFailed } from '../../town/TownReadFailed'
 import { useLayoutTown } from '../../town/useLayoutTown'
 
 function ReportPage({
@@ -48,9 +48,17 @@ function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElem
   useReportAtLessonFinish(useLayoutTown().state, reread)
   switch (state.kind) {
     case 'loading':
-      return <ReadingLine line={reportLoading()} />
+      return (
+        <ReportTitled>
+          <ReadingLine line={reportLoading()} />
+        </ReportTitled>
+      )
     case 'refused':
-      return <TownReadFailed refusal={state.refusal} onRetry={reread} />
+      return (
+        <ReportTitled>
+          <TownReadFailed refusal={state.refusal} onRetry={reread} />
+        </ReportTitled>
+      )
     case 'read':
       return (
         <ReportPage apiClient={apiClient} report={state.report} receivedAt={state.receivedAt} />
@@ -70,7 +78,7 @@ function ReportRoute(): ReactElement {
     await navigate({ to: '/sign-in' })
   }
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-form flex-col gap-6">
       <ReportBody apiClient={apiClient} />
       <div className="-ml-3 flex">
         <Button type="button" tone="text" onClick={signOut}>

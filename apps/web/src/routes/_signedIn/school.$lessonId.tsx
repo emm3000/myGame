@@ -11,7 +11,7 @@ import { SchoolTitled } from '../../school/SchoolTitled'
 import { useOpenedLessons } from '../../school/useOpenedLessons'
 import { wayOnOf } from '../../school/wayOnOf'
 import type { LiveTown } from '../../town/liveTown'
-import { TownReadFailed } from '../../town/TownReadStatus'
+import { TownReadFailed } from '../../town/TownReadFailed'
 import { useLayoutTown } from '../../town/useLayoutTown'
 
 function LessonPage({

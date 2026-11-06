@@ -15,17 +15,21 @@ import {
   reviewNoCards,
   reviewNothingDue,
   reviewRetry,
+  reviewRightAnswer,
   reviewSkillEarned,
   reviewSkillRate,
   reviewTitle,
   reviewWrong,
 } from '@mygame/catalog'
 import type { DueReview, FiefOverview, ReviewAnswer, Reviews } from '@mygame/contracts'
-import { act, fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import type { ReactElement } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { CheckIcon } from '../design-system/icons/CheckIcon'
+import { CrossIcon } from '../design-system/icons/CrossIcon'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
 beforeEach(() => {
@@ -76,6 +80,7 @@ const withReviews = (
 })
 
 const recallDue = withReviews([schoolRecall], null)
+const homeDue = withReviews([homeRecognition], null)
 const nothingDue = withReviews([], '2026-09-22T12:09:00.000Z')
 const noCards = withReviews([], null)
 
@@ -427,4 +432,170 @@ it('shows a refused answer by its kind', async () => {
   await typeAndCheck('school')
 
   expect(screen.getByText(refusalReviewNotDue())).toBeTruthy()
+})
+
+const inkPills = (): ReadonlyArray<Element> => [
+  ...document.querySelectorAll('[data-tone="primary"]'),
+]
+
+const pressNext = async (): Promise<void> => {
+  fireEvent.click(screen.getByRole('button', { name: reviewNext() }))
+  await passSeconds(0)
+}
+
+const classesOf = (element: Element): ReadonlyArray<string> => element.className.split(' ')
+
+const drawnPathsOf = (icon: ReactElement): string => {
+  const { container, unmount } = render(icon)
+  const paths = container.querySelector('svg')?.innerHTML ?? ''
+  unmount()
+  return paths
+}
+
+const iconPathsIn = (region: HTMLElement): string | undefined =>
+  region.querySelector('svg')?.innerHTML
+
+const wrongSchool: ReviewAnswer['verdict'] = {
+  kind: 'wrong',
+  word: 'school',
+  gloss: 'escuela',
+  dueAt: '2026-09-22T12:30:00.000Z',
+}
+
+const rightVerdict = (): HTMLElement => screen.getByRole('region', { name: reviewCorrect() })
+const wrongVerdict = (): HTMLElement => screen.getByRole('region', { name: reviewWrong() })
+
+it('holds at most one ink pill on a review', async () => {
+  const answerReview = vi
+    .fn<ApiClient['answerReview']>()
+    .mockResolvedValueOnce({ ok: true, value: { verdict: { kind: 'nearMiss' } } })
+    .mockResolvedValue({ ok: true, value: { verdict: correctSchool } })
+  await showReview(recallDue, { answerReview })
+  expect(inkPills()).toHaveLength(1)
+
+  await typeAndCheck('schol')
+  expect(screen.getByText(reviewNearMiss())).toBeTruthy()
+  expect(inkPills()).toHaveLength(1)
+
+  await typeAndCheck('school')
+  expect(screen.getByText(reviewCorrect())).toBeTruthy()
+  expect(inkPills()).toHaveLength(1)
+})
+
+it('holds no ink pill when the review has nothing to answer', async () => {
+  await showReview(nothingDue)
+
+  expect(inkPills()).toHaveLength(0)
+})
+
+it('changes the hue with the next card', async () => {
+  const stillDue = withReviews([schoolRecall, homeRecognition], null)
+  const reviews = readingReviews(stillDue, stillDue, stillDue)
+  await showReview(reviews, { answerReview: answering(wrongSchool) })
+
+  expect(screen.getByRole('region', { name: 'escuela' }).dataset.hue).toBe('peach')
+
+  await typeAndCheck('wrong')
+  expect(screen.getByRole('region', { name: 'escuela' }).dataset.hue).toBe('peach')
+
+  await pressNext()
+  expect(screen.getByRole('region', { name: 'escuela' }).dataset.hue).toBe('mint')
+
+  await typeAndCheck('wrong')
+  await pressNext()
+  expect(screen.getByRole('region', { name: 'escuela' }).dataset.hue).toBe('periwinkle')
+})
+
+it('draws a card as one block with the word in word and the frame in reading', async () => {
+  await showReview(homeDue)
+
+  const block = screen.getByRole('region', { name: 'home' })
+
+  expect(classesOf(within(block).getByRole('heading', { level: 2 }))).toContain('text-word')
+  expect(classesOf(within(block).getByText(homeRecognition.frame))).toContain('text-reading')
+})
+
+it('keeps the answer and the pill off the block', async () => {
+  await showReview(homeDue)
+
+  const block = screen.getByRole('region', { name: 'home' })
+
+  expect(within(block).queryByRole('radio', { name: 'hogar' })).toBeNull()
+  expect(within(block).queryByRole('button')).toBeNull()
+})
+
+it('draws a choice as a row of radius md, 52 tall, in gloss', async () => {
+  await showReview(homeDue)
+
+  const row = screen.getByText('hogar')
+
+  expect(classesOf(row)).toEqual(
+    expect.arrayContaining(['min-h-secondary', 'rounded-md', 'text-gloss']),
+  )
+})
+
+it('draws the progress line above the block and moves it with the answer', async () => {
+  const reviews = readingReviews(
+    withReviews([schoolRecall, homeRecognition], null),
+    withReviews([homeRecognition], null),
+  )
+  await showReview(reviews, { answerReview: answering(correctSchool) })
+
+  const line = screen.getByRole('progressbar')
+  const block = screen.getByRole('region', { name: 'escuela' })
+  expect(line.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(line.getAttribute('aria-valuenow')).toBe('0')
+
+  await typeAndCheck('school')
+  expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('50')
+
+  await pressNext()
+  expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('50')
+})
+
+it('draws a right answer as a check and words in ink', async () => {
+  await showReview(recallDue, { answerReview: answering(correctSchool) })
+
+  await typeAndCheck('school')
+
+  expect(iconPathsIn(rightVerdict())).toBe(drawnPathsOf(<CheckIcon sizeClass="size-icon" />))
+  expect(classesOf(within(rightVerdict()).getByText(reviewCorrect()))).toContain('text-ink')
+})
+
+it('draws a wrong answer as a cross and the right answer in ink', async () => {
+  await showReview(recallDue, { answerReview: answering(wrongSchool) })
+
+  await typeAndCheck('wrong')
+
+  const rightAnswer = within(wrongVerdict()).getByText(reviewRightAnswer(), { exact: false })
+  expect(iconPathsIn(wrongVerdict())).toBe(drawnPathsOf(<CrossIcon sizeClass="size-icon" />))
+  expect(classesOf(rightAnswer)).toContain('text-ink')
+  expect(within(rightAnswer).getByText('school')).toBeTruthy()
+})
+
+it.each<[string, ReviewAnswer['verdict'], () => HTMLElement]>([
+  ['right', correctSchool, rightVerdict],
+  ['wrong', wrongSchool, wrongVerdict],
+])(
+  'keeps a verdict off the warning and destructive pairs when %s',
+  async (_kind, verdict, shown) => {
+    await showReview(recallDue, { answerReview: answering(verdict) })
+
+    await typeAndCheck('school')
+
+    expect(shown().outerHTML).not.toMatch(/warning|destructive/)
+  },
+)
+
+it.each<[string, Reviews | ApiClient['reviews']]>([
+  ['a card', recallDue],
+  ['nothing due', nothingDue],
+  ['no cards', noCards],
+  ['a failed read', async () => ({ ok: false as const, refusal: 'Unexpected' as const })],
+])('holds one h1 on the review with %s', async (_state, shown) => {
+  await showReview(shown)
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    reviewTitle(),
+  ])
 })

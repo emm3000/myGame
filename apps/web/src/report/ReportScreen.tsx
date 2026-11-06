@@ -7,19 +7,20 @@ import {
   reportReviewsDue,
   reportStartReviews,
   reportTitle,
-  reviewNextReview,
   schoolLessonReadWords,
 } from '@mygame/catalog'
-import { type ReactElement, useId } from 'react'
+import { type ReactElement, type ReactNode, useId } from 'react'
+import { Block } from '../design-system/Block'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
-import { CountdownLine } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
-import { Panel } from '../design-system/Panel'
 import { useFocusTarget } from '../focus/useFocusTarget'
+import { ReviewsAhead } from '../review/ReviewsAhead'
 import type { ReportNewsRow } from './reportNewsRowOf'
+
+const emptyNewsClass = 'm-0 border-line border-t py-3 font-sans text-body text-ink'
 
 export interface ReportNewsClose {
   readonly isClosed: boolean
@@ -35,9 +36,6 @@ export interface ReportScreenProps {
   readonly news: ReadonlyArray<ReportNewsRow>
   readonly close: ReportNewsClose
 }
-
-const emptyClass =
-  'm-0 max-w-form rounded-md border border-line border-dashed p-5 font-sans text-body text-ink'
 
 function ReviewsDoor({ readFirst }: { readonly readFirst: ReadonlyArray<string> }): ReactElement {
   const [firstUnread] = readFirst
@@ -55,45 +53,33 @@ function ReviewsDoor({ readFirst }: { readonly readFirst: ReadonlyArray<string> 
   )
 }
 
-function NoReviewsDue({ nextReview }: { readonly nextReview: string | undefined }): ReactElement {
-  return (
-    <div className="flex max-w-form flex-col gap-3 rounded-md border border-line border-dashed p-5">
-      <p className="m-0 font-sans text-body text-ink">{reportNoReviewsDue()}</p>
-      {nextReview !== undefined && <CountdownLine words={reviewNextReview()} time={nextReview} />}
-    </div>
-  )
-}
-
 function ReviewsDue({
   dueCount,
   readFirst,
   nextReview,
 }: Pick<ReportScreenProps, 'dueCount' | 'readFirst' | 'nextReview'>): ReactElement {
+  const countId = useId()
   if (dueCount === 0) {
-    return <NoReviewsDue nextReview={nextReview} />
+    return <ReviewsAhead line={reportNoReviewsDue()} nextReview={nextReview} />
   }
   return (
-    <Panel
-      element="article"
-      toneClass="border-line bg-surface-raised"
-      spacingClass="max-w-form gap-3 p-5"
-    >
-      <p className="m-0 font-sans text-heading text-ink">
-        {reportReviewsDue({ count: formatQuantity(dueCount) })}
-      </p>
-      <div className="flex">
-        <ReviewsDoor readFirst={readFirst} />
-      </div>
-    </Panel>
+    <div className="flex flex-col gap-3">
+      <Block hue="periwinkle" labelledBy={countId}>
+        <h2 id={countId} className="m-0 text-display wrap-anywhere">
+          {reportReviewsDue({ count: formatQuantity(dueCount) })}
+        </h2>
+      </Block>
+      <ReviewsDoor readFirst={readFirst} />
+    </div>
   )
 }
 
 function NewsEntry({ row }: { readonly row: ReportNewsRow }): ReactElement {
   return (
-    <li className="flex flex-col gap-1 border-line border-t py-3 first:border-t-0">
+    <li className="flex flex-col gap-1 border-line border-t py-3">
       <time
         dateTime={row.occurredAt}
-        className="whitespace-nowrap font-sans font-semibold text-caption text-ink-muted tabular-nums"
+        className="whitespace-nowrap font-sans text-caption text-ink-muted tabular-nums"
       >
         {row.instant}
       </time>
@@ -111,10 +97,10 @@ function NewsBody({
   onClosed,
 }: ReportScreenProps & { readonly onClosed: () => void }): ReactElement {
   if (close.isClosed) {
-    return <p className={emptyClass}>{reportNewsClosed()}</p>
+    return <p className={emptyNewsClass}>{reportNewsClosed()}</p>
   }
   if (news.length === 0) {
-    return <p className={emptyClass}>{reportNewsNone()}</p>
+    return <p className={emptyNewsClass}>{reportNewsNone()}</p>
   }
   return (
     <>
@@ -124,50 +110,51 @@ function NewsBody({
         ))}
       </ol>
       {close.refusalLine !== undefined && <FormAlert message={close.refusalLine} />}
-      <div className="flex">
-        <Button
-          type="button"
-          tone="primary"
-          availability={close.isWaiting ? 'waiting' : 'available'}
-          onClick={() => close.onClose(onClosed)}
-        >
-          {reportNewsClose()}
-        </Button>
-      </div>
+      <Button
+        type="button"
+        tone="quiet"
+        availability={close.isWaiting ? 'waiting' : 'available'}
+        onClick={() => close.onClose(onClosed)}
+      >
+        {reportNewsClose()}
+      </Button>
     </>
   )
 }
 
-export function ReportScreen(props: ReportScreenProps): ReactElement {
+export function ReportTitled({ children }: { readonly children: ReactNode }): ReactElement {
   const titleId = useId()
+  return (
+    <section aria-labelledby={titleId} className="flex flex-col gap-6">
+      <h1 id={titleId} className="m-0 font-sans text-display text-ink">
+        {reportTitle()}
+      </h1>
+      {children}
+    </section>
+  )
+}
+
+export function ReportScreen(props: ReportScreenProps): ReactElement {
   const newsId = useId()
   const newsTitle = useFocusTarget<HTMLHeadingElement>()
   return (
-    <section aria-labelledby={titleId} className="flex flex-col gap-6">
-      <h2 id={titleId} className="m-0 font-sans text-title text-ink">
-        {reportTitle()}
-      </h2>
+    <ReportTitled>
       <ReviewsDue
         dueCount={props.dueCount}
         readFirst={props.readFirst}
         nextReview={props.nextReview}
       />
-      <Panel
-        element="section"
-        labelledBy={newsId}
-        toneClass="border-line bg-surface-raised"
-        spacingClass="max-w-form gap-3 p-5"
-      >
-        <h3
+      <section aria-labelledby={newsId} className="flex flex-col gap-3">
+        <h2
           id={newsId}
           ref={newsTitle.ref}
           tabIndex={-1}
-          className={`m-0 font-sans text-heading text-ink ${focusTargetClass}`}
+          className={`m-0 font-sans text-meta text-ink-muted ${focusTargetClass}`}
         >
           {reportNewsTitle()}
-        </h3>
+        </h2>
         <NewsBody {...props} onClosed={newsTitle.focus} />
-      </Panel>
-    </section>
+      </section>
+    </ReportTitled>
   )
 }

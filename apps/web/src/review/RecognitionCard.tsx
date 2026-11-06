@@ -3,6 +3,7 @@ import type { DueReview } from '@mygame/contracts'
 import type { FormEvent, ReactElement, Ref } from 'react'
 import { CheckAction } from './CheckAction'
 import { RatedVerdictLines } from './RatedVerdictLines'
+import { ReviewBlock } from './ReviewBlock'
 import type { ReviewHandle } from './useReview'
 
 type Recognition = Extract<DueReview, { readonly mode: 'recognition' }>
@@ -20,25 +21,20 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
   }
   return (
     <>
-      <h3 lang="en" className="m-0 font-sans text-display text-ink">
-        {card.word}
-      </h3>
-      <p lang="en" className="m-0 font-sans text-body text-ink">
-        {card.frame}
-      </p>
+      <ReviewBlock cue={card.word} cueLang="en" frame={card.frame} walked={review.walked} />
       <form onSubmit={submit} className="flex flex-col gap-4">
         <fieldset
           disabled={review.answered !== undefined}
           className="m-0 flex flex-col gap-2 border-0 p-0"
         >
-          <legend className="mb-2 font-sans text-label text-ink-muted">
+          <legend className="mb-2 font-sans text-caption text-ink-muted">
             {reviewRecognitionPrompt()}
           </legend>
           {card.choices.map((choice) => (
             <label
               key={choice.choiceId}
               lang="es"
-              className="flex min-h-control cursor-pointer items-center gap-3 rounded-md border border-line-strong bg-surface px-3 py-2 font-sans text-body text-ink has-checked:border-action has-checked:font-bold"
+              className="flex min-h-secondary cursor-pointer items-center gap-3 rounded-md border border-line-strong bg-surface px-3 py-2 font-sans text-gloss text-ink has-checked:border-action has-checked:font-bold"
             >
               <input
                 type="radio"
