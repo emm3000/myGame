@@ -3,7 +3,9 @@ import { expect, it } from 'vitest'
 import { SeasonLine } from './SeasonLine'
 
 function renderSpringLine(): void {
-  render(<SeasonLine season="spring" headerLine="Primavera, año 2" countdownLine="Verano en 0:42" />)
+  render(
+    <SeasonLine season="spring" headerLine="Primavera, año 2" countdownLine="Verano en 0:42" />,
+  )
 }
 
 it('keeps the digits of the season countdown from jittering as it repaints', () => {
