@@ -103,18 +103,25 @@ it('starts the work of the level offered', async () => {
   expect(screen.getByRole('timer').textContent).toBe('5 min')
 })
 
-it('keeps the clock of a build pill waiting in place while its start is sent', async () => {
+const waitingBuildPill = async (): Promise<HTMLElement> => {
   await showTown(knownTown, {
     startBuildingWork: () => new Promise<ApiOutcome<TownOverview>>(() => undefined),
   })
-
   fireEvent.click(buildButtonOf(namesPlacesFarm()))
   await passSeconds(0)
+  return buildButtonOf(namesPlacesFarm())
+}
 
-  const waitingPill = buildButtonOf(namesPlacesFarm())
-  expect(waitingPill.getAttribute('aria-busy')).toBe('true')
-  expect(waitingPill.querySelector('svg')).not.toBeNull()
-  expect(waitingPill.className.split(' ')).toContain('px-2')
+it('holds a waiting build pill at its idle label width', async () => {
+  expect((await waitingBuildPill()).className.split(' ')).toContain('px-2')
+})
+
+it('draws the clock on a waiting build pill', async () => {
+  expect((await waitingBuildPill()).querySelector('svg')).not.toBeNull()
+})
+
+it('marks a waiting build pill as busy', async () => {
+  expect((await waitingBuildPill()).getAttribute('aria-busy')).toBe('true')
 })
 
 it('disables a level the stocks cannot pay and names the shortfall', async () => {
