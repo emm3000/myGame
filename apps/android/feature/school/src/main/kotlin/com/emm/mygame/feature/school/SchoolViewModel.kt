@@ -41,6 +41,8 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private var mutations: SchoolMutations = SchoolMutations.none
 
+    private var selected: LessonId? = null
+
     private var gap: Duration = Duration.ZERO
 
     private var isShown: Boolean = true
@@ -54,6 +56,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
             SchoolIntent.ScreenShown -> show()
             SchoolIntent.ScreenHidden -> hide()
             SchoolIntent.RetryTapped -> if (_state.value == SchoolUiState.Failed) open()
+            is SchoolIntent.LessonSelected -> select(intent.lesson)
             is SchoolIntent.StudyTapped -> start(intent.lesson)
             is SchoolIntent.StopTapped -> stop(intent.lesson)
         }
@@ -85,6 +88,13 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
                 TownReadResult.NoTown -> _effects.send(SchoolEffect.NoTown)
                 TownReadResult.Unreachable -> _state.value = SchoolUiState.Failed
             }
+        }
+    }
+
+    private fun select(lesson: LessonId) {
+        selected = lesson
+        _state.update { current: SchoolUiState ->
+            if (current is SchoolUiState.Content) current.copy(selected = lesson) else current
         }
     }
 
@@ -136,7 +146,7 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
 
     private fun draw(town: TownSnapshot) {
         shown = town
-        _state.value = town.contentAt(now = serverNow(), mutations = mutations)
+        _state.value = town.contentAt(now = serverNow(), mutations = mutations, selected = selected)
     }
 
     private suspend fun project(first: TownSnapshot, firstReadAt: Instant?) {

@@ -7,7 +7,11 @@ import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
 
-internal fun TownSnapshot.contentAt(now: Instant, mutations: SchoolMutations): SchoolUiState.Content =
+internal fun TownSnapshot.contentAt(
+    now: Instant,
+    mutations: SchoolMutations,
+    selected: LessonId?,
+): SchoolUiState.Content =
     SchoolUiState.Content(
         schoolLevel = schoolLevel(),
         learning = learningLine(),
@@ -16,6 +20,7 @@ internal fun TownSnapshot.contentAt(now: Instant, mutations: SchoolMutations): S
         lessons = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) },
         start = mutations.start,
         stop = mutations.stop,
+        selected = selected,
     )
 
 internal fun TownSnapshot.nextChangeAfter(now: Instant): Instant? =
@@ -49,7 +54,7 @@ private fun TownSnapshot.learningLine(): SchoolUiState.LearningLine {
 private fun TownSnapshot.LessonSlot.lineIn(town: TownSnapshot, now: Instant): SchoolUiState.SlotLine {
     val remaining: Duration = countdownTo(finishesAt = finishesAt, now = now)
     val number: Int = town.numberOf(lesson)
-    if (remaining == Duration.ZERO) return SchoolUiState.SlotLine.Done(number)
+    if (remaining == Duration.ZERO) return SchoolUiState.SlotLine.Done(lesson, number)
     return SchoolUiState.SlotLine.Busy(lesson, number, remaining, total = finishesAt - startedAt)
 }
 

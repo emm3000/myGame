@@ -45,6 +45,17 @@ internal fun requestAnswerOf(request: SchoolUiState.LessonRequest): String? = wh
 }
 
 @Composable
+internal fun lessonSummaryOf(card: SchoolUiState.LessonCard): String = icuStringResource(
+    R.string.school_lesson_summary,
+    "words" to icuStringResource(R.string.school_lesson_words, "count" to card.wordCount),
+    "skill" to icuStringResource(
+        R.string.school_skill_rate,
+        "percent" to card.ratePercent.toString(),
+        "resource" to stringResource(resourceNameOf(card.resource)),
+    ),
+)
+
+@Composable
 internal fun durationLabelOf(duration: Duration): String {
     val whole: Long = wholeSecondsOf(duration)
     val hours: Long = whole / SECONDS_PER_HOUR

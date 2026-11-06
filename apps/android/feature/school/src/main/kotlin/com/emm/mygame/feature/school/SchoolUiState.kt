@@ -19,7 +19,19 @@ sealed interface SchoolUiState {
         val lessons: List<LessonCard>,
         val start: LessonRequest,
         val stop: LessonRequest,
-    ) : SchoolUiState
+        val selected: LessonId? = null,
+    ) : SchoolUiState {
+
+        val shown: LessonCard?
+            get() {
+                val unstudied: List<LessonCard> = lessons.filter { card: LessonCard ->
+                    card.state != LessonState.Studied
+                }
+                return unstudied.firstOrNull { card: LessonCard -> card.lesson == selected }
+                    ?: unstudied.firstOrNull { card: LessonCard -> card.state is LessonState.Open }
+                    ?: unstudied.firstOrNull()
+            }
+    }
 
     data class LearningLine(val inLearning: Int, val cap: Int, val wordsPastCap: Int?)
 
@@ -27,14 +39,21 @@ sealed interface SchoolUiState {
 
         data object Idle : SlotLine
 
+        sealed interface Running : SlotLine {
+
+            val lesson: LessonId
+
+            val number: Int
+        }
+
         data class Busy(
-            val lesson: LessonId,
-            val number: Int,
+            override val lesson: LessonId,
+            override val number: Int,
             val remaining: Duration,
             val total: Duration,
-        ) : SlotLine
+        ) : Running
 
-        data class Done(val number: Int) : SlotLine
+        data class Done(override val lesson: LessonId, override val number: Int) : Running
     }
 
     data class SkillLine(

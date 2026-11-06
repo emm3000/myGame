@@ -3,12 +3,15 @@ package com.emm.mygame.feature.school
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -34,13 +37,18 @@ fun SchoolScreen(
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scroll: ScrollState = rememberScrollState()
+    val selected: LessonId? = (state as? SchoolUiState.Content)?.selected
+    LaunchedEffect(selected) {
+        if (selected != null) scroll.animateScrollTo(0)
+    }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scroll)
             .padding(
                 start = MyGameSpacing.step4,
                 end = MyGameSpacing.step4,
@@ -66,35 +74,63 @@ fun SchoolScreen(
                 )
             }
             is SchoolUiState.Content -> {
-                SchoolTitle(level = state.schoolLevel)
-                LearningSection(learning = state.learning, onReviewsOpen = onReviewsOpen)
-                LessonSlotSection(
-                    slot = state.slot,
-                    stop = state.stop,
+                SchoolContent(
+                    content = state,
                     onIntent = onIntent,
+                    onReviewsOpen = onReviewsOpen,
                     onLessonOpen = onLessonOpen,
                 )
-                LessonsSection(content = state, onIntent = onIntent, onReviewsOpen = onReviewsOpen)
-                SkillsSection(content = state)
             }
         }
     }
 }
 
 @Composable
+private fun SchoolContent(
+    content: SchoolUiState.Content,
+    onIntent: (SchoolIntent) -> Unit,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val shown: SchoolUiState.LessonCard? = content.shown
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
+        SchoolTitle(level = content.schoolLevel)
+        if (shown == null) {
+            SchoolNextStep(slot = content.slot, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
+        } else {
+            ShownLesson(
+                card = shown,
+                content = content,
+                onIntent = onIntent,
+                onReviewsOpen = onReviewsOpen,
+                onLessonOpen = onLessonOpen,
+            )
+        }
+        LearningSection(learning = content.learning, onReviewsOpen = onReviewsOpen)
+        LessonRows(content = content, onIntent = onIntent)
+        LessonSlotSection(slot = content.slot, stop = content.stop, onIntent = onIntent)
+        SkillsSection(content = content)
+    }
+}
+
+@Composable
 private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.school_title),
-            style = MyGameTypography.title,
+            style = MyGameTypography.display,
             color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
+            modifier = Modifier
+                .alignByBaseline()
+                .semantics { heading() },
         )
         if (level != null) {
             MyGameText(
                 text = icuStringResource(R.string.school_level, "level" to level.toString()),
-                style = MyGameTypography.label,
+                style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
+                modifier = Modifier.alignByBaseline(),
             )
         }
     }

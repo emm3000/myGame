@@ -200,14 +200,7 @@ class SchoolScreenTest {
         composeRule
             .onNodeWithTag(INK_PILL)
             .assert(hasText("Estudiar la lección 1 · 2:30"))
-        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(1)
-    }
-
-    @Test
-    fun `draws no ink pill while a lesson runs`() {
-        show(idleSchool.copy(slot = busySlot(remaining = 1.minutes)))
-
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
+        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(0)
     }
 
     @Test
@@ -339,7 +332,7 @@ class SchoolScreenTest {
 
         composeRule
             .onAllNodesWithText("La escuela ya está estudiando esa lección. Espera a que termine.")
-            .assertCountEquals(1)
+            .assertCountEquals(0)
     }
 
     @Test
@@ -353,7 +346,7 @@ class SchoolScreenTest {
 
         composeRule
             .onAllNodesWithText("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
-            .assertCountEquals(1)
+            .assertCountEquals(0)
     }
 
     @Test
@@ -422,7 +415,7 @@ class SchoolScreenTest {
     fun `keeps a refused stop beside a finished lesson`() {
         show(
             idleSchool.copy(
-                slot = SchoolUiState.SlotLine.Done(number = 1),
+                slot = SchoolUiState.SlotLine.Done(firstLesson, number = 1),
                 stop = SchoolUiState.LessonRequest.Refused(firstLesson, TownLessonRefusal.LessonStudyNotFound),
             ),
         )
@@ -516,7 +509,7 @@ class SchoolScreenTest {
 
     @Test
     fun `draws a finished lesson while the town reads again`() {
-        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(number = 1), lessons = emptyList()))
+        show(idleSchool.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, number = 1), lessons = emptyList()))
 
         showing("Lección 1")
         showing("La lección está lista. Estamos leyendo tu pueblo otra vez…")
