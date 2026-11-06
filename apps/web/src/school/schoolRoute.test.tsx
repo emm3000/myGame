@@ -398,7 +398,7 @@ it('starts the selected lesson', async () => {
   expect(started).toEqual(['lesson-3'])
 })
 
-it('gives the block back to the next lesson once the selected one runs', async () => {
+it('keeps a selected lesson in the block once it runs, with its words under it', async () => {
   const lessons = studiedThrough(0, 3)
   await showSchool(schoolOf({ lessons }), {
     startLesson: async () => ({
@@ -418,7 +418,8 @@ it('gives the block back to the next lesson once the selected one runs', async (
   fireEvent.click(studyButtonOf(3))
   await passSeconds(0)
 
-  expect(lessonBlock(1)).toBeDefined()
+  expect(lessonBlock(3)).toBeDefined()
+  expect(inkPills()).toEqual([schoolLessonReadWords()])
 })
 
 it('offers no selection on a studied lesson', async () => {
@@ -427,26 +428,45 @@ it('offers no selection on a studied lesson', async () => {
   expect(within(lessonRow(1)).queryByRole('button')).toBeNull()
 })
 
-it('offers no selection on the running lesson', async () => {
+it('selects the running lesson from its row, with its words as the one pill', async () => {
   await showSchool(schoolOf({ lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying }))
 
-  expect(within(lessonRow(1)).queryByRole('button')).toBeNull()
+  await selectRow(1)
+
+  expect(lessonBlock(1)).toBeDefined()
+  expect(inkPills()).toEqual([schoolLessonReadWords()])
+  expect(screen.queryByRole('button', { name: studyLabelOf(2) })).toBeNull()
+})
+
+it('hides a refused start once another lesson takes the block', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 2) }), {
+    startLesson: async () => ({
+      ok: false,
+      refusal: 'LearningCapReached',
+      error: { kind: 'LearningCapReached', params: { learningCap: 15, cardsInLearning: 12 } },
+    }),
+  })
+  fireEvent.click(studyButtonOf(1))
+  await passSeconds(0)
+
+  await selectRow(2)
+
+  expect(within(screen.getByRole('main')).queryByRole('alert')).toBeNull()
 })
 
 it("takes a lesson's hue from its place in the curriculum", async () => {
-  await showSchool(schoolOf({ lessons: studiedThrough(0, 6) }))
+  await showSchool(schoolOf({ lessons: studiedThrough(2, 7) }))
 
   const hueOfRow = async (number: number): Promise<string | null> => {
     await selectRow(number)
     return lessonBlock(number).getAttribute('data-hue')
   }
 
-  expect(lessonBlock(1).getAttribute('data-hue')).toBe('peach')
-  expect(await hueOfRow(2)).toBe('mint')
-  expect(await hueOfRow(3)).toBe('periwinkle')
+  expect(lessonBlock(3).getAttribute('data-hue')).toBe('periwinkle')
   expect(await hueOfRow(4)).toBe('lavender')
   expect(await hueOfRow(5)).toBe('peach')
   expect(await hueOfRow(6)).toBe('mint')
+  expect(await hueOfRow(7)).toBe('periwinkle')
 })
 
 it('says why the next lesson waits while another one runs', async () => {

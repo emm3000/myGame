@@ -23,7 +23,7 @@ function RowContent({ card }: { readonly card: LessonCardContent }): ReactElemen
   return (
     <>
       <span className="flex flex-wrap items-baseline gap-x-3">
-        <span className="font-sans text-label text-ink">{card.title}</span>
+        <span className="font-sans text-title text-ink">{card.title}</span>
         {status !== undefined && (
           <span className="font-sans text-caption text-ink-muted">{status}</span>
         )}
@@ -49,7 +49,7 @@ function LessonRow({
 }): ReactElement {
   return (
     <li aria-label={card.title} className="border-line border-t first:border-t-0">
-      {card.state.kind === 'open' ? (
+      {card.state.kind !== 'studied' ? (
         <button
           type="button"
           onClick={() => onSelect(card.lessonId)}
