@@ -2,6 +2,7 @@ import {
   namesPlacesSchool,
   schoolLearning,
   schoolLearningFull,
+  schoolLessonReadWords,
   schoolLessonStudied,
   schoolLessonStudying,
   schoolLessons,
@@ -19,6 +20,7 @@ import {
 } from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
+import { ButtonLink } from '../design-system/ButtonLink'
 import { CardAction, cardToneOf } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
 import { formatDuration } from '../design-system/formatDuration'
@@ -176,6 +178,17 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
         <div className="flex flex-col gap-4">
           <LearningLoad town={town} />
           <BuildSlot state={slotStateOf(town, lessons, slotTitle.focus)} titleRef={slotTitle.ref} />
+          {town.lessonSlot !== null && (
+            <div>
+              <ButtonLink
+                to="/school/$lessonId"
+                params={{ lessonId: town.lessonSlot.lessonId }}
+                tone="primary"
+              >
+                {schoolLessonReadWords()}
+              </ButtonLink>
+            </div>
+          )}
           {stopRefused !== undefined && (
             <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
           )}

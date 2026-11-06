@@ -4,6 +4,7 @@ import {
   schoolLearning,
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
+  schoolLessonReadWords,
   schoolLessonStudied,
   schoolLessonStudy,
   schoolSkillName,
@@ -116,6 +117,20 @@ it('starts lesson 1 from the school', async () => {
 
   expect(started).toEqual(['lesson-1'])
   expect(screen.getByRole('timer').textContent).toBe('4 min')
+})
+
+it("opens a running lesson's words from the school", async () => {
+  await showSchool(schoolOf({ lessonSlot: lessonOneStudying }))
+
+  const readWords = screen.getByRole('link', { name: schoolLessonReadWords() })
+
+  expect(readWords.getAttribute('href')).toBe('/school/lesson-1')
+})
+
+it('offers no words to read while no lesson runs', async () => {
+  await showSchool(schoolOf({}))
+
+  expect(screen.queryByRole('link', { name: schoolLessonReadWords() })).toBeNull()
 })
 
 it('shows a running lesson’s countdown', async () => {

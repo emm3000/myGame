@@ -57,8 +57,8 @@ const dueOf = (cards: ReadonlyArray<HeldCard>): ReadonlyArray<DueCard> => {
 
 describe('readFirstOf', () => {
   it('lists every lesson with an unreviewed due card in curriculum order', () => {
-    const lateFinish = instantAt('2026-11-10T08:00:00Z')
-    const due = dueOf([unreviewed('third-a', lateFinish), unreviewed('first-b')])
+    const earlyFinish = instantAt('2026-11-10T08:00:00Z')
+    const due = dueOf([unreviewed('third-a', earlyFinish), unreviewed('first-b')])
 
     expect(readFirstOf(curriculum, due)).toEqual(['lesson-1', 'lesson-3'])
   })

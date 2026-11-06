@@ -63,6 +63,7 @@ townRepositoryContract('DrizzleTownRepository', async () => {
 })
 
 const ana = '00000000-0000-4000-8000-000000000001'
+const otherPlayer = '00000000-0000-4000-8000-000000000002'
 
 const instantAt = (iso: string): Instant => Instant.fromEpochMilliseconds(Date.parse(iso))
 
@@ -112,7 +113,7 @@ describe('DrizzleTownRepository as a TownReader', () => {
 
   it("reads the player's held-out words of every band with the town", async () => {
     await truncateAll()
-    await registerPlayers([ana])
+    await registerPlayers([ana, otherPlayer])
     const session = drizzle(pool)
     const reader = new DrizzleTownRepository(session, 'lockFree')
     const startedAt = instantAt('2026-11-10T08:55:00Z')
@@ -120,6 +121,7 @@ describe('DrizzleTownRepository as a TownReader', () => {
     assert((await reader.save(anasTown(ana))).ok)
     assert((await bandStarts.save(ana, { band: 2, startedAt, heldOutWords: ['say'] })).ok)
     assert((await bandStarts.save(ana, { band: 1, startedAt, heldOutWords: ['know'] })).ok)
+    assert((await bandStarts.save(otherPlayer, { band: 1, startedAt, heldOutWords: ['go'] })).ok)
 
     const read = await reader.townWithSchoolOf(ana)
 

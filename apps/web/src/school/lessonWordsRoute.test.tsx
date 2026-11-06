@@ -171,6 +171,36 @@ it('shows a running lesson with its time', async () => {
   expect(screen.getByRole('timer').textContent).toBe('4 min')
 })
 
+it('moves the focus to the next word', async () => {
+  await showLesson('/school/lesson-1', townOf({}))
+
+  fireEvent.click(nextWord())
+  await passSeconds(0)
+
+  expect(document.activeElement).toBe(wordHeading('second1'))
+})
+
+it('stays on the last word when a fresh read shortens the lesson', async () => {
+  const words = ['first', 'second', 'third'].map(readableWord)
+  const studying = townOf({ lessons: [lessonOf(1, words)], lessonSlot: running('lesson-1') })
+  const shortened = townOf({ lessons: [lessonOf(1, words.slice(0, 2))] })
+  await showLesson('/school/lesson-1', studying, {
+    town: async () => ({
+      ok: true,
+      value: Date.now() < readAt + 240_000 ? studying : { ...shortened, readAt: instantAfter(240) },
+    }),
+  })
+  fireEvent.click(nextWord())
+  await passSeconds(0)
+  fireEvent.click(nextWord())
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(wordHeading('second')).toBeDefined()
+  expect(screen.getByText(schoolLessonWordPosition({ number: 2, count: 2 }))).toBeDefined()
+})
+
 it('offers the way on only once the lesson has finished', async () => {
   const town = townOf({ lessonSlot: running('lesson-1') })
   await showLesson('/school/lesson-1', town)
