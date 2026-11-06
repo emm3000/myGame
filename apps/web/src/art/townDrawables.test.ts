@@ -6,12 +6,10 @@ import { townArtOf, townDrawablesOf } from './townDrawablesOf'
 
 const drawables = townDrawablesOf()
 
-const pathCountOf = (name: string): number =>
-  [
-    ...(drawables.find((drawable) => basename(drawable.path) === name)?.contents ?? '').matchAll(
-      /<path/g,
-    ),
-  ].length
+const contentsOf = (name: string): string =>
+  drawables.find((drawable) => basename(drawable.path) === name)?.contents ?? ''
+
+const pathCountOf = (name: string): number => [...contentsOf(name).matchAll(/<path/g)].length
 
 describe('the town art', () => {
   for (const { sourcePath, svg } of townArtOf()) {
@@ -28,8 +26,28 @@ describe('the town art', () => {
     })
   }
 
-  it('writes one drawable per place and level', () => {
-    expect(drawables.length).toBe(77)
+  it('writes one drawable per place and level, and one word silhouette per place', () => {
+    expect(drawables.length).toBe(84)
+  })
+
+  it('trims a word silhouette to its shapes', () => {
+    expect(contentsOf('designsystem_word_homes.xml')).toContain(
+      'android:viewportWidth="84"\n    android:viewportHeight="66"',
+    )
+  })
+
+  it('moves a word silhouette to the corner of its trimmed viewport', () => {
+    expect(contentsOf('designsystem_word_homes.xml')).toContain(
+      '<group android:translateX="-8" android:translateY="-74">',
+    )
+  })
+
+  it('keeps a word silhouette at the scale of the place card', () => {
+    expect(contentsOf('designsystem_word_homes.xml')).toContain('android:height="74.366dp"')
+  })
+
+  it('draws no window on a word silhouette', () => {
+    expect(pathCountOf('designsystem_word_storage.xml')).toBe(1)
   })
 
   it('names a two-word place in snake case', () => {
@@ -56,7 +74,7 @@ describe('the town art', () => {
     const directory = dirname(drawables[0]?.path ?? '')
     const converted = drawables.map((drawable) => basename(drawable.path)).sort()
     const committed = readdirSync(directory)
-      .filter((fileName) => /^designsystem_(place|waste)_/.test(fileName))
+      .filter((fileName) => /^designsystem_(place|waste|word)_/.test(fileName))
       .sort()
 
     expect(committed).toEqual(converted)

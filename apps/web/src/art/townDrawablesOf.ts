@@ -4,6 +4,7 @@ import { placeAtLevelOf } from './placeAtLevelOf'
 import { windowCount } from './placeShapesOf'
 import type { TownArt, TownDrawable } from './TownDrawable'
 import { vectorDrawableOf } from './vectorDrawableOf'
+import { wordDrawableOf } from './wordDrawableOf'
 
 const publicArtDirectory = join(import.meta.dirname, '../../public/art')
 const drawableDirectory = join(
@@ -11,11 +12,10 @@ const drawableDirectory = join(
   '../../../android/core/designsystem/src/main/res/drawable',
 )
 
-type DrawableCut = { readonly suffix: string; readonly svg: string }
+type DrawableCut = { readonly prefix: string; readonly suffix: string; readonly contents: string }
 
 type Family = {
   readonly directory: string
-  readonly prefix: string
   readonly cutsOf: (svg: string) => ReadonlyArray<DrawableCut>
 }
 
@@ -24,11 +24,23 @@ const levels = Array.from({ length: windowCount + 1 }, (_, level) => level)
 const families: ReadonlyArray<Family> = [
   {
     directory: 'places',
-    prefix: 'designsystem_place_',
-    cutsOf: (svg) =>
-      levels.map((level) => ({ suffix: `_${level}`, svg: placeAtLevelOf(svg, level) })),
+    cutsOf: (svg) => [
+      ...levels.map((level) => ({
+        prefix: 'designsystem_place_',
+        suffix: `_${level}`,
+        contents: vectorDrawableOf(placeAtLevelOf(svg, level)),
+      })),
+      {
+        prefix: 'designsystem_word_',
+        suffix: '',
+        contents: wordDrawableOf(placeAtLevelOf(svg, 0)),
+      },
+    ],
   },
-  { directory: 'waste', prefix: 'designsystem_', cutsOf: (svg) => [{ suffix: '', svg }] },
+  {
+    directory: 'waste',
+    cutsOf: (svg) => [{ prefix: 'designsystem_', suffix: '', contents: vectorDrawableOf(svg) }],
+  },
 ]
 
 function resourceNameOf(prefix: string, fileName: string): string {
@@ -59,15 +71,12 @@ export function townArtOf(): ReadonlyArray<TownArt> {
   )
 }
 
-function drawablesOf(
-  { directory, prefix, cutsOf }: Family,
-  fileName: string,
-): ReadonlyArray<TownDrawable> {
+function drawablesOf({ directory, cutsOf }: Family, fileName: string): ReadonlyArray<TownDrawable> {
   const art = artOf(directory, fileName)
-  return cutsOf(art.svg).map(({ suffix, svg }) => ({
+  return cutsOf(art.svg).map(({ prefix, suffix, contents }) => ({
     ...art,
     path: join(drawableDirectory, `${resourceNameOf(prefix, fileName)}${suffix}.xml`),
-    contents: vectorDrawableOf(svg),
+    contents,
   }))
 }
 

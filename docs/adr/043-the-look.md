@@ -268,7 +268,7 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
   160 dpi and no loss at 480 or at 120, the lowest Android bucket, since
   the app declares no limit. The share of grey edge pixels moves from
   0.179 to 0.185 at 480 and from 0.401 to 0.432 at 160, and falls from
-  0.646 to 0.485 at 120. No Android screen draws `reading` until #870.
+  0.646 to 0.485 at 120. No Android screen drew `reading` before #840.
 - **Digits.** Atkinson leads on *l*, *1* at word and reading size, and
   neither leads at 16. No frame or lemma holds a digit. Schibsted's zero
   has no slash, so the stock figures lose Atkinson's noise, and it still

@@ -103,7 +103,33 @@ class AppNavigationTest {
         fullStores = emptyList(),
     )
 
-    private fun townOf(inLearning: Int = 0): TownSnapshot = TownSnapshot(
+    private val firstLesson: LessonId = LessonId("lesson-1")
+
+    private val secondLesson: LessonId = LessonId("lesson-2")
+
+    private val waterWord: TownSnapshot.WordReading = TownSnapshot.WordReading("water", "agua", "I drink water.")
+
+    private val townWord: TownSnapshot.WordReading = TownSnapshot.WordReading("town", "pueblo", "We live in a town.")
+
+    private val walkReport: TownReport =
+        TownReport(dueCount = 3, readFirst = listOf(firstLesson, secondLesson), news = emptyList())
+
+    private fun lessonOf(id: LessonId, readings: List<TownSnapshot.WordReading>): TownSnapshot.Lesson =
+        TownSnapshot.Lesson(
+            id = id,
+            theme = "A day in town",
+            duration = 150.seconds,
+            requiredSchoolLevel = 1,
+            skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
+            isStudied = false,
+            wordCount = 5,
+            readings = readings,
+        )
+
+    private fun townOf(
+        inLearning: Int = 0,
+        lessons: List<TownSnapshot.Lesson> = listOf(lessonOf(firstLesson, listOf(waterWord))),
+    ): TownSnapshot = TownSnapshot(
         name = "Riverton",
         label = TownLabel.Town,
         seasonEndsAt = null,
@@ -111,18 +137,7 @@ class AppNavigationTest {
         people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
         buildings = listOf(TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null)),
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
-        lessons = listOf(
-            TownSnapshot.Lesson(
-                id = LessonId("lesson-1"),
-                theme = "A day in town",
-                duration = 150.seconds,
-                requiredSchoolLevel = 1,
-                skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
-                isStudied = false,
-                wordCount = 5,
-                readings = listOf(TownSnapshot.WordReading("water", "agua", "I drink water.")),
-            ),
-        ),
+        lessons = lessons,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning),
         lessonSlot = null,
@@ -155,6 +170,16 @@ class AppNavigationTest {
         reportsFake.answerRead(ReportReadResult.Read(report))
         tab("Informe").performClick()
         waitForLine("Noticias del pueblo")
+    }
+
+    private fun onTheFirstLessonOfTheWalk(secondReadings: List<TownSnapshot.WordReading>) {
+        val lessons: List<TownSnapshot.Lesson> =
+            listOf(lessonOf(firstLesson, listOf(waterWord)), lessonOf(secondLesson, secondReadings))
+        signedInAtTown(town = townOf(lessons = lessons))
+        openReport(walkReport)
+        repeat(2) { reportsFake.answerRead(ReportReadResult.Read(walkReport)) }
+        composeRule.onNodeWithText("Leer las palabras").performClick()
+        waitForLine("I drink water.")
     }
 
     @Test
@@ -214,6 +239,45 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Leer las palabras").performClick()
 
         waitForLine("I drink water.")
+    }
+
+    @Test
+    fun `marks the town tab current on a lesson's words`() {
+        onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
+
+        tab("Pueblo").assertIsSelected()
+    }
+
+    @Test
+    fun `opens the next lesson of the walk`() {
+        onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
+
+        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+
+        waitForLine("We live in a town.")
+    }
+
+    @Test
+    fun `opens the reviews at the end of the walk`() {
+        onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
+        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+        waitForLine("We live in a town.")
+        learningFake.answerRead(noReviews)
+
+        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
+
+        waitForLine("Aún no tienes palabras que repasar.")
+    }
+
+    @Test
+    fun `goes back to the school from a lesson with nothing to read`() {
+        onTheFirstLessonOfTheWalk(secondReadings = emptyList())
+        composeRule.onNodeWithText("Siguiente lección").performScrollTo().performClick()
+        waitForLine("Ahora no hay palabras para leer.")
+
+        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+
+        waitForLine("Escuela")
     }
 
     @Test

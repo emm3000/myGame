@@ -2,7 +2,7 @@ import type { ArtTag } from './ArtTag'
 import { artTagsOf } from './artTagsOf'
 import { pathDataOf } from './pathDataOf'
 
-function vectorPathOf(tag: ArtTag): string {
+export function vectorPathOf(tag: ArtTag): string {
   return [
     '    <path',
     `        android:fillColor="${tag.attributes.fill ?? ''}"`,
