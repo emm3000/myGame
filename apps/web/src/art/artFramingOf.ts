@@ -11,6 +11,7 @@ export type ArtFraming = {
   readonly baseLine: number
   readonly coverageShare: number
   readonly windowsOffSilhouette: number
+  readonly overlappingWindows: number
 }
 
 type Bounds = {
@@ -24,7 +25,7 @@ function boundsOf(shape: ArtShape): Bounds {
   switch (shape.kind) {
     case 'box':
       return shape
-    case 'oval':
+    case 'circle':
       return {
         left: shape.centerX - shape.radius,
         top: shape.centerY - shape.radius,
@@ -66,7 +67,7 @@ function covers(shape: ArtShape, x: number, y: number): boolean {
   switch (shape.kind) {
     case 'box':
       return x >= shape.left && x <= shape.right && y >= shape.top && y <= shape.bottom
-    case 'oval':
+    case 'circle':
       return (x - shape.centerX) ** 2 + (y - shape.centerY) ** 2 <= shape.radius ** 2
     case 'polygon':
       return isInsidePolygon(shape.points, x, y)
@@ -97,12 +98,22 @@ function isOnSilhouette(window: Bounds, silhouette: ReadonlyArray<ArtShape>): bo
   return corners.every(([x, y]) => silhouette.some((shape) => covers(shape, x, y)))
 }
 
+function overlaps(first: Bounds, second: Bounds): boolean {
+  return (
+    first.left < second.right &&
+    second.left < first.right &&
+    first.top < second.bottom &&
+    second.top < first.bottom
+  )
+}
+
 export function artFramingOf(svg: string): ArtFraming {
   const [root] = artTagsOf(svg)
   const [, , width = 0, height = 0] = (root?.attributes.viewBox ?? '').split(/\s+/).map(Number)
   const { silhouette: silhouetteTags, windows } = placeShapesOf(svg)
   const silhouette = silhouetteTags.map(artShapeOf)
   const bounds = silhouette.map(boundsOf)
+  const windowBounds = windows.map(artShapeOf).map(boundsOf)
   const left = Math.min(...bounds.map((b) => b.left))
   const top = Math.min(...bounds.map((b) => b.top))
   const right = Math.max(...bounds.map((b) => b.right))
@@ -112,9 +123,10 @@ export function artFramingOf(svg: string): ArtFraming {
     heightShare: (bottom - top) / height,
     baseLine: bottom,
     coverageShare: coverageShareOf(silhouette, width, height),
-    windowsOffSilhouette: windows
-      .map(artShapeOf)
-      .map(boundsOf)
-      .filter((window) => !isOnSilhouette(window, silhouette)).length,
+    windowsOffSilhouette: windowBounds.filter((window) => !isOnSilhouette(window, silhouette))
+      .length,
+    overlappingWindows: windowBounds.filter((window, index) =>
+      windowBounds.slice(0, index).some((earlier) => overlaps(window, earlier)),
+    ).length,
   }
 }

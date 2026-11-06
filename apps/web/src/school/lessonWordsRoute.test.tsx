@@ -153,6 +153,18 @@ it("draws the place's silhouette where the word names one", async () => {
   expect(silhouetteOnCard()).toBeNull()
 })
 
+it("sets the silhouette on the word's block, since on-block vanishes on the card", async () => {
+  const town = townOf({
+    lessons: [lessonOf(1, [readableWord('school')])],
+    lessonSlot: running('lesson-1'),
+  })
+  await showLesson('/school/lesson-1', town)
+
+  expect(
+    screen.getByRole('article').querySelector('.bg-block-peach svg [fill="var(--on-block)"]'),
+  ).not.toBeNull()
+})
+
 it('shows a running lesson with its time', async () => {
   await showLesson('/school/lesson-1', townOf({ lessonSlot: running('lesson-1') }))
 

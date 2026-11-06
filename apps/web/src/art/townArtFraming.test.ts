@@ -35,5 +35,9 @@ describe('the town art framing', () => {
     it(`keeps every window of ${drawing.name} on its silhouette`, () => {
       expect(framing.windowsOffSilhouette).toBe(0)
     })
+
+    it(`keeps every window of ${drawing.name} clear of the others`, () => {
+      expect(framing.overlappingWindows).toBe(0)
+    })
   }
 })

@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.school
 
+import android.content.res.XmlResourceParser
 import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameArtTint
 import com.emm.mygame.core.designsystem.R as DesignSystemR
@@ -49,8 +50,8 @@ class WordArtTest {
     }
 
     private fun windowsOf(art: MyGameArt): Int {
-        val parser = RuntimeEnvironment.getApplication().resources.getXml(art.drawable)
-        var windows = 0
+        val parser: XmlResourceParser = RuntimeEnvironment.getApplication().resources.getXml(art.drawable)
+        var windows: Int = 0
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             val isPath: Boolean = parser.eventType == XmlPullParser.START_TAG && parser.name == "path"
             if (isPath && parser.getAttributeIntValue(ANDROID_NAMESPACE, "fillColor", 0) == ON_BLOCK) windows += 1
