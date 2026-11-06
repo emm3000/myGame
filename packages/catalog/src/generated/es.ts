@@ -367,11 +367,17 @@ export const schoolLearning = ({ cap, inLearning }: { readonly cap: string | num
 export const schoolLearningFull = ({ count }: { readonly count: number }): string => `${count === 1 ? `La siguiente lección trae 1 palabra.` : `La siguiente lección trae ${String(count)} palabras.`} Empieza los repasos.`
 export const schoolLessonCapReached = ({ cap, count, inLearning }: { readonly cap: string | number; readonly count: string | number; readonly inLearning: string | number }): string => `Palabras en aprendizaje: ${String(inLearning)} de ${String(cap)}. Esta lección trae ${String(count)}.`
 export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | number }): string => `Necesita la escuela en nivel ${String(level)}`
+export const schoolLessonNext = (): string => `Siguiente lección`
+export const schoolLessonNothingToRead = (): string => `Ahora no hay palabras para leer.`
+export const schoolLessonReadWords = (): string => `Leer las palabras`
 export const schoolLessonSlotBusy = ({ number }: { readonly number: string | number }): string => `La escuela está estudiando la lección ${String(number)}.`
 export const schoolLessonStudied = (): string => `Estudiada`
 export const schoolLessonStudy = ({ number }: { readonly number: string | number }): string => `Estudiar la lección ${String(number)}`
 export const schoolLessonStudying = (): string => `En estudio`
 export const schoolLessonTitle = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)}`
+export const schoolLessonWordNext = (): string => `Siguiente palabra`
+export const schoolLessonWordPosition = ({ count, number }: { readonly count: string | number; readonly number: string | number }): string => `Palabra ${String(number)} de ${String(count)}`
+export const schoolLessonWordThen = (): string => `Cuando termine la lección, empiezan los repasos.`
 export const schoolLessonWords = ({ count }: { readonly count: number }): string => `${count === 1 ? `1 palabra` : `${String(count)} palabras`}`
 export const schoolLessons = (): string => `Lecciones`
 export const schoolSkillName = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Habilidad de ${String(resource)}, nivel ${String(level)}`

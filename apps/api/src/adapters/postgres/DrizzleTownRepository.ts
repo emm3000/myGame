@@ -20,6 +20,7 @@ import { z } from 'zod'
 import type { TownReader, TownWithSchool } from '../../town/TownReader'
 import { byEarnedAt } from '../byEarnedAt'
 import { aggregatedCardsOf, heldCardsOf } from './aggregatedCards'
+import { aggregatedHeldOutWordsOf, heldOutHeadwordsOf } from './aggregatedHeldOutWords'
 import type { PostgresSession } from './connectPostgres'
 import { jsonAggregateOf } from './jsonAggregateOf'
 import { lessonSlotOf } from './lessonSlotOf'
@@ -366,6 +367,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         skills: aggregatedSkills,
         lessonSlot: townLessonSlots,
         cards: aggregatedCardsOf(towns.playerId),
+        heldOutWords: aggregatedHeldOutWordsOf(towns.playerId),
       })
       .from(towns)
       .leftJoin(townLessonSlots, eq(townLessonSlots.townId, towns.id))
@@ -381,7 +383,12 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
     if (!cards.ok) {
       return cards
     }
-    return ok({ town: town.value, lessonSlot: lessonSlotOf(row.lessonSlot), cards: cards.value })
+    return ok({
+      town: town.value,
+      lessonSlot: lessonSlotOf(row.lessonSlot),
+      cards: cards.value,
+      heldOutWords: heldOutHeadwordsOf(row.heldOutWords),
+    })
   }
 
   async save(town: Town): Promise<Result<void, DomainError>> {

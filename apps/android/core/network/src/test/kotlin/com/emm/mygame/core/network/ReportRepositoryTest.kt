@@ -312,7 +312,7 @@ class ReportRepositoryTest {
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private fun reportOf(dueCount: Int = 0, news: String = ""): String =
-        """{"dueCount":$dueCount,"due":[],"news":[$news]}"""
+        """{"dueCount":$dueCount,"due":[],"readFirst":[],"news":[$news]}"""
 
     private fun buildingWork(kind: String, building: String): String =
         """{"kind":"$kind","params":{"building":"$building","level":2},"occurredAt":"$OCCURRED_AT"}"""

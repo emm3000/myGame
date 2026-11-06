@@ -2,10 +2,12 @@ import type { TownOverview } from '@mygame/contracts/town'
 import {
   cardsInLearningOf,
   type DomainError,
+  type Headword,
   type HeldCard,
-  isWordRetained,
   ok,
   type Result,
+  readableWordsOf,
+  wordStandingOf,
 } from '@mygame/domain'
 import {
   deriveLessonDurationSeconds,
@@ -22,14 +24,22 @@ type SchoolOverview = Pick<TownOverview, 'lessons' | 'skills' | 'lessonSlot' | '
 
 type LessonState = TownOverview['lessons'][number]
 
+type LearnerState = {
+  readonly cards: ReadonlyArray<HeldCard>
+  readonly heldOutWords: ReadonlyArray<Headword>
+  readonly lessonSlot: LessonSlot
+}
+
 const lessonStateOf = (
   lesson: ShelvedLesson,
-  cards: ReadonlyArray<HeldCard>,
+  { cards, heldOutWords, lessonSlot }: LearnerState,
   durationSeconds: number,
 ): LessonState => {
-  const words = lesson.words.map(({ id }) => ({
-    wordId: id,
-    held: cards.find(({ wordId }) => wordId === id),
+  const isRunning = lessonSlot.kind === 'busy' && lessonSlot.lessonId === lesson.id
+  const readable = readableWordsOf(lesson, heldOutWords, cards, isRunning)
+  const words = lesson.words.map((word) => ({
+    word,
+    held: cards.find(({ wordId }) => wordId === word.id),
   }))
   return {
     id: lesson.id,
@@ -38,9 +48,12 @@ const lessonStateOf = (
     requiredSchoolLevel: lesson.requiredSchoolLevel,
     skill: { ...lesson.skill },
     isStudied: words.some(({ held }) => held !== undefined),
-    words: words.map(({ wordId, held }) => ({
-      wordId,
-      isRetained: held !== undefined && isWordRetained(held),
+    words: words.map(({ word, held }) => ({
+      wordId: word.id,
+      standing: wordStandingOf(held),
+      reading: readable.includes(word)
+        ? { word: word.acceptedForms[0], gloss: word.gloss, frame: word.frame }
+        : null,
     })),
   }
 }
@@ -55,7 +68,7 @@ const lessonSlotOf = (slot: LessonSlot): TownOverview['lessonSlot'] =>
       }
 
 export const schoolOverviewOf = (
-  { town, at, lessonSlot, cards }: TownReading,
+  { town, at, lessonSlot, cards, heldOutWords }: TownReading,
   catalog: TownCatalog,
   lessons: LessonLibrary,
 ): Result<SchoolOverview, DomainError> => {
@@ -70,7 +83,7 @@ export const schoolOverviewOf = (
       .map((lesson) =>
         lessonStateOf(
           lesson,
-          cards,
+          { cards, heldOutWords, lessonSlot },
           deriveLessonDurationSeconds(
             lesson.durationSeconds,
             school.value.lessonPercent,

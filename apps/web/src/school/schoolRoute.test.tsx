@@ -51,7 +51,8 @@ const lessonOf = (number: number, overrides: Partial<Lesson> = {}): Lesson => ({
   isStudied: false,
   words: Array.from({ length: 5 }, (_, index) => ({
     wordId: `lesson-${number}-${index + 1}`,
-    isRetained: false,
+    standing: 'notStarted',
+    reading: null,
   })),
   ...overrides,
 })

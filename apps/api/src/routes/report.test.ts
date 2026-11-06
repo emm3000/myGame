@@ -135,6 +135,18 @@ describe('the Report routes', () => {
   const closeReport = ({ cookie }: SignedUpPlayer): Promise<Response> =>
     send(cookie, 'POST', '/report/close')
 
+  it('answers readFirst on the Report', async () => {
+    const ana = await signUpWithATown()
+    clock.setTo(lessonStartsAt)
+    await send(ana.cookie, 'POST', '/town/lessons', { lessonId: 'lesson-1' })
+
+    const running = await readReport(ana)
+    clock.setTo(lessonFinishesAt)
+    const finished = await readReport(ana)
+
+    expect([running.readFirst, finished.readFirst]).toEqual([[], ['lesson-1']])
+  })
+
   it('answers the news since the player last closed the Report', async () => {
     const ana = await signUpWithATown()
     await workFinishOf(ana, 'farm')

@@ -2,11 +2,13 @@ import type { Report } from '@mygame/contracts/town'
 import {
   type Clock,
   type DomainError,
+  dueCardsAt,
   err,
   type Instant,
   ok,
   type PlayerId,
   type Result,
+  readFirstOf,
 } from '@mygame/domain'
 import { resolveTown, type TownCatalog, type TownEvent } from '@mygame/domain/town'
 import type { Refusal } from '../http/Refusal'
@@ -59,12 +61,21 @@ export const reportOf = async (
       if (!reviews.ok) {
         return reviews
       }
+      const dueCards = dueCardsAt(cards.value, clock.now(), dependencies.memoryTerms)
+      if (!dueCards.ok) {
+        return dueCards
+      }
       const news = await newsSinceOf(playerId, closedAt, stores, clock, dependencies.townCatalog)
       if (!news.ok) {
         return news
       }
       const { due } = reviews.value
-      return ok({ dueCount: due.length, due, news: news.value.map(townNewsItemOf) })
+      return ok({
+        dueCount: due.length,
+        due,
+        readFirst: [...readFirstOf(dependencies.lessons.lessons(), dueCards.value)],
+        news: news.value.map(townNewsItemOf),
+      })
     },
     dependencies,
   )

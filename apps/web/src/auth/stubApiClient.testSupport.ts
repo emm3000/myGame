@@ -256,7 +256,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   answerReview: async () => ({ ok: true, value: { verdict: { kind: 'nearMiss' } } }),
   chronicle: async () => ({ ok: true, value: { events: [] } }),
   provinceMap: async () => ({ ok: true, value: knownProvinceMap }),
-  report: async () => ({ ok: true, value: { dueCount: 0, due: [], news: [] } }),
+  report: async () => ({ ok: true, value: { dueCount: 0, due: [], readFirst: [], news: [] } }),
   closeReport: async () => undefined,
   digest: async () => ({ ok: true, value: quietDigest }),
   acknowledgeDigest: async () => undefined,

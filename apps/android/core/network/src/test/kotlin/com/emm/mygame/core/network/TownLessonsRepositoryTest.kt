@@ -231,7 +231,9 @@ class TownLessonsRepositoryTest {
         const val LESSON: String =
             """{"id":"lesson-1","theme":"A day in town","durationSeconds":150,"requiredSchoolLevel":2,""" +
                 """"skill":{"resource":"food","ratePercent":5},"isStudied":true,""" +
-                """"words":[{"wordId":"word-1","isRetained":false},{"wordId":"word-2","isRetained":true}]}"""
+                """"words":[{"wordId":"word-1","standing":"recognize",""" +
+                """"reading":{"word":"home","gloss":"hogar","frame":"This is my home."}},""" +
+                """{"wordId":"word-2","standing":"retained","reading":null}]}"""
         const val SKILL: String =
             """{"lessonId":"lesson-1","resource":"food","ratePercent":5,"earnedAt":"2026-11-04T10:00:00.000Z"}"""
         const val TOWN: String =

@@ -19,6 +19,7 @@ const finishedFarm = {
 const report = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
   dueCount: 1,
   due: [recall],
+  readFirst: [],
   news: [finishedFarm],
   ...overrides,
 })
@@ -26,6 +27,18 @@ const report = (overrides: Record<string, unknown> = {}): Record<string, unknown
 describe('ReportSchema', () => {
   it('parses the reviews due and the news', () => {
     expect(ReportSchema.parse(report())).toEqual(report())
+  })
+
+  it('parses the lessons to read first', () => {
+    const readFirst = ['lesson-1', 'lesson-2']
+
+    expect(ReportSchema.parse(report({ readFirst })).readFirst).toEqual(readFirst)
+  })
+
+  it('rejects a report without its lessons to read first', () => {
+    const { readFirst: _, ...withoutReadFirst } = report()
+
+    expect(ReportSchema.safeParse(withoutReadFirst).success).toBe(false)
   })
 
   it('parses a report with no news', () => {

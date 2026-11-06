@@ -10,6 +10,7 @@ import {
   reportStartReviews,
   reportTitle,
   reviewTitle,
+  schoolLessonReadWords,
   shellNavigationReport,
   shellNavigationTown,
   townTryAgain,
@@ -68,6 +69,7 @@ const homeRecognition: DueReview = {
 
 const reportOf = (overrides: Partial<Report>): Report => ({
   dueCount: 0,
+  readFirst: [],
   due: [],
   news: [],
   ...overrides,
@@ -144,6 +146,15 @@ it('offers no way into the reviews when none is due', async () => {
 
   expect(within(reportRegion()).getByText(reportNoReviewsDue())).toBeDefined()
   expect(within(reportRegion()).queryByRole('link', { name: reportStartReviews() })).toBeNull()
+})
+
+it('opens the unread lesson from the Report', async () => {
+  await showReport({ ...reviewsDue, readFirst: ['lesson-2', 'lesson-3'] })
+
+  const link = screen.getByRole('link', { name: schoolLessonReadWords() })
+
+  expect(link.getAttribute('href')).toBe('/school/lesson-2')
+  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
 })
 
 it('opens the reviews from the Report', async () => {

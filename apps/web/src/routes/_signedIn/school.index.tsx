@@ -41,6 +41,6 @@ function SchoolRoute(): ReactElement {
   }
 }
 
-export const Route = createFileRoute('/_signedIn/school')({
+export const Route = createFileRoute('/_signedIn/school/')({
   component: SchoolRoute,
 })

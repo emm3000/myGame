@@ -362,11 +362,72 @@ describe('the learning routes', () => {
           requiredSchoolLevel: 1,
           skill: { resource: 'food', ratePercent: 5 },
           isStudied: false,
-          words: wordIds.map((wordId) => ({ wordId, isRetained: false })),
+          words: wordIds.map((wordId) => ({ wordId, standing: 'notStarted', reading: null })),
         },
         skills: [],
         lessonSlot: null,
       })
+    })
+
+    it("reads a running lesson's words", async () => {
+      const player = await studyLessonOne()
+
+      const { lessons } = await readTown(player)
+
+      expect(lessons[0]?.words[1]).toEqual({
+        wordId: 'lesson-1-2',
+        standing: 'notStarted',
+        reading: { word: 'school', gloss: 'escuela', frame: 'We are at school.' },
+      })
+    })
+
+    it("reads a finished lesson's word until its first review", async () => {
+      const player = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      const finished = await readTown(player)
+
+      await answered(
+        player,
+        'lesson-1-1',
+        choiceIdOf(await dueReviewOf(player, 'lesson-1-1'), 'lesson-1-1'),
+      )
+
+      const reviewed = await readTown(player)
+      expect(finished.lessons[0]?.words.map(({ reading }) => reading?.word)).toEqual([
+        'home',
+        'school',
+        'work',
+        'money',
+        'food',
+      ])
+      expect(reviewed.lessons[0]?.words.map(({ reading }) => reading?.word)).toEqual([
+        undefined,
+        'school',
+        'work',
+        'money',
+        'food',
+      ])
+    })
+
+    it('reads nothing of a stopped or an unstudied lesson', async () => {
+      const player = await studyLessonOne()
+      await stopLesson(player)
+
+      const { lessons } = await readTown(player)
+
+      expect(
+        lessons.flatMap(({ words }) => words).filter(({ reading }) => reading !== null),
+      ).toEqual([])
+    })
+
+    it('reads nothing of a lesson while another lesson runs', async () => {
+      const player = await studyLessonOne()
+
+      const { lessons } = await readTown(player)
+
+      expect(lessons[1]?.words.map(({ reading }) => reading)).toEqual(
+        lessons[1]?.words.map(() => null),
+      )
     })
 
     it('refuses lesson 1 below its school level as LessonSchoolTooLow', async () => {
@@ -815,12 +876,12 @@ describe('the learning routes', () => {
       const { skills, lessons } = await readTown(player)
 
       expect(skills).toEqual([])
-      expect(lessons[0]?.words.map(({ isRetained }) => isRetained)).toEqual([
-        true,
-        true,
-        true,
-        true,
-        false,
+      expect(lessons[0]?.words.map(({ standing }) => standing)).toEqual([
+        'retained',
+        'retained',
+        'retained',
+        'retained',
+        'hold',
       ])
     })
 
@@ -1015,6 +1076,48 @@ describe('the learning routes', () => {
       expect(await storedRows('SELECT headword FROM held_out_words ORDER BY headword')).toEqual(
         drawn,
       )
+    })
+
+    it('never reads a held-out word', async () => {
+      app = createApp({
+        ...server,
+        clock,
+        lessons: libraryWithBandLesson(),
+        random: holdingOutSayAndTheLastRanks,
+      })
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+      await startLesson(player, 'lesson-17')
+
+      const running = await readTown(player)
+      clock.setTo(lessonFinishesAt)
+      const finished = await readTown(player)
+
+      const readWordsOf = ({ lessons }: TownOverview): ReadonlyArray<string> =>
+        lessons
+          .find(({ id }) => id === 'lesson-17')
+          ?.words.flatMap(({ reading }) => (reading === null ? [] : [reading.word])) ?? []
+      const heldOutContentIn = ({ lessons }: TownOverview): ReadonlyArray<string> =>
+        stringsIn(lessons).filter((text) => ['say', 'gloss of say', 'They say it.'].includes(text))
+      const entering = ['time', 'year', 'think', 'come']
+      expect([readWordsOf(running), readWordsOf(finished)]).toEqual([entering, entering])
+      expect([heldOutContentIn(running), heldOutContentIn(finished)]).toEqual([[], []])
+    })
+
+    it("never reads a held-out word on the start's own answer", async () => {
+      app = createApp({
+        ...server,
+        clock,
+        lessons: libraryWithBandLesson(),
+        random: holdingOutSayAndTheLastRanks,
+      })
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+
+      const { lessons } = await overviewOf(await startLesson(player, 'lesson-17'))
+
+      const lesson = lessons.find(({ id }) => id === 'lesson-17')
+      expect(lesson?.words.find(({ wordId }) => wordId === 'word-say')?.reading).toBeNull()
     })
 
     it('enters no card for a held-out word when the lesson finishes', async () => {
