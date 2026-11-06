@@ -37,6 +37,8 @@ class ReviewViewModel(
 
     private var gap: Duration = Duration.ZERO
 
+    private var walked: Int = 0
+
     init {
         open()
     }
@@ -77,6 +79,7 @@ class ReviewViewModel(
         val nextDueAt: Instant? = reviews.nextDueAt
         when {
             first != null -> _state.value = ReviewUiState.Reviewing(
+                walked = walked,
                 dueCount = reviews.due.size,
                 card = first.toCard(),
                 step = ReviewUiState.ReviewStep.Answering,
@@ -148,6 +151,7 @@ class ReviewViewModel(
     private fun next() {
         val reviewing: ReviewUiState.Reviewing = _state.value as? ReviewUiState.Reviewing ?: return
         if (!reviewing.isRated) return
+        walked += 1
         val reviews: DueReviews = reread ?: return open()
         reread = null
         present(reviews)

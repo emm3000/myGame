@@ -19,7 +19,12 @@ sealed interface ReviewUiState {
 
     data class NothingDue(val remaining: Duration, val dueAt: Instant) : ReviewUiState
 
-    data class Reviewing(val dueCount: Int, val card: ReviewCard, val step: ReviewStep) : ReviewUiState {
+    data class Reviewing(
+        val walked: Int,
+        val dueCount: Int,
+        val card: ReviewCard,
+        val step: ReviewStep,
+    ) : ReviewUiState {
 
         val isBusy: Boolean
             get() = step == ReviewStep.Checking || step == ReviewStep.Hinting
