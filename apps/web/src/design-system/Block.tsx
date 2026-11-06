@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
-import { type BlockHue, hueClassOf } from './blockClassOf'
+import { type BlockHue, hueClassOf } from './blockHueOf'
 
 export interface BlockProps {
   readonly hue: BlockHue

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { Block } from './Block'
-import type { BlockHue } from './blockClassOf'
+import type { BlockHue } from './blockHueOf'
 
 const showBlock = (hue: BlockHue): HTMLElement => {
   render(

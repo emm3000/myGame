@@ -104,6 +104,9 @@ const studyLabelOf = (number: number): string => `${schoolLessonStudy({ number }
 const studyButtonOf = (number: number): HTMLElement =>
   screen.getByRole('button', { name: studyLabelOf(number) })
 
+const readWordsOfLessonOne = (): string =>
+  `${schoolLessonTitle({ number: 1 })} · ${schoolLessonReadWords()}`
+
 const selectRow = async (number: number): Promise<void> => {
   fireEvent.click(within(lessonRow(number)).getByRole('button'))
   await passSeconds(0)
@@ -144,6 +147,14 @@ it("opens a running lesson's words from the school", async () => {
   await showSchool(schoolOf({ lessonSlot: lessonOneStudying }))
 
   const readWords = screen.getByRole('link', { name: schoolLessonReadWords() })
+
+  expect(readWords.getAttribute('href')).toBe('/school/lesson-1')
+})
+
+it("opens the running lesson's words from under another lesson's block", async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying }))
+
+  const readWords = screen.getByRole('link', { name: readWordsOfLessonOne() })
 
   expect(readWords.getAttribute('href')).toBe('/school/lesson-1')
 })
@@ -487,6 +498,7 @@ it('draws the next step in the block once every lesson is studied', async () => 
   const block = screen.getByRole('region', { name: townNextTitle() })
   expect(block.getAttribute('data-hue')).toBe('peach')
   expect(within(block).getByText(reportNoReviewsDue())).toBeDefined()
+  expect(within(block).getByRole('heading', { level: 2, name: townNextTitle() })).toBeDefined()
 })
 
 const everyLessonStudied = { lessons: studiedThrough(2, 2) }
@@ -496,7 +508,7 @@ it.each<[string, Partial<TownOverview>, () => string]>([
   [
     'a lesson running with another open',
     { lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying },
-    schoolLessonReadWords,
+    readWordsOfLessonOne,
   ],
   ['the last lesson running', { lessonSlot: lessonOneStudying }, schoolLessonReadWords],
   [

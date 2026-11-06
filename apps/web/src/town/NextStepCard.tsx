@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { hueClassOf } from '../design-system/blockClassOf'
+import { hueClassOf } from '../design-system/blockHueOf'
 import type { LiveTown } from './liveTown'
 import { NextStepBlock } from './NextStepBlock'
 import { NextStepLink } from './NextStepLink'
