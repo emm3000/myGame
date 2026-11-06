@@ -1,78 +1,49 @@
 # Art bible
 
-Status: flat vector present-day town, ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`), the Townword Design System (https://claude.ai/artifact/BLNf2broSoGPHBKfCNd81f). Every earlier image is retired. **Amended by ADR 043 (`docs/adr/043-the-look.md`): the town's images become flat silhouettes, one file per place, and the notes below say which rules that ends. The shipped files keep these rules until its art ticket rewrites this file.** One style for every image the game shows, so images drawn months apart sit together. Read before drawing any image. Every illustration is hand-written SVG, so the file that ships is the source that produced it, which is how a town image meets N7 (`docs/PRODUCT_REQUIREMENTS.md`). `catalog.md` lists the town's families and the retired medieval ones.
+Status: flat silhouettes of a present-day town, ADR 043 (`docs/adr/043-the-look.md`) and ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`). Every earlier image is retired. One style for every image the game shows, so images drawn months apart sit together. Read before drawing any image. Every illustration is hand-written SVG, so the file that ships is the source that produced it, which is how a town image meets N7 (`docs/PRODUCT_REQUIREMENTS.md`). `catalog.md` lists the town's families and the retired medieval ones.
 
 ## Style
 
-- Flat vector illustration of everyday present-day places. Solid fills, no outlines, no gradients, no textures, no 3D shading, no photorealism.
-- Bright and friendly, for adults: clean geometric shapes, gently rounded corners, slightly simplified proportions. Never childish, never faces on buildings.
-- Shading only as one flat darker tone of the same color.
-- Daylight, clear sky, soft white clouds. No night scenes in the base set.
+- A flat silhouette of an everyday present-day place, on paper. Solid fills, no outlines, no gradients, no textures, no 3D shading, no photorealism.
+- One block hue for the whole silhouette, and windows in `on-block`. No scene: no sky, no clouds, no ground, no shading.
+- Clean geometric shapes, for adults. Never childish, never faces on buildings.
 - No text, letters, numbers, signs, logos, real flags, real brands, real places, real people or politics.
-- One illustration per place serves both the town and that word's card.
-
-Amended by ADR 043: a silhouette on paper, in one block hue, with windows in `on-block` and no scene. No sky, clouds, shading or ground. *No text* and *no people* stand, and so does one drawing for the town and the word's card.
+- One drawing per place serves both the town and that word's card.
 
 ## Palette
 
-Illustration-only colors, the same in both UI schemes:
+A shape takes one of the four blocks or `on-block` from `apps/web/src/design/tokens.ts`, by its hex, the same in both UI schemes. No other color:
 
-| Token | Hex | Use |
-|---|---|---|
-| `scene-sky` | `#cdeaf7` | sky |
-| `scene-cloud` | `#ffffff` | clouds, window frames |
-| `scene-grass` | `#8bcf6a` | ground |
-| `scene-grass-deep` | `#5fae4f` | ground shadow, hedges, field rows |
-| `scene-tree` | `#3f9f5a` | trees, bushes |
-| `scene-trunk` | `#8a5a3c` | trunks, timber |
-| `scene-wall` | `#f7e6c8` | walls, trim |
-| `scene-brick` | `#e0674a` | brick, doors |
-| `scene-brick-deep` | `#c24e36` | brick in shade, chimneys |
-| `scene-barn` | `#d24a3f` | barns |
-| `scene-roof` | `#3c5ea8` | roofs |
-| `scene-roof-deep` | `#2f4b8a` | eaves |
-| `scene-window` | `#9fdcf5` | glass |
-| `scene-sun` | `#ffcf3f` | sun, lamps, plain flags; the brightest element |
-| `scene-steel` | `#a9b8c4` | silos, poles, power lines |
-| `scene-path` | `#e8e3d6` | paths, steps |
-
-Resource accents, the same in UI and art:
-
-| Resource | Hex |
+| Token | Use |
 |---|---|
-| money | `#2a7034` |
-| food | `#b8303f` |
-| power | `#7a5c00` (art may use `scene-sun` for light itself) |
-| material | `#4f6377` |
-| people | `#7046ad` |
+| `block-peach` | the silhouette of homes and factory |
+| `block-mint` | the silhouette of farm and power station |
+| `block-periwinkle` | the silhouette of school and storage |
+| `block-lavender` | the silhouette of office |
+| `on-block` | every window |
 
-A producing building shows its resource's accent as one clearly visible element.
+The hue is `index % 4` in homes, farm, school, office, factory, power station, storage, by position and never by resource. It carries no meaning, so the level is always written beside the drawing.
 
-Amended by ADR 043: both tables go. A shape takes one of the four blocks or `on-block`, by position and never by resource, and level 0 takes `surface-sunken` from the client.
+Two colors come from the client, never from the file: level 0 takes `surface-sunken` from the theme, and a word's silhouette takes `on-block`, on the word's block, since `on-block` on a dark surface would vanish.
 
 ## Framing
 
-- Places are 1:1, the subject centered and filling about 70 % of the frame, front view slightly elevated, sky behind, a flat ground band and one flat ground shadow. Every place and every waste site shares one scene, drawn first and in this order: the sky, six cloud ellipses, the ground band from y 152 of 240, a sidewalk strip in `scene-path` at y 204, then the subject's ground shadow.
-- Measured on the subject alone (every shape after the scene) in the file's coordinates: its bounding box spans 62 to 96 % of the frame on its longer side, its middle sits within 6 % of the frame's middle across and within 14 % up and down, and the sky left empty above it is at most 45 % of the frame. The subject stands on the ground band, the building's base at y 160, so it rises from the horizon toward the frame's middle instead of sitting under an empty sky.
-- No people in place images.
-- Ten levels and five art tiers, tier = ceil(level / 2). A higher tier is the same place grown, never a new style: it adds mass (bays, floors, wings, yard pieces) to the building of tier 1, drawn at one scale for the whole family, never by zooming out, and a tier never covers less of the frame than the one before it.
-- Waste sites (proposal, for the owner's approval) take the place framing and its measures: an empty site under the same scene, the waste on a mound of earth that stands on the ground band, its base at the horizon, its top reaching the upper half of the frame, its middle in the frame's middle band, filling about two thirds of the frame's width at size 1 and over nine tenths at size 3. Sizes 1 to 3 are the same pile grown wider and taller, drawn at one scale: bags in `scene-roof` and `scene-roof-deep`, cartons, cans, drums and old tires, with a few weeds, every hole filled with what lies behind it. Scene colors only, never a resource accent, so a dump never reads as a resource. No people, no text, no rot, no vermin, no smoke.
-
-Amended by ADR 043: the scene and its measures go. A place fills a `0 0 100 142` frame on one base line at y 140, and ten levels add ten windows in level order, so the tiers end. A waste site is one single-fill silhouette tinted `ink-muted` by the client, so it never reads as a place or a resource.
+- A place fills a `0 0 100 142` frame, over half of its width, and stands on one base line at y 140.
+- A place has ten levels and ten windows, added in level order, so every level changes the drawing. A client draws the silhouette and the first `level` windows.
+- Level 0 is the silhouette alone, in `surface-sunken`. From level 1 the silhouette takes its hue and shows `level` windows.
+- Every window sits wholly on the silhouette, since `on-block` off it is lost on a dark surface.
+- No people.
+- A word's silhouette is its place's, with no windows.
+- A waste site is one single-fill silhouette tinted `ink-muted` by the client, so it never reads as a place or a resource. #787 and #788 draw the files.
 
 ## Consistency rules
 
-- Every family is checked on a contact sheet of the whole family before commit, the five tiers of a place side by side; an outlier is redrawn, never kept.
-- File names: `places/<word>-<tier>.svg`, the word as in `CONTEXT.md`, and `waste/waste-<size>.svg`, under `apps/web/public/art/`.
-- A shape takes its color from the palette above by its hex, and the resource accents only in their light value.
-
-Amended by ADR 043: the file name becomes `places/<word>.svg`, and the contact sheet shows the seven side by side at levels 0, 1 and 10.
+- Every family is checked on a contact sheet of the whole family before commit, the seven places side by side at levels 0, 1 and 10, in light and in dark; an outlier is redrawn, never kept.
+- File names: `places/<word>.svg`, the `BuildingKind` as the callers pass it (`homes.svg`, `powerStation.svg`), and `waste/waste-<size>.svg`, under `apps/web/public/art/`.
 
 ## Model and size
 
-Every illustration family is hand-written SVG drawn to the Style, Palette and Framing above, never generated by an image model. The file is the source and ships as it is: a square `viewBox` from `0 0`, flat `rect`, `circle`, `ellipse` and `polygon` shapes, a curve drawn as a polygon of its points, each colored only by its `fill` from the palette, no `path`, no `<text>`, no gradient, no filter, no stroke, no transform, no raster `<image>`, and at most 12 KB. `artProblemsOf` (`apps/web/src/art/`) holds those rules and `artFramingOf` measures the Framing above; the web suite runs both over every file under `places/` and `waste/`. The browser scales the vector, so no size derivative exists. Android draws the same files as VectorDrawables converted by `pnpm --filter @mygame/web drawables` into `core:designsystem` (`apps/android/CLAUDE.md`); a test fails when a converted file drifts from its SVG.
-
-Amended by ADR 043: a place's `viewBox` is `0 0 100 142`, no longer square, its silhouette's shapes first and its ten windows after them. A client draws the silhouette and the first `level` windows. `artProblemsOf` reads the new palette and `artFramingOf` measures a silhouette. The converter writes one VectorDrawable per place and level. Hand-written SVG, no `path`, no stroke, no transform and the 12 KB ceiling stand.
+Every illustration family is hand-written SVG drawn to the Style, Palette and Framing above, never generated by an image model. The file is the source: a `viewBox` of `0 0 100 142`, the silhouette's shapes first and its ten windows after them in level order, flat `rect`, `circle` and `polygon` shapes alone, a curve drawn as a polygon of its points, each colored only by its `fill` from the palette, no `path`, no `<text>`, no gradient, no filter, no stroke, no transform, no raster `<image>`, and at most 12 KB. `artProblemsOf` (`apps/web/src/art/`) holds those rules and `artFramingOf` measures the Framing above; the web suite runs both over every file. The web inlines the file as vector shapes, so no size derivative exists. Android draws one VectorDrawable per place and level, 77 in all, cut from the same files by `pnpm --filter @mygame/web drawables` into `core:designsystem` (`apps/android/CLAUDE.md`), and tints level 0 and a word's silhouette in Compose; a test fails when a converted file drifts from its SVG.
 
 ## UI icons
 

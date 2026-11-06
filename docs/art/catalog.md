@@ -2,29 +2,29 @@
 
 Every family the game draws. The town's families come first; the medieval ones below them are retired.
 
-Amended by ADR 043: *places* and *waste* below describe the shipped files, which retire with its art ticket. The places become seven files, `places/<word>.svg`, a silhouette and ten windows each, and Android gets one drawable per place and level; a waste site is one single-fill silhouette, drawn when #787 needs it.
-
 ## The town
 
-Hand-written SVG under `apps/web/public/art/`, drawn to `art-bible.md` and checked by its rules (Model and size). Every tier and size is measured by the Framing's rules in the web suite. Each file ships beside its Android VectorDrawable in `apps/android/core/designsystem/src/main/res/drawable/`, converted by `pnpm --filter @mygame/web drawables`. No screen draws them yet.
+Hand-written SVG under `apps/web/public/art/`, drawn to `art-bible.md` and checked by its rules (Model and size). The web inlines each file. Android draws the VectorDrawables in `apps/android/core/designsystem/src/main/res/drawable/`, cut from each file by `pnpm --filter @mygame/web drawables`.
 
 ### Family: places
 
-35 images, `places/<word>-<tier>.svg`, the seven places of `CONTEXT.md` in five tiers each, tier = ceil(level / 2); level 0 shows no image. Android: `designsystem_place_<word>_<tier>`, the word in snake case (`designsystem_place_power_station_3`).
+7 files, `places/<word>.svg`, the seven places of `CONTEXT.md`, the word the `BuildingKind`: a silhouette and ten windows each, one window per level. Android: 77 drawables, `designsystem_place_<word>_<level>`, levels 0 to 10, the word in snake case (`designsystem_place_power_station_3`). A word of `wordArtOf` draws its place's silhouette in `on-block`, with no windows, on the word's block; every other word has no art.
 
-| Word | What grows from tier 1 to tier 5 | Accent |
+| Word | Silhouette | Hue |
 |---|---|---|
-| `homes` | two one-floor houses beside a tree, then a row of three, its middle house rising to two floors, all three at two floors with hedges, and the middle one at three floors | `people`, the front doors |
-| `farm` | a red barn over two crop rows, then a fence and a third row, a silo, a second silo and a tree with a fourth row, then a lean-to annex and a third silo | `food`, the crops |
-| `factory` | a brick works with one chimney between two pallet stacks, the chimney rising each tier, a sawtooth roof from tier 3, an office annex from tier 4, a low second hall at tier 5 | `material`, the pallets |
-| `powerStation` | a brick station with one transformer between two poles, the station growing each tier with more transformers, a steel fence from tier 3, a pylon at tier 4, two pylons and roof panels at tier 5 | `power`, the transformers |
-| `storage` | a wide shed with one large door and crates, then two, three and four doors, a side shed from tier 4, a loading apron at tier 5 | none |
-| `school` | a one-floor school with a cupola, two floors from tier 2, a flagpole and a tree from tier 3, one wing at tier 4, two wings at tier 5 | none |
-| `office` | a glass-fronted office of two floors, then three, then a two-floor base with a glass tower rising to four, five and six floors, trees beside it | none |
+| `homes` | two gabled houses side by side | `block-peach` |
+| `farm` | a barn with a hipped roof beside a round-topped silo | `block-mint` |
+| `school` | a long hall under one roof, with a cupola | `block-periwinkle` |
+| `office` | a tall block with a mast | `block-lavender` |
+| `factory` | a sawtooth hall beside a chimney | `block-peach` |
+| `powerStation` | a low station beside a pylon with two arms | `block-mint` |
+| `storage` | a wide shed under one shallow gable | `block-periwinkle` |
+
+The contact sheet of the family shows the seven at levels 0, 1 and 10, in light and in dark, each on the ground it is drawn on: the sheet of #863 is the reference.
 
 ### Family: waste
 
-3 images, `waste/waste-<size>.svg`, one per waste-site size, 1 to 3, in scene colors only: a low mound with three bags and a carton, then a higher one with a tire and a drum, then a wide heap with tires, drums, cartons and cans. Android: `designsystem_waste_<size>`.
+No files yet. A waste site is one single-fill silhouette, `waste/waste-<size>.svg`, sizes 1 to 3, tinted `ink-muted` by the client; #787 and #788 hand-write them with their drawables, `designsystem_waste_<size>`. The drawables' loop keeps the family.
 
 ## Retired: the medieval families
 
