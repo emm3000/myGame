@@ -18,6 +18,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -101,7 +102,9 @@ const showLesson = async (
 }
 
 const wordHeading = (word: string): HTMLElement =>
-  screen.getByRole('heading', { level: 3, name: word })
+  screen.getByRole('heading', { level: 2, name: word })
+
+const wordBlock = (word: string): HTMLElement => screen.getByRole('region', { name: word })
 
 const nextWord = (): HTMLElement => screen.getByRole('button', { name: schoolLessonWordNext() })
 
@@ -111,7 +114,7 @@ const startReviews = (): HTMLElement =>
 const nextLesson = (): HTMLElement => screen.getByRole('link', { name: schoolLessonNext() })
 
 const lessonHeading = (number: number): HTMLElement =>
-  screen.getByRole('heading', { level: 2, name: schoolLessonTitle({ number }) })
+  screen.getByRole('heading', { level: 1, name: schoolLessonTitle({ number }) })
 
 const follow = async (link: HTMLElement): Promise<void> => {
   fireEvent.click(link)
@@ -143,26 +146,24 @@ it("draws the place's silhouette where the word names one", async () => {
     lessonSlot: running('lesson-1'),
   })
   await showLesson('/school/lesson-1', town)
-  const silhouetteOnCard = (): Element | null =>
-    screen.getByRole('article').querySelector('svg [fill="var(--on-block)"]')
+  const silhouetteOn = (word: string): Element | null =>
+    wordBlock(word).querySelector('svg [fill="var(--on-block)"]')
 
-  expect(silhouetteOnCard()).not.toBeNull()
+  expect(silhouetteOn('school')).not.toBeNull()
 
   await follow(nextWord())
 
-  expect(silhouetteOnCard()).toBeNull()
+  expect(silhouetteOn('money')).toBeNull()
 })
 
-it("sets the silhouette on the word's block, since on-block vanishes on the card", async () => {
+it("sets the silhouette on the word's block, since on-block vanishes on paper", async () => {
   const town = townOf({
     lessons: [lessonOf(1, [readableWord('school')])],
     lessonSlot: running('lesson-1'),
   })
   await showLesson('/school/lesson-1', town)
 
-  expect(
-    screen.getByRole('article').querySelector('.bg-block-peach svg [fill="var(--on-block)"]'),
-  ).not.toBeNull()
+  expect(wordBlock('school').querySelector('svg [fill="var(--on-block)"]')).not.toBeNull()
 })
 
 it('shows a running lesson with its time', async () => {
@@ -316,7 +317,7 @@ it.each([
 
   expect(screen.getByText(schoolLessonNothingToRead())).toBeDefined()
   await follow(screen.getByRole('link', { name: townGoToSchool() }))
-  expect(screen.getByRole('heading', { level: 2, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
 })
 
 it('walks every unread lesson in curriculum order and then the reviews', async () => {
@@ -432,4 +433,122 @@ it('retries a failed Report read', async () => {
   await follow(screen.getByRole('button', { name: townTryAgain() }))
 
   expect(wordHeading('first1')).toBeDefined()
+})
+
+const fiveWordLessonOf = (number: number): Lesson =>
+  lessonOf(
+    number,
+    ['a', 'b', 'c', 'd', 'e'].map((letter) => readableWord(`${letter}${number}`)),
+  )
+
+const isBefore = (earlier: Element, later: Element): boolean =>
+  (earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+
+it('sets the word and its frame in one block', async () => {
+  await showLesson('/school/lesson-1', townOf({}))
+
+  expect(within(wordBlock('first1')).getByText('A frame of first1.')).toBeDefined()
+  expect(within(wordBlock('first1')).getByText('gloss of first1')).toBeDefined()
+})
+
+it('draws the progress line above the word', async () => {
+  await showLesson('/school/lesson-1', townOf({ lessonSlot: running('lesson-1') }))
+
+  const progress = (): HTMLElement => within(screen.getByRole('main')).getByRole('progressbar')
+  expect(isBefore(progress(), wordBlock('first1'))).toBe(true)
+  expect(progress().getAttribute('aria-valuenow')).toBe('50')
+
+  await follow(nextWord())
+
+  expect(progress().getAttribute('aria-valuenow')).toBe('100')
+})
+
+it('puts the way on under the block', async () => {
+  const town = townOf({ lessons: [lessonOf(1, [readableWord('only')])] })
+  await showLesson('/school/lesson-1', town)
+
+  expect(within(wordBlock('only')).queryByRole('link')).toBeNull()
+  expect(isBefore(wordBlock('only'), startReviews())).toBe(true)
+})
+
+it('changes the hue with the next word', async () => {
+  await showLesson('/school/lesson-1', townOf({ lessons: [fiveWordLessonOf(1)] }))
+
+  const hues: Array<string | null> = [wordBlock('a1').getAttribute('data-hue')]
+  for (const word of ['b1', 'c1', 'd1', 'e1']) {
+    await follow(nextWord())
+    hues.push(wordBlock(word).getAttribute('data-hue'))
+  }
+
+  expect(hues).toEqual(['peach', 'mint', 'periwinkle', 'lavender', 'peach'])
+})
+
+it('changes the hue when the way on opens the next lesson', async () => {
+  const town = townOf({ lessons: [fiveWordLessonOf(1), fiveWordLessonOf(2)] })
+  await showLesson('/school/lesson-1', town, {
+    report: async () => ({ ok: true, value: reportOf(['lesson-1', 'lesson-2']) }),
+  })
+
+  for (let step = 0; step < 4; step += 1) {
+    await follow(nextWord())
+  }
+  const lastHue = wordBlock('e1').getAttribute('data-hue')
+  await follow(nextLesson())
+
+  expect(wordBlock('a2').getAttribute('data-hue')).not.toBe(lastHue)
+})
+
+it('wraps a long word rather than clipping it', async () => {
+  const longWord = 'antidisestablishmentarianism'.repeat(3)
+  await showLesson('/school/lesson-1', townOf({ lessons: [lessonOf(1, [readableWord(longWord)])] }))
+
+  expect(wordHeading(longWord).className).toContain('wrap-anywhere')
+})
+
+it.each<[string, Partial<TownOverview>, ReadonlyArray<() => string>]>([
+  ['a running lesson on a word', { lessonSlot: running('lesson-1') }, [schoolLessonWordNext]],
+  ['a finished lesson on a word', {}, [schoolLessonWordNext]],
+  [
+    'a finished lesson on its only word',
+    { lessons: [lessonOf(1, [readableWord('only')])] },
+    [reportStartReviews],
+  ],
+  [
+    'a running lesson on its only word',
+    { lessons: [lessonOf(1, [readableWord('only')])], lessonSlot: running('lesson-1') },
+    [],
+  ],
+])('holds at most one ink pill on the words with %s', async (_state, overrides, labels) => {
+  await showLesson('/school/lesson-1', townOf(overrides))
+
+  expect(inkPills()).toEqual(labels.map((label) => label()))
+})
+
+it('holds no ink pill on the words with nothing to read', async () => {
+  await showLesson('/school/lesson-99', townOf({}))
+
+  expect(inkPills()).toEqual([])
+})
+
+it.each<[string, string, Partial<ApiClient>, () => string]>([
+  ['a word', '/school/lesson-1', {}, () => schoolLessonTitle({ number: 1 })],
+  ['nothing to read', '/school/lesson-99', {}, namesPlacesSchool],
+  [
+    'the town loading',
+    '/school/lesson-1',
+    { town: () => new Promise(() => undefined) },
+    namesPlacesSchool,
+  ],
+  [
+    'a failed read',
+    '/school/lesson-1',
+    { town: async () => ({ ok: false, refusal: 'Unexpected' }) },
+    namesPlacesSchool,
+  ],
+])('holds one h1 on the words with %s', async (_state, path, overrides, title) => {
+  await showLesson(path, townOf({}), overrides)
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    title(),
+  ])
 })

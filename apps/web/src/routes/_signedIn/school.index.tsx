@@ -4,6 +4,7 @@ import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import { SchoolScreen } from '../../school/SchoolScreen'
+import { SchoolTitled } from '../../school/SchoolTitled'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
 import type { LiveTown } from '../../town/liveTown'
 import { TownReadFailed } from '../../town/TownReadStatus'
@@ -28,11 +29,19 @@ function SchoolRoute(): ReactElement {
   const town = useLayoutTown()
   switch (town.state.kind) {
     case 'loading':
-      return <ReadingLine line={townLoading()} />
+      return (
+        <SchoolTitled>
+          <ReadingLine line={townLoading()} />
+        </SchoolTitled>
+      )
     case 'noTown':
       return <Navigate to="/" />
     case 'refused':
-      return <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+      return (
+        <SchoolTitled>
+          <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+        </SchoolTitled>
+      )
     case 'live':
       return <SchoolPage apiClient={apiClient} town={town.state.town} adopt={town.adopt} />
     default: {

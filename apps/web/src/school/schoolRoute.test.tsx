@@ -1,12 +1,16 @@
 import {
   namesPlacesSchool,
   refusalLearningCapReached,
+  reportNoReviewsDue,
+  reportStartReviews,
   schoolLearning,
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
   schoolLessonReadWords,
+  schoolLessonSlotBusy,
   schoolLessonStudied,
   schoolLessonStudy,
+  schoolLessonTitle,
   schoolSkillName,
   schoolSkillRate,
   schoolSkillsNone,
@@ -15,6 +19,8 @@ import {
   townGoToSchool,
   townLoading,
   townNamingTitle,
+  townNextGoToReport,
+  townNextTitle,
   townTryAgain,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
@@ -24,6 +30,7 @@ import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -86,13 +93,27 @@ const showSchool = async (
   await passSeconds(0)
 }
 
-const lessonCard = (number: number): HTMLElement =>
+const lessonRow = (number: number): HTMLElement =>
   screen.getByRole('listitem', { name: `Lección ${number}` })
 
+const lessonBlock = (number: number): HTMLElement =>
+  screen.getByRole('region', { name: schoolLessonTitle({ number }) })
+
+const studyLabelOf = (number: number): string => `${schoolLessonStudy({ number })} · 5:00`
+
 const studyButtonOf = (number: number): HTMLElement =>
-  within(lessonCard(number)).getByRole('button', {
-    name: `${schoolLessonStudy({ number })} · 5:00`,
-  })
+  screen.getByRole('button', { name: studyLabelOf(number) })
+
+const selectRow = async (number: number): Promise<void> => {
+  fireEvent.click(within(lessonRow(number)).getByRole('button'))
+  await passSeconds(0)
+}
+
+const isBefore = (earlier: Element, later: Element): boolean =>
+  (earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+
+const studiedThrough = (studied: number, count: number): Array<Lesson> =>
+  Array.from({ length: count }, (_, index) => lessonOf(index + 1, { isStudied: index < studied }))
 
 it('opens the school from the town home', async () => {
   await showSchool(schoolOf({}), {}, '/')
@@ -100,7 +121,7 @@ it('opens the school from the town home', async () => {
   fireEvent.click(screen.getByRole('link', { name: townGoToSchool() }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 2, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
 })
 
 it('starts lesson 1 from the school', async () => {
@@ -185,7 +206,7 @@ it('reads the town again when the lesson finishes and marks it studied', async (
   expect(screen.getByText(schoolSlotDone())).toBeDefined()
 
   await act(async () => answerFinishRead({ ok: true, value: studied }))
-  expect(within(lessonCard(1)).getByText(schoolLessonStudied())).toBeDefined()
+  expect(within(lessonRow(1)).getByText(schoolLessonStudied())).toBeDefined()
 })
 
 it('stops a lesson once on a double click', async () => {
@@ -241,7 +262,7 @@ it('refuses a lesson past the cap and names the cap', async () => {
   fireEvent.click(studyButtonOf(1))
   await passSeconds(0)
 
-  expect(within(lessonCard(1)).getByRole('alert').textContent).toBe(
+  expect(within(screen.getByRole('main')).getByRole('alert').textContent).toBe(
     refusalLearningCapReached({ learningCap: 15, cardsInLearning: 12 }),
   )
 })
@@ -249,8 +270,8 @@ it('refuses a lesson past the cap and names the cap', async () => {
 it('marks a studied lesson with no study button', async () => {
   await showSchool(schoolOf({ lessons: [lessonOf(1, { isStudied: true })] }))
 
-  expect(within(lessonCard(1)).getByText(schoolLessonStudied())).toBeDefined()
-  expect(within(lessonCard(1)).queryByRole('button')).toBeNull()
+  expect(within(lessonRow(1)).getByText(schoolLessonStudied())).toBeDefined()
+  expect(within(lessonRow(1)).queryByRole('button')).toBeNull()
 })
 
 it('lists each earned skill with its resource and percent', async () => {
@@ -313,5 +334,195 @@ it('retries a failed read of the school', async () => {
   fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
   await passSeconds(0)
 
-  expect(lessonCard(1)).toBeDefined()
+  expect(lessonBlock(1)).toBeDefined()
+})
+
+it('puts the next lesson in a block with its pill under it', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(1, 3) }))
+
+  expect(within(lessonBlock(2)).getByText('Theme 2').getAttribute('lang')).toBe('en')
+  expect(within(lessonBlock(2)).queryByRole('button')).toBeNull()
+  expect(isBefore(lessonBlock(2), studyButtonOf(2))).toBe(true)
+})
+
+it('keeps the order of the block, the pill, the learning load and the rows', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(1, 3) }))
+
+  const load = screen.getByText(schoolLearning({ inLearning: 0, cap: 15 }))
+  expect(isBefore(studyButtonOf(2), load)).toBe(true)
+  expect(isBefore(load, lessonRow(1))).toBe(true)
+})
+
+it('lists every other lesson as a row, leaving the next lesson to its block', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(1, 3) }))
+
+  expect(screen.queryByRole('listitem', { name: 'Lección 2' })).toBeNull()
+  expect(lessonRow(1)).toBeDefined()
+  expect(lessonRow(3)).toBeDefined()
+})
+
+it('selects a lesson from its row', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 3) }))
+
+  await selectRow(3)
+
+  expect(lessonBlock(3)).toBeDefined()
+  expect(inkPills()).toEqual([studyLabelOf(3)])
+  expect(lessonRow(1)).toBeDefined()
+  expect(screen.queryByRole('listitem', { name: 'Lección 3' })).toBeNull()
+})
+
+it('moves the focus to the block of the selected lesson', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 3) }))
+
+  await selectRow(3)
+
+  expect(document.activeElement).toBe(
+    screen.getByRole('heading', { name: schoolLessonTitle({ number: 3 }) }),
+  )
+})
+
+it('starts the selected lesson', async () => {
+  const started: Array<string> = []
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 3) }), {
+    startLesson: async (lessonId) => {
+      started.push(lessonId)
+      return { ok: true, value: schoolOf({ lessons: studiedThrough(0, 3) }) }
+    },
+  })
+
+  await selectRow(3)
+  fireEvent.click(studyButtonOf(3))
+  await passSeconds(0)
+
+  expect(started).toEqual(['lesson-3'])
+})
+
+it('gives the block back to the next lesson once the selected one runs', async () => {
+  const lessons = studiedThrough(0, 3)
+  await showSchool(schoolOf({ lessons }), {
+    startLesson: async () => ({
+      ok: true,
+      value: schoolOf({
+        lessons,
+        lessonSlot: {
+          lessonId: 'lesson-3',
+          startedAt: instantAfter(0),
+          finishesAt: instantAfter(300),
+        },
+      }),
+    }),
+  })
+
+  await selectRow(3)
+  fireEvent.click(studyButtonOf(3))
+  await passSeconds(0)
+
+  expect(lessonBlock(1)).toBeDefined()
+})
+
+it('offers no selection on a studied lesson', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(1, 2) }))
+
+  expect(within(lessonRow(1)).queryByRole('button')).toBeNull()
+})
+
+it('offers no selection on the running lesson', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying }))
+
+  expect(within(lessonRow(1)).queryByRole('button')).toBeNull()
+})
+
+it("takes a lesson's hue from its place in the curriculum", async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 6) }))
+
+  const hueOfRow = async (number: number): Promise<string | null> => {
+    await selectRow(number)
+    return lessonBlock(number).getAttribute('data-hue')
+  }
+
+  expect(lessonBlock(1).getAttribute('data-hue')).toBe('peach')
+  expect(await hueOfRow(2)).toBe('mint')
+  expect(await hueOfRow(3)).toBe('periwinkle')
+  expect(await hueOfRow(4)).toBe('lavender')
+  expect(await hueOfRow(5)).toBe('peach')
+  expect(await hueOfRow(6)).toBe('mint')
+})
+
+it('says why the next lesson waits while another one runs', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying }))
+
+  expect(accessibleDescriptionOf(studyButtonOf(2))).toBe(schoolLessonSlotBusy({ number: 1 }))
+})
+
+it('draws the running lesson in the block when no other lesson is open', async () => {
+  await showSchool(schoolOf({ lessonSlot: lessonOneStudying }))
+
+  expect(within(lessonBlock(1)).getByText('Theme 1')).toBeDefined()
+})
+
+it('draws the next step in the block once every lesson is studied', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(2, 2) }))
+
+  const block = screen.getByRole('region', { name: townNextTitle() })
+  expect(block.getAttribute('data-hue')).toBe('peach')
+  expect(within(block).getByText(reportNoReviewsDue())).toBeDefined()
+})
+
+const everyLessonStudied = { lessons: studiedThrough(2, 2) }
+
+it.each<[string, Partial<TownOverview>, () => string]>([
+  ['no lesson studied', {}, () => studyLabelOf(1)],
+  [
+    'a lesson running with another open',
+    { lessons: studiedThrough(0, 2), lessonSlot: lessonOneStudying },
+    schoolLessonReadWords,
+  ],
+  ['the last lesson running', { lessonSlot: lessonOneStudying }, schoolLessonReadWords],
+  [
+    "the next lesson locked by the school's level",
+    { lessons: [lessonOf(1, { requiredSchoolLevel: 9 })] },
+    () => studyLabelOf(1),
+  ],
+  [
+    'the next lesson locked by the cap',
+    { learning: { cap: 15, inLearning: 12 } },
+    () => studyLabelOf(1),
+  ],
+  ['every lesson studied, nothing due', everyLessonStudied, townNextGoToReport],
+  [
+    'every lesson studied, reviews due',
+    { ...everyLessonStudied, nextStep: { kind: 'reviews', count: 2, readFirst: [] } },
+    reportStartReviews,
+  ],
+])('holds one ink pill on the school with %s', async (_state, overrides, label) => {
+  await showSchool(schoolOf(overrides))
+
+  expect(inkPills()).toEqual([label()])
+})
+
+it('holds one ink pill on the school with a row selected', async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(0, 16) }))
+
+  await selectRow(9)
+
+  expect(inkPills()).toEqual([studyLabelOf(9)])
+})
+
+it('holds one ink pill on the school with a failed read', async () => {
+  await showSchool(schoolOf({}), { town: async () => ({ ok: false, refusal: 'Unexpected' }) })
+
+  expect(inkPills()).toEqual([townTryAgain()])
+})
+
+it.each<[string, Partial<ApiClient>]>([
+  ['a read', {}],
+  ['a failed read', { town: async () => ({ ok: false, refusal: 'Unexpected' }) }],
+  ['the town loading', { town: () => new Promise(() => undefined) }],
+])('holds one h1 on the school with %s', async (_state, overrides) => {
+  await showSchool(schoolOf({}), overrides)
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    namesPlacesSchool(),
+  ])
 })

@@ -7,6 +7,7 @@ import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { LessonWordsScreen } from '../../school/LessonWordsScreen'
 import { lessonWordsOf } from '../../school/lessonWordsOf'
 import { NothingToRead } from '../../school/NothingToRead'
+import { SchoolTitled } from '../../school/SchoolTitled'
 import { useOpenedLessons } from '../../school/useOpenedLessons'
 import { wayOnOf } from '../../school/wayOnOf'
 import type { LiveTown } from '../../town/liveTown'
@@ -26,16 +27,24 @@ function LessonPage({
   const { state, reread } = report
   switch (state.kind) {
     case 'loading':
-      return <ReadingLine line={reportLoading()} />
+      return (
+        <SchoolTitled>
+          <ReadingLine line={reportLoading()} />
+        </SchoolTitled>
+      )
     case 'refused':
-      return <TownReadFailed refusal={state.refusal} onRetry={reread} />
+      return (
+        <SchoolTitled>
+          <TownReadFailed refusal={state.refusal} onRetry={reread} />
+        </SchoolTitled>
+      )
     case 'read': {
       const lesson = lessonWordsOf(town, lessonId)
       return lesson === undefined ? (
         <NothingToRead />
       ) : (
         <LessonWordsScreen
-          key={lessonId}
+          lessonId={lessonId}
           lesson={lesson}
           wayOn={wayOnOf(state.report.readFirst, opened)}
         />
@@ -56,11 +65,19 @@ function LessonRoute(): ReactElement {
   useReportAtLessonFinish(town.state, report.reread)
   switch (town.state.kind) {
     case 'loading':
-      return <ReadingLine line={townLoading()} />
+      return (
+        <SchoolTitled>
+          <ReadingLine line={townLoading()} />
+        </SchoolTitled>
+      )
     case 'noTown':
       return <Navigate to="/" />
     case 'refused':
-      return <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+      return (
+        <SchoolTitled>
+          <TownReadFailed refusal={town.state.refusal} onRetry={town.reread} />
+        </SchoolTitled>
+      )
     case 'live':
       return <LessonPage town={town.state.town} lessonId={lessonId} report={report} />
     default: {

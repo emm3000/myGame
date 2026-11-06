@@ -8,6 +8,7 @@ import {
   schoolSkillRate,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
+import { type BlockHue, blockHueOf } from '../design-system/blockClassOf'
 import type { OrderActionState } from '../design-system/CardAction'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
@@ -21,6 +22,7 @@ export type LessonCardState =
 export interface LessonCardContent {
   readonly lessonId: string
   readonly title: string
+  readonly hue: BlockHue
   readonly theme: string
   readonly wordsLine: string
   readonly skillLine: string
@@ -77,6 +79,7 @@ export function lessonCardOf(lesson: Lesson, overview: TownOverview): LessonCard
   return {
     lessonId: lesson.id,
     title: schoolLessonTitle({ number }),
+    hue: blockHueOf(number - 1),
     theme: lesson.theme,
     wordsLine: schoolLessonWords({ count: lesson.words.length }),
     skillLine: schoolSkillRate({
