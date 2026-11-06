@@ -52,7 +52,10 @@ export function useLessonFinish(
     }
   }, [isDone])
 
-  const close = useCallback((): void => setIsOpen(false), [])
+  const close = useCallback(
+    (): void => setAnnounced(({ sequence }) => ({ lessonId: undefined, sequence })),
+    [],
+  )
 
   return { ...announced, noticeReadFirst: isOpen && !isDone ? readFirst : undefined, close }
 }

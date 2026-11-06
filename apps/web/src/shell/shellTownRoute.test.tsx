@@ -271,6 +271,17 @@ it('shows a closed notice no more', async () => {
   expect(queryFinishNotice(2)).toBeNull()
 })
 
+it('empties the live region once the notice closes', async () => {
+  renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
+  await passSeconds(0)
+  await passSeconds(240)
+
+  fireEvent.click(within(finishNotice(2)).getByRole('button', { name: shellLessonFinishClose() }))
+  await passSeconds(0)
+
+  expect(shellLiveRegion().textContent).toBe('')
+})
+
 it('moves focus to the shell title when the notice closes', async () => {
   renderAppAt('/report', finishingClient(lessonTwoFinished(['lesson-2'])))
   await passSeconds(0)
@@ -507,7 +518,7 @@ it('shows no notice for a lesson the player stops', async () => {
     town: async () => ({ ok: true, value: lessonTwoRunning }),
     stopLesson: async () => ({
       ok: true,
-      value: { ...knownTown, lessons, readAt: instantAfter(10) },
+      value: { ...lessonTwoFinished(['lesson-1']), lessons, readAt: instantAfter(10) },
     }),
   })
   renderAppAt('/school', client)
@@ -520,12 +531,21 @@ it('shows no notice for a lesson the player stops', async () => {
 })
 
 it('shows no notice for a lesson stopped in another tab', async () => {
-  renderAppAt('/report', finishingClient({ ...knownTown, lessons, readAt: instantAfter(240) }))
+  renderAppAt('/report', finishingClient({ ...lessonTwoFinished(['lesson-1']), lessons }))
   await passSeconds(0)
 
   await passSeconds(240)
 
   expect(queryFinishNotice(2)).toBeNull()
+})
+
+it('announces nothing for a lesson stopped in another tab', async () => {
+  renderAppAt('/report', finishingClient({ ...lessonTwoFinished(['lesson-1']), lessons }))
+  await passSeconds(0)
+
+  await passSeconds(240)
+
+  expect(shellLiveRegion().textContent).toBe('')
 })
 
 it('shows no notice for a lesson that finished with the tab closed', async () => {
