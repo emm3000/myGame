@@ -582,7 +582,7 @@ describe('the town route', () => {
       expect((await overviewOf(await readTown(cookie))).nextDueAt).toBeNull()
     })
 
-    it('refuses a read whose running lesson left the curriculum', async () => {
+    it('reads the town of a running lesson that left the curriculum', async () => {
       const cookie = await signUpWithTown('ana@example.com')
       await startLesson(cookie, 'lesson-1')
       const emptied = createApp({
@@ -593,7 +593,7 @@ describe('the town route', () => {
 
       const read = await emptied.request('/town', { headers: { cookie } })
 
-      expect(read.status).toBe(404)
+      expect((await overviewOf(read)).nextStep).toEqual({ kind: 'lessonRunning', producer: null })
     })
 
     it('names the farm in the answer to a lesson start', async () => {

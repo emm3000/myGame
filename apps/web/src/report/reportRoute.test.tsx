@@ -169,6 +169,70 @@ it('shows no next review beside the reviews due', async () => {
   expect(within(reportRegion()).queryByText(reviewNextReview())).toBeNull()
 })
 
+const secondsAfterRead = (seconds: number): string =>
+  new Date(readAt + seconds * 1000).toISOString()
+
+const reportReads = (report: Report): ReturnType<typeof vi.fn<ApiClient['report']>> =>
+  vi.fn<ApiClient['report']>().mockResolvedValue({ ok: true, value: report })
+
+it('re-reads at the next review', async () => {
+  const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(30) }))
+  await showReport(report)
+  await passSeconds(29)
+  const readsBefore = report.mock.calls.length
+
+  await passSeconds(1)
+
+  expect([readsBefore, report.mock.calls.length]).toEqual([1, 2])
+})
+
+it('draws the reviews the read at the next review answers', async () => {
+  const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(30) }))
+  report.mockResolvedValueOnce({ ok: true, value: reportOf({ nextDueAt: secondsAfterRead(30) }) })
+  report.mockResolvedValue({ ok: true, value: reviewsDue })
+  await showReport(report)
+
+  await passSeconds(30)
+
+  expect(within(reportRegion()).getByText(reportReviewsDue({ count: '3' }))).toBeDefined()
+})
+
+it('reads once with reviews due', async () => {
+  const report = reportReads({ ...reviewsDue, nextDueAt: secondsAfterRead(30) })
+  await showReport(report)
+
+  await passSeconds(60)
+
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
+it('reads once with no review ahead', async () => {
+  const report = reportReads(reportOf({}))
+  await showReport(report)
+
+  await passSeconds(60)
+
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
+it('reads once when the next review already passed on this device', async () => {
+  const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(-30) }))
+  await showReport(report)
+
+  await passSeconds(60)
+
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
+it('waits for a next review past the longest timer', async () => {
+  const report = reportReads(reportOf({ nextDueAt: secondsAfterRead(30 * 24 * 3600) }))
+  await showReport(report)
+
+  await passSeconds(60)
+
+  expect(report).toHaveBeenCalledTimes(1)
+})
+
 it('opens the unread lesson from the Report', async () => {
   await showReport({ ...reviewsDue, readFirst: ['lesson-2', 'lesson-3'] })
 
