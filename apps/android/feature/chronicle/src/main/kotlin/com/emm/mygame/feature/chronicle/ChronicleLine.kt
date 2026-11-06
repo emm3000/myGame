@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
@@ -86,7 +85,7 @@ private fun inlineIconsOf(marks: List<AmountMark>, colors: MyGameColors, density
             mark.resource.name to InlineTextContent(placeholder) {
                 MyGameIcon(
                     icon = iconOf(mark.resource),
-                    tint = accentOf(mark.resource, colors),
+                    tint = colors.ink,
                     modifier = Modifier.padding(end = MyGameSpacing.step1),
                 )
             }
@@ -110,14 +109,6 @@ private fun iconOf(resource: ResourceKind): ImageVector = when (resource) {
     ResourceKind.Iron -> MyGameIcons.iron
     ResourceKind.Gold -> MyGameIcons.gold
     ResourceKind.Food -> MyGameIcons.food
-}
-
-private fun accentOf(resource: ResourceKind, colors: MyGameColors): Color = when (resource) {
-    ResourceKind.Wood -> colors.material
-    ResourceKind.Stone -> colors.material
-    ResourceKind.Iron -> colors.material
-    ResourceKind.Gold -> colors.money
-    ResourceKind.Food -> colors.food
 }
 
 private fun Resources.sentenceOf(event: ChronicleEvent): AnnotatedString {

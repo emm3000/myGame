@@ -60,7 +60,7 @@ private fun DoneSlot(slot: TownUiState.SlotLine.Done, modifier: Modifier = Modif
         MyGameText(
             text = stringResource(R.string.town_work_done),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.right,
+            color = MyGameTheme.colors.ink,
         )
     }
 }

@@ -17,7 +17,7 @@ changed="$(git diff --no-renames --name-only "$base" "$head")" || {
 
 while IFS= read -r file; do
   case "$file" in
-    apps/android/* | apps/api/openapi.json | packages/catalog/* | packages/domain/src/*-cases.json)
+    apps/android/* | apps/api/openapi.json | apps/web/src/art/* | apps/web/src/design/android/* | apps/web/src/design/tokens.ts | packages/catalog/* | packages/domain/src/*-cases.json)
       echo true
       exit 0
       ;;

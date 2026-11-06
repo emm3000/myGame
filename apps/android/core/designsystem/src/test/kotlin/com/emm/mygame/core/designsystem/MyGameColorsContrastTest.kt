@@ -57,52 +57,34 @@ private data class ColorPair(
 
 private val themes: Map<String, MyGameColors> = mapOf("light" to lightColors, "dark" to darkColors)
 
-private const val RESOURCE_LABEL: String = "resource label beside its icon"
-
 private const val CONTROL_BOUNDARY: String = "MyGameTextField and quiet MyGameButton border"
 
 private const val FOCUS_RING: String = "focus ring, 3 dp at a 2 dp offset"
 
+private val blocks: List<(MyGameColors) -> Color> = listOf(
+    { it.blockPeach },
+    { it.blockMint },
+    { it.blockPeriwinkle },
+    { it.blockLavender },
+)
+
 private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Text, { it.ink }, { it.surface }, "running text on the page"),
     ColorPair(PairKind.Text, { it.ink }, { it.surfaceRaised }, "text in a card, MyGameTextField value"),
-    ColorPair(PairKind.Text, { it.ink }, { it.surfaceSunken }, "MyGameSeasonMark words"),
-    ColorPair(PairKind.Text, { it.ink }, { it.actionSoft }, "text on a pressed or selected fill"),
-    ColorPair(PairKind.Text, { it.ink }, { it.glossSoft }, "text in the gloss pop-over"),
-    ColorPair(PairKind.Text, { it.ink }, { it.rightSoft }, "MarchPanel sent outcome"),
-    ColorPair(PairKind.Text, { it.ink }, { it.missSoft }, "MyGameErrorBanner line"),
-    ColorPair(PairKind.Text, { it.ink }, { it.hintSoft }, "near-miss prompt"),
+    ColorPair(PairKind.Text, { it.ink }, { it.surfaceSunken }, "MyGameSeasonMark words, MarchPanel sent outcome"),
     ColorPair(PairKind.Text, { it.inkMuted }, { it.surface }, "captions on the page, disabled MyGameNavigationItem"),
     ColorPair(PairKind.Text, { it.inkMuted }, { it.surfaceRaised }, "captions in a card, MyGameTextField label"),
     ColorPair(PairKind.Text, { it.inkMuted }, { it.surfaceSunken }, "busy and blocked MyGameButton label"),
-    ColorPair(PairKind.Text, { it.inkMuted }, { it.rightSoft }, "secondary copy on the right strip"),
-    ColorPair(PairKind.Text, { it.inkMuted }, { it.missSoft }, "secondary copy on the miss strip"),
-    ColorPair(PairKind.Text, { it.inkMuted }, { it.hintSoft }, "secondary copy on the hint strip"),
-    ColorPair(PairKind.Text, { it.inkMuted }, { it.glossSoft }, "gloss text in its pop-over"),
-    ColorPair(PairKind.Text, { it.inkFaint }, { it.surface }, "metadata on the page"),
-    ColorPair(PairKind.Text, { it.inkFaint }, { it.surfaceRaised }, "metadata in a card"),
+    ColorPair(PairKind.Text, { it.onAction }, { it.action }, "MyGameButton label"),
     ColorPair(PairKind.Text, { it.action }, { it.surface }, "MyGameTextLink, AuthHeader, current MyGameNavigationItem"),
     ColorPair(PairKind.Text, { it.action }, { it.surfaceRaised }, "FiefSwitcher other fief, chosen review choice"),
-    ColorPair(PairKind.Text, { it.action }, { it.actionSoft }, "selected choice label"),
-    ColorPair(PairKind.Text, { it.onAction }, { it.action }, "MyGameButton label"),
-    ColorPair(PairKind.Text, { it.right }, { it.surfaceRaised }, "right feedback word"),
-    ColorPair(PairKind.Text, { it.right }, { it.rightSoft }, "right feedback word on its strip"),
-    ColorPair(PairKind.Text, { it.miss }, { it.surface }, "MyGameInlineAlert, BlockedReason, short cost"),
-    ColorPair(PairKind.Text, { it.miss }, { it.surfaceRaised }, "UnitItem and LibrarySection requirement in a card"),
-    ColorPair(PairKind.Text, { it.miss }, { it.missSoft }, "missed feedback word on its strip"),
-    ColorPair(PairKind.Text, { it.hint }, { it.surfaceRaised }, "hint letters"),
-    ColorPair(PairKind.Text, { it.hint }, { it.hintSoft }, "near-miss prompt word"),
-    ColorPair(PairKind.Text, { it.onBadge }, { it.badge }, "due-count numeral"),
-    ColorPair(PairKind.Text, { it.money }, { it.surface }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.money }, { it.surfaceRaised }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.food }, { it.surface }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.food }, { it.surfaceRaised }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.power }, { it.surface }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.power }, { it.surfaceRaised }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.material }, { it.surface }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.material }, { it.surfaceRaised }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.people }, { it.surface }, RESOURCE_LABEL),
-    ColorPair(PairKind.Text, { it.people }, { it.surfaceRaised }, RESOURCE_LABEL),
+    ColorPair(PairKind.Text, { it.action }, { it.destructiveSoft }, "MyGameErrorBanner action"),
+    ColorPair(PairKind.Text, { it.warningInk }, { it.surface }, "a full store, a short cost on the page"),
+    ColorPair(PairKind.Text, { it.warningInk }, { it.surfaceRaised }, "a short cost in a card"),
+    ColorPair(PairKind.Text, { it.warningInk }, { it.warningSoft }, "a warning on its strip"),
+    ColorPair(PairKind.Text, { it.destructiveInk }, { it.surface }, "MyGameInlineAlert, BlockedReason"),
+    ColorPair(PairKind.Text, { it.destructiveInk }, { it.surfaceRaised }, "UnitItem and LibrarySection in a card"),
+    ColorPair(PairKind.Text, { it.destructiveInk }, { it.destructiveSoft }, "MyGameErrorBanner line"),
     ColorPair(
         PairKind.Text,
         { it.lineStrong },
@@ -116,41 +98,27 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Boundary, { it.action }, { it.surface }, "MyGameButton border, current tab mark"),
     ColorPair(PairKind.Boundary, { it.action }, { it.surfaceRaised }, "FiefSwitcher current frame, chosen choice ring"),
     ColorPair(PairKind.Boundary, { it.action }, { it.surfaceSunken }, "progress fill on its track"),
-    ColorPair(PairKind.Boundary, { it.gloss }, { it.surface }, "gloss mark"),
-    ColorPair(PairKind.Boundary, { it.gloss }, { it.surfaceRaised }, "gloss mark in a card"),
-    ColorPair(PairKind.Boundary, { it.gloss }, { it.glossSoft }, "gloss mark on its pop-over"),
+    ColorPair(PairKind.Boundary, { it.ink }, { it.surfaceSunken }, "MarchPanel sent frame"),
     ColorPair(PairKind.Boundary, { it.focus }, { it.surface }, FOCUS_RING),
     ColorPair(PairKind.Boundary, { it.focus }, { it.surfaceRaised }, FOCUS_RING),
     ColorPair(PairKind.Boundary, { it.focus }, { it.surfaceSunken }, FOCUS_RING),
-    ColorPair(PairKind.Boundary, { it.focus }, { it.rightSoft }, FOCUS_RING),
-    ColorPair(PairKind.Boundary, { it.focus }, { it.missSoft }, FOCUS_RING),
-    ColorPair(PairKind.Boundary, { it.focus }, { it.hintSoft }, FOCUS_RING),
-    ColorPair(PairKind.Boundary, { it.focus }, { it.glossSoft }, FOCUS_RING),
-    ColorPair(PairKind.Boundary, { it.focus }, { it.actionSoft }, FOCUS_RING),
-    ColorPair(PairKind.Boundary, { it.right }, { it.rightSoft }, "MarchPanel sent frame, right choice ring"),
-    ColorPair(PairKind.Boundary, { it.miss }, { it.missSoft }, "wrong choice ring"),
-    ColorPair(PairKind.Boundary, { it.badge }, { it.surface }, "due-count badge on the page"),
-    ColorPair(PairKind.Graphic, { it.right }, { it.surfaceRaised }, "check icon"),
-    ColorPair(PairKind.Graphic, { it.miss }, { it.surface }, "MyGameInlineAlert icon"),
-    ColorPair(PairKind.Graphic, { it.miss }, { it.surfaceRaised }, "retry icon in a card"),
-    ColorPair(PairKind.Graphic, { it.miss }, { it.missSoft }, "MyGameErrorBanner icon"),
-    ColorPair(PairKind.Graphic, { it.hint }, { it.hintSoft }, "hint icon"),
-    ColorPair(PairKind.Graphic, { it.hint }, { it.surfaceRaised }, "hint icon in a card"),
+    ColorPair(PairKind.Boundary, { it.focus }, { it.destructiveSoft }, FOCUS_RING),
+    ColorPair(PairKind.Graphic, { it.destructiveInk }, { it.surface }, "MyGameInlineAlert icon"),
+    ColorPair(PairKind.Graphic, { it.destructiveInk }, { it.destructiveSoft }, "MyGameErrorBanner icon"),
     ColorPair(PairKind.Graphic, { it.action }, { it.surface }, "hourglass icon on the page"),
     ColorPair(PairKind.Graphic, { it.action }, { it.surfaceRaised }, "hourglass icon in a card"),
     ColorPair(PairKind.Graphic, { it.ink }, { it.surface }, "icon in ink"),
-    ColorPair(PairKind.Graphic, { it.ink }, { it.surfaceRaised }, "icon in ink in a card"),
-    ColorPair(PairKind.Graphic, { it.ink }, { it.surfaceSunken }, "icon in ink on a well"),
+    ColorPair(PairKind.Graphic, { it.ink }, { it.surfaceRaised }, "icon in ink in a card, resource icon"),
+    ColorPair(PairKind.Graphic, { it.ink }, { it.surfaceSunken }, "icon in ink on a well, resource track fill"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surface }, "icon in muted ink"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceRaised }, "icon in muted ink in a card"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceSunken }, "MyGameSeasonMark icon"),
-    ColorPair(PairKind.Graphic, { it.money }, { it.surfaceRaised }, "resource icon"),
-    ColorPair(PairKind.Graphic, { it.food }, { it.surfaceRaised }, "resource icon"),
-    ColorPair(PairKind.Graphic, { it.material }, { it.surfaceRaised }, "resource icon"),
-    ColorPair(PairKind.Graphic, { it.money }, { it.surfaceSunken }, "resource track fill"),
-    ColorPair(PairKind.Graphic, { it.food }, { it.surfaceSunken }, "resource track fill"),
-    ColorPair(PairKind.Graphic, { it.material }, { it.surfaceSunken }, "resource track fill"),
-)
+) + blocks.flatMap { block: (MyGameColors) -> Color ->
+    listOf(
+        ColorPair(PairKind.Text, { it.onBlock }, block, "text, a window, focus on a block"),
+        ColorPair(PairKind.Text, { it.onBlockMuted }, block, "muted text on a block"),
+    )
+}
 
 private fun checkedPairsUnderMinimum(kind: PairKind): List<String> =
     themes.flatMap { (theme: String, colors: MyGameColors) ->

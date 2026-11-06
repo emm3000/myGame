@@ -8,7 +8,8 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "drawables": "tsx src/art/generateDrawables.ts"
+    "drawables": "tsx src/art/generateDrawables.ts",
+    "tokens": "tsx src/design/android/generateDesignSystem.ts"
   },
   "dependencies": {
     "@tanstack/react-router": "1.170.38",

@@ -22,15 +22,15 @@ fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit
         verticalAlignment = Alignment.Top,
         modifier = modifier
             .fillMaxWidth()
-            .background(colors.missSoft, RoundedCornerShape(MyGameRadii.md))
+            .background(colors.destructiveSoft, RoundedCornerShape(MyGameRadii.md))
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step3),
     ) {
-        MyGameIcon(icon = MyGameIcons.alert, tint = colors.miss)
+        MyGameIcon(icon = MyGameIcons.alert, tint = colors.destructiveInk)
         Column {
             MyGameText(
                 text = message,
                 style = MyGameTypography.body,
-                color = colors.ink,
+                color = colors.destructiveInk,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
             MyGameTextLink(label = actionLabel, onClick = onAction)

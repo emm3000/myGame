@@ -1,6 +1,8 @@
 package com.emm.mygame.feature.school
 
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
@@ -12,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -522,6 +525,23 @@ class SchoolScreenTest {
         showing("+5 % de comida")
         showing("Habilidad de energía, nivel 2")
         showing("+7 % de energía")
+    }
+
+    @Test
+    fun `keeps a skill's rate in tabular figures`() {
+        show(
+            idleSchool.copy(
+                skills = listOf(
+                    SchoolUiState.SkillLine(firstLesson, TownResourceKind.Food, level = 1, ratePercent = 5),
+                ),
+            ),
+        )
+
+        val layouts: MutableList<TextLayoutResult> = mutableListOf()
+        val rate: SemanticsNode = composeRule.onNodeWithText("+5 % de comida").fetchSemanticsNode()
+        rate.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+
+        assertEquals("tnum", layouts.single().layoutInput.style.fontFeatureSettings)
     }
 
     @Test

@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import com.emm.mygame.core.designsystem.MyGameCard
-import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameSeasonMark
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -86,7 +84,7 @@ internal fun ResourceRow(resource: FiefUiState.ResourceLine, modifier: Modifier 
         }
         MyGameTrack(
             filled = resource.amount.toFloat() / resource.capacity.toFloat(),
-            color = resourceColorOf(resource.kind),
+            color = MyGameTheme.colors.ink,
         )
     }
 }
@@ -97,7 +95,7 @@ private fun RateLine(resource: FiefUiState.ResourceLine, modifier: Modifier = Mo
         MyGameText(
             text = stringResource(R.string.resource_full),
             style = MyGameTypography.label,
-            color = MyGameTheme.colors.miss,
+            color = MyGameTheme.colors.warningInk,
             modifier = modifier,
         )
     } else {
@@ -202,16 +200,4 @@ internal fun resourceNameOf(kind: ResourceKind): Int = when (kind) {
     ResourceKind.Iron -> R.string.resource_iron
     ResourceKind.Gold -> R.string.resource_gold
     ResourceKind.Food -> R.string.resource_food
-}
-
-@Composable
-private fun resourceColorOf(kind: ResourceKind): Color {
-    val colors: MyGameColors = MyGameTheme.colors
-    return when (kind) {
-        ResourceKind.Wood -> colors.material
-        ResourceKind.Stone -> colors.material
-        ResourceKind.Iron -> colors.material
-        ResourceKind.Gold -> colors.money
-        ResourceKind.Food -> colors.food
-    }
 }

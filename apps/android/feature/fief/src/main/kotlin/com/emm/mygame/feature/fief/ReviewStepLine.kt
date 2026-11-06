@@ -105,7 +105,7 @@ private fun WrongLine(yours: String, correct: String, modifier: Modifier = Modif
         MyGameText(
             text = stringResource(R.string.review_wrong),
             style = MyGameTypography.button,
-            color = MyGameTheme.colors.miss,
+            color = MyGameTheme.colors.ink,
         )
         MyGameText(
             text = icuStringResource(R.string.review_yours, "answer" to yours),

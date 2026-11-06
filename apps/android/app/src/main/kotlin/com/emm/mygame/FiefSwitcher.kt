@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalResources
@@ -165,7 +164,7 @@ private fun FiefBadge(badge: FiefSwitcherUiState.Badge, modifier: Modifier = Mod
             .border(MyGameStrokeWidths.hairline, colors.line, shape)
             .padding(horizontal = MyGameSpacing.step1),
     ) {
-        MyGameIcon(icon = iconOf(badge), tint = tintOf(badge, colors))
+        MyGameIcon(icon = iconOf(badge), tint = colors.ink)
         MyGameText(
             text = resources.badgeLineOf(badge),
             style = MyGameTypography.label,
@@ -216,16 +215,5 @@ private fun iconOf(badge: FiefSwitcherUiState.Badge): ImageVector = when (badge)
         ResourceKind.Iron -> MyGameIcons.iron
         ResourceKind.Gold -> MyGameIcons.gold
         ResourceKind.Food -> MyGameIcons.food
-    }
-}
-
-private fun tintOf(badge: FiefSwitcherUiState.Badge, colors: MyGameColors): Color = when (badge) {
-    is FiefSwitcherUiState.Badge.Idle -> colors.ink
-    is FiefSwitcherUiState.Badge.FullStore -> when (badge.resource) {
-        ResourceKind.Wood -> colors.material
-        ResourceKind.Stone -> colors.material
-        ResourceKind.Iron -> colors.material
-        ResourceKind.Gold -> colors.money
-        ResourceKind.Food -> colors.food
     }
 }
