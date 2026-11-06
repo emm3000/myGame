@@ -22,6 +22,7 @@ export interface LiveTown {
   readonly waitingList: ReadonlyArray<LiveWork>
   readonly lessonSlot: LiveLesson | null
   readonly nextDueSeconds: number | null
+  readonly seasonRemainingSeconds: number | null
 }
 
 const secondsPerHour = 3600
@@ -91,5 +92,9 @@ export function liveTownAt(overview: TownOverview, elapsedSeconds: number): Live
       overview.nextDueAt === null
         ? null
         : secondsUntil(overview.nextDueAt, overview, elapsedSeconds),
+    seasonRemainingSeconds:
+      overview.season === null
+        ? null
+        : secondsUntil(overview.season.endsAt, overview, elapsedSeconds),
   }
 }

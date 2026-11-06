@@ -1,10 +1,18 @@
-const blockClasses = [
-  'bg-block-peach',
-  'bg-block-mint',
-  'bg-block-periwinkle',
-  'bg-block-lavender',
-] as const
+export type BlockHue = 'peach' | 'mint' | 'periwinkle' | 'lavender'
+
+const hueClasses: Readonly<Record<BlockHue, string>> = {
+  peach: 'bg-block-peach',
+  mint: 'bg-block-mint',
+  periwinkle: 'bg-block-periwinkle',
+  lavender: 'bg-block-lavender',
+}
+
+const huesInOrder: ReadonlyArray<BlockHue> = ['peach', 'mint', 'periwinkle', 'lavender']
+
+export function hueClassOf(hue: BlockHue): string {
+  return hueClasses[hue]
+}
 
 export function blockClassOf(index: number): string {
-  return blockClasses[index % blockClasses.length] ?? blockClasses[0]
+  return hueClassOf(huesInOrder[index % huesInOrder.length] ?? 'peach')
 }

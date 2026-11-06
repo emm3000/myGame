@@ -1,12 +1,22 @@
-import { townFull, townPeople, townRate, townStockOf, townStocks } from '@mygame/catalog'
+import {
+  townFull,
+  townPeople,
+  townRate,
+  townSeasonLine,
+  townStockOf,
+  townStocks,
+} from '@mygame/catalog'
 import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts/town'
 import { type ReactElement, useId } from 'react'
 import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { resourceAccent } from '../design-system/resourceAccent'
+import { SeasonLine } from '../design-system/SeasonLine'
 import { Track } from '../design-system/Track'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
-import type { LiveStocks } from './liveTown'
+import { seasonNameOf } from '../seasons/seasonNameOf'
+import type { LiveTown } from './liveTown'
+import { townSeasonEndsInOf } from './townSeasonEndsInOf'
 
 function StockItem({
   resource,
@@ -27,27 +37,35 @@ function StockItem({
         <Icon sizeClass="size-icon" />
         {capitalize(townResourceNameOf(resource))}
       </span>
-      <span className="flex flex-wrap items-baseline justify-between gap-x-3 font-sans tabular-nums">
-        <span className="text-heading text-ink">{formatQuantity(shown)}</span>
-        <span className="text-caption text-ink-muted">
-          {isFull ? townFull({ capacity }) : townStockOf({ capacity })}
-        </span>
-        <span className="text-caption text-ink-muted">
-          {townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })}
-        </span>
+      <span className="font-sans text-numeral text-ink">{formatQuantity(shown)}</span>
+      <span className="flex flex-wrap justify-between gap-x-3 font-sans text-caption text-ink-muted tabular-nums">
+        <span>{isFull ? townFull({ capacity }) : townStockOf({ capacity })}</span>
+        <span>{townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })}</span>
       </span>
       <Track value={shown} total={stock.capacity} fillClass="fill-ink" />
     </li>
   )
 }
 
-export function TownStocks({
-  overview,
-  stocks,
-}: {
-  readonly overview: TownOverview
-  readonly stocks: LiveStocks
-}): ReactElement {
+function TownSeason({ town }: { readonly town: LiveTown }): ReactElement | null {
+  const { season } = town.overview
+  if (season === null || town.seasonRemainingSeconds === null) {
+    return null
+  }
+  return (
+    <SeasonLine
+      season={season.kind}
+      headerLine={townSeasonLine({
+        season: capitalize(seasonNameOf(season.kind)),
+        year: season.year,
+      })}
+      countdownLine={townSeasonEndsInOf(season.kind, town.seasonRemainingSeconds)}
+    />
+  )
+}
+
+export function TownStocks({ town }: { readonly town: LiveTown }): ReactElement {
+  const { overview, stocks } = town
   const titleId = useId()
   const Icon = resourceAccent.people
   return (
@@ -58,7 +76,10 @@ export function TownStocks({
       <h3 id={titleId} className="m-0 font-sans text-heading text-ink">
         {townStocks()}
       </h3>
-      <ul className="m-0 flex list-none flex-col gap-4 p-0">
+      <ul
+        aria-labelledby={titleId}
+        className="m-0 grid list-none grid-cols-2 gap-4 p-0 lg:grid-cols-4"
+      >
         {ResourceKindSchema.options.map((resource) => (
           <StockItem
             key={resource}
@@ -74,6 +95,7 @@ export function TownStocks({
         </span>
         {townPeople({ free: overview.people.free, atWork: overview.people.atWork })}
       </p>
+      <TownSeason town={town} />
     </section>
   )
 }

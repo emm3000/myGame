@@ -217,7 +217,7 @@ it('shows a finished level after the next read', async () => {
       return { ok: true, value: reads === 1 ? withWork(homesBeingBuilt, []) : finished }
     },
   })
-  expect(within(placeCard(namesPlacesHomes())).getByText('Nivel 1')).toBeDefined()
+  expect(within(placeCard(namesPlacesHomes())).getByText('Nivel 1 · En construcción')).toBeDefined()
 
   await passSeconds(240)
 

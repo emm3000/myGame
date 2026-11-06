@@ -441,6 +441,7 @@ export const townBuild = ({ level }: { readonly level: string | number }): strin
 export const townCostName = ({ resource }: { readonly resource: string | number }): string => `de ${String(resource)}`
 export const townFull = ({ capacity }: { readonly capacity: string | number }): string => `Lleno: ${String(capacity)}`
 export const townGoToSchool = (): string => `Ir a la escuela`
+export const townInWork = (): string => `En construcción`
 export const townLabelCity = (): string => `Ciudad`
 export const townLabelTown = (): string => `Pueblo`
 export const townLevel = ({ level }: { readonly level: string | number }): string => `Nivel ${String(level)}`
@@ -456,14 +457,19 @@ export const townNextBuildPowerStation = (): string => `Construye la central el�
 export const townNextGoToReport = (): string => `Ir al informe`
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)} lista en`
 export const townNextTitle = (): string => `Tu siguiente paso`
+export const townNotBuilt = (): string => `Sin construir`
 export const townPeople = ({ atWork, free }: { readonly atWork: string | number; readonly free: number }): string => `Gente: ${free === 1 ? `1 libre` : `${String(free)} libres`}, ${String(atWork)} trabajando`
 export const townPeopleAtWork = ({ people }: { readonly people: string | number }): string => `Gente trabajando: +${String(people)}`
 export const townPeopleShort = ({ free, needed }: { readonly free: number; readonly needed: string | number }): string => `Gente necesaria: ${String(needed)}. ${free === 1 ? `Libre: 1` : `Libres: ${String(free)}`}.`
 export const townPlacesTitleCity = (): string => `Tu ciudad`
 export const townPlacesTitleTown = (): string => `Tu pueblo`
 export const townRate = ({ rate }: { readonly rate: string | number }): string => `+${String(rate)} / h`
+export const townSeasonDays = ({ days }: { readonly days: number }): string => `${days === 1 ? `${String(days)} día` : `${String(days)} días`}`
+export const townSeasonEndsIn = ({ season, timeLeft }: { readonly season: string | number; readonly timeLeft: string | number }): string => `${String(season)} termina en ${String(timeLeft)}`
+export const townSeasonLine = ({ season, year }: { readonly season: string | number; readonly year: string | number }): string => `${String(season)}, año ${String(year)}`
 export const townShortMark = (): string => `, falta`
 export const townShortfall = ({ missing }: { readonly missing: string | number }): string => `Necesitas ${String(missing)} más.`
+export const townSkylineBuilt = ({ built, total }: { readonly built: string | number; readonly total: string | number }): string => `${String(built)} de ${String(total)} construidos`
 export const townStockOf = ({ capacity }: { readonly capacity: string | number }): string => `de ${String(capacity)}`
 export const townStocks = (): string => `En el almacén`
 export const townTopLevel = (): string => `Nivel máximo`

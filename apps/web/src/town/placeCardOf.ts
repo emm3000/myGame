@@ -4,7 +4,9 @@ import {
   townAtTopLevel,
   townBuild,
   townCostName,
+  townInWork,
   townLevel,
+  townNotBuilt,
   townPeopleAtWork,
   townPeopleShort,
   townShortfall,
@@ -17,7 +19,6 @@ import {
   type ResourceKind,
   ResourceKindSchema,
 } from '@mygame/contracts/town'
-import type { BuildingCardProps } from '../design-system/BuildingCard'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { conjunctionOf } from '../design-system/conjunctionOf'
@@ -26,10 +27,15 @@ import { townResourceNameOf } from '../resources/townResourceNameOf'
 import type { LiveStocks, LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
 
-export type PlaceCardContent = Omit<
-  BuildingCardProps,
-  'titleElement' | 'isWaiting' | 'onUpgrade' | 'art' | 'actionTone'
->
+export interface PlaceCardContent {
+  readonly name: string
+  readonly levelLabel: string
+  readonly effect: string
+  readonly costs: ReadonlyArray<CardCost>
+  readonly actionLabel: string
+  readonly durationSeconds: number
+  readonly state: CardActionState
+}
 
 type NextLevel = NonNullable<LiveTown['overview']['buildings'][BuildingKind]['nextLevel']>
 
@@ -89,11 +95,21 @@ function stateOf(nextLevel: NextLevel, town: LiveTown): CardActionState {
   return { kind: 'affordable' }
 }
 
+const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>
+  slot?.building === place || waitingList.some(({ building }) => building === place)
+
+function levelLabelOf(place: BuildingKind, level: number, town: LiveTown): string {
+  if (level === 0) {
+    return isInWork(place, town) ? townInWork() : townNotBuilt()
+  }
+  return isInWork(place, town) ? `${townLevel({ level })} · ${townInWork()}` : townLevel({ level })
+}
+
 export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardContent {
   const { level, nextLevel } = town.overview.buildings[place]
   const common = {
     name: placeNameOf(place),
-    levelLabel: townLevel({ level }),
+    levelLabel: levelLabelOf(place, level, town),
   }
   if (nextLevel === null) {
     return {

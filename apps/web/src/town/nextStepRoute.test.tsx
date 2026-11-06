@@ -15,6 +15,7 @@ import {
   townNextGoToReport,
   townNextLessonReadyIn,
   townNextTitle,
+  townSkylineBuilt,
 } from '@mygame/catalog'
 import type { NextStep, TownOverview } from '@mygame/contracts/town'
 import { act, screen, within } from '@testing-library/react'
@@ -81,7 +82,20 @@ const showTown = async (town: TownOverview, overrides: Partial<ApiClient> = {}):
 
 const card = (): HTMLElement => screen.getByRole('region', { name: townNextTitle() })
 
-const linkInCard = (name: string): HTMLElement => within(card()).getByRole('link', { name })
+const controlsWithTone = (tone: string): ReadonlyArray<HTMLElement> =>
+  [...screen.queryAllByRole('button'), ...screen.queryAllByRole('link')].filter(
+    (control) => control.getAttribute('data-tone') === tone,
+  )
+
+const pill = (name: string): HTMLElement => {
+  const [control] = controlsWithTone('primary').filter(
+    (candidate) => candidate.textContent === name,
+  )
+  if (control === undefined) {
+    throw new Error(`no ink pill named ${name}`)
+  }
+  return control
+}
 
 const reviewsStep = (count: number, readFirst: ReadonlyArray<string>): NextStep => ({
   kind: 'reviews',
@@ -92,16 +106,16 @@ const reviewsStep = (count: number, readFirst: ReadonlyArray<string>): NextStep 
 it('opens the unread lesson first from the reviews state', async () => {
   await showTown(townAt(reviewsStep(5, ['lesson-2', 'lesson-1'])))
 
-  const link = linkInCard(schoolLessonReadWords())
+  const link = pill(schoolLessonReadWords())
 
   expect(link.getAttribute('href')).toBe('/school/lesson-2')
-  expect(within(card()).queryByRole('link', { name: reportStartReviews() })).toBeNull()
+  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
 })
 
 it('opens the reviews when no word is unread', async () => {
   await showTown(townAt(reviewsStep(5, [])))
 
-  expect(linkInCard(reportStartReviews()).getAttribute('href')).toBe('/reviews')
+  expect(pill(reportStartReviews()).getAttribute('href')).toBe('/reviews')
 })
 
 it('counts the reviews due', async () => {
@@ -136,13 +150,13 @@ it('opens the words of the running lesson', async () => {
   )
 
   expect(within(card()).getByText(schoolSlotTitle())).toBeDefined()
-  expect(linkInCard(schoolLessonReadWords()).getAttribute('href')).toBe('/school/lesson-2')
+  expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school/lesson-2')
 })
 
 it('opens the school if the read holds no running lesson', async () => {
   await showTown(townAt({ kind: 'lessonRunning', producer: null }))
 
-  expect(linkInCard(schoolLessonReadWords()).getAttribute('href')).toBe('/school')
+  expect(pill(schoolLessonReadWords()).getAttribute('href')).toBe('/school')
 })
 
 it('names the producer to build', async () => {
@@ -182,7 +196,7 @@ it("opens the school with the next review's time", async () => {
     townAt({ kind: 'lessonToStudy', lessonId: 'lesson-1' }, { nextDueAt: secondsAfterRead(540) }),
   )
 
-  expect(linkInCard(schoolLessonStudy({ number: 1 })).getAttribute('href')).toBe('/school')
+  expect(pill(schoolLessonStudy({ number: 1 })).getAttribute('href')).toBe('/school')
   expect(within(card()).getByRole('timer').textContent).toBe(`${reviewNextReview()}9 min`)
 })
 
@@ -210,7 +224,7 @@ it('opens the Report when caught up', async () => {
 
   expect(within(card()).getByText(reportNoReviewsDue())).toBeDefined()
   expect(within(card()).getByRole('timer').textContent).toBe(`${reviewNextReview()}9 min`)
-  expect(linkInCard(townNextGoToReport()).getAttribute('href')).toBe('/report')
+  expect(pill(townNextGoToReport()).getAttribute('href')).toBe('/report')
 })
 
 it('counts the next review down between reads', async () => {
@@ -282,14 +296,33 @@ it.each<[string, NextStep, Partial<TownOverview>, () => string]>([
   ],
   ['caught up', { kind: 'caughtUp' }, {}, townNextGoToReport],
   ['building work under way', { kind: 'caughtUp' }, { work: workUnderWay }, townNextGoToReport],
-])('holds one strong button on the town home at %s', async (_state, step, overrides, label) => {
+])('holds one ink pill on the town home at %s', async (_state, step, overrides, label) => {
   await showTown(townAt(step, overrides))
 
-  const strong = [...screen.getAllByRole('button'), ...screen.getAllByRole('link')].filter(
-    (control) => control.getAttribute('data-tone') === 'primary',
-  )
+  expect(controlsWithTone('primary')).toEqual([pill(label())])
+})
 
-  expect(strong).toEqual([linkInCard(label())])
+it('holds no pill inside a block', async () => {
+  await showTown(townAt(reviewsStep(3, [])))
+
+  expect([
+    ...within(card()).queryAllByRole('link'),
+    ...within(card()).queryAllByRole('button'),
+  ]).toEqual([])
+})
+
+it("keeps the next step's block peach", async () => {
+  await showTown(townAt({ kind: 'caughtUp' }))
+
+  expect(card().dataset.hue).toBe('peach')
+})
+
+it('puts the next step before the skyline', async () => {
+  await showTown(townAt({ kind: 'caughtUp' }))
+
+  const skyline = screen.getByRole('img', { name: townSkylineBuilt({ built: 2, total: 7 }) })
+
+  expect(card().compareDocumentPosition(skyline)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
 })
 
 it('draws the school first', async () => {

@@ -50,7 +50,7 @@ function BlockedAction({
         {label}
       </Button>
       <span id={reasonId} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-sans text-caption text-destructive-ink">{reason}</span>
+        <span className="font-sans text-caption text-warning-ink">{reason}</span>
         {ready !== undefined && (
           <>
             {' '}
