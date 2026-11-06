@@ -11,6 +11,7 @@ import {
   type DomainError,
   err,
   type IdGenerator,
+  type MemoryTerms,
   type PlacedOutBands,
   type PlayerId,
   type RandomSource,
@@ -45,6 +46,7 @@ export type TownDependencies = CurrentTownDependencies &
   RequirePlayerDependencies & {
     readonly ids: IdGenerator
     readonly lessons: LessonLibrary
+    readonly memoryTerms: MemoryTerms
     readonly random: RandomSource
     readonly placedOutBands: PlacedOutBands
   }
@@ -65,12 +67,12 @@ const storedTownReadingOf = async (
 }
 
 export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
-  const { townCatalog: catalog, lessons, random, placedOutBands } = dependencies
+  const { townCatalog: catalog, lessons, memoryTerms, random, placedOutBands } = dependencies
   const answerReading = (c: Context, reading: Result<TownReading, DomainError>): Response => {
     if (!reading.ok) {
       return answerRefusal(c, reading.error)
     }
-    const overview = townOverviewOf(reading.value, catalog, lessons)
+    const overview = townOverviewOf(reading.value, catalog, lessons, memoryTerms)
     if (!overview.ok) {
       return answerRefusal(c, overview.error)
     }

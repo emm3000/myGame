@@ -7,11 +7,13 @@ import {
   reportReviewsDue,
   reportStartReviews,
   reportTitle,
+  reviewNextReview,
   schoolLessonReadWords,
 } from '@mygame/catalog'
 import { type ReactElement, useId } from 'react'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
+import { CountdownLine } from '../design-system/CountdownLine'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
@@ -29,6 +31,7 @@ export interface ReportNewsClose {
 export interface ReportScreenProps {
   readonly dueCount: number
   readonly readFirst: ReadonlyArray<string>
+  readonly nextReview: string | undefined
   readonly news: ReadonlyArray<ReportNewsRow>
   readonly close: ReportNewsClose
 }
@@ -52,15 +55,22 @@ function ReviewsDoor({ readFirst }: { readonly readFirst: ReadonlyArray<string> 
   )
 }
 
+function NoReviewsDue({ nextReview }: { readonly nextReview: string | undefined }): ReactElement {
+  return (
+    <div className="flex max-w-form flex-col gap-3 rounded-md border border-line border-dashed p-5">
+      <p className="m-0 font-sans text-body text-ink">{reportNoReviewsDue()}</p>
+      {nextReview !== undefined && <CountdownLine words={reviewNextReview()} time={nextReview} />}
+    </div>
+  )
+}
+
 function ReviewsDue({
   dueCount,
   readFirst,
-}: {
-  readonly dueCount: number
-  readonly readFirst: ReadonlyArray<string>
-}): ReactElement {
+  nextReview,
+}: Pick<ReportScreenProps, 'dueCount' | 'readFirst' | 'nextReview'>): ReactElement {
   if (dueCount === 0) {
-    return <p className={emptyClass}>{reportNoReviewsDue()}</p>
+    return <NoReviewsDue nextReview={nextReview} />
   }
   return (
     <Panel element="article" toneClass="bg-surface-raised" spacingClass="max-w-form gap-3 p-5">
@@ -133,7 +143,11 @@ export function ReportScreen(props: ReportScreenProps): ReactElement {
       <h2 id={titleId} className="m-0 font-sans text-title text-ink">
         {reportTitle()}
       </h2>
-      <ReviewsDue dueCount={props.dueCount} readFirst={props.readFirst} />
+      <ReviewsDue
+        dueCount={props.dueCount}
+        readFirst={props.readFirst}
+        nextReview={props.nextReview}
+      />
       <Panel
         element="section"
         labelledBy={newsId}

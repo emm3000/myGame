@@ -11,6 +11,7 @@ import {
 } from '../Wire'
 import { BuildingKindSchema } from './BuildingKind'
 import { BuildingWorkSchema } from './BuildingWork'
+import { NextStepSchema } from './NextStep'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SiteAddressSchema } from './SiteAddress'
@@ -78,6 +79,8 @@ export const TownOverviewSchema = z
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),
     learning: LearningLoadSchema,
+    nextStep: NextStepSchema,
+    nextDueAt: InstantSchema.nullable(),
     readAt: InstantSchema,
   })
   .meta({ id: 'TownOverview' })

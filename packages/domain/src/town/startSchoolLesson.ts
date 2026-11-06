@@ -1,10 +1,7 @@
 import type { DomainError } from '../DomainError'
 import type { BandStart } from '../learning/BandStart'
 import { bandStartDrawn } from '../learning/bandStartDrawn'
-import { cardsInLearningOf } from '../learning/cardsInLearningOf'
-import type { HeldCard } from '../learning/HeldCard'
 import { heldOutWordsOf } from '../learning/heldOutWordsOf'
-import { holdsLessonCards } from '../learning/holdsLessonCards'
 import type { Lesson, LessonId } from '../learning/Lesson'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import type { PlayerId } from '../player/PlayerId'
@@ -18,6 +15,7 @@ import type { RandomSource } from '../ports/RandomSource'
 import { err, ok, type Result } from '../Result'
 import { Duration } from '../time/Duration'
 import type { Instant } from '../time/Instant'
+import { admitSchoolLesson } from './admitSchoolLesson'
 import type { SchoolLevel } from './BuildingLevel'
 import { deriveLessonDurationSeconds } from './deriveLessonDurationSeconds'
 import type { BusyLessonSlot } from './LessonSlot'
@@ -25,7 +23,6 @@ import type { LessonSlotRepository } from './LessonSlotRepository'
 import { resolvedTownOf } from './resolvedTownOf'
 import { saveLessonSlot } from './saveLessonSlot'
 import { saveResolvedTown } from './saveResolvedTown'
-import { schoolLevelOf } from './schoolLevelOf'
 import { type SettledSchool, settledSchoolOf } from './settledSchoolOf'
 import { studyPercentAt } from './studyPercentAt'
 import type { ChangedTown } from './Town'
@@ -50,54 +47,6 @@ export type StartSchoolLessonDependencies = {
   readonly news: TownNews
   readonly catalog: TownCatalog
   readonly clock: Clock
-}
-
-const admitToLearningCap = (
-  lessonWordCount: number,
-  cards: ReadonlyArray<HeldCard>,
-  school: SchoolLevel,
-): Result<SchoolLevel, DomainError> => {
-  const cardsInLearning = cardsInLearningOf(cards)
-  if (cardsInLearning + lessonWordCount > school.learningCap) {
-    return err({
-      kind: 'LearningCapReached',
-      learningCap: school.learningCap,
-      cardsInLearning,
-      lessonWordCount,
-    })
-  }
-  return ok(school)
-}
-
-const admitSchoolLesson = (
-  lesson: Lesson,
-  enteringWordCount: number,
-  { held: cards, slot }: Pick<SettledSchool, 'held' | 'slot'>,
-  schoolLevel: number,
-  catalog: TownCatalog,
-): Result<SchoolLevel, DomainError> => {
-  if (holdsLessonCards(lesson, cards)) {
-    return err({ kind: 'LessonAlreadyStudied', lessonId: lesson.id })
-  }
-  if (slot.kind === 'busy') {
-    return err(
-      slot.lessonId === lesson.id
-        ? { kind: 'LessonUnderStudy', lessonId: lesson.id }
-        : { kind: 'StudySlotBusy' },
-    )
-  }
-  if (schoolLevel < lesson.requiredSchoolLevel) {
-    return err({
-      kind: 'LessonSchoolTooLow',
-      requiredSchoolLevel: lesson.requiredSchoolLevel,
-      schoolLevel,
-    })
-  }
-  const school = schoolLevelOf(schoolLevel, catalog)
-  if (!school.ok) {
-    return school
-  }
-  return admitToLearningCap(enteringWordCount, cards, school.value)
 }
 
 const lessonStartedAt = (

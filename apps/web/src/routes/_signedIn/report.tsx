@@ -9,6 +9,7 @@ import { ReportScreen } from '../../report/ReportScreen'
 import { reportNewsRowOf } from '../../report/reportNewsRowOf'
 import { useReport } from '../../report/useReport'
 import { useReportClose } from '../../report/useReportClose'
+import { formatClock } from '../../time/formatClock'
 import { TownReadFailed } from '../../town/TownReadStatus'
 
 function ReportPage({
@@ -25,6 +26,9 @@ function ReportPage({
     <ReportScreen
       dueCount={report.dueCount}
       readFirst={report.readFirst}
+      nextReview={
+        report.nextDueAt === null ? undefined : formatClock(new Date(report.nextDueAt), receivedAt)
+      }
       news={report.news.map((item) => reportNewsRowOf(item, receivedAt))}
       close={{
         isClosed: close.isClosed,

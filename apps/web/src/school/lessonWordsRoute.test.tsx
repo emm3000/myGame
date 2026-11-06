@@ -79,6 +79,7 @@ const reportOf = (readFirst: ReadonlyArray<string>): Report => ({
   dueCount: readFirst.length,
   due: [],
   readFirst: [...readFirst],
+  nextDueAt: null,
   news: [],
 })
 

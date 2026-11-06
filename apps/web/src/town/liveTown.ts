@@ -21,6 +21,7 @@ export interface LiveTown {
   readonly slot: (LiveWork & { readonly totalSeconds: number }) | null
   readonly waitingList: ReadonlyArray<LiveWork>
   readonly lessonSlot: LiveLesson | null
+  readonly nextDueSeconds: number | null
 }
 
 const secondsPerHour = 3600
@@ -86,5 +87,9 @@ export function liveTownAt(overview: TownOverview, elapsedSeconds: number): Live
       remainingSeconds: secondsUntil(finishesAt, overview, elapsedSeconds),
     })),
     lessonSlot: lessonSlotAt(overview, elapsedSeconds),
+    nextDueSeconds:
+      overview.nextDueAt === null
+        ? null
+        : secondsUntil(overview.nextDueAt, overview, elapsedSeconds),
   }
 }

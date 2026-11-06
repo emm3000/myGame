@@ -29,7 +29,7 @@ import { placeNameOf } from './placeNameOf'
 
 export type PlaceCardContent = Omit<
   BuildingCardProps,
-  'titleElement' | 'isWaiting' | 'onUpgrade' | 'artShape'
+  'titleElement' | 'isWaiting' | 'onUpgrade' | 'artShape' | 'actionTone'
 >
 
 type NextLevel = NonNullable<LiveTown['overview']['buildings'][BuildingKind]['nextLevel']>

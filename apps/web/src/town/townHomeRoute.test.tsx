@@ -113,7 +113,7 @@ it('shows the people free and at work', async () => {
   expect(screen.getByText('Gente: 24 libres, 96 trabajando')).toBeDefined()
 })
 
-it('draws each place with the image of its tier', async () => {
+it('draws each place with the image of its tier, a place not built with its first', async () => {
   const grown: TownOverview = {
     ...knownTown,
     buildings: { ...knownTown.buildings, homes: { level: 4, nextLevel: null } },
@@ -124,8 +124,10 @@ it('draws each place with the image of its tier', async () => {
     screen.getByRole('listitem', { name: place }).querySelector('img')
   expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(7)
   expect(imageOf(namesPlacesHomes())?.getAttribute('src')).toBe('/art/places/homes-2.svg')
-  expect(imageOf(namesPlacesFarm())).toBeNull()
-  expect(imageOf(namesPlacesPowerStation())).toBeNull()
+  expect(imageOf(namesPlacesFarm())?.getAttribute('src')).toBe('/art/places/farm-1.svg')
+  expect(imageOf(namesPlacesPowerStation())?.getAttribute('src')).toBe(
+    '/art/places/powerStation-1.svg',
+  )
 })
 
 it('labels the town a city once the server does', async () => {

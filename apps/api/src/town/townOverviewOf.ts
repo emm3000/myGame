@@ -4,6 +4,7 @@ import {
   Duration,
   deriveBuildDurationSeconds,
   type Instant,
+  type MemoryTerms,
   ok,
   type Result,
   seasonAt,
@@ -18,6 +19,7 @@ import {
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
+  nextStepOf,
   type ResourceKind,
   type Town,
   type TownCatalog,
@@ -26,6 +28,7 @@ import {
 } from '@mygame/domain/town'
 import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from '../learning/LessonLibrary'
+import { nextDueAtOf } from '../learning/reviewsOf'
 import { schoolOverviewOf } from '../learning/schoolOverviewOf'
 import type { TownReading } from './TownReading'
 
@@ -192,10 +195,34 @@ const peopleOf = (
   return ok({ supplied, free, atWork: occupied })
 }
 
+const guidanceOf = (
+  reading: TownReading,
+  catalog: TownCatalog,
+  lessons: LessonLibrary,
+  memoryTerms: MemoryTerms,
+): Result<Pick<TownOverview, 'nextStep' | 'nextDueAt'>, DomainError> => {
+  const step = nextStepOf(reading, { lessons: lessons.lessons(), memoryTerms, catalog })
+  if (!step.ok) {
+    return step
+  }
+  const nextDueAt = nextDueAtOf(reading.cards, reading.at, memoryTerms)
+  if (!nextDueAt.ok) {
+    return nextDueAt
+  }
+  return ok({
+    nextStep:
+      step.value.kind === 'reviews'
+        ? { ...step.value, readFirst: [...step.value.readFirst] }
+        : step.value,
+    nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
+  })
+}
+
 export const townOverviewOf = (
   reading: TownReading,
   catalog: TownCatalog,
   lessons: LessonLibrary,
+  memoryTerms: MemoryTerms,
 ): Result<TownOverview, DomainError> => {
   const { town, at } = reading
   const stocks = stocksOf(reading, catalog)
@@ -222,6 +249,10 @@ export const townOverviewOf = (
   if (!school.ok) {
     return school
   }
+  const guidance = guidanceOf(reading, catalog, lessons, memoryTerms)
+  if (!guidance.ok) {
+    return guidance
+  }
   const { region, area, site } = town.address
   return ok({
     name: town.name.value,
@@ -234,6 +265,7 @@ export const townOverviewOf = (
     buildings: buildings.value,
     work: work.value,
     ...school.value,
+    ...guidance.value,
     readAt: isoOf(at),
   })
 }

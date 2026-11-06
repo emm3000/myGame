@@ -60,6 +60,7 @@ export function Button(props: ButtonProps): ReactElement {
       aria-expanded={props.isExpanded}
       aria-controls={props.controls}
       onClick={press}
+      data-tone={props.tone}
       className={classOf(props.tone, availability)}
     >
       {props.children}

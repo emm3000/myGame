@@ -47,7 +47,7 @@ const dueReviewOf = (
   })
 }
 
-const nextDueAtOf = (
+export const nextDueAtOf = (
   cards: ReadonlyArray<HeldCard>,
   readAt: Instant,
   terms: MemoryTerms,

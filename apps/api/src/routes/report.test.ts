@@ -147,6 +147,30 @@ describe('the Report routes', () => {
     expect([running.readFirst, finished.readFirst]).toEqual([[], ['lesson-1']])
   })
 
+  it('answers no next review before a card enters', async () => {
+    const ana = await signUpWithATown()
+
+    expect((await readReport(ana)).nextDueAt).toBeNull()
+  })
+
+  it('answers the instant of a review not yet due', async () => {
+    const ana = await signUpWithATown()
+    clock.setTo(lessonStartsAt)
+    await send(ana.cookie, 'POST', '/town/lessons', { lessonId: 'lesson-1' })
+
+    clock.setTo(lessonFinishesAt)
+    const dueNow = await readReport(ana)
+    const [card] = dueNow.due
+    assert(card?.mode === 'recognition')
+    const [choice] = card.choices
+    assert(choice !== undefined)
+    await send(ana.cookie, 'POST', `/reviews/${card.wordId}/answer`, { answer: choice.choiceId })
+
+    const answered = await readReport(ana)
+
+    expect([dueNow.nextDueAt, answered.nextDueAt === null]).toEqual([null, false])
+  })
+
   it('answers the news since the player last closed the Report', async () => {
     const ana = await signUpWithATown()
     await workFinishOf(ana, 'farm')

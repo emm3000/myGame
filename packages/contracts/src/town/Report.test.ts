@@ -20,6 +20,7 @@ const report = (overrides: Record<string, unknown> = {}): Record<string, unknown
   dueCount: 1,
   due: [recall],
   readFirst: [],
+  nextDueAt: null,
   news: [finishedFarm],
   ...overrides,
 })
@@ -39,6 +40,18 @@ describe('ReportSchema', () => {
     const { readFirst: _, ...withoutReadFirst } = report()
 
     expect(ReportSchema.safeParse(withoutReadFirst).success).toBe(false)
+  })
+
+  it('reads the next review instant', () => {
+    const nextDueAt = '2026-11-10T09:10:00.000Z'
+
+    expect(ReportSchema.parse(report({ nextDueAt })).nextDueAt).toBe(nextDueAt)
+  })
+
+  it('refuses a report without its next review instant', () => {
+    const { nextDueAt: _, ...withoutNextDueAt } = report()
+
+    expect(ReportSchema.safeParse(withoutNextDueAt).success).toBe(false)
   })
 
   it('parses a report with no news', () => {

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, PlayerSchema } from '@mygame/contracts'
+import { ApiErrorSchema, PlayerSchema, ReviewsSchema } from '@mygame/contracts'
 import {
   type TownNewsFeed,
   TownNewsFeedSchema,
@@ -9,7 +9,17 @@ import {
 import { type Clock, Instant } from '@mygame/domain'
 import type { TownRepository } from '@mygame/domain/town'
 import { Client } from 'pg'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterAll,
+  afterEach,
+  assert,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 import type { Transaction } from '../adapters/postgres/postgresTransaction'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
@@ -544,6 +554,118 @@ describe('the town route', () => {
       const response = await stopWork(ana, 'farm', 0)
 
       expect([response.status, await response.text()]).toEqual([400, ''])
+    })
+  })
+
+  describe('the next step', () => {
+    const startLesson = (cookie: string, lessonId: string): Promise<Response> =>
+      Promise.resolve(app.request('/town/lessons', jsonRequest('POST', cookie, { lessonId })))
+
+    const stopLesson = (cookie: string, lessonId: string): Promise<Response> =>
+      Promise.resolve(
+        app.request(`/town/lessons/${lessonId}`, { method: 'DELETE', headers: { cookie } }),
+      )
+
+    const lessonMinutes = 6
+
+    it('sends a founded town to lesson 1', async () => {
+      const cookie = await signUp('ana@example.com')
+
+      const founded = await overviewOf(await foundTown(cookie, { name: 'Maple Falls' }))
+
+      expect(founded.nextStep).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-1' })
+    })
+
+    it('answers no next review before a card enters', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      expect((await overviewOf(await readTown(cookie))).nextDueAt).toBeNull()
+    })
+
+    it('refuses a read whose running lesson left the curriculum', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startLesson(cookie, 'lesson-1')
+      const emptied = createApp({
+        ...server,
+        clock,
+        lessons: { ...server.lessons, lessons: () => [] },
+      })
+
+      const read = await emptied.request('/town', { headers: { cookie } })
+
+      expect(read.status).toBe(404)
+    })
+
+    it('names the farm in the answer to a lesson start', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+
+      const started = await overviewOf(await startLesson(cookie, 'lesson-1'))
+
+      expect(started.nextStep).toEqual({ kind: 'lessonRunning', producer: 'farm' })
+    })
+
+    it('drops the farm in the answer to its start of work', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startLesson(cookie, 'lesson-1')
+
+      const building = await overviewOf(await startWork(cookie, 'farm'))
+
+      expect(building.nextStep).toEqual({ kind: 'lessonRunning', producer: null })
+    })
+
+    it('names the farm again in the answer to its stop of work', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startLesson(cookie, 'lesson-1')
+      await startWork(cookie, 'farm')
+
+      const stopped = await overviewOf(await stopWork(cookie, 'farm', 1))
+
+      expect(stopped.nextStep).toEqual({ kind: 'lessonRunning', producer: 'farm' })
+    })
+
+    it('goes back to the lesson in the answer to a lesson stop', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startLesson(cookie, 'lesson-1')
+
+      const stopped = await overviewOf(await stopLesson(cookie, 'lesson-1'))
+
+      expect(stopped.nextStep).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-1' })
+    })
+
+    it('answers the finished lesson as reviews, its words to read first', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startLesson(cookie, 'lesson-1')
+      clock.advanceMinutes(lessonMinutes)
+
+      const finished = await overviewOf(await readTown(cookie))
+
+      expect(finished.nextStep).toEqual({ kind: 'reviews', count: 5, readFirst: ['lesson-1'] })
+    })
+
+    it('answers the next review once the due cards are answered', async () => {
+      const cookie = await signUpWithTown('ana@example.com')
+      await startLesson(cookie, 'lesson-1')
+      clock.advanceMinutes(lessonMinutes)
+      await readTown(cookie)
+      const firstReviewAt = clock.now().epochMilliseconds
+      const reviews = ReviewsSchema.parse(
+        await (await app.request('/reviews', { headers: { cookie } })).json(),
+      )
+      for (const review of reviews.due) {
+        assert(review.mode === 'recognition')
+        const [choice] = review.choices
+        assert(choice !== undefined)
+        await app.request(
+          `/reviews/${review.wordId}/answer`,
+          jsonRequest('POST', cookie, { answer: choice.choiceId }),
+        )
+      }
+
+      const answered = await overviewOf(await readTown(cookie))
+
+      assert(answered.nextDueAt !== null)
+      expect(answered.nextStep).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-2' })
+      expect(Date.parse(answered.nextDueAt)).toBeGreaterThan(firstReviewAt)
     })
   })
 

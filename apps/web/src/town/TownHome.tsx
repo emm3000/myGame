@@ -30,6 +30,7 @@ import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
 import type { LiveTown } from './liveTown'
+import { NextStepCard } from './NextStepCard'
 import { placeCardOf } from './placeCardOf'
 import { placeNameOf } from './placeNameOf'
 import { TownStocks } from './TownStocks'
@@ -39,6 +40,11 @@ export interface TownHomeProps {
   readonly town: LiveTown
   readonly work: TownWork
 }
+
+const placesInOrder: ReadonlyArray<BuildingKind> = [
+  'school',
+  ...BuildingKindSchema.exclude(['school']).options,
+]
 
 function stopActionOf(
   work: TownWork,
@@ -124,6 +130,7 @@ function PlaceItem({
       <BuildingCard
         {...placeCardOf(place, town)}
         artShape="square"
+        actionTone="quiet"
         titleElement="h4"
         isWaiting={work.isStarting}
         onUpgrade={() => work.start(place)}
@@ -149,6 +156,7 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
           {overview.label === 'city' ? townLabelCity() : townLabelTown()}
         </span>
       </header>
+      <NextStepCard town={town} />
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-4">
           <TownStocks overview={overview} stocks={town.stocks} />
@@ -163,7 +171,7 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
             {overview.label === 'city' ? townPlacesTitleCity() : townPlacesTitleTown()}
           </h3>
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 xl:grid-cols-3">
-            {BuildingKindSchema.options.map((place) => (
+            {placesInOrder.map((place) => (
               <PlaceItem key={place} place={place} town={town} work={work} />
             ))}
           </ul>

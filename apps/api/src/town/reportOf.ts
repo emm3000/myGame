@@ -70,11 +70,12 @@ export const reportOf = async (
       if (!news.ok) {
         return news
       }
-      const { due } = reviews.value
+      const { due, nextDueAt } = reviews.value
       return ok({
         dueCount: due.length,
         due,
         readFirst: [...readFirstOf(dependencies.lessons.lessons(), dueCards.value)],
+        nextDueAt,
         news: news.value.map(townNewsItemOf),
       })
     },
