@@ -13,7 +13,7 @@ import {
   townTryAgain,
 } from '@mygame/catalog'
 import type { Report, TownOverview } from '@mygame/contracts/town'
-import { act, fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
@@ -105,7 +105,8 @@ const wordHeading = (word: string): HTMLElement =>
 
 const nextWord = (): HTMLElement => screen.getByRole('button', { name: schoolLessonWordNext() })
 
-const startReviews = (): HTMLElement => screen.getByRole('link', { name: reportStartReviews() })
+const startReviews = (): HTMLElement =>
+  within(screen.getByRole('main')).getByRole('link', { name: reportStartReviews() })
 
 const nextLesson = (): HTMLElement => screen.getByRole('link', { name: schoolLessonNext() })
 
@@ -169,7 +170,7 @@ it('shows a running lesson with its time', async () => {
   await showLesson('/school/lesson-1', townOf({ lessonSlot: running('lesson-1') }))
 
   expect(lessonHeading(1)).toBeDefined()
-  expect(screen.getByRole('timer').textContent).toBe('4 min')
+  expect(within(screen.getByRole('main')).getByRole('timer').textContent).toBe('4 min')
 })
 
 it('moves the focus to the next word', async () => {
@@ -219,7 +220,7 @@ it('offers the way on from every word of a finished lesson', async () => {
   expect(startReviews().getAttribute('href')).toBe('/reviews')
   await follow(nextWord())
   expect(startReviews().getAttribute('href')).toBe('/reviews')
-  expect(screen.queryByRole('timer')).toBeNull()
+  expect(within(screen.getByRole('main')).queryByRole('timer')).toBeNull()
 })
 
 it('offers the way on from a finished lesson while another lesson runs', async () => {
@@ -230,7 +231,7 @@ it('offers the way on from a finished lesson while another lesson runs', async (
   await showLesson('/school/lesson-1', town)
 
   expect(startReviews().getAttribute('href')).toBe('/reviews')
-  expect(screen.queryByRole('timer')).toBeNull()
+  expect(within(screen.getByRole('main')).queryByRole('timer')).toBeNull()
 })
 
 it('offers the way on when a running lesson finishes on the screen', async () => {
@@ -246,6 +247,21 @@ it('offers the way on when a running lesson finishes on the screen', async () =>
   await passSeconds(240)
 
   expect(startReviews().getAttribute('href')).toBe('/reviews')
+})
+
+it('keeps the word on screen when the lesson finishes', async () => {
+  const studying = townOf({ lessonSlot: running('lesson-1') })
+  await showLesson('/school/lesson-1', studying, {
+    town: async () => ({
+      ok: true,
+      value: Date.now() < readAt + 240_000 ? studying : townOf({ readAt: instantAfter(240) }),
+    }),
+  })
+  fireEvent.click(nextWord())
+
+  await passSeconds(240)
+
+  expect(wordHeading('second1')).toBeDefined()
 })
 
 it("reads the Report again at the lesson's finish", async () => {

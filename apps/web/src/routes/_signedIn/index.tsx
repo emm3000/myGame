@@ -8,7 +8,8 @@ import { NameTownScreen } from '../../town/NameTownScreen'
 import { TownHome } from '../../town/TownHome'
 import { TownReadFailed } from '../../town/TownReadStatus'
 import { useFoundTown } from '../../town/useFoundTown'
-import { type TownHandle, useTown } from '../../town/useTown'
+import { useLayoutTown } from '../../town/useLayoutTown'
+import type { TownHandle } from '../../town/useTown'
 import { useTownWork } from '../../town/useTownWork'
 
 function NameTownPage({
@@ -46,7 +47,7 @@ function TownHomePage({
 
 function TownPage(): ReactElement | null {
   const { apiClient } = Route.useRouteContext()
-  const town = useTown(apiClient)
+  const town = useLayoutTown()
   switch (town.state.kind) {
     case 'loading':
       return <ReadingLine line={townLoading()} />

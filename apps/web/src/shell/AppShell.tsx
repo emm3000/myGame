@@ -1,4 +1,5 @@
 import {
+  reportReviewsDue,
   shellNavigationChronicle,
   shellNavigationMap,
   shellNavigationReport,
@@ -10,6 +11,7 @@ import type { Player } from '@mygame/contracts'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import type { ReactElement, ReactNode } from 'react'
 import { Button } from '../design-system/Button'
+import { formatQuantity } from '../design-system/formatQuantity'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
 import { FiefSwitcher } from './FiefSwitcher'
@@ -20,6 +22,8 @@ export interface AppShellProps {
   readonly fiefId: string | undefined
   readonly fiefs: FiefEntries | undefined
   readonly verification: ResendVerification
+  readonly dueCount: number
+  readonly townStatus: ReactNode
   readonly onSignOut: () => void
   readonly children: ReactNode
 }
@@ -46,7 +50,28 @@ const linkClass =
 const activeProps = { className: 'border-action font-bold text-action' }
 const inactiveProps = { className: 'border-transparent text-ink-muted' }
 
-function TownScreenLink({ to, label, isExact }: Screen): ReactElement {
+function DueCount({ count }: { readonly count: number }): ReactElement {
+  const figure = formatQuantity(count)
+  return (
+    <>
+      {' '}
+      <span className="sr-only">{reportReviewsDue({ count: figure })}</span>
+      <span
+        aria-hidden="true"
+        className="ml-2 rounded-pill bg-badge px-2 font-sans text-label text-on-badge tabular-nums"
+      >
+        {figure}
+      </span>
+    </>
+  )
+}
+
+function TownScreenLink({
+  to,
+  label,
+  isExact,
+  dueCount,
+}: Screen & { readonly dueCount: number }): ReactElement {
   return (
     <Link
       to={to}
@@ -56,6 +81,7 @@ function TownScreenLink({ to, label, isExact }: Screen): ReactElement {
       inactiveProps={inactiveProps}
     >
       {label}
+      {to === '/report' && dueCount > 0 && <DueCount count={dueCount} />}
     </Link>
   )
 }
@@ -85,6 +111,8 @@ export function AppShell({
   fiefId,
   fiefs,
   verification,
+  dueCount,
+  townStatus,
   onSignOut,
   children,
 }: AppShellProps): ReactElement {
@@ -98,7 +126,7 @@ export function AppShell({
             <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
               {townScreens.map((screen) => (
                 <li key={screen.to} className="flex">
-                  <TownScreenLink {...screen} />
+                  <TownScreenLink {...screen} dueCount={dueCount} />
                 </li>
               ))}
               {fiefId === undefined
@@ -117,6 +145,7 @@ export function AppShell({
           </span>
         </div>
       </header>
+      {townStatus}
       <main className="flex flex-col gap-6 px-4 py-6 font-sans text-body text-ink-muted md:px-8">
         {player.emailVerified ? null : <VerificationBanner {...verification} />}
         <div>{children}</div>

@@ -6,6 +6,7 @@ import { type ReviewHandle, useReview } from '../../review/useReview'
 import { useReviews } from '../../review/useReviews'
 import { formatFinish } from '../../time/formatFinish'
 import { secondsBetween } from '../../time/secondsBetween'
+import { useLayoutTown } from '../../town/useLayoutTown'
 
 function nextReviewOf(nextDueAt: string, at: Date): string {
   const remainingSeconds = Math.max(0, secondsBetween(at.toISOString(), nextDueAt))
@@ -26,7 +27,12 @@ function ReviewPage(): ReactElement {
   const { apiClient } = Route.useRouteContext()
   const { state, reread } = useReviews(apiClient)
   const reviews = state.kind === 'read' ? state.reviews : undefined
-  const review = useReview(apiClient, reviews?.due ?? [], reread)
+  const town = useLayoutTown()
+  const rereadAfterAnswer = async (): Promise<void> => {
+    town.reread()
+    await reread()
+  }
+  const review = useReview(apiClient, reviews?.due ?? [], rereadAfterAnswer)
   switch (state.kind) {
     case 'loading':
       return <ReviewScreen state={{ kind: 'loading' }} />

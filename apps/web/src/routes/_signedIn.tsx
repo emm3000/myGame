@@ -4,6 +4,11 @@ import { HintsContext } from '../hints/HintsContext'
 import { useHints } from '../hints/useHints'
 import { AppShell } from '../shell/AppShell'
 import { useFiefList } from '../shell/useFiefList'
+import { dueCountOf } from '../town/dueCountOf'
+import { TownContext } from '../town/TownContext'
+import { TownStatus } from '../town/TownStatus'
+import { useLessonFinish } from '../town/useLessonFinish'
+import { useTown } from '../town/useTown'
 import { useResendVerification } from '../verification/useResendVerification'
 
 function SignedInLayout(): ReactElement {
@@ -13,6 +18,9 @@ function SignedInLayout(): ReactElement {
   const { fiefId } = useParams({ strict: false })
   const fiefs = useFiefList(apiClient)
   const hints = useHints(apiClient, player.seenHints)
+  const town = useTown(apiClient)
+  const liveTown = town.state.kind === 'live' ? town.state.town : undefined
+  const lessonFinish = useLessonFinish(liveTown?.overview)
 
   const signOut = async (): Promise<void> => {
     await apiClient.signOut()
@@ -21,15 +29,19 @@ function SignedInLayout(): ReactElement {
 
   return (
     <HintsContext value={hints}>
-      <AppShell
-        player={player}
-        fiefId={fiefId}
-        fiefs={fiefs}
-        verification={verification}
-        onSignOut={signOut}
-      >
-        <Outlet />
-      </AppShell>
+      <TownContext value={town}>
+        <AppShell
+          player={player}
+          fiefId={fiefId}
+          fiefs={fiefs}
+          verification={verification}
+          dueCount={dueCountOf(liveTown)}
+          townStatus={<TownStatus town={liveTown} finish={lessonFinish} />}
+          onSignOut={signOut}
+        >
+          <Outlet />
+        </AppShell>
+      </TownContext>
     </HintsContext>
   )
 }

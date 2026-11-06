@@ -43,11 +43,12 @@ const pairs: ReadonlyArray<Pair> = [
     background: 'surface-sunken',
     usedBy: 'CardHeader, BuildSlot and WaitingUpgrades level badges, NoticeBanner line',
   },
+  { kind: 'text', foreground: 'on-badge', background: 'badge', usedBy: 'AppShell due count' },
   {
     kind: 'text',
     foreground: 'ink',
     background: 'right-soft',
-    usedBy: 'MarchSent, NoticeBanner sent outcome, right verdict',
+    usedBy: 'MarchSent, NoticeBanner sent outcome, right verdict, TownStatus finish notice',
   },
   { kind: 'text', foreground: 'ink', background: 'miss-soft', usedBy: 'FormAlert, missed verdict' },
   { kind: 'text', foreground: 'ink', background: 'hint-soft', usedBy: 'near-miss prompt' },
@@ -62,7 +63,7 @@ const pairs: ReadonlyArray<Pair> = [
     kind: 'text',
     foreground: 'ink-muted',
     background: 'surface-sunken',
-    usedBy: 'waiting Button label',
+    usedBy: 'waiting Button label, TownStatus countdown words',
   },
   {
     kind: 'text',

@@ -958,6 +958,8 @@
   "shell.fiefSwitcher.fullStore": "Almacén lleno: {resource}",
   "shell.fiefSwitcher.label": "Tus feudos",
   "shell.fiefSwitcher.separator": ",",
+  "shell.lessonFinish.close": "Cerrar",
+  "shell.lessonFinish.line": "La lección {number} terminó.",
   "shell.navigation.chronicle": "Crónica",
   "shell.navigation.fief": "Feudo",
   "shell.navigation.map": "Mapa",
