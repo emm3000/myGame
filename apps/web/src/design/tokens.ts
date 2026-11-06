@@ -216,12 +216,7 @@ export const typeScale: Readonly<Record<TypeStyle, TypeStyleValues>> = {
   gloss: { fontSize: '17px', lineHeight: 1.5, fontWeight: 400 },
   body: { fontSize: '16px', lineHeight: 1.5, fontWeight: 400 },
   label: { fontSize: '15px', lineHeight: 1.4, fontWeight: 600 },
-  caption: {
-    fontSize: '15px',
-    lineHeight: 1.5,
-    fontWeight: 400,
-    fontVariantNumeric: 'tabular-nums',
-  },
+  caption: { fontSize: '15px', lineHeight: 1.5, fontWeight: 400 },
   meta: {
     fontSize: '14px',
     lineHeight: 1.3,

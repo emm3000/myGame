@@ -19,7 +19,7 @@ export function CostList({ costs }: { readonly costs: ReadonlyArray<CardCost> })
             key={cost.kind}
             className={`flex items-center gap-1 ${cost.shortMark === undefined ? 'text-ink' : 'text-warning-ink'}`}
           >
-            <span className={'flex text-ink'}>
+            <span className="flex text-ink">
               <Icon />
             </span>
             {formatQuantity(cost.amount)}

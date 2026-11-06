@@ -73,7 +73,7 @@ function FiefBadges({ fief }: { readonly fief: FiefEntry }): ReactElement | null
           <Chip
             key={resource}
             icon={
-              <span className={'flex text-ink'}>
+              <span className="flex text-ink">
                 <Icon />
               </span>
             }

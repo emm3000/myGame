@@ -23,7 +23,7 @@ function StockItem({
   const isFull = shown >= stock.capacity
   return (
     <li aria-label={capitalize(townResourceNameOf(resource))} className="flex flex-col gap-1">
-      <span className={'flex items-center gap-2 font-sans text-label text-ink'}>
+      <span className="flex items-center gap-2 font-sans text-label text-ink">
         <Icon sizeClass="size-icon" />
         {capitalize(townResourceNameOf(resource))}
       </span>
@@ -69,7 +69,7 @@ export function TownStocks({
         ))}
       </ul>
       <p className="m-0 flex items-center gap-2 border-line border-t pt-3 font-sans text-body text-ink">
-        <span className={'flex text-ink'}>
+        <span className="flex text-ink">
           <Icon sizeClass="size-icon" />
         </span>
         {townPeople({ free: overview.people.free, atWork: overview.people.atWork })}

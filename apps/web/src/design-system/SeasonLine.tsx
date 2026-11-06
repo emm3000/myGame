@@ -11,7 +11,7 @@ export interface SeasonLineProps {
 export function SeasonLine({ season, headerLine, countdownLine }: SeasonLineProps): ReactElement {
   const Icon = seasonIconOf[season]
   return (
-    <p className="m-0 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-caption text-ink tabular-nums">
+    <p className="m-0 flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-caption text-ink">
       <span className="flex text-ink-muted">
         <Icon />
       </span>

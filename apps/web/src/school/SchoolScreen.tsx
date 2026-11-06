@@ -83,7 +83,7 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
   )
   return (
     <section className="flex flex-col gap-2 rounded-md border border-line bg-surface-raised p-5">
-      <p className="m-0 font-sans text-body text-ink tabular-nums">
+      <p className="m-0 font-sans text-body text-ink">
         {schoolLearning({ inLearning: learning.inLearning, cap: learning.cap })}
       </p>
       <Track value={learning.inLearning} total={learning.cap} fillClass="fill-action" />

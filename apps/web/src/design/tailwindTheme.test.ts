@@ -155,10 +155,12 @@ it('sets meta alone in uppercase', async () => {
   expect(css.slice(css.indexOf('.text-meta'))).toContain('text-transform: uppercase')
 })
 
-it('sets caption and numeral with tabular figures', async () => {
+it('sets numeral alone with tabular figures', async () => {
   const stylesheet = await compileStylesheet()
+  const styles = Object.keys(typeScale)
 
-  const css = stylesheet.build(['text-caption', 'text-numeral', 'text-body'])
+  const css = stylesheet.build(styles.map((style) => `text-${style}`))
 
-  expect(css.match(/font-variant-numeric: tabular-nums/g)).toHaveLength(2)
+  expect(css.match(/font-variant-numeric: tabular-nums/g)).toHaveLength(1)
+  expect(css.slice(css.indexOf('.text-numeral'))).toContain('font-variant-numeric: tabular-nums')
 })

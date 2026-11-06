@@ -172,6 +172,39 @@ it('measures black on white at 21:1', () => {
   expect(contrast('#000000', '#ffffff')).toBeCloseTo(21, 5)
 })
 
+it('declares the 28 pairs of ADR 043', () => {
+  expect(pairs.map((pair) => namesOf([pair.foreground, pair.background]))).toEqual([
+    'ink on surface',
+    'ink on surface-raised',
+    'ink on surface-sunken',
+    'ink-muted on surface',
+    'ink-muted on surface-raised',
+    'ink-muted on surface-sunken',
+    'on-action on action',
+    'on-block on block-peach',
+    'on-block on block-mint',
+    'on-block on block-periwinkle',
+    'on-block on block-lavender',
+    'on-block-muted on block-peach',
+    'on-block-muted on block-mint',
+    'on-block-muted on block-periwinkle',
+    'on-block-muted on block-lavender',
+    'warning-ink on surface',
+    'warning-ink on surface-raised',
+    'warning-ink on warning-soft',
+    'destructive-ink on surface',
+    'destructive-ink on surface-raised',
+    'destructive-ink on destructive-soft',
+    'action on surface',
+    'line-strong on surface',
+    'line-strong on surface-raised',
+    'line-strong on surface-sunken',
+    'focus on surface',
+    'focus on surface-raised',
+    'focus on surface-sunken',
+  ])
+})
+
 it('holds every pair at its floor in both themes', () => {
   expect(themes.flatMap(pairsUnderTheirFloor)).toEqual([])
 })

@@ -35,7 +35,7 @@ function Effect({ resource, text }: ArtEffect): ReactElement {
   const Icon = resourceAccent[resource]
   return (
     <p className="m-0 flex items-center gap-1 font-sans text-caption text-ink-muted">
-      <span className={'flex text-ink'}>
+      <span className="flex text-ink">
         <Icon />
       </span>
       <span>{text}</span>

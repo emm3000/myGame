@@ -30,7 +30,7 @@ function SkillItem({ line }: { readonly line: SkillLine }): ReactElement {
   const Icon = resourceAccent[line.resource]
   return (
     <li aria-label={line.name} className="flex items-center gap-3">
-      <span className={'flex text-ink'}>
+      <span className="flex text-ink">
         <Icon sizeClass="size-icon" />
       </span>
       <span className="flex flex-wrap items-baseline gap-x-3">
