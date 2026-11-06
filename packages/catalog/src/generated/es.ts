@@ -448,6 +448,12 @@ export const townNamingGoToTown = (): string => `Ir a tu pueblo`
 export const townNamingMayor = (): string => `Ahora diriges tu propio pueblo.`
 export const townNamingSubmit = (): string => `Empezar`
 export const townNamingTitle = (): string => `Ponle nombre a tu pueblo`
+export const townNextBuildFactory = (): string => `Construye la fábrica`
+export const townNextBuildFarm = (): string => `Construye la granja`
+export const townNextBuildPowerStation = (): string => `Construye la central eléctrica`
+export const townNextGoToReport = (): string => `Ir al informe`
+export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)} lista en`
+export const townNextTitle = (): string => `Tu siguiente paso`
 export const townPeople = ({ atWork, free }: { readonly atWork: string | number; readonly free: number }): string => `Gente: ${free === 1 ? `1 libre` : `${String(free)} libres`}, ${String(atWork)} trabajando`
 export const townPeopleAtWork = ({ people }: { readonly people: string | number }): string => `Gente trabajando: +${String(people)}`
 export const townPeopleShort = ({ free, needed }: { readonly free: number; readonly needed: string | number }): string => `Gente necesaria: ${String(needed)}. ${free === 1 ? `Libre: 1` : `Libres: ${String(free)}`}.`

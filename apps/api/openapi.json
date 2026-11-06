@@ -4292,6 +4292,11 @@
               "minLength": 1
             }
           },
+          "nextDueAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
           "news": {
             "type": "array",
             "items": {
@@ -4300,7 +4305,7 @@
             "maxItems": 100
           }
         },
-        "required": ["dueCount", "due", "readFirst", "news"],
+        "required": ["dueCount", "due", "readFirst", "nextDueAt", "news"],
         "additionalProperties": false
       },
       "TownNewsItem": {
@@ -5614,6 +5619,14 @@
             "required": ["cap", "inLearning"],
             "additionalProperties": false
           },
+          "nextStep": {
+            "$ref": "#/components/schemas/NextStep"
+          },
+          "nextDueAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
           "readAt": {
             "type": "string",
             "format": "date-time"
@@ -5633,6 +5646,8 @@
           "skills",
           "lessonSlot",
           "learning",
+          "nextStep",
+          "nextDueAt",
           "readAt"
         ],
         "additionalProperties": false
@@ -5682,6 +5697,96 @@
           }
         },
         "required": ["building", "level", "cost", "startsAt", "finishesAt"],
+        "additionalProperties": false
+      },
+      "NextStep": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ReviewsStep"
+          },
+          {
+            "$ref": "#/components/schemas/LessonRunningStep"
+          },
+          {
+            "$ref": "#/components/schemas/LessonToStudyStep"
+          },
+          {
+            "$ref": "#/components/schemas/CaughtUpStep"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "reviews": "#/components/schemas/ReviewsStep",
+            "lessonRunning": "#/components/schemas/LessonRunningStep",
+            "lessonToStudy": "#/components/schemas/LessonToStudyStep",
+            "caughtUp": "#/components/schemas/CaughtUpStep"
+          }
+        }
+      },
+      "ReviewsStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["reviews"]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "readFirst": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": ["kind", "count", "readFirst"],
+        "additionalProperties": false
+      },
+      "LessonRunningStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonRunning"]
+          },
+          "producer": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["farm", "factory", "powerStation", null]
+          }
+        },
+        "required": ["kind", "producer"],
+        "additionalProperties": false
+      },
+      "LessonToStudyStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["lessonToStudy"]
+          },
+          "lessonId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["kind", "lessonId"],
+        "additionalProperties": false
+      },
+      "CaughtUpStep": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["caughtUp"]
+          }
+        },
+        "required": ["kind"],
         "additionalProperties": false
       },
       "TownNewsFeed": {

@@ -57,6 +57,8 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
   learning: { cap: 15, inLearning: 5 },
+  nextStep: { kind: 'caughtUp' },
+  nextDueAt: null,
   readAt: '2026-11-10T08:58:00.000Z',
   ...overrides,
 })
@@ -132,5 +134,67 @@ describe('TownOverviewSchema', () => {
     const { lessons: _, ...withoutLessons } = overview()
 
     expect(TownOverviewSchema.safeParse(withoutLessons).success).toBe(false)
+  })
+})
+
+describe('TownOverviewSchema next step', () => {
+  it('reads the reviews with their count and the lessons to read first', () => {
+    const nextStep = { kind: 'reviews', count: 3, readFirst: ['lesson-1'] }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('refuses the reviews with none due', () => {
+    const nextStep = { kind: 'reviews', count: 0, readFirst: [] }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('reads a running lesson with the producer to build', () => {
+    const nextStep = { kind: 'lessonRunning', producer: 'powerStation' }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('reads a running lesson with no producer', () => {
+    const nextStep = { kind: 'lessonRunning', producer: null }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('refuses a producer that makes no resource', () => {
+    const nextStep = { kind: 'lessonRunning', producer: 'school' }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('reads the lesson to study by its id', () => {
+    const nextStep = { kind: 'lessonToStudy', lessonId: 'lesson-2' }
+
+    expect(TownOverviewSchema.parse(overview({ nextStep })).nextStep).toEqual(nextStep)
+  })
+
+  it('refuses a field on caughtUp', () => {
+    const nextStep = { kind: 'caughtUp', goal: null }
+
+    expect(TownOverviewSchema.safeParse(overview({ nextStep })).success).toBe(false)
+  })
+
+  it('refuses an overview without its next step', () => {
+    const { nextStep: _, ...withoutNextStep } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutNextStep).success).toBe(false)
+  })
+
+  it('reads the next review instant', () => {
+    const nextDueAt = '2026-11-10T09:10:00.000Z'
+
+    expect(TownOverviewSchema.parse(overview({ nextDueAt })).nextDueAt).toBe(nextDueAt)
+  })
+
+  it('refuses an overview without its next review instant', () => {
+    const { nextDueAt: _, ...withoutNextDueAt } = overview()
+
+    expect(TownOverviewSchema.safeParse(withoutNextDueAt).success).toBe(false)
   })
 })

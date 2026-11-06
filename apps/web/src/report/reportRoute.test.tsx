@@ -9,6 +9,7 @@ import {
   reportReviewsDue,
   reportStartReviews,
   reportTitle,
+  reviewNextReview,
   reviewTitle,
   schoolLessonReadWords,
   shellNavigationReport,
@@ -70,6 +71,7 @@ const homeRecognition: DueReview = {
 const reportOf = (overrides: Partial<Report>): Report => ({
   dueCount: 0,
   readFirst: [],
+  nextDueAt: null,
   due: [],
   news: [],
   ...overrides,
@@ -146,6 +148,25 @@ it('offers no way into the reviews when none is due', async () => {
 
   expect(within(reportRegion()).getByText(reportNoReviewsDue())).toBeDefined()
   expect(within(reportRegion()).queryByRole('link', { name: reportStartReviews() })).toBeNull()
+})
+
+it('shows the instant of the next review when none is due', async () => {
+  await showReport(reportOf({ nextDueAt: '2026-11-10T09:40:00.000Z' }))
+
+  expect(within(reportRegion()).getByText(reviewNextReview())).toBeDefined()
+  expect(within(reportRegion()).getByText('10:40')).toBeDefined()
+})
+
+it('shows no next review with no review ahead', async () => {
+  await showReport(reportOf({}))
+
+  expect(within(reportRegion()).queryByText(reviewNextReview())).toBeNull()
+})
+
+it('shows no next review beside the reviews due', async () => {
+  await showReport({ ...reviewsDue, nextDueAt: '2026-11-10T09:40:00.000Z' })
+
+  expect(within(reportRegion()).queryByText(reviewNextReview())).toBeNull()
 })
 
 it('opens the unread lesson from the Report', async () => {

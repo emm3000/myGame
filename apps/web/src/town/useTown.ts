@@ -34,6 +34,9 @@ const slotFinishSecondsOf = (overview: TownOverview): number =>
 const lessonFinishSecondsOf = (overview: TownOverview): number =>
   overview.lessonSlot === null ? 0 : secondsUntil(overview.lessonSlot.finishesAt, overview, 0)
 
+const nextDueSecondsOf = (overview: TownOverview): number =>
+  overview.nextDueAt === null ? 0 : secondsUntil(overview.nextDueAt, overview, 0)
+
 const seasonEndSecondsOf = (overview: TownOverview): number =>
   overview.season === null ? 0 : secondsUntil(overview.season.endsAt, overview, 0)
 
@@ -57,6 +60,7 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
     const finishSeconds = [
       slotFinishSecondsOf(lastRead.overview),
       lessonFinishSecondsOf(lastRead.overview),
+      nextDueSecondsOf(lastRead.overview),
       seasonEndSecondsOf(lastRead.overview),
     ]
     for (const seconds of finishSeconds.filter((seconds) => seconds > 0)) {

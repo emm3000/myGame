@@ -221,6 +221,8 @@ export const knownTown: TownOverview = {
   skills: [],
   lessonSlot: null,
   learning: { cap: 15, inLearning: 0 },
+  nextStep: { kind: 'caughtUp' },
+  nextDueAt: null,
   readAt: '2026-11-10T09:00:00.000Z',
 }
 
@@ -256,7 +258,10 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   answerReview: async () => ({ ok: true, value: { verdict: { kind: 'nearMiss' } } }),
   chronicle: async () => ({ ok: true, value: { events: [] } }),
   provinceMap: async () => ({ ok: true, value: knownProvinceMap }),
-  report: async () => ({ ok: true, value: { dueCount: 0, due: [], readFirst: [], news: [] } }),
+  report: async () => ({
+    ok: true,
+    value: { dueCount: 0, due: [], readFirst: [], nextDueAt: null, news: [] },
+  }),
   closeReport: async () => undefined,
   digest: async () => ({ ok: true, value: quietDigest }),
   acknowledgeDigest: async () => undefined,

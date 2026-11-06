@@ -1,5 +1,5 @@
 import { type ReactElement, useId } from 'react'
-import { Button } from './Button'
+import { Button, type ButtonTone } from './Button'
 import { ClockIcon } from './icons/ClockIcon'
 
 export type CardActionState =
@@ -18,6 +18,7 @@ export interface CardActionProps {
   readonly label: string
   readonly state: CardActionState
   readonly isWaiting: boolean
+  readonly tone?: ButtonTone | undefined
   readonly onAction?: (() => void) | undefined
 }
 
@@ -31,11 +32,13 @@ export const cardToneOf = (state: CardActionState): string => cardTone[state.kin
 
 function BlockedAction({
   type,
+  tone,
   label,
   reason,
   ready,
 }: {
   readonly type: CardActionProps['type']
+  readonly tone: ButtonTone
   readonly label: string
   readonly reason: string
   readonly ready: string | undefined
@@ -43,7 +46,7 @@ function BlockedAction({
   const reasonId = useId()
   return (
     <div className="flex flex-col gap-2">
-      <Button type={type} tone="primary" availability="blocked" describedBy={reasonId}>
+      <Button type={type} tone={tone} availability="blocked" describedBy={reasonId}>
         {label}
       </Button>
       <span id={reasonId} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -66,28 +69,37 @@ export function CardAction({
   label,
   state,
   isWaiting,
+  tone = 'primary',
   onAction,
 }: CardActionProps): ReactElement {
   if (state.kind === 'atMaxLevel') {
     return (
-      <Button type={type} tone="primary" availability="blocked">
+      <Button type={type} tone={tone} availability="blocked">
         {state.label}
       </Button>
     )
   }
   if (state.kind === 'blocked') {
-    return <BlockedAction type={type} label={label} reason={state.reason} ready={state.ready} />
+    return (
+      <BlockedAction
+        type={type}
+        tone={tone}
+        label={label}
+        reason={state.reason}
+        ready={state.ready}
+      />
+    )
   }
   if (isWaiting) {
     return (
-      <Button type={type} tone="primary" availability="waiting">
+      <Button type={type} tone={tone} availability="waiting">
         <ClockIcon sizeClass="size-icon" />
         <span>{label}</span>
       </Button>
     )
   }
   return (
-    <Button type={type} tone="primary" onClick={onAction}>
+    <Button type={type} tone={tone} onClick={onAction}>
       {label}
     </Button>
   )

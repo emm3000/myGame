@@ -243,6 +243,7 @@ it('answers a town refusal with its params', async () => {
 })
 
 const reportWithNews = {
+  nextDueAt: null,
   dueCount: 0,
   due: [],
   readFirst: [],

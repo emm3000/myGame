@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import type { ButtonTone } from './Button'
 import { CardAction, type CardActionState, cardToneOf } from './CardAction'
 import { CardArt, type CardArtShape } from './CardArt'
 import { CardHeader } from './CardHeader'
@@ -18,6 +19,7 @@ export interface BuildingCardProps {
   readonly artSrc: string | undefined
   readonly artShape?: CardArtShape | undefined
   readonly isWaiting?: boolean
+  readonly actionTone?: ButtonTone | undefined
   readonly onUpgrade?: (() => void) | undefined
 }
 
@@ -39,6 +41,7 @@ export function BuildingCard(props: BuildingCardProps): ReactElement {
         label={`${props.actionLabel} · ${formatDuration(props.durationSeconds)}`}
         state={props.state}
         isWaiting={props.isWaiting ?? false}
+        tone={props.actionTone}
         onAction={props.onUpgrade}
       />
     </Panel>

@@ -30,6 +30,13 @@ const focusRing = 'focus ring, 3 px at a 2 px offset'
 const pairs: ReadonlyArray<Pair> = [
   { kind: 'text', foreground: 'ink', background: 'surface', usedBy: 'running text' },
   { kind: 'text', foreground: 'ink', background: 'surface-raised', usedBy: 'card text' },
+  { kind: 'text', foreground: 'ink', background: 'action-soft', usedBy: 'NextStepCard text' },
+  {
+    kind: 'text',
+    foreground: 'ink-muted',
+    background: 'action-soft',
+    usedBy: 'NextStepCard countdown words',
+  },
   {
     kind: 'text',
     foreground: 'ink',
@@ -164,6 +171,13 @@ const pairs: ReadonlyArray<Pair> = [
   { kind: 'boundary', foreground: 'focus', background: 'surface', usedBy: focusRing },
   { kind: 'boundary', foreground: 'focus', background: 'surface-raised', usedBy: focusRing },
   { kind: 'boundary', foreground: 'focus', background: 'surface-sunken', usedBy: focusRing },
+  { kind: 'boundary', foreground: 'focus', background: 'action-soft', usedBy: focusRing },
+  {
+    kind: 'boundary',
+    foreground: 'action',
+    background: 'action-soft',
+    usedBy: 'NextStepCard primary link',
+  },
   { kind: 'graphic', foreground: 'money', background: 'surface-raised', usedBy: resourceIcon },
   { kind: 'graphic', foreground: 'food', background: 'surface-raised', usedBy: resourceIcon },
   { kind: 'graphic', foreground: 'material', background: 'surface-raised', usedBy: resourceIcon },

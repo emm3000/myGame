@@ -3,12 +3,11 @@ import { err, ok, type Result } from '../Result'
 import { seasonAt } from '../season/seasonAt'
 import type { Instant } from '../time/Instant'
 import type { BuildingLevels } from './BuildingLevels'
+import type { ProducerBuilding } from './producerOf'
 import type { ResourceKind } from './ResourceKind'
 import type { Terrain } from './Terrain'
 import type { TownCatalog } from './TownCatalog'
 import type { TownSkill } from './TownSkill'
-
-type ProducerBuilding = 'farm' | 'factory' | 'powerStation'
 
 export type ResourceRates = Readonly<Record<ResourceKind, number>>
 

@@ -30,6 +30,12 @@ export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './
 export type { HireKind } from './HireKind'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './LessonSlot'
 export type { LessonSlotRepository } from './LessonSlotRepository'
+export {
+  type NextStep,
+  type NextStepReading,
+  type NextStepTerms,
+  nextStepOf,
+} from './nextStepOf'
 export type { People } from './People'
 export type { ResourceKind } from './ResourceKind'
 export { rebaseFullSince } from './rebaseFullSince'
