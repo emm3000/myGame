@@ -1,29 +1,26 @@
 package com.emm.mygame.feature.school
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameButton
-import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
-import com.emm.mygame.core.designsystem.MyGameRadii
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.ui.icuStringResource
@@ -31,92 +28,80 @@ import com.emm.mygame.core.ui.icuStringResource
 internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
 
 @Composable
-internal fun LessonsSection(
+internal fun ShownLesson(
+    card: SchoolUiState.LessonCard,
     content: SchoolUiState.Content,
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameSectionTitle(text = stringResource(R.string.school_lessons))
-        val leadLesson: LessonId? = leadLessonOf(content)
-        content.lessons.forEach { card: SchoolUiState.LessonCard ->
-            LessonItem(
+    val running: SchoolUiState.SlotLine.Running? = content.slot as? SchoolUiState.SlotLine.Running
+    val state: SchoolUiState.LessonState = card.state
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
+        LessonBlock(card = card)
+        if (state is SchoolUiState.LessonState.Open) {
+            StudyAction(
                 card = card,
-                isLead = card.lesson == leadLesson,
-                start = content.start,
+                isLead = running == null,
+                block = state.block,
+                isWaiting = content.start == SchoolUiState.LessonRequest.Waiting,
                 onIntent = onIntent,
-                onReviewsOpen = onReviewsOpen,
+            )
+        }
+        running?.let { slot: SchoolUiState.SlotLine.Running ->
+            ReadWordsPill(running = slot, shown = card.lesson, onLessonOpen = onLessonOpen)
+        }
+        StartAnswer(lesson = card.lesson, start = content.start, onReviewsOpen = onReviewsOpen)
+    }
+}
+
+@Composable
+internal fun SchoolNextStep(
+    slot: SchoolUiState.SlotLine,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (slot is SchoolUiState.SlotLine.Running) {
+        ReadWordsPill(running = slot, shown = slot.lesson, onLessonOpen = onLessonOpen, modifier = modifier)
+        return
+    }
+    MyGameButton(
+        label = stringResource(R.string.school_start_reviews),
+        isBusy = false,
+        busyDescription = stringResource(R.string.school_waiting),
+        onClick = onReviewsOpen,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun LessonBlock(card: SchoolUiState.LessonCard, modifier: Modifier = Modifier) {
+    MyGameBlock(
+        hue = blockHueOf(card.number - 1),
+        modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+    ) {
+        MyGameText(
+            text = icuStringResource(R.string.school_lesson_title, "number" to card.number.toString()),
+            style = MyGameTypography.display,
+            color = MyGameTheme.colors.onBlock,
+            modifier = Modifier.semantics { heading() },
+        )
+        MyGameText(text = card.theme, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
+        MyGameText(
+            text = lessonSummaryOf(card),
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.onBlockMuted,
+        )
+        if (card.state == SchoolUiState.LessonState.Studying) {
+            MyGameText(
+                text = stringResource(R.string.school_lesson_studying),
+                style = MyGameTypography.label,
+                color = MyGameTheme.colors.onBlock,
             )
         }
     }
-}
-
-@Composable
-private fun LessonItem(
-    card: SchoolUiState.LessonCard,
-    isLead: Boolean,
-    start: SchoolUiState.LessonRequest,
-    onIntent: (SchoolIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameCard {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-                modifier = Modifier.padding(vertical = MyGameSpacing.step3),
-            ) {
-                MyGameText(
-                    text = icuStringResource(R.string.school_lesson_title, "number" to card.number.toString()),
-                    style = MyGameTypography.heading,
-                    color = MyGameTheme.colors.ink,
-                    modifier = Modifier.semantics { heading() },
-                )
-                MyGameText(text = card.theme, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-                MyGameText(
-                    text = summaryOf(card),
-                    style = MyGameTypography.caption,
-                    color = MyGameTheme.colors.inkMuted,
-                )
-                when (val state: SchoolUiState.LessonState = card.state) {
-                    SchoolUiState.LessonState.Studied -> LessonStatus(label = R.string.school_lesson_studied)
-                    SchoolUiState.LessonState.Studying -> LessonStatus(label = R.string.school_lesson_studying)
-                    is SchoolUiState.LessonState.Open -> StudyAction(
-                        card = card,
-                        isLead = isLead,
-                        block = state.block,
-                        isWaiting = start == SchoolUiState.LessonRequest.Waiting,
-                        onIntent = onIntent,
-                    )
-                }
-            }
-        }
-        StartAnswer(lesson = card.lesson, start = start, onReviewsOpen = onReviewsOpen)
-    }
-}
-
-@Composable
-private fun summaryOf(card: SchoolUiState.LessonCard): String = icuStringResource(
-    R.string.school_lesson_summary,
-    "words" to icuStringResource(R.string.school_lesson_words, "count" to card.wordCount),
-    "skill" to icuStringResource(
-        R.string.school_skill_rate,
-        "percent" to card.ratePercent.toString(),
-        "resource" to stringResource(resourceNameOf(card.resource)),
-    ),
-)
-
-@Composable
-private fun LessonStatus(@StringRes label: Int, modifier: Modifier = Modifier) {
-    MyGameText(
-        text = stringResource(label),
-        style = MyGameTypography.label,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier
-            .background(MyGameTheme.colors.surfaceSunken, RoundedCornerShape(MyGameRadii.pill))
-            .padding(horizontal = MyGameSpacing.step2),
-    )
 }
 
 @Composable
@@ -157,22 +142,34 @@ private fun StudyAction(
         reason?.let { line: String ->
             MyGameText(
                 text = line,
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.destructiveInk,
-                modifier = Modifier.clearAndSetSemantics { testTag = LESSON_BLOCK_LINE },
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.warningInk,
+                modifier = Modifier.semantics {
+                    hideFromAccessibility()
+                    testTag = LESSON_BLOCK_LINE
+                },
             )
         }
     }
 }
 
-private fun leadLessonOf(content: SchoolUiState.Content): LessonId? =
-    if (content.slot == SchoolUiState.SlotLine.Idle) {
-        content.lessons.firstOrNull { card: SchoolUiState.LessonCard ->
-            card.state is SchoolUiState.LessonState.Open
-        }?.lesson
-    } else {
-        null
-    }
+@Composable
+private fun ReadWordsPill(
+    running: SchoolUiState.SlotLine.Running,
+    shown: LessonId,
+    onLessonOpen: (LessonId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val readWords: String = stringResource(R.string.school_lesson_read_words)
+    val title: String = icuStringResource(R.string.school_lesson_title, "number" to running.number.toString())
+    MyGameButton(
+        label = if (running.lesson == shown) readWords else "$title · $readWords",
+        isBusy = false,
+        busyDescription = stringResource(R.string.school_waiting),
+        onClick = { onLessonOpen(running.lesson) },
+        modifier = modifier,
+    )
+}
 
 @Composable
 private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block) {

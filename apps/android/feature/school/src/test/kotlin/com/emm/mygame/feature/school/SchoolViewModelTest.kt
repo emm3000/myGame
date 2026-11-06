@@ -365,7 +365,7 @@ class SchoolViewModelTest {
         advanceTimeBy(10.seconds)
         runCurrent()
 
-        assertEquals(SchoolUiState.SlotLine.Done(number = 1), contentOf(viewModel).slot)
+        assertEquals(SchoolUiState.SlotLine.Done(firstLesson, number = 1), contentOf(viewModel).slot)
     }
 
     @Test
@@ -522,5 +522,53 @@ class SchoolViewModelTest {
         )
 
         assertEquals(listOf(1, 2), contentOf(viewModel).skills.map(SchoolUiState.SkillLine::level))
+    }
+
+    @Test
+    fun `selects the lesson the player tapped`() = runTest {
+        val viewModel: SchoolViewModel =
+            schoolReading(townOf(lessons = listOf(lessonOf(), lessonOf(id = secondLesson))))
+
+        viewModel.onIntent(SchoolIntent.LessonSelected(secondLesson))
+
+        assertEquals(secondLesson, contentOf(viewModel).shown?.lesson)
+    }
+
+    @Test
+    fun `keeps the selected lesson through the next read`() = runTest {
+        val lessons: List<TownSnapshot.Lesson> = listOf(lessonOf(), lessonOf(id = secondLesson))
+        val viewModel: SchoolViewModel =
+            schoolReading(townOf(lessons = lessons, seasonEndsAt = readInstant + 10.seconds))
+        viewModel.onIntent(SchoolIntent.LessonSelected(secondLesson))
+        towns.answerRead(TownReadResult.Read(townOf(lessons = lessons, readAt = readInstant + 10.seconds)))
+
+        advanceTimeBy(11.seconds)
+        runCurrent()
+
+        assertEquals(secondLesson, contentOf(viewModel).shown?.lesson)
+    }
+
+    @Test
+    fun `falls back to the next open lesson once the selected one is studied`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(
+            townOf(
+                lessons = listOf(lessonOf(), lessonOf(id = secondLesson)),
+                seasonEndsAt = readInstant + 10.seconds,
+            ),
+        )
+        viewModel.onIntent(SchoolIntent.LessonSelected(secondLesson))
+        towns.answerRead(
+            TownReadResult.Read(
+                townOf(
+                    lessons = listOf(lessonOf(), lessonOf(id = secondLesson, isStudied = true)),
+                    readAt = readInstant + 10.seconds,
+                ),
+            ),
+        )
+
+        advanceTimeBy(11.seconds)
+        runCurrent()
+
+        assertEquals(firstLesson, contentOf(viewModel).shown?.lesson)
     }
 }

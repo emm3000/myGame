@@ -10,6 +10,8 @@ sealed interface SchoolIntent {
 
     data object RetryTapped : SchoolIntent
 
+    data class LessonSelected(val lesson: LessonId) : SchoolIntent
+
     data class StudyTapped(val lesson: LessonId) : SchoolIntent
 
     data class StopTapped(val lesson: LessonId) : SchoolIntent

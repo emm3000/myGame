@@ -305,7 +305,7 @@ class AppNavigationTest {
     fun `links back to the town from every screen but the town home`() {
         signedInAtTown()
         door("Escuela").performClick()
-        waitForLine("Lecciones")
+        waitForLine("Ahora no hay ninguna lección en estudio.")
         assertLinksBackToTheTown()
 
         openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
