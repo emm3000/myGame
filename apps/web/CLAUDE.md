@@ -64,3 +64,4 @@ TanStack Start on Vite: the routes, the design system and the game screens. It r
 - `refusal.PlotReserved` reads *Esa parcela está reservada: un colono va de camino a fundar en ella. Elige otra.*
 - `neutralPercent` (`src/seasons/neutralPercent.ts`) is the one 100 a season percent is compared or scaled against; no `=== 100` on a percent.
 - A founding fixture carries `order: 'found'`, a `name`, one settler, `stayHours: 0`, `arrivesAt` equal to `leavesAt`, `returnsAt` one more way after, `camp: null` and `fought: false`; a recalled one carries `arrivesAt` and `leavesAt` at `recalledAt` and `returnsAt` as long after as the settler walked, as the domain's `marchInstantsOf` answers.
+- `SignOutColumn` (`src/auth/SignOutColumn.tsx`) is the form-width column with the `text` sign-out at its foot; a route wraps its state in it, so `TownReadFailed` never draws sign-out itself, since `/report` already holds one around it.
