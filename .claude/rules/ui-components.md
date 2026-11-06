@@ -9,7 +9,7 @@ paths:
 
 ## One design system, one implementation per client
 
-- The design system is defined once as tokens: color, type, spacing, radius, motion (ADR 034). Each client implements them in its own idiom: `apps/web/src/design/tokens.ts` on the web, `core:designsystem` on Android, a SwiftUI theme on Apple. Until the shared token source and its drift check land with the redesign, the web's `tokens.ts` is the source.
+- The design system is defined once as tokens: color, type, spacing, radius, motion (ADR 034). Each client implements them in its own idiom: `apps/web/src/design/tokens.ts` on the web, `core:designsystem` on Android, a SwiftUI theme on Apple. The web's `tokens.ts` is the source: `pnpm --filter @mygame/web tokens` writes `core:designsystem`'s values from it, and the web suite fails on a drift.
 - A visual value (a color, a size, a spacing, a radius, a duration) is a token. A feature screen never writes a literal one; it reuses a token or adds one to the source.
 - A feature screen builds only from its client's design-system components. It never imports a raw third-party control: no Material3 `Button` or `Text` on Android, no unstyled library widget on the web.
 - Before creating a component, look in the design system. Used by one screen, it stays in that feature; used by two, it moves into the design system. A local copy of a component that exists is a defect; extend the shared one.
