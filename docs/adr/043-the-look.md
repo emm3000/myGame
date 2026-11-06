@@ -72,7 +72,7 @@ paper, so its boundary and its focus ring are measured on a surface. A
 block keeps one value in both themes, and a paper pill on one would fall
 to 1.26:1. The one control a block may hold is N6's word on tap, from
 stability 7. It draws as text, at `control` height, and its focus ring
-is `on-block`, because `focus` in dark falls to about 1.4:1 on a block.
+is `on-block`, because `focus` in dark falls to 1.26:1 on mint.
 
 **Hue is identity, never meaning.** A block takes its color from where it
 sits, never from a grade, a resource or a result. A lesson's block uses
@@ -202,7 +202,8 @@ Hello, and the largest change from what the owner saw.
 **The method.** The words come from `docs/setting/lessons.md`, and 9 of
 the 80 frames hold a capital *I*. Each string was drawn on a Chromium
 canvas at 3×, kerned, in the size, weight and tracking the screen uses,
-and cut to black and white at 50 %. The two bitmaps sit on one baseline
+Bricolage with its `opsz` axis on automatic, and cut to black and white
+at 50 %. The two bitmaps sit on one baseline
 and slide across every horizontal offset at which they touch. The score is
 1 minus their best overlap, intersection over union, so higher is easier to
 tell apart and 0 is the same picture. Glyphs come first because whole-word
@@ -230,19 +231,26 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
 - **Schibsted leads at word size**, on six of the nine pairs, among them
   *I*, *l* and *rn*, *m*. Atkinson leads on *i*, *l*, on *l*, *1* and on
   *O*, *0*. Its capital *I* carries serifs, as Atkinson's does.
-- **Schibsted loses at the reading size.** At 20/400, where `reading` sets
-  the frames and each frame writes its word, Atkinson leads on seven of
-  the nine pairs and on every *I*, *l* and *1* pair, by 0.04 to 0.10.
-  Schibsted leads on *rn*, *m* by 0.09 and on *O*, *0*. At 16/400 the two
-  split evenly.
-- **Schibsted stays, for the learner.** At the reading size it never
-  collapses: its lowest score is 0.21, where Bricolage's is 0.04. A frame
-  repeats the word on the card above it, so a second face would give a
-  learner two shapes for one word on one card, and that shape is what they
-  are learning. One family is also what ADR 035 asks for. The price is a
-  small loss on *I*, *l* and *1* in frames, and it is recorded here rather
-  than argued away. If the device check or a player shows frames misread,
-  `reading` alone moves to Atkinson: one style and one font file, no screen.
+- **At the reading size the two tie on letters.** At 20/400, where
+  `reading` sets the frames and each frame writes its word, Atkinson leads
+  on seven of the nine pairs, by 0.026 to 0.102. Only *I*, *1* clears the
+  0.1 bar above. Schibsted leads on *rn*, *m* by 0.091 and on *O*, *0*.
+- **`reading` ships in Schibsted.** Atkinson's lead does not reach a
+  learner:
+  - Two of its seven wins are digit pairs, and 0 of the 80 frames or lemmas
+    hold a digit.
+  - The other five gaps are 0.026 to 0.083, under the bar.
+  - *I*, *l* flips with size: Schibsted leads at 16, 17 and 21, Atkinson at
+    the other seven sizes from 15 to 24.
+  - All 9 frames with the pronoun open with *I*, where a lowercase *l*
+    cannot stand.
+  - Schibsted leads on *rn*, *m* at every size from 15 to 24, and *earn*
+    and *learn* are lemmas.
+  - Its x-height is 6 % larger, 0.527 of the size against 0.496.
+
+  Reversing this takes a new ADR. The Android device check of item 2 runs
+  this method at 20/400, and its bar is no pair under 0.15. Schibsted's
+  lowest from 1.5× to 8× is 0.154.
 - **Digits.** Atkinson leads on *l*, *1* at word and reading size, and
   neither leads at 16. No frame or lemma holds a digit. Schibsted's zero
   has no slash, so the stock figures lose Atkinson's noise, and it still
@@ -251,8 +259,9 @@ and 0.363 at 16. A gap under about 0.1 there is not a finding.
   Spanish letter the scaffold needs.
 - **The cost differs by client.** Nothing uses italics, so Android ships
   one 176 KB variable file in place of Atkinson's two of 115 and 124 KB,
-  where Bricolage would have added 408 KB. The web pays a little more: the
-  latin file is 46.9 KB against 37.6 KB for Atkinson's roman. Both Google
+  where Bricolage would have added 408 KB. The web pays more: the latin
+  file is 46.9 KB against 34.0 KB for Atkinson's roman, 12.8 KB or 38 %
+  more. Both Google
   Fonts files are under the SIL OFL.
 
 This is a measure of shapes, not a study of readers, and it ran on
@@ -307,9 +316,10 @@ Report and the map as a row on the town home, never a third door.
   button.
 - **The unconfirmed mail** falls from about 165 px to one thin line at the
   foot of the screen, with its button.
-- **The town home** at phone width: the skyline, the next step's block
-  with *What is next* on it, its pill under it, the doors, the stocks, the people,
-  the works, the places. At 1280 the left column holds the block, the
+- **The town home** at phone width: the next step's block with *What is
+  next* on it, its pill under it, the doors, then the skyline, the stocks,
+  the people, the works, the places. A new player's next step outranks the
+  picture, as ADR 042 and #841 ask; the artifact drew the skyline first. At 1280 the left column holds the block, the
   doors and the works, and the right one the skyline, the stocks four
   across and the places. It measures 1 718 px at phone width in the
   artifact, from 4 556.
@@ -453,11 +463,13 @@ The Compose and React components stay each client's own, as
   reads, ADR 038's chrome is taught as words, and *4 words* would mix two
   faces on one line. At 800 the two are close enough that this buys 408 KB
   and a rule to police for little that a player would see.
-- **Keep Atkinson for the frames, or for the English word.** The owner's
-  question, and the safe-looking answer. Atkinson leads at the reading
-  size, and that is the real case for it. It is refused because a frame
-  repeats its word: two faces would give one word two shapes on one card.
-  It stays the named fallback for `reading`.
+- **Atkinson for the frames alone.** It leads at the reading size, which is
+  the real case for it, and *The type* says why that lead does not reach a
+  learner.
+- **Atkinson for the word and the frame.** The owner's question, and the
+  safe-looking answer. At word size Schibsted leads on six of the nine
+  pairs, *rn*, *m* by 0.109, so this keeps a tie at the reading size and
+  gives up the lead where the word is largest.
 - **A shipped dark default.** The first brief asked for it. Hello is light
   and outranks it, and both clients already follow the system.
 - **Keep the color illustrations and restyle around them.** The cheapest
@@ -482,9 +494,9 @@ The Compose and React components stay each client's own, as
   of the seven word cards. The files stay in git. Only 7 words ever had
   art, and they keep a silhouette, so learning loses little.
 - The Hello look replaces the signed Townword Design System of #720.
-- Atkinson leaves, a face chosen for legibility that leads Schibsted at
-  the reading size on *I*, *l* and *1*. The owner saw the question raised,
-  not this table. *The type* says what would bring it back for `reading`.
+- Atkinson leaves, a face chosen for legibility. It ties Schibsted on
+  letters at the reading size and leads on *i*, *l* at word size. Bringing
+  it back takes a new ADR.
 
 **What stands, verified.** PRD N7 needs no change: a silhouette is
 hand-written SVG, the file is its source, and it complies with the bible.
@@ -517,16 +529,17 @@ moves its `bg-badge`, its `bg-right-soft` and the tab bar's due count.
 
 The look goes first on the screens too. Items 4 to 6 below land before
 #841, #842, #843, #846 and #847, so the remaining ADR 042 screens are
-built once, in the new look.
+built once, in the new look. #840 lands after item 2 and draws the new
+look, and item 6 owns that row.
 It does not wait on #751. Those medieval files take each dropped token's
 successor from the table above, a value change in code that is going, and
 no token survives for them. That is no shim: nothing bridges old and new.
 
 It does not wait on the art either. `artPalette.ts` builds the allowed
-fills from `scene-*` and the accents, and `artFramingOf.ts` reads scene
-colors, so dropping the tokens alone would fail all 38 SVGs. Item 1 moves
-those hex values into `artPalette.ts` and `artFramingOf.ts` as the old
-art's own constants, used by no screen, and item 3 deletes them with the
+fills from `scene-*` and the accents, and `townArtFraming.test.ts` reads
+`palette['scene-grass-deep']`, so dropping the tokens alone would fail all
+38 SVGs. Item 1 moves those hex values into `artPalette.ts` and that test
+as the old art's own constants, used by no screen, and item 3 deletes them with the
 files they check.
 
 **What the tickets must close.** This list is the scope, and it holds no
@@ -536,11 +549,12 @@ ticket:
    `tailwindTheme.ts`, the font link, `tokens.test.ts` with every pair
    above and the three exemptions, every use of a dropped token moved. The
    `ledge` shadow removed from its 12 files, the accents from their 9.
-   The old art's colors kept in `artPalette.ts` and `artFramingOf.ts`.
+   The old art's colors kept in `artPalette.ts` and
+   `townArtFraming.test.ts`.
 2. **The token generator and the Android values.** `tokens` writes
    `core:designsystem`, its drift test in the web suite, the bundled TTF
    and OFL, every read of a dropped color moved, in about 17 Kotlin
-   files. The rendered words of *The type* checked on a device.
+   files. The rendered words of *The type* checked on a device, to its bar.
    `ui-components.md` and `apps/android/CLAUDE.md` lose *until the check
    lands*.
 3. **The silhouettes.** Seven `places/<word>.svg` from the artifact's
@@ -582,7 +596,7 @@ ticket:
 
 - The artifact (https://claude.ai/artifact/Xdp9JZ7hkLdr3uvAjGm9sZ, #855).
   Where it and this ADR differ, this ADR holds: the type, the ring, the
-  rate's duration, the art's cost.
+  rate's duration, the art's cost, the town home's order.
 - ADR 005 (lazy evaluation), ADR 009 (the token mechanism), ADR 034 (one
   design system), ADR 035 (the visual design), ADR 036 (rule 7), ADR 040
   (navigation, the order), ADR 042 (the next step, the school path).
