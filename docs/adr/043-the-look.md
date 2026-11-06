@@ -67,19 +67,23 @@ on a screen, and it is the only thing that reads as primary. On the town
 home it is the next step's button (ADR 042), on the school the next
 lesson, on a word or a review the way on. Every other action is an
 outlined pill or a text button. In dark the pill is paper on ink, since
-`action` is a token. A block holds no control: the pill sits under it, on
-paper, so its boundary and its focus ring are always measured on a
-surface. A block keeps one value in both themes, and a paper pill on one
-would fall to 1.26:1.
+`action` is a token. A block holds no pill: the pill sits under it, on
+paper, so its boundary and its focus ring are measured on a surface. A
+block keeps one value in both themes, and a paper pill on one would fall
+to 1.26:1. The one control a block may hold is N6's word on tap, from
+stability 7. It draws as text, at `control` height, and its focus ring
+is `on-block`, because `focus` in dark falls to about 1.4:1 on a block.
 
 **Hue is identity, never meaning.** A block takes its color from where it
 sits, never from a grade, a resource or a result. A lesson's block uses
 its place in the curriculum, `index % 4`. A word card or a review card
 uses its place in the run the screen is walking, so the next card always
 changes hue, and `DueReview` needs no new field. The next step's block is
-always peach and the Report's always periwinkle. Under simulated color blindness the four
-blocks collapse to 1.01:1 against each other, and nothing is lost, because
-they carry no meaning.
+always peach and the Report's always periwinkle. The four blocks are
+nearly one lightness, 1.02 to 1.11:1 between any two, and 1.01 to 1.19:1
+under Machado's three simulations at full severity, so color-blind
+players may not tell them apart. Nothing is lost, because they carry no
+meaning.
 
 **Right and wrong are ink, never red and green.** Forgetting is part of
 learning, so a wrong answer is not an alarm. Each verdict is an icon and
@@ -93,9 +97,8 @@ refusal, a failed read. Copy stays as the catalog has it.
 table is computed with the WCAG 2.2 formula `tokens.test.ts` uses, and
 none is under its floor. The tightest text pair is `destructive-ink` on
 `destructive-soft` at 4.92:1, and the tightest control boundary
-`line-strong` on `surface-sunken` at 3.03:1, both in light. The artifact
-checked 56; this ADR adds that last pair, which `tokens.test.ts` already
-holds, for 58 uses over both themes.
+`line-strong` on `surface-sunken` at 3.03:1, both in light. The table
+holds 28 pairs, each in both themes.
 
 | Token | Light | Dark |
 |---|---|---|
@@ -124,21 +127,24 @@ holds, for 58 uses over both themes.
 |---|---|---|---|
 | `ink` on `surface` | text | 16.51 | 16.51 |
 | `ink` on `surface-raised` | text | 17.56 | 15.07 |
+| `ink` on `surface-sunken` | text, the ring's fill on its track | 14.83 | 12.80 |
 | `ink-muted` on `surface` | text | 5.84 | 8.16 |
 | `ink-muted` on `surface-raised` | text | 6.22 | 7.45 |
 | `ink-muted` on `surface-sunken` | text, the track | 5.25 | 6.32 |
 | `on-action` on `action` | text | 16.51 | 16.51 |
-| `on-block` on `block-peach` | text, a window | 12.04 | 12.04 |
-| `on-block` on `block-mint` | text, a window | 13.14 | 13.14 |
-| `on-block` on `block-periwinkle` | text, a window | 12.24 | 12.24 |
-| `on-block` on `block-lavender` | text, a window | 11.83 | 11.83 |
+| `on-block` on `block-peach` | text, a window, focus on a block | 12.04 | 12.04 |
+| `on-block` on `block-mint` | text, a window, focus on a block | 13.14 | 13.14 |
+| `on-block` on `block-periwinkle` | text, a window, focus on a block | 12.24 | 12.24 |
+| `on-block` on `block-lavender` | text, a window, focus on a block | 11.83 | 11.83 |
 | `on-block-muted` on `block-peach` | text | 6.32 | 6.32 |
 | `on-block-muted` on `block-mint` | text | 6.90 | 6.90 |
 | `on-block-muted` on `block-periwinkle` | text | 6.43 | 6.43 |
 | `on-block-muted` on `block-lavender` | text | 6.21 | 6.21 |
 | `warning-ink` on `surface` | text | 6.08 | 10.58 |
+| `warning-ink` on `surface-raised` | text | 6.46 | 9.66 |
 | `warning-ink` on `warning-soft` | text | 5.44 | 7.67 |
 | `destructive-ink` on `surface` | text | 5.87 | 9.34 |
+| `destructive-ink` on `surface-raised` | text | 6.25 | 8.52 |
 | `destructive-ink` on `destructive-soft` | text | 4.92 | 7.31 |
 | `action` on `surface` | boundary | 16.51 | 16.51 |
 | `line-strong` on `surface` | boundary | 3.38 | 4.90 |
@@ -146,6 +152,7 @@ holds, for 58 uses over both themes.
 | `line-strong` on `surface-sunken` | boundary | 3.03 | 3.80 |
 | `focus` on `surface` | boundary | 16.51 | 16.51 |
 | `focus` on `surface-raised` | boundary | 17.56 | 15.07 |
+| `focus` on `surface-sunken` | boundary | 14.83 | 12.80 |
 
 **Hello's values changed where they miss our floor.** Its `inkMuted`
 gives 4.13:1 on its raised gray and 3.35:1 on peach, so `ink-muted` is
@@ -158,6 +165,10 @@ darker and `on-block-muted` is new. Its `outline` gives 1.95:1, so
 (1.37:1 for peach) is a ground, and the text on it is measured. A
 silhouette on `surface` is decorative, since its level is always written
 beside it. `tokens.test.ts` will name all three.
+
+**One text pair stays exempt under WCAG 1.4.3**, as `tokens.test.ts` holds
+it today: `line-strong` as a disabled label on `surface-sunken`, 3.03:1.
+The disabled pill itself uses `ink-muted`, which passes.
 
 **What leaves:**
 
@@ -176,8 +187,9 @@ beside it. `tokens.test.ts` will name all three.
 
 **The other families.** `radii` become `sm` 8, `md` 16, `lg` 28, `pill`
 999. `heights.track` falls from 6 to 3 px. `minHeights` gains `action` 60
-and `secondary` 52; `control` stays 48, so every target stays above the
-floor. `spacing`, `strokeWidths` and `durations` do not change, and the
+and `secondary` 52, and `control` stays 48. The back link, the only way
+home, and every text button and text link take `control` height on both
+clients. Trunk's `TextLink` has no minimum and measures about 24 px. `spacing`, `strokeWidths` and `durations` do not change, and the
 screen gutter is `spacing[5]`, 20 px. The icons keep their 2 px stroke.
 
 ### The type
@@ -187,57 +199,61 @@ Bricolage Grotesque, which the artifact shows on the word, is out, and
 Atkinson Hyperlegible Next leaves too. This is where the look leaves
 Hello, and the largest change from what the owner saw.
 
-Real lesson words were rendered in Chromium at 3× with the sizes the
-screens use. Each score is 1 minus the overlap of the two shapes, aligned
-at their best, so a higher score is easier to tell apart and 0 is the same
-picture. The words come from `docs/setting/lessons.md`, and 9 of the 80
-frames hold a capital *I*. Each is set against its misreading.
+**The method.** The words come from `docs/setting/lessons.md`, and 9 of
+the 80 frames hold a capital *I*. Each string was drawn on a Chromium
+canvas at 3×, kerned, in the size, weight and tracking the screen uses,
+and cut to black and white at 50 %. The two bitmaps sit on one baseline
+and slide across every horizontal offset at which they touch. The score is
+1 minus their best overlap, intersection over union, so higher is easier to
+tell apart and 0 is the same picture. Glyphs come first because whole-word
+overlap mixes advance width into shape; the two word rows are context.
 
-| Pair, word size 44/800 | Atkinson | Bricolage | Schibsted |
-|---|---|---|---|
-| *I will*, *l will* | 0.090 | **0.009** | 0.339 |
-| *hill*, *hiII* | 0.479 | **0.089** | 0.618 |
-| *skill*, *skiIl* | 0.279 | **0.049** | 0.386 |
-| *fall*, *faII* | 0.455 | **0.054** | 0.568 |
-| *i*, *l* | 0.465 | 0.092 | 0.234 |
-| *learn*, *leam* | 0.178 | 0.171 | 0.326 |
-| *earn*, *eam* | 0.208 | 0.199 | 0.369 |
-| *clean*, *dean* | 0.472 | 0.394 | 0.517 |
-| *close*, *dose* | 0.459 | 0.382 | 0.502 |
+| Pair | 44/800 A | B | S | 20/400 A | B | S | 16/400 A | B | S |
+|---|---|---|---|---|---|---|---|---|---|
+| *I*, *l* | 0.275 | **0.054** | 0.338 | 0.366 | **0.048** | 0.283 | 0.273 | **0.059** | 0.363 |
+| *i*, *l* | 0.343 | 0.092 | 0.234 | 0.375 | 0.121 | 0.334 | 0.276 | 0.139 | 0.276 |
+| *l*, *1* | 0.303 | 0.157 | 0.284 | 0.361 | 0.164 | 0.271 | 0.396 | 0.155 | 0.394 |
+| *I*, *1* | 0.358 | 0.115 | 0.388 | 0.483 | 0.127 | 0.381 | 0.500 | 0.107 | 0.351 |
+| *O*, *0* | 0.359 | 0.218 | 0.342 | 0.469 | 0.323 | 0.615 | 0.463 | 0.324 | 0.611 |
+| *rn*, *m* | 0.272 | 0.285 | 0.381 | 0.362 | 0.388 | 0.453 | 0.366 | 0.427 | 0.438 |
+| *cl*, *d* | 0.507 | 0.507 | 0.534 | 0.614 | 0.564 | 0.588 | 0.602 | 0.571 | 0.561 |
+| *I will*, *l will* | 0.090 | 0.009 | 0.138 | 0.241 | 0.041 | 0.210 | 0.221 | 0.156 | 0.258 |
+| *hill*, *hiII* | 0.405 | 0.089 | 0.424 | 0.560 | 0.138 | 0.520 | 0.527 | 0.097 | 0.517 |
 
-| Pair, frame size 20/400 | Atkinson | Bricolage | Schibsted |
-|---|---|---|---|
-| *I will*, *l will* | 0.241 | 0.041 | 0.210 |
-| *hill*, *hiII* | 0.617 | 0.138 | 0.579 |
-| *skill*, *skiIl* | 0.413 | 0.055 | 0.384 |
-| *i*, *l* | 0.375 | 0.121 | 0.334 |
-| *learn*, *leam* | 0.223 | 0.236 | 0.246 |
-| *clean*, *dean* | 0.295 | 0.283 | 0.318 |
+A is Atkinson, B Bricolage, S Schibsted. Scores at the small sizes move
+with the pixel grid: Schibsted's *I*, *l* reads 0.283 at 20, 0.395 at 17
+and 0.363 at 16. A gap under about 0.1 there is not a finding.
 
 - **Bricolage fails the game's own job.** Its capital *I* and lowercase
-  *l* are the same bare stem, so *I will* and *l will* are the same
-  picture at 0.009. A player learning to read English cannot be given
-  that word in that face.
-- **Schibsted is not the compromise it looks like.** Its capital *I*
-  carries serifs, as Atkinson's does. At word size it beats Atkinson on
-  eight of the nine pairs, among them *learn* and *earn*, where
-  Atkinson's *rn* nearly closes into *m*. Its one loss is *i* against
-  *l*, whose round dot still sets them apart. At frame size the two stay
-  within 0.04 of each other, Atkinson a little ahead on the *I* and *l*
-  pairs. At 16 px only *skill* opens wider, 0.443 against 0.368.
-- **So no third face is needed for the English word.** Atkinson would
-  buy a small lead at running sizes, where the word is never set, and
-  lose at the size where it is. ADR 035's *one highly legible
-  sans-serif family set for long reading* stands as written.
-- **Schibsted's zero has no slash**, so the stock figures lose Atkinson's
-  noise. No frame or lemma holds a digit, so *l* against *1* never meets
-  a learner inside a word. Its digits are tabular under
+  *l* are one bare stem, under 0.06 at all three sizes. A player learning
+  to read English cannot be given those letters in that face.
+- **Schibsted leads at word size**, on six of the nine pairs, among them
+  *I*, *l* and *rn*, *m*. Atkinson leads on *i*, *l*, on *l*, *1* and on
+  *O*, *0*. Its capital *I* carries serifs, as Atkinson's does.
+- **Schibsted loses at the reading size.** At 20/400, where `reading` sets
+  the frames and each frame writes its word, Atkinson leads on seven of
+  the nine pairs and on every *I*, *l* and *1* pair, by 0.04 to 0.10.
+  Schibsted leads on *rn*, *m* by 0.09 and on *O*, *0*. At 16/400 the two
+  split evenly.
+- **Schibsted stays, for the learner.** At the reading size it never
+  collapses: its lowest score is 0.21, where Bricolage's is 0.04. A frame
+  repeats the word on the card above it, so a second face would give a
+  learner two shapes for one word on one card, and that shape is what they
+  are learning. One family is also what ADR 035 asks for. The price is a
+  small loss on *I*, *l* and *1* in frames, and it is recorded here rather
+  than argued away. If the device check or a player shows frames misread,
+  `reading` alone moves to Atkinson: one style and one font file, no screen.
+- **Digits.** Atkinson leads on *l*, *1* at word and reading size, and
+  neither leads at 16. No frame or lemma holds a digit. Schibsted's zero
+  has no slash, so the stock figures lose Atkinson's noise, and it still
+  separates *O*, *0* better at small sizes. Its digits are tabular under
   `font-variant-numeric: tabular-nums`, measured, and it covers every
   Spanish letter the scaffold needs.
-- **It costs less.** Nothing uses italics in either client, so Android
-  ships one 176 KB variable file in place of Atkinson's two of 115 and 124
-  KB. Bricolage would have added 408 KB. Both Google Fonts files are under
-  the SIL OFL.
+- **The cost differs by client.** Nothing uses italics, so Android ships
+  one 176 KB variable file in place of Atkinson's two of 115 and 124 KB,
+  where Bricolage would have added 408 KB. The web pays a little more: the
+  latin file is 46.9 KB against 37.6 KB for Atkinson's roman. Both Google
+  Fonts files are under the SIL OFL.
 
 This is a measure of shapes, not a study of readers, and it ran on
 Chromium's text rendering. The Android row of the first ticket checks the
@@ -397,6 +413,7 @@ ADR's.
 
 **A closed tab shows nothing.** The comparison needs a read to compare, so
 it plays while the app stays open: after a re-read at
+`work.slot.finishesAt`, which plays a level finish, at
 `lessonSlot.finishesAt` or `nextDueAt`, or on regaining focus, as
 `useTown` already reads. A fresh load shows the final state, and the
 Report's news says what finished. No client stores the last seen state,
@@ -419,7 +436,7 @@ The Compose and React components stay each client's own, as
 | | Web | Android |
 |---|---|---|
 | Color | `tokens.ts`, 20 tokens, its test pairs | generated `MyGameColors`, 20 fields |
-| Type | Google Fonts link in `__root.tsx`, `typeFamilies.sans` | generated `MyGameTypography`; one TTF in `res/font` and its OFL in `assets`; the two Atkinson files go |
+| Type | Google Fonts link in `__root.tsx` as `Schibsted+Grotesk:wght@400..800`, no `ital`; `typeFamilies.sans` | generated `MyGameTypography`; one TTF in `res/font` and its OFL in `assets`; the two Atkinson files go |
 | `meta` | CSS `text-transform` | uppercased when drawn, the original string kept for TalkBack |
 | Navigation | `AppShell` loses the bar and the sign-out | `MyGameNavigationBar` leaves the town |
 | Art | inline SVG | 77 generated drawables; `PlaceArt.kt` indexes by level |
@@ -436,10 +453,11 @@ The Compose and React components stay each client's own, as
   reads, ADR 038's chrome is taught as words, and *4 words* would mix two
   faces on one line. At 800 the two are close enough that this buys 408 KB
   and a rule to police for little that a player would see.
-- **Keep Atkinson for the English word.** The owner's question, and the
-  safe-looking answer. It measures no better than Schibsted at word size
-  and worse on *learn*, and adds a third family to a look that is about
-  having fewer things.
+- **Keep Atkinson for the frames, or for the English word.** The owner's
+  question, and the safe-looking answer. Atkinson leads at the reading
+  size, and that is the real case for it. It is refused because a frame
+  repeats its word: two faces would give one word two shapes on one card.
+  It stays the named fallback for `reading`.
 - **A shipped dark default.** The first brief asked for it. Hello is light
   and outranks it, and both clients already follow the system.
 - **Keep the color illustrations and restyle around them.** The cheapest
@@ -464,6 +482,9 @@ The Compose and React components stay each client's own, as
   of the seven word cards. The files stay in git. Only 7 words ever had
   art, and they keep a silhouette, so learning loses little.
 - The Hello look replaces the signed Townword Design System of #720.
+- Atkinson leaves, a face chosen for legibility that leads Schibsted at
+  the reading size on *I*, *l* and *1*. The owner saw the question raised,
+  not this table. *The type* says what would bring it back for `reading`.
 
 **What stands, verified.** PRD N7 needs no change: a silhouette is
 hand-written SVG, the file is its source, and it complies with the bible.
@@ -490,10 +511,23 @@ holds every rule this look obeys. No new term enters `CONTEXT.md`, since
 **The order.** The first ticket changes most of what the player sees, so
 it goes first, ahead of every open town screen ticket: #774, #776, #779,
 #780, #783, #784, #787, #788, #791, #792 and #840 to #849. They draw on
-these tokens, by ADR 040's rule that no town screen is drawn twice.
+these tokens, by ADR 040's rule that no town screen is drawn twice. One
+exception: #859 merges first, on the current tokens, and the tokens ticket
+moves its `bg-badge`, its `bg-right-soft` and the tab bar's due count.
+
+The look goes first on the screens too. Items 4 to 6 below land before
+#841, #842, #843, #846 and #847, so the remaining ADR 042 screens are
+built once, in the new look.
 It does not wait on #751. Those medieval files take each dropped token's
 successor from the table above, a value change in code that is going, and
 no token survives for them. That is no shim: nothing bridges old and new.
+
+It does not wait on the art either. `artPalette.ts` builds the allowed
+fills from `scene-*` and the accents, and `artFramingOf.ts` reads scene
+colors, so dropping the tokens alone would fail all 38 SVGs. Item 1 moves
+those hex values into `artPalette.ts` and `artFramingOf.ts` as the old
+art's own constants, used by no screen, and item 3 deletes them with the
+files they check.
 
 **What the tickets must close.** This list is the scope, and it holds no
 ticket:
@@ -502,6 +536,7 @@ ticket:
    `tailwindTheme.ts`, the font link, `tokens.test.ts` with every pair
    above and the three exemptions, every use of a dropped token moved. The
    `ledge` shadow removed from its 12 files, the accents from their 9.
+   The old art's colors kept in `artPalette.ts` and `artFramingOf.ts`.
 2. **The token generator and the Android values.** `tokens` writes
    `core:designsystem`, its drift test in the web suite, the bundled TTF
    and OFL, every read of a dropped color moved, in about 17 Kotlin
@@ -513,8 +548,9 @@ ticket:
    35 place and 3 waste files and their drawables deleted; `placeArtOf`
    and `wordArtOf` rewritten; the art bible and catalog rewritten so their
    amendment notes go.
-4. **The web's shell.** The doors, the back link, the header, the thin
-   mail line, sign-out on the Report.
+4. **The web's shell.** The doors, the back link and every text link at
+   `control` height, the header, the thin mail line, sign-out on the
+   Report, the due count from the tab bar to the door.
 5. **The web's screens.** The town home, the school, the words, the
    review, the Report, each with one ink pill and a test that says so.
 6. **Android's shell and screens**, the same rows, with `MyGameNavigationBar`
@@ -527,8 +563,20 @@ ticket:
 9. **The notes and the open tickets.** `apps/web/CLAUDE.md` and
    `apps/android/CLAUDE.md` for each change above, including the Android
    note *Labels are sentence case, never `uppercase()`*, which `meta` ends.
-   #753's PRD rewrite keeps S4's amendment. #774, #776, #783 and #784 lose
-   their *joins the navigation* criteria and gain the row.
+   #753's PRD rewrite keeps S4's amendment. The open tickets' criteria
+   that this look contradicts change:
+   - #774, #776, #783, #784: *joins the navigation* becomes the row.
+   - #841: *the card holds the one strong button* becomes the pill under
+     the block.
+   - #842: *the lesson slot and the learning load after the other lessons*
+     becomes this ADR's order, under the next lesson.
+   - #844: its check that the navigation fits at 320 px with *Salir* ends
+     with the bar, which item 4 removes.
+   - #845: *shows the due count on Report* reads the door, and
+     `SignedInFrame` loses the bar.
+   - #787, #788: *draws each waste site with its image* reads the
+     silhouette, and these tickets hand-write the three `waste/` files that
+     item 3 deletes, with their drawables.
 
 ## References
 
