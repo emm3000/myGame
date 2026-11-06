@@ -146,15 +146,19 @@ class AppNavigationTest {
     )
 
     private fun signedInAtTown(fiefs: List<ListedFief> = emptyList(), town: TownSnapshot = townOf()) {
+        signedInReading(TownReadResult.Read(town), fiefs)
+        waitForLine(TOWN_HEADER)
+    }
+
+    private fun signedInReading(answer: TownReadResult, fiefs: List<ListedFief> = emptyList()) {
         sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("player@example.com")))
         listingsFake.answerListed(FiefListResult.Listed(fiefs))
-        repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(town)) }
+        repeat(READS_AVAILABLE) { townsFake.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(dependencies = dependencies)
             }
         }
-        waitForLine(TOWN_HEADER)
     }
 
     private fun waitForLine(line: String) {
@@ -308,7 +312,11 @@ class AppNavigationTest {
         waitForLine("Ahora no hay ninguna lección en estudio.")
         assertLinksBackToTheTown()
 
-        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
+        val reportWithReviews: TownReport = TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList())
+        openReport(reportWithReviews)
+        assertLinksBackToTheTown()
+
+        openReport(reportWithReviews)
         learningFake.answerRead(noReviews)
         composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
         waitForLine("Aún no tienes palabras que repasar.")
@@ -370,6 +378,32 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
 
         waitForLine("Entrar")
+    }
+
+    @Test
+    fun `signs out from the naming form`() {
+        signedInReading(TownReadResult.NoTown)
+        waitForLine("Ponle nombre a tu pueblo")
+        sessionsFake.answerSignOut()
+        sessionsFake.answerRestore(RestoreResult.SignedOut)
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+
+        waitForLine("Entrar")
+        assertEquals(1, sessionsFake.signOutCount)
+    }
+
+    @Test
+    fun `signs out from a failed town read`() {
+        signedInReading(TownReadResult.Unreachable)
+        waitForLine("Volver a intentarlo")
+        sessionsFake.answerSignOut()
+        sessionsFake.answerRestore(RestoreResult.SignedOut)
+
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+
+        waitForLine("Entrar")
+        assertEquals(1, sessionsFake.signOutCount)
     }
 
     private companion object {

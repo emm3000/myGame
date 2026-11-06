@@ -566,6 +566,7 @@
   "android.town.town_season_winter": "invierno",
   "android.town.town_short_mark": ", falta",
   "android.town.town_shortfall": "Necesitas {missing} más.",
+  "android.town.town_sign_out": "Salir",
   "android.town.town_skyline_built": "{built} de {total} construidos",
   "android.town.town_stock_of": "de {capacity}",
   "android.town.town_stocks": "En el almacén",

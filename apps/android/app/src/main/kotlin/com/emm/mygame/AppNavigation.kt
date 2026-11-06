@@ -98,9 +98,12 @@ private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependen
         SignedInFrame(isTownHome = true, navigator = navigator) {
             TownRoute(
                 towns = dependencies.towns,
+                sessions = dependencies.sessions,
                 clock = dependencies.clock,
                 onSchoolOpen = navigator::openSchool,
                 onReportOpen = navigator::openReport,
+                onSigningOut = navigator::signingOut,
+                onSignedOut = { navigator.signedOut(isSessionEnded = false) },
             )
         }
     }

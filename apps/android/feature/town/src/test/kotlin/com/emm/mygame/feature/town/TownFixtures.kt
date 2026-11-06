@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Duration
@@ -95,8 +96,9 @@ internal fun placeOf(viewModel: TownViewModel, kind: TownBuildingKind): TownUiSt
 internal fun TestScope.townViewModelOf(
     towns: FakeTownRepository,
     start: Instant,
+    sessions: FakeSessionRepository = FakeSessionRepository(),
 ): TownViewModel {
-    val viewModel: TownViewModel = TownViewModel(towns, TestClock(testScheduler, start))
+    val viewModel: TownViewModel = TownViewModel(towns, sessions, TestClock(testScheduler, start))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()

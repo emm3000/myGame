@@ -160,6 +160,7 @@
   "android.town.town_season_winter": "winter",
   "android.town.town_short_mark": ", you need more",
   "android.town.town_shortfall": "You need {missing} more.",
+  "android.town.town_sign_out": "Sign out",
   "android.town.town_skyline_built": "{built} of {total} built",
   "android.town.town_stock_of": "of {capacity}",
   "android.town.town_stocks": "In storage",
