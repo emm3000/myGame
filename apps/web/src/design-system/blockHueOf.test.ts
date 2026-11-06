@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { blockHueOf } from './blockClassOf'
+import { blockHueOf } from './blockHueOf'
 
 describe('blockHueOf', () => {
   it('changes the hue at each place of the run', () => {

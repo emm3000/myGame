@@ -8,7 +8,7 @@ import {
   schoolSkillRate,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
-import { type BlockHue, blockHueOf } from '../design-system/blockClassOf'
+import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 

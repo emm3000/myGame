@@ -1,4 +1,4 @@
-import { schoolLessonReadWords, schoolLessonStudying } from '@mygame/catalog'
+import { schoolLessonReadWords, schoolLessonStudying, schoolLessonTitle } from '@mygame/catalog'
 import { type ReactElement, type Ref, useId } from 'react'
 import { Block } from '../design-system/Block'
 import { ButtonLink } from '../design-system/ButtonLink'
@@ -8,7 +8,7 @@ import { blockFocusTargetClass } from '../design-system/focusTargetClass'
 import { formatDuration } from '../design-system/formatDuration'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
-import type { LessonCardContent } from './lessonCardOf'
+import { type LessonCardContent, lessonNumberOf } from './lessonCardOf'
 import type { SchoolLessons } from './useSchoolLessons'
 
 export interface ShownLessonProps {
@@ -17,6 +17,11 @@ export interface ShownLessonProps {
   readonly lessons: SchoolLessons
   readonly titleRef: Ref<HTMLHeadingElement>
 }
+
+const readWordsLabelOf = (lessonId: string, card: LessonCardContent, town: LiveTown): string =>
+  lessonId === card.lessonId
+    ? schoolLessonReadWords()
+    : `${schoolLessonTitle({ number: lessonNumberOf(lessonId, town.overview) })} · ${schoolLessonReadWords()}`
 
 export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps): ReactElement {
   const titleId = useId()
@@ -59,7 +64,7 @@ export function ShownLesson({ card, town, lessons, titleRef }: ShownLessonProps)
           params={{ lessonId: lessonSlot.lessonId }}
           tone="primary"
         >
-          {schoolLessonReadWords()}
+          {readWordsLabelOf(lessonSlot.lessonId, card, town)}
         </ButtonLink>
       )}
       {refused !== undefined && (
