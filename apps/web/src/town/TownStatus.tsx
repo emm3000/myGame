@@ -13,16 +13,14 @@ const finishLineOf = ({ overview }: LiveTown, lessonId: string): string =>
   shellLessonFinishLine({ number: lessonNumberOf(lessonId, overview) })
 
 function FinishNotice({
-  town,
   line,
+  readFirst,
   onClose,
 }: {
-  readonly town: LiveTown
   readonly line: string
+  readonly readFirst: ReadonlyArray<string>
   readonly onClose: () => void
 }): ReactElement {
-  const { nextStep } = town.overview
-  const readFirst = nextStep.kind === 'reviews' ? nextStep.readFirst : []
   return (
     <section
       aria-label={line}
@@ -30,7 +28,7 @@ function FinishNotice({
     >
       <p className="m-0 font-sans text-label text-ink">{line}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <NextStepLink action={reviewsActionOf(readFirst)} tone="primary" onFollow={onClose} />
+        <NextStepLink action={reviewsActionOf(readFirst)} tone="quiet" />
         <Button type="button" tone="quiet" onClick={onClose}>
           {shellLessonFinishClose()}
         </Button>
@@ -42,14 +40,19 @@ function FinishNotice({
 export interface TownStatusProps {
   readonly town: LiveTown | undefined
   readonly finish: LessonFinish
+  readonly onFocusAfterClose: () => void
 }
 
-export function TownStatus({ town, finish }: TownStatusProps): ReactElement {
+export function TownStatus({ town, finish, onFocusAfterClose }: TownStatusProps): ReactElement {
   const countdown = town === undefined ? undefined : lessonCountdownOf(town)
   const line =
     town === undefined || finish.lessonId === undefined
       ? undefined
       : finishLineOf(town, finish.lessonId)
+  const closeNotice = (): void => {
+    onFocusAfterClose()
+    finish.close()
+  }
   return (
     <>
       <LiveRegion line={line ?? ''} sequence={finish.sequence} />
@@ -58,8 +61,8 @@ export function TownStatus({ town, finish }: TownStatusProps): ReactElement {
           <CountdownLine {...countdown} />
         </div>
       )}
-      {town !== undefined && line !== undefined && (
-        <FinishNotice town={town} line={line} onClose={finish.close} />
+      {line !== undefined && finish.noticeReadFirst !== undefined && (
+        <FinishNotice line={line} readFirst={finish.noticeReadFirst} onClose={closeNotice} />
       )}
     </>
   )

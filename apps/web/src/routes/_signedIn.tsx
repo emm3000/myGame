@@ -1,5 +1,13 @@
-import { createFileRoute, Outlet, redirect, useNavigate, useParams } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useLocation,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router'
 import type { ReactElement } from 'react'
+import { useFocusTarget } from '../focus/useFocusTarget'
 import { HintsContext } from '../hints/HintsContext'
 import { useHints } from '../hints/useHints'
 import { AppShell } from '../shell/AppShell'
@@ -20,7 +28,9 @@ function SignedInLayout(): ReactElement {
   const hints = useHints(apiClient, player.seenHints)
   const town = useTown(apiClient)
   const liveTown = town.state.kind === 'live' ? town.state.town : undefined
-  const lessonFinish = useLessonFinish(liveTown?.overview)
+  const pathname = useLocation({ select: (location) => location.pathname })
+  const lessonFinish = useLessonFinish(liveTown?.overview, pathname)
+  const shellTitle = useFocusTarget<HTMLHeadingElement>()
 
   const signOut = async (): Promise<void> => {
     await apiClient.signOut()
@@ -36,7 +46,14 @@ function SignedInLayout(): ReactElement {
           fiefs={fiefs}
           verification={verification}
           dueCount={dueCountOf(liveTown)}
-          townStatus={<TownStatus town={liveTown} finish={lessonFinish} />}
+          titleRef={shellTitle.ref}
+          townStatus={
+            <TownStatus
+              town={liveTown}
+              finish={lessonFinish}
+              onFocusAfterClose={shellTitle.focus}
+            />
+          }
           onSignOut={signOut}
         >
           <Outlet />
