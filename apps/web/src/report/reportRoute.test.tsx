@@ -248,7 +248,7 @@ it('opens the reviews from the Report', async () => {
   fireEvent.click(screen.getByRole('link', { name: reportStartReviews() }))
   await passSeconds(0)
 
-  expect(screen.getByRole('heading', { level: 2, name: reviewTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: reviewTitle() })).toBeDefined()
   expect(screen.getByText('home')).toBeDefined()
 })
 
@@ -436,4 +436,78 @@ it('groups the thousands of the reviews due', async () => {
   await showReport(reportOf({ dueCount: 1200, due: [homeRecognition] }))
 
   expect(within(reportRegion()).getByText('Repasos pendientes: 1 200')).toBeDefined()
+})
+
+const inkPills = (): ReadonlyArray<Element> => [
+  ...document.querySelectorAll('[data-tone="primary"]'),
+]
+
+const dueBlock = (count: number): HTMLElement =>
+  screen.getByRole('region', { name: reportReviewsDue({ count }) })
+
+it("keeps the Report's block periwinkle", async () => {
+  await showReport(reviewsDue)
+
+  expect(dueBlock(3).dataset.hue).toBe('periwinkle')
+})
+
+it('sets the pill under the block, on paper', async () => {
+  await showReport(reviewsDue)
+
+  const pill = screen.getByRole('link', { name: reportStartReviews() })
+
+  expect(dueBlock(3).contains(pill)).toBe(false)
+  expect(dueBlock(3).compareDocumentPosition(pill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(pill.getAttribute('href')).toBe('/reviews')
+})
+
+it('holds one ink pill with reviews due and news to close', async () => {
+  await showReport(reportOf({ dueCount: 3, due: [homeRecognition], news: [homesFinished] }))
+
+  expect(inkPills().map((pill) => pill.textContent)).toEqual([reportStartReviews()])
+})
+
+it('holds no pill with nothing due', async () => {
+  await showReport(newsSinceClose)
+
+  expect(screen.getByRole('button', { name: reportNewsClose() })).toBeDefined()
+  expect(inkPills()).toHaveLength(0)
+})
+
+it('draws no block with nothing due', async () => {
+  await showReport(newsSinceClose)
+
+  expect(document.querySelector('[data-hue]')).toBeNull()
+})
+
+it('draws the news as hairline rows off any card', async () => {
+  await showReport(newsSinceClose)
+
+  const [first, second] = within(newsRegion()).getAllByRole('listitem')
+
+  expect(second?.className.split(' ')).toContain('border-t')
+  expect(first?.className.split(' ')).toContain('border-t')
+  expect(newsRegion().className).not.toContain('bg-surface-raised')
+})
+
+it.each<[string, Report]>([
+  ['reviews due', reviewsDue],
+  ['none due', newsSinceClose],
+  ['no news', reportOf({})],
+])('holds one h1 on the Report with %s', async (_state, report) => {
+  await showReport(report)
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    reportTitle(),
+  ])
+})
+
+it('holds one h1 on the Report with a failed read', async () => {
+  await showReport(reportOf({}), {
+    report: async () => ({ ok: false, refusal: 'Unexpected' }),
+  })
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    reportTitle(),
+  ])
 })

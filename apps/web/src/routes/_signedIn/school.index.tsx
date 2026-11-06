@@ -7,7 +7,7 @@ import { SchoolScreen } from '../../school/SchoolScreen'
 import { SchoolTitled } from '../../school/SchoolTitled'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
 import type { LiveTown } from '../../town/liveTown'
-import { TownReadFailed } from '../../town/TownReadStatus'
+import { TownReadFailed } from '../../town/TownReadFailed'
 import { useLayoutTown } from '../../town/useLayoutTown'
 import type { TownHandle } from '../../town/useTown'
 

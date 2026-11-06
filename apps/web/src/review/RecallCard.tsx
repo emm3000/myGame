@@ -11,6 +11,7 @@ import { Button } from '../design-system/Button'
 import { TextField } from '../design-system/TextField'
 import { CheckAction } from './CheckAction'
 import { RatedVerdictLines } from './RatedVerdictLines'
+import { ReviewBlock } from './ReviewBlock'
 import type { ReviewHandle } from './useReview'
 
 type Recall = Extract<DueReview, { readonly mode: 'recall' }>
@@ -54,7 +55,7 @@ function PendingAnswer({ review }: { readonly review: ReviewHandle }): ReactElem
           {reviewNearMiss()}
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-3">
         <CheckAction isWaiting={review.isWaiting} isReady={review.typed !== ''} />
         <HintLine review={review} />
       </div>
@@ -69,14 +70,9 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
   }
   return (
     <>
-      <h3 lang="es" className="m-0 font-sans text-display text-ink">
-        {card.gloss}
-      </h3>
-      <p lang="en" className="m-0 font-sans text-body text-ink">
-        {card.gappedFrame}
-      </p>
+      <ReviewBlock cue={card.gloss} cueLang="es" frame={card.gappedFrame} walked={review.walked} />
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <p className="m-0 font-sans text-label text-ink-muted">{reviewRecallPrompt()}</p>
+        <p className="m-0 font-sans text-caption text-ink-muted">{reviewRecallPrompt()}</p>
         <TextField
           label={reviewAnswerField()}
           name="answer"

@@ -34,6 +34,7 @@ const freshSession: Session = {
 export interface ReviewHandle {
   readonly card: DueReview | undefined
   readonly dueCount: number
+  readonly walked: number
   readonly typed: string
   readonly choice: Choice | undefined
   readonly hint: ReviewHint | undefined
@@ -69,6 +70,7 @@ export function useReview(
   reread: () => Promise<void>,
 ): ReviewHandle {
   const [session, setSession] = useState<Session>(freshSession)
+  const [walked, setWalked] = useState(0)
   const [isWaiting, setIsWaiting] = useState(false)
   const [refusal, setRefusal] = useState<ApiRefusal>()
   const isInFlight = useRef(false)
@@ -133,6 +135,7 @@ export function useReview(
   return {
     card,
     dueCount: session.dueCount ?? due.length,
+    walked,
     typed: session.typed,
     choice: session.choice,
     hint: session.hint,
@@ -146,6 +149,7 @@ export function useReview(
     check,
     next: () => {
       setSession(freshSession)
+      setWalked((count) => count + 1)
       setRefusal(undefined)
     },
   }

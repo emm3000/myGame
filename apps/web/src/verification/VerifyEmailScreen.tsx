@@ -33,11 +33,9 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
           <p role="status" className="m-0 font-sans text-body text-ink">
             {verificationVerifyVerified()}
           </p>
-          <span className="flex">
-            <ButtonLink to="/" tone="primary">
-              {verificationVerifyToFief()}
-            </ButtonLink>
-          </span>
+          <ButtonLink to="/" tone="primary">
+            {verificationVerifyToFief()}
+          </ButtonLink>
         </AuthPanel>
       )
     case 'refused':

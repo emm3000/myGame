@@ -71,11 +71,9 @@ export function ResetPasswordScreen({ state, onSubmit }: ResetPasswordScreenProp
       return (
         <AuthPanel title={passwordResetNewPasswordTitle()}>
           <ConfirmationLine line={passwordResetNewPasswordChanged()} />
-          <span className="flex">
-            <ButtonLink to="/sign-in" tone="primary">
-              {authSignInTitle()}
-            </ButtonLink>
-          </span>
+          <ButtonLink to="/sign-in" tone="primary">
+            {authSignInTitle()}
+          </ButtonLink>
         </AuthPanel>
       )
     case 'linkRefused':

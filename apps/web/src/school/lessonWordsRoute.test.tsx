@@ -334,7 +334,7 @@ it('walks every unread lesson in curriculum order and then the reviews', async (
   expect(startReviews().getAttribute('href')).toBe('/reviews')
   expect(screen.queryByRole('link', { name: schoolLessonNext() })).toBeNull()
   await follow(startReviews())
-  expect(screen.getByRole('heading', { level: 2, name: reviewTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 1, name: reviewTitle() })).toBeDefined()
 })
 
 it('starts each lesson of the walk at its first word', async () => {

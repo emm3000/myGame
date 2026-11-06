@@ -85,7 +85,7 @@ it('opens the school and the Report from the two doors', async () => {
 
   await act(() => router.navigate({ to: '/' }))
   fireEvent.click(await reportDoor(shellNavigationReport()))
-  expect(await screen.findByRole('heading', { level: 2, name: reportTitle() })).toBeDefined()
+  expect(await screen.findByRole('heading', { level: 1, name: reportTitle() })).toBeDefined()
 })
 
 it('shows the due count on the Report door', async () => {
