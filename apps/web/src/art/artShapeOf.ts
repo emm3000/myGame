@@ -33,16 +33,7 @@ export function artShapeOf(tag: ArtTag): ArtShape {
         kind: 'oval',
         centerX: numberOf(tag, 'cx'),
         centerY: numberOf(tag, 'cy'),
-        radiusX: numberOf(tag, 'r'),
-        radiusY: numberOf(tag, 'r'),
-      }
-    case 'ellipse':
-      return {
-        kind: 'oval',
-        centerX: numberOf(tag, 'cx'),
-        centerY: numberOf(tag, 'cy'),
-        radiusX: numberOf(tag, 'rx'),
-        radiusY: numberOf(tag, 'ry'),
+        radius: numberOf(tag, 'r'),
       }
     default:
       return { kind: 'polygon', points: pointsOf(tag) }

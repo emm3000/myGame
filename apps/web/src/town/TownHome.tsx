@@ -24,6 +24,8 @@ import { BuildingCard } from '../design-system/BuildingCard'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
 import { FormAlert } from '../design-system/FormAlert'
+import { PlaceArt } from '../design-system/PlaceArt'
+import { placeArtOf } from '../design-system/placeArtOf'
 import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -129,7 +131,7 @@ function PlaceItem({
     <li aria-label={placeNameOf(place)} className="flex flex-col gap-2">
       <BuildingCard
         {...placeCardOf(place, town)}
-        artShape="square"
+        art={<PlaceArt shapes={placeArtOf(place, town.overview.buildings[place].level)} />}
         actionTone="quiet"
         titleElement="h4"
         isWaiting={work.isStarting}

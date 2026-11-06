@@ -15,6 +15,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { palette } from '../design/tokens'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 
 beforeEach(() => {
@@ -113,21 +114,22 @@ it('shows the people free and at work', async () => {
   expect(screen.getByText('Gente: 24 libres, 96 trabajando')).toBeDefined()
 })
 
-it('draws each place with the image of its tier, a place not built with its first', async () => {
+it('draws each place with one window per level, a place not built with none', async () => {
   const grown: TownOverview = {
     ...knownTown,
     buildings: { ...knownTown.buildings, homes: { level: 4, nextLevel: null } },
   }
   await showTown(serving(grown))
 
-  const imageOf = (place: string): HTMLImageElement | null =>
-    screen.getByRole('listitem', { name: place }).querySelector('img')
-  expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(7)
-  expect(imageOf(namesPlacesHomes())?.getAttribute('src')).toBe('/art/places/homes-2.svg')
-  expect(imageOf(namesPlacesFarm())?.getAttribute('src')).toBe('/art/places/farm-1.svg')
-  expect(imageOf(namesPlacesPowerStation())?.getAttribute('src')).toBe(
-    '/art/places/powerStation-1.svg',
+  const windowsOf = (place: string): number =>
+    screen
+      .getByRole('listitem', { name: place })
+      .querySelectorAll(`svg [fill="${palette['on-block'].light}"]`).length
+  const builtLevels = [namesPlacesHomes(), namesPlacesFarm(), namesPlacesPowerStation()].map(
+    windowsOf,
   )
+  expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(7)
+  expect(builtLevels).toEqual([4, 0, 0])
 })
 
 it('labels the town a city once the server does', async () => {

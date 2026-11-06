@@ -1,5 +1,6 @@
-import type { BuildingKind, TownOverview } from '@mygame/contracts/town'
-import { placeArtOf } from '../design-system/placeArtOf'
+import type { BuildingKind } from '@mygame/contracts/town'
+import type { ArtTag } from '../art/ArtTag'
+import { placeSilhouetteOf } from '../design-system/placeArtOf'
 
 const placesByWord: ReadonlyMap<string, BuildingKind> = new Map([
   ['home', 'homes'],
@@ -11,7 +12,7 @@ const placesByWord: ReadonlyMap<string, BuildingKind> = new Map([
   ['office', 'office'],
 ])
 
-export function wordArtOf(word: string, buildings: TownOverview['buildings']): string | undefined {
+export function wordArtOf(word: string): ReadonlyArray<ArtTag> | undefined {
   const place = placesByWord.get(word)
-  return place === undefined ? undefined : placeArtOf(place, Math.max(1, buildings[place].level))
+  return place === undefined ? undefined : placeSilhouetteOf(place, 'on-block')
 }

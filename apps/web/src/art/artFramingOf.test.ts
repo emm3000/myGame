@@ -1,50 +1,62 @@
 import { describe, expect, it } from 'vitest'
-import { artFramingOf, sceneShapeCount } from './artFramingOf'
+import { artFramingOf } from './artFramingOf'
 
-const sky = '#cdeaf7'
-const brick = '#e0674a'
+const peach = '#f5c9a8'
+const onBlock = '#15141a'
 
-const sceneOf = (): string =>
-  Array.from(
-    { length: sceneShapeCount },
-    () => `<rect x="0" y="0" width="200" height="200" fill="${sky}"/>`,
-  ).join('')
+const windowAt = (x: number, y: number): string =>
+  `<rect x="${x}" y="${y}" width="7" height="9" fill="${onBlock}"/>`
 
-const drawingOf = (subject: string): string =>
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">${sceneOf()}${subject}</svg>`
+const windowsOnWall = Array.from({ length: 10 }, (_, index) => windowAt(10 + index * 8, 60)).join(
+  '',
+)
+
+const drawingOf = (silhouette: string, windows = windowsOnWall): string =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 142">${silhouette}${windows}</svg>`
+
+const wall = `<rect x="0" y="71" width="100" height="71" fill="${peach}"/>`
 
 describe('artFramingOf', () => {
-  it('measures the subject alone, leaving the scene out', () => {
+  it('measures the silhouette alone, leaving its windows out', () => {
     const framing = artFramingOf(
-      drawingOf(`<rect x="50" y="20" width="100" height="160" fill="${brick}"/>`),
+      drawingOf(`<rect x="25" y="71" width="50" height="69" fill="${peach}"/>`, windowsOnWall),
     )
 
-    expect([framing.widthShare, framing.heightShare]).toEqual([0.5, 0.8])
+    expect([framing.widthShare, framing.heightShare]).toEqual([0.5, 69 / 142])
   })
 
-  it('places the subject by the center of everything it draws', () => {
+  it('reads the base line of the silhouette', () => {
     const framing = artFramingOf(
       drawingOf(
-        `<circle cx="40" cy="100" r="20" fill="${brick}"/><polygon points="140,60 180,140 140,140" fill="${brick}"/>`,
+        `<circle cx="20" cy="100" r="20" fill="${peach}"/><polygon points="60,60 90,140 60,140" fill="${peach}"/>`,
       ),
     )
 
-    expect([framing.centerXShare, framing.centerYShare]).toEqual([0.5, 0.5])
+    expect(framing.baseLine).toBe(140)
   })
 
-  it('counts the share of the frame the subject covers', () => {
-    const framing = artFramingOf(
-      drawingOf(`<rect x="0" y="100" width="200" height="100" fill="${brick}"/>`),
-    )
-
-    expect(framing.coverageShare).toBe(0.5)
+  it('counts the share of the frame the silhouette covers', () => {
+    expect(artFramingOf(drawingOf(wall)).coverageShare).toBeCloseTo(0.5, 1)
   })
 
   it('counts an overlap once', () => {
-    const overlapping = drawingOf(
-      `<rect x="0" y="100" width="200" height="100" fill="${brick}"/><rect x="0" y="150" width="200" height="50" fill="${brick}"/>`,
-    )
+    const overlapping = `${wall}<rect x="0" y="100" width="100" height="42" fill="${peach}"/>`
 
-    expect(artFramingOf(overlapping).coverageShare).toBe(0.5)
+    expect(artFramingOf(drawingOf(overlapping)).coverageShare).toBeCloseTo(0.5, 1)
+  })
+
+  it('counts no window off the silhouette when all ten sit on it', () => {
+    const tallWall = `<rect x="0" y="40" width="100" height="100" fill="${peach}"/>`
+
+    expect(artFramingOf(drawingOf(tallWall)).windowsOffSilhouette).toBe(0)
+  })
+
+  it('counts a window that leaves the silhouette, which on-block would lose in dark', () => {
+    const tallWall = `<rect x="0" y="40" width="100" height="100" fill="${peach}"/>`
+    const oneOff = Array.from({ length: 9 }, (_, index) => windowAt(10 + index * 8, 60)).join('')
+
+    expect(
+      artFramingOf(drawingOf(tallWall, `${oneOff}${windowAt(50, 36)}`)).windowsOffSilhouette,
+    ).toBe(1)
   })
 })

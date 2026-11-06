@@ -11,10 +11,11 @@ import {
 import { type ReactElement, useState } from 'react'
 import { Button } from '../design-system/Button'
 import { ButtonLink } from '../design-system/ButtonLink'
-import { CardArt } from '../design-system/CardArt'
+import { blockClassOf } from '../design-system/blockClassOf'
 import { Countdown } from '../design-system/Countdown'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { Panel } from '../design-system/Panel'
+import { PlaceArt } from '../design-system/PlaceArt'
 import { TextLink } from '../design-system/TextLink'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -80,7 +81,11 @@ function WordCard({
       <p className="m-0 font-sans text-label text-ink-muted tabular-nums">
         {schoolLessonWordPosition({ number, count })}
       </p>
-      {word.art !== undefined && <CardArt src={word.art} shape="square" />}
+      {word.art !== undefined && (
+        <div className={`rounded-lg p-3 ${blockClassOf(number - 1)}`}>
+          <PlaceArt shapes={word.art} />
+        </div>
+      )}
       <h3
         ref={headingRef}
         tabIndex={-1}

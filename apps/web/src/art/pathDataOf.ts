@@ -45,9 +45,12 @@ function rectOf(tag: ArtTag): string {
   return `M${written(x)} ${written(y)}h${written(width)}v${written(height)}h-${written(width)}z`
 }
 
-function ovalOf(cx: number, cy: number, rx: number, ry: number): string {
-  const radii = `${written(rx)} ${written(ry)}`
-  return `M${written(cx - rx)} ${written(cy)}a${radii} 0 1 0 ${written(2 * rx)} 0a${radii} 0 1 0 -${written(2 * rx)} 0z`
+function circleOf(tag: ArtTag): string {
+  const cx = numberOf(tag, 'cx')
+  const cy = numberOf(tag, 'cy')
+  const r = numberOf(tag, 'r')
+  const radii = `${written(r)} ${written(r)}`
+  return `M${written(cx - r)} ${written(cy)}a${radii} 0 1 0 ${written(2 * r)} 0a${radii} 0 1 0 -${written(2 * r)} 0z`
 }
 
 function polygonOf(tag: ArtTag): string {
@@ -60,19 +63,7 @@ export function pathDataOf(tag: ArtTag): string {
     case 'rect':
       return rectOf(tag)
     case 'circle':
-      return ovalOf(
-        numberOf(tag, 'cx'),
-        numberOf(tag, 'cy'),
-        numberOf(tag, 'r'),
-        numberOf(tag, 'r'),
-      )
-    case 'ellipse':
-      return ovalOf(
-        numberOf(tag, 'cx'),
-        numberOf(tag, 'cy'),
-        numberOf(tag, 'rx'),
-        numberOf(tag, 'ry'),
-      )
+      return circleOf(tag)
     default:
       return polygonOf(tag)
   }

@@ -57,7 +57,7 @@ private fun PlaceItem(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
                 modifier = Modifier.padding(vertical = MyGameSpacing.step3),
             ) {
-                placeArtOf(place.kind, place.level)?.let { art: Int -> MyGamePlaceArt(art = art) }
+                MyGamePlaceArt(art = placeArtOf(place.kind, place.level))
                 MyGameText(
                     text = stringResource(placeNameOf(place.kind)),
                     style = MyGameTypography.heading,
