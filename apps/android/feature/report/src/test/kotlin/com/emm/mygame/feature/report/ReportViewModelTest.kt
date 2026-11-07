@@ -7,8 +7,10 @@ import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -546,5 +548,62 @@ class ReportViewModelTest {
         runCurrent()
 
         assertEquals(1, reports.readCount)
+    }
+
+    @Test
+    fun `carries the next review's instant to the screen`() = runTest {
+        val viewModel: ReportViewModel = reportReading(reportOf(nextDueAt = readInstant + 5.minutes))
+
+        assertEquals(readInstant + 5.minutes, contentOf(viewModel).nextReview)
+    }
+
+    @Test
+    fun `reads the Report at nextDueAt with no review due`() = runTest {
+        reportReading(reportOf(nextDueAt = readInstant + 5.minutes))
+        reports.answerRead(ReportReadResult.Read(reportOf(dueCount = 2)))
+
+        advanceTimeBy(5.minutes)
+        runCurrent()
+
+        assertEquals(2, reports.readCount)
+    }
+
+    @Test
+    fun `reads nothing at nextDueAt while reviews are due`() = runTest {
+        reportReading(reportOf(dueCount = 1, nextDueAt = readInstant + 5.minutes))
+
+        advanceTimeBy(1.hours)
+        runCurrent()
+
+        assertEquals(1, reports.readCount)
+    }
+
+    @Test
+    fun `re-reads once at nextDueAt when the device clock runs ahead`() = runTest {
+        val dueAt: Instant = readInstant + 5.minutes
+        val stillAhead: ReportReadResult = ReportReadResult.Read(reportOf(nextDueAt = dueAt))
+        repeat(times = 5) { reports.answerRead(stillAhead) }
+        reportViewModelOf(reports, start = readInstant + 2.minutes)
+        runCurrent()
+
+        advanceTimeBy(1.hours)
+        runCurrent()
+
+        assertEquals(2, reports.readCount)
+    }
+
+    @Test
+    fun `waits for nextDueAt no longer while the screen is hidden`() = runTest {
+        val viewModel: ReportViewModel = reportReading(reportOf(nextDueAt = readInstant + 5.minutes))
+
+        viewModel.onIntent(ReportIntent.ScreenHidden)
+        advanceTimeBy(1.hours)
+        runCurrent()
+
+        assertEquals(1, reports.readCount)
+    }
+
+    private companion object {
+        const val READS_AVAILABLE: Int = 5
     }
 }

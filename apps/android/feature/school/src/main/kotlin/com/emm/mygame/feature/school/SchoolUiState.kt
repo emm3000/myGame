@@ -1,9 +1,11 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 sealed interface SchoolUiState {
 
@@ -17,6 +19,8 @@ sealed interface SchoolUiState {
         val slot: SlotLine,
         val skills: List<SkillLine>,
         val lessons: List<LessonCard>,
+        val nextStep: NextStepCard,
+        val nextStepTime: NextStepTime?,
         val start: LessonRequest,
         val stop: LessonRequest,
         val selected: LessonId? = null,
@@ -32,6 +36,8 @@ sealed interface SchoolUiState {
                     ?: unstudied.firstOrNull()
             }
     }
+
+    data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
 
     data class LearningLine(val inLearning: Int, val cap: Int, val wordsPastCap: Int?)
 

@@ -23,6 +23,9 @@
     <string name="report_news_pay">Pago: {amounts}</string>
     <string name="report_news_skill_earned" formatted="false">Ganaste una habilidad de {resource}: +{percent} % de {resource}.</string>
     <string name="report_news_title">Noticias del pueblo</string>
+    <string name="report_next_review">Siguiente repaso:</string>
+    <string name="report_next_review_day">{day} {time}</string>
+    <string name="report_next_review_tomorrow">mañana {time}</string>
     <string name="report_no_reviews_due">No tienes repasos pendientes ahora.</string>
     <string name="report_place_factory">Fábrica</string>
     <string name="report_place_farm">Granja</string>

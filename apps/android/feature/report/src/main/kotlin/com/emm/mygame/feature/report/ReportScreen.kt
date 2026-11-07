@@ -22,6 +22,8 @@ import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
+import com.emm.mygame.core.designsystem.MyGameCountdownGround
+import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
@@ -103,7 +105,7 @@ private fun ReviewsDueSection(
     val dueCount: Int = content.dueCount
     val firstUnread: LessonId? = content.firstUnread
     if (dueCount == 0) {
-        NothingDue(modifier = modifier)
+        NothingDue(nextReview = content.nextReview, receivedAt = content.receivedAt, modifier = modifier)
         return
     }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
@@ -127,14 +129,26 @@ private fun ReviewsDueSection(
 }
 
 @Composable
-private fun NothingDue(modifier: Modifier = Modifier) {
+private fun NothingDue(nextReview: Instant?, receivedAt: Instant, modifier: Modifier = Modifier) {
+    val resources: Resources = LocalResources.current
     MyGameCard(modifier = modifier) {
-        MyGameText(
-            text = stringResource(R.string.report_no_reviews_due),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        )
+        ) {
+            MyGameText(
+                text = stringResource(R.string.report_no_reviews_due),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.ink,
+            )
+            nextReview?.let { dueAt: Instant ->
+                MyGameCountdownLine(
+                    words = stringResource(R.string.report_next_review),
+                    time = resources.nextReviewLabelOf(dueAt, receivedAt, ZoneId.systemDefault()),
+                    ground = MyGameCountdownGround.Paper,
+                )
+            }
+        }
     }
 }
 

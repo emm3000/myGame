@@ -4,6 +4,9 @@
     <string name="school_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="school_duration_minutes">{minutes} min</string>
     <string name="school_duration_minutes_seconds">{minutes}:{seconds}</string>
+    <string name="school_finish_day">{day} {time}</string>
+    <string name="school_finish_tomorrow">mañana {time}</string>
+    <string name="school_finish_with_clock">{timeLeft} · {clock}</string>
     <string name="school_go_to_school">Ir a la escuela</string>
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
@@ -25,6 +28,15 @@
     <string name="school_lessons">Lecciones</string>
     <string name="school_level">Nivel {level}</string>
     <string name="school_loading">Estamos leyendo tu pueblo…</string>
+    <string name="school_next_build_factory">Construye la fábrica</string>
+    <string name="school_next_build_farm">Construye la granja</string>
+    <string name="school_next_build_power_station">Construye la central eléctrica</string>
+    <string name="school_next_go_to_report">Ir al informe</string>
+    <string name="school_next_lesson_ready_in">Lección {number} lista en</string>
+    <string name="school_next_no_reviews_due">No tienes repasos pendientes ahora.</string>
+    <string name="school_next_review">Siguiente repaso:</string>
+    <string name="school_next_reviews_due">Repasos pendientes: {count}</string>
+    <string name="school_next_title">Tu siguiente paso</string>
     <string name="school_refusal_learning_cap_reached">Palabras en aprendizaje: {cardsInLearning} de {learningCap}. Repásalas antes de empezar otra lección.</string>
     <string name="school_refusal_lesson_already_studied">Ya estudiaste esa lección: sus palabras están en tu repaso.</string>
     <string name="school_refusal_lesson_school_too_low">Esa lección necesita una escuela de más nivel. Súbela primero.</string>

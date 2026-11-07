@@ -27,6 +27,21 @@
     <string name="town_naming_mayor">Ahora diriges tu propio pueblo.</string>
     <string name="town_naming_submit">Empezar</string>
     <string name="town_naming_title">Ponle nombre a tu pueblo</string>
+    <string name="town_next_build_factory">Construye la fábrica</string>
+    <string name="town_next_build_farm">Construye la granja</string>
+    <string name="town_next_build_power_station">Construye la central eléctrica</string>
+    <string name="town_next_go_to_report">Ir al informe</string>
+    <string name="town_next_lesson_ready_in">Lección {number} lista en</string>
+    <string name="town_next_lesson_title">Lección {number}</string>
+    <string name="town_next_lesson_words">{count, plural, =1 {1 palabra} other {{count, number,0} palabras}}</string>
+    <string name="town_next_no_reviews_due">No tienes repasos pendientes ahora.</string>
+    <string name="town_next_read_words">Leer las palabras</string>
+    <string name="town_next_review">Siguiente repaso:</string>
+    <string name="town_next_reviews_due">Repasos pendientes: {count}</string>
+    <string name="town_next_start_reviews">Empezar los repasos</string>
+    <string name="town_next_study">Estudiar la lección {number}</string>
+    <string name="town_next_studying">En estudio</string>
+    <string name="town_next_title">Tu siguiente paso</string>
     <string name="town_not_built">Sin construir</string>
     <string name="town_people">Gente: {free, plural, =1 {1 libre} other {{free, number,0} libres}}, {atWork} trabajando</string>
     <string name="town_people_at_work">Gente trabajando: +{people}</string>

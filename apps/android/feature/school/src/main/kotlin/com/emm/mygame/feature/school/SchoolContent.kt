@@ -1,35 +1,48 @@
 package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
 
 internal fun TownSnapshot.contentAt(
     now: Instant,
+    gap: Duration,
     mutations: SchoolMutations,
     selected: LessonId?,
-): SchoolUiState.Content =
-    SchoolUiState.Content(
+): SchoolUiState.Content {
+    val card: NextStepCard = nextStepCard()
+    return SchoolUiState.Content(
         schoolLevel = schoolLevel(),
         learning = learningLine(),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
         lessons = lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this) },
+        nextStep = card,
+        nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
         stop = mutations.stop,
         selected = selected,
     )
+}
 
 internal fun TownSnapshot.nextChangeAfter(now: Instant): Instant? =
-    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt)
+    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt, nextDueAt)
         .filter { instant: Instant -> instant > now }
         .minOrNull()
 
-internal fun TownSnapshot.lessonRemainingAt(now: Instant): Duration? =
-    lessonSlot?.let { slot: TownSnapshot.LessonSlot -> countdownTo(finishesAt = slot.finishesAt, now = now) }
+internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
+    listOfNotNull(lessonSlot?.finishesAt, nextDueAt)
+        .filter { instant: Instant -> instant > now }
+        .minOrNull()
+        ?.let { instant: Instant -> instant - now }
+
+private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): SchoolUiState.NextStepTime =
+    SchoolUiState.NextStepTime(remaining = countdownTo(finishesAt = at, now = now), finishesAt = at - gap)
 
 private fun TownSnapshot.schoolLevel(): Int =
     buildings.first { building: TownSnapshot.Building -> building.kind == TownBuildingKind.School }.level

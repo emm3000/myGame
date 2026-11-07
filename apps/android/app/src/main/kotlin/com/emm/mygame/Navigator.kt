@@ -74,7 +74,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         if (!areLinksEnabled) return
         val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
         when (backStack.lastOrNull()) {
-            Destination.Report, Destination.School -> backStack.add(words)
+            Destination.Town, Destination.Report, Destination.School -> backStack.add(words)
             is Destination.LessonWords -> backStack[backStack.lastIndex] = words
             else -> Unit
         }
@@ -87,7 +87,8 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
     fun openReviews() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.Report, Destination.School, is Destination.LessonWords -> backStack.add(Destination.Review)
+            Destination.Town, Destination.Report, Destination.School, is Destination.LessonWords ->
+                backStack.add(Destination.Review)
             else -> Unit
         }
     }

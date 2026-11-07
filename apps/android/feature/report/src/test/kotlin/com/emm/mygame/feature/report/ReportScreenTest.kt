@@ -6,11 +6,11 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -31,6 +31,10 @@ import com.emm.mygame.core.network.TownAmount
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
+import java.time.LocalDateTime
+import java.time.ZoneId
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -66,16 +70,46 @@ class ReportScreenTest {
         }
     }
 
+    private val localNoon: Instant = Instant.fromEpochMilliseconds(
+        LocalDateTime.of(2026, 11, 5, 12, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+    )
+
     private fun contentWith(
         dueCount: Int = 0,
         news: ReportUiState.ReportNews = ReportUiState.ReportNews.None,
         firstUnread: LessonId? = null,
+        nextReview: Instant? = null,
+        receivedAt: Instant = readInstant,
     ): ReportUiState.Content = ReportUiState.Content(
         dueCount = dueCount,
         firstUnread = firstUnread,
+        nextReview = nextReview,
         news = news,
-        receivedAt = readInstant,
+        receivedAt = receivedAt,
     )
+
+    @Test
+    fun `shows the next review's instant with no review due`() {
+        show(contentWith(nextReview = localNoon, receivedAt = localNoon - 1.hours))
+
+        composeRule.onNodeWithText("No tienes repasos pendientes ahora.").assertIsDisplayed()
+        composeRule.onNodeWithText("Siguiente repaso:").assertIsDisplayed()
+        composeRule.onNodeWithText("12:00").assertIsDisplayed()
+    }
+
+    @Test
+    fun `shows no instant with no review ahead`() {
+        show(contentWith())
+
+        composeRule.onAllNodesWithText("Siguiente repaso:").assertCountEquals(0)
+    }
+
+    @Test
+    fun `leaves the instant out while reviews are due`() {
+        show(contentWith(dueCount = 3, nextReview = localNoon))
+
+        composeRule.onAllNodesWithText("Siguiente repaso:").assertCountEquals(0)
+    }
 
     @Test
     fun `titles every state`() {

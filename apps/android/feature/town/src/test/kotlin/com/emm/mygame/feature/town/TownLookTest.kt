@@ -70,6 +70,8 @@ class TownLookTest {
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
+        nextStep = caughtUpCard,
+        nextStepTime = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
     )
@@ -94,7 +96,14 @@ class TownLookTest {
         val home = mutableStateOf<TownUiState>(riverton)
         composeRule.setContent {
             MyGameTheme {
-                TownScreen(state = home.value, onIntent = { }, onSchoolOpen = { }, onReportOpen = { })
+                TownScreen(
+                    state = home.value,
+                    onIntent = { },
+                    onSchoolOpen = { },
+                    onReportOpen = { },
+                    onReviewsOpen = { },
+                    onLessonOpen = { },
+                )
             }
         }
         val shortOffer: TownUiState.PlaceCard = farmOffer.copy(
@@ -209,6 +218,8 @@ class TownLookTest {
                     onIntent = { },
                     onSchoolOpen = { },
                     onReportOpen = { },
+                    onReviewsOpen = { },
+                    onLessonOpen = { },
                 )
             }
         }
@@ -318,7 +329,14 @@ class TownLookTest {
     private fun show(state: TownUiState) {
         composeRule.setContent {
             MyGameTheme {
-                TownScreen(state = state, onIntent = { }, onSchoolOpen = { }, onReportOpen = { })
+                TownScreen(
+                    state = state,
+                    onIntent = { },
+                    onSchoolOpen = { },
+                    onReportOpen = { },
+                    onReviewsOpen = { },
+                    onLessonOpen = { },
+                )
             }
         }
     }

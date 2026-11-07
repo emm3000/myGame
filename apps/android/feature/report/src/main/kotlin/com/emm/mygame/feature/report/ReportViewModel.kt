@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.TownReport
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -39,6 +40,8 @@ class ReportViewModel(
     val effects: Flow<ReportEffect> = _effects.receiveAsFlow()
 
     private var reading: Job? = null
+
+    private var waiting: Job? = null
 
     private var isShown: Boolean = true
 
@@ -70,6 +73,7 @@ class ReportViewModel(
     private fun hide() {
         isShown = false
         reading?.cancel()
+        waiting?.cancel()
     }
 
     private fun open() {
@@ -137,9 +141,22 @@ class ReportViewModel(
         _state.value = ReportUiState.Content(
             dueCount = report.dueCount,
             firstUnread = report.readFirst.firstOrNull(),
+            nextReview = report.nextDueAt,
             news = newsOf(report),
             receivedAt = clock.now(),
         )
+        awaitNextReview(report)
+    }
+
+    private fun awaitNextReview(report: TownReport) {
+        waiting?.cancel()
+        val dueAt: Instant = report.nextDueAt ?: return
+        val wait: Duration = dueAt - clock.now()
+        if (report.dueCount > 0 || wait <= Duration.ZERO || !isShown) return
+        waiting = viewModelScope.launch {
+            delay(wait)
+            readAgain()
+        }
     }
 
     private fun newsOf(report: TownReport): ReportUiState.ReportNews {

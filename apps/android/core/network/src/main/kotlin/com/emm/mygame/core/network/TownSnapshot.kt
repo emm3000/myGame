@@ -16,6 +16,8 @@ data class TownSnapshot(
     val skills: List<EarnedSkill>,
     val learning: Learning,
     val lessonSlot: LessonSlot?,
+    val nextStep: NextStep,
+    val nextDueAt: Instant?,
     val readAt: Instant,
 ) {
 

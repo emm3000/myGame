@@ -1,3 +1,10 @@
 package com.emm.mygame.core.network
 
-data class TownReport(val dueCount: Int, val readFirst: List<LessonId>, val news: List<TownNews>)
+import kotlin.time.Instant
+
+data class TownReport(
+    val dueCount: Int,
+    val readFirst: List<LessonId>,
+    val nextDueAt: Instant?,
+    val news: List<TownNews>,
+)

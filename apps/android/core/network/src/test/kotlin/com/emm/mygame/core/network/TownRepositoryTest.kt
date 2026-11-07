@@ -65,6 +65,62 @@ class TownRepositoryTest {
     }
 
     @Test
+    fun `reads a caught up next step with no review ahead`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(NextStep.CaughtUp, read.nextStep)
+        assertEquals(null, read.nextDueAt)
+    }
+
+    @Test
+    fun `reads the reviews step with its count and the lessons to read first`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"reviews","count":3,"readFirst":["lesson-2","lesson-3"]}""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(NextStep.Reviews(3, listOf(LessonId("lesson-2"), LessonId("lesson-3"))), read.nextStep)
+    }
+
+    @Test
+    fun `reads the producer a running lesson names`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","producer":"powerStation"}""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(NextStep.LessonRunning(NextStep.Producer.PowerStation), read.nextStep)
+    }
+
+    @Test
+    fun `reads a running lesson that names no producer`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonRunning","producer":null}""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(NextStep.LessonRunning(producer = null), read.nextStep)
+    }
+
+    @Test
+    fun `reads the lesson to study`() = runTest {
+        api.enqueue(json(200, townWithNextStep("""{"kind":"lessonToStudy","lessonId":"lesson-2"}""")))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(NextStep.LessonToStudy(LessonId("lesson-2")), read.nextStep)
+    }
+
+    @Test
+    fun `reads the next review's instant`() = runTest {
+        val dueLater: String = TOWN.replace(""""nextDueAt":null""", """"nextDueAt":"2026-11-05T10:09:00.000Z"""")
+        api.enqueue(json(200, dueLater))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(Instant.parse("2026-11-05T10:09:00Z"), read.nextDueAt)
+    }
+
+    @Test
     fun `holds no retained words until an answer names them`() = runTest {
         assertEquals(null, town().retainedWords.value)
     }
@@ -430,6 +486,8 @@ class TownRepositoryTest {
 
     private fun signedIn(): TokenStore =
         TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") }
+
+    private fun townWithNextStep(step: String): String = TOWN.replace("""{"kind":"caughtUp"}""", step)
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()

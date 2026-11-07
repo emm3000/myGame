@@ -19,29 +19,25 @@ fun TownRoute(
     towns: TownRepository,
     sessions: SessionRepository,
     clock: Clock,
-    onSchoolOpen: () -> Unit,
-    onReportOpen: () -> Unit,
-    onSigningOut: () -> Unit,
-    onSignedOut: () -> Unit,
+    navigation: TownNavigation,
     modifier: Modifier = Modifier,
     viewModel: TownViewModel = viewModel { TownViewModel(towns, sessions, clock) },
     ring: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
-    val currentOnSigningOut: () -> Unit by rememberUpdatedState(onSigningOut)
-    val currentOnSignedOut: () -> Unit by rememberUpdatedState(onSignedOut)
+    val currentNavigation: TownNavigation by rememberUpdatedState(navigation)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: TownEffect ->
                 when (effect) {
-                    TownEffect.SignedOut -> currentOnSignedOut()
+                    TownEffect.SignedOut -> currentNavigation.onSignedOut()
                 }
             }
         }
     }
     val isSigningOut: Boolean = state == TownUiState.SigningOut
     LaunchedEffect(isSigningOut) {
-        if (isSigningOut) currentOnSigningOut()
+        if (isSigningOut) currentNavigation.onSigningOut()
     }
     DisposableEffect(viewModel) {
         viewModel.onIntent(TownIntent.ScreenShown)
@@ -50,8 +46,10 @@ fun TownRoute(
     TownScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        onSchoolOpen = onSchoolOpen,
-        onReportOpen = onReportOpen,
+        onSchoolOpen = navigation.onSchoolOpen,
+        onReportOpen = navigation.onReportOpen,
+        onReviewsOpen = navigation.onReviewsOpen,
+        onLessonOpen = navigation.onLessonOpen,
         modifier = modifier,
         ring = ring,
     )

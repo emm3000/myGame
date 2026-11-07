@@ -566,6 +566,15 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the reviews above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openReviews()
+
+        assertEquals(listOf(Destination.Town, Destination.Review), backStack)
+    }
+
+    @Test
     fun `opens the reviews above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
@@ -592,15 +601,6 @@ class NavigatorTest {
         navigator.openReviews()
 
         assertEquals(listOf(Destination.Town, Destination.Report, Destination.Review), backStack)
-    }
-
-    @Test
-    fun `opens no reviews from the town`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
-
-        Navigator(backStack).openReviews()
-
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
 
     @Test
@@ -689,6 +689,15 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens a lesson's words above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+
+        assertEquals(listOf(Destination.Town, firstWords), backStack)
+    }
+
+    @Test
     fun `opens a lesson's words above the Report`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
 
@@ -713,15 +722,6 @@ class NavigatorTest {
         Navigator(backStack).openLesson(secondLesson, walked = listOf(firstLesson))
 
         assertEquals(listOf(Destination.Town, Destination.Report, secondWords), backStack)
-    }
-
-    @Test
-    fun `opens no lesson above the town`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
-
-        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
-
-        assertEquals(listOf<NavKey>(Destination.Town), backStack)
     }
 
     @Test

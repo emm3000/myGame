@@ -27,7 +27,7 @@ internal val farmWord: TownSnapshot.WordReading =
     TownSnapshot.WordReading("farm", "granja", "The farm is big.")
 
 internal fun readReportOf(readFirst: List<LessonId> = emptyList()): ReportReadResult =
-    ReportReadResult.Read(TownReport(dueCount = 0, readFirst = readFirst, news = emptyList()))
+    ReportReadResult.Read(TownReport(dueCount = 0, readFirst = readFirst, nextDueAt = null, news = emptyList()))
 
 internal fun readingOf(viewModel: LessonWordsViewModel): LessonWordsUiState.Reading =
     viewModel.state.value as LessonWordsUiState.Reading

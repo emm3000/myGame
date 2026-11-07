@@ -4,11 +4,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.projection.FinishClock
+import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.icuStringResource
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.ceil
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
+import kotlin.time.Instant
+
+private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", Locale.forLanguageTag("es"))
 
 private const val SECONDS_PER_MINUTE: Long = 60
 
@@ -83,3 +94,25 @@ internal fun timeLeftLabelOf(remaining: Duration): String {
 }
 
 private fun wholeSecondsOf(duration: Duration): Long = ceil(duration.toDouble(DurationUnit.SECONDS)).toLong()
+
+@Composable
+internal fun finishLabelOf(remaining: Duration, finishesAt: Instant): String {
+    val timeLeft: String = timeLeftLabelOf(remaining)
+    if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
+    val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
+    return icuStringResource(R.string.school_finish_with_clock, "timeLeft" to timeLeft, "clock" to clockLabelOf(finish))
+}
+
+@Composable
+private fun clockLabelOf(finish: FinishClock): String {
+    val time: String = finish.at.format(clockFormat)
+    return when (finish.day) {
+        FinishClock.Day.Today -> time
+        FinishClock.Day.Tomorrow -> icuStringResource(R.string.school_finish_tomorrow, "time" to time)
+        FinishClock.Day.Later -> icuStringResource(
+            R.string.school_finish_day,
+            "day" to finish.at.format(dayFormat),
+            "time" to time,
+        )
+    }
+}

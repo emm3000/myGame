@@ -21,6 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.ui.icuStringResource
 
@@ -30,6 +31,8 @@ fun TownScreen(
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     onReportOpen: () -> Unit,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
 ) {
@@ -71,6 +74,8 @@ fun TownScreen(
                 onIntent = onIntent,
                 onSchoolOpen = onSchoolOpen,
                 onReportOpen = onReportOpen,
+                onReviewsOpen = onReviewsOpen,
+                onLessonOpen = onLessonOpen,
                 ring = ring,
             )
         }
@@ -94,6 +99,8 @@ private fun TownHome(
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     onReportOpen: () -> Unit,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
     ring: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -101,6 +108,13 @@ private fun TownHome(
         MyGameHeader(end = ring) {
             TownTitle(name = content.name, label = content.label)
         }
+        NextStepSection(
+            content = content,
+            onSchoolOpen = onSchoolOpen,
+            onReportOpen = onReportOpen,
+            onReviewsOpen = onReviewsOpen,
+            onLessonOpen = onLessonOpen,
+        )
         TownDoors(onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)
         TownSkyline(content = content)
         StocksSection(content = content)

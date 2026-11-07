@@ -10,6 +10,8 @@ import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownNews
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
+import com.emm.mygame.core.projection.FinishClock
+import com.emm.mygame.core.projection.finishClockOf
 import com.emm.mygame.core.ui.getIcuString
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -64,6 +66,17 @@ internal fun Resources.payLineOf(news: TownNews): String? = when (news) {
     is TownNews.CleanUpFailed,
     is TownNews.BecameCity,
     -> null
+}
+
+internal fun Resources.nextReviewLabelOf(nextReview: Instant, receivedAt: Instant, zone: ZoneId): String {
+    val finish: FinishClock = finishClockOf(nextReview, nextReview - receivedAt, zone)
+    val time: String = finish.at.format(clockFormat)
+    return when (finish.day) {
+        FinishClock.Day.Today -> time
+        FinishClock.Day.Tomorrow -> getIcuString(R.string.report_next_review_tomorrow, "time" to time)
+        FinishClock.Day.Later ->
+            getIcuString(R.string.report_next_review_day, "day" to finish.at.format(dayFormat), "time" to time)
+    }
 }
 
 internal fun Resources.instantLabelOf(occurredAt: Instant, receivedAt: Instant, zone: ZoneId): String {

@@ -48,6 +48,7 @@ import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
+import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute
 
 @Composable
@@ -132,10 +133,14 @@ private fun EntryProviderScope<NavKey>.townEntry(dependencies: AppDependencies, 
                 towns = dependencies.towns,
                 sessions = dependencies.sessions,
                 clock = dependencies.clock,
-                onSchoolOpen = navigator::openSchool,
-                onReportOpen = navigator::openReport,
-                onSigningOut = navigator::signingOut,
-                onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                navigation = TownNavigation(
+                    onSchoolOpen = navigator::openSchool,
+                    onReportOpen = navigator::openReport,
+                    onReviewsOpen = navigator::openReviews,
+                    onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+                    onSigningOut = navigator::signingOut,
+                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
             )
         }
@@ -156,6 +161,7 @@ private fun EntryProviderScope<NavKey>.schoolEntry(dependencies: AppDependencies
                 onNoTown = navigator::openTown,
                 onReviewsOpen = navigator::openReviews,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+                onReportOpen = navigator::openReport,
             )
         }
     }
