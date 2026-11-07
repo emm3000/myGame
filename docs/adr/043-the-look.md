@@ -98,7 +98,7 @@ table is computed with the WCAG 2.2 formula `tokens.test.ts` uses, and
 none is under its floor. The tightest text pair is `destructive-ink` on
 `destructive-soft` at 4.92:1, and the tightest control boundary
 `line-strong` on `surface-sunken` at 3.03:1, both in light. The table
-holds 28 pairs, each in both themes.
+holds 29 pairs, each in both themes.
 
 | Token | Light | Dark |
 |---|---|---|
@@ -127,7 +127,7 @@ holds 28 pairs, each in both themes.
 |---|---|---|---|
 | `ink` on `surface` | text | 16.51 | 16.51 |
 | `ink` on `surface-raised` | text | 17.56 | 15.07 |
-| `ink` on `surface-sunken` | text, the ring's fill on its track | 14.83 | 12.80 |
+| `ink` on `surface-sunken` | text | 14.83 | 12.80 |
 | `ink-muted` on `surface` | text | 5.84 | 8.16 |
 | `ink-muted` on `surface-raised` | text | 6.22 | 7.45 |
 | `ink-muted` on `surface-sunken` | text, the track | 5.25 | 6.32 |
@@ -147,12 +147,13 @@ holds 28 pairs, each in both themes.
 | `destructive-ink` on `surface-raised` | text | 6.25 | 8.52 |
 | `destructive-ink` on `destructive-soft` | text | 4.92 | 7.31 |
 | `action` on `surface` | boundary | 16.51 | 16.51 |
-| `line-strong` on `surface` | boundary | 3.38 | 4.90 |
+| `line-strong` on `surface` | boundary, the ring's track | 3.38 | 4.90 |
 | `line-strong` on `surface-raised` | boundary | 3.59 | 4.48 |
 | `line-strong` on `surface-sunken` | boundary | 3.03 | 3.80 |
 | `focus` on `surface` | boundary | 16.51 | 16.51 |
 | `focus` on `surface-raised` | boundary | 17.56 | 15.07 |
 | `focus` on `surface-sunken` | boundary | 14.83 | 12.80 |
+| `ink` on `line-strong` | the ring's fill on its track | 4.89 | 3.37 |
 
 **Hello's values changed where they miss our floor.** Its `inkMuted`
 gives 4.13:1 on its raised gray and 3.35:1 on peach, so `ink-muted` is
@@ -189,8 +190,10 @@ The disabled pill itself uses `ink-muted`, which passes.
 999. `heights.track` falls from 6 to 3 px. `minHeights` gains `action` 60
 and `secondary` 52, and `control` stays 48. The back link, the only way
 home, and every text button and text link take `control` height on both
-clients. Trunk's `TextLink` has no minimum and measures about 24 px. `spacing`, `strokeWidths` and `durations` do not change, and the
-screen gutter is `spacing[5]`, 20 px. The icons keep their 2 px stroke.
+clients. Trunk's `TextLink` has no minimum and measures about 24 px. `spacing` and `durations` do not change, and the
+screen gutter is `spacing[5]`, 20 px. `strokeWidths` gains `ring`, 4, for
+the ring (#871), and the others do not change. The icons keep their 2 px
+stroke.
 
 ### The type
 
@@ -627,3 +630,35 @@ ticket:
   (navigation, the order), ADR 042 (the next step, the school path).
 - `.claude/rules/ui-components.md`, `docs/art/art-bible.md`,
   `docs/PRODUCT_REQUIREMENTS.md` (N1, N2, N7, N8, S4, W10).
+
+## Amendment (2026-11-06)
+
+**The ring's track is `line-strong`, not `surface-sunken`** (#905). #871
+drew `ink` on `surface-sunken`, as this ADR's table named it, and a ring
+at 0 of 5 was barely there.
+
+| Pair | Role | Light | Dark |
+|---|---|---|---|
+| `surface-sunken` on `surface` | the old track on its ground | 1.11 | 1.29 |
+| `ink` on `surface-sunken` | the old fill on its track | 14.83 | 12.80 |
+| `line-strong` on `surface` | the track on its ground | 3.38 | 4.90 |
+| `ink` on `line-strong` | the fill on its track | 4.89 | 3.37 |
+
+The ring is not decorative and writes no count beside it, so at 0 of 5
+the track is all a sighted player has. Its accessible name helps a screen
+reader only, so the silhouette's exemption, a level always written beside
+it, does not reach the ring, and WCAG 1.4.11 asks 3:1 of a graphic the
+reader needs. A ring has two edges to hold: the track on its ground and
+the fill on its track. Of the other 18 tokens, `line-strong` is the only
+one at 3:1 on both edges in both themes: `ink-muted` is the nearest, at
+2.83 and 2.02 from the fill. So no token is added.
+
+The cost is the fill: it falls from 12.80 to 3.37 in dark, still above
+the floor. The ring sits on `surface` alone, the header's ground, so a
+new ground measures these pairs again.
+
+`surface-sunken` on `surface` stays exempt for the silhouette alone, and
+`tokens.test.ts` drops the ring's clause from that reason. The fill's
+row moves to `ink` on `line-strong`, so the table above and
+`tokens.test.ts` hold 29 pairs. Android draws the same pair from
+`core:designsystem`'s `lineStrong` (#872).

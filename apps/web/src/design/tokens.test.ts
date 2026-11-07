@@ -38,12 +38,7 @@ const onBlockUse = 'text, a window, focus on a block'
 const pairs: ReadonlyArray<Pair> = [
   { kind: 'text', foreground: 'ink', background: 'surface', usedAs: 'text' },
   { kind: 'text', foreground: 'ink', background: 'surface-raised', usedAs: 'text' },
-  {
-    kind: 'text',
-    foreground: 'ink',
-    background: 'surface-sunken',
-    usedAs: "text, the ring's fill on its track",
-  },
+  { kind: 'text', foreground: 'ink', background: 'surface-sunken', usedAs: 'text' },
   { kind: 'text', foreground: 'ink-muted', background: 'surface', usedAs: 'text' },
   { kind: 'text', foreground: 'ink-muted', background: 'surface-raised', usedAs: 'text' },
   {
@@ -76,12 +71,23 @@ const pairs: ReadonlyArray<Pair> = [
   { kind: 'text', foreground: 'destructive-ink', background: 'surface-raised', usedAs: 'text' },
   { kind: 'text', foreground: 'destructive-ink', background: 'destructive-soft', usedAs: 'text' },
   { kind: 'boundary', foreground: 'action', background: 'surface', usedAs: 'boundary' },
-  { kind: 'boundary', foreground: 'line-strong', background: 'surface', usedAs: 'boundary' },
+  {
+    kind: 'boundary',
+    foreground: 'line-strong',
+    background: 'surface',
+    usedAs: "boundary, the ring's track",
+  },
   { kind: 'boundary', foreground: 'line-strong', background: 'surface-raised', usedAs: 'boundary' },
   { kind: 'boundary', foreground: 'line-strong', background: 'surface-sunken', usedAs: 'boundary' },
   { kind: 'boundary', foreground: 'focus', background: 'surface', usedAs: 'boundary' },
   { kind: 'boundary', foreground: 'focus', background: 'surface-raised', usedAs: 'boundary' },
   { kind: 'boundary', foreground: 'focus', background: 'surface-sunken', usedAs: 'boundary' },
+  {
+    kind: 'boundary',
+    foreground: 'ink',
+    background: 'line-strong',
+    usedAs: "the ring's fill on its track",
+  },
 ]
 
 const exemptions: ReadonlyArray<Exemption> = [
@@ -104,8 +110,7 @@ const exemptions: ReadonlyArray<Exemption> = [
     kind: 'boundary',
     foregrounds: ['surface-sunken'],
     backgrounds: ['surface'],
-    reason:
-      "a silhouette not built yet, decorative, its level always written beside it; the ring's track, its count always in the ring's accessible name",
+    reason: 'a silhouette not built yet, decorative, its level always written beside it',
   },
   {
     clause: 'WCAG 1.4.3',
@@ -173,7 +178,7 @@ it('measures black on white at 21:1', () => {
   expect(contrast('#000000', '#ffffff')).toBeCloseTo(21, 5)
 })
 
-it('declares the 28 pairs of ADR 043', () => {
+it('declares the 29 pairs of ADR 043', () => {
   expect(pairs.map((pair) => namesOf([pair.foreground, pair.background]))).toEqual([
     'ink on surface',
     'ink on surface-raised',
@@ -203,6 +208,7 @@ it('declares the 28 pairs of ADR 043', () => {
     'focus on surface',
     'focus on surface-raised',
     'focus on surface-sunken',
+    'ink on line-strong',
   ])
 })
 

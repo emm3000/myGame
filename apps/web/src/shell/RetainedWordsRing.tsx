@@ -28,7 +28,7 @@ export function RetainedWordsRing({ count, total }: RetainedWordsRingProps): Rea
           pathLength={total}
           strokeDasharray={`${1 - gapBetweenWords} ${total - 1 + gapBetweenWords}`}
           strokeDashoffset={-position}
-          className={position < count ? 'stroke-ink' : 'stroke-surface-sunken'}
+          className={position < count ? 'stroke-ink' : 'stroke-line-strong'}
         />
       ))}
     </svg>
