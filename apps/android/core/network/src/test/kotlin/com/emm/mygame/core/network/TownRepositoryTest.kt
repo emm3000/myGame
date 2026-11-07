@@ -9,6 +9,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
@@ -148,6 +149,47 @@ class TownRepositoryTest {
         towns.startWork(TownBuildingKind.Farm)
 
         assertEquals(1.minutes, towns.town.value?.gap)
+    }
+
+    @Test
+    fun `never holds the town of a session the player signed out of`() = runTest {
+        val store: TokenStore = signedIn()
+        val towns: TownRepository = town(store)
+        api.enqueue(json(200, TOWN))
+        api.enqueue(MockResponse.Builder().code(204).build())
+        towns.read()
+
+        sessions(store).signOut()
+
+        assertEquals(null, towns.town.value)
+    }
+
+    @Test
+    fun `never holds the town of a session that ended under the player`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN))
+        api.enqueue(MockResponse.Builder().code(401).build())
+        towns.read()
+
+        towns.read()
+
+        assertEquals(null, towns.town.value)
+    }
+
+    @Test
+    fun `never holds a read that answers after another player signed in`() = runTest {
+        val store: TokenStore = signedIn()
+        val towns: TownRepository = town(store)
+        api.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                store.write("another-session")
+                return json(200, TOWN)
+            }
+        }
+
+        towns.read()
+
+        assertEquals(null, towns.town.value)
     }
 
     @Test
@@ -512,12 +554,19 @@ class TownRepositoryTest {
         assertEquals(TownWorkResult.Unreachable, town().stopWork(TownBuildingKind.Farm, level = 2))
     }
 
-    private fun TestScope.town(): TownRepository = TownRepository(
+    private fun TestScope.town(store: TokenStore = signedIn()): TownRepository = TownRepository(
         baseUrl = api.url("/api/").toString(),
-        tokenStore = signedIn(),
+        tokenStore = store,
         sessionEnds = sessionEnds,
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         clock = TestClock(testScheduler, aMinuteBeforeTheRead),
+    )
+
+    private fun TestScope.sessions(store: TokenStore): SessionRepository = SessionRepository(
+        baseUrl = api.url("/api/").toString(),
+        tokenStore = store,
+        sessionEnds = sessionEnds,
+        ioDispatcher = UnconfinedTestDispatcher(testScheduler),
     )
 
     private fun signedIn(): TokenStore =
