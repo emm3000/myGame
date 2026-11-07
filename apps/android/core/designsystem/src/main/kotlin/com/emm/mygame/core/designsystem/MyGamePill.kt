@@ -16,11 +16,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
+
+val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
+
+private var SemanticsPropertyReceiver.pillBadge: String by PILL_BADGE
 
 @Composable
 internal fun MyGamePill(
@@ -75,7 +81,7 @@ private fun PillBadge(figure: String, shape: Shape, modifier: Modifier = Modifie
         style = MyGameTypography.label.withTabularFigures(),
         color = colors.onAction,
         modifier = modifier
-            .clearAndSetSemantics { }
+            .clearAndSetSemantics { pillBadge = figure }
             .clip(shape)
             .background(colors.action)
             .padding(horizontal = MyGameSpacing.step2),

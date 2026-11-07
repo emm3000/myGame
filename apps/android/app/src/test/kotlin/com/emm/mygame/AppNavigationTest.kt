@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.FiefAddress
@@ -61,7 +62,9 @@ import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.feature.town.TOWN_STATUS
+import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -72,6 +75,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
 class AppNavigationTest {
@@ -90,8 +94,10 @@ class AppNavigationTest {
 
     private val reportsFake: FakeReportRepository = FakeReportRepository()
 
+    private val movableClock: MovableClock = MovableClock()
+
     private val dependencies: AppDependencies = object : AppDependencies {
-        override val clock: Clock = Clock.System
+        override val clock: Clock = movableClock
         override val sessionEnds: SessionEnds = SessionEnds()
         override val sessions: SessionRepository = sessionsFake
         override val listings: FiefListRepository = listingsFake
@@ -217,8 +223,9 @@ class AppNavigationTest {
         waitForLine("NOTICIAS DEL PUEBLO")
     }
 
-    private fun runningTown(): TownSnapshot = townOf(nextStep = NextStep.LessonRunning(producer = null))
-        .copy(lessonSlot = TownSnapshot.LessonSlot(firstLesson, readAt, readAt + 10.minutes))
+    private fun runningTown(lasting: Duration = 10.minutes): TownSnapshot =
+        townOf(nextStep = NextStep.LessonRunning(producer = null))
+            .copy(lessonSlot = TownSnapshot.LessonSlot(firstLesson, readAt, readAt + lasting))
 
     private fun finishedTown(readFirst: List<LessonId>): TownSnapshot = townOf(
         lessons = listOf(
@@ -252,6 +259,29 @@ class AppNavigationTest {
         townsFake.answerRead(TownReadResult.Read(finished))
         runBlocking { townsFake.read() }
         waitForLine(LESSON_ONE_DONE)
+    }
+
+    private fun onLessonOneNearItsFinish(vararg destinations: Destination) {
+        listingsFake.answerListed(FiefListResult.Listed(listOf(listedFief)))
+        townsFake.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH)))
+        composeRule.setContent {
+            MyGameTheme {
+                AppNavigation(dependencies = dependencies, backStack = rememberNavBackStack(*destinations))
+            }
+        }
+        assertStatusShown()
+    }
+
+    private fun passingTheFinish() {
+        movableClock.passed += NEAR_FINISH + 1.seconds
+        ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
+        composeRule.waitUntil(WAIT_MILLIS) { townsFake.readCount >= 2 }
+        ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
+        composeRule.waitForIdle()
+    }
+
+    private fun assertNoStatus() {
+        composeRule.onAllNodes(hasTestTag(TOWN_STATUS)).assertCountEquals(0)
     }
 
     private fun ring(name: String): SemanticsNodeInteraction = composeRule.onNodeWithContentDescription(name)
@@ -517,11 +547,131 @@ class AppNavigationTest {
     }
 
     @Test
+    fun `draws the due count on the Report door`() {
+        signedInAtTown(town = townOf(nextStep = NextStep.Reviews(3, emptyList())))
+
+        composeRule.onNode(SemanticsMatcher.expectValue(PILL_BADGE, "3")).assertIsDisplayed()
+    }
+
+    @Test
     fun `shows no count with nothing due`() {
         signedInAtTown()
 
         door("Informe").assertIsDisplayed()
         composeRule.onAllNodes(hasContentDescription("Repasos pendientes", substring = true)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws no count on the Report door with nothing due`() {
+        signedInAtTown()
+
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(PILL_BADGE)).assertCountEquals(0)
+    }
+
+    @Test
+    fun `reads the town at the lesson's finish on the Report`() {
+        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        onLessonOneNearItsFinish(Destination.Town, Destination.Report)
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `reads the town at the lesson's finish on the reviews`() {
+        learningFake.answerRead(noReviews)
+        onLessonOneNearItsFinish(Destination.Town, Destination.Review)
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `reads the town at the lesson's finish on the map`() {
+        onLessonOneNearItsFinish(Destination.Town, Destination.Map(listedFief.id))
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `reads the town at the lesson's finish on the chronicle`() {
+        onLessonOneNearItsFinish(Destination.Town, Destination.Chronicle(listedFief.id))
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `leaves the read at the lesson's finish to the town home`() {
+        onLessonOneNearItsFinish(Destination.Town)
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `leaves the read at the lesson's finish to the school`() {
+        onLessonOneNearItsFinish(Destination.Town, Destination.School)
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `leaves the read at the lesson's finish to the lesson's words`() {
+        repeat(2) { reportsFake.answerRead(ReportReadResult.Read(walkReport)) }
+        onLessonOneNearItsFinish(Destination.Town, Destination.LessonWords(firstLesson, emptyList()))
+
+        passingTheFinish()
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `closes the finish notice on the reviews`() {
+        onTheReportAsLessonOneFinishes(finishedTown(readFirst = emptyList()))
+        learningFake.answerRead(noReviews)
+        townsFake.answerRead(TownReadResult.Read(finishedTown(readFirst = emptyList())))
+
+        composeRule.onNodeWithText("Empezar los repasos").performClick()
+        waitForLine("Aún no tienes palabras que repasar.")
+
+        composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
+    }
+
+    @Test
+    fun `closes the finish notice on the unread words`() {
+        onTheReportAsLessonOneFinishes(finishedTown(readFirst = listOf(firstLesson)))
+        repeat(2) { townsFake.answerRead(TownReadResult.Read(finishedTown(listOf(firstLesson)))) }
+        reportsFake.answerRead(ReportReadResult.Read(walkReport))
+
+        composeRule.onNodeWithText("Leer las palabras").performClick()
+        waitForLine("I drink water.")
+
+        composeRule.onAllNodesWithText(LESSON_ONE_DONE).assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws no status on the town home with no lesson running`() {
+        signedInAtTown()
+
+        assertNoStatus()
+    }
+
+    @Test
+    fun `draws no status on the Report with no lesson running`() {
+        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        showingStack(Destination.Town, Destination.Report, town = townOf(retainedWords = threeOfFive))
+        waitForRing(THREE_OF_FIVE)
+
+        assertNoStatus()
     }
 
     @Test
@@ -568,10 +718,19 @@ class AppNavigationTest {
 
     @Test
     fun `shows nothing with no town`() {
-        signedInReading(TownReadResult.NoTown)
-        waitForLine("Ponle nombre a tu pueblo")
+        reportsFake.answerRead(ReportReadResult.Read(nothingDue))
+        townsFake.answerRead(TownReadResult.NoTown)
+        composeRule.setContent {
+            MyGameTheme {
+                AppNavigation(
+                    dependencies = dependencies,
+                    backStack = rememberNavBackStack(Destination.Town, Destination.Report),
+                )
+            }
+        }
+        waitForLine("NOTICIAS DEL PUEBLO")
 
-        composeRule.onAllNodes(hasTestTag(TOWN_STATUS)).assertCountEquals(0)
+        assertNoStatus()
     }
 
     @Test
@@ -691,6 +850,14 @@ class AppNavigationTest {
         const val LESSON_ONE_DONE: String = "La lección 1 terminó."
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val READS_AVAILABLE: Int = 5
+        val NEAR_FINISH: Duration = 30.seconds
         const val WAIT_MILLIS: Long = 5_000
     }
+}
+
+private class MovableClock : Clock {
+
+    var passed: Duration = Duration.ZERO
+
+    override fun now(): Instant = Clock.System.now() + passed
 }
