@@ -1,6 +1,7 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -220,6 +221,7 @@ class TownLessonsRepositoryTest {
         tokenStore = TokenStore(File(folder.root, "session"), FakeTokenCipher()).apply { write("opaque-session") },
         sessionEnds = SessionEnds(),
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+        clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
     )
 
     private fun json(code: Int, body: String): MockResponse =

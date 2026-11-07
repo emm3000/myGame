@@ -62,6 +62,7 @@ class MyGameApplication : Application(), AppDependencies {
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,
             ioDispatcher = Dispatchers.IO,
+            clock = clock,
         )
     }
 

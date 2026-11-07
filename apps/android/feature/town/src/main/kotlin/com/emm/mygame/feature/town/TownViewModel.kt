@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
@@ -87,8 +88,10 @@ class TownViewModel(
 
     private fun open() {
         projection?.cancel()
-        _state.value = TownUiState.Loading
         shown = null
+        val held: HeldTown? = towns.town.value
+        if (held != null) return openHeld(held)
+        _state.value = TownUiState.Loading
         projection = viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
                 is TownReadResult.Read -> project(measured(answer.town))
@@ -96,6 +99,12 @@ class TownViewModel(
                 TownReadResult.Unreachable -> _state.value = TownUiState.Failed
             }
         }
+    }
+
+    private fun openHeld(held: HeldTown) {
+        gap = held.gap
+        draw(held.town)
+        reread()
     }
 
     private fun reread() {

@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownReadResult
@@ -78,6 +79,8 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
     }
 
     private fun open() {
+        val held: HeldTown? = towns.town.value
+        if (held != null) return openHeld(held)
         _state.value = SchoolUiState.Loading
         projection = viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
@@ -89,6 +92,12 @@ class SchoolViewModel(private val towns: TownRepository, private val clock: Cloc
                 TownReadResult.Unreachable -> _state.value = SchoolUiState.Failed
             }
         }
+    }
+
+    private fun openHeld(held: HeldTown) {
+        gap = held.gap
+        draw(held.town)
+        projection = viewModelScope.launch { project(held.town, firstReadAt = serverNow()) }
     }
 
     private fun select(lesson: LessonId) {

@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.StartLessonRequest
 import com.emm.mygame.core.network.generated.models.TownOverview
 import java.io.IOException
+import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,11 +20,12 @@ import retrofit2.Response
 internal class ApiTownRepository(
     private val api: DefaultApi,
     private val ioDispatcher: CoroutineDispatcher,
+    private val clock: Clock,
 ) : TownRepository {
 
-    private val _town: MutableStateFlow<TownSnapshot?> = MutableStateFlow(null)
+    private val _town: MutableStateFlow<HeldTown?> = MutableStateFlow(null)
 
-    override val town: StateFlow<TownSnapshot?> = _town.asStateFlow()
+    override val town: StateFlow<HeldTown?> = _town.asStateFlow()
 
     override suspend fun read(): TownReadResult = withContext(ioDispatcher) {
         try {
@@ -83,13 +85,18 @@ internal class ApiTownRepository(
             }
         }
 
+    private fun readTown(response: Response<TownOverview>): TownSnapshot? =
+        response.body()?.toSnapshot()?.also { town: TownSnapshot ->
+            _town.value = HeldTown(town, gap = town.readAt - clock.now())
+        }
+
     private fun answeredTown(response: Response<TownOverview>): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            _town.value = town
+            _town.value = HeldTown(town, gap = _town.value?.gap ?: (town.readAt - clock.now()))
         }
 
     private fun readOrNoTown(response: Response<TownOverview>): TownReadResult {
-        val snapshot: TownSnapshot? = answeredTown(response)
+        val snapshot: TownSnapshot? = readTown(response)
         if (response.isSuccessful) {
             return if (snapshot == null) TownReadResult.Unreachable else TownReadResult.Read(snapshot)
         }

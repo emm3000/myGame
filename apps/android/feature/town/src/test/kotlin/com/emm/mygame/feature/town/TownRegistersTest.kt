@@ -1,10 +1,12 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
@@ -86,12 +88,27 @@ class TownRegistersTest {
     @Test
     fun `plays nothing on a fresh start`() = runTest {
         val viewModel: TownViewModel = homeViewModel(farmAtTwo)
+        viewModel.onIntent(TownIntent.ScreenHidden)
+        towns.answerRead(TownReadResult.NoTown)
+        viewModel.onIntent(TownIntent.ScreenShown)
+        runCurrent()
         towns.answerRead(TownReadResult.Read(farmAtThree))
 
         viewModel.onIntent(TownIntent.GoToTownTapped)
         runCurrent()
 
         assertEquals(emptyMap<TownBuildingKind, Int>(), raisedOf(viewModel))
+    }
+
+    @Test
+    fun `pops the new window between the held town and the re-read behind it`() = runTest {
+        towns.hold(HeldTown(farmAtTwo, gap = Duration.ZERO))
+        val viewModel: TownViewModel = townViewModelOf(towns, start = readInstant)
+
+        towns.answerRead(TownReadResult.Read(farmAtThree))
+        runCurrent()
+
+        assertEquals(mapOf(TownBuildingKind.Farm to 2), raisedOf(viewModel))
     }
 
     private fun TestScope.reread(viewModel: TownViewModel, next: TownSnapshot) {
