@@ -11,4 +11,9 @@ object MyGameTransitions {
     val standard: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
     val exit: Easing = CubicBezierEasing(0.3f, 0f, 1f, 1f)
     val track: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
+    val window: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
+    val hue: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
+    val deal: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
+    val ring: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
+    val rate: MyGameTransition = MyGameTransition(durationMillis = CALM_MILLIS, easing = standard)
 }

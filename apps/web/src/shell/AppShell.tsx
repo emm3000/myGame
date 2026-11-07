@@ -17,6 +17,7 @@ export interface AppShellProps {
   readonly fiefs: FiefEntries | undefined
   readonly verification: ResendVerification
   readonly town: TownOverview | undefined
+  readonly ringCountBefore: number | undefined
   readonly isTownHome: boolean
   readonly headerRef: RefObject<HTMLElement | null>
   readonly townStatus: ReactNode
@@ -60,6 +61,7 @@ export function AppShell({
   fiefs,
   verification,
   town,
+  ringCountBefore,
   isTownHome,
   headerRef,
   townStatus,
@@ -78,7 +80,10 @@ export function AppShell({
         </div>
         {retainedWords === null ? null : (
           <div className="flex shrink-0 md:order-last">
-            <RetainedWordsRing {...retainedWords} />
+            <RetainedWordsRing
+              {...retainedWords}
+              countBefore={ringCountBefore ?? retainedWords.count}
+            />
           </div>
         )}
         {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}

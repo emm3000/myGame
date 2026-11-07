@@ -6,6 +6,7 @@ import { SignOutColumn } from '../../auth/SignOutColumn'
 import { ReadingLine } from '../../design-system/ReadingLine'
 import type { LiveTown } from '../../town/liveTown'
 import { NameTownScreen } from '../../town/NameTownScreen'
+import type { Registered } from '../../town/registeredBetween'
 import { TownHome } from '../../town/TownHome'
 import { TownReadFailed } from '../../town/TownReadFailed'
 import { useFoundTown } from '../../town/useFoundTown'
@@ -36,14 +37,16 @@ function NameTownPage({
 function TownHomePage({
   apiClient,
   town,
+  registered,
   adopt,
 }: {
   readonly apiClient: ApiClient
   readonly town: LiveTown
+  readonly registered: Registered
   readonly adopt: TownHandle['adopt']
 }): ReactElement {
   const work = useTownWork(apiClient, adopt, town.overview.readAt)
-  return <TownHome town={town} work={work} />
+  return <TownHome town={town} registered={registered} work={work} />
 }
 
 function TownPage(): ReactElement | null {
@@ -65,7 +68,14 @@ function TownPage(): ReactElement | null {
         </SignOutColumn>
       )
     case 'live':
-      return <TownHomePage apiClient={apiClient} town={town.state.town} adopt={town.adopt} />
+      return (
+        <TownHomePage
+          apiClient={apiClient}
+          town={town.state.town}
+          registered={town.state.registered}
+          adopt={town.adopt}
+        />
+      )
     default: {
       const unreachable: never = town.state
       return unreachable

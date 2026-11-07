@@ -3,13 +3,19 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { longestTimeoutMs } from '../time/longestTimeoutMs'
 import { type LiveTown, liveTownAt, secondsUntil } from './liveTown'
+import { nothingRegistered, type Registered, registeredBetween } from './registeredBetween'
 import { townRepaintDelayMsOf } from './townRepaintDelayMsOf'
 
 export type TownState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'noTown' }
   | { readonly kind: 'refused'; readonly refusal: ApiRefusal }
-  | { readonly kind: 'live'; readonly town: LiveTown }
+  | {
+      readonly kind: 'live'
+      readonly town: LiveTown
+      readonly registered: Registered
+      readonly readSequence: number
+    }
 
 export interface TownHandle {
   readonly state: TownState
@@ -20,6 +26,8 @@ export interface TownHandle {
 interface LastRead {
   readonly overview: TownOverview
   readonly receivedAtMs: number
+  readonly registered: Registered
+  readonly readSequence: number
 }
 
 const rereadIntervalMs = 60_000
@@ -103,7 +111,14 @@ export function useTown(apiClient: ApiClient): TownHandle {
   const isReading = useRef(false)
 
   const adopt = useCallback((overview: TownOverview): void => {
-    setLastRead({ overview, receivedAtMs: Date.now() })
+    const receivedAtMs = Date.now()
+    setLastRead((held) => ({
+      overview,
+      receivedAtMs,
+      registered:
+        held === undefined ? nothingRegistered : registeredBetween(held.overview, overview),
+      readSequence: (held?.readSequence ?? 0) + 1,
+    }))
     setRefusal(undefined)
   }, [])
 
@@ -136,7 +151,12 @@ export function useTown(apiClient: ApiClient): TownHandle {
   if (lastRead !== undefined) {
     const elapsedSeconds = elapsedSecondsSince(lastRead.receivedAtMs, nowMs)
     return {
-      state: { kind: 'live', town: liveTownAt(lastRead.overview, elapsedSeconds) },
+      state: {
+        kind: 'live',
+        town: liveTownAt(lastRead.overview, elapsedSeconds),
+        registered: lastRead.registered,
+        readSequence: lastRead.readSequence,
+      },
       adopt,
       reread,
     }

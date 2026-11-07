@@ -21,7 +21,7 @@ export function RecognitionCard({ card, review, verdictRef }: RecognitionCardPro
   }
   return (
     <>
-      <ReviewBlock cue={card.word} cueLang="en" frame={card.frame} walked={review.walked} />
+      <ReviewBlock cue={card.word} cueLang="en" frame={card.frame} review={review} />
       <form onSubmit={submit} className="flex flex-col gap-4">
         <fieldset
           disabled={review.answered !== undefined}

@@ -70,7 +70,7 @@ export function RecallCard({ card, review, verdictRef }: RecallCardProps): React
   }
   return (
     <>
-      <ReviewBlock cue={card.gloss} cueLang="es" frame={card.gappedFrame} walked={review.walked} />
+      <ReviewBlock cue={card.gloss} cueLang="es" frame={card.gappedFrame} review={review} />
       <form onSubmit={submit} className="flex flex-col gap-4">
         <p className="m-0 font-sans text-caption text-ink-muted">{reviewRecallPrompt()}</p>
         <TextField

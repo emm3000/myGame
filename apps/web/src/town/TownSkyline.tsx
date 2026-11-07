@@ -3,7 +3,8 @@ import type { BuildingKind, TownOverview } from '@mygame/contracts/town'
 import { createElement, type ReactElement } from 'react'
 import { placeHeight, placeWidth } from '../art/placeShapesOf'
 import { color } from '../design/tokens'
-import { placeArtOf } from '../design-system/placeArtOf'
+import { raisedPlaceArtOf } from '../design-system/placeArtOf'
+import { levelBeforeOf, type RaisedPlace } from './registeredBetween'
 
 const placesAlongTheLine: ReadonlyArray<BuildingKind> = [
   'homes',
@@ -22,8 +23,10 @@ const skylineWidth = placeStep * (placesAlongTheLine.length - 1) + placeWidth
 
 export function TownSkyline({
   buildings,
+  raised,
 }: {
   readonly buildings: TownOverview['buildings']
+  readonly raised: ReadonlyArray<RaisedPlace>
 }): ReactElement {
   const built = placesAlongTheLine.filter((place) => buildings[place].level > 0).length
   return (
@@ -37,9 +40,11 @@ export function TownSkyline({
         createElement(
           'g',
           { key: place, transform: `translate(${index * placeStep} 0)` },
-          ...placeArtOf(place, buildings[place].level).map(({ name, attributes }) =>
-            createElement(name, attributes),
-          ),
+          ...raisedPlaceArtOf(
+            place,
+            levelBeforeOf(raised, place, buildings[place].level),
+            buildings[place].level,
+          ).map(({ name, attributes }) => createElement(name, attributes)),
         ),
       )}
       <rect y={groundY} width={skylineWidth} height={groundHeight} fill={color('ink')} />

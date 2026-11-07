@@ -34,3 +34,30 @@ export function placeArtOf(place: BuildingKind, level: number): ReadonlyArray<Ar
   const { silhouette, windows } = placeShapesOf(placeFiles[place])
   return [...silhouette, ...windows.slice(0, level)]
 }
+
+const windowRegisters = {
+  'data-registers': 'window',
+  className:
+    'origin-center transform-fill motion-safe:transition-window motion-safe:starting:scale-0',
+}
+
+const hueRegisters = { 'data-registers': 'hue', className: 'motion-safe:transition-hue' }
+
+export function raisedPlaceArtOf(
+  place: BuildingKind,
+  levelBefore: number,
+  level: number,
+): ReadonlyArray<ArtTag> {
+  const shapes = placeArtOf(place, level)
+  const silhouetteCount = shapes.length - level
+  const registersOf = (index: number): Readonly<Record<string, string>> => {
+    if (index >= silhouetteCount + levelBefore) {
+      return windowRegisters
+    }
+    return index < silhouetteCount && levelBefore === 0 && level > 0 ? hueRegisters : {}
+  }
+  return shapes.map((shape, index) => ({
+    ...shape,
+    attributes: { ...shape.attributes, ...registersOf(index) },
+  }))
+}

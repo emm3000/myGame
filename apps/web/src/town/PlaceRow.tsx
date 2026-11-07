@@ -4,18 +4,25 @@ import { CardAction } from '../design-system/CardAction'
 import { CostList } from '../design-system/CostList'
 import { formatDuration } from '../design-system/formatDuration'
 import { PlaceArt } from '../design-system/PlaceArt'
-import { placeArtOf } from '../design-system/placeArtOf'
+import { raisedPlaceArtOf } from '../design-system/placeArtOf'
 import type { LiveTown } from './liveTown'
 import { placeCardOf } from './placeCardOf'
 
 export interface PlaceRowProps {
   readonly place: BuildingKind
   readonly town: LiveTown
+  readonly levelBefore: number
   readonly isWaiting: boolean
   readonly onBuild: () => void
 }
 
-export function PlaceRow({ place, town, isWaiting, onBuild }: PlaceRowProps): ReactElement {
+export function PlaceRow({
+  place,
+  town,
+  levelBefore,
+  isWaiting,
+  onBuild,
+}: PlaceRowProps): ReactElement {
   const { name, levelLabel, effect, costs, actionLabel, durationSeconds, state } = placeCardOf(
     place,
     town,
@@ -23,7 +30,7 @@ export function PlaceRow({ place, town, isWaiting, onBuild }: PlaceRowProps): Re
   return (
     <div className="flex items-start gap-3">
       <PlaceArt
-        shapes={placeArtOf(place, town.overview.buildings[place].level)}
+        shapes={raisedPlaceArtOf(place, levelBefore, town.overview.buildings[place].level)}
         sizeClass="size-thumbnail"
       />
       <div className="flex min-w-0 grow flex-col gap-2">

@@ -3,11 +3,18 @@ import type { TownOverview } from '@mygame/contracts/town'
 import type { ReactElement } from 'react'
 import { strokeWidths } from '../design/tokens'
 
-type RetainedWordsRingProps = NonNullable<TownOverview['learning']['retainedWords']>
+type RetainedWordsRingProps = NonNullable<TownOverview['learning']['retainedWords']> & {
+  readonly countBefore: number
+}
 
 const gapBetweenWords = 0.15
 
-export function RetainedWordsRing({ count, total }: RetainedWordsRingProps): ReactElement {
+export function RetainedWordsRing({
+  count,
+  total,
+  countBefore,
+}: RetainedWordsRingProps): ReactElement {
+  const isRetainedNow = (position: number): boolean => position >= countBefore && position < count
   const words = Array.from({ length: total }, (_, position) => position)
   return (
     <svg
@@ -28,7 +35,8 @@ export function RetainedWordsRing({ count, total }: RetainedWordsRingProps): Rea
           pathLength={total}
           strokeDasharray={`${1 - gapBetweenWords} ${total - 1 + gapBetweenWords}`}
           strokeDashoffset={-position}
-          className={position < count ? 'stroke-ink' : 'stroke-line-strong'}
+          data-registers={isRetainedNow(position) ? 'ring' : undefined}
+          className={`${position < count ? 'stroke-ink' : 'stroke-line-strong'} ${isRetainedNow(position) ? 'motion-safe:transition-ring' : ''}`}
         />
       ))}
     </svg>
