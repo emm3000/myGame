@@ -149,13 +149,15 @@ export const radii: Readonly<Record<Radius, string>> = {
   pill: '999px',
 }
 
-export type Duration = 'instant' | 'quick' | 'base' | 'calm'
+export type Duration = 'instant' | 'quick' | 'base' | 'calm' | 'reveal' | 'hold'
 
 export const durations: Readonly<Record<Duration, string>> = {
   instant: '0ms',
   quick: '120ms',
   base: '200ms',
   calm: '320ms',
+  reveal: '300ms',
+  hold: '300ms',
 }
 
 export type Easing = 'standard' | 'exit'

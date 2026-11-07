@@ -146,6 +146,13 @@ describe('MyGameTransitions', () => {
     expect(transitions).toContain('const val CALM_MILLIS: Int = 320\n')
   })
 
+  it('writes the skeleton reveal delay and minimum hold in milliseconds', () => {
+    const transitions = contentsOf('MyGameTransitions.kt')
+
+    expect(transitions).toContain('const val REVEAL_MILLIS: Int = 300\n')
+    expect(transitions).toContain('const val HOLD_MILLIS: Int = 300\n')
+  })
+
   it('writes the easings as cubic beziers', () => {
     const transitions = contentsOf('MyGameTransitions.kt')
 
