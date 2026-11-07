@@ -78,7 +78,10 @@ private fun SignInForm(
 ) {
     val isSubmitting: Boolean = form.status == SignInUiState.FormStatus.Submitting
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step8), modifier = modifier) {
-        AuthHeader(title = stringResource(R.string.sign_in_title))
+        AuthHeader(
+            title = stringResource(R.string.sign_in_title),
+            lead = stringResource(R.string.sign_in_tagline),
+        )
         if (form.isSessionEnded) MyGameInlineAlert(message = stringResource(R.string.sign_in_session_ended))
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4)) {
             MyGameTextField(

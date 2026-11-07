@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,12 +16,16 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
+
+private val placesToName: List<TownBuildingKind> = listOf(TownBuildingKind.Homes, TownBuildingKind.School)
 
 @Composable
 internal fun NamingSection(naming: TownUiState.Naming, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -30,6 +35,7 @@ internal fun NamingSection(naming: TownUiState.Naming, onIntent: (TownIntent) ->
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
+            NamingArt()
             MyGameText(
                 text = stringResource(R.string.town_naming_title),
                 style = MyGameTypography.title,
@@ -57,6 +63,15 @@ internal fun NamingSection(naming: TownUiState.Naming, onIntent: (TownIntent) ->
                 MyGameInlineAlert(message = stringResource(message))
             }
             NamingAction(status = naming.status, onIntent = onIntent)
+        }
+    }
+}
+
+@Composable
+private fun NamingArt(modifier: Modifier = Modifier) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+        placesToName.forEach { kind: TownBuildingKind ->
+            MyGamePlaceArt(art = placeArtOf(kind, level = 0), risenFrom = null)
         }
     }
 }

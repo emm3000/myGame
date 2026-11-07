@@ -40,7 +40,10 @@ fun SignUpScreen(
             .padding(start = MyGameSpacing.step4, end = MyGameSpacing.step4, top = MyGameSpacing.step12)
             .padding(bottom = MyGameSpacing.step8),
     ) {
-        AuthHeader(title = stringResource(R.string.sign_up_title))
+        AuthHeader(
+            title = stringResource(R.string.sign_up_title),
+            lead = stringResource(R.string.sign_in_tagline),
+        )
         when (state) {
             is SignUpUiState.Form -> SignUpForm(form = state, onIntent = onIntent, onSignInOpen = onSignInOpen)
         }

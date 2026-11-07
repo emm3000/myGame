@@ -78,7 +78,7 @@ class ForgotPasswordScreenTest {
         draw(ForgotPasswordUiState.Sent)
 
         composeRule
-            .onNodeWithText("Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.")
+            .onNodeWithText("Si ese correo tiene una cuenta y está confirmado, te llegará un enlace que vale una hora.")
             .assertIsDisplayed()
         field("Correo").assertDoesNotExist()
     }
@@ -88,7 +88,7 @@ class ForgotPasswordScreenTest {
         var signInsOpened: Int = 0
         draw(form(ForgotPasswordUiState.FormStatus.Idle), onSignInOpen = { signInsOpened += 1 })
 
-        composeRule.onNode(hasClickAction() and hasText("Entra en tu feudo")).performClick()
+        composeRule.onNode(hasClickAction() and hasText("Entra en tu pueblo")).performClick()
 
         assertEquals(1, signInsOpened)
     }
@@ -98,7 +98,7 @@ class ForgotPasswordScreenTest {
         var signInsOpened: Int = 0
         draw(ForgotPasswordUiState.Sent, onSignInOpen = { signInsOpened += 1 })
 
-        composeRule.onNode(hasClickAction() and hasText("Entra en tu feudo")).performClick()
+        composeRule.onNode(hasClickAction() and hasText("Entra en tu pueblo")).performClick()
 
         assertEquals(1, signInsOpened)
     }

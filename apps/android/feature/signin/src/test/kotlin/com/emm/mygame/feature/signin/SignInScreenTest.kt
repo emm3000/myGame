@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -43,7 +44,7 @@ class SignInScreenTest {
         var resetRequestsOpened: Int = 0
         drawBlankForm(onForgotPasswordOpen = { resetRequestsOpened += 1 })
 
-        composeRule.onNodeWithText("¿Has olvidado tu contraseña?").performClick()
+        composeRule.onNodeWithText("¿Has olvidado tu contraseña?").performScrollTo().performClick()
 
         assertEquals(1, resetRequestsOpened)
     }
@@ -53,7 +54,7 @@ class SignInScreenTest {
         var resetRequestsOpened: Int = 0
         drawForm(state = submittingForm, onForgotPasswordOpen = { resetRequestsOpened += 1 })
 
-        composeRule.onNodeWithText("¿Has olvidado tu contraseña?").performClick()
+        composeRule.onNodeWithText("¿Has olvidado tu contraseña?").performScrollTo().performClick()
 
         assertEquals(0, resetRequestsOpened)
     }
