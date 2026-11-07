@@ -1,16 +1,17 @@
 import {
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
+  schoolLessonReward,
   schoolLessonSlotBusy,
   schoolLessonStudy,
   schoolLessonTitle,
   schoolLessonWords,
-  schoolSkillRate,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
 import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
+import type { WordStanding } from './SchoolPath'
 
 type Lesson = TownOverview['lessons'][number]
 
@@ -28,6 +29,7 @@ export interface LessonCardContent {
   readonly skillLine: string
   readonly actionLabel: string
   readonly durationSeconds: number
+  readonly standings: ReadonlyArray<WordStanding>
   readonly state: LessonCardState
 }
 
@@ -82,12 +84,13 @@ export function lessonCardOf(lesson: Lesson, overview: TownOverview): LessonCard
     hue: blockHueOf(number - 1),
     theme: lesson.theme,
     wordsLine: schoolLessonWords({ count: lesson.words.length }),
-    skillLine: schoolSkillRate({
+    skillLine: schoolLessonReward({
       percent: lesson.skill.ratePercent,
       resource: townResourceNameOf(lesson.skill.resource),
     }),
     actionLabel: schoolLessonStudy({ number }),
     durationSeconds: lesson.durationSeconds,
+    standings: lesson.words.map(({ standing }) => standing),
     state: stateOf(lesson, overview),
   }
 }

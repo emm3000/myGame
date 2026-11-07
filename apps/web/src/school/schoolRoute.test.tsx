@@ -7,10 +7,17 @@ import {
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
   schoolLessonReadWords,
+  schoolLessonReward,
   schoolLessonSlotBusy,
   schoolLessonStudied,
   schoolLessonStudy,
   schoolLessonTitle,
+  schoolLessonWords,
+  schoolPathCount,
+  schoolPathLearned,
+  schoolPathRead,
+  schoolPathReviewed,
+  schoolPathStudied,
   schoolSkillName,
   schoolSkillRate,
   schoolSkillsNone,
@@ -112,11 +119,129 @@ const selectRow = async (number: number): Promise<void> => {
   await passSeconds(0)
 }
 
+type WordStanding = Lesson['words'][number]['standing']
+
+const wordsOf = (...standings: ReadonlyArray<WordStanding>): Lesson['words'] =>
+  standings.map((standing, index) => ({ wordId: `word-${index + 1}`, standing, reading: null }))
+
+const studiedLessonOf = (...standings: ReadonlyArray<WordStanding>): Lesson =>
+  lessonOf(1, { isStudied: true, words: wordsOf(...standings) })
+
+const pathOf = (number: number): ReadonlyArray<string> => {
+  const row = within(lessonRow(number))
+  const counts = row.getAllByRole('definition')
+  return row
+    .getAllByRole('term')
+    .map((label, index) => `${label.textContent} ${counts[index]?.textContent}`)
+}
+
+const pathLinesOf = (
+  studied: number,
+  read: number,
+  reviewed: number,
+  learned: number,
+  total: number,
+): ReadonlyArray<string> => [
+  `${schoolPathStudied()} ${schoolPathCount({ count: studied, total })}`,
+  `${schoolPathRead()} ${schoolPathCount({ count: read, total })}`,
+  `${schoolPathReviewed()} ${schoolPathCount({ count: reviewed, total })}`,
+  `${schoolPathLearned()} ${schoolPathCount({ count: learned, total })}`,
+]
+
 const isBefore = (earlier: Element, later: Element): boolean =>
   (earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
 
 const studiedThrough = (studied: number, count: number): Array<Lesson> =>
   Array.from({ length: count }, (_, index) => lessonOf(index + 1, { isStudied: index < studied }))
+
+it('counts the words past each standing', async () => {
+  const lesson = studiedLessonOf('recognize', 'recall', 'hold', 'hold', 'retained')
+  await showSchool(schoolOf({ lessons: [lesson, lessonOf(2)] }))
+
+  expect(pathOf(1)).toEqual(pathLinesOf(5, 4, 3, 1, 5))
+})
+
+it('leaves a held-out word out of the count', async () => {
+  const lesson = studiedLessonOf('notStarted', 'recall', 'hold', 'hold', 'retained')
+  await showSchool(schoolOf({ lessons: [lesson, lessonOf(2)] }))
+
+  expect(pathOf(1)).toEqual(pathLinesOf(4, 4, 3, 1, 4))
+})
+
+it('shows a word moved back after a wrong recall', async () => {
+  let lesson = studiedLessonOf('hold', 'hold', 'hold', 'hold', 'hold')
+  const read = (): TownOverview => schoolOf({ lessons: [lesson, lessonOf(2)] })
+  await showSchool(read(), { town: async () => ({ ok: true, value: read() }) })
+  expect(pathOf(1)).toEqual(pathLinesOf(5, 5, 5, 0, 5))
+
+  lesson = studiedLessonOf('recall', 'hold', 'hold', 'hold', 'hold')
+  await passSeconds(60)
+
+  expect(pathOf(1)).toEqual(pathLinesOf(5, 5, 4, 0, 5))
+})
+
+it('shows every word of a lesson past the last standing', async () => {
+  const lesson = studiedLessonOf('retained', 'retained', 'retained', 'retained', 'retained')
+  await showSchool(schoolOf({ lessons: [lesson, lessonOf(2)] }))
+
+  expect(pathOf(1)).toEqual(pathLinesOf(5, 5, 5, 5, 5))
+})
+
+it('shows no date and no days away on the path', async () => {
+  const lesson = studiedLessonOf('recognize', 'recall', 'hold', 'hold', 'retained')
+  await showSchool(schoolOf({ lessons: [lesson, lessonOf(2)], nextDueAt: instantAfter(86_400) }))
+
+  expect(pathOf(1).join(' ')).not.toMatch(/d[ií]as?\b|\d:\d|\/\d/i)
+  expect(pathOf(1)).toHaveLength(4)
+})
+
+it('draws no path on a lesson with no word held', async () => {
+  await showSchool(schoolOf({ lessons: [lessonOf(1), lessonOf(2)] }))
+
+  expect(within(lessonRow(2)).queryByRole('term')).toBeNull()
+})
+
+it("reads the next lesson's reward as one line, from its words to the skill to the rate", async () => {
+  await showSchool(schoolOf({ lessons: studiedThrough(1, 3) }))
+
+  const reward = `${schoolLessonWords({ count: 5 })} · ${schoolLessonReward({ percent: 5, resource: 'comida' })}`
+  expect(lessonBlock(2).textContent).toContain(reward)
+})
+
+it('puts the next lesson first', async () => {
+  const studied = lessonOf(1, { isStudied: true, words: wordsOf('recall') })
+  await showSchool(schoolOf({ lessons: [studied, lessonOf(2), lessonOf(3)] }))
+
+  expect(isBefore(lessonBlock(2), lessonRow(1))).toBe(true)
+  expect(isBefore(lessonBlock(2), lessonRow(3))).toBe(true)
+})
+
+it("opens the unread lesson from the school's link", async () => {
+  const lessons = [lessonOf(1, { isStudied: true }), lessonOf(2)]
+  await showSchool(
+    schoolOf({ lessons, nextStep: { kind: 'reviews', count: 2, readFirst: ['lesson-1'] } }),
+  )
+
+  const link = screen.getByRole('link', { name: schoolLessonReadWords() })
+  expect(link.getAttribute('href')).toBe('/school/lesson-1')
+  expect(inkPills()).toEqual([studyLabelOf(2)])
+})
+
+it("opens the reviews from the school's link once no lesson is unread", async () => {
+  const lessons = [lessonOf(1, { isStudied: true }), lessonOf(2)]
+  await showSchool(schoolOf({ lessons, nextStep: { kind: 'reviews', count: 2, readFirst: [] } }))
+
+  const link = screen.getByRole('link', { name: reportStartReviews() })
+  expect(link.getAttribute('href')).toBe('/reviews')
+})
+
+it('shows no link to the reviews when none is due', async () => {
+  const lessons = [lessonOf(1, { isStudied: true }), lessonOf(2)]
+  await showSchool(schoolOf({ lessons, nextStep: { kind: 'lessonToStudy', lessonId: 'lesson-2' } }))
+
+  expect(screen.queryByRole('link', { name: reportStartReviews() })).toBeNull()
+  expect(screen.queryByRole('link', { name: schoolLessonReadWords() })).toBeNull()
+})
 
 it('opens the school from the town home', async () => {
   await showSchool(schoolOf({}), {}, '/')

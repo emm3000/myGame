@@ -22,6 +22,8 @@ import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
 import type { LiveTown } from '../town/liveTown'
+import { NextStepLink } from '../town/NextStepLink'
+import { reviewsActionOf } from '../town/nextStepCardOf'
 import { LessonRows } from './LessonRows'
 import {
   isPastLearningCap,
@@ -91,6 +93,14 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
   )
 }
 
+function ReviewsLink({ town }: { readonly town: LiveTown }): ReactElement | null {
+  const { nextStep } = town.overview
+  if (nextStep.kind !== 'reviews') {
+    return null
+  }
+  return <NextStepLink action={reviewsActionOf(nextStep.readFirst)} tone="quiet" />
+}
+
 const shownCardOf = (
   cards: ReadonlyArray<LessonCardContent>,
   selectedId: string | undefined,
@@ -133,6 +143,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
             <ShownLesson card={shown} town={town} lessons={lessons} titleRef={blockTitle.ref} />
           )}
           <LearningLoad town={town} />
+          {shown !== undefined && <ReviewsLink town={town} />}
         </div>
         <div className="flex min-w-0 flex-col gap-6">
           <LessonRows
