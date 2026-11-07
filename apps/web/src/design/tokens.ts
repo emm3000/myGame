@@ -129,7 +129,7 @@ export const heights: Readonly<Record<Height, string>> = {
   track: '3px',
 }
 
-export type StrokeWidth = 'hairline' | 'control' | 'icon' | 'mark' | 'focus'
+export type StrokeWidth = 'hairline' | 'control' | 'icon' | 'mark' | 'focus' | 'ring'
 
 export const strokeWidths: Readonly<Record<StrokeWidth, number>> = {
   hairline: 1,
@@ -137,6 +137,7 @@ export const strokeWidths: Readonly<Record<StrokeWidth, number>> = {
   icon: 2,
   mark: 2,
   focus: 3,
+  ring: 4,
 }
 
 export type Radius = 'sm' | 'md' | 'lg' | 'pill'

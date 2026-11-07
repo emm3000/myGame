@@ -9,4 +9,5 @@ object MyGameStrokeWidths {
     val control: Dp = 2.dp
     val mark: Dp = 2.dp
     val focus: Dp = 3.dp
+    val ring: Dp = 4.dp
 }
