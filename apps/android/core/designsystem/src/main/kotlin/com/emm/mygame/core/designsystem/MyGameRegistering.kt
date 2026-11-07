@@ -12,14 +12,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 
-enum class MyGameRegisteredRow {
-    Window,
-    Hue,
-    Deal,
-    Ring,
-    Rate,
-}
-
 data class MyGameRegistering(val row: MyGameRegisteredRow, val fraction: Float)
 
 val REGISTERING: SemanticsPropertyKey<MyGameRegistering> = SemanticsPropertyKey("REGISTERING")
