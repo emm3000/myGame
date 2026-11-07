@@ -1,11 +1,12 @@
 package com.emm.mygame.core.network
 
+import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.StateFlow
 
 interface TownRepository {
 
-    val town: StateFlow<TownSnapshot?>
+    val town: StateFlow<HeldTown?>
 
     suspend fun read(): TownReadResult
 
@@ -25,8 +26,10 @@ fun TownRepository(
     tokenStore: TokenStore,
     sessionEnds: SessionEnds,
     ioDispatcher: CoroutineDispatcher,
+    clock: Clock,
 ): TownRepository =
     ApiTownRepository(
         api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
+        clock = clock,
     )

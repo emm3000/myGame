@@ -2,6 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownRepository
@@ -39,7 +40,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
     private var following: Job? = null
 
     init {
-        viewModelScope.launch { towns.town.collect(::hold) }
+        viewModelScope.launch { towns.town.collect { next: HeldTown? -> hold(next?.town) } }
     }
 
     fun onIntent(intent: TownStatusIntent) {

@@ -1,5 +1,6 @@
 package com.emm.mygame.core.testing
 
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
@@ -8,6 +9,7 @@ import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownWorkResult
+import kotlin.time.Duration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,9 +17,9 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class FakeTownRepository : TownRepository {
 
-    private val _town: MutableStateFlow<TownSnapshot?> = MutableStateFlow(null)
+    private val _town: MutableStateFlow<HeldTown?> = MutableStateFlow(null)
 
-    override val town: StateFlow<TownSnapshot?> = _town.asStateFlow()
+    override val town: StateFlow<HeldTown?> = _town.asStateFlow()
 
     private val readAnswers: Channel<TownReadResult> = Channel(Channel.UNLIMITED)
 
@@ -54,6 +56,10 @@ class FakeTownRepository : TownRepository {
 
     val lessonStops: List<LessonId>
         get() = _lessonStops.toList()
+
+    fun hold(held: HeldTown) {
+        _town.value = held
+    }
 
     fun answerRead(result: TownReadResult) {
         readAnswers.trySend(result)
@@ -118,7 +124,7 @@ class FakeTownRepository : TownRepository {
     }
 
     private fun hold(town: TownSnapshot) {
-        _town.value = town
+        _town.value = HeldTown(town, gap = _town.value?.gap ?: Duration.ZERO)
     }
 
     data class StopRequest(val building: TownBuildingKind, val level: Int)

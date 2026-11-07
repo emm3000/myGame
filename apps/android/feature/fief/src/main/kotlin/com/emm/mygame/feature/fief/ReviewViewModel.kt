@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.RaisedSkill
@@ -50,7 +51,7 @@ class ReviewViewModel(
     private var arrival: List<LessonId>? = null
 
     init {
-        viewModelScope.launch { towns.town.collect(::townChanged) }
+        viewModelScope.launch { towns.town.collect { held: HeldTown? -> townChanged(held?.town) } }
         readTown()
         open()
     }
@@ -106,7 +107,7 @@ class ReviewViewModel(
             first != null && first.lesson in reviews.readFirst && first.lesson !in baseline ->
                 _state.value = ReviewUiState.LessonReady(
                     lesson = first.lesson,
-                    number = towns.town.value?.shownNumberOf(first.lesson),
+                    number = towns.town.value?.town?.shownNumberOf(first.lesson),
                 )
             first != null -> _state.value = ReviewUiState.Reviewing(
                 walked = walked,
@@ -139,7 +140,7 @@ class ReviewViewModel(
     private fun endAt(remaining: Duration, nextDueAt: Instant): ReviewUiState.NothingDue = ReviewUiState.NothingDue(
         remaining = remaining,
         dueAt = nextDueAt - gap,
-        path = towns.town.value?.pathAtTheEnd(),
+        path = towns.town.value?.town?.pathAtTheEnd(),
     )
 
     private fun edit(change: (ReviewUiState.ReviewCard) -> ReviewUiState.ReviewCard) {

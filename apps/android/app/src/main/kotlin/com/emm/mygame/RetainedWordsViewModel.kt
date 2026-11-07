@@ -2,6 +2,7 @@ package com.emm.mygame
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownRepository
@@ -19,16 +20,16 @@ internal class RetainedWordsViewModel(
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<RetainedWordsUiState> =
-        MutableStateFlow(uiStateOf(previous = null, next = towns.town.value))
+        MutableStateFlow(uiStateOf(previous = null, next = towns.town.value?.town))
 
     val state: StateFlow<RetainedWordsUiState> = _state.asStateFlow()
 
-    private var held: TownSnapshot? = towns.town.value
+    private var held: TownSnapshot? = towns.town.value?.town
 
     private var reading: Job? = null
 
     init {
-        viewModelScope.launch { towns.town.collect(::hold) }
+        viewModelScope.launch { towns.town.collect { next: HeldTown? -> hold(next?.town) } }
     }
 
     fun onIntent(intent: RetainedWordsIntent) {

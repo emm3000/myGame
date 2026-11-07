@@ -1,7 +1,9 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.testing.TestClock
 import java.io.File
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
@@ -126,13 +128,46 @@ class TownRepositoryTest {
     }
 
     @Test
+    fun `holds a read with the gap between its instant and the device clock at its arrival`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN))
+
+        towns.read()
+
+        assertEquals(1.minutes, towns.town.value?.gap)
+    }
+
+    @Test
+    fun `keeps the last read's gap through a work answer`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN))
+        api.enqueue(json(200, TOWN))
+        towns.read()
+        testScheduler.advanceTimeBy(30.minutes)
+
+        towns.startWork(TownBuildingKind.Farm)
+
+        assertEquals(1.minutes, towns.town.value?.gap)
+    }
+
+    @Test
+    fun `measures the gap of a lesson answer when no read is held`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN))
+
+        towns.startLesson(LessonId("lesson-1"))
+
+        assertEquals(1.minutes, towns.town.value?.gap)
+    }
+
+    @Test
     fun `holds the retained words the last read answered`() = runTest {
         val towns: TownRepository = town()
         api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
 
         towns.read()
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.town?.learning?.retainedWords)
     }
 
     @Test
@@ -144,7 +179,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(null, towns.town.value?.learning?.retainedWords)
+        assertEquals(null, towns.town.value?.town?.learning?.retainedWords)
     }
 
     @Test
@@ -156,7 +191,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(null, towns.town.value?.learning?.retainedWords)
+        assertEquals(null, towns.town.value?.town?.learning?.retainedWords)
     }
 
     @Test
@@ -168,7 +203,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.town?.learning?.retainedWords)
     }
 
     @Test
@@ -178,7 +213,7 @@ class TownRepositoryTest {
 
         towns.startLesson(LessonId("lesson-1"))
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.town?.learning?.retainedWords)
     }
 
     @Test
@@ -188,7 +223,7 @@ class TownRepositoryTest {
 
         towns.startWork(TownBuildingKind.Farm)
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.town?.learning?.retainedWords)
     }
 
     @Test
@@ -482,6 +517,7 @@ class TownRepositoryTest {
         tokenStore = signedIn(),
         sessionEnds = sessionEnds,
         ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+        clock = TestClock(testScheduler, aMinuteBeforeTheRead),
     )
 
     private fun signedIn(): TokenStore =
@@ -493,6 +529,7 @@ class TownRepositoryTest {
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
+        val aMinuteBeforeTheRead: Instant = Instant.parse("2026-11-05T10:04:00Z")
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
         const val HOMES_COST: String = """{"money":60,"food":0,"power":0,"material":30}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
