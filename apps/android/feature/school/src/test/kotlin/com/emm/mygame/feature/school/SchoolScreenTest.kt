@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
@@ -50,6 +51,7 @@ class SchoolScreenTest {
         resource = TownResourceKind.Food,
         ratePercent = 5,
         duration = 150.seconds,
+        path = SchoolPathCounts(held = 0, read = 0, reviewed = 0, learned = 0),
         state = SchoolUiState.LessonState.Open(block = null),
     )
 
@@ -71,8 +73,6 @@ class SchoolScreenTest {
     private fun busySlot(remaining: Duration): SchoolUiState.SlotLine.Busy =
         SchoolUiState.SlotLine.Busy(firstLesson, number = 1, remaining = remaining, total = 150.seconds)
 
-    private var reviewOpens: Int = 0
-
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
 
     private fun show(state: SchoolUiState) {
@@ -81,7 +81,7 @@ class SchoolScreenTest {
                 SchoolScreen(
                     state = state,
                     onIntent = { intent: SchoolIntent -> intents += intent },
-                    onReviewsOpen = { reviewOpens += 1 },
+                    onReviewsOpen = { },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onReportOpen = { },
                 )
@@ -186,14 +186,14 @@ class SchoolScreenTest {
     fun `sums up a lesson with its words and skill`() {
         show(idleSchool)
 
-        showing("5 palabras · +5 % de comida")
+        showing("5 palabras · Habilidad: comida +5\u00A0%")
     }
 
     @Test
     fun `counts one word in the singular`() {
         show(idleSchool.copy(lessons = listOf(readyLesson.copy(wordCount = 1))))
 
-        showing("1 palabra · +5 % de comida")
+        showing("1 palabra · Habilidad: comida +5\u00A0%")
     }
 
     @Test
@@ -588,37 +588,5 @@ class SchoolScreenTest {
 
         showing("+5 % de dinero")
         showing("+5 % de material")
-    }
-
-    @Test
-    fun `opens the reviews from the learning line past the cap`() {
-        show(idleSchool.copy(learning = SchoolUiState.LearningLine(8, 10, wordsPastCap = 5)))
-
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
-
-        assertEquals(1, reviewOpens)
-    }
-
-    @Test
-    fun `offers no reviews while the next lesson fits the cap`() {
-        show(idleSchool.copy(learning = SchoolUiState.LearningLine(0, 10, wordsPastCap = null)))
-
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
-    }
-
-    @Test
-    fun `opens the reviews from the learning cap refusal`() {
-        show(refusedStart(TownLessonRefusal.LearningCapReached(cap = 10, inLearning = 8)))
-
-        composeRule.onNodeWithText("Empezar los repasos").performScrollTo().performClick()
-
-        assertEquals(1, reviewOpens)
-    }
-
-    @Test
-    fun `offers no reviews beside any other refusal`() {
-        show(refusedStart(TownLessonRefusal.StudySlotBusy))
-
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
     }
 }

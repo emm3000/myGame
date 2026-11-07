@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WordStanding
 import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
@@ -36,15 +37,20 @@ internal fun lessonOf(
     wordCount: Int = 5,
     duration: Duration = 150.seconds,
     readings: List<TownSnapshot.WordReading> = emptyList(),
+    standings: List<WordStanding> = List(size = wordCount) { WordStanding.NotStarted },
+    theme: String = "A day in town",
+    ratePercent: Int = 5,
+    resource: TownResourceKind = TownResourceKind.Food,
 ): TownSnapshot.Lesson = TownSnapshot.Lesson(
     id = id,
-    theme = "A day in town",
+    theme = theme,
     duration = duration,
     requiredSchoolLevel = requiredSchoolLevel,
-    skill = TownSnapshot.LessonSkill(TownResourceKind.Food, ratePercent = 5),
+    skill = TownSnapshot.LessonSkill(resource, ratePercent),
     isStudied = isStudied,
     wordCount = wordCount,
     readings = readings,
+    standings = standings,
 )
 
 internal fun slotOf(

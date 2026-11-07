@@ -21,7 +21,17 @@ internal fun TownOverviewLessonsInner.toLesson(): TownSnapshot.Lesson? {
         isStudied = isStudied,
         wordCount = words.size,
         readings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.reading?.toWordReading() },
+        standings = words.mapNotNull { word: TownOverviewLessonsInnerWordsInner -> word.standing.toWordStanding() },
     )
+}
+
+private fun TownOverviewLessonsInnerWordsInner.Standing.toWordStanding(): WordStanding? = when (this) {
+    TownOverviewLessonsInnerWordsInner.Standing.notStarted -> WordStanding.NotStarted
+    TownOverviewLessonsInnerWordsInner.Standing.recognize -> WordStanding.Recognize
+    TownOverviewLessonsInnerWordsInner.Standing.recall -> WordStanding.Recall
+    TownOverviewLessonsInnerWordsInner.Standing.hold -> WordStanding.Hold
+    TownOverviewLessonsInnerWordsInner.Standing.retained -> WordStanding.Retained
+    TownOverviewLessonsInnerWordsInner.Standing.unknown_default_open_api -> null
 }
 
 private fun TownOverviewLessonsInnerWordsInnerReading.toWordReading(): TownSnapshot.WordReading =

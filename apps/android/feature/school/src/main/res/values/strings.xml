@@ -15,6 +15,7 @@
     <string name="school_lesson_next">Siguiente lección</string>
     <string name="school_lesson_nothing_to_read">Ahora no hay palabras para leer.</string>
     <string name="school_lesson_read_words">Leer las palabras</string>
+    <string name="school_lesson_reward" formatted="false">Habilidad: {resource} +{percent} %</string>
     <string name="school_lesson_slot_busy">La escuela está estudiando la lección {number}.</string>
     <string name="school_lesson_studied">Estudiada</string>
     <string name="school_lesson_study">Estudiar la lección {number}</string>
@@ -37,6 +38,11 @@
     <string name="school_next_review">Siguiente repaso:</string>
     <string name="school_next_reviews_due">Repasos pendientes: {count}</string>
     <string name="school_next_title">Tu siguiente paso</string>
+    <string name="school_path_count">{count} de {total}</string>
+    <string name="school_path_learned">Aprendidas</string>
+    <string name="school_path_read">Leídas</string>
+    <string name="school_path_reviewed">Repasadas</string>
+    <string name="school_path_studied">Estudiadas</string>
     <string name="school_refusal_learning_cap_reached">Palabras en aprendizaje: {cardsInLearning} de {learningCap}. Repásalas antes de empezar otra lección.</string>
     <string name="school_refusal_lesson_already_studied">Ya estudiaste esa lección: sus palabras están en tu repaso.</string>
     <string name="school_refusal_lesson_school_too_low">Esa lección necesita una escuela de más nivel. Súbela primero.</string>
