@@ -6,6 +6,7 @@ import {
   authSignUpSwitchLink,
   authSignUpSwitchPrompt,
   authSignUpTitle,
+  authTagline,
   refusalMalformedEmail,
   refusalWeakPassword,
 } from '@mygame/catalog'
@@ -78,6 +79,7 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
   return (
     <AuthPanel
       title={authSignUpTitle()}
+      lead={authTagline()}
       onSubmit={submit}
       footer={
         <>

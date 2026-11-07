@@ -39,7 +39,7 @@ it('confirms a reset request in the same words for any email', async () => {
   const unknownEmailConfirmation = await confirmationFor('nadie@example.com', requestedEmails)
 
   expect(knownEmailConfirmation).toBe(
-    'Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.',
+    'Si ese correo tiene una cuenta y está confirmado, te llegará un enlace que vale una hora.',
   )
   expect(unknownEmailConfirmation).toBe(knownEmailConfirmation)
   expect(requestedEmails).toEqual(['aldonza@example.com', 'nadie@example.com'])

@@ -6,6 +6,7 @@ import {
   authSignInSwitchLink,
   authSignInSwitchPrompt,
   authSignInTitle,
+  authTagline,
 } from '@mygame/catalog'
 import type { SignInRequest } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
@@ -29,6 +30,7 @@ export function SignInScreen(props: SignInScreenProps): ReactElement {
   return (
     <AuthPanel
       title={authSignInTitle()}
+      lead={authTagline()}
       onSubmit={() => props.onSubmit({ email, password })}
       footer={
         <>
