@@ -25,6 +25,7 @@ fun TownRoute(
     onSignedOut: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TownViewModel = viewModel { TownViewModel(towns, sessions, clock) },
+    ring: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnSigningOut: () -> Unit by rememberUpdatedState(onSigningOut)
@@ -52,5 +53,6 @@ fun TownRoute(
         onSchoolOpen = onSchoolOpen,
         onReportOpen = onReportOpen,
         modifier = modifier,
+        ring = ring,
     )
 }

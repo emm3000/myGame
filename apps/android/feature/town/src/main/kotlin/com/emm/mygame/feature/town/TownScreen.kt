@@ -31,6 +31,7 @@ fun TownScreen(
     onSchoolOpen: () -> Unit,
     onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
+    ring: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -70,6 +71,7 @@ fun TownScreen(
                 onIntent = onIntent,
                 onSchoolOpen = onSchoolOpen,
                 onReportOpen = onReportOpen,
+                ring = ring,
             )
         }
     }
@@ -92,10 +94,11 @@ private fun TownHome(
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     onReportOpen: () -> Unit,
+    ring: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        MyGameHeader {
+        MyGameHeader(end = ring) {
             TownTitle(name = content.name, label = content.label)
         }
         TownDoors(onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)

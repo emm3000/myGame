@@ -1,15 +1,22 @@
 package com.emm.mygame
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -31,6 +38,7 @@ import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
+import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -103,6 +111,8 @@ class AppNavigationTest {
         fullStores = emptyList(),
     )
 
+    private val threeOfFive: RetainedWords = RetainedWords(count = 3, total = 5)
+
     private val firstLesson: LessonId = LessonId("lesson-1")
 
     private val secondLesson: LessonId = LessonId("lesson-2")
@@ -128,6 +138,7 @@ class AppNavigationTest {
 
     private fun townOf(
         inLearning: Int = 0,
+        retainedWords: RetainedWords? = null,
         lessons: List<TownSnapshot.Lesson> = listOf(lessonOf(firstLesson, listOf(waterWord))),
     ): TownSnapshot = TownSnapshot(
         name = "Riverton",
@@ -140,7 +151,7 @@ class AppNavigationTest {
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = lessons,
         skills = emptyList(),
-        learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning),
+        learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning, retainedWords = retainedWords),
         lessonSlot = null,
         readAt = readAt,
     )
@@ -194,6 +205,14 @@ class AppNavigationTest {
         waitForLine("NOTICIAS DEL PUEBLO")
     }
 
+    private fun ring(name: String): SemanticsNodeInteraction = composeRule.onNodeWithContentDescription(name)
+
+    private fun waitForRing(name: String) {
+        composeRule.waitUntil(WAIT_MILLIS) {
+            composeRule.onAllNodes(hasContentDescription(name)).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private fun onTheFirstLessonOfTheWalk(secondReadings: List<TownSnapshot.WordReading>) {
         val lessons: List<TownSnapshot.Lesson> =
             listOf(lessonOf(firstLesson, listOf(waterWord)), lessonOf(secondLesson, secondReadings))
@@ -202,6 +221,92 @@ class AppNavigationTest {
         repeat(2) { reportsFake.answerRead(ReportReadResult.Read(walkReport)) }
         composeRule.onNodeWithText("Leer las palabras").performClick()
         waitForLine("I drink water.")
+    }
+
+    @Test
+    fun `hides the ring while the count is null`() {
+        signedInAtTown(town = townOf(retainedWords = null))
+
+        composeRule.onAllNodesWithContentDescription(RING_WORDS, substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `shows the retained words in the ring`() {
+        signedInAtTown(town = townOf(retainedWords = threeOfFive))
+
+        ring(THREE_OF_FIVE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `shows the ring on a screen under the town home`() {
+        signedInAtTown(town = townOf(retainedWords = threeOfFive))
+
+        door("Escuela").performClick()
+        waitForLine("Ahora no hay ninguna lección en estudio.")
+
+        ring(THREE_OF_FIVE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `reads the count to TalkBack`() {
+        signedInAtTown(town = townOf(retainedWords = threeOfFive))
+
+        ring(THREE_OF_FIVE).assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
+    }
+
+    @Test
+    fun `names a lesson of one word in the singular`() {
+        signedInAtTown(town = townOf(retainedWords = RetainedWords(count = 0, total = 1)))
+
+        ring("0 de 1 palabra aprendida").assertIsDisplayed()
+    }
+
+    @Test
+    fun `keeps one town read for the frame and the screen under it`() {
+        signedInAtTown(town = townOf(retainedWords = threeOfFive))
+        composeRule.waitForIdle()
+        assertEquals(1, townsFake.readCount)
+
+        door("Escuela").performClick()
+        waitForLine("Ahora no hay ninguna lección en estudio.")
+
+        assertEquals(2, townsFake.readCount)
+    }
+
+    @Test
+    fun `reads the town for the ring over a screen that reads none`() {
+        reportsFake.answerRead(ReportReadResult.Read(TownReport(3, emptyList(), emptyList())))
+        townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
+
+        composeRule.setContent {
+            MyGameTheme {
+                AppNavigation(
+                    dependencies = dependencies,
+                    backStack = rememberNavBackStack(Destination.Town, Destination.Report),
+                )
+            }
+        }
+        waitForRing(THREE_OF_FIVE)
+
+        assertEquals(1, townsFake.readCount)
+    }
+
+    @Test
+    fun `draws a count fallen back on the way home from the Report`() {
+        sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("player@example.com")))
+        listingsFake.answerListed(FiefListResult.Listed(emptyList()))
+        townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
+        composeRule.setContent {
+            MyGameTheme {
+                AppNavigation(dependencies = dependencies)
+            }
+        }
+        waitForRing(THREE_OF_FIVE)
+        townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = RetainedWords(count = 2, total = 5))))
+
+        openReport(TownReport(dueCount = 3, readFirst = emptyList(), news = emptyList()))
+
+        waitForRing("2 de 5 palabras aprendidas")
     }
 
     @Test
@@ -408,6 +513,8 @@ class AppNavigationTest {
 
     private companion object {
         const val TOWN_HEADER: String = "RIVERTON · PUEBLO"
+        const val RING_WORDS: String = "palabra"
+        const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val READS_AVAILABLE: Int = 5
         const val WAIT_MILLIS: Long = 5_000
     }

@@ -94,48 +94,17 @@ internal fun AppNavigation(
 }
 
 private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependencies, navigator: Navigator) {
-    entry<Destination.Town> {
-        SignedInFrame(isTownHome = true, navigator = navigator) {
-            TownRoute(
-                towns = dependencies.towns,
-                sessions = dependencies.sessions,
-                clock = dependencies.clock,
-                onSchoolOpen = navigator::openSchool,
-                onReportOpen = navigator::openReport,
-                onSigningOut = navigator::signingOut,
-                onSignedOut = { navigator.signedOut(isSessionEnded = false) },
-            )
-        }
-    }
-    entry<Destination.School> {
-        SignedInFrame(isTownHome = false, navigator = navigator) {
-            SchoolRoute(
-                towns = dependencies.towns,
-                clock = dependencies.clock,
-                onNoTown = navigator::openTown,
-                onReviewsOpen = navigator::openReviews,
-                onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
-            )
-        }
-    }
-    entry<Destination.Report> {
-        SignedInFrame(isTownHome = false, navigator = navigator) {
-            ReportRoute(
-                reports = dependencies.reports,
-                sessions = dependencies.sessions,
-                clock = dependencies.clock,
-                navigation = ReportNavigation(
-                    onReviewsOpen = navigator::openReviews,
-                    onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
-                    onSigningOut = navigator::signingOut,
-                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
-                ),
-            )
-        }
-    }
+    townEntry(dependencies = dependencies, navigator = navigator)
+    schoolEntry(dependencies = dependencies, navigator = navigator)
+    reportEntry(dependencies = dependencies, navigator = navigator)
     lessonWordsEntry(dependencies = dependencies, navigator = navigator)
     entry<Destination.Review> {
-        SignedInFrame(isTownHome = false, navigator = navigator) {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = false,
+            dependencies = dependencies,
+            navigator = navigator,
+        ) {
             ReviewRoute(learning = dependencies.learning, clock = dependencies.clock)
         }
     }
@@ -151,9 +120,78 @@ private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependen
     }
 }
 
+private fun EntryProviderScope<NavKey>.townEntry(dependencies: AppDependencies, navigator: Navigator) {
+    entry<Destination.Town> {
+        SignedInFrame(
+            isTownHome = true,
+            doesScreenReadTown = true,
+            dependencies = dependencies,
+            navigator = navigator,
+        ) {
+            TownRoute(
+                towns = dependencies.towns,
+                sessions = dependencies.sessions,
+                clock = dependencies.clock,
+                onSchoolOpen = navigator::openSchool,
+                onReportOpen = navigator::openReport,
+                onSigningOut = navigator::signingOut,
+                onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
+            )
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.schoolEntry(dependencies: AppDependencies, navigator: Navigator) {
+    entry<Destination.School> {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = true,
+            dependencies = dependencies,
+            navigator = navigator,
+        ) {
+            SchoolRoute(
+                towns = dependencies.towns,
+                clock = dependencies.clock,
+                onNoTown = navigator::openTown,
+                onReviewsOpen = navigator::openReviews,
+                onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+            )
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.reportEntry(dependencies: AppDependencies, navigator: Navigator) {
+    entry<Destination.Report> {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = false,
+            dependencies = dependencies,
+            navigator = navigator,
+        ) {
+            ReportRoute(
+                reports = dependencies.reports,
+                sessions = dependencies.sessions,
+                clock = dependencies.clock,
+                navigation = ReportNavigation(
+                    onReviewsOpen = navigator::openReviews,
+                    onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+                    onSigningOut = navigator::signingOut,
+                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
+                ),
+            )
+        }
+    }
+}
+
 private fun EntryProviderScope<NavKey>.lessonWordsEntry(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.LessonWords> { shown: Destination.LessonWords ->
-        SignedInFrame(isTownHome = false, navigator = navigator) {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = true,
+            dependencies = dependencies,
+            navigator = navigator,
+        ) {
             LessonWordsRoute(
                 walk = LessonWalk(shown.lesson, shown.walked),
                 towns = dependencies.towns,
@@ -186,6 +224,8 @@ private fun FiefFrame(
     }
     SignedInFrame(
         isTownHome = false,
+        doesScreenReadTown = false,
+        dependencies = dependencies,
         navigator = navigator,
         modifier = modifier,
         underHeader = {
@@ -200,6 +240,8 @@ private fun FiefFrame(
 @Composable
 private fun SignedInFrame(
     isTownHome: Boolean,
+    doesScreenReadTown: Boolean,
+    dependencies: AppDependencies,
     navigator: Navigator,
     modifier: Modifier = Modifier,
     underHeader: @Composable () -> Unit = {},
@@ -209,7 +251,10 @@ private fun SignedInFrame(
         if (isTownHome) WindowInsets.ime else WindowInsets.ime.union(WindowInsets.statusBars)
     Column(modifier = modifier.fillMaxSize().background(MyGameTheme.colors.surface)) {
         if (!isTownHome) {
-            MyGameHeader(modifier = Modifier.statusBarsPadding().padding(horizontal = MyGameSpacing.step4)) {
+            MyGameHeader(
+                modifier = Modifier.statusBarsPadding().padding(horizontal = MyGameSpacing.step4),
+                end = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
+            ) {
                 MyGameBackLink(
                     label = stringResource(R.string.navigation_town),
                     isEnabled = navigator.areLinksEnabled,

@@ -1,6 +1,7 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.models.TownOverviewLearning
+import com.emm.mygame.core.network.generated.models.TownOverviewLearningRetainedWords
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonSlot
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInnerSkill
@@ -32,7 +33,13 @@ internal fun TownOverviewSkillsInner.toEarnedSkill(): TownSnapshot.EarnedSkill? 
 }
 
 internal fun TownOverviewLearning.toLearning(): TownSnapshot.Learning =
-    TownSnapshot.Learning(cap = cap, inLearning = inLearning)
+    TownSnapshot.Learning(
+        cap = cap,
+        inLearning = inLearning,
+        retainedWords = retainedWords?.let { words: TownOverviewLearningRetainedWords ->
+            RetainedWords(count = words.count, total = words.total)
+        },
+    )
 
 internal fun TownOverviewLessonSlot.toLessonSlot(): TownSnapshot.LessonSlot = TownSnapshot.LessonSlot(
     lesson = LessonId(lessonId),

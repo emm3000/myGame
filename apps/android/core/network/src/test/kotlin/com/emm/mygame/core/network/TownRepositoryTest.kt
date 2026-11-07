@@ -65,6 +65,77 @@ class TownRepositoryTest {
     }
 
     @Test
+    fun `holds no retained words until an answer names them`() = runTest {
+        assertEquals(null, town().retainedWords.value)
+    }
+
+    @Test
+    fun `holds the retained words the last read answered`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
+
+        towns.read()
+
+        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+    }
+
+    @Test
+    fun `drops the retained words when a read answers none`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
+        api.enqueue(json(200, TOWN))
+        towns.read()
+
+        towns.read()
+
+        assertEquals(null, towns.retainedWords.value)
+    }
+
+    @Test
+    fun `drops the retained words when the player holds no town`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
+        api.enqueue(json(404, """{"kind":"TownNotFound"}"""))
+        towns.read()
+
+        towns.read()
+
+        assertEquals(null, towns.retainedWords.value)
+    }
+
+    @Test
+    fun `keeps the retained words through a failed read`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
+        api.enqueue(json(500, "{}"))
+        towns.read()
+
+        towns.read()
+
+        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+    }
+
+    @Test
+    fun `holds the retained words a lesson's answer names`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
+
+        towns.startLesson(LessonId("lesson-1"))
+
+        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+    }
+
+    @Test
+    fun `holds the retained words a work answer names`() = runTest {
+        val towns: TownRepository = town()
+        api.enqueue(json(200, TOWN_WITH_RETAINED_WORDS))
+
+        towns.startWork(TownBuildingKind.Farm)
+
+        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+    }
+
+    @Test
     fun `reads each place with its next level`() = runTest {
         api.enqueue(json(200, TOWN))
 
@@ -388,5 +459,8 @@ class TownRepositoryTest {
                 """"learning":{"cap":10,"inLearning":0,"retainedWords":null},""" +
                 """"nextStep":{"kind":"caughtUp"},"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
+
+        val TOWN_WITH_RETAINED_WORDS: String =
+            TOWN.replace(""""retainedWords":null""", """"retainedWords":{"count":3,"total":5}""")
     }
 }

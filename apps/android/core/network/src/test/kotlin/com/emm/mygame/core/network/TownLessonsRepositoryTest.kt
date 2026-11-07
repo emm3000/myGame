@@ -77,7 +77,7 @@ class TownLessonsRepositoryTest {
 
         val read: TownSnapshot = (town().read() as TownReadResult.Read).town
 
-        assertEquals(TownSnapshot.Learning(cap = 10, inLearning = 8), read.learning)
+        assertEquals(TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null), read.learning)
     }
 
     @Test

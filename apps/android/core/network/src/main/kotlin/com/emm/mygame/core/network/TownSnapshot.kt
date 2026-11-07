@@ -55,7 +55,7 @@ data class TownSnapshot(
 
     data class EarnedSkill(val lesson: LessonId, val resource: TownResourceKind, val ratePercent: Int)
 
-    data class Learning(val cap: Int, val inLearning: Int)
+    data class Learning(val cap: Int, val inLearning: Int, val retainedWords: RetainedWords?)
 
     data class LessonSlot(val lesson: LessonId, val startedAt: Instant, val finishesAt: Instant)
 }

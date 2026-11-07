@@ -1,5 +1,6 @@
 {
   "android.app.navigation_town": "Town",
+  "android.app.shell_retained_words": "{count} of {total, plural, =1 {1 word} other {{total, number,0} words}} learned",
   "android.report.report_amount": "{amount} {resource}",
   "android.report.report_day": "{day}, {time}",
   "android.report.report_day_of_year": "{day} {year}, {time}",
