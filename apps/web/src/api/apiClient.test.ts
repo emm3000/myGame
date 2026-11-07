@@ -158,6 +158,7 @@ it('answers a refused dismissal by its kind', async () => {
 it("reads the due reviews from the player's reviews", async () => {
   const reviews = {
     due: [],
+    readFirst: [],
     nextDueAt: '2026-09-22T12:09:00.000Z',
     readAt: '2026-09-22T12:00:00.000Z',
   }

@@ -264,9 +264,10 @@ class LearningRepositoryTest {
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
     private companion object {
-        const val NO_REVIEWS: String = """{"due":[],"nextDueAt":null,"readAt":"2026-11-10T08:59:30.000Z"}"""
+        const val NO_REVIEWS: String =
+            """{"due":[],"readFirst":[],"nextDueAt":null,"readAt":"2026-11-10T08:59:30.000Z"}"""
         const val NOTHING_DUE: String =
-            """{"due":[],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T09:04:00.000Z"}"""
+            """{"due":[],"readFirst":[],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T09:04:00.000Z"}"""
         const val TWO_DUE: String =
             """{"due":[""" +
                 """{"mode":"recognition","wordId":"lesson-1-2","lessonId":"lesson-1",""" +
@@ -274,18 +275,19 @@ class LearningRepositoryTest {
                 """"choices":[{"choiceId":"0a1b2c3d","gloss":"escuela"},{"choiceId":"4e5f6a7b","gloss":"comida"}]},""" +
                 """{"mode":"recall","wordId":"lesson-1-1","lessonId":"lesson-1",""" +
                 """"dueAt":"2026-11-10T09:01:00.000Z","gloss":"casa","gappedFrame":"She goes ___ at six."}""" +
-                """],"nextDueAt":"2026-11-10T09:10:00.000Z","readAt":"2026-11-10T08:59:30.000Z"}"""
+                """],"readFirst":["lesson-1"],"nextDueAt":"2026-11-10T09:10:00.000Z",""" +
+                """"readAt":"2026-11-10T08:59:30.000Z"}"""
         const val NEAR_MISS: String = """{"kind":"nearMiss"}"""
         const val CORRECT_WITH_SKILL: String =
             """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
                 """"earnedSkill":{"lessonId":"lesson-1","resource":"food","ratePercent":5,""" +
                 """"earnedAt":"2026-11-23T09:10:00.000Z","level":2,""" +
-                """"ratePerHourBefore":18.75,"ratePerHourAfter":19.6875}}"""
+                """"ratePerHourBefore":18.75,"ratePerHourAfter":19.6875,"words":["home","school"]}}"""
         const val CORRECT_WITHOUT_TOWN: String =
             """{"kind":"correct","word":"school","gloss":"escuela","dueAt":"2026-11-12T09:10:00.000Z",""" +
                 """"earnedSkill":{"lessonId":"lesson-1","resource":"power","ratePercent":5,""" +
                 """"earnedAt":"2026-11-23T09:10:00.000Z","level":1,""" +
-                """"ratePerHourBefore":null,"ratePerHourAfter":null}}"""
+                """"ratePerHourBefore":null,"ratePerHourAfter":null,"words":["home","school"]}}"""
         const val WRONG: String =
             """{"kind":"wrong","word":"home","gloss":"casa","dueAt":"2026-11-10T09:11:00.000Z"}"""
     }

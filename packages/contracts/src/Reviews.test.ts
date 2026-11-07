@@ -27,13 +27,18 @@ const readAt = '2026-11-12T09:00:00.000Z'
 
 describe('ReviewsSchema', () => {
   it('parses the due reviews of each mode', () => {
-    const reviews = { due: [recognitionOfHome, recallOfSchool], nextDueAt: null, readAt }
+    const reviews = {
+      due: [recognitionOfHome, recallOfSchool],
+      readFirst: ['lesson-1'],
+      nextDueAt: null,
+      readAt,
+    }
 
     expect(ReviewsSchema.parse(reviews)).toEqual(reviews)
   })
 
   it('parses the next due instant when nothing is due', () => {
-    const reviews = { due: [], nextDueAt: '2026-11-12T09:10:00.000Z', readAt }
+    const reviews = { due: [], readFirst: [], nextDueAt: '2026-11-12T09:10:00.000Z', readAt }
 
     expect(ReviewsSchema.parse(reviews)).toEqual(reviews)
   })
@@ -42,8 +47,12 @@ describe('ReviewsSchema', () => {
     const choices = [{ choiceId: '5c0e91a2', wordId: 'lesson-1-4', gloss: 'dinero' }]
 
     expect(
-      ReviewsSchema.safeParse({ due: [{ ...recognitionOfHome, choices }], nextDueAt: null, readAt })
-        .success,
+      ReviewsSchema.safeParse({
+        due: [{ ...recognitionOfHome, choices }],
+        readFirst: [],
+        nextDueAt: null,
+        readAt,
+      }).success,
     ).toBe(false)
   })
 
@@ -51,6 +60,7 @@ describe('ReviewsSchema', () => {
     expect(
       ReviewsSchema.safeParse({
         due: [{ ...recallOfSchool, word: 'school' }],
+        readFirst: [],
         nextDueAt: null,
         readAt,
       }).success,
@@ -58,12 +68,23 @@ describe('ReviewsSchema', () => {
   })
 
   it('rejects reviews that name no instant they were read at', () => {
-    expect(ReviewsSchema.safeParse({ due: [], nextDueAt: null }).success).toBe(false)
+    expect(ReviewsSchema.safeParse({ due: [], readFirst: [], nextDueAt: null }).success).toBe(false)
+  })
+
+  it('rejects reviews that name no lessons to read first', () => {
+    expect(ReviewsSchema.safeParse({ due: [], nextDueAt: null, readAt }).success).toBe(false)
+  })
+
+  it('rejects a blank lesson to read first', () => {
+    expect(
+      ReviewsSchema.safeParse({ due: [], readFirst: [''], nextDueAt: null, readAt }).success,
+    ).toBe(false)
   })
 
   it('rejects reviews that carry a fief', () => {
-    expect(ReviewsSchema.safeParse({ due: [], nextDueAt: null, readAt, fief: {} }).success).toBe(
-      false,
-    )
+    expect(
+      ReviewsSchema.safeParse({ due: [], readFirst: [], nextDueAt: null, readAt, fief: {} })
+        .success,
+    ).toBe(false)
   })
 })

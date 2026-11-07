@@ -1,4 +1,5 @@
 import {
+  schoolSkillName,
   townFull,
   townPeople,
   townRate,
@@ -7,6 +8,7 @@ import {
   townStocks,
 } from '@mygame/catalog'
 import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts/town'
+import { skillLevelOf } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
 import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
@@ -18,14 +20,34 @@ import { seasonNameOf } from '../seasons/seasonNameOf'
 import type { LiveTown } from './liveTown'
 import { townSeasonEndsInOf } from './townSeasonEndsInOf'
 
+function SkillMark({
+  resource,
+  skills,
+}: {
+  readonly resource: ResourceKind
+  readonly skills: TownOverview['skills']
+}): ReactElement | null {
+  const level = skillLevelOf(skills, resource)
+  if (level === 0) {
+    return null
+  }
+  return (
+    <span className="font-sans text-caption text-ink">
+      {schoolSkillName({ resource: townResourceNameOf(resource), level })}
+    </span>
+  )
+}
+
 function StockItem({
   resource,
   amount,
   stock,
+  skills,
 }: {
   readonly resource: ResourceKind
   readonly amount: number
   readonly stock: TownOverview['stocks'][ResourceKind]
+  readonly skills: TownOverview['skills']
 }): ReactElement {
   const Icon = resourceAccent[resource]
   const shown = Math.floor(amount)
@@ -43,6 +65,7 @@ function StockItem({
         <span>{townRate({ rate: formatQuantity(Math.floor(stock.ratePerHour)) })}</span>
       </span>
       <Track value={shown} total={stock.capacity} fillClass="fill-ink" />
+      <SkillMark resource={resource} skills={skills} />
     </li>
   )
 }
@@ -86,6 +109,7 @@ export function TownStocks({ town }: { readonly town: LiveTown }): ReactElement 
             resource={resource}
             amount={stocks[resource]}
             stock={overview.stocks[resource]}
+            skills={overview.skills}
           />
         ))}
       </ul>

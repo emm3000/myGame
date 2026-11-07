@@ -167,7 +167,7 @@ it('lowers the due count once a review is answered', async () => {
     town: async () => ({ ok: true, value: dueTown(2 - answers) }),
     reviews: async () => ({
       ok: true,
-      value: { due: [dueReview], nextDueAt: null, readAt: knownTown.readAt },
+      value: { due: [dueReview], readFirst: [], nextDueAt: null, readAt: knownTown.readAt },
     }),
     answerReview: async () => {
       answers += 1

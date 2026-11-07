@@ -99,7 +99,7 @@ it('moves the ring on no answer short of retained', async () => {
       town: async () => ({ ok: true, value: town }),
       reviews: async () => ({
         ok: true,
-        value: { due: [schoolRecall], nextDueAt: null, readAt: knownTown.readAt },
+        value: { due: [schoolRecall], readFirst: [], nextDueAt: null, readAt: knownTown.readAt },
       }),
       answerReview: async () => ({ ok: true, value: { verdict: correctSchool } }),
     }),

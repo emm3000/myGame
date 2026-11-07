@@ -16,16 +16,26 @@ import { ReadFailed } from '../design-system/ReadFailed'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { refusalLineOf } from '../refusals/refusalLineOf'
+import { LessonReady } from './LessonReady'
 import { RecallCard } from './RecallCard'
 import { RecognitionCard } from './RecognitionCard'
-import { ReviewsAhead } from './ReviewsAhead'
+import { ReviewEnd, type ReviewEndPath } from './ReviewEnd'
 import type { ReviewHandle } from './useReview'
 
 export type ReviewScreenState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'failed'; readonly onRetry: () => void }
   | { readonly kind: 'noCards' }
-  | { readonly kind: 'nothingDue'; readonly nextReview: string | undefined }
+  | {
+      readonly kind: 'nothingDue'
+      readonly nextReview: string
+      readonly path: ReviewEndPath | undefined
+    }
+  | {
+      readonly kind: 'lessonReady'
+      readonly lessonId: string
+      readonly lessonNumber: number | undefined
+    }
   | {
       readonly kind: 'card'
       readonly card: DueReview
@@ -104,9 +114,11 @@ function ReviewBody({
         <ReadFailed message={reviewFailed()} retryLabel={reviewRetry()} onRetry={state.onRetry} />
       )
     case 'noCards':
-      return <ReviewsAhead line={reviewNoCards()} nextReview={undefined} />
+      return <ReviewEnd line={reviewNoCards()} nextReview={undefined} path={undefined} />
     case 'nothingDue':
-      return <ReviewsAhead line={reviewNothingDue()} nextReview={state.nextReview} />
+      return <ReviewEnd line={reviewNothingDue()} nextReview={state.nextReview} path={state.path} />
+    case 'lessonReady':
+      return <LessonReady lessonId={state.lessonId} lessonNumber={state.lessonNumber} />
     case 'card':
       return <DueCard state={state} onNext={onNext} />
     default: {

@@ -10,6 +10,7 @@ import {
   type MemoryTerms,
   ok,
   type Result,
+  readFirstOf,
   recognitionChoicesOf,
   reviewFormatOf,
 } from '@mygame/domain'
@@ -89,6 +90,7 @@ export const reviewsOf = (
   }
   return ok({
     due,
+    readFirst: [...readFirstOf(lessons.lessons(), dueCards.value)],
     nextDueAt: nextDueAt.value === null ? null : isoOf(nextDueAt.value),
     readAt: isoOf(readAt),
   })

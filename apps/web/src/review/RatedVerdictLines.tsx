@@ -5,13 +5,17 @@ import {
   reviewRightAnswer,
   reviewSkillEarned,
   reviewSkillRate,
+  reviewSkillRates,
+  reviewSkillWords,
   reviewWrong,
   reviewYourAnswer,
 } from '@mygame/catalog'
 import type { RaisedSkill } from '@mygame/contracts'
 import { type ReactElement, type Ref, useId } from 'react'
 import { Button } from '../design-system/Button'
+import { capitalize } from '../design-system/capitalize'
 import { focusTargetClass } from '../design-system/focusTargetClass'
+import { formatQuantity } from '../design-system/formatQuantity'
 import { CheckIcon } from '../design-system/icons/CheckIcon'
 import { CrossIcon } from '../design-system/icons/CrossIcon'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
@@ -46,6 +50,24 @@ function WrongLines({
   )
 }
 
+const shownRateOf = (ratePerHour: number): string => formatQuantity(Math.floor(ratePerHour))
+
+function RatesLine({ skill }: { readonly skill: RaisedSkill }): ReactElement | null {
+  const { ratePerHourBefore, ratePerHourAfter } = skill
+  if (ratePerHourBefore === null || ratePerHourAfter === null) {
+    return null
+  }
+  return (
+    <p className="m-0 font-sans text-body text-ink tabular-nums">
+      {reviewSkillRates({
+        resource: capitalize(townResourceNameOf(skill.resource)),
+        before: shownRateOf(ratePerHourBefore),
+        after: shownRateOf(ratePerHourAfter),
+      })}
+    </p>
+  )
+}
+
 function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
   return (
     <>
@@ -57,6 +79,10 @@ function SkillLines({ skill }: { readonly skill: RaisedSkill }): ReactElement {
           percent: skill.ratePercent,
           resource: townResourceNameOf(skill.resource),
         })}
+      </p>
+      <RatesLine skill={skill} />
+      <p className="m-0 font-sans text-body text-ink">
+        {reviewSkillWords()} <span lang="en">{skill.words.join(', ')}</span>
       </p>
     </>
   )

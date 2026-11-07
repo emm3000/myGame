@@ -252,7 +252,7 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   stopLesson: async () => ({ ok: true, value: knownTown }),
   reviews: async () => ({
     ok: true,
-    value: { due: [], nextDueAt: null, readAt: '2026-09-22T12:00:00.000Z' },
+    value: { due: [], readFirst: [], nextDueAt: null, readAt: '2026-09-22T12:00:00.000Z' },
   }),
   reviewHint: async () => ({ ok: true, value: { firstLetter: 's', letterCount: 6 } }),
   answerReview: async () => ({ ok: true, value: { verdict: { kind: 'nearMiss' } } }),

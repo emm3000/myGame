@@ -619,6 +619,18 @@ describe('the learning routes', () => {
       expect([due.length, leaks]).toEqual([5, []])
     })
 
+    it('answers readFirst on the reviews', async () => {
+      const player = await studyLessonOne()
+      clock.setTo(lessonFinishesAt)
+      const finished = await readReviews(player)
+      await recognizeEvery(player)
+      clock.setTo(secondLearningStepAt)
+
+      const reviewed = await readReviews(player)
+
+      expect([finished.readFirst, reviewed.readFirst]).toEqual([['lesson-1'], []])
+    })
+
     it('answers the next due instant when nothing is due', async () => {
       const player = await studyLessonOne()
       clock.setTo(lessonFinishesAt)
@@ -930,6 +942,7 @@ describe('the learning routes', () => {
           level: 1,
           ratePerHourBefore: before.stocks.food.ratePerHour,
           ratePerHourAfter: after.stocks.food.ratePerHour,
+          words: ['home', 'school', 'work', 'money', 'food'],
         },
       })
       expect(after.stocks.food.ratePerHour).toBeGreaterThan(before.stocks.food.ratePerHour)
@@ -959,6 +972,7 @@ describe('the learning routes', () => {
         level: 1,
         ratePerHourBefore: null,
         ratePerHourAfter: null,
+        words: ['home', 'school', 'work', 'money', 'food'],
       })
     })
 
@@ -1163,6 +1177,51 @@ describe('the learning routes', () => {
         'word-think',
         'word-time',
         'word-year',
+      ])
+    })
+
+    it("leaves a held-out word out of the skill's words", async () => {
+      app = createApp({
+        ...server,
+        clock,
+        lessons: libraryWithBandLesson(),
+        random: holdingOutSayAndTheLastRanks,
+      })
+      const player = await signUpWithATown()
+      clock.setTo(lessonStartsAt)
+      await startLesson(player, 'lesson-17')
+      const headwordOf = (wordId: string): string => wordId.replace('word-', '')
+      const recognizeTheBandLesson = async (): Promise<void> => {
+        for (const review of (await readReviews(player)).due) {
+          assert(review.mode === 'recognition')
+          const right = review.choices.find(
+            ({ gloss }) => gloss === `gloss of ${headwordOf(review.wordId)}`,
+          )
+          assert(right !== undefined)
+          await answered(player, review.wordId, right.choiceId)
+        }
+      }
+      const recallTheBandLesson = async (): Promise<ReadonlyArray<ReviewAnswer>> => {
+        const answers: Array<ReviewAnswer> = []
+        for (const review of (await readReviews(player)).due) {
+          answers.push(await answered(player, review.wordId, headwordOf(review.wordId)))
+        }
+        return answers
+      }
+      clock.setTo(lessonFinishesAt)
+      await recognizeTheBandLesson()
+      clock.setTo(secondLearningStepAt)
+      await recognizeTheBandLesson()
+      clock.setTo(lateFirstRecallAt)
+      await recallTheBandLesson()
+      clock.setTo(secondRecallAt)
+
+      const earned = (await recallTheBandLesson()).flatMap(({ verdict }) =>
+        verdict.kind === 'correct' && verdict.earnedSkill !== null ? [verdict.earnedSkill] : [],
+      )
+
+      expect(earned.map(({ lessonId, words }) => ({ lessonId, words }))).toEqual([
+        { lessonId: 'lesson-17', words: ['time', 'year', 'think', 'come'] },
       ])
     })
 
