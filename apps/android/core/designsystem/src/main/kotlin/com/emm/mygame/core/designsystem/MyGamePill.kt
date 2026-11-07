@@ -32,6 +32,7 @@ internal fun MyGamePill(
     modifier: Modifier = Modifier,
     blockedReason: String? = null,
     accessibleName: String? = null,
+    badge: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val shape: Shape = RoundedCornerShape(MyGameRadii.pill)
@@ -62,7 +63,23 @@ internal fun MyGamePill(
             color = ink,
             modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
         )
+        badge?.let { figure: String -> PillBadge(figure = figure, shape = shape) }
     }
+}
+
+@Composable
+private fun PillBadge(figure: String, shape: Shape, modifier: Modifier = Modifier) {
+    val colors: MyGameColors = MyGameTheme.colors
+    MyGameText(
+        text = figure,
+        style = MyGameTypography.label.withTabularFigures(),
+        color = colors.onAction,
+        modifier = modifier
+            .clearAndSetSemantics { }
+            .clip(shape)
+            .background(colors.action)
+            .padding(horizontal = MyGameSpacing.step2),
+    )
 }
 
 private fun Modifier.pillSemantics(tag: String, accessibleName: String?, state: String?): Modifier =

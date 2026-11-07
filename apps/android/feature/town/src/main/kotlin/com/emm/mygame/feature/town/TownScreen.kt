@@ -23,6 +23,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -35,6 +36,7 @@ fun TownScreen(
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
+    status: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -76,7 +78,12 @@ fun TownScreen(
                 onReportOpen = onReportOpen,
                 onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
-                ring = ring,
+                header = {
+                    MyGameHeader(end = ring) {
+                        TownTitle(name = state.name, label = state.label)
+                    }
+                    status()
+                },
             )
         }
     }
@@ -101,13 +108,11 @@ private fun TownHome(
     onReportOpen: () -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
-    ring: @Composable () -> Unit,
+    header: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        MyGameHeader(end = ring) {
-            TownTitle(name = content.name, label = content.label)
-        }
+        header()
         NextStepSection(
             content = content,
             onSchoolOpen = onSchoolOpen,
@@ -115,7 +120,7 @@ private fun TownHome(
             onReviewsOpen = onReviewsOpen,
             onLessonOpen = onLessonOpen,
         )
-        TownDoors(onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)
+        TownDoors(dueCount = content.dueCount(), onSchoolOpen = onSchoolOpen, onReportOpen = onReportOpen)
         TownSkyline(content = content)
         StocksSection(content = content)
         BuildingWorkSection(content = content, onIntent = onIntent)
@@ -136,3 +141,5 @@ private fun labelOf(label: TownLabel): Int = when (label) {
     TownLabel.Town -> R.string.town_label_town
     TownLabel.City -> R.string.town_label_city
 }
+
+private fun TownUiState.Content.dueCount(): Int = (nextStep.line as? NextStepCard.Line.ReviewsDue)?.count ?: 0

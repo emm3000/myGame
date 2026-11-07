@@ -81,6 +81,8 @@
     <string name="town_shortfall">Necesitas {missing} más.</string>
     <string name="town_sign_out">Salir</string>
     <string name="town_skyline_built">{built} de {total} construidos</string>
+    <string name="town_status_finish_close">Cerrar</string>
+    <string name="town_status_finish_line">La lección {number} terminó.</string>
     <string name="town_stock_of">de {capacity}</string>
     <string name="town_stocks">En el almacén</string>
     <string name="town_title">{name} · {label}</string>

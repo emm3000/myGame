@@ -86,5 +86,5 @@ private fun TownSnapshot.lessonCountdown(): NextStepCard.Countdown? = lessonSlot
 private fun TownSnapshot.nextReviewCountdown(): NextStepCard.Countdown? =
     nextDueAt?.let { dueAt: Instant -> NextStepCard.Countdown.NextReview(dueAt) }
 
-private fun TownSnapshot.numberOf(lesson: LessonId): Int =
+fun TownSnapshot.numberOf(lesson: LessonId): Int =
     lessons.indexOfFirst { held: TownSnapshot.Lesson -> held.id == lesson } + 1

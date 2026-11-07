@@ -121,8 +121,8 @@ class TownRepositoryTest {
     }
 
     @Test
-    fun `holds no retained words until an answer names them`() = runTest {
-        assertEquals(null, town().retainedWords.value)
+    fun `holds no town until an answer names it`() = runTest {
+        assertEquals(null, town().town.value)
     }
 
     @Test
@@ -132,7 +132,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
     }
 
     @Test
@@ -144,7 +144,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(null, towns.retainedWords.value)
+        assertEquals(null, towns.town.value?.learning?.retainedWords)
     }
 
     @Test
@@ -156,7 +156,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(null, towns.retainedWords.value)
+        assertEquals(null, towns.town.value?.learning?.retainedWords)
     }
 
     @Test
@@ -168,7 +168,7 @@ class TownRepositoryTest {
 
         towns.read()
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
     }
 
     @Test
@@ -178,7 +178,7 @@ class TownRepositoryTest {
 
         towns.startLesson(LessonId("lesson-1"))
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
     }
 
     @Test
@@ -188,7 +188,7 @@ class TownRepositoryTest {
 
         towns.startWork(TownBuildingKind.Farm)
 
-        assertEquals(RetainedWords(count = 3, total = 5), towns.retainedWords.value)
+        assertEquals(RetainedWords(count = 3, total = 5), towns.town.value?.learning?.retainedWords)
     }
 
     @Test

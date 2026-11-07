@@ -605,6 +605,8 @@
   "android.town.town_shortfall": "Necesitas {missing} más.",
   "android.town.town_sign_out": "Salir",
   "android.town.town_skyline_built": "{built} de {total} construidos",
+  "android.town.town_status_finish_close": "Cerrar",
+  "android.town.town_status_finish_line": "La lección {number} terminó.",
   "android.town.town_stock_of": "de {capacity}",
   "android.town.town_stocks": "En el almacén",
   "android.town.town_title": "{name} · {label}",

@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nextStepCard
+import com.emm.mygame.core.network.numberOf
 import com.emm.mygame.core.network.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
@@ -47,9 +48,6 @@ private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): SchoolUi
 
 private fun TownSnapshot.schoolLevel(): Int =
     buildings.first { building: TownSnapshot.Building -> building.kind == TownBuildingKind.School }.level
-
-internal fun TownSnapshot.numberOf(lesson: LessonId): Int =
-    lessons.indexOfFirst { candidate: TownSnapshot.Lesson -> candidate.id == lesson } + 1
 
 private fun TownSnapshot.isPastCap(lesson: TownSnapshot.Lesson): Boolean =
     learning.inLearning + lesson.wordCount > learning.cap

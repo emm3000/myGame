@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownSnapshot
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,9 +17,9 @@ internal class RetainedWordsViewModel(
     private val doesScreenReadTown: Boolean,
 ) : ViewModel() {
 
-    val state: StateFlow<RetainedWordsUiState> = towns.retainedWords
+    val state: StateFlow<RetainedWordsUiState> = towns.town
         .map(::uiStateOf)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, uiStateOf(towns.retainedWords.value))
+        .stateIn(viewModelScope, SharingStarted.Eagerly, uiStateOf(towns.town.value))
 
     private var reading: Job? = null
 
@@ -36,5 +37,7 @@ internal class RetainedWordsViewModel(
     }
 }
 
-private fun uiStateOf(words: RetainedWords?): RetainedWordsUiState =
-    if (words == null) RetainedWordsUiState.Hidden else RetainedWordsUiState.Shown(words.count, words.total)
+private fun uiStateOf(town: TownSnapshot?): RetainedWordsUiState {
+    val words: RetainedWords = town?.learning?.retainedWords ?: return RetainedWordsUiState.Hidden
+    return RetainedWordsUiState.Shown(words.count, words.total)
+}

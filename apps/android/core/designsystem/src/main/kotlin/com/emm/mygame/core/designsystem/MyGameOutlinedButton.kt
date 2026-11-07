@@ -15,6 +15,7 @@ fun MyGameOutlinedButton(
     modifier: Modifier = Modifier,
     blockedReason: String? = null,
     accessibleName: String? = null,
+    badge: String? = null,
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     MyGamePill(
@@ -34,5 +35,6 @@ fun MyGameOutlinedButton(
         modifier = modifier,
         blockedReason = blockedReason,
         accessibleName = accessibleName,
+        badge = badge,
     )
 }

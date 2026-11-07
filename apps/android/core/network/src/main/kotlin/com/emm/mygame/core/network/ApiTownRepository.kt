@@ -21,9 +21,9 @@ internal class ApiTownRepository(
     private val ioDispatcher: CoroutineDispatcher,
 ) : TownRepository {
 
-    private val _retainedWords: MutableStateFlow<RetainedWords?> = MutableStateFlow(null)
+    private val _town: MutableStateFlow<TownSnapshot?> = MutableStateFlow(null)
 
-    override val retainedWords: StateFlow<RetainedWords?> = _retainedWords.asStateFlow()
+    override val town: StateFlow<TownSnapshot?> = _town.asStateFlow()
 
     override suspend fun read(): TownReadResult = withContext(ioDispatcher) {
         try {
@@ -85,7 +85,7 @@ internal class ApiTownRepository(
 
     private fun answeredTown(response: Response<TownOverview>): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            _retainedWords.value = town.learning.retainedWords
+            _town.value = town
         }
 
     private fun readOrNoTown(response: Response<TownOverview>): TownReadResult {
@@ -95,7 +95,7 @@ internal class ApiTownRepository(
         }
         val isNoTown: Boolean = response.wireRefusal()?.bareKind() == BareApiError.Kind.TownNotFound
         if (!isNoTown) return TownReadResult.Unreachable
-        _retainedWords.value = null
+        _town.value = null
         return TownReadResult.NoTown
     }
 
