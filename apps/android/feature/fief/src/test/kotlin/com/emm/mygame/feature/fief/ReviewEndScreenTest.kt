@@ -184,6 +184,7 @@ class ReviewEndScreenTest {
                 words = listOf("home", "school"),
             ),
         ),
+        isDealtFromStack = false,
     )
 
     private fun layoutOf(text: String): TextLayoutResult {

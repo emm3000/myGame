@@ -112,6 +112,7 @@ class PlaceArtTest {
             MyGameTheme {
                 MyGamePlaceArt(
                     art = placeArtOf(TownBuildingKind.School, level = 3),
+                    risenFrom = null,
                     modifier = Modifier.testTag(ART_TAG),
                 )
             }

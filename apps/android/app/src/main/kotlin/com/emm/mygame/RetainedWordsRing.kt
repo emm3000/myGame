@@ -27,6 +27,7 @@ internal fun RetainedWordsRing(
         is RetainedWordsUiState.Shown -> MyGameRing(
             count = ring.count,
             total = ring.total,
+            countBefore = ring.countBefore,
             accessibleName = icuStringResource(
                 R.string.shell_retained_words,
                 "count" to ring.count.toString(),

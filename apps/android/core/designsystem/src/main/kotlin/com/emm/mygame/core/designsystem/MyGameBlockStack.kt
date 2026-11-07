@@ -12,11 +12,25 @@ import androidx.compose.ui.semantics.semantics
 private const val STACK_TURN_DEGREES: Float = 2f
 
 @Composable
-fun MyGameBlockStack(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun MyGameBlockStack(
+    nearHue: MyGameBlockHue?,
+    farHue: MyGameBlockHue?,
+    dealtKey: Any?,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val fraction: Float = if (dealtKey == null) 1f else rememberRegisteredFraction(MyGameRegisteredRow.Deal, dealtKey)
+    val dealt: Modifier = if (dealtKey == null) {
+        Modifier
+    } else {
+        Modifier.rotate(-STACK_TURN_DEGREES * (1 - fraction)).registering(MyGameRegisteredRow.Deal, fraction)
+    }
     Box(modifier = modifier.fillMaxWidth()) {
-        StackedBlock(hue = MyGameBlockHue.Mint, degrees = STACK_TURN_DEGREES)
-        StackedBlock(hue = MyGameBlockHue.Lavender, degrees = -STACK_TURN_DEGREES)
-        content()
+        farHue?.let { hue: MyGameBlockHue -> StackedBlock(hue = hue, degrees = STACK_TURN_DEGREES) }
+        nearHue?.let { hue: MyGameBlockHue -> StackedBlock(hue = hue, degrees = -STACK_TURN_DEGREES) }
+        Box(modifier = dealt) {
+            content()
+        }
     }
 }
 

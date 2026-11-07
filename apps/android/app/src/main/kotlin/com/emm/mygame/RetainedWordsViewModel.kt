@@ -3,13 +3,14 @@ package com.emm.mygame
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.RetainedWords
+import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.registeredBetween
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 internal class RetainedWordsViewModel(
@@ -17,17 +18,29 @@ internal class RetainedWordsViewModel(
     private val doesScreenReadTown: Boolean,
 ) : ViewModel() {
 
-    val state: StateFlow<RetainedWordsUiState> = towns.town
-        .map(::uiStateOf)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, uiStateOf(towns.town.value))
+    private val _state: MutableStateFlow<RetainedWordsUiState> =
+        MutableStateFlow(uiStateOf(previous = null, next = towns.town.value))
+
+    val state: StateFlow<RetainedWordsUiState> = _state.asStateFlow()
+
+    private var held: TownSnapshot? = towns.town.value
 
     private var reading: Job? = null
+
+    init {
+        viewModelScope.launch { towns.town.collect(::hold) }
+    }
 
     fun onIntent(intent: RetainedWordsIntent) {
         when (intent) {
             RetainedWordsIntent.ScreenShown -> read()
             RetainedWordsIntent.ScreenHidden -> reading?.cancel()
         }
+    }
+
+    private fun hold(next: TownSnapshot?) {
+        _state.value = uiStateOf(previous = held, next = next)
+        held = next
     }
 
     private fun read() {
@@ -37,7 +50,12 @@ internal class RetainedWordsViewModel(
     }
 }
 
-private fun uiStateOf(town: TownSnapshot?): RetainedWordsUiState {
-    val words: RetainedWords = town?.learning?.retainedWords ?: return RetainedWordsUiState.Hidden
-    return RetainedWordsUiState.Shown(words.count, words.total)
+private fun uiStateOf(previous: TownSnapshot?, next: TownSnapshot?): RetainedWordsUiState {
+    val words: RetainedWords = next?.learning?.retainedWords ?: return RetainedWordsUiState.Hidden
+    val rise: TownRegistered.RingRise? = previous?.let { held: TownSnapshot -> registeredBetween(held, next).ringRise }
+    return RetainedWordsUiState.Shown(
+        count = words.count,
+        total = words.total,
+        countBefore = rise?.countBefore ?: words.count,
+    )
 }

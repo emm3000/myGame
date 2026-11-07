@@ -81,7 +81,7 @@ class ReviewViewModel(
         reading = viewModelScope.launch {
             when (val answer: ReviewsReadResult = learning.reviews()) {
                 ReviewsReadResult.Unreachable -> _state.value = ReviewUiState.Failed
-                is ReviewsReadResult.Read -> present(measured(answer.reviews))
+                is ReviewsReadResult.Read -> present(measured(answer.reviews), isDealtFromStack = false)
             }
         }
     }
@@ -98,7 +98,7 @@ class ReviewViewModel(
         }
     }
 
-    private fun present(reviews: DueReviews) {
+    private fun present(reviews: DueReviews, isDealtFromStack: Boolean) {
         val baseline: List<LessonId> = arrival ?: reviews.readFirst.also { read: List<LessonId> -> arrival = read }
         val first: DueReview? = reviews.due.firstOrNull()
         val nextDueAt: Instant? = reviews.nextDueAt
@@ -113,6 +113,7 @@ class ReviewViewModel(
                 dueCount = reviews.due.size,
                 card = first.toCard(),
                 step = ReviewUiState.ReviewStep.Answering,
+                isDealtFromStack = isDealtFromStack,
             )
             nextDueAt == null -> _state.value = ReviewUiState.NoCards
             else -> reading = viewModelScope.launch { waitFor(nextDueAt) }
@@ -132,7 +133,7 @@ class ReviewViewModel(
             delay(repaintDelay(null))
             answer = learning.reviews()
         }
-        present(measured(answer.reviews))
+        present(measured(answer.reviews), isDealtFromStack = false)
     }
 
     private fun endAt(remaining: Duration, nextDueAt: Instant): ReviewUiState.NothingDue = ReviewUiState.NothingDue(
@@ -191,7 +192,7 @@ class ReviewViewModel(
         walked += 1
         val reviews: DueReviews = reread ?: return open()
         reread = null
-        present(reviews)
+        present(reviews, isDealtFromStack = reviewing.step is ReviewUiState.ReviewStep.Correct)
     }
 
     private fun answerable(): ReviewUiState.Reviewing? =

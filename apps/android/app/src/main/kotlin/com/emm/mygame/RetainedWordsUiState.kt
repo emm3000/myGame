@@ -4,5 +4,5 @@ internal sealed interface RetainedWordsUiState {
 
     data object Hidden : RetainedWordsUiState
 
-    data class Shown(val count: Int, val total: Int) : RetainedWordsUiState
+    data class Shown(val count: Int, val total: Int, val countBefore: Int) : RetainedWordsUiState
 }

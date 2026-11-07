@@ -28,6 +28,7 @@ sealed interface ReviewUiState {
         val dueCount: Int,
         val card: ReviewCard,
         val step: ReviewStep,
+        val isDealtFromStack: Boolean,
     ) : ReviewUiState {
 
         val isBusy: Boolean
