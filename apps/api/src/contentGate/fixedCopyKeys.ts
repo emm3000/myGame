@@ -115,6 +115,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'auth.signUp.switchLink',
   'auth.signUp.switchPrompt',
   'auth.signUp.title',
+  'auth.tagline',
   'mail.reset.subject',
   'mail.reset.text',
   'mail.verification.subject',

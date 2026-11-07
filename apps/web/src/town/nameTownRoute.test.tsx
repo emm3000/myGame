@@ -12,7 +12,11 @@ import {
 import type { TownOverview } from '@mygame/contracts/town'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
+import homesSvg from '../../public/art/places/homes.svg?raw'
+import schoolSvg from '../../public/art/places/school.svg?raw'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
+import type { ArtTag } from '../art/ArtTag'
+import { placeShapesOf } from '../art/placeShapesOf'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 
@@ -165,4 +169,30 @@ it('keeps the name to try again after a failed request', async () => {
   fireEvent.click(submitButton())
 
   expect(await screen.findByRole('heading', { level: 1, name: /Cedar Creek/ })).toBeDefined()
+})
+
+const geometryOf = (shapes: ReadonlyArray<ArtTag>): ReadonlyArray<string> =>
+  shapes.map(({ name, attributes }) => {
+    const { fill: _fill, ...geometry } = attributes
+    return `${name} ${JSON.stringify(geometry)}`
+  })
+
+const drawnGeometryOf = (svg: SVGSVGElement): ReadonlyArray<string> =>
+  geometryOf(
+    [...svg.children].map((shape) => ({
+      name: shape.tagName,
+      attributes: Object.fromEntries([...shape.attributes].map(({ name, value }) => [name, value])),
+    })),
+  )
+
+it('draws the homes and the school on the naming screen', async () => {
+  await showNaming(withNoTown())
+
+  const naming = screen.getByRole('region', { name: townNamingTitle() })
+  const drawn = [...naming.querySelectorAll('svg')].map(drawnGeometryOf)
+
+  expect(drawn).toEqual([
+    geometryOf(placeShapesOf(homesSvg).silhouette),
+    geometryOf(placeShapesOf(schoolSvg).silhouette),
+  ])
 })

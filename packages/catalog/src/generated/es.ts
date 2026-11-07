@@ -23,13 +23,14 @@ export const authPassword = (): string => `Contraseña`
 export const authSignInForgotPassword = (): string => `¿Has olvidado tu contraseña?`
 export const authSignInSubmit = (): string => `Entrar`
 export const authSignInSwitchLink = (): string => `Crea tu cuenta`
-export const authSignInSwitchPrompt = (): string => `¿Aún no tienes feudo?`
-export const authSignInTitle = (): string => `Entra en tu feudo`
+export const authSignInSwitchPrompt = (): string => `¿Aún no tienes cuenta?`
+export const authSignInTitle = (): string => `Entra en tu pueblo`
 export const authSignUpPasswordHint = (): string => `Al menos 8 caracteres.`
 export const authSignUpSubmit = (): string => `Crear cuenta`
 export const authSignUpSwitchLink = (): string => `Entra`
 export const authSignUpSwitchPrompt = (): string => `¿Ya tienes cuenta?`
-export const authSignUpTitle = (): string => `Funda tu feudo`
+export const authSignUpTitle = (): string => `Crea tu cuenta`
+export const authTagline = (): string => `Aprende inglés mientras tu pueblo crece.`
 export const chronicleBattle = ({ campLost, losses, plot, province, tier }: { readonly campLost: string | number; readonly losses: string | number; readonly plot: string | number; readonly province: string | number; readonly tier: string | number }): string => `provincia ${String(province)}, parcela ${String(plot)}, campamento de nivel ${String(tier)}. ${String(losses)} y los bandidos pierden ${String(campLost)} de fuerza.`
 export const chronicleBattleLost = (): string => `Batalla perdida:`
 export const chronicleEmpty = (): string => `La crónica está en blanco: aún no hay nada que contar.`
@@ -254,7 +255,7 @@ export const passwordResetNewPasswordPassword = (): string => `Contraseña nueva
 export const passwordResetNewPasswordPasswordHint = (): string => `Al menos 8 caracteres.`
 export const passwordResetNewPasswordSubmit = (): string => `Cambiar la contraseña`
 export const passwordResetNewPasswordTitle = (): string => `Elige una contraseña nueva`
-export const passwordResetRequestConfirmation = (): string => `Si ese correo tiene un feudo y está confirmado, te llegará un enlace que vale una hora.`
+export const passwordResetRequestConfirmation = (): string => `Si ese correo tiene una cuenta y está confirmado, te llegará un enlace que vale una hora.`
 export const passwordResetRequestSubmit = (): string => `Enviar enlace`
 export const passwordResetRequestTitle = (): string => `Recupera tu contraseña`
 export const refusalArtMaxLevelReached = (): string => `Ese arte ya está en su nivel más alto.`
@@ -411,7 +412,7 @@ export const shellNavigationReport = (): string => `Informe`
 export const shellNavigationTown = (): string => `Pueblo`
 export const shellRetainedWords = ({ count, total }: { readonly count: string | number; readonly total: number }): string => `${String(count)} de ${total === 1 ? `1 palabra aprendida` : `${String(total)} palabras aprendidas`}`
 export const shellSignOut = (): string => `Salir`
-export const shellTitle = (): string => `Vadoalto`
+export const shellTitle = (): string => `Townword`
 export const statusBuildHeading = (): string => `Obra:`
 export const statusCargoFrom = ({ name }: { readonly name: string | number }): string => `desde ${String(name)}`
 export const statusCargoHeading = (): string => `Carga en camino:`

@@ -129,7 +129,7 @@ it('links to sign in after the reset', async () => {
   await chooseNewPassword('piedra-nueva')
 
   expect(
-    (await screen.findByRole('link', { name: 'Entra en tu feudo' })).getAttribute('href'),
+    (await screen.findByRole('link', { name: 'Entra en tu pueblo' })).getAttribute('href'),
   ).toBe('/sign-in')
 })
 

@@ -10,6 +10,8 @@ import type { ApiRefusal } from '../api/apiClient'
 import { Button } from '../design-system/Button'
 import { FormAlert } from '../design-system/FormAlert'
 import { Panel } from '../design-system/Panel'
+import { PlaceArt } from '../design-system/PlaceArt'
+import { placeArtOf } from '../design-system/placeArtOf'
 import { TextField } from '../design-system/TextField'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 
@@ -21,6 +23,8 @@ export interface NameTownScreenProps {
   readonly onSubmit: () => void
   readonly onGoToTown: () => void
 }
+
+const artSizeClass = 'size-thumbnail md:size-place-card'
 
 export function NameTownScreen(props: NameTownScreenProps): ReactElement {
   const titleId = useId()
@@ -35,6 +39,10 @@ export function NameTownScreen(props: NameTownScreenProps): ReactElement {
       spacingClass="gap-4 p-5"
       labelledBy={titleId}
     >
+      <div className="flex justify-center gap-4">
+        <PlaceArt shapes={placeArtOf('homes', 0)} sizeClass={artSizeClass} />
+        <PlaceArt shapes={placeArtOf('school', 0)} sizeClass={artSizeClass} />
+      </div>
       <h2 id={titleId} className="m-0 font-sans text-display text-ink">
         {townNamingTitle()}
       </h2>
