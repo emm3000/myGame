@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -27,8 +28,10 @@ import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PLACE_ART
+import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -114,10 +117,25 @@ class TownScreenTest {
     )
 
     @Test
-    fun `draws the reading line while loading`() {
-        show(TownUiState.Loading)
+    fun `draws the skeleton's blocks while a slow read loads`() {
+        showSlowRead()
 
-        composeRule.onNodeWithText("Estamos leyendo tu pueblo…").assertIsDisplayed()
+        composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).assertCountEquals(5)
+    }
+
+    @Test
+    fun `never draws the reading line`() {
+        showSlowRead()
+
+        composeRule.onAllNodesWithText(READING_LINE).assertCountEquals(0)
+    }
+
+    @Test
+    fun `speaks the reading line in a polite live region`() {
+        showSlowRead()
+
+        composeRule.onNodeWithContentDescription(READING_LINE)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
     }
 
     @Test
@@ -744,10 +762,11 @@ class TownScreenTest {
     }
 
     @Test
-    fun `sets the reading line under the larger top padding`() {
-        show(TownUiState.Loading)
+    fun `sets the skeleton under the larger top padding`() {
+        showSlowRead()
 
-        assertEquals(MyGameSpacing.step8.value, topOf("Estamos leyendo tu pueblo…").value, PIXEL_TOLERANCE)
+        val top: Dp = composeRule.onNodeWithContentDescription(READING_LINE).getUnclippedBoundsInRoot().top
+        assertEquals(MyGameSpacing.step8.value, top.value, PIXEL_TOLERANCE)
     }
 
     @Test
@@ -784,6 +803,11 @@ class TownScreenTest {
 
     private fun doors(): SemanticsNodeInteractionCollection = composeRule.onAllNodesWithTag(OUTLINED_PILL)
 
+    private fun showSlowRead() {
+        show(TownUiState.Loading)
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS + REVEAL_MARGIN_MILLIS)
+    }
+
     private fun show(state: TownUiState) {
         composeRule.setContent {
             MyGameTheme {
@@ -801,6 +825,8 @@ class TownScreenTest {
 
     private companion object {
         const val PIXEL_TOLERANCE: Float = 0.5f
+        const val READING_LINE: String = "Estamos leyendo tu pueblo…"
+        const val REVEAL_MARGIN_MILLIS: Long = 50
         const val UNEXPECTED: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val NOT_ENOUGH: String =
             "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."

@@ -19,6 +19,9 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
+import com.emm.mygame.core.designsystem.MyGameSizes
+import com.emm.mygame.core.designsystem.MyGameSkeleton
+import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -56,35 +59,59 @@ fun SchoolScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        when (state) {
-            SchoolUiState.Loading -> {
-                SchoolTitle()
-                MyGameText(
-                    text = stringResource(R.string.school_loading),
-                    style = MyGameTypography.body,
-                    color = MyGameTheme.colors.inkMuted,
-                )
-            }
-            SchoolUiState.Failed -> {
-                SchoolTitle()
-                MyGameErrorBanner(
-                    message = stringResource(R.string.school_refusal_unexpected),
-                    actionLabel = stringResource(R.string.school_try_again),
-                    onAction = { onIntent(SchoolIntent.RetryTapped) },
-                )
-            }
-            is SchoolUiState.Content -> {
-                SchoolContent(
-                    content = state,
-                    onIntent = onIntent,
-                    onReviewsOpen = onReviewsOpen,
-                    onLessonOpen = onLessonOpen,
-                    onReportOpen = onReportOpen,
-                )
-            }
+        MyGameSkeleton(
+            isLoading = state == SchoolUiState.Loading,
+            loadingLabel = stringResource(R.string.school_loading),
+            blocks = schoolBlocks,
+        ) {
+            SchoolState(
+                state = state,
+                onIntent = onIntent,
+                onReviewsOpen = onReviewsOpen,
+                onLessonOpen = onLessonOpen,
+                onReportOpen = onReportOpen,
+            )
         }
     }
 }
+
+@Composable
+private fun SchoolState(
+    state: SchoolUiState,
+    onIntent: (SchoolIntent) -> Unit,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+    onReportOpen: () -> Unit,
+) {
+    when (state) {
+        SchoolUiState.Loading -> Unit
+        SchoolUiState.Failed -> {
+            SchoolTitle()
+            MyGameErrorBanner(
+                message = stringResource(R.string.school_refusal_unexpected),
+                actionLabel = stringResource(R.string.school_try_again),
+                onAction = { onIntent(SchoolIntent.RetryTapped) },
+            )
+        }
+        is SchoolUiState.Content -> SchoolContent(
+            content = state,
+            onIntent = onIntent,
+            onReviewsOpen = onReviewsOpen,
+            onLessonOpen = onLessonOpen,
+            onReportOpen = onReportOpen,
+        )
+    }
+}
+
+private val schoolBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
+    listOf(
+        MyGameSizes.control,
+        MyGameSizes.placeCard,
+        MyGameSizes.action,
+        MyGameSizes.thumbnail,
+        MyGameSizes.thumbnail,
+    ),
+)
 
 @Composable
 private fun SchoolContent(
