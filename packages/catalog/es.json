@@ -15,6 +15,7 @@
   "android.app.fief_switcher_resource_stone": "piedra",
   "android.app.fief_switcher_resource_wood": "madera",
   "android.app.navigation_town": "Pueblo",
+  "android.app.shell_retained_words": "{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}",
   "android.chronicle.amounts_received": "Recibes {amounts}.",
   "android.chronicle.amounts_refunded": "Recuperas {amounts}.",
   "android.chronicle.amounts_sent": "Envías {amounts}.",

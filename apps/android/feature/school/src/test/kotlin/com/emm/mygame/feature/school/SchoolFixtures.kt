@@ -56,7 +56,7 @@ internal fun workOf(finishesAt: Instant): TownSnapshot.WorkItem =
 internal fun townOf(
     lessons: List<TownSnapshot.Lesson> = listOf(lessonOf()),
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),
-    learning: TownSnapshot.Learning = TownSnapshot.Learning(cap = 10, inLearning = 0),
+    learning: TownSnapshot.Learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
     lessonSlot: TownSnapshot.LessonSlot? = null,
     workSlot: TownSnapshot.WorkItem? = null,
     schoolLevel: Int = 1,

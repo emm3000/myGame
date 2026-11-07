@@ -108,6 +108,7 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Graphic, { it.action }, { it.surface }, "hourglass icon on the page"),
     ColorPair(PairKind.Graphic, { it.action }, { it.surfaceRaised }, "hourglass icon in a card"),
     ColorPair(PairKind.Graphic, { it.ink }, { it.surface }, "icon in ink"),
+    ColorPair(PairKind.Graphic, { it.ink }, { it.lineStrong }, "MyGameRing mark beside its track"),
     ColorPair(PairKind.Graphic, { it.ink }, { it.surfaceRaised }, "icon in ink in a card, resource icon"),
     ColorPair(PairKind.Graphic, { it.ink }, { it.surfaceSunken }, "icon in ink on a well, resource track fill"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surface }, "icon in muted ink"),

@@ -9,6 +9,9 @@ import com.emm.mygame.core.network.generated.models.StartLessonRequest
 import com.emm.mygame.core.network.generated.models.TownOverview
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
@@ -17,6 +20,10 @@ internal class ApiTownRepository(
     private val api: DefaultApi,
     private val ioDispatcher: CoroutineDispatcher,
 ) : TownRepository {
+
+    private val _retainedWords: MutableStateFlow<RetainedWords?> = MutableStateFlow(null)
+
+    override val retainedWords: StateFlow<RetainedWords?> = _retainedWords.asStateFlow()
 
     override suspend fun read(): TownReadResult = withContext(ioDispatcher) {
         try {
@@ -76,17 +83,24 @@ internal class ApiTownRepository(
             }
         }
 
+    private fun answeredTown(response: Response<TownOverview>): TownSnapshot? =
+        response.body()?.toSnapshot()?.also { town: TownSnapshot ->
+            _retainedWords.value = town.learning.retainedWords
+        }
+
     private fun readOrNoTown(response: Response<TownOverview>): TownReadResult {
-        val snapshot: TownSnapshot? = response.body()?.toSnapshot()
+        val snapshot: TownSnapshot? = answeredTown(response)
         if (response.isSuccessful) {
             return if (snapshot == null) TownReadResult.Unreachable else TownReadResult.Read(snapshot)
         }
         val isNoTown: Boolean = response.wireRefusal()?.bareKind() == BareApiError.Kind.TownNotFound
-        return if (isNoTown) TownReadResult.NoTown else TownReadResult.Unreachable
+        if (!isNoTown) return TownReadResult.Unreachable
+        _retainedWords.value = null
+        return TownReadResult.NoTown
     }
 
     private fun foundedOrRefused(response: Response<TownOverview>): TownFoundResult {
-        val snapshot: TownSnapshot? = response.body()?.toSnapshot()
+        val snapshot: TownSnapshot? = answeredTown(response)
         if (response.isSuccessful) {
             return if (snapshot == null) TownFoundResult.Unreachable else TownFoundResult.Founded(snapshot)
         }
@@ -95,7 +109,7 @@ internal class ApiTownRepository(
     }
 
     private fun answeredOrRefused(response: Response<TownOverview>): TownWorkResult {
-        val snapshot: TownSnapshot? = response.body()?.toSnapshot()
+        val snapshot: TownSnapshot? = answeredTown(response)
         if (response.isSuccessful) {
             return if (snapshot == null) TownWorkResult.Unreachable else TownWorkResult.Answered(snapshot)
         }
@@ -104,7 +118,7 @@ internal class ApiTownRepository(
     }
 
     private fun lessonAnsweredOrRefused(response: Response<TownOverview>): TownLessonResult {
-        val snapshot: TownSnapshot? = response.body()?.toSnapshot()
+        val snapshot: TownSnapshot? = answeredTown(response)
         if (response.isSuccessful) {
             return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
         }

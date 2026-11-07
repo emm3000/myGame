@@ -16,4 +16,5 @@
     <string name="fief_switcher_resource_stone">piedra</string>
     <string name="fief_switcher_resource_wood">madera</string>
     <string name="navigation_town">Pueblo</string>
+    <string name="shell_retained_words">{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}</string>
 </resources>

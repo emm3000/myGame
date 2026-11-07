@@ -1,8 +1,11 @@
 package com.emm.mygame.core.network
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.StateFlow
 
 interface TownRepository {
+
+    val retainedWords: StateFlow<RetainedWords?>
 
     suspend fun read(): TownReadResult
 

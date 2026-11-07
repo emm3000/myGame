@@ -186,7 +186,7 @@ class SchoolViewModelTest {
     @Test
     fun `marks a lesson past the cap with the count in learning`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 8)),
+            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null)),
         )
 
         assertEquals(
@@ -198,7 +198,7 @@ class SchoolViewModelTest {
     @Test
     fun `leaves open a lesson that fills the cap exactly`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5)),
+            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5, retainedWords = null)),
         )
 
         assertEquals(SchoolUiState.LessonState.Open(block = null), lessonOfCard(viewModel).state)
@@ -209,7 +209,7 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
                 lessons = listOf(lessonOf(requiredSchoolLevel = 2)),
-                learning = TownSnapshot.Learning(cap = 10, inLearning = 8),
+                learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null),
             ),
         )
 
@@ -239,7 +239,7 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
                 lessons = listOf(studied, lessonOf(id = secondLesson, wordCount = 3)),
-                learning = TownSnapshot.Learning(cap = 10, inLearning = 8),
+                learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null),
             ),
         )
 
@@ -249,7 +249,7 @@ class SchoolViewModelTest {
     @Test
     fun `counts no words past the cap while the next lesson fits`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(
-            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5)),
+            townOf(learning = TownSnapshot.Learning(cap = 10, inLearning = 5, retainedWords = null)),
         )
 
         assertEquals(SchoolUiState.LearningLine(5, cap = 10, wordsPastCap = null), contentOf(viewModel).learning)
@@ -260,7 +260,7 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(
             townOf(
                 lessons = listOf(lessonOf(wordCount = 5), lessonOf(id = secondLesson, wordCount = 1)),
-                learning = TownSnapshot.Learning(cap = 10, inLearning = 8),
+                learning = TownSnapshot.Learning(cap = 10, inLearning = 8, retainedWords = null),
                 lessonSlot = slotOf(),
             ),
         )
