@@ -46,7 +46,13 @@ sealed interface TownUiState {
         data object Unreachable : NamingStatus
     }
 
-    data class StockLine(val kind: TownResourceKind, val amount: Long, val capacity: Long, val ratePerHour: Long) {
+    data class StockLine(
+        val kind: TownResourceKind,
+        val amount: Long,
+        val capacity: Long,
+        val ratePerHour: Long,
+        val skillLevel: Int,
+    ) {
 
         val isFull: Boolean
             get() = amount >= capacity

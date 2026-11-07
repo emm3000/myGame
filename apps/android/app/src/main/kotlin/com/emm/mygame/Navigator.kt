@@ -75,7 +75,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
         when (backStack.lastOrNull()) {
             Destination.Town, Destination.Report, Destination.School -> backStack.add(words)
-            is Destination.LessonWords -> backStack[backStack.lastIndex] = words
+            is Destination.LessonWords, Destination.Review -> backStack[backStack.lastIndex] = words
             else -> Unit
         }
     }

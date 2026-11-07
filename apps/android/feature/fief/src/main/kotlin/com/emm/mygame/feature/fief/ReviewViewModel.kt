@@ -5,15 +5,22 @@ import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.DueReview
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.LearningRepository
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.RaisedSkill
 import com.emm.mygame.core.network.ReviewAnswerResult
 import com.emm.mygame.core.network.ReviewHintResult
 import com.emm.mygame.core.network.ReviewVerdict
 import com.emm.mygame.core.network.ReviewsReadResult
+import com.emm.mygame.core.network.TownRepository
+import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WordStanding
+import com.emm.mygame.core.network.numberOf
+import com.emm.mygame.core.network.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.math.floor
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -24,6 +31,7 @@ import kotlinx.coroutines.launch
 
 class ReviewViewModel(
     private val learning: LearningRepository,
+    private val towns: TownRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -39,7 +47,11 @@ class ReviewViewModel(
 
     private var walked: Int = 0
 
+    private var arrival: List<LessonId>? = null
+
     init {
+        viewModelScope.launch { towns.town.collect(::townChanged) }
+        readTown()
         open()
     }
 
@@ -74,10 +86,28 @@ class ReviewViewModel(
         }
     }
 
+    private fun readTown() {
+        viewModelScope.launch { towns.read() }
+    }
+
+    private fun townChanged(town: TownSnapshot?) {
+        when (val shown: ReviewUiState = _state.value) {
+            is ReviewUiState.NothingDue -> _state.value = shown.copy(path = town?.pathAtTheEnd())
+            is ReviewUiState.LessonReady -> _state.value = shown.copy(number = town?.shownNumberOf(shown.lesson))
+            else -> Unit
+        }
+    }
+
     private fun present(reviews: DueReviews) {
+        val baseline: List<LessonId> = arrival ?: reviews.readFirst.also { read: List<LessonId> -> arrival = read }
         val first: DueReview? = reviews.due.firstOrNull()
         val nextDueAt: Instant? = reviews.nextDueAt
         when {
+            first != null && first.lesson in reviews.readFirst && first.lesson !in baseline ->
+                _state.value = ReviewUiState.LessonReady(
+                    lesson = first.lesson,
+                    number = towns.town.value?.shownNumberOf(first.lesson),
+                )
             first != null -> _state.value = ReviewUiState.Reviewing(
                 walked = walked,
                 dueCount = reviews.due.size,
@@ -92,11 +122,11 @@ class ReviewViewModel(
     private suspend fun waitFor(nextDueAt: Instant) {
         var remaining: Duration = countdownTo(finishesAt = nextDueAt, now = clock.now() + gap)
         while (remaining > Duration.ZERO) {
-            _state.value = ReviewUiState.NothingDue(remaining = remaining, dueAt = nextDueAt - gap)
+            _state.value = endAt(remaining, nextDueAt)
             delay(repaintDelay(remaining))
             remaining = countdownTo(finishesAt = nextDueAt, now = clock.now() + gap)
         }
-        _state.value = ReviewUiState.NothingDue(remaining = Duration.ZERO, dueAt = nextDueAt - gap)
+        _state.value = endAt(Duration.ZERO, nextDueAt)
         var answer: ReviewsReadResult = learning.reviews()
         while (answer !is ReviewsReadResult.Read) {
             delay(repaintDelay(null))
@@ -104,6 +134,12 @@ class ReviewViewModel(
         }
         present(measured(answer.reviews))
     }
+
+    private fun endAt(remaining: Duration, nextDueAt: Instant): ReviewUiState.NothingDue = ReviewUiState.NothingDue(
+        remaining = remaining,
+        dueAt = nextDueAt - gap,
+        path = towns.town.value?.pathAtTheEnd(),
+    )
 
     private fun edit(change: (ReviewUiState.ReviewCard) -> ReviewUiState.ReviewCard) {
         val reviewing: ReviewUiState.Reviewing = answerable() ?: return
@@ -144,6 +180,7 @@ class ReviewViewModel(
             is ReviewVerdict.Correct -> ReviewUiState.ReviewStep.Correct(skill = verdict.earnedSkill?.toSkillLine())
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = card.correctFormOf(verdict))
         }
+        readTown()
         reread = (learning.reviews() as? ReviewsReadResult.Read)?.reviews?.let(::measured)
         stepTo(step)
     }
@@ -208,4 +245,21 @@ private fun RaisedSkill.toSkillLine(): ReviewUiState.SkillLine = ReviewUiState.S
     resource = resource,
     level = level,
     ratePercent = ratePercent,
+    rates = ratesOf(ratePerHourBefore, ratePerHourAfter),
+    words = words,
 )
+
+private fun ratesOf(before: Double?, after: Double?): ReviewUiState.SkillRates? {
+    if (before == null || after == null) return null
+    return ReviewUiState.SkillRates(before = floor(before).toLong(), after = floor(after).toLong())
+}
+
+private fun TownSnapshot.shownNumberOf(lesson: LessonId): Int? = numberOf(lesson).takeIf { number: Int -> number > 0 }
+
+private fun TownSnapshot.pathAtTheEnd(): ReviewUiState.LessonPath? {
+    val earned: Set<LessonId> = skills.map { skill: TownSnapshot.EarnedSkill -> skill.lesson }.toSet()
+    val lesson: TownSnapshot.Lesson = lessons.firstOrNull { held: TownSnapshot.Lesson ->
+        held.id !in earned && held.standings.any { standing: WordStanding -> standing != WordStanding.NotStarted }
+    } ?: return null
+    return ReviewUiState.LessonPath(number = numberOf(lesson.id), counts = schoolPathCountsOf(lesson.standings))
+}

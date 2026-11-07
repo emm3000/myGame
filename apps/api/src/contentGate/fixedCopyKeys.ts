@@ -30,6 +30,8 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.fief.review_refusal_unknown_choice',
   'android.fief.review_refusal_word_not_held',
   'android.fief.review_returns',
+  'android.fief.review_skill_rates',
+  'android.fief.review_skill_words',
   'android.fief.review_wrong',
   'android.fief.review_yours',
   'android.fief.sign_out',

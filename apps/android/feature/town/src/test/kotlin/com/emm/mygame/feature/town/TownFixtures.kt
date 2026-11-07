@@ -74,6 +74,7 @@ internal fun townOf(
     nextStep: NextStep = NextStep.CaughtUp,
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
+    skills: List<TownSnapshot.EarnedSkill> = emptyList(),
 ): TownSnapshot = TownSnapshot(
     name = name,
     label = label,
@@ -84,7 +85,7 @@ internal fun townOf(
     buildings = places,
     work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = cap),
     lessons = emptyList(),
-    skills = emptyList(),
+    skills = skills,
     learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
     lessonSlot = lessonSlot,
     nextStep = nextStep,

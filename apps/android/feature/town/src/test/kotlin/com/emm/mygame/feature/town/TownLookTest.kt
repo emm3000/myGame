@@ -64,7 +64,9 @@ class TownLookTest {
     private val riverton: TownUiState.Content = TownUiState.Content(
         name = "Riverton",
         label = TownLabel.Town,
-        stocks = listOf(TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30)),
+        stocks = listOf(
+            TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30, skillLevel = 0),
+        ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
         slot = TownUiState.SlotLine.Idle,

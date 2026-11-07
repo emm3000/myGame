@@ -3,14 +3,12 @@ package com.emm.mygame.feature.fief
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -18,20 +16,23 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
-import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameIcon
-import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
-fun ReviewScreen(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, modifier: Modifier = Modifier) {
+fun ReviewScreen(
+    state: ReviewUiState,
+    onIntent: (ReviewIntent) -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+    onTownOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
@@ -55,40 +56,18 @@ fun ReviewScreen(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit, modifie
                 actionLabel = stringResource(R.string.fief_retry),
                 onAction = { onIntent(ReviewIntent.RetryTapped) },
             )
-            ReviewUiState.NoCards -> ReviewsAhead(line = stringResource(R.string.review_no_cards))
-            is ReviewUiState.NothingDue -> ReviewsAhead(
+            ReviewUiState.NoCards -> ReviewEnd(line = stringResource(R.string.review_no_cards), onTownOpen = onTownOpen)
+            is ReviewUiState.NothingDue -> ReviewEnd(
                 line = stringResource(R.string.review_nothing_due),
+                onTownOpen = onTownOpen,
                 nextReview = icuStringResource(
                     R.string.review_next_due,
                     "due" to finishLabelOf(state.remaining, state.dueAt),
                 ),
+                path = state.path,
             )
+            is ReviewUiState.LessonReady -> LessonReady(ready = state, onLessonOpen = onLessonOpen)
             is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
-        }
-    }
-}
-
-@Composable
-private fun ReviewsAhead(line: String, modifier: Modifier = Modifier, nextReview: String? = null) {
-    MyGameCard(modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
-            modifier = Modifier.padding(vertical = MyGameSpacing.step4),
-        ) {
-            MyGameText(text = line, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-            nextReview?.let { due: String ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-                ) {
-                    MyGameIcon(icon = MyGameIcons.hourglass, tint = MyGameTheme.colors.inkMuted)
-                    MyGameText(
-                        text = due,
-                        style = MyGameTypography.caption.withTabularFigures(),
-                        color = MyGameTheme.colors.ink,
-                    )
-                }
-            }
         }
     }
 }

@@ -11,6 +11,7 @@ import com.emm.mygame.core.network.generated.models.ReviewVerdict as WireReviewV
 
 internal fun Reviews.toDueReviews(): DueReviews = DueReviews(
     due = due.map { review: WireDueReview -> review.toDueReview() },
+    readFirst = readFirst.map(::LessonId),
     nextDueAt = nextDueAt?.toKotlinInstant(),
     readAt = readAt.toKotlinInstant(),
 )
@@ -61,6 +62,7 @@ private fun CorrectVerdictEarnedSkill.toRaisedSkill(): RaisedSkill? {
         ratePercent = ratePercent,
         ratePerHourBefore = ratePerHourBefore,
         ratePerHourAfter = ratePerHourAfter,
+        words = words,
     )
 }
 

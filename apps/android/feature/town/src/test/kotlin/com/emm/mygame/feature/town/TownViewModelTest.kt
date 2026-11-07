@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
@@ -127,6 +128,21 @@ class TownViewModelTest {
             listOf(102L, 1000L),
             contentOf(viewModel).stocks.take(2).map { stock: TownUiState.StockLine -> stock.amount },
         )
+    }
+
+    @Test
+    fun `counts the skills earned on a resource as its skill level`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(
+                skills = listOf(
+                    TownSnapshot.EarnedSkill(LessonId("lesson-1"), TownResourceKind.Money, ratePercent = 5),
+                    TownSnapshot.EarnedSkill(LessonId("lesson-2"), TownResourceKind.Food, ratePercent = 5),
+                    TownSnapshot.EarnedSkill(LessonId("lesson-3"), TownResourceKind.Money, ratePercent = 5),
+                ),
+            ),
+        )
+
+        assertEquals(2, moneyOf(viewModel).skillLevel)
     }
 
     @Test

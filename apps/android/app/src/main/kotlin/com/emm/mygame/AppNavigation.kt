@@ -124,10 +124,16 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     entry<Destination.Review> {
         SignedInFrame(
             isTownHome = false,
-            doesScreenReadTown = false,
+            doesScreenReadTown = true,
             chrome = chrome,
         ) {
-            ReviewRoute(learning = dependencies.learning, clock = dependencies.clock)
+            ReviewRoute(
+                learning = dependencies.learning,
+                towns = dependencies.towns,
+                clock = dependencies.clock,
+                onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+                onTownOpen = navigator::openTown,
+            )
         }
     }
     entry<Destination.Map> { shown: Destination.Map ->

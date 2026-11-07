@@ -82,7 +82,13 @@ class ReviewScreenTest {
     @Test
     fun `names the town's resource of the earned skill with its rate line`() {
         val powerSkill: ReviewUiState.SkillLine =
-            ReviewUiState.SkillLine(resource = TownResourceKind.Power, level = 2, ratePercent = 5)
+            ReviewUiState.SkillLine(
+                resource = TownResourceKind.Power,
+                level = 2,
+                ratePercent = 5,
+                rates = null,
+                words = listOf("home"),
+            )
         draw(recalling(step = ReviewUiState.ReviewStep.Correct(skill = powerSkill), typed = "home"))
 
         composeRule.onNodeWithText("Habilidad ganada: energía, nivel 2.").assertIsDisplayed()
@@ -138,7 +144,7 @@ class ReviewScreenTest {
     private fun draw(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit = {}) {
         composeRule.setContent {
             MyGameTheme {
-                ReviewScreen(state = state, onIntent = onIntent)
+                ReviewScreen(state = state, onIntent = onIntent, onLessonOpen = { }, onTownOpen = { })
             }
         }
     }

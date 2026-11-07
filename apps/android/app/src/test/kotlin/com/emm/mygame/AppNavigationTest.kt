@@ -111,8 +111,9 @@ class AppNavigationTest {
 
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
-    private val noReviews: ReviewsReadResult.Read =
-        ReviewsReadResult.Read(DueReviews(due = emptyList(), nextDueAt = null, readAt = readAt))
+    private val noReviews: ReviewsReadResult.Read = ReviewsReadResult.Read(
+        DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = null, readAt = readAt),
+    )
 
     private val listedFief: ListedFief = ListedFief(
         id = FiefId("509eadd5-6b34-4ea3-8e91-2b38744bd385"),

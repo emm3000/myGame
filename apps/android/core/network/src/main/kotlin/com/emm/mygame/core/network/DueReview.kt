@@ -6,9 +6,11 @@ sealed interface DueReview {
 
     val wordId: WordId
 
+    val lesson: LessonId
+
     data class Recognition(
         override val wordId: WordId,
-        val lesson: LessonId,
+        override val lesson: LessonId,
         val dueAt: Instant,
         val word: String,
         val frame: String,
@@ -17,7 +19,7 @@ sealed interface DueReview {
 
     data class Recall(
         override val wordId: WordId,
-        val lesson: LessonId,
+        override val lesson: LessonId,
         val dueAt: Instant,
         val gloss: String,
         val gappedFrame: String,
