@@ -5,7 +5,12 @@ import type { ApiClient } from '../api/apiClient'
 export type ReviewsState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'refused' }
-  | { readonly kind: 'read'; readonly reviews: Reviews; readonly at: Date }
+  | {
+      readonly kind: 'read'
+      readonly reviews: Reviews
+      readonly at: Date
+      readonly arrivalReadFirst: ReadonlyArray<string>
+    }
 
 export interface ReviewsHandle {
   readonly state: ReviewsState
@@ -57,6 +62,7 @@ function useDisplayClock(lastRead: LastRead | undefined): number {
 export function useReviews(apiClient: ApiClient): ReviewsHandle {
   const [lastRead, setLastRead] = useState<LastRead>()
   const [isRefused, setIsRefused] = useState(false)
+  const [arrivalReadFirst, setArrivalReadFirst] = useState<ReadonlyArray<string>>()
 
   const reread = useCallback(async (): Promise<void> => {
     const outcome = await apiClient.reviews()
@@ -65,7 +71,9 @@ export function useReviews(apiClient: ApiClient): ReviewsHandle {
       setIsRefused(true)
       return
     }
-    setLastRead({ reviews: outcome.value, receivedAtMs: Date.now() })
+    const reviews = outcome.value
+    setLastRead({ reviews, receivedAtMs: Date.now() })
+    setArrivalReadFirst((current) => current ?? reviews.readFirst)
     setIsRefused(false)
   }, [apiClient])
 
@@ -75,10 +83,10 @@ export function useReviews(apiClient: ApiClient): ReviewsHandle {
   useNextReviewRead(lastRead, reread)
   const nowMs = useDisplayClock(lastRead)
 
-  if (lastRead !== undefined) {
+  if (lastRead !== undefined && arrivalReadFirst !== undefined) {
     const elapsedMs = Math.max(0, nowMs - lastRead.receivedAtMs)
     const at = new Date(Date.parse(lastRead.reviews.readAt) + elapsedMs)
-    return { state: { kind: 'read', reviews: lastRead.reviews, at }, reread }
+    return { state: { kind: 'read', reviews: lastRead.reviews, at, arrivalReadFirst }, reread }
   }
   return { state: isRefused ? { kind: 'refused' } : { kind: 'loading' }, reread }
 }

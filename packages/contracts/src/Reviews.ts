@@ -5,6 +5,7 @@ import { InstantSchema } from './Wire'
 export const ReviewsSchema = z
   .strictObject({
     due: z.array(DueReviewSchema),
+    readFirst: z.array(z.string().min(1)),
     nextDueAt: InstantSchema.nullable(),
     readAt: InstantSchema,
   })

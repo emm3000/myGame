@@ -19,6 +19,7 @@ const earnedFood = {
   level: 1,
   ratePerHourBefore: 10,
   ratePerHourAfter: 10.5,
+  words: ['home', 'school'],
 }
 
 describe('ReviewAnswerSchema', () => {
@@ -57,6 +58,18 @@ describe('ReviewAnswerSchema', () => {
     const { ratePerHourBefore: _, ...withoutBefore } = earnedFood
 
     expect(verdictSchema.safeParse({ ...correct, earnedSkill: withoutBefore }).success).toBe(false)
+  })
+
+  it("rejects an earned skill without its lesson's words", () => {
+    const { words: _, ...withoutWords } = earnedFood
+
+    expect(verdictSchema.safeParse({ ...correct, earnedSkill: withoutWords }).success).toBe(false)
+  })
+
+  it('rejects an earned skill with a blank word', () => {
+    const earnedSkill = { ...earnedFood, words: [''] }
+
+    expect(verdictSchema.safeParse({ ...correct, earnedSkill }).success).toBe(false)
   })
 
   it('rejects an earned skill without the level it reached', () => {

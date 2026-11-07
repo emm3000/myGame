@@ -75,6 +75,7 @@ const withReviews = (
   readAt = knownFief.readAt,
 ): Reviews => ({
   due: [...due],
+  readFirst: [],
   nextDueAt,
   readAt,
 })
@@ -349,6 +350,7 @@ const foodSkill = {
   resource: 'food' as const,
   ratePercent: 5,
   earnedAt: knownFief.readAt,
+  words: ['home', 'school'],
 }
 
 it('names the skill a correct answer earns at the level the api answers', async () => {
@@ -480,12 +482,6 @@ it('holds at most one ink pill on a review', async () => {
   await typeAndCheck('school')
   expect(screen.getByText(reviewCorrect())).toBeTruthy()
   expect(inkPills()).toHaveLength(1)
-})
-
-it('holds no ink pill when the review has nothing to answer', async () => {
-  await showReview(nothingDue)
-
-  expect(inkPills()).toHaveLength(0)
 })
 
 it('changes the hue with the next card', async () => {

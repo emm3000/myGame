@@ -3999,6 +3999,13 @@
               "$ref": "#/components/schemas/DueReview"
             }
           },
+          "readFirst": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
           "nextDueAt": {
             "type": "string",
             "nullable": true,
@@ -4009,7 +4016,7 @@
             "format": "date-time"
           }
         },
-        "required": ["due", "nextDueAt", "readAt"],
+        "required": ["due", "readFirst", "nextDueAt", "readAt"],
         "additionalProperties": false
       },
       "DueReview": {
@@ -4221,6 +4228,13 @@
                 "type": "number",
                 "nullable": true,
                 "minimum": 0
+              },
+              "words": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
               }
             },
             "required": [
@@ -4230,7 +4244,8 @@
               "earnedAt",
               "level",
               "ratePerHourBefore",
-              "ratePerHourAfter"
+              "ratePerHourAfter",
+              "words"
             ],
             "additionalProperties": false
           }

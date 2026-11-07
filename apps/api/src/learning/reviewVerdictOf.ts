@@ -45,7 +45,7 @@ const ratesAtEarnOf = (
 
 const raisedSkillOf = (
   skill: TownSkill | undefined,
-  { skills, town }: ReviewOutcome,
+  { skills, town, skillWords }: ReviewOutcome,
   catalog: TownCatalog,
 ): Result<RaisedSkill | null, DomainError> => {
   if (skill === undefined) {
@@ -62,6 +62,7 @@ const raisedSkillOf = (
     earnedAt: isoOf(skill.earnedAt),
     level: skillLevelOf(skills, skill.resource),
     ...rates.value,
+    words: [...skillWords],
   })
 }
 

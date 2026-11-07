@@ -198,6 +198,8 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'review.recallPrompt',
   'review.recognitionPrompt',
   'review.rightAnswer',
+  'review.skillRates',
+  'review.skillWords',
   'review.wrong',
   'review.yourAnswer',
   'shell.signOut',

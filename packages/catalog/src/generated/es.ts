@@ -341,6 +341,7 @@ export const reportStartReviews = (): string => `Empezar los repasos`
 export const reportTitle = (): string => `Informe`
 export const reviewAnswerField = (): string => `Tu respuesta en inglés`
 export const reviewAskHint = (): string => `Pedir una pista`
+export const reviewBackToTown = (): string => `Volver a tu pueblo`
 export const reviewCheck = (): string => `Comprobar`
 export const reviewChecking = (): string => `Comprobando…`
 export const reviewComesBack = (): string => `Esta palabra volverá en unos minutos.`
@@ -348,6 +349,7 @@ export const reviewCorrect = (): string => `Correcto.`
 export const reviewDueCount = ({ count }: { readonly count: string | number }): string => `Por repasar: ${String(count)}`
 export const reviewFailed = (): string => `No hemos podido leer tu repaso.`
 export const reviewHint = ({ firstLetter, letterCount }: { readonly firstLetter: string | number; readonly letterCount: number }): string => `Empieza por «${String(firstLetter)}» y tiene ${letterCount === 1 ? `${String(letterCount)} letra` : `${String(letterCount)} letras`}.`
+export const reviewLessonReady = ({ number }: { readonly number: string | number }): string => `La lección ${String(number)} está lista`
 export const reviewLoading = (): string => `Estamos leyendo tu repaso…`
 export const reviewNearMiss = (): string => `Casi. Revisa cómo se escribe y vuelve a comprobar.`
 export const reviewNext = (): string => `Siguiente`
@@ -360,6 +362,8 @@ export const reviewRetry = (): string => `Volver a intentarlo`
 export const reviewRightAnswer = (): string => `La correcta:`
 export const reviewSkillEarned = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Habilidad ganada: ${String(resource)}, nivel ${String(level)}.`
 export const reviewSkillRate = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `+${String(percent)} % de ${String(resource)} / h.`
+export const reviewSkillRates = ({ after, before, resource }: { readonly after: string | number; readonly before: string | number; readonly resource: string | number }): string => `${String(resource)}: +${String(before)} / h, ahora +${String(after)} / h`
+export const reviewSkillWords = (): string => `Palabras:`
 export const reviewTitle = (): string => `Repaso`
 export const reviewWrong = (): string => `No es correcto.`
 export const reviewYourAnswer = (): string => `Tu respuesta:`

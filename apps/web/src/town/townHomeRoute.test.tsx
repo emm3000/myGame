@@ -7,6 +7,7 @@ import {
   namesPlacesSchool,
   namesTownResourcesMoney,
   refusalUnexpected,
+  schoolSkillName,
   shellSignOut,
   townAmount,
   townBuild,
@@ -34,6 +35,7 @@ import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { palette } from '../design/tokens'
 import { refusalLineOf } from '../refusals/refusalLineOf'
+import { townResourceNameOf } from '../resources/townResourceNameOf'
 
 beforeEach(() => {
   vi.useFakeTimers({ now: new Date(knownTown.readAt) })
@@ -137,6 +139,39 @@ it('shows each stock with its rate and its storage', async () => {
   expect(stockCell('Dinero')).toBeDefined()
   expect(stockCell('Energía')).toBeDefined()
   expect(stockCell('Material')).toBeDefined()
+})
+
+const earnedSkill = (
+  lessonId: string,
+  resource: TownOverview['skills'][number]['resource'],
+): TownOverview['skills'][number] => ({
+  lessonId,
+  resource,
+  ratePercent: 5,
+  earnedAt: knownTown.readAt,
+})
+
+it('shows the earned skill beside its resource', async () => {
+  const skills = [earnedSkill('lesson-1', 'food'), earnedSkill('lesson-3', 'food')]
+  await showTown(serving({ ...knownTown, skills }))
+
+  const foodSkill = schoolSkillName({ resource: townResourceNameOf('food'), level: 2 })
+  expect(within(stockCell('Comida')).getByText(foodSkill)).toBeDefined()
+  const money = within(stockCell('Dinero'))
+  const moneySkill = schoolSkillName({ resource: townResourceNameOf('money'), level: 1 })
+  expect([money.queryByText(foodSkill), money.queryByText(moneySkill)]).toEqual([null, null])
+})
+
+it('shows no skill beside a resource while none is earned', async () => {
+  await showTown(serving(knownTown))
+
+  const shownLevels = [0, 1].filter(
+    (level) =>
+      within(stockCell('Comida')).queryByText(
+        schoolSkillName({ resource: townResourceNameOf('food'), level }),
+      ) !== null,
+  )
+  expect(shownLevels).toEqual([])
 })
 
 it('projects each stock between reads up to storage', async () => {

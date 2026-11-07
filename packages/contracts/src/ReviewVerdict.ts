@@ -18,6 +18,7 @@ const RaisedSkillSchema = EarnedSkillSchema.extend({
   level: WholeCountSchema.positive(),
   ratePerHourBefore: QuantitySchema.nullable(),
   ratePerHourAfter: QuantitySchema.nullable(),
+  words: z.array(z.string().min(1)),
 })
 
 export type RaisedSkill = z.infer<typeof RaisedSkillSchema>

@@ -99,7 +99,7 @@ const showReport = async (
       report: typeof report === 'function' ? report : readingInTurn(report),
       reviews: async () => ({
         ok: true,
-        value: { due: [homeRecognition], nextDueAt: null, readAt: knownTown.readAt },
+        value: { due: [homeRecognition], readFirst: [], nextDueAt: null, readAt: knownTown.readAt },
       }),
       ...overrides,
     }),

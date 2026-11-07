@@ -1,6 +1,7 @@
 import {
   type AnsweredReview,
   answerReview,
+  type CardRepository,
   type DomainError,
   err,
   type LessonWord,
@@ -12,12 +13,36 @@ import {
 import type { Town, TownSkill } from '@mygame/domain/town'
 import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
+import type { LessonLibrary } from './LessonLibrary'
 
 export type ReviewOutcome = {
   readonly answered: AnsweredReview
   readonly word: LessonWord
   readonly skills: ReadonlyArray<TownSkill>
   readonly town: Town | undefined
+  readonly skillWords: ReadonlyArray<string>
+}
+
+const heldWordsOf = async (
+  playerId: PlayerId,
+  earnedSkill: TownSkill | undefined,
+  cards: CardRepository,
+  lessons: LessonLibrary,
+): Promise<Result<ReadonlyArray<string>, DomainError>> => {
+  const lesson = earnedSkill === undefined ? undefined : lessons.lessonOf(earnedSkill.lessonId)
+  if (lesson === undefined) {
+    return ok([])
+  }
+  const held = await cards.cardsOf(playerId)
+  if (!held.ok) {
+    return held
+  }
+  const heldWordIds = new Set(held.value.map(({ wordId }) => wordId))
+  return ok(
+    lesson.words
+      .filter(({ id }) => heldWordIds.has(id))
+      .map(({ acceptedForms }) => acceptedForms[0]),
+  )
 }
 
 export const answerReviewOf = (
@@ -60,7 +85,18 @@ export const answerReviewOf = (
       if (!town.ok) {
         return town
       }
-      return ok({ answered: answered.value, word, skills: skills.value, town: town.value })
+      const earnedSkill = answered.value.kind === 'rated' ? answered.value.earnedSkill : undefined
+      const skillWords = await heldWordsOf(playerId, earnedSkill, stores.cards, lessons)
+      if (!skillWords.ok) {
+        return skillWords
+      }
+      return ok({
+        answered: answered.value,
+        word,
+        skills: skills.value,
+        town: town.value,
+        skillWords: skillWords.value,
+      })
     },
     dependencies,
   )
