@@ -8,7 +8,7 @@ interface SessionRepository {
 
     suspend fun signIn(email: String, password: String): SignInResult
 
-    suspend fun signUp(email: String, password: String, fiefName: String): SignUpResult
+    suspend fun signUp(email: String, password: String): SignUpResult
 
     suspend fun requestPasswordReset(email: String): PasswordResetRequestResult
 

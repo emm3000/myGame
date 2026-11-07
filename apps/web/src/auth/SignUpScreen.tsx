@@ -1,13 +1,11 @@
 import {
   authEmail,
   authPassword,
-  authSignUpFiefName,
   authSignUpPasswordHint,
   authSignUpSubmit,
   authSignUpSwitchLink,
   authSignUpSwitchPrompt,
   authSignUpTitle,
-  refusalBlankFiefName,
   refusalMalformedEmail,
   refusalWeakPassword,
 } from '@mygame/catalog'
@@ -34,18 +32,16 @@ export interface SignUpScreenProps {
 const fieldMessages: Readonly<Record<SignUpField, string>> = {
   email: refusalMalformedEmail(),
   password: refusalWeakPassword(),
-  fiefName: refusalBlankFiefName(),
 }
 
 const refusalFields: Partial<Record<ApiRefusal, SignUpField>> = {
   EmailTaken: 'email',
   MalformedEmail: 'email',
   WeakPassword: 'password',
-  BlankFiefName: 'fiefName',
 }
 
 const isSignUpField = (key: PropertyKey | undefined): key is SignUpField =>
-  key === 'email' || key === 'password' || key === 'fiefName'
+  key === 'email' || key === 'password'
 
 const fieldErrorsOf = (request: SignUpRequest): FieldErrors => {
   const parsed = SignUpRequestSchema.safeParse(request)
@@ -57,7 +53,7 @@ const fieldErrorsOf = (request: SignUpRequest): FieldErrors => {
 }
 
 export function SignUpScreen(props: SignUpScreenProps): ReactElement {
-  const [request, setRequest] = useState<SignUpRequest>({ email: '', password: '', fiefName: '' })
+  const [request, setRequest] = useState<SignUpRequest>({ email: '', password: '' })
   const [clientErrors, setClientErrors] = useState<FieldErrors>({})
   const refusedField = props.refusal === undefined ? undefined : refusalFields[props.refusal]
   const errors: FieldErrors =
@@ -108,15 +104,6 @@ export function SignUpScreen(props: SignUpScreenProps): ReactElement {
         onChange={edit('password')}
         hint={authSignUpPasswordHint()}
         error={errors.password}
-      />
-      <TextField
-        label={authSignUpFiefName()}
-        name="fiefName"
-        type="text"
-        autoComplete="off"
-        value={request.fiefName}
-        onChange={edit('fiefName')}
-        error={errors.fiefName}
       />
       {formRefusal === undefined ? null : <FormAlert message={refusalLineOf(formRefusal)} />}
       <Button type="submit" tone="primary" disabled={props.isSubmitting}>

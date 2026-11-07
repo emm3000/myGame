@@ -64,8 +64,8 @@ class FakeSessionRepository : SessionRepository {
         return signInAnswers.receive()
     }
 
-    override suspend fun signUp(email: String, password: String, fiefName: String): SignUpResult {
-        signUps += SignUpAttempt(email = email, password = password, fiefName = fiefName)
+    override suspend fun signUp(email: String, password: String): SignUpResult {
+        signUps += SignUpAttempt(email = email, password = password)
         return signUpAnswers.receive()
     }
 
@@ -81,5 +81,5 @@ class FakeSessionRepository : SessionRepository {
 
     data class SignInAttempt(val email: String, val password: String)
 
-    data class SignUpAttempt(val email: String, val password: String, val fiefName: String)
+    data class SignUpAttempt(val email: String, val password: String)
 }

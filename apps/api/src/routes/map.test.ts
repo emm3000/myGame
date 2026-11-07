@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
-  FiefListSchema,
+  PlayerSchema,
   type ProvinceMap,
   ProvinceMapSchema,
 } from '@mygame/contracts'
@@ -11,6 +11,7 @@ import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'v
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -89,14 +90,12 @@ describe('the map route', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password: 'hierro-y-lana', fiefName }),
+      body: JSON.stringify({ email, password: 'hierro-y-lana' }),
     })
     expect(response.status).toBe(201)
-    const cookie = sessionCookieOf(response)
-    const fiefs = await app.request('/fiefs', { headers: { cookie } })
-    const [fief] = FiefListSchema.parse(await fiefs.json()).fiefs
-    assert(fief !== undefined)
-    return { cookie, fiefId: fief.id }
+    const player = PlayerSchema.parse(await response.json())
+    const fiefId = await foundFiefFor(player.id, fiefName, { server, clock })
+    return { cookie: sessionCookieOf(response), fiefId }
   }
 
   const mapOf = async (lord: Lord, path = ''): Promise<Response> =>

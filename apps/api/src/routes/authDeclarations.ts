@@ -26,11 +26,9 @@ const SignUpRequestComponent = SignUpRequestSchema.meta({ id: 'SignUpRequest' })
 
 const signUpRefusals = {
   400: refusalResponse(
-    'MalformedEmail, WeakPassword or BlankFiefName, empty or blank; any other malformed body answers an empty body.',
+    'MalformedEmail or WeakPassword; any other malformed body answers an empty body.',
   ),
-  409: refusalResponse(
-    'EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.',
-  ),
+  409: refusalResponse('EmailTaken.'),
 }
 
 export const authDeclarations = {

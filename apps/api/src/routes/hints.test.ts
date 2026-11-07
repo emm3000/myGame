@@ -62,7 +62,6 @@ describe('the hints route', () => {
       body: JSON.stringify({
         email: 'ana@example.com',
         password: 'hierro-y-lana',
-        fiefName: 'Valdehierro',
       }),
     })
     return sessionCookieOf(response)

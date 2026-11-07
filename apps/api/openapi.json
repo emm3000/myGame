@@ -523,13 +523,9 @@
           "password": {
             "type": "string",
             "minLength": 8
-          },
-          "fiefName": {
-            "type": "string",
-            "minLength": 1
           }
         },
-        "required": ["email", "password", "fiefName"]
+        "required": ["email", "password"]
       },
       "NativeSession": {
         "type": "object",
@@ -5912,7 +5908,7 @@
             }
           },
           "400": {
-            "description": "MalformedEmail, WeakPassword or BlankFiefName, empty or blank; any other malformed body answers an empty body.",
+            "description": "MalformedEmail or WeakPassword; any other malformed body answers an empty body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5922,7 +5918,7 @@
             }
           },
           "409": {
-            "description": "EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.",
+            "description": "EmailTaken.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5958,7 +5954,7 @@
             }
           },
           "400": {
-            "description": "MalformedEmail, WeakPassword or BlankFiefName, empty or blank; any other malformed body answers an empty body.",
+            "description": "MalformedEmail or WeakPassword; any other malformed body answers an empty body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5968,7 +5964,7 @@
             }
           },
           "409": {
-            "description": "EmailTaken; CoordinatesTaken and PlayerAlreadyHoldsFief, the founding races, answer an empty body.",
+            "description": "EmailTaken.",
             "content": {
               "application/json": {
                 "schema": {

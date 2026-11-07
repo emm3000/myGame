@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -44,7 +45,7 @@ const truncateAccounts = async (): Promise<void> => {
   }
 }
 
-const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', fiefName: 'Valdehierro' }
+const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana' }
 
 const sessionCookieOf = (response: Response): string => {
   const [pair = ''] = (response.headers.get('set-cookie') ?? '').split(';')
@@ -112,6 +113,10 @@ describe('the signed-in carriers', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(anasSignUp),
+    })
+    await foundFiefFor(PlayerSchema.parse(await signedUp.json()).id, 'Valdehierro', {
+      server,
+      clock,
     })
     cookie = sessionCookieOf(signedUp)
   })

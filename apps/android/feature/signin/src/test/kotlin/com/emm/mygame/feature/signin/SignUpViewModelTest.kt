@@ -40,7 +40,7 @@ class SignUpViewModelTest {
     }
 
     @Test
-    fun `sends the email, password and fief name the player typed`() = runTest {
+    fun `signs up without founding anything`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         val viewModel: SignUpViewModel = SignUpViewModel(sessions)
 
@@ -48,18 +48,14 @@ class SignUpViewModelTest {
 
         assertEquals(
             listOf(
-                FakeSessionRepository.SignUpAttempt(
-                    email = "elena@encinar.es",
-                    password = "hierro-y-lana",
-                    fiefName = "Encinar",
-                ),
+                FakeSessionRepository.SignUpAttempt(email = "elena@encinar.es", password = "hierro-y-lana"),
             ),
             sessions.signUpAttempts,
         )
     }
 
     @Test
-    fun `opens the fief after an account is created`() = runTest {
+    fun `signs the player in once the account is created`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         val viewModel: SignUpViewModel = SignUpViewModel(sessions)
         fillAndSubmit(viewModel)
@@ -125,7 +121,7 @@ class SignUpViewModelTest {
         val viewModel: SignUpViewModel = SignUpViewModel(FakeSessionRepository())
         fillAndSubmit(viewModel)
 
-        viewModel.onIntent(SignUpIntent.FiefNameChanged("Pinares"))
+        viewModel.onIntent(SignUpIntent.EmailChanged("pinares@encinar.es"))
 
         assertEquals(filledForm(SignUpUiState.FormStatus.Submitting), viewModel.state.value)
     }
@@ -166,21 +162,19 @@ class SignUpViewModelTest {
     private fun fillAndSubmit(viewModel: SignUpViewModel) {
         viewModel.onIntent(SignUpIntent.EmailChanged("elena@encinar.es"))
         viewModel.onIntent(SignUpIntent.PasswordChanged("hierro-y-lana"))
-        viewModel.onIntent(SignUpIntent.FiefNameChanged("Encinar"))
         viewModel.onIntent(SignUpIntent.SubmitTapped)
     }
 
     private fun blankForm(): SignUpUiState =
-        SignUpUiState.Form(email = "", password = "", fiefName = "", status = SignUpUiState.FormStatus.Idle)
+        SignUpUiState.Form(email = "", password = "", status = SignUpUiState.FormStatus.Idle)
 
     private fun filledForm(status: SignUpUiState.FormStatus): SignUpUiState = SignUpUiState.Form(
         email = "elena@encinar.es",
         password = "hierro-y-lana",
-        fiefName = "Encinar",
         status = status,
     )
 
     private companion object {
-        const val FILLED_FIELDS: Int = 3
+        const val FILLED_FIELDS: Int = 2
     }
 }

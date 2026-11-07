@@ -26,6 +26,7 @@ import {
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -140,10 +141,10 @@ describe('the digest routes', () => {
       body: JSON.stringify({
         email: 'ana@example.com',
         password: 'hierro-y-lana',
-        fiefName: 'Valdehierro',
       }),
     })
     const player = PlayerSchema.parse(await response.json())
+    await foundFiefFor(player.id, 'Valdehierro', { server, clock })
     return { cookie: sessionCookieOf(response), playerId: player.id }
   }
 

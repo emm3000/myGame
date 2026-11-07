@@ -179,7 +179,7 @@ describe('the town route', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password: 'hierro-y-lana', fiefName: 'Valdehierro' }),
+      body: JSON.stringify({ email, password: 'hierro-y-lana' }),
     })
     PlayerSchema.parse(await response.json())
     return sessionCookieOf(response)

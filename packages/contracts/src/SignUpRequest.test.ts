@@ -4,13 +4,6 @@ import { SignUpRequestSchema } from './index'
 const signUp = (password: string): unknown => ({
   email: 'aldara@example.com',
   password,
-  fiefName: 'Vado Gris',
-})
-
-const signUpNaming = (fiefName: string): unknown => ({
-  email: 'aldara@example.com',
-  password: 'ocho1234',
-  fiefName,
 })
 
 describe('SignUpRequestSchema', () => {
@@ -22,11 +15,9 @@ describe('SignUpRequestSchema', () => {
     expect(SignUpRequestSchema.safeParse(signUp('siete12')).success).toBe(false)
   })
 
-  it('rejects a fief name that is only spaces', () => {
-    expect(SignUpRequestSchema.safeParse(signUpNaming('   ')).success).toBe(false)
-  })
-
-  it('trims the fief name', () => {
-    expect(SignUpRequestSchema.parse(signUpNaming('  Vado Gris ')).fiefName).toBe('Vado Gris')
+  it('drops the fief name an older client still sends', () => {
+    expect(
+      SignUpRequestSchema.parse({ ...(signUp('ocho1234') as object), fiefName: 'Vado Gris' }),
+    ).toEqual(signUp('ocho1234'))
   })
 })

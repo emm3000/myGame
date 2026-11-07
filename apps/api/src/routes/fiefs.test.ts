@@ -6,6 +6,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -59,10 +60,11 @@ describe('the fief list route', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password: 'hierro-y-lana', fiefName }),
+      body: JSON.stringify({ email, password: 'hierro-y-lana' }),
     })
     expect(response.status).toBe(201)
-    PlayerSchema.parse(await response.json())
+    const player = PlayerSchema.parse(await response.json())
+    await foundFiefFor(player.id, fiefName, { server, clock: frozenClock })
     return sessionCookieOf(response)
   }
 
