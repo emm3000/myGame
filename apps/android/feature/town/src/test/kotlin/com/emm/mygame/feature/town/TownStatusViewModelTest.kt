@@ -194,6 +194,20 @@ class TownStatusViewModelTest {
     }
 
     @Test
+    fun `follows no town held while hidden`() = runTest {
+        val clock = TestClock(testScheduler, deviceStart)
+        val viewModel: TownStatusViewModel = statusOf(clock)
+        reportShown(viewModel)
+        viewModel.onIntent(TownStatusIntent.ScreenHidden)
+        heldOf(runningTown(readAt = clock.now(), finishesAt = clock.now() + 2.minutes))
+        runCurrent()
+
+        passing(5.minutes)
+
+        assertEquals(1, towns.readCount)
+    }
+
+    @Test
     fun `asks again a minute after a failed read at the finish`() = runTest {
         val clock = TestClock(testScheduler, deviceStart)
         val viewModel: TownStatusViewModel = statusOf(clock)
@@ -321,7 +335,7 @@ class TownStatusViewModelTest {
         reportShown(viewModel)
         heldOf(runningTown(readAt = clock.now(), finishesAt = clock.now() + 10.minutes))
         runCurrent()
-        heldOf(finishedTown(clock.now(), readFirst = listOf(secondLesson)))
+        heldOf(finishedTown(clock.now(), readFirst = listOf(secondLesson, thirdLesson)))
         runCurrent()
 
         viewModel.onIntent(TownStatusIntent.ScreenShown(TownStatusScreen.LessonWords(secondLesson)))
@@ -336,7 +350,7 @@ class TownStatusViewModelTest {
         reportShown(viewModel)
         heldOf(runningTown(readAt = clock.now(), finishesAt = clock.now() + 10.minutes))
         runCurrent()
-        heldOf(finishedTown(clock.now(), readFirst = listOf(secondLesson)))
+        heldOf(finishedTown(clock.now(), readFirst = listOf(secondLesson, thirdLesson)))
         runCurrent()
 
         viewModel.onIntent(TownStatusIntent.ScreenShown(TownStatusScreen.LessonWords(thirdLesson)))

@@ -314,10 +314,13 @@ private class SignedInChrome(
     val status: @Composable () -> Unit,
 )
 
-private fun NavKey?.statusScreen(): TownStatusScreen = when (this) {
-    Destination.Town, Destination.School -> TownStatusScreen.ReadsTown
-    is Destination.LessonWords -> TownStatusScreen.LessonWords(lesson)
+private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: Destination? = this as? Destination) {
+    null, is Destination.SignIn, Destination.SignUp, Destination.ForgotPassword -> TownStatusScreen.Outside
+    Destination.Town -> TownStatusScreen.ReadsTown
+    Destination.School -> TownStatusScreen.ReadsTown
+    is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
     Destination.Review -> TownStatusScreen.Reviews
-    Destination.Report, is Destination.Map, is Destination.Chronicle -> TownStatusScreen.ReadsNoTown
-    else -> TownStatusScreen.Outside
+    Destination.Report -> TownStatusScreen.ReadsNoTown
+    is Destination.Map -> TownStatusScreen.ReadsNoTown
+    is Destination.Chronicle -> TownStatusScreen.ReadsNoTown
 }
