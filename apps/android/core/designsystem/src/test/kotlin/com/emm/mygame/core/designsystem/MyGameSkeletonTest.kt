@@ -15,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,6 +116,19 @@ class MyGameSkeletonTest {
         assertNotEquals(first, pulse())
     }
 
+    @Test
+    fun `never fades the blocks into the background`() {
+        drawLoading()
+        composeRule.mainClock.advanceTimeBy(pastReveal)
+
+        val pulses: List<Float> = (1..PULSE_SAMPLES).map {
+            composeRule.mainClock.advanceTimeBy(MyGameTransitions.CALM_MILLIS.toLong() * 2 / PULSE_SAMPLES)
+            pulse()
+        }
+
+        assertTrue(pulses.max() < BACKGROUND)
+    }
+
     private fun drawLoading() {
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
@@ -143,6 +157,8 @@ class MyGameSkeletonTest {
         const val LOADING_LINE: String = "Reading your town…"
         const val CONTENT: String = "Maple"
         const val FRAME_MARGIN: Long = 50
+        const val PULSE_SAMPLES: Int = 40
+        const val BACKGROUND: Float = 1f
         val screenBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
             listOf(MyGameSizes.control, MyGameSizes.placeCard, MyGameSizes.thumbnail),
         )
