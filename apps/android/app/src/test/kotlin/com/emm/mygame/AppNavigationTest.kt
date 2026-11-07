@@ -135,6 +135,7 @@ class AppNavigationTest {
             isStudied = false,
             wordCount = 5,
             readings = readings,
+            standings = emptyList(),
         )
 
     private fun townOf(
@@ -420,7 +421,7 @@ class AppNavigationTest {
 
     @Test
     fun `opens the reviews from the school past the learning cap`() {
-        signedInAtTown(town = townOf(inLearning = 8))
+        signedInAtTown(town = townOf(inLearning = 8, nextStep = NextStep.Reviews(count = 3, readFirst = emptyList())))
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
         waitForLine("La siguiente lección trae 5 palabras. Empieza los repasos.")
         learningFake.answerRead(noReviews)

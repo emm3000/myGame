@@ -14,13 +14,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.ui.SchoolPath
+import com.emm.mygame.core.ui.SchoolPathSteps
 import com.emm.mygame.core.ui.icuStringResource
+
+internal const val LESSON_ROW: String = "lesson_row"
 
 @Composable
 internal fun LessonRows(
@@ -48,6 +54,42 @@ internal fun LessonRows(
 
 @Composable
 private fun LessonRow(
+    card: SchoolUiState.LessonCard,
+    onIntent: (SchoolIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth().semantics { testTag = LESSON_ROW }) {
+        LessonTarget(card = card, onIntent = onIntent)
+        LessonPath(path = card.path, modifier = Modifier.padding(bottom = MyGameSpacing.step3))
+    }
+}
+
+@Composable
+private fun LessonPath(path: SchoolPathCounts, modifier: Modifier = Modifier) {
+    if (path.held == 0) return
+    SchoolPath(
+        steps = SchoolPathSteps(
+            studied = pathStepOf(R.string.school_path_studied, path.held, path.held),
+            read = pathStepOf(R.string.school_path_read, path.read, path.held),
+            reviewed = pathStepOf(R.string.school_path_reviewed, path.reviewed, path.held),
+            learned = pathStepOf(R.string.school_path_learned, path.learned, path.held),
+        ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun pathStepOf(@StringRes label: Int, count: Int, total: Int): SchoolPathSteps.Step = SchoolPathSteps.Step(
+    label = stringResource(label),
+    count = icuStringResource(
+        R.string.school_path_count,
+        "count" to count.toString(),
+        "total" to total.toString(),
+    ),
+)
+
+@Composable
+private fun LessonTarget(
     card: SchoolUiState.LessonCard,
     onIntent: (SchoolIntent) -> Unit,
     modifier: Modifier = Modifier,

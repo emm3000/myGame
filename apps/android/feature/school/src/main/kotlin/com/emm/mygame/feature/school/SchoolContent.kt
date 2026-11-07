@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nextStepCard
+import com.emm.mygame.core.network.schoolPathCountsOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -89,6 +90,7 @@ private fun TownSnapshot.Lesson.cardIn(town: TownSnapshot): SchoolUiState.Lesson
     resource = skill.resource,
     ratePercent = skill.ratePercent,
     duration = duration,
+    path = schoolPathCountsOf(standings),
     state = stateIn(town),
 )
 

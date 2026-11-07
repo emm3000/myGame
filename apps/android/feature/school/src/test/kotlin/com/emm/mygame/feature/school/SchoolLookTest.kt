@@ -33,6 +33,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -67,6 +68,7 @@ class SchoolLookTest {
         resource = TownResourceKind.Food,
         ratePercent = 5,
         duration = 150.seconds,
+        path = SchoolPathCounts(held = 0, read = 0, reviewed = 0, learned = 0),
         state = SchoolUiState.LessonState.Open(block = null),
     )
 
@@ -157,7 +159,7 @@ class SchoolLookTest {
         assertEquals(40.sp, textStyleOf("Lección 1").fontSize)
         assertEquals(ink, textStyleOf("Lección 1").color)
         assertEquals(20.sp, textStyleOf("A day in town").fontSize)
-        assertEquals(muted, textStyleOf("5 palabras · +5 % de comida").color)
+        assertEquals(muted, textStyleOf("5 palabras · Habilidad: comida +5\u00A0%").color)
     }
 
     @Test

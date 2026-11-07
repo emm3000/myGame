@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.projection.FinishClock
@@ -60,11 +61,18 @@ internal fun lessonSummaryOf(card: SchoolUiState.LessonCard): String = icuString
     R.string.school_lesson_summary,
     "words" to icuStringResource(R.string.school_lesson_words, "count" to card.wordCount),
     "skill" to icuStringResource(
-        R.string.school_skill_rate,
+        R.string.school_lesson_reward,
         "percent" to card.ratePercent.toString(),
         "resource" to stringResource(resourceNameOf(card.resource)),
     ),
 )
+
+@Composable
+internal fun readWordsLabelOf(lesson: LessonId, number: Int, shown: LessonId): String {
+    val readWords: String = stringResource(R.string.school_lesson_read_words)
+    if (lesson == shown) return readWords
+    return "${icuStringResource(R.string.school_lesson_title, "number" to number.toString())} · $readWords"
+}
 
 @Composable
 internal fun durationLabelOf(duration: Duration): String {

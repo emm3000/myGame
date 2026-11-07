@@ -21,7 +21,6 @@ import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -111,11 +110,18 @@ private fun SchoolContent(
                 card = shown,
                 content = content,
                 onIntent = onIntent,
+                onLessonOpen = onLessonOpen,
+            )
+        }
+        LearningSection(learning = content.learning)
+        shown?.let { card: SchoolUiState.LessonCard ->
+            ReviewsLink(
+                content = content,
+                shown = card.lesson,
                 onReviewsOpen = onReviewsOpen,
                 onLessonOpen = onLessonOpen,
             )
         }
-        LearningSection(learning = content.learning, onReviewsOpen = onReviewsOpen)
         LessonRows(content = content, onIntent = onIntent)
         LessonSlotSection(slot = content.slot, stop = content.stop, onIntent = onIntent)
         SkillsSection(content = content)
@@ -145,11 +151,7 @@ private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
 }
 
 @Composable
-private fun LearningSection(
-    learning: SchoolUiState.LearningLine,
-    onReviewsOpen: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun LearningSection(learning: SchoolUiState.LearningLine, modifier: Modifier = Modifier) {
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
@@ -171,7 +173,6 @@ private fun LearningSection(
                     style = MyGameTypography.caption,
                     color = MyGameTheme.colors.warningInk,
                 )
-                MyGameTextLink(label = stringResource(R.string.school_start_reviews), onClick = onReviewsOpen)
             }
         }
     }

@@ -290,5 +290,6 @@ class NextStepSectionTest {
         isStudied = false,
         wordCount = wordCount,
         readings = emptyList(),
+        standings = emptyList(),
     )
 }

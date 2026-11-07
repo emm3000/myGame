@@ -53,6 +53,7 @@ class TownLessonsRepositoryTest {
                     isStudied = true,
                     wordCount = 2,
                     readings = listOf(TownSnapshot.WordReading("home", "hogar", "This is my home.")),
+                    standings = listOf(WordStanding.Recognize, WordStanding.Retained),
                 ),
             ),
             read.lessons,

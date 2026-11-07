@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.school
 
 import app.cash.turbine.test
+import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownReadResult
@@ -106,6 +107,7 @@ class SchoolViewModelTest {
                 resource = TownResourceKind.Food,
                 ratePercent = 5,
                 duration = 150.seconds,
+                path = SchoolPathCounts(held = 0, read = 0, reviewed = 0, learned = 0),
                 state = SchoolUiState.LessonState.Open(block = null),
             ),
             lessonOfCard(viewModel),

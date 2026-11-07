@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import kotlin.time.Duration
@@ -77,6 +78,7 @@ sealed interface SchoolUiState {
         val resource: TownResourceKind,
         val ratePercent: Int,
         val duration: Duration,
+        val path: SchoolPathCounts,
         val state: LessonState,
     )
 

@@ -17,12 +17,10 @@ import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.TownLessonRefusal
 import com.emm.mygame.core.ui.icuStringResource
 
 internal const val LESSON_BLOCK_LINE: String = "lesson_block_line"
@@ -32,7 +30,6 @@ internal fun ShownLesson(
     card: SchoolUiState.LessonCard,
     content: SchoolUiState.Content,
     onIntent: (SchoolIntent) -> Unit,
-    onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -52,7 +49,7 @@ internal fun ShownLesson(
         running?.let { slot: SchoolUiState.SlotLine.Running ->
             ReadWordsPill(running = slot, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
-        StartAnswer(lesson = card.lesson, start = content.start, onReviewsOpen = onReviewsOpen)
+        StartAnswer(lesson = card.lesson, start = content.start)
     }
 }
 
@@ -140,10 +137,8 @@ private fun ReadWordsPill(
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val readWords: String = stringResource(R.string.school_lesson_read_words)
-    val title: String = icuStringResource(R.string.school_lesson_title, "number" to running.number.toString())
     MyGameButton(
-        label = if (running.lesson == shown) readWords else "$title · $readWords",
+        label = readWordsLabelOf(running.lesson, running.number, shown),
         isBusy = false,
         busyDescription = stringResource(R.string.school_waiting),
         onClick = { onLessonOpen(running.lesson) },
@@ -169,7 +164,6 @@ private fun blockLineOf(block: SchoolUiState.LessonBlock): String = when (block)
 private fun StartAnswer(
     lesson: LessonId,
     start: SchoolUiState.LessonRequest,
-    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val asked: LessonId? = when (start) {
@@ -179,10 +173,4 @@ private fun StartAnswer(
     }
     if (asked != lesson) return
     requestAnswerOf(start)?.let { line: String -> MyGameInlineAlert(message = line, modifier = modifier) }
-    if (start.isLearningCapRefusal()) {
-        MyGameTextLink(label = stringResource(R.string.school_start_reviews), onClick = onReviewsOpen)
-    }
 }
-
-private fun SchoolUiState.LessonRequest.isLearningCapRefusal(): Boolean =
-    this is SchoolUiState.LessonRequest.Refused && refusal is TownLessonRefusal.LearningCapReached
