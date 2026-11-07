@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownLabel
@@ -278,6 +279,81 @@ class TownViewModelTest {
         runCurrent()
 
         assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `reads the town at nextDueAt`() = runTest {
+        homeViewModel(townOf(nextDueAt = readInstant + 5.minutes))
+
+        advanceTimeBy(5.minutes)
+        runCurrent()
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `re-reads once at nextDueAt when the device clock runs ahead`() = runTest {
+        val aheadOfTheServer: Instant = readInstant + 2.hours
+        val dueAt: Instant = readInstant + 5.minutes
+        homeViewModel(townOf(nextDueAt = dueAt), start = aheadOfTheServer)
+        towns.answerRead(TownReadResult.Read(townOf(nextDueAt = dueAt + 1.hours, readAt = dueAt)))
+
+        advanceTimeBy(4.minutes)
+        runCurrent()
+        assertEquals(1, towns.readCount)
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+        assertEquals(2, towns.readCount)
+
+        advanceTimeBy(59.minutes)
+        runCurrent()
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `keeps the wait for nextDueAt on the server's clock when the read still names it`() = runTest {
+        val dueAt: Instant = readInstant + 5.minutes
+        homeViewModel(townOf(nextDueAt = dueAt), start = readInstant + 2.hours)
+        towns.answerRead(TownReadResult.Read(townOf(nextDueAt = dueAt, readAt = dueAt - 1.minutes)))
+
+        advanceTimeBy(5.minutes)
+        runCurrent()
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `ignores a nextDueAt already past in the answer of a read`() = runTest {
+        homeViewModel(townOf(nextDueAt = readInstant - 1.minutes))
+
+        advanceTimeBy(5.minutes)
+        runCurrent()
+
+        assertEquals(1, towns.readCount)
+    }
+
+    @Test
+    fun `counts the next review down between reads`() = runTest {
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(nextStep = NextStep.CaughtUp, nextDueAt = readInstant + 5.minutes),
+        )
+
+        advanceTimeBy(1.minutes)
+        runCurrent()
+
+        assertEquals(4.minutes, contentOf(viewModel).nextStepTime?.remaining)
+    }
+
+    @Test
+    fun `gives the next review's finish on the device's clock`() = runTest {
+        val aheadOfTheServer: Instant = readInstant + 2.hours
+        val viewModel: TownViewModel = homeViewModel(
+            townOf(nextStep = NextStep.CaughtUp, nextDueAt = readInstant + 5.minutes),
+            start = aheadOfTheServer,
+        )
+
+        assertEquals(aheadOfTheServer + 5.minutes, contentOf(viewModel).nextStepTime?.finishesAt)
     }
 
     @Test

@@ -15,6 +15,7 @@ sealed interface ReportUiState {
     data class Content(
         val dueCount: Int,
         val firstUnread: LessonId?,
+        val nextReview: Instant?,
         val news: ReportNews,
         val receivedAt: Instant,
     ) : ReportUiState

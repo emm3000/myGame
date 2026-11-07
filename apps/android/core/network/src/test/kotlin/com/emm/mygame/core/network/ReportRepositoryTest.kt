@@ -57,6 +57,20 @@ class ReportRepositoryTest {
     }
 
     @Test
+    fun `reads the next review's instant`() = runTest {
+        api.enqueue(json(200, reportOf(nextDueAt = """"2026-11-05T10:09:00.000Z"""")))
+
+        assertEquals(Instant.parse("2026-11-05T10:09:00Z"), read().nextDueAt)
+    }
+
+    @Test
+    fun `reads no instant when no review lies ahead`() = runTest {
+        api.enqueue(json(200, reportOf()))
+
+        assertEquals(null, read().nextDueAt)
+    }
+
+    @Test
     fun `reads the lessons to read first in the order the api answers`() = runTest {
         api.enqueue(json(200, reportOf(dueCount = 3, readFirst = """"lesson-2","lesson-3"""")))
 
@@ -318,8 +332,12 @@ class ReportRepositoryTest {
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
 
-    private fun reportOf(dueCount: Int = 0, news: String = "", readFirst: String = ""): String =
-        """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":null,"news":[$news]}"""
+    private fun reportOf(
+        dueCount: Int = 0,
+        news: String = "",
+        readFirst: String = "",
+        nextDueAt: String = "null",
+    ): String = """{"dueCount":$dueCount,"due":[],"readFirst":[$readFirst],"nextDueAt":$nextDueAt,"news":[$news]}"""
 
     private fun buildingWork(kind: String, building: String): String =
         """{"kind":"$kind","params":{"building":"$building","level":2},"occurredAt":"$OCCURRED_AT"}"""

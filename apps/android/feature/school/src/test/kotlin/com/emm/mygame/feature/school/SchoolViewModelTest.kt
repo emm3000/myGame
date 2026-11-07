@@ -8,6 +8,7 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
@@ -409,6 +410,36 @@ class SchoolViewModelTest {
         runCurrent()
 
         assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `reads the town at nextDueAt`() = runTest {
+        schoolReading(townOf(nextDueAt = readInstant + 5.minutes))
+
+        advanceTimeBy(5.minutes)
+        runCurrent()
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `counts the next review down each second in its last minute`() = runTest {
+        val viewModel: SchoolViewModel = schoolReading(townOf(nextDueAt = readInstant + 2.minutes))
+
+        advanceTimeBy(70.seconds)
+        runCurrent()
+
+        assertEquals(50.seconds, contentOf(viewModel).nextStepTime?.remaining)
+    }
+
+    @Test
+    fun `gives the next review's finish on the device's clock`() = runTest {
+        towns.answerRead(TownReadResult.Read(townOf(nextDueAt = readInstant + 5.minutes)))
+
+        val viewModel: SchoolViewModel = schoolViewModelOf(towns, start = readInstant + 2.hours)
+        runCurrent()
+
+        assertEquals(readInstant + 2.hours + 5.minutes, contentOf(viewModel).nextStepTime?.finishesAt)
     }
 
     @Test

@@ -57,26 +57,6 @@ internal fun ShownLesson(
 }
 
 @Composable
-internal fun SchoolNextStep(
-    slot: SchoolUiState.SlotLine,
-    onReviewsOpen: () -> Unit,
-    onLessonOpen: (LessonId) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (slot is SchoolUiState.SlotLine.Running) {
-        ReadWordsPill(running = slot, shown = slot.lesson, onLessonOpen = onLessonOpen, modifier = modifier)
-        return
-    }
-    MyGameButton(
-        label = stringResource(R.string.school_start_reviews),
-        isBusy = false,
-        busyDescription = stringResource(R.string.school_waiting),
-        onClick = onReviewsOpen,
-        modifier = modifier,
-    )
-}
-
-@Composable
 private fun LessonBlock(card: SchoolUiState.LessonCard, modifier: Modifier = Modifier) {
     MyGameBlock(
         hue = blockHueOf(card.number - 1),

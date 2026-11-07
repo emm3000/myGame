@@ -79,6 +79,8 @@ class TownScreenTest {
         slot = TownUiState.SlotLine.Idle,
         waitingList = emptyList(),
         places = listOf(farmOffer),
+        nextStep = caughtUpCard,
+        nextStepTime = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
     )
@@ -203,7 +205,7 @@ class TownScreenTest {
         show(riverton)
 
         listOf("Dinero", "120", "de 900", "+30 / h").forEach { line: String ->
-            composeRule.onNodeWithText(line).assertIsDisplayed()
+            composeRule.onNodeWithText(line).performScrollTo().assertIsDisplayed()
         }
     }
 
@@ -213,7 +215,7 @@ class TownScreenTest {
 
         show(riverton.copy(stocks = listOf(full)))
 
-        composeRule.onNodeWithText("Lleno: 900").assertIsDisplayed()
+        composeRule.onNodeWithText("Lleno: 900").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -243,14 +245,14 @@ class TownScreenTest {
     fun `counts the free and the working people`() {
         show(riverton)
 
-        composeRule.onNodeWithText("Gente: 24 libres, 96 trabajando").assertIsDisplayed()
+        composeRule.onNodeWithText("Gente: 24 libres, 96 trabajando").performScrollTo().assertIsDisplayed()
     }
 
     @Test
     fun `uses the singular for one free person`() {
         show(riverton.copy(people = TownUiState.PeopleLine(free = 1, atWork = 0)))
 
-        composeRule.onNodeWithText("Gente: 1 libre, 0 trabajando").assertIsDisplayed()
+        composeRule.onNodeWithText("Gente: 1 libre, 0 trabajando").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -768,6 +770,8 @@ class TownScreenTest {
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { schoolOpens += 1 },
                     onReportOpen = { reportOpens += 1 },
+                    onReviewsOpen = { },
+                    onLessonOpen = { },
                 )
             }
         }

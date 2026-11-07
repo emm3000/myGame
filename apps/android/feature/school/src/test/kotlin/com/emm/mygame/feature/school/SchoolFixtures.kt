@@ -2,12 +2,15 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlin.time.Duration
@@ -62,6 +65,8 @@ internal fun townOf(
     schoolLevel: Int = 1,
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
+    nextStep: NextStep = NextStep.CaughtUp,
+    nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
@@ -79,8 +84,12 @@ internal fun townOf(
     skills = skills,
     learning = learning,
     lessonSlot = lessonSlot,
+    nextStep = nextStep,
+    nextDueAt = nextDueAt,
     readAt = readAt,
 )
+
+internal val caughtUpCard: NextStepCard = townOf().nextStepCard()
 
 internal fun contentOf(viewModel: SchoolViewModel): SchoolUiState.Content =
     viewModel.state.value as SchoolUiState.Content

@@ -24,6 +24,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
     val earnedSkills: List<TownSnapshot.EarnedSkill> = skills.map { skill: TownOverviewSkillsInner ->
         skill.toEarnedSkill() ?: return null
     }
+    val step: NextStep = nextStep.toNextStep() ?: return null
     return TownSnapshot(
         name = name,
         label = townLabel,
@@ -50,6 +51,8 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         skills = earnedSkills,
         learning = learning.toLearning(),
         lessonSlot = lessonSlot?.toLessonSlot(),
+        nextStep = step,
+        nextDueAt = nextDueAt?.toKotlinInstant(),
         readAt = readAt.toKotlinInstant(),
     )
 }

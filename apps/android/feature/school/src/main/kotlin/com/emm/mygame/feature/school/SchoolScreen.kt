@@ -35,6 +35,7 @@ fun SchoolScreen(
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scroll: ScrollState = rememberScrollState()
@@ -79,6 +80,7 @@ fun SchoolScreen(
                     onIntent = onIntent,
                     onReviewsOpen = onReviewsOpen,
                     onLessonOpen = onLessonOpen,
+                    onReportOpen = onReportOpen,
                 )
             }
         }
@@ -91,13 +93,19 @@ private fun SchoolContent(
     onIntent: (SchoolIntent) -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val shown: SchoolUiState.LessonCard? = content.shown
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
         SchoolTitle(level = content.schoolLevel)
         if (shown == null) {
-            SchoolNextStep(slot = content.slot, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
+            SchoolNextStep(
+                content = content,
+                onReviewsOpen = onReviewsOpen,
+                onLessonOpen = onLessonOpen,
+                onReportOpen = onReportOpen,
+            )
         } else {
             ShownLesson(
                 card = shown,

@@ -234,6 +234,27 @@ class ReportCopyTest {
     }
 
     @Test
+    fun `gives the next review of the day of the read by its clock`() {
+        val readAt: Instant = Instant.parse("2026-11-05T13:00:00Z")
+
+        assertEquals("09:56", resources.nextReviewLabelOf(at, readAt, lima))
+    }
+
+    @Test
+    fun `gives the next review of the day after as tomorrow`() {
+        val readAt: Instant = Instant.parse("2026-11-04T20:00:00Z")
+
+        assertEquals("mañana 09:56", resources.nextReviewLabelOf(at, readAt, lima))
+    }
+
+    @Test
+    fun `gives a later next review with its day`() {
+        val readAt: Instant = Instant.parse("2026-11-01T20:00:00Z")
+
+        assertEquals("5 nov 09:56", resources.nextReviewLabelOf(at, readAt, lima))
+    }
+
+    @Test
     fun `dates news of the day of the read as today`() {
         val readAt: Instant = Instant.parse("2026-11-05T20:00:00Z")
 

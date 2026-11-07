@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
@@ -28,6 +29,8 @@ sealed interface TownUiState {
         val slot: SlotLine,
         val waitingList: List<WaitingLine>,
         val places: List<PlaceCard>,
+        val nextStep: NextStepCard,
+        val nextStepTime: NextStepTime?,
         val start: StartStatus,
         val stop: StopStatus,
     ) : TownUiState
@@ -48,6 +51,8 @@ sealed interface TownUiState {
         val isFull: Boolean
             get() = amount >= capacity
     }
+
+    data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
 
     data class PeopleLine(val free: Int, val atWork: Int)
 

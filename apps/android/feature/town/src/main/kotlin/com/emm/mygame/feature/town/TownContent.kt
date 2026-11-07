@@ -1,9 +1,11 @@
 package com.emm.mygame.feature.town
 
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
@@ -14,6 +16,7 @@ internal fun TownSnapshot.contentAt(now: Instant, gap: Duration, mutations: Town
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
         .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now) }
     val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
+    val card: NextStepCard = nextStepCard()
     return TownUiState.Content(
         name = name,
         label = label,
@@ -25,19 +28,24 @@ internal fun TownSnapshot.contentAt(now: Instant, gap: Duration, mutations: Town
         places = buildings
             .sortedBy { place: TownSnapshot.Building -> place.kind != TownBuildingKind.School }
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this) },
+        nextStep = card,
+        nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
         stop = mutations.stop,
     )
 }
 
 internal fun TownSnapshot.isDueAt(now: Instant): Boolean =
-    changesOnTheirOwn().any { instant: Instant -> instant <= now }
+    changesOnTheirOwn().any { instant: Instant -> instant > readAt && instant <= now }
 
 internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
     (changesOnTheirOwn() + work.waitingList.map { item: TownSnapshot.WorkItem -> item.finishesAt })
         .filter { instant: Instant -> instant > now }
         .minOrNull()
         ?.let { instant: Instant -> instant - now }
+
+private fun NextStepCard.Countdown.timeAt(now: Instant, gap: Duration): TownUiState.NextStepTime =
+    TownUiState.NextStepTime(remaining = countdownTo(finishesAt = at, now = now), finishesAt = at - gap)
 
 private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
     val inForce: SeasonInForce = seasonInForce ?: return null
@@ -46,7 +54,7 @@ private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
 }
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
-    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt)
+    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt, nextDueAt)
 
 private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant): TownUiState.StockLine = TownUiState.StockLine(
     kind = kind,

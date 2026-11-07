@@ -16,6 +16,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -31,7 +32,9 @@ import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.TownResourceKind
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,6 +54,8 @@ class SchoolLookTest {
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
 
     private var reviewOpens: Int = 0
+
+    private var reportOpens: Int = 0
 
     private val thirdLesson: LessonId = LessonId("lesson-3")
 
@@ -89,9 +94,19 @@ class SchoolLookTest {
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(openFirst, openSecond, openThird),
+        nextStep = caughtUpCard,
+        nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
     )
+
+    private val everyLessonStudied: SchoolUiState.Content =
+        idleSchool.copy(lessons = listOf(studiedFirst, studiedSecond))
+
+    private fun blockOfHue(hue: MyGameBlockHue): SemanticsMatcher = SemanticsMatcher.expectValue(BLOCK_HUE, hue)
+
+    private fun reviewsCard(action: NextStepCard.Action): NextStepCard =
+        caughtUpCard.copy(line = NextStepCard.Line.ReviewsDue(3), action = action)
 
     private val secondWhileFirstRuns: SchoolUiState.Content = idleSchool.copy(
         slot = firstRunning,
@@ -251,7 +266,7 @@ class SchoolLookTest {
         var state: SchoolUiState by mutableStateOf(idleSchool)
         composeRule.setContent {
             MyGameTheme {
-                SchoolScreen(state = state, onIntent = { }, onReviewsOpen = { }, onLessonOpen = { })
+                SchoolScreen(state = state, onIntent = { }, onReviewsOpen = { }, onLessonOpen = { }, onReportOpen = { })
             }
         }
         composeRule.onNodeWithText("Aún no tienes habilidades.").performScrollTo()
@@ -348,6 +363,7 @@ class SchoolLookTest {
                     onIntent = { },
                     onReviewsOpen = { },
                     onLessonOpen = { },
+                    onReportOpen = { reportOpens += 1 },
                 )
             }
         }
@@ -357,11 +373,68 @@ class SchoolLookTest {
 
     @Test
     fun `opens the reviews from the pill with every lesson studied`() {
-        show(idleSchool.copy(lessons = listOf(studiedFirst, studiedSecond)))
+        show(everyLessonStudied.copy(nextStep = reviewsCard(action = NextStepCard.Action.StartReviews)))
 
-        composeRule.onNodeWithTag(INK_PILL).performClick()
+        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Empezar los repasos")).performClick()
 
         assertEquals(1, reviewOpens)
+    }
+
+    @Test
+    fun `opens the unread lesson from the pill with every lesson studied`() {
+        show(everyLessonStudied.copy(nextStep = reviewsCard(NextStepCard.Action.ReadWords(firstLesson))))
+
+        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Leer las palabras")).performClick()
+
+        assertEquals(listOf(firstLesson), lessonOpens)
+    }
+
+    @Test
+    fun `opens the Report from the pill when caught up with every lesson studied`() {
+        show(everyLessonStudied)
+
+        composeRule.onNode(hasTestTag(INK_PILL) and hasText("Ir al informe")).performClick()
+
+        assertEquals(1, reportOpens)
+    }
+
+    @Test
+    fun `draws the next step's peach block with every lesson studied`() {
+        show(everyLessonStudied)
+
+        composeRule.onNode(hasText("TU SIGUIENTE PASO") and blockOfHue(MyGameBlockHue.Peach)).assertExists()
+        composeRule.onNode(hasText("No tienes repasos pendientes ahora.") and blockOfHue(MyGameBlockHue.Peach))
+            .assertExists()
+    }
+
+    @Test
+    fun `sets the pill under the next step's block on paper`() {
+        show(everyLessonStudied)
+
+        val blockBottom: Dp = composeRule.onNode(blockOfHue(MyGameBlockHue.Peach)).getUnclippedBoundsInRoot().bottom
+
+        composeRule.onNode(hasText("Ir al informe") and blockOfHue(MyGameBlockHue.Peach)).assertDoesNotExist()
+        assertTrue(blockBottom <= composeRule.onNodeWithTag(INK_PILL).getUnclippedBoundsInRoot().top)
+    }
+
+    @Test
+    fun `tells when the next review is due with every lesson studied`() {
+        show(
+            everyLessonStudied.copy(
+                nextStep = caughtUpCard.copy(countdown = NextStepCard.Countdown.NextReview(readInstant)),
+                nextStepTime = SchoolUiState.NextStepTime(9.minutes, readInstant),
+            ),
+        )
+
+        composeRule.onNodeWithText("Siguiente repaso:").assertExists()
+        composeRule.onNodeWithText("9 min").assertExists()
+    }
+
+    @Test
+    fun `draws no next step while a lesson is shown`() {
+        show(idleSchool)
+
+        composeRule.onAllNodesWithText("TU SIGUIENTE PASO").assertCountEquals(0)
     }
 
     @Test
@@ -376,7 +449,7 @@ class SchoolLookTest {
         composeRule.setContent {
             MyGameTheme {
                 inks = MyGameTheme.colors.onBlock to MyGameTheme.colors.onBlockMuted
-                SchoolScreen(state = state, onIntent = { }, onReviewsOpen = { }, onLessonOpen = { })
+                SchoolScreen(state = state, onIntent = { }, onReviewsOpen = { }, onLessonOpen = { }, onReportOpen = { })
             }
         }
         composeRule.waitForIdle()
@@ -398,6 +471,7 @@ class SchoolLookTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onReportOpen = { reportOpens += 1 },
                 )
             }
         }

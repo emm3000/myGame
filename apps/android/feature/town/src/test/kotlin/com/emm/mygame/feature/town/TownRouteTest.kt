@@ -39,10 +39,14 @@ class TownRouteTest {
                     towns = towns,
                     sessions = sessions,
                     clock = Clock.System,
-                    onSchoolOpen = {},
-                    onReportOpen = {},
-                    onSigningOut = { signingOuts += 1 },
-                    onSignedOut = { signedOuts += 1 },
+                    navigation = TownNavigation(
+                        onSchoolOpen = {},
+                        onReportOpen = {},
+                        onReviewsOpen = {},
+                        onLessonOpen = {},
+                        onSigningOut = { signingOuts += 1 },
+                        onSignedOut = { signedOuts += 1 },
+                    ),
                 )
             }
         }

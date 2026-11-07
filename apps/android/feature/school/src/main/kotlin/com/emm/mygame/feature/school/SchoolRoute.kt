@@ -21,6 +21,7 @@ fun SchoolRoute(
     onNoTown: () -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
+    onReportOpen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
@@ -44,6 +45,7 @@ fun SchoolRoute(
         onIntent = viewModel::onIntent,
         onReviewsOpen = onReviewsOpen,
         onLessonOpen = onLessonOpen,
+        onReportOpen = onReportOpen,
         modifier = modifier,
     )
 }

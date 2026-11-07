@@ -2,11 +2,14 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
@@ -68,6 +71,8 @@ internal fun townOf(
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,
+    nextStep: NextStep = NextStep.CaughtUp,
+    nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = name,
@@ -82,8 +87,12 @@ internal fun townOf(
     skills = emptyList(),
     learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
     lessonSlot = lessonSlot,
+    nextStep = nextStep,
+    nextDueAt = nextDueAt,
     readAt = readAt,
 )
+
+internal val caughtUpCard: NextStepCard = townOf().nextStepCard()
 
 internal fun contentOf(viewModel: TownViewModel): TownUiState.Content = viewModel.state.value as TownUiState.Content
 

@@ -32,7 +32,8 @@ internal fun reportOf(
     dueCount: Int = 0,
     news: List<TownNews> = emptyList(),
     readFirst: List<LessonId> = emptyList(),
-): TownReport = TownReport(dueCount = dueCount, readFirst = readFirst, news = news)
+    nextDueAt: Instant? = null,
+): TownReport = TownReport(dueCount = dueCount, readFirst = readFirst, nextDueAt = nextDueAt, news = news)
 
 internal fun contentOf(viewModel: ReportViewModel): ReportUiState.Content =
     viewModel.state.value as ReportUiState.Content
@@ -43,8 +44,9 @@ internal fun unreadOf(viewModel: ReportViewModel): ReportUiState.ReportNews.Unre
 internal fun TestScope.reportViewModelOf(
     reports: FakeReportRepository,
     sessions: FakeSessionRepository = FakeSessionRepository(),
+    start: Instant = readInstant,
 ): ReportViewModel {
-    val viewModel: ReportViewModel = ReportViewModel(reports, sessions, TestClock(testScheduler, readInstant))
+    val viewModel: ReportViewModel = ReportViewModel(reports, sessions, TestClock(testScheduler, start))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()

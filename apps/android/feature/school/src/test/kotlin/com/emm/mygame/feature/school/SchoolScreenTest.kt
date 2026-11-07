@@ -62,6 +62,8 @@ class SchoolScreenTest {
         slot = SchoolUiState.SlotLine.Idle,
         skills = emptyList(),
         lessons = listOf(readyLesson),
+        nextStep = caughtUpCard,
+        nextStepTime = null,
         start = SchoolUiState.LessonRequest.Idle,
         stop = SchoolUiState.LessonRequest.Idle,
     )
@@ -81,6 +83,7 @@ class SchoolScreenTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onReviewsOpen = { reviewOpens += 1 },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
+                    onReportOpen = { },
                 )
             }
         }
