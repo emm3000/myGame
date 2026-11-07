@@ -153,20 +153,29 @@ it('speaks the due count when it deals the next card', async () => {
   expect(reviewLiveRegion()?.textContent).toBe(reviewDueCount({ count: formatQuantity(1) }))
 })
 
+const correctHomeEarningFood: ReviewAnswer['verdict'] = {
+  ...correctHome,
+  earnedSkill: {
+    lessonId: 'lesson-1',
+    resource: 'food',
+    ratePercent: 5,
+    earnedAt: readAt,
+    level: 1,
+    ratePerHourBefore: 120,
+    ratePerHourAfter: 126,
+    words: ['home', 'school'],
+  },
+}
+
+const motionClassesOf = (row: string): ReadonlyArray<string> =>
+  [...document.querySelectorAll(`main [data-registers="${row}"]`)].flatMap((element) =>
+    element.className
+      .split(' ')
+      .filter((name) => name.includes('transition-') || name.includes('starting:')),
+  )
+
 it('changes the rate with the skill verdict', async () => {
-  await showReview(dueOf(home, school), dueOf(school), {
-    ...correctHome,
-    earnedSkill: {
-      lessonId: 'lesson-1',
-      resource: 'food',
-      ratePercent: 5,
-      earnedAt: readAt,
-      level: 1,
-      ratePerHourBefore: 120,
-      ratePerHourAfter: 126,
-      words: ['home', 'school'],
-    },
-  })
+  await showReview(dueOf(home, school), dueOf(school), correctHomeEarningFood)
 
   await answerHome()
 
@@ -175,15 +184,13 @@ it('changes the rate with the skill verdict', async () => {
 })
 
 it('lands the card and the rate at once under reduced motion', async () => {
-  await showReview(dueOf(home, school), dueOf(school), correctHome)
-  await answerHome()
-  await pressNext()
+  await showReview(dueOf(home, school), dueOf(school), correctHomeEarningFood)
 
-  const motionClasses = [...document.querySelectorAll('main [data-registers]')].flatMap((element) =>
-    element.className
-      .split(' ')
-      .filter((name) => name.includes('transition-') || name.includes('starting:')),
-  )
-  expect(motionClasses.length).toBeGreaterThan(0)
+  await answerHome()
+  const rateClasses = motionClassesOf('rate')
+  await pressNext()
+  const motionClasses = [...rateClasses, ...motionClassesOf('deal')]
+
+  expect([rateClasses.length > 0, motionClasses.length > rateClasses.length]).toEqual([true, true])
   expect(motionClasses.filter((name) => !name.startsWith('motion-safe:'))).toEqual([])
 })
