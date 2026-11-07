@@ -21,15 +21,23 @@ internal class ApiTownRepository(
     private val api: DefaultApi,
     private val ioDispatcher: CoroutineDispatcher,
     private val clock: Clock,
+    private val tokenStore: TokenStore,
 ) : TownRepository {
 
     private val _town: MutableStateFlow<HeldTown?> = MutableStateFlow(null)
 
     override val town: StateFlow<HeldTown?> = _town.asStateFlow()
 
+    private val holding: Any = Any()
+
+    init {
+        tokenStore.onSessionChange(::forget)
+    }
+
     override suspend fun read(): TownReadResult = withContext(ioDispatcher) {
         try {
-            readOrNoTown(api.townGet())
+            val session: Int = tokenStore.currentSession()
+            readOrNoTown(api.townGet(), session)
         } catch (expectedOutage: IOException) {
             TownReadResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -39,7 +47,8 @@ internal class ApiTownRepository(
 
     override suspend fun found(name: String): TownFoundResult = withContext(ioDispatcher) {
         try {
-            foundedOrRefused(api.townPost(FoundTown(name = name)))
+            val session: Int = tokenStore.currentSession()
+            foundedOrRefused(api.townPost(FoundTown(name = name)), session)
         } catch (expectedOutage: IOException) {
             TownFoundResult.Unreachable
         } catch (expectedMalformedBody: SerializationException) {
@@ -66,7 +75,8 @@ internal class ApiTownRepository(
     private suspend fun working(call: suspend () -> Response<TownOverview>): TownWorkResult =
         withContext(ioDispatcher) {
             try {
-                answeredOrRefused(call())
+                val session: Int = tokenStore.currentSession()
+                answeredOrRefused(call(), session)
             } catch (expectedOutage: IOException) {
                 TownWorkResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
@@ -77,7 +87,8 @@ internal class ApiTownRepository(
     private suspend fun studying(call: suspend () -> Response<TownOverview>): TownLessonResult =
         withContext(ioDispatcher) {
             try {
-                lessonAnsweredOrRefused(call())
+                val session: Int = tokenStore.currentSession()
+                lessonAnsweredOrRefused(call(), session)
             } catch (expectedOutage: IOException) {
                 TownLessonResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
@@ -85,29 +96,42 @@ internal class ApiTownRepository(
             }
         }
 
-    private fun readTown(response: Response<TownOverview>): TownSnapshot? =
+    private fun readTown(response: Response<TownOverview>, session: Int): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            _town.value = HeldTown(town, gap = town.readAt - clock.now())
+            hold(session) { HeldTown(town, gap = town.readAt - clock.now()) }
         }
 
-    private fun answeredTown(response: Response<TownOverview>): TownSnapshot? =
+    private fun answeredTown(response: Response<TownOverview>, session: Int): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
-            _town.value = HeldTown(town, gap = _town.value?.gap ?: (town.readAt - clock.now()))
+            hold(session) { last: HeldTown? -> HeldTown(town, gap = last?.gap ?: (town.readAt - clock.now())) }
         }
 
-    private fun readOrNoTown(response: Response<TownOverview>): TownReadResult {
-        val snapshot: TownSnapshot? = readTown(response)
+    private fun hold(session: Int, next: (HeldTown?) -> HeldTown?) {
+        synchronized(holding) {
+            if (tokenStore.currentSession() != session) return
+            _town.value = next(_town.value)
+        }
+    }
+
+    private fun forget() {
+        synchronized(holding) {
+            _town.value = null
+        }
+    }
+
+    private fun readOrNoTown(response: Response<TownOverview>, session: Int): TownReadResult {
+        val snapshot: TownSnapshot? = readTown(response, session)
         if (response.isSuccessful) {
             return if (snapshot == null) TownReadResult.Unreachable else TownReadResult.Read(snapshot)
         }
         val isNoTown: Boolean = response.wireRefusal()?.bareKind() == BareApiError.Kind.TownNotFound
         if (!isNoTown) return TownReadResult.Unreachable
-        _town.value = null
+        hold(session) { null }
         return TownReadResult.NoTown
     }
 
-    private fun foundedOrRefused(response: Response<TownOverview>): TownFoundResult {
-        val snapshot: TownSnapshot? = answeredTown(response)
+    private fun foundedOrRefused(response: Response<TownOverview>, session: Int): TownFoundResult {
+        val snapshot: TownSnapshot? = answeredTown(response, session)
         if (response.isSuccessful) {
             return if (snapshot == null) TownFoundResult.Unreachable else TownFoundResult.Founded(snapshot)
         }
@@ -115,8 +139,8 @@ internal class ApiTownRepository(
         return TownFoundResult.Refused(refusal.toFoundRefusal())
     }
 
-    private fun answeredOrRefused(response: Response<TownOverview>): TownWorkResult {
-        val snapshot: TownSnapshot? = answeredTown(response)
+    private fun answeredOrRefused(response: Response<TownOverview>, session: Int): TownWorkResult {
+        val snapshot: TownSnapshot? = answeredTown(response, session)
         if (response.isSuccessful) {
             return if (snapshot == null) TownWorkResult.Unreachable else TownWorkResult.Answered(snapshot)
         }
@@ -124,8 +148,8 @@ internal class ApiTownRepository(
         return TownWorkResult.Refused(refusal.toWorkRefusal())
     }
 
-    private fun lessonAnsweredOrRefused(response: Response<TownOverview>): TownLessonResult {
-        val snapshot: TownSnapshot? = answeredTown(response)
+    private fun lessonAnsweredOrRefused(response: Response<TownOverview>, session: Int): TownLessonResult {
+        val snapshot: TownSnapshot? = answeredTown(response, session)
         if (response.isSuccessful) {
             return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
         }

@@ -32,4 +32,5 @@ fun TownRepository(
         api = signedInApi(baseUrl = baseUrl, tokenStore = tokenStore, sessionEnds = sessionEnds),
         ioDispatcher = ioDispatcher,
         clock = clock,
+        tokenStore = tokenStore,
     )
