@@ -986,7 +986,7 @@
   "school.lesson.next": "Siguiente lección",
   "school.lesson.nothingToRead": "Ahora no hay palabras para leer.",
   "school.lesson.readWords": "Leer las palabras",
-  "school.lesson.reward": "Habilidad de {resource}: +{percent} %",
+  "school.lesson.reward": "Habilidad: {resource} +{percent} %",
   "school.lesson.slotBusy": "La escuela está estudiando la lección {number}.",
   "school.lesson.studied": "Estudiada",
   "school.lesson.study": "Estudiar la lección {number}",
