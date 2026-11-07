@@ -113,6 +113,13 @@ const exemptions: ReadonlyArray<Exemption> = [
     reason: 'a silhouette not built yet, decorative, its level always written beside it',
   },
   {
+    clause: 'WCAG 1.4.11',
+    kind: 'boundary',
+    foregrounds: ['surface-sunken'],
+    backgrounds: ['surface'],
+    reason: 'a loading skeleton, decorative, its loading line spoken in a live region',
+  },
+  {
     clause: 'WCAG 1.4.3',
     kind: 'text',
     foregrounds: ['line-strong'],
@@ -222,7 +229,7 @@ it('keeps each block and on-block one value in both themes', () => {
   expect(shared.filter((token) => palette[token].light !== palette[token].dark)).toEqual([])
 })
 
-it('exempts line, a block and a silhouette on a surface under WCAG 1.4.11', () => {
+it('exempts line, a block, a silhouette and a skeleton on a surface under WCAG 1.4.11', () => {
   expect(exemptPairNamesUnder('WCAG 1.4.11')).toEqual([
     'line on surface',
     'line on surface-raised',
@@ -232,6 +239,20 @@ it('exempts line, a block and a silhouette on a surface under WCAG 1.4.11', () =
     'block-periwinkle on surface',
     'block-lavender on surface',
     'surface-sunken on surface',
+    'surface-sunken on surface',
+  ])
+})
+
+it('gives the loading skeleton its own reason beside the silhouette', () => {
+  const reasons = exemptions
+    .filter((exemption) =>
+      exemptPairsOf(exemption).map(namesOf).includes('surface-sunken on surface'),
+    )
+    .map((exemption) => exemption.reason)
+
+  expect(reasons).toEqual([
+    'a silhouette not built yet, decorative, its level always written beside it',
+    'a loading skeleton, decorative, its loading line spoken in a live region',
   ])
 })
 

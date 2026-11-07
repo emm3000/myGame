@@ -114,6 +114,13 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surface }, "icon in muted ink"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceRaised }, "icon in muted ink in a card"),
     ColorPair(PairKind.Graphic, { it.inkMuted }, { it.surfaceSunken }, "MyGameSeasonMark icon"),
+    ColorPair(
+        PairKind.Graphic,
+        { it.surfaceSunken },
+        { it.surface },
+        "MyGameSkeleton block",
+        exemption = "a loading skeleton, decorative, its loading line spoken in a live region, WCAG 1.4.11",
+    ),
 ) + blocks.flatMap { block: (MyGameColors) -> Color ->
     listOf(
         ColorPair(PairKind.Text, { it.onBlock }, block, "text, a window, focus on a block"),
