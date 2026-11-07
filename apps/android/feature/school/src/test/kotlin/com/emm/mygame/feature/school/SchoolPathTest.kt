@@ -34,6 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolPathTest {
@@ -59,7 +60,8 @@ class SchoolPathTest {
 
     private val reviewsDue: NextStep.Reviews = NextStep.Reviews(count = 3, readFirst = emptyList())
 
-    private val unreadFirstLesson: NextStep.Reviews = NextStep.Reviews(count = 3, readFirst = listOf(firstLesson))
+    private val unreadFirstLesson: NextStep.Reviews =
+        NextStep.Reviews(count = 3, readFirst = listOf(firstLesson, secondLesson))
 
     private val unreadSecondLesson: NextStep.Reviews = NextStep.Reviews(count = 3, readFirst = listOf(secondLesson))
 
@@ -195,6 +197,7 @@ class SchoolPathTest {
 
     @Test
     @Config(qualifiers = "w360dp-h640dp")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `fits the reward on one line on a narrow phone`() {
         val widest: TownSnapshot.Lesson = lessonOf(
             wordCount = 10,
@@ -244,6 +247,19 @@ class SchoolPathTest {
 
         composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
         composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun `shows no second way to the words while a lesson runs with no review due`() {
+        show(
+            townOf(
+                lessons = listOf(lessonOf(), secondLessonOpen),
+                lessonSlot = slotOf(),
+                nextStep = NextStep.LessonRunning(producer = null),
+            ),
+        )
+
+        composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(1)
     }
 
     @Test
