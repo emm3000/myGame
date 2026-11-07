@@ -104,13 +104,15 @@ private fun SkeletonBlocks(loadingLabel: String, blocks: MyGameSkeletonBlocks, m
     }
 }
 
+private const val PULSE_PEAK_TOWARD_SURFACE: Float = 0.5f
+
 @Composable
 private fun rememberPulse(): Float {
     val isStill: Boolean = rememberCoroutineScope().coroutineContext[MotionDurationScale]?.scaleFactor == 0f
     if (isStill) return 0f
     val pulse: Float by rememberInfiniteTransition(label = "skeleton").animateFloat(
         initialValue = 0f,
-        targetValue = 1f,
+        targetValue = PULSE_PEAK_TOWARD_SURFACE,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = MyGameTransitions.CALM_MILLIS, easing = MyGameTransitions.standard),
             repeatMode = RepeatMode.Reverse,
