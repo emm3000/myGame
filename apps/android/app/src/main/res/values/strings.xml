@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Vadoalto</string>
+    <string name="app_name">Townword</string>
     <string name="fief_switcher_address">{kingdom} {province}:{plot}</string>
     <string name="fief_switcher_current">Feudo actual</string>
     <string name="fief_switcher_full_store">Almacén lleno: {resource}</string>

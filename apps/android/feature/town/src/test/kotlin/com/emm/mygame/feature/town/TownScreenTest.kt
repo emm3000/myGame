@@ -14,6 +14,7 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -27,6 +28,7 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.PLACE_ART
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
 import com.emm.mygame.core.network.TownLabel
@@ -767,7 +769,8 @@ class TownScreenTest {
         val cardInset: Dp = MyGameSpacing.step1 + MyGameSpacing.step4
         assertEquals(
             (MyGameSpacing.step8 + cardInset).value,
-            topOf("Ponle nombre a tu pueblo").value,
+            composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(PLACE_ART)).onFirst()
+                .getUnclippedBoundsInRoot().top.value,
             PIXEL_TOLERANCE,
         )
     }

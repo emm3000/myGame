@@ -12,12 +12,22 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
+
+val PLACE_ART: SemanticsPropertyKey<MyGameArt> = SemanticsPropertyKey("PLACE_ART")
+
+private var SemanticsPropertyReceiver.placeArt: MyGameArt by PLACE_ART
 
 @Composable
 fun MyGamePlaceArt(art: MyGameArt, risenFrom: MyGameArt?, modifier: Modifier = Modifier) {
     val painter: Painter = painterResource(art.drawable)
     val frame: Size = painter.intrinsicSize
-    val sized: Modifier = modifier.height(MyGameSizes.thumbnail).aspectRatio(frame.width / frame.height)
+    val sized: Modifier = modifier
+        .height(MyGameSizes.thumbnail)
+        .aspectRatio(frame.width / frame.height)
+        .semantics { placeArt = art }
     if (risenFrom == null) {
         ArtImage(painter = painter, tint = art.tint, modifier = sized)
         return

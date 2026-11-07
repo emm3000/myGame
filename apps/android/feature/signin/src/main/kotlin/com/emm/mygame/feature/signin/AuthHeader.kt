@@ -13,7 +13,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 
 @Composable
-internal fun AuthHeader(title: String, modifier: Modifier = Modifier) {
+internal fun AuthHeader(title: String, modifier: Modifier = Modifier, lead: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.sign_in_brand),
@@ -26,5 +26,8 @@ internal fun AuthHeader(title: String, modifier: Modifier = Modifier) {
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
+        if (lead != null) {
+            MyGameText(text = lead, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
+        }
     }
 }

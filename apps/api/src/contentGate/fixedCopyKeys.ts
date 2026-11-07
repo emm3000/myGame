@@ -72,6 +72,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.signin.sign_in_submitting',
   'android.signin.sign_in_switch_link',
   'android.signin.sign_in_switch_prompt',
+  'android.signin.sign_in_tagline',
   'android.signin.sign_in_title',
   'android.signin.sign_in_unreachable',
   'android.signin.sign_up_password_hint',
