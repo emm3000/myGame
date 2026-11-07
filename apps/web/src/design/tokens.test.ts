@@ -104,7 +104,8 @@ const exemptions: ReadonlyArray<Exemption> = [
     kind: 'boundary',
     foregrounds: ['surface-sunken'],
     backgrounds: ['surface'],
-    reason: 'a silhouette not built yet, decorative, its level always written beside it',
+    reason:
+      "a silhouette not built yet, decorative, its level always written beside it; the ring's track, its count always in the ring's accessible name",
   },
   {
     clause: 'WCAG 1.4.3',

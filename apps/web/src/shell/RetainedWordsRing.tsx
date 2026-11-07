@@ -13,18 +13,18 @@ export function RetainedWordsRing({ count, total }: RetainedWordsRingProps): Rea
     <svg
       role="img"
       aria-label={shellRetainedWords({ count, total })}
-      viewBox="0 0 16 16"
+      viewBox="0 0 32 32"
       fill="none"
-      strokeWidth={strokeWidths.mark}
+      strokeWidth={strokeWidths.ring}
       focusable="false"
       className="size-8 shrink-0 -rotate-90"
     >
       {words.map((position) => (
         <circle
           key={position}
-          cx={8}
-          cy={8}
-          r={7}
+          cx={16}
+          cy={16}
+          r={14}
           pathLength={total}
           strokeDasharray={`${1 - gapBetweenWords} ${total - 1 + gapBetweenWords}`}
           strokeDashoffset={-position}

@@ -65,22 +65,23 @@ export function AppShell({
   townStatus,
   children,
 }: AppShellProps): ReactElement {
+  const retainedWords = town?.learning.retainedWords ?? null
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink">
       <header
         ref={headerRef}
         tabIndex={-1}
-        className="flex flex-wrap items-center justify-between gap-x-4 px-5 py-2 focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-focus md:px-8"
+        className="flex flex-wrap items-center justify-between gap-x-4 px-5 py-2 focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-focus md:flex-nowrap md:px-8"
       >
-        <div className="flex min-h-control min-w-0 items-center">
+        <div className="flex min-h-control min-w-0 flex-1 items-center md:flex-initial">
           <HeaderStart town={town} isTownHome={isTownHome} />
         </div>
-        <div className="flex items-center gap-x-4">
-          {town?.learning.retainedWords == null ? null : (
-            <RetainedWordsRing {...town.learning.retainedWords} />
-          )}
-          {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
-        </div>
+        {retainedWords === null ? null : (
+          <div className="flex shrink-0 md:order-last">
+            <RetainedWordsRing {...retainedWords} />
+          </div>
+        )}
+        {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
       </header>
       {townStatus}
       <main className="grow px-5 pt-2 pb-6 font-sans text-body text-ink-muted md:px-8">
