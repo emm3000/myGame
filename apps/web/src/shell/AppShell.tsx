@@ -8,6 +8,7 @@ import { BackIcon } from '../design-system/icons/BackIcon'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
 import { FiefSwitcher } from './FiefSwitcher'
+import { RetainedWordsRing } from './RetainedWordsRing'
 import type { FiefEntries } from './useFiefList'
 
 export interface AppShellProps {
@@ -74,7 +75,12 @@ export function AppShell({
         <div className="flex min-h-control min-w-0 items-center">
           <HeaderStart town={town} isTownHome={isTownHome} />
         </div>
-        {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
+        <div className="flex items-center gap-x-4">
+          {town?.learning.retainedWords == null ? null : (
+            <RetainedWordsRing {...town.learning.retainedWords} />
+          )}
+          {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
+        </div>
       </header>
       {townStatus}
       <main className="grow px-5 pt-2 pb-6 font-sans text-body text-ink-muted md:px-8">

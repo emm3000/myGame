@@ -248,6 +248,7 @@
   "shell.lessonFinish.line": "Lesson {number} is done.",
   "shell.navigation.report": "Report",
   "shell.navigation.town": "Town",
+  "shell.retainedWords": "{count} of {total, plural, =1 {1 word} other {# words}} learned",
   "time.today": "Today, {time}",
   "town.amount": "{amount} {resource}",
   "town.atTopLevel": "It is at the top level.",

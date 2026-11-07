@@ -220,7 +220,7 @@ export const knownTown: TownOverview = {
   lessons: [],
   skills: [],
   lessonSlot: null,
-  learning: { cap: 15, inLearning: 0 },
+  learning: { cap: 15, inLearning: 0, retainedWords: null },
   nextStep: { kind: 'caughtUp' },
   nextDueAt: null,
   readAt: '2026-11-10T09:00:00.000Z',

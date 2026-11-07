@@ -56,7 +56,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
   lessons: [lessonOne],
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
-  learning: { cap: 15, inLearning: 5 },
+  learning: { cap: 15, inLearning: 5, retainedWords: null },
   nextStep: { kind: 'caughtUp' },
   nextDueAt: null,
   readAt: '2026-11-10T08:58:00.000Z',
@@ -125,7 +125,25 @@ describe('TownOverviewSchema', () => {
   })
 
   it('rejects a fractional count of words in learning', () => {
-    const learning = { cap: 15, inLearning: 2.5 }
+    const learning = { cap: 15, inLearning: 2.5, retainedWords: null }
+
+    expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
+  })
+
+  it('accepts a count of retained words', () => {
+    const learning = { cap: 15, inLearning: 5, retainedWords: { count: 3, total: 5 } }
+
+    expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(true)
+  })
+
+  it('rejects a learning load without its retained words', () => {
+    const learning = { cap: 15, inLearning: 5 }
+
+    expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
+  })
+
+  it('rejects retained words with a total of none', () => {
+    const learning = { cap: 15, inLearning: 5, retainedWords: { count: 0, total: 0 } }
 
     expect(TownOverviewSchema.safeParse(overview({ learning })).success).toBe(false)
   })

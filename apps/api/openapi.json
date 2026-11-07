@@ -5614,9 +5614,26 @@
               "inLearning": {
                 "type": "integer",
                 "minimum": 0
+              },
+              "retainedWords": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["count", "total"],
+                "additionalProperties": false
               }
             },
-            "required": ["cap", "inLearning"],
+            "required": ["cap", "inLearning", "retainedWords"],
             "additionalProperties": false
           },
           "nextStep": {

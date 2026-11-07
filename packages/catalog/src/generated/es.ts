@@ -400,6 +400,7 @@ export const shellNavigationFief = (): string => `Feudo`
 export const shellNavigationMap = (): string => `Mapa`
 export const shellNavigationReport = (): string => `Informe`
 export const shellNavigationTown = (): string => `Pueblo`
+export const shellRetainedWords = ({ count, total }: { readonly count: string | number; readonly total: number }): string => `${String(count)} de ${total === 1 ? `1 palabra aprendida` : `${String(total)} palabras aprendidas`}`
 export const shellSignOut = (): string => `Salir`
 export const shellTitle = (): string => `Vadoalto`
 export const statusBuildHeading = (): string => `Obra:`

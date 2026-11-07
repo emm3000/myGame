@@ -253,7 +253,7 @@ it('blocks a lesson whose school level is too low and names the level', async ()
 })
 
 it('marks a lesson past the cap before the tap with the words in learning', async () => {
-  await showSchool(schoolOf({ learning: { cap: 15, inLearning: 12 } }))
+  await showSchool(schoolOf({ learning: { cap: 15, inLearning: 12, retainedWords: null } }))
 
   expect(screen.getByText(schoolLearning({ inLearning: 12, cap: 15 }))).toBeDefined()
   expect(accessibleDescriptionOf(studyButtonOf(1))).toBe(
@@ -518,7 +518,7 @@ it.each<[string, Partial<TownOverview>, () => string]>([
   ],
   [
     'the next lesson locked by the cap',
-    { learning: { cap: 15, inLearning: 12 } },
+    { learning: { cap: 15, inLearning: 12, retainedWords: null } },
     () => studyLabelOf(1),
   ],
   ['every lesson studied, nothing due', everyLessonStudied, townNextGoToReport],
