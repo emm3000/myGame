@@ -50,16 +50,36 @@ import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
 import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute
+import com.emm.mygame.feature.town.TownStatus
+import com.emm.mygame.feature.town.TownStatusIntent
+import com.emm.mygame.feature.town.TownStatusScreen
+import com.emm.mygame.feature.town.TownStatusUiState
+import com.emm.mygame.feature.town.TownStatusViewModel
 
 @Composable
 internal fun AppNavigation(
     dependencies: AppDependencies,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
+    status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
 ) {
     val navigator: Navigator = remember(backStack) { Navigator(backStack) }
     LaunchedEffect(navigator) {
         navigator.followSessionEnds(dependencies.sessionEnds.ended)
+    }
+    val shown: NavKey? = backStack.lastOrNull()
+    LifecycleStartEffect(status, shown) {
+        status.onIntent(TownStatusIntent.ScreenShown(shown.statusScreen()))
+        onStopOrDispose { status.onIntent(TownStatusIntent.ScreenHidden) }
+    }
+    val statusState: TownStatusUiState by status.state.collectAsStateWithLifecycle()
+    val townStatus: @Composable () -> Unit = {
+        TownStatus(
+            state = statusState,
+            onNoticeClose = { status.onIntent(TownStatusIntent.NoticeClosed) },
+            onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
+            onReviewsOpen = navigator::openReviews,
+        )
     }
     NavDisplay(
         backStack = backStack,
@@ -88,46 +108,48 @@ internal fun AppNavigation(
             entry<Destination.ForgotPassword> {
                 ForgotPasswordRoute(sessions = dependencies.sessions, onSignInOpen = navigator::openSignIn)
             }
-            signedInEntries(dependencies = dependencies, navigator = navigator)
+            signedInEntries(SignedInChrome(dependencies, navigator, townStatus))
         },
         modifier = modifier,
     )
 }
 
-private fun EntryProviderScope<NavKey>.signedInEntries(dependencies: AppDependencies, navigator: Navigator) {
-    townEntry(dependencies = dependencies, navigator = navigator)
-    schoolEntry(dependencies = dependencies, navigator = navigator)
-    reportEntry(dependencies = dependencies, navigator = navigator)
-    lessonWordsEntry(dependencies = dependencies, navigator = navigator)
+private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
+    townEntry(chrome)
+    schoolEntry(chrome)
+    reportEntry(chrome)
+    lessonWordsEntry(chrome)
     entry<Destination.Review> {
         SignedInFrame(
             isTownHome = false,
             doesScreenReadTown = false,
-            dependencies = dependencies,
-            navigator = navigator,
+            chrome = chrome,
         ) {
             ReviewRoute(learning = dependencies.learning, clock = dependencies.clock)
         }
     }
     entry<Destination.Map> { shown: Destination.Map ->
-        FiefFrame(fief = shown.fief, dependencies = dependencies, navigator = navigator) {
+        FiefFrame(fief = shown.fief, chrome = chrome) {
             MapRoute(fief = shown.fief, maps = dependencies.maps, fiefs = dependencies.fiefs)
         }
     }
     entry<Destination.Chronicle> { shown: Destination.Chronicle ->
-        FiefFrame(fief = shown.fief, dependencies = dependencies, navigator = navigator) {
+        FiefFrame(fief = shown.fief, chrome = chrome) {
             ChronicleRoute(fief = shown.fief, chronicles = dependencies.chronicles, clock = dependencies.clock)
         }
     }
 }
 
-private fun EntryProviderScope<NavKey>.townEntry(dependencies: AppDependencies, navigator: Navigator) {
+private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
     entry<Destination.Town> {
         SignedInFrame(
             isTownHome = true,
             doesScreenReadTown = true,
-            dependencies = dependencies,
-            navigator = navigator,
+            chrome = chrome,
         ) {
             TownRoute(
                 towns = dependencies.towns,
@@ -142,18 +164,20 @@ private fun EntryProviderScope<NavKey>.townEntry(dependencies: AppDependencies, 
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
+                status = chrome.status,
             )
         }
     }
 }
 
-private fun EntryProviderScope<NavKey>.schoolEntry(dependencies: AppDependencies, navigator: Navigator) {
+private fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
     entry<Destination.School> {
         SignedInFrame(
             isTownHome = false,
             doesScreenReadTown = true,
-            dependencies = dependencies,
-            navigator = navigator,
+            chrome = chrome,
         ) {
             SchoolRoute(
                 towns = dependencies.towns,
@@ -167,13 +191,14 @@ private fun EntryProviderScope<NavKey>.schoolEntry(dependencies: AppDependencies
     }
 }
 
-private fun EntryProviderScope<NavKey>.reportEntry(dependencies: AppDependencies, navigator: Navigator) {
+private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
     entry<Destination.Report> {
         SignedInFrame(
             isTownHome = false,
             doesScreenReadTown = false,
-            dependencies = dependencies,
-            navigator = navigator,
+            chrome = chrome,
         ) {
             ReportRoute(
                 reports = dependencies.reports,
@@ -190,13 +215,14 @@ private fun EntryProviderScope<NavKey>.reportEntry(dependencies: AppDependencies
     }
 }
 
-private fun EntryProviderScope<NavKey>.lessonWordsEntry(dependencies: AppDependencies, navigator: Navigator) {
+private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
     entry<Destination.LessonWords> { shown: Destination.LessonWords ->
         SignedInFrame(
             isTownHome = false,
             doesScreenReadTown = true,
-            dependencies = dependencies,
-            navigator = navigator,
+            chrome = chrome,
         ) {
             LessonWordsRoute(
                 walk = LessonWalk(shown.lesson, shown.walked),
@@ -217,10 +243,9 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(dependencies: AppDepende
 @Composable
 private fun FiefFrame(
     fief: FiefId,
-    dependencies: AppDependencies,
-    navigator: Navigator,
+    chrome: SignedInChrome,
     modifier: Modifier = Modifier,
-    switcher: FiefSwitcherViewModel = viewModel { FiefSwitcherViewModel(fief, dependencies.listings) },
+    switcher: FiefSwitcherViewModel = viewModel { FiefSwitcherViewModel(fief, chrome.dependencies.listings) },
     content: @Composable () -> Unit,
 ) {
     val listing: FiefSwitcherUiState by switcher.state.collectAsStateWithLifecycle()
@@ -231,12 +256,15 @@ private fun FiefFrame(
     SignedInFrame(
         isTownHome = false,
         doesScreenReadTown = false,
-        dependencies = dependencies,
-        navigator = navigator,
+        chrome = chrome,
         modifier = modifier,
         underHeader = {
             (listing as? FiefSwitcherUiState.Listed)?.let { listed: FiefSwitcherUiState.Listed ->
-                FiefSwitcher(listed = listed, isEnabled = navigator.areLinksEnabled, onChoose = navigator::switchFief)
+                FiefSwitcher(
+                    listed = listed,
+                    isEnabled = chrome.navigator.areLinksEnabled,
+                    onChoose = chrome.navigator::switchFief,
+                )
             }
         },
         content = content,
@@ -247,8 +275,7 @@ private fun FiefFrame(
 private fun SignedInFrame(
     isTownHome: Boolean,
     doesScreenReadTown: Boolean,
-    dependencies: AppDependencies,
-    navigator: Navigator,
+    chrome: SignedInChrome,
     modifier: Modifier = Modifier,
     underHeader: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
@@ -259,14 +286,15 @@ private fun SignedInFrame(
         if (!isTownHome) {
             MyGameHeader(
                 modifier = Modifier.statusBarsPadding().padding(horizontal = MyGameSpacing.step4),
-                end = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
+                end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
             ) {
                 MyGameBackLink(
                     label = stringResource(R.string.navigation_town),
-                    isEnabled = navigator.areLinksEnabled,
-                    onClick = navigator::openTown,
+                    isEnabled = chrome.navigator.areLinksEnabled,
+                    onClick = chrome.navigator::openTown,
                 )
             }
+            chrome.status()
             underHeader()
         }
         Box(
@@ -278,4 +306,18 @@ private fun SignedInFrame(
             content()
         }
     }
+}
+
+private class SignedInChrome(
+    val dependencies: AppDependencies,
+    val navigator: Navigator,
+    val status: @Composable () -> Unit,
+)
+
+private fun NavKey?.statusScreen(): TownStatusScreen = when (this) {
+    Destination.Town, Destination.School -> TownStatusScreen.ReadsTown
+    is Destination.LessonWords -> TownStatusScreen.LessonWords(lesson)
+    Destination.Review -> TownStatusScreen.Reviews
+    Destination.Report, is Destination.Map, is Destination.Chronicle -> TownStatusScreen.ReadsNoTown
+    else -> TownStatusScreen.Outside
 }

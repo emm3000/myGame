@@ -199,6 +199,8 @@
   "android.town.town_shortfall": "You need {missing} more.",
   "android.town.town_sign_out": "Sign out",
   "android.town.town_skyline_built": "{built} of {total} built",
+  "android.town.town_status_finish_close": "Close",
+  "android.town.town_status_finish_line": "Lesson {number} is done.",
   "android.town.town_stock_of": "of {capacity}",
   "android.town.town_stocks": "In storage",
   "android.town.town_title": "{name} · {label}",

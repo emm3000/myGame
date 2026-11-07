@@ -1,7 +1,6 @@
 package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.RetainedWords
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownLessonResult
@@ -16,9 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class FakeTownRepository : TownRepository {
 
-    private val _retainedWords: MutableStateFlow<RetainedWords?> = MutableStateFlow(null)
+    private val _town: MutableStateFlow<TownSnapshot?> = MutableStateFlow(null)
 
-    override val retainedWords: StateFlow<RetainedWords?> = _retainedWords.asStateFlow()
+    override val town: StateFlow<TownSnapshot?> = _town.asStateFlow()
 
     private val readAnswers: Channel<TownReadResult> = Channel(Channel.UNLIMITED)
 
@@ -77,7 +76,7 @@ class FakeTownRepository : TownRepository {
         val answer: TownReadResult = readAnswers.receive()
         when (answer) {
             is TownReadResult.Read -> hold(answer.town)
-            TownReadResult.NoTown -> _retainedWords.value = null
+            TownReadResult.NoTown -> _town.value = null
             TownReadResult.Unreachable -> Unit
         }
         return answer
@@ -119,7 +118,7 @@ class FakeTownRepository : TownRepository {
     }
 
     private fun hold(town: TownSnapshot) {
-        _retainedWords.value = town.learning.retainedWords
+        _town.value = town
     }
 
     data class StopRequest(val building: TownBuildingKind, val level: Int)

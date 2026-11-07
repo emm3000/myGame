@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.numberOf
 import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant

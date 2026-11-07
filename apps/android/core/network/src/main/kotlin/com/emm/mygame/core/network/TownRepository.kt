@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface TownRepository {
 
-    val retainedWords: StateFlow<RetainedWords?>
+    val town: StateFlow<TownSnapshot?>
 
     suspend fun read(): TownReadResult
 
