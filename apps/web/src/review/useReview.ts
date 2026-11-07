@@ -35,6 +35,7 @@ export interface ReviewHandle {
   readonly card: DueReview | undefined
   readonly dueCount: number
   readonly walked: number
+  readonly isDealt: boolean
   readonly typed: string
   readonly choice: Choice | undefined
   readonly hint: ReviewHint | undefined
@@ -71,6 +72,7 @@ export function useReview(
 ): ReviewHandle {
   const [session, setSession] = useState<Session>(freshSession)
   const [walked, setWalked] = useState(0)
+  const [isDealt, setIsDealt] = useState(false)
   const [isWaiting, setIsWaiting] = useState(false)
   const [refusal, setRefusal] = useState<ApiRefusal>()
   const isInFlight = useRef(false)
@@ -136,6 +138,7 @@ export function useReview(
     card,
     dueCount: session.dueCount ?? due.length,
     walked,
+    isDealt,
     typed: session.typed,
     choice: session.choice,
     hint: session.hint,
@@ -148,6 +151,7 @@ export function useReview(
     askHint,
     check,
     next: () => {
+      setIsDealt(session.answered?.verdict.kind === 'correct')
       setSession(freshSession)
       setWalked((count) => count + 1)
       setRefusal(undefined)

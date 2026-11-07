@@ -165,10 +165,15 @@ export const easings: Readonly<Record<Easing, string>> = {
   exit: 'cubic-bezier(0.3, 0, 1, 1)',
 }
 
-export type Transition = 'track'
+export type Transition = 'track' | 'window' | 'hue' | 'deal' | 'ring' | 'rate'
 
 export const transitions: Readonly<Record<Transition, string>> = {
   track: `width ${durations.calm} ${easings.standard}`,
+  window: `scale ${durations.calm} ${easings.standard}`,
+  hue: `fill ${durations.calm} ${easings.standard}`,
+  deal: `rotate ${durations.calm} ${easings.standard}`,
+  ring: `stroke ${durations.calm} ${easings.standard}`,
+  rate: `opacity ${durations.calm} ${easings.standard}`,
 }
 
 export type TypeStyle =

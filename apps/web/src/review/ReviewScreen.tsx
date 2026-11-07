@@ -12,6 +12,7 @@ import { type ReactElement, type Ref, useEffect, useId } from 'react'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import { LiveRegion } from '../design-system/LiveRegion'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -94,6 +95,10 @@ function DueCard({
         fillClass="fill-action"
       />
       <CardOfMode card={card} review={review} verdictRef={verdictRef} />
+      <LiveRegion
+        line={review.isDealt ? reviewDueCount({ count: formatQuantity(state.dueCount) }) : ''}
+        sequence={review.walked}
+      />
       {review.refusal !== undefined && <FormAlert message={refusalLineOf(review.refusal)} />}
     </div>
   )

@@ -31,6 +31,7 @@ import type { LiveTown } from './liveTown'
 import { NextStepCard } from './NextStepCard'
 import { PlaceRow } from './PlaceRow'
 import { placeNameOf } from './placeNameOf'
+import { levelBeforeOf, type Registered } from './registeredBetween'
 import { TownDoors } from './TownDoors'
 import { TownSkyline } from './TownSkyline'
 import { TownStocks } from './TownStocks'
@@ -38,6 +39,7 @@ import type { TownWork } from './useTownWork'
 
 export interface TownHomeProps {
   readonly town: LiveTown
+  readonly registered: Registered
   readonly work: TownWork
 }
 
@@ -118,10 +120,12 @@ function WaitingList({
 function PlaceItem({
   place,
   town,
+  levelBefore,
   work,
 }: {
   readonly place: BuildingKind
   readonly town: LiveTown
+  readonly levelBefore: number
   readonly work: TownWork
 }): ReactElement {
   const refused = work.startRefused?.subject === place ? work.startRefused : undefined
@@ -133,6 +137,7 @@ function PlaceItem({
       <PlaceRow
         place={place}
         town={town}
+        levelBefore={levelBefore}
         isWaiting={work.isStarting}
         onBuild={() => work.start(place)}
       />
@@ -144,7 +149,7 @@ function PlaceItem({
   )
 }
 
-export function TownHome({ town, work }: TownHomeProps): ReactElement {
+export function TownHome({ town, registered, work }: TownHomeProps): ReactElement {
   const { overview } = town
   const placesTitleId = useId()
   const slotTitle = useFocusTarget<HTMLSpanElement>()
@@ -156,7 +161,7 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
         <TownDoors dueCount={dueCountOf(town)} />
       </div>
       <div className="flex min-w-0 flex-col gap-6 lg:row-span-2">
-        <TownSkyline buildings={overview.buildings} />
+        <TownSkyline buildings={overview.buildings} raised={registered.places} />
         <TownStocks town={town} />
       </div>
       <div className="flex min-w-0 flex-col gap-4 lg:row-span-2">
@@ -172,7 +177,13 @@ export function TownHome({ town, work }: TownHomeProps): ReactElement {
         </h3>
         <ul className="m-0 flex list-none flex-col p-0">
           {placesInOrder.map((place) => (
-            <PlaceItem key={place} place={place} town={town} work={work} />
+            <PlaceItem
+              key={place}
+              place={place}
+              town={town}
+              levelBefore={levelBeforeOf(registered.places, place, overview.buildings[place].level)}
+              work={work}
+            />
           ))}
         </ul>
       </section>
