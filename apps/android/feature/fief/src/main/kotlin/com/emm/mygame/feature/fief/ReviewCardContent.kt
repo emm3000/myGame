@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameBlock
+import com.emm.mygame.core.designsystem.MyGameBlockStack
 import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
@@ -57,7 +58,7 @@ internal fun RecognitionCard(
 ) {
     val isLocked: Boolean = reviewing.isBusy || reviewing.isRated
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ReviewBlock(cue = card.word, frame = card.frame, walked = reviewing.walked)
+        ReviewBlock(cue = card.word, frame = card.frame, reviewing = reviewing)
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             Prompt(text = stringResource(R.string.review_recognition_prompt))
             Column(
@@ -85,7 +86,7 @@ internal fun RecallCard(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ReviewBlock(cue = card.gloss, frame = card.gappedFrame, walked = reviewing.walked)
+        ReviewBlock(cue = card.gloss, frame = card.gappedFrame, reviewing = reviewing)
         Prompt(text = stringResource(R.string.review_recall_prompt))
         RecallField(
             typed = card.typed,
@@ -126,18 +127,32 @@ internal fun HintLine(
 }
 
 @Composable
-private fun ReviewBlock(cue: String, frame: String, walked: Int, modifier: Modifier = Modifier) {
-    MyGameBlock(
-        hue = blockHueOf(walked),
-        modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+private fun ReviewBlock(
+    cue: String,
+    frame: String,
+    reviewing: ReviewUiState.Reviewing,
+    modifier: Modifier = Modifier,
+) {
+    val walked: Int = reviewing.walked
+    val dueAfter: Int = reviewing.dueCount - 1
+    MyGameBlockStack(
+        nearHue = blockHueOf(walked + 1).takeIf { dueAfter >= 1 },
+        farHue = blockHueOf(walked + 2).takeIf { dueAfter >= 2 },
+        dealtKey = walked.takeIf { reviewing.isDealtFromStack },
+        modifier = modifier,
     ) {
-        MyGameText(
-            text = cue,
-            style = wordStyle(),
-            color = MyGameTheme.colors.onBlock,
-            modifier = Modifier.semantics { heading() },
-        )
-        MyGameText(text = frame, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
+        MyGameBlock(
+            hue = blockHueOf(walked),
+            modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        ) {
+            MyGameText(
+                text = cue,
+                style = wordStyle(),
+                color = MyGameTheme.colors.onBlock,
+                modifier = Modifier.semantics { heading() },
+            )
+            MyGameText(text = frame, style = MyGameTypography.reading, color = MyGameTheme.colors.onBlock)
+        }
     }
 }
 

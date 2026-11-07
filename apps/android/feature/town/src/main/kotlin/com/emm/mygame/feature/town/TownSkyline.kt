@@ -41,9 +41,10 @@ private val skylineWidth: Float = PLACE_STEP * (placesAlongTheLine.size - 1) + P
 
 @Composable
 internal fun TownSkyline(content: TownUiState.Content, modifier: Modifier = Modifier) {
-    val levels: List<Int> = placesAlongTheLine.map { kind: TownBuildingKind ->
-        content.places.firstOrNull { place: TownUiState.PlaceCard -> place.kind == kind }?.level ?: 0
+    val places: List<TownUiState.PlaceCard?> = placesAlongTheLine.map { kind: TownBuildingKind ->
+        content.places.firstOrNull { place: TownUiState.PlaceCard -> place.kind == kind }
     }
+    val levels: List<Int> = places.map { place: TownUiState.PlaceCard? -> place?.level ?: 0 }
     val description: String = icuStringResource(
         R.string.town_skyline_built,
         "built" to levels.count { level: Int -> level > 0 }.toString(),
@@ -59,6 +60,7 @@ internal fun TownSkyline(content: TownUiState.Content, modifier: Modifier = Modi
         placesAlongTheLine.forEachIndexed { index: Int, kind: TownBuildingKind ->
             MyGamePlaceArt(
                 art = placeArtOf(kind, levels[index]),
+                risenFrom = places[index]?.raisedFrom?.let { levelBefore: Int -> placeArtOf(kind, levelBefore) },
                 modifier = Modifier
                     .offset(x = unit * PLACE_STEP * index)
                     .width(unit * PLACE_WIDTH)

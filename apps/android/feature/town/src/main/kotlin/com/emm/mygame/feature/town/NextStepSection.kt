@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameBlockStack
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCountdownGround
@@ -28,7 +29,7 @@ internal fun NextStepSection(
 ) {
     val card: NextStepCard = content.nextStep
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
-        MyGameBlockStack {
+        MyGameBlockStack(nearHue = MyGameBlockHue.Lavender, farHue = MyGameBlockHue.Mint, dealtKey = null) {
             MyGameNextStepBlock(
                 title = stringResource(R.string.town_next_title),
                 line = lineOf(card.line),

@@ -21,6 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
+import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Duration
@@ -263,7 +264,12 @@ class NextStepSectionTest {
 
     private fun contentOf(town: TownSnapshot): TownUiState.Content =
         town.copy(lessons = lessonsHeld)
-            .contentAt(now = readInstant, gap = Duration.ZERO, mutations = TownMutations.none)
+            .contentAt(
+                now = readInstant,
+                gap = Duration.ZERO,
+                mutations = TownMutations.none,
+                registered = TownRegistered.nothing,
+            )
 
     private fun show(town: TownSnapshot) {
         composeRule.setContent { MyGameTheme { Screen(contentOf(town)) } }

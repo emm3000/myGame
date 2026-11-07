@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
@@ -70,6 +72,7 @@ private fun PlaceItem(
         Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
             MyGamePlaceArt(
                 art = placeArtOf(place.kind, place.level),
+                risenFrom = place.raisedFrom?.let { levelBefore: Int -> placeArtOf(place.kind, levelBefore) },
                 modifier = Modifier.align(Alignment.CenterVertically),
             )
             Column(
@@ -98,7 +101,12 @@ private fun PlaceItem(
 
 @Composable
 private fun PlaceName(place: TownUiState.PlaceCard, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+    val spoken: Modifier = if (place.raisedFrom == null) {
+        Modifier
+    } else {
+        Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
+    }
+    Column(modifier = modifier.then(spoken)) {
         MyGameText(
             text = stringResource(placeNameOf(place.kind)),
             style = MyGameTypography.title,

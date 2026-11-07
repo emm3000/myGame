@@ -153,6 +153,7 @@ class ReviewViewModelTest {
                         hint = null,
                     ),
                     step = ReviewUiState.ReviewStep.Answering,
+                    isDealtFromStack = false,
                 ),
                 awaitReviewing(),
             )

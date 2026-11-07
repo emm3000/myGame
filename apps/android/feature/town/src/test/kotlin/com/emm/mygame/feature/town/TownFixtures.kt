@@ -49,6 +49,9 @@ internal fun placesOf(vararg changed: TownSnapshot.Building): List<TownSnapshot.
             ?: TownSnapshot.Building(kind, level = 1, next = nextLevelOf())
     }
 
+internal fun placeAt(kind: TownBuildingKind, level: Int): TownSnapshot.Building =
+    TownSnapshot.Building(kind, level = level, next = nextLevelOf())
+
 internal fun workOf(
     building: TownBuildingKind = TownBuildingKind.Farm,
     level: Int = 2,

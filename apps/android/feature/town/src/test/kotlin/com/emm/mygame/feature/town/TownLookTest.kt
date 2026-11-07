@@ -26,6 +26,7 @@ import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
+import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import kotlin.time.Duration
@@ -51,6 +52,7 @@ class TownLookTest {
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
+        raisedFrom = null,
         isInWork = false,
         next = TownUiState.NextLevelLine(
             level = 2,
@@ -178,7 +180,7 @@ class TownLookTest {
     fun `orders the stocks money, food, power, material`() {
         val town: TownSnapshot = townOf(stocks = stocksOf().reversed())
 
-        show(town.contentAt(readInstant, Duration.ZERO, idleMutations))
+        show(town.contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing))
 
         val tops: List<Dp> = listOf("Dinero", "Comida", "Energía", "Material").map { name: String -> topOf(name) }
         val lefts: List<Dp> = listOf("Dinero", "Comida", "Energía", "Material").map { name: String ->
@@ -198,7 +200,8 @@ class TownLookTest {
             waitingList = listOf(workOf(building = TownBuildingKind.Storage)),
         )
 
-        val inWork: List<TownBuildingKind> = town.contentAt(readInstant, Duration.ZERO, idleMutations)
+        val inWork: List<TownBuildingKind> = town
+            .contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing)
             .places.filter { place: TownUiState.PlaceCard -> place.isInWork }
             .map { place: TownUiState.PlaceCard -> place.kind }
 
@@ -303,7 +306,7 @@ class TownLookTest {
     fun `draws no season line while no season is in force`() {
         val town: TownSnapshot = townOf(seasonEndsAt = readInstant + 1.hours)
 
-        assertEquals(null, town.contentAt(readInstant, Duration.ZERO, idleMutations).season)
+        assertEquals(null, town.contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing).season)
     }
 
     @Test
@@ -315,7 +318,7 @@ class TownLookTest {
 
         assertEquals(
             TownUiState.SeasonLine(SeasonKind.Winter, year = 3, remaining = 1.hours),
-            town.contentAt(readInstant, Duration.ZERO, idleMutations).season,
+            town.contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing).season,
         )
     }
 

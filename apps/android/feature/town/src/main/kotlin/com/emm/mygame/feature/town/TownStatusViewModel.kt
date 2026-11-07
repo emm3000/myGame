@@ -7,6 +7,7 @@ import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.numberOf
+import com.emm.mygame.core.network.registeredBetween
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
@@ -71,7 +72,7 @@ class TownStatusViewModel(private val towns: TownRepository, private val clock: 
         val previous: TownSnapshot? = held
         held = next
         if (next != null) gap = next.readAt - clock.now()
-        if (next != null && previous != null) finished = previous.lessonFinishedIn(next) ?: finished
+        if (next != null && previous != null) finished = registeredBetween(previous, next).finishedLesson ?: finished
         restart()
     }
 
@@ -118,11 +119,6 @@ private fun TownStatusScreen.isDoorTo(firstUnread: LessonId?): Boolean = when (t
 private fun TownSnapshot.isLessonDueAt(now: Instant): Boolean {
     val finishesAt: Instant = lessonSlot?.finishesAt ?: return false
     return finishesAt > readAt && finishesAt <= now
-}
-
-private fun TownSnapshot.lessonFinishedIn(next: TownSnapshot): LessonId? {
-    val running: LessonId = lessonSlot?.lesson ?: return null
-    return next.lessons.firstOrNull { lesson: TownSnapshot.Lesson -> lesson.id == running && lesson.isStudied }?.id
 }
 
 private fun TownSnapshot.statusAt(now: Instant, gap: Duration, finished: LessonId?): TownStatusUiState =

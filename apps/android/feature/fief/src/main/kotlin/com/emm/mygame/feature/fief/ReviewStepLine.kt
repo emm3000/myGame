@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -29,12 +30,15 @@ import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameRadii
+import com.emm.mygame.core.designsystem.MyGameRegisteredRow
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.designsystem.registering
+import com.emm.mygame.core.designsystem.rememberRegisteredFraction
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.TownResourceKind
@@ -154,6 +158,7 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
 
 @Composable
 private fun RatesLine(resource: String, rates: ReviewUiState.SkillRates, modifier: Modifier = Modifier) {
+    val fraction: Float = rememberRegisteredFraction(MyGameRegisteredRow.Rate, rates)
     MyGameText(
         text = icuStringResource(
             R.string.review_skill_rates,
@@ -163,7 +168,9 @@ private fun RatesLine(resource: String, rates: ReviewUiState.SkillRates, modifie
         ),
         style = MyGameTypography.body.withTabularFigures(),
         color = MyGameTheme.colors.ink,
-        modifier = modifier,
+        modifier = modifier
+            .graphicsLayer { alpha = fraction }
+            .registering(MyGameRegisteredRow.Rate, fraction),
     )
 }
 

@@ -116,6 +116,7 @@ class ReviewScreenTest {
                 chosen = null,
             ),
             step = ReviewUiState.ReviewStep.Answering,
+            isDealtFromStack = false,
         )
         draw(recognizing, onIntent = { intent: ReviewIntent -> intents += intent })
 
@@ -139,6 +140,7 @@ class ReviewScreenTest {
             hint = hint,
         ),
         step = step,
+        isDealtFromStack = false,
     )
 
     private fun draw(state: ReviewUiState, onIntent: (ReviewIntent) -> Unit = {}) {

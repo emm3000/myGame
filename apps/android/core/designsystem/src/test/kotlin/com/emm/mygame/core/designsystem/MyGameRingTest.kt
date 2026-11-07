@@ -22,24 +22,31 @@ class MyGameRingTest {
 
     @Test
     fun `draws one mark per word`() {
-        assertEquals(5, ringMarksOf(count = 3, total = 5).size)
+        assertEquals(5, ringMarksOf(count = 3, total = 5, countBefore = 3).size)
     }
 
     @Test
     fun `fills the marks of the retained words first`() {
-        val filled: List<Boolean> = ringMarksOf(count = 3, total = 5).map(RingMark::isRetained)
+        val filled: List<Boolean> = ringMarksOf(count = 3, total = 5, countBefore = 3).map(RingMark::isRetained)
 
         assertEquals(listOf(true, true, true, false, false), filled)
     }
 
     @Test
+    fun `moves only the marks the later read retained`() {
+        val moving: List<Boolean> = ringMarksOf(count = 3, total = 5, countBefore = 1).map(RingMark::isNewlyRetained)
+
+        assertEquals(listOf(false, true, true, false, false), moving)
+    }
+
+    @Test
     fun `starts the first mark at the top of the ring`() {
-        assertEquals(-90f, ringMarksOf(count = 0, total = 5).first().startDegrees, 1e-3f)
+        assertEquals(-90f, ringMarksOf(count = 0, total = 5, countBefore = 0).first().startDegrees, 1e-3f)
     }
 
     @Test
     fun `leaves a gap of fifteen hundredths of a word between marks`() {
-        val marks: List<RingMark> = ringMarksOf(count = 0, total = 5)
+        val marks: List<RingMark> = ringMarksOf(count = 0, total = 5, countBefore = 0)
 
         assertEquals(61.2f, marks[0].sweepDegrees, 1e-3f)
         assertEquals(-18f, marks[1].startDegrees, 1e-3f)
@@ -49,7 +56,7 @@ class MyGameRingTest {
     fun `measures thirty-two dp across`() {
         composeRule.setContent {
             MyGameTheme {
-                MyGameRing(count = 3, total = 5, accessibleName = RING_NAME)
+                MyGameRing(count = 3, total = 5, countBefore = 3, accessibleName = RING_NAME)
             }
         }
 
@@ -61,7 +68,7 @@ class MyGameRingTest {
     fun `keeps the ring on the right of a long name at 360 dp`() {
         composeRule.setContent {
             MyGameTheme {
-                MyGameHeader(end = { MyGameRing(count = 3, total = 5, accessibleName = RING_NAME) }) {
+                MyGameHeader(end = { MyGameRing(count = 3, total = 5, countBefore = 3, accessibleName = RING_NAME) }) {
                     MyGameMetaText(text = LONG_NAME, color = MyGameTheme.colors.inkMuted)
                 }
             }

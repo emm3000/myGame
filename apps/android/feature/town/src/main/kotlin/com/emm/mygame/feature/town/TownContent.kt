@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nextStepCard
@@ -11,7 +12,12 @@ import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
 
-internal fun TownSnapshot.contentAt(now: Instant, gap: Duration, mutations: TownMutations): TownUiState.Content {
+internal fun TownSnapshot.contentAt(
+    now: Instant,
+    gap: Duration,
+    mutations: TownMutations,
+    registered: TownRegistered,
+): TownUiState.Content {
     val lines: List<TownUiState.StockLine> = stocks
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
         .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, skillLevelOf(stock.kind)) }
@@ -27,7 +33,7 @@ internal fun TownSnapshot.contentAt(now: Instant, gap: Duration, mutations: Town
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
         places = buildings
             .sortedBy { place: TownSnapshot.Building -> place.kind != TownBuildingKind.School }
-            .map { place: TownSnapshot.Building -> place.cardWith(drawn, this) },
+            .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered) },
         nextStep = card,
         nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
@@ -91,11 +97,15 @@ private fun TownSnapshot.WorkItem.waitingLineAt(now: Instant, gap: Duration): To
 private fun TownSnapshot.Building.cardWith(
     drawn: Map<TownResourceKind, Long>,
     town: TownSnapshot,
+    registered: TownRegistered,
 ): TownUiState.PlaceCard {
     val line: TownUiState.NextLevelLine? = next?.lineWith(drawn)
     return TownUiState.PlaceCard(
         kind = kind,
         level = level,
+        raisedFrom = registered.raisedPlaces
+            .firstOrNull { raised: TownRegistered.RaisedPlace -> raised.kind == kind }
+            ?.levelBefore,
         isInWork = town.isWorkingOn(kind),
         next = line,
         block = next?.blockIn(town, drawn),

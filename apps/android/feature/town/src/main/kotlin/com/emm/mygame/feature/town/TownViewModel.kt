@@ -6,9 +6,11 @@ import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownReadResult
+import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownWorkResult
+import com.emm.mygame.core.network.registeredBetween
 import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -44,6 +46,8 @@ class TownViewModel(
     private var shown: TownSnapshot? = null
 
     private var mutations: TownMutations = TownMutations.none
+
+    private var registered: TownRegistered = TownRegistered.nothing
 
     private var gap: Duration = Duration.ZERO
 
@@ -84,6 +88,7 @@ class TownViewModel(
     private fun open() {
         projection?.cancel()
         _state.value = TownUiState.Loading
+        shown = null
         projection = viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
                 is TownReadResult.Read -> project(measured(answer.town))
@@ -189,8 +194,13 @@ class TownViewModel(
     }
 
     private fun draw(snapshot: TownSnapshot) {
-        shown = snapshot
-        _state.value = snapshot.contentAt(now = serverNow(), gap = gap, mutations = mutations)
+        if (snapshot !== shown) registerRead(snapshot)
+        _state.value = snapshot.contentAt(now = serverNow(), gap = gap, mutations = mutations, registered = registered)
+    }
+
+    private fun registerRead(read: TownSnapshot) {
+        registered = shown?.let { held: TownSnapshot -> registeredBetween(held, read) } ?: TownRegistered.nothing
+        shown = read
     }
 
     private suspend fun project(first: TownSnapshot) {

@@ -60,6 +60,7 @@ class TownScreenTest {
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
+        raisedFrom = null,
         isInWork = false,
         next = TownUiState.NextLevelLine(
             level = 2,

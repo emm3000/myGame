@@ -91,6 +91,7 @@ sealed interface TownUiState {
     data class PlaceCard(
         val kind: TownBuildingKind,
         val level: Int,
+        val raisedFrom: Int?,
         val isInWork: Boolean,
         val next: NextLevelLine?,
         val block: BlockReason?,

@@ -71,6 +71,7 @@ class ReviewLookTest {
         dueCount = 4,
         card = recognition,
         step = ReviewUiState.ReviewStep.Answering,
+        isDealtFromStack = false,
     )
 
     private val wrongRecall: ReviewUiState.Reviewing =
@@ -174,7 +175,7 @@ class ReviewLookTest {
         draw(answering)
 
         val lineBottom: Dp = composeRule.onNode(hasProgress(current = 0f)).getUnclippedBoundsInRoot().bottom
-        val blockTop: Dp = composeRule.onNode(theBlock).getUnclippedBoundsInRoot().top
+        val blockTop: Dp = composeRule.onNode(hasText("school") and theBlock).getUnclippedBoundsInRoot().top
         assertTrue(lineBottom <= blockTop)
     }
 
