@@ -31,6 +31,7 @@ import {
   townTryAgain,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
+import type { WordStanding } from '@mygame/domain'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
@@ -119,8 +120,6 @@ const selectRow = async (number: number): Promise<void> => {
   await passSeconds(0)
 }
 
-type WordStanding = Lesson['words'][number]['standing']
-
 const wordsOf = (...standings: ReadonlyArray<WordStanding>): Lesson['words'] =>
   standings.map((standing, index) => ({ wordId: `word-${index + 1}`, standing, reading: null }))
 
@@ -191,7 +190,7 @@ it('shows no date and no days away on the path', async () => {
   const lesson = studiedLessonOf('recognize', 'recall', 'hold', 'hold', 'retained')
   await showSchool(schoolOf({ lessons: [lesson, lessonOf(2)], nextDueAt: instantAfter(86_400) }))
 
-  expect(pathOf(1).join(' ')).not.toMatch(/d[ií]as?\b|\d:\d|\/\d/i)
+  expect(lessonRow(1).textContent).not.toMatch(/d[ií]as?\b|\bma[ñn]ana\b|semanas?\b|\d:\d|\/\d/i)
   expect(pathOf(1)).toHaveLength(4)
 })
 
@@ -222,9 +221,39 @@ it("opens the unread lesson from the school's link", async () => {
     schoolOf({ lessons, nextStep: { kind: 'reviews', count: 2, readFirst: ['lesson-1'] } }),
   )
 
-  const link = screen.getByRole('link', { name: schoolLessonReadWords() })
+  const link = screen.getByRole('link', { name: readWordsOfLessonOne() })
   expect(link.getAttribute('href')).toBe('/school/lesson-1')
   expect(inkPills()).toEqual([studyLabelOf(2)])
+})
+
+it("tells the school's link from the running lesson's pill", async () => {
+  const lessons = [lessonOf(1, { isStudied: true }), lessonOf(2), lessonOf(3)]
+  const running = { ...lessonOneStudying, lessonId: 'lesson-2' }
+  await showSchool(
+    schoolOf({
+      lessons,
+      lessonSlot: running,
+      nextStep: { kind: 'reviews', count: 2, readFirst: ['lesson-1'] },
+    }),
+  )
+
+  await selectRow(2)
+
+  const pill = screen.getByRole('link', { name: schoolLessonReadWords() })
+  const link = screen.getByRole('link', { name: readWordsOfLessonOne() })
+  expect(pill.getAttribute('href')).toBe('/school/lesson-2')
+  expect(link.getAttribute('href')).toBe('/school/lesson-1')
+})
+
+it('leaves the reviews to the one pill once every lesson is studied', async () => {
+  await showSchool(
+    schoolOf({
+      lessons: studiedThrough(2, 2),
+      nextStep: { kind: 'reviews', count: 2, readFirst: [] },
+    }),
+  )
+
+  expect(screen.getAllByRole('link', { name: reportStartReviews() })).toHaveLength(1)
 })
 
 it("opens the reviews from the school's link once no lesson is unread", async () => {

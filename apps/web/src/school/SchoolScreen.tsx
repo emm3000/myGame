@@ -30,6 +30,7 @@ import {
   type LessonCardContent,
   lessonCardOf,
   lessonNumberOf,
+  readWordsLabelOf,
 } from './lessonCardOf'
 import { SchoolNextStep } from './SchoolNextStep'
 import { ShownLesson } from './ShownLesson'
@@ -93,12 +94,24 @@ function LearningLoad({ town }: { readonly town: LiveTown }): ReactElement {
   )
 }
 
-function ReviewsLink({ town }: { readonly town: LiveTown }): ReactElement | null {
-  const { nextStep } = town.overview
+function ReviewsLink({
+  town,
+  shownLessonId,
+}: {
+  readonly town: LiveTown
+  readonly shownLessonId: string
+}): ReactElement | null {
+  const { overview } = town
+  const { nextStep } = overview
   if (nextStep.kind !== 'reviews') {
     return null
   }
-  return <NextStepLink action={reviewsActionOf(nextStep.readFirst)} tone="quiet" />
+  const action = reviewsActionOf(nextStep.readFirst)
+  const named =
+    action.to === '/school/$lessonId'
+      ? { ...action, label: readWordsLabelOf(action.lessonId, shownLessonId, overview) }
+      : action
+  return <NextStepLink action={named} tone="quiet" />
 }
 
 const shownCardOf = (
@@ -143,7 +156,7 @@ export function SchoolScreen({ town, lessons }: SchoolScreenProps): ReactElement
             <ShownLesson card={shown} town={town} lessons={lessons} titleRef={blockTitle.ref} />
           )}
           <LearningLoad town={town} />
-          {shown !== undefined && <ReviewsLink town={town} />}
+          {shown !== undefined && <ReviewsLink town={town} shownLessonId={shown.lessonId} />}
         </div>
         <div className="flex min-w-0 flex-col gap-6">
           <LessonRows

@@ -1,6 +1,7 @@
 import {
   schoolLessonCapReached,
   schoolLessonNeedsSchool,
+  schoolLessonReadWords,
   schoolLessonReward,
   schoolLessonSlotBusy,
   schoolLessonStudy,
@@ -8,10 +9,10 @@ import {
   schoolLessonWords,
 } from '@mygame/catalog'
 import type { TownOverview } from '@mygame/contracts/town'
+import type { WordStanding } from '@mygame/domain'
 import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
-import type { WordStanding } from './SchoolPath'
 
 type Lesson = TownOverview['lessons'][number]
 
@@ -35,6 +36,15 @@ export interface LessonCardContent {
 
 export const lessonNumberOf = (lessonId: string, overview: TownOverview): number =>
   overview.lessons.findIndex(({ id }) => id === lessonId) + 1
+
+export const readWordsLabelOf = (
+  lessonId: string,
+  shownLessonId: string,
+  overview: TownOverview,
+): string =>
+  lessonId === shownLessonId
+    ? schoolLessonReadWords()
+    : `${schoolLessonTitle({ number: lessonNumberOf(lessonId, overview) })} · ${schoolLessonReadWords()}`
 
 export const isPastLearningCap = (lesson: Lesson, { learning }: TownOverview): boolean =>
   learning.inLearning + lesson.words.length > learning.cap

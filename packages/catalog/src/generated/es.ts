@@ -370,7 +370,7 @@ export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | nu
 export const schoolLessonNext = (): string => `Siguiente lección`
 export const schoolLessonNothingToRead = (): string => `Ahora no hay palabras para leer.`
 export const schoolLessonReadWords = (): string => `Leer las palabras`
-export const schoolLessonReward = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `Habilidad de ${String(resource)}: +${String(percent)} %`
+export const schoolLessonReward = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `Habilidad: ${String(resource)} +${String(percent)} %`
 export const schoolLessonSlotBusy = ({ number }: { readonly number: string | number }): string => `La escuela está estudiando la lección ${String(number)}.`
 export const schoolLessonStudied = (): string => `Estudiada`
 export const schoolLessonStudy = ({ number }: { readonly number: string | number }): string => `Estudiar la lección ${String(number)}`
