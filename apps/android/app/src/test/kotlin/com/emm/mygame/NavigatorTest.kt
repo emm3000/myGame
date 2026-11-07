@@ -725,6 +725,15 @@ class NavigatorTest {
     }
 
     @Test
+    fun `takes the place of the reviews that stopped at a finished lesson`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.School, Destination.Review)
+
+        Navigator(backStack).openLesson(firstLesson, walked = emptyList())
+
+        assertEquals(listOf(Destination.Town, Destination.School, firstWords), backStack)
+    }
+
+    @Test
     fun `opens no lesson while signing out`() {
         val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Report)
         val navigator: Navigator = Navigator(backStack)

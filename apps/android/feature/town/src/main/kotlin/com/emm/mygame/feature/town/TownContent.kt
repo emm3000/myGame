@@ -14,7 +14,7 @@ import kotlin.time.Instant
 internal fun TownSnapshot.contentAt(now: Instant, gap: Duration, mutations: TownMutations): TownUiState.Content {
     val lines: List<TownUiState.StockLine> = stocks
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
-        .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now) }
+        .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, skillLevelOf(stock.kind)) }
     val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
     val card: NextStepCard = nextStepCard()
     return TownUiState.Content(
@@ -56,12 +56,17 @@ private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt, nextDueAt)
 
-private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant): TownUiState.StockLine = TownUiState.StockLine(
-    kind = kind,
-    amount = ResourceStock(amount, ratePerHour, capacity).amountAt(readAt = readAt, now = now),
-    capacity = capacity,
-    ratePerHour = ratePerHour.toLong(),
-)
+private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant, skillLevel: Int): TownUiState.StockLine =
+    TownUiState.StockLine(
+        kind = kind,
+        amount = ResourceStock(amount, ratePerHour, capacity).amountAt(readAt = readAt, now = now),
+        capacity = capacity,
+        ratePerHour = ratePerHour.toLong(),
+        skillLevel = skillLevel,
+    )
+
+private fun TownSnapshot.skillLevelOf(kind: TownResourceKind): Int =
+    skills.count { skill: TownSnapshot.EarnedSkill -> skill.resource == kind }
 
 private fun TownSnapshot.WorkItem.slotLineAt(now: Instant, gap: Duration): TownUiState.SlotLine {
     val remaining: Duration = countdownTo(finishesAt = finishesAt, now = now)

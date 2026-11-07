@@ -73,7 +73,9 @@ class TownScreenTest {
     private val riverton: TownUiState.Content = TownUiState.Content(
         name = "Riverton",
         label = TownLabel.Town,
-        stocks = listOf(TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30)),
+        stocks = listOf(
+            TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30, skillLevel = 0),
+        ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
         slot = TownUiState.SlotLine.Idle,
@@ -210,8 +212,24 @@ class TownScreenTest {
     }
 
     @Test
+    fun `shows the earned skill beside its resource`() {
+        val skilledMoney: TownUiState.StockLine =
+            TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30, skillLevel = 2)
+        show(riverton.copy(stocks = listOf(skilledMoney)))
+
+        composeRule.onNodeWithText("Habilidad de dinero, nivel 2").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `shows no skill beside a resource with none earned`() {
+        show(riverton)
+
+        composeRule.onAllNodesWithText("Habilidad", substring = true).assertCountEquals(0)
+    }
+
+    @Test
     fun `tells a full store in words`() {
-        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30)
+        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30, skillLevel = 0)
 
         show(riverton.copy(stocks = listOf(full)))
 
@@ -234,7 +252,7 @@ class TownScreenTest {
 
     @Test
     fun `keeps a full store's capacity in tabular figures`() {
-        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30)
+        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30, skillLevel = 0)
 
         show(riverton.copy(stocks = listOf(full)))
 

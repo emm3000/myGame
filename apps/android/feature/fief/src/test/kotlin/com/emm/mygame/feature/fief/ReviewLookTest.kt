@@ -265,7 +265,13 @@ class ReviewLookTest {
     @Test
     fun `sets an earned skill's lines in ink`() {
         val skill: ReviewUiState.SkillLine =
-            ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = 5)
+            ReviewUiState.SkillLine(
+                resource = TownResourceKind.Food,
+                level = 1,
+                ratePercent = 5,
+                rates = null,
+                words = listOf("home"),
+            )
         draw(rightRecall.copy(step = ReviewUiState.ReviewStep.Correct(skill = skill)))
 
         assertEquals(colors.ink, styleOf("Habilidad ganada: comida, nivel 1.").color)
@@ -335,7 +341,7 @@ class ReviewLookTest {
         composeRule.setContent {
             MyGameTheme {
                 colors = MyGameTheme.colors
-                ReviewScreen(state = state, onIntent = { })
+                ReviewScreen(state = state, onIntent = { }, onLessonOpen = { }, onTownOpen = { })
             }
         }
     }

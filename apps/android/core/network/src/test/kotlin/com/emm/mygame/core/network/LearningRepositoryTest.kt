@@ -72,6 +72,7 @@ class LearningRepositoryTest {
                             gappedFrame = "She goes ___ at six.",
                         ),
                     ),
+                    readFirst = listOf(LessonId("lesson-1")),
                     nextDueAt = Instant.parse("2026-11-10T09:10:00.000Z"),
                     readAt = Instant.parse("2026-11-10T08:59:30Z"),
                 ),
@@ -163,6 +164,7 @@ class LearningRepositoryTest {
                     ratePercent = 5,
                     ratePerHourBefore = 18.75,
                     ratePerHourAfter = 19.6875,
+                    words = listOf("home", "school"),
                 ),
             ),
             (result as ReviewAnswerResult.Answered).verdict,
@@ -182,6 +184,7 @@ class LearningRepositoryTest {
                 ratePercent = 5,
                 ratePerHourBefore = null,
                 ratePerHourAfter = null,
+                words = listOf("home", "school"),
             ),
             ((result as ReviewAnswerResult.Answered).verdict as ReviewVerdict.Correct).earnedSkill,
         )

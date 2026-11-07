@@ -21,6 +21,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.withStyle
 import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameIcon
@@ -32,6 +34,8 @@ import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.ReviewRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.icuStringResource
@@ -139,7 +143,34 @@ private fun SkillEarned(skill: ReviewUiState.SkillLine, modifier: Modifier = Mod
             style = MyGameTypography.caption,
             color = MyGameTheme.colors.ink,
         )
+        skill.rates?.let { rates: ReviewUiState.SkillRates -> RatesLine(resource = resource, rates = rates) }
+        MyGameText(
+            text = wordsLineOf(stringResource(R.string.review_skill_words), skill.words),
+            style = MyGameTypography.body,
+            color = MyGameTheme.colors.ink,
+        )
     }
+}
+
+@Composable
+private fun RatesLine(resource: String, rates: ReviewUiState.SkillRates, modifier: Modifier = Modifier) {
+    MyGameText(
+        text = icuStringResource(
+            R.string.review_skill_rates,
+            "resource" to resource.replaceFirstChar { first: Char -> first.titlecase(spanish) },
+            "before" to formatQuantity(rates.before),
+            "after" to formatQuantity(rates.after),
+        ),
+        style = MyGameTypography.body.withTabularFigures(),
+        color = MyGameTheme.colors.ink,
+        modifier = modifier,
+    )
+}
+
+private fun wordsLineOf(label: String, words: List<String>): AnnotatedString = buildAnnotatedString {
+    append(label)
+    append(" ")
+    withStyle(SpanStyle(localeList = LocaleList("en"))) { append(words.joinToString(", ")) }
 }
 
 @Composable

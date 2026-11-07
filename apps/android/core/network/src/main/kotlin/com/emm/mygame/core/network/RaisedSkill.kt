@@ -6,4 +6,5 @@ data class RaisedSkill(
     val ratePercent: Int,
     val ratePerHourBefore: Double?,
     val ratePerHourAfter: Double?,
+    val words: List<String>,
 )

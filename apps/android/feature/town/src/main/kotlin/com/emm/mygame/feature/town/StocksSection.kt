@@ -98,7 +98,23 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
             )
         }
         MyGameTrack(filled = stock.amount.toFloat() / stock.capacity.toFloat(), color = MyGameTheme.colors.ink)
+        SkillMark(stock = stock)
     }
+}
+
+@Composable
+private fun SkillMark(stock: TownUiState.StockLine, modifier: Modifier = Modifier) {
+    if (stock.skillLevel == 0) return
+    MyGameText(
+        text = icuStringResource(
+            R.string.town_skill_name,
+            "resource" to stringResource(resourceNameOf(stock.kind)),
+            "level" to stock.skillLevel.toString(),
+        ),
+        style = MyGameTypography.caption,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier,
+    )
 }
 
 @Composable

@@ -34,6 +34,7 @@ class ReviewViewModelTest {
         ratePercent = 5,
         ratePerHourBefore = 18.75,
         ratePerHourAfter = 19.6875,
+        words = listOf("home", "school"),
     )
 
     private val foodSkillWithoutTown: RaisedSkill = RaisedSkill(
@@ -42,6 +43,7 @@ class ReviewViewModelTest {
         ratePercent = 5,
         ratePerHourBefore = null,
         ratePerHourAfter = null,
+        words = listOf("home", "school"),
     )
 
     @Test
@@ -111,7 +113,7 @@ class ReviewViewModelTest {
 
         viewModel.state.test {
             assertEquals(
-                ReviewUiState.NothingDue(remaining = 9.minutes, dueAt = skewedDevice + 9.minutes),
+                ReviewUiState.NothingDue(remaining = 9.minutes, dueAt = skewedDevice + 9.minutes, path = null),
                 expectMostRecentItem(),
             )
         }
@@ -331,7 +333,7 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `draws the skill earned at the level the api answers`() = runTest {
+    fun `draws the skill earned with its floored rates and its words`() = runTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)
         learning.answerRead(dueNow(homeRecall))
@@ -344,7 +346,13 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Correct(
-                    skill = ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 2, ratePercent = 5),
+                    skill = ReviewUiState.SkillLine(
+                        resource = TownResourceKind.Food,
+                        level = 2,
+                        ratePercent = 5,
+                        rates = ReviewUiState.SkillRates(before = 18, after = 19),
+                        words = listOf("home", "school"),
+                    ),
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
@@ -365,7 +373,13 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
                 ReviewUiState.ReviewStep.Correct(
-                    skill = ReviewUiState.SkillLine(resource = TownResourceKind.Food, level = 1, ratePercent = 5),
+                    skill = ReviewUiState.SkillLine(
+                        resource = TownResourceKind.Food,
+                        level = 1,
+                        ratePercent = 5,
+                        rates = null,
+                        words = listOf("home", "school"),
+                    ),
                 ),
                 awaitStep { it is ReviewUiState.ReviewStep.Correct }.step,
             )
