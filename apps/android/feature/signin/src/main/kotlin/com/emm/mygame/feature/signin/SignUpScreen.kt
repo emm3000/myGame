@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
@@ -71,22 +70,10 @@ private fun SignUpForm(
             label = stringResource(R.string.sign_in_password),
             isSecret = true,
             isReadOnly = isSubmitting,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             onValueChange = { password: String -> onIntent(SignUpIntent.PasswordChanged(password)) },
             contentType = ContentType.NewPassword,
             supportingText = stringResource(R.string.sign_up_password_hint),
-        )
-        MyGameTextField(
-            value = form.fiefName,
-            label = stringResource(R.string.sign_up_fief_name),
-            isSecret = false,
-            isReadOnly = isSubmitting,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done,
-            ),
-            onValueChange = { fiefName: String -> onIntent(SignUpIntent.FiefNameChanged(fiefName)) },
         )
         SignUpStatusMessage(status = form.status, onIntent = onIntent)
         MyGameButton(
@@ -124,7 +111,6 @@ private fun SignUpStatusMessage(
 
 private fun refusalMessageOf(refusal: SignUpRefusal): Int = when (refusal) {
     SignUpRefusal.WeakPassword -> R.string.sign_up_refused_weak_password
-    SignUpRefusal.BlankFiefName -> R.string.sign_up_refused_blank_fief_name
     SignUpRefusal.EmailTaken -> R.string.sign_up_refused_email_taken
     SignUpRefusal.MalformedEmail -> R.string.sign_up_refused_malformed_email
     SignUpRefusal.Unrecognized -> R.string.sign_up_refused_unrecognized

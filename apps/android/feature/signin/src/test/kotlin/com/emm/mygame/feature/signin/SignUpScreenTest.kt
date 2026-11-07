@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -45,8 +46,8 @@ class SignUpScreenTest {
     }
 
     @Test
-    fun `offers the fief name field to no autofill`() {
-        field("Nombre de tu feudo").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentType))
+    fun `asks for the email and the password alone`() {
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
     }
 
     @Test
@@ -57,7 +58,6 @@ class SignUpScreenTest {
     private val blankForm: SignUpUiState = SignUpUiState.Form(
         email = "",
         password = "",
-        fiefName = "",
         status = SignUpUiState.FormStatus.Idle,
     )
 

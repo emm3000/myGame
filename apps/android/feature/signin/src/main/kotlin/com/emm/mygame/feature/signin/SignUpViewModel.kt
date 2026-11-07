@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
 
     private val _state: MutableStateFlow<SignUpUiState> = MutableStateFlow(
-        SignUpUiState.Form(email = "", password = "", fiefName = "", status = SignUpUiState.FormStatus.Idle),
+        SignUpUiState.Form(email = "", password = "", status = SignUpUiState.FormStatus.Idle),
     )
 
     val state: StateFlow<SignUpUiState> = _state.asStateFlow()
@@ -29,7 +29,6 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
         when (intent) {
             is SignUpIntent.EmailChanged -> updateForm { copy(email = intent.email) }
             is SignUpIntent.PasswordChanged -> updateForm { copy(password = intent.password) }
-            is SignUpIntent.FiefNameChanged -> updateForm { copy(fiefName = intent.fiefName) }
             SignUpIntent.SubmitTapped -> submit()
             SignUpIntent.RetryTapped -> retry()
         }
@@ -40,8 +39,7 @@ class SignUpViewModel(private val sessions: SessionRepository) : ViewModel() {
         if (form.status == SignUpUiState.FormStatus.Submitting) return
         _state.value = form.copy(status = SignUpUiState.FormStatus.Submitting)
         viewModelScope.launch {
-            val answer: SignUpResult =
-                sessions.signUp(email = form.email, password = form.password, fiefName = form.fiefName)
+            val answer: SignUpResult = sessions.signUp(email = form.email, password = form.password)
             when (answer) {
                 is SignUpResult.SignedIn -> _effects.send(SignUpEffect.SignedIn)
                 is SignUpResult.Refused ->

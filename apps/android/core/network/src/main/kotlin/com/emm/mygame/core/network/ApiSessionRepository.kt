@@ -29,11 +29,9 @@ internal class ApiSessionRepository(
             signedInOrRefused(openingApi.authSignInNativePost(SignInRequest(email = email, password = password)))
         }
 
-    override suspend fun signUp(email: String, password: String, fiefName: String): SignUpResult =
+    override suspend fun signUp(email: String, password: String): SignUpResult =
         openingSession(unreachable = SignUpResult.Unreachable) {
-            signedUpOrRefused(
-                openingApi.authSignUpNativePost(SignUpRequest(email = email, password = password, fiefName = fiefName)),
-            )
+            signedUpOrRefused(openingApi.authSignUpNativePost(SignUpRequest(email = email, password = password)))
         }
 
     override suspend fun requestPasswordReset(email: String): PasswordResetRequestResult =
@@ -127,7 +125,6 @@ private val clientErrorCodes: IntRange = HttpURLConnection.HTTP_BAD_REQUEST unti
 
 private fun BareApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
     BareApiError.Kind.WeakPassword -> SignUpRefusal.WeakPassword
-    BareApiError.Kind.BlankFiefName -> SignUpRefusal.BlankFiefName
     BareApiError.Kind.EmailTaken -> SignUpRefusal.EmailTaken
     BareApiError.Kind.MalformedEmail -> SignUpRefusal.MalformedEmail
     else -> SignUpRefusal.Unrecognized

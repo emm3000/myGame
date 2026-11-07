@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { FiefListSchema } from '@mygame/contracts'
+import { FiefListSchema, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -7,6 +7,7 @@ import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 import type { SeenHints } from '../hint/SeenHints'
 import type { FailureSink } from './FailureSink'
 
@@ -77,9 +78,11 @@ describe('the server failure report', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: anasEmail, password: anasPassword, fiefName: 'Valdehierro' }),
+      body: JSON.stringify({ email: anasEmail, password: anasPassword }),
     })
     expect(response.status).toBe(201)
+    const player = PlayerSchema.parse(await response.json())
+    await foundFiefFor(player.id, 'Valdehierro', { server, clock: frozenClock })
     return sessionCookieOf(response)
   }
 
@@ -193,7 +196,7 @@ describe('the server failure report', () => {
     app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: brunosEmail, password: anasPassword, fiefName: 'Robledal' }),
+      body: JSON.stringify({ email: brunosEmail, password: anasPassword }),
     })
 
   it('writes one line naming a failed query by its class and its Postgres code', async () => {

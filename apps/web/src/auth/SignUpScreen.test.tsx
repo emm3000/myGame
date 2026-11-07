@@ -1,7 +1,6 @@
 import {
   authEmail,
   authPassword,
-  authSignUpFiefName,
   authSignUpSubmit,
   refusalEmailTaken,
   refusalMalformedEmail,
@@ -10,7 +9,7 @@ import {
 } from '@mygame/catalog'
 import type { SignUpRequest } from '@mygame/contracts'
 import { fireEvent, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { renderAppAt } from './renderAppAt.testSupport'
 import { knownPlayer, stubApiClient } from './stubApiClient.testSupport'
 
@@ -21,16 +20,12 @@ const fillSignUp = async (request: SignUpRequest): Promise<void> => {
   fireEvent.change(screen.getByLabelText(authPassword()), {
     target: { value: request.password },
   })
-  fireEvent.change(screen.getByLabelText(authSignUpFiefName()), {
-    target: { value: request.fiefName },
-  })
   fireEvent.click(screen.getByRole('button', { name: authSignUpSubmit() }))
 }
 
 const newcomer: SignUpRequest = {
   email: 'aldonza@example.com',
   password: 'piedra-y-lodo',
-  fiefName: 'Vado Gris',
 }
 
 it('shows the Spanish message for a taken email', async () => {
@@ -75,7 +70,27 @@ it('refuses to submit a password shorter than eight characters', async () => {
   expect(sentRequests).toEqual([])
 })
 
-it('lands a new player on Name your town once signed up', async () => {
+it('signs up without founding anything', async () => {
+  const sentRequests: unknown[] = []
+  renderAppAt(
+    '/sign-up',
+    stubApiClient({
+      signUp: async (request) => {
+        sentRequests.push(request)
+        return { ok: true, value: knownPlayer }
+      },
+    }),
+  )
+
+  await fillSignUp(newcomer)
+
+  await vi.waitFor(() => expect(sentRequests).toEqual([newcomer]))
+  expect(screen.getAllByRole('textbox').map((field) => field.getAttribute('name'))).toEqual([
+    'email',
+  ])
+})
+
+it('opens Name your town after sign-up', async () => {
   let isSignedIn = false
   renderAppAt(
     '/sign-up',

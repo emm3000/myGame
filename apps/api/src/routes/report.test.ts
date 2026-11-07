@@ -108,7 +108,6 @@ describe('the Report routes', () => {
       body: JSON.stringify({
         email: 'ana@example.com',
         password: 'hierro-y-lana',
-        fiefName: 'Valdehierro',
       }),
     })
     const player = PlayerSchema.parse(await response.json())

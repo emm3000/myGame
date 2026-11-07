@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import type { RouteConfig } from '@hono/zod-openapi'
-import { FiefListSchema, ProvinceMapSchema } from '@mygame/contracts'
+import { FiefListSchema, PlayerSchema, ProvinceMapSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -8,6 +8,7 @@ import { ZodType } from 'zod'
 import { createApp } from './app'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
+import { foundFiefFor } from './fief/foundFiefFor.testSupport'
 import { authDeclarations } from './routes/authDeclarations'
 import { digestDeclarations } from './routes/digestDeclarations'
 import { fiefDeclarations } from './routes/fiefDeclarations'
@@ -99,26 +100,20 @@ const exchanges: ReadonlyArray<Exchange> = [
   {
     operation: 'POST /auth/sign-up',
     caller: 'signedOut',
-    body: { email: 'carla@example.com', password: 'hierro-y-lana', fiefName: 'Pinares' },
+    body: { email: 'carla@example.com', password: 'hierro-y-lana' },
     status: 201,
   },
   {
     operation: 'POST /auth/sign-up',
     caller: 'signedOut',
-    body: { email: 'dario@example.com', password: 'corta', fiefName: 'Pinares' },
+    body: { email: 'dario@example.com', password: 'corta' },
     status: 400,
   },
   {
     operation: 'POST /auth/sign-up',
     caller: 'signedOut',
-    body: { email: 'carla@example.com', password: 'hierro-y-lana', fiefName: 'Pinares' },
+    body: { email: 'carla@example.com', password: 'hierro-y-lana' },
     status: 409,
-  },
-  {
-    operation: 'POST /auth/sign-up',
-    caller: 'signedOut',
-    body: { email: 'dario@example.com', password: 'hierro-y-lana', fiefName: '   ' },
-    status: 400,
   },
   {
     operation: 'POST /auth/sign-in',
@@ -417,26 +412,20 @@ const exchanges: ReadonlyArray<Exchange> = [
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
-    body: { email: 'elena@example.com', password: 'hierro-y-lana', fiefName: 'Encinar' },
+    body: { email: 'elena@example.com', password: 'hierro-y-lana' },
     status: 201,
   },
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
-    body: { email: 'dario@example.com', password: 'corta', fiefName: 'Pinares' },
+    body: { email: 'dario@example.com', password: 'corta' },
     status: 400,
   },
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
-    body: { email: 'elena@example.com', password: 'hierro-y-lana', fiefName: 'Encinar' },
+    body: { email: 'elena@example.com', password: 'hierro-y-lana' },
     status: 409,
-  },
-  {
-    operation: 'POST /auth/sign-up/native',
-    caller: 'signedOut',
-    body: { email: 'dario@example.com', password: 'hierro-y-lana', fiefName: '   ' },
-    status: 400,
   },
   { operation: 'POST /auth/sign-out', caller: 'ana', status: 204 },
   { operation: 'POST /auth/sign-out', caller: 'signedOut', status: 401 },
@@ -485,9 +474,11 @@ describe('the OpenAPI conformance', () => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, password: 'hierro-y-lana', fiefName }),
+      body: JSON.stringify({ email, password: 'hierro-y-lana' }),
     })
     expect(response.status).toBe(201)
+    const player = PlayerSchema.parse(await response.json())
+    await foundFiefFor(player.id, fiefName, { server, clock: frozenClock })
     return sessionCookieOf(response)
   }
 

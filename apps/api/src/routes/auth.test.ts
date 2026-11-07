@@ -1,10 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import {
-  ApiErrorSchema,
-  FiefListSchema,
-  NativeSessionSchema,
-  PlayerSchema,
-} from '@mygame/contracts'
+import { ApiErrorSchema, NativeSessionSchema, PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant, ok } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -12,7 +7,6 @@ import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { accountTokenExpiryFrom } from '../auth/accountTokenExpiryFrom'
 import type { Mail } from '../auth/Mailer'
-import { signUp } from '../auth/signUp'
 import { tokenDigest } from '../auth/tokenDigest'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
@@ -86,6 +80,19 @@ const storedSessionKeys = async (): Promise<ReadonlyArray<string>> => {
   }
 }
 
+const storedHoldings = async (): Promise<number> => {
+  const client = new Client({ connectionString: databaseUrl() })
+  await client.connect()
+  try {
+    const found = await client.query<{ count: number }>(
+      'SELECT (SELECT count(*) FROM fiefs)::int + (SELECT count(*) FROM towns)::int AS count',
+    )
+    return found.rows[0]?.count ?? -1
+  } finally {
+    await client.end()
+  }
+}
+
 const storedResetTokens = async (): Promise<number> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
@@ -112,7 +119,7 @@ const sessionCookieOf = (response: Response): string => {
   return pair
 }
 
-const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana', fiefName: 'Valdehierro' }
+const anasSignUp = { email: 'ana@example.com', password: 'hierro-y-lana' }
 
 const tokenOf = (mail: Mail | undefined): string => {
   const link = mail?.text.split('\n').find((line) => line.startsWith(mailEnvironment.WEB_URL))
@@ -162,16 +169,27 @@ describe('the auth routes', () => {
   const sessionOf = async (cookie: string): Promise<Response> =>
     app.request('/auth/session', { headers: { cookie } })
 
-  it('creates a player and its fief in one transaction', async () => {
+  it('signs up without founding anything', async () => {
     const response = await signUpAna()
 
     expect(response.status).toBe(201)
     PlayerSchema.parse(await response.json())
-    const fiefs = await app.request('/fiefs', { headers: { cookie: sessionCookieOf(response) } })
-    expect(FiefListSchema.parse(await fiefs.json()).fiefs.map(({ name }) => name)).toEqual([
-      'Valdehierro',
-    ])
+    expect(await storedHoldings()).toBe(0)
   })
+
+  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
+    'signs up on %s an older client that sends a field the request no longer names',
+    async (route) => {
+      const response = await app.request(
+        route,
+        post({ ...anasSignUp, retiredField: 'Valdehierro' }),
+      )
+
+      expect(response.status).toBe(201)
+      expect(await playersWithEmail(anasSignUp.email)).toBe(1)
+      expect(await storedHoldings()).toBe(0)
+    },
+  )
 
   it('acknowledges a new player at sign-up', async () => {
     clock.advanceHours(3)
@@ -180,30 +198,6 @@ describe('the auth routes', () => {
 
     const player = PlayerSchema.parse(await response.json())
     expect(await server.digestAcknowledgements.acknowledgedAt(player.id)).toEqual(clock.now())
-  })
-
-  it('keeps no player when founding the fief fails', async () => {
-    const signedUp = await signUp({ ...anasSignUp, fiefName: '   ' }, { ...server, clock, mailer })
-
-    expect(signedUp.ok ? 'signedUp' : signedUp.error.kind).toBe('BlankFiefName')
-    expect(await playersWithEmail(anasSignUp.email)).toBe(0)
-  })
-
-  it.each(['/auth/sign-up', '/auth/sign-up/native'])(
-    'refuses a fief name of spaces on %s as a blank fief name',
-    async (route) => {
-      const response = await app.request(route, post({ ...anasSignUp, fiefName: '   ' }))
-
-      expect(response.status).toBe(400)
-      expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
-    },
-  )
-
-  it('refuses an empty fief name as a blank fief name', async () => {
-    const response = await app.request('/auth/sign-up', post({ ...anasSignUp, fiefName: '' }))
-
-    expect(response.status).toBe(400)
-    expect(ApiErrorSchema.parse(await response.json()).kind).toBe('BlankFiefName')
   })
 
   it('refuses a malformed email with a message the sign-up screen can show', async () => {
@@ -269,7 +263,7 @@ describe('the auth routes', () => {
 
     const response = await app.request(
       '/auth/sign-up',
-      post({ ...anasSignUp, email: 'Ana@Example.com', fiefName: 'Otra' }),
+      post({ ...anasSignUp, email: 'Ana@Example.com' }),
     )
 
     expect(response.status).toBe(409)
@@ -445,10 +439,8 @@ describe('the auth routes', () => {
     await signUpAna()
     const refusedSignUps = [
       { ...anasSignUp, email: 'bea@example.com', password: 'corta77' },
-      { ...anasSignUp, email: 'bea@example.com', fiefName: ' \t ' },
-      { ...anasSignUp, email: 'Ana@Example.com', fiefName: 'Otra' },
+      { ...anasSignUp, email: 'Ana@Example.com' },
       { ...anasSignUp, email: 'bea@example.com', password: 12345678 },
-      { ...anasSignUp, email: 'bea@example.com', fiefName: '' },
       { ...anasSignUp, email: 'bea-sin-arroba' },
     ]
 
@@ -461,10 +453,12 @@ describe('the auth routes', () => {
       nativeAnswers.push([native.status, await native.text()])
     }
 
-    expect(webAnswers.map(([status]) => status)).toEqual([400, 400, 409, 400, 400, 400])
+    expect(webAnswers.map(([status]) => status)).toEqual([400, 409, 400, 400])
     expect(
-      webAnswers.slice(4).map(([, body]) => ApiErrorSchema.parse(JSON.parse(body)).kind),
-    ).toEqual(['BlankFiefName', 'MalformedEmail'])
+      [webAnswers[0], webAnswers[1], webAnswers[3]].map(
+        (answer) => ApiErrorSchema.parse(JSON.parse(answer?.[1] ?? '')).kind,
+      ),
+    ).toEqual(['WeakPassword', 'EmailTaken', 'MalformedEmail'])
     expect(nativeAnswers).toEqual(webAnswers)
   })
 
@@ -775,7 +769,7 @@ describe('the auth routes', () => {
     const brunosCookie = sessionCookieOf(
       await app.request(
         '/auth/sign-up',
-        post({ email: 'bruno@example.com', password: 'piedra-y-oro', fiefName: 'Pedregal' }),
+        post({ email: 'bruno@example.com', password: 'piedra-y-oro' }),
       ),
     )
 

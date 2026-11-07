@@ -57,7 +57,6 @@ const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
 const accountIssues: ReadonlyArray<NamedIssue> = [
   ['email', 'invalid_format', { kind: 'MalformedEmail' }],
   ['password', 'too_small', { kind: 'WeakPassword' }],
-  ['fiefName', 'too_small', { kind: 'BlankFiefName' }],
 ]
 
 const answerSignedIn = async (

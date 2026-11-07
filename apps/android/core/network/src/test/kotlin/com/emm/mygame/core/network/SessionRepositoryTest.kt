@@ -360,14 +360,14 @@ class SessionRepositoryTest {
         api.enqueue(createdSession(token = "fresh-session", email = "elena@encinar.es"))
         api.enqueue(player(email = "elena@encinar.es"))
 
-        val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana")
         sessions.restore()
 
         assertEquals(SignUpResult.SignedIn(SignedInPlayer(email = "elena@encinar.es")), result)
         val signUpRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("/api/auth/sign-up/native", signUpRequest.url.encodedPath)
         assertEquals(
-            """{"email":"elena@encinar.es","password":"hierro-y-lana","fiefName":"Encinar"}""",
+            """{"email":"elena@encinar.es","password":"hierro-y-lana"}""",
             signUpRequest.body?.utf8(),
         )
         assertEquals("Bearer fresh-session", api.takeRequestWithin().headers["Authorization"])
@@ -378,7 +378,7 @@ class SessionRepositoryTest {
         val store: TokenStore = tokenStore().apply { write("stale-session") }
         api.enqueue(createdSession(token = "fresh-session", email = "elena@encinar.es"))
 
-        repository(store).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        repository(store).signUp("elena@encinar.es", "hierro-y-lana")
 
         assertNull(api.takeRequestWithin().headers["Authorization"])
     }
@@ -387,16 +387,14 @@ class SessionRepositoryTest {
     fun `answers the sign-up refusal the api names`() = runTest {
         val sessions: SessionRepository = repository(tokenStore())
         api.enqueue(json(400, refusalJson("WeakPassword")))
-        api.enqueue(json(400, refusalJson("BlankFiefName")))
         api.enqueue(json(409, refusalJson("EmailTaken")))
         api.enqueue(json(400, refusalJson("MalformedEmail")))
 
-        val answers: List<SignUpResult> = List(4) { sessions.signUp("elena@encinar.es", "corta", " ") }
+        val answers: List<SignUpResult> = List(3) { sessions.signUp("elena@encinar.es", "corta") }
 
         assertEquals(
             listOf(
                 SignUpResult.Refused(SignUpRefusal.WeakPassword),
-                SignUpResult.Refused(SignUpRefusal.BlankFiefName),
                 SignUpResult.Refused(SignUpRefusal.EmailTaken),
                 SignUpResult.Refused(SignUpRefusal.MalformedEmail),
             ),
@@ -409,7 +407,7 @@ class SessionRepositoryTest {
         runTest {
             api.enqueue(MockResponse.Builder().code(400).build())
 
-            val result: SignUpResult = repository(tokenStore()).signUp("elena", "hierro-y-lana", "")
+            val result: SignUpResult = repository(tokenStore()).signUp("elena", "hierro-y-lana")
 
             assertEquals(SignUpResult.Refused(SignUpRefusal.Unrecognized), result)
         }
@@ -418,7 +416,7 @@ class SessionRepositoryTest {
     fun `answers an unrecognized sign-up refusal for a kind the spec does not list`() = runTest {
         api.enqueue(json(400, refusalJson("FiefNameTooLong")))
 
-        val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana")
 
         assertEquals(SignUpResult.Refused(SignUpRefusal.Unrecognized), result)
     }
@@ -428,7 +426,7 @@ class SessionRepositoryTest {
         val sessions: SessionRepository = repository(tokenStore())
         api.close()
 
-        val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana")
 
         assertEquals(SignUpResult.Unreachable, result)
     }
@@ -437,7 +435,7 @@ class SessionRepositoryTest {
     fun `answers unreachable when the api fails while creating the account`() = runTest {
         api.enqueue(MockResponse.Builder().code(503).build())
 
-        val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana")
 
         assertEquals(SignUpResult.Unreachable, result)
     }
@@ -448,7 +446,7 @@ class SessionRepositoryTest {
         val store: TokenStore = tokenStore(FakeTokenCipher(encryptFailure = sealFailure))
         api.enqueue(createdSession(token = "fresh-session", email = "elena@encinar.es"))
 
-        val result: SignUpResult = repository(store).signUp("elena@encinar.es", "hierro-y-lana", "Encinar")
+        val result: SignUpResult = repository(store).signUp("elena@encinar.es", "hierro-y-lana")
 
         assertEquals(SignUpResult.Unreachable, result)
         assertNull(store.read())

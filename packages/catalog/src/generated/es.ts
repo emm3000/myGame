@@ -25,7 +25,6 @@ export const authSignInSubmit = (): string => `Entrar`
 export const authSignInSwitchLink = (): string => `Crea tu cuenta`
 export const authSignInSwitchPrompt = (): string => `¿Aún no tienes feudo?`
 export const authSignInTitle = (): string => `Entra en tu feudo`
-export const authSignUpFiefName = (): string => `Nombre de tu feudo`
 export const authSignUpPasswordHint = (): string => `Al menos 8 caracteres.`
 export const authSignUpSubmit = (): string => `Crear cuenta`
 export const authSignUpSwitchLink = (): string => `Entra`

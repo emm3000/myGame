@@ -6,8 +6,6 @@ sealed interface SignUpIntent {
 
     data class PasswordChanged(val password: String) : SignUpIntent
 
-    data class FiefNameChanged(val fiefName: String) : SignUpIntent
-
     data object SubmitTapped : SignUpIntent
 
     data object RetryTapped : SignUpIntent

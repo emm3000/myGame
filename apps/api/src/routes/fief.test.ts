@@ -36,6 +36,7 @@ import {
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 import { isWaitingOnALock, lockedFiefReadQuery, lockProbeLimit } from '../lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -175,10 +176,10 @@ const unknownFiefId = '6d1f0c3a-2b4e-4c5d-9e8f-7a6b5c4d3e2f'
 
 const pathOf = (lord: Lord, path: string): string => `/fiefs/${lord.fiefId}${path}`
 
-const signUpRequest = (email: string, fiefName: string): RequestInit => ({
+const signUpRequest = (email: string): RequestInit => ({
   method: 'POST',
   headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ email, password: 'hierro-y-lana', fiefName }),
+  body: JSON.stringify({ email, password: 'hierro-y-lana' }),
 })
 
 const sessionCookieOf = (response: Response): string => {
@@ -212,13 +213,10 @@ describe('the fief route', () => {
   })
 
   const signUp = async (email: string, fiefName: string): Promise<SignedUpPlayer> => {
-    const response = await app.request('/auth/sign-up', signUpRequest(email, fiefName))
+    const response = await app.request('/auth/sign-up', signUpRequest(email))
     const player = PlayerSchema.parse(await response.json())
-    const cookie = sessionCookieOf(response)
-    const fiefs = await app.request('/fiefs', { headers: { cookie } })
-    const [fief] = FiefListSchema.parse(await fiefs.json()).fiefs
-    assert(fief !== undefined)
-    return { cookie, playerId: player.id, fiefId: fief.id }
+    const fiefId = await foundFiefFor(player.id, fiefName, { server, clock })
+    return { cookie: sessionCookieOf(response), playerId: player.id, fiefId }
   }
 
   const storedFiefOf = async ({ fiefId }: SignedUpPlayer) => server.fiefs.fiefOf(fiefId)
