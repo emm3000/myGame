@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
@@ -20,7 +21,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTransitions
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.SchoolPathCounts
 import com.emm.mygame.core.network.TownLessonRefusal
@@ -75,6 +78,11 @@ class SchoolScreenTest {
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
 
+    private fun showSlowRead() {
+        show(SchoolUiState.Loading)
+        composeRule.mainClock.advanceTimeBy(MyGameTransitions.REVEAL_MILLIS + REVEAL_MARGIN_MILLIS)
+    }
+
     private fun show(state: SchoolUiState) {
         composeRule.setContent {
             MyGameTheme {
@@ -107,10 +115,25 @@ class SchoolScreenTest {
         idleSchool.copy(start = SchoolUiState.LessonRequest.Refused(firstLesson, refusal))
 
     @Test
-    fun `draws loading`() {
-        show(SchoolUiState.Loading)
+    fun `draws the skeleton's blocks while a slow read loads`() {
+        showSlowRead()
 
-        composeRule.onNodeWithText("Estamos leyendo tu pueblo…").assertIsDisplayed()
+        composeRule.onAllNodesWithTag(SKELETON_BLOCK, useUnmergedTree = true).assertCountEquals(5)
+    }
+
+    @Test
+    fun `never draws the reading line`() {
+        showSlowRead()
+
+        composeRule.onAllNodesWithText(READING_LINE).assertCountEquals(0)
+    }
+
+    @Test
+    fun `speaks the reading line in a polite live region`() {
+        showSlowRead()
+
+        composeRule.onNodeWithContentDescription(READING_LINE)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
     }
 
     @Test
@@ -588,5 +611,10 @@ class SchoolScreenTest {
 
         showing("+5 % de dinero")
         showing("+5 % de material")
+    }
+
+    private companion object {
+        const val READING_LINE: String = "Estamos leyendo tu pueblo…"
+        const val REVEAL_MARGIN_MILLIS: Long = 50
     }
 }

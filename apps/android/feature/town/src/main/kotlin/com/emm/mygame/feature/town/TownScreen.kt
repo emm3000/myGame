@@ -16,11 +16,12 @@ import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameMetaText
+import com.emm.mygame.core.designsystem.MyGameSizes
+import com.emm.mygame.core.designsystem.MyGameSkeleton
+import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.NextStepCard
@@ -52,42 +53,65 @@ fun TownScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        when (state) {
-            TownUiState.Loading -> MyGameText(
-                text = stringResource(R.string.town_loading),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
-            TownUiState.Failed -> {
-                MyGameErrorBanner(
-                    message = stringResource(R.string.town_refusal_unexpected),
-                    actionLabel = stringResource(R.string.town_try_again),
-                    onAction = { onIntent(TownIntent.RetryTapped) },
+        MyGameSkeleton(
+            isLoading = state == TownUiState.Loading,
+            loadingLabel = stringResource(R.string.town_loading),
+            blocks = townBlocks,
+        ) {
+            TownState(state = state, onIntent = onIntent) { content: TownUiState.Content ->
+                TownHome(
+                    content = content,
+                    onIntent = onIntent,
+                    onSchoolOpen = onSchoolOpen,
+                    onReportOpen = onReportOpen,
+                    onReviewsOpen = onReviewsOpen,
+                    onLessonOpen = onLessonOpen,
+                    header = {
+                        MyGameHeader(end = ring) {
+                            TownTitle(name = content.name, label = content.label)
+                        }
+                        status()
+                    },
                 )
-                SignOut(isBusy = false, onIntent = onIntent)
             }
-            TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
-            is TownUiState.Naming -> {
-                NamingSection(naming = state, onIntent = onIntent)
-                SignOut(isBusy = false, onIntent = onIntent)
-            }
-            is TownUiState.Content -> TownHome(
-                content = state,
-                onIntent = onIntent,
-                onSchoolOpen = onSchoolOpen,
-                onReportOpen = onReportOpen,
-                onReviewsOpen = onReviewsOpen,
-                onLessonOpen = onLessonOpen,
-                header = {
-                    MyGameHeader(end = ring) {
-                        TownTitle(name = state.name, label = state.label)
-                    }
-                    status()
-                },
-            )
         }
     }
 }
+
+@Composable
+private fun TownState(
+    state: TownUiState,
+    onIntent: (TownIntent) -> Unit,
+    home: @Composable (TownUiState.Content) -> Unit,
+) {
+    when (state) {
+        TownUiState.Loading -> Unit
+        TownUiState.Failed -> {
+            MyGameErrorBanner(
+                message = stringResource(R.string.town_refusal_unexpected),
+                actionLabel = stringResource(R.string.town_try_again),
+                onAction = { onIntent(TownIntent.RetryTapped) },
+            )
+            SignOut(isBusy = false, onIntent = onIntent)
+        }
+        TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
+        is TownUiState.Naming -> {
+            NamingSection(naming = state, onIntent = onIntent)
+            SignOut(isBusy = false, onIntent = onIntent)
+        }
+        is TownUiState.Content -> home(state)
+    }
+}
+
+private val townBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
+    listOf(
+        MyGameSizes.control,
+        MyGameSizes.placeCard,
+        MyGameSizes.secondary,
+        MyGameSizes.placeCard,
+        MyGameSizes.thumbnail,
+    ),
+)
 
 @Composable
 private fun SignOut(isBusy: Boolean, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
