@@ -41,9 +41,15 @@ const LessonUnderStudySchema = z.strictObject({
   finishesAt: InstantSchema,
 })
 
+const RetainedWordsSchema = z.strictObject({
+  count: WholeCountSchema,
+  total: WholeCountSchema.positive(),
+})
+
 const LearningLoadSchema = z.strictObject({
   cap: WholeCountSchema.positive(),
   inLearning: WholeCountSchema,
+  retainedWords: RetainedWordsSchema.nullable(),
 })
 
 const TownSeasonSchema = z.strictObject({

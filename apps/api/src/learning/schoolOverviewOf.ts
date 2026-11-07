@@ -7,6 +7,7 @@ import {
   ok,
   type Result,
   readableWordsOf,
+  retainedWordsOf,
   wordStandingOf,
 } from '@mygame/domain'
 import {
@@ -98,6 +99,10 @@ export const schoolOverviewOf = (
       earnedAt: isoOf(earnedAt),
     })),
     lessonSlot: lessonSlotOf(lessonSlot),
-    learning: { cap: school.value.learningCap, inLearning: cardsInLearningOf(cards) },
+    learning: {
+      cap: school.value.learningCap,
+      inLearning: cardsInLearningOf(cards),
+      retainedWords: retainedWordsOf(lessons.lessons(), town.skills, cards),
+    },
   })
 }

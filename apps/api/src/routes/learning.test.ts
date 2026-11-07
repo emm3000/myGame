@@ -456,7 +456,11 @@ describe('the learning routes', () => {
       await runSql(`INSERT INTO cards (player_id, word_id, state, step, entered_at)
         SELECT id, 'filler-' || n, 'learning', 0, '2026-11-10T07:00:00Z' FROM players, generate_series(1, 3) AS n`)
 
-      expect((await readTown(player)).learning).toEqual({ cap: 15, inLearning: 3 })
+      expect((await readTown(player)).learning).toEqual({
+        cap: 15,
+        inLearning: 3,
+        retainedWords: null,
+      })
     })
 
     it('leaves a card out of the cards in learning from a stability of 7 days, retained or not', async () => {
@@ -465,7 +469,11 @@ describe('the learning routes', () => {
         SELECT id, 'steady-' || n, 'review', 6 + n, 5, '2026-11-09T07:00:00Z', 'good', '2026-11-01T07:00:00Z'
         FROM players, generate_series(0, 1) AS n`)
 
-      expect((await readTown(player)).learning).toEqual({ cap: 15, inLearning: 1 })
+      expect((await readTown(player)).learning).toEqual({
+        cap: 15,
+        inLearning: 1,
+        retainedWords: null,
+      })
     })
 
     it('refuses lesson 1 while the school studies it', async () => {
@@ -883,6 +891,22 @@ describe('the learning routes', () => {
         'retained',
         'hold',
       ])
+    })
+
+    it('answers the retained words on the overview', async () => {
+      const player = await studyToTheLastSecondRecall()
+
+      const { learning } = await readTown(player)
+
+      expect(learning.retainedWords).toEqual({ count: 4, total: 5 })
+    })
+
+    it('answers no retained words before the first lesson', async () => {
+      const player = await signUpWithATown()
+
+      const { learning } = await readTown(player)
+
+      expect(learning.retainedWords).toBeNull()
     })
 
     it("earns the food skill at the second recall with the town's rates before and after", async () => {

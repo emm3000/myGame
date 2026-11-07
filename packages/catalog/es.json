@@ -985,6 +985,7 @@
   "shell.navigation.map": "Mapa",
   "shell.navigation.report": "Informe",
   "shell.navigation.town": "Pueblo",
+  "shell.retainedWords": "{count} de {total, plural, =1 {1 palabra aprendida} other {# palabras aprendidas}}",
   "shell.signOut": "Salir",
   "shell.title": "Vadoalto",
   "status.buildHeading": "Obra:",
