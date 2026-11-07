@@ -2,6 +2,7 @@ import { schoolLessonStudied, schoolLessonStudying, schoolLessons } from '@mygam
 import { type ReactElement, useId } from 'react'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import type { LessonCardContent } from './lessonCardOf'
+import { SchoolPath } from './SchoolPath'
 
 const statusOf = ({ state }: LessonCardContent): string | undefined => {
   switch (state.kind) {
@@ -38,7 +39,7 @@ function RowContent({ card }: { readonly card: LessonCardContent }): ReactElemen
   )
 }
 
-const rowClass = 'flex w-full flex-col items-start gap-1 py-3 text-left'
+const rowClass = 'flex w-full flex-col items-start gap-1 pt-3 text-left'
 
 function LessonRow({
   card,
@@ -48,7 +49,10 @@ function LessonRow({
   readonly onSelect: (lessonId: string) => void
 }): ReactElement {
   return (
-    <li aria-label={card.title} className="border-line border-t first:border-t-0">
+    <li
+      aria-label={card.title}
+      className="flex flex-col gap-2 border-line border-t pb-3 first:border-t-0"
+    >
       {card.state.kind !== 'studied' ? (
         <button
           type="button"
@@ -62,6 +66,7 @@ function LessonRow({
           <RowContent card={card} />
         </div>
       )}
+      <SchoolPath standings={card.standings} />
     </li>
   )
 }

@@ -370,6 +370,7 @@ export const schoolLessonNeedsSchool = ({ level }: { readonly level: string | nu
 export const schoolLessonNext = (): string => `Siguiente lección`
 export const schoolLessonNothingToRead = (): string => `Ahora no hay palabras para leer.`
 export const schoolLessonReadWords = (): string => `Leer las palabras`
+export const schoolLessonReward = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `Habilidad de ${String(resource)}: +${String(percent)} %`
 export const schoolLessonSlotBusy = ({ number }: { readonly number: string | number }): string => `La escuela está estudiando la lección ${String(number)}.`
 export const schoolLessonStudied = (): string => `Estudiada`
 export const schoolLessonStudy = ({ number }: { readonly number: string | number }): string => `Estudiar la lección ${String(number)}`
@@ -380,6 +381,11 @@ export const schoolLessonWordPosition = ({ count, number }: { readonly count: st
 export const schoolLessonWordThen = (): string => `Cuando termine la lección, empiezan los repasos.`
 export const schoolLessonWords = ({ count }: { readonly count: number }): string => `${count === 1 ? `1 palabra` : `${String(count)} palabras`}`
 export const schoolLessons = (): string => `Lecciones`
+export const schoolPathCount = ({ count, total }: { readonly count: string | number; readonly total: string | number }): string => `${String(count)} de ${String(total)}`
+export const schoolPathLearned = (): string => `Aprendidas`
+export const schoolPathRead = (): string => `Leídas`
+export const schoolPathReviewed = (): string => `Repasadas`
+export const schoolPathStudied = (): string => `Estudiadas`
 export const schoolSkillName = ({ level, resource }: { readonly level: string | number; readonly resource: string | number }): string => `Habilidad de ${String(resource)}, nivel ${String(level)}`
 export const schoolSkillRate = ({ percent, resource }: { readonly percent: string | number; readonly resource: string | number }): string => `+${String(percent)} % de ${String(resource)}`
 export const schoolSkills = (): string => `Tus habilidades`
