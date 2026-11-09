@@ -4,11 +4,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
-import { ReadingLine } from '../../design-system/ReadingLine'
+import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
 import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
 import { reportNewsRowOf } from '../../report/reportNewsRowOf'
-import { useReport } from '../../report/useReport'
+import { type ReportHandle, useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { useReportClose } from '../../report/useReportClose'
 import { formatClock } from '../../time/formatClock'
@@ -43,16 +43,21 @@ function ReportPage({
   )
 }
 
-function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElement {
-  const { state, reread } = useReport(apiClient)
-  useReportAtLessonFinish(useLayoutTown().state, reread)
+const reportSkeletonGroups: LoadingSkeletonProps['groups'] = [
+  ['thumbnail', 'action', 'control', 'control', 'control'],
+]
+
+function ReportAnswer({
+  apiClient,
+  report,
+}: {
+  readonly apiClient: ApiClient
+  readonly report: ReportHandle
+}): ReactElement | null {
+  const { state, reread } = report
   switch (state.kind) {
     case 'loading':
-      return (
-        <ReportTitled>
-          <ReadingLine line={reportLoading()} />
-        </ReportTitled>
-      )
+      return null
     case 'refused':
       return (
         <ReportTitled>
@@ -68,6 +73,21 @@ function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElem
       return unreachable
     }
   }
+}
+
+function ReportBody({ apiClient }: { readonly apiClient: ApiClient }): ReactElement {
+  const report = useReport(apiClient)
+  useReportAtLessonFinish(useLayoutTown().state, report.reread)
+  return (
+    <LoadingSkeleton
+      isLoading={report.state.kind === 'loading'}
+      line={reportLoading()}
+      groups={reportSkeletonGroups}
+      Frame={ReportTitled}
+    >
+      <ReportAnswer apiClient={apiClient} report={report} />
+    </LoadingSkeleton>
+  )
 }
 
 function ReportRoute(): ReactElement {

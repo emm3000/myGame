@@ -1,5 +1,6 @@
 import {
   namesPlacesSchool,
+  reportLoading,
   reportStartReviews,
   reviewTitle,
   schoolLessonNext,
@@ -18,6 +19,12 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  answeringOnDemand,
+  holdSeconds,
+  revealSeconds,
+  skeletonBlocks,
+} from '../design-system/loadingSkeleton.testSupport'
 import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -400,11 +407,164 @@ it('sends no write while the player reads', async () => {
   expect([...calls].filter((name) => !reads.includes(name))).toEqual([])
 })
 
-it('shows the town loading before the first read', async () => {
-  const unanswered = new Promise<ApiOutcome<TownOverview>>(() => undefined)
-  await showLesson('/school/lesson-1', townOf({}), { town: () => unanswered })
+const townNeverAnswers: ApiClient['town'] = () => new Promise(() => undefined)
 
-  expect(screen.getByText(townLoading())).toBeDefined()
+const reportNeverAnswers: ApiClient['report'] = () => new Promise(() => undefined)
+
+const firstWordLine = (): HTMLElement | null => screen.queryByText('first1')
+
+const refusedRead = async (): Promise<ApiOutcome<never>> => ({ ok: false, refusal: 'Unexpected' })
+
+it('keeps the town loading line in a status region before the first read', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { town: townNeverAnswers })
+
+  expect(screen.getByRole('status').textContent).toBe(townLoading())
+})
+
+it('keeps the report loading line in a status region while the Report reads', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { report: reportNeverAnswers })
+
+  expect(screen.getByRole('status').textContent).toBe(reportLoading())
+})
+
+it('never draws the loading line of the words on the screen', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { report: reportNeverAnswers })
+
+  expect(screen.getByRole('status').className.split(' ')).toContain('sr-only')
+})
+
+it('draws no skeleton when the Report answers inside the reveal delay', async () => {
+  const slow = answeringOnDemand(reportOf([]))
+  await showLesson('/school/lesson-1', townOf({}), { report: slow.read })
+  await passSeconds(revealSeconds / 2)
+
+  slow.answer()
+  await passSeconds(0)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(firstWordLine()).not.toBeNull()
+})
+
+it('shows the skeleton when the Report read is slow', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { report: reportNeverAnswers })
+
+  await passSeconds(revealSeconds)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(firstWordLine()).toBeNull()
+})
+
+it('shows the skeleton when the town read is slow', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { town: townNeverAnswers })
+
+  await passSeconds(revealSeconds)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+})
+
+it('counts one reveal delay across the town read and the Report read', async () => {
+  const slowTown = answeringOnDemand(townOf({}))
+  await showLesson('/school/lesson-1', townOf({}), {
+    town: slowTown.read,
+    report: reportNeverAnswers,
+  })
+  await passSeconds(revealSeconds / 2)
+  slowTown.answer()
+  await passSeconds(0)
+
+  await passSeconds(revealSeconds / 2)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+})
+
+it('keeps the skeleton for the minimum hold when the Report answers just after it appears', async () => {
+  const slow = answeringOnDemand(reportOf([]))
+  await showLesson('/school/lesson-1', townOf({}), { report: slow.read })
+  await passSeconds(revealSeconds)
+
+  slow.answer()
+  await passSeconds(holdSeconds / 2)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(firstWordLine()).toBeNull()
+})
+
+it('draws the word once the minimum hold ends', async () => {
+  const slow = answeringOnDemand(reportOf([]))
+  await showLesson('/school/lesson-1', townOf({}), { report: slow.read })
+  await passSeconds(revealSeconds)
+  slow.answer()
+
+  await passSeconds(holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(firstWordLine()).not.toBeNull()
+})
+
+it('keeps the school title above the skeleton of the words', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { report: reportNeverAnswers })
+
+  await passSeconds(revealSeconds)
+
+  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+})
+
+it('holds the skeleton to the column of the words', async () => {
+  await showLesson('/school/lesson-1', townOf({}), { report: reportNeverAnswers })
+
+  await passSeconds(revealSeconds)
+
+  expect(document.querySelector('.max-w-form [data-skeleton-block]')).not.toBeNull()
+})
+
+it.each<[string, Partial<ApiClient>]>([
+  ['town', { town: refusedRead }],
+  ['Report', { report: refusedRead }],
+])('draws no skeleton on a refused %s read, only the retry', async (_read, overrides) => {
+  await showLesson('/school/lesson-1', townOf({}), overrides)
+
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+})
+
+it('draws the refused town at once while the Report still reads', async () => {
+  await showLesson('/school/lesson-1', townOf({}), {
+    town: refusedRead,
+    report: reportNeverAnswers,
+  })
+
+  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+  expect(screen.queryByRole('status')).toBeNull()
+})
+
+const fromTheSchool = async (report: ApiClient['report']): Promise<void> => {
+  const town = vi
+    .fn<ApiClient['town']>()
+    .mockResolvedValueOnce({ ok: true, value: townOf({}) })
+    .mockImplementation(townNeverAnswers)
+  const router = renderAppAt(
+    '/school',
+    stubApiClient({ currentPlayer: async () => knownPlayer, town, report }),
+  )
+  await passSeconds(0)
+  await act(() => router.navigate({ to: '/school/$lessonId', params: { lessonId: 'lesson-1' } }))
+  await passSeconds(0)
+}
+
+it('reads the held town with no town loading line when coming from the school', async () => {
+  await fromTheSchool(reportNeverAnswers)
+
+  expect(screen.getByRole('status').textContent).toBe(reportLoading())
+})
+
+it('draws the word of the held town with no loading state on a fast Report', async () => {
+  await fromTheSchool(async () => ({ ok: true, value: reportOf([]) }))
+
+  expect(firstWordLine()).not.toBeNull()
+  expect(screen.queryByRole('status')).toBeNull()
+  expect(skeletonBlocks()).toEqual([])
 })
 
 it('retries a failed town read', async () => {

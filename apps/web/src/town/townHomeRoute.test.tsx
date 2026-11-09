@@ -35,8 +35,13 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { numberBefore } from '../design/android/numberBefore'
-import { durations, palette } from '../design/tokens'
+import { palette } from '../design/tokens'
+import {
+  answeringOnDemand,
+  holdSeconds,
+  revealSeconds,
+  skeletonBlocks,
+} from '../design-system/loadingSkeleton.testSupport'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
@@ -66,27 +71,8 @@ const showTown = async (apiClient: ApiClient): Promise<void> => {
 
 const stockCell = (name: string): HTMLElement => screen.getByRole('listitem', { name })
 
-const revealSeconds = numberBefore('ms', durations.reveal) / 1000
-const holdSeconds = numberBefore('ms', durations.hold) / 1000
-
-const skeletonBlocks = (): ReadonlyArray<Element> => [
-  ...document.querySelectorAll('[data-skeleton-block]'),
-]
-
 const townHomeLink = (): HTMLElement | null =>
   screen.queryByRole('link', { name: townGoToSchool() })
-
-const answeringOnDemand = (): {
-  readonly town: () => Promise<ApiOutcome<TownOverview>>
-  readonly answer: () => void
-} => {
-  let answer = (): void => undefined
-  const town = (): Promise<ApiOutcome<TownOverview>> =>
-    new Promise((resolve) => {
-      answer = () => resolve({ ok: true, value: knownTown })
-    })
-  return { town, answer: () => answer() }
-}
 
 it('keeps the loading line in a status region while the town loads', async () => {
   await showTown(serving(knownTown, { town: () => new Promise(() => undefined) }))
@@ -101,8 +87,8 @@ it('never draws the loading line on the screen', async () => {
 })
 
 it('renders no skeleton when the town answers inside the reveal delay', async () => {
-  const slow = answeringOnDemand()
-  await showTown(serving(knownTown, { town: slow.town }))
+  const slow = answeringOnDemand(knownTown)
+  await showTown(serving(knownTown, { town: slow.read }))
   await passSeconds(revealSeconds / 2)
 
   slow.answer()
@@ -122,8 +108,8 @@ it('shows the skeleton when the town read is slow', async () => {
 })
 
 it('keeps the skeleton for the minimum hold when the town answers just after it appears', async () => {
-  const slow = answeringOnDemand()
-  await showTown(serving(knownTown, { town: slow.town }))
+  const slow = answeringOnDemand(knownTown)
+  await showTown(serving(knownTown, { town: slow.read }))
   await passSeconds(revealSeconds)
 
   slow.answer()
@@ -134,8 +120,8 @@ it('keeps the skeleton for the minimum hold when the town answers just after it 
 })
 
 it('draws the town once the minimum hold ends', async () => {
-  const slow = answeringOnDemand()
-  await showTown(serving(knownTown, { town: slow.town }))
+  const slow = answeringOnDemand(knownTown)
+  await showTown(serving(knownTown, { town: slow.read }))
   await passSeconds(revealSeconds)
   slow.answer()
 
