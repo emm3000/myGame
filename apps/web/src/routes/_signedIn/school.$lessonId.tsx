@@ -1,7 +1,7 @@
 import { reportLoading, townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
-import type { ReactElement } from 'react'
-import { ReadingLine } from '../../design-system/ReadingLine'
+import type { ReactElement, ReactNode } from 'react'
+import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { type ReportHandle, useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { LessonWordsScreen } from '../../school/LessonWordsScreen'
@@ -13,6 +13,7 @@ import { wayOnOf } from '../../school/wayOnOf'
 import type { LiveTown } from '../../town/liveTown'
 import { TownReadFailed } from '../../town/TownReadFailed'
 import { useLayoutTown } from '../../town/useLayoutTown'
+import type { TownHandle } from '../../town/useTown'
 
 function LessonPage({
   town,
@@ -22,16 +23,12 @@ function LessonPage({
   readonly town: LiveTown
   readonly lessonId: string
   readonly report: ReportHandle
-}): ReactElement {
+}): ReactElement | null {
   const opened = useOpenedLessons(lessonId)
   const { state, reread } = report
   switch (state.kind) {
     case 'loading':
-      return (
-        <SchoolTitled>
-          <ReadingLine line={reportLoading()} />
-        </SchoolTitled>
-      )
+      return null
     case 'refused':
       return (
         <SchoolTitled>
@@ -57,19 +54,28 @@ function LessonPage({
   }
 }
 
-function LessonRoute(): ReactElement {
-  const { apiClient } = Route.useRouteContext()
-  const { lessonId } = Route.useParams()
-  const town = useLayoutTown()
-  const report = useReport(apiClient)
-  useReportAtLessonFinish(town.state, report.reread)
+const lessonSkeletonGroups: LoadingSkeletonProps['groups'] = [['control', 'place-card', 'action']]
+
+function LessonSkeletonFrame({ children }: { readonly children: ReactNode }): ReactElement {
+  return (
+    <div className="mx-auto w-full max-w-form">
+      <SchoolTitled>{children}</SchoolTitled>
+    </div>
+  )
+}
+
+function LessonAnswer({
+  town,
+  lessonId,
+  report,
+}: {
+  readonly town: TownHandle
+  readonly lessonId: string
+  readonly report: ReportHandle
+}): ReactElement | null {
   switch (town.state.kind) {
     case 'loading':
-      return (
-        <SchoolTitled>
-          <ReadingLine line={townLoading()} />
-        </SchoolTitled>
-      )
+      return null
     case 'noTown':
       return <Navigate to="/" />
     case 'refused':
@@ -85,6 +91,26 @@ function LessonRoute(): ReactElement {
       return unreachable
     }
   }
+}
+
+function LessonRoute(): ReactElement {
+  const { apiClient } = Route.useRouteContext()
+  const { lessonId } = Route.useParams()
+  const town = useLayoutTown()
+  const report = useReport(apiClient)
+  useReportAtLessonFinish(town.state, report.reread)
+  const isTownLoading = town.state.kind === 'loading'
+  const isReportLoading = town.state.kind === 'live' && report.state.kind === 'loading'
+  return (
+    <LoadingSkeleton
+      isLoading={isTownLoading || isReportLoading}
+      line={isTownLoading ? townLoading() : reportLoading()}
+      groups={lessonSkeletonGroups}
+      Frame={LessonSkeletonFrame}
+    >
+      <LessonAnswer town={town} lessonId={lessonId} report={report} />
+    </LoadingSkeleton>
+  )
 }
 
 export const Route = createFileRoute('/_signedIn/school/$lessonId')({

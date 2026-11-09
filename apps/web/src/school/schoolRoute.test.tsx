@@ -38,9 +38,13 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { numberBefore } from '../design/android/numberBefore'
-import { durations } from '../design/tokens'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
+import {
+  answeringOnDemand,
+  holdSeconds,
+  revealSeconds,
+  skeletonBlocks,
+} from '../design-system/loadingSkeleton.testSupport'
 import { inkPills } from './inkPills.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
@@ -704,13 +708,6 @@ it('holds one ink pill on the school with a failed read', async () => {
   expect(inkPills()).toEqual([townTryAgain()])
 })
 
-const revealSeconds = numberBefore('ms', durations.reveal) / 1000
-const holdSeconds = numberBefore('ms', durations.hold) / 1000
-
-const skeletonBlocks = (): ReadonlyArray<Element> => [
-  ...document.querySelectorAll('[data-skeleton-block]'),
-]
-
 const schoolLevelLine = (): HTMLElement | null =>
   screen.queryByText(townLevel({ level: knownTown.buildings.school.level }))
 
@@ -748,16 +745,11 @@ it('keeps the school title above the skeleton', async () => {
 })
 
 it('keeps the school skeleton for the minimum hold when the town answers just after it appears', async () => {
-  let answer = (): void => undefined
-  await showSchool(schoolOf({}), {
-    town: () =>
-      new Promise((resolve) => {
-        answer = () => resolve({ ok: true, value: schoolOf({}) })
-      }),
-  })
+  const slow = answeringOnDemand(schoolOf({}))
+  await showSchool(schoolOf({}), { town: slow.read })
   await passSeconds(revealSeconds)
 
-  answer()
+  slow.answer()
   await passSeconds(holdSeconds / 2)
 
   expect(skeletonBlocks().length).toBeGreaterThan(0)

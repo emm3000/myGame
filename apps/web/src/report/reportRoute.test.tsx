@@ -23,6 +23,12 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import {
+  answeringOnDemand,
+  holdSeconds,
+  revealSeconds,
+  skeletonBlocks,
+} from '../design-system/loadingSkeleton.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -114,10 +120,105 @@ const newsRegion = (): HTMLElement => screen.getByRole('region', { name: reportN
 
 const closeButton = (): HTMLElement => screen.getByRole('button', { name: reportNewsClose() })
 
-it('reads the Report while it is on its way', async () => {
-  await showReport(() => new Promise(() => undefined))
+const neverAnswering: ApiClient['report'] = () => new Promise(() => undefined)
+
+const reviewsDueLine = (): HTMLElement | null => screen.queryByText(reportReviewsDue({ count: 3 }))
+
+it('keeps the loading line in a status region while the Report reads', async () => {
+  await showReport(neverAnswering)
 
   expect(screen.getByRole('status').textContent).toBe(reportLoading())
+})
+
+it('never draws the loading line of the Report on the screen', async () => {
+  await showReport(neverAnswering)
+
+  expect(screen.getByRole('status').className.split(' ')).toContain('sr-only')
+})
+
+it('draws no skeleton when the Report answers inside the reveal delay', async () => {
+  const slow = answeringOnDemand(reviewsDue)
+  await showReport(slow.read)
+  await passSeconds(revealSeconds / 2)
+
+  slow.answer()
+  await passSeconds(0)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(reviewsDueLine()).not.toBeNull()
+})
+
+it('shows the skeleton when the Report read is slow', async () => {
+  await showReport(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(reviewsDueLine()).toBeNull()
+})
+
+it('keeps the Report title above the skeleton', async () => {
+  await showReport(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(screen.getByRole('heading', { level: 1, name: reportTitle() })).toBeDefined()
+})
+
+it('keeps the Report skeleton for the minimum hold when the read answers just after it appears', async () => {
+  const slow = answeringOnDemand(reviewsDue)
+  await showReport(slow.read)
+  await passSeconds(revealSeconds)
+
+  slow.answer()
+  await passSeconds(holdSeconds / 2)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(reviewsDueLine()).toBeNull()
+})
+
+it('draws the Report once the minimum hold ends', async () => {
+  const slow = answeringOnDemand(reviewsDue)
+  await showReport(slow.read)
+  await passSeconds(revealSeconds)
+  slow.answer()
+
+  await passSeconds(holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(reviewsDueLine()).not.toBeNull()
+})
+
+it('draws no skeleton on a refused read of the Report, only the retry', async () => {
+  await showReport(async () => ({ ok: false, refusal: 'Unexpected' }))
+
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+})
+
+it('keeps the refused Report on screen while its retry is on its way', async () => {
+  const report = vi
+    .fn<ApiClient['report']>()
+    .mockResolvedValueOnce({ ok: false, refusal: 'Unexpected' })
+    .mockImplementation(neverAnswering)
+  await showReport(report)
+
+  fireEvent.click(screen.getByRole('button', { name: townTryAgain() }))
+  await passSeconds(0)
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByText(refusalUnexpected())).toBeDefined()
+})
+
+it('keeps sign-out under the Report skeleton', async () => {
+  await showReport(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(signOutButton()).toBeDefined()
 })
 
 it('reads a failed Report by its refusal with a way to read it again', async () => {
@@ -496,6 +597,14 @@ it.each<[string, Report]>([
   ['no news', reportOf({})],
 ])('holds one h1 on the Report with %s', async (_state, report) => {
   await showReport(report)
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    reportTitle(),
+  ])
+})
+
+it('holds one h1 on the Report with the Report loading', async () => {
+  await showReport(neverAnswering)
 
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
     reportTitle(),

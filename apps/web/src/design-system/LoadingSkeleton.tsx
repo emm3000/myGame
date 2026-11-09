@@ -58,8 +58,9 @@ function SkeletonBlocks({
 }: {
   readonly groups: LoadingSkeletonProps['groups']
 }): ReactElement {
+  const columnsClass = groups.length > 1 ? 'lg:grid-cols-2' : ''
   return (
-    <div aria-hidden="true" className="grid items-start gap-6 lg:grid-cols-2">
+    <div aria-hidden="true" className={`grid items-start gap-6 ${columnsClass}`}>
       {groups.map((blocks, groupIndex) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: a fixed shape that never reorders
         <div key={groupIndex} className="flex min-w-0 flex-col gap-6">
