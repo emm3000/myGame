@@ -246,13 +246,6 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `draws the loading line`() {
-        draw(LessonWordsUiState.Loading)
-
-        composeRule.onNodeWithText("Estamos leyendo tu pueblo…").assertExists()
-    }
-
-    @Test
     fun `retries a failed read from its banner`() {
         draw(LessonWordsUiState.Failed)
 

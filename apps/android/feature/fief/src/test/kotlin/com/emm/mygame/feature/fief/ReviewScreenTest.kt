@@ -125,6 +125,16 @@ class ReviewScreenTest {
         assertEquals(listOf<ReviewIntent>(ReviewIntent.ChoiceChosen(ChoiceId("4e5f6a7b"))), intents)
     }
 
+    @Test
+    fun `retries a failed read from its banner`() {
+        val intents: MutableList<ReviewIntent> = mutableListOf()
+        draw(ReviewUiState.Failed, onIntent = { intent: ReviewIntent -> intents += intent })
+
+        composeRule.onNodeWithText("Volver a intentarlo").performClick()
+
+        assertEquals(listOf<ReviewIntent>(ReviewIntent.RetryTapped), intents)
+    }
+
     private fun recalling(
         step: ReviewUiState.ReviewStep,
         typed: String = "",
