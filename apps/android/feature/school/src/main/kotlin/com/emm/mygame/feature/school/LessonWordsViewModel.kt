@@ -2,6 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.TownReadResult
@@ -78,6 +79,8 @@ class LessonWordsViewModel(
     }
 
     private fun open() {
+        val held: HeldTown? = towns.town.value?.takeIf(::isDrawnAlone)
+        if (held != null) return openHeld(held)
         _state.value = LessonWordsUiState.Loading
         following = viewModelScope.launch {
             when (val answer: LessonAnswer = read()) {
@@ -86,6 +89,16 @@ class LessonWordsViewModel(
                 LessonAnswer.Unreachable -> _state.value = LessonWordsUiState.Failed
             }
         }
+    }
+
+    private fun isDrawnAlone(held: HeldTown): Boolean =
+        LessonRead(held.town, readFirst = null).isDrawableWithoutReport(walk.lesson, clock.now() + held.gap)
+
+    private fun openHeld(held: HeldTown) {
+        gap = held.gap
+        val read: LessonRead = LessonRead(held.town, readFirst = null)
+        draw(read)
+        following = viewModelScope.launch { follow(read, firstReadAt = serverNow()) }
     }
 
     private fun showNextWord() {

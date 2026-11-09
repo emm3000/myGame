@@ -7,7 +7,15 @@ import com.emm.mygame.core.projection.countdownTo
 import kotlin.time.Duration
 import kotlin.time.Instant
 
-internal data class LessonRead(val town: TownSnapshot, val readFirst: List<LessonId>) {
+internal data class LessonRead(val town: TownSnapshot, val readFirst: List<LessonId>?) {
+
+    fun isDrawableWithoutReport(lesson: LessonId, now: Instant): Boolean {
+        val readings: List<TownSnapshot.WordReading> = town.lessons
+            .firstOrNull { candidate: TownSnapshot.Lesson -> candidate.id == lesson }
+            ?.readings
+            .orEmpty()
+        return readings.isEmpty() || remainingOf(lesson, now) != null
+    }
 
     fun nextFinishAfter(now: Instant): Instant? =
         town.lessonSlot?.finishesAt?.takeIf { finish: Instant -> finish > now }
@@ -29,7 +37,7 @@ internal data class LessonRead(val town: TownSnapshot, val readFirst: List<Lesso
             words = lesson.readings,
             index = minOf(wordIndex, lesson.readings.lastIndex),
             remaining = remaining,
-            wayOn = if (remaining == null) wayOnOf(readFirst, walk.opened) else null,
+            wayOn = if (remaining == null && readFirst != null) wayOnOf(readFirst, walk.opened) else null,
         )
     }
 }
