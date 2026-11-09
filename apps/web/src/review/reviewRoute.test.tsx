@@ -30,6 +30,14 @@ import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { CheckIcon } from '../design-system/icons/CheckIcon'
 import { CrossIcon } from '../design-system/icons/CrossIcon'
+import {
+  answeringOnDemand,
+  holdSeconds,
+  neverAnswering,
+  refusedRead,
+  revealSeconds,
+  skeletonBlocks,
+} from '../design-system/loadingSkeleton.testSupport'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
 beforeEach(() => {
@@ -594,4 +602,136 @@ it.each<[string, Reviews | ApiClient['reviews']]>([
   expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
     reviewTitle(),
   ])
+})
+
+it('shows the skeleton when the reviews read is slow', async () => {
+  await showReview(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+})
+
+it('draws the skeleton shaped like the due line, a review card, its answer and the pill', async () => {
+  await showReview(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  const heights = skeletonBlocks().map((block) =>
+    block.className.split(' ').find((name) => /^(min-h|size)-/.test(name)),
+  )
+  expect(heights).toEqual(['min-h-control', 'size-place-card', 'size-thumbnail', 'min-h-action'])
+})
+
+it('draws no skeleton when the reviews answer inside the reveal delay', async () => {
+  const slow = answeringOnDemand(recallDue)
+  await showReview(slow.read)
+  await passSeconds(revealSeconds / 2)
+
+  slow.answer()
+  await passSeconds(0)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByText('escuela')).toBeDefined()
+})
+
+it('keeps the skeleton for the minimum hold when the reviews answer just after it appears', async () => {
+  const slow = answeringOnDemand(recallDue)
+  await showReview(slow.read)
+  await passSeconds(revealSeconds)
+
+  slow.answer()
+  await passSeconds(holdSeconds / 2)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(screen.queryByText('escuela')).toBeNull()
+})
+
+it('draws the due card once the minimum hold ends', async () => {
+  const slow = answeringOnDemand(recallDue)
+  await showReview(slow.read)
+  await passSeconds(revealSeconds)
+  slow.answer()
+
+  await passSeconds(holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByText('escuela')).toBeDefined()
+})
+
+it('keeps the loading line in a status region while the reviews read', async () => {
+  await showReview(neverAnswering)
+
+  expect(screen.getByRole('status').textContent).toBe(reviewLoading())
+})
+
+it('never draws the loading line of the review on the screen', async () => {
+  await showReview(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(screen.getByRole('status').className.split(' ')).toContain('sr-only')
+})
+
+it('keeps the review title above the skeleton', async () => {
+  await showReview(neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(screen.getByRole('heading', { level: 1, name: reviewTitle() })).toBeDefined()
+})
+
+it('holds one h1 on the review with the reviews loading', async () => {
+  await showReview(neverAnswering)
+
+  expect(screen.getAllByRole('heading', { level: 1 }).map((h1) => h1.textContent)).toEqual([
+    reviewTitle(),
+  ])
+})
+
+it('draws no skeleton on a refused read of the reviews, only the retry', async () => {
+  await showReview(refusedRead)
+
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByRole('button', { name: reviewRetry() })).toBeDefined()
+})
+
+it('keeps the refused review on screen while its retry is on its way', async () => {
+  const reviews = vi
+    .fn<ApiClient['reviews']>()
+    .mockImplementationOnce(refusedRead)
+    .mockImplementation(neverAnswering)
+  await showReview(reviews)
+
+  fireEvent.click(screen.getByRole('button', { name: reviewRetry() }))
+  await passSeconds(0)
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByText(reviewFailed())).toBeDefined()
+})
+
+it('draws the nothing-due line with no skeleton on a fast read', async () => {
+  await showReview(nothingDue)
+
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByText(reviewNothingDue())).toBeDefined()
+})
+
+it('draws no skeleton under a card when a re-read after an answer is slow', async () => {
+  const reviews = vi
+    .fn<ApiClient['reviews']>()
+    .mockResolvedValueOnce({ ok: true, value: recallDue })
+    .mockImplementation(neverAnswering)
+  await showReview(reviews, { answerReview: answering({ kind: 'nearMiss' }) })
+
+  await typeAndCheck('schol')
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByText('escuela')).toBeDefined()
 })

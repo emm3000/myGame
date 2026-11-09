@@ -42,6 +42,7 @@ import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionO
 import {
   answeringOnDemand,
   holdSeconds,
+  neverAnswering,
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
@@ -711,16 +712,16 @@ it('holds one ink pill on the school with a failed read', async () => {
 const schoolLevelLine = (): HTMLElement | null =>
   screen.queryByText(townLevel({ level: knownTown.buildings.school.level }))
 
-const neverAnswering: Partial<ApiClient> = { town: () => new Promise(() => undefined) }
+const townNeverAnswering: Partial<ApiClient> = { town: neverAnswering }
 
 it('keeps the loading line in a status region while the school loads', async () => {
-  await showSchool(schoolOf({}), neverAnswering)
+  await showSchool(schoolOf({}), townNeverAnswering)
 
   expect(screen.getByRole('status').textContent).toBe(townLoading())
 })
 
 it('renders no skeleton on the school before the reveal delay', async () => {
-  await showSchool(schoolOf({}), neverAnswering)
+  await showSchool(schoolOf({}), townNeverAnswering)
 
   await passSeconds(revealSeconds / 2)
 
@@ -728,7 +729,7 @@ it('renders no skeleton on the school before the reveal delay', async () => {
 })
 
 it('shows the skeleton on the school when the town read is slow', async () => {
-  await showSchool(schoolOf({}), neverAnswering)
+  await showSchool(schoolOf({}), townNeverAnswering)
 
   await passSeconds(revealSeconds)
 
@@ -737,7 +738,7 @@ it('shows the skeleton on the school when the town read is slow', async () => {
 })
 
 it('keeps the school title above the skeleton', async () => {
-  await showSchool(schoolOf({}), neverAnswering)
+  await showSchool(schoolOf({}), townNeverAnswering)
 
   await passSeconds(revealSeconds)
 

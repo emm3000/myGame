@@ -9,6 +9,13 @@ export const skeletonBlocks = (): ReadonlyArray<Element> => [
   ...document.querySelectorAll('[data-skeleton-block]'),
 ]
 
+export const neverAnswering = <T>(): Promise<ApiOutcome<T>> => new Promise(() => undefined)
+
+export const refusedRead = async (): Promise<ApiOutcome<never>> => ({
+  ok: false,
+  refusal: 'Unexpected',
+})
+
 export const answeringOnDemand = <T>(
   value: T,
 ): {
