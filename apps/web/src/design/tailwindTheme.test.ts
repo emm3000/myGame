@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import { compile } from '@tailwindcss/node'
 import { expect, it } from 'vitest'
 import {
+  durations,
+  easings,
   heights,
   maxWidths,
   minHeights,
@@ -94,6 +96,47 @@ it('exposes a Tailwind transition utility for every transition token', async () 
   const css = stylesheet.build(entries.map(([name]) => `transition-${name}`))
 
   expect(entries.filter(([, value]) => !css.includes(`transition: ${value}`))).toEqual([])
+})
+
+it('runs the skeleton pulse over calm, there and back forever', async () => {
+  const stylesheet = await compileStylesheet()
+
+  const css = stylesheet.build(['motion-safe:animate-skeleton-pulse'])
+
+  expect(css).toContain(
+    `animation: skeleton-pulse ${durations.calm} ${easings.standard} infinite alternate`,
+  )
+})
+
+it('applies the skeleton pulse only when motion is allowed', async () => {
+  const stylesheet = await compileStylesheet()
+
+  const css = stylesheet.build(['motion-safe:animate-skeleton-pulse'])
+
+  const motionQuery = css.indexOf('@media (prefers-reduced-motion: no-preference)')
+  expect(motionQuery).toBeGreaterThan(-1)
+  expect(css.indexOf('animation: skeleton-pulse')).toBeGreaterThan(motionQuery)
+})
+
+it('starts the skeleton pulse on surface-sunken', async () => {
+  const stylesheet = await compileStylesheet()
+
+  const css = stylesheet.build(['motion-safe:animate-skeleton-pulse'])
+
+  expect(ruleOf(css, '@keyframes skeleton-pulse')).toContain(
+    'background-color: var(--surface-sunken)',
+  )
+})
+
+it('peaks the skeleton pulse half way to surface, so it never fades into the background', async () => {
+  const stylesheet = await compileStylesheet()
+
+  const css = stylesheet.build(['motion-safe:animate-skeleton-pulse'])
+
+  expect(css).toContain(
+    'background-color: color-mix(in srgb, var(--surface-sunken), var(--surface) 50%)',
+  )
+  expect(css).not.toMatch(/background-color: var\(--surface\)/)
 })
 
 function ruleOf(css: string, selector: string): string {

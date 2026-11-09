@@ -24,6 +24,7 @@ import {
   schoolSlotDone,
   schoolSlotStopOf,
   townGoToSchool,
+  townLevel,
   townLoading,
   townNamingTitle,
   townNextGoToReport,
@@ -37,6 +38,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { numberBefore } from '../design/android/numberBefore'
+import { durations } from '../design/tokens'
 import { accessibleDescriptionOf } from '../design-system/accessibleDescriptionOf.testSupport'
 import { inkPills } from './inkPills.testSupport'
 
@@ -699,6 +702,75 @@ it('holds one ink pill on the school with a failed read', async () => {
   await showSchool(schoolOf({}), { town: async () => ({ ok: false, refusal: 'Unexpected' }) })
 
   expect(inkPills()).toEqual([townTryAgain()])
+})
+
+const revealSeconds = numberBefore('ms', durations.reveal) / 1000
+const holdSeconds = numberBefore('ms', durations.hold) / 1000
+
+const skeletonBlocks = (): ReadonlyArray<Element> => [
+  ...document.querySelectorAll('[data-skeleton-block]'),
+]
+
+const schoolLevelLine = (): HTMLElement | null =>
+  screen.queryByText(townLevel({ level: knownTown.buildings.school.level }))
+
+const neverAnswering: Partial<ApiClient> = { town: () => new Promise(() => undefined) }
+
+it('keeps the loading line in a status region while the school loads', async () => {
+  await showSchool(schoolOf({}), neverAnswering)
+
+  expect(screen.getByRole('status').textContent).toBe(townLoading())
+})
+
+it('renders no skeleton on the school before the reveal delay', async () => {
+  await showSchool(schoolOf({}), neverAnswering)
+
+  await passSeconds(revealSeconds / 2)
+
+  expect(skeletonBlocks()).toEqual([])
+})
+
+it('shows the skeleton on the school when the town read is slow', async () => {
+  await showSchool(schoolOf({}), neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(schoolLevelLine()).toBeNull()
+})
+
+it('keeps the school title above the skeleton', async () => {
+  await showSchool(schoolOf({}), neverAnswering)
+
+  await passSeconds(revealSeconds)
+
+  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+})
+
+it('keeps the school skeleton for the minimum hold when the town answers just after it appears', async () => {
+  let answer = (): void => undefined
+  await showSchool(schoolOf({}), {
+    town: () =>
+      new Promise((resolve) => {
+        answer = () => resolve({ ok: true, value: schoolOf({}) })
+      }),
+  })
+  await passSeconds(revealSeconds)
+
+  answer()
+  await passSeconds(holdSeconds / 2)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(schoolLevelLine()).toBeNull()
+})
+
+it('draws no skeleton on a refused read of the school, only the retry', async () => {
+  await showSchool(schoolOf({}), { town: async () => ({ ok: false, refusal: 'Unexpected' }) })
+
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
 })
 
 it.each<[string, Partial<ApiClient>]>([

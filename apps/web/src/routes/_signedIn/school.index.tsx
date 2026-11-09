@@ -2,7 +2,7 @@ import { townLoading } from '@mygame/catalog'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
-import { ReadingLine } from '../../design-system/ReadingLine'
+import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { SchoolScreen } from '../../school/SchoolScreen'
 import { SchoolTitled } from '../../school/SchoolTitled'
 import { useSchoolLessons } from '../../school/useSchoolLessons'
@@ -24,16 +24,21 @@ function SchoolPage({
   return <SchoolScreen town={town} lessons={lessons} />
 }
 
-function SchoolRoute(): ReactElement {
-  const { apiClient } = Route.useRouteContext()
-  const town = useLayoutTown()
+const schoolSkeletonGroups: LoadingSkeletonProps['groups'] = [
+  ['place-card', 'thumbnail', 'action'],
+  ['thumbnail', 'thumbnail', 'thumbnail'],
+]
+
+function SchoolAnswer({
+  apiClient,
+  town,
+}: {
+  readonly apiClient: ApiClient
+  readonly town: TownHandle
+}): ReactElement | null {
   switch (town.state.kind) {
     case 'loading':
-      return (
-        <SchoolTitled>
-          <ReadingLine line={townLoading()} />
-        </SchoolTitled>
-      )
+      return null
     case 'noTown':
       return <Navigate to="/" />
     case 'refused':
@@ -49,6 +54,21 @@ function SchoolRoute(): ReactElement {
       return unreachable
     }
   }
+}
+
+function SchoolRoute(): ReactElement {
+  const { apiClient } = Route.useRouteContext()
+  const town = useLayoutTown()
+  return (
+    <LoadingSkeleton
+      isLoading={town.state.kind === 'loading'}
+      line={townLoading()}
+      groups={schoolSkeletonGroups}
+      Frame={SchoolTitled}
+    >
+      <SchoolAnswer apiClient={apiClient} town={town} />
+    </LoadingSkeleton>
+  )
 }
 
 export const Route = createFileRoute('/_signedIn/school/')({

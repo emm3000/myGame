@@ -3,6 +3,8 @@ import {
   breakpoints,
   type ColorToken,
   color,
+  durations,
+  easings,
   heights,
   maxWidths,
   minHeights,
@@ -63,6 +65,17 @@ function typeExtrasOf({
   }
 }
 
+const skeletonPulsePeakTowardSurface = '50%'
+
+const skeletonPulse = {
+  '@keyframes skeleton-pulse': {
+    from: { 'background-color': color('surface-sunken') },
+    to: {
+      'background-color': `color-mix(in srgb, ${color('surface-sunken')}, ${color('surface')} ${skeletonPulsePeakTowardSurface})`,
+    },
+  },
+}
+
 const typeExtras = Object.fromEntries(
   Object.entries(typeScale)
     .map(([style, values]) => [`.text-${style}`, typeExtrasOf(values)] as const)
@@ -84,6 +97,12 @@ export default plugin(
       ),
     )
     addUtilities(typeExtras)
+    addBase(skeletonPulse)
+    addUtilities({
+      '.animate-skeleton-pulse': {
+        animation: `skeleton-pulse ${durations.calm} ${easings.standard} infinite alternate`,
+      },
+    })
   },
   {
     theme: {
