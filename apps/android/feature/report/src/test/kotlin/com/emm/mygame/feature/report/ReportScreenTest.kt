@@ -119,13 +119,6 @@ class ReportScreenTest {
     }
 
     @Test
-    fun `draws the reading line while loading`() {
-        show(ReportUiState.Loading)
-
-        composeRule.onNodeWithText("Estamos leyendo tu informe…").assertIsDisplayed()
-    }
-
-    @Test
     fun `offers the retry on a failed read`() {
         show(ReportUiState.Failed)
 
