@@ -8,10 +8,12 @@ import {
   namesTownResourcesMoney,
   refusalUnexpected,
   schoolSkillName,
+  shellNavigationTown,
   shellSignOut,
   townAmount,
   townBuild,
   townCostName,
+  townGoToSchool,
   townInWork,
   townLabelCity,
   townLabelTown,
@@ -33,7 +35,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
-import { palette } from '../design/tokens'
+import { numberBefore } from '../design/android/numberBefore'
+import { durations, palette } from '../design/tokens'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
@@ -63,10 +66,120 @@ const showTown = async (apiClient: ApiClient): Promise<void> => {
 
 const stockCell = (name: string): HTMLElement => screen.getByRole('listitem', { name })
 
-it('shows the reading line while the town loads', async () => {
+const revealSeconds = numberBefore('ms', durations.reveal) / 1000
+const holdSeconds = numberBefore('ms', durations.hold) / 1000
+
+const skeletonBlocks = (): ReadonlyArray<Element> => [
+  ...document.querySelectorAll('[data-skeleton-block]'),
+]
+
+const townHomeLink = (): HTMLElement | null =>
+  screen.queryByRole('link', { name: townGoToSchool() })
+
+const answeringOnDemand = (): {
+  readonly town: () => Promise<ApiOutcome<TownOverview>>
+  readonly answer: () => void
+} => {
+  let answer = (): void => undefined
+  const town = (): Promise<ApiOutcome<TownOverview>> =>
+    new Promise((resolve) => {
+      answer = () => resolve({ ok: true, value: knownTown })
+    })
+  return { town, answer: () => answer() }
+}
+
+it('keeps the loading line in a status region while the town loads', async () => {
   await showTown(serving(knownTown, { town: () => new Promise(() => undefined) }))
 
   expect(screen.getByRole('status').textContent).toBe(townLoading())
+})
+
+it('never draws the loading line on the screen', async () => {
+  await showTown(serving(knownTown, { town: () => new Promise(() => undefined) }))
+
+  expect(screen.getByRole('status').className.split(' ')).toContain('sr-only')
+})
+
+it('renders no skeleton when the town answers inside the reveal delay', async () => {
+  const slow = answeringOnDemand()
+  await showTown(serving(knownTown, { town: slow.town }))
+  await passSeconds(revealSeconds / 2)
+
+  slow.answer()
+  await passSeconds(0)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(townHomeLink()).not.toBeNull()
+})
+
+it('shows the skeleton when the town read is slow', async () => {
+  await showTown(serving(knownTown, { town: () => new Promise(() => undefined) }))
+
+  await passSeconds(revealSeconds)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(townHomeLink()).toBeNull()
+})
+
+it('keeps the skeleton for the minimum hold when the town answers just after it appears', async () => {
+  const slow = answeringOnDemand()
+  await showTown(serving(knownTown, { town: slow.town }))
+  await passSeconds(revealSeconds)
+
+  slow.answer()
+  await passSeconds(holdSeconds / 2)
+
+  expect(skeletonBlocks().length).toBeGreaterThan(0)
+  expect(townHomeLink()).toBeNull()
+})
+
+it('draws the town once the minimum hold ends', async () => {
+  const slow = answeringOnDemand()
+  await showTown(serving(knownTown, { town: slow.town }))
+  await passSeconds(revealSeconds)
+  slow.answer()
+
+  await passSeconds(holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(townHomeLink()).not.toBeNull()
+})
+
+it('draws no skeleton on a refused read, only the retry', async () => {
+  await showTown(
+    serving(knownTown, { town: async () => ({ ok: false, refusal: 'InvalidCredentials' }) }),
+  )
+
+  await passSeconds(revealSeconds + holdSeconds)
+
+  expect(skeletonBlocks()).toEqual([])
+  expect(screen.getByRole('button', { name: townTryAgain() })).toBeDefined()
+})
+
+it('draws the held town with no loading state when coming back from the school', async () => {
+  let reads = 0
+  await showTown(
+    serving(knownTown, {
+      town: (): Promise<ApiOutcome<TownOverview>> => {
+        reads += 1
+        return reads === 1
+          ? Promise.resolve({ ok: true, value: knownTown })
+          : new Promise(() => undefined)
+      },
+    }),
+  )
+
+  fireEvent.click(screen.getByRole('link', { name: townGoToSchool() }))
+  await passSeconds(0)
+  expect(screen.getByRole('heading', { level: 1, name: namesPlacesSchool() })).toBeDefined()
+  expect(screen.queryByRole('status')).toBeNull()
+
+  fireEvent.click(screen.getByRole('link', { name: shellNavigationTown() }))
+  await passSeconds(0)
+
+  expect(townHomeLink()).not.toBeNull()
+  expect(screen.queryByText(townLoading())).toBeNull()
+  expect(skeletonBlocks()).toEqual([])
 })
 
 it('offers to read the town again after a failed read', async () => {

@@ -584,6 +584,7 @@ it('shows no notice for a lesson the player stops', async () => {
     }),
   })
   renderAppAt('/school', client)
+  await passSeconds(0)
   await passSeconds(10)
 
   fireEvent.click(screen.getByRole('button', { name: schoolSlotStopOf({ number: 2 }) }))

@@ -1,9 +1,9 @@
 import { townLoading } from '@mygame/catalog'
 import { createFileRoute } from '@tanstack/react-router'
-import type { ReactElement } from 'react'
+import { Fragment, type ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
-import { ReadingLine } from '../../design-system/ReadingLine'
+import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import type { LiveTown } from '../../town/liveTown'
 import { NameTownScreen } from '../../town/NameTownScreen'
 import type { Registered } from '../../town/registeredBetween'
@@ -49,12 +49,23 @@ function TownHomePage({
   return <TownHome town={town} registered={registered} work={work} />
 }
 
-function TownPage(): ReactElement | null {
-  const { apiClient } = Route.useRouteContext()
-  const town = useLayoutTown()
+const townSkeletonGroups: LoadingSkeletonProps['groups'] = [
+  ['place-card', 'action'],
+  ['place-card', 'thumbnail'],
+  ['thumbnail'],
+  ['place-card'],
+]
+
+function TownAnswer({
+  apiClient,
+  town,
+}: {
+  readonly apiClient: ApiClient
+  readonly town: TownHandle
+}): ReactElement | null {
   switch (town.state.kind) {
     case 'loading':
-      return <ReadingLine line={townLoading()} />
+      return null
     case 'noTown':
       return (
         <SignOutColumn apiClient={apiClient}>
@@ -81,6 +92,21 @@ function TownPage(): ReactElement | null {
       return unreachable
     }
   }
+}
+
+function TownPage(): ReactElement {
+  const { apiClient } = Route.useRouteContext()
+  const town = useLayoutTown()
+  return (
+    <LoadingSkeleton
+      isLoading={town.state.kind === 'loading'}
+      line={townLoading()}
+      groups={townSkeletonGroups}
+      Frame={Fragment}
+    >
+      <TownAnswer apiClient={apiClient} town={town} />
+    </LoadingSkeleton>
+  )
 }
 
 export const Route = createFileRoute('/_signedIn/')({
