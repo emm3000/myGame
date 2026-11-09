@@ -8,11 +8,12 @@ import {
   reviewTitle,
 } from '@mygame/catalog'
 import type { DueReview } from '@mygame/contracts'
-import { type ReactElement, type Ref, useEffect, useId } from 'react'
+import { Fragment, type ReactElement, type Ref, useEffect, useId } from 'react'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { LiveRegion } from '../design-system/LiveRegion'
+import { LoadingSkeleton, type LoadingSkeletonProps } from '../design-system/LoadingSkeleton'
 import { ReadFailed } from '../design-system/ReadFailed'
 import { Track } from '../design-system/Track'
 import { useFocusTarget } from '../focus/useFocusTarget'
@@ -110,10 +111,10 @@ function ReviewBody({
 }: {
   readonly state: ReviewScreenState
   readonly onNext: () => void
-}): ReactElement {
+}): ReactElement | null {
   switch (state.kind) {
     case 'loading':
-      return <p className="m-0">{reviewLoading()}</p>
+      return null
     case 'failed':
       return (
         <ReadFailed message={reviewFailed()} retryLabel={reviewRetry()} onRetry={state.onRetry} />
@@ -133,6 +134,10 @@ function ReviewBody({
   }
 }
 
+const reviewSkeletonGroups: LoadingSkeletonProps['groups'] = [
+  ['control', 'place-card', 'thumbnail', 'action'],
+]
+
 export function ReviewScreen({ state }: { readonly state: ReviewScreenState }): ReactElement {
   const title = useFocusTarget<HTMLHeadingElement>()
   const titleId = useId()
@@ -146,7 +151,14 @@ export function ReviewScreen({ state }: { readonly state: ReviewScreenState }): 
       >
         {reviewTitle()}
       </h1>
-      <ReviewBody state={state} onNext={title.focus} />
+      <LoadingSkeleton
+        isLoading={state.kind === 'loading'}
+        line={reviewLoading()}
+        groups={reviewSkeletonGroups}
+        Frame={Fragment}
+      >
+        <ReviewBody state={state} onNext={title.focus} />
+      </LoadingSkeleton>
     </section>
   )
 }

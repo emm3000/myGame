@@ -16,12 +16,13 @@ import {
 import type { Report, TownOverview } from '@mygame/contracts/town'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { ApiClient, ApiOutcome } from '../api/apiClient'
+import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
 import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import {
   answeringOnDemand,
   holdSeconds,
+  refusedRead,
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
@@ -412,8 +413,6 @@ const townNeverAnswers: ApiClient['town'] = () => new Promise(() => undefined)
 const reportNeverAnswers: ApiClient['report'] = () => new Promise(() => undefined)
 
 const firstWordLine = (): HTMLElement | null => screen.queryByText('first1')
-
-const refusedRead = async (): Promise<ApiOutcome<never>> => ({ ok: false, refusal: 'Unexpected' })
 
 it('keeps the town loading line in a status region before the first read', async () => {
   await showLesson('/school/lesson-1', townOf({}), { town: townNeverAnswers })

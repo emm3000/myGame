@@ -26,6 +26,7 @@ import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.tes
 import {
   answeringOnDemand,
   holdSeconds,
+  neverAnswering,
   revealSeconds,
   skeletonBlocks,
 } from '../design-system/loadingSkeleton.testSupport'
@@ -119,8 +120,6 @@ const reportRegion = (): HTMLElement => screen.getByRole('region', { name: repor
 const newsRegion = (): HTMLElement => screen.getByRole('region', { name: reportNewsTitle() })
 
 const closeButton = (): HTMLElement => screen.getByRole('button', { name: reportNewsClose() })
-
-const neverAnswering: ApiClient['report'] = () => new Promise(() => undefined)
 
 const reviewsDueLine = (): HTMLElement | null => screen.queryByText(reportReviewsDue({ count: 3 }))
 
