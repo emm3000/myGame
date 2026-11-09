@@ -17,6 +17,9 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGameSizes
+import com.emm.mygame.core.designsystem.MyGameSkeleton
+import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -49,28 +52,48 @@ fun ReviewScreen(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
-        when (state) {
-            ReviewUiState.Loading -> Line(text = stringResource(R.string.review_loading))
-            ReviewUiState.Failed -> MyGameErrorBanner(
-                message = stringResource(R.string.review_failed),
-                actionLabel = stringResource(R.string.fief_retry),
-                onAction = { onIntent(ReviewIntent.RetryTapped) },
-            )
-            ReviewUiState.NoCards -> ReviewEnd(line = stringResource(R.string.review_no_cards), onTownOpen = onTownOpen)
-            is ReviewUiState.NothingDue -> ReviewEnd(
-                line = stringResource(R.string.review_nothing_due),
-                onTownOpen = onTownOpen,
-                nextReview = icuStringResource(
-                    R.string.review_next_due,
-                    "due" to finishLabelOf(state.remaining, state.dueAt),
-                ),
-                path = state.path,
-            )
-            is ReviewUiState.LessonReady -> LessonReady(ready = state, onLessonOpen = onLessonOpen)
-            is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
+        MyGameSkeleton(
+            isLoading = state == ReviewUiState.Loading,
+            loadingLabel = stringResource(R.string.review_loading),
+            blocks = reviewBlocks,
+        ) {
+            ReviewState(state = state, onIntent = onIntent, onLessonOpen = onLessonOpen, onTownOpen = onTownOpen)
         }
     }
 }
+
+@Composable
+private fun ReviewState(
+    state: ReviewUiState,
+    onIntent: (ReviewIntent) -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+    onTownOpen: () -> Unit,
+) {
+    when (state) {
+        ReviewUiState.Loading -> Unit
+        ReviewUiState.Failed -> MyGameErrorBanner(
+            message = stringResource(R.string.review_failed),
+            actionLabel = stringResource(R.string.fief_retry),
+            onAction = { onIntent(ReviewIntent.RetryTapped) },
+        )
+        ReviewUiState.NoCards -> ReviewEnd(line = stringResource(R.string.review_no_cards), onTownOpen = onTownOpen)
+        is ReviewUiState.NothingDue -> ReviewEnd(
+            line = stringResource(R.string.review_nothing_due),
+            onTownOpen = onTownOpen,
+            nextReview = icuStringResource(
+                R.string.review_next_due,
+                "due" to finishLabelOf(state.remaining, state.dueAt),
+            ),
+            path = state.path,
+        )
+        is ReviewUiState.LessonReady -> LessonReady(ready = state, onLessonOpen = onLessonOpen)
+        is ReviewUiState.Reviewing -> Reviewing(reviewing = state, onIntent = onIntent)
+    }
+}
+
+private val reviewBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
+    listOf(MyGameSizes.control, MyGameSizes.placeCard, MyGameSizes.thumbnail, MyGameSizes.action),
+)
 
 @Composable
 private fun Reviewing(
@@ -137,9 +160,4 @@ private fun ReviewAction(
         modifier = modifier,
         blockedReason = if (isRecallEmpty) stringResource(R.string.review_check_empty) else null,
     )
-}
-
-@Composable
-private fun Line(text: String, modifier: Modifier = Modifier) {
-    MyGameText(text = text, style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted, modifier = modifier)
 }

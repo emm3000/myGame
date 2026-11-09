@@ -28,6 +28,9 @@ import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGameSizes
+import com.emm.mygame.core.designsystem.MyGameSkeleton
+import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
@@ -62,28 +65,44 @@ fun LessonWordsScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = MyGameSpacing.step5, vertical = MyGameSpacing.step8),
     ) {
-        when (state) {
-            LessonWordsUiState.Loading -> MyGameText(
-                text = stringResource(R.string.school_loading),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
-            LessonWordsUiState.Failed -> MyGameErrorBanner(
-                message = stringResource(R.string.school_refusal_unexpected),
-                actionLabel = stringResource(R.string.school_try_again),
-                onAction = { onIntent(LessonWordsIntent.RetryTapped) },
-            )
-            LessonWordsUiState.NothingToRead -> NothingToRead(onSchoolOpen = onSchoolOpen)
-            is LessonWordsUiState.Reading -> {
-                LessonHeader(reading = state)
-                state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }
-                WordProgress(reading = state)
-                WordBlock(reading = state)
-                WordActions(reading = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
-            }
+        MyGameSkeleton(
+            isLoading = state == LessonWordsUiState.Loading,
+            loadingLabel = stringResource(R.string.school_loading),
+            blocks = lessonWordsBlocks,
+        ) {
+            LessonWordsState(state = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
         }
     }
 }
+
+@Composable
+private fun LessonWordsState(
+    state: LessonWordsUiState,
+    onIntent: (LessonWordsIntent) -> Unit,
+    onWayOn: (LessonWordsUiState.WayOn) -> Unit,
+    onSchoolOpen: () -> Unit,
+) {
+    when (state) {
+        LessonWordsUiState.Loading -> Unit
+        LessonWordsUiState.Failed -> MyGameErrorBanner(
+            message = stringResource(R.string.school_refusal_unexpected),
+            actionLabel = stringResource(R.string.school_try_again),
+            onAction = { onIntent(LessonWordsIntent.RetryTapped) },
+        )
+        LessonWordsUiState.NothingToRead -> NothingToRead(onSchoolOpen = onSchoolOpen)
+        is LessonWordsUiState.Reading -> {
+            LessonHeader(reading = state)
+            state.remaining?.let { remaining: Duration -> RunningTime(remaining = remaining) }
+            WordProgress(reading = state)
+            WordBlock(reading = state)
+            WordActions(reading = state, onIntent = onIntent, onWayOn = onWayOn, onSchoolOpen = onSchoolOpen)
+        }
+    }
+}
+
+private val lessonWordsBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
+    listOf(MyGameSizes.control, MyGameSizes.placeCard, MyGameSizes.action),
+)
 
 @Composable
 private fun NothingToRead(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
