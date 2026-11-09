@@ -29,6 +29,9 @@ import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameSizes
+import com.emm.mygame.core.designsystem.MyGameSkeleton
+import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextButton
@@ -69,22 +72,12 @@ fun ReportScreen(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
-        when (state) {
-            ReportUiState.Loading -> MyGameText(
-                text = stringResource(R.string.report_loading),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.inkMuted,
-            )
-            ReportUiState.Failed -> MyGameErrorBanner(
-                message = stringResource(R.string.report_refusal_unexpected),
-                actionLabel = stringResource(R.string.report_try_again),
-                onAction = { onIntent(ReportIntent.RetryTapped) },
-            )
-            ReportUiState.SigningOut -> Unit
-            is ReportUiState.Content -> {
-                ReviewsDueSection(content = state, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
-                NewsSection(content = state, onIntent = onIntent)
-            }
+        MyGameSkeleton(
+            isLoading = state == ReportUiState.Loading,
+            loadingLabel = stringResource(R.string.report_loading),
+            blocks = reportBlocks,
+        ) {
+            ReportState(state = state, onIntent = onIntent, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
         }
         MyGameTextButton(
             label = stringResource(R.string.report_sign_out),
@@ -94,6 +87,31 @@ fun ReportScreen(
         )
     }
 }
+
+@Composable
+private fun ReportState(
+    state: ReportUiState,
+    onIntent: (ReportIntent) -> Unit,
+    onReviewsOpen: () -> Unit,
+    onLessonOpen: (LessonId) -> Unit,
+) {
+    when (state) {
+        ReportUiState.Loading, ReportUiState.SigningOut -> Unit
+        ReportUiState.Failed -> MyGameErrorBanner(
+            message = stringResource(R.string.report_refusal_unexpected),
+            actionLabel = stringResource(R.string.report_try_again),
+            onAction = { onIntent(ReportIntent.RetryTapped) },
+        )
+        is ReportUiState.Content -> {
+            ReviewsDueSection(content = state, onReviewsOpen = onReviewsOpen, onLessonOpen = onLessonOpen)
+            NewsSection(content = state, onIntent = onIntent)
+        }
+    }
+}
+
+private val reportBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
+    listOf(MyGameSizes.thumbnail, MyGameSizes.action, MyGameSizes.thumbnail, MyGameSizes.secondary),
+)
 
 @Composable
 private fun ReviewsDueSection(
