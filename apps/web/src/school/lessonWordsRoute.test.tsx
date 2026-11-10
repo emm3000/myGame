@@ -404,8 +404,9 @@ it('sends no write while the player reads', async () => {
   await follow(nextLesson())
   await follow(nextWord())
 
-  const reads = ['currentPlayer', 'town', 'report', 'fiefs', 'digest']
-  expect([...calls].filter((name) => !reads.includes(name))).toEqual([])
+  const reads: ReadonlyArray<keyof ApiClient> = ['currentPlayer', 'town', 'report']
+  const allowed = new Set<string>(reads)
+  expect([...calls].filter((name) => !allowed.has(name))).toEqual([])
 })
 
 const townNeverAnswers: ApiClient['town'] = () => new Promise(() => undefined)
