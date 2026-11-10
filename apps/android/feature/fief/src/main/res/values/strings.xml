@@ -1,137 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="army_title">Cuartel</string>
-    <string name="art_effect" formatted="false">{rate} · nivel {level}: +{percent} %</string>
-    <string name="art_effect_at_max_level">{rate} · Ya está en su nivel más alto.</string>
-    <string name="art_masonry">Cantería</string>
-    <string name="art_rate_food" formatted="false">+{percent} % de comida / h</string>
-    <string name="art_rate_gold" formatted="false">+{percent} % de oro / h</string>
-    <string name="art_rate_iron" formatted="false">+{percent} % de hierro / h</string>
-    <string name="art_rate_stone" formatted="false">+{percent} % de piedra / h</string>
-    <string name="art_rate_wood" formatted="false">+{percent} % de madera / h</string>
-    <string name="art_requires">Requiere biblioteca a nivel {level}</string>
-    <string name="art_smithing">Herrería</string>
-    <string name="art_unstudied">sin estudiar</string>
-    <string name="building_at_max_level">Ya está en su nivel más alto.</string>
-    <string name="building_barracks">Cuartel</string>
-    <string name="building_farm">Granja</string>
-    <string name="building_iron_mine">Mina de hierro</string>
-    <string name="building_level">nivel {level}</string>
-    <string name="building_library">Biblioteca</string>
-    <string name="building_max_level">Nivel máximo</string>
-    <string name="building_next_level">Sube a nivel {level}.</string>
-    <string name="building_quarry">Cantera</string>
-    <string name="building_sawmill">Aserradero</string>
-    <string name="building_upgrade">Mejorar · {duration}</string>
     <string name="building_waiting">Esperando al servidor</string>
-    <string name="building_warehouse">Almacén</string>
-    <string name="buildings_title">Edificios</string>
-    <string name="cancel_refund">Si la cancelas, recuperas todo lo que costó, y lo mismo por cada obra en espera que caiga con ella.</string>
-    <string name="cancel_upgrade">Cancelar la obra</string>
-    <string name="cancel_upgrade_description">Cancelar la obra: {building}, nivel {level}</string>
-    <string name="cost_food">{amount} de comida</string>
-    <string name="cost_gold">{amount} de oro</string>
-    <string name="cost_iron">{amount} de hierro</string>
-    <string name="cost_peasants">{count, plural, =1 {{count, number,0} campesino} other {{count, number,0} campesinos}}</string>
-    <string name="cost_short">{cost}, falta</string>
-    <string name="cost_stone">{amount} de piedra</string>
-    <string name="cost_wood">{amount} de madera</string>
-    <string name="duration_hours">{hours} h</string>
-    <string name="duration_hours_minutes">{hours} h {minutes} min</string>
-    <string name="duration_minutes_seconds">{minutes}:{seconds}</string>
-    <string name="fief_brand">Vadoalto</string>
-    <string name="fief_eyebrow">Tu feudo</string>
-    <string name="fief_loading">Estamos leyendo tu feudo…</string>
-    <string name="fief_resources_title">Recursos</string>
     <string name="fief_retry">Volver a intentarlo</string>
     <string name="fief_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
     <string name="finish_day">{day} {time}</string>
     <string name="finish_tomorrow">mañana {time}</string>
     <string name="finish_with_clock">{countdown} · {clock}</string>
-    <string name="first_fief_none">No encontramos tus tierras.</string>
-    <string name="lesson_review_link">Ir al repaso</string>
-    <string name="lesson_title">Lección 1</string>
-    <string name="levy_busy_title">Una leva en marcha</string>
-    <string name="levy_cancel">Cancelar la leva</string>
-    <string name="levy_cancel_description">Cancelar la leva: {units}</string>
-    <string name="levy_complete">Leva completa en {countdown}</string>
-    <string name="levy_idle">El cuartel no tiene leva en marcha.</string>
-    <string name="levy_order">Leva en marcha: {delivered} de {units}</string>
-    <string name="levy_refund">Si la cancelas, recuperas lo de {units} de vuelta al campo: {refund}.</string>
-    <string name="library_title">Biblioteca</string>
-    <string name="list_more">{listed}, {item}</string>
-    <string name="list_pair">{listed} y {last}</string>
-    <string name="march_arrival">Llegada en {countdown}</string>
-    <string name="march_busy_title">Una marcha en curso</string>
-    <string name="march_camp">Campamento: nivel {tier}, fuerza {strength}</string>
-    <string name="march_cargo">Carga: {cargo}</string>
-    <string name="march_heading_attack">Marcha al ataque:</string>
-    <string name="march_heading_attack_returning">Vuelta del ataque:</string>
-    <string name="march_heading_foraging">Forrajeo:</string>
-    <string name="march_heading_founding">Marcha de fundación:</string>
-    <string name="march_heading_outbound">Marcha de ida:</string>
-    <string name="march_heading_returning">Marcha de vuelta:</string>
-    <string name="march_heading_transport">Marcha de transporte:</string>
-    <string name="march_heading_transport_returning">Vuelta del transporte:</string>
-    <string name="march_idle">El cuartel no tiene marcha en curso.</string>
-    <string name="march_line">{heading} {value}</string>
-    <string name="march_loot">Botín: {loot}</string>
-    <string name="march_new_fief">Nuevo feudo: {name}</string>
-    <string name="march_recall">Retirar la marcha</string>
-    <string name="march_recall_description">Retirar la marcha: {party}</string>
-    <string name="march_return">Vuelta en {countdown}</string>
-    <string name="march_value_foraging">{party} en provincia {province}, parcela {plot}</string>
-    <string name="march_value_outbound">{party} a provincia {province}, parcela {plot}</string>
-    <string name="march_value_returning">{party} desde provincia {province}, parcela {plot}</string>
-    <string name="peasants_description">{suppliedCount, plural, =1 {Campesinos: {free} libre de {supplied}} other {Campesinos: {free} libres de {supplied}}}</string>
-    <string name="peasants_free">{suppliedCount, plural, =1 {{free} / {supplied} libre} other {{free} / {supplied} libres}}</string>
-    <string name="queue_finish">Termina en {finish}</string>
-    <string name="queue_summary">Obras en espera: {count} · {finish}</string>
-    <string name="queue_title">Obras en espera</string>
-    <string name="ready_at">lista {clock}</string>
-    <string name="ready_in_an_hour">lista en 1 h</string>
-    <string name="ready_in_minutes">lista en {minutes} min</string>
-    <string name="reason_barracks_too_low">Necesitas un cuartel de nivel {required} y el tuyo es de nivel {built}.</string>
-    <string name="reason_invalid_count">Un número entero, al menos 1.</string>
-    <string name="reason_levy_running">Ya hay una leva en marcha.</string>
-    <string name="reason_library_too_low">Necesitas la biblioteca a nivel {required} y está a nivel {built}.</string>
-    <string name="reason_peasants">{needed, plural, =1 {Necesitas {needed, number,0} campesino libre y tienes {free}.} other {Necesitas {needed, number,0} campesinos libres y tienes {free}.}}</string>
-    <string name="reason_queue_full">Ya no caben más obras en espera. Espera a que avance alguna.</string>
-    <string name="reason_resources">Te faltan {resources}.</string>
-    <string name="reason_resources_one">Te falta {resources}.</string>
-    <string name="reason_study_running">Ya hay un estudio en marcha.</string>
-    <string name="reason_with_ready">{reason} {ready}</string>
-    <string name="recruit_action">Reclutar {units}</string>
-    <string name="recruit_action_with_duration">Reclutar {units} · {duration}</string>
-    <string name="recruit_field">{unit} a reclutar</string>
-    <string name="refusal_art_max_level_reached">Ese arte ya está en su nivel más alto.</string>
-    <string name="refusal_barracks_not_built">Tu feudo aún no tiene cuartel. Levántalo primero.</string>
-    <string name="refusal_barracks_too_low">Tu cuartel aún no llega al nivel {level} que piden los {units}. Mejóralo primero.</string>
-    <string name="refusal_insufficient_resources">No tienes recursos suficientes.</string>
-    <string name="refusal_library_level_too_low">Tu biblioteca aún no guarda los tratados de ese estudio. Mejórala primero.</string>
-    <string name="refusal_march_already_returning">Esa marcha ya viene de vuelta. Espera a que llegue.</string>
-    <string name="refusal_march_not_found">El cuartel ya no tiene esa marcha en curso. No queda nada que retirar.</string>
-    <string name="refusal_max_level_reached">Ese edificio ya está en su nivel más alto.</string>
-    <string name="refusal_not_enough_peasants">No tienes campesinos libres suficientes.</string>
-    <string name="refusal_queue_full">Ya no caben más obras en espera. Espera a que avance alguna.</string>
-    <string name="refusal_recruit_order_not_found">El cuartel ya no tiene esa leva en marcha. No queda nada que cancelar.</string>
-    <string name="refusal_recruit_slot_busy">El cuartel ya tiene una leva en marcha. Espera a que termine.</string>
-    <string name="refusal_study_not_found">La biblioteca ya no tiene ese estudio en marcha. No queda nada que cancelar.</string>
-    <string name="refusal_study_slot_busy">La biblioteca ya tiene un estudio en marcha. Espera a que termine.</string>
-    <string name="resource_capacity">/ {capacity}</string>
-    <string name="resource_description">{name}: {amount} de {capacity}, más {rate} por hora</string>
-    <string name="resource_description_full">{name}: {amount} de {capacity}, lleno</string>
-    <string name="resource_description_with_season_mark">{description}. {seasonMark}</string>
-    <string name="resource_food">Comida</string>
-    <string name="resource_full">Lleno</string>
-    <string name="resource_gold">Oro</string>
-    <string name="resource_iron">Hierro</string>
-    <string name="resource_peasants">Campesinos</string>
-    <string name="resource_rate">+{rate} / h</string>
-    <string name="resource_season_mark_lowered" formatted="false">{season}: -{percent} % de {resource}</string>
-    <string name="resource_season_mark_raised" formatted="false">{season}: +{percent} % de {resource}</string>
-    <string name="resource_stone">Piedra</string>
-    <string name="resource_wood">Madera</string>
     <string name="review_answer_label">Tu respuesta en inglés</string>
     <string name="review_back_to_town">Volver a tu pueblo</string>
     <string name="review_check">Comprobar</string>
@@ -175,43 +49,8 @@
     <string name="review_title">Repaso</string>
     <string name="review_wrong">No es correcto.</string>
     <string name="review_yours">Tu respuesta: {answer}</string>
-    <string name="season_countdown">{season} en {timeLeft}</string>
-    <string name="season_days_left">{days, plural, =1 {{days, number,0} día} other {{days, number,0} días}}</string>
-    <string name="season_fall">Otoño</string>
-    <string name="season_line">{season}, año {year}</string>
-    <string name="season_separator">·</string>
-    <string name="season_spring">Primavera</string>
-    <string name="season_summer">Verano</string>
-    <string name="season_winter">Invierno</string>
-    <string name="sign_out">Salir</string>
-    <string name="slot_busy_title">Una obra en marcha</string>
-    <string name="slot_countdown_description">Termina en {countdown}</string>
     <string name="slot_countdown_finished">Terminada</string>
     <string name="slot_countdown_hours">{hours} h {minutes} min</string>
     <string name="slot_countdown_minutes">{minutes} min</string>
     <string name="slot_countdown_seconds">{seconds} s</string>
-    <string name="slot_idle">Tu feudo no tiene obra.</string>
-    <string name="slot_level">nivel {level}</string>
-    <string name="slot_title">La obra</string>
-    <string name="study_busy_title">Un estudio en marcha</string>
-    <string name="study_cancel">Cancelar el estudio</string>
-    <string name="study_cancel_description">Cancelar el estudio: {art}, nivel {level}</string>
-    <string name="study_idle">La biblioteca no tiene estudio en marcha.</string>
-    <string name="study_refund">Si lo cancelas, recuperas {refund}.</string>
-    <string name="study_start">Estudiar · {duration}</string>
-    <string name="unit_archer_counted">{count, plural, =1 {{count, number,0} arquero} other {{count, number,0} arqueros}}</string>
-    <string name="unit_archer_plural">arqueros</string>
-    <string name="unit_archer_title">Arqueros</string>
-    <string name="unit_cavalry_counted">{count, plural, =1 {{count, number,0} jinete} other {{count, number,0} jinetes}}</string>
-    <string name="unit_cavalry_plural">jinetes</string>
-    <string name="unit_cavalry_title">Jinetes</string>
-    <string name="unit_infantry_counted">{count, plural, =1 {{count, number,0} infante} other {{count, number,0} infantes}}</string>
-    <string name="unit_infantry_plural">infantes</string>
-    <string name="unit_infantry_title">Infantes</string>
-    <string name="unit_requires">Requiere cuartel de nivel {level}</string>
-    <string name="unit_settler_counted">{count, plural, =1 {{count, number,0} colono} other {{count, number,0} colonos}}</string>
-    <string name="unit_settler_plural">colonos</string>
-    <string name="unit_settler_title">Colonos</string>
-    <string name="units_at_home">{units} en casa</string>
-    <string name="units_at_home_and_away">{atHome} en casa, {away} de marcha</string>
 </resources>

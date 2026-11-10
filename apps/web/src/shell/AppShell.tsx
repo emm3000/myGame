@@ -7,14 +7,10 @@ import { focusTargetClass } from '../design-system/focusTargetClass'
 import { BackIcon } from '../design-system/icons/BackIcon'
 import type { ResendVerification } from '../verification/useResendVerification'
 import { VerificationBanner } from '../verification/VerificationBanner'
-import { FiefSwitcher } from './FiefSwitcher'
 import { RetainedWordsRing } from './RetainedWordsRing'
-import type { FiefEntries } from './useFiefList'
 
 export interface AppShellProps {
   readonly player: Player
-  readonly fiefId: string | undefined
-  readonly fiefs: FiefEntries | undefined
   readonly verification: ResendVerification
   readonly town: TownOverview | undefined
   readonly ringCountBefore: number | undefined
@@ -57,8 +53,6 @@ function HeaderStart({
 
 export function AppShell({
   player,
-  fiefId,
-  fiefs,
   verification,
   town,
   ringCountBefore,
@@ -86,7 +80,6 @@ export function AppShell({
             />
           </div>
         )}
-        {fiefId === undefined || fiefs === undefined ? null : <FiefSwitcher fiefs={fiefs} />}
       </header>
       {townStatus}
       <main className="grow px-5 pt-2 pb-6 font-sans text-body text-ink-muted md:px-8">

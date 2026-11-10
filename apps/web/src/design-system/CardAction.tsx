@@ -9,10 +9,6 @@ export type CardActionState =
 
 export type OrderActionState = Exclude<CardActionState, { readonly kind: 'atMaxLevel' }>
 
-export type MarchActionState =
-  | { readonly kind: 'affordable' }
-  | { readonly kind: 'blocked'; readonly reason: string }
-
 export interface CardActionProps {
   readonly type: 'button' | 'submit'
   readonly label: string

@@ -34,7 +34,6 @@ private fun defaultApi(baseUrl: String, client: OkHttpClient): DefaultApi {
         .baseUrl(baseUrl)
         .client(client)
         .addConverterFactory(IsoInstantConverterFactory())
-        .addConverterFactory(KnownFiefEventsConverterFactory(Serializer.kotlinxSerializationJson))
         .addConverterFactory(KnownTownNewsConverterFactory(Serializer.kotlinxSerializationJson))
         .addConverterFactory(Serializer.kotlinxSerializationJson.asConverterFactory("application/json".toMediaType()))
         .build()

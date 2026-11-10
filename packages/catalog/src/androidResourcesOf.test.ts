@@ -49,7 +49,7 @@ describe('androidResourcesOf', () => {
   })
 
   it('escapes a leading question mark', () => {
-    const question = { 'android.map.map_question': '?Dónde' }
+    const question = { 'android.town.map_question': '?Dónde' }
 
     expect(androidResourcesOf(question)[0]?.contents).toContain(
       '<string name="map_question">\\?Dónde</string>',

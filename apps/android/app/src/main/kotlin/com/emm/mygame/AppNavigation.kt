@@ -34,11 +34,8 @@ import com.emm.mygame.core.designsystem.MyGameBackLink
 import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.feature.chronicle.ChronicleRoute
 import com.emm.mygame.feature.fief.ReviewRoute
-import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
 import com.emm.mygame.feature.school.LessonWalk
@@ -134,16 +131,6 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                 onTownOpen = navigator::openTown,
             )
-        }
-    }
-    entry<Destination.Map> { shown: Destination.Map ->
-        FiefFrame(fief = shown.fief, chrome = chrome) {
-            MapRoute(fief = shown.fief, maps = dependencies.maps, fiefs = dependencies.fiefs)
-        }
-    }
-    entry<Destination.Chronicle> { shown: Destination.Chronicle ->
-        FiefFrame(fief = shown.fief, chrome = chrome) {
-            ChronicleRoute(fief = shown.fief, chronicles = dependencies.chronicles, clock = dependencies.clock)
         }
     }
 }
@@ -247,43 +234,11 @@ private fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) 
 }
 
 @Composable
-private fun FiefFrame(
-    fief: FiefId,
-    chrome: SignedInChrome,
-    modifier: Modifier = Modifier,
-    switcher: FiefSwitcherViewModel = viewModel { FiefSwitcherViewModel(fief, chrome.dependencies.listings) },
-    content: @Composable () -> Unit,
-) {
-    val listing: FiefSwitcherUiState by switcher.state.collectAsStateWithLifecycle()
-    LifecycleStartEffect(switcher) {
-        switcher.onIntent(FiefSwitcherIntent.ScreenShown)
-        onStopOrDispose { switcher.onIntent(FiefSwitcherIntent.ScreenHidden) }
-    }
-    SignedInFrame(
-        isTownHome = false,
-        doesScreenReadTown = false,
-        chrome = chrome,
-        modifier = modifier,
-        underHeader = {
-            (listing as? FiefSwitcherUiState.Listed)?.let { listed: FiefSwitcherUiState.Listed ->
-                FiefSwitcher(
-                    listed = listed,
-                    isEnabled = chrome.navigator.areLinksEnabled,
-                    onChoose = chrome.navigator::switchFief,
-                )
-            }
-        },
-        content = content,
-    )
-}
-
-@Composable
 private fun SignedInFrame(
     isTownHome: Boolean,
     doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
-    underHeader: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     val framedInsets: WindowInsets =
@@ -301,7 +256,6 @@ private fun SignedInFrame(
                 )
             }
             chrome.status()
-            underHeader()
         }
         Box(
             modifier = Modifier
@@ -327,6 +281,4 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
     Destination.Review -> TownStatusScreen.Reviews
     Destination.Report -> TownStatusScreen.ReadsNoTown
-    is Destination.Map -> TownStatusScreen.ReadsNoTown
-    is Destination.Chronicle -> TownStatusScreen.ReadsNoTown
 }

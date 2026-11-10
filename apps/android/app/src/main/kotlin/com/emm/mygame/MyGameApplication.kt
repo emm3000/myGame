@@ -1,12 +1,8 @@
 package com.emm.mygame
 
 import android.app.Application
-import com.emm.mygame.core.network.ChronicleRepository
-import com.emm.mygame.core.network.FiefListRepository
-import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -38,24 +34,6 @@ class MyGameApplication : Application(), AppDependencies {
         )
     }
 
-    override val listings: FiefListRepository by lazy {
-        FiefListRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
-
-    override val fiefs: FiefRepository by lazy {
-        FiefRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
-
     override val towns: TownRepository by lazy {
         TownRepository(
             baseUrl = BuildConfig.API_BASE_URL,
@@ -77,24 +55,6 @@ class MyGameApplication : Application(), AppDependencies {
 
     override val reports: ReportRepository by lazy {
         ReportRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
-
-    override val maps: MapRepository by lazy {
-        MapRepository(
-            baseUrl = BuildConfig.API_BASE_URL,
-            tokenStore = tokenStore,
-            sessionEnds = sessionEnds,
-            ioDispatcher = Dispatchers.IO,
-        )
-    }
-
-    override val chronicles: ChronicleRepository by lazy {
-        ChronicleRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,

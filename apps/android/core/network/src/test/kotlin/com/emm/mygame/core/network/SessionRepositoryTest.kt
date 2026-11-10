@@ -2,10 +2,12 @@ package com.emm.mygame.core.network
 
 import app.cash.turbine.test
 import com.emm.mygame.core.testing.FakeTokenCipher
+import com.emm.mygame.core.testing.TestClock
 import java.io.File
 import java.security.GeneralSecurityException
 import java.security.ProviderException
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -28,8 +30,6 @@ class SessionRepositoryTest {
     val folder: TemporaryFolder = TemporaryFolder()
 
     private val api: MockWebServer = MockWebServer()
-
-    private val signedInFief: FiefId = FiefId("509eadd5-6b34-4ea3-8e91-2b38744bd385")
 
     private val sessionEnds: SessionEnds = SessionEnds()
 
@@ -222,7 +222,7 @@ class SessionRepositoryTest {
     fun `asks the api nothing on restore once a read has ended the session`() = runTest {
         val store: TokenStore = tokenStore().apply { write("expired-session") }
         api.enqueue(MockResponse.Builder().code(401).build())
-        fiefRepository(store).read(signedInFief)
+        townRepository(store).read()
 
         val result: RestoreResult = repository(store).restore()
 
@@ -341,14 +341,14 @@ class SessionRepositoryTest {
     }
 
     @Test
-    fun `sends no bearer on a fief read after signing out`() = runTest {
+    fun `sends no bearer on a town read after signing out`() = runTest {
         val store: TokenStore = tokenStore().apply { write("opaque-session") }
-        val fiefs: FiefRepository = fiefRepository(store)
+        val towns: TownRepository = townRepository(store)
         api.enqueue(MockResponse.Builder().code(204).build())
         api.enqueue(MockResponse.Builder().code(401).build())
         repository(store).signOut()
 
-        fiefs.read(signedInFief)
+        towns.read()
 
         api.takeRequestWithin()
         assertNull(api.takeRequestWithin().headers["Authorization"])
@@ -414,7 +414,7 @@ class SessionRepositoryTest {
 
     @Test
     fun `answers an unrecognized sign-up refusal for a kind the spec does not list`() = runTest {
-        api.enqueue(json(400, refusalJson("FiefNameTooLong")))
+        api.enqueue(json(400, refusalJson("NameTooLong")))
 
         val result: SignUpResult = repository(tokenStore()).signUp("elena@encinar.es", "hierro-y-lana")
 
@@ -533,12 +533,13 @@ class SessionRepositoryTest {
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
 
-    private fun TestScope.fiefRepository(store: TokenStore): FiefRepository =
-        FiefRepository(
+    private fun TestScope.townRepository(store: TokenStore): TownRepository =
+        TownRepository(
             baseUrl = api.url("/api/").toString(),
             tokenStore = store,
             sessionEnds = sessionEnds,
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+            clock = TestClock(testScheduler, Instant.parse("2026-11-05T10:00:00Z")),
         )
 
     private fun tokenStore(): TokenStore = tokenStore(FakeTokenCipher())
