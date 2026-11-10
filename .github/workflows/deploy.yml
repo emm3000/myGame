@@ -237,6 +237,12 @@ jobs:
           for project in api web; do
             mkdir "deploy-$project"
             tar -xzf "prebuilt/$project.tgz" -C "deploy-$project" .vercel/output "apps/$project/vercel.json"
+            for dir in .vercel .vercel/output; do
+              if [ ! -d "deploy-$project/$dir" ] || [ -L "deploy-$project/$dir" ]; then
+                echo "::error::the $project artifact's $dir is not a real directory"
+                exit 1
+              fi
+            done
             outside="$(cd "deploy-$project" && find . -path ./.vercel/output -prune -o ! -type d -print)"
             if [ "$outside" != "./apps/$project/vercel.json" ] || [ -L "deploy-$project/apps/$project/vercel.json" ]; then
               echo "::error::the $project artifact holds a file outside .vercel/output that the CLI could read: $outside"
