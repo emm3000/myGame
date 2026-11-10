@@ -51,7 +51,7 @@ export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste esa lecc
 export const refusalLessonSchoolTooLow = (): string => `Esa lección necesita una escuela de más nivel. Súbela primero.`
 export const refusalLessonStudyNotFound = (): string => `La escuela ya no estudia esa lección. No queda nada que parar.`
 export const refusalLessonUnderStudy = (): string => `La escuela ya está estudiando esa lección. Espera a que termine.`
-export const refusalMailNotSent = (): string => `No hemos podido enviar el correo. Vuelve a intentarlo en un momento.`
+export const refusalMailNotSent = (): string => `No hemos podido enviarlo.`
 export const refusalMalformedEmail = (): string => `Escribe un correo válido, como nombre@ejemplo.com.`
 export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
 export const refusalNotEnoughResources = (): string => `No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.`
@@ -208,7 +208,9 @@ export const townWorkStop = (): string => `Parar la obra`
 export const townWorkStopOf = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `Parar la obra: ${String(place)}, nivel ${String(level)}`
 export const townWorkTitle = (): string => `Obra`
 export const townWorkWaitingList = (): string => `Lista de espera`
-export const verificationBannerSent = (): string => `Te hemos enviado otro enlace. Búscalo en tu correo: vale 24 horas.`
+export const verificationBannerLine = (): string => `Confirma tu correo`
+export const verificationBannerResend = (): string => `Reenviar`
+export const verificationBannerSent = (): string => `Enviado. Revisa tu correo.`
 export const verificationVerifyTitle = (): string => `Confirma tu correo`
 export const verificationVerifyToTown = (): string => `Ir a tu pueblo`
 export const verificationVerifyVerified = (): string => `Tu correo queda confirmado.`

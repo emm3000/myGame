@@ -1,7 +1,7 @@
 import {
-  passwordResetRequestSubmit,
+  verificationBannerLine,
+  verificationBannerResend,
   verificationBannerSent,
-  verificationVerifyTitle,
 } from '@mygame/catalog'
 import type { ReactElement } from 'react'
 import { NoticeBanner, type NoticeOutcome } from '../design-system/NoticeBanner'
@@ -27,8 +27,8 @@ const outcomeOf = (state: ResendState): NoticeOutcome | undefined => {
 export function VerificationBanner({ state, resend }: ResendVerification): ReactElement {
   return (
     <NoticeBanner
-      line={verificationVerifyTitle()}
-      actionLabel={passwordResetRequestSubmit()}
+      line={verificationBannerLine()}
+      actionLabel={verificationBannerResend()}
       isBusy={state.kind === 'sending'}
       onAction={resend}
       outcome={outcomeOf(state)}
