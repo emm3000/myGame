@@ -90,12 +90,13 @@ jobs:
       - name: require the vercel secrets
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PREVIEW_API_TOKEN: ${{ secrets.VERCEL_PREVIEW_API_TOKEN }}
+          VERCEL_PREVIEW_WEB_TOKEN: ${{ secrets.VERCEL_PREVIEW_WEB_TOKEN }}
           VERCEL_API_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
           VERCEL_WEB_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
         run: |
           missing=""
-          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_API_PROJECT_ID VERCEL_WEB_PROJECT_ID; do
+          for name in VERCEL_PREVIEW_API_TOKEN VERCEL_PREVIEW_WEB_TOKEN VERCEL_ORG_ID VERCEL_API_PROJECT_ID VERCEL_WEB_PROJECT_ID; do
             if [ -z "${!name}" ]; then missing="$missing $name"; fi
           done
           if [ -n "$missing" ]; then
@@ -106,7 +107,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_PREVIEW_API_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
         run: |
           mkdir vercel-api
@@ -122,7 +123,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_PREVIEW_WEB_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
         run: |
           mkdir vercel-web
