@@ -4,6 +4,7 @@ import {
   ApiErrorSchema,
   type ForgotPasswordRequest,
   type FoundTown,
+  type PlaceHiringOrder,
   type BuildingKind as PlaceKind,
   type Player,
   PlayerSchema,
@@ -22,6 +23,7 @@ import {
   type StartBuildingWork,
   type StartLessonRequest,
   type StopBuildingWork,
+  type StopHiringOrder,
   type TownOverview,
   TownOverviewSchema,
   type VerifyEmailRequest,
@@ -43,6 +45,8 @@ export interface ApiClient {
   foundTown(name: string): Promise<ApiOutcome<TownOverview>>
   startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
   stopBuildingWork(target: StopBuildingWork): Promise<ApiOutcome<TownOverview>>
+  placeHiringOrder(order: PlaceHiringOrder): Promise<ApiOutcome<TownOverview>>
+  stopHiringOrder(target: StopHiringOrder): Promise<ApiOutcome<TownOverview>>
   startLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   stopLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   reviews(): Promise<ApiOutcome<Reviews>>
@@ -143,6 +147,16 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     },
     stopBuildingWork: async ({ building, level }) => {
       const response = await send(`/town/work/${building}/${level}`, { method: 'DELETE' })
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    placeHiringOrder: async (order) => {
+      const response = await postJson('/town/hiring', order)
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    stopHiringOrder: async ({ hire, startedAt }) => {
+      const response = await send(`/town/hiring/${hire}/${encodeURIComponent(startedAt)}`, {
+        method: 'DELETE',
+      })
       return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
     },
     startLesson: async (lessonId) => {

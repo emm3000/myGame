@@ -108,6 +108,30 @@ it('deletes the stopped work by its place and level', async () => {
   expect(init?.method).toBe('DELETE')
 })
 
+it('posts the hiring order to the town hiring', async () => {
+  const fetch = answeringFetch(200, knownTown)
+
+  await createApiClient('/api').placeHiringOrder({ hire: 'truck', count: 3 })
+
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/hiring')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual({ hire: 'truck', count: 3 })
+})
+
+it('deletes the stopped hiring order by its kind and start', async () => {
+  const fetch = answeringFetch(200, knownTown)
+
+  await createApiClient('/api').stopHiringOrder({
+    hire: 'worker',
+    startedAt: '2026-11-10T09:00:00.000Z',
+  })
+
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/hiring/worker/2026-11-10T09%3A00%3A00.000Z')
+  expect(init?.method).toBe('DELETE')
+})
+
 it('answers a town refusal with its params', async () => {
   answeringFetch(409, { kind: 'WaitingListFull', params: { cap: 2 } })
 

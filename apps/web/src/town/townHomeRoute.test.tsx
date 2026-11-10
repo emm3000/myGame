@@ -21,6 +21,7 @@ import {
   townLoading,
   townNotBuilt,
   townPlacesTitleCity,
+  townPlacesTitleTown,
   townSeasonDays,
   townSeasonEndsIn,
   townSeasonLine,
@@ -318,7 +319,8 @@ it('draws each place with one window per level, a place not built with none', as
   const builtLevels = [namesPlacesHomes(), namesPlacesFarm(), namesPlacesPowerStation()].map(
     windowsOf,
   )
-  expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(7)
+  const places = screen.getByRole('region', { name: townPlacesTitleTown() })
+  expect(within(places).getAllByRole('heading', { level: 4 })).toHaveLength(7)
   expect(builtLevels).toEqual([4, 0, 0])
 })
 

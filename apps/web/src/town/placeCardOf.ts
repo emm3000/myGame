@@ -1,31 +1,21 @@
 import {
   refusalWaitingListFull,
-  townAmount,
   townAtTopLevel,
   townBuild,
-  townCostName,
   townInWork,
   townLevel,
   townNotBuilt,
   townPeopleAtWork,
   townPeopleShort,
-  townShortfall,
-  townShortMark,
   townTopLevel,
 } from '@mygame/catalog'
-import {
-  type BuildingKind,
-  type ResourceAmounts,
-  type ResourceKind,
-  ResourceKindSchema,
-} from '@mygame/contracts'
+import type { BuildingKind } from '@mygame/contracts'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
-import { conjunctionOf } from '../design-system/conjunctionOf'
-import { formatQuantity } from '../design-system/formatQuantity'
-import { townResourceNameOf } from '../resources/townResourceNameOf'
-import type { LiveStocks, LiveTown } from './liveTown'
+import { cardCostsOf } from './cardCostsOf'
+import type { LiveTown } from './liveTown'
 import { placeNameOf } from './placeNameOf'
+import { shortfallLineOf } from './shortfallLineOf'
 
 export interface PlaceCardContent {
   readonly name: string
@@ -38,38 +28,6 @@ export interface PlaceCardContent {
 }
 
 type NextLevel = NonNullable<LiveTown['overview']['buildings'][BuildingKind]['nextLevel']>
-
-interface Shortfall {
-  readonly resource: ResourceKind
-  readonly amount: number
-}
-
-const shortfallsOf = (cost: ResourceAmounts, stocks: LiveStocks): ReadonlyArray<Shortfall> =>
-  ResourceKindSchema.options
-    .map((resource) => ({
-      resource,
-      amount: Math.max(0, cost[resource] - Math.floor(stocks[resource])),
-    }))
-    .filter(({ amount }) => amount > 0)
-
-const costsOf = (cost: ResourceAmounts, stocks: LiveStocks): ReadonlyArray<CardCost> =>
-  ResourceKindSchema.options
-    .filter((resource) => cost[resource] > 0)
-    .map((resource) => ({
-      kind: resource,
-      amount: cost[resource],
-      spokenName: townCostName({ resource: townResourceNameOf(resource) }),
-      shortMark: cost[resource] > Math.floor(stocks[resource]) ? townShortMark() : undefined,
-    }))
-
-const shortfallLineOf = (shortfalls: ReadonlyArray<Shortfall>): string =>
-  townShortfall({
-    missing: conjunctionOf(
-      shortfalls.map(({ resource, amount }) =>
-        townAmount({ amount: formatQuantity(amount), resource: townResourceNameOf(resource) }),
-      ),
-    ),
-  })
 
 const isWaitingListFull = ({ work }: LiveTown['overview']): boolean =>
   work.slot !== null && work.waitingList.length >= work.cap
@@ -88,11 +46,8 @@ function stateOf(nextLevel: NextLevel, town: LiveTown): CardActionState {
       reason: townPeopleShort({ needed: nextLevel.people, free: overview.people.free }),
     }
   }
-  const shortfalls = shortfallsOf(nextLevel.cost, town.stocks)
-  if (shortfalls.length > 0) {
-    return { kind: 'blocked', reason: shortfallLineOf(shortfalls) }
-  }
-  return { kind: 'affordable' }
+  const shortfall = shortfallLineOf(nextLevel.cost, town.stocks)
+  return shortfall === undefined ? { kind: 'affordable' } : { kind: 'blocked', reason: shortfall }
 }
 
 const isInWork = (place: BuildingKind, { slot, waitingList }: LiveTown): boolean =>
@@ -124,7 +79,7 @@ export function placeCardOf(place: BuildingKind, town: LiveTown): PlaceCardConte
   return {
     ...common,
     effect: townPeopleAtWork({ people: nextLevel.people }),
-    costs: costsOf(nextLevel.cost, town.stocks),
+    costs: cardCostsOf(nextLevel.cost, town.stocks),
     actionLabel: townBuild({ level: nextLevel.level }),
     durationSeconds: nextLevel.durationSeconds,
     state: stateOf(nextLevel, town),
