@@ -29,7 +29,7 @@ import {
   townStocks,
   townTryAgain,
 } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'

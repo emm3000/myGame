@@ -1,31 +1,20 @@
 import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
-import type { FiefContent } from '@mygame/contracts'
 import {
-  type BuildingCatalog,
   type Clock,
   defaultMemoryTerms,
   type IdGenerator,
-  type KingdomMapReader,
   type MemoryTerms,
   type PlacedOutBands,
   type RandomSource,
+  type TownCatalog,
 } from '@mygame/domain'
-import type { TownCatalog } from '@mygame/domain/town'
-import { JsonBuildingCatalog } from './adapters/json/JsonBuildingCatalog'
 import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
 import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
-import { DrizzleCampRegistry } from './adapters/postgres/DrizzleCampRegistry'
 import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
-import { DrizzleChronicle } from './adapters/postgres/DrizzleChronicle'
-import { DrizzleDigestAcknowledgements } from './adapters/postgres/DrizzleDigestAcknowledgements'
-import { DrizzleFiefRepository } from './adapters/postgres/DrizzleFiefRepository'
-import { DrizzleGuidanceDismissals } from './adapters/postgres/DrizzleGuidanceDismissals'
-import { DrizzleKingdomMapReader } from './adapters/postgres/DrizzleKingdomMapReader'
 import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings'
-import { DrizzleSeenHints } from './adapters/postgres/DrizzleSeenHints'
 import { DrizzleTownNews } from './adapters/postgres/DrizzleTownNews'
 import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository'
 import { postgresTransaction, type Transaction } from './adapters/postgres/postgresTransaction'
@@ -39,13 +28,7 @@ import { SystemClock } from './adapters/system/SystemClock'
 import { createApp } from './app'
 import type { Accounts } from './auth/Accounts'
 import type { Mailer } from './auth/Mailer'
-import type { DigestAcknowledgements } from './digest/DigestAcknowledgements'
-import type { ChronicleReader } from './fief/ChronicleReader'
-import type { FiefReader } from './fief/FiefReader'
-import type { GuidanceDismissals } from './guidance/GuidanceDismissals'
-import type { SeenHints } from './hint/SeenHints'
 import type { FailureSink } from './http/FailureSink'
-import type { CampReader } from './kingdom/CampReader'
 import type { CardReader } from './learning/CardReader'
 import type { LessonLibrary } from './learning/LessonLibrary'
 import type { ReportClosings } from './town/ReportClosings'
@@ -101,27 +84,18 @@ const mailSettingsFrom = (environment: NodeJS.ProcessEnv): MailSettings => {
 
 export type ComposedServer = MailSettings & {
   readonly fetch: OpenAPIHono['fetch']
-  readonly buildingCatalog: BuildingCatalog
   readonly lessons: LessonLibrary
   readonly townCatalog: TownCatalog
   readonly memoryTerms: MemoryTerms
-  readonly digestTerms: FiefContent['digest']
   readonly clock: Clock
   readonly ids: IdGenerator
   readonly random: RandomSource
   readonly placedOutBands: PlacedOutBands
-  readonly fiefs: FiefReader
   readonly towns: TownReader
   readonly townNews: TownNewsReader
-  readonly chronicle: ChronicleReader
-  readonly map: KingdomMapReader
-  readonly camps: CampReader
   readonly cards: CardReader
   readonly accounts: Accounts
-  readonly digestAcknowledgements: DigestAcknowledgements
   readonly reportClosings: ReportClosings
-  readonly guidanceDismissals: GuidanceDismissals
-  readonly seenHints: SeenHints
   readonly passwords: Argon2Passwords
   readonly sessionTokens: CryptoSessionTokens
   readonly inTransaction: Transaction
@@ -141,32 +115,22 @@ export function composeServer(
   const isSessionCookieSecure = isSessionCookieSecureFrom(environment.SESSION_COOKIE_SECURE)
   const mail = mailSettingsFrom(environment)
   const { database, close } = connectPostgres(databaseUrl)
-  const buildingCatalog = JsonBuildingCatalog.fromDirectory(contentDirectory)
   const lessons = JsonLessonCatalog.fromDirectory(contentDirectory)
   const dependencies = {
-    buildingCatalog,
     lessons,
     townCatalog: JsonTownCatalog.fromDirectory(join(contentDirectory, 'town')),
     memoryTerms: defaultMemoryTerms,
-    digestTerms: buildingCatalog.digestTerms(),
     clock: new SystemClock(),
     ids: new CryptoIdGenerator(),
     random: new CryptoRandomSource(),
     placedOutBands: new NoPlacedOutBands(),
     accounts: new DrizzleAccounts(database),
-    digestAcknowledgements: new DrizzleDigestAcknowledgements(database),
     reportClosings: new DrizzleReportClosings(database),
-    guidanceDismissals: new DrizzleGuidanceDismissals(database),
-    seenHints: new DrizzleSeenHints(database),
     passwords: new Argon2Passwords(),
     sessionTokens: new CryptoSessionTokens(),
     inTransaction: postgresTransaction(database),
-    fiefs: new DrizzleFiefRepository(database, 'lockFree'),
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townNews: new DrizzleTownNews(database),
-    chronicle: new DrizzleChronicle(database),
-    map: new DrizzleKingdomMapReader(database),
-    camps: new DrizzleCampRegistry(database),
     cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,
     failureSink: standardErrorSink,

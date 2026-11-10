@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { FiefSettings } from '../ports/BuildingCatalog'
-import { neutralSeasons } from '../testing/neutralSeasons'
-import { plainCamps } from '../testing/plainCamps'
-import { plainForage } from '../testing/plainForage'
-import { plainUnits } from '../testing/plainUnits'
 import { Instant } from '../time/Instant'
+import type { SeasonedSettings } from './SeasonedSettings'
 import { seasonAt } from './seasonAt'
 
 const MILLISECONDS_PER_DAY = 86_400_000
@@ -14,36 +10,8 @@ const epoch = Instant.fromEpochMilliseconds(1_791_158_400_000)
 const daysAfterEpoch = (days: number): Instant =>
   Instant.fromEpochMilliseconds(epoch.epochMilliseconds + days * MILLISECONDS_PER_DAY)
 
-const neutralPercents = { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 }
-
-const weeklySettings: FiefSettings = {
-  startingStocks: { wood: 0, stone: 0, iron: 0, gold: 0, food: 0 },
-  startingCapacity: 1000,
-  basePeasantSupply: 4,
-  plotsPerProvince: 15,
-  baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
-  terrainBonus: {
-    lowlands: { resource: 'food', ratePerHour: 5 },
-    uplands: { resource: 'stone', ratePerHour: 4 },
-    ridges: { resource: 'iron', ratePerHour: 2 },
-  },
-  buildQueueCap: 4,
-  goals: [],
-  fiefCap: 2,
-  units: plainUnits,
-  forage: plainForage,
-  camps: plainCamps,
-  seasons: {
-    epoch,
-    daysPerSeason: 7,
-    multiplierPercent: {
-      spring: neutralPercents,
-      summer: neutralPercents,
-      fall: neutralPercents,
-      winter: neutralPercents,
-    },
-    durationPercent: neutralSeasons.durationPercent,
-  },
+const weeklySettings: SeasonedSettings = {
+  seasons: { epoch, daysPerSeason: 7 },
 }
 
 describe('seasonAt', () => {

@@ -3,10 +3,11 @@ import {
   type DomainError,
   heldOutWordsOf,
   type Instant,
+  type LessonSlotRepository,
   ok,
   type Result,
+  type Town,
 } from '@mygame/domain'
-import type { LessonSlotRepository, Town } from '@mygame/domain/town'
 import type { CardReader } from '../learning/CardReader'
 import type { TownReading } from './TownReading'
 

@@ -4,7 +4,7 @@ import {
   namesTownResourcesMoney,
   namesTownResourcesPower,
 } from '@mygame/catalog'
-import type { ResourceKind } from '@mygame/contracts/town'
+import type { ResourceKind } from '@mygame/contracts'
 
 const townResourceNames: Readonly<Record<ResourceKind, () => string>> = {
   money: namesTownResourcesMoney,

@@ -3,7 +3,7 @@ import {
   BuildingKindSchema,
   type ResourceKind,
   type TownOverview,
-} from '@mygame/contracts/town'
+} from '@mygame/contracts'
 
 export interface RaisedPlace {
   readonly place: BuildingKind

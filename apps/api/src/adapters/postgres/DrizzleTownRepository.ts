@@ -1,10 +1,15 @@
-import { type DomainError, err, Instant, ok, type PlayerId, type Result } from '@mygame/domain'
 import {
   type BuildingKind,
   type BuildingLevels,
   buildingKinds,
+  type DomainError,
+  err,
   type FullSince,
+  Instant,
   idleWorkSlot,
+  ok,
+  type PlayerId,
+  type Result,
   type SiteAddress,
   type Stocks,
   Town,
@@ -14,7 +19,7 @@ import {
   type TownSkill,
   type WaitingList,
   type WorkSlot,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import type { TownReader, TownWithSchool } from '../../town/TownReader'

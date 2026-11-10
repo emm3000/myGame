@@ -12,11 +12,7 @@ import {
   townWorkTitle,
   townWorkWaitingList,
 } from '@mygame/catalog'
-import {
-  type BuildingKind,
-  BuildingKindSchema,
-  type StopBuildingWork,
-} from '@mygame/contracts/town'
+import { type BuildingKind, BuildingKindSchema, type StopBuildingWork } from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'

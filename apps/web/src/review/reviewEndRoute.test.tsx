@@ -13,8 +13,7 @@ import {
   schoolPathCount,
   schoolPathStudied,
 } from '@mygame/catalog'
-import type { DueReview, Reviews, ReviewVerdict } from '@mygame/contracts'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { DueReview, Reviews, ReviewVerdict, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'

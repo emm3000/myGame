@@ -1,5 +1,13 @@
-import type { DomainError, Headword, HeldCard, PlayerId, Result } from '@mygame/domain'
-import type { LessonSlot, Town, TownRepository } from '@mygame/domain/town'
+import type {
+  DomainError,
+  Headword,
+  HeldCard,
+  LessonSlot,
+  PlayerId,
+  Result,
+  Town,
+  TownRepository,
+} from '@mygame/domain'
 
 export type TownWithSchool = {
   readonly town: Town

@@ -3,18 +3,16 @@ import {
   type DomainError,
   err,
   type Instant,
+  type LessonSlot,
   ok,
   type PlayerId,
   type Result,
-} from '@mygame/domain'
-import {
-  type LessonSlot,
   resolveTown,
   type Town,
   type TownCatalog,
   type TownNews,
   type TownRepository,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { laterOf } from '../time/laterOf'
 import { type MutateTownDependencies, mutateTown } from './mutateTown'
 import type { TownReader } from './TownReader'

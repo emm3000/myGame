@@ -1,4 +1,4 @@
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 
 export function lessonFinishedBetween(
   previous: TownOverview,

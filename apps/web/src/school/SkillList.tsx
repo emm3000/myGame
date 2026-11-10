@@ -1,5 +1,5 @@
 import { schoolSkillName, schoolSkillRate } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { skillLevelOf } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
 import { resourceAccent } from '../design-system/resourceAccent'

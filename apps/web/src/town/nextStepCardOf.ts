@@ -14,7 +14,7 @@ import {
   townNextGoToReport,
   townNextLessonReadyIn,
 } from '@mygame/catalog'
-import type { NextStep } from '@mygame/contracts/town'
+import type { NextStep } from '@mygame/contracts'
 import type { SlotCountdown } from '../design-system/CountdownLine'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { lessonNumberOf } from '../school/lessonCardOf'

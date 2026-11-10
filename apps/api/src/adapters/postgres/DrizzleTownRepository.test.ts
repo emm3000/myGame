@@ -1,5 +1,12 @@
-import { Instant, MemoryCard, type PlayerId } from '@mygame/domain'
-import { type LessonSlot, Town, TownAddress, TownName } from '@mygame/domain/town'
+import {
+  Instant,
+  type LessonSlot,
+  MemoryCard,
+  type PlayerId,
+  Town,
+  TownAddress,
+  TownName,
+} from '@mygame/domain'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
@@ -49,7 +56,7 @@ const registerPlayers = async (playerIds: ReadonlyArray<string>): Promise<void> 
 
 const truncateAll = async (): Promise<void> => {
   await pool.query(
-    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
   )
 }
 

@@ -13,7 +13,7 @@ You write GitHub issues for this repository. The prompt names the parent issue o
 1. `gh issue view <parent> --comments` when a parent exists, and two existing open tickets for the format in use.
 2. `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`.
 3. `docs/PRODUCT_REQUIREMENTS.md`: the rows, the NFRs, the acceptance criterion. A ticket never paraphrases a row; it cites the id.
-4. `CONTEXT.md` for every term, `docs/lore/` for every name a player sees, the ADRs and rules that own the area (`docs/adr/`, `.claude/rules/`, the package `CLAUDE.md`).
+4. `CONTEXT.md` for every term, `docs/setting/` for every name a player sees, the ADRs and rules that own the area (`docs/adr/`, `.claude/rules/`, the package `CLAUDE.md`).
 5. The current implementation of each slice: package, files, tests. Verify every path and symbol you cite exists with `fd` / `rg`; cite symbols, never line numbers.
 
 ## Each issue

@@ -56,9 +56,9 @@ describe("content gate check 9, the chrome's words", () => {
   })
 
   it('exempts an Android refusal as fixed copy', () => {
-    expect(checkChrome(withEnglish({ 'android.fief.refusal_queue_full': 'Leave home' }))).toEqual(
-      [],
-    )
+    expect(
+      checkChrome(withEnglish({ 'android.town.town_refusal_waiting_list_full': 'Leave home' })),
+    ).toEqual([])
   })
 
   it('reads the count of reviews due as chrome', () => {

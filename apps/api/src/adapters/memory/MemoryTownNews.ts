@@ -1,5 +1,12 @@
-import { type DomainError, type Instant, ok, type Result } from '@mygame/domain'
-import type { TownEvent, TownId, TownNews } from '@mygame/domain/town'
+import {
+  type DomainError,
+  type Instant,
+  ok,
+  type Result,
+  type TownEvent,
+  type TownId,
+  type TownNews,
+} from '@mygame/domain'
 import { keptEventsPerTown, type TownNewsReader } from '../../town/TownNewsReader'
 
 type NumberedEvent = {

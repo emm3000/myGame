@@ -1,5 +1,4 @@
-import type { MemoryTerms } from '@mygame/domain'
-import type { TownCatalog } from '@mygame/domain/town'
+import type { MemoryTerms, TownCatalog } from '@mygame/domain'
 import type { MutateTownDependencies } from '../town/mutateTown'
 import type { LessonLibrary } from './LessonLibrary'
 

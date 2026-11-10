@@ -3,15 +3,9 @@ import { ApiErrorSchema } from './index'
 
 describe('ApiErrorSchema', () => {
   it('parses a kind without fields as the kind alone', () => {
-    const insufficientResources = { kind: 'InsufficientResources' }
+    const studySlotBusy = { kind: 'StudySlotBusy' }
 
-    expect(ApiErrorSchema.parse(insufficientResources)).toEqual(insufficientResources)
-  })
-
-  it('parses the refusal of a blank fief name', () => {
-    const blankFiefName = { kind: 'BlankFiefName' }
-
-    expect(ApiErrorSchema.parse(blankFiefName)).toEqual(blankFiefName)
+    expect(ApiErrorSchema.parse(studySlotBusy)).toEqual(studySlotBusy)
   })
 
   it('parses a school too low as its kind alone', () => {
@@ -38,70 +32,29 @@ describe('ApiErrorSchema', () => {
   })
 
   it('rejects a message on the wire', () => {
-    const queueFull = { kind: 'QueueFull', message: 'Ya no caben más obras en espera.' }
+    const busy = { kind: 'StudySlotBusy', message: 'Ya estás estudiando una lección.' }
 
-    expect(ApiErrorSchema.safeParse(queueFull).success).toBe(false)
+    expect(ApiErrorSchema.safeParse(busy).success).toBe(false)
   })
 
   it('rejects params on a kind without fields', () => {
-    const queueFull = { kind: 'QueueFull', params: { cap: 3 } }
+    const busy = { kind: 'StudySlotBusy', params: { cap: 3 } }
 
-    expect(ApiErrorSchema.safeParse(queueFull).success).toBe(false)
-  })
-
-  it('parses a stay out of range with its longest stay', () => {
-    const stayOutOfRange = { kind: 'StayOutOfRange', params: { maxStayHours: 8 } }
-
-    expect(ApiErrorSchema.parse(stayOutOfRange)).toEqual(stayOutOfRange)
-  })
-
-  it('parses a party short at home with its unit and both counts', () => {
-    const unitsShort = {
-      kind: 'NotEnoughUnitsAtHome',
-      params: { unit: 'cavalry', count: 7, atHome: 6 },
-    }
-
-    expect(ApiErrorSchema.parse(unitsShort)).toEqual(unitsShort)
-  })
-
-  it('parses a barracks too low with the unit and the level it requires', () => {
-    const barracksTooLow = {
-      kind: 'BarracksTooLow',
-      params: { unit: 'settler', requiredBarracksLevel: 5 },
-    }
-
-    expect(ApiErrorSchema.parse(barracksTooLow)).toEqual(barracksTooLow)
-  })
-
-  it('parses a fief cap with the cap', () => {
-    const fiefCapReached = { kind: 'FiefCapReached', params: { cap: 2 } }
-
-    expect(ApiErrorSchema.parse(fiefCapReached)).toEqual(fiefCapReached)
-  })
-
-  it('parses a cargo above the carry with both amounts', () => {
-    const cargoAboveCarry = { kind: 'CargoAboveCarry', params: { cargo: 721, carry: 720 } }
-
-    expect(ApiErrorSchema.parse(cargoAboveCarry)).toEqual(cargoAboveCarry)
+    expect(ApiErrorSchema.safeParse(busy).success).toBe(false)
   })
 
   it('rejects a slotted kind without its params', () => {
-    expect(ApiErrorSchema.safeParse({ kind: 'StayOutOfRange' }).success).toBe(false)
+    expect(ApiErrorSchema.safeParse({ kind: 'WaitingListFull' }).success).toBe(false)
   })
 
-  it('rejects a fractional longest stay', () => {
-    const stayOutOfRange = { kind: 'StayOutOfRange', params: { maxStayHours: 7.5 } }
+  it('rejects a fractional waiting list cap', () => {
+    const waitingListFull = { kind: 'WaitingListFull', params: { cap: 2.5 } }
 
-    expect(ApiErrorSchema.safeParse(stayOutOfRange).success).toBe(false)
+    expect(ApiErrorSchema.safeParse(waitingListFull).success).toBe(false)
   })
 
-  it('rejects a party short at home naming an unknown unit', () => {
-    const unitsShort = {
-      kind: 'NotEnoughUnitsAtHome',
-      params: { unit: 'pikeman', count: 7, atHome: 6 },
-    }
-
-    expect(ApiErrorSchema.safeParse(unitsShort).success).toBe(false)
+  it('rejects a medieval kind', () => {
+    expect(ApiErrorSchema.safeParse({ kind: 'QueueFull', params: { cap: 2 } }).success).toBe(false)
   })
 
   it('rejects an unknown kind', () => {

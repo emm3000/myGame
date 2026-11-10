@@ -13,7 +13,7 @@ Vitest in every package. The gate runs `pnpm -r test`; a package without a `test
 - A test names a rule in a sentence: `it('caps accrued wood at the warehouse capacity')`. The suite reads as the spec of the module.
 - Behavior over structure: assert what the caller observes (the `Result`, the stored state, the response body), never a private call sequence.
 - One rule per test. A test that needs "and" in its name is two tests.
-- Fixture locals are named by role (`emptyFief`, `busyQueue`, `frozenClock`), built by small factory functions beside the test, never a shared mutable fixture.
+- Fixture locals are named by role (`emptyTown`, `busyQueue`, `frozenClock`), built by small factory functions beside the test, never a shared mutable fixture.
 
 ## Domain tests
 

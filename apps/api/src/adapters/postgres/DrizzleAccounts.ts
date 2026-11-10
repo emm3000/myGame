@@ -25,7 +25,6 @@ export class DrizzleAccounts implements Accounts {
       await this.database.insert(players).values({
         ...player,
         createdAt: dateOf(player.createdAt),
-        digestAcknowledgedAt: dateOf(player.createdAt),
         reportReadAt: dateOf(player.createdAt),
       })
       return 'added'

@@ -1,14 +1,4 @@
-import type { TownOverview } from '@mygame/contracts/town'
-import {
-  type DomainError,
-  Duration,
-  deriveBuildDurationSeconds,
-  type Instant,
-  type MemoryTerms,
-  ok,
-  type Result,
-  seasonAt,
-} from '@mygame/domain'
+import type { TownOverview } from '@mygame/contracts'
 import {
   accrueTown,
   type BuildingKind,
@@ -16,16 +6,24 @@ import {
   type BuildingLevels,
   buildingKinds,
   buildPercentAt,
+  type DomainError,
+  Duration,
+  deriveBuildDurationSeconds,
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
+  type Instant,
+  type MemoryTerms,
   nextStepOf,
+  ok,
   type ResourceKind,
+  type Result,
+  seasonAt,
   type Town,
   type TownCatalog,
   townLabelOf,
   type WaitingList,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { nextDueAtOf } from '../learning/reviewsOf'

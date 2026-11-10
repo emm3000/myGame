@@ -49,7 +49,7 @@ const truncateAccounts = async (): Promise<void> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
   } finally {
     await client.end()
@@ -80,13 +80,11 @@ const storedSessionKeys = async (): Promise<ReadonlyArray<string>> => {
   }
 }
 
-const storedHoldings = async (): Promise<number> => {
+const storedTowns = async (): Promise<number> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
-    const found = await client.query<{ count: number }>(
-      'SELECT (SELECT count(*) FROM fiefs)::int + (SELECT count(*) FROM towns)::int AS count',
-    )
+    const found = await client.query<{ count: number }>('SELECT count(*)::int AS count FROM towns')
     return found.rows[0]?.count ?? -1
   } finally {
     await client.end()
@@ -174,7 +172,7 @@ describe('the auth routes', () => {
 
     expect(response.status).toBe(201)
     PlayerSchema.parse(await response.json())
-    expect(await storedHoldings()).toBe(0)
+    expect(await storedTowns()).toBe(0)
   })
 
   it.each(['/auth/sign-up', '/auth/sign-up/native'])(
@@ -182,23 +180,14 @@ describe('the auth routes', () => {
     async (route) => {
       const response = await app.request(
         route,
-        post({ ...anasSignUp, retiredField: 'Valdehierro' }),
+        post({ ...anasSignUp, retiredField: 'Maple Grove' }),
       )
 
       expect(response.status).toBe(201)
       expect(await playersWithEmail(anasSignUp.email)).toBe(1)
-      expect(await storedHoldings()).toBe(0)
+      expect(await storedTowns()).toBe(0)
     },
   )
-
-  it('acknowledges a new player at sign-up', async () => {
-    clock.advanceHours(3)
-
-    const response = await signUpAna()
-
-    const player = PlayerSchema.parse(await response.json())
-    expect(await server.digestAcknowledgements.acknowledgedAt(player.id)).toEqual(clock.now())
-  })
 
   it('refuses a malformed email with a message the sign-up screen can show', async () => {
     const response = await app.request(

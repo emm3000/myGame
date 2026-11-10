@@ -41,19 +41,19 @@ None. No JSDoc, no `//`, no `/* */`, no commented-out code, no section banners. 
 
 | Thing | Pattern | Example |
 |---|---|---|
-| Entity | noun | `Fief`, `Building`, `BuildQueue` |
-| Value object | noun, immutable | `ResourceAmount`, `Coordinates`, `Duration` |
-| Use case | verb phrase | `enqueueBuilding`, `collectResources` |
-| Port | noun + role | `FiefRepository`, `Clock`, `IdGenerator` |
-| Adapter | technology + port | `DrizzleFiefRepository`, `SystemClock` |
+| Entity | noun | `Town`, `BuildingWork` |
+| Value object | noun, immutable | `Duration`, `SiteAddress`, `TownName` |
+| Use case | verb phrase | `startBuildingWork`, `settleSchoolLesson` |
+| Port | noun + role | `TownRepository`, `Clock`, `IdGenerator` |
+| Adapter | technology + port | `DrizzleTownRepository`, `SystemClock` |
 | Domain error member | past or present participle of the failure | `InsufficientResources`, `QueueFull` |
-| Contract schema | wire noun + `Schema` | `FiefOverviewSchema`, `EnqueueBuildingRequestSchema` |
-| Contract type | the schema's noun | `FiefOverview`, `EnqueueBuildingRequest` |
-| Hono route module | resource | `fiefs.ts`, `slot.ts` |
-| Web route | TanStack file route | `routes/fief.$fiefId.tsx` |
-| Component | noun, PascalCase | `ResourceBar`, `BuildQueuePanel` |
-| Hook | `use` + noun | `useFiefOverview` |
-| Test | `<subject>.test.ts` beside the subject | `enqueueBuilding.test.ts` |
+| Contract schema | wire noun + `Schema` | `TownOverviewSchema`, `StartBuildingWorkSchema` |
+| Contract type | the schema's noun | `TownOverview`, `StartBuildingWork` |
+| Hono route module | resource | `town.ts`, `report.ts` |
+| Web route | TanStack file route | `routes/school.$lessonId.tsx` |
+| Component | noun, PascalCase | `Block`, `BuildSlot` |
+| Hook | `use` + noun | `useTownOverview` |
+| Test | `<subject>.test.ts` beside the subject | `startBuildingWork.test.ts` |
 
 ## File names
 

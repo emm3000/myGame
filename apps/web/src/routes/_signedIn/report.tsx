@@ -1,5 +1,5 @@
 import { reportLoading } from '@mygame/catalog'
-import type { Report } from '@mygame/contracts/town'
+import type { Report } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'

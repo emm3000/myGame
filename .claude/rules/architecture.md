@@ -40,10 +40,10 @@ The only source of copy (ADR 038): `es.json` and `en.json`, ICU MessageFormat, o
 
 ## `packages/domain`
 
-- **Entities** hold identity and invariants (`Fief`, `Building`, `BuildQueue`). Invariants are enforced in constructors or factory functions that return `Result<T, DomainError>`, never by a validator called later.
-- **Value objects** are immutable and compared by value (`ResourceAmount`, `Coordinates`, `Duration`). Arithmetic lives on them, not on the caller.
+- **Entities** hold identity and invariants (`Town`, `BuildingWork`). Invariants are enforced in constructors or factory functions that return `Result<T, DomainError>`, never by a validator called later.
+- **Value objects** are immutable and compared by value (`Duration`, `SiteAddress`, `TownName`). Arithmetic lives on them, not on the caller.
 - **Use cases** are one exported function or one class with one `execute`. A use case takes its ports as parameters and returns `Result`. It never imports another use case; shared logic is a domain service.
-- **Ports** are interfaces the domain needs the outside to fulfil: `FiefRepository`, `Clock`, `IdGenerator`. Defined in `packages/domain`, implemented in `apps/api`.
+- **Ports** are interfaces the domain needs the outside to fulfil: `TownRepository`, `Clock`, `IdGenerator`. Defined in `packages/domain`, implemented in `apps/api`.
 - **Use-case admission**: a use case earns a file when it enforces a rule or coordinates more than one port. A pass-through from a route to a repository is not a use case; the route calls the repository.
 
 ## Errors
@@ -52,12 +52,12 @@ Failure modes are a sealed discriminated union:
 
 ```ts
 export type DomainError =
-  | { kind: 'InsufficientResources'; missing: ResourceAmount }
+  | { kind: 'InsufficientResources'; missing: ResourceAmounts }
   | { kind: 'QueueFull'; cap: number }
   | { kind: 'UnknownBuilding'; building: string }
 ```
 
-A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status in one place (`apps/api`, `answerRefusal`) and answers the `kind` with its typed `params`, the refusal's fields, never a player-facing line (ADR 038); each client reads the same `ApiError` from `packages/contracts` and renders the line from `packages/catalog`: the web and the api from `refusal.<Kind>`, Android from its module's `android.<module>.*refusal*` keys until the town rebuild shares one key set. A new failure mode is a new member of the union, never a new `class extends Error`.
+A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `kind` to an HTTP status in one place (`apps/api`, `answerRefusal`) and answers the `kind` with its typed `params`, the refusal's fields, never a player-facing line (ADR 038); each client reads the same `ApiError` from `packages/contracts` and renders the line from `packages/catalog`: the web and the api from `refusal.<Kind>`, Android from its module's `android.<module>.*refusal*` keys until Android shares the catalog key set. A new failure mode is a new member of the union, never a new `class extends Error`.
 
 ## Time
 
@@ -65,7 +65,7 @@ A use case returns `Result<T, DomainError>`; it never throws. An adapter maps `k
 
 ## Lazy evaluation
 
-Resource state is `(amount, at, ratePerHour, capacity, fullSince)`, `fullSince` the instant the store reached the capacity, null while it is under it. Reading a fief's resources computes `max(amount, min(capacity, amount + rate * elapsed(at, now)))` and never writes: a stock under the capacity accrues up to it, a stock at or above it (a refund may exceed it) stays frozen until spending brings it under (ADR 005, amendment). A mutation (spend, upgrade finished) first materializes the current amount at `now`, then applies the change, then stores `(newAmount, now, fullSince)`: a store at or above the capacity after the change keeps the `fullSince` it held, or takes the instant it crossed the capacity before the change (the change's own instant when a credit pushed it over); a store under the capacity clears it. Finished queue items are resolved the same way, on read, for the fief being read only. Nothing scans all fiefs.
+Resource state is `(amount, at, ratePerHour, capacity, fullSince)`, `fullSince` the instant the store reached the capacity, null while it is under it. Reading a town's resources computes `max(amount, min(capacity, amount + rate * elapsed(at, now)))` and never writes: a stock under the capacity accrues up to it, a stock at or above it (a refund may exceed it) stays frozen until spending brings it under (ADR 005, amendment). A mutation (spend, upgrade finished) first materializes the current amount at `now`, then applies the change, then stores `(newAmount, now, fullSince)`: a store at or above the capacity after the change keeps the `fullSince` it held, or takes the instant it crossed the capacity before the change (the change's own instant when a credit pushed it over); a store under the capacity clears it. Finished queue items are resolved the same way, on read, for the town being read only. Nothing scans all towns.
 
 ## `packages/contracts`
 

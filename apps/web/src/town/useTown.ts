@@ -1,4 +1,4 @@
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { longestTimeoutMs } from '../time/longestTimeoutMs'

@@ -1,4 +1,4 @@
-import type { Report } from '@mygame/contracts/town'
+import type { Report } from '@mygame/contracts'
 import { useCallback, useEffect, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { longestTimeoutMs } from '../time/longestTimeoutMs'

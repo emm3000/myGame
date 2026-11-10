@@ -5,18 +5,12 @@ import { honoPathOf } from './http/honoPath'
 import { reportServerFailures } from './http/reportServerFailures'
 import { sessionBearerScheme, sessionBearerSecurityScheme } from './http/responseDeclarations'
 import { type AuthDependencies, authRoutes } from './routes/auth'
-import { type DigestDependencies, digestRoutes } from './routes/digest'
-import { type FiefsDependencies, fiefsRoutes } from './routes/fiefs'
 import { healthDeclarations } from './routes/healthDeclarations'
-import { type HintsDependencies, hintsRoutes } from './routes/hints'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
 import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
 
 export type AppDependencies = AuthDependencies &
-  FiefsDependencies &
-  DigestDependencies &
-  HintsDependencies &
   LearningRouteDependencies &
   ReportRouteDependencies &
   TownDependencies & {
@@ -39,9 +33,6 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
   })
   app
     .route('/auth', authRoutes(dependencies))
-    .route('/fiefs', fiefsRoutes(dependencies))
-    .route('/digest', digestRoutes(dependencies))
-    .route('/hints', hintsRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
     .route('/report', reportRoutes(dependencies))
     .route('/town', townRoutes(dependencies))

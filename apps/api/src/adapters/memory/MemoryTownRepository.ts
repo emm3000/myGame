@@ -1,10 +1,14 @@
-import { type DomainError, err, ok, type PlayerId, type Result } from '@mygame/domain'
 import {
+  type DomainError,
   type EarnedSkillRepository,
+  err,
+  ok,
+  type PlayerId,
+  type Result,
   type SiteAddress,
   Town,
   type TownRepository,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 

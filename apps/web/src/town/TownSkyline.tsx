@@ -1,5 +1,5 @@
 import { townSkylineBuilt } from '@mygame/catalog'
-import type { BuildingKind, TownOverview } from '@mygame/contracts/town'
+import type { BuildingKind, TownOverview } from '@mygame/contracts'
 import { createElement, type ReactElement } from 'react'
 import { placeHeight, placeWidth } from '../art/placeShapesOf'
 import { color } from '../design/tokens'

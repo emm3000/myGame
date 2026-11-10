@@ -3,8 +3,12 @@ import {
   type ApiErrorKind,
   ApiErrorSchema,
   type ForgotPasswordRequest,
+  type FoundTown,
+  type BuildingKind as PlaceKind,
   type Player,
   PlayerSchema,
+  type Report,
+  ReportSchema,
   type ResetPasswordRequest,
   type ReviewAnswer,
   type ReviewAnswerRequest,
@@ -15,19 +19,13 @@ import {
   ReviewsSchema,
   type SignInRequest,
   type SignUpRequest,
-  type StartLessonRequest,
-  type VerifyEmailRequest,
-} from '@mygame/contracts'
-import {
-  type FoundTown,
-  type BuildingKind as PlaceKind,
-  type Report,
-  ReportSchema,
   type StartBuildingWork,
+  type StartLessonRequest,
   type StopBuildingWork,
   type TownOverview,
   TownOverviewSchema,
-} from '@mygame/contracts/town'
+  type VerifyEmailRequest,
+} from '@mygame/contracts'
 import type { ZodType } from 'zod'
 
 export type ApiRefusal = ApiErrorKind | 'Unexpected'

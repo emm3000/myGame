@@ -1,12 +1,13 @@
 import { createRoute } from '@hono/zod-openapi'
-import { StartLessonRequestSchema, StopLessonRequestSchema } from '@mygame/contracts'
 import {
   FoundTownSchema,
   StartBuildingWorkSchema,
+  StartLessonRequestSchema,
   StopBuildingWorkSchema,
+  StopLessonRequestSchema,
   TownNewsFeedSchema,
   TownOverviewSchema,
-} from '@mygame/contracts/town'
+} from '@mygame/contracts'
 import { type ResponseDeclaration, refusalResponse } from '../http/refusalResponse'
 import { jsonBody, jsonResponse, signedInRoute } from '../http/responseDeclarations'
 

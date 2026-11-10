@@ -1,4 +1,4 @@
-import type { TownNewsFeed } from '@mygame/contracts/town'
+import type { TownNewsFeed } from '@mygame/contracts'
 import { type DomainError, ok, type PlayerId, type Result } from '@mygame/domain'
 import { type CurrentTownDependencies, currentTownOf } from './currentTownOf'
 import type { TownNewsReader } from './TownNewsReader'

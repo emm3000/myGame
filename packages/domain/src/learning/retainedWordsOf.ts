@@ -1,4 +1,4 @@
-import type { EarnedSkill } from './EarnedSkill'
+import type { TownSkill } from '../town/TownSkill'
 import type { HeldCard } from './HeldCard'
 import { heldCardsOf } from './heldCardsOf'
 import { isWordRetained } from './isWordRetained'
@@ -11,7 +11,7 @@ export type RetainedWords = {
 
 export const retainedWordsOf = (
   lessons: ReadonlyArray<Lesson>,
-  skills: ReadonlyArray<Pick<EarnedSkill, 'lessonId'>>,
+  skills: ReadonlyArray<Pick<TownSkill, 'lessonId'>>,
   cards: ReadonlyArray<HeldCard>,
 ): RetainedWords | null => {
   const lesson = lessons.find(({ id }) => !skills.some(({ lessonId }) => lessonId === id))

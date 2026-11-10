@@ -8,9 +8,10 @@ import {
   ok,
   type PlayerId,
   type Result,
+  type Town,
+  type TownSkill,
   type WordId,
 } from '@mygame/domain'
-import type { Town, TownSkill } from '@mygame/domain/town'
 import { mutateTown } from '../town/mutateTown'
 import type { LearningDependencies } from './LearningDependencies'
 import type { LessonLibrary } from './LessonLibrary'

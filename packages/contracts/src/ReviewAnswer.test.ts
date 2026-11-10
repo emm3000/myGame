@@ -101,8 +101,8 @@ describe('ReviewAnswerSchema', () => {
     })
   })
 
-  it('rejects an answer that still carries a fief', () => {
-    expect(ReviewAnswerSchema.safeParse({ verdict: { kind: 'nearMiss' }, fief: {} }).success).toBe(
+  it('rejects an answer carrying a field it does not define', () => {
+    expect(ReviewAnswerSchema.safeParse({ verdict: { kind: 'nearMiss' }, town: {} }).success).toBe(
       false,
     )
   })

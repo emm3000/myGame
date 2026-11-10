@@ -8,8 +8,8 @@ paths:
 
 ## The client never decides
 
-- A request names what the player wants (`enqueue sawmill`), never an amount, a finish time or a verdict the client derived. The api's response is the new state.
-- The client never withholds a request on its own arithmetic. A projected amount may color a cost; the api's answer is the only verdict. Two exceptions, as on the web: a march form whose `block` is not `null` sends nothing, so its reason is its only line (#657); a recall card with an empty field sends nothing, since an empty answer is no attempt (#732).
+- A request names what the player wants (`start building work on the farm`), never an amount, a finish time or a verdict the client derived. The api's response is the new state.
+- The client never withholds a request on its own arithmetic. A projected amount may color a cost; the api's answer is the only verdict. One exception, as on the web: a recall card with an empty field sends nothing, since an empty answer is no attempt (#732).
 - A refusal arrives as the error `kind` the contract declares and reaches the screen as that typed value.
 
 ## Modules
@@ -18,7 +18,7 @@ paths:
 |---|---|
 | `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces |
 | `feature:<name>` | One game screen: its ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
-| `core:network` | The generated OpenAPI client, one interface per api resource (`FiefRepository`) implemented over it, the bearer, the token store |
+| `core:network` | The generated OpenAPI client, one interface per api resource (`TownRepository`) implemented over it, the bearer, the token store |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
 | `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown) |
@@ -49,19 +49,19 @@ The api's opaque session token travels as `Authorization: Bearer <token>`, added
 ## Time and the lazy projection
 
 - Only `app` binds `kotlin.time.Clock.System`. A ViewModel and the projection read `clock.now()`, never `System.currentTimeMillis()`.
-- Between reads, `core:projection` derives the amount drawn from the state the api returned (each resource's `amount`, `ratePerHour` and `capacity`, and the overview's `readAt`) and `clock.now()`, by ADR 005 and its amendments. `fullAt` is not read: the server derives it from the same inputs, and the client computes the cap itself. The device clock is never compared with the server's raw: when a read arrives the ViewModel stores the gap `readAt - clock.now()` and projects at `clock.now() + gap`, so a skewed device neither overdraws nor re-reads in a loop. A mutation's answer keeps the gap of the last read: its `readAt` is the fief's stored instant, which every mutation settles at the server's instant of the mutation. The derived amount is for drawing only: it is never sent and never stored as truth.
+- Between reads, `core:projection` derives the amount drawn from the state the api returned (each resource's `amount`, `ratePerHour` and `capacity`, and the overview's `readAt`) and `clock.now()`, by ADR 005 and its amendments. `fullAt` is not read: the server derives it from the same inputs, and the client computes the cap itself. The device clock is never compared with the server's raw: when a read arrives the ViewModel stores the gap `readAt - clock.now()` and projects at `clock.now() + gap`, so a skewed device neither overdraws nor re-reads in a loop. A mutation's answer keeps the gap of the last read: its `readAt` is the town's stored instant, which every mutation settles at the server's instant of the mutation. The derived amount is for drawing only: it is never sent and never stored as truth.
 - A mutation re-reads the api's answer; the projection restarts from it.
 
 ## MVI
 
 - `<Feature>UiState`: a `data class` (or a `sealed interface` of data classes), every field `val`, immutable collections. The only screen state.
 - `<Feature>Intent`: a `sealed interface` of what the player did (`BuildTapped`, `QueueCancelled`), never what the ViewModel should do.
-- `<Feature>Effect`: a `sealed interface` of one-shot outcomes (`NavigateToFief`, `ShowRefusal`), sent through a buffered `Channel` exposed as `Flow`, never a `SharedFlow`, never stored in state. A replay-0 `SharedFlow` drops an effect no collector is there to take.
+- `<Feature>Effect`: a `sealed interface` of one-shot outcomes (`NavigateToSchool`, `ShowRefusal`), sent through a buffered `Channel` exposed as `Flow`, never a `SharedFlow`, never stored in state. A replay-0 `SharedFlow` drops an effect no collector is there to take.
 - The ViewModel exposes `state: StateFlow<<Feature>UiState>`, `effects: Flow<<Feature>Effect>` and `onIntent(intent: <Feature>Intent)`, nothing else.
 - State stores what the player chose (a building id), never the resolved object; the resolved object is a getter over the catalog the same state holds.
 - A visibility flag (a sheet, a dialog, a confirmation) lives in `UiState`. So does a refusal that stays beside the card that asked for it until the next read: it is state, not an `Effect`. `remember` holds only pure UI mechanics: scroll, focus, animation.
 - A ViewModel never switches dispatcher: no `withContext`, no `Dispatchers.`; `core:network` owns its threading.
-- A ViewModel never holds user-facing copy; it emits a typed value the screen resolves with `stringResource`. A refusal with fields reaches `UiState` as a typed value carrying the api's `params` (`MarchRefusal.StayOutOfRange(maxStayHours)`), and the screen renders its line from `strings.xml` (ADR 038).
+- A ViewModel never holds user-facing copy; it emits a typed value the screen resolves with `stringResource`. A refusal with fields reaches `UiState` as a typed value carrying the api's `params` (a `TownWorkRefusal` member with its fields), and the screen renders its line from `strings.xml` (ADR 038).
 - A ViewModel is Compose-free. `./gradlew checkComposeFreeViewModels` fails any `*ViewModel.kt` or `*UiState.kt` importing `androidx.compose`; review also runs, expecting nothing:
 
 ```

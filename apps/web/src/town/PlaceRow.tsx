@@ -1,4 +1,4 @@
-import type { BuildingKind } from '@mygame/contracts/town'
+import type { BuildingKind } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { CostList } from '../design-system/CostList'

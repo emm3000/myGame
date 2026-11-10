@@ -15,8 +15,8 @@ English for every identifier, file, directory, branch, commit and doc. Player-fa
 
 ## Game content
 
-Names players see come from `docs/setting/` (`docs/lore/` until it exists) and `CONTEXT.md`, never invented in code. The identifier stays English (`sawmill`); the player-facing label lives only in `packages/catalog` (`es.json`), which generates the web's and the api's functions and the Android string resources (ADR 038).
+Names players see come from `docs/setting/` and `CONTEXT.md`, never invented in code. The identifier stays English (`storage`); the player-facing label lives only in `packages/catalog` (`es.json`), which generates the web's and the api's functions and the Android string resources (ADR 038).
 
 ## Rejected
 
-Abbreviations (`cfg`, `repo`, `mgr`, `ctx`; Hono's own `c` is the exception), Hungarian prefixes (`IFiefRepository`), `Impl` suffixes, `Helper` / `Util` / `Manager` classes, numbered variants (`fief2`).
+Abbreviations (`cfg`, `repo`, `mgr`, `ctx`; Hono's own `c` is the exception), Hungarian prefixes (`ITownRepository`), `Impl` suffixes, `Helper` / `Util` / `Manager` classes, numbered variants (`town2`).

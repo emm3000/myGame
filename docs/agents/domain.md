@@ -4,9 +4,9 @@ How the engineering skills consume this repo's domain documentation when explori
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root: the glossary, one line per term, medieval vocabulary mapped from the OGame concept it replaces.
+- **`CONTEXT.md`** at the repo root: the glossary, one line per term, the town vocabulary, mapped from the OGame concept it replaces.
 - **`docs/adr/`**: read the ADRs that touch the area you are about to work in. Numbering is `NNN-<slug>.md`, three digits.
-- **`docs/lore/`**: the world the glossary names come from. A term that a player sees is born in the lore first, enters `CONTEXT.md` second, and reaches code last.
+- **`docs/setting/`**: the world the glossary names come from. A term that a player sees is born in the setting first, enters `CONTEXT.md` second, and reaches code last.
 
 This is a single-context repo: one `CONTEXT.md`, one `docs/adr/`. If the game grows a second bounded context (a market, a chronicle), a `CONTEXT-MAP.md` at the root points at one `CONTEXT.md` per context.
 

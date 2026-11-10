@@ -6,7 +6,7 @@ Operating manifest for this repo. Loaded in every session.
 
 The product is **Townword**, a **server-authoritative** persistent browser game for learning American English, built on OGame's mechanics (ADR 035): a present-day town the player grows into a city, where the words the player retains earn the skills that raise production. The server is the only source of truth for every resource, queue, timer and review; the browser renders and asks. Resources and memory are derived by **lazy evaluation** (ADR 005): state is derived on read from stored timestamps and rates, never advanced by a background timer. The repo, the packages and every identifier keep `myGame`.
 
-No third-party users yet, but the author runs the game from day one, so a schema change is a migration and never a reset, with one signed exception: the one-time reset of the game state for the Townword pivot, accounts kept (ADR 035).
+No third-party users yet, but the author runs the game from day one, so a schema change is a migration and never a reset, with one signed exception, already spent: the one-time reset of the game state for the Townword pivot, accounts kept, which migration `0035_the_reset.sql` ran (ADR 035).
 
 ## Workspace
 
@@ -32,7 +32,7 @@ All five packages exist; each carries its own `CLAUDE.md`. `packages/catalog` is
 
 ## Product
 
-One town per player. Every player-facing text is American English; the player picks a scaffold language, `es` or `none` at launch, which fades per word. Until the town rebuild ships, the code is the medieval fief the PRD's M and S rows describe, with Spanish copy and `CONTEXT.md` recording both vocabularies. The Won't-have rows, the NFRs and the acceptance criterion: `docs/PRODUCT_REQUIREMENTS.md`. Learning content and town names come from `docs/setting/`; the shipped fief keeps its names in `docs/lore/` until the town rebuild (ADR 035).
+One town per player. Every player-facing text is American English; the player picks a scaffold language, `es` or `none` at launch, which fades per word. The code is the town: the medieval game was deleted at the cutover (ADR 040, #753), and `CONTEXT.md` holds the town's one vocabulary. The PRD's M and S rows describe the town and mark each row whose slice has not shipped *not yet shipped (ADR 041)*; the slice that ships it removes the mark. The Won't-have rows, the NFRs and the acceptance criterion: `docs/PRODUCT_REQUIREMENTS.md`. Learning content and town names come from `docs/setting/`.
 
 ## Non-negotiable rules
 
@@ -128,7 +128,7 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 - `gh issue list --label ready-for-agent` — the committed work. No doc holds a work list.
 - `docs/PRODUCT_REQUIREMENTS.md` — the Won't-have rows (ADRs amend them by row id), the NFRs, the acceptance criterion. Read before scoping a feature.
-- `docs/setting/` (and `docs/lore/` for the shipped fief until the town rebuild, ADR 035) — the world; read before naming anything a player sees. `docs/art/art-bible.md` before generating any image.
+- `docs/setting/` — the world; read before naming anything a player sees. `docs/art/art-bible.md` before generating any image.
 
 ### Domain docs
 

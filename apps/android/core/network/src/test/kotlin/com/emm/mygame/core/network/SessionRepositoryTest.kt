@@ -561,7 +561,7 @@ class SessionRepositoryTest {
     private fun refusalJson(kind: String): String = """{"kind":"$kind"}"""
 
     private fun playerJson(email: String): String =
-        """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":true,"seenHints":[]}"""
+        """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":true}"""
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()

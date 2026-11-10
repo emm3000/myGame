@@ -9,7 +9,7 @@ import {
   townLabelCity,
   townLabelTown,
 } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { assert, expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'

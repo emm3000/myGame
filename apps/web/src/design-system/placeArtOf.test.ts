@@ -1,4 +1,4 @@
-import { BuildingKindSchema } from '@mygame/contracts/town'
+import { BuildingKindSchema } from '@mygame/contracts'
 import { describe, expect, it } from 'vitest'
 import { palette } from '../design/tokens'
 import { placeArtOf } from './placeArtOf'

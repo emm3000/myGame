@@ -97,7 +97,7 @@ describe('the OpenAPI document', () => {
     })
   })
 
-  it('declares every account route and the fief overview read', async () => {
+  it('declares every account route', async () => {
     const document = await (await servedDocument()).json()
 
     expect(document).toMatchObject({
@@ -149,17 +149,6 @@ describe('the OpenAPI document', () => {
             responses: { 204: bodiless, 400: refusal },
           },
         },
-        '/fiefs/{fiefId}': {
-          get: {
-            parameters: [{ in: 'path', name: 'fiefId', required: true }],
-            responses: {
-              200: jsonOf('FiefOverview'),
-              400: bodiless,
-              401: bodiless,
-              404: refusal,
-            },
-          },
-        },
       },
     })
   })
@@ -174,87 +163,54 @@ describe('the OpenAPI document', () => {
     expect(objectsWithOptionalProperties(committedDocument())).toEqual([])
   })
 
-  it('lists every value of a numeric literal union', async () => {
+  it('names the discriminator of every union in the town overview and the reviews', async () => {
     const document = await (await servedDocument()).json()
 
     expect(document).toMatchObject({
       components: {
         schemas: {
-          ProvinceMap: {
-            properties: {
-              plots: {
-                items: {
-                  properties: {
-                    camp: { properties: { tier: { type: 'integer', enum: [1, 2, 3] } } },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    })
-  })
-
-  it('names the discriminator of every union in the fief overview', async () => {
-    const document = await (await servedDocument()).json()
-
-    expect(document).toMatchObject({
-      components: {
-        schemas: {
-          BuildSlot: discriminatedBy('kind', { idle: 'IdleBuildSlot', busy: 'BusyBuildSlot' }),
-          StudySlot: discriminatedBy('kind', { idle: 'IdleStudySlot', busy: 'BusyStudySlot' }),
-          MarchState: discriminatedBy('order', {
-            forage: 'ForageMarch',
-            attack: 'AttackMarch',
-            found: 'FoundingMarch',
-            transport: 'TransportMarch',
+          NextStep: discriminatedBy('kind', {
+            reviews: 'ReviewsStep',
+            lessonRunning: 'LessonRunningStep',
+            lessonToStudy: 'LessonToStudyStep',
+            caughtUp: 'CaughtUpStep',
           }),
-          Goal: discriminatedBy('state', { pending: 'PendingGoal', underway: 'UnderwayGoal' }),
-        },
-      },
-    })
-  })
-
-  it('names the discriminator of the fief event union', async () => {
-    const document = await (await servedDocument()).json()
-
-    expect(document).toMatchObject({
-      components: {
-        schemas: {
-          FiefEvent: discriminatedBy('kind', {
-            upgradeFinished: 'UpgradeFinishedEvent',
-            artLearned: 'ArtLearnedEvent',
-            upgradeCancelled: 'UpgradeCancelledEvent',
-            studyCancelled: 'StudyCancelledEvent',
-            recruitsDelivered: 'RecruitsDeliveredEvent',
-            recruitsCancelled: 'RecruitsCancelledEvent',
-            marchReturned: 'MarchReturnedEvent',
-            battleFought: 'BattleFoughtEvent',
-            foundingSent: 'FoundingSentEvent',
-            fiefFounded: 'FiefFoundedEvent',
-            transportSent: 'TransportSentEvent',
-            transportArrived: 'TransportArrivedEvent',
+          DueReview: discriminatedBy('mode', {
+            recognition: 'RecognitionReview',
+            recall: 'RecallReview',
           }),
-          FiefChronicle: {
-            properties: { events: { items: { $ref: '#/components/schemas/FiefEvent' } } },
-          },
+          ReviewVerdict: discriminatedBy('kind', {
+            nearMiss: 'NearMissVerdict',
+            correct: 'CorrectVerdict',
+            wrong: 'WrongVerdict',
+          }),
         },
       },
     })
   })
 
-  it('keeps a nullable union of the fief overview nullable beside its discriminator', async () => {
+  it('names the discriminator of the town news union', async () => {
     const document = await (await servedDocument()).json()
 
     expect(document).toMatchObject({
       components: {
         schemas: {
-          FiefOverview: {
-            properties: {
-              march: { allOf: [{ $ref: '#/components/schemas/MarchState' }, { nullable: true }] },
-              goal: { allOf: [{ $ref: '#/components/schemas/Goal' }, { nullable: true }] },
-            },
+          TownNewsItem: discriminatedBy('kind', {
+            buildingWorkFinished: 'BuildingWorkFinishedNews',
+            buildingWorkStopped: 'BuildingWorkStoppedNews',
+            lessonStudied: 'LessonStudiedNews',
+            lessonStopped: 'LessonStoppedNews',
+            skillEarned: 'SkillEarnedNews',
+            hiringDelivered: 'HiringDeliveredNews',
+            hiringStopped: 'HiringStoppedNews',
+            jobBack: 'JobBackNews',
+            jobCalledBack: 'JobCalledBackNews',
+            cleanUpDone: 'CleanUpDoneNews',
+            cleanUpFailed: 'CleanUpFailedNews',
+            becameCity: 'BecameCityNews',
+          }),
+          TownNewsFeed: {
+            properties: { items: { items: { $ref: '#/components/schemas/TownNewsItem' } } },
           },
         },
       },

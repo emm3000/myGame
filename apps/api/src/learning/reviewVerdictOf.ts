@@ -1,18 +1,16 @@
 import type { RaisedSkill, ReviewVerdict } from '@mygame/contracts'
 import {
   type DomainError,
+  deriveResourceRates,
   dueInstantOf,
   type MemoryTerms,
   ok,
   type Result,
   skillLevelOf,
-} from '@mygame/domain'
-import {
-  deriveResourceRates,
   type Town,
   type TownCatalog,
   type TownSkill,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 import type { ReviewOutcome } from './answerReviewOf'
 

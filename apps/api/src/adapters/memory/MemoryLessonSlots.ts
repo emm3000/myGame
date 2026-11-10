@@ -1,10 +1,12 @@
-import { type DomainError, ok, type Result } from '@mygame/domain'
 import {
+  type DomainError,
   idleLessonSlot,
   type LessonSlot,
   type LessonSlotRepository,
+  ok,
+  type Result,
   type TownId,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 
 export class MemoryLessonSlots implements LessonSlotRepository {
   private readonly slots = new Map<TownId, LessonSlot>()

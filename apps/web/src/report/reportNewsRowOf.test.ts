@@ -1,4 +1,4 @@
-import type { TownNewsItem } from '@mygame/contracts/town'
+import type { TownNewsItem } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { reportNewsRowOf } from './reportNewsRowOf'
 

@@ -1,5 +1,11 @@
-import { type DomainError, ok, type Result } from '@mygame/domain'
-import type { LessonSlot, LessonSlotRepository, TownId } from '@mygame/domain/town'
+import {
+  type DomainError,
+  type LessonSlot,
+  type LessonSlotRepository,
+  ok,
+  type Result,
+  type TownId,
+} from '@mygame/domain'
 import { eq } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { lessonSlotOf } from './lessonSlotOf'

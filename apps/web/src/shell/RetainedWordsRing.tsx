@@ -1,5 +1,5 @@
 import { shellRetainedWords } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import type { ReactElement } from 'react'
 import { strokeWidths } from '../design/tokens'
 

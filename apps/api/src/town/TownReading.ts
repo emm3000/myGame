@@ -1,5 +1,4 @@
-import type { Headword, HeldCard, Instant } from '@mygame/domain'
-import type { LessonSlot, Town } from '@mygame/domain/town'
+import type { Headword, HeldCard, Instant, LessonSlot, Town } from '@mygame/domain'
 
 export type TownReading = {
   readonly town: Town

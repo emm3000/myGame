@@ -1,5 +1,4 @@
-import type { ApiError } from '@mygame/contracts'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { ApiError, TownOverview } from '@mygame/contracts'
 import { useCallback, useRef, useState } from 'react'
 import type { ApiOutcome, ApiRefusal } from '../api/apiClient'
 

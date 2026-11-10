@@ -1,5 +1,5 @@
 import { schoolLessonTitle } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import type { ArtTag } from '../art/ArtTag'
 import { formatFinish } from '../time/formatFinish'
 import type { LiveLesson, LiveTown } from '../town/liveTown'

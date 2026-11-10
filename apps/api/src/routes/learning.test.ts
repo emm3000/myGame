@@ -7,8 +7,9 @@ import {
   ReviewHintSchema,
   type Reviews,
   ReviewsSchema,
+  type TownOverview,
+  TownOverviewSchema,
 } from '@mygame/contracts'
-import { type TownOverview, TownOverviewSchema } from '@mygame/contracts/town'
 import { type CardRepository, type Clock, Instant, type RandomSource } from '@mygame/domain'
 import { Client, type QueryResultRow } from 'pg'
 import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -194,7 +195,7 @@ describe('the learning routes', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     clock = settableClock('2026-11-10T08:00:00Z')
     app = createApp({ ...server, clock })
@@ -983,21 +984,6 @@ describe('the learning routes', () => {
       const founded = await overviewOf(await send(player, 'POST', '/town', { name: 'Cedar Creek' }))
 
       expect(founded.skills.map(({ lessonId }) => lessonId)).toEqual(['lesson-1'])
-    })
-
-    it('never writes the skill to the fief', async () => {
-      const player = await studyToTheLastSecondRecall()
-
-      await answered(player, 'lesson-1-5', 'food')
-
-      const client = new Client({ connectionString: databaseUrl() })
-      await client.connect()
-      try {
-        const rows = await client.query('SELECT count(*)::int AS count FROM player_skills')
-        expect(rows.rows).toEqual([{ count: 0 }])
-      } finally {
-        await client.end()
-      }
     })
   })
 

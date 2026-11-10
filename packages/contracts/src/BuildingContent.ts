@@ -1,40 +1,48 @@
 import { z } from 'zod'
+import { HireKindSchema } from './HireKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { DurationSecondsSchema, QuantitySchema, WholeCountSchema } from './Wire'
 
-const LevelSchema = z.object({
-  level: z.number().int().positive(),
-  cost: ResourceAmountsSchema,
-  durationSeconds: DurationSecondsSchema,
-  peasantOccupancy: WholeCountSchema,
-})
+const levelsWith = <Effect extends z.ZodType>(effect: Effect) =>
+  z
+    .array(
+      z.strictObject({
+        level: z.number().int().positive(),
+        cost: ResourceAmountsSchema,
+        durationSeconds: DurationSecondsSchema,
+        people: WholeCountSchema,
+        effect,
+      }),
+    )
+    .min(1)
 
-const ProducerLevelsSchema = z
-  .array(LevelSchema.extend({ effect: z.object({ ratePerHour: QuantitySchema }) }))
-  .min(1)
-
-const FarmLevelsSchema = z
-  .array(
-    LevelSchema.extend({
-      effect: z.object({ ratePerHour: QuantitySchema, peasantSupply: WholeCountSchema }),
-    }),
-  )
-  .min(1)
-
-const WarehouseLevelsSchema = z
-  .array(LevelSchema.extend({ effect: z.object({ capacity: WholeCountSchema }) }))
-  .min(1)
-
-const LevelsWithoutEffectSchema = z.array(LevelSchema).min(1)
+const ProducerLevelsSchema = levelsWith(z.strictObject({ ratePerHour: QuantitySchema }))
 
 export const BuildingContentSchema = z.discriminatedUnion('building', [
-  z.object({ building: z.literal('sawmill'), levels: ProducerLevelsSchema }),
-  z.object({ building: z.literal('quarry'), levels: ProducerLevelsSchema }),
-  z.object({ building: z.literal('ironMine'), levels: ProducerLevelsSchema }),
-  z.object({ building: z.literal('farm'), levels: FarmLevelsSchema }),
-  z.object({ building: z.literal('warehouse'), levels: WarehouseLevelsSchema }),
-  z.object({ building: z.literal('library'), levels: LevelsWithoutEffectSchema }),
-  z.object({ building: z.literal('barracks'), levels: LevelsWithoutEffectSchema }),
+  z.strictObject({
+    building: z.literal('homes'),
+    levels: levelsWith(z.strictObject({ peopleSupplied: WholeCountSchema })),
+  }),
+  z.strictObject({ building: z.literal('farm'), levels: ProducerLevelsSchema }),
+  z.strictObject({ building: z.literal('factory'), levels: ProducerLevelsSchema }),
+  z.strictObject({ building: z.literal('powerStation'), levels: ProducerLevelsSchema }),
+  z.strictObject({
+    building: z.literal('storage'),
+    levels: levelsWith(z.strictObject({ capacity: WholeCountSchema.positive() })),
+  }),
+  z.strictObject({
+    building: z.literal('school'),
+    levels: levelsWith(
+      z.strictObject({
+        lessonPercent: WholeCountSchema.positive(),
+        learningCap: WholeCountSchema.positive(),
+      }),
+    ),
+  }),
+  z.strictObject({
+    building: z.literal('office'),
+    levels: levelsWith(z.strictObject({ hires: z.array(HireKindSchema).min(1) })),
+  }),
 ])
 
 export type BuildingContent = z.infer<typeof BuildingContentSchema>

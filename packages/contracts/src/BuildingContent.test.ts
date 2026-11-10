@@ -1,60 +1,56 @@
 import { describe, expect, it } from 'vitest'
 import { BuildingContentSchema } from './index'
 
-const farmLevelOne = {
+const levelOne = {
   level: 1,
-  cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 0 },
+  cost: { money: 40, food: 0, power: 0, material: 60 },
   durationSeconds: 90,
-  peasantOccupancy: 1,
-  effect: { ratePerHour: 20, peasantSupply: 4 },
+  people: 2,
 }
 
-const farmContent = (levels: unknown[]): unknown => ({ building: 'farm', levels })
-
 describe('BuildingContentSchema', () => {
-  it('parses a farm level with its food rate and peasant supply', () => {
-    expect(BuildingContentSchema.parse(farmContent([farmLevelOne]))).toEqual(
-      farmContent([farmLevelOne]),
-    )
+  it('parses a homes level with the people it supplies', () => {
+    const homes = { building: 'homes', levels: [{ ...levelOne, effect: { peopleSupplied: 20 } }] }
+
+    expect(BuildingContentSchema.parse(homes)).toEqual(homes)
   })
 
-  it('parses library content whose levels carry no effect', () => {
-    const libraryLevelOne = {
-      level: 1,
-      cost: { wood: 120, stone: 100, iron: 20, gold: 40, food: 0 },
-      durationSeconds: 300,
-      peasantOccupancy: 2,
+  it('parses a power station level with its power rate', () => {
+    const powerStation = {
+      building: 'powerStation',
+      levels: [{ ...levelOne, effect: { ratePerHour: 25 } }],
     }
-    const libraryContent = { building: 'library', levels: [libraryLevelOne] }
 
-    expect(BuildingContentSchema.parse(libraryContent)).toEqual(libraryContent)
+    expect(BuildingContentSchema.parse(powerStation)).toEqual(powerStation)
   })
 
-  it('parses barracks content whose levels carry no effect', () => {
-    const barracksLevelOne = {
-      level: 1,
-      cost: { wood: 150, stone: 120, iron: 60, gold: 0, food: 40 },
-      durationSeconds: 240,
-      peasantOccupancy: 2,
+  it('parses a school level with its lesson percent and learning cap', () => {
+    const school = {
+      building: 'school',
+      levels: [{ ...levelOne, effect: { lessonPercent: 100, learningCap: 15 } }],
     }
-    const barracksContent = { building: 'barracks', levels: [barracksLevelOne] }
 
-    expect(BuildingContentSchema.parse(barracksContent)).toEqual(barracksContent)
+    expect(BuildingContentSchema.parse(school)).toEqual(school)
   })
 
-  it('rejects a building level without a peasant occupancy', () => {
-    const { peasantOccupancy: _, ...levelWithoutOccupancy } = farmLevelOne
+  it('refuses an office level that hires nobody', () => {
+    const office = { building: 'office', levels: [{ ...levelOne, effect: { hires: [] } }] }
 
-    expect(BuildingContentSchema.safeParse(farmContent([levelWithoutOccupancy])).success).toBe(
-      false,
-    )
+    expect(BuildingContentSchema.safeParse(office).success).toBe(false)
   })
 
-  it('rejects a duration that is not a whole number of seconds', () => {
-    const fractionalDurationLevel = { ...farmLevelOne, durationSeconds: 90.5 }
+  it('refuses a cost in a medieval resource', () => {
+    const farm = {
+      building: 'farm',
+      levels: [{ ...levelOne, cost: { ...levelOne.cost, wood: 10 }, effect: { ratePerHour: 30 } }],
+    }
 
-    expect(BuildingContentSchema.safeParse(farmContent([fractionalDurationLevel])).success).toBe(
-      false,
-    )
+    expect(BuildingContentSchema.safeParse(farm).success).toBe(false)
+  })
+
+  it('refuses a building the town does not have', () => {
+    const sawmill = { building: 'sawmill', levels: [{ ...levelOne, effect: { ratePerHour: 30 } }] }
+
+    expect(BuildingContentSchema.safeParse(sawmill).success).toBe(false)
   })
 })

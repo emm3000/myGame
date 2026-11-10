@@ -3,15 +3,10 @@ package com.emm.mygame.core.network
 import com.emm.mygame.core.network.generated.infrastructure.Serializer
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
-import com.emm.mygame.core.network.generated.models.BarracksTooLowError
 import com.emm.mygame.core.network.generated.models.BuildingWorkNotFoundError
-import com.emm.mygame.core.network.generated.models.CargoAboveCarryError
-import com.emm.mygame.core.network.generated.models.FiefCapReachedError
 import com.emm.mygame.core.network.generated.models.LearningCapReachedError
 import com.emm.mygame.core.network.generated.models.NotEnoughPeopleError
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesError
-import com.emm.mygame.core.network.generated.models.NotEnoughUnitsAtHomeError
-import com.emm.mygame.core.network.generated.models.StayOutOfRangeError
 import com.emm.mygame.core.network.generated.models.TopLevelReachedError
 import com.emm.mygame.core.network.generated.models.WaitingListFullError
 import kotlinx.serialization.SerializationException
@@ -46,11 +41,6 @@ internal fun Response<*>.wireRefusal(): WireRefusal? {
 private val json: Json = Serializer.kotlinxSerializationJson
 
 internal val kindsWithParams: Set<String> = setOf(
-    NotEnoughUnitsAtHomeError.Kind.NotEnoughUnitsAtHome.value,
-    BarracksTooLowError.Kind.BarracksTooLow.value,
-    FiefCapReachedError.Kind.FiefCapReached.value,
-    CargoAboveCarryError.Kind.CargoAboveCarry.value,
-    StayOutOfRangeError.Kind.StayOutOfRange.value,
     WaitingListFullError.Kind.WaitingListFull.value,
     NotEnoughPeopleError.Kind.NotEnoughPeople.value,
     NotEnoughResourcesError.Kind.NotEnoughResources.value,

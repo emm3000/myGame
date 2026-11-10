@@ -1,64 +1,7 @@
-export type { CampBattle } from './camp/CampBattle'
-export type { CampTier } from './camp/CampTier'
-export { campOf } from './camp/campOf'
 export type { DomainError } from './DomainError'
-export { artLevelInForce } from './fief/artLevelInForce'
-export { artResourceOf } from './fief/artResourceOf'
-export type { BuildQueue, BuildQueueEntry, UpgradeTarget } from './fief/BuildQueue'
-export type { BuildSlot, BusySlot } from './fief/BuildSlot'
-export { byUnitKind } from './fief/byUnitKind'
-export type { ChangedFief } from './fief/ChangedFief'
-export { Coordinates } from './fief/Coordinates'
-export { deliveredUnitsOf } from './fief/deliveredUnitsOf'
-export { deriveFullAt, type FullAt } from './fief/deriveFullAt'
-export { deriveLowestFreePeasants } from './fief/deriveLowestFreePeasants'
-export type { PeasantCounts } from './fief/derivePeasantCounts'
-export { derivePeasantCounts } from './fief/derivePeasantCounts'
-export { derivePeasantsForUpgrade } from './fief/derivePeasantsForUpgrade'
-export { deriveProjectedFreePeasants } from './fief/deriveProjectedFreePeasants'
-export { deriveResourceRates } from './fief/deriveResourceRates'
-export { deriveStudyDurationSeconds } from './fief/deriveStudyDurationSeconds'
-export { deriveUnitDurationSeconds } from './fief/deriveUnitDurationSeconds'
-export { deriveWarehouseCapacity } from './fief/deriveWarehouseCapacity'
-export {
-  Fief,
-  type FiefFounding,
-  type MarchOrder,
-  type MarchTarget,
-  type Stocks,
-  type StoredFief,
-  type TransportOrder,
-} from './fief/Fief'
-export type { FiefArtLevels } from './fief/FiefArtLevels'
-export type { FiefBuildingLevels } from './fief/FiefBuildingLevels'
-export type { FiefEvent } from './fief/FiefEvent'
-export type { FiefId } from './fief/FiefId'
-export { FiefName } from './fief/FiefName'
-export type { FiefOfPlayer } from './fief/FiefOfPlayer'
-export type { FiefSlotKind } from './fief/FiefSlotKind'
-export { type FullSince, noStoreFull } from './fief/FullSince'
-export { freeSlotsOf } from './fief/freeSlotsOf'
-export { fullStoresOf } from './fief/fullStoresOf'
-export type { IncomingCargo } from './fief/IncomingCargo'
-export { nextArtLevelOf } from './fief/nextArtLevelOf'
-export {
-  type GoalShortfall,
-  type NextGoal,
-  nextGoalOf,
-  type ResourceShortfall,
-} from './fief/nextGoalOf'
-export type { PlotAddress } from './fief/PlotAddress'
-export type { OpenRecruitOrder, RecruitOrder, RecruitOrderTarget } from './fief/RecruitOrder'
-export { recruitOrderEndsAt } from './fief/recruitOrderEndsAt'
-export type { BusyStudySlot, StudySlot, StudyTarget } from './fief/StudySlot'
-export { type ScheduledUpgrade, scheduleBuildQueue } from './fief/scheduleBuildQueue'
-export type { Terrain } from './fief/Terrain'
-export { terrainOf } from './fief/terrainOf'
-export type { ProvinceMap, ProvincePlot } from './kingdom/ProvinceMap'
 export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
 export { type DueCard, dueCardsAt } from './learning/dueCardsAt'
-export type { EarnedSkill } from './learning/EarnedSkill'
 export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAnswer'
 export type { HeldCard } from './learning/HeldCard'
 export { headwordOf } from './learning/headwordOf'
@@ -74,11 +17,6 @@ export { type RecognitionChoice, recognitionChoicesOf } from './learning/recogni
 export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
 export { skillLevelOf } from './learning/skillLevelOf'
 export { type WordStanding, wordStandingOf } from './learning/wordStandingOf'
-export { forageLootOf } from './march/forageLootOf'
-export type { AwayMarch, March, TransportMarch } from './march/March'
-export { type MarchInstants, marchInstantsOf } from './march/marchInstantsOf'
-export { marchOneWaySeconds } from './march/marchOneWaySeconds'
-export { type MarchPhase, marchPhaseAt } from './march/marchPhaseAt'
 export { dueInstantOf } from './memory/dueInstantOf'
 export {
   MemoryCard,
@@ -94,51 +32,110 @@ export { reviewMemoryCard } from './memory/reviewMemoryCard'
 export type { PlayerId } from './player/PlayerId'
 export type { BandCatalog } from './ports/BandCatalog'
 export type { BandStartRepository } from './ports/BandStartRepository'
-export type {
-  ArtKind,
-  ArtLevel,
-  BuildingCatalog,
-  BuildingKind,
-  BuildingLevel,
-  CampTerms,
-  CampTierTerms,
-  FarmLevel,
-  FiefSettings,
-  ForageTerms,
-  Goal,
-  ProducerLevel,
-  TerrainBonus,
-  UnitKind,
-  WarehouseLevel,
-} from './ports/BuildingCatalog'
-export type { CampRegistry } from './ports/CampRegistry'
 export type { CardRepository } from './ports/CardRepository'
-export type { ChronicleWriter } from './ports/ChronicleWriter'
 export type { Clock } from './ports/Clock'
-export type { FiefRepository } from './ports/FiefRepository'
 export type { IdGenerator } from './ports/IdGenerator'
-export type {
-  HeldAddress,
-  KingdomMapReader,
-  PlotHolder,
-  PlotReservation,
-} from './ports/KingdomMapReader'
 export type { LessonCatalog } from './ports/LessonCatalog'
 export type { PendingReviewRepository } from './ports/PendingReviewRepository'
 export type { PlacedOutBands } from './ports/PlacedOutBands'
 export type { RandomSource } from './ports/RandomSource'
 export type { ReviewLog } from './ports/ReviewLog'
 export { err, ok, type Result } from './Result'
-export { type MaterializedResources, materializeResources } from './resources/materializeResources'
-export type { ResourceKind, Resources } from './resources/Resources'
-export { Resource } from './resources/Resources'
 export { deriveBuildDurationSeconds } from './season/deriveBuildDurationSeconds'
-export { durationPercentAt } from './season/durationPercentAt'
-export type { DurationPercent, SeasonCalendar } from './season/SeasonCalendar'
 export type { SeasonKind } from './season/SeasonKind'
 export { type Season, seasonAt } from './season/seasonAt'
 export { Duration } from './time/Duration'
 export { Instant } from './time/Instant'
+export { type Accrual, accrueTown } from './town/accrueTown'
+export type { BuildingKind } from './town/BuildingKind'
+export type {
+  BuildingLevel,
+  HomesLevel,
+  OfficeLevel,
+  ProducerLevel,
+  SchoolLevel,
+  StorageLevel,
+} from './town/BuildingLevel'
+export { type BuildingLevels, foundingLevels } from './town/BuildingLevels'
+export {
+  type BusyWorkSlot,
+  idleWorkSlot,
+  type WaitingList,
+  type WaitingWork,
+  type WorkSlot,
+  type WorkTarget,
+} from './town/BuildingWork'
+export { buildingKinds } from './town/buildingKinds'
+export { buildPercentAt } from './town/buildPercentAt'
+export { deriveLessonDurationSeconds } from './town/deriveLessonDurationSeconds'
+export { derivePeople } from './town/derivePeople'
+export { deriveResourceRates, type ResourceRates } from './town/deriveResourceRates'
+export { deriveStorageCapacity } from './town/deriveStorageCapacity'
+export type { EarnedSkillRepository } from './town/EarnedSkillRepository'
+export { earnTownSkill } from './town/earnTownSkill'
+export { type FullSince, noStoreFull } from './town/FullSince'
+export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './town/foundTown'
+export type { HireKind } from './town/HireKind'
+export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
+export type { LessonSlotRepository } from './town/LessonSlotRepository'
+export {
+  type NextStep,
+  type NextStepReading,
+  type NextStepTerms,
+  nextStepOf,
+} from './town/nextStepOf'
+export type { People } from './town/People'
+export type { ResourceKind } from './town/ResourceKind'
+export { rebaseFullSince } from './town/rebaseFullSince'
+export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
+export { resourceKinds } from './town/resourceKinds'
+export type { SiteAddress } from './town/SiteAddress'
+export type { Stocks } from './town/Stocks'
+export { schoolLevelOf } from './town/schoolLevelOf'
+export {
+  type SettleSchoolLessonDependencies,
+  settleSchoolLesson,
+} from './town/settleSchoolLesson'
+export {
+  type StartBuildingWorkCommand,
+  type StartBuildingWorkDependencies,
+  startBuildingWork,
+} from './town/startBuildingWork'
+export {
+  type StartSchoolLessonCommand,
+  type StartSchoolLessonDependencies,
+  startSchoolLesson,
+} from './town/startSchoolLesson'
+export {
+  type StopBuildingWorkCommand,
+  type StopBuildingWorkDependencies,
+  stopBuildingWork,
+} from './town/stopBuildingWork'
+export {
+  type StopSchoolLessonCommand,
+  type StopSchoolLessonDependencies,
+  stopSchoolLesson,
+} from './town/stopSchoolLesson'
+export { studyPercentAt } from './town/studyPercentAt'
+export type { Terrain } from './town/Terrain'
+export { type ChangedTown, type StoredTown, Town, type TownFounding } from './town/Town'
+export { TownAddress } from './town/TownAddress'
+export type { TownCatalog } from './town/TownCatalog'
+export type { TownEvent, TownEventKind } from './town/TownEvent'
+export type { TownId } from './town/TownId'
+export type { TownLabel } from './town/TownLabel'
+export { TownName } from './town/TownName'
+export type { TownNews } from './town/TownNews'
+export type { TownRepository } from './town/TownRepository'
+export type {
+  ProductionPercent,
+  TownDurationPercent,
+  TownSeasons,
+  TownSettings,
+} from './town/TownSettings'
+export type { TownSkill } from './town/TownSkill'
+export { terrainOf } from './town/terrainOf'
+export { townLabelOf } from './town/townLabelOf'
 export {
   type AnsweredReview,
   type AnswerReviewCommand,
@@ -146,79 +143,8 @@ export {
   answerReview,
 } from './useCases/answerReview'
 export {
-  type CancelRecruitOrderCommand,
-  type CancelRecruitOrderDependencies,
-  cancelRecruitOrder,
-} from './useCases/cancelRecruitOrder'
-export {
-  type CancelStudyCommand,
-  type CancelStudyDependencies,
-  cancelStudy,
-} from './useCases/cancelStudy'
-export {
-  type CancelUpgradeCommand,
-  type CancelUpgradeDependencies,
-  cancelUpgrade,
-} from './useCases/cancelUpgrade'
-export {
-  type DispatchAttackCommand,
-  type DispatchAttackDependencies,
-  dispatchAttack,
-} from './useCases/dispatchAttack'
-export {
-  type DispatchFoundingCommand,
-  type DispatchFoundingDependencies,
-  dispatchFounding,
-} from './useCases/dispatchFounding'
-export {
-  type DispatchMarchCommand,
-  type DispatchMarchDependencies,
-  dispatchMarch,
-} from './useCases/dispatchMarch'
-export {
-  type DispatchTransportCommand,
-  type DispatchTransportDependencies,
-  dispatchTransport,
-} from './useCases/dispatchTransport'
-export {
-  type EnqueueBuildingCommand,
-  type EnqueueBuildingDependencies,
-  enqueueBuilding,
-} from './useCases/enqueueBuilding'
-export {
-  type FoundFiefCommand,
-  type FoundFiefDependencies,
-  foundFief,
-} from './useCases/foundFief'
-export {
-  type PlaceRecruitOrderCommand,
-  type PlaceRecruitOrderDependencies,
-  placeRecruitOrder,
-} from './useCases/placeRecruitOrder'
-export {
-  type ReadProvinceMapCommand,
-  type ReadProvinceMapDependencies,
-  readProvinceMap,
-} from './useCases/readProvinceMap'
-export {
-  type RecallMarchCommand,
-  type RecallMarchDependencies,
-  recallMarch,
-} from './useCases/recallMarch'
-export {
   type Hint,
   type RequestHintCommand,
   type RequestHintDependencies,
   requestHint,
 } from './useCases/requestHint'
-export {
-  type ResolvedFief,
-  type ResolveUpgradeCommand,
-  type ResolveUpgradeDependencies,
-  resolveUpgrade,
-} from './useCases/resolveUpgrade'
-export {
-  type StartStudyCommand,
-  type StartStudyDependencies,
-  startStudy,
-} from './useCases/startStudy'

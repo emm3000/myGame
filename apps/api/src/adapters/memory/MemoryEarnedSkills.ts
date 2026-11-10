@@ -1,5 +1,11 @@
-import { type DomainError, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { EarnedSkillRepository, TownSkill } from '@mygame/domain/town'
+import {
+  type DomainError,
+  type EarnedSkillRepository,
+  ok,
+  type PlayerId,
+  type Result,
+  type TownSkill,
+} from '@mygame/domain'
 import { byEarnedAt } from '../byEarnedAt'
 
 export class MemoryEarnedSkills implements EarnedSkillRepository {

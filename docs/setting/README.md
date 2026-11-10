@@ -1,6 +1,6 @@
 # Setting
 
-Townword's world: a present-day town the player grows into a city (ADR 035). This directory replaces `docs/lore/`, written new and not adapted from it (`docs/research/english-pivot/decisions.md` §10.2).
+Townword's world: a present-day town the player grows into a city (ADR 035). This directory replaced the medieval lore, written new and not adapted from it (`docs/research/english-pivot/decisions.md` §10.2).
 
 ## Structure
 
@@ -12,7 +12,7 @@ docs/setting/
   town.md        the town, its seven places, the map and the people in the news
 ```
 
-`town.md` names the town, the region and the people in the news the rebuild brings. Until the rebuild ships, `docs/lore/` names what the shipped medieval game shows, and the Spanish chrome around the first lesson stays in `docs/lore/names.md`, The review.
+`town.md` names the town, the region and the people in the news. The Spanish chrome around the first lesson lives in `packages/catalog/es.json`.
 
 ## Rules
 

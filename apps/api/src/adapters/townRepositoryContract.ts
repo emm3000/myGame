@@ -1,15 +1,18 @@
-import { Instant, type PlayerId } from '@mygame/domain'
-import type { EarnedSkillRepository, TownRepository, TownSkill } from '@mygame/domain/town'
 import {
+  type EarnedSkillRepository,
   foundingLevels,
+  Instant,
   idleWorkSlot,
   noStoreFull,
+  type PlayerId,
   Town,
   TownAddress,
   TownName,
+  type TownRepository,
+  type TownSkill,
   type WaitingList,
   type WorkSlot,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { assert, describe, expect, it } from 'vitest'
 
 export type TownRepositoryFixture = {

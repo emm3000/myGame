@@ -15,9 +15,9 @@ describe('SignUpRequestSchema', () => {
     expect(SignUpRequestSchema.safeParse(signUp('siete12')).success).toBe(false)
   })
 
-  it('drops the fief name an older client still sends', () => {
+  it('drops a field the request does not define', () => {
     expect(
-      SignUpRequestSchema.parse({ ...(signUp('ocho1234') as object), fiefName: 'Vado Gris' }),
+      SignUpRequestSchema.parse({ ...(signUp('ocho1234') as object), townName: 'Maple Falls' }),
     ).toEqual(signUp('ocho1234'))
   })
 })

@@ -16,8 +16,7 @@ import {
   shellSignOut,
   townTryAgain,
 } from '@mygame/catalog'
-import type { DueReview } from '@mygame/contracts'
-import type { Report, TownNewsItem } from '@mygame/contracts/town'
+import type { DueReview, Report, TownNewsItem } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'

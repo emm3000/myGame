@@ -1,22 +1,20 @@
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import {
   cardsInLearningOf,
   type DomainError,
+  deriveLessonDurationSeconds,
   type Headword,
   type HeldCard,
+  type LessonSlot,
   ok,
   type Result,
   readableWordsOf,
   retainedWordsOf,
-  wordStandingOf,
-} from '@mygame/domain'
-import {
-  deriveLessonDurationSeconds,
-  type LessonSlot,
   schoolLevelOf,
   studyPercentAt,
   type TownCatalog,
-} from '@mygame/domain/town'
+  wordStandingOf,
+} from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 import type { TownReading } from '../town/TownReading'
 import type { LessonLibrary, ShelvedLesson } from './LessonLibrary'

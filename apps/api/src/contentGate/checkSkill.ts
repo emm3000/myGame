@@ -1,4 +1,4 @@
-import { ResourceKindSchema } from '@mygame/contracts/town'
+import { ResourceKindSchema } from '@mygame/contracts'
 import type { GateContent } from './GateContent'
 
 const firstResource = 'food'

@@ -7,7 +7,7 @@ import {
   townStockOf,
   townStocks,
 } from '@mygame/catalog'
-import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts/town'
+import { type ResourceKind, ResourceKindSchema, type TownOverview } from '@mygame/contracts'
 import { skillLevelOf } from '@mygame/domain'
 import { type ReactElement, useId } from 'react'
 import { capitalize } from '../design-system/capitalize'

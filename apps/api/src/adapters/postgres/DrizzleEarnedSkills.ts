@@ -1,5 +1,12 @@
-import { type DomainError, Instant, ok, type PlayerId, type Result } from '@mygame/domain'
-import type { EarnedSkillRepository, TownSkill } from '@mygame/domain/town'
+import {
+  type DomainError,
+  type EarnedSkillRepository,
+  Instant,
+  ok,
+  type PlayerId,
+  type Result,
+  type TownSkill,
+} from '@mygame/domain'
 import { asc, eq, sql } from 'drizzle-orm'
 import type { PostgresSession } from './connectPostgres'
 import { earnedSkills } from './schema'

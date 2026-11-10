@@ -1,4 +1,4 @@
-import type { BuildingKind } from '@mygame/contracts/town'
+import type { BuildingKind } from '@mygame/contracts'
 import type { ArtTag } from '../art/ArtTag'
 import { placeSilhouetteOf } from '../design-system/placeArtOf'
 
