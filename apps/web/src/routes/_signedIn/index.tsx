@@ -12,6 +12,7 @@ import { TownReadFailed } from '../../town/TownReadFailed'
 import { useFoundTown } from '../../town/useFoundTown'
 import { useLayoutTown } from '../../town/useLayoutTown'
 import type { TownHandle } from '../../town/useTown'
+import { useTownHiring } from '../../town/useTownHiring'
 import { useTownWork } from '../../town/useTownWork'
 
 function NameTownPage({
@@ -46,7 +47,8 @@ function TownHomePage({
   readonly adopt: TownHandle['adopt']
 }): ReactElement {
   const work = useTownWork(apiClient, adopt, town.overview.readAt)
-  return <TownHome town={town} registered={registered} work={work} />
+  const hiring = useTownHiring(apiClient, adopt, town.overview.readAt)
+  return <TownHome town={town} registered={registered} work={work} hiring={hiring} />
 }
 
 const townSkeletonGroups: LoadingSkeletonProps['groups'] = [

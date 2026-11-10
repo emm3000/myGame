@@ -1,4 +1,4 @@
-import type { BuildingKind, ResourceKind, TownOverview } from '@mygame/contracts'
+import type { BuildingKind, HireKind, ResourceKind, TownOverview } from '@mygame/contracts'
 
 export type LiveStocks = Readonly<Record<ResourceKind, number>>
 
@@ -14,6 +14,14 @@ export interface LiveLesson {
   readonly totalSeconds: number
 }
 
+export interface LiveHiringOrder {
+  readonly hire: HireKind
+  readonly count: number
+  readonly delivered: number
+  readonly remainingSeconds: number
+  readonly totalSeconds: number
+}
+
 export interface LiveTown {
   readonly overview: TownOverview
   readonly at: Date
@@ -21,6 +29,7 @@ export interface LiveTown {
   readonly slot: (LiveWork & { readonly totalSeconds: number }) | null
   readonly waitingList: ReadonlyArray<LiveWork>
   readonly lessonSlot: LiveLesson | null
+  readonly hiringOrder: LiveHiringOrder | null
   readonly nextDueSeconds: number | null
   readonly seasonRemainingSeconds: number | null
 }
@@ -76,6 +85,20 @@ const lessonSlotAt = (overview: TownOverview, elapsedSeconds: number): LiveLesso
   }
 }
 
+const hiringOrderAt = (overview: TownOverview, elapsedSeconds: number): LiveHiringOrder | null => {
+  const { order } = overview.hiring
+  if (order === null) {
+    return null
+  }
+  return {
+    hire: order.hire,
+    count: order.count,
+    delivered: order.delivered,
+    remainingSeconds: secondsUntil(order.endsAt, overview, elapsedSeconds),
+    totalSeconds: (Date.parse(order.endsAt) - Date.parse(order.startedAt)) / 1000,
+  }
+}
+
 export function liveTownAt(overview: TownOverview, elapsedSeconds: number): LiveTown {
   return {
     overview,
@@ -88,6 +111,7 @@ export function liveTownAt(overview: TownOverview, elapsedSeconds: number): Live
       remainingSeconds: secondsUntil(finishesAt, overview, elapsedSeconds),
     })),
     lessonSlot: lessonSlotAt(overview, elapsedSeconds),
+    hiringOrder: hiringOrderAt(overview, elapsedSeconds),
     nextDueSeconds:
       overview.nextDueAt === null
         ? null

@@ -25,18 +25,21 @@ import { formatFinish } from '../time/formatFinish'
 import { dueCountOf } from './dueCountOf'
 import type { LiveTown } from './liveTown'
 import { NextStepCard } from './NextStepCard'
+import { OfficeSection } from './OfficeSection'
 import { PlaceRow } from './PlaceRow'
 import { placeNameOf } from './placeNameOf'
 import { levelBeforeOf, type Registered } from './registeredBetween'
 import { TownDoors } from './TownDoors'
 import { TownSkyline } from './TownSkyline'
 import { TownStocks } from './TownStocks'
+import type { TownHiring } from './useTownHiring'
 import type { TownWork } from './useTownWork'
 
 export interface TownHomeProps {
   readonly town: LiveTown
   readonly registered: Registered
   readonly work: TownWork
+  readonly hiring: TownHiring
 }
 
 const placesInOrder: ReadonlyArray<BuildingKind> = [
@@ -145,7 +148,7 @@ function PlaceItem({
   )
 }
 
-export function TownHome({ town, registered, work }: TownHomeProps): ReactElement {
+export function TownHome({ town, registered, work, hiring }: TownHomeProps): ReactElement {
   const { overview } = town
   const placesTitleId = useId()
   const slotTitle = useFocusTarget<HTMLSpanElement>()
@@ -183,6 +186,7 @@ export function TownHome({ town, registered, work }: TownHomeProps): ReactElemen
           ))}
         </ul>
       </section>
+      <OfficeSection town={town} hiring={hiring} />
     </div>
   )
 }

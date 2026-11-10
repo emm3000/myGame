@@ -12,6 +12,7 @@ export interface TextFieldProps {
   readonly isDisabled?: boolean | undefined
   readonly maxLength?: number | undefined
   readonly lang?: string | undefined
+  readonly inputMode?: 'numeric' | undefined
 }
 
 export function TextField(props: TextFieldProps): ReactElement {
@@ -34,6 +35,7 @@ export function TextField(props: TextFieldProps): ReactElement {
         disabled={props.isDisabled}
         maxLength={props.maxLength}
         lang={props.lang}
+        inputMode={props.inputMode}
         onChange={(event) => props.onChange(event.target.value)}
         aria-invalid={hasError}
         aria-describedby={describedBy === '' ? undefined : describedBy}

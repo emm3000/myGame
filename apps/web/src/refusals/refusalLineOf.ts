@@ -3,6 +3,8 @@ import {
   refusalBuildingWorkNotFound,
   refusalEmailTaken,
   refusalHintOnRecognition,
+  refusalHiringOrderNotFound,
+  refusalHiringSlotBusy,
   refusalInvalidCredentials,
   refusalLearningCapReached,
   refusalLessonAlreadyStudied,
@@ -13,6 +15,7 @@ import {
   refusalMalformedEmail,
   refusalNotEnoughPeople,
   refusalNotEnoughResources,
+  refusalOfficeTooLow,
   refusalPlayerAlreadyHoldsTown,
   refusalReviewNotDue,
   refusalStudySlotBusy,
@@ -76,10 +79,11 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
     case 'LearningCapReached':
       return refusalLearningCapReached(error.params)
     case 'OfficeTooLow':
+      return refusalOfficeTooLow(error.params)
     case 'HiringSlotBusy':
+      return refusalHiringSlotBusy()
     case 'HiringOrderNotFound':
-      // TODO(#779) the office screen gives the hiring refusals their lines
-      return refusalUnexpected()
+      return refusalHiringOrderNotFound()
     default: {
       const unhandled: never = error
       return unhandled

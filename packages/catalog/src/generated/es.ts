@@ -15,6 +15,8 @@ export const mailResetSubject = (): string => `Cambia tu contraseña`
 export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
 export const mailVerificationSubject = (): string => `Confirma tu correo`
 export const mailVerificationText = ({ link }: { readonly link: string | number }): string => `Confirma que este correo es el de tu feudo abriendo este enlace:\n\n${String(link)}\n\nEl enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.\n\nSi no has fundado ningún feudo, ignora este correo.`
+export const namesHiresTruck = (): string => `Camiones`
+export const namesHiresWorker = (): string => `Trabajadores`
 export const namesPlacesFactory = (): string => `Fábrica`
 export const namesPlacesFarm = (): string => `Granja`
 export const namesPlacesHomes = (): string => `Hogares`
@@ -43,6 +45,8 @@ export const refusalBlankTownName = (): string => `Escribe un nombre para tu pue
 export const refusalBuildingWorkNotFound = ({ level }: { readonly level: string | number }): string => `La obra del nivel ${String(level)} ya no está en la lista. Quizá ya terminó.`
 export const refusalEmailTaken = (): string => `Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.`
 export const refusalHintOnRecognition = (): string => `Esta palabra se elige entre opciones y no lleva pista. La pista llega cuando toca escribirla.`
+export const refusalHiringOrderNotFound = (): string => `Esta contratación ya terminó.`
+export const refusalHiringSlotBusy = (): string => `Ya tienes una contratación en curso. Espera a que termine.`
 export const refusalInvalidCredentials = (): string => `El correo o la contraseña no son correctos.`
 export const refusalLearningCapReached = ({ cardsInLearning, learningCap }: { readonly cardsInLearning: string | number; readonly learningCap: string | number }): string => `Palabras en aprendizaje: ${String(cardsInLearning)} de ${String(learningCap)}. Repásalas antes de empezar otra lección.`
 export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste esa lección: sus palabras están en tu repaso.`
@@ -53,6 +57,7 @@ export const refusalMailNotSent = (): string => `No hemos podido enviarlo.`
 export const refusalMalformedEmail = (): string => `Escribe un correo válido, como nombre@ejemplo.com.`
 export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
 export const refusalNotEnoughResources = (): string => `No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.`
+export const refusalOfficeTooLow = ({ officeLevel, requiredOfficeLevel }: { readonly officeLevel: string | number; readonly requiredOfficeLevel: string | number }): string => `Tu oficina está en nivel ${String(officeLevel)} y esta contratación necesita el nivel ${String(requiredOfficeLevel)}.`
 export const refusalPlayerAlreadyHoldsTown = (): string => `Ya tienes un pueblo. Solo puedes tener uno.`
 export const refusalReviewNotDue = (): string => `Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.`
 export const refusalStudySlotBusy = (): string => `La biblioteca ya tiene un estudio en marcha. Espera a que termine.`
@@ -182,6 +187,26 @@ export const townNextGoToReport = (): string => `Ir al informe`
 export const townNextLessonReadyIn = ({ number }: { readonly number: string | number }): string => `Lección ${String(number)} lista en`
 export const townNextTitle = (): string => `Tu siguiente paso`
 export const townNotBuilt = (): string => `Sin construir`
+export const townOfficeBusy = (): string => `Espera a que termine esta contratación.`
+export const townOfficeCountTruck = (): string => `Camiones a contratar`
+export const townOfficeCountWorker = (): string => `Trabajadores a contratar`
+export const townOfficeCountNeeded = (): string => `Contrata 1 o más.`
+export const townOfficeDelivered = ({ count, delivered }: { readonly count: string | number; readonly delivered: string | number }): string => `${String(delivered)} de ${String(count)} contratados`
+export const townOfficeDone = (): string => `La contratación terminó. Estamos leyendo tu pueblo otra vez…`
+export const townOfficeHireTruck = ({ count }: { readonly count: number }): string => `${count === 1 ? `Contratar 1 camión` : `Contratar ${String(count)} camiones`}`
+export const townOfficeHireWorker = ({ count }: { readonly count: number }): string => `${count === 1 ? `Contratar 1 trabajador` : `Contratar ${String(count)} trabajadores`}`
+export const townOfficeHireAnyTruck = (): string => `Contratar camiones`
+export const townOfficeHireAnyWorker = (): string => `Contratar trabajadores`
+export const townOfficeHiring = (): string => `Contratación`
+export const townOfficeIdle = (): string => `Ahora no hay ninguna contratación.`
+export const townOfficeNeedsLevel = ({ level }: { readonly level: string | number }): string => `Necesita la oficina en nivel ${String(level)}`
+export const townOfficePeopleName = ({ count }: { readonly count: number }): string => `${count === 1 ? `persona` : `personas`}`
+export const townOfficeRefund = (): string => `Si la paras, recuperas el costo de las contrataciones que no llegaron.`
+export const townOfficeStop = (): string => `Parar la contratación`
+export const townOfficeStopOfTruck = (): string => `Parar la contratación de camiones`
+export const townOfficeStopOfWorker = (): string => `Parar la contratación de trabajadores`
+export const townOfficeTeamTruck = ({ count }: { readonly count: number }): string => `Tu equipo: ${count === 1 ? `1 camión` : `${String(count)} camiones`}`
+export const townOfficeTeamWorker = ({ count }: { readonly count: number }): string => `Tu equipo: ${count === 1 ? `1 trabajador` : `${String(count)} trabajadores`}`
 export const townPeople = ({ atWork, free }: { readonly atWork: string | number; readonly free: number }): string => `Gente: ${free === 1 ? `1 libre` : `${String(free)} libres`}, ${String(atWork)} trabajando`
 export const townPeopleAtWork = ({ people }: { readonly people: string | number }): string => `Gente trabajando: +${String(people)}`
 export const townPeopleShort = ({ free, needed }: { readonly free: number; readonly needed: string | number }): string => `Gente necesaria: ${String(needed)}. ${free === 1 ? `Libre: 1` : `Libres: ${String(free)}`}.`

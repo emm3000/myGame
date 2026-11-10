@@ -76,6 +76,8 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   foundTown: async () => ({ ok: true, value: knownTown }),
   startBuildingWork: async () => ({ ok: true, value: knownTown }),
   stopBuildingWork: async () => ({ ok: true, value: knownTown }),
+  placeHiringOrder: async () => ({ ok: true, value: knownTown }),
+  stopHiringOrder: async () => ({ ok: true, value: knownTown }),
   startLesson: async () => ({ ok: true, value: knownTown }),
   stopLesson: async () => ({ ok: true, value: knownTown }),
   reviews: async () => ({

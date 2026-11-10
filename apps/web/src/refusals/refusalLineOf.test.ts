@@ -60,3 +60,18 @@ it('renders a second town from its line', () => {
     'Ya tienes un pueblo. Solo puedes tener uno.',
   )
 })
+
+it('renders a busy hiring slot as its line', () => {
+  expect(
+    refusalLineOf('HiringSlotBusy', { kind: 'HiringSlotBusy', params: { hire: 'worker' } }),
+  ).toBe('Ya tienes una contratación en curso. Espera a que termine.')
+})
+
+it('renders a hiring order that is not there as its line', () => {
+  expect(
+    refusalLineOf('HiringOrderNotFound', {
+      kind: 'HiringOrderNotFound',
+      params: { hire: 'truck', startedAt: '2026-11-10T09:00:00.000Z' },
+    }),
+  ).toBe('Esta contratación ya terminó.')
+})
