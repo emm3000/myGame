@@ -103,6 +103,17 @@ jobs:
             echo "::error::not readable from a pull request job:$missing"
             exit 1
           fi
+      - name: install the pinned vercel cli
+        working-directory: ${{ runner.temp }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          mkdir vercel-cli
+          for file in package.json package-lock.json; do
+            gh api -H 'Accept: application/vnd.github.raw+json' "repos/$GITHUB_REPOSITORY/contents/.github/vercel-cli/$file?ref=$HEAD_SHA" > "vercel-cli/$file"
+          done
+          npm ci --prefix vercel-cli --ignore-scripts --no-audit --no-fund
       - name: pull the api settings
         working-directory: ${{ runner.temp }}
         env:
@@ -112,9 +123,11 @@ jobs:
         run: |
           mkdir vercel-api
           cd vercel-api
-          npx --yes vercel@65.2.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          "$RUNNER_TEMP/vercel-cli/node_modules/.bin/vercel" pull --yes --environment=preview --token="$VERCEL_TOKEN"
           echo "dropped before the build: $(sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' .vercel/.env.* | tr '\n' ' ')"
           rm -f .vercel/.env.*
+          jq '{projectId: "artifact", orgId: "artifact", settings}' .vercel/project.json > project.json
+          mv project.json .vercel/project.json
           if grep -rqF -- "$VERCEL_TOKEN" . "$HOME/.local/share/com.vercel.cli" 2>/dev/null; then
             echo "::error::the token was written to disk"
             exit 1
@@ -128,9 +141,11 @@ jobs:
         run: |
           mkdir vercel-web
           cd vercel-web
-          npx --yes vercel@65.2.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          "$RUNNER_TEMP/vercel-cli/node_modules/.bin/vercel" pull --yes --environment=preview --token="$VERCEL_TOKEN"
           echo "dropped before the build: $(sed -n 's/^\([A-Za-z_][A-Za-z0-9_]*\)=.*/\1/p' .vercel/.env.* | tr '\n' ' ')"
           rm -f .vercel/.env.*
+          jq '{projectId: "artifact", orgId: "artifact", settings}' .vercel/project.json > project.json
+          mv project.json .vercel/project.json
           if grep -rqF -- "$VERCEL_TOKEN" . "$HOME/.local/share/com.vercel.cli" 2>/dev/null; then
             echo "::error::the token was written to disk"
             exit 1
@@ -147,14 +162,22 @@ jobs:
       - name: build the api
         run: |
           mv "$RUNNER_TEMP/vercel-api/.vercel" .vercel
-          pnpm dlx vercel@65.2.0 build
+          "$RUNNER_TEMP/vercel-cli/node_modules/.bin/vercel" build --standalone
+          if grep -rl --include=.vc-config.json filePathMap .vercel/output; then
+            echo "::error::the build output reads files outside itself"
+            exit 1
+          fi
           rm -rf .vercel
       - name: build the web
         env:
           NITRO_PRESET: vercel
         run: |
           mv "$RUNNER_TEMP/vercel-web/.vercel" .vercel
-          pnpm dlx vercel@65.2.0 build
+          "$RUNNER_TEMP/vercel-cli/node_modules/.bin/vercel" build --standalone
+          if grep -rl --include=.vc-config.json filePathMap .vercel/output; then
+            echo "::error::the build output reads files outside itself"
+            exit 1
+          fi
           rm -rf .vercel
 
   changes:
