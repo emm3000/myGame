@@ -16,7 +16,7 @@ This note recommends only the first kind, and names the second so it can be refu
 - `docs/PRODUCT_REQUIREMENTS.md`: W5 no real-money purchases; W7 no background job runner or scheduler (ADR 005), N2 the api idles at zero CPU; W2 no houses, messaging or diplomacy; W1 no PvP; W6 no native client, the web is responsive; M8 client-side interpolation, no polling faster than once a minute; N1 server-authoritative; N6 Spanish copy addressed as tú.
 - `CONTEXT.md`: fief, five resources with amount/rate/capacity, peasants, build slot + build queue, library study slot, barracks recruit slot, march slot (forage, attack, founding, transport), seasons, chronicle (latest 100 events), kingdom map by province, bandit camps.
 - Screens today (`apps/web/src/routes`): sign-in, sign-up, forgot/reset password, verify email, fief overview (`feudo.$fiefId/index`, which also holds the buildings, arts and army sections), kingdom map (`mapa.index`, `mapa.$province`), chronicle (`cronica`).
-- Identity: stylized 3D early-medieval art, one accent colour per resource (wood amber, stone pale grey, iron dark blue-grey, gold warm yellow, food wheat green), grounded low-magic voice, dry humour (`docs/art/art-bible.md`, `docs/lore/README.md`).
+- Identity: this note describes the medieval fief retired by ADR 035. Its look was stylized 3D early-medieval art, one accent colour per resource (wood amber, stone pale grey, iron dark blue-grey, gold warm yellow, food wheat green), grounded low-magic voice, dry humour (`docs/art/art-bible.md`).
 
 ## Summary: principles ranked by strength of evidence
 
