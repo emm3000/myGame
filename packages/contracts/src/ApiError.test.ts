@@ -53,6 +53,39 @@ describe('ApiErrorSchema', () => {
     expect(ApiErrorSchema.safeParse(waitingListFull).success).toBe(false)
   })
 
+  it('parses an office too low with the hire and both office levels', () => {
+    const officeTooLow = {
+      kind: 'OfficeTooLow',
+      params: { hire: 'truck', requiredOfficeLevel: 3, officeLevel: 2 },
+    }
+
+    expect(ApiErrorSchema.parse(officeTooLow)).toEqual(officeTooLow)
+  })
+
+  it('parses a busy hiring slot with the hire in the order', () => {
+    const busy = { kind: 'HiringSlotBusy', params: { hire: 'worker' } }
+
+    expect(ApiErrorSchema.parse(busy)).toEqual(busy)
+  })
+
+  it('parses a missing hiring order with the hire and the start named', () => {
+    const notFound = {
+      kind: 'HiringOrderNotFound',
+      params: { hire: 'worker', startedAt: '2026-11-10T08:55:00.000Z' },
+    }
+
+    expect(ApiErrorSchema.parse(notFound)).toEqual(notFound)
+  })
+
+  it('rejects a hiring order named by a medieval kind', () => {
+    const notFound = {
+      kind: 'HiringOrderNotFound',
+      params: { hire: 'archer', startedAt: '2026-11-10T08:55:00.000Z' },
+    }
+
+    expect(ApiErrorSchema.safeParse(notFound).success).toBe(false)
+  })
+
   it('rejects a medieval kind', () => {
     expect(ApiErrorSchema.safeParse({ kind: 'QueueFull', params: { cap: 2 } }).success).toBe(false)
   })

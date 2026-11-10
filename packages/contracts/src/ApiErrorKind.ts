@@ -26,6 +26,9 @@ export const ApiErrorKindSchema = z.enum([
   'NotEnoughResources',
   'TopLevelReached',
   'BuildingWorkNotFound',
+  'OfficeTooLow',
+  'HiringSlotBusy',
+  'HiringOrderNotFound',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>

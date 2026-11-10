@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { BuildingKindSchema } from './BuildingKind'
 import { BuildingWorkSchema } from './BuildingWork'
 import { EarnedSkillSchema } from './EarnedSkill'
+import { HireKindSchema } from './HireKind'
 import { LessonStateSchema } from './LessonState'
 import { NextStepSchema } from './NextStep'
 import { ResourceAmountsSchema } from './ResourceAmounts'
@@ -58,6 +59,22 @@ const TownSeasonSchema = z.strictObject({
   endsAt: InstantSchema,
 })
 
+const HiringOrderStateSchema = z.strictObject({
+  hire: HireKindSchema,
+  count: WholeCountSchema.positive(),
+  delivered: WholeCountSchema,
+  secondsPerHire: DurationSecondsSchema.positive(),
+  startedAt: InstantSchema,
+  endsAt: InstantSchema,
+})
+
+const HireTermsStateSchema = z.strictObject({
+  cost: ResourceAmountsSchema,
+  secondsPerHire: DurationSecondsSchema.positive(),
+  people: WholeCountSchema,
+  requiredOfficeLevel: WholeCountSchema.positive(),
+})
+
 export const TownOverviewSchema = z
   .strictObject({
     name: z.string().min(1),
@@ -80,6 +97,13 @@ export const TownOverviewSchema = z
       slot: z.lazy(() => BuildingWorkSchema).nullable(),
       waitingList: z.array(BuildingWorkSchema),
       cap: WholeCountSchema,
+    }),
+    hiring: z.strictObject({
+      order: HiringOrderStateSchema.nullable(),
+      hires: z.record(HireKindSchema, WholeCountSchema).meta({ required: HireKindSchema.options }),
+      terms: z
+        .record(HireKindSchema, HireTermsStateSchema)
+        .meta({ required: HireKindSchema.options }),
     }),
     lessons: z.array(LessonStateSchema),
     skills: z.array(EarnedSkillSchema),

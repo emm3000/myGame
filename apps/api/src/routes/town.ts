@@ -1,9 +1,11 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   FoundTownSchema,
+  PlaceHiringOrderSchema,
   StartBuildingWorkSchema,
   StartLessonRequestSchema,
   StopBuildingWorkSchema,
+  StopHiringOrderSchema,
   StopLessonRequestSchema,
   type TownNewsFeed,
   type TownOverview,
@@ -12,14 +14,17 @@ import {
   type DomainError,
   err,
   type IdGenerator,
+  Instant,
   type MemoryTerms,
   type PlacedOutBands,
   type PlayerId,
+  placeHiringOrder,
   type RandomSource,
   type Result,
   startBuildingWork,
   startSchoolLesson,
   stopBuildingWork,
+  stopHiringOrder,
   stopSchoolLesson,
 } from '@mygame/domain'
 import type { Context } from 'hono'
@@ -166,6 +171,59 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         async (stores, clock) => {
           const change = await stopBuildingWork(
             { playerId, ...request.data },
+            { towns: stores.towns, news: stores.townNews, catalog, clock },
+          )
+          if (!change.ok) {
+            return change
+          }
+          const { town } = change.value
+          return townReadingOf(town, town.storedAt, stores)
+        },
+        dependencies,
+      )
+      return answerReading(c, stopped)
+    },
+  )
+  routes.on(
+    townDeclarations.placeHiring.method,
+    honoPathOf(townDeclarations.placeHiring),
+    signedInPlayer,
+    async (c) => {
+      const request = PlaceHiringOrderSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const placed = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const town = await placeHiringOrder(
+            { playerId, ...request.data },
+            { towns: stores.towns, news: stores.townNews, catalog, clock },
+          )
+          return town.ok ? townReadingOf(town.value, town.value.storedAt, stores) : town
+        },
+        dependencies,
+      )
+      return answerReading(c, placed)
+    },
+  )
+  routes.on(
+    townDeclarations.stopHiring.method,
+    honoPathOf(townDeclarations.stopHiring),
+    signedInPlayer,
+    async (c) => {
+      const request = StopHiringOrderSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const { hire, startedAt } = request.data
+      const stopped = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const change = await stopHiringOrder(
+            { playerId, hire, startedAt: Instant.fromEpochMilliseconds(Date.parse(startedAt)) },
             { towns: stores.towns, news: stores.townNews, catalog, clock },
           )
           if (!change.ok) {

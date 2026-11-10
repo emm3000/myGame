@@ -1,6 +1,7 @@
 import type { ApiError, ApiErrorKind } from '@mygame/contracts'
 import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
+import { isoOf } from './isoOf'
 import type { Refusal } from './Refusal'
 
 declare module 'hono' {
@@ -36,9 +37,6 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   StudySlotBusy: { status: 409, kind: 'StudySlotBusy' },
   InvalidHireCount: { status: 400 },
   InvalidHireDuration: internalFailure,
-  OfficeTooLow: { status: 409 },
-  HiringSlotBusy: { status: 409 },
-  HiringOrderNotFound: { status: 404 },
   SignedOut: { status: 401 },
   TokenInvalid: { status: 400, kind: 'TokenInvalid' },
   MailNotSent: { status: 503, kind: 'MailNotSent' },
@@ -98,6 +96,16 @@ const refusalBodyOf = (refusal: Refusal): RefusalBody => {
     case 'BuildingWorkNotFound': {
       const { kind, building, level } = refusal
       return { status: 409, body: { kind, params: { building, level } } }
+    }
+    case 'OfficeTooLow': {
+      const { kind, hire, requiredOfficeLevel, officeLevel } = refusal
+      return { status: 409, body: { kind, params: { hire, requiredOfficeLevel, officeLevel } } }
+    }
+    case 'HiringSlotBusy':
+      return { status: 409, body: { kind: refusal.kind, params: { hire: refusal.hire } } }
+    case 'HiringOrderNotFound': {
+      const { kind, hire, startedAt } = refusal
+      return { status: 409, body: { kind, params: { hire, startedAt: isoOf(startedAt) } } }
     }
     default:
       return slotlessBodyOf(refusal.kind)

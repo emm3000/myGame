@@ -240,6 +240,12 @@ class TownLessonsRepositoryTest {
                 """{"wordId":"word-2","standing":"retained","reading":null}]}"""
         const val SKILL: String =
             """{"lessonId":"lesson-1","resource":"food","ratePercent":5,"earnedAt":"2026-11-04T10:00:00.000Z"}"""
+        const val HIRING: String =
+            """{"order":null,"hires":{"worker":0,"truck":0},"terms":{""" +
+                """"worker":{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +
+                """"people":1,"requiredOfficeLevel":1},""" +
+                """"truck":{"cost":{"money":80,"food":40,"power":40,"material":60},"secondsPerHire":180,""" +
+                """"people":1,"requiredOfficeLevel":3}}}"""
         const val TOWN: String =
             """{"name":"Riverton","label":"town","site":{"region":1,"area":1,"site":1},"terrain":"fields",""" +
                 """"season":null,"stocks":{"money":$STOCK,"food":$STOCK,"power":$STOCK,"material":$STOCK},""" +
@@ -247,6 +253,7 @@ class TownLessonsRepositoryTest {
                 """"buildings":{"homes":$FLAT,"farm":$FLAT,"factory":$FLAT,"powerStation":$FLAT,""" +
                 """"storage":$FLAT,"school":$FLAT,"office":$FLAT},""" +
                 """"work":{"slot":null,"waitingList":[],"cap":2},""" +
+                """"hiring":$HIRING,""" +
                 """"lessons":[$LESSON],"skills":[$SKILL],""" +
                 """"lessonSlot":{"lessonId":"lesson-1","startedAt":"2026-11-05T10:00:00.000Z",""" +
                 """"finishesAt":"2026-11-05T10:20:00.000Z"},""" +

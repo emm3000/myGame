@@ -63,6 +63,15 @@
           },
           {
             "$ref": "#/components/schemas/LearningCapReachedError"
+          },
+          {
+            "$ref": "#/components/schemas/OfficeTooLowError"
+          },
+          {
+            "$ref": "#/components/schemas/HiringSlotBusyError"
+          },
+          {
+            "$ref": "#/components/schemas/HiringOrderNotFoundError"
           }
         ],
         "discriminator": {
@@ -92,7 +101,10 @@
             "NotEnoughResources": "#/components/schemas/NotEnoughResourcesError",
             "TopLevelReached": "#/components/schemas/TopLevelReachedError",
             "BuildingWorkNotFound": "#/components/schemas/BuildingWorkNotFoundError",
-            "LearningCapReached": "#/components/schemas/LearningCapReachedError"
+            "LearningCapReached": "#/components/schemas/LearningCapReachedError",
+            "OfficeTooLow": "#/components/schemas/OfficeTooLowError",
+            "HiringSlotBusy": "#/components/schemas/HiringSlotBusyError",
+            "HiringOrderNotFound": "#/components/schemas/HiringOrderNotFoundError"
           }
         }
       },
@@ -290,6 +302,85 @@
               }
             },
             "required": ["learningCap", "cardsInLearning"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "OfficeTooLowError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["OfficeTooLow"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hire": {
+                "type": "string",
+                "enum": ["worker", "truck"]
+              },
+              "requiredOfficeLevel": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "officeLevel": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["hire", "requiredOfficeLevel", "officeLevel"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "HiringSlotBusyError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["HiringSlotBusy"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hire": {
+                "type": "string",
+                "enum": ["worker", "truck"]
+              }
+            },
+            "required": ["hire"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "HiringOrderNotFoundError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["HiringOrderNotFound"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hire": {
+                "type": "string",
+                "enum": ["worker", "truck"]
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["hire", "startedAt"],
             "additionalProperties": false
           }
         },
@@ -1863,6 +1954,155 @@
             "required": ["slot", "waitingList", "cap"],
             "additionalProperties": false
           },
+          "hiring": {
+            "type": "object",
+            "properties": {
+              "order": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "hire": {
+                    "type": "string",
+                    "enum": ["worker", "truck"]
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "delivered": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "secondsPerHire": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "startedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "endsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["hire", "count", "delivered", "secondsPerHire", "startedAt", "endsAt"],
+                "additionalProperties": false
+              },
+              "hires": {
+                "type": "object",
+                "properties": {
+                  "worker": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "truck": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["worker", "truck"]
+              },
+              "terms": {
+                "type": "object",
+                "properties": {
+                  "worker": {
+                    "type": "object",
+                    "properties": {
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "secondsPerHire": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "requiredOfficeLevel": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
+                    },
+                    "required": ["cost", "secondsPerHire", "people", "requiredOfficeLevel"],
+                    "additionalProperties": false
+                  },
+                  "truck": {
+                    "type": "object",
+                    "properties": {
+                      "cost": {
+                        "type": "object",
+                        "properties": {
+                          "money": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "food": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "power": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "material": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": ["money", "food", "power", "material"],
+                        "additionalProperties": false
+                      },
+                      "secondsPerHire": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      },
+                      "people": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "requiredOfficeLevel": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
+                    },
+                    "required": ["cost", "secondsPerHire", "people", "requiredOfficeLevel"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["worker", "truck"]
+              }
+            },
+            "required": ["order", "hires", "terms"],
+            "additionalProperties": false
+          },
           "lessons": {
             "type": "array",
             "items": {
@@ -2059,6 +2299,7 @@
           "people",
           "buildings",
           "work",
+          "hiring",
           "lessons",
           "skills",
           "lessonSlot",
@@ -2240,6 +2481,22 @@
           }
         },
         "required": ["building"],
+        "additionalProperties": false
+      },
+      "PlaceHiringOrder": {
+        "type": "object",
+        "properties": {
+          "hire": {
+            "type": "string",
+            "enum": ["worker", "truck"]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": ["hire", "count"],
         "additionalProperties": false
       },
       "StartLessonRequest": {
@@ -2989,6 +3246,130 @@
           },
           "409": {
             "description": "BuildingWorkNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/hiring": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceHiringOrder"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The town with the hiring order placed, paid and staffed in full.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed body. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "OfficeTooLow, HiringSlotBusy, NotEnoughPeople or NotEnoughResources.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/hiring/{hire}/{startedAt}": {
+      "delete": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["worker", "truck"]
+            },
+            "required": true,
+            "name": "hire",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "startedAt",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The town with the hiring order stopped: the delivered hires kept, the rest refunded in full.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed path. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "HiringOrderNotFound.",
             "content": {
               "application/json": {
                 "schema": {
