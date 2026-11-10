@@ -110,7 +110,7 @@ describe('startBuildingWork', () => {
           ...plainTownSettings.seasons,
           durationPercent: {
             ...plainTownSettings.seasons.durationPercent,
-            spring: { build: 75, study: 100 },
+            spring: { build: 75, study: 100, hire: 100 },
           },
         },
       },

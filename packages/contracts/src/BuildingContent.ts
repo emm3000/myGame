@@ -16,6 +16,15 @@ const levelsWith = <Effect extends z.ZodType>(effect: Effect) =>
     )
     .min(1)
 
+const HireTermsContentSchema = z.strictObject({
+  cost: ResourceAmountsSchema,
+  durationSeconds: DurationSecondsSchema.positive(),
+  people: WholeCountSchema.positive(),
+  strength: WholeCountSchema.positive(),
+  carry: WholeCountSchema.positive(),
+  roadPercent: WholeCountSchema.positive(),
+})
+
 const ProducerLevelsSchema = levelsWith(z.strictObject({ ratePerHour: QuantitySchema }))
 
 export const BuildingContentSchema = z.discriminatedUnion('building', [
@@ -41,6 +50,7 @@ export const BuildingContentSchema = z.discriminatedUnion('building', [
   }),
   z.strictObject({
     building: z.literal('office'),
+    hires: z.record(HireKindSchema, HireTermsContentSchema),
     levels: levelsWith(z.strictObject({ hires: z.array(HireKindSchema).min(1) })),
   }),
 ])

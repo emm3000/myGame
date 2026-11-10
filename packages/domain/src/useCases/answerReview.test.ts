@@ -167,6 +167,8 @@ const townsLoadingSkillsFrom = (
       workSlot: stored.workSlot,
       waitingList: stored.waitingList,
       skills: earned.value,
+      hires: stored.hires,
+      hiringSlot: stored.hiringSlot,
     })
   },
 })

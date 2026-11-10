@@ -20,7 +20,7 @@ export type ProducerLevel = LevelTerms & {
 
 export type StorageLevel = LevelTerms & {
   readonly building: 'storage'
-  readonly capacityUnits: number
+  readonly capacity: number
 }
 
 export type SchoolLevel = LevelTerms & {

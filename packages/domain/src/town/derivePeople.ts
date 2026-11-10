@@ -2,10 +2,12 @@ import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import type { BuildingLevels } from './BuildingLevels'
 import { buildingKinds } from './buildingKinds'
+import type { Hires } from './Hires'
+import { hireKinds } from './hireKinds'
 import type { People } from './People'
 import type { TownCatalog } from './TownCatalog'
 
-const deriveSuppliedPeople = (
+export const deriveSuppliedPeople = (
   homesLevel: number,
   catalog: TownCatalog,
 ): Result<number, DomainError> => {
@@ -39,8 +41,12 @@ const deriveOccupiedPeople = (
   return ok(occupied)
 }
 
+const hiredPeopleOf = (hires: Hires, catalog: TownCatalog): number =>
+  hireKinds.reduce((people, hire) => people + hires[hire] * catalog.hireTermsOf(hire).people, 0)
+
 export const derivePeople = (
   levels: BuildingLevels,
+  hires: Hires,
   catalog: TownCatalog,
 ): Result<People, DomainError> => {
   const supplied = deriveSuppliedPeople(levels.homes, catalog)
@@ -51,9 +57,10 @@ export const derivePeople = (
   if (!occupied.ok) {
     return occupied
   }
+  const occupiedWithHires = occupied.value + hiredPeopleOf(hires, catalog)
   return ok({
     supplied: supplied.value,
-    occupied: occupied.value,
-    free: supplied.value - occupied.value,
+    occupied: occupiedWithHires,
+    free: supplied.value - occupiedWithHires,
   })
 }

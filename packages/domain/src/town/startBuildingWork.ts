@@ -10,6 +10,7 @@ import type { BuildingLevel } from './BuildingLevel'
 import type { BuildingLevels } from './BuildingLevels'
 import { buildPercentAt } from './buildPercentAt'
 import { derivePeople } from './derivePeople'
+import type { Hires } from './Hires'
 import { rebaseFullSince } from './rebaseFullSince'
 import { resolvedTownOf } from './resolvedTownOf'
 import { saveChangedTown } from './saveChangedTown'
@@ -48,14 +49,15 @@ const nextLevelOf = (
 
 const staffWork = (
   projected: BuildingLevels,
+  hires: Hires,
   next: BuildingLevel,
   catalog: TownCatalog,
 ): Result<void, DomainError> => {
-  const before = derivePeople(projected, catalog)
+  const before = derivePeople(projected, hires, catalog)
   if (!before.ok) {
     return before
   }
-  const after = derivePeople({ ...projected, [next.building]: next.level }, catalog)
+  const after = derivePeople({ ...projected, [next.building]: next.level }, hires, catalog)
   if (!after.ok) {
     return after
   }
@@ -82,7 +84,7 @@ const admitWork = (
   if (!next.ok) {
     return next
   }
-  const staffed = staffWork(town.projectedLevels, next.value, catalog)
+  const staffed = staffWork(town.projectedLevels, town.staffedHires, next.value, catalog)
   if (!staffed.ok) {
     return staffed
   }

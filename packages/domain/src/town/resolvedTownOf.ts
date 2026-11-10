@@ -1,6 +1,6 @@
 import type { DomainError } from '../DomainError'
 import type { PlayerId } from '../player/PlayerId'
-import { err, type Result } from '../Result'
+import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import { finishBuildingWork } from './finishBuildingWork'
 import type { ChangedTown } from './Town'
@@ -20,5 +20,10 @@ export const resolvedTownOf = async (
   if (stored.value === undefined) {
     return err({ kind: 'TownNotFound', playerId })
   }
-  return finishBuildingWork(stored.value, catalog, now)
+  const finished = finishBuildingWork(stored.value, catalog, now)
+  if (!finished.ok) {
+    return finished
+  }
+  const closed = finished.value.town.closeHiring(now)
+  return ok({ town: closed.town, events: [...finished.value.events, ...closed.events] })
 }

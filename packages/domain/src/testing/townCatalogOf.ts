@@ -1,6 +1,8 @@
 import { Instant } from '../time/Instant'
 import type { BuildingKind } from '../town/BuildingKind'
 import type { BuildingLevel } from '../town/BuildingLevel'
+import type { HireKind } from '../town/HireKind'
+import type { HireTerms } from '../town/HireTerms'
 import type { TownCatalog } from '../town/TownCatalog'
 import type { ProductionPercent, TownSettings } from '../town/TownSettings'
 
@@ -22,10 +24,10 @@ export const plainTownSettings: TownSettings = {
     daysPerSeason: 7,
     productionPercent: { spring: unscaled, summer: unscaled, fall: unscaled, winter: unscaled },
     durationPercent: {
-      spring: { build: 100, study: 100 },
-      summer: { build: 100, study: 100 },
-      fall: { build: 100, study: 100 },
-      winter: { build: 100, study: 100 },
+      spring: { build: 100, study: 100, hire: 100 },
+      summer: { build: 100, study: 100, hire: 100 },
+      fall: { build: 100, study: 100, hire: 100 },
+      winter: { build: 100, study: 100, hire: 100 },
     },
   },
 }
@@ -41,7 +43,7 @@ export const plainTownLevels: ReadonlyArray<BuildingLevel> = [1, 2].flatMap((lev
   { ...levelTerms(level), building: 'farm', people: 2 * level, ratePerHour: 30 * level },
   { ...levelTerms(level), building: 'factory', people: 3 * level, ratePerHour: 20 * level },
   { ...levelTerms(level), building: 'powerStation', people: 2 * level, ratePerHour: 25 * level },
-  { ...levelTerms(level), building: 'storage', people: level, capacityUnits: 1500 * level },
+  { ...levelTerms(level), building: 'storage', people: level, capacity: 1500 * level },
   {
     ...levelTerms(level),
     building: 'school',
@@ -52,15 +54,36 @@ export const plainTownLevels: ReadonlyArray<BuildingLevel> = [1, 2].flatMap((lev
   { ...levelTerms(level), building: 'office', people: 5 * level, hires: ['worker'] },
 ])
 
+export const plainHireTerms: Readonly<Record<HireKind, HireTerms>> = {
+  worker: {
+    cost: { money: 20, food: 10, power: 0, material: 0 },
+    durationSeconds: 120,
+    people: 1,
+    strength: 1,
+    carry: 50,
+    roadPercent: 100,
+  },
+  truck: {
+    cost: { money: 60, food: 0, power: 20, material: 40 },
+    durationSeconds: 600,
+    people: 2,
+    strength: 3,
+    carry: 200,
+    roadPercent: 50,
+  },
+}
+
 const keyOf = (building: BuildingKind, level: number): string => `${building}:${level}`
 
 export const townCatalogOf = (
   settings: TownSettings = plainTownSettings,
   levels: ReadonlyArray<BuildingLevel> = plainTownLevels,
+  hireTerms: Readonly<Record<HireKind, HireTerms>> = plainHireTerms,
 ): TownCatalog => {
   const byKey = new Map(levels.map((line) => [keyOf(line.building, line.level), line]))
   return {
     levelOf: (building, level) => byKey.get(keyOf(building, level)),
+    hireTermsOf: (hire) => hireTerms[hire],
     townSettings: () => settings,
   }
 }

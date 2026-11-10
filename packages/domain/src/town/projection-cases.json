@@ -82,7 +82,7 @@
       "expectedAmount": 50
     },
     {
-      "name": "accrues a partial hour without losing a unit",
+      "name": "accrues a partial hour in full",
       "storedAmount": 0,
       "ratePerHour": 15,
       "capacity": 10000,

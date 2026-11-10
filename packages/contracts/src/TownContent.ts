@@ -16,6 +16,7 @@ const TownSeasonsSchema = z.strictObject({
     z.strictObject({
       build: WholeCountSchema.positive(),
       study: WholeCountSchema.positive(),
+      hire: WholeCountSchema.positive(),
     }),
   ),
 })
