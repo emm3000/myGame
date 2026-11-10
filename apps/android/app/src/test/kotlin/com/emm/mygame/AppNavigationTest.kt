@@ -26,17 +26,9 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.PILL_BADGE
-import com.emm.mygame.core.network.ChronicleRepository
 import com.emm.mygame.core.network.DueReviews
-import com.emm.mygame.core.network.FiefAddress
-import com.emm.mygame.core.network.FiefId
-import com.emm.mygame.core.network.FiefListRepository
-import com.emm.mygame.core.network.FiefListResult
-import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.core.network.ListedFief
-import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.NextStep
@@ -53,11 +45,7 @@ import com.emm.mygame.core.network.TownReport
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
-import com.emm.mygame.core.testing.FakeChronicleRepository
-import com.emm.mygame.core.testing.FakeFiefListRepository
-import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakeMapRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
@@ -70,7 +58,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,8 +73,6 @@ class AppNavigationTest {
 
     private val sessionsFake: FakeSessionRepository = FakeSessionRepository()
 
-    private val listingsFake: FakeFiefListRepository = FakeFiefListRepository()
-
     private val townsFake: FakeTownRepository = FakeTownRepository()
 
     private val learningFake: FakeLearningRepository = FakeLearningRepository()
@@ -100,27 +85,15 @@ class AppNavigationTest {
         override val clock: Clock = movableClock
         override val sessionEnds: SessionEnds = SessionEnds()
         override val sessions: SessionRepository = sessionsFake
-        override val listings: FiefListRepository = listingsFake
-        override val fiefs: FiefRepository = FakeFiefRepository()
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = learningFake
         override val reports: ReportRepository = reportsFake
-        override val maps: MapRepository = FakeMapRepository()
-        override val chronicles: ChronicleRepository = FakeChronicleRepository()
     }
 
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
     private val noReviews: ReviewsReadResult.Read = ReviewsReadResult.Read(
         DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = null, readAt = readAt),
-    )
-
-    private val listedFief: ListedFief = ListedFief(
-        id = FiefId("509eadd5-6b34-4ea3-8e91-2b38744bd385"),
-        name = "Sotoverde",
-        address = FiefAddress(kingdom = 1, province = 3, plot = 12),
-        freeSlots = emptyList(),
-        fullStores = emptyList(),
     )
 
     private val threeOfFive: RetainedWords = RetainedWords(count = 3, total = 5)
@@ -175,14 +148,13 @@ class AppNavigationTest {
         readAt = readAt,
     )
 
-    private fun signedInAtTown(fiefs: List<ListedFief> = emptyList(), town: TownSnapshot = townOf()) {
-        signedInReading(TownReadResult.Read(town), fiefs)
+    private fun signedInAtTown(town: TownSnapshot = townOf()) {
+        signedInReading(TownReadResult.Read(town))
         waitForLine(TOWN_HEADER)
     }
 
-    private fun signedInReading(answer: TownReadResult, fiefs: List<ListedFief> = emptyList()) {
+    private fun signedInReading(answer: TownReadResult) {
         sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("player@example.com")))
-        listingsFake.answerListed(FiefListResult.Listed(fiefs))
         repeat(READS_AVAILABLE) { townsFake.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
@@ -209,7 +181,6 @@ class AppNavigationTest {
     }
 
     private fun showingStack(vararg destinations: Destination, town: TownSnapshot = townOf()) {
-        listingsFake.answerListed(FiefListResult.Listed(listOf(listedFief)))
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
@@ -263,7 +234,6 @@ class AppNavigationTest {
     }
 
     private fun onLessonOneNearItsFinish(vararg destinations: Destination) {
-        listingsFake.answerListed(FiefListResult.Listed(listOf(listedFief)))
         townsFake.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH)))
         composeRule.setContent {
             MyGameTheme {
@@ -374,7 +344,6 @@ class AppNavigationTest {
     @Test
     fun `draws a count fallen back on the way home from the Report`() {
         sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("player@example.com")))
-        listingsFake.answerListed(FiefListResult.Listed(emptyList()))
         townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
         composeRule.setContent {
             MyGameTheme {
@@ -527,20 +496,6 @@ class AppNavigationTest {
     }
 
     @Test
-    fun `shows a running lesson's time on the map`() {
-        showingStack(Destination.Town, Destination.Map(listedFief.id), town = runningTown())
-
-        assertStatusShown()
-    }
-
-    @Test
-    fun `shows a running lesson's time on the chronicle`() {
-        showingStack(Destination.Town, Destination.Chronicle(listedFief.id), town = runningTown())
-
-        assertStatusShown()
-    }
-
-    @Test
     fun `shows the due count on the Report door`() {
         signedInAtTown(town = townOf(nextStep = NextStep.Reviews(3, emptyList())))
 
@@ -583,24 +538,6 @@ class AppNavigationTest {
     fun `reads the town at the lesson's finish on the reviews`() {
         learningFake.answerRead(noReviews)
         onLessonOneNearItsFinish(Destination.Town, Destination.Review)
-
-        passingTheFinish()
-
-        assertEquals(2, townsFake.readCount)
-    }
-
-    @Test
-    fun `reads the town at the lesson's finish on the map`() {
-        onLessonOneNearItsFinish(Destination.Town, Destination.Map(listedFief.id))
-
-        passingTheFinish()
-
-        assertEquals(2, townsFake.readCount)
-    }
-
-    @Test
-    fun `reads the town at the lesson's finish on the chronicle`() {
-        onLessonOneNearItsFinish(Destination.Town, Destination.Chronicle(listedFief.id))
 
         passingTheFinish()
 
@@ -766,33 +703,6 @@ class AppNavigationTest {
         onTheFirstLessonOfTheWalk(secondReadings = listOf(townWord))
 
         assertLinksBackToTheTown()
-    }
-
-    @Test
-    fun `links back to the town from the map`() {
-        showingStack(Destination.Town, Destination.Map(listedFief.id))
-        waitForLine("PUEBLO")
-
-        assertLinksBackToTheTown()
-    }
-
-    @Test
-    fun `links back to the town from the chronicle`() {
-        showingStack(Destination.Town, Destination.Chronicle(listedFief.id))
-        waitForLine("PUEBLO")
-
-        assertLinksBackToTheTown()
-    }
-
-    @Test
-    fun `keeps the fief switcher under the back link on a medieval screen`() {
-        showingStack(Destination.Town, Destination.Map(listedFief.id))
-        waitForLine("Sotoverde")
-
-        assertTrue(
-            backLink().fetchSemanticsNode().boundsInRoot.top <
-                composeRule.onNodeWithText("Sotoverde").fetchSemanticsNode().boundsInRoot.top,
-        )
     }
 
     @Test

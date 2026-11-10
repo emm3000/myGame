@@ -1,7 +1,7 @@
 import {
   authSignInTitle,
   verificationVerifyTitle,
-  verificationVerifyToFief,
+  verificationVerifyToTown,
   verificationVerifyVerified,
   verificationVerifyVerifying,
 } from '@mygame/catalog'
@@ -34,7 +34,7 @@ export function VerifyEmailScreen({ state }: VerifyEmailScreenProps): ReactEleme
             {verificationVerifyVerified()}
           </p>
           <ButtonLink to="/" tone="primary">
-            {verificationVerifyToFief()}
+            {verificationVerifyToTown()}
           </ButtonLink>
         </AuthPanel>
       )

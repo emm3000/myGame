@@ -21,13 +21,13 @@ import {
   reviewTitle,
   reviewWrong,
 } from '@mygame/catalog'
-import type { DueReview, FiefOverview, ReviewAnswer, Reviews } from '@mygame/contracts'
+import type { DueReview, ReviewAnswer, Reviews } from '@mygame/contracts'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import { knownFief, knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
+import { knownPlayer, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { CheckIcon } from '../design-system/icons/CheckIcon'
 import { CrossIcon } from '../design-system/icons/CrossIcon'
 import {
@@ -40,8 +40,10 @@ import {
 } from '../design-system/loadingSkeleton.testSupport'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 
+const readInstant = '2026-09-22T12:00:00.000Z'
+
 beforeEach(() => {
-  vi.useFakeTimers({ now: new Date(knownFief.readAt) })
+  vi.useFakeTimers({ now: new Date(readInstant) })
 })
 
 afterEach(() => {
@@ -80,7 +82,7 @@ const schoolRecall: DueReview = {
 const withReviews = (
   due: ReadonlyArray<DueReview>,
   nextDueAt: string | null,
-  readAt = knownFief.readAt,
+  readAt = readInstant,
 ): Reviews => ({
   due: [...due],
   readFirst: [],
@@ -151,9 +153,7 @@ it('offers to read the reviews again after a failed read', async () => {
 })
 
 it("reads the due reviews from the player's reviews", async () => {
-  await showReview(recallDue, {
-    fief: () => new Promise<ApiOutcome<FiefOverview>>(() => undefined),
-  })
+  await showReview(recallDue)
 
   expect(screen.getByText('escuela')).toBeTruthy()
   expect(screen.getByText(reviewDueCount({ count: 1 }))).toBeTruthy()
@@ -184,17 +184,16 @@ it('offers no practice when nothing is due and names the next review', async () 
 })
 
 const readFiveMinutesAhead = withReviews([], '2026-09-22T12:09:00.000Z', '2026-09-22T12:05:00.000Z')
-const fiefNeverRead = (): Promise<ApiOutcome<FiefOverview>> => new Promise(() => undefined)
 
 it('names the next review from the instant the server read the reviews at', async () => {
-  await showReview(readFiveMinutesAhead, { fief: fiefNeverRead })
+  await showReview(readFiveMinutesAhead)
 
   expect(screen.getByText('4 min')).toBeTruthy()
 })
 
 it("paces the next review on the server's read instant", async () => {
   const reviews = readingReviews(readFiveMinutesAhead, recallDue)
-  await showReview(reviews, { fief: fiefNeverRead })
+  await showReview(reviews)
 
   await passSeconds(4 * 60)
 
@@ -222,7 +221,7 @@ it('sends the chosen meaning by its choice id', async () => {
     kind: 'correct',
     word: 'home',
     gloss: 'hogar',
-    dueAt: knownFief.readAt,
+    dueAt: readInstant,
     earnedSkill: null,
   })
   await showReview(withReviews([homeRecognition], null), { answerReview })
@@ -291,7 +290,7 @@ it('shows the correct form beside the answer after a wrong answer', async () => 
     kind: 'wrong',
     word: 'school',
     gloss: 'escuela',
-    dueAt: knownFief.readAt,
+    dueAt: readInstant,
   })
   await showReview(recallDue, { answerReview })
 
@@ -308,7 +307,7 @@ it('shows the gloss chosen beside the right one after a wrong recognition', asyn
     kind: 'wrong',
     word: 'home',
     gloss: 'hogar',
-    dueAt: knownFief.readAt,
+    dueAt: readInstant,
   })
   await showReview(withReviews([homeRecognition], null), { answerReview })
 
@@ -325,7 +324,7 @@ const correctSchool: ReviewAnswer['verdict'] = {
   kind: 'correct',
   word: 'school',
   gloss: 'escuela',
-  dueAt: knownFief.readAt,
+  dueAt: readInstant,
   earnedSkill: null,
 }
 
@@ -357,7 +356,7 @@ const foodSkill = {
   lessonId: 'lesson-1',
   resource: 'food' as const,
   ratePercent: 5,
-  earnedAt: knownFief.readAt,
+  earnedAt: readInstant,
   words: ['home', 'school'],
 }
 

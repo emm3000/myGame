@@ -16,12 +16,7 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, assert, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import {
-  knownFiefPath,
-  knownPlayer,
-  knownTown,
-  stubApiClient,
-} from '../auth/stubApiClient.testSupport'
+import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 
 const readAt = Date.parse(knownTown.readAt)
 
@@ -115,7 +110,7 @@ it("shows a running lesson's time on every signed-in screen", async () => {
   const router = renderAppAt('/', signedInClient(servingTown(lessonTwoRunning)))
   await passSeconds(0)
 
-  for (const path of ['/report', '/reviews', '/school', '/school/lesson-2', knownFiefPath, '/']) {
+  for (const path of ['/report', '/reviews', '/school', '/school/lesson-2', '/']) {
     await act(() => router.navigate({ href: path }))
     await passSeconds(0)
 
@@ -635,7 +630,7 @@ it('shows no notice on a re-read with no lesson running', async () => {
 
 it('shows nothing with no town', async () => {
   renderAppAt(
-    knownFiefPath,
+    '/report',
     signedInClient({
       town: async () => ({ ok: false, refusal: 'TownNotFound', error: undefined }),
     }),

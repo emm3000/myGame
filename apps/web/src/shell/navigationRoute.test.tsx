@@ -1,7 +1,6 @@
 import {
   reportReviewsDue,
   reportTitle,
-  shellFiefSwitcherLabel,
   shellNavigationReport,
   shellNavigationTown,
   shellSignOut,
@@ -15,13 +14,7 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { assert, expect, it } from 'vitest'
 import type { ApiClient } from '../api/apiClient'
 import { renderAppAt } from '../auth/renderAppAt.testSupport'
-import {
-  knownFief,
-  knownFiefPath,
-  knownPlayer,
-  knownTown,
-  stubApiClient,
-} from '../auth/stubApiClient.testSupport'
+import { knownPlayer, knownTown, stubApiClient } from '../auth/stubApiClient.testSupport'
 import { placeNameOf } from '../town/placeNameOf'
 
 const signedInClient = stubApiClient({ currentPlayer: async () => knownPlayer })
@@ -65,14 +58,6 @@ it('draws no navigation bar', async () => {
   await townHeading()
 
   expect(screen.queryByRole('navigation')).toBeNull()
-})
-
-it('draws no navigation bar over a medieval screen', async () => {
-  renderAppAt(knownFiefPath, signedInClient)
-
-  await screen.findByRole('navigation', { name: shellFiefSwitcherLabel() })
-
-  expect(screen.getAllByRole('navigation')).toHaveLength(1)
 })
 
 it('opens the school and the Report from the two doors', async () => {
@@ -144,16 +129,7 @@ it('writes the name of the town once on the town home', async () => {
 it('links back to the town from every screen but the town home', async () => {
   const router = renderAppAt('/report', signedInClient)
 
-  const screens = [
-    '/report',
-    '/reviews',
-    '/school',
-    '/school/lesson-1',
-    knownFiefPath,
-    `${knownFiefPath}/mapa`,
-    `${knownFiefPath}/mapa/3`,
-    `${knownFiefPath}/cronica`,
-  ]
+  const screens = ['/report', '/reviews', '/school', '/school/lesson-1']
   for (const path of screens) {
     await act(() => router.navigate({ href: path }))
     expect((await backLink()).getAttribute('href'), path).toBe('/')
@@ -162,14 +138,6 @@ it('links back to the town from every screen but the town home', async () => {
   await act(() => router.navigate({ href: '/' }))
   await townHeading()
   expect(within(await shellHeader()).queryByRole('link')).toBeNull()
-})
-
-it('opens the town from the back link of a medieval screen', async () => {
-  renderAppAt(knownFiefPath, signedInClient)
-
-  fireEvent.click(await backLink())
-
-  expect(await townHeading()).toBeDefined()
 })
 
 it('holds the town in the back link for a player with no town', async () => {
@@ -190,12 +158,6 @@ it('gives the back link, a text link and a text button control height', async ()
     control.className.split(' ').includes('min-h-control'),
   )
   expect(heights).toEqual([true, true, true])
-})
-
-it('keeps /feudo/$fiefId reachable', async () => {
-  renderAppAt(knownFiefPath, signedInClient)
-
-  expect(await screen.findByRole('heading', { level: 2, name: knownFief.name })).toBeDefined()
 })
 
 it('keeps room on the page for the sticky foot under a focused control', async () => {

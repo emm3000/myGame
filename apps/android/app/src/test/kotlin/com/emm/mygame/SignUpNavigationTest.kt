@@ -13,12 +13,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.network.ChronicleRepository
-import com.emm.mygame.core.network.FiefListRepository
-import com.emm.mygame.core.network.FiefListResult
-import com.emm.mygame.core.network.FiefRepository
 import com.emm.mygame.core.network.LearningRepository
-import com.emm.mygame.core.network.MapRepository
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionEnds
@@ -27,11 +22,7 @@ import com.emm.mygame.core.network.SignUpResult
 import com.emm.mygame.core.network.SignedInPlayer
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
-import com.emm.mygame.core.testing.FakeChronicleRepository
-import com.emm.mygame.core.testing.FakeFiefListRepository
-import com.emm.mygame.core.testing.FakeFiefRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
-import com.emm.mygame.core.testing.FakeMapRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
@@ -50,28 +41,21 @@ class SignUpNavigationTest {
 
     private val sessionsFake: FakeSessionRepository = FakeSessionRepository()
 
-    private val listingsFake: FakeFiefListRepository = FakeFiefListRepository()
-
     private val townsFake: FakeTownRepository = FakeTownRepository()
 
     private val dependencies: AppDependencies = object : AppDependencies {
         override val clock: Clock = Clock.System
         override val sessionEnds: SessionEnds = SessionEnds()
         override val sessions: SessionRepository = sessionsFake
-        override val listings: FiefListRepository = listingsFake
-        override val fiefs: FiefRepository = FakeFiefRepository()
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = FakeLearningRepository()
         override val reports: ReportRepository = FakeReportRepository()
-        override val maps: MapRepository = FakeMapRepository()
-        override val chronicles: ChronicleRepository = FakeChronicleRepository()
     }
 
     @Test
     fun `opens Name your town after sign-up`() {
         sessionsFake.answerRestore(RestoreResult.SignedOut)
         sessionsFake.answerSignUp(SignUpResult.SignedIn(SignedInPlayer("elena@example.com")))
-        listingsFake.answerListed(FiefListResult.Listed(emptyList()))
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.NoTown) }
         composeRule.setContent {
             MyGameTheme {

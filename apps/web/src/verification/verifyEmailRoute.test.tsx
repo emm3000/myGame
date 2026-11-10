@@ -2,7 +2,7 @@ import {
   authSignInTitle,
   refusalTokenInvalid,
   refusalUnexpected,
-  verificationVerifyToFief,
+  verificationVerifyToTown,
   verificationVerifyVerified,
   verificationVerifyVerifying,
 } from '@mygame/catalog'
@@ -24,7 +24,7 @@ it('verifies the email from the link', async () => {
     }),
   )
 
-  const link = await screen.findByRole('link', { name: verificationVerifyToFief() })
+  const link = await screen.findByRole('link', { name: verificationVerifyToTown() })
 
   expect(screen.getByRole('status').textContent).toBe(verificationVerifyVerified())
   expect(link.getAttribute('href')).toBe('/')
@@ -44,7 +44,7 @@ it('posts the link token once', async () => {
     { isStrict: true },
   )
 
-  await screen.findByRole('link', { name: verificationVerifyToFief() })
+  await screen.findByRole('link', { name: verificationVerifyToTown() })
 
   expect(posts).toBe(1)
 })

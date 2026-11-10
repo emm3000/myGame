@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
-import com.emm.mygame.core.network.FiefId
 import com.emm.mygame.core.network.LessonId
 import kotlinx.coroutines.flow.Flow
 
@@ -50,14 +49,6 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         ended.collect { signedOut(isSessionEnded = true) }
     }
 
-    fun openMap(fief: FiefId) {
-        openFromTown(Destination.Map(fief))
-    }
-
-    fun openChronicle(fief: FiefId) {
-        openFromTown(Destination.Chronicle(fief))
-    }
-
     fun openSchool() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
@@ -97,16 +88,6 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         if (backStack.lastOrNull().isAboveTown()) backToTown()
     }
 
-    fun switchFief(fief: FiefId) {
-        if (!areLinksEnabled) return
-        val shown: List<Destination> = when (backStack.lastOrNull()) {
-            is Destination.Map -> listOf(Destination.Town, Destination.Map(fief))
-            is Destination.Chronicle -> listOf(Destination.Town, Destination.Chronicle(fief))
-            else -> return
-        }
-        showAlone(shown)
-    }
-
     private fun openFromTown(shownNext: Destination) {
         if (!areLinksEnabled) return
         val shown: NavKey? = backStack.lastOrNull()
@@ -132,8 +113,6 @@ private fun NavKey?.isAboveTown(): Boolean = when (this) {
     Destination.Report,
     Destination.Review,
     is Destination.LessonWords,
-    is Destination.Map,
-    is Destination.Chronicle,
     -> true
     else -> false
 }

@@ -65,6 +65,8 @@ internal fun nothingDueUntil(nextDueAt: Instant): ReviewsReadResult = ReviewsRea
     DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = nextDueAt, readAt = firstReadAt),
 )
 
+internal val firstReadAt: Instant = Instant.fromEpochMilliseconds(1_000_000)
+
 internal val lessonTwo: LessonId = LessonId("lesson-2")
 
 internal val coffeeRecall: DueReview.Recall = DueReview.Recall(
