@@ -35,9 +35,9 @@ import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
-import com.emm.mygame.feature.review.ReviewRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
+import com.emm.mygame.feature.review.ReviewRoute
 import com.emm.mygame.feature.school.LessonWalk
 import com.emm.mygame.feature.school.LessonWordsNavigation
 import com.emm.mygame.feature.school.LessonWordsRoute
