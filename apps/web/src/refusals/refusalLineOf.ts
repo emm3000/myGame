@@ -71,6 +71,7 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       return refusalBuildingWorkNotFound({ level: error.params.level })
     case 'LearningCapReached':
       return refusalLearningCapReached(error.params)
+    // TODO(#753): back to an exhaustive never default once the medieval kinds leave ApiErrorKind
     default:
       return refusalUnexpected()
   }
