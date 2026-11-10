@@ -1,6 +1,6 @@
 # Art bible
 
-Status: flat silhouettes of a present-day town, ADR 043 (`docs/adr/043-the-look.md`) and ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`). Every earlier image is retired. One style for every image the game shows, so images drawn months apart sit together. Read before drawing any image. Every illustration is hand-written SVG, so the file that ships is the source that produced it, which is how a town image meets N7 (`docs/PRODUCT_REQUIREMENTS.md`). `catalog.md` lists the town's families and the retired medieval ones.
+Status: flat silhouettes of a present-day town, ADR 043 (`docs/adr/043-the-look.md`) and ADR 035 (`docs/adr/035-townword-an-english-learning-town-builder.md`). Every earlier image is retired. One style for every image the game shows, so images drawn months apart sit together. Read before drawing any image. Every illustration is hand-written SVG, so the file that ships is the source that produced it, which is how a town image meets N7 (`docs/PRODUCT_REQUIREMENTS.md`). `catalog.md` lists the town's families.
 
 ## Style
 
