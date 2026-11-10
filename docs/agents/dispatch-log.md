@@ -32,9 +32,9 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 47 | 33 | 9 | 3 | 2 |
+| 2 | opus:high | 50 | 35 | 10 | 3 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
-| 4 | opus:high | 65 | 56 | 2 | 3 | 4 |
+| 4 | opus:high | 66 | 57 | 2 | 3 | 4 |
 | 3 | opus:high | 95 | 68 | 9 | 13 | 5 |
 | 1 | opus:high | 11 | 2 | 1 | 7 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
@@ -47,10 +47,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #915 | #874 | 2 | opus:high | FIX FIRST | checklist | 53084 | 151 | 184 | 18.03 | 2 | 28 | +572/-0 | |
-| #916 | #793 | 4 | opus:high | MERGE | | 26460 | 62 | 108 | 8.77 | 1 | 9 | +227/-0 | |
-| #923 | #848 | 2 | opus:high | MERGE | | 11374 | 34 | 61 | 4.48 | 1 | 5 | +154/-0 | |
-| #924 | #849 | 2 | opus:high | MERGE | | 17421 | 54 | 84 | 6.19 | 1 | 10 | +319/-39 | |
 | #925 | #917 | 3 | opus:high | FIX FIRST | judgment | 47414 | 152 | 144 | 17.45 | 2 | 30 | +666/-2 | |
 | #927 | #920 | 3 | opus:high | MERGE | | 7802 | 71 | 60 | 4.59 | 1 | 9 | +869/-22 | |
 | #928 | #918 | 2 | opus:high | MERGE | | 7809 | 64 | 101 | 4.78 | 1 | 9 | +401/-0 | |
@@ -67,3 +63,7 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #944 | #939 | 1 | sonnet:low | MERGE | | 1149 | 4 | 26 | 0.46 | 1 | 0 | +3/-2 | |
 | #945 | #942 | 3 | opus:high | MERGE | | 1343 | 15 | 38 | 1.09 | 1 | 2 | +6/-0 | |
 | #946 | #778 | 3 | opus:high | MERGE | | 11291 | 48 | 72 | 4.82 | 1 | 8 | +1037/-9 | |
+| #947 | #941 | 1 | sonnet:low | FIX FIRST | checklist | 1339 | 5 | 28 | 0.36 | 2 | 0 | +3/-162 | |
+| #948 | #938 | 3 | opus:high | MERGE | | 4172 | 15 | 61 | 1.84 | 1 | 3 | +160/-168 | |
+| #949 | #940 | 2 | opus:high | MERGE | | 2928 | 17 | 39 | 1.67 | 1 | 3 | +171/-1 | |
+| #951 | #779 | 2 | opus:high | FIX FIRST | spec | 18141 | 58 | 142 | 6.55 | 2 | 10 | +856/-62 | |
