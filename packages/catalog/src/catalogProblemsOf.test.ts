@@ -5,43 +5,43 @@ import { catalogProblemsOf } from './catalogProblemsOf'
 
 describe('catalogProblemsOf', () => {
   it('reports a key of en missing from es', () => {
-    const enAhead = { en: { 'fief.title': 'Your town' }, es: {} }
+    const enAhead = { en: { 'town.title': 'Your town' }, es: {} }
 
-    expect(catalogProblemsOf(enAhead)).toEqual([{ kind: 'missingFromEs', key: 'fief.title' }])
+    expect(catalogProblemsOf(enAhead)).toEqual([{ kind: 'missingFromEs', key: 'town.title' }])
   })
 
   it('reports a message that does not parse', () => {
-    const unclosedArgument = { en: {}, es: { 'fief.fillsAt': 'Se llena a las {time' } }
+    const unclosedArgument = { en: {}, es: { 'town.fillsAt': 'Se llena a las {time' } }
 
     expect(catalogProblemsOf(unclosedArgument)).toEqual([
-      { kind: 'unparsable', language: 'es', key: 'fief.fillsAt' },
+      { kind: 'unparsable', language: 'es', key: 'town.fillsAt' },
     ])
   })
 
   it('reports two languages naming different arguments for one key', () => {
     const driftedArguments = {
-      en: { 'fief.fillsAt': 'Fills at {time}' },
-      es: { 'fief.fillsAt': 'Se llena a las {hour}' },
+      en: { 'town.fillsAt': 'Fills at {time}' },
+      es: { 'town.fillsAt': 'Se llena a las {hour}' },
     }
 
     expect(catalogProblemsOf(driftedArguments)).toEqual([
-      { kind: 'argumentsDiffer', key: 'fief.fillsAt' },
+      { kind: 'argumentsDiffer', key: 'town.fillsAt' },
     ])
   })
 
   it('reports a voseo form in es as a whole word, accents included', () => {
-    const voseo = { en: {}, es: { 'fief.hint': 'Si querés más madera, Mirá el aserradero.' } }
+    const voseo = { en: {}, es: { 'town.hint': 'Si querés más madera, Mirá el aserradero.' } }
 
     expect(catalogProblemsOf(voseo)).toEqual([
-      { kind: 'voseo', key: 'fief.hint', word: 'querés' },
-      { kind: 'voseo', key: 'fief.hint', word: 'Mirá' },
+      { kind: 'voseo', key: 'town.hint', word: 'querés' },
+      { kind: 'voseo', key: 'town.hint', word: 'Mirá' },
     ])
   })
 
   it('leaves a voseo form inside a longer word unreported', () => {
     const tuteo = {
       en: {},
-      es: { 'fief.hint': 'Vosotros sabéis que el aserradero sostiene el feudo.' },
+      es: { 'town.hint': 'Vosotros sabéis que el aserradero sostiene el feudo.' },
     }
 
     expect(catalogProblemsOf(tuteo)).toEqual([])

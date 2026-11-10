@@ -33,35 +33,35 @@ describe('typeScriptOf', () => {
   })
 
   it('keeps line breaks, backticks, backslashes and dollar signs as written', async () => {
-    const tricky = { 'fief.tricky': "Uno\n`dos` \\ $'{'tres'}'" }
+    const tricky = { 'town.tricky': "Uno\n`dos` \\ $'{'tres'}'" }
 
     const module = await generatedModuleOf(tricky)
 
-    expect(rendered(module, 'fiefTricky')).toBe(['Uno\n`dos` \\ $', '{tres}'].join(''))
+    expect(rendered(module, 'townTricky')).toBe(['Uno\n`dos` \\ $', '{tres}'].join(''))
   })
 
   it('renders a simple argument with String', async () => {
-    const fillsAt = { 'fief.fillsAt': 'Se llena a las {time}.' }
+    const fillsAt = { 'town.fillsAt': 'Se llena a las {time}.' }
 
     const module = await generatedModuleOf(fillsAt)
 
-    expect(rendered(module, 'fiefFillsAt', { time: 12 })).toBe('Se llena a las 12.')
+    expect(rendered(module, 'townFillsAt', { time: 12 })).toBe('Se llena a las 12.')
   })
 
   it('types a simple argument as a string or a number', () => {
-    const fillsAt = { 'fief.fillsAt': 'Se llena a las {time}.' }
+    const fillsAt = { 'town.fillsAt': 'Se llena a las {time}.' }
 
     expect(typeScriptOf(fillsAt)).toContain('{ readonly time: string | number }')
   })
 
   it('picks an exact plural selector before other', async () => {
     const peasants = {
-      'fief.peasants': '{count, plural, =0 {nadie} =1 {un campesino} other {# campesinos}}',
+      'town.peasants': '{count, plural, =0 {nadie} =1 {un campesino} other {# campesinos}}',
     }
 
     const module = await generatedModuleOf(peasants)
 
-    expect([0, 1, 7].map((count) => rendered(module, 'fiefPeasants', { count }))).toEqual([
+    expect([0, 1, 7].map((count) => rendered(module, 'townPeasants', { count }))).toEqual([
       'nadie',
       'un campesino',
       '7 campesinos',
@@ -69,7 +69,7 @@ describe('typeScriptOf', () => {
   })
 
   it('types a plural argument as a number', () => {
-    const peasants = { 'fief.peasants': '{count, plural, =1 {uno} other {#}}' }
+    const peasants = { 'town.peasants': '{count, plural, =1 {uno} other {#}}' }
 
     expect(typeScriptOf(peasants)).toContain('{ readonly count: number }')
   })
@@ -93,33 +93,33 @@ describe('typeScriptOf', () => {
   })
 
   it('refuses a plural category that needs runtime plural rules', () => {
-    const categorical = { 'fief.peasants': '{count, plural, one {uno} other {#}}' }
+    const categorical = { 'town.peasants': '{count, plural, one {uno} other {#}}' }
 
-    expect(() => typeScriptOf(categorical)).toThrow(/fief\.peasants/)
+    expect(() => typeScriptOf(categorical)).toThrow(/town\.peasants/)
   })
 
   it('refuses a number skeleton', () => {
-    const skeleton = { 'fief.wood': '{amount, number, integer}' }
+    const skeleton = { 'town.wood': '{amount, number, integer}' }
 
-    expect(() => typeScriptOf(skeleton)).toThrow(/fief\.wood/)
+    expect(() => typeScriptOf(skeleton)).toThrow(/town\.wood/)
   })
 
   it('refuses a tag', () => {
-    const tagged = { 'fief.bold': 'Una <b>palabra</b>' }
+    const tagged = { 'town.bold': 'Una <b>palabra</b>' }
 
-    expect(() => typeScriptOf(tagged)).toThrow(/fief\.bold/)
+    expect(() => typeScriptOf(tagged)).toThrow(/town\.bold/)
   })
 
   it('refuses one argument used in two roles', () => {
-    const twoRoles = { 'fief.count': '{count} {count, plural, =1 {uno} other {varios}}' }
+    const twoRoles = { 'town.count': '{count} {count, plural, =1 {uno} other {varios}}' }
 
-    expect(() => typeScriptOf(twoRoles)).toThrow(/fief\.count/)
+    expect(() => typeScriptOf(twoRoles)).toThrow(/town\.count/)
   })
 
   it('refuses a key outside the dotted camelCase shape', () => {
-    const snakeKey = { 'fief.fills_at': 'Se llena' }
+    const snakeKey = { 'town.fills_at': 'Se llena' }
 
-    expect(() => typeScriptOf(snakeKey)).toThrow(/fief\.fills_at/)
+    expect(() => typeScriptOf(snakeKey)).toThrow(/town\.fills_at/)
   })
 
   it('leaves the android keys out', () => {
