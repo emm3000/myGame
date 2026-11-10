@@ -231,6 +231,18 @@ jobs:
         with:
           name: vercel-prebuilt
           path: ${{ runner.temp }}/prebuilt
+      - name: unpack and check the prebuilt output
+        working-directory: ${{ runner.temp }}
+        run: |
+          for project in api web; do
+            mkdir "deploy-$project"
+            tar -xzf "prebuilt/$project.tgz" -C "deploy-$project" .vercel/output "apps/$project/vercel.json"
+            outside="$(cd "deploy-$project" && find . -path ./.vercel/output -prune -o ! -type d -print)"
+            if [ "$outside" != "./apps/$project/vercel.json" ] || [ -L "deploy-$project/apps/$project/vercel.json" ]; then
+              echo "::error::the $project artifact holds a file outside .vercel/output that the CLI could read: $outside"
+              exit 1
+            fi
+          done
       - name: deploy the api
         working-directory: ${{ runner.temp }}
         env:
@@ -238,8 +250,6 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_API_PROJECT_ID }}
         run: |
-          mkdir deploy-api
-          tar -xzf prebuilt/api.tgz -C deploy-api
           cd deploy-api
           "$RUNNER_TEMP/vercel-cli/node_modules/.bin/vercel" deploy --prebuilt --prod --token="$VERCEL_TOKEN"
       - name: deploy the web
@@ -249,7 +259,5 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_WEB_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
         run: |
-          mkdir deploy-web
-          tar -xzf prebuilt/web.tgz -C deploy-web
           cd deploy-web
           "$RUNNER_TEMP/vercel-cli/node_modules/.bin/vercel" deploy --prebuilt --prod --token="$VERCEL_TOKEN"
