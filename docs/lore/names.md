@@ -406,12 +406,12 @@ The **sign-in and sign-up** lines shipped before this section and are recorded h
 
 ### The banner
 
-Shown in the signed-in shell while the email is unverified (`emailVerified` false), gone once it is.
+Shown in the signed-in shell while the email is unverified (`emailVerified` false), gone once it is: one sticky line at the foot, each of its lines short enough to stay on one line beside the button at 320 px (#887).
 
-- The **banner's line**: *Aún no has confirmado tu correo. Sin confirmarlo no podrás recuperar tu contraseña.*
-- The **resend button**: *Enviar otro enlace*, in the register of *Cancelar la obra*.
-- The **line after a resend**: *Te hemos enviado otro enlace. Búscalo en tu correo: vale 24 horas.*
-- The **`MailNotSent` refusal**, a resend the server could not deliver, in the register of the *Unexpected* line: *No hemos podido enviar el correo. Vuelve a intentarlo en un momento.*
+- The **banner's line**: *Confirma tu correo*, the words of the verify title.
+- The **resend button**: *Reenviar*; it also retries after a refusal.
+- The **line after a resend**: *Enviado. Revisa tu correo.* The mail itself names the 24 hours.
+- The **`MailNotSent` refusal**, a resend the server could not deliver, read beside *Reenviar*: *No hemos podido enviarlo.*
 
 ### The verify screen
 
