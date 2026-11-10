@@ -3,6 +3,7 @@ import { townCatalogOf } from '../testing/townCatalogOf'
 import { storedTownOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import { accrueTown } from './accrueTown'
+import type { HiringOrder } from './HiringOrder'
 import { Town } from './Town'
 import { TownAddress } from './TownAddress'
 import type { TownSkill } from './TownSkill'
@@ -136,5 +137,92 @@ describe('Town', () => {
       'river',
       'hills',
     ])
+  })
+
+  describe('hiring', () => {
+    const secondsAfterStored = (seconds: number): Instant =>
+      Instant.fromEpochMilliseconds(storedAt.epochMilliseconds + seconds * 1_000)
+
+    const threeTrucks: HiringOrder = {
+      kind: 'busy',
+      hire: 'truck',
+      count: 3,
+      costPerHire: { money: 60, food: 0, power: 20, material: 40 },
+      secondsPerHire: 100,
+      startedAt: storedAt,
+    }
+
+    it('delivers hires one by one on read', () => {
+      const restored = Town.restore({
+        ...storedTownOf({ storedAt }),
+        hires: { worker: 1, truck: 2 },
+        hiringSlot: threeTrucks,
+      })
+      assert(restored.ok)
+
+      const trucksRead = [0, 99, 100, 250, 300, 900].map(
+        (seconds) => restored.value.hiresAt(secondsAfterStored(seconds)).truck,
+      )
+
+      expect(trucksRead).toEqual([2, 2, 3, 4, 5, 5])
+    })
+
+    it('refuses a stored hire count that is not whole from 0', () => {
+      const restored = Town.restore({
+        ...storedTownOf({ storedAt }),
+        hires: { worker: -1, truck: 0 },
+      })
+
+      expect(restored).toEqual({
+        ok: false,
+        error: { kind: 'InvalidHireCount', hire: 'worker', count: -1 },
+      })
+    })
+
+    it('refuses a stored order whose count is not whole from 1', () => {
+      const restored = Town.restore({
+        ...storedTownOf({ storedAt }),
+        hiringSlot: { ...threeTrucks, count: 0 },
+      })
+
+      expect(restored).toEqual({
+        ok: false,
+        error: { kind: 'InvalidHireCount', hire: 'truck', count: 0 },
+      })
+    })
+
+    it('refuses a stored order whose seconds per hire are not whole from 1', () => {
+      const restored = Town.restore({
+        ...storedTownOf({ storedAt }),
+        hiringSlot: { ...threeTrucks, secondsPerHire: 0.5 },
+      })
+
+      expect(restored).toEqual({
+        ok: false,
+        error: { kind: 'InvalidHireDuration', hire: 'truck', secondsPerHire: 0.5 },
+      })
+    })
+
+    it('refuses a stored order with a negative cost per hire', () => {
+      const restored = Town.restore({
+        ...storedTownOf({ storedAt }),
+        hiringSlot: { ...threeTrucks, costPerHire: { money: -1, food: 0, power: 0, material: 0 } },
+      })
+
+      expect(restored).toEqual({
+        ok: false,
+        error: { kind: 'NegativeResourceAmount', amount: -1 },
+      })
+    })
+
+    it('founds a town with no hires and an idle hiring slot', () => {
+      const stored = storedTownOf({ storedAt })
+      const founded = Town.found({ ...stored, startingStocks: stored.stocks, at: storedAt })
+
+      expect([founded.hires, founded.hiringSlot]).toEqual([
+        { worker: 0, truck: 0 },
+        { kind: 'idle' },
+      ])
+    })
   })
 })

@@ -74,7 +74,7 @@ describe('JsonTownCatalog', () => {
         cost: { money: 150, food: 0, power: 30, material: 225 },
         durationSeconds: 288,
         people: 2,
-        capacityUnits: 2250,
+        capacity: 2250,
       },
     ])
   })
@@ -120,5 +120,30 @@ describe('JsonTownCatalog', () => {
     )
 
     expect(startingUpOn(directory)).toThrow(/town\.json is malformed/)
+  })
+
+  it('gives a worker less carry and a slower road than a truck', () => {
+    const catalog = shippedCatalog()
+    const worker = catalog.hireTermsOf('worker')
+    const truck = catalog.hireTermsOf('truck')
+
+    expect([worker.carry < truck.carry, worker.roadPercent > truck.roadPercent]).toEqual([
+      true,
+      true,
+    ])
+  })
+
+  it('fails at start-up on an office no level of which hires a kind', () => {
+    const directory = withTownContent(
+      rewritten('office.json', (office) => ({
+        ...office,
+        levels: (office.levels as ReadonlyArray<Record<string, unknown>>).map((level) => ({
+          ...level,
+          effect: { hires: ['worker'] },
+        })),
+      })),
+    )
+
+    expect(startingUpOn(directory)).toThrow(/No office level offers truck/)
   })
 })

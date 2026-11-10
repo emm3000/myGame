@@ -76,8 +76,19 @@ export { earnTownSkill } from './town/earnTownSkill'
 export { type FullSince, noStoreFull } from './town/FullSince'
 export { type FoundTownCommand, type FoundTownDependencies, foundTown } from './town/foundTown'
 export type { HireKind } from './town/HireKind'
+export { type Hires, noHires } from './town/Hires'
+export type { HireTerms } from './town/HireTerms'
+export {
+  type HiringOrder,
+  type HiringSlot,
+  type HiringTarget,
+  idleHiringSlot,
+} from './town/HiringOrder'
+export { hireKinds } from './town/hireKinds'
+export { hirePercentAt } from './town/hirePercentAt'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
+export { lowestFreePeopleOf } from './town/lowestFreePeopleOf'
 export {
   type NextStep,
   type NextStepReading,
@@ -85,6 +96,11 @@ export {
   nextStepOf,
 } from './town/nextStepOf'
 export type { People } from './town/People'
+export {
+  type PlaceHiringOrderCommand,
+  type PlaceHiringOrderDependencies,
+  placeHiringOrder,
+} from './town/placeHiringOrder'
 export type { ResourceKind } from './town/ResourceKind'
 export { rebaseFullSince } from './town/rebaseFullSince'
 export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
@@ -111,6 +127,11 @@ export {
   type StopBuildingWorkDependencies,
   stopBuildingWork,
 } from './town/stopBuildingWork'
+export {
+  type StopHiringOrderCommand,
+  type StopHiringOrderDependencies,
+  stopHiringOrder,
+} from './town/stopHiringOrder'
 export {
   type StopSchoolLessonCommand,
   type StopSchoolLessonDependencies,

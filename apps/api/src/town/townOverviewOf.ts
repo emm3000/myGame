@@ -12,9 +12,11 @@ import {
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
+  type Hires,
   type Instant,
   type MemoryTerms,
   nextStepOf,
+  noHires,
   ok,
   type ResourceKind,
   type Result,
@@ -68,11 +70,11 @@ const peopleForWorkOf = (
   next: BuildingLevel,
   catalog: TownCatalog,
 ): Result<number, DomainError> => {
-  const before = derivePeople(projected, catalog)
+  const before = derivePeople(projected, noHires, catalog)
   if (!before.ok) {
     return before
   }
-  const after = derivePeople({ ...projected, [next.building]: next.level }, catalog)
+  const after = derivePeople({ ...projected, [next.building]: next.level }, noHires, catalog)
   if (!after.ok) {
     return after
   }
@@ -183,9 +185,10 @@ const seasonOf = (at: Instant, catalog: TownCatalog): TownOverview['season'] => 
 
 const peopleOf = (
   levels: BuildingLevels,
+  hires: Hires,
   catalog: TownCatalog,
 ): Result<TownOverview['people'], DomainError> => {
-  const people = derivePeople(levels, catalog)
+  const people = derivePeople(levels, hires, catalog)
   if (!people.ok) {
     return people
   }
@@ -227,7 +230,7 @@ export const townOverviewOf = (
   if (!stocks.ok) {
     return stocks
   }
-  const people = peopleOf(town.buildingLevels, catalog)
+  const people = peopleOf(town.buildingLevels, town.staffedHires, catalog)
   if (!people.ok) {
     return people
   }

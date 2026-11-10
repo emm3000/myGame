@@ -166,7 +166,7 @@ describe('the town route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
@@ -625,27 +625,33 @@ describe('the town route', () => {
       ])
     })
 
-    it('reaches homes level 5 through a farm from a river town left with 15 food', async () => {
-      const ana = await signUpWithTown('ana@example.com')
-      await runSql('UPDATE towns SET area = 2')
-      await startWork(ana, 'factory')
-      await startWork(ana, 'homes')
-      await startWork(ana, 'homes')
-      clock.advanceMinutes(300)
-      const afterHomesFour = await overviewOf(await startWork(ana, 'homes'))
-      clock.advanceMinutes(180)
-      const farm = await startWork(ana, 'farm')
-      clock.advanceMinutes(24 * 60)
+    it.each([
+      { terrain: 'river', area: 2 },
+      { terrain: 'hills', area: 3 },
+    ])(
+      'reaches homes level 5 through a farm from a $terrain town left with 15 food',
+      async ({ terrain, area }) => {
+        const ana = await signUpWithTown('ana@example.com')
+        await runSql(`UPDATE towns SET area = ${area}`)
+        await startWork(ana, 'factory')
+        await startWork(ana, 'homes')
+        await startWork(ana, 'homes')
+        clock.advanceMinutes(300)
+        const afterHomesFour = await overviewOf(await startWork(ana, 'homes'))
+        clock.advanceMinutes(180)
+        const farm = await startWork(ana, 'farm')
+        clock.advanceMinutes(24 * 60)
 
-      const homesFive = await overviewOf(await startWork(ana, 'homes'))
+        const homesFive = await overviewOf(await startWork(ana, 'homes'))
 
-      expect([
-        afterHomesFour.terrain,
-        afterHomesFour.stocks.food.amount,
-        farm.status,
-        homesFive.work.slot?.level,
-      ]).toEqual(['river', 15, 200, 5])
-    })
+        expect([
+          afterHomesFour.terrain,
+          afterHomesFour.stocks.food.amount,
+          farm.status,
+          homesFive.work.slot?.level,
+        ]).toEqual([terrain, 15, 200, 5])
+      },
+    )
   })
 
   describe('the next step', () => {

@@ -3,6 +3,7 @@ import { ok, type Result } from '../Result'
 import type { BuildingLevels } from './BuildingLevels'
 import type { WaitingList, WaitingWork, WorkSlot } from './BuildingWork'
 import { derivePeople } from './derivePeople'
+import type { Hires } from './Hires'
 import type { TownCatalog } from './TownCatalog'
 
 export type RecheckedWaitingList = {
@@ -12,13 +13,14 @@ export type RecheckedWaitingList = {
 
 const fitsProjection = (
   projected: BuildingLevels,
+  hires: Hires,
   work: WaitingWork,
   catalog: TownCatalog,
 ): Result<boolean, DomainError> => {
   if (work.level !== projected[work.building] + 1) {
     return ok(false)
   }
-  const people = derivePeople({ ...projected, [work.building]: work.level }, catalog)
+  const people = derivePeople({ ...projected, [work.building]: work.level }, hires, catalog)
   if (!people.ok) {
     return people
   }
@@ -29,6 +31,7 @@ export const recheckWaitingList = (
   buildingLevels: BuildingLevels,
   workSlot: WorkSlot,
   waitingList: WaitingList,
+  hires: Hires,
   catalog: TownCatalog,
 ): Result<RecheckedWaitingList, DomainError> => {
   const projected = { ...buildingLevels }
@@ -38,7 +41,7 @@ export const recheckWaitingList = (
   const kept: Array<WaitingWork> = []
   const stopped: Array<WaitingWork> = []
   for (const work of waitingList) {
-    const fits = fitsProjection(projected, work, catalog)
+    const fits = fitsProjection(projected, hires, work, catalog)
     if (!fits.ok) {
       return fits
     }

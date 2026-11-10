@@ -9,6 +9,9 @@ import {
 import {
   type BuildingKind,
   type BuildingLevel,
+  type HireKind,
+  type HireTerms,
+  hireKinds,
   Instant,
   type TownCatalog,
   type TownSettings,
@@ -55,7 +58,7 @@ const buildingLevelsOf = (content: BuildingContent): ReadonlyArray<BuildingLevel
       return content.levels.map(({ effect, ...level }) => ({
         ...level,
         building: content.building,
-        capacityUnits: effect.capacity,
+        capacity: effect.capacity,
       }))
     case 'school':
       return content.levels.map(({ effect, ...level }) => ({
@@ -85,13 +88,33 @@ const settingsOf = (town: TownContent): TownSettings => ({
   },
 })
 
+type OfficeContent = Extract<BuildingContent, { building: 'office' }>
+
+const officeOf = (buildings: ReadonlyArray<BuildingContent>): OfficeContent => {
+  const office = buildings.find(
+    (content): content is OfficeContent => content.building === 'office',
+  )
+  if (office === undefined) {
+    throw new Error('Content holds no office')
+  }
+  const unoffered = hireKinds.find(
+    (hire) => !office.levels.some((level) => level.effect.hires.includes(hire)),
+  )
+  if (unoffered !== undefined) {
+    throw new Error(`No office level offers ${unoffered}`)
+  }
+  return office
+}
+
 const keyOf = (building: BuildingKind, level: number): string => `${building}:${level}`
 
 export class JsonTownCatalog implements TownCatalog {
   private readonly levels: ReadonlyMap<string, BuildingLevel>
+  private readonly hireTerms: Readonly<Record<HireKind, HireTerms>>
   private readonly settings: TownSettings
 
   constructor(buildings: ReadonlyArray<BuildingContent>, town: TownContent) {
+    this.hireTerms = officeOf(buildings).hires
     this.levels = new Map(
       buildings
         .flatMap(buildingLevelsOf)
@@ -113,6 +136,10 @@ export class JsonTownCatalog implements TownCatalog {
 
   levelOf(building: BuildingKind, level: number): BuildingLevel | undefined {
     return this.levels.get(keyOf(building, level))
+  }
+
+  hireTermsOf(hire: HireKind): HireTerms {
+    return this.hireTerms[hire]
   }
 
   townSettings(): TownSettings {

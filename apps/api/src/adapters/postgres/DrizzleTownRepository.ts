@@ -5,7 +5,11 @@ import {
   type DomainError,
   err,
   type FullSince,
+  type Hires,
+  type HiringSlot,
+  hireKinds,
   Instant,
+  idleHiringSlot,
   idleWorkSlot,
   ok,
   type PlayerId,
@@ -33,6 +37,9 @@ import {
   earnedSkills,
   townBuilding,
   townBuildings,
+  townHire,
+  townHires,
+  townHiringOrders,
   townLessonSlots,
   townResource,
   towns,
@@ -84,6 +91,48 @@ const aggregatedWaitingWork = jsonAggregateOf(
   },
   eq(townWaitingWork.townId, towns.id),
   sql`${townWaitingWork.position}`,
+)
+
+const AggregatedHiresSchema = z.array(
+  z.strictObject({ hire: z.enum(townHire.enumValues), count: z.number().int() }),
+)
+
+const aggregatedHires = jsonAggregateOf(
+  townHires,
+  { hire: townHires.hire, count: townHires.count },
+  eq(townHires.townId, towns.id),
+  sql`${townHires.hire}`,
+)
+
+const AggregatedHiringOrdersSchema = z
+  .array(
+    z.strictObject({
+      hire: z.enum(townHire.enumValues),
+      count: z.number().int(),
+      costMoney: z.number(),
+      costFood: z.number(),
+      costPower: z.number(),
+      costMaterial: z.number(),
+      secondsPerHire: z.number().int(),
+      startedAt: z.string(),
+    }),
+  )
+  .max(1)
+
+const aggregatedHiringOrder = jsonAggregateOf(
+  townHiringOrders,
+  {
+    hire: townHiringOrders.hire,
+    count: townHiringOrders.count,
+    costMoney: townHiringOrders.costMoney,
+    costFood: townHiringOrders.costFood,
+    costPower: townHiringOrders.costPower,
+    costMaterial: townHiringOrders.costMaterial,
+    secondsPerHire: townHiringOrders.secondsPerHire,
+    startedAt: townHiringOrders.startedAt,
+  },
+  eq(townHiringOrders.townId, towns.id),
+  sql`${townHiringOrders.townId}`,
 )
 
 const AggregatedSkillsSchema = z.array(
@@ -257,6 +306,33 @@ const waitingRowsOf = (town: Town): ReadonlyArray<WaitingRow> =>
     durationSeconds: work.durationSeconds,
   }))
 
+const hiresOf = (row: TownRow, aggregate: unknown): Hires => {
+  const counts = new Map(
+    AggregatedHiresSchema.parse(aggregate).map(({ hire, count }) => [hire, count]),
+  )
+  const worker = counts.get('worker')
+  const truck = counts.get('truck')
+  if (worker === undefined || truck === undefined) {
+    throw new Error(`Town ${row.id} stores no count for every hire`)
+  }
+  return { worker, truck }
+}
+
+const hiringSlotOf = (aggregate: unknown): HiringSlot => {
+  const [order] = AggregatedHiringOrdersSchema.parse(aggregate)
+  if (order === undefined) {
+    return idleHiringSlot
+  }
+  return {
+    kind: 'busy',
+    hire: order.hire,
+    count: order.count,
+    costPerHire: stocksOf(order.costMoney, order.costFood, order.costPower, order.costMaterial),
+    secondsPerHire: order.secondsPerHire,
+    startedAt: Instant.fromEpochMilliseconds(Date.parse(order.startedAt)),
+  }
+}
+
 const fullSinceOf = (row: TownRow): FullSince => ({
   money: instantOf(row.fullSinceMoney),
   food: instantOf(row.fullSinceFood),
@@ -268,6 +344,8 @@ type ReadRow = {
   readonly town: TownRow
   readonly levels: unknown
   readonly waitingWork: unknown
+  readonly hires: unknown
+  readonly hiringOrder: unknown
   readonly skills: unknown
 }
 
@@ -275,6 +353,8 @@ const townFrom = ({
   town: row,
   levels,
   waitingWork,
+  hires,
+  hiringOrder,
   skills,
 }: ReadRow): Result<Town, DomainError> => {
   const name = TownName.create(row.name)
@@ -296,6 +376,8 @@ const townFrom = ({
     buildingLevels: levelsOf(levels),
     workSlot: workSlotOf(row),
     waitingList: waitingListOf(waitingWork),
+    hires: hiresOf(row, hires),
+    hiringSlot: hiringSlotOf(hiringOrder),
     skills: skillsOf(skills),
   })
 }
@@ -318,6 +400,38 @@ const rowOf = (town: Town): TownRow => ({
   fullSinceMaterial: dateOf(town.fullSince.material),
   ...workSlotColumnsOf(town.workSlot),
 })
+
+type HiringOrderColumns = Omit<typeof townHiringOrders.$inferInsert, 'townId'>
+
+const hiringOrderColumnsOf = (slot: HiringSlot): HiringOrderColumns | undefined =>
+  slot.kind === 'idle'
+    ? undefined
+    : {
+        hire: slot.hire,
+        count: slot.count,
+        costMoney: slot.costPerHire.money,
+        costFood: slot.costPerHire.food,
+        costPower: slot.costPerHire.power,
+        costMaterial: slot.costPerHire.material,
+        secondsPerHire: slot.secondsPerHire,
+        startedAt: new Date(slot.startedAt.epochMilliseconds),
+      }
+
+const saveHiringSlot = async (
+  database: PostgresSession,
+  townId: string,
+  slot: HiringSlot,
+): Promise<void> => {
+  const columns = hiringOrderColumnsOf(slot)
+  if (columns === undefined) {
+    await database.delete(townHiringOrders).where(eq(townHiringOrders.townId, townId))
+    return
+  }
+  await database
+    .insert(townHiringOrders)
+    .values({ townId, ...columns })
+    .onConflictDoUpdate({ target: townHiringOrders.townId, set: columns })
+}
 
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 
@@ -347,6 +461,8 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         town: towns,
         levels: aggregatedLevels,
         waitingWork: aggregatedWaitingWork,
+        hires: aggregatedHires,
+        hiringOrder: aggregatedHiringOrder,
         skills: aggregatedSkills,
       })
       .from(towns)
@@ -369,6 +485,8 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         town: towns,
         levels: aggregatedLevels,
         waitingWork: aggregatedWaitingWork,
+        hires: aggregatedHires,
+        hiringOrder: aggregatedHiringOrder,
         skills: aggregatedSkills,
         lessonSlot: townLessonSlots,
         cards: aggregatedCardsOf(towns.playerId),
@@ -419,6 +537,14 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         if (waitingRows.length > 0) {
           await transaction.insert(townWaitingWork).values([...waitingRows])
         }
+        for (const hire of hireKinds) {
+          const count = town.hires[hire]
+          await transaction
+            .insert(townHires)
+            .values({ townId: id, hire, count })
+            .onConflictDoUpdate({ target: [townHires.townId, townHires.hire], set: { count } })
+        }
+        await saveHiringSlot(transaction, id, town.hiringSlot)
       })
       return ok(undefined)
     } catch (failure) {

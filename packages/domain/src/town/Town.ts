@@ -14,7 +14,13 @@ import {
   type WorkTarget,
 } from './BuildingWork'
 import { buildingKinds } from './buildingKinds'
+import { deliveredHiresOf } from './deliveredHiresOf'
 import { type FullSince, noStoreFull } from './FullSince'
+import type { HireKind } from './HireKind'
+import { type Hires, noHires } from './Hires'
+import { type HiringOrder, type HiringSlot, type HiringTarget, idleHiringSlot } from './HiringOrder'
+import { hireKinds } from './hireKinds'
+import { hiringEndsAt } from './hiringEndsAt'
 import type { ResourceKind } from './ResourceKind'
 import { recheckWaitingList } from './recheckWaitingList'
 import { resourceKinds } from './resourceKinds'
@@ -46,6 +52,8 @@ type TownState = {
   readonly workSlot: WorkSlot
   readonly waitingList: WaitingList
   readonly skills: ReadonlyArray<TownSkill>
+  readonly hires: Hires
+  readonly hiringSlot: HiringSlot
 }
 
 export type StoredTown = TownState & {
@@ -152,11 +160,48 @@ const refuseInvalidWaitingList = (waitingList: WaitingList): DomainError | undef
   return undefined
 }
 
+const isWholeFromOne = (value: number): boolean => Number.isInteger(value) && value >= 1
+
+const refuseInvalidHires = (hires: Hires): DomainError | undefined => {
+  const invalid = hireKinds.find((hire) => !isWholeFromZero(hires[hire]))
+  return invalid === undefined
+    ? undefined
+    : { kind: 'InvalidHireCount', hire: invalid, count: hires[invalid] }
+}
+
+const refuseInvalidHiring = (slot: HiringSlot): DomainError | undefined => {
+  if (slot.kind === 'idle') {
+    return undefined
+  }
+  const { hire, count, secondsPerHire } = slot
+  if (!isWholeFromOne(count)) {
+    return { kind: 'InvalidHireCount', hire, count }
+  }
+  if (!isWholeFromOne(secondsPerHire)) {
+    return { kind: 'InvalidHireDuration', hire, secondsPerHire }
+  }
+  return refuseInvalidCost(slot.costPerHire)
+}
+
 const refuseInvalidTown = (stored: StoredTown): DomainError | undefined =>
   refuseInvalidStocks(stored.stocks) ??
   refuseInvalidLevels(stored.buildingLevels) ??
   refuseInvalidSlot(stored.workSlot, stored.storedAt) ??
-  refuseInvalidWaitingList(stored.waitingList)
+  refuseInvalidWaitingList(stored.waitingList) ??
+  refuseInvalidHires(stored.hires) ??
+  refuseInvalidHiring(stored.hiringSlot)
+
+const timesCount = (amounts: Stocks, count: number): Stocks =>
+  stocksOf((resource) => amounts[resource] * count)
+
+const hiresPlus = (hires: Hires, hire: HireKind, count: number): Hires => ({
+  ...hires,
+  [hire]: hires[hire] + count,
+})
+
+const isHiringOf = (target: HiringTarget, order: HiringOrder): boolean =>
+  order.hire === target.hire &&
+  order.startedAt.epochMilliseconds === target.startedAt.epochMilliseconds
 
 const busySlotOf = (work: WaitingWork, startedAt: Instant): Result<BusyWorkSlot, DomainError> => {
   const duration = Duration.ofSeconds(work.durationSeconds)
@@ -219,6 +264,8 @@ export class Town {
       workSlot: idleWorkSlot,
       waitingList: [],
       skills,
+      hires: noHires,
+      hiringSlot: idleHiringSlot,
     })
   }
 
@@ -257,6 +304,89 @@ export class Town {
 
   get skills(): ReadonlyArray<TownSkill> {
     return this.state.skills
+  }
+
+  get hires(): Hires {
+    return this.state.hires
+  }
+
+  get hiringSlot(): HiringSlot {
+    return this.state.hiringSlot
+  }
+
+  get staffedHires(): Hires {
+    const slot = this.hiringSlot
+    return slot.kind === 'busy' ? hiresPlus(this.hires, slot.hire, slot.count) : this.hires
+  }
+
+  hiresAt(at: Instant): Hires {
+    const slot = this.hiringSlot
+    return slot.kind === 'busy'
+      ? hiresPlus(this.hires, slot.hire, deliveredHiresOf(slot, at))
+      : this.hires
+  }
+
+  roomForHiring(): Result<void, DomainError> {
+    const slot = this.hiringSlot
+    return slot.kind === 'busy' ? err({ kind: 'HiringSlotBusy', hire: slot.hire }) : ok(undefined)
+  }
+
+  placeHiring(order: HiringOrder, stocksAtNow: Stocks, now: Instant): Result<Town, DomainError> {
+    const room = this.roomForHiring()
+    if (!room.ok) {
+      return room
+    }
+    const cost = timesCount(order.costPerHire, order.count)
+    const missing = shortfallOf(stocksAtNow, cost)
+    if (isShort(missing)) {
+      return err({ kind: 'NotEnoughResources', missing })
+    }
+    return ok(
+      this.changed({ stocks: debited(stocksAtNow, cost), storedAt: now, hiringSlot: order }),
+    )
+  }
+
+  stopHiring(
+    target: HiringTarget,
+    stocksAtNow: Stocks,
+    now: Instant,
+  ): Result<ChangedTown, DomainError> {
+    const slot = this.hiringSlot
+    if (slot.kind === 'idle' || !isHiringOf(target, slot)) {
+      return err({ kind: 'HiringOrderNotFound', hire: target.hire, startedAt: target.startedAt })
+    }
+    const delivered = deliveredHiresOf(slot, now)
+    const stopped = slot.count - delivered
+    const refund = timesCount(slot.costPerHire, stopped)
+    return ok({
+      town: this.changed({
+        stocks: credited(stocksAtNow, refund),
+        storedAt: now,
+        hires: hiresPlus(this.hires, slot.hire, delivered),
+        hiringSlot: idleHiringSlot,
+      }),
+      events: [
+        { kind: 'hiringStopped', hire: slot.hire, delivered, stopped, refund, occurredAt: now },
+      ],
+    })
+  }
+
+  closeHiring(now: Instant): ChangedTown {
+    const slot = this.hiringSlot
+    if (slot.kind === 'idle') {
+      return { town: this, events: [] }
+    }
+    const endsAt = hiringEndsAt(slot)
+    if (endsAt.epochMilliseconds > now.epochMilliseconds) {
+      return { town: this, events: [] }
+    }
+    return {
+      town: this.changed({
+        hires: hiresPlus(this.hires, slot.hire, slot.count),
+        hiringSlot: idleHiringSlot,
+      }),
+      events: [{ kind: 'hiringDelivered', hire: slot.hire, count: slot.count, occurredAt: endsAt }],
+    }
   }
 
   get terrain(): Terrain {
@@ -376,7 +506,13 @@ export class Town {
     now: Instant,
     catalog: TownCatalog,
   ): Result<ChangedTown, DomainError> {
-    const rechecked = recheckWaitingList(this.buildingLevels, workSlot, rest, catalog)
+    const rechecked = recheckWaitingList(
+      this.buildingLevels,
+      workSlot,
+      rest,
+      this.staffedHires,
+      catalog,
+    )
     if (!rechecked.ok) {
       return rechecked
     }

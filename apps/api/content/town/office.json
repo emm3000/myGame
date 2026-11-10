@@ -1,5 +1,33 @@
 {
   "building": "office",
+  "hires": {
+    "worker": {
+      "cost": {
+        "money": 40,
+        "food": 0,
+        "power": 0,
+        "material": 0
+      },
+      "durationSeconds": 120,
+      "people": 1,
+      "strength": 1,
+      "carry": 50,
+      "roadPercent": 100
+    },
+    "truck": {
+      "cost": {
+        "money": 80,
+        "food": 40,
+        "power": 40,
+        "material": 60
+      },
+      "durationSeconds": 360,
+      "people": 1,
+      "strength": 3,
+      "carry": 200,
+      "roadPercent": 50
+    }
+  },
   "levels": [
     {
       "level": 1,

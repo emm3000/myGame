@@ -1,8 +1,12 @@
 import {
   type EarnedSkillRepository,
   foundingLevels,
+  type Hires,
+  type HiringSlot,
   Instant,
+  idleHiringSlot,
   idleWorkSlot,
+  noHires,
   noStoreFull,
   type PlayerId,
   Town,
@@ -82,7 +86,30 @@ const waitingWork: WaitingList = [
   },
 ]
 
-const grownTown = (workSlot: WorkSlot = idleWorkSlot, waitingList: WaitingList = []): Town => {
+const hiredStaff: Hires = { worker: 3, truck: 1 }
+
+const busyHiring: HiringSlot = {
+  kind: 'busy',
+  hire: 'truck',
+  count: 2,
+  costPerHire: { money: 150, food: 0, power: 10, material: 60 },
+  secondsPerHire: 600,
+  startedAt: grownAt,
+}
+
+type GrownTerms = {
+  readonly workSlot?: WorkSlot
+  readonly waitingList?: WaitingList
+  readonly hires?: Hires
+  readonly hiringSlot?: HiringSlot
+}
+
+const grownTown = ({
+  workSlot = idleWorkSlot,
+  waitingList = [],
+  hires = noHires,
+  hiringSlot = idleHiringSlot,
+}: GrownTerms = {}): Town => {
   const restored = Town.restore({
     id: anasTown.id,
     playerId: anasTown.playerId,
@@ -94,6 +121,8 @@ const grownTown = (workSlot: WorkSlot = idleWorkSlot, waitingList: WaitingList =
     buildingLevels: { ...foundingLevels, farm: 3, storage: 1, office: 2 },
     workSlot,
     waitingList,
+    hires,
+    hiringSlot,
     skills: [],
   })
   assert(restored.ok)
@@ -129,24 +158,50 @@ export const townRepositoryContract = (
       await registerPlayers([ana])
       await towns.save(anasTown)
 
-      await towns.save(grownTown(busyFactory, waitingWork))
+      await towns.save(grownTown({ workSlot: busyFactory, waitingList: waitingWork }))
 
       expect(await towns.townOf(ana)).toEqual({
         ok: true,
-        value: grownTown(busyFactory, waitingWork),
+        value: grownTown({ workSlot: busyFactory, waitingList: waitingWork }),
       })
     })
 
     it('reads back a waiting list a later save shortened', async () => {
       const { towns, registerPlayers } = await arrange()
       await registerPlayers([ana])
-      await towns.save(grownTown(busyFactory, waitingWork))
+      await towns.save(grownTown({ workSlot: busyFactory, waitingList: waitingWork }))
 
-      await towns.save(grownTown(busyFactory, waitingWork.slice(0, 1)))
+      await towns.save(grownTown({ workSlot: busyFactory, waitingList: waitingWork.slice(0, 1) }))
 
       expect(await towns.townOf(ana)).toEqual({
         ok: true,
-        value: grownTown(busyFactory, waitingWork.slice(0, 1)),
+        value: grownTown({ workSlot: busyFactory, waitingList: waitingWork.slice(0, 1) }),
+      })
+    })
+
+    it('reads back the hires and the busy hiring order with its cost per hire', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(anasTown)
+
+      await towns.save(grownTown({ hires: hiredStaff, hiringSlot: busyHiring }))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown({ hires: hiredStaff, hiringSlot: busyHiring }),
+      })
+    })
+
+    it('reads an idle hiring slot once a later save leaves the slot idle', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(grownTown({ hires: hiredStaff, hiringSlot: busyHiring }))
+
+      await towns.save(grownTown({ hires: { ...hiredStaff, truck: 3 } }))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown({ hires: { ...hiredStaff, truck: 3 } }),
       })
     })
 

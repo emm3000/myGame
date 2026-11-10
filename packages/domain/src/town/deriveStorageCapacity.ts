@@ -13,5 +13,5 @@ export const deriveStorageCapacity = (
   if (found?.building !== 'storage') {
     return err({ kind: 'UnknownTownBuildingLevel', building: 'storage', level: storageLevel })
   }
-  return ok(found.capacityUnits)
+  return ok(found.capacity)
 }

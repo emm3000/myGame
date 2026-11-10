@@ -2,6 +2,7 @@ import type { LessonId, WordId } from './learning/Lesson'
 import type { PlayerId } from './player/PlayerId'
 import type { Instant } from './time/Instant'
 import type { BuildingKind } from './town/BuildingKind'
+import type { HireKind } from './town/HireKind'
 import type { ResourceKind } from './town/ResourceKind'
 import type { SiteAddress } from './town/SiteAddress'
 import type { Stocks } from './town/Stocks'
@@ -101,3 +102,17 @@ export type DomainError =
       readonly finishesAt: Instant
     }
   | { readonly kind: 'StudySlotBusy' }
+  | { readonly kind: 'InvalidHireCount'; readonly hire: HireKind; readonly count: number }
+  | {
+      readonly kind: 'InvalidHireDuration'
+      readonly hire: HireKind
+      readonly secondsPerHire: number
+    }
+  | {
+      readonly kind: 'OfficeTooLow'
+      readonly hire: HireKind
+      readonly requiredOfficeLevel: number
+      readonly officeLevel: number
+    }
+  | { readonly kind: 'HiringSlotBusy'; readonly hire: HireKind }
+  | { readonly kind: 'HiringOrderNotFound'; readonly hire: HireKind; readonly startedAt: Instant }

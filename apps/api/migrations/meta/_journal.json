@@ -253,6 +253,13 @@
       "when": 1794336585415,
       "tag": "0035_the_reset",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794343484997,
+      "tag": "0036_town_hiring",
+      "breakpoints": true
     }
   ]
 }
