@@ -12,6 +12,7 @@ import { authDeclarations } from './routes/authDeclarations'
 import { healthDeclarations } from './routes/healthDeclarations'
 import { learningDeclarations } from './routes/learningDeclarations'
 import { reportDeclarations } from './routes/reportDeclarations'
+import { townDeclarations } from './routes/townDeclarations'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -47,6 +48,7 @@ const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConf
   ['/auth', authDeclarations],
   ['/reviews', learningDeclarations],
   ['/report', reportDeclarations],
+  ['/town', townDeclarations],
 ]
 
 const declarationsByOperation = new Map<string, RouteConfig>(
@@ -64,6 +66,7 @@ type Exchange = {
   readonly operation: string
   readonly caller: Caller
   readonly params?: Readonly<Record<string, string>>
+  readonly seed?: string
   readonly body?: unknown
   readonly status: number
 }
@@ -164,6 +167,157 @@ const exchanges: ReadonlyArray<Exchange> = [
   },
   { operation: 'GET /report', caller: 'ana', status: 200 },
   { operation: 'POST /report/close', caller: 'ana', status: 204 },
+  { operation: 'GET /town', caller: 'signedOut', status: 401 },
+  { operation: 'GET /town', caller: 'ana', status: 404 },
+  { operation: 'GET /town/news', caller: 'signedOut', status: 401 },
+  { operation: 'GET /town/news', caller: 'ana', status: 404 },
+  {
+    operation: 'POST /town/work',
+    caller: 'signedOut',
+    body: { building: 'farm' },
+    status: 401,
+  },
+  { operation: 'POST /town/work', caller: 'ana', body: { building: 'farm' }, status: 404 },
+  {
+    operation: 'DELETE /town/work/{building}/{level}',
+    caller: 'signedOut',
+    params: { building: 'farm', level: '1' },
+    status: 401,
+  },
+  {
+    operation: 'DELETE /town/work/{building}/{level}',
+    caller: 'ana',
+    params: { building: 'farm', level: '1' },
+    status: 404,
+  },
+  {
+    operation: 'POST /town/hiring',
+    caller: 'signedOut',
+    body: { hire: 'worker', count: 1 },
+    status: 401,
+  },
+  {
+    operation: 'POST /town/hiring',
+    caller: 'ana',
+    body: { hire: 'worker', count: 1 },
+    status: 404,
+  },
+  {
+    operation: 'DELETE /town/hiring/{hire}/{startedAt}',
+    caller: 'signedOut',
+    params: { hire: 'worker', startedAt: '2026-09-22T08:00:00.000Z' },
+    status: 401,
+  },
+  {
+    operation: 'DELETE /town/hiring/{hire}/{startedAt}',
+    caller: 'ana',
+    params: { hire: 'worker', startedAt: '2026-09-22T08:00:00.000Z' },
+    status: 404,
+  },
+  {
+    operation: 'POST /town/lessons',
+    caller: 'signedOut',
+    body: { lessonId: 'lesson-1' },
+    status: 401,
+  },
+  { operation: 'POST /town/lessons', caller: 'ana', body: { lessonId: 'lesson-1' }, status: 404 },
+  {
+    operation: 'DELETE /town/lessons/{lessonId}',
+    caller: 'signedOut',
+    params: { lessonId: 'lesson-1' },
+    status: 401,
+  },
+  {
+    operation: 'DELETE /town/lessons/{lessonId}',
+    caller: 'ana',
+    params: { lessonId: 'lesson-1' },
+    status: 404,
+  },
+  { operation: 'POST /town', caller: 'signedOut', body: { name: 'Maple Falls' }, status: 401 },
+  { operation: 'POST /town', caller: 'ana', body: { name: '   ' }, status: 400 },
+  { operation: 'POST /town', caller: 'ana', body: { name: 'Maple Falls' }, status: 200 },
+  { operation: 'POST /town', caller: 'ana', body: { name: 'Maple Falls' }, status: 409 },
+  { operation: 'GET /town', caller: 'ana', status: 200 },
+  { operation: 'POST /town/work', caller: 'ana', body: { building: 'stadium' }, status: 400 },
+  { operation: 'POST /town/work', caller: 'ana', body: { building: 'farm' }, status: 200 },
+  { operation: 'GET /town/news', caller: 'ana', status: 200 },
+  {
+    operation: 'DELETE /town/work/{building}/{level}',
+    caller: 'ana',
+    params: { building: 'farm', level: '0' },
+    status: 400,
+  },
+  {
+    operation: 'DELETE /town/work/{building}/{level}',
+    caller: 'ana',
+    params: { building: 'farm', level: '2' },
+    status: 409,
+  },
+  {
+    operation: 'DELETE /town/work/{building}/{level}',
+    caller: 'ana',
+    params: { building: 'farm', level: '1' },
+    status: 200,
+  },
+  { operation: 'POST /town/lessons', caller: 'ana', body: {}, status: 400 },
+  { operation: 'POST /town/lessons', caller: 'ana', body: { lessonId: 'lesson-1' }, status: 200 },
+  { operation: 'POST /town/lessons', caller: 'ana', body: { lessonId: 'lesson-2' }, status: 409 },
+  {
+    operation: 'DELETE /town/lessons/{lessonId}',
+    caller: 'ana',
+    params: { lessonId: 'lesson-2' },
+    status: 409,
+  },
+  {
+    operation: 'DELETE /town/lessons/{lessonId}',
+    caller: 'ana',
+    params: { lessonId: 'lesson-1' },
+    status: 200,
+  },
+  {
+    operation: 'POST /town/hiring',
+    caller: 'ana',
+    body: { hire: 'worker', count: 0 },
+    status: 400,
+  },
+  {
+    operation: 'POST /town/hiring',
+    caller: 'ana',
+    body: { hire: 'worker', count: 1 },
+    status: 409,
+  },
+  {
+    operation: 'POST /town/hiring',
+    caller: 'ana',
+    seed: "UPDATE town_buildings SET level = 1 WHERE building = 'office'",
+    body: { hire: 'worker', count: 1 },
+    status: 200,
+  },
+  {
+    operation: 'DELETE /town/hiring/{hire}/{startedAt}',
+    caller: 'ana',
+    params: { hire: 'worker', startedAt: 'yesterday' },
+    status: 400,
+  },
+  {
+    operation: 'DELETE /town/hiring/{hire}/{startedAt}',
+    caller: 'ana',
+    params: { hire: 'worker', startedAt: '2026-09-22T07:59:00.000Z' },
+    status: 409,
+  },
+  {
+    operation: 'DELETE /town/hiring/{hire}/{startedAt}',
+    caller: 'ana',
+    params: { hire: 'worker', startedAt: '2026-09-22T08:00:00.000Z' },
+    status: 200,
+  },
+  {
+    operation: 'POST /town/work',
+    caller: 'ana',
+    seed: 'UPDATE towns SET money = 0',
+    body: { building: 'farm' },
+    status: 409,
+  },
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
@@ -185,6 +339,8 @@ const exchanges: ReadonlyArray<Exchange> = [
   { operation: 'POST /auth/sign-out', caller: 'ana', status: 204 },
   { operation: 'POST /auth/sign-out', caller: 'signedOut', status: 401 },
 ]
+
+const statusesNoRequestReaches: ReadonlyArray<string> = ['DELETE /town/lessons/{lessonId} 400']
 
 const describeExchange = ({ operation, caller, params, status }: Exchange): string =>
   `${operation} ${JSON.stringify(params ?? {})} as ${caller} answers ${status}`
@@ -240,11 +396,25 @@ describe('the OpenAPI conformance', () => {
     )
   })
 
+  it('exercises every declared status of the town operations', () => {
+    const exercised = new Set(exchanges.map(({ operation, status }) => `${operation} ${status}`))
+    const declared = [...declarationsByOperation]
+      .filter(([operation]) => operation.split(' ')[1]?.startsWith('/town'))
+      .flatMap(([operation, declaration]) =>
+        Object.keys(declaration.responses).map((status) => `${operation} ${status}`),
+      )
+
+    expect(declared.filter((key) => !exercised.has(key)).sort()).toEqual(statusesNoRequestReaches)
+  })
+
   it.each(exchanges.map((exchange) => [describeExchange(exchange), exchange] as const))(
     '%s with a declared status and a body of its schema',
-    async (_name, { operation, caller, params = {}, body, status }) => {
+    async (_name, { operation, caller, params = {}, seed, body, status }) => {
       const [method = '', template = ''] = operation.split(' ')
       const path = pathOf(template, params)
+      if (seed !== undefined) {
+        await runSql(seed)
+      }
 
       const response = await app.request(path, {
         method,
