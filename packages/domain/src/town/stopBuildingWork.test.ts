@@ -294,6 +294,34 @@ describe('stopBuildingWork', () => {
     ])
   })
 
+  it('stops in cascade the waiting work the hires leave no people for', async () => {
+    const now = minutesAfterEpoch(90)
+    const hiredTown = townOf({
+      stocks: startingStocks,
+      storedAt,
+      workSlot: busyHomes,
+      waitingList: [waitingOffice(1)],
+      hires: { worker: 22, truck: 0 },
+    })
+
+    const stopped = await stopBuildingWork(
+      { playerId: 'player-1', building: 'homes', level: 2 },
+      dependenciesAt(now, hiredTown),
+    )
+
+    assert(stopped.ok)
+    expect([
+      stopped.value.town.workSlot,
+      stopped.value.events.map(({ kind, ...work }) => [kind, 'level' in work && work.level]),
+    ]).toEqual([
+      { kind: 'idle' },
+      [
+        ['buildingWorkStopped', 2],
+        ['buildingWorkStopped', 1],
+      ],
+    ])
+  })
+
   it('writes the finished and stopped events in the applying change', async () => {
     const finishedAt = minutesAfterEpoch(70)
     const now = minutesAfterEpoch(75)

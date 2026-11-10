@@ -332,10 +332,6 @@ export class Town {
   }
 
   placeHiring(order: HiringOrder, stocksAtNow: Stocks, now: Instant): Result<Town, DomainError> {
-    const room = this.roomForHiring()
-    if (!room.ok) {
-      return room
-    }
     const cost = timesCount(order.costPerHire, order.count)
     const missing = shortfallOf(stocksAtNow, cost)
     if (isShort(missing)) {

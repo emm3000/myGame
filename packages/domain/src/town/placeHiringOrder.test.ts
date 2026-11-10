@@ -178,6 +178,24 @@ describe('placeHiringOrder', () => {
     })
   })
 
+  it('bounds the order by a queued step that occupies people', async () => {
+    const factoryRaise = {
+      kind: 'busy' as const,
+      building: 'factory' as const,
+      level: 1,
+      cost: { money: 0, food: 0, power: 0, material: 0 },
+      startedAt: storedAt,
+      finishesAt: minutesAfterEpoch(120),
+    }
+
+    const placed = await placeIn(officeTown({ workSlot: factoryRaise }), 'worker', 39)
+
+    expect(placed).toEqual({
+      ok: false,
+      error: { kind: 'NotEnoughPeople', requiredPeople: 39, freePeople: 38 },
+    })
+  })
+
   it('refuses an order the stocks cannot pay', async () => {
     const placed = await placeIn(
       officeTown({ stocks: { money: 50, food: 0, power: 0, material: 0 } }),

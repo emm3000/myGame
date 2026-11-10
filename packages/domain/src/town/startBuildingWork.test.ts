@@ -139,6 +139,15 @@ describe('startBuildingWork', () => {
     })
   })
 
+  it('counts the people the hires occupy against new work', async () => {
+    const refused = await startIn({ hires: { worker: 26, truck: 0 } }, ['farm'])
+
+    expect(refused).toEqual({
+      ok: false,
+      error: { kind: 'NotEnoughPeople', requiredPeople: 2, freePeople: 0 },
+    })
+  })
+
   it('refuses work above the top level of the content', async () => {
     const refused = await startIn({ buildingLevels: { homes: 2 } }, ['homes'])
 
