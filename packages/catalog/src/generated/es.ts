@@ -11,8 +11,6 @@ export const authSignUpSwitchLink = (): string => `Entra`
 export const authSignUpSwitchPrompt = (): string => `¿Ya tienes cuenta?`
 export const authSignUpTitle = (): string => `Crea tu cuenta`
 export const authTagline = (): string => `Aprende inglés mientras tu pueblo crece.`
-export const fiefBuildings = (): string => `Edificios`
-export const fiefIncomingCargo = (): string => `Carga en camino`
 export const mailResetSubject = (): string => `Cambia tu contraseña`
 export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
 export const mailVerificationSubject = (): string => `Confirma tu correo`

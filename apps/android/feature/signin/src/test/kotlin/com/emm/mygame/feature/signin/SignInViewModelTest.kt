@@ -30,7 +30,7 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `opens the fief when the stored token's session answers`() = runTest {
+    fun `opens the town when the stored token's session answers`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         val viewModel: SignInViewModel = SignInViewModel(sessions, isSessionEnded = false)
 
@@ -123,7 +123,7 @@ class SignInViewModelTest {
     }
 
     @Test
-    fun `opens the fief when the api accepts the credentials`() = runTest {
+    fun `opens the town when the api accepts the credentials`() = runTest {
         val sessions: FakeSessionRepository = FakeSessionRepository()
         val viewModel: SignInViewModel = signedOutViewModel(sessions)
         fillAndSubmit(viewModel)
