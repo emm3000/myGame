@@ -1,11 +1,11 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.network.SessionRepository
@@ -40,9 +40,9 @@ fun TownRoute(
     LaunchedEffect(isSigningOut) {
         if (isSigningOut) currentNavigation.onSigningOut()
     }
-    DisposableEffect(viewModel) {
+    LifecycleStartEffect(viewModel) {
         viewModel.onIntent(TownIntent.ScreenShown)
-        onDispose { viewModel.onIntent(TownIntent.ScreenHidden) }
+        onStopOrDispose { viewModel.onIntent(TownIntent.ScreenHidden) }
     }
     TownScreen(
         state = state,

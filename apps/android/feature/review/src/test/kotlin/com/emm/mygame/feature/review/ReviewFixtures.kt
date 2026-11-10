@@ -18,6 +18,7 @@ import com.emm.mygame.core.network.WordStanding
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
+import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
@@ -109,6 +110,7 @@ internal fun townOf(
         skills = skills,
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
         lessonSlot = null,
+        hiring = hiringOf(),
         nextStep = NextStep.CaughtUp,
         nextDueAt = null,
         readAt = firstReadAt,

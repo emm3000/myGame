@@ -1,6 +1,7 @@
 package com.emm.mygame.core.network
 
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.StateFlow
 
@@ -19,6 +20,10 @@ interface TownRepository {
     suspend fun startLesson(lesson: LessonId): TownLessonResult
 
     suspend fun stopLesson(lesson: LessonId): TownLessonResult
+
+    suspend fun placeHiring(hire: TownHireKind, count: Int): TownHiringResult
+
+    suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult
 }
 
 fun TownRepository(

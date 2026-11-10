@@ -538,6 +538,117 @@ class TownRepositoryTest {
     }
 
     @Test
+    fun `reads the hiring terms and the hires held per kind`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.Hiring(
+                order = null,
+                hires = mapOf(TownHireKind.Worker to 0, TownHireKind.Truck to 0),
+                terms = mapOf(
+                    TownHireKind.Worker to TownSnapshot.HireTerms(
+                        costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, 40)),
+                        secondsPerHire = 60,
+                        people = 1,
+                        requiredOfficeLevel = 1,
+                    ),
+                    TownHireKind.Truck to TownSnapshot.HireTerms(
+                        costs = listOf(
+                            TownSnapshot.Cost(TownResourceKind.Money, 80),
+                            TownSnapshot.Cost(TownResourceKind.Food, 40),
+                            TownSnapshot.Cost(TownResourceKind.Power, 40),
+                            TownSnapshot.Cost(TownResourceKind.Material, 60),
+                        ),
+                        secondsPerHire = 180,
+                        people = 1,
+                        requiredOfficeLevel = 3,
+                    ),
+                ),
+            ),
+            read.hiring,
+        )
+    }
+
+    @Test
+    fun `reads the open hiring order with its delivered count`() = runTest {
+        api.enqueue(json(200, TOWN.replace(""""order":null""", OPEN_ORDER)))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.HiringOrder(
+                hire = TownHireKind.Truck,
+                count = 3,
+                delivered = 1,
+                secondsPerHire = 180,
+                startedAt = Instant.parse("2026-11-05T10:00:00.000Z"),
+                endsAt = Instant.parse("2026-11-05T10:09:00.000Z"),
+            ),
+            read.hiring.order,
+        )
+    }
+
+    @Test
+    fun `places a hiring order by its kind and count`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        town().placeHiring(TownHireKind.Truck, count = 3)
+
+        val request: RecordedRequest = api.takeRequestWithin()
+        assertEquals("POST /api/town/hiring", "${request.method} ${request.url.encodedPath}")
+        assertEquals("""{"hire":"truck","count":3}""", request.body?.utf8())
+    }
+
+    @Test
+    fun `stops a hiring order by its kind and start`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        town().stopHiring(TownHireKind.Worker, startedAt = Instant.parse("2026-11-05T10:00:00Z"))
+
+        val request: RecordedRequest = api.takeRequestWithin()
+        assertEquals(
+            "DELETE /api/town/hiring/worker/2026-11-05T10:00:00.000Z",
+            "${request.method} ${request.url.encodedPath}",
+        )
+    }
+
+    @Test
+    fun `reads an office too low refusal with its levels`() = runTest {
+        api.enqueue(
+            json(409, """{"kind":"OfficeTooLow","params":{"hire":"truck","requiredOfficeLevel":3,"officeLevel":1}}"""),
+        )
+
+        assertEquals(
+            TownHiringResult.Refused(TownHiringRefusal.OfficeTooLow(officeLevel = 1, requiredOfficeLevel = 3)),
+            town().placeHiring(TownHireKind.Truck, count = 1),
+        )
+    }
+
+    @Test
+    fun `reads a busy hiring slot refusal`() = runTest {
+        api.enqueue(json(409, """{"kind":"HiringSlotBusy","params":{"hire":"worker"}}"""))
+
+        assertEquals(
+            TownHiringResult.Refused(TownHiringRefusal.HiringSlotBusy),
+            town().placeHiring(TownHireKind.Worker, count = 1),
+        )
+    }
+
+    @Test
+    fun `reads a stale hiring order refusal`() = runTest {
+        api.enqueue(
+            json(409, """{"kind":"HiringOrderNotFound","params":{"hire":"worker","startedAt":"$ORDER_START"}}"""),
+        )
+
+        assertEquals(
+            TownHiringResult.Refused(TownHiringRefusal.HiringOrderNotFound),
+            town().stopHiring(TownHireKind.Worker, startedAt = Instant.parse(ORDER_START)),
+        )
+    }
+
+    @Test
     fun `answers an unknown refusal as unrecognized`() = runTest {
         api.enqueue(json(409, """{"kind":"QueueFull"}"""))
 
@@ -582,6 +693,10 @@ class TownRepositoryTest {
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
         const val HOMES_COST: String = """{"money":60,"food":0,"power":0,"material":30}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
+        const val OPEN_ORDER: String =
+            """"order":{"hire":"truck","count":3,"delivered":1,"secondsPerHire":180,""" +
+                """"startedAt":"2026-11-05T10:00:00.000Z","endsAt":"2026-11-05T10:09:00.000Z"}"""
+        const val ORDER_START: String = "2026-11-05T10:00:00.000Z"
         const val HIRING: String =
             """{"order":null,"hires":{"worker":0,"truck":0},"terms":{""" +
                 """"worker":{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +

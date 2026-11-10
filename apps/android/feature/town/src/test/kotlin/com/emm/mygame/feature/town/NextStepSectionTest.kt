@@ -269,6 +269,7 @@ class NextStepSectionTest {
                 gap = Duration.ZERO,
                 mutations = TownMutations.none,
                 registered = TownRegistered.nothing,
+                hireEntries = emptyMap(),
             )
 
     private fun show(town: TownSnapshot) {

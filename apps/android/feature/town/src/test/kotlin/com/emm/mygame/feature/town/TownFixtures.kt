@@ -13,6 +13,7 @@ import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
+import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -78,6 +79,7 @@ internal fun townOf(
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
     skills: List<TownSnapshot.EarnedSkill> = emptyList(),
+    hiring: TownSnapshot.Hiring = hiringOf(),
 ): TownSnapshot = TownSnapshot(
     name = name,
     label = label,
@@ -91,9 +93,17 @@ internal fun townOf(
     skills = skills,
     learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
     lessonSlot = lessonSlot,
+    hiring = hiring,
     nextStep = nextStep,
     nextDueAt = nextDueAt,
     readAt = readAt,
+)
+
+internal val idleOffice: TownUiState.OfficeLine = TownUiState.OfficeLine(
+    hiring = TownUiState.HiringLine.Idle,
+    hires = emptyList(),
+    place = TownUiState.HireStatus.Idle,
+    stop = TownUiState.HireStopStatus.Idle,
 )
 
 internal val caughtUpCard: NextStepCard = townOf().nextStepCard()

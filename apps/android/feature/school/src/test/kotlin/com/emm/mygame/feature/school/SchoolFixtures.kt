@@ -14,6 +14,7 @@ import com.emm.mygame.core.network.WordStanding
 import com.emm.mygame.core.network.nextStepCard
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
+import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -90,6 +91,7 @@ internal fun townOf(
     skills = skills,
     learning = learning,
     lessonSlot = lessonSlot,
+    hiring = hiringOf(),
     nextStep = nextStep,
     nextDueAt = nextDueAt,
     readAt = readAt,

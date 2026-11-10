@@ -4,6 +4,8 @@ import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundRefusal
+import com.emm.mygame.core.network.TownHireKind
+import com.emm.mygame.core.network.TownHiringRefusal
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
@@ -33,6 +35,7 @@ sealed interface TownUiState {
         val nextStepTime: NextStepTime?,
         val start: StartStatus,
         val stop: StopStatus,
+        val office: OfficeLine,
     ) : TownUiState
 
     sealed interface NamingStatus {
@@ -132,5 +135,75 @@ sealed interface TownUiState {
         data class Refused(val target: WorkTarget, val refusal: TownWorkRefusal) : StopStatus
 
         data class Unreachable(val target: WorkTarget) : StopStatus
+    }
+
+    data class OfficeLine(
+        val hiring: HiringLine,
+        val hires: List<HireCard>,
+        val place: HireStatus,
+        val stop: HireStopStatus,
+    )
+
+    sealed interface HiringLine {
+
+        data object Idle : HiringLine
+
+        data class Busy(
+            val target: HiringTarget,
+            val count: Int,
+            val delivered: Int,
+            val remaining: Duration,
+            val total: Duration,
+            val finishesAt: Instant,
+        ) : HiringLine
+
+        data class Done(val hire: TownHireKind, val count: Int, val delivered: Int) : HiringLine
+    }
+
+    data class HiringTarget(val hire: TownHireKind, val startedAt: Instant)
+
+    data class HireCard(val kind: TownHireKind, val team: Int, val requiredOfficeLevel: Int, val form: HireForm?)
+
+    data class HireForm(val entry: String, val isEntryReadOnly: Boolean, val offer: HireOffer?, val block: HireBlock?)
+
+    data class HireOffer(
+        val count: Int,
+        val costs: List<CostLine>,
+        val people: Long,
+        val isPeopleShort: Boolean,
+        val duration: Duration,
+    )
+
+    sealed interface HireBlock {
+
+        data object CountNeeded : HireBlock
+
+        data object Busy : HireBlock
+
+        data class PeopleShort(val needed: Long, val free: Int) : HireBlock
+
+        data class Resources(val shortfalls: List<Shortfall>) : HireBlock
+    }
+
+    sealed interface HireStatus {
+
+        data object Idle : HireStatus
+
+        data class Waiting(val hire: TownHireKind) : HireStatus
+
+        data class Refused(val hire: TownHireKind, val refusal: TownHiringRefusal) : HireStatus
+
+        data class Unreachable(val hire: TownHireKind) : HireStatus
+    }
+
+    sealed interface HireStopStatus {
+
+        data object Idle : HireStopStatus
+
+        data object Waiting : HireStopStatus
+
+        data class Refused(val refusal: TownHiringRefusal) : HireStopStatus
+
+        data object Unreachable : HireStopStatus
     }
 }

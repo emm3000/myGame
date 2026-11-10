@@ -4,11 +4,13 @@ import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.FoundTown
+import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.StartLessonRequest
 import com.emm.mygame.core.network.generated.models.TownOverview
 import java.io.IOException
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,6 +74,14 @@ internal class ApiTownRepository(
         api.townLessonsLessonIdDelete(lessonId = lesson.value)
     }
 
+    override suspend fun placeHiring(hire: TownHireKind, count: Int): TownHiringResult = hiring {
+        api.townHiringPost(PlaceHiringOrder(hire = hire.toWireHire(), count = count))
+    }
+
+    override suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult = hiring {
+        api.townHiringHireStartedAtDelete(hire = hire.toWireHire().value, startedAt = startedAt.toOffsetDateTime())
+    }
+
     private suspend fun working(call: suspend () -> Response<TownOverview>): TownWorkResult =
         withContext(ioDispatcher) {
             try {
@@ -93,6 +103,19 @@ internal class ApiTownRepository(
                 TownLessonResult.Unreachable
             } catch (expectedMalformedBody: SerializationException) {
                 TownLessonResult.Unreachable
+            }
+        }
+
+    private suspend fun hiring(call: suspend () -> Response<TownOverview>): TownHiringResult =
+        withContext(ioDispatcher) {
+            try {
+                val session: Int = tokenStore.currentSession()
+                val response: Response<TownOverview> = call()
+                hiringResultOf(response, answeredTown(response, session))
+            } catch (expectedOutage: IOException) {
+                TownHiringResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                TownHiringResult.Unreachable
             }
         }
 
@@ -158,6 +181,14 @@ internal class ApiTownRepository(
     }
 }
 
+private fun hiringResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownHiringResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownHiringResult.Unreachable else TownHiringResult.Answered(snapshot)
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownHiringResult.Unreachable
+    return TownHiringResult.Refused(refusal.toHiringRefusal())
+}
+
 private fun WireRefusal.toFoundRefusal(): TownFoundRefusal = when (bareKind()) {
     BareApiError.Kind.BlankTownName -> TownFoundRefusal.BlankTownName
     BareApiError.Kind.PlayerAlreadyHoldsTown -> TownFoundRefusal.PlayerAlreadyHoldsTown
@@ -198,4 +229,23 @@ private fun ApiError.toLessonRefusal(): TownLessonRefusal = when (this) {
     is ApiError.LearningcapreachedWrapper ->
         TownLessonRefusal.LearningCapReached(cap = value.params.learningCap, inLearning = value.params.cardsInLearning)
     else -> TownLessonRefusal.Unrecognized
+}
+
+private fun WireRefusal.toHiringRefusal(): TownHiringRefusal = when (this) {
+    is WireRefusal.Bare ->
+        if (kind == BareApiError.Kind.TownNotFound) TownHiringRefusal.TownNotFound else TownHiringRefusal.Unrecognized
+    is WireRefusal.WithParams -> error.toHiringRefusal()
+}
+
+private fun ApiError.toHiringRefusal(): TownHiringRefusal = when (this) {
+    is ApiError.OfficetoolowWrapper -> TownHiringRefusal.OfficeTooLow(
+        officeLevel = value.params.officeLevel,
+        requiredOfficeLevel = value.params.requiredOfficeLevel,
+    )
+    is ApiError.HiringslotbusyWrapper -> TownHiringRefusal.HiringSlotBusy
+    is ApiError.NotenoughpeopleWrapper ->
+        TownHiringRefusal.NotEnoughPeople(required = value.params.requiredPeople, free = value.params.freePeople)
+    is ApiError.NotenoughresourcesWrapper -> TownHiringRefusal.NotEnoughResources
+    is ApiError.HiringordernotfoundWrapper -> TownHiringRefusal.HiringOrderNotFound
+    else -> TownHiringRefusal.Unrecognized
 }

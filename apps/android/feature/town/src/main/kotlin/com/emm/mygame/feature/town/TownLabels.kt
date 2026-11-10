@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.network.SeasonKind
 import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownHiringRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownWorkRefusal
 import com.emm.mygame.core.projection.FinishClock
@@ -90,6 +91,25 @@ internal fun workRefusalLineOf(refusal: TownWorkRefusal): String = when (refusal
         icuStringResource(R.string.town_refusal_building_work_not_found, "level" to refusal.level.toString())
     TownWorkRefusal.TownNotFound -> stringResource(R.string.town_refusal_town_not_found)
     TownWorkRefusal.Unrecognized -> stringResource(R.string.town_refusal_unexpected)
+}
+
+@Composable
+internal fun hiringRefusalLineOf(refusal: TownHiringRefusal): String = when (refusal) {
+    is TownHiringRefusal.OfficeTooLow -> icuStringResource(
+        R.string.town_refusal_office_too_low,
+        "officeLevel" to refusal.officeLevel.toString(),
+        "requiredOfficeLevel" to refusal.requiredOfficeLevel.toString(),
+    )
+    TownHiringRefusal.HiringSlotBusy -> stringResource(R.string.town_refusal_hiring_slot_busy)
+    is TownHiringRefusal.NotEnoughPeople -> icuStringResource(
+        R.string.town_refusal_not_enough_people,
+        "requiredPeople" to refusal.required,
+        "freePeople" to refusal.free.toString(),
+    )
+    TownHiringRefusal.NotEnoughResources -> stringResource(R.string.town_refusal_not_enough_resources)
+    TownHiringRefusal.HiringOrderNotFound -> stringResource(R.string.town_refusal_hiring_order_not_found)
+    TownHiringRefusal.TownNotFound -> stringResource(R.string.town_refusal_town_not_found)
+    TownHiringRefusal.Unrecognized -> stringResource(R.string.town_refusal_unexpected)
 }
 
 @Composable
