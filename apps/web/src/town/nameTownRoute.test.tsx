@@ -9,7 +9,7 @@ import {
   townNamingSubmit,
   townNamingTitle,
 } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import homesSvg from '../../public/art/places/homes.svg?raw'

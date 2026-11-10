@@ -1,13 +1,14 @@
 import { fileURLToPath } from 'node:url'
-import { ApiErrorSchema, PlayerSchema, ReviewsSchema } from '@mygame/contracts'
 import {
+  ApiErrorSchema,
+  PlayerSchema,
+  ReviewsSchema,
   type TownNewsFeed,
   TownNewsFeedSchema,
   type TownOverview,
   TownOverviewSchema,
-} from '@mygame/contracts/town'
-import { type Clock, Instant } from '@mygame/domain'
-import type { TownRepository } from '@mygame/domain/town'
+} from '@mygame/contracts'
+import { type Clock, Instant, type TownRepository } from '@mygame/domain'
 import { Client } from 'pg'
 import {
   afterAll,
@@ -165,7 +166,7 @@ describe('the town route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     clock = movableClock()
     app = createApp({ ...server, clock })
@@ -476,10 +477,10 @@ describe('the town route', () => {
       expect(await refusalOf(response)).toEqual({ kind: 'TownNotFound' })
     })
 
-    it('answers a building of the fief with an empty 400', async () => {
+    it('answers a building the town lacks with an empty 400', async () => {
       const ana = await signUpWithTown('ana@example.com')
 
-      const response = await startWork(ana, 'sawmill')
+      const response = await startWork(ana, 'stadium')
 
       expect([response.status, await response.text()]).toEqual([400, ''])
     })

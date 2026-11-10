@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import type { RouteConfig } from '@hono/zod-openapi'
-import { FiefListSchema, PlayerSchema, ProvinceMapSchema } from '@mygame/contracts'
+import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -8,15 +8,9 @@ import { ZodType } from 'zod'
 import { createApp } from './app'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
-import { foundFiefFor } from './fief/foundFiefFor.testSupport'
 import { authDeclarations } from './routes/authDeclarations'
-import { digestDeclarations } from './routes/digestDeclarations'
-import { fiefDeclarations } from './routes/fiefDeclarations'
-import { fiefsDeclarations } from './routes/fiefsDeclarations'
 import { healthDeclarations } from './routes/healthDeclarations'
-import { hintsDeclarations } from './routes/hintsDeclarations'
 import { learningDeclarations } from './routes/learningDeclarations'
-import { mapDeclarations } from './routes/mapDeclarations'
 import { reportDeclarations } from './routes/reportDeclarations'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
@@ -51,11 +45,6 @@ const sessionCookieOf = (response: Response): string => {
 const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConfig>>]> = [
   ['', healthDeclarations],
   ['/auth', authDeclarations],
-  ['/fiefs', fiefsDeclarations],
-  ['/fiefs/{fiefId}', fiefDeclarations],
-  ['/fiefs/{fiefId}/map', mapDeclarations],
-  ['/digest', digestDeclarations],
-  ['/hints', hintsDeclarations],
   ['/reviews', learningDeclarations],
   ['/report', reportDeclarations],
 ]
@@ -78,22 +67,6 @@ type Exchange = {
   readonly body?: unknown
   readonly status: number
 }
-
-const troops = { infantry: 1, cavalry: 0, archer: 0, settler: 0 }
-
-const someCargo = { wood: 1, stone: 0, iron: 0, gold: 0, food: 0 }
-
-const onForeignFief = (
-  operation: string,
-  params: Readonly<Record<string, string>> = {},
-  body?: unknown,
-): Exchange => ({
-  operation,
-  caller: 'ana',
-  params: { fiefId: 'foreign', ...params },
-  ...(body === undefined ? {} : { body }),
-  status: 404,
-})
 
 const exchanges: ReadonlyArray<Exchange> = [
   { operation: 'GET /health', caller: 'signedOut', status: 200 },
@@ -168,81 +141,6 @@ const exchanges: ReadonlyArray<Exchange> = [
     body: { token: 'no-such-token', password: 'corta' },
     status: 400,
   },
-  { operation: 'GET /fiefs', caller: 'ana', status: 200 },
-  { operation: 'GET /fiefs', caller: 'signedOut', status: 401 },
-  { operation: 'GET /fiefs/{fiefId}', caller: 'ana', params: { fiefId: 'own' }, status: 200 },
-  {
-    operation: 'GET /fiefs/{fiefId}',
-    caller: 'ana',
-    params: { fiefId: 'not-a-uuid' },
-    status: 400,
-  },
-  { operation: 'GET /fiefs/{fiefId}', caller: 'signedOut', params: { fiefId: 'own' }, status: 401 },
-  { operation: 'GET /fiefs/{fiefId}', caller: 'ana', params: { fiefId: 'foreign' }, status: 404 },
-  {
-    operation: 'GET /fiefs/{fiefId}/events',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    status: 200,
-  },
-  {
-    operation: 'GET /fiefs/{fiefId}/events',
-    caller: 'ana',
-    params: { fiefId: 'foreign' },
-    status: 404,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/upgrades',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { building: 'sawmill' },
-    status: 200,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/upgrades',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { building: 'castle' },
-    status: 400,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/upgrades/{building}/{targetLevel}',
-    caller: 'ana',
-    params: { fiefId: 'own', building: 'sawmill', targetLevel: '1' },
-    status: 200,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/upgrades/{building}/{targetLevel}',
-    caller: 'ana',
-    params: { fiefId: 'own', building: 'sawmill', targetLevel: '1' },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/studies',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { art: 'smithing' },
-    status: 200,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/studies',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { art: 'smithing' },
-    status: 409,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/studies/{art}/{targetLevel}',
-    caller: 'ana',
-    params: { fiefId: 'own', art: 'smithing', targetLevel: '1' },
-    status: 200,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/studies/{art}/{targetLevel}',
-    caller: 'ana',
-    params: { fiefId: 'own', art: 'smithing', targetLevel: '1' },
-    status: 409,
-  },
   { operation: 'GET /reviews', caller: 'ana', status: 200 },
   {
     operation: 'POST /reviews/{wordId}/hint',
@@ -264,151 +162,8 @@ const exchanges: ReadonlyArray<Exchange> = [
     body: { answer: 'home', rating: 'good' },
     status: 400,
   },
-  {
-    operation: 'POST /fiefs/{fiefId}/recruit-orders',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { unit: 'infantry', count: 1 },
-    status: 200,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/recruit-orders',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { unit: 'infantry', count: 1 },
-    status: 409,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/recruit-orders/{unit}/{startedAt}',
-    caller: 'ana',
-    params: { fiefId: 'own', unit: 'infantry', startedAt: '2026-09-22T08:00:00.000Z' },
-    status: 200,
-  },
-  {
-    operation: 'DELETE /fiefs/{fiefId}/recruit-orders/{unit}/{startedAt}',
-    caller: 'ana',
-    params: { fiefId: 'own', unit: 'infantry', startedAt: '2026-09-22T08:00:00.000Z' },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches/transport',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { toFiefId: 'foreign', units: troops, cargo: someCargo },
-    status: 404,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches/found',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { province: 'ownProvince', plot: 'campPlot', name: '   ' },
-    status: 400,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches/found',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { province: 'ownProvince', plot: 'campPlot', name: 'Nuevo' },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { province: 'ownProvince', plot: 'freePlot', units: troops, stayHours: 1 },
-    status: 200,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { province: 'ownProvince', plot: 'freePlot', units: troops, stayHours: 1 },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches/attack',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    body: { province: 'ownProvince', plot: 'campPlot', units: troops },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/marches/{departedAt}/recall',
-    caller: 'ana',
-    params: { fiefId: 'own', departedAt: '2026-01-01T00:00:00.000Z' },
-    status: 409,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/guidance/dismissal',
-    caller: 'ana',
-    params: { fiefId: 'own' },
-    status: 204,
-  },
-  {
-    operation: 'POST /fiefs/{fiefId}/guidance/dismissal',
-    caller: 'ana',
-    params: { fiefId: 'foreign' },
-    status: 404,
-  },
-  { operation: 'GET /fiefs/{fiefId}/map', caller: 'ana', params: { fiefId: 'own' }, status: 200 },
-  {
-    operation: 'GET /fiefs/{fiefId}/map/{province}',
-    caller: 'ana',
-    params: { fiefId: 'own', province: 'ownProvince' },
-    status: 200,
-  },
-  {
-    operation: 'GET /fiefs/{fiefId}/map/{province}',
-    caller: 'ana',
-    params: { fiefId: 'own', province: '999' },
-    status: 404,
-  },
-  { operation: 'GET /digest', caller: 'ana', status: 200 },
-  { operation: 'POST /digest/acknowledgement', caller: 'ana', status: 204 },
   { operation: 'GET /report', caller: 'ana', status: 200 },
   { operation: 'POST /report/close', caller: 'ana', status: 204 },
-  { operation: 'POST /hints/{hint}', caller: 'ana', params: { hint: 'peasants' }, status: 204 },
-  { operation: 'POST /hints/{hint}', caller: 'ana', params: { hint: 'unknown' }, status: 400 },
-  onForeignFief('POST /fiefs/{fiefId}/upgrades', {}, { building: 'sawmill' }),
-  onForeignFief('DELETE /fiefs/{fiefId}/upgrades/{building}/{targetLevel}', {
-    building: 'sawmill',
-    targetLevel: '1',
-  }),
-  onForeignFief('POST /fiefs/{fiefId}/studies', {}, { art: 'smithing' }),
-  onForeignFief('DELETE /fiefs/{fiefId}/studies/{art}/{targetLevel}', {
-    art: 'smithing',
-    targetLevel: '1',
-  }),
-  onForeignFief('POST /fiefs/{fiefId}/recruit-orders', {}, { unit: 'infantry', count: 1 }),
-  onForeignFief('DELETE /fiefs/{fiefId}/recruit-orders/{unit}/{startedAt}', {
-    unit: 'infantry',
-    startedAt: '2026-09-22T08:00:00.000Z',
-  }),
-  onForeignFief(
-    'POST /fiefs/{fiefId}/marches',
-    {},
-    { province: 'ownProvince', plot: 'freePlot', units: troops, stayHours: 1 },
-  ),
-  onForeignFief(
-    'POST /fiefs/{fiefId}/marches/attack',
-    {},
-    { province: 'ownProvince', plot: 'campPlot', units: troops },
-  ),
-  onForeignFief(
-    'POST /fiefs/{fiefId}/marches/found',
-    {},
-    { province: 'ownProvince', plot: 'campPlot', name: 'Nuevo' },
-  ),
-  onForeignFief(
-    'POST /fiefs/{fiefId}/marches/transport',
-    {},
-    { toFiefId: 'own', units: troops, cargo: someCargo },
-  ),
-  onForeignFief('POST /fiefs/{fiefId}/marches/{departedAt}/recall', {
-    departedAt: '2026-01-01T00:00:00.000Z',
-  }),
-  onForeignFief('GET /fiefs/{fiefId}/map'),
-  onForeignFief('GET /fiefs/{fiefId}/map/{province}', { province: 'ownProvince' }),
   {
     operation: 'POST /auth/sign-up/native',
     caller: 'signedOut',
@@ -434,25 +189,8 @@ const exchanges: ReadonlyArray<Exchange> = [
 const describeExchange = ({ operation, caller, params, status }: Exchange): string =>
   `${operation} ${JSON.stringify(params ?? {})} as ${caller} answers ${status}`
 
-type StandIns = Readonly<Record<string, string | number>>
-
-const pathOf = (
-  template: string,
-  params: Readonly<Record<string, string>>,
-  standIns: StandIns,
-): string =>
-  template.replace(/\{(\w+)\}/g, (_match, name: string) =>
-    encodeURIComponent(standIns[params[name] ?? ''] ?? params[name] ?? ''),
-  )
-
-const bodyWithStandIns = (body: unknown, standIns: StandIns): unknown => {
-  if (body === undefined) {
-    return undefined
-  }
-  return JSON.parse(JSON.stringify(body), (_key, value: unknown) =>
-    typeof value === 'string' && Object.hasOwn(standIns, value) ? standIns[value] : value,
-  )
-}
+const pathOf = (template: string, params: Readonly<Record<string, string>>): string =>
+  template.replace(/\{(\w+)\}/g, (_match, name: string) => encodeURIComponent(params[name] ?? ''))
 
 const declaredSchemaOf = (
   declaredResponse: RouteConfig['responses'][string] | undefined,
@@ -468,62 +206,25 @@ describe('the OpenAPI conformance', () => {
   let server: ComposedServer
   let app: ReturnType<typeof createApp>
   let cookies: Readonly<Record<Caller, string>>
-  let standIns: StandIns
 
-  const signUp = async (email: string, fiefName: string): Promise<string> => {
+  const signUp = async (email: string): Promise<string> => {
     const response = await app.request('/auth/sign-up', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email, password: 'hierro-y-lana' }),
     })
     expect(response.status).toBe(201)
-    const player = PlayerSchema.parse(await response.json())
-    await foundFiefFor(player.id, fiefName, { server, clock: frozenClock })
+    PlayerSchema.parse(await response.json())
     return sessionCookieOf(response)
-  }
-
-  const firstFiefOf = async (cookie: string): Promise<{ id: string; province: number }> => {
-    const response = await app.request('/fiefs', { headers: { cookie } })
-    const [fief] = FiefListSchema.parse(await response.json()).fiefs
-    return { id: fief?.id ?? '', province: fief?.coordinates.province ?? 0 }
-  }
-
-  const marchTargetsOf = async (
-    cookie: string,
-    { id, province }: { id: string; province: number },
-  ): Promise<{ freePlot: number; campPlot: number }> => {
-    const response = await app.request(`/fiefs/${id}/map/${province}`, { headers: { cookie } })
-    const { plots } = ProvinceMapSchema.parse(await response.json())
-    const freePlot = plots.findLast(
-      ({ fief, camp, reservation }) => fief === null && camp === null && reservation === null,
-    )
-    const campPlot = plots.find(({ camp }) => camp !== null)
-    return { freePlot: freePlot?.plot ?? 0, campPlot: campPlot?.plot ?? 0 }
   }
 
   beforeAll(async () => {
     server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     app = createApp({ ...server, clock: frozenClock })
-    const ana = await signUp('ana@example.com', 'Valdehierro')
-    const bruno = await signUp('bruno@example.com', 'Robledal')
-    const own = await firstFiefOf(ana)
-    const foreign = await firstFiefOf(bruno)
-    standIns = {
-      own: own.id,
-      foreign: foreign.id,
-      ownProvince: own.province,
-      ...(await marchTargetsOf(ana, own)),
-    }
-    await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
-      SELECT id, unnest(ARRAY['library', 'barracks']::building[]), 1 FROM fiefs`)
-    await runSql(`INSERT INTO fief_units (fief_id, kind, count)
-      SELECT id, 'infantry', 1 FROM fiefs`)
-    await runSql(
-      'UPDATE fiefs SET wood = 5000, stone = 5000, iron = 5000, gold = 5000, food = 5000',
-    )
+    const ana = await signUp('ana@example.com')
     cookies = { ana, signedOut: '' }
   })
 
@@ -543,16 +244,15 @@ describe('the OpenAPI conformance', () => {
     '%s with a declared status and a body of its schema',
     async (_name, { operation, caller, params = {}, body, status }) => {
       const [method = '', template = ''] = operation.split(' ')
-      const path = pathOf(template, params, standIns)
-      const resolvedBody = bodyWithStandIns(body, standIns)
+      const path = pathOf(template, params)
 
       const response = await app.request(path, {
         method,
         headers: {
           ...(cookies[caller] === '' ? {} : { cookie: cookies[caller] }),
-          ...(resolvedBody === undefined ? {} : { 'content-type': 'application/json' }),
+          ...(body === undefined ? {} : { 'content-type': 'application/json' }),
         },
-        ...(resolvedBody === undefined ? {} : { body: JSON.stringify(resolvedBody) }),
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       })
 
       expect(response.status).toBe(status)

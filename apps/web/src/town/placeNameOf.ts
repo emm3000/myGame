@@ -7,7 +7,7 @@ import {
   namesPlacesSchool,
   namesPlacesStorage,
 } from '@mygame/catalog'
-import type { BuildingKind } from '@mygame/contracts/town'
+import type { BuildingKind } from '@mygame/contracts'
 
 const placeNames: Readonly<Record<BuildingKind, () => string>> = {
   homes: namesPlacesHomes,

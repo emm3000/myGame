@@ -31,8 +31,9 @@ import type { ApiRefusal } from '../api/apiClient'
 
 type RefusalWithParams = Extract<ApiError, { readonly params: unknown }>
 
-// TODO(#753): back to an exhaustive Record once the medieval kinds leave ApiErrorKind
-const slotFreeLines: Readonly<Partial<Record<ApiRefusal, () => string>>> = {
+type SlotFreeRefusal = Exclude<ApiRefusal, RefusalWithParams['kind']>
+
+const slotFreeLines: Readonly<Record<SlotFreeRefusal, () => string>> = {
   InvalidCredentials: refusalInvalidCredentials,
   EmailTaken: refusalEmailTaken,
   WeakPassword: refusalWeakPassword,
@@ -55,6 +56,9 @@ const slotFreeLines: Readonly<Partial<Record<ApiRefusal, () => string>>> = {
   Unexpected: refusalUnexpected,
 }
 
+const isSlotFree = (refusal: ApiRefusal): refusal is SlotFreeRefusal =>
+  Object.hasOwn(slotFreeLines, refusal)
+
 const hasParams = (error: ApiError): error is RefusalWithParams => 'params' in error
 
 const lineWithParamsOf = (error: RefusalWithParams): string => {
@@ -71,9 +75,10 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       return refusalBuildingWorkNotFound({ level: error.params.level })
     case 'LearningCapReached':
       return refusalLearningCapReached(error.params)
-    // TODO(#753): back to an exhaustive never default once the medieval kinds leave ApiErrorKind
-    default:
-      return refusalUnexpected()
+    default: {
+      const unhandled: never = error
+      return unhandled
+    }
   }
 }
 
@@ -81,5 +86,5 @@ export function refusalLineOf(refusal: ApiRefusal, error?: ApiError): string {
   if (error !== undefined && hasParams(error)) {
     return lineWithParamsOf(error)
   }
-  return (slotFreeLines[refusal] ?? refusalUnexpected)()
+  return isSlotFree(refusal) ? slotFreeLines[refusal]() : refusalUnexpected()
 }

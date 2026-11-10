@@ -22,7 +22,7 @@ The Android leg of the gate runs the unit tests (`verification.md`); a test the 
 
 ## Projection tests
 
-`core:projection`'s tests read every case of the shared fixtures under `packages/domain/src/`, which `packages/domain`'s tests read too: `resources/projection-cases.json` (ADR 034, #577), read by `projectionCases.test.ts` and `SharedProjectionCasesTest`; `fief/levy-delivery-cases.json` (#638), read by `levyDeliveryCases.test.ts` (`deliveredUnitsOf`) and `LevyDeliveryTest` (`deliveredUnitsAt`); `march/march-phase-cases.json` (#638), read by `marchPhaseCases.test.ts` (`marchInstantsOf`, `marchPhaseAt`) and `MarchPhaseTest` (`marchPhaseAt`, `nextMarchTurnAt`). A case either side cannot read fails its test. A new projection rule is a new case in one of those fixtures first, never a case only Android has.
+`core:projection`'s tests read the shared fixture `packages/domain/src/town/projection-cases.json` (ADR 034, #577), which `packages/domain`'s tests read too: `projectionCases.test.ts` on the api side and `SharedProjectionCasesTest` on Android. A case either side cannot read fails its test. A new projection rule is a new case in that fixture first, never a case only Android has.
 
 ## UI tests
 

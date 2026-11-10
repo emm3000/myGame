@@ -1,5 +1,4 @@
-import type { Instant } from '@mygame/domain'
-import type { TownEvent, TownId } from '@mygame/domain/town'
+import type { Instant, TownEvent, TownId } from '@mygame/domain'
 
 export const keptEventsPerTown = 100
 

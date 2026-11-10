@@ -1,34 +1,27 @@
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  Coordinates,
   type DomainError,
-  enqueueBuilding,
   err,
-  Fief,
-  type FiefId,
-  FiefName,
-  type FiefRepository,
-  foundFief,
+  foundTown,
   Instant,
   MemoryCard,
   ok,
   type PlayerId,
   type Result,
+  startBuildingWork,
+  type Town,
+  type TownRepository,
 } from '@mygame/domain'
-import { foundTown, startBuildingWork, type Town, type TownRepository } from '@mygame/domain/town'
 import { Client } from 'pg'
 import { afterAll, assert, beforeAll, describe, expect, it } from 'vitest'
 import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
-import type { Transaction } from './adapters/postgres/postgresTransaction'
 import type { AccountToken } from './auth/AccountTokens'
 import { type ComposedServer, composeServer } from './composeServer'
 import { mailEnvironment } from './composeServer.testSupport'
-import { dispatchTransportOf } from './fief/dispatchTransportOf'
-import { recallMarchOf } from './fief/recallMarchOf'
-import { isWaitingOnALock, lockedFiefReadQuery, lockProbeLimit } from './lockWaitProbe.testSupport'
+import { isWaitingOnALock, lockProbeLimit } from './lockWaitProbe.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -42,161 +35,21 @@ const composableEnvironment: NodeJS.ProcessEnv = {
 const environmentWithout = (name: string): NodeJS.ProcessEnv =>
   Object.fromEntries(Object.entries(composableEnvironment).filter(([key]) => key !== name))
 
-const oneLevel = (effect: object): object => ({
-  level: 1,
-  cost: { wood: 10, stone: 5, iron: 0, gold: 0, food: 0 },
-  durationSeconds: 60,
-  peasantOccupancy: 1,
-  effect,
-})
-
-const oneArtLevel = {
-  level: 1,
-  cost: { wood: 10, stone: 5, iron: 5, gold: 5, food: 0 },
-  durationSeconds: 60,
-  requiredLibraryLevel: 1,
-  effect: { ratePercent: 5 },
-}
-
-const minimalContentFiles: Readonly<Record<string, object>> = {
-  'arts/smithing.json': { art: 'smithing', resource: 'iron', levels: [oneArtLevel] },
-  'arts/masonry.json': { art: 'masonry', resource: 'stone', levels: [oneArtLevel] },
-  'sawmill.json': { building: 'sawmill', levels: [oneLevel({ ratePerHour: 30 })] },
-  'quarry.json': { building: 'quarry', levels: [oneLevel({ ratePerHour: 20 })] },
-  'iron-mine.json': { building: 'ironMine', levels: [oneLevel({ ratePerHour: 10 })] },
-  'farm.json': { building: 'farm', levels: [oneLevel({ ratePerHour: 25, peasantSupply: 5 })] },
-  'warehouse.json': { building: 'warehouse', levels: [oneLevel({ capacity: 1500 })] },
-  'library.json': {
-    building: 'library',
-    levels: [
-      {
-        level: 1,
-        cost: { wood: 10, stone: 5, iron: 0, gold: 0, food: 0 },
-        durationSeconds: 60,
-        peasantOccupancy: 1,
-      },
-    ],
-  },
-  'barracks.json': {
-    building: 'barracks',
-    levels: [
-      {
-        level: 1,
-        cost: { wood: 10, stone: 5, iron: 0, gold: 0, food: 0 },
-        durationSeconds: 60,
-        peasantOccupancy: 1,
-      },
-    ],
-  },
-  'fief.json': {
-    startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
-    startingCapacity: 1000,
-    basePeasantSupply: 10,
-    plotsPerProvince: 15,
-    baseRates: { wood: 10, stone: 10, iron: 5, gold: 2, food: 10 },
-    terrainBonus: {
-      lowlands: { resource: 'food', ratePerHour: 5 },
-      uplands: { resource: 'stone', ratePerHour: 4 },
-      ridges: { resource: 'iron', ratePerHour: 2 },
-    },
-    buildQueueCap: 4,
-    goals: [],
-    digest: { absenceSeconds: 3600 },
-    fiefCap: 2,
-    seasons: {
-      epoch: '2026-10-05T00:00:00Z',
-      daysPerSeason: 7,
-      multiplierPercent: {
-        spring: { wood: 100, stone: 100, iron: 100, gold: 100, food: 125 },
-        summer: { wood: 100, stone: 100, iron: 100, gold: 100, food: 100 },
-        fall: { wood: 100, stone: 100, iron: 100, gold: 125, food: 100 },
-        winter: { wood: 100, stone: 100, iron: 100, gold: 100, food: 75 },
-      },
-      durationPercent: {
-        spring: { build: 100, study: 100, train: 75, road: 100 },
-        summer: { build: 75, study: 100, train: 100, road: 100 },
-        fall: { build: 100, study: 100, train: 100, road: 75 },
-        winter: { build: 100, study: 75, train: 100, road: 100 },
-      },
-    },
-    units: {
-      infantry: {
-        cost: { wood: 20, stone: 0, iron: 10, gold: 0, food: 30 },
-        durationSeconds: 90,
-        peasantOccupancy: 1,
-        strength: 1,
-        carry: 48,
-        roadPercent: 100,
-        barracksLevel: 1,
-      },
-      cavalry: {
-        cost: { wood: 30, stone: 0, iron: 40, gold: 20, food: 80 },
-        durationSeconds: 300,
-        peasantOccupancy: 2,
-        strength: 2,
-        carry: 120,
-        roadPercent: 50,
-        barracksLevel: 3,
-      },
-      archer: {
-        cost: { wood: 40, stone: 0, iron: 10, gold: 5, food: 40 },
-        durationSeconds: 150,
-        peasantOccupancy: 1,
-        strength: 1,
-        carry: 24,
-        roadPercent: 100,
-        barracksLevel: 2,
-      },
-      settler: {
-        cost: { wood: 1000, stone: 1000, iron: 600, gold: 100, food: 1000 },
-        durationSeconds: 7200,
-        peasantOccupancy: 4,
-        strength: 0,
-        carry: 0,
-        roadPercent: 100,
-        barracksLevel: 5,
-      },
-    },
-    forage: {
-      secondsPerProvince: 600,
-      secondsPerPlot: 60,
-      maxStayHours: 8,
-      yieldPerHour: {
-        lowlands: { wood: 3, stone: 0, iron: 0, gold: 0, food: 3 },
-        uplands: { wood: 3, stone: 3, iron: 0, gold: 0, food: 0 },
-        ridges: { wood: 0, stone: 3, iron: 3, gold: 0, food: 0 },
-      },
-    },
-    camps: {
-      campFraction: 0.2,
-      lootPerStrength: 60,
-      tiers: {
-        1: { maxStrength: 6, regrowHours: 6 },
-        2: { maxStrength: 15, regrowHours: 12 },
-        3: { maxStrength: 40, regrowHours: 24 },
-      },
-    },
-  },
-}
-
 const temporaryDirectory = (): string => mkdtempSync(join(tmpdir(), 'mygame-content-'))
 
 const minimalContentDirectory = (): string => {
   const directory = temporaryDirectory()
-  mkdirSync(join(directory, 'arts'))
   cpSync(join(contentDirectory, 'lessons'), join(directory, 'lessons'), { recursive: true })
   cpSync(join(contentDirectory, 'town'), join(directory, 'town'), { recursive: true })
-  for (const [file, content] of Object.entries(minimalContentFiles)) {
-    writeFileSync(join(directory, file), JSON.stringify(content))
-  }
   return directory
 }
 
-const contentCopyWithTruncatedSawmill = (): string => {
+const contentCopyWithTruncatedFarm = (): string => {
   const directory = temporaryDirectory()
   cpSync(contentDirectory, directory, { recursive: true })
-  const sawmill = readFileSync(join(directory, 'sawmill.json'), 'utf8')
-  writeFileSync(join(directory, 'sawmill.json'), sawmill.slice(0, sawmill.length / 2))
+  const farmFile = join(directory, 'town', 'farm.json')
+  const farm = readFileSync(farmFile, 'utf8')
+  writeFileSync(farmFile, farm.slice(0, farm.length / 2))
   return directory
 }
 
@@ -224,38 +77,11 @@ describe('composeServer', () => {
     removeDirectory(fixtureDirectory)
   })
 
-  it('builds a catalog from the content folder at start-up', async () => {
-    const server = composeServer(composableEnvironment, contentDirectory)
-
-    expect(server.buildingCatalog.levelOf('sawmill', 1)).toEqual({
-      building: 'sawmill',
-      level: 1,
-      cost: { wood: 60, stone: 15, iron: 0, gold: 0, food: 0 },
-      durationSeconds: 120,
-      peasantOccupancy: 1,
-      ratePerHour: 30,
-    })
-    await server.close()
-  })
-
-  it('reads the new fief settings from the content folder at start-up', async () => {
-    const server = composeServer(composableEnvironment, contentDirectory)
-
-    expect(server.buildingCatalog.fiefSettings().startingStocks).toEqual({
-      wood: 500,
-      stone: 500,
-      iron: 200,
-      gold: 50,
-      food: 300,
-    })
-    await server.close()
-  })
-
   it('fails start-up on a malformed content file', () => {
-    const malformedDirectory = contentCopyWithTruncatedSawmill()
+    const malformedDirectory = contentCopyWithTruncatedFarm()
 
     try {
-      expect(() => composeServer(composableEnvironment, malformedDirectory)).toThrow('sawmill.json')
+      expect(() => composeServer(composableEnvironment, malformedDirectory)).toThrow('farm.json')
     } finally {
       removeDirectory(malformedDirectory)
     }
@@ -387,75 +213,26 @@ const foundedAt = Instant.fromEpochMilliseconds(Date.parse('2026-09-22T08:00:00Z
 const frozenClock = { now: (): Instant => foundedAt }
 const ana: PlayerId = '00000000-0000-4000-8000-000000000001'
 
-const foundAnasFief = async (server: ComposedServer): Promise<FiefId> => {
+const registerAna = async (): Promise<void> => {
   const client = new Client({ connectionString: databaseUrl() })
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     await client.query(
-      "INSERT INTO players (id, email, password_hash, created_at, digest_acknowledged_at, report_read_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2, $2)",
+      "INSERT INTO players (id, email, password_hash, created_at, report_read_at) VALUES ($1, 'ana@example.com', 'argon2id-hash', $2, $2)",
       [ana, new Date('2026-09-22T08:00:00Z')],
     )
   } finally {
     await client.end()
   }
-  const founded = await server.inTransaction(({ fiefs }) =>
-    foundFief(
-      { playerId: ana, name: 'Valdehierro' },
-      { fiefs, catalog: server.buildingCatalog, clock: frozenClock, ids: server.ids },
-    ),
-  )
-  assert(founded.ok)
-  return founded.value.id
 }
 
 type Outcome = 'enqueued' | DomainError['kind']
 
 const outcomeOf = (enqueued: Result<unknown, DomainError>): Outcome =>
   enqueued.ok ? 'enqueued' : enqueued.error.kind
-
-const enqueueSawmill = (
-  fiefs: FiefRepository,
-  server: ComposedServer,
-  fiefId: FiefId,
-): Promise<Result<Fief, DomainError>> =>
-  enqueueBuilding(
-    { playerId: ana, fiefId, building: 'sawmill' },
-    { fiefs, catalog: server.buildingCatalog, clock: frozenClock },
-  )
-
-const withRead = (
-  fiefs: FiefRepository,
-  read: (fiefId: FiefId) => Promise<Result<Fief | undefined, DomainError>>,
-): FiefRepository => ({
-  occupiedPlots: () => fiefs.occupiedPlots(),
-  holdsFief: (playerId) => fiefs.holdsFief(playerId),
-  fiefsOf: (playerId) => fiefs.fiefsOf(playerId),
-  foundingsOnTheRoadOf: (playerId) => fiefs.foundingsOnTheRoadOf(playerId),
-  fiefOf: read,
-  save: (fief) => fiefs.save(fief),
-})
-
-const untilBlockedOrRead = async (secondRead: Promise<unknown>): Promise<void> => {
-  let hasRead = false
-  void secondRead.then(() => {
-    hasRead = true
-  })
-  const observer = new Client({ connectionString: databaseUrl() })
-  await observer.connect()
-  try {
-    for (let probes = 0; probes < lockProbeLimit; probes += 1) {
-      if (hasRead || (await isWaitingOnALock(observer, [lockedFiefReadQuery]))) {
-        return
-      }
-    }
-    throw new Error(`The second read neither waited on the fief lock nor finished`)
-  } finally {
-    await observer.end()
-  }
-}
 
 const signal = (): { readonly promise: Promise<void>; readonly resolve: () => void } => {
   let resolve = (): void => {}
@@ -465,255 +242,12 @@ const signal = (): { readonly promise: Promise<void>; readonly resolve: () => vo
   return { promise, resolve }
 }
 
-const raceTwoEnqueues = async (
-  server: ComposedServer,
-  fiefId: FiefId,
-): Promise<ReadonlyArray<Outcome>> => {
-  const firstHasRead = signal()
-  const secondHasRead = signal()
-  const secondIsBlockedOrHasRead = untilBlockedOrRead(secondHasRead.promise)
-  const first = server.inTransaction(({ fiefs }) =>
-    enqueueSawmill(
-      withRead(fiefs, async (readId) => {
-        const read = await fiefs.fiefOf(readId)
-        firstHasRead.resolve()
-        await secondIsBlockedOrHasRead
-        return read
-      }),
-      server,
-      fiefId,
-    ),
-  )
-  await firstHasRead.promise
-  const second = server.inTransaction(({ fiefs }) =>
-    enqueueSawmill(
-      withRead(fiefs, async (readId) => {
-        const read = await fiefs.fiefOf(readId)
-        secondHasRead.resolve()
-        return read
-      }),
-      server,
-      fiefId,
-    ),
-  )
-  return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
-}
-
-const runSql = async (statement: string): Promise<void> => {
-  const client = new Client({ connectionString: databaseUrl() })
-  await client.connect()
-  try {
-    await client.query(statement)
-  } finally {
-    await client.end()
-  }
-}
-
-const foundAnasSecondFief = async (server: ComposedServer): Promise<FiefId> => {
-  const name = FiefName.create('Peña Alta')
-  const coordinates = Coordinates.create(1, 2, 1)
-  assert(name.ok && coordinates.ok)
-  const second = Fief.found({
-    id: server.ids.newId(),
-    playerId: ana,
-    name: name.value,
-    coordinates: coordinates.value,
-    startingStocks: { wood: 500, stone: 500, iron: 200, gold: 50, food: 300 },
-    at: foundedAt,
-    skills: [],
-  })
-  const saved = await server.inTransaction(({ fiefs }) => fiefs.save(second))
-  assert(saved.ok)
-  await runSql(`INSERT INTO fief_units (fief_id, kind, count)
-    SELECT id, 'cavalry'::unit, 6 FROM fiefs`)
-  return second.id
-}
-
-const pausingAfterFirstLock =
-  (server: ComposedServer, afterFirstLock: () => Promise<void>): Transaction =>
-  (work) =>
-    server.inTransaction((stores) => {
-      let hasLocked = false
-      return work({
-        ...stores,
-        fiefs: withRead(stores.fiefs, async (fiefId) => {
-          const read = await stores.fiefs.fiefOf(fiefId)
-          if (!hasLocked) {
-            hasLocked = true
-            await afterFirstLock()
-          }
-          return read
-        }),
-      })
-    })
-
-const transportBetween = (
-  server: ComposedServer,
-  inTransaction: Transaction,
-  fiefId: FiefId,
-  toFiefId: FiefId,
-): Promise<Result<Fief, DomainError>> =>
-  dispatchTransportOf(
-    { playerId: ana, fiefId },
-    {
-      toFiefId,
-      units: { infantry: 0, cavalry: 6, archer: 0, settler: 0 },
-      cargo: { wood: 100, stone: 0, iron: 0, gold: 0, food: 0 },
-    },
-    {
-      inTransaction,
-      buildingCatalog: server.buildingCatalog,
-      clock: frozenClock,
-      ids: server.ids,
-    },
-  )
-
-const raceTwoTransportsEachWay = async (
-  server: ComposedServer,
-  firstFiefId: FiefId,
-  secondFiefId: FiefId,
-): Promise<ReadonlyArray<Outcome>> => {
-  const firstHasLocked = signal()
-  const secondHasLocked = signal()
-  const secondIsBlockedOrHasLocked = untilBlockedOrRead(secondHasLocked.promise)
-  const first = transportBetween(
-    server,
-    pausingAfterFirstLock(server, async () => {
-      firstHasLocked.resolve()
-      await secondIsBlockedOrHasLocked
-    }),
-    firstFiefId,
-    secondFiefId,
-  )
-  await firstHasLocked.promise
-  const second = transportBetween(
-    server,
-    pausingAfterFirstLock(server, async () => {
-      secondHasLocked.resolve()
-    }),
-    secondFiefId,
-    firstFiefId,
-  )
-  return Promise.all([first.then(outcomeOf), second.then(outcomeOf)])
-}
-
-const raceARecallAndATransportFromTheOtherFief = async (
-  server: ComposedServer,
-  recallingFiefId: FiefId,
-  sendingFiefId: FiefId,
-): Promise<ReadonlyArray<Outcome>> => {
-  const sent = await transportBetween(server, server.inTransaction, recallingFiefId, sendingFiefId)
-  assert(sent.ok)
-  const recallHasLocked = signal()
-  const transportHasLocked = signal()
-  const transportIsBlockedOrHasLocked = untilBlockedOrRead(transportHasLocked.promise)
-  const recall = recallMarchOf(
-    { playerId: ana, fiefId: recallingFiefId },
-    { departedAt: '2026-09-22T08:00:00.000Z' },
-    {
-      inTransaction: pausingAfterFirstLock(server, async () => {
-        recallHasLocked.resolve()
-        await transportIsBlockedOrHasLocked
-      }),
-      buildingCatalog: server.buildingCatalog,
-      clock: frozenClock,
-      ids: server.ids,
-    },
-  )
-  await recallHasLocked.promise
-  const transport = transportBetween(
-    server,
-    pausingAfterFirstLock(server, async () => {
-      transportHasLocked.resolve()
-    }),
-    sendingFiefId,
-    recallingFiefId,
-  )
-  return Promise.all([recall.then(outcomeOf), transport.then(outcomeOf)])
-}
-
-describe('a fief transaction from the composed server', () => {
-  let server: ComposedServer
-
-  beforeAll(() => {
-    server = composeServer({ DATABASE_URL: databaseUrl(), ...mailEnvironment }, contentDirectory)
-  })
-
-  afterAll(async () => {
-    await server.close()
-  })
-
-  it('queues the second of two concurrent enqueues behind the first', async () => {
-    const fiefId = await foundAnasFief(server)
-
-    const outcomes = await raceTwoEnqueues(server, fiefId)
-
-    expect(outcomes).toEqual(['enqueued', 'enqueued'])
-    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(fiefId))
-    assert(stored.ok)
-    expect(stored.value?.slot).toMatchObject({ kind: 'busy', building: 'sawmill', targetLevel: 1 })
-    expect(stored.value?.buildQueue).toMatchObject([{ building: 'sawmill', targetLevel: 2 }])
-  })
-
-  it('sends a transport each way at once without a deadlock', async () => {
-    const firstFiefId = await foundAnasFief(server)
-    const secondFiefId = await foundAnasSecondFief(server)
-
-    const outcomes = await raceTwoTransportsEachWay(server, firstFiefId, secondFiefId)
-
-    expect(outcomes).toEqual(['enqueued', 'enqueued'])
-    const stored = await Promise.all(
-      [firstFiefId, secondFiefId].map((fiefId) => server.fiefs.fiefOf(fiefId)),
-    )
-    expect(stored.map((read) => read.ok && read.value?.incomingCargo?.fromFiefId)).toEqual([
-      secondFiefId,
-      firstFiefId,
-    ])
-  })
-
-  it('races a recall and a transport from the other fief without a deadlock', async () => {
-    const fiefIds = [await foundAnasFief(server), await foundAnasSecondFief(server)]
-    const [sendingFiefId, recallingFiefId] = [...fiefIds].sort()
-    assert(sendingFiefId !== undefined && recallingFiefId !== undefined)
-
-    const outcomes = await raceARecallAndATransportFromTheOtherFief(
-      server,
-      recallingFiefId,
-      sendingFiefId,
-    )
-
-    expect(outcomes).toEqual(['enqueued', 'enqueued'])
-    const stored = await Promise.all(
-      [sendingFiefId, recallingFiefId].map((fiefId) => server.fiefs.fiefOf(fiefId)),
-    )
-    expect(stored.map((read) => read.ok && read.value?.incomingCargo?.fromFiefId)).toEqual([
-      undefined,
-      sendingFiefId,
-    ])
-  })
-
-  it('debits both costs when two enqueues race', async () => {
-    const fiefId = await foundAnasFief(server)
-
-    await raceTwoEnqueues(server, fiefId)
-
-    const stored = await server.inTransaction(({ fiefs }) => fiefs.fiefOf(fiefId))
-    expect(stored.ok && stored.value?.stocks).toEqual({
-      wood: 350,
-      stone: 462,
-      iron: 200,
-      gold: 50,
-      food: 300,
-    })
-  })
-})
-
 const townCatalog = JsonTownCatalog.fromDirectory(join(contentDirectory, 'town'))
 
 const lockedTownReadQuery = 'select "id", "player_id", "region", %'
 
 const foundAnasTown = async (server: ComposedServer): Promise<void> => {
-  await foundAnasFief(server)
+  await registerAna()
   const founded = await server.inTransaction(({ towns, earnedSkills }) =>
     foundTown(
       { playerId: ana, name: 'Maple Falls' },
@@ -843,7 +377,7 @@ describe('an account transaction from the composed server', () => {
   })
 
   it('forgets a token issued in a refused transaction', async () => {
-    await foundAnasFief(server)
+    await registerAna()
     const verifyLink: AccountToken = {
       token: 'refused-verify-link-token',
       playerId: ana,
@@ -875,7 +409,7 @@ describe('a review transaction from the composed server', () => {
   })
 
   it('forgets the card and the pending review a refused transaction wrote', async () => {
-    await foundAnasFief(server)
+    await registerAna()
 
     await server.inTransaction(async ({ cards, pendingReviews }) => {
       await cards.save(ana, { wordId: 'school', card: MemoryCard.entered(foundedAt) })

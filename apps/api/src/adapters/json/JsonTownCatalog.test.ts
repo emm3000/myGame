@@ -2,8 +2,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Instant } from '@mygame/domain'
-import type { BuildingKind } from '@mygame/domain/town'
+import { type BuildingKind, Instant } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import { JsonTownCatalog } from './JsonTownCatalog'
 
@@ -104,28 +103,6 @@ describe('JsonTownCatalog', () => {
     expect([seasons.epoch, seasons.productionPercent.fall]).toEqual([
       Instant.fromEpochMilliseconds(Date.parse('2026-10-05T00:00:00Z')),
       { money: 100, food: 100, power: 100, material: 100 },
-    ])
-  })
-
-  it("hands the domain the fief's study percent of each season", () => {
-    const fief = JSON.parse(readFileSync(join(shippedTownContent, '..', 'fief.json'), 'utf8'))
-    const { durationPercent } = shippedCatalog().townSettings().seasons
-
-    expect(Object.entries(durationPercent).map(([season, { study }]) => [season, study])).toEqual(
-      Object.entries(fief.seasons.durationPercent).map(([season, percents]) => [
-        season,
-        (percents as { study: number }).study,
-      ]),
-    )
-  })
-
-  it("keeps the fief's season calendar until the fief's content is deleted", () => {
-    const fief = JSON.parse(readFileSync(join(shippedTownContent, '..', 'fief.json'), 'utf8'))
-    const town = JSON.parse(readFileSync(join(shippedTownContent, 'town.json'), 'utf8'))
-
-    expect([town.seasons.epoch, town.seasons.daysPerSeason]).toEqual([
-      fief.seasons.epoch,
-      fief.seasons.daysPerSeason,
     ])
   })
 

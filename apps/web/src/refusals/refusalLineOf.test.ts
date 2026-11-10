@@ -8,18 +8,9 @@ it('reads a refusal the api did not answer as a failed exchange', () => {
 })
 
 it('reads a kind that owes params but carries none as a failed exchange', () => {
-  expect(refusalLineOf('BarracksTooLow')).toBe(
+  expect(refusalLineOf('WaitingListFull')).toBe(
     'No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.',
   )
-})
-
-it('reads a kind no screen shows, its params included, as a failed exchange', () => {
-  expect(
-    refusalLineOf('BarracksTooLow', {
-      kind: 'BarracksTooLow',
-      params: { unit: 'settler', requiredBarracksLevel: 5 },
-    }),
-  ).toBe('No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.')
 })
 
 it('renders a full waiting list from its cap', () => {

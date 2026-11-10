@@ -1,4 +1,4 @@
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { lessonFinishedBetween } from './lessonFinishedBetween'
 

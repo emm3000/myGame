@@ -81,9 +81,9 @@ describe('ReviewsSchema', () => {
     ).toBe(false)
   })
 
-  it('rejects reviews that carry a fief', () => {
+  it('rejects reviews carrying a field they do not define', () => {
     expect(
-      ReviewsSchema.safeParse({ due: [], readFirst: [], nextDueAt: null, readAt, fief: {} })
+      ReviewsSchema.safeParse({ due: [], readFirst: [], nextDueAt: null, readAt, town: {} })
         .success,
     ).toBe(false)
   })

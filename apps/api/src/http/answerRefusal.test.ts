@@ -9,20 +9,20 @@ const answerOf = async (refusal: Refusal): Promise<Response> => {
 }
 
 describe('answerRefusal', () => {
-  it('answers a corrupt stored march stay as an internal failure with an empty body', async () => {
-    const response = await answerOf({ kind: 'InvalidMarchStay', stayHours: 1 })
+  it('answers a corrupt stored duration as an internal failure with an empty body', async () => {
+    const response = await answerOf({ kind: 'NegativeDuration', seconds: -1 })
 
     expect(response.status).toBe(500)
     expect(await response.text()).toBe('')
   })
 
-  it('answers a stay the player typed outside the content range as a conflict naming the longest stay', async () => {
-    const response = await answerOf({ kind: 'StayOutOfRange', stayHours: 9, maxStayHours: 8 })
+  it('answers a full waiting list as a conflict naming its cap', async () => {
+    const response = await answerOf({ kind: 'WaitingListFull', cap: 2 })
 
     expect(response.status).toBe(409)
     expect(await response.json()).toStrictEqual({
-      kind: 'StayOutOfRange',
-      params: { maxStayHours: 8 },
+      kind: 'WaitingListFull',
+      params: { cap: 2 },
     })
   })
 

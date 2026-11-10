@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { FiefListSchema, PlayerSchema } from '@mygame/contracts'
+import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -7,7 +7,6 @@ import { z } from 'zod'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
-import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -38,7 +37,7 @@ const truncateAccounts = async (): Promise<void> => {
   await client.connect()
   try {
     await client.query(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
   } finally {
     await client.end()
@@ -72,17 +71,12 @@ const documentedPath = (path: string): string => path.replace(/:(\w+)/g, '{$1}')
 
 const signOut = 'POST /auth/sign-out'
 
-const pathParams = (fiefId: string): Readonly<Record<string, string>> => ({
-  fiefId,
-  building: 'sawmill',
-  art: 'smithing',
-  unit: 'infantry',
-  targetLevel: '1',
-  startedAt: '2026-09-22T08:00:00.000Z',
-  departedAt: '2026-09-22T08:00:00.000Z',
-  province: '1',
-  hint: 'peasants',
-})
+const pathParams: Readonly<Record<string, string>> = {
+  building: 'farm',
+  level: '1',
+  lessonId: 'lesson-1',
+  wordId: 'lesson-1-1',
+}
 
 type CarrierAnswers = {
   readonly operation: string
@@ -114,10 +108,7 @@ describe('the signed-in carriers', () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(anasSignUp),
     })
-    await foundFiefFor(PlayerSchema.parse(await signedUp.json()).id, 'Valdehierro', {
-      server,
-      clock,
-    })
+    PlayerSchema.parse(await signedUp.json())
     cookie = sessionCookieOf(signedUp)
   })
 
@@ -181,11 +172,6 @@ describe('the signed-in carriers', () => {
     return tokenOfCookie(sessionCookieOf(signedIn))
   }
 
-  const fiefIdOf = async (): Promise<string> => {
-    const listed = await app.request('/fiefs', { headers: { cookie } })
-    return FiefListSchema.parse(await listed.json()).fiefs[0]?.id ?? ''
-  }
-
   const securedOperations = async (): Promise<ReadonlyArray<string>> => {
     const document = DocumentSchema.parse(await (await app.request('/openapi.json')).json())
     return Object.entries(document.paths)
@@ -210,14 +196,13 @@ describe('the signed-in carriers', () => {
 
   it('answers every signed-in route through either carrier and refuses it with neither', async () => {
     const bearerToken = await bearerTokenOfSignIn()
-    const params = pathParams(await fiefIdOf())
     const request = async (
       operation: string,
       carrier: Readonly<Record<string, string>>,
     ): Promise<Response> => {
       const [method = '', template = ''] = operation.split(' ')
       const path = template.replace(/\{(\w+)\}/g, (_match, name: string) =>
-        encodeURIComponent(params[name] ?? `missing-${name}`),
+        encodeURIComponent(pathParams[name] ?? `missing-${name}`),
       )
       const hasBody = method !== 'GET'
       return app.request(path, {

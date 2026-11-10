@@ -1,12 +1,10 @@
-import type { Player } from '@mygame/contracts'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { Player, TownOverview } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 
 export const knownPlayer: Player = {
   id: '4f7c1c2e-8a4b-4d1e-9f3a-2b6c8d0e1f2a',
   email: 'aldonza@example.com',
   emailVerified: true,
-  seenHints: [],
 }
 
 const placeAtLevel = (level: number): TownOverview['buildings']['farm'] => ({

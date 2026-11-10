@@ -1,4 +1,4 @@
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import { expect, it } from 'vitest'
 import { knownTown } from '../auth/stubApiClient.testSupport'
 import { registeredBetween } from './registeredBetween'

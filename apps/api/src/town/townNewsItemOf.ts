@@ -1,5 +1,5 @@
-import type { TownNewsItem } from '@mygame/contracts/town'
-import type { TownEvent } from '@mygame/domain/town'
+import type { TownNewsItem } from '@mygame/contracts'
+import type { TownEvent } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 
 export const townNewsItemOf = (event: TownEvent): TownNewsItem => {

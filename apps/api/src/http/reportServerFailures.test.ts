@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { FiefListSchema, PlayerSchema } from '@mygame/contracts'
+import { PlayerSchema } from '@mygame/contracts'
 import { type Clock, Instant } from '@mygame/domain'
 import { Client } from 'pg'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -7,8 +7,7 @@ import { MemoryMailer } from '../adapters/memory/MemoryMailer'
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
-import { foundFiefFor } from '../fief/foundFiefFor.testSupport'
-import type { SeenHints } from '../hint/SeenHints'
+import type { ReportClosings } from '../town/ReportClosings'
 import type { FailureSink } from './FailureSink'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
@@ -68,7 +67,7 @@ describe('the server failure report', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, player_seen_hints, player_skills, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens, fiefs, fief_buildings, fief_queue_entries, fief_arts, fief_events, fief_units, fief_recruit_orders, fief_marches, fief_incoming_cargo, camp_battles',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     sink = collectingSink()
     app = createApp({ ...server, clock: frozenClock, failureSink: sink })
@@ -81,34 +80,33 @@ describe('the server failure report', () => {
       body: JSON.stringify({ email: anasEmail, password: anasPassword }),
     })
     expect(response.status).toBe(201)
-    const player = PlayerSchema.parse(await response.json())
-    await foundFiefFor(player.id, 'Valdehierro', { server, clock: frozenClock })
+    PlayerSchema.parse(await response.json())
     return sessionCookieOf(response)
   }
 
-  it('writes one line naming the kind when a fief stored above the last building level answers 500', async () => {
-    const ana = await signUpAna()
-    await runSql(`INSERT INTO fief_buildings (fief_id, building, level)
-      SELECT id, 'sawmill'::building, 11 FROM fiefs
-      ON CONFLICT (fief_id, building) DO UPDATE SET level = 11`)
+  const foundTown = async (cookie: string): Promise<Response> =>
+    app.request('/town', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify({ name: 'Maple Falls' }),
+    })
 
-    const response = await app.request('/fiefs', { headers: { cookie: ana } })
+  it('writes one line naming the kind when a town stored above the last building level answers 500', async () => {
+    const ana = await signUpAna()
+    expect((await foundTown(ana)).status).toBe(200)
+    await runSql("UPDATE town_buildings SET level = 11 WHERE building = 'farm'")
+
+    const response = await app.request('/town', { headers: { cookie: ana } })
 
     expect(response.status).toBe(500)
-    expect(sink.lines).toEqual(['GET /fiefs 500 UnknownBuildingLevel'])
+    expect(sink.lines).toEqual(['GET /town 500 UnknownTownBuildingLevel'])
   })
 
   it('writes nothing for a conflict refusal', async () => {
     const ana = await signUpAna()
-    await runSql('UPDATE fiefs SET wood = 0, stone = 0, iron = 0, gold = 0, food = 0')
-    const list = await app.request('/fiefs', { headers: { cookie: ana } })
-    const [listed] = FiefListSchema.parse(await list.json()).fiefs
+    expect((await foundTown(ana)).status).toBe(200)
 
-    const response = await app.request(`/fiefs/${listed?.id}/upgrades`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: ana },
-      body: JSON.stringify({ building: 'sawmill' }),
-    })
+    const response = await foundTown(ana)
 
     expect(response.status).toBe(409)
     expect(sink.lines).toEqual([])
@@ -133,31 +131,28 @@ describe('the server failure report', () => {
     expect(sink.lines).toEqual(['POST /auth/verify-email/resend 503 MailNotSent'])
   })
 
-  const unreachableHints: SeenHints = {
-    markSeen: () => Promise.reject(new TypeError('the hints store is unreachable')),
-    seenHintsOf: () => Promise.reject(new TypeError('the hints store is unreachable')),
+  const unreachableReportClosings: ReportClosings = {
+    close: () => Promise.reject(new TypeError('the report store is unreachable')),
+    closedAt: () => Promise.reject(new TypeError('the report store is unreachable')),
   }
 
-  const signInThroughUnreachableHints = async (session: string): Promise<Response> =>
+  const readReportThroughUnreachableClosings = async (session: string): Promise<Response> =>
     createApp({
       ...server,
       clock: frozenClock,
-      seenHints: unreachableHints,
+      reportClosings: unreachableReportClosings,
       failureSink: sink,
-    }).request('/auth/sign-in', {
-      method: 'POST',
+    }).request('/report', {
       headers: {
-        'content-type': 'application/json',
         cookie: session,
         authorization: `Bearer ${session.replace('session=', '')}`,
       },
-      body: JSON.stringify({ email: anasEmail, password: anasPassword }),
     })
 
   it('answers a thrown error with an empty 500', async () => {
     const ana = await signUpAna()
 
-    const response = await signInThroughUnreachableHints(ana)
+    const response = await readReportThroughUnreachableClosings(ana)
 
     expect({ status: response.status, body: await response.text() }).toEqual({
       status: 500,
@@ -168,15 +163,15 @@ describe('the server failure report', () => {
   it('writes one line naming a thrown error by its class, never its message', async () => {
     const ana = await signUpAna()
 
-    await signInThroughUnreachableHints(ana)
+    await readReportThroughUnreachableClosings(ana)
 
-    expect(sink.lines).toEqual(['POST /auth/sign-in 500 TypeError'])
+    expect(sink.lines).toEqual(['GET /report 500 TypeError'])
   })
 
   it('writes a line that omits the session token the request carried', async () => {
     const ana = await signUpAna()
 
-    await signInThroughUnreachableHints(ana)
+    await readReportThroughUnreachableClosings(ana)
 
     expect(sink.lines.join('\n')).not.toContain(ana.replace('session=', ''))
   })

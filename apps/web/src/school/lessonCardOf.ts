@@ -8,7 +8,7 @@ import {
   schoolLessonTitle,
   schoolLessonWords,
 } from '@mygame/catalog'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { TownOverview } from '@mygame/contracts'
 import type { WordStanding } from '@mygame/domain'
 import { type BlockHue, blockHueOf } from '../design-system/blockHueOf'
 import type { OrderActionState } from '../design-system/CardAction'

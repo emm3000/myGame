@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
 export const BuildingKindSchema = z.enum([
-  'sawmill',
-  'quarry',
-  'ironMine',
+  'homes',
   'farm',
-  'warehouse',
-  'library',
-  'barracks',
+  'factory',
+  'powerStation',
+  'storage',
+  'school',
+  'office',
 ])
 
 export type BuildingKind = z.infer<typeof BuildingKindSchema>

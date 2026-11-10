@@ -25,7 +25,6 @@ import type { SignedIn } from '../auth/SignedIn'
 import { type SignInDependencies, signIn } from '../auth/signIn'
 import { type SignUpDependencies, signUp } from '../auth/signUp'
 import { type VerifyEmailDependencies, verifyEmail } from '../auth/verifyEmail'
-import type { SeenHints } from '../hint/SeenHints'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'
 import type { Refusal } from '../http/Refusal'
@@ -40,15 +39,12 @@ export type AuthDependencies = SignUpDependencies &
   ResendVerificationMailDependencies &
   RequestPasswordResetDependencies &
   ResetPasswordDependencies &
-  RequirePlayerDependencies & {
-    readonly seenHints: SeenHints
-  }
+  RequirePlayerDependencies
 
-const playerOf = async (stored: StoredPlayer, seenHints: SeenHints): Promise<Player> => ({
+const playerOf = (stored: StoredPlayer): Player => ({
   id: stored.id,
   email: stored.email,
   emailVerified: stored.emailVerified,
-  seenHints: [...(await seenHints.seenHintsOf(stored.id))],
 })
 
 const answerDone = (c: Context, done: Result<void, Refusal>): Response =>
@@ -63,27 +59,26 @@ const answerSignedIn = async (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
-  { isSessionCookieSecure, seenHints }: AuthDependencies,
+  { isSessionCookieSecure }: AuthDependencies,
 ): Promise<Response> => {
   if (!signedIn.ok) {
     return answerRefusal(c, signedIn.error)
   }
   writeSessionCookie(c, signedIn.value.session, isSessionCookieSecure)
-  return c.json(await playerOf(signedIn.value.player, seenHints), status)
+  return c.json(playerOf(signedIn.value.player), status)
 }
 
-const answerNativeSession = async (
+const answerNativeSession = (
   c: Context,
   signedIn: Result<SignedIn, Refusal>,
   status: ContentfulStatusCode,
-  { seenHints }: AuthDependencies,
-): Promise<Response> => {
+): Response => {
   if (!signedIn.ok) {
     return answerRefusal(c, signedIn.error)
   }
   const nativeSession: NativeSession = {
     token: signedIn.value.session.token,
-    player: await playerOf(signedIn.value.player, seenHints),
+    player: playerOf(signedIn.value.player),
   }
   return c.json(nativeSession, status)
 }
@@ -106,7 +101,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     if (!request.success) {
       return answerRefusal(c, requestRefusalOf(accountIssues, request.error.issues))
     }
-    return answerNativeSession(c, await signUp(request.data, dependencies), 201, dependencies)
+    return answerNativeSession(c, await signUp(request.data, dependencies), 201)
   })
   routes.on(authDeclarations.signIn.method, authDeclarations.signIn.path, async (c) => {
     const request = SignInRequestSchema.safeParse(await bodyOf(c))
@@ -120,7 +115,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
     if (!request.success) {
       return answerRefusal(c, { kind: 'InvalidCredentials' })
     }
-    return answerNativeSession(c, await signIn(request.data, dependencies), 200, dependencies)
+    return answerNativeSession(c, await signIn(request.data, dependencies), 200)
   })
   routes.on(
     authDeclarations.signOut.method,
@@ -141,7 +136,7 @@ export const authRoutes = (dependencies: AuthDependencies): OpenAPIHono => {
       if (player === undefined) {
         return answerRefusal(c, { kind: 'SignedOut' })
       }
-      return c.json(await playerOf(player, dependencies.seenHints))
+      return c.json(playerOf(player))
     },
   )
   routes.on(authDeclarations.verifyEmail.method, authDeclarations.verifyEmail.path, async (c) => {

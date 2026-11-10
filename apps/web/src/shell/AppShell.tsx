@@ -1,6 +1,5 @@
 import { shellNavigationTown, townLabelCity, townLabelTown } from '@mygame/catalog'
-import type { Player } from '@mygame/contracts'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { Player, TownOverview } from '@mygame/contracts'
 import { Link } from '@tanstack/react-router'
 import type { ReactElement, ReactNode, RefObject } from 'react'
 import { focusTargetClass } from '../design-system/focusTargetClass'

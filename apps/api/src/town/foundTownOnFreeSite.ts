@@ -1,10 +1,11 @@
-import type { DomainError, Result } from '@mygame/domain'
 import {
+  type DomainError,
   type FoundTownCommand,
   type FoundTownDependencies,
   foundTown,
+  type Result,
   type Town,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 
 const foundingAttempts = 3
 

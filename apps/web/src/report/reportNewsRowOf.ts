@@ -21,7 +21,7 @@ import {
   type ResourceAmounts,
   ResourceKindSchema,
   type TownNewsItem,
-} from '@mygame/contracts/town'
+} from '@mygame/contracts'
 import { conjunctionOf } from '../design-system/conjunctionOf'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { townResourceNameOf } from '../resources/townResourceNameOf'

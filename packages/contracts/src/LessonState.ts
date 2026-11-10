@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ResourceKindSchema } from './town/ResourceKind'
+import { ResourceKindSchema } from './ResourceKind'
 import { BuildingLevelSchema, DurationSecondsSchema, WholeCountSchema } from './Wire'
 
 const WordStandingSchema = z.enum(['notStarted', 'recognize', 'recall', 'hold', 'retained'])

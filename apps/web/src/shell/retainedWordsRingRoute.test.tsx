@@ -1,6 +1,5 @@
 import { reviewAnswerField, reviewCheck, reviewCorrect, shellRetainedWords } from '@mygame/catalog'
-import type { DueReview, ReviewAnswer } from '@mygame/contracts'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { DueReview, ReviewAnswer, TownOverview } from '@mygame/contracts'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { ApiClient } from '../api/apiClient'

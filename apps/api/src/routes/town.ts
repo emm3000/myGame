@@ -1,12 +1,13 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import { StartLessonRequestSchema, StopLessonRequestSchema } from '@mygame/contracts'
 import {
   FoundTownSchema,
   StartBuildingWorkSchema,
+  StartLessonRequestSchema,
   StopBuildingWorkSchema,
+  StopLessonRequestSchema,
   type TownNewsFeed,
   type TownOverview,
-} from '@mygame/contracts/town'
+} from '@mygame/contracts'
 import {
   type DomainError,
   err,
@@ -16,13 +17,11 @@ import {
   type PlayerId,
   type RandomSource,
   type Result,
-} from '@mygame/domain'
-import {
   startBuildingWork,
   startSchoolLesson,
   stopBuildingWork,
   stopSchoolLesson,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import type { Context } from 'hono'
 import { answerRefusal } from '../http/answerRefusal'
 import { bodyOf } from '../http/bodyOf'

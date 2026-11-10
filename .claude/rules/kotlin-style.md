@@ -17,14 +17,14 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 
 - Return type on every function, single-expression ones included: `fun capacityOf(level: Int): Int = ...`.
 - Type on every property and every local `val` / `var`: `val remaining: Int = queue.slotsLeft()`.
-- Declare the supertype the caller should depend on: `val state: StateFlow<FiefUiState>`, never the `MutableStateFlow` behind it; `List` over `MutableList`.
+- Declare the supertype the caller should depend on: `val state: StateFlow<TownUiState>`, never the `MutableStateFlow` behind it; `List` over `MutableList`.
 - Omit the type only where it is noise: a constructor call that already names it (`val request = EnqueueBuildingRequest(...)`), a delegated property (`by viewModels()`, `by remember`), a lambda parameter fixed by its receiver.
 
 ## Idioms
 
 - `val` everywhere; `var` only when reassignment is the point.
 - A closed set of states or errors is a `sealed interface`; `when` over it is exhaustive with no `else`.
-- Identifiers and constrained values are value classes (`FiefId`), validated in `init` with `require`.
+- Identifiers and constrained values are value classes (`TownId`), validated in `init` with `require`.
 - Dependencies are constructor parameters with no default value. A default lets a forgotten argument compile silently against the real dependency.
 - Extension functions over `object` holders and utility classes.
 - One public top-level type per `.kt` file, named after the file. Private helpers used only by that type may share it.

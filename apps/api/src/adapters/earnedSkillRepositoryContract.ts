@@ -1,5 +1,4 @@
-import { Instant, type PlayerId } from '@mygame/domain'
-import type { EarnedSkillRepository, TownSkill } from '@mygame/domain/town'
+import { type EarnedSkillRepository, Instant, type PlayerId, type TownSkill } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 
 export type EarnedSkillRepositoryFixture = {

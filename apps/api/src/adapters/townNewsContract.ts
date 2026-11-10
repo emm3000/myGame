@@ -1,5 +1,4 @@
-import { Instant } from '@mygame/domain'
-import type { TownEvent, TownId, TownNews } from '@mygame/domain/town'
+import { Instant, type TownEvent, type TownId, type TownNews } from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 import type { TownNewsReader } from '../town/TownNewsReader'
 

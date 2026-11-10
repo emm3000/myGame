@@ -5,9 +5,14 @@ import {
   BuildingContentSchema,
   type TownContent,
   TownContentSchema,
-} from '@mygame/contracts/town'
-import { Instant } from '@mygame/domain'
-import type { BuildingKind, BuildingLevel, TownCatalog, TownSettings } from '@mygame/domain/town'
+} from '@mygame/contracts'
+import {
+  type BuildingKind,
+  type BuildingLevel,
+  Instant,
+  type TownCatalog,
+  type TownSettings,
+} from '@mygame/domain'
 
 const buildingFiles: Readonly<Record<BuildingKind, string>> = {
   homes: 'homes.json',

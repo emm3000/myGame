@@ -1,19 +1,14 @@
 import type {
   BandStartRepository,
-  CampRegistry,
   CardRepository,
-  ChronicleWriter,
-  FiefRepository,
+  EarnedSkillRepository,
+  LessonSlotRepository,
   PendingReviewRepository,
   Result,
   ReviewLog,
-} from '@mygame/domain'
-import type {
-  EarnedSkillRepository,
-  LessonSlotRepository,
   TownNews,
   TownRepository,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { TransactionRollbackError } from 'drizzle-orm'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import type { Accounts } from '../../auth/Accounts'
@@ -22,11 +17,8 @@ import type { TownNewsReader } from '../../town/TownNewsReader'
 import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { DrizzleBandStarts } from './DrizzleBandStarts'
-import { DrizzleCampRegistry } from './DrizzleCampRegistry'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
-import { DrizzleChronicle } from './DrizzleChronicle'
 import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
-import { DrizzleFiefRepository } from './DrizzleFiefRepository'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
 import { DrizzleReviewLog } from './DrizzleReviewLog'
@@ -34,9 +26,6 @@ import { DrizzleTownNews } from './DrizzleTownNews'
 import { DrizzleTownRepository } from './DrizzleTownRepository'
 
 export type TransactionStores = {
-  readonly fiefs: FiefRepository
-  readonly chronicle: ChronicleWriter
-  readonly camps: CampRegistry
   readonly accounts: Accounts
   readonly accountTokens: AccountTokens
   readonly cards: CardRepository
@@ -62,9 +51,6 @@ export const postgresTransaction =
     try {
       return await database.transaction(async (transaction) => {
         const outcome = await work({
-          fiefs: new DrizzleFiefRepository(transaction, 'lockedForUpdate'),
-          chronicle: new DrizzleChronicle(transaction),
-          camps: new DrizzleCampRegistry(transaction),
           accounts: new DrizzleAccounts(transaction),
           accountTokens: new DrizzleAccountTokens(transaction),
           cards: new DrizzleCardRepository(transaction),

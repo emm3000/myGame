@@ -1,4 +1,4 @@
-import type { BuildingKind, StopBuildingWork, TownOverview } from '@mygame/contracts/town'
+import type { BuildingKind, StopBuildingWork, TownOverview } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 import { type RefusedTownAction, useTownAction } from './useTownAction'
 

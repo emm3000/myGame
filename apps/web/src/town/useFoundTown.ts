@@ -1,4 +1,4 @@
-import { FoundTownSchema, type TownOverview } from '@mygame/contracts/town'
+import { FoundTownSchema, type TownOverview } from '@mygame/contracts'
 import { useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 

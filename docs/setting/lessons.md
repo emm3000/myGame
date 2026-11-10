@@ -1,6 +1,6 @@
 # Lessons
 
-Status: proposal. Every fact below is a proposal until the author accepts it; the frames and the es glosses wait on the owner's review (`docs/research/english-pivot/decisions.md` §3.6). The rules each line relies on are ADR 036's; the Spanish lines a player reads around a lesson are in `docs/lore/names.md`, The review.
+Status: proposal. Every fact below is a proposal until the author accepts it; the frames and the es glosses wait on the owner's review (`docs/research/english-pivot/decisions.md` §3.6). The rules each line relies on are ADR 036's; the Spanish lines a player reads around a lesson are in `packages/catalog/es.json`.
 
 A **lesson** brings a set of new words in through the library's study slot (ADR 036, rule 6), grouped by a theme, never by a semantic set (§3.2). Each **item** is one word: its lemma, its part of speech, its NGSL 1.2 rank, one US-English example frame, the frame's gapped form for recall, and one gloss per scaffold language (§3.4). The target is American English (ADR 035); S39 serves the `es` gloss only, addressed as tú where a gloss addresses anyone (ADR 036, Consequences).
 
@@ -250,7 +250,3 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 - *field* and *hill* are glossed in the singular, *campo* and *colina*, as their frames use them; the terrain labels stay *Campos* and *Colinas*.
 - *mayor* is glossed *alcalde o alcaldesa*: the gloss is content, never the chrome, which never names the player with a gendered noun (ADR 040).
 - *job* is glossed *trabajo*, which is also the first gloss of the noun *work*; lesson 1 glosses *work* as the verb, *trabajar*, so no card asks for both. The owner decides it on the pull request.
-
-## Open questions
-
-- Whether *A day in town* is read on screen before the town rebuild names the holding a town: the medieval fief still calls it *feudo* (`docs/lore/names.md`, The fief).

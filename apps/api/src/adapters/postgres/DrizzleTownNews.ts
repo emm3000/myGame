@@ -1,13 +1,16 @@
-import { type DomainError, Instant, ok, type Result } from '@mygame/domain'
-import type {
-  BuildingKind,
-  ResourceKind,
-  SiteAddress,
-  Stocks,
-  TownEvent,
-  TownId,
-  TownNews,
-} from '@mygame/domain/town'
+import {
+  type BuildingKind,
+  type DomainError,
+  Instant,
+  ok,
+  type ResourceKind,
+  type Result,
+  type SiteAddress,
+  type Stocks,
+  type TownEvent,
+  type TownId,
+  type TownNews,
+} from '@mygame/domain'
 import { and, desc, eq, gt, notInArray } from 'drizzle-orm'
 import { keptEventsPerTown, type TownNewsReader } from '../../town/TownNewsReader'
 import type { PostgresSession } from './connectPostgres'

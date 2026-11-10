@@ -1,4 +1,4 @@
-import type { BuildingKind, ResourceKind, TownOverview } from '@mygame/contracts/town'
+import type { BuildingKind, ResourceKind, TownOverview } from '@mygame/contracts'
 
 export type LiveStocks = Readonly<Record<ResourceKind, number>>
 

@@ -1,5 +1,4 @@
-import type { Reviews } from '@mygame/contracts'
-import type { TownOverview } from '@mygame/contracts/town'
+import type { Reviews, TownOverview } from '@mygame/contracts'
 import { createFileRoute } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import type { ReviewEndPath } from '../../review/ReviewEnd'

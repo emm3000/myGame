@@ -1,50 +1,20 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import { nextSeasonBoundaryAfter } from '../season/nextSeasonBoundaryAfter'
-import { Instant } from '../time/Instant'
+import type { Instant } from '../time/Instant'
 import { deriveResourceRates, type ResourceRates } from './deriveResourceRates'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
 import type { ResourceKind } from './ResourceKind'
 import { resourceKinds } from './resourceKinds'
 import type { Stocks } from './Stocks'
+import { type Store, storeAfterSegment } from './storeAfterSegment'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
 
 export type Accrual = {
   readonly stocks: Stocks
   readonly fullSince: FullSince
-}
-
-type Store = {
-  readonly amount: number
-  readonly fullSince: Instant | null
-}
-
-const MILLISECONDS_PER_HOUR = 3_600_000
-
-const storeAfterSegment = (
-  store: Store,
-  ratePerHour: number,
-  capacity: number,
-  from: Instant,
-  to: Instant,
-): Store => {
-  if (store.amount >= capacity || ratePerHour === 0) {
-    return store
-  }
-  const elapsed = to.epochMilliseconds - from.epochMilliseconds
-  const grown = Math.floor(
-    (store.amount * MILLISECONDS_PER_HOUR + ratePerHour * elapsed) / MILLISECONDS_PER_HOUR,
-  )
-  if (grown < capacity) {
-    return { amount: Math.max(store.amount, grown), fullSince: null }
-  }
-  const crossing = Math.ceil(((capacity - store.amount) * MILLISECONDS_PER_HOUR) / ratePerHour)
-  return {
-    amount: capacity,
-    fullSince: Instant.fromEpochMilliseconds(from.epochMilliseconds + crossing),
-  }
 }
 
 type Stores = Readonly<Record<ResourceKind, Store>>

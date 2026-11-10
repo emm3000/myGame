@@ -1,5 +1,11 @@
-import type { Clock, DomainError, LessonCatalog, PlayerId, Result } from '@mygame/domain'
-import { settleSchoolLesson } from '@mygame/domain/town'
+import {
+  type Clock,
+  type DomainError,
+  type LessonCatalog,
+  type PlayerId,
+  type Result,
+  settleSchoolLesson,
+} from '@mygame/domain'
 import type { Transaction, TransactionStores } from '../adapters/postgres/postgresTransaction'
 import { laterOf } from '../time/laterOf'
 

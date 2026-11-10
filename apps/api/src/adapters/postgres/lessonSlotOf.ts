@@ -1,5 +1,4 @@
-import { Instant } from '@mygame/domain'
-import { idleLessonSlot, type LessonSlot } from '@mygame/domain/town'
+import { Instant, idleLessonSlot, type LessonSlot } from '@mygame/domain'
 import type { townLessonSlots } from './schema'
 
 export const lessonSlotOf = (row: typeof townLessonSlots.$inferSelect | null): LessonSlot =>

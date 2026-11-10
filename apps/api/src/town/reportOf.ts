@@ -1,4 +1,4 @@
-import type { Report } from '@mygame/contracts/town'
+import type { Report } from '@mygame/contracts'
 import {
   type Clock,
   type DomainError,
@@ -9,8 +9,10 @@ import {
   type PlayerId,
   type Result,
   readFirstOf,
+  resolveTown,
+  type TownCatalog,
+  type TownEvent,
 } from '@mygame/domain'
-import { resolveTown, type TownCatalog, type TownEvent } from '@mygame/domain/town'
 import type { Refusal } from '../http/Refusal'
 import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
 import { type MutateTownDependencies, mutateTown, type TownStores } from './mutateTown'

@@ -1,4 +1,4 @@
-import type { BuildingKind } from '@mygame/contracts/town'
+import type { BuildingKind } from '@mygame/contracts'
 import factory from '../../public/art/places/factory.svg?raw'
 import farm from '../../public/art/places/farm.svg?raw'
 import homes from '../../public/art/places/homes.svg?raw'

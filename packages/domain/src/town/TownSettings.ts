@@ -1,4 +1,4 @@
-import type { SeasonDates } from '../season/SeasonCalendar'
+import type { SeasonDates } from '../season/SeasonDates'
 import type { SeasonKind } from '../season/SeasonKind'
 import type { ResourceKind } from './ResourceKind'
 import type { Stocks } from './Stocks'

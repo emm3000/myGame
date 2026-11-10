@@ -18,7 +18,7 @@ import {
   type ResourceAmounts,
   type ResourceKind,
   ResourceKindSchema,
-} from '@mygame/contracts/town'
+} from '@mygame/contracts'
 import type { CardActionState } from '../design-system/CardAction'
 import type { CardCost } from '../design-system/CostList'
 import { conjunctionOf } from '../design-system/conjunctionOf'

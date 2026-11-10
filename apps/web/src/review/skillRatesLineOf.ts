@@ -1,5 +1,5 @@
 import { reviewSkillRates } from '@mygame/catalog'
-import type { ResourceKind } from '@mygame/contracts/town'
+import type { ResourceKind } from '@mygame/contracts'
 import { capitalize } from '../design-system/capitalize'
 import { formatQuantity } from '../design-system/formatQuantity'
 import { townResourceNameOf } from '../resources/townResourceNameOf'

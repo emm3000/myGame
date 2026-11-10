@@ -1,10 +1,10 @@
-import { Instant } from '@mygame/domain'
 import {
   type BusyLessonSlot,
+  Instant,
   idleLessonSlot,
   type LessonSlotRepository,
   type TownId,
-} from '@mygame/domain/town'
+} from '@mygame/domain'
 import { describe, expect, it } from 'vitest'
 
 export type LessonSlotRepositoryFixture = {
