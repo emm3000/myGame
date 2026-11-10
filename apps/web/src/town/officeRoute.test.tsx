@@ -94,14 +94,33 @@ it('locks trucks below office level 3', async () => {
   expect(within(trucks).getByText('Necesita la oficina en nivel 3')).toBeDefined()
 })
 
+const workersOrderedNow = (delivered: number): TownOverview => ({
+  ...officeTown,
+  hiring: {
+    ...officeTown.hiring,
+    order: {
+      hire: 'worker',
+      count: 3,
+      delivered,
+      secondsPerHire: 60,
+      startedAt: instantAfter(0),
+      endsAt: instantAfter(180),
+    },
+  },
+})
+
 it('shows each delivered hire after the next read', async () => {
-  const reads = [hiringWorkers(0, 3), hiringWorkers(1, 3)]
+  const reads = [workersOrderedNow(0), workersOrderedNow(1)]
   await showTown(officeTown, {
-    town: async () => ({ ok: true, value: reads.shift() ?? hiringWorkers(1, 3) }),
+    town: async () => ({ ok: true, value: reads.shift() ?? workersOrderedNow(1) }),
   })
   expect(screen.getByText('0 de 3 contratados')).toBeDefined()
 
-  await passSeconds(60)
+  await passSeconds(30)
+  act(() => {
+    window.dispatchEvent(new Event('focus'))
+  })
+  await passSeconds(0)
 
   expect(screen.getByText('1 de 3 contratados')).toBeDefined()
 })
@@ -189,4 +208,16 @@ it('reads a refused hire under its kind', async () => {
   expect(within(hireCard(namesHiresTruck())).getByRole('alert').textContent).toBe(
     'Tu oficina está en nivel 2 y esta contratación necesita el nivel 3.',
   )
+})
+
+it('waits only on the kind being placed', async () => {
+  await showTown(withOfficeAt(3), {
+    placeHiringOrder: () => new Promise(() => undefined),
+  })
+
+  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  await passSeconds(0)
+
+  const truckHire = within(hireCard(namesHiresTruck())).getByRole('button', { name: /^Contratar/ })
+  expect(truckHire.getAttribute('aria-busy')).not.toBe('true')
 })

@@ -58,11 +58,11 @@ const freePeopleOf = ({ overview }: LiveTown): number | undefined =>
     : undefined
 
 function stateOf(terms: HireTerms, count: number | undefined, town: LiveTown): OrderActionState {
-  if (town.overview.hiring.order !== null) {
-    return { kind: 'blocked', reason: townOfficeBusy() }
-  }
   if (count === undefined) {
     return { kind: 'blocked', reason: townOfficeCountNeeded() }
+  }
+  if (town.overview.hiring.order !== null) {
+    return { kind: 'blocked', reason: townOfficeBusy() }
   }
   const needed = terms.people * count
   const free = freePeopleOf(town)

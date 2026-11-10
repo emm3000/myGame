@@ -81,7 +81,7 @@ function HireItem({
       <HireCard
         card={card}
         entry={entry}
-        isWaiting={hiring.isPlacing}
+        isWaiting={hiring.placingHire === hire}
         onEntryChange={setEntry}
         onHire={onHire}
       />
