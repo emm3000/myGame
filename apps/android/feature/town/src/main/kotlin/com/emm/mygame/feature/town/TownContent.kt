@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town
 import com.emm.mygame.core.network.NextStepCard
 import com.emm.mygame.core.network.SeasonInForce
 import com.emm.mygame.core.network.TownBuildingKind
+import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
@@ -17,6 +18,7 @@ internal fun TownSnapshot.contentAt(
     gap: Duration,
     mutations: TownMutations,
     registered: TownRegistered,
+    hireEntries: Map<TownHireKind, String>,
 ): TownUiState.Content {
     val lines: List<TownUiState.StockLine> = stocks
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
@@ -38,6 +40,7 @@ internal fun TownSnapshot.contentAt(
         nextStepTime = card.countdown?.timeAt(now, gap),
         start = mutations.start,
         stop = mutations.stop,
+        office = officeLineAt(now = now, gap = gap, drawn = drawn, entries = hireEntries, mutations = mutations),
     )
 }
 
@@ -60,7 +63,7 @@ private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
 }
 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
-    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, seasonEndsAt, nextDueAt)
+    listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, hiring.order?.endsAt, seasonEndsAt, nextDueAt)
 
 private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant, skillLevel: Int): TownUiState.StockLine =
     TownUiState.StockLine(

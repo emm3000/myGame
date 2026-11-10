@@ -2,10 +2,14 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.models.BuildingWork
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
+import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
+import com.emm.mygame.core.network.generated.models.TownOverviewHiring
+import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
+import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
@@ -25,6 +29,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         skill.toEarnedSkill() ?: return null
     }
     val step: NextStep = nextStep.toNextStep() ?: return null
+    val townHiring: TownSnapshot.Hiring = hiring.toHiring() ?: return null
     return TownSnapshot(
         name = name,
         label = townLabel,
@@ -51,6 +56,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         skills = earnedSkills,
         learning = learning.toLearning(),
         lessonSlot = lessonSlot?.toLessonSlot(),
+        hiring = townHiring,
         nextStep = step,
         nextDueAt = nextDueAt?.toKotlinInstant(),
         readAt = readAt.toKotlinInstant(),
@@ -66,6 +72,50 @@ internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = whe
     TownBuildingKind.School -> StartBuildingWork.Building.school
     TownBuildingKind.Office -> StartBuildingWork.Building.office
 }
+
+internal fun TownHireKind.toWireHire(): PlaceHiringOrder.Hire = when (this) {
+    TownHireKind.Worker -> PlaceHiringOrder.Hire.worker
+    TownHireKind.Truck -> PlaceHiringOrder.Hire.truck
+}
+
+private fun TownOverviewHiring.toHiring(): TownSnapshot.Hiring? {
+    val open: TownSnapshot.HiringOrder? = order?.let { placed: TownOverviewHiringOrder ->
+        placed.toHiringOrder() ?: return null
+    }
+    return TownSnapshot.Hiring(
+        order = open,
+        hires = mapOf(TownHireKind.Worker to hires.worker, TownHireKind.Truck to hires.truck),
+        terms = mapOf(
+            TownHireKind.Worker to terms.worker.toHireTerms(),
+            TownHireKind.Truck to terms.truck.toHireTerms(),
+        ),
+    )
+}
+
+private fun TownOverviewHiringOrder.toHiringOrder(): TownSnapshot.HiringOrder? {
+    val kind: TownHireKind = hire.toTownHireKind() ?: return null
+    return TownSnapshot.HiringOrder(
+        hire = kind,
+        count = count,
+        delivered = delivered,
+        secondsPerHire = secondsPerHire,
+        startedAt = startedAt.toKotlinInstant(),
+        endsAt = endsAt.toKotlinInstant(),
+    )
+}
+
+private fun TownOverviewHiringOrder.Hire.toTownHireKind(): TownHireKind? = when (this) {
+    TownOverviewHiringOrder.Hire.worker -> TownHireKind.Worker
+    TownOverviewHiringOrder.Hire.truck -> TownHireKind.Truck
+    TownOverviewHiringOrder.Hire.unknown_default_open_api -> null
+}
+
+private fun TownOverviewHiringTermsWorker.toHireTerms(): TownSnapshot.HireTerms = TownSnapshot.HireTerms(
+    costs = cost.toCosts(),
+    secondsPerHire = secondsPerHire,
+    people = people,
+    requiredOfficeLevel = requiredOfficeLevel,
+)
 
 private fun TownOverviewSeason.toSeasonInForce(): SeasonInForce? {
     val seasonKind: SeasonKind = kind.toSeasonKind() ?: return null

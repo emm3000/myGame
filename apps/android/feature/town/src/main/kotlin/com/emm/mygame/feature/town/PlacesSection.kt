@@ -200,7 +200,7 @@ private fun Costs(next: TownUiState.NextLevelLine, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) {
+internal fun CostItem(cost: TownUiState.CostLine, modifier: Modifier = Modifier) {
     val spoken: String = amountLineOf(cost.kind, cost.amount)
     val description: String = if (cost.isShort) spoken + stringResource(R.string.town_short_mark) else spoken
     Row(
@@ -242,7 +242,7 @@ private fun blockLineOf(block: TownUiState.BlockReason): String = when (block) {
 }
 
 @Composable
-private fun shortfallLineOf(block: TownUiState.BlockReason.Resources): String {
+internal fun shortfallLineOf(block: TownUiState.BlockReason.Resources): String {
     val amounts: List<String> = block.shortfalls.map { shortfall: TownUiState.Shortfall ->
         amountLineOf(shortfall.kind, shortfall.amount)
     }

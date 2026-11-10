@@ -16,6 +16,7 @@ data class TownSnapshot(
     val skills: List<EarnedSkill>,
     val learning: Learning,
     val lessonSlot: LessonSlot?,
+    val hiring: Hiring,
     val nextStep: NextStep,
     val nextDueAt: Instant?,
     val readAt: Instant,
@@ -61,4 +62,21 @@ data class TownSnapshot(
     data class Learning(val cap: Int, val inLearning: Int, val retainedWords: RetainedWords?)
 
     data class LessonSlot(val lesson: LessonId, val startedAt: Instant, val finishesAt: Instant)
+
+    data class Hiring(
+        val order: HiringOrder?,
+        val hires: Map<TownHireKind, Int>,
+        val terms: Map<TownHireKind, HireTerms>,
+    )
+
+    data class HiringOrder(
+        val hire: TownHireKind,
+        val count: Int,
+        val delivered: Int,
+        val secondsPerHire: Int,
+        val startedAt: Instant,
+        val endsAt: Instant,
+    )
+
+    data class HireTerms(val costs: List<Cost>, val secondsPerHire: Int, val people: Int, val requiredOfficeLevel: Int)
 }

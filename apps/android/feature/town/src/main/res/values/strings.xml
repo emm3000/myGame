@@ -43,6 +43,28 @@
     <string name="town_next_studying">En estudio</string>
     <string name="town_next_title">Tu siguiente paso</string>
     <string name="town_not_built">Sin construir</string>
+    <string name="town_office_busy">Espera a que termine esta contratación.</string>
+    <string name="town_office_count_needed">Contrata 1 o más.</string>
+    <string name="town_office_count_truck">Camiones a contratar</string>
+    <string name="town_office_count_worker">Trabajadores a contratar</string>
+    <string name="town_office_delivered">{delivered} de {count} contratados</string>
+    <string name="town_office_done">La contratación terminó. Estamos leyendo tu pueblo otra vez…</string>
+    <string name="town_office_hire_any_truck">Contratar camiones</string>
+    <string name="town_office_hire_any_worker">Contratar trabajadores</string>
+    <string name="town_office_hire_truck">{count, plural, =1 {Contratar 1 camión} other {Contratar {count, number,0} camiones}}</string>
+    <string name="town_office_hire_worker">{count, plural, =1 {Contratar 1 trabajador} other {Contratar {count, number,0} trabajadores}}</string>
+    <string name="town_office_hiring">Contratación</string>
+    <string name="town_office_idle">Ahora no hay ninguna contratación.</string>
+    <string name="town_office_name_truck">Camiones</string>
+    <string name="town_office_name_worker">Trabajadores</string>
+    <string name="town_office_needs_level">Necesita la oficina en nivel {level}</string>
+    <string name="town_office_people_cost">{count, plural, =1 {1 persona} other {{count, number,0} personas}}</string>
+    <string name="town_office_refund">Si la paras, recuperas el costo de las contrataciones que no llegaron.</string>
+    <string name="town_office_stop">Parar la contratación</string>
+    <string name="town_office_stop_of_truck">Parar la contratación de camiones</string>
+    <string name="town_office_stop_of_worker">Parar la contratación de trabajadores</string>
+    <string name="town_office_team_truck">Tu equipo: {count, plural, =1 {1 camión} other {{count, number,0} camiones}}</string>
+    <string name="town_office_team_worker">Tu equipo: {count, plural, =1 {1 trabajador} other {{count, number,0} trabajadores}}</string>
     <string name="town_people">Gente: {free, plural, =1 {1 libre} other {{free, number,0} libres}}, {atWork} trabajando</string>
     <string name="town_people_at_work">Gente trabajando: +{people}</string>
     <string name="town_people_short">Gente necesaria: {needed}. {free, plural, =1 {Libre: 1} other {Libres: {free, number,0}}}.</string>
@@ -58,8 +80,11 @@
     <string name="town_rate">+{rate} / h</string>
     <string name="town_refusal_blank_town_name">Escribe un nombre para tu pueblo.</string>
     <string name="town_refusal_building_work_not_found">La obra del nivel {level} ya no está en la lista. Quizá ya terminó.</string>
+    <string name="town_refusal_hiring_order_not_found">Esta contratación ya terminó.</string>
+    <string name="town_refusal_hiring_slot_busy">Ya tienes una contratación en curso. Espera a que termine.</string>
     <string name="town_refusal_not_enough_people">Esta obra necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.</string>
     <string name="town_refusal_not_enough_resources">No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.</string>
+    <string name="town_refusal_office_too_low">Tu oficina está en nivel {officeLevel} y esta contratación necesita el nivel {requiredOfficeLevel}.</string>
     <string name="town_refusal_player_already_holds_town">Ya tienes un pueblo. Solo puedes tener uno.</string>
     <string name="town_refusal_top_level_reached">Este edificio ya está en su nivel más alto, el {level}.</string>
     <string name="town_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>

@@ -200,7 +200,7 @@ private fun WorkLevel(level: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun RunningCountdown(text: String, modifier: Modifier = Modifier) {
+internal fun RunningCountdown(text: String, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),

@@ -1,16 +1,26 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.network.TownHireKind
+import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.testing.hiringOf
+import kotlin.time.Duration.Companion.minutes
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import kotlin.time.Clock
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +40,63 @@ class TownRouteTest {
     private var signingOuts: Int = 0
 
     private var signedOuts: Int = 0
+
+    private val screenOwner: ScreenOwner = ScreenOwner()
+
+    private fun showHome() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides screenOwner) {
+                MyGameTheme {
+                    TownRoute(
+                        towns = towns,
+                        sessions = sessions,
+                        clock = Clock.System,
+                        navigation = TownNavigation(
+                            onSchoolOpen = {},
+                            onReportOpen = {},
+                            onReviewsOpen = {},
+                            onLessonOpen = {},
+                            onSigningOut = {},
+                            onSignedOut = {},
+                        ),
+                    )
+                }
+            }
+        }
+        composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
+        composeRule.waitForIdle()
+    }
+
+    private fun waitForLine(line: String) {
+        composeRule.waitUntil { composeRule.onAllNodes(hasText(line)).fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    private fun hiringTownWith(delivered: Int): TownSnapshot {
+        val now: Instant = Clock.System.now()
+        val order: TownSnapshot.HiringOrder = TownSnapshot.HiringOrder(
+            hire = TownHireKind.Worker,
+            count = 3,
+            delivered = delivered,
+            secondsPerHire = 600,
+            startedAt = now,
+            endsAt = now + 30.minutes,
+        )
+        return townOf(hiring = hiringOf(order = order), readAt = now)
+    }
+
+    @Test
+    fun `reads the delivered hires again on return from the background`() {
+        towns.answerRead(TownReadResult.Read(hiringTownWith(delivered = 1)))
+        showHome()
+        waitForLine("1 de 3 contratados")
+        composeRule.runOnIdle { screenOwner.move(Lifecycle.State.CREATED) }
+        towns.answerRead(TownReadResult.Read(hiringTownWith(delivered = 2)))
+
+        composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
+        waitForLine("2 de 3 contratados")
+
+        assertEquals(2, towns.readCount)
+    }
 
     private fun tapSignOutFromTheNamingForm() {
         towns.answerRead(TownReadResult.NoTown)
@@ -76,5 +143,17 @@ class TownRouteTest {
         sessions.answerSignOut()
 
         composeRule.waitUntil { signedOuts == 1 }
+    }
+
+    private class ScreenOwner : LifecycleOwner {
+
+        private val registry: LifecycleRegistry = LifecycleRegistry.createUnsafe(this)
+
+        override val lifecycle: Lifecycle
+            get() = registry
+
+        fun move(state: Lifecycle.State) {
+            registry.currentState = state
+        }
     }
 }

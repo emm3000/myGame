@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
+import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -404,6 +405,7 @@ class TownStatusViewModelTest {
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
         lessonSlot = null,
+        hiring = hiringOf(),
         nextStep = NextStep.CaughtUp,
         nextDueAt = null,
         readAt = readAt,

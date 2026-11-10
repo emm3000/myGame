@@ -1,5 +1,6 @@
 package com.emm.mygame.core.network
 
+import com.emm.mygame.core.testing.hiringOf
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
@@ -132,6 +133,7 @@ class TownRegisteredTest {
         lessonSlot = slot?.let { lesson: LessonId ->
             TownSnapshot.LessonSlot(lesson, startedAt = firstReadAt, finishesAt = firstReadAt + 5.minutes)
         },
+        hiring = hiringOf(),
         nextStep = NextStep.CaughtUp,
         nextDueAt = null,
         readAt = firstReadAt,

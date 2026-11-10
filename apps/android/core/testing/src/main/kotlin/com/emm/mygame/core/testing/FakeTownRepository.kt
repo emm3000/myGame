@@ -4,12 +4,15 @@ import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
+import com.emm.mygame.core.network.TownHireKind
+import com.emm.mygame.core.network.TownHiringResult
 import com.emm.mygame.core.network.TownLessonResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.TownWorkResult
 import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +32,8 @@ class FakeTownRepository : TownRepository {
 
     private val lessonAnswers: Channel<TownLessonResult> = Channel(Channel.UNLIMITED)
 
+    private val hiringAnswers: Channel<TownHiringResult> = Channel(Channel.UNLIMITED)
+
     private val _foundings: MutableList<String> = mutableListOf()
 
     private val _starts: MutableList<TownBuildingKind> = mutableListOf()
@@ -38,6 +43,10 @@ class FakeTownRepository : TownRepository {
     private val _lessonStarts: MutableList<LessonId> = mutableListOf()
 
     private val _lessonStops: MutableList<LessonId> = mutableListOf()
+
+    private val _hirings: MutableList<HiringRequest> = mutableListOf()
+
+    private val _hiringStops: MutableList<HiringStopRequest> = mutableListOf()
 
     var readCount: Int = 0
         private set
@@ -57,6 +66,12 @@ class FakeTownRepository : TownRepository {
     val lessonStops: List<LessonId>
         get() = _lessonStops.toList()
 
+    val hirings: List<HiringRequest>
+        get() = _hirings.toList()
+
+    val hiringStops: List<HiringStopRequest>
+        get() = _hiringStops.toList()
+
     fun hold(held: HeldTown) {
         _town.value = held
     }
@@ -75,6 +90,10 @@ class FakeTownRepository : TownRepository {
 
     fun answerLesson(result: TownLessonResult) {
         lessonAnswers.trySend(result)
+    }
+
+    fun answerHiring(result: TownHiringResult) {
+        hiringAnswers.trySend(result)
     }
 
     override suspend fun read(): TownReadResult {
@@ -115,6 +134,16 @@ class FakeTownRepository : TownRepository {
         return answeredLesson()
     }
 
+    override suspend fun placeHiring(hire: TownHireKind, count: Int): TownHiringResult {
+        _hirings += HiringRequest(hire, count)
+        return answeredHiring()
+    }
+
+    override suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult {
+        _hiringStops += HiringStopRequest(hire, startedAt)
+        return answeredHiring()
+    }
+
     private suspend fun answeredWork(): TownWorkResult = workAnswers.receive().also { answer: TownWorkResult ->
         if (answer is TownWorkResult.Answered) hold(answer.town)
     }
@@ -123,9 +152,17 @@ class FakeTownRepository : TownRepository {
         if (answer is TownLessonResult.Answered) hold(answer.town)
     }
 
+    private suspend fun answeredHiring(): TownHiringResult = hiringAnswers.receive().also { answer: TownHiringResult ->
+        if (answer is TownHiringResult.Answered) hold(answer.town)
+    }
+
     private fun hold(town: TownSnapshot) {
         _town.value = HeldTown(town, gap = _town.value?.gap ?: Duration.ZERO)
     }
 
     data class StopRequest(val building: TownBuildingKind, val level: Int)
+
+    data class HiringRequest(val hire: TownHireKind, val count: Int)
+
+    data class HiringStopRequest(val hire: TownHireKind, val startedAt: Instant)
 }

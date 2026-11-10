@@ -149,6 +149,7 @@ private fun TownHome(
         StocksSection(content = content)
         BuildingWorkSection(content = content, onIntent = onIntent)
         PlacesSection(content = content, onIntent = onIntent, onSchoolOpen = onSchoolOpen)
+        OfficeSection(office = content.office, onIntent = onIntent)
     }
 }
 

@@ -49,6 +49,7 @@ import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
+import com.emm.mygame.core.testing.hiringOf
 import com.emm.mygame.feature.town.TOWN_STATUS
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
@@ -137,12 +138,16 @@ class AppNavigationTest {
         seasonEndsAt = null,
         stocks = emptyList(),
         people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
-        buildings = listOf(TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null)),
+        buildings = listOf(
+            TownSnapshot.Building(TownBuildingKind.School, level = 1, next = null),
+            TownSnapshot.Building(TownBuildingKind.Office, level = 0, next = null),
+        ),
         work = TownSnapshot.Work(slot = null, waitingList = emptyList(), cap = 2),
         lessons = lessons,
         skills = emptyList(),
         learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning, retainedWords = retainedWords),
         lessonSlot = null,
+        hiring = hiringOf(),
         nextStep = nextStep,
         nextDueAt = null,
         readAt = readAt,

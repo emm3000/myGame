@@ -91,6 +91,7 @@ class TownScreenTest {
         nextStepTime = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
+        office = idleOffice,
     )
 
     private val busySlot: TownUiState.SlotLine.Busy = TownUiState.SlotLine.Busy(
