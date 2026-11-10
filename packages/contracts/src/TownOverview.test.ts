@@ -29,6 +29,29 @@ const earnedFood = {
   earnedAt: '2026-11-23T09:10:00.000Z',
 }
 
+const workerTerms = {
+  cost: { money: 40, food: 0, power: 0, material: 0 },
+  secondsPerHire: 60,
+  people: 1,
+  requiredOfficeLevel: 1,
+}
+
+const truckTerms = {
+  cost: { money: 80, food: 40, power: 40, material: 60 },
+  secondsPerHire: 180,
+  people: 1,
+  requiredOfficeLevel: 3,
+}
+
+const openOrder = {
+  hire: 'worker',
+  count: 3,
+  delivered: 1,
+  secondsPerHire: 60,
+  startedAt: '2026-11-10T08:55:00.000Z',
+  endsAt: '2026-11-10T08:58:00.000Z',
+}
+
 const lessonUnderStudy = {
   lessonId: 'lesson-1',
   startedAt: '2026-11-10T08:57:30.000Z',
@@ -53,6 +76,11 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
     office: idle,
   },
   work: { slot: null, waitingList: [], cap: 4 },
+  hiring: {
+    order: null,
+    hires: { worker: 2, truck: 0 },
+    terms: { worker: workerTerms, truck: truckTerms },
+  },
   lessons: [lessonOne],
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
@@ -64,6 +92,36 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
 })
 
 describe('TownOverviewSchema', () => {
+  it('parses an open hiring order with its delivered count', () => {
+    const hiring = {
+      order: openOrder,
+      hires: { worker: 1, truck: 0 },
+      terms: { worker: workerTerms, truck: truckTerms },
+    }
+
+    expect(TownOverviewSchema.parse(overview({ hiring })).hiring).toEqual(hiring)
+  })
+
+  it('rejects hires missing a kind', () => {
+    const hiring = {
+      order: null,
+      hires: { worker: 1 },
+      terms: { worker: workerTerms, truck: truckTerms },
+    }
+
+    expect(TownOverviewSchema.safeParse(overview({ hiring })).success).toBe(false)
+  })
+
+  it('rejects a hiring order of no hires', () => {
+    const hiring = {
+      order: { ...openOrder, count: 0, delivered: 0 },
+      hires: { worker: 0, truck: 0 },
+      terms: { worker: workerTerms, truck: truckTerms },
+    }
+
+    expect(TownOverviewSchema.safeParse(overview({ hiring })).success).toBe(false)
+  })
+
   it('parses the lessons, the earned skills and the lesson under study', () => {
     expect(TownOverviewSchema.parse(overview())).toEqual(overview())
   })

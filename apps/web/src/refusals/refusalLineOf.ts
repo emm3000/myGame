@@ -75,6 +75,11 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       return refusalBuildingWorkNotFound({ level: error.params.level })
     case 'LearningCapReached':
       return refusalLearningCapReached(error.params)
+    case 'OfficeTooLow':
+    case 'HiringSlotBusy':
+    case 'HiringOrderNotFound':
+      // TODO(#779) the office screen gives the hiring refusals their lines
+      return refusalUnexpected()
     default: {
       const unhandled: never = error
       return unhandled

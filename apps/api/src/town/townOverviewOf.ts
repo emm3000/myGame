@@ -8,11 +8,16 @@ import {
   buildPercentAt,
   type DomainError,
   Duration,
+  deliveredHiresOf,
   deriveBuildDurationSeconds,
+  deriveHireDurationSeconds,
   derivePeople,
   deriveResourceRates,
   deriveStorageCapacity,
+  type HireKind,
   type Hires,
+  hirePercentAt,
+  hiringEndsAt,
   type Instant,
   type MemoryTerms,
   nextStepOf,
@@ -20,6 +25,7 @@ import {
   ok,
   type ResourceKind,
   type Result,
+  requiredOfficeLevelOf,
   seasonAt,
   type Town,
   type TownCatalog,
@@ -196,6 +202,55 @@ const peopleOf = (
   return ok({ supplied, free, atWork: occupied })
 }
 
+type HireTermsState = TownOverview['hiring']['terms'][HireKind]
+
+const hireTermsOf = (
+  hire: HireKind,
+  town: Town,
+  catalog: TownCatalog,
+  at: Instant,
+): HireTermsState => {
+  const { cost, durationSeconds, people } = catalog.hireTermsOf(hire)
+  return {
+    cost: { ...cost },
+    secondsPerHire: deriveHireDurationSeconds(
+      durationSeconds,
+      town.buildingLevels.office,
+      hirePercentAt(at, catalog.townSettings()),
+    ),
+    people,
+    requiredOfficeLevel: requiredOfficeLevelOf(hire, catalog),
+  }
+}
+
+const hiringOrderOf = (town: Town, at: Instant): TownOverview['hiring']['order'] => {
+  const slot = town.hiringSlot
+  if (slot.kind === 'idle') {
+    return null
+  }
+  const { hire, count, secondsPerHire, startedAt } = slot
+  return {
+    hire,
+    count,
+    delivered: deliveredHiresOf(slot, at),
+    secondsPerHire,
+    startedAt: isoOf(startedAt),
+    endsAt: isoOf(hiringEndsAt(slot)),
+  }
+}
+
+const hiringOf = ({ town, at }: TownReading, catalog: TownCatalog): TownOverview['hiring'] => {
+  const hires = town.hiresAt(at)
+  return {
+    order: hiringOrderOf(town, at),
+    hires: { worker: hires.worker, truck: hires.truck },
+    terms: {
+      worker: hireTermsOf('worker', town, catalog, at),
+      truck: hireTermsOf('truck', town, catalog, at),
+    },
+  }
+}
+
 const guidanceOf = (
   reading: TownReading,
   catalog: TownCatalog,
@@ -265,6 +320,7 @@ export const townOverviewOf = (
     people: people.value,
     buildings: buildings.value,
     work: work.value,
+    hiring: hiringOf(reading, catalog),
     ...school.value,
     ...guidance.value,
     readAt: isoOf(at),

@@ -1,9 +1,11 @@
 import { createRoute } from '@hono/zod-openapi'
 import {
   FoundTownSchema,
+  PlaceHiringOrderSchema,
   StartBuildingWorkSchema,
   StartLessonRequestSchema,
   StopBuildingWorkSchema,
+  StopHiringOrderSchema,
   StopLessonRequestSchema,
   TownNewsFeedSchema,
   TownOverviewSchema,
@@ -85,6 +87,36 @@ export const townDeclarations = {
         400: malformedResponse('path'),
         404: townNotFoundResponse,
         409: refusalResponse('BuildingWorkNotFound.'),
+      },
+    }),
+  ),
+  placeHiring: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/hiring',
+      request: { body: jsonBody(PlaceHiringOrderSchema) },
+      responses: {
+        200: overviewResponse('The town with the hiring order placed, paid and staffed in full.'),
+        400: malformedResponse('body'),
+        404: townNotFoundResponse,
+        409: refusalResponse(
+          'OfficeTooLow, HiringSlotBusy, NotEnoughPeople or NotEnoughResources.',
+        ),
+      },
+    }),
+  ),
+  stopHiring: createRoute(
+    signedInRoute({
+      method: 'delete',
+      path: '/hiring/{hire}/{startedAt}',
+      request: { params: StopHiringOrderSchema },
+      responses: {
+        200: overviewResponse(
+          'The town with the hiring order stopped: the delivered hires kept, the rest refunded in full.',
+        ),
+        400: malformedResponse('path'),
+        404: townNotFoundResponse,
+        409: refusalResponse('HiringOrderNotFound.'),
       },
     }),
   ),

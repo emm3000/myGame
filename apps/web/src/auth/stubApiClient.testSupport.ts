@@ -40,6 +40,24 @@ export const knownTown: TownOverview = {
     office: placeAtLevel(0),
   },
   work: { slot: null, waitingList: [], cap: 2 },
+  hiring: {
+    order: null,
+    hires: { worker: 0, truck: 0 },
+    terms: {
+      worker: {
+        cost: { money: 40, food: 0, power: 0, material: 0 },
+        secondsPerHire: 60,
+        people: 1,
+        requiredOfficeLevel: 1,
+      },
+      truck: {
+        cost: { money: 80, food: 40, power: 40, material: 60 },
+        secondsPerHire: 180,
+        people: 1,
+        requiredOfficeLevel: 3,
+      },
+    },
+  },
   lessons: [],
   skills: [],
   lessonSlot: null,

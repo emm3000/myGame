@@ -4,9 +4,12 @@ import com.emm.mygame.core.network.generated.infrastructure.Serializer
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.BuildingWorkNotFoundError
+import com.emm.mygame.core.network.generated.models.HiringOrderNotFoundError
+import com.emm.mygame.core.network.generated.models.HiringSlotBusyError
 import com.emm.mygame.core.network.generated.models.LearningCapReachedError
 import com.emm.mygame.core.network.generated.models.NotEnoughPeopleError
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesError
+import com.emm.mygame.core.network.generated.models.OfficeTooLowError
 import com.emm.mygame.core.network.generated.models.TopLevelReachedError
 import com.emm.mygame.core.network.generated.models.WaitingListFullError
 import kotlinx.serialization.SerializationException
@@ -47,6 +50,9 @@ internal val kindsWithParams: Set<String> = setOf(
     TopLevelReachedError.Kind.TopLevelReached.value,
     BuildingWorkNotFoundError.Kind.BuildingWorkNotFound.value,
     LearningCapReachedError.Kind.LearningCapReached.value,
+    OfficeTooLowError.Kind.OfficeTooLow.value,
+    HiringSlotBusyError.Kind.HiringSlotBusy.value,
+    HiringOrderNotFoundError.Kind.HiringOrderNotFound.value,
 )
 
 private fun refusalOf(body: String): WireRefusal {

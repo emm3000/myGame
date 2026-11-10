@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import { ApiErrorKindSchema } from './ApiErrorKind'
 import { BuildingKindSchema } from './BuildingKind'
+import { HireKindSchema } from './HireKind'
 import { ResourceAmountsSchema } from './ResourceAmounts'
-import { WholeCountSchema } from './Wire'
+import { InstantSchema, WholeCountSchema } from './Wire'
 
 const BareApiErrorSchema = z
   .strictObject({
@@ -13,6 +14,9 @@ const BareApiErrorSchema = z
       'TopLevelReached',
       'BuildingWorkNotFound',
       'LearningCapReached',
+      'OfficeTooLow',
+      'HiringSlotBusy',
+      'HiringOrderNotFound',
     ]),
   })
   .meta({ id: 'BareApiError' })
@@ -68,6 +72,31 @@ const LearningCapReachedErrorSchema = z
   })
   .meta({ id: 'LearningCapReachedError' })
 
+const OfficeTooLowErrorSchema = z
+  .strictObject({
+    kind: z.literal('OfficeTooLow'),
+    params: z.strictObject({
+      hire: HireKindSchema,
+      requiredOfficeLevel: WholeCountSchema.positive(),
+      officeLevel: WholeCountSchema,
+    }),
+  })
+  .meta({ id: 'OfficeTooLowError' })
+
+const HiringSlotBusyErrorSchema = z
+  .strictObject({
+    kind: z.literal('HiringSlotBusy'),
+    params: z.strictObject({ hire: HireKindSchema }),
+  })
+  .meta({ id: 'HiringSlotBusyError' })
+
+const HiringOrderNotFoundErrorSchema = z
+  .strictObject({
+    kind: z.literal('HiringOrderNotFound'),
+    params: z.strictObject({ hire: HireKindSchema, startedAt: InstantSchema }),
+  })
+  .meta({ id: 'HiringOrderNotFoundError' })
+
 export const ApiErrorSchema = z
   .discriminatedUnion('kind', [
     BareApiErrorSchema,
@@ -77,6 +106,9 @@ export const ApiErrorSchema = z
     TopLevelReachedErrorSchema,
     BuildingWorkNotFoundErrorSchema,
     LearningCapReachedErrorSchema,
+    OfficeTooLowErrorSchema,
+    HiringSlotBusyErrorSchema,
+    HiringOrderNotFoundErrorSchema,
   ])
   .meta({ id: 'ApiError' })
 
