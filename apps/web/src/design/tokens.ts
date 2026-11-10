@@ -156,8 +156,8 @@ export const durations: Readonly<Record<Duration, string>> = {
   quick: '120ms',
   base: '200ms',
   calm: '320ms',
-  reveal: '300ms',
-  hold: '300ms',
+  reveal: '400ms',
+  hold: '250ms',
 }
 
 export type Easing = 'standard' | 'exit'
