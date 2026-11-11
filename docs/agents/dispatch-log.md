@@ -34,7 +34,7 @@ Totals of rows already folded out of Recent.
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
 | 2 | opus:high | 54 | 39 | 10 | 3 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
-| 4 | opus:high | 66 | 57 | 2 | 3 | 4 |
+| 4 | opus:high | 67 | 58 | 2 | 3 | 4 |
 | 3 | opus:high | 99 | 70 | 10 | 14 | 5 |
 | 1 | opus:high | 11 | 2 | 1 | 7 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
@@ -47,7 +47,6 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #934 | #646 | 3 | opus:high | FIX FIRST | judgment | 3723 | 54 | 231 | 4.65 | 2 | 9 | +292/-25 | |
 | #935 | #751 | 2 | opus:high | FIX FIRST | checklist | 19689 | 79 | 144 | 9.90 | 2 | 14 | +26/-0 | |
 | #936 | #887 | 2 | opus:high | MERGE | | 11786 | 39 | 59 | 4.73 | 1 | 7 | +238/-3 | |
 | #937 | #753 | 4 | opus:high | MERGE | | 26086 | 71 | 126 | 18.91 | 1 | 37 | +4394/-51048 | |
@@ -67,3 +66,4 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 | #960 | #783 | 2 | opus:high | MERGE | | 7270 | 28 | 116 | 7.77 | 1 | 17 | +1542/-25 | |
 | #961 | #784 | 3 | opus:high | MERGE | | 18046 | 58 | 143 | 18.86 | 1 | 40 | +2984/-115 | |
 | #962 | #958 | 3 | opus:high | MERGE | | 22683 | 63 | 91 | 7.85 | 1 | 10 | +756/-133 | |
+| #964 | #785 | 4 | opus:high | MERGE | | 25037 | 100 | 124 | | 1 | | +3587/-73 | |
