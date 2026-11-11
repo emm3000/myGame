@@ -1,5 +1,6 @@
 import {
   mapJobOutCallBack,
+  mapJobOutCalledBack,
   mapJobOutOutbound,
   mapJobOutPay,
   mapJobOutReturning,
@@ -41,7 +42,7 @@ export function jobOutOf(town: LiveTown): JobOutContent | undefined {
     siteLine: mapJobOutSite(answered.site),
     teamLine: mapJobOutTeam({ workers: answered.team.worker, trucks: answered.team.truck }),
     countdown: {
-      words: phaseWords[live.phase](),
+      words: answered.calledBackAt === null ? phaseWords[live.phase]() : mapJobOutCalledBack(),
       time: formatFinish(live.remainingSeconds, town.at),
     },
     pay: pay === undefined ? undefined : mapJobOutPay({ amounts: pay }),

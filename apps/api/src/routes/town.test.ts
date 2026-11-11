@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
+  JobQuoteSchema,
   PlayerSchema,
   ReviewsSchema,
   type TownNewsFeed,
@@ -801,6 +802,9 @@ describe('the town route', () => {
     const sendJob = (cookie: string, body: unknown): Promise<Response> =>
       Promise.resolve(app.request('/town/jobs', jsonRequest('POST', cookie, body)))
 
+    const quoteJob = (cookie: string, body: unknown): Promise<Response> =>
+      Promise.resolve(app.request('/town/jobs/quote', jsonRequest('POST', cookie, body)))
+
     const callJobBack = (cookie: string, sentAt: string): Promise<Response> =>
       Promise.resolve(
         app.request(`/town/jobs/${encodeURIComponent(sentAt)}/call-back`, {
@@ -955,6 +959,50 @@ describe('the town route', () => {
 
       expect(response.status).toBe(404)
       expect(await refusalOf(response)).toEqual({ kind: 'TownNotFound' })
+    })
+
+    it('answers the pay a job would bring before it is sent', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+
+      const quoted = await quoteJob(ana, twoWorkersForTwoHours(1, 3))
+      const sent = await sendJob(ana, twoWorkersForTwoHours(1, 3))
+
+      expect(quoted.status).toBe(200)
+      const quote = JobQuoteSchema.parse(await quoted.json())
+      expect([quote.pay, (await overviewOf(sent)).job?.pay]).toEqual([
+        { money: 0, food: 12, power: 0, material: 12 },
+        { money: 0, food: 12, power: 0, material: 12 },
+      ])
+    })
+
+    it('sends no team when it quotes a job', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+      await quoteJob(ana, twoWorkersForTwoHours(1, 3))
+
+      const overview = await overviewOf(await readTown(ana))
+
+      expect([overview.job, overview.hiring.hires.worker]).toEqual([null, 2])
+    })
+
+    it('refuses a quote the send would refuse', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await signUpWithTown('bea@example.com')
+      await keepWorkers(2)
+
+      const response = await quoteJob(ana, twoWorkersForTwoHours(1, 2))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'SiteHeld' })
+    })
+
+    it('answers a quote of no hours with an empty 400', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const response = await quoteJob(ana, { ...(twoWorkersForTwoHours(1, 3) as object), hours: 0 })
+
+      expect([response.status, await response.text()]).toEqual([400, ''])
     })
 
     it('calls a job back', async () => {

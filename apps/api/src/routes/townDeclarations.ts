@@ -2,6 +2,7 @@ import { createRoute } from '@hono/zod-openapi'
 import {
   CallJobBackSchema,
   FoundTownSchema,
+  JobQuoteSchema,
   PlaceHiringOrderSchema,
   SendJobSchema,
   StartBuildingWorkSchema,
@@ -129,6 +130,24 @@ export const townDeclarations = {
       request: { body: jsonBody(SendJobSchema) },
       responses: {
         200: overviewResponse('The town with the team out on the job, its pay fixed at dispatch.'),
+        400: refusalResponse(
+          'InvalidTeam, JobHoursOutOfRange or JobSiteOutOfBounds; any other malformed body answers an empty body.',
+        ),
+        404: townNotFoundResponse,
+        409: refusalResponse('TeamAlreadyOut, JobToOwnSite, SiteHeld or NotEnoughHiresAtHome.'),
+      },
+    }),
+  ),
+  quoteJob: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/jobs/quote',
+      request: { body: jsonBody(SendJobSchema) },
+      responses: {
+        200: jsonResponse(
+          'The pay the job would fix if it were sent at this instant; nothing is sent or stored.',
+          JobQuoteSchema,
+        ),
         400: refusalResponse(
           'InvalidTeam, JobHoursOutOfRange or JobSiteOutOfBounds; any other malformed body answers an empty body.',
         ),

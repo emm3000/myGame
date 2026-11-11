@@ -95,6 +95,7 @@ export { hireKinds } from './town/hireKinds'
 export { hirePercentAt } from './town/hirePercentAt'
 export { hiringEndsAt } from './town/hiringEndsAt'
 export { idleJobSlot, type Job, type JobSlot } from './town/Job'
+export type { JobOrder, JobTarget } from './town/JobOrder'
 export { type JobInstants, jobInstantsOf } from './town/jobInstantsOf'
 export { jobOneWaySeconds } from './town/jobOneWaySeconds'
 export { jobPayOf } from './town/jobPayOf'
@@ -115,6 +116,7 @@ export {
   type PlaceHiringOrderDependencies,
   placeHiringOrder,
 } from './town/placeHiringOrder'
+export { type QuoteJobDependencies, quoteJob } from './town/quoteJob'
 export type { RegionMap, RegionSite } from './town/RegionMap'
 export type { RegionMapReader, SiteHolder } from './town/RegionMapReader'
 export type { ResourceKind } from './town/ResourceKind'
@@ -130,12 +132,7 @@ export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
 export { schoolLevelOf } from './town/schoolLevelOf'
-export {
-  type JobTarget,
-  type SendJobCommand,
-  type SendJobDependencies,
-  sendJob,
-} from './town/sendJob'
+export { type SendJobDependencies, sendJob } from './town/sendJob'
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,

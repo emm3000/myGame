@@ -240,6 +240,61 @@ it('sends a job from a free site', async () => {
   expect(screen.queryByRole('region', { name: 'Trabajo en el sitio 2' })).toBeNull()
 })
 
+it('shows the pay before sending a job', async () => {
+  const quoted: Array<SendJob> = []
+  await showMap('/map', teamAtHome, {
+    quoteJob: async (job) => {
+      quoted.push(job)
+      return { ok: true, value: { pay: { money: 0, food: 12, power: 0, material: 12 } } }
+    },
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2', 'Horas de trabajo': '2' })
+  await passSeconds(0)
+
+  expect(quoted.at(-1)).toEqual({
+    site: { area: 1, site: 2 },
+    team: { worker: 2, truck: 0 },
+    hours: 2,
+  })
+  expect(within(form).getByText('Este trabajo paga 12 de comida y 12 de material')).toBeDefined()
+})
+
+it('asks no pay while the form blocks the job', async () => {
+  const quoted: Array<SendJob> = []
+  await showMap('/map', teamAtHome, {
+    quoteJob: async (job) => {
+      quoted.push(job)
+      return { ok: true, value: { pay: { money: 0, food: 12, power: 0, material: 12 } } }
+    },
+  })
+
+  const form = openJobForm(2)
+  await passSeconds(0)
+
+  expect(quoted).toEqual([])
+  expect(within(form).queryByText(/Este trabajo paga/)).toBeNull()
+})
+
+it('drops the pay of a team the player has since changed', async () => {
+  await showMap('/map', teamAtHome, {
+    quoteJob: async (job) => ({
+      ok: true,
+      value: { pay: { money: 0, food: job.team.worker, power: 0, material: 0 } },
+    }),
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+  enterTeam(form, { 'Trabajadores a enviar': '3' })
+
+  expect(within(form).queryByText('Este trabajo paga 2 de comida')).toBeNull()
+  await passSeconds(0)
+  expect(within(form).getByText('Este trabajo paga 3 de comida')).toBeDefined()
+})
+
 it('blocks a team with nobody in it', async () => {
   await showMap('/map', teamAtHome)
 
@@ -275,7 +330,7 @@ it('blocks a team count that is not a whole count', async () => {
   const form = openJobForm(2)
   enterTeam(form, { 'Trabajadores a enviar': '1.5' })
 
-  expect(accessibleDescriptionOf(sendButton(form))).toBe('Envía 0 o más.')
+  expect(accessibleDescriptionOf(sendButton(form))).toBe('Envía un número entero: 0, 1, 2 o más.')
 })
 
 it('blocks a second job while a team is out', async () => {
@@ -333,6 +388,17 @@ it('shows a job coming back with its countdown to the return and no call back', 
 
   expect(within(jobOut()).getByRole('timer').textContent).toBe('Volviendo14 min')
   expect(within(jobOut()).queryByRole('button')).toBeNull()
+})
+
+it('shows a called-back job coming back as called back', async () => {
+  const returning = jobIn('returning')
+  const calledBack: TownOverview = {
+    ...returning,
+    job: returning.job === null ? null : { ...returning.job, calledBackAt: instantAfter(-60) },
+  }
+  await showMap('/map', calledBack)
+
+  expect(within(jobOut()).getByRole('timer').textContent).toBe('Llamado de vuelta, volviendo14 min')
 })
 
 it('shows the pay as the server answered it', async () => {

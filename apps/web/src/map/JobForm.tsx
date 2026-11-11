@@ -6,7 +6,9 @@ import { TextField } from '../design-system/TextField'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import { firstJobEntries, type JobEntries, jobFormOf } from './jobFormOf'
+import { jobPayLineOf } from './jobPayLineOf'
 import type { TownJob } from './useJob'
+import { useJobQuote } from './useJobQuote'
 
 export interface JobFormProps {
   readonly id: string
@@ -19,6 +21,7 @@ export interface JobFormProps {
 export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactElement {
   const [entries, setEntries] = useState<JobEntries>(firstJobEntries)
   const form = jobFormOf(target, entries, town)
+  const payLine = jobPayLineOf(useJobQuote(job.quote, form.job))
   const refused = job.sendRefused?.subject === target.site ? job.sendRefused : undefined
   const enter = (field: keyof JobEntries, entry: string): void =>
     setEntries((held) => ({ ...held, [field]: entry }))
@@ -56,6 +59,9 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
         value={entries.hours}
         onChange={(entry) => enter('hours', entry)}
       />
+      <p aria-live="polite" className="m-0 font-sans text-body text-ink">
+        {payLine}
+      </p>
       <CardAction
         type="button"
         label={form.actionLabel}

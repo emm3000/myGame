@@ -137,7 +137,7 @@ export function MapScreen({ map, town, job }: MapScreenProps): ReactElement {
     jobTitle.focusOnShow()
   }
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex w-full max-w-form flex-col gap-6">
       {jobOut !== undefined && <JobOut content={jobOut} job={job} titleRef={jobTitle.titleRef} />}
       <section aria-label={heading} className="flex flex-col gap-2">
         <div>
