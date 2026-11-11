@@ -12,6 +12,7 @@ import {
   idleHiringSlot,
   idleJobSlot,
   idleWorkSlot,
+  type JobSlot,
   ok,
   type PlayerId,
   type Result,
@@ -41,6 +42,7 @@ import {
   townHire,
   townHires,
   townHiringOrders,
+  townJobs,
   townLessonSlots,
   townResource,
   towns,
@@ -134,6 +136,55 @@ const aggregatedHiringOrder = jsonAggregateOf(
   },
   eq(townHiringOrders.townId, towns.id),
   sql`${townHiringOrders.townId}`,
+)
+
+const AggregatedJobsSchema = z
+  .array(
+    z.strictObject({
+      region: z.number().int(),
+      area: z.number().int(),
+      site: z.number().int(),
+      workerCount: z.number().int(),
+      truckCount: z.number().int(),
+      hours: z.number().int(),
+      sentAt: z.string(),
+      oneWaySeconds: z.number().int(),
+      payMoney: z.number(),
+      payFood: z.number(),
+      payPower: z.number(),
+      payMaterial: z.number(),
+      payPercentMoney: z.number().int(),
+      payPercentFood: z.number().int(),
+      payPercentPower: z.number().int(),
+      payPercentMaterial: z.number().int(),
+      calledBackAt: z.string().nullable(),
+    }),
+  )
+  .max(1)
+
+const aggregatedJob = jsonAggregateOf(
+  townJobs,
+  {
+    region: townJobs.region,
+    area: townJobs.area,
+    site: townJobs.site,
+    workerCount: townJobs.workerCount,
+    truckCount: townJobs.truckCount,
+    hours: townJobs.hours,
+    sentAt: townJobs.sentAt,
+    oneWaySeconds: townJobs.oneWaySeconds,
+    payMoney: townJobs.payMoney,
+    payFood: townJobs.payFood,
+    payPower: townJobs.payPower,
+    payMaterial: townJobs.payMaterial,
+    payPercentMoney: townJobs.payPercentMoney,
+    payPercentFood: townJobs.payPercentFood,
+    payPercentPower: townJobs.payPercentPower,
+    payPercentMaterial: townJobs.payPercentMaterial,
+    calledBackAt: townJobs.calledBackAt,
+  },
+  eq(townJobs.townId, towns.id),
+  sql`${townJobs.townId}`,
 )
 
 const AggregatedSkillsSchema = z.array(
@@ -334,6 +385,33 @@ const hiringSlotOf = (aggregate: unknown): HiringSlot => {
   }
 }
 
+const instantFromIso = (iso: string): Instant => Instant.fromEpochMilliseconds(Date.parse(iso))
+
+const jobSlotOf = (aggregate: unknown): JobSlot => {
+  const [job] = AggregatedJobsSchema.parse(aggregate)
+  if (job === undefined) {
+    return idleJobSlot
+  }
+  const sent: JobSlot = {
+    kind: 'out',
+    site: { region: job.region, area: job.area, site: job.site },
+    team: { worker: job.workerCount, truck: job.truckCount },
+    hours: job.hours,
+    sentAt: instantFromIso(job.sentAt),
+    oneWaySeconds: job.oneWaySeconds,
+    pay: stocksOf(job.payMoney, job.payFood, job.payPower, job.payMaterial),
+    payPercent: {
+      money: job.payPercentMoney,
+      food: job.payPercentFood,
+      power: job.payPercentPower,
+      material: job.payPercentMaterial,
+    },
+  }
+  return job.calledBackAt === null
+    ? sent
+    : { ...sent, calledBackAt: instantFromIso(job.calledBackAt) }
+}
+
 const fullSinceOf = (row: TownRow): FullSince => ({
   money: instantOf(row.fullSinceMoney),
   food: instantOf(row.fullSinceFood),
@@ -347,6 +425,7 @@ type ReadRow = {
   readonly waitingWork: unknown
   readonly hires: unknown
   readonly hiringOrder: unknown
+  readonly job: unknown
   readonly skills: unknown
 }
 
@@ -356,6 +435,7 @@ const townFrom = ({
   waitingWork,
   hires,
   hiringOrder,
+  job,
   skills,
 }: ReadRow): Result<Town, DomainError> => {
   const name = TownName.create(row.name)
@@ -379,7 +459,7 @@ const townFrom = ({
     waitingList: waitingListOf(waitingWork),
     hires: hiresOf(row, hires),
     hiringSlot: hiringSlotOf(hiringOrder),
-    jobSlot: idleJobSlot,
+    jobSlot: jobSlotOf(job),
     skills: skillsOf(skills),
   })
 }
@@ -435,6 +515,48 @@ const saveHiringSlot = async (
     .onConflictDoUpdate({ target: townHiringOrders.townId, set: columns })
 }
 
+type JobColumns = Omit<typeof townJobs.$inferInsert, 'townId'>
+
+const jobColumnsOf = (slot: JobSlot): JobColumns | undefined =>
+  slot.kind === 'idle'
+    ? undefined
+    : {
+        region: slot.site.region,
+        area: slot.site.area,
+        site: slot.site.site,
+        workerCount: slot.team.worker,
+        truckCount: slot.team.truck,
+        hours: slot.hours,
+        sentAt: new Date(slot.sentAt.epochMilliseconds),
+        oneWaySeconds: slot.oneWaySeconds,
+        payMoney: slot.pay.money,
+        payFood: slot.pay.food,
+        payPower: slot.pay.power,
+        payMaterial: slot.pay.material,
+        payPercentMoney: slot.payPercent.money,
+        payPercentFood: slot.payPercent.food,
+        payPercentPower: slot.payPercent.power,
+        payPercentMaterial: slot.payPercent.material,
+        calledBackAt:
+          slot.calledBackAt === undefined ? null : new Date(slot.calledBackAt.epochMilliseconds),
+      }
+
+const saveJobSlot = async (
+  database: PostgresSession,
+  townId: string,
+  slot: JobSlot,
+): Promise<void> => {
+  const columns = jobColumnsOf(slot)
+  if (columns === undefined) {
+    await database.delete(townJobs).where(eq(townJobs.townId, townId))
+    return
+  }
+  await database
+    .insert(townJobs)
+    .values({ townId, ...columns })
+    .onConflictDoUpdate({ target: townJobs.townId, set: columns })
+}
+
 const siteOf = ({ address: { region, area, site } }: Town): SiteAddress => ({ region, area, site })
 
 export class DrizzleTownRepository implements TownReader, TownRepository {
@@ -465,6 +587,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         waitingWork: aggregatedWaitingWork,
         hires: aggregatedHires,
         hiringOrder: aggregatedHiringOrder,
+        job: aggregatedJob,
         skills: aggregatedSkills,
       })
       .from(towns)
@@ -489,6 +612,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
         waitingWork: aggregatedWaitingWork,
         hires: aggregatedHires,
         hiringOrder: aggregatedHiringOrder,
+        job: aggregatedJob,
         skills: aggregatedSkills,
         lessonSlot: townLessonSlots,
         cards: aggregatedCardsOf(towns.playerId),
@@ -547,6 +671,7 @@ export class DrizzleTownRepository implements TownReader, TownRepository {
             .onConflictDoUpdate({ target: [townHires.townId, townHires.hire], set: { count } })
         }
         await saveHiringSlot(transaction, id, town.hiringSlot)
+        await saveJobSlot(transaction, id, town.jobSlot)
       })
       return ok(undefined)
     } catch (failure) {

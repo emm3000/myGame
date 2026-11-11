@@ -7,6 +7,8 @@ import {
   idleHiringSlot,
   idleJobSlot,
   idleWorkSlot,
+  type Job,
+  type JobSlot,
   noHires,
   noStoreFull,
   type PlayerId,
@@ -98,11 +100,29 @@ const busyHiring: HiringSlot = {
   startedAt: grownAt,
 }
 
+const teamOnAJob: Job = {
+  kind: 'out',
+  site: { region: 1, area: 3, site: 9 },
+  team: { worker: 2, truck: 1 },
+  hours: 2,
+  sentAt: grownAt,
+  oneWaySeconds: 660,
+  pay: { money: 0, food: 210, power: 0, material: 180 },
+  payPercent: { money: 100, food: 110, power: 100, material: 90 },
+}
+
+const calledBackTeam: Job = {
+  ...teamOnAJob,
+  pay: { money: 0, food: 35, power: 0, material: 30 },
+  calledBackAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-04T11:00:00Z')),
+}
+
 type GrownTerms = {
   readonly workSlot?: WorkSlot
   readonly waitingList?: WaitingList
   readonly hires?: Hires
   readonly hiringSlot?: HiringSlot
+  readonly jobSlot?: JobSlot
 }
 
 const grownTown = ({
@@ -110,6 +130,7 @@ const grownTown = ({
   waitingList = [],
   hires = noHires,
   hiringSlot = idleHiringSlot,
+  jobSlot = idleJobSlot,
 }: GrownTerms = {}): Town => {
   const restored = Town.restore({
     id: anasTown.id,
@@ -124,7 +145,7 @@ const grownTown = ({
     waitingList,
     hires,
     hiringSlot,
-    jobSlot: idleJobSlot,
+    jobSlot,
     skills: [],
   })
   assert(restored.ok)
@@ -205,6 +226,43 @@ export const townRepositoryContract = (
         ok: true,
         value: grownTown({ hires: { ...hiredStaff, truck: 3 } }),
       })
+    })
+
+    it('reads back the job of a team sent out with its fixed pay and percents', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(anasTown)
+
+      await towns.save(grownTown({ hires: hiredStaff, jobSlot: teamOnAJob }))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown({ hires: hiredStaff, jobSlot: teamOnAJob }),
+      })
+    })
+
+    it('reads back a called back job with its call back instant and partial pay', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(grownTown({ hires: hiredStaff, jobSlot: teamOnAJob }))
+
+      await towns.save(grownTown({ hires: hiredStaff, jobSlot: calledBackTeam }))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown({ hires: hiredStaff, jobSlot: calledBackTeam }),
+      })
+    })
+
+    it('reads an idle job slot once a later save brings the team home', async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(grownTown({ hires: hiredStaff, jobSlot: calledBackTeam }))
+
+      await towns.save(grownTown({ hires: hiredStaff }))
+
+      const read = await towns.townOf(ana)
+      expect(read.ok && read.value?.jobSlot).toEqual({ kind: 'idle' })
     })
 
     it('reads the skills its player earned on the town', async () => {

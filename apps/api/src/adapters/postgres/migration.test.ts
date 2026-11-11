@@ -159,6 +159,7 @@ describe('the migrations', () => {
       'town_events',
       'town_hires',
       'town_hiring_orders',
+      'town_jobs',
       'town_lesson_slots',
       'town_waiting_work',
       'towns',
@@ -1135,6 +1136,75 @@ describe('the town hiring migration', () => {
     await expect(insert).rejects.toMatchObject({
       code: checkViolation,
       constraint: 'town_hiring_orders_count_positive',
+    })
+  })
+})
+
+const jobsOwnerId = '00000000-0000-4000-8000-0000000000a3'
+
+const jobsTownId = '00000000-0000-4000-8000-0000000000b3'
+
+const migrationsBeforeTheJobs = 37
+
+const insertJobOf = (
+  client: Client,
+  [workerCount, truckCount]: readonly [number, number],
+): Promise<unknown> =>
+  client.query(
+    `INSERT INTO town_jobs (town_id, region, area, site, worker_count, truck_count, hours, sent_at, one_way_seconds, pay_money, pay_food, pay_power, pay_material, pay_percent_money, pay_percent_food, pay_percent_power, pay_percent_material)
+     VALUES ($1, 1, 2, 4, $2, $3, 2, '2026-11-10T08:00:00Z', 660, 0, 300, 0, 300, 100, 100, 100, 100)`,
+    [jobsTownId, workerCount, truckCount],
+  )
+
+describe('the town jobs migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedThroughNext(client, migrationsBeforeTheJobs, async () => {
+      await client.query(
+        `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
+         VALUES ($1, 'owner@example.com', 'argon2id-hash', '2026-09-22T08:00:00Z', '2026-11-09T08:00:00Z')`,
+        [jobsOwnerId],
+      )
+      await client.query(
+        `INSERT INTO towns (id, player_id, region, area, site, name, money, food, power, material, stored_at)
+         VALUES ($2, $1, 1, 1, 1, 'Maple Falls', 100, 50, 20, 10, '2026-11-09T08:00:00Z')`,
+        [jobsOwnerId, jobsTownId],
+      )
+      await client.query(
+        `INSERT INTO town_hires (town_id, hire, count) VALUES ($1, 'worker', 3), ($1, 'truck', 1)`,
+        [jobsTownId],
+      )
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps a town stored before the migration with its job slot idle', async () => {
+    const town = await client.query('SELECT name FROM towns WHERE id = $1', [jobsTownId])
+    const jobs = await client.query('SELECT 1 FROM town_jobs')
+
+    expect([town.rows, jobs.rowCount]).toEqual([[{ name: 'Maple Falls' }], 0])
+  })
+
+  it("stores the job of a town's team", async () => {
+    await insertJobOf(client, [2, 1])
+
+    const stored = await client.query<{ worker_count: number; truck_count: number }>(
+      'SELECT worker_count, truck_count FROM town_jobs WHERE town_id = $1',
+      [jobsTownId],
+    )
+
+    expect(stored.rows).toEqual([{ worker_count: 2, truck_count: 1 }])
+  })
+
+  it('refuses a job of an empty team', async () => {
+    await expect(insertJobOf(client, [0, 0])).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'town_jobs_team_not_empty',
     })
   })
 })
