@@ -47,77 +47,72 @@ internal class ApiTownRepository(
         }
     }
 
-    override suspend fun found(name: String): TownFoundResult = withContext(ioDispatcher) {
+    override suspend fun found(name: String): TownFoundResult =
+        answering(TownFoundResult.Unreachable, ::foundResultOf) { api.townPost(FoundTown(name = name)) }
+
+    override suspend fun startWork(building: TownBuildingKind): TownWorkResult =
+        answering(TownWorkResult.Unreachable, ::workResultOf) {
+            api.townWorkPost(StartBuildingWork(building = building.toWireBuilding()))
+        }
+
+    override suspend fun stopWork(building: TownBuildingKind, level: Int): TownWorkResult =
+        answering(TownWorkResult.Unreachable, ::workResultOf) {
+            api.townWorkBuildingLevelDelete(building = building.toWireBuilding().value, level = level.toString())
+        }
+
+    override suspend fun startLesson(lesson: LessonId): TownLessonResult =
+        answering(TownLessonResult.Unreachable, ::lessonResultOf) {
+            api.townLessonsPost(StartLessonRequest(lessonId = lesson.value))
+        }
+
+    override suspend fun stopLesson(lesson: LessonId): TownLessonResult =
+        answering(TownLessonResult.Unreachable, ::lessonResultOf) {
+            api.townLessonsLessonIdDelete(lessonId = lesson.value)
+        }
+
+    override suspend fun placeHiring(hire: TownHireKind, count: Int): TownHiringResult =
+        answering(TownHiringResult.Unreachable, ::hiringResultOf) {
+            api.townHiringPost(PlaceHiringOrder(hire = hire.toWireHire(), count = count))
+        }
+
+    override suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult =
+        answering(TownHiringResult.Unreachable, ::hiringResultOf) {
+            api.townHiringHireStartedAtDelete(hire = hire.toWireHire().value, startedAt = startedAt.toOffsetDateTime())
+        }
+
+    override suspend fun readMap(area: Int?): RegionMapResult = withContext(ioDispatcher) {
+        try {
+            regionMapResultOf(if (area == null) api.townMapGet() else api.townMapAreaGet(area = area.toString()))
+        } catch (expectedOutage: IOException) {
+            RegionMapResult.Unreachable
+        } catch (expectedMalformedBody: SerializationException) {
+            RegionMapResult.Unreachable
+        }
+    }
+
+    override suspend fun sendJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): TownJobResult =
+        answering(TownJobResult.Unreachable, ::jobResultOf) { api.townJobsPost(sendJobOf(target, team, hours)) }
+
+    override suspend fun callJobBack(sentAt: Instant): TownJobResult =
+        answering(TownJobResult.Unreachable, ::jobResultOf) {
+            api.townJobsSentAtCallBackPost(sentAt = sentAt.toOffsetDateTime())
+        }
+
+    private suspend fun <Answer> answering(
+        unreachable: Answer,
+        resultOf: (Response<TownOverview>, TownSnapshot?) -> Answer,
+        call: suspend () -> Response<TownOverview>,
+    ): Answer = withContext(ioDispatcher) {
         try {
             val session: Int = tokenStore.currentSession()
-            foundedOrRefused(api.townPost(FoundTown(name = name)), session)
+            val response: Response<TownOverview> = call()
+            resultOf(response, answeredTown(response, session))
         } catch (expectedOutage: IOException) {
-            TownFoundResult.Unreachable
+            unreachable
         } catch (expectedMalformedBody: SerializationException) {
-            TownFoundResult.Unreachable
+            unreachable
         }
     }
-
-    override suspend fun startWork(building: TownBuildingKind): TownWorkResult = working {
-        api.townWorkPost(StartBuildingWork(building = building.toWireBuilding()))
-    }
-
-    override suspend fun stopWork(building: TownBuildingKind, level: Int): TownWorkResult = working {
-        api.townWorkBuildingLevelDelete(building = building.toWireBuilding().value, level = level.toString())
-    }
-
-    override suspend fun startLesson(lesson: LessonId): TownLessonResult = studying {
-        api.townLessonsPost(StartLessonRequest(lessonId = lesson.value))
-    }
-
-    override suspend fun stopLesson(lesson: LessonId): TownLessonResult = studying {
-        api.townLessonsLessonIdDelete(lessonId = lesson.value)
-    }
-
-    override suspend fun placeHiring(hire: TownHireKind, count: Int): TownHiringResult = hiring {
-        api.townHiringPost(PlaceHiringOrder(hire = hire.toWireHire(), count = count))
-    }
-
-    override suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult = hiring {
-        api.townHiringHireStartedAtDelete(hire = hire.toWireHire().value, startedAt = startedAt.toOffsetDateTime())
-    }
-
-    private suspend fun working(call: suspend () -> Response<TownOverview>): TownWorkResult =
-        withContext(ioDispatcher) {
-            try {
-                val session: Int = tokenStore.currentSession()
-                answeredOrRefused(call(), session)
-            } catch (expectedOutage: IOException) {
-                TownWorkResult.Unreachable
-            } catch (expectedMalformedBody: SerializationException) {
-                TownWorkResult.Unreachable
-            }
-        }
-
-    private suspend fun studying(call: suspend () -> Response<TownOverview>): TownLessonResult =
-        withContext(ioDispatcher) {
-            try {
-                val session: Int = tokenStore.currentSession()
-                lessonAnsweredOrRefused(call(), session)
-            } catch (expectedOutage: IOException) {
-                TownLessonResult.Unreachable
-            } catch (expectedMalformedBody: SerializationException) {
-                TownLessonResult.Unreachable
-            }
-        }
-
-    private suspend fun hiring(call: suspend () -> Response<TownOverview>): TownHiringResult =
-        withContext(ioDispatcher) {
-            try {
-                val session: Int = tokenStore.currentSession()
-                val response: Response<TownOverview> = call()
-                hiringResultOf(response, answeredTown(response, session))
-            } catch (expectedOutage: IOException) {
-                TownHiringResult.Unreachable
-            } catch (expectedMalformedBody: SerializationException) {
-                TownHiringResult.Unreachable
-            }
-        }
 
     private fun readTown(response: Response<TownOverview>, session: Int): TownSnapshot? =
         response.body()?.toSnapshot()?.also { town: TownSnapshot ->
@@ -152,33 +147,30 @@ internal class ApiTownRepository(
         hold(session) { null }
         return TownReadResult.NoTown
     }
+}
 
-    private fun foundedOrRefused(response: Response<TownOverview>, session: Int): TownFoundResult {
-        val snapshot: TownSnapshot? = answeredTown(response, session)
-        if (response.isSuccessful) {
-            return if (snapshot == null) TownFoundResult.Unreachable else TownFoundResult.Founded(snapshot)
-        }
-        val refusal: WireRefusal = response.wireRefusal() ?: return TownFoundResult.Unreachable
-        return TownFoundResult.Refused(refusal.toFoundRefusal())
+private fun foundResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownFoundResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownFoundResult.Unreachable else TownFoundResult.Founded(snapshot)
     }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownFoundResult.Unreachable
+    return TownFoundResult.Refused(refusal.toFoundRefusal())
+}
 
-    private fun answeredOrRefused(response: Response<TownOverview>, session: Int): TownWorkResult {
-        val snapshot: TownSnapshot? = answeredTown(response, session)
-        if (response.isSuccessful) {
-            return if (snapshot == null) TownWorkResult.Unreachable else TownWorkResult.Answered(snapshot)
-        }
-        val refusal: WireRefusal = response.wireRefusal() ?: return TownWorkResult.Unreachable
-        return TownWorkResult.Refused(refusal.toWorkRefusal())
+private fun workResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownWorkResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownWorkResult.Unreachable else TownWorkResult.Answered(snapshot)
     }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownWorkResult.Unreachable
+    return TownWorkResult.Refused(refusal.toWorkRefusal())
+}
 
-    private fun lessonAnsweredOrRefused(response: Response<TownOverview>, session: Int): TownLessonResult {
-        val snapshot: TownSnapshot? = answeredTown(response, session)
-        if (response.isSuccessful) {
-            return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
-        }
-        val refusal: WireRefusal = response.wireRefusal() ?: return TownLessonResult.Unreachable
-        return TownLessonResult.Refused(refusal.toLessonRefusal())
+private fun lessonResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownLessonResult {
+    if (response.isSuccessful) {
+        return if (snapshot == null) TownLessonResult.Unreachable else TownLessonResult.Answered(snapshot)
     }
+    val refusal: WireRefusal = response.wireRefusal() ?: return TownLessonResult.Unreachable
+    return TownLessonResult.Refused(refusal.toLessonRefusal())
 }
 
 private fun hiringResultOf(response: Response<TownOverview>, snapshot: TownSnapshot?): TownHiringResult {

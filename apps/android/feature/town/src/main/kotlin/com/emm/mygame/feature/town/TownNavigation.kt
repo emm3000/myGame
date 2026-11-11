@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.LessonId
 data class TownNavigation(
     val onSchoolOpen: () -> Unit,
     val onReportOpen: () -> Unit,
+    val onMapOpen: () -> Unit,
     val onReviewsOpen: () -> Unit,
     val onLessonOpen: (LessonId) -> Unit,
     val onSigningOut: () -> Unit,

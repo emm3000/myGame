@@ -105,6 +105,7 @@ class TownLookTest {
                     onIntent = { },
                     onSchoolOpen = { },
                     onReportOpen = { },
+                    onMapOpen = {},
                     onReviewsOpen = { },
                     onLessonOpen = { },
                 )
@@ -223,6 +224,7 @@ class TownLookTest {
                     onIntent = { },
                     onSchoolOpen = { },
                     onReportOpen = { },
+                    onMapOpen = {},
                     onReviewsOpen = { },
                     onLessonOpen = { },
                 )
@@ -342,6 +344,7 @@ class TownLookTest {
                     onIntent = { },
                     onSchoolOpen = { },
                     onReportOpen = { },
+                    onMapOpen = {},
                     onReviewsOpen = { },
                     onLessonOpen = { },
                 )

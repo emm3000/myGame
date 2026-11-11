@@ -92,6 +92,7 @@ internal fun townOf(
     learning = learning,
     lessonSlot = lessonSlot,
     hiring = hiringOf(),
+    job = null,
     nextStep = nextStep,
     nextDueAt = nextDueAt,
     readAt = readAt,

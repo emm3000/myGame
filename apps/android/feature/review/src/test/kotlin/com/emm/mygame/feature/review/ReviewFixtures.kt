@@ -111,6 +111,7 @@ internal fun townOf(
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = null),
         lessonSlot = null,
         hiring = hiringOf(),
+        job = null,
         nextStep = NextStep.CaughtUp,
         nextDueAt = null,
         readAt = firstReadAt,

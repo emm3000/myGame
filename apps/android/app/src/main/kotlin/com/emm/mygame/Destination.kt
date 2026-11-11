@@ -26,6 +26,9 @@ sealed interface Destination : NavKey {
     data object Report : Destination
 
     @Serializable
+    data object Map : Destination
+
+    @Serializable
     data object Review : Destination
 
     @Serializable

@@ -94,6 +94,7 @@ class RetainedWordsViewModelTest {
         learning = TownSnapshot.Learning(cap = 10, inLearning = 0, retainedWords = retained),
         lessonSlot = null,
         hiring = hiringOf(),
+        job = null,
         nextStep = NextStep.CaughtUp,
         nextDueAt = null,
         readAt = readAt,

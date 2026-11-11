@@ -302,6 +302,24 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the map above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openMap()
+
+        assertEquals(listOf(Destination.Town, Destination.Map), backStack)
+    }
+
+    @Test
+    fun `returns to the town on back from the map`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Map)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
     fun `opens no Report from sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 

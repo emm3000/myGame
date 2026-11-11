@@ -54,6 +54,7 @@ class TownRouteTest {
                         navigation = TownNavigation(
                             onSchoolOpen = {},
                             onReportOpen = {},
+                            onMapOpen = {},
                             onReviewsOpen = {},
                             onLessonOpen = {},
                             onSigningOut = {},
@@ -109,6 +110,7 @@ class TownRouteTest {
                     navigation = TownNavigation(
                         onSchoolOpen = {},
                         onReportOpen = {},
+                        onMapOpen = {},
                         onReviewsOpen = {},
                         onLessonOpen = {},
                         onSigningOut = { signingOuts += 1 },
