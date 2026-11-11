@@ -22,10 +22,7 @@ export function CountdownLine({
 }: SlotCountdown & { readonly ground?: CountdownGround }): ReactElement {
   const { line, time: timeClass } = groundClass[ground]
   return (
-    <span
-      role="timer"
-      className={`flex flex-wrap items-center gap-x-2 gap-y-1 font-sans tabular-nums ${line}`}
-    >
+    <span role="timer" className={`flex flex-wrap items-center gap-x-2 gap-y-1 font-sans ${line}`}>
       <ClockIcon sizeClass="size-icon" />
       <span className="text-caption">{words}</span>
       <span className={`text-heading tabular-nums ${timeClass}`}>{time}</span>

@@ -21,7 +21,7 @@ export interface JobFormProps {
 export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactElement {
   const [entries, setEntries] = useState<JobEntries>(firstJobEntries)
   const form = jobFormOf(target, entries, town)
-  const payLine = jobPayLineOf(useJobQuote(job.quote, form.job))
+  const payLine = jobPayLineOf(useJobQuote(job.quote, form.job, town.overview.season))
   const refused = job.sendRefused?.subject === target.site ? job.sendRefused : undefined
   const enter = (field: keyof JobEntries, entry: string): void =>
     setEntries((held) => ({ ...held, [field]: entry }))
@@ -59,7 +59,7 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
         value={entries.hours}
         onChange={(entry) => enter('hours', entry)}
       />
-      <p aria-live="polite" className="m-0 font-sans text-body text-ink">
+      <p aria-live="polite" className="m-0 font-sans text-body text-ink empty:absolute">
         {payLine}
       </p>
       <CardAction
