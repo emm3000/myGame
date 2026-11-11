@@ -20,7 +20,7 @@ const townNotFoundResponse = refusalResponse('TownNotFound: the player holds no 
 const overviewResponse = (description: string): ResponseDeclaration =>
   jsonResponse(description, TownOverviewSchema)
 
-const malformedResponse = (what: string): ResponseDeclaration => ({
+export const malformedResponse = (what: string): ResponseDeclaration => ({
   description: `A malformed ${what}. Empty body.`,
 })
 
