@@ -1,4 +1,4 @@
-import type { Player, TownOverview } from '@mygame/contracts'
+import type { Player, RegionMap, TownOverview } from '@mygame/contracts'
 import type { ApiClient } from '../api/apiClient'
 
 export const knownPlayer: Player = {
@@ -68,6 +68,18 @@ export const knownTown: TownOverview = {
   readAt: '2026-11-10T09:00:00.000Z',
 }
 
+export const knownAreaMap: RegionMap = {
+  region: 1,
+  area: 1,
+  lastArea: 2,
+  terrain: 'fields',
+  sites: [
+    { site: 1, town: { name: 'Maple Falls', isOwn: true } },
+    { site: 2, town: null },
+    { site: 3, town: { name: 'Cedar Creek', isOwn: false } },
+  ],
+}
+
 export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => ({
   signUp: async () => ({ ok: true, value: knownPlayer }),
   signIn: async () => ({ ok: true, value: knownPlayer }),
@@ -79,6 +91,9 @@ export const stubApiClient = (overrides: Partial<ApiClient> = {}): ApiClient => 
   stopBuildingWork: async () => ({ ok: true, value: knownTown }),
   placeHiringOrder: async () => ({ ok: true, value: knownTown }),
   stopHiringOrder: async () => ({ ok: true, value: knownTown }),
+  regionMap: async () => ({ ok: true, value: knownAreaMap }),
+  sendJob: async () => ({ ok: true, value: knownTown }),
+  callJobBack: async () => ({ ok: true, value: knownTown }),
   startLesson: async () => ({ ok: true, value: knownTown }),
   stopLesson: async () => ({ ok: true, value: knownTown }),
   reviews: async () => ({

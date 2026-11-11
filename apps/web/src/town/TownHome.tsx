@@ -20,6 +20,7 @@ import { FormAlert } from '../design-system/FormAlert'
 import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
 import { useFocusTarget } from '../focus/useFocusTarget'
+import { MapRow } from '../map/MapRow'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
 import { dueCountOf } from './dueCountOf'
@@ -186,7 +187,10 @@ export function TownHome({ town, registered, work, hiring }: TownHomeProps): Rea
           ))}
         </ul>
       </section>
-      <OfficeSection town={town} hiring={hiring} />
+      <div className="flex min-w-0 flex-col gap-6">
+        <OfficeSection town={town} hiring={hiring} />
+        <MapRow />
+      </div>
     </div>
   )
 }

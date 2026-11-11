@@ -19,6 +19,8 @@ import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
 import { Route as SignedInReportRouteImport } from './routes/_signedIn/report'
 import { Route as SignedInReviewsRouteImport } from './routes/_signedIn/reviews'
+import { Route as SignedInMapIndexRouteImport } from './routes/_signedIn/map.index'
+import { Route as SignedInMapAreaRouteImport } from './routes/_signedIn/map.$area'
 import { Route as SignedInSchoolIndexRouteImport } from './routes/_signedIn/school.index'
 import { Route as SignedInSchoolLessonIdRouteImport } from './routes/_signedIn/school.$lessonId'
 
@@ -70,6 +72,16 @@ const SignedInReviewsRoute = SignedInReviewsRouteImport.update({
   path: '/reviews',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInMapIndexRoute = SignedInMapIndexRouteImport.update({
+  id: '/map/',
+  path: '/map/',
+  getParentRoute: () => SignedInRoute,
+} as any)
+const SignedInMapAreaRoute = SignedInMapAreaRouteImport.update({
+  id: '/map/$area',
+  path: '/map/$area',
+  getParentRoute: () => SignedInRoute,
+} as any)
 const SignedInSchoolIndexRoute = SignedInSchoolIndexRouteImport.update({
   id: '/school/',
   path: '/school/',
@@ -90,7 +102,9 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof GuestSignUpRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
+  '/map/$area': typeof SignedInMapAreaRoute
   '/school/$lessonId': typeof SignedInSchoolLessonIdRoute
+  '/map/': typeof SignedInMapIndexRoute
   '/school/': typeof SignedInSchoolIndexRoute
 }
 export interface FileRoutesByTo {
@@ -102,7 +116,9 @@ export interface FileRoutesByTo {
   '/sign-up': typeof GuestSignUpRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
+  '/map/$area': typeof SignedInMapAreaRoute
   '/school/$lessonId': typeof SignedInSchoolLessonIdRoute
+  '/map': typeof SignedInMapIndexRoute
   '/school': typeof SignedInSchoolIndexRoute
 }
 export interface FileRoutesById {
@@ -117,7 +133,9 @@ export interface FileRoutesById {
   '/_signedIn/report': typeof SignedInReportRoute
   '/_signedIn/reviews': typeof SignedInReviewsRoute
   '/_signedIn/': typeof SignedInIndexRoute
+  '/_signedIn/map/$area': typeof SignedInMapAreaRoute
   '/_signedIn/school/$lessonId': typeof SignedInSchoolLessonIdRoute
+  '/_signedIn/map/': typeof SignedInMapIndexRoute
   '/_signedIn/school/': typeof SignedInSchoolIndexRoute
 }
 export interface FileRouteTypes {
@@ -131,7 +149,9 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/report'
     | '/reviews'
+    | '/map/$area'
     | '/school/$lessonId'
+    | '/map/'
     | '/school/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,7 +163,9 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/report'
     | '/reviews'
+    | '/map/$area'
     | '/school/$lessonId'
+    | '/map'
     | '/school'
   id:
     | '__root__'
@@ -157,7 +179,9 @@ export interface FileRouteTypes {
     | '/_signedIn/report'
     | '/_signedIn/reviews'
     | '/_signedIn/'
+    | '/_signedIn/map/$area'
     | '/_signedIn/school/$lessonId'
+    | '/_signedIn/map/'
     | '/_signedIn/school/'
   fileRoutesById: FileRoutesById
 }
@@ -240,6 +264,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInReviewsRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/map/': {
+      id: '/_signedIn/map/'
+      path: '/map'
+      fullPath: '/map/'
+      preLoaderRoute: typeof SignedInMapIndexRouteImport
+      parentRoute: typeof SignedInRoute
+    }
+    '/_signedIn/map/$area': {
+      id: '/_signedIn/map/$area'
+      path: '/map/$area'
+      fullPath: '/map/$area'
+      preLoaderRoute: typeof SignedInMapAreaRouteImport
+      parentRoute: typeof SignedInRoute
+    }
     '/_signedIn/school/': {
       id: '/_signedIn/school/'
       path: '/school'
@@ -275,7 +313,9 @@ interface SignedInRouteChildren {
   SignedInReportRoute: typeof SignedInReportRoute
   SignedInReviewsRoute: typeof SignedInReviewsRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
+  SignedInMapAreaRoute: typeof SignedInMapAreaRoute
   SignedInSchoolLessonIdRoute: typeof SignedInSchoolLessonIdRoute
+  SignedInMapIndexRoute: typeof SignedInMapIndexRoute
   SignedInSchoolIndexRoute: typeof SignedInSchoolIndexRoute
 }
 
@@ -283,7 +323,9 @@ const SignedInRouteChildren: SignedInRouteChildren = {
   SignedInReportRoute: SignedInReportRoute,
   SignedInReviewsRoute: SignedInReviewsRoute,
   SignedInIndexRoute: SignedInIndexRoute,
+  SignedInMapAreaRoute: SignedInMapAreaRoute,
   SignedInSchoolLessonIdRoute: SignedInSchoolLessonIdRoute,
+  SignedInMapIndexRoute: SignedInMapIndexRoute,
   SignedInSchoolIndexRoute: SignedInSchoolIndexRoute,
 }
 

@@ -1,0 +1,53 @@
+import {
+  mapJobOutCallBack,
+  mapJobOutOutbound,
+  mapJobOutPay,
+  mapJobOutReturning,
+  mapJobOutSite,
+  mapJobOutTeam,
+  mapJobOutTitle,
+  mapJobOutWorking,
+} from '@mygame/catalog'
+import type { CallJobBack } from '@mygame/contracts'
+import type { SlotCountdown } from '../design-system/CountdownLine'
+import { amountsLineOf } from '../resources/amountsLineOf'
+import { formatFinish } from '../time/formatFinish'
+import type { LiveJob, LiveTown } from '../town/liveTown'
+
+export interface JobOutContent {
+  readonly title: string
+  readonly siteLine: string
+  readonly teamLine: string
+  readonly countdown: SlotCountdown
+  readonly pay: string | undefined
+  readonly callBack: { readonly label: string; readonly target: CallJobBack } | undefined
+}
+
+const phaseWords: Readonly<Record<LiveJob['phase'], () => string>> = {
+  outbound: mapJobOutOutbound,
+  working: mapJobOutWorking,
+  returning: mapJobOutReturning,
+}
+
+export function jobOutOf(town: LiveTown): JobOutContent | undefined {
+  const answered = town.overview.job
+  const live = town.job
+  if (answered === null || live === null) {
+    return undefined
+  }
+  const pay = amountsLineOf(answered.pay)
+  return {
+    title: mapJobOutTitle(),
+    siteLine: mapJobOutSite(answered.site),
+    teamLine: mapJobOutTeam({ workers: answered.team.worker, trucks: answered.team.truck }),
+    countdown: {
+      words: phaseWords[live.phase](),
+      time: formatFinish(live.remainingSeconds, town.at),
+    },
+    pay: pay === undefined ? undefined : mapJobOutPay({ amounts: pay }),
+    callBack:
+      live.phase === 'returning'
+        ? undefined
+        : { label: mapJobOutCallBack(), target: { sentAt: answered.sentAt } },
+  }
+}

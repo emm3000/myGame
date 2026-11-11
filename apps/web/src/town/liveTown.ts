@@ -1,4 +1,5 @@
 import type { BuildingKind, HireKind, ResourceKind, TownOverview } from '@mygame/contracts'
+import { jobNextInstantOf } from './jobNextInstantOf'
 
 export type LiveStocks = Readonly<Record<ResourceKind, number>>
 
@@ -22,6 +23,11 @@ export interface LiveHiringOrder {
   readonly totalSeconds: number
 }
 
+export interface LiveJob {
+  readonly phase: NonNullable<TownOverview['job']>['phase']
+  readonly remainingSeconds: number
+}
+
 export interface LiveTown {
   readonly overview: TownOverview
   readonly at: Date
@@ -30,6 +36,7 @@ export interface LiveTown {
   readonly waitingList: ReadonlyArray<LiveWork>
   readonly lessonSlot: LiveLesson | null
   readonly hiringOrder: LiveHiringOrder | null
+  readonly job: LiveJob | null
   readonly nextDueSeconds: number | null
   readonly seasonRemainingSeconds: number | null
 }
@@ -99,6 +106,17 @@ const hiringOrderAt = (overview: TownOverview, elapsedSeconds: number): LiveHiri
   }
 }
 
+const jobAt = (overview: TownOverview, elapsedSeconds: number): LiveJob | null => {
+  const { job } = overview
+  if (job === null) {
+    return null
+  }
+  return {
+    phase: job.phase,
+    remainingSeconds: secondsUntil(jobNextInstantOf(job), overview, elapsedSeconds),
+  }
+}
+
 export function liveTownAt(overview: TownOverview, elapsedSeconds: number): LiveTown {
   return {
     overview,
@@ -112,6 +130,7 @@ export function liveTownAt(overview: TownOverview, elapsedSeconds: number): Live
     })),
     lessonSlot: lessonSlotAt(overview, elapsedSeconds),
     hiringOrder: hiringOrderAt(overview, elapsedSeconds),
+    job: jobAt(overview, elapsedSeconds),
     nextDueSeconds:
       overview.nextDueAt === null
         ? null

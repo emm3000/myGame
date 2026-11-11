@@ -9,6 +9,7 @@ const countdownsOf = (town: LiveTown): ReadonlyArray<number> => [
   ...town.waitingList.map(({ remainingSeconds }) => remainingSeconds),
   ...(town.lessonSlot === null ? [] : [town.lessonSlot.remainingSeconds]),
   ...(town.hiringOrder === null ? [] : [town.hiringOrder.remainingSeconds]),
+  ...(town.job === null ? [] : [town.job.remainingSeconds]),
   ...(town.nextDueSeconds === null ? [] : [town.nextDueSeconds]),
 ]
 
