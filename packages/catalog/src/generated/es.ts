@@ -15,6 +15,35 @@ export const mailResetSubject = (): string => `Cambia tu contraseña`
 export const mailResetText = ({ link }: { readonly link: string | number }): string => `Alguien ha pedido cambiar la contraseña de tu feudo. Si fuiste tú, abre este enlace y elige una nueva:\n\n${String(link)}\n\nEl enlace vale una hora y una sola vez.\n\nSi no pediste nada, ignora este correo: tu contraseña sigue siendo la misma.`
 export const mailVerificationSubject = (): string => `Confirma tu correo`
 export const mailVerificationText = ({ link }: { readonly link: string | number }): string => `Confirma que este correo es el de tu feudo abriendo este enlace:\n\n${String(link)}\n\nEl enlace vale 24 horas y una sola vez. Si caduca, pide otro desde tu feudo.\n\nSi no has fundado ningún feudo, ignora este correo.`
+export const mapArea = ({ area }: { readonly area: string | number }): string => `Zona ${String(area)}`
+export const mapBackToOwnArea = (): string => `Volver a tu zona`
+export const mapFree = (): string => `Libre`
+export const mapJobAtHome = ({ count }: { readonly count: string | number }): string => `${String(count)} en casa`
+export const mapJobCountNeeded = (): string => `Envía 0 o más.`
+export const mapJobHours = (): string => `Horas de trabajo`
+export const mapJobHoursNeeded = (): string => `Trabaja 1 hora o más.`
+export const mapJobSend = (): string => `Enviar el equipo`
+export const mapJobTitle = ({ site }: { readonly site: string | number }): string => `Trabajo en el sitio ${String(site)}`
+export const mapJobTrucks = (): string => `Camiones a enviar`
+export const mapJobWorkers = (): string => `Trabajadores a enviar`
+export const mapJobOutCallBack = (): string => `Llamar de vuelta al equipo`
+export const mapJobOutOutbound = (): string => `En camino`
+export const mapJobOutPay = ({ amounts }: { readonly amounts: string | number }): string => `Pago: ${String(amounts)}`
+export const mapJobOutReturning = (): string => `Volviendo`
+export const mapJobOutSite = ({ area, region, site }: { readonly area: string | number; readonly region: string | number; readonly site: string | number }): string => `Región ${String(region)}, zona ${String(area)}, sitio ${String(site)}`
+export const mapJobOutTeam = ({ trucks, workers }: { readonly trucks: number; readonly workers: number }): string => `Tu equipo: ${workers === 1 ? `1 trabajador` : `${String(workers)} trabajadores`}, ${trucks === 1 ? `1 camión` : `${String(trucks)} camiones`}`
+export const mapJobOutTitle = (): string => `Trabajo`
+export const mapJobOutWorking = (): string => `Trabajando`
+export const mapLoading = (): string => `Estamos leyendo el mapa…`
+export const mapNext = (): string => `Zona siguiente`
+export const mapOwnTown = (): string => `Tu pueblo`
+export const mapPrevious = (): string => `Zona anterior`
+export const mapRowLine = (): string => `Envía un equipo a un trabajo.`
+export const mapRowLink = (): string => `Ir al mapa`
+export const mapSendTeam = (): string => `Enviar un equipo`
+export const mapSendTeamTo = ({ site }: { readonly site: string | number }): string => `Enviar un equipo al sitio ${String(site)}`
+export const mapSite = ({ site }: { readonly site: string | number }): string => `Sitio ${String(site)}`
+export const mapTitle = (): string => `Mapa`
 export const namesHiresTruck = (): string => `Camiones`
 export const namesHiresWorker = (): string => `Trabajadores`
 export const namesPlacesFactory = (): string => `Fábrica`
@@ -28,6 +57,9 @@ export const namesSeasonsFall = (): string => `otoño`
 export const namesSeasonsSpring = (): string => `primavera`
 export const namesSeasonsSummer = (): string => `verano`
 export const namesSeasonsWinter = (): string => `invierno`
+export const namesTerrainsFields = (): string => `Campos`
+export const namesTerrainsHills = (): string => `Colinas`
+export const namesTerrainsRiver = (): string => `Río`
 export const namesTownResourcesFood = (): string => `comida`
 export const namesTownResourcesMaterial = (): string => `material`
 export const namesTownResourcesMoney = (): string => `dinero`

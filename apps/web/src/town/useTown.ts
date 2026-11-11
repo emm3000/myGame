@@ -2,6 +2,7 @@ import type { TownOverview } from '@mygame/contracts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ApiClient, ApiRefusal } from '../api/apiClient'
 import { longestTimeoutMs } from '../time/longestTimeoutMs'
+import { jobNextInstantOf } from './jobNextInstantOf'
 import { type LiveTown, liveTownAt, secondsUntil } from './liveTown'
 import { nothingRegistered, type Registered, registeredBetween } from './registeredBetween'
 import { townRepaintDelayMsOf } from './townRepaintDelayMsOf'
@@ -45,6 +46,9 @@ const lessonFinishSecondsOf = (overview: TownOverview): number =>
 const hiringEndSecondsOf = (overview: TownOverview): number =>
   overview.hiring.order === null ? 0 : secondsUntil(overview.hiring.order.endsAt, overview, 0)
 
+const jobNextSecondsOf = (overview: TownOverview): number =>
+  overview.job === null ? 0 : secondsUntil(jobNextInstantOf(overview.job), overview, 0)
+
 const nextDueSecondsOf = (overview: TownOverview): number =>
   overview.nextDueAt === null ? 0 : secondsUntil(overview.nextDueAt, overview, 0)
 
@@ -72,6 +76,7 @@ function useRereadPolicy(lastRead: LastRead | undefined, read: () => void): void
       slotFinishSecondsOf(lastRead.overview),
       lessonFinishSecondsOf(lastRead.overview),
       hiringEndSecondsOf(lastRead.overview),
+      jobNextSecondsOf(lastRead.overview),
       nextDueSecondsOf(lastRead.overview),
       seasonEndSecondsOf(lastRead.overview),
     ]

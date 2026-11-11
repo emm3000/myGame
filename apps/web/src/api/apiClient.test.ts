@@ -132,6 +132,76 @@ it('deletes the stopped hiring order by its kind and start', async () => {
   expect(init?.method).toBe('DELETE')
 })
 
+const areaThree = {
+  region: 1,
+  area: 3,
+  lastArea: 4,
+  terrain: 'hills',
+  sites: [
+    { site: 1, town: null },
+    { site: 2, town: { name: 'Cedar Creek', isOwn: false } },
+  ],
+}
+
+it("reads the map of the town's own area", async () => {
+  const fetch = answeringFetch(200, areaThree)
+
+  const outcome = await createApiClient('/api').regionMap()
+
+  expect(outcome).toEqual({ ok: true, value: areaThree })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/map')
+  expect(init?.method).toBe('GET')
+})
+
+it('reads the map of an area by its number', async () => {
+  const fetch = answeringFetch(200, areaThree)
+
+  await createApiClient('/api').regionMap(3)
+
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/map/3')
+  expect(init?.method).toBe('GET')
+})
+
+it('answers an area past the last one by its refusal', async () => {
+  answeringFetch(404, { kind: 'AreaNotFound' })
+
+  const outcome = await createApiClient('/api').regionMap(9)
+
+  expect(outcome).toEqual({
+    ok: false,
+    refusal: 'AreaNotFound',
+    error: { kind: 'AreaNotFound' },
+  })
+})
+
+it('posts the job to the town jobs', async () => {
+  const fetch = answeringFetch(200, knownTown)
+  const job = { site: { area: 3, site: 1 }, team: { worker: 2, truck: 1 }, hours: 4 }
+
+  const outcome = await createApiClient('/api').sendJob(job)
+
+  expect(outcome).toEqual({ ok: true, value: knownTown })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/jobs')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual(job)
+})
+
+it('calls the job back by the instant it was sent', async () => {
+  const fetch = answeringFetch(200, knownTown)
+
+  const outcome = await createApiClient('/api').callJobBack({
+    sentAt: '2026-11-10T09:00:00.000Z',
+  })
+
+  expect(outcome).toEqual({ ok: true, value: knownTown })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/jobs/2026-11-10T09%3A00%3A00.000Z/call-back')
+  expect(init?.method).toBe('POST')
+})
+
 it('answers a town refusal with its params', async () => {
   answeringFetch(409, { kind: 'WaitingListFull', params: { cap: 2 } })
 

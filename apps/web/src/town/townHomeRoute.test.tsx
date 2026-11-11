@@ -1,5 +1,7 @@
 import {
   authSignInTitle,
+  mapRowLink,
+  mapTitle,
   namesPlacesFarm,
   namesPlacesHomes,
   namesPlacesOffice,
@@ -473,4 +475,14 @@ it('reads the town again when its season ends', async () => {
   await passSeconds(1)
 
   expect(reads).toBe(2)
+})
+
+it('opens the map from its row on the town home', async () => {
+  await showTown(serving(knownTown))
+
+  fireEvent.click(screen.getByRole('link', { name: mapRowLink() }))
+  await passSeconds(0)
+
+  expect(screen.getByRole('heading', { level: 1, name: mapTitle() })).toBeDefined()
+  expect(screen.getByRole('heading', { level: 2, name: 'Zona 1' })).toBeDefined()
 })

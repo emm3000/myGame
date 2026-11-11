@@ -14,16 +14,9 @@ import {
   reportNewsLessonStudied,
   reportNewsPay,
   reportNewsSkillEarned,
-  townAmount,
 } from '@mygame/catalog'
-import {
-  type HireKind,
-  type ResourceAmounts,
-  ResourceKindSchema,
-  type TownNewsItem,
-} from '@mygame/contracts'
-import { conjunctionOf } from '../design-system/conjunctionOf'
-import { formatQuantity } from '../design-system/formatQuantity'
+import type { HireKind, ResourceAmounts, TownNewsItem } from '@mygame/contracts'
+import { amountsLineOf } from '../resources/amountsLineOf'
 import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { formatInstant } from '../time/formatInstant'
 import { placeNameOf } from '../town/placeNameOf'
@@ -110,15 +103,8 @@ function lineOf(item: TownNewsItem): string {
 }
 
 const payPhraseOf = (amounts: ResourceAmounts): string | undefined => {
-  const quantities = ResourceKindSchema.options
-    .filter((resource) => amounts[resource] > 0)
-    .map((resource) =>
-      townAmount({
-        amount: formatQuantity(amounts[resource]),
-        resource: townResourceNameOf(resource),
-      }),
-    )
-  return quantities.length === 0 ? undefined : reportNewsPay({ amounts: conjunctionOf(quantities) })
+  const line = amountsLineOf(amounts)
+  return line === undefined ? undefined : reportNewsPay({ amounts: line })
 }
 
 function payOf(item: TownNewsItem): string | undefined {

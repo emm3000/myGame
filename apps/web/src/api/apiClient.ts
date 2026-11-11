@@ -2,12 +2,15 @@ import {
   type ApiError,
   type ApiErrorKind,
   ApiErrorSchema,
+  type CallJobBack,
   type ForgotPasswordRequest,
   type FoundTown,
   type PlaceHiringOrder,
   type BuildingKind as PlaceKind,
   type Player,
   PlayerSchema,
+  type RegionMap,
+  RegionMapSchema,
   type Report,
   ReportSchema,
   type ResetPasswordRequest,
@@ -18,6 +21,7 @@ import {
   ReviewHintSchema,
   type Reviews,
   ReviewsSchema,
+  type SendJob,
   type SignInRequest,
   type SignUpRequest,
   type StartBuildingWork,
@@ -47,6 +51,9 @@ export interface ApiClient {
   stopBuildingWork(target: StopBuildingWork): Promise<ApiOutcome<TownOverview>>
   placeHiringOrder(order: PlaceHiringOrder): Promise<ApiOutcome<TownOverview>>
   stopHiringOrder(target: StopHiringOrder): Promise<ApiOutcome<TownOverview>>
+  regionMap(area?: number): Promise<ApiOutcome<RegionMap>>
+  sendJob(job: SendJob): Promise<ApiOutcome<TownOverview>>
+  callJobBack(target: CallJobBack): Promise<ApiOutcome<TownOverview>>
   startLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   stopLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   reviews(): Promise<ApiOutcome<Reviews>>
@@ -156,6 +163,21 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     stopHiringOrder: async ({ hire, startedAt }) => {
       const response = await send(`/town/hiring/${hire}/${encodeURIComponent(startedAt)}`, {
         method: 'DELETE',
+      })
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    regionMap: async (area) => {
+      const path = area === undefined ? '/town/map' : `/town/map/${area}`
+      const response = await send(path, { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, RegionMapSchema)
+    },
+    sendJob: async (job) => {
+      const response = await postJson('/town/jobs', job)
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    callJobBack: async ({ sentAt }) => {
+      const response = await send(`/town/jobs/${encodeURIComponent(sentAt)}/call-back`, {
+        method: 'POST',
       })
       return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
     },
