@@ -1,6 +1,6 @@
 import type { TownNewsItem } from '@mygame/contracts'
 import { expect, it } from 'vitest'
-import { reportNewsRowOf } from './reportNewsRowOf'
+import { newsRowOf } from './newsRowOf'
 
 const now = new Date('2026-11-10T09:00:00.000Z')
 const occurredAt = '2026-11-10T08:50:00.000Z'
@@ -8,7 +8,7 @@ const site = { region: 1, area: 3, site: 12 }
 const noAmounts = { money: 0, food: 0, power: 0, material: 0 }
 const pay = { money: 0, food: 40, power: 0, material: 1200 }
 
-const lineOf = (item: TownNewsItem): string => reportNewsRowOf(item, now).line
+const lineOf = (item: TownNewsItem): string => newsRowOf(item, now).line
 
 it('writes a finished building work with its place and level', () => {
   expect(
@@ -113,24 +113,23 @@ it('writes the town becoming a city', () => {
 })
 
 it("names a job's pay above zero in the resources' order", () => {
-  expect(reportNewsRowOf({ kind: 'jobBack', params: { site, pay }, occurredAt }, now).pay).toBe(
+  expect(newsRowOf({ kind: 'jobBack', params: { site, pay }, occurredAt }, now).pay).toBe(
     'Pago: 40 de comida y 1 200 de material',
   )
 })
 
 it("names a clean-up's reward as its pay", () => {
   expect(
-    reportNewsRowOf({ kind: 'cleanUpDone', params: { site, reward: pay }, occurredAt }, now).pay,
+    newsRowOf({ kind: 'cleanUpDone', params: { site, reward: pay }, occurredAt }, now).pay,
   ).toBe('Pago: 40 de comida y 1 200 de material')
 })
 
 it('names no pay when every amount is zero', () => {
   expect(
-    reportNewsRowOf({ kind: 'jobCalledBack', params: { site, pay: noAmounts }, occurredAt }, now)
-      .pay,
+    newsRowOf({ kind: 'jobCalledBack', params: { site, pay: noAmounts }, occurredAt }, now).pay,
   ).toBeUndefined()
 })
 
 it('reads the instant of the news', () => {
-  expect(reportNewsRowOf({ kind: 'becameCity', occurredAt }, now).instant).toBe('Hoy, 09:50')
+  expect(newsRowOf({ kind: 'becameCity', occurredAt }, now).instant).toBe('Hoy, 09:50')
 })

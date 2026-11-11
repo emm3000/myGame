@@ -17,6 +17,7 @@ import { Route as GuestForgotPasswordRouteImport } from './routes/_guest/forgot-
 import { Route as GuestSignInRouteImport } from './routes/_guest/sign-in'
 import { Route as GuestSignUpRouteImport } from './routes/_guest/sign-up'
 import { Route as SignedInIndexRouteImport } from './routes/_signedIn/index'
+import { Route as SignedInNewsRouteImport } from './routes/_signedIn/news'
 import { Route as SignedInReportRouteImport } from './routes/_signedIn/report'
 import { Route as SignedInReviewsRouteImport } from './routes/_signedIn/reviews'
 import { Route as SignedInMapIndexRouteImport } from './routes/_signedIn/map.index'
@@ -62,6 +63,11 @@ const SignedInIndexRoute = SignedInIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SignedInRoute,
 } as any)
+const SignedInNewsRoute = SignedInNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => SignedInRoute,
+} as any)
 const SignedInReportRoute = SignedInReportRouteImport.update({
   id: '/report',
   path: '/report',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/news': typeof SignedInNewsRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
   '/map/$area': typeof SignedInMapAreaRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof GuestForgotPasswordRoute
   '/sign-in': typeof GuestSignInRoute
   '/sign-up': typeof GuestSignUpRoute
+  '/news': typeof SignedInNewsRoute
   '/report': typeof SignedInReportRoute
   '/reviews': typeof SignedInReviewsRoute
   '/map/$area': typeof SignedInMapAreaRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/_guest/forgot-password': typeof GuestForgotPasswordRoute
   '/_guest/sign-in': typeof GuestSignInRoute
   '/_guest/sign-up': typeof GuestSignUpRoute
+  '/_signedIn/news': typeof SignedInNewsRoute
   '/_signedIn/report': typeof SignedInReportRoute
   '/_signedIn/reviews': typeof SignedInReviewsRoute
   '/_signedIn/': typeof SignedInIndexRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
+    | '/news'
     | '/report'
     | '/reviews'
     | '/map/$area'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/sign-in'
     | '/sign-up'
+    | '/news'
     | '/report'
     | '/reviews'
     | '/map/$area'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/_guest/forgot-password'
     | '/_guest/sign-in'
     | '/_guest/sign-up'
+    | '/_signedIn/news'
     | '/_signedIn/report'
     | '/_signedIn/reviews'
     | '/_signedIn/'
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInIndexRouteImport
       parentRoute: typeof SignedInRoute
     }
+    '/_signedIn/news': {
+      id: '/_signedIn/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof SignedInNewsRouteImport
+      parentRoute: typeof SignedInRoute
+    }
     '/_signedIn/report': {
       id: '/_signedIn/report'
       path: '/report'
@@ -310,6 +329,7 @@ const GuestRouteChildren: GuestRouteChildren = {
 const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
 
 interface SignedInRouteChildren {
+  SignedInNewsRoute: typeof SignedInNewsRoute
   SignedInReportRoute: typeof SignedInReportRoute
   SignedInReviewsRoute: typeof SignedInReviewsRoute
   SignedInIndexRoute: typeof SignedInIndexRoute
@@ -320,6 +340,7 @@ interface SignedInRouteChildren {
 }
 
 const SignedInRouteChildren: SignedInRouteChildren = {
+  SignedInNewsRoute: SignedInNewsRoute,
   SignedInReportRoute: SignedInReportRoute,
   SignedInReviewsRoute: SignedInReviewsRoute,
   SignedInIndexRoute: SignedInIndexRoute,
