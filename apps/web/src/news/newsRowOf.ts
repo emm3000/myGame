@@ -21,7 +21,7 @@ import { townResourceNameOf } from '../resources/townResourceNameOf'
 import { formatInstant } from '../time/formatInstant'
 import { placeNameOf } from '../town/placeNameOf'
 
-export interface ReportNewsRow {
+export interface NewsRow {
   readonly key: string
   readonly occurredAt: string
   readonly instant: string
@@ -131,7 +131,7 @@ function payOf(item: TownNewsItem): string | undefined {
   }
 }
 
-export function reportNewsRowOf(item: TownNewsItem, now: Date): ReportNewsRow {
+export function newsRowOf(item: TownNewsItem, now: Date): NewsRow {
   const params = 'params' in item ? JSON.stringify(item.params) : ''
   return {
     key: `${item.kind}:${item.occurredAt}:${params}`,

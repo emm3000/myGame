@@ -5,9 +5,9 @@ import type { ReactElement } from 'react'
 import type { ApiClient } from '../../api/apiClient'
 import { SignOutColumn } from '../../auth/SignOutColumn'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
+import { newsRowOf } from '../../news/newsRowOf'
 import { refusalLineOf } from '../../refusals/refusalLineOf'
 import { ReportScreen, ReportTitled } from '../../report/ReportScreen'
-import { reportNewsRowOf } from '../../report/reportNewsRowOf'
 import { type ReportHandle, useReport } from '../../report/useReport'
 import { useReportAtLessonFinish } from '../../report/useReportAtLessonFinish'
 import { useReportClose } from '../../report/useReportClose'
@@ -32,7 +32,7 @@ function ReportPage({
       nextReview={
         report.nextDueAt === null ? undefined : formatClock(new Date(report.nextDueAt), receivedAt)
       }
-      news={report.news.map((item) => reportNewsRowOf(item, receivedAt))}
+      news={report.news.map((item) => newsRowOf(item, receivedAt))}
       close={{
         isClosed: close.isClosed,
         isWaiting: close.isWaiting,

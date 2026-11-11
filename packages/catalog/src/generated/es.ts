@@ -66,6 +66,9 @@ export const namesTownResourcesFood = (): string => `comida`
 export const namesTownResourcesMaterial = (): string => `material`
 export const namesTownResourcesMoney = (): string => `dinero`
 export const namesTownResourcesPower = (): string => `energía`
+export const newsLoading = (): string => `Estamos leyendo las noticias…`
+export const newsNone = (): string => `No hay noticias.`
+export const newsTitle = (): string => `Noticias del pueblo`
 export const passwordResetNewPasswordChanged = (): string => `Tu contraseña ha cambiado y hemos cerrado todas tus sesiones.`
 export const passwordResetNewPasswordNewLink = (): string => `Pedir otro enlace`
 export const passwordResetNewPasswordPassword = (): string => `Contraseña nueva`
@@ -119,6 +122,7 @@ export const refusalWordNotHeld = (): string => `Esa palabra no está en tus lec
 export const refusalHiringNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta contratación necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
 export const refusalHiringNotEnoughResources = (): string => `No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.`
 export const reportLoading = (): string => `Estamos leyendo tu informe…`
+export const reportNewsAll = (): string => `Leer todas las noticias`
 export const reportNewsBecameCity = (): string => `Tu pueblo ahora es una ciudad.`
 export const reportNewsBuildingWorkFinished = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `${String(place)}: ahora en nivel ${String(level)}.`
 export const reportNewsBuildingWorkStopped = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `Paraste la obra: ${String(place)}, nivel ${String(level)}.`

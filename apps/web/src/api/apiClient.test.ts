@@ -259,6 +259,33 @@ it('reads a Report the schema refuses as unexpected', async () => {
   expect(await createApiClient('/api').report()).toEqual({ ok: false, refusal: 'Unexpected' })
 })
 
+it("reads the town's news through its schema", async () => {
+  const feed = { items: reportWithNews.news }
+  const fetch = answeringFetch(200, feed)
+
+  const outcome = await createApiClient('/api').townNews()
+
+  expect(outcome).toEqual({ ok: true, value: feed })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/news')
+  expect(init?.method).toBe('GET')
+})
+
+it('reads a news feed the schema refuses as unexpected', async () => {
+  answeringFetch(200, { items: [{ kind: 'townFounded' }] })
+
+  expect(await createApiClient('/api').townNews()).toEqual({ ok: false, refusal: 'Unexpected' })
+})
+
+it('reads the news of a player with no town as its refusal', async () => {
+  answeringFetch(404, { kind: 'TownNotFound' })
+
+  expect(await createApiClient('/api').townNews()).toMatchObject({
+    ok: false,
+    refusal: 'TownNotFound',
+  })
+})
+
 it('posts the close of the Report', async () => {
   const fetch = vi.fn(
     async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),

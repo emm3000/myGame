@@ -30,6 +30,8 @@ import {
   type StartLessonRequest,
   type StopBuildingWork,
   type StopHiringOrder,
+  type TownNewsFeed,
+  TownNewsFeedSchema,
   type TownOverview,
   TownOverviewSchema,
   type VerifyEmailRequest,
@@ -48,6 +50,7 @@ export interface ApiClient {
   signOut(): Promise<ApiOutcome<undefined>>
   currentPlayer(): Promise<Player | undefined>
   town(): Promise<ApiOutcome<TownOverview>>
+  townNews(): Promise<ApiOutcome<TownNewsFeed>>
   foundTown(name: string): Promise<ApiOutcome<TownOverview>>
   startBuildingWork(place: PlaceKind): Promise<ApiOutcome<TownOverview>>
   stopBuildingWork(target: StopBuildingWork): Promise<ApiOutcome<TownOverview>>
@@ -144,6 +147,10 @@ export const createApiClient = (baseUrl: string): ApiClient => {
     town: async () => {
       const response = await send('/town', { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    townNews: async () => {
+      const response = await send('/town/news', { method: 'GET' })
+      return response === undefined ? unexpected : bodyOf(response, TownNewsFeedSchema)
     },
     foundTown: async (name) => {
       const request: FoundTown = { name }

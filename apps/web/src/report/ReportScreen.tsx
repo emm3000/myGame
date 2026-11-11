@@ -1,4 +1,5 @@
 import {
+  reportNewsAll,
   reportNewsClose,
   reportNewsClosed,
   reportNewsNone,
@@ -16,9 +17,11 @@ import { ButtonLink } from '../design-system/ButtonLink'
 import { FormAlert } from '../design-system/FormAlert'
 import { focusTargetClass } from '../design-system/focusTargetClass'
 import { formatQuantity } from '../design-system/formatQuantity'
+import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
+import { NewsList } from '../news/NewsList'
+import type { NewsRow } from '../news/newsRowOf'
 import { ReviewsAhead } from '../review/ReviewsAhead'
-import type { ReportNewsRow } from './reportNewsRowOf'
 
 const emptyNewsClass = 'm-0 border-line border-t py-3 font-sans text-body text-ink'
 
@@ -33,7 +36,7 @@ export interface ReportScreenProps {
   readonly dueCount: number
   readonly readFirst: ReadonlyArray<string>
   readonly nextReview: string | undefined
-  readonly news: ReadonlyArray<ReportNewsRow>
+  readonly news: ReadonlyArray<NewsRow>
   readonly close: ReportNewsClose
 }
 
@@ -74,23 +77,6 @@ function ReviewsDue({
   )
 }
 
-function NewsEntry({ row }: { readonly row: ReportNewsRow }): ReactElement {
-  return (
-    <li className="flex flex-col gap-1 border-line border-t py-3">
-      <time
-        dateTime={row.occurredAt}
-        className="whitespace-nowrap font-sans text-caption text-ink-muted"
-      >
-        {row.instant}
-      </time>
-      <p className="m-0 font-sans text-body text-ink">{row.line}</p>
-      {row.pay === undefined ? null : (
-        <p className="m-0 font-sans text-caption text-ink-muted">{row.pay}</p>
-      )}
-    </li>
-  )
-}
-
 function NewsBody({
   news,
   close,
@@ -104,11 +90,7 @@ function NewsBody({
   }
   return (
     <>
-      <ol className="m-0 flex list-none flex-col p-0">
-        {news.map((row) => (
-          <NewsEntry key={row.key} row={row} />
-        ))}
-      </ol>
+      <NewsList rows={news} />
       {close.refusalLine !== undefined && <FormAlert message={close.refusalLine} />}
       <Button
         type="button"
@@ -154,6 +136,9 @@ export function ReportScreen(props: ReportScreenProps): ReactElement {
           {reportNewsTitle()}
         </h2>
         <NewsBody {...props} onClosed={newsTitle.focus} />
+        <p className="m-0 border-line border-t pt-1">
+          <TextLink to="/news">{reportNewsAll()}</TextLink>
+        </p>
       </section>
     </ReportTitled>
   )
