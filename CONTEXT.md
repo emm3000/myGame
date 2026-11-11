@@ -12,6 +12,7 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Region** — the great area a town lies in, a number in the data. Areas and sites inside it are numbered. Replaces *galaxy*.
 - **Area** — a numbered part of a region with the content's `sitesPerArea` sites and one terrain, shared by every site in it. Replaces *system*.
 - **Site** — the numbered place in an area that one town holds; free until a town is founded on it.
+- **Region map** — one area of the viewer's region at a time, its sites free or holding a town, the town's own area first, browsable from area 1 to one past the last area holding a town (ADR 014). Its screen is not shipped yet (ADR 041).
 - **Terrain** — what an area is made of: fields, river or hills. It adds the content's `terrainBonusPerHour` to the rate of the resource it favours (fields food, river power, hills material), on top of the producers, and forbids nothing.
 
 ## Resources
@@ -32,11 +33,16 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **Homes** — supply people.
 - **Farm / Factory / Power station** — the producers of food, material and power.
 - **School** — the building where lessons are studied, one at a time in its lesson slot. Its built level, never the projected one, shortens a lesson and sets the learning cap (ADR 040).
-- **Office** — the building where workers and trucks are hired. Not shipped yet (ADR 041).
+- **Office** — the building where workers and trucks are hired.
 - **Build slot** — the single place on a town where the building work in progress builds; one at a time. A slot with work in progress is **busy**.
 - **Building work** — raising one building one level, charged at its start. The **waiting list** holds the work queued behind the busy slot, at most the content's cap; each entry keeps the building, the target level, the cost it charged and the duration fixed when it was queued, and starts the instant the slot frees (ADR 011, ADR 040).
 - **Stop** — the single atomic mutation that removes one building work, the one in the busy slot or one waiting, and refunds its cost in full (ADR 011, ADR 040).
 - **Resolve** — applying the finished building work and the finished lesson to the town, on read, in the order they finished, each written to Town News in the same transaction (ADR 005, ADR 013).
+
+## Hires and jobs
+
+- **Hire** — a worker or a truck, hired at the office in one hiring order at a time, occupying people and eating nothing. A **team** is the hires sent out together (ADR 018, ADR 021, ADR 040).
+- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay. One team out at a time; its hires stay counted and occupied while away. Its screen is not shipped yet (ADR 019, ADR 040, ADR 041).
 
 ## Lessons and skills
 
@@ -90,8 +96,6 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 
 Terms of ADR 040's slices that ADR 041 orders after the cutover; each enters the code with its slice.
 
-- **Hire** — a worker or a truck, hired at the office in one hiring order at a time, occupying people and eating nothing. A **team** is the hires sent out together (ADR 018, ADR 021, ADR 040).
-- **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay (ADR 019, ADR 040).
 - **Waste site** — a site holding waste of one of three sizes, placed by a hash of its address and regrowing from its last clean-up. A **clean-up** is a team's trip to it: a team whose strength covers the waste cleans it and is paid money and material; a smaller team comes back with nothing; nobody is lost (ADR 020, ADR 040).
 
 ## Society
