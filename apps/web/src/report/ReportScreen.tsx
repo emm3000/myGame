@@ -20,10 +20,9 @@ import { formatQuantity } from '../design-system/formatQuantity'
 import { TextLink } from '../design-system/TextLink'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { NewsList } from '../news/NewsList'
+import { NewsNote } from '../news/NewsNote'
 import type { NewsRow } from '../news/newsRowOf'
 import { ReviewsAhead } from '../review/ReviewsAhead'
-
-const emptyNewsClass = 'm-0 border-line border-t py-3 font-sans text-body text-ink'
 
 export interface ReportNewsClose {
   readonly isClosed: boolean
@@ -83,10 +82,10 @@ function NewsBody({
   onClosed,
 }: ReportScreenProps & { readonly onClosed: () => void }): ReactElement {
   if (close.isClosed) {
-    return <p className={emptyNewsClass}>{reportNewsClosed()}</p>
+    return <NewsNote line={reportNewsClosed()} />
   }
   if (news.length === 0) {
-    return <p className={emptyNewsClass}>{reportNewsNone()}</p>
+    return <NewsNote line={reportNewsNone()} />
   }
   return (
     <>

@@ -3,7 +3,7 @@ import { createFileRoute, Navigate } from '@tanstack/react-router'
 import type { ReactElement } from 'react'
 import { LoadingSkeleton, type LoadingSkeletonProps } from '../../design-system/LoadingSkeleton'
 import { NewsScreen, NewsTitled } from '../../news/NewsScreen'
-import { newsRowsOf } from '../../news/newsRowsOf'
+import { newsRowOf } from '../../news/newsRowOf'
 import { type TownNewsHandle, useTownNews } from '../../news/useTownNews'
 import { TownReadFailed } from '../../town/TownReadFailed'
 
@@ -23,7 +23,7 @@ function NewsAnswer({ news }: { readonly news: TownNewsHandle }): ReactElement |
         </NewsTitled>
       )
     case 'read':
-      return <NewsScreen rows={newsRowsOf(state.feed.items, state.receivedAt)} />
+      return <NewsScreen rows={state.feed.items.map((item) => newsRowOf(item, state.receivedAt))} />
     default: {
       const unreachable: never = state
       return unreachable

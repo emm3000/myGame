@@ -1,6 +1,7 @@
 import { newsNone, newsTitle } from '@mygame/catalog'
 import { type ReactElement, type ReactNode, useId } from 'react'
 import { NewsList } from './NewsList'
+import { NewsNote } from './NewsNote'
 import type { NewsRow } from './newsRowOf'
 
 export function NewsTitled({ children }: { readonly children: ReactNode }): ReactElement {
@@ -18,11 +19,7 @@ export function NewsTitled({ children }: { readonly children: ReactNode }): Reac
 export function NewsScreen({ rows }: { readonly rows: ReadonlyArray<NewsRow> }): ReactElement {
   return (
     <NewsTitled>
-      {rows.length === 0 ? (
-        <p className="m-0 border-line border-t py-3 font-sans text-body text-ink">{newsNone()}</p>
-      ) : (
-        <NewsList rows={rows} />
-      )}
+      {rows.length === 0 ? <NewsNote line={newsNone()} /> : <NewsList rows={rows} />}
     </NewsTitled>
   )
 }

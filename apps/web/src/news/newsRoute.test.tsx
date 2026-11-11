@@ -119,8 +119,8 @@ it('writes one line per event kind with its instant', async () => {
   ])
 })
 
-it('lists the newest first', async () => {
-  await showNews(answering(feedOf([farmFinished, homesFinished])))
+it('lists the newest first, in the order the server answers', async () => {
+  await showNews(answering(feedOf([homesFinished, farmFinished])))
 
   expect(rowTexts()).toEqual([
     'Hoy, 09:45Hogares: ahora en nivel 2.',
