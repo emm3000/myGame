@@ -4,7 +4,7 @@ import type { ProductionPercent, TownSettings } from './TownSettings'
 
 const UNCHANGED_PERCENT = 100
 
-const unchangedPayPercent: ProductionPercent = {
+export const unchangedPayPercent: ProductionPercent = {
   money: UNCHANGED_PERCENT,
   food: UNCHANGED_PERCENT,
   power: UNCHANGED_PERCENT,

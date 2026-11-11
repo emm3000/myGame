@@ -124,7 +124,8 @@ export type DomainError =
   | { readonly kind: 'JobSiteOutOfBounds'; readonly area: number; readonly site: number }
   | { readonly kind: 'JobToOwnSite' }
   | { readonly kind: 'SiteHeld'; readonly area: number; readonly site: number }
-  | { readonly kind: 'SiteHasNoWaste'; readonly area: number; readonly site: number }
+  | { readonly kind: 'NotAWasteSite'; readonly area: number; readonly site: number }
+  | { readonly kind: 'NoWasteYet'; readonly area: number; readonly site: number }
   | {
       readonly kind: 'NotEnoughHiresAtHome'
       readonly hire: HireKind
