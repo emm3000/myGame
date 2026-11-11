@@ -69,16 +69,14 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   InvalidCellsPerRow: internalFailure,
   SlotFinishesBeforeStored: internalFailure,
   SlotStartsAfterFinish: internalFailure,
-  AreaNotFound: { status: 404 },
-  InvalidTeam: { status: 400 },
-  JobHoursOutOfRange: { status: 400 },
-  TeamAlreadyOut: { status: 409 },
-  JobSiteOutOfBounds: { status: 400 },
-  JobToOwnSite: { status: 409 },
-  SiteHeld: { status: 409 },
-  NotEnoughHiresAtHome: { status: 409 },
-  JobNotFound: { status: 409 },
-  JobAlreadyReturning: { status: 409 },
+  AreaNotFound: { status: 404, kind: 'AreaNotFound' },
+  InvalidTeam: { status: 400, kind: 'InvalidTeam' },
+  TeamAlreadyOut: { status: 409, kind: 'TeamAlreadyOut' },
+  JobSiteOutOfBounds: { status: 400, kind: 'JobSiteOutOfBounds' },
+  JobToOwnSite: { status: 409, kind: 'JobToOwnSite' },
+  SiteHeld: { status: 409, kind: 'SiteHeld' },
+  JobNotFound: { status: 409, kind: 'JobNotFound' },
+  JobAlreadyReturning: { status: 409, kind: 'JobAlreadyReturning' },
   InvalidJobHours: internalFailure,
   InvalidPayPercent: internalFailure,
 }
@@ -118,6 +116,14 @@ const refusalBodyOf = (refusal: Refusal): RefusalBody => {
     case 'HiringOrderNotFound': {
       const { kind, hire, startedAt } = refusal
       return { status: 409, body: { kind, params: { hire, startedAt: isoOf(startedAt) } } }
+    }
+    case 'JobHoursOutOfRange': {
+      const { kind, hours, maxHours } = refusal
+      return { status: 400, body: { kind, params: { hours, maxHours } } }
+    }
+    case 'NotEnoughHiresAtHome': {
+      const { kind, hire, count, atHome } = refusal
+      return { status: 409, body: { kind, params: { hire, count, atHome } } }
     }
     default:
       return slotlessBodyOf(refusal.kind)

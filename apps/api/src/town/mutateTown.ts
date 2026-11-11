@@ -20,6 +20,7 @@ export type TownStores = Pick<
   | 'reviewLog'
   | 'earnedSkills'
   | 'bandStarts'
+  | 'regionMap'
 >
 
 export type TownMutation<T> = (stores: TownStores, clock: Clock) => Promise<Result<T, DomainError>>

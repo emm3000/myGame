@@ -9,11 +9,13 @@ import { healthDeclarations } from './routes/healthDeclarations'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
 import { type ReportRouteDependencies, reportRoutes } from './routes/report'
 import { type TownDependencies, townRoutes } from './routes/town'
+import { type TownMapDependencies, townMapRoutes } from './routes/townMap'
 
 export type AppDependencies = AuthDependencies &
   LearningRouteDependencies &
   ReportRouteDependencies &
-  TownDependencies & {
+  TownDependencies &
+  TownMapDependencies & {
     readonly failureSink: FailureSink
   }
 
@@ -35,6 +37,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     .route('/auth', authRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
     .route('/report', reportRoutes(dependencies))
+    .route('/town/map', townMapRoutes(dependencies))
     .route('/town', townRoutes(dependencies))
   app.doc('/openapi.json', {
     openapi: '3.0.0',

@@ -75,3 +75,27 @@ it('renders a hiring order that is not there as its line', () => {
     }),
   ).toBe('Esta contratación ya terminó.')
 })
+
+it('renders a held site as its line', () => {
+  expect(refusalLineOf('SiteHeld', { kind: 'SiteHeld' })).toBe(
+    'En ese lugar hay otro pueblo. Elige un lugar libre.',
+  )
+})
+
+it('renders job hours out of range from the most allowed', () => {
+  expect(
+    refusalLineOf('JobHoursOutOfRange', {
+      kind: 'JobHoursOutOfRange',
+      params: { hours: 9, maxHours: 8 },
+    }),
+  ).toBe('Un trabajo dura de 1 a 8 horas.')
+})
+
+it('renders too few trucks at home from the count asked and the count at home', () => {
+  expect(
+    refusalLineOf('NotEnoughHiresAtHome', {
+      kind: 'NotEnoughHiresAtHome',
+      params: { hire: 'truck', count: 2, atHome: 1 },
+    }),
+  ).toBe('El equipo necesita 2 camiones y tienes 1 en casa.')
+})

@@ -58,6 +58,7 @@ export const knownTown: TownOverview = {
       },
     },
   },
+  job: null,
   lessons: [],
   skills: [],
   lessonSlot: null,

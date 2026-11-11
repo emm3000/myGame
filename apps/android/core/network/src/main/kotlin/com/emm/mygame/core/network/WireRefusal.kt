@@ -6,7 +6,9 @@ import com.emm.mygame.core.network.generated.models.BareApiError
 import com.emm.mygame.core.network.generated.models.BuildingWorkNotFoundError
 import com.emm.mygame.core.network.generated.models.HiringOrderNotFoundError
 import com.emm.mygame.core.network.generated.models.HiringSlotBusyError
+import com.emm.mygame.core.network.generated.models.JobHoursOutOfRangeError
 import com.emm.mygame.core.network.generated.models.LearningCapReachedError
+import com.emm.mygame.core.network.generated.models.NotEnoughHiresAtHomeError
 import com.emm.mygame.core.network.generated.models.NotEnoughPeopleError
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesError
 import com.emm.mygame.core.network.generated.models.OfficeTooLowError
@@ -53,6 +55,8 @@ internal val kindsWithParams: Set<String> = setOf(
     OfficeTooLowError.Kind.OfficeTooLow.value,
     HiringSlotBusyError.Kind.HiringSlotBusy.value,
     HiringOrderNotFoundError.Kind.HiringOrderNotFound.value,
+    JobHoursOutOfRangeError.Kind.JobHoursOutOfRange.value,
+    NotEnoughHiresAtHomeError.Kind.NotEnoughHiresAtHome.value,
 )
 
 private fun refusalOf(body: String): WireRefusal {

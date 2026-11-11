@@ -1,4 +1,5 @@
 import {
+  refusalAreaNotFound,
   refusalBlankTownName,
   refusalBuildingWorkNotFound,
   refusalEmailTaken,
@@ -6,6 +7,12 @@ import {
   refusalHiringOrderNotFound,
   refusalHiringSlotBusy,
   refusalInvalidCredentials,
+  refusalInvalidTeam,
+  refusalJobAlreadyReturning,
+  refusalJobHoursOutOfRange,
+  refusalJobNotFound,
+  refusalJobSiteOutOfBounds,
+  refusalJobToOwnSite,
   refusalLearningCapReached,
   refusalLessonAlreadyStudied,
   refusalLessonSchoolTooLow,
@@ -13,12 +20,15 @@ import {
   refusalLessonUnderStudy,
   refusalMailNotSent,
   refusalMalformedEmail,
+  refusalNotEnoughHiresAtHome,
   refusalNotEnoughPeople,
   refusalNotEnoughResources,
   refusalOfficeTooLow,
   refusalPlayerAlreadyHoldsTown,
   refusalReviewNotDue,
+  refusalSiteHeld,
   refusalStudySlotBusy,
+  refusalTeamAlreadyOut,
   refusalTokenInvalid,
   refusalTopLevelReached,
   refusalTownNotFound,
@@ -56,6 +66,14 @@ const slotFreeLines: Readonly<Record<SlotFreeRefusal, () => string>> = {
   TownNotFound: refusalTownNotFound,
   PlayerAlreadyHoldsTown: refusalPlayerAlreadyHoldsTown,
   BlankTownName: refusalBlankTownName,
+  AreaNotFound: refusalAreaNotFound,
+  InvalidTeam: refusalInvalidTeam,
+  JobSiteOutOfBounds: refusalJobSiteOutOfBounds,
+  TeamAlreadyOut: refusalTeamAlreadyOut,
+  JobToOwnSite: refusalJobToOwnSite,
+  SiteHeld: refusalSiteHeld,
+  JobNotFound: refusalJobNotFound,
+  JobAlreadyReturning: refusalJobAlreadyReturning,
   Unexpected: refusalUnexpected,
 }
 
@@ -84,6 +102,10 @@ const lineWithParamsOf = (error: RefusalWithParams): string => {
       return refusalHiringSlotBusy()
     case 'HiringOrderNotFound':
       return refusalHiringOrderNotFound()
+    case 'JobHoursOutOfRange':
+      return refusalJobHoursOutOfRange({ maxHours: error.params.maxHours })
+    case 'NotEnoughHiresAtHome':
+      return refusalNotEnoughHiresAtHome(error.params)
     default: {
       const unhandled: never = error
       return unhandled

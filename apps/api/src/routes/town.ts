@@ -1,7 +1,9 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
+  CallJobBackSchema,
   FoundTownSchema,
   PlaceHiringOrderSchema,
+  SendJobSchema,
   StartBuildingWorkSchema,
   StartLessonRequestSchema,
   StopBuildingWorkSchema,
@@ -11,6 +13,7 @@ import {
   type TownOverview,
 } from '@mygame/contracts'
 import {
+  callJobBack,
   type DomainError,
   err,
   type IdGenerator,
@@ -21,6 +24,7 @@ import {
   placeHiringOrder,
   type RandomSource,
   type Result,
+  sendJob,
   startBuildingWork,
   startSchoolLesson,
   stopBuildingWork,
@@ -235,6 +239,55 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         dependencies,
       )
       return answerReading(c, stopped)
+    },
+  )
+  routes.on(
+    townDeclarations.sendJob.method,
+    honoPathOf(townDeclarations.sendJob),
+    signedInPlayer,
+    async (c) => {
+      const request = SendJobSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const sent = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const town = await sendJob(
+            { playerId, ...request.data },
+            { towns: stores.towns, map: stores.regionMap, news: stores.townNews, catalog, clock },
+          )
+          return town.ok ? townReadingOf(town.value, clock.now(), stores) : town
+        },
+        dependencies,
+      )
+      return answerReading(c, sent)
+    },
+  )
+  routes.on(
+    townDeclarations.callJobBack.method,
+    honoPathOf(townDeclarations.callJobBack),
+    signedInPlayer,
+    async (c) => {
+      const request = CallJobBackSchema.safeParse(c.req.param())
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const sentAt = Instant.fromEpochMilliseconds(Date.parse(request.data.sentAt))
+      const calledBack = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const town = await callJobBack(
+            { playerId, sentAt },
+            { towns: stores.towns, news: stores.townNews, catalog, clock },
+          )
+          return town.ok ? townReadingOf(town.value, clock.now(), stores) : town
+        },
+        dependencies,
+      )
+      return answerReading(c, calledBack)
     },
   )
   routes.on(

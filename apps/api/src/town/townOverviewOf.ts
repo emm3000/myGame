@@ -36,6 +36,7 @@ import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from '../learning/LessonLibrary'
 import { nextDueAtOf } from '../learning/reviewsOf'
 import { schoolOverviewOf } from '../learning/schoolOverviewOf'
+import { jobStateOf } from './jobStateOf'
 import type { TownReading } from './TownReading'
 
 type BuildingState = TownOverview['buildings'][BuildingKind]
@@ -321,6 +322,7 @@ export const townOverviewOf = (
     buildings: buildings.value,
     work: work.value,
     hiring: hiringOf(reading, catalog),
+    job: jobStateOf(town, at),
     ...school.value,
     ...guidance.value,
     readAt: isoOf(at),
