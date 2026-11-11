@@ -19,7 +19,6 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -95,7 +94,7 @@ private fun JobCountdown(jobOut: MapUiState.JobOut, modifier: Modifier = Modifie
         )
         MyGameText(
             text = finishLabelOf(jobOut.remaining, jobOut.finishesAt),
-            style = MyGameTypography.heading.withTabularFigures(),
+            style = MyGameTypography.heading,
             color = MyGameTheme.colors.ink,
         )
     }

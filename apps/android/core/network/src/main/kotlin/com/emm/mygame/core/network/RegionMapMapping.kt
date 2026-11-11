@@ -6,11 +6,14 @@ import com.emm.mygame.core.network.generated.models.RegionMapSitesInnerTown
 import retrofit2.Response
 import com.emm.mygame.core.network.generated.models.RegionMap as WireRegionMap
 
+private const val MALFORMED_PATH: Int = 400
+
 internal fun regionMapResultOf(response: Response<WireRegionMap>): RegionMapResult {
     if (response.isSuccessful) {
         val map: RegionMap? = response.body()?.toRegionMap()
         return if (map == null) RegionMapResult.Unreachable else RegionMapResult.Read(map)
     }
+    if (response.code() == MALFORMED_PATH) return RegionMapResult.AreaNotFound
     return when (response.wireRefusal()?.bareKind()) {
         BareApiError.Kind.AreaNotFound -> RegionMapResult.AreaNotFound
         BareApiError.Kind.TownNotFound -> RegionMapResult.NoTown

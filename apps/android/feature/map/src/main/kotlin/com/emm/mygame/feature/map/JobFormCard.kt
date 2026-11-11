@@ -68,7 +68,7 @@ internal fun JobFormCard(
                 onClick = { onIntent(MapIntent.SendTapped) },
                 blockedReason = reason,
             )
-            reason?.let { line: String ->
+            reason?.takeUnless { send.isAnsweredFor(form.site) }?.let { line: String ->
                 MyGameText(
                     text = line,
                     style = MyGameTypography.caption,
@@ -100,6 +100,12 @@ private fun JobField(
         modifier = modifier,
         supportingText = supportingText,
     )
+}
+
+private fun MapUiState.SendRequest.isAnsweredFor(site: Int): Boolean = when (this) {
+    is MapUiState.SendRequest.Refused -> this.site == site
+    is MapUiState.SendRequest.Unreachable -> this.site == site
+    MapUiState.SendRequest.Idle, MapUiState.SendRequest.Waiting -> false
 }
 
 @Composable

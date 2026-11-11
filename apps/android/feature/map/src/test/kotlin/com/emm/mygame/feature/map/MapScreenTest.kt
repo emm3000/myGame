@@ -6,6 +6,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
+import com.emm.mygame.core.network.TownJobRefusal
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -116,6 +119,19 @@ class MapScreenTest {
             )
             .performScrollTo()
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the api's refusal in place of the block line`() {
+        show(
+            contentOf(form = nobodyForm).copy(
+                send = MapUiState.SendRequest.Refused(site = 1, refusal = TownJobRefusal.InvalidTeam),
+            ),
+        )
+
+        composeRule
+            .onAllNodesWithText("Elige al menos un trabajador o un camión para el equipo.", useUnmergedTree = true)
+            .assertCountEquals(1)
     }
 
     @Test
