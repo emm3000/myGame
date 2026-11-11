@@ -6,6 +6,7 @@ import { idleWorkSlot, type WaitingList, type WorkSlot } from '../town/BuildingW
 import { noStoreFull } from '../town/FullSince'
 import { type Hires, noHires } from '../town/Hires'
 import { type HiringSlot, idleHiringSlot } from '../town/HiringOrder'
+import { idleJobSlot, type JobSlot } from '../town/Job'
 import type { Stocks } from '../town/Stocks'
 import { type StoredTown, Town } from '../town/Town'
 import { TownAddress } from '../town/TownAddress'
@@ -13,7 +14,11 @@ import { TownName } from '../town/TownName'
 import type { TownSkill } from '../town/TownSkill'
 
 export type TownShape = {
+  readonly id?: string
+  readonly playerId?: string
+  readonly name?: string
   readonly area?: number
+  readonly site?: number
   readonly stocks?: Stocks
   readonly storedAt: Instant
   readonly buildingLevels?: Partial<BuildingLevels>
@@ -22,10 +27,15 @@ export type TownShape = {
   readonly skills?: ReadonlyArray<TownSkill>
   readonly hires?: Hires
   readonly hiringSlot?: HiringSlot
+  readonly jobSlot?: JobSlot
 }
 
 export const storedTownOf = ({
+  id = 'town-1',
+  playerId = 'player-1',
+  name: chosenName = 'Maple Hill',
   area = 1,
+  site = 1,
   stocks = { money: 0, food: 0, power: 0, material: 0 },
   storedAt,
   buildingLevels = {},
@@ -34,13 +44,14 @@ export const storedTownOf = ({
   skills = [],
   hires = noHires,
   hiringSlot = idleHiringSlot,
+  jobSlot = idleJobSlot,
 }: TownShape): StoredTown => {
-  const address = TownAddress.create(1, area, 1)
-  const name = TownName.create('Maple Hill')
+  const address = TownAddress.create(1, area, site)
+  const name = TownName.create(chosenName)
   assert(address.ok && name.ok)
   return {
-    id: 'town-1',
-    playerId: 'player-1',
+    id,
+    playerId,
     name: name.value,
     address: address.value,
     stocks,
@@ -52,6 +63,7 @@ export const storedTownOf = ({
     skills,
     hires,
     hiringSlot,
+    jobSlot,
   }
 }
 

@@ -12,6 +12,31 @@
   "sitesPerArea": 15,
   "terrainBonusPerHour": 5,
   "waitingListCap": 4,
+  "job": {
+    "secondsPerArea": 600,
+    "secondsPerSite": 60,
+    "maxHours": 8,
+    "payPerHour": {
+      "fields": {
+        "money": 0,
+        "food": 3,
+        "power": 0,
+        "material": 3
+      },
+      "river": {
+        "money": 0,
+        "food": 0,
+        "power": 3,
+        "material": 3
+      },
+      "hills": {
+        "money": 0,
+        "food": 3,
+        "power": 0,
+        "material": 3
+      }
+    }
+  },
   "seasons": {
     "epoch": "2026-10-05T00:00:00Z",
     "daysPerSeason": 7,
@@ -45,22 +70,26 @@
       "spring": {
         "build": 100,
         "study": 100,
-        "hire": 75
+        "hire": 75,
+        "road": 100
       },
       "summer": {
         "build": 75,
         "study": 100,
-        "hire": 100
+        "hire": 100,
+        "road": 100
       },
       "fall": {
         "build": 100,
         "study": 100,
-        "hire": 100
+        "hire": 100,
+        "road": 75
       },
       "winter": {
         "build": 100,
         "study": 75,
-        "hire": 100
+        "hire": 100,
+        "road": 100
       }
     }
   }

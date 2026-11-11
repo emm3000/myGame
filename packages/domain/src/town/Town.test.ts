@@ -4,6 +4,7 @@ import { storedTownOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import { accrueTown } from './accrueTown'
 import type { HiringOrder } from './HiringOrder'
+import type { Job } from './Job'
 import { Town } from './Town'
 import { TownAddress } from './TownAddress'
 import type { TownSkill } from './TownSkill'
@@ -223,6 +224,121 @@ describe('Town', () => {
         { worker: 0, truck: 0 },
         { kind: 'idle' },
       ])
+    })
+  })
+
+  describe('jobs', () => {
+    const secondsAfterStored = (seconds: number): Instant =>
+      Instant.fromEpochMilliseconds(storedAt.epochMilliseconds + seconds * 1_000)
+
+    const twoHourJob: Job = {
+      kind: 'out',
+      site: { region: 1, area: 1, site: 5 },
+      team: { worker: 2, truck: 1 },
+      hours: 2,
+      sentAt: storedAt,
+      oneWaySeconds: 600,
+      pay: { money: 0, food: 20, power: 0, material: 20 },
+      payPercent: { money: 100, food: 100, power: 100, material: 100 },
+    }
+
+    const restoredWith = (job: Job, at: Instant = storedAt): ReturnType<typeof Town.restore> =>
+      Town.restore({
+        ...storedTownOf({ storedAt: at }),
+        hires: { worker: 3, truck: 1 },
+        jobSlot: job,
+      })
+
+    it('keeps the team out of the hires at home', () => {
+      const restored = restoredWith(twoHourJob)
+      assert(restored.ok)
+
+      expect([restored.value.hiresAt(storedAt), restored.value.hiresAtHomeAt(storedAt)]).toEqual([
+        { worker: 3, truck: 1 },
+        { worker: 1, truck: 0 },
+      ])
+    })
+
+    it('refuses a stored team with a count that is not whole from 0 or no hire at all', () => {
+      const teams = [
+        { worker: -1, truck: 1 },
+        { worker: 0.5, truck: 1 },
+        { worker: 0, truck: 0 },
+      ]
+
+      expect(teams.map((team) => restoredWith({ ...twoHourJob, team }))).toEqual(
+        teams.map((team) => ({ ok: false, error: { kind: 'InvalidTeam', team } })),
+      )
+    })
+
+    it('refuses stored hours that are not whole from 1', () => {
+      expect([0, 1.5].map((hours) => restoredWith({ ...twoHourJob, hours }))).toEqual([
+        { ok: false, error: { kind: 'InvalidJobHours', hours: 0 } },
+        { ok: false, error: { kind: 'InvalidJobHours', hours: 1.5 } },
+      ])
+    })
+
+    it('refuses a stored road that is negative or fractional', () => {
+      expect(
+        [-1, 0.5].map((oneWaySeconds) => restoredWith({ ...twoHourJob, oneWaySeconds })),
+      ).toEqual([
+        { ok: false, error: { kind: 'NegativeDuration', seconds: -1 } },
+        { ok: false, error: { kind: 'FractionalDuration', seconds: 0.5 } },
+      ])
+    })
+
+    it('refuses a stored pay that is not whole from 0', () => {
+      const pay = { money: 0, food: 2.5, power: 0, material: 0 }
+
+      expect(restoredWith({ ...twoHourJob, pay })).toEqual({
+        ok: false,
+        error: { kind: 'FractionalResourceAmount', amount: 2.5 },
+      })
+    })
+
+    it('refuses a stored pay percent that is not whole from 1', () => {
+      const payPercent = { money: 100, food: 100, power: 0, material: 100 }
+
+      expect(restoredWith({ ...twoHourJob, payPercent })).toEqual({
+        ok: false,
+        error: { kind: 'InvalidPayPercent', resource: 'power', percent: 0 },
+      })
+    })
+
+    it('refuses a stored call back before the dispatch or once the work is over', () => {
+      const beforeDispatch = secondsAfterStored(-1)
+      const workOver = secondsAfterStored(600 + 7_200)
+
+      expect([
+        restoredWith({ ...twoHourJob, calledBackAt: beforeDispatch }, beforeDispatch),
+        restoredWith({ ...twoHourJob, calledBackAt: workOver }),
+      ]).toEqual([
+        {
+          ok: false,
+          error: { kind: 'SlotStartsAfterFinish', startedAt: storedAt, finishesAt: beforeDispatch },
+        },
+        {
+          ok: false,
+          error: { kind: 'SlotStartsAfterFinish', startedAt: workOver, finishesAt: workOver },
+        },
+      ])
+    })
+
+    it('refuses a stored job that returns before the stored instant', () => {
+      const returnsAt = secondsAfterStored(600 + 7_200 + 600)
+      const laterStored = secondsAfterStored(600 + 7_200 + 601)
+
+      expect(restoredWith(twoHourJob, laterStored)).toEqual({
+        ok: false,
+        error: { kind: 'SlotFinishesBeforeStored', storedAt: laterStored, finishesAt: returnsAt },
+      })
+    })
+
+    it('founds a town with no team out', () => {
+      const stored = storedTownOf({ storedAt })
+      const founded = Town.found({ ...stored, startingStocks: stored.stocks, at: storedAt })
+
+      expect(founded.jobSlot).toEqual({ kind: 'idle' })
     })
   })
 })

@@ -41,7 +41,7 @@ const winterStudyAtThreeQuarters = townCatalogOf({
     ...plainTownSettings.seasons,
     durationPercent: {
       ...plainTownSettings.seasons.durationPercent,
-      winter: { build: 100, study: 75, hire: 100 },
+      winter: { build: 100, study: 75, hire: 100, road: 100 },
     },
   },
 })

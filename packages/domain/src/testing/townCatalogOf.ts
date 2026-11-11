@@ -19,15 +19,25 @@ export const plainTownSettings: TownSettings = {
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
   waitingListCap: 2,
+  job: {
+    secondsPerArea: 600,
+    secondsPerSite: 60,
+    maxHours: 8,
+    payPerHour: {
+      fields: { money: 0, food: 3, power: 0, material: 3 },
+      river: { money: 0, food: 0, power: 3, material: 3 },
+      hills: { money: 0, food: 3, power: 0, material: 3 },
+    },
+  },
   seasons: {
     epoch: Instant.fromEpochMilliseconds(1_791_158_400_000),
     daysPerSeason: 7,
     productionPercent: { spring: unscaled, summer: unscaled, fall: unscaled, winter: unscaled },
     durationPercent: {
-      spring: { build: 100, study: 100, hire: 100 },
-      summer: { build: 100, study: 100, hire: 100 },
-      fall: { build: 100, study: 100, hire: 100 },
-      winter: { build: 100, study: 100, hire: 100 },
+      spring: { build: 100, study: 100, hire: 100, road: 100 },
+      summer: { build: 100, study: 100, hire: 100, road: 100 },
+      fall: { build: 100, study: 100, hire: 100, road: 100 },
+      winter: { build: 100, study: 100, hire: 100, road: 100 },
     },
   },
 }

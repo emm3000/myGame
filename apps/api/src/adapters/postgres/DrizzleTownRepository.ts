@@ -10,6 +10,7 @@ import {
   hireKinds,
   Instant,
   idleHiringSlot,
+  idleJobSlot,
   idleWorkSlot,
   ok,
   type PlayerId,
@@ -378,6 +379,7 @@ const townFrom = ({
     waitingList: waitingListOf(waitingWork),
     hires: hiresOf(row, hires),
     hiringSlot: hiringSlotOf(hiringOrder),
+    jobSlot: idleJobSlot,
     skills: skillsOf(skills),
   })
 }

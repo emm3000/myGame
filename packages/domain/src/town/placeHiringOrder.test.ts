@@ -117,7 +117,7 @@ describe('placeHiringOrder', () => {
         ...plainTownSettings.seasons,
         durationPercent: {
           ...plainTownSettings.seasons.durationPercent,
-          spring: { build: 100, study: 100, hire: 75 },
+          spring: { build: 100, study: 100, hire: 75, road: 100 },
         },
       },
     }
