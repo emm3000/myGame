@@ -19,6 +19,7 @@ internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnap
                 onIntent = { },
                 onSchoolOpen = { },
                 onReportOpen = { },
+                onMapOpen = {},
                 onReviewsOpen = { },
                 onLessonOpen = { },
             )

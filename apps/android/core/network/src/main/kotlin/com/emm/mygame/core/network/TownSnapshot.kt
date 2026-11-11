@@ -17,6 +17,7 @@ data class TownSnapshot(
     val learning: Learning,
     val lessonSlot: LessonSlot?,
     val hiring: Hiring,
+    val job: Job?,
     val nextStep: NextStep,
     val nextDueAt: Instant?,
     val readAt: Instant,
@@ -79,4 +80,23 @@ data class TownSnapshot(
     )
 
     data class HireTerms(val costs: List<Cost>, val secondsPerHire: Int, val people: Int, val requiredOfficeLevel: Int)
+
+    data class Job(
+        val site: TownSite,
+        val team: Map<TownHireKind, Int>,
+        val hours: Int,
+        val pay: Map<TownResourceKind, Long>,
+        val phase: JobPhase,
+        val sentAt: Instant,
+        val arrivesAt: Instant,
+        val leavesAt: Instant,
+        val returnsAt: Instant,
+        val calledBackAt: Instant?,
+    )
+
+    enum class JobPhase {
+        Outbound,
+        Working,
+        Returning,
+    }
 }

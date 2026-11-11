@@ -75,7 +75,7 @@ private fun HiringStoppedNews.toHiringStopped(): TownNews? {
     return TownNews.HiringStopped(occurredAt.toKotlinInstant(), hire, params.delivered, params.stopped)
 }
 
-private fun JobBackNewsParamsSite.toTownSite(): TownSite = TownSite(region = region, area = area, site = site)
+internal fun JobBackNewsParamsSite.toTownSite(): TownSite = TownSite(region = region, area = area, site = site)
 
 private fun NotEnoughResourcesErrorParamsMissing.toTownAmounts(): List<TownAmount> = listOf(
     TownAmount(TownResourceKind.Money, money.toLong()),

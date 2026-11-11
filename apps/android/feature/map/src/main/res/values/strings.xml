@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="map_area">Zona {area}</string>
+    <string name="map_back_to_own_area">Volver a tu zona</string>
+    <string name="map_duration_hours">{hours} h</string>
+    <string name="map_duration_hours_minutes">{hours} h {minutes} min</string>
+    <string name="map_duration_minutes">{minutes} min</string>
+    <string name="map_duration_minutes_seconds">{minutes}:{seconds}</string>
+    <string name="map_finish_day">{day} {time}</string>
+    <string name="map_finish_tomorrow">mañana {time}</string>
+    <string name="map_finish_with_clock">{timeLeft} · {clock}</string>
+    <string name="map_free">Libre</string>
+    <string name="map_job_amount">{amount} de {resource}</string>
+    <string name="map_job_at_home">{count} en casa</string>
+    <string name="map_job_count_needed">Envía 0 o más.</string>
+    <string name="map_job_hours">Horas de trabajo</string>
+    <string name="map_job_hours_needed">Trabaja 1 hora o más.</string>
+    <string name="map_job_out_call_back">Llamar de vuelta al equipo</string>
+    <string name="map_job_out_outbound">En camino</string>
+    <string name="map_job_out_pay">Pago: {amounts}</string>
+    <string name="map_job_out_returning">Volviendo</string>
+    <string name="map_job_out_site">Región {region}, zona {area}, sitio {site}</string>
+    <string name="map_job_out_team">Tu equipo: {workers, plural, =1 {1 trabajador} other {{workers, number,0} trabajadores}}, {trucks, plural, =1 {1 camión} other {{trucks, number,0} camiones}}</string>
+    <string name="map_job_out_title">Trabajo</string>
+    <string name="map_job_out_working">Trabajando</string>
+    <string name="map_job_send">Enviar el equipo</string>
+    <string name="map_job_title">Trabajo en el sitio {site}</string>
+    <string name="map_job_trucks">Camiones a enviar</string>
+    <string name="map_job_workers">Trabajadores a enviar</string>
+    <string name="map_loading">Estamos leyendo el mapa…</string>
+    <string name="map_next">Zona siguiente</string>
+    <string name="map_own_town">Tu pueblo</string>
+    <string name="map_previous">Zona anterior</string>
+    <string name="map_refusal_area_not_found">Esa zona está más allá del final del mapa.</string>
+    <string name="map_refusal_invalid_team">Elige al menos un trabajador o un camión para el equipo.</string>
+    <string name="map_refusal_job_already_returning">Tu equipo ya está volviendo.</string>
+    <string name="map_refusal_job_hours_out_of_range">Un trabajo dura de 1 a {maxHours} horas.</string>
+    <string name="map_refusal_job_not_found">Este trabajo ya terminó.</string>
+    <string name="map_refusal_job_site_out_of_bounds">Ese sitio no está en el mapa.</string>
+    <string name="map_refusal_job_to_own_site">Ese sitio es tu pueblo. Elige otro sitio.</string>
+    <string name="map_refusal_not_enough_hires_at_home">{hire, select, worker {{count, plural, =1 {El equipo necesita 1 trabajador} other {El equipo necesita {count, number,0} trabajadores}} y tienes {atHome} en casa.} truck {{count, plural, =1 {El equipo necesita 1 camión} other {El equipo necesita {count, number,0} camiones}} y tienes {atHome} en casa.} other {{count, plural, =1 {El equipo necesita 1 camión} other {El equipo necesita {count, number,0} camiones}} y tienes {atHome} en casa.}}</string>
+    <string name="map_refusal_site_held">En ese sitio hay otro pueblo. Elige un sitio libre.</string>
+    <string name="map_refusal_team_already_out">Tu equipo ya está fuera. Espera a que vuelva.</string>
+    <string name="map_refusal_town_not_found">Aún no tienes pueblo. Ponle nombre para fundarlo.</string>
+    <string name="map_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="map_resource_food">comida</string>
+    <string name="map_resource_material">material</string>
+    <string name="map_resource_money">dinero</string>
+    <string name="map_resource_power">energía</string>
+    <string name="map_send_team">Enviar un equipo</string>
+    <string name="map_send_team_to">Enviar un equipo al sitio {site}</string>
+    <string name="map_site">Sitio {site}</string>
+    <string name="map_terrain_fields">Campos</string>
+    <string name="map_terrain_hills">Colinas</string>
+    <string name="map_terrain_river">Río</string>
+    <string name="map_title">Mapa</string>
+    <string name="map_try_again">Volver a intentarlo</string>
+    <string name="map_waiting">Esperando</string>
+</resources>

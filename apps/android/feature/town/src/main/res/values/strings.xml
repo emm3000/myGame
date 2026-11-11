@@ -22,6 +22,9 @@
     <string name="town_list_more">{listed}, {item}</string>
     <string name="town_list_pair">{listed} y {last}</string>
     <string name="town_loading">Estamos leyendo tu pueblo…</string>
+    <string name="town_map_line">Envía un equipo a un trabajo.</string>
+    <string name="town_map_link">Ir al mapa</string>
+    <string name="town_map_title">Mapa</string>
     <string name="town_naming_field">Nombre del pueblo</string>
     <string name="town_naming_go_to_town">Ir a tu pueblo</string>
     <string name="town_naming_mayor">Ahora diriges tu propio pueblo.</string>

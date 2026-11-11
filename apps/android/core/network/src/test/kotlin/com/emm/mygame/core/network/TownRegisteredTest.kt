@@ -134,6 +134,7 @@ class TownRegisteredTest {
             TownSnapshot.LessonSlot(lesson, startedAt = firstReadAt, finishesAt = firstReadAt + 5.minutes)
         },
         hiring = hiringOf(),
+        job = null,
         nextStep = NextStep.CaughtUp,
         nextDueAt = null,
         readAt = firstReadAt,

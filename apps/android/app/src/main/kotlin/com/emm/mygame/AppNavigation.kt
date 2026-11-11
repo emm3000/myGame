@@ -35,6 +35,7 @@ import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.feature.map.MapRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
 import com.emm.mygame.feature.review.ReviewRoute
@@ -117,6 +118,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     townEntry(chrome)
     schoolEntry(chrome)
     reportEntry(chrome)
+    mapEntry(chrome)
     lessonWordsEntry(chrome)
     entry<Destination.Review> {
         SignedInFrame(
@@ -151,6 +153,7 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                 navigation = TownNavigation(
                     onSchoolOpen = navigator::openSchool,
                     onReportOpen = navigator::openReport,
+                    onMapOpen = navigator::openMap,
                     onReviewsOpen = navigator::openReviews,
                     onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                     onSigningOut = navigator::signingOut,
@@ -204,6 +207,20 @@ private fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
             )
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.mapEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
+    entry<Destination.Map> {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = true,
+            chrome = chrome,
+        ) {
+            MapRoute(towns = dependencies.towns, clock = dependencies.clock, onNoTown = navigator::openTown)
         }
     }
 }
@@ -278,6 +295,7 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     null, is Destination.SignIn, Destination.SignUp, Destination.ForgotPassword -> TownStatusScreen.Outside
     Destination.Town -> TownStatusScreen.ReadsTown
     Destination.School -> TownStatusScreen.ReadsTown
+    Destination.Map -> TownStatusScreen.ReadsTown
     is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
     Destination.Review -> TownStatusScreen.Reviews
     Destination.Report -> TownStatusScreen.ReadsNoTown

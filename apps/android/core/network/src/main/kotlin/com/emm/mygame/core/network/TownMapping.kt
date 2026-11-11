@@ -10,18 +10,17 @@ import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNe
 import com.emm.mygame.core.network.generated.models.TownOverviewHiring
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
+import com.emm.mygame.core.network.generated.models.TownOverviewJob
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewStocksMoney
+import com.emm.mygame.core.network.generated.models.TownOverviewWork
 import kotlin.time.Duration.Companion.seconds
 
 internal fun TownOverview.toSnapshot(): TownSnapshot? {
     val townLabel: TownLabel = label.toTownLabel() ?: return null
-    val waitingList: List<TownSnapshot.WorkItem> = work.waitingList.map { item: BuildingWork ->
-        item.toWorkItem() ?: return null
-    }
-    val slot: TownSnapshot.WorkItem? = work.slot?.let { item: BuildingWork -> item.toWorkItem() ?: return null }
+    val townWork: TownSnapshot.Work = work.toWork() ?: return null
     val townLessons: List<TownSnapshot.Lesson> = lessons.map { lesson: TownOverviewLessonsInner ->
         lesson.toLesson() ?: return null
     }
@@ -30,6 +29,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
     }
     val step: NextStep = nextStep.toNextStep() ?: return null
     val townHiring: TownSnapshot.Hiring = hiring.toHiring() ?: return null
+    val townJob: TownSnapshot.Job? = job?.let { out: TownOverviewJob -> out.toJob() ?: return null }
     return TownSnapshot(
         name = name,
         label = townLabel,
@@ -51,12 +51,13 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
             buildings.school.toBuilding(TownBuildingKind.School),
             buildings.office.toBuilding(TownBuildingKind.Office),
         ),
-        work = TownSnapshot.Work(slot = slot, waitingList = waitingList, cap = work.cap),
+        work = townWork,
         lessons = townLessons,
         skills = earnedSkills,
         learning = learning.toLearning(),
         lessonSlot = lessonSlot?.toLessonSlot(),
         hiring = townHiring,
+        job = townJob,
         nextStep = step,
         nextDueAt = nextDueAt?.toKotlinInstant(),
         readAt = readAt.toKotlinInstant(),
@@ -76,6 +77,14 @@ internal fun TownBuildingKind.toWireBuilding(): StartBuildingWork.Building = whe
 internal fun TownHireKind.toWireHire(): PlaceHiringOrder.Hire = when (this) {
     TownHireKind.Worker -> PlaceHiringOrder.Hire.worker
     TownHireKind.Truck -> PlaceHiringOrder.Hire.truck
+}
+
+private fun TownOverviewWork.toWork(): TownSnapshot.Work? {
+    val waitingItems: List<TownSnapshot.WorkItem> = waitingList.map { item: BuildingWork ->
+        item.toWorkItem() ?: return null
+    }
+    val slotItem: TownSnapshot.WorkItem? = slot?.let { item: BuildingWork -> item.toWorkItem() ?: return null }
+    return TownSnapshot.Work(slot = slotItem, waitingList = waitingItems, cap = cap)
 }
 
 private fun TownOverviewHiring.toHiring(): TownSnapshot.Hiring? {

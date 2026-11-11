@@ -283,6 +283,7 @@ class NextStepSectionTest {
             onIntent = { },
             onSchoolOpen = { schoolOpens += 1 },
             onReportOpen = { reportOpens += 1 },
+            onMapOpen = {},
             onReviewsOpen = { reviewsOpens += 1 },
             onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
         )

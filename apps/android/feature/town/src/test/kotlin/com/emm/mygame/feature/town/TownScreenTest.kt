@@ -62,6 +62,8 @@ class TownScreenTest {
 
     private var reportOpens: Int = 0
 
+    private var mapOpens: Int = 0
+
     private val farmOffer: TownUiState.PlaceCard = TownUiState.PlaceCard(
         kind = TownBuildingKind.Farm,
         level = 1,
@@ -654,6 +656,15 @@ class TownScreenTest {
     }
 
     @Test
+    fun `opens the map from its row on the town home`() {
+        show(riverton)
+
+        composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()
+
+        assertEquals(1, mapOpens)
+    }
+
+    @Test
     fun `sets the doors under the header and above the stocks`() {
         show(riverton)
 
@@ -817,6 +828,7 @@ class TownScreenTest {
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { schoolOpens += 1 },
                     onReportOpen = { reportOpens += 1 },
+                    onMapOpen = { mapOpens += 1 },
                     onReviewsOpen = { },
                     onLessonOpen = { },
                 )

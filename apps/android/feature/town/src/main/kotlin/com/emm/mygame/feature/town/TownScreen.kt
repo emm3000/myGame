@@ -33,6 +33,7 @@ fun TownScreen(
     onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     onReportOpen: () -> Unit,
+    onMapOpen: () -> Unit,
     onReviewsOpen: () -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     modifier: Modifier = Modifier,
@@ -73,6 +74,7 @@ fun TownScreen(
                         status()
                     },
                 )
+                MapRow(onMapOpen = onMapOpen)
             }
         }
     }

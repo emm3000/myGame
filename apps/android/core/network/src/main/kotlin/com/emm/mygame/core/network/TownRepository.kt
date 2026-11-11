@@ -5,7 +5,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.StateFlow
 
-interface TownRepository {
+interface TownRepository : RegionRepository {
 
     val town: StateFlow<HeldTown?>
 

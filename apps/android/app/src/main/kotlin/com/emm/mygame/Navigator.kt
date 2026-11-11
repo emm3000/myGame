@@ -75,6 +75,10 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
         openFromTown(Destination.Report)
     }
 
+    fun openMap() {
+        openFromTown(Destination.Map)
+    }
+
     fun openReviews() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
@@ -111,6 +115,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>) {
 private fun NavKey?.isAboveTown(): Boolean = when (this) {
     Destination.School,
     Destination.Report,
+    Destination.Map,
     Destination.Review,
     is Destination.LessonWords,
     -> true

@@ -29,6 +29,8 @@ import com.emm.mygame.core.designsystem.PILL_BADGE
 import com.emm.mygame.core.network.DueReviews
 import com.emm.mygame.core.network.LearningRepository
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.RegionMap
+import com.emm.mygame.core.network.RegionMapResult
 import com.emm.mygame.core.network.ReportReadResult
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.NextStep
@@ -38,6 +40,7 @@ import com.emm.mygame.core.network.ReviewsReadResult
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignedInPlayer
+import com.emm.mygame.core.network.Terrain
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownLabel
 import com.emm.mygame.core.network.TownReadResult
@@ -148,6 +151,7 @@ class AppNavigationTest {
         learning = TownSnapshot.Learning(cap = 10, inLearning = inLearning, retainedWords = retainedWords),
         lessonSlot = null,
         hiring = hiringOf(),
+        job = null,
         nextStep = nextStep,
         nextDueAt = null,
         readAt = readAt,
@@ -383,6 +387,18 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Ir al informe").performClick()
 
         waitForLine("No tienes repasos pendientes ahora.")
+    }
+
+    @Test
+    fun `opens the map from its row on the town home`() {
+        val firstArea: RegionMap =
+            RegionMap(region = 1, area = 1, lastArea = 2, terrain = Terrain.Fields, sites = emptyList())
+        townsFake.answerMap(RegionMapResult.Read(firstArea))
+        signedInAtTown()
+
+        composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()
+
+        waitForLine("Zona 1")
     }
 
     @Test

@@ -211,6 +211,7 @@ class TownOfficeScreenTest {
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { },
                     onReportOpen = { },
+                    onMapOpen = {},
                     onReviewsOpen = { },
                     onLessonOpen = { },
                 )
