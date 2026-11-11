@@ -13,6 +13,7 @@ import { type ReactElement, useId, useState } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { FormAlert } from '../design-system/FormAlert'
 import { useFocusTarget } from '../focus/useFocusTarget'
+import { hiringRefusalLineOf } from '../refusals/hiringRefusalLineOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
 import { HireCard } from './HireCard'
@@ -86,7 +87,7 @@ function HireItem({
         onHire={onHire}
       />
       {refused !== undefined && (
-        <FormAlert message={refusalLineOf(refused.refusal, refused.error)} />
+        <FormAlert message={hiringRefusalLineOf(refused.refusal, refused.error)} />
       )}
     </li>
   )

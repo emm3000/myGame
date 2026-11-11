@@ -274,6 +274,8 @@
   "refusal.HiringOrderNotFound": "This hiring has already ended.",
   "refusal.HiringSlotBusy": "You are already hiring. Wait for that hiring to end.",
   "refusal.OfficeTooLow": "Your office is at level {officeLevel}. This hire needs level {requiredOfficeLevel}.",
+  "refusal.hiring.NotEnoughPeople": "This hire needs {requiredPeople} of your free people and you have {freePeople}. Build the next level of your homes.",
+  "refusal.hiring.NotEnoughResources": "You do not have what you need to pay for this hire. Wait and try again.",
   "report.loading": "Reading your Report…",
   "report.news.becameCity": "Your town is now a city.",
   "report.news.buildingWorkFinished": "{place}: now level {level}.",
