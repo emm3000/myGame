@@ -115,10 +115,10 @@ class RegionMapRepositoryTest {
     }
 
     @Test
-    fun `answers unreachable for a malformed path`() = runTest {
+    fun `reads a malformed area as an area not found`() = runTest {
         api.enqueue(MockResponse.Builder().code(400).build())
 
-        assertEquals(RegionMapResult.Unreachable, town().readMap(area = 0))
+        assertEquals(RegionMapResult.AreaNotFound, town().readMap(area = 0))
     }
 
     @Test
