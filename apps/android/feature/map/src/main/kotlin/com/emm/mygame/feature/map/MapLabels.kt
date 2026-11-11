@@ -1,7 +1,9 @@
 package com.emm.mygame.feature.map
 
+import android.content.res.Resources
 import android.icu.text.ListFormatter
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.Terrain
@@ -11,6 +13,7 @@ import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.projection.FinishClock
 import com.emm.mygame.core.projection.finishClockOf
+import com.emm.mygame.core.ui.getIcuString
 import com.emm.mygame.core.ui.icuStringResource
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -60,14 +63,25 @@ private fun hireSelectorOf(hire: TownHireKind): String = when (hire) {
 
 @Composable
 internal fun payLineOf(jobOut: MapUiState.JobOut): String {
-    val amounts: List<String> = jobOut.pay.map { line: MapUiState.PayLine ->
-        icuStringResource(
+    val resources: Resources = LocalResources.current
+    return resources.getIcuString(R.string.map_job_out_pay, "amounts" to resources.amountsOf(jobOut.pay))
+}
+
+@Composable
+internal fun quotedPayLineOf(quote: MapUiState.PayQuote.Quoted): String {
+    val resources: Resources = LocalResources.current
+    return resources.getIcuString(R.string.map_job_pay, "amounts" to resources.amountsOf(quote.pay))
+}
+
+private fun Resources.amountsOf(pay: List<MapUiState.PayLine>): String {
+    val amounts: List<String> = pay.map { line: MapUiState.PayLine ->
+        getIcuString(
             R.string.map_job_amount,
             "amount" to formatQuantity(line.amount),
-            "resource" to stringResource(resourceNameOf(line.resource)),
+            "resource" to getString(resourceNameOf(line.resource)),
         )
     }
-    return icuStringResource(R.string.map_job_out_pay, "amounts" to spanishListFormat.format(amounts))
+    return spanishListFormat.format(amounts)
 }
 
 @Composable

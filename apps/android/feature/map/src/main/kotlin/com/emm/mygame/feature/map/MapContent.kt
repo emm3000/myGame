@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.map
 
+import com.emm.mygame.core.network.JobQuoteResult
+import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownResourceKind
@@ -66,6 +68,32 @@ private fun wholeCountFrom(least: Int, entry: String): Int? {
     return entry.toIntOrNull()?.takeIf { count: Int -> count >= least }
 }
 
+internal data class QuoteAsk(
+    val target: JobTarget,
+    val team: Map<TownHireKind, Int>,
+    val hours: Int,
+    val seasonEndsAt: Instant?,
+)
+
+internal fun quoteAskOf(map: RegionMap, town: TownSnapshot, choices: MapChoices): QuoteAsk? {
+    val site: Int = choices.chosen ?: return null
+    if (town.jobBlockOf(choices.entries) != null) return null
+    val team: Map<TownHireKind, Int> = choices.entries.team() ?: return null
+    val hours: Int = choices.entries.hoursCount() ?: return null
+    return QuoteAsk(JobTarget(map.area, site), team, hours, town.seasonEndsAt)
+}
+
+internal fun payQuoteOf(result: JobQuoteResult): MapUiState.PayQuote = when (result) {
+    is JobQuoteResult.Quoted -> MapUiState.PayQuote.Quoted(payLinesOf(result.pay))
+    is JobQuoteResult.Refused -> MapUiState.PayQuote.Refused(result.refusal)
+    JobQuoteResult.Unreachable -> MapUiState.PayQuote.Unreachable
+}
+
+internal fun TownSnapshot.readInstants(): List<Instant> = listOfNotNull(job?.nextInstant(), seasonEndsAt)
+
+internal fun TownSnapshot.readInstantsAfter(now: Instant): List<Instant> =
+    readInstants().filter { instant: Instant -> instant > now }
+
 internal fun TownSnapshot.Job.nextInstant(): Instant = when (phase) {
     TownSnapshot.JobPhase.Outbound -> arrivesAt
     TownSnapshot.JobPhase.Working -> leavesAt
@@ -78,12 +106,13 @@ internal fun mapContentOf(
     now: Instant,
     gap: Duration,
     choices: MapChoices,
+    quote: MapUiState.PayQuote?,
 ): MapUiState.Content = MapUiState.Content(
     areaLine = MapUiState.AreaLine(area = map.area, terrain = map.terrain),
     previousArea = (map.area - 1).takeIf { area: Int -> area >= 1 },
     nextArea = (map.area + 1).takeIf { area: Int -> area <= map.lastArea },
     sites = map.sites.map(::siteRowOf),
-    form = choices.chosen?.let { site: Int -> town.jobFormOf(site, choices.entries) },
+    form = choices.chosen?.let { site: Int -> town.jobFormOf(site, choices.entries, quote) },
     send = choices.send,
     jobOut = town.job?.jobOutAt(now, gap),
     callBack = choices.callBack,
@@ -95,7 +124,11 @@ private fun siteRowOf(site: RegionMap.Site): MapUiState.SiteRow {
     return MapUiState.SiteRow.Town(site.site, town.name)
 }
 
-private fun TownSnapshot.jobFormOf(site: Int, entries: JobEntries): MapUiState.JobForm = MapUiState.JobForm(
+private fun TownSnapshot.jobFormOf(
+    site: Int,
+    entries: JobEntries,
+    quote: MapUiState.PayQuote?,
+): MapUiState.JobForm = MapUiState.JobForm(
     site = site,
     workers = entries.workers,
     trucks = entries.trucks,
@@ -103,6 +136,7 @@ private fun TownSnapshot.jobFormOf(site: Int, entries: JobEntries): MapUiState.J
     workersAtHome = hiring.hires.getValue(TownHireKind.Worker),
     trucksAtHome = hiring.hires.getValue(TownHireKind.Truck),
     block = jobBlockOf(entries),
+    quote = quote,
 )
 
 private fun TownSnapshot.jobBlockOf(entries: JobEntries): MapUiState.JobBlock? {
@@ -125,11 +159,14 @@ private fun TownSnapshot.Job.jobOutAt(now: Instant, gap: Duration): MapUiState.J
         phase = phase,
         remaining = countdownTo(finishesAt = next, now = now),
         finishesAt = next - gap,
-        pay = TownResourceKind.entries.mapNotNull { resource: TownResourceKind ->
-            pay.getValue(resource).takeIf { amount: Long -> amount > 0 }?.let { amount: Long ->
-                MapUiState.PayLine(resource, amount)
-            }
-        },
+        pay = payLinesOf(pay),
         canCallBack = phase != TownSnapshot.JobPhase.Returning,
     )
 }
+
+private fun payLinesOf(pay: Map<TownResourceKind, Long>): List<MapUiState.PayLine> =
+    TownResourceKind.entries.mapNotNull { resource: TownResourceKind ->
+        pay.getValue(resource).takeIf { amount: Long -> amount > 0 }?.let { amount: Long ->
+            MapUiState.PayLine(resource, amount)
+        }
+    }

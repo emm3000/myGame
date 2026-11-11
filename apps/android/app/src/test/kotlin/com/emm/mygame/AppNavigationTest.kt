@@ -393,7 +393,7 @@ class AppNavigationTest {
     fun `opens the map from its row on the town home`() {
         val firstArea: RegionMap =
             RegionMap(region = 1, area = 1, lastArea = 2, terrain = Terrain.Fields, sites = emptyList())
-        townsFake.answerMap(RegionMapResult.Read(firstArea))
+        townsFake.regions.answerMap(RegionMapResult.Read(firstArea))
         signedInAtTown()
 
         composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()

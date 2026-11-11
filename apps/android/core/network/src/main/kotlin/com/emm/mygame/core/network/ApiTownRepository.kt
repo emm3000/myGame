@@ -93,6 +93,17 @@ internal class ApiTownRepository(
     override suspend fun sendJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): TownJobResult =
         answering(TownJobResult.Unreachable, ::jobResultOf) { api.townJobsPost(sendJobOf(target, team, hours)) }
 
+    override suspend fun quoteJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): JobQuoteResult =
+        withContext(ioDispatcher) {
+            try {
+                quoteResultOf(api.townJobsQuotePost(sendJobOf(target, team, hours)))
+            } catch (expectedOutage: IOException) {
+                JobQuoteResult.Unreachable
+            } catch (expectedMalformedBody: SerializationException) {
+                JobQuoteResult.Unreachable
+            }
+        }
+
     override suspend fun callJobBack(sentAt: Instant): TownJobResult =
         answering(TownJobResult.Unreachable, ::jobResultOf) {
             api.townJobsSentAtCallBackPost(sentAt = sentAt.toOffsetDateTime())
