@@ -70,6 +70,8 @@ export const refusalUnknownWord = (): string => `Esa palabra no está en tus lec
 export const refusalWaitingListFull = ({ cap }: { readonly cap: number }): string => `${cap === 1 ? `La lista de espera ya tiene 1 obra.` : `La lista de espera ya tiene ${String(cap)} obras.`} Espera a que termine alguna.`
 export const refusalWeakPassword = (): string => `Tu contraseña necesita al menos 8 caracteres.`
 export const refusalWordNotHeld = (): string => `Esa palabra no está en tus lecciones. Vuelve al repaso.`
+export const refusalHiringNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta contratación necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
+export const refusalHiringNotEnoughResources = (): string => `No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.`
 export const reportLoading = (): string => `Estamos leyendo tu informe…`
 export const reportNewsBecameCity = (): string => `Tu pueblo ahora es una ciudad.`
 export const reportNewsBuildingWorkFinished = ({ level, place }: { readonly level: string | number; readonly place: string | number }): string => `${String(place)}: ahora en nivel ${String(level)}.`

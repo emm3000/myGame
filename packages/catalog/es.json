@@ -401,6 +401,8 @@
   "refusal.WaitingListFull": "{cap, plural, =1 {La lista de espera ya tiene 1 obra.} other {La lista de espera ya tiene # obras.}} Espera a que termine alguna.",
   "refusal.WeakPassword": "Tu contraseña necesita al menos 8 caracteres.",
   "refusal.WordNotHeld": "Esa palabra no está en tus lecciones. Vuelve al repaso.",
+  "refusal.hiring.NotEnoughPeople": "Esta contratación necesita {requiredPeople, plural, =1 {1 persona libre} other {# personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.",
+  "refusal.hiring.NotEnoughResources": "No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.",
   "report.loading": "Estamos leyendo tu informe…",
   "report.news.becameCity": "Tu pueblo ahora es una ciudad.",
   "report.news.buildingWorkFinished": "{place}: ahora en nivel {level}.",

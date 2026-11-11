@@ -210,6 +210,43 @@ it('reads a refused hire under its kind', async () => {
   )
 })
 
+it('names the hire in a hiring refusal', async () => {
+  await showTown(officeTown, {
+    placeHiringOrder: async () => ({
+      ok: false,
+      refusal: 'NotEnoughPeople',
+      error: { kind: 'NotEnoughPeople', params: { requiredPeople: 3, freePeople: 1 } },
+    }),
+  })
+
+  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  await passSeconds(0)
+
+  expect(within(hireCard(namesHiresWorker())).getByRole('alert').textContent).toBe(
+    'Esta contratación necesita 3 personas libres y tienes 1. Sube el nivel de tus hogares.',
+  )
+})
+
+it('names the hire when the stocks cannot pay a hiring', async () => {
+  await showTown(officeTown, {
+    placeHiringOrder: async () => ({
+      ok: false,
+      refusal: 'NotEnoughResources',
+      error: {
+        kind: 'NotEnoughResources',
+        params: { missing: { money: 0, food: 0, power: 0, material: 40 } },
+      },
+    }),
+  })
+
+  fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
+  await passSeconds(0)
+
+  expect(within(hireCard(namesHiresWorker())).getByRole('alert').textContent).toBe(
+    'No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.',
+  )
+})
+
 it('waits only on the kind being placed', async () => {
   await showTown(withOfficeAt(3), {
     placeHiringOrder: () => new Promise(() => undefined),
