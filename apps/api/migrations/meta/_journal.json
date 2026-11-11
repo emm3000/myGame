@@ -260,6 +260,13 @@
       "when": 1794343484997,
       "tag": "0036_town_hiring",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794366745345,
+      "tag": "0037_town_jobs",
+      "breakpoints": true
     }
   ]
 }

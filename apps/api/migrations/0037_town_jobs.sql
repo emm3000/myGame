@@ -1,0 +1,32 @@
+CREATE TABLE "town_jobs" (
+	"town_id" uuid PRIMARY KEY NOT NULL,
+	"region" integer NOT NULL,
+	"area" integer NOT NULL,
+	"site" integer NOT NULL,
+	"worker_count" integer NOT NULL,
+	"truck_count" integer NOT NULL,
+	"hours" integer NOT NULL,
+	"sent_at" timestamp with time zone NOT NULL,
+	"one_way_seconds" integer NOT NULL,
+	"pay_money" double precision NOT NULL,
+	"pay_food" double precision NOT NULL,
+	"pay_power" double precision NOT NULL,
+	"pay_material" double precision NOT NULL,
+	"pay_percent_money" integer NOT NULL,
+	"pay_percent_food" integer NOT NULL,
+	"pay_percent_power" integer NOT NULL,
+	"pay_percent_material" integer NOT NULL,
+	"called_back_at" timestamp with time zone,
+	CONSTRAINT "town_jobs_site_positive" CHECK ("town_jobs"."region" >= 1 AND "town_jobs"."area" >= 1 AND "town_jobs"."site" >= 1),
+	CONSTRAINT "town_jobs_team_not_empty" CHECK ("town_jobs"."worker_count" >= 0 AND "town_jobs"."truck_count" >= 0 AND "town_jobs"."worker_count" + "town_jobs"."truck_count" >= 1),
+	CONSTRAINT "town_jobs_hours_positive" CHECK ("town_jobs"."hours" >= 1),
+	CONSTRAINT "town_jobs_one_way_seconds_whole" CHECK ("town_jobs"."one_way_seconds" >= 0),
+	CONSTRAINT "town_jobs_pay_money_whole" CHECK ("town_jobs"."pay_money" >= 0 AND "town_jobs"."pay_money" = trunc("town_jobs"."pay_money")),
+	CONSTRAINT "town_jobs_pay_food_whole" CHECK ("town_jobs"."pay_food" >= 0 AND "town_jobs"."pay_food" = trunc("town_jobs"."pay_food")),
+	CONSTRAINT "town_jobs_pay_power_whole" CHECK ("town_jobs"."pay_power" >= 0 AND "town_jobs"."pay_power" = trunc("town_jobs"."pay_power")),
+	CONSTRAINT "town_jobs_pay_material_whole" CHECK ("town_jobs"."pay_material" >= 0 AND "town_jobs"."pay_material" = trunc("town_jobs"."pay_material")),
+	CONSTRAINT "town_jobs_pay_percents_positive" CHECK ("town_jobs"."pay_percent_money" >= 1 AND "town_jobs"."pay_percent_food" >= 1 AND "town_jobs"."pay_percent_power" >= 1 AND "town_jobs"."pay_percent_material" >= 1),
+	CONSTRAINT "town_jobs_called_back_after_sent" CHECK ("town_jobs"."called_back_at" IS NULL OR "town_jobs"."called_back_at" >= "town_jobs"."sent_at")
+);
+--> statement-breakpoint
+ALTER TABLE "town_jobs" ADD CONSTRAINT "town_jobs_town_id_towns_id_fk" FOREIGN KEY ("town_id") REFERENCES "public"."towns"("id") ON DELETE cascade ON UPDATE no action;
