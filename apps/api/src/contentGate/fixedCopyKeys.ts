@@ -135,6 +135,8 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'refusal.LessonUnderStudy',
   'refusal.MailNotSent',
   'refusal.MalformedEmail',
+  'refusal.NoWasteYet',
+  'refusal.NotAWasteSite',
   'refusal.NotEnoughHiresAtHome',
   'refusal.NotEnoughPeople',
   'refusal.NotEnoughResources',

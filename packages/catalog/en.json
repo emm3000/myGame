@@ -373,6 +373,8 @@
   "refusal.JobNotFound": "This job has already ended.",
   "refusal.JobSiteOutOfBounds": "That site is not on the map.",
   "refusal.JobToOwnSite": "That site is your town. Choose another site.",
+  "refusal.NoWasteYet": "That site is clean for now. Come back later.",
+  "refusal.NotAWasteSite": "That site has no waste. Choose a waste site.",
   "refusal.NotEnoughHiresAtHome": "{hire, select, worker {{count, plural, =1 {The team needs 1 worker} other {The team needs # workers}} and you have {atHome} at home.} truck {{count, plural, =1 {The team needs 1 truck} other {The team needs # trucks}} and you have {atHome} at home.} other {{count, plural, =1 {The team needs 1 truck} other {The team needs # trucks}} and you have {atHome} at home.}}",
   "refusal.OfficeTooLow": "Your office is at level {officeLevel}. This hire needs level {requiredOfficeLevel}.",
   "refusal.SiteHeld": "Another town is on that site. Choose a free site.",
