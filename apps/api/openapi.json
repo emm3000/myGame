@@ -3963,9 +3963,6 @@
               }
             }
           },
-          "400": {
-            "description": "A malformed path. Empty body."
-          },
           "401": {
             "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
           },

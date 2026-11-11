@@ -411,8 +411,6 @@ const exchanges: ReadonlyArray<Exchange> = [
   { operation: 'POST /auth/sign-out', caller: 'signedOut', status: 401 },
 ]
 
-const statusesNoRequestReaches: ReadonlyArray<string> = ['DELETE /town/lessons/{lessonId} 400']
-
 const describeExchange = ({ operation, caller, params, status }: Exchange): string =>
   `${operation} ${JSON.stringify(params ?? {})} as ${caller} answers ${status}`
 
@@ -475,7 +473,7 @@ describe('the OpenAPI conformance', () => {
         Object.keys(declaration.responses).map((status) => `${operation} ${status}`),
       )
 
-    expect(declared.filter((key) => !exercised.has(key)).sort()).toEqual(statusesNoRequestReaches)
+    expect(declared.filter((key) => !exercised.has(key)).sort()).toEqual([])
   })
 
   it.each(exchanges.map((exchange) => [describeExchange(exchange), exchange] as const))(

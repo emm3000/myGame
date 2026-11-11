@@ -176,7 +176,6 @@ export const townDeclarations = {
       request: { params: StopLessonRequestSchema },
       responses: {
         200: overviewResponse('The town with the lesson stopped; nothing is studied.'),
-        400: malformedResponse('path'),
         404: townNotFoundResponse,
         409: refusalResponse('LessonStudyNotFound.'),
       },
