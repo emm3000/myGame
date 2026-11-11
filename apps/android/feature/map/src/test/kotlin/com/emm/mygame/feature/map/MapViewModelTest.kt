@@ -1,6 +1,7 @@
 package com.emm.mygame.feature.map
 
 import app.cash.turbine.test
+import com.emm.mygame.core.network.JobQuoteResult
 import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMapResult
 import com.emm.mygame.core.network.Terrain
@@ -11,10 +12,13 @@ import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
 import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.testing.FakeRegionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -47,17 +51,38 @@ class MapViewModelTest {
 
     private fun blockOf(viewModel: MapViewModel): MapUiState.JobBlock? = contentOf(viewModel).form?.block
 
+    private fun quoteOf(viewModel: MapViewModel): MapUiState.PayQuote? = contentOf(viewModel).form?.quote
+
+    private fun jobFor(hours: Int): FakeRegionRepository.JobRequest = FakeRegionRepository.JobRequest(
+        target = JobTarget(area = 1, site = 1),
+        team = mapOf(TownHireKind.Worker to 2, TownHireKind.Truck to 1),
+        hours = hours,
+    )
+
+    private fun quotedPay(money: Long): JobQuoteResult.Quoted = JobQuoteResult.Quoted(
+        mapOf(
+            TownResourceKind.Money to money,
+            TownResourceKind.Food to 0L,
+            TownResourceKind.Power to 0L,
+            TownResourceKind.Material to 30L,
+        ),
+    )
+
+    private fun drawnPay(money: Long): MapUiState.PayQuote = MapUiState.PayQuote.Quoted(
+        listOf(MapUiState.PayLine(TownResourceKind.Money, money), MapUiState.PayLine(TownResourceKind.Material, 30L)),
+    )
+
     @Test
     fun `opens the map on the town's area`() = runTest {
         val viewModel: MapViewModel = mapReading(towns, map = regionMapOf(area = 2, terrain = Terrain.Hills))
 
-        assertEquals(listOf<Int?>(null), towns.mapReads)
+        assertEquals(listOf<Int?>(null), towns.regions.mapReads)
         assertEquals(MapUiState.AreaLine(area = 2, terrain = Terrain.Hills), contentOf(viewModel).areaLine)
     }
 
     @Test
     fun `draws loading until the town answers`() = runTest {
-        towns.answerMap(RegionMapResult.Read(regionMapOf()))
+        towns.regions.answerMap(RegionMapResult.Read(regionMapOf()))
         val viewModel: MapViewModel = mapViewModelOf(towns)
         runCurrent()
 
@@ -78,13 +103,13 @@ class MapViewModelTest {
     fun `browses with previous and next`() = runTest {
         val viewModel: MapViewModel = mapReading(towns, map = regionMapOf(area = 2, lastArea = 3))
         val middle: MapUiState.Content = contentOf(viewModel)
-        towns.answerMap(RegionMapResult.Read(regionMapOf(area = 3, lastArea = 3)))
+        towns.regions.answerMap(RegionMapResult.Read(regionMapOf(area = 3, lastArea = 3)))
 
         viewModel.onIntent(MapIntent.AreaTapped(area = 3))
         runCurrent()
 
         assertEquals(1 to 3, middle.previousArea to middle.nextArea)
-        assertEquals(listOf(null, 3), towns.mapReads)
+        assertEquals(listOf(null, 3), towns.regions.mapReads)
         assertEquals(3, contentOf(viewModel).areaLine.area)
     }
 
@@ -115,34 +140,34 @@ class MapViewModelTest {
     @Test
     fun `draws the area not found with a way back to the own area`() = runTest {
         val viewModel: MapViewModel = mapReading(towns)
-        towns.answerMap(RegionMapResult.AreaNotFound)
+        towns.regions.answerMap(RegionMapResult.AreaNotFound)
         viewModel.onIntent(MapIntent.AreaTapped(area = 2))
         runCurrent()
         val notFound: MapUiState = viewModel.state.value
-        towns.answerMap(RegionMapResult.Read(regionMapOf(area = 1)))
+        towns.regions.answerMap(RegionMapResult.Read(regionMapOf(area = 1)))
 
         viewModel.onIntent(MapIntent.OwnAreaTapped)
         runCurrent()
 
         assertEquals(MapUiState.AreaNotFound, notFound)
-        assertEquals(listOf(null, 2, null), towns.mapReads)
+        assertEquals(listOf(null, 2, null), towns.regions.mapReads)
         assertEquals(1, contentOf(viewModel).areaLine.area)
     }
 
     @Test
     fun `draws a failed read with a retry that reads again`() = runTest {
         towns.answerRead(TownReadResult.Read(townOf()))
-        towns.answerMap(RegionMapResult.Unreachable)
+        towns.regions.answerMap(RegionMapResult.Unreachable)
         val viewModel: MapViewModel = mapViewModelOf(towns)
         runCurrent()
         val failed: MapUiState = viewModel.state.value
-        towns.answerMap(RegionMapResult.Read(regionMapOf()))
+        towns.regions.answerMap(RegionMapResult.Read(regionMapOf()))
 
         viewModel.onIntent(MapIntent.RetryTapped)
         runCurrent()
 
         assertEquals(MapUiState.Failed, failed)
-        assertEquals(listOf<Int?>(null, null), towns.mapReads)
+        assertEquals(listOf<Int?>(null, null), towns.regions.mapReads)
         assertEquals(1, contentOf(viewModel).areaLine.area)
     }
 
@@ -161,6 +186,7 @@ class MapViewModelTest {
                 workersAtHome = 3,
                 trucksAtHome = 1,
                 block = MapUiState.JobBlock.InvalidTeam,
+                quote = null,
             ),
             contentOf(viewModel).form,
         )
@@ -175,20 +201,20 @@ class MapViewModelTest {
 
         assertEquals(
             listOf(
-                FakeTownRepository.JobRequest(
+                FakeRegionRepository.JobRequest(
                     target = JobTarget(area = 1, site = 1),
                     team = mapOf(TownHireKind.Worker to 2, TownHireKind.Truck to 1),
                     hours = 3,
                 ),
             ),
-            towns.jobSends,
+            towns.regions.jobSends,
         )
     }
 
     @Test
     fun `closes the form once the api takes the job`() = runTest {
         val viewModel: MapViewModel = formFilled()
-        towns.answerJob(TownJobResult.Answered(townOf(job = jobOf())))
+        towns.regions.answerJob(TownJobResult.Answered(townOf(job = jobOf())))
 
         viewModel.onIntent(MapIntent.SendTapped)
         runCurrent()
@@ -204,7 +230,7 @@ class MapViewModelTest {
         viewModel.onIntent(MapIntent.SendTapped)
         runCurrent()
 
-        assertEquals(1, towns.jobSends.size)
+        assertEquals(1, towns.regions.jobSends.size)
     }
 
     @Test
@@ -221,7 +247,7 @@ class MapViewModelTest {
         viewModel.onIntent(MapIntent.SendTapped)
         runCurrent()
 
-        assertEquals(emptyList<FakeTownRepository.JobRequest>(), towns.jobSends)
+        assertEquals(emptyList<FakeRegionRepository.JobRequest>(), towns.regions.jobSends)
     }
 
     @Test
@@ -259,7 +285,7 @@ class MapViewModelTest {
     fun `asks the api for a blocked team and draws its refusal under the form`() = runTest {
         val refusal: TownJobRefusal = TownJobRefusal.NotEnoughHiresAtHome(TownHireKind.Worker, count = 5, atHome = 3)
         val viewModel: MapViewModel = formFilled(town = townOf(workers = 3), workers = "5")
-        towns.answerJob(TownJobResult.Refused(refusal))
+        towns.regions.answerJob(TownJobResult.Refused(refusal))
 
         viewModel.onIntent(MapIntent.SendTapped)
         runCurrent()
@@ -275,7 +301,7 @@ class MapViewModelTest {
         viewModel.onIntent(MapIntent.CallBackTapped)
         runCurrent()
 
-        assertEquals(listOf(readInstant), towns.callBacks)
+        assertEquals(listOf(readInstant), towns.regions.callBacks)
     }
 
     @Test
@@ -322,5 +348,108 @@ class MapViewModelTest {
         runCurrent()
 
         assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `shows the pay before sending a job`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+
+        towns.regions.answerQuote(jobFor(hours = 3), quotedPay(money = 90L))
+        runCurrent()
+
+        assertEquals(drawnPay(money = 90L), quoteOf(viewModel))
+    }
+
+    @Test
+    fun `draws the quote as asked until the api answers`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+
+        assertEquals(MapUiState.PayQuote.Asking, quoteOf(viewModel))
+    }
+
+    @Test
+    fun `asks the quote again when the hours change`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Hours, "4"))
+
+        assertEquals(listOf(jobFor(hours = 3), jobFor(hours = 4)), towns.regions.quotes.takeLast(2))
+    }
+
+    @Test
+    fun `ignores a quote answered for an older form`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Hours, "4"))
+
+        towns.regions.answerQuote(jobFor(hours = 4), quotedPay(money = 120L))
+        towns.regions.answerQuote(jobFor(hours = 3), quotedPay(money = 90L))
+        runCurrent()
+
+        assertEquals(drawnPay(money = 120L), quoteOf(viewModel))
+    }
+
+    @Test
+    fun `drops the pay of the last entries while the new ones are quoted`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), quotedPay(money = 90L))
+        runCurrent()
+
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Hours, "4"))
+
+        assertEquals(MapUiState.PayQuote.Asking, quoteOf(viewModel))
+    }
+
+    @Test
+    fun `asks no quote for a blocked form`() = runTest {
+        val viewModel: MapViewModel = formFilled(workers = "0", trucks = "0")
+
+        assertEquals(emptyList<FakeRegionRepository.JobRequest>(), towns.regions.quotes)
+        assertNull(quoteOf(viewModel))
+    }
+
+    @Test
+    fun `draws the api's refusal of a quote`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Refused(TownJobRefusal.SiteHeld))
+        runCurrent()
+
+        assertEquals(MapUiState.PayQuote.Refused(TownJobRefusal.SiteHeld), quoteOf(viewModel))
+    }
+
+    @Test
+    fun `draws an unreachable quote`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+
+        assertEquals(MapUiState.PayQuote.Unreachable, quoteOf(viewModel))
+    }
+
+    @Test
+    fun `sends a job whose quote could not be read`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+
+        viewModel.onIntent(MapIntent.SendTapped)
+        runCurrent()
+
+        assertEquals(listOf(jobFor(hours = 3)), towns.regions.jobSends)
+    }
+
+    @Test
+    fun `asks the quote again when the season turns`() = runTest {
+        val turn: Instant = readInstant + 30.minutes
+        formFilled(town = townOf(seasonEndsAt = turn), hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), quotedPay(money = 90L))
+        runCurrent()
+        towns.answerRead(TownReadResult.Read(townOf(seasonEndsAt = turn + 90.days, readAt = turn)))
+
+        advanceTimeBy(30.minutes + 1.seconds)
+        runCurrent()
+
+        assertEquals(listOf(jobFor(hours = 3), jobFor(hours = 3)), towns.regions.quotes.takeLast(2))
     }
 }

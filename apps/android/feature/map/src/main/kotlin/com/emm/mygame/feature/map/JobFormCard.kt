@@ -7,8 +7,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,6 +63,7 @@ internal fun JobFormCard(
                 field = MapIntent.JobField.Hours,
                 onIntent = onIntent,
             )
+            form.quote?.let { quote: MapUiState.PayQuote -> QuoteLine(quote = quote) }
             MyGameButton(
                 label = stringResource(R.string.map_job_send),
                 isBusy = send == MapUiState.SendRequest.Waiting,
@@ -106,6 +109,25 @@ private fun MapUiState.SendRequest.isAnsweredFor(site: Int): Boolean = when (thi
     is MapUiState.SendRequest.Refused -> this.site == site
     is MapUiState.SendRequest.Unreachable -> this.site == site
     MapUiState.SendRequest.Idle, MapUiState.SendRequest.Waiting -> false
+}
+
+@Composable
+private fun QuoteLine(quote: MapUiState.PayQuote, modifier: Modifier = Modifier) {
+    when (quote) {
+        MapUiState.PayQuote.Asking -> Unit
+        is MapUiState.PayQuote.Quoted -> if (quote.pay.isNotEmpty()) {
+            MyGameText(
+                text = quotedPayLineOf(quote),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.ink,
+                modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
+        }
+        is MapUiState.PayQuote.Refused ->
+            MyGameInlineAlert(message = jobRefusalLineOf(quote.refusal), modifier = modifier)
+        MapUiState.PayQuote.Unreachable ->
+            MyGameInlineAlert(message = stringResource(R.string.map_refusal_unexpected), modifier = modifier)
+    }
 }
 
 @Composable

@@ -49,7 +49,19 @@ sealed interface MapUiState {
         val workersAtHome: Int,
         val trucksAtHome: Int,
         val block: JobBlock?,
+        val quote: PayQuote?,
     )
+
+    sealed interface PayQuote {
+
+        data object Asking : PayQuote
+
+        data class Quoted(val pay: List<PayLine>) : PayQuote
+
+        data class Refused(val refusal: TownJobRefusal) : PayQuote
+
+        data object Unreachable : PayQuote
+    }
 
     sealed interface JobBlock {
 

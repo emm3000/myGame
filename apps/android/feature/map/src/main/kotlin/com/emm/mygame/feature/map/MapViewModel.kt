@@ -57,6 +57,12 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
 
     private var isShown: Boolean = true
 
+    private var quoteAsked: QuoteAsk? = null
+
+    private var quoted: MapUiState.PayQuote? = null
+
+    private var quoteRead: Job? = null
+
     init {
         readArea(null)
         openTown()
@@ -172,7 +178,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         shown = town
         draw()
         if (isShown) {
-            projection = viewModelScope.launch { project(town, firstReadAt = town.job?.nextInstant()) }
+            projection = viewModelScope.launch { project(town, firstReadAt = town.readInstants().minOrNull()) }
         }
     }
 
@@ -182,8 +188,31 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     }
 
     private fun draw() {
+        askQuote()
         _state.value = stateOf(area, shown)
     }
+
+    private fun askQuote() {
+        val ask: QuoteAsk? = currentQuoteAsk()
+        if (ask == quoteAsked) return
+        quoteAsked = ask
+        quoted = null
+        quoteRead?.cancel()
+        if (ask == null) return
+        quoteRead = viewModelScope.launch {
+            quoted = payQuoteOf(towns.quoteJob(ask.target, ask.team, ask.hours))
+            draw()
+        }
+    }
+
+    private fun currentQuoteAsk(): QuoteAsk? {
+        val map: RegionMap = (area as? AreaRead.Read)?.map ?: return null
+        val town: TownSnapshot = shown ?: return null
+        return quoteAskOf(map, town, choices)
+    }
+
+    private fun drawnQuote(): MapUiState.PayQuote? =
+        if (quoteAsked == null) null else quoted ?: MapUiState.PayQuote.Asking
 
     private fun stateOf(read: AreaRead, town: TownSnapshot?): MapUiState {
         if (isTownFailed) return MapUiState.Failed
@@ -192,8 +221,9 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
             AreaRead.NotFound -> MapUiState.AreaNotFound
             AreaRead.Reading -> MapUiState.Loading
             is AreaRead.Read ->
-                town?.let { held: TownSnapshot -> mapContentOf(read.map, held, serverNow(), gap, choices) }
-                    ?: MapUiState.Loading
+                town?.let { held: TownSnapshot ->
+                    mapContentOf(read.map, held, serverNow(), gap, choices, drawnQuote())
+                } ?: MapUiState.Loading
         }
     }
 
@@ -208,7 +238,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
                         town = measured(answer.town)
                         shown = town
                         choices = choices.keptAfterRead()
-                        nextReadAt = town.job?.nextInstant()?.takeIf { instant: Instant -> instant > serverNow() }
+                        nextReadAt = town.readInstantsAfter(serverNow()).minOrNull()
                         continue
                     }
                     TownReadResult.NoTown -> return _effects.send(MapEffect.NoTown)

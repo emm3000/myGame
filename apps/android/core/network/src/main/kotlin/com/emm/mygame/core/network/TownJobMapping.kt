@@ -2,6 +2,7 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.JobQuote
 import com.emm.mygame.core.network.generated.models.NotEnoughHiresAtHomeErrorParams
 import com.emm.mygame.core.network.generated.models.SendJob
 import com.emm.mygame.core.network.generated.models.SendJobSite
@@ -47,6 +48,22 @@ internal fun jobResultOf(response: Response<TownOverview>, snapshot: TownSnapsho
     val refusal: WireRefusal = response.wireRefusal() ?: return TownJobResult.Unreachable
     return TownJobResult.Refused(refusal.toJobRefusal())
 }
+
+internal fun quoteResultOf(response: Response<JobQuote>): JobQuoteResult {
+    val quote: JobQuote? = response.body()
+    if (response.isSuccessful) {
+        return if (quote == null) JobQuoteResult.Unreachable else JobQuoteResult.Quoted(quote.payByResource())
+    }
+    val refusal: WireRefusal = response.wireRefusal() ?: return JobQuoteResult.Unreachable
+    return JobQuoteResult.Refused(refusal.toJobRefusal())
+}
+
+private fun JobQuote.payByResource(): Map<TownResourceKind, Long> = mapOf(
+    TownResourceKind.Money to pay.money.toLong(),
+    TownResourceKind.Food to pay.food.toLong(),
+    TownResourceKind.Power to pay.power.toLong(),
+    TownResourceKind.Material to pay.material.toLong(),
+)
 
 private fun TownOverviewJob.Phase.toJobPhase(): TownSnapshot.JobPhase? = when (this) {
     TownOverviewJob.Phase.outbound -> TownSnapshot.JobPhase.Outbound

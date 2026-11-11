@@ -66,12 +66,13 @@ internal fun townOf(
     workers: Int = 3,
     trucks: Int = 1,
     job: TownSnapshot.Job? = null,
+    seasonEndsAt: Instant? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
     name = "Riverton",
     label = TownLabel.Town,
     seasonInForce = null,
-    seasonEndsAt = null,
+    seasonEndsAt = seasonEndsAt,
     stocks = emptyList(),
     people = TownSnapshot.People(supplied = 10, free = 4, atWork = 6),
     buildings = listOf(TownBuildingKind.Homes, TownBuildingKind.Office).map { kind: TownBuildingKind ->
@@ -109,7 +110,7 @@ internal fun TestScope.mapReading(
     map: RegionMap = regionMapOf(),
 ): MapViewModel {
     towns.answerRead(TownReadResult.Read(town))
-    towns.answerMap(RegionMapResult.Read(map))
+    towns.regions.answerMap(RegionMapResult.Read(map))
     val viewModel: MapViewModel = mapViewModelOf(towns)
     runCurrent()
     return viewModel

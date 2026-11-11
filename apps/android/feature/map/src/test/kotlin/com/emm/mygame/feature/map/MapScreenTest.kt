@@ -39,7 +39,10 @@ class MapScreenTest {
         workersAtHome = 3,
         trucksAtHome = 1,
         block = MapUiState.JobBlock.InvalidTeam,
+        quote = null,
     )
+
+    private val readyForm: MapUiState.JobForm = nobodyForm.copy(workers = "2", trucks = "1", hours = "3", block = null)
 
     private val outbound: MapUiState.JobOut = MapUiState.JobOut(
         site = TownSite(region = 1, area = 2, site = 4),
@@ -167,5 +170,48 @@ class MapScreenTest {
         composeRule.onNodeWithText("Llamar de vuelta al equipo").performScrollTo().performClick()
 
         assertEquals(listOf<MapIntent>(MapIntent.CallBackTapped), intents)
+    }
+
+    @Test
+    fun `draws the quoted pay on the job form`() {
+        val quoted: MapUiState.PayQuote = MapUiState.PayQuote.Quoted(
+            listOf(MapUiState.PayLine(TownResourceKind.Money, 90L), MapUiState.PayLine(TownResourceKind.Material, 30L)),
+        )
+
+        show(contentOf(form = readyForm.copy(quote = quoted)))
+
+        composeRule
+            .onNodeWithText("Este trabajo paga 90 de dinero y 30 de material")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the api's refusal of a quote on the job form`() {
+        show(contentOf(form = readyForm.copy(quote = MapUiState.PayQuote.Refused(TownJobRefusal.SiteHeld))))
+
+        composeRule
+            .onNodeWithText("En ese sitio hay otro pueblo. Elige un sitio libre.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `says so on the job form when the quote cannot be read`() {
+        show(contentOf(form = readyForm.copy(quote = MapUiState.PayQuote.Unreachable)))
+
+        composeRule
+            .onNodeWithText("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `keeps the send button of a form whose quote cannot be read`() {
+        show(contentOf(form = readyForm.copy(quote = MapUiState.PayQuote.Unreachable)))
+
+        composeRule.onNodeWithText("Enviar el equipo").performScrollTo().performClick()
+
+        assertEquals(listOf<MapIntent>(MapIntent.SendTapped), intents)
     }
 }
