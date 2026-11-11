@@ -21,8 +21,13 @@ import { type Hires, noHires } from './Hires'
 import { type HiringOrder, type HiringSlot, type HiringTarget, idleHiringSlot } from './HiringOrder'
 import { hireKinds } from './hireKinds'
 import { hiringEndsAt } from './hiringEndsAt'
+import { idleJobSlot, type Job, type JobSlot } from './Job'
+import { jobInstantsOf, uncalledJobInstantsOf } from './jobInstantsOf'
+import { jobPayOfMilliseconds } from './jobPayOfMilliseconds'
+import { jobPhaseAt } from './jobPhaseAt'
 import type { ResourceKind } from './ResourceKind'
 import { recheckWaitingList } from './recheckWaitingList'
+import { refuseInvalidTeam } from './refuseInvalidTeam'
 import { resourceKinds } from './resourceKinds'
 import type { Stocks } from './Stocks'
 import type { Terrain } from './Terrain'
@@ -54,6 +59,7 @@ type TownState = {
   readonly skills: ReadonlyArray<TownSkill>
   readonly hires: Hires
   readonly hiringSlot: HiringSlot
+  readonly jobSlot: JobSlot
 }
 
 export type StoredTown = TownState & {
@@ -183,13 +189,57 @@ const refuseInvalidHiring = (slot: HiringSlot): DomainError | undefined => {
   return refuseInvalidCost(slot.costPerHire)
 }
 
+const refuseInvalidPayPercent = (payPercent: Job['payPercent']): DomainError | undefined => {
+  const invalid = resourceKinds.find((resource) => !isWholeFromOne(payPercent[resource]))
+  return invalid === undefined
+    ? undefined
+    : { kind: 'InvalidPayPercent', resource: invalid, percent: payPercent[invalid] }
+}
+
+const refuseCallBackOutsideWork = (job: Job): DomainError | undefined => {
+  const { sentAt, calledBackAt } = job
+  if (calledBackAt === undefined) {
+    return undefined
+  }
+  if (calledBackAt.epochMilliseconds < sentAt.epochMilliseconds) {
+    return { kind: 'SlotStartsAfterFinish', startedAt: sentAt, finishesAt: calledBackAt }
+  }
+  const { leavesAt } = uncalledJobInstantsOf(job)
+  return calledBackAt.epochMilliseconds < leavesAt.epochMilliseconds
+    ? undefined
+    : { kind: 'SlotStartsAfterFinish', startedAt: calledBackAt, finishesAt: leavesAt }
+}
+
+const refuseInvalidJobTerms = (job: Job): DomainError | undefined =>
+  refuseInvalidTeam(job.team) ??
+  (isWholeFromOne(job.hours) ? undefined : { kind: 'InvalidJobHours', hours: job.hours }) ??
+  refuseInvalidDuration(job.oneWaySeconds) ??
+  refuseInvalidCost(job.pay) ??
+  refuseInvalidPayPercent(job.payPercent) ??
+  refuseCallBackOutsideWork(job)
+
+const refuseInvalidJob = (slot: JobSlot, storedAt: Instant): DomainError | undefined => {
+  if (slot.kind === 'idle') {
+    return undefined
+  }
+  const refusal = refuseInvalidJobTerms(slot)
+  if (refusal !== undefined) {
+    return refusal
+  }
+  const { returnsAt } = jobInstantsOf(slot)
+  return returnsAt.epochMilliseconds < storedAt.epochMilliseconds
+    ? { kind: 'SlotFinishesBeforeStored', storedAt, finishesAt: returnsAt }
+    : undefined
+}
+
 const refuseInvalidTown = (stored: StoredTown): DomainError | undefined =>
   refuseInvalidStocks(stored.stocks) ??
   refuseInvalidLevels(stored.buildingLevels) ??
   refuseInvalidSlot(stored.workSlot, stored.storedAt) ??
   refuseInvalidWaitingList(stored.waitingList) ??
   refuseInvalidHires(stored.hires) ??
-  refuseInvalidHiring(stored.hiringSlot)
+  refuseInvalidHiring(stored.hiringSlot) ??
+  refuseInvalidJob(stored.jobSlot, stored.storedAt)
 
 const timesCount = (amounts: Stocks, count: number): Stocks =>
   stocksOf((resource) => amounts[resource] * count)
@@ -197,6 +247,18 @@ const timesCount = (amounts: Stocks, count: number): Stocks =>
 const hiresPlus = (hires: Hires, hire: HireKind, count: number): Hires => ({
   ...hires,
   [hire]: hires[hire] + count,
+})
+
+const hiresOf = (countOf: (hire: HireKind) => number): Hires => ({
+  worker: countOf('worker'),
+  truck: countOf('truck'),
+})
+
+const jobReturnOf = (job: Job, occurredAt: Instant): TownEvent => ({
+  kind: job.calledBackAt === undefined ? 'jobBack' : 'jobCalledBack',
+  site: job.site,
+  pay: job.pay,
+  occurredAt,
 })
 
 const isHiringOf = (target: HiringTarget, order: HiringOrder): boolean =>
@@ -266,6 +328,7 @@ export class Town {
       skills,
       hires: noHires,
       hiringSlot: idleHiringSlot,
+      jobSlot: idleJobSlot,
     })
   }
 
@@ -312,6 +375,76 @@ export class Town {
 
   get hiringSlot(): HiringSlot {
     return this.state.hiringSlot
+  }
+
+  get jobSlot(): JobSlot {
+    return this.state.jobSlot
+  }
+
+  hiresAtHomeAt(at: Instant): Hires {
+    const atHand = this.hiresAt(at)
+    const slot = this.jobSlot
+    return slot.kind === 'idle' ? atHand : hiresOf((hire) => atHand[hire] - slot.team[hire])
+  }
+
+  roomForJob(): Result<void, DomainError> {
+    return this.jobSlot.kind === 'out' ? err({ kind: 'TeamAlreadyOut' }) : ok(undefined)
+  }
+
+  sendJob(job: Job): Result<Town, DomainError> {
+    const room = this.roomForJob()
+    if (!room.ok) {
+      return room
+    }
+    const atHome = this.hiresAtHomeAt(job.sentAt)
+    const short = hireKinds.find((hire) => job.team[hire] > atHome[hire])
+    if (short !== undefined) {
+      return err({
+        kind: 'NotEnoughHiresAtHome',
+        hire: short,
+        count: job.team[short],
+        atHome: atHome[short],
+      })
+    }
+    return ok(this.changed({ jobSlot: job }))
+  }
+
+  callJobBack(sentAt: Instant, now: Instant, catalog: TownCatalog): Result<Town, DomainError> {
+    const slot = this.jobSlot
+    if (slot.kind === 'idle' || slot.sentAt.epochMilliseconds !== sentAt.epochMilliseconds) {
+      return err({ kind: 'JobNotFound', sentAt })
+    }
+    if (jobPhaseAt(slot, now) === 'returning') {
+      return err({ kind: 'JobAlreadyReturning' })
+    }
+    const workedMilliseconds = Math.max(
+      0,
+      now.epochMilliseconds - jobInstantsOf(slot).arrivesAt.epochMilliseconds,
+    )
+    const pay = jobPayOfMilliseconds(
+      terrainOf(slot.site.area),
+      slot.team,
+      workedMilliseconds,
+      catalog,
+      slot.payPercent,
+    )
+    return ok(this.changed({ jobSlot: { ...slot, calledBackAt: now, pay } }))
+  }
+
+  returnJob(stocksAtReturn: Stocks): ChangedTown {
+    const slot = this.jobSlot
+    if (slot.kind === 'idle') {
+      return { town: this, events: [] }
+    }
+    const { returnsAt } = jobInstantsOf(slot)
+    return {
+      town: this.changed({
+        stocks: credited(stocksAtReturn, slot.pay),
+        storedAt: returnsAt,
+        jobSlot: idleJobSlot,
+      }),
+      events: [jobReturnOf(slot, returnsAt)],
+    }
   }
 
   get staffedHires(): Hires {

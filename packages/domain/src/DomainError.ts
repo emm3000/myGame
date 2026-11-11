@@ -3,6 +3,7 @@ import type { PlayerId } from './player/PlayerId'
 import type { Instant } from './time/Instant'
 import type { BuildingKind } from './town/BuildingKind'
 import type { HireKind } from './town/HireKind'
+import type { Hires } from './town/Hires'
 import type { ResourceKind } from './town/ResourceKind'
 import type { SiteAddress } from './town/SiteAddress'
 import type { Stocks } from './town/Stocks'
@@ -116,3 +117,24 @@ export type DomainError =
     }
   | { readonly kind: 'HiringSlotBusy'; readonly hire: HireKind }
   | { readonly kind: 'HiringOrderNotFound'; readonly hire: HireKind; readonly startedAt: Instant }
+  | { readonly kind: 'AreaNotFound'; readonly area: number }
+  | { readonly kind: 'InvalidTeam'; readonly team: Hires }
+  | { readonly kind: 'JobHoursOutOfRange'; readonly hours: number; readonly maxHours: number }
+  | { readonly kind: 'TeamAlreadyOut' }
+  | { readonly kind: 'JobSiteOutOfBounds'; readonly area: number; readonly site: number }
+  | { readonly kind: 'JobToOwnSite' }
+  | { readonly kind: 'SiteHeld'; readonly area: number; readonly site: number }
+  | {
+      readonly kind: 'NotEnoughHiresAtHome'
+      readonly hire: HireKind
+      readonly count: number
+      readonly atHome: number
+    }
+  | { readonly kind: 'JobNotFound'; readonly sentAt: Instant }
+  | { readonly kind: 'JobAlreadyReturning' }
+  | { readonly kind: 'InvalidJobHours'; readonly hours: number }
+  | {
+      readonly kind: 'InvalidPayPercent'
+      readonly resource: ResourceKind
+      readonly percent: number
+    }

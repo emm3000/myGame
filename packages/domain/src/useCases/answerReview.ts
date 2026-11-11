@@ -24,8 +24,8 @@ import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
 import type { EarnedSkillRepository } from '../town/EarnedSkillRepository'
 import { earnTownSkill } from '../town/earnTownSkill'
-import { finishBuildingWork } from '../town/finishBuildingWork'
 import { saveChangedTown } from '../town/saveChangedTown'
+import { settleTownTo } from '../town/settleTownTo'
 import type { Town } from '../town/Town'
 import type { TownCatalog } from '../town/TownCatalog'
 import type { TownNews } from '../town/TownNews'
@@ -116,15 +116,15 @@ const rebaseTownAtEarn = async (
   skill: TownSkill,
   { towns, news, catalog }: AnswerReviewDependencies,
 ): Promise<Result<void, DomainError>> => {
-  const finished = finishBuildingWork(town, catalog, skill.earnedAt)
-  if (!finished.ok) {
-    return finished
+  const settled = settleTownTo(town, catalog, skill.earnedAt)
+  if (!settled.ok) {
+    return settled
   }
-  const earned = earnTownSkill(finished.value.town, skill, catalog)
+  const earned = earnTownSkill(settled.value.town, skill, catalog)
   if (!earned.ok) {
     return earned
   }
-  const events = [...finished.value.events, ...earned.value.events]
+  const events = [...settled.value.events, ...earned.value.events]
   return saveChangedTown({ town: earned.value.town, events }, towns, news)
 }
 

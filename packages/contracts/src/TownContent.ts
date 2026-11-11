@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonKindSchema } from './SeasonKind'
+import { TerrainSchema } from './Terrain'
 import { InstantSchema, QuantitySchema, WholeCountSchema } from './Wire'
 
 const TownSeasonsSchema = z.strictObject({
@@ -17,6 +18,22 @@ const TownSeasonsSchema = z.strictObject({
       build: WholeCountSchema.positive(),
       study: WholeCountSchema.positive(),
       hire: WholeCountSchema.positive(),
+      road: WholeCountSchema.positive(),
+    }),
+  ),
+})
+
+const JobContentSchema = z.strictObject({
+  secondsPerArea: WholeCountSchema.positive(),
+  secondsPerSite: WholeCountSchema.positive(),
+  maxHours: WholeCountSchema.positive(),
+  payPerHour: z.record(
+    TerrainSchema,
+    z.strictObject({
+      money: z.literal(0),
+      food: WholeCountSchema,
+      power: WholeCountSchema,
+      material: WholeCountSchema,
     }),
   ),
 })
@@ -30,6 +47,7 @@ export const TownContentSchema = z.strictObject({
   sitesPerArea: WholeCountSchema.positive(),
   terrainBonusPerHour: QuantitySchema,
   waitingListCap: WholeCountSchema,
+  job: JobContentSchema,
   seasons: TownSeasonsSchema,
 })
 

@@ -5,6 +5,7 @@ import {
   type HiringSlot,
   Instant,
   idleHiringSlot,
+  idleJobSlot,
   idleWorkSlot,
   noHires,
   noStoreFull,
@@ -123,6 +124,7 @@ const grownTown = ({
     waitingList,
     hires,
     hiringSlot,
+    jobSlot: idleJobSlot,
     skills: [],
   })
   assert(restored.ok)

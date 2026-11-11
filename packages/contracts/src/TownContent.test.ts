@@ -11,11 +11,19 @@ const productionPercent = {
 }
 
 const durationPercent = {
-  spring: { build: 100, study: 100, hire: 75 },
-  summer: { build: 75, study: 100, hire: 100 },
-  fall: { build: 100, study: 100, hire: 100 },
-  winter: { build: 100, study: 75, hire: 100 },
+  spring: { build: 100, study: 100, hire: 75, road: 100 },
+  summer: { build: 75, study: 100, hire: 100, road: 100 },
+  fall: { build: 100, study: 100, hire: 100, road: 75 },
+  winter: { build: 100, study: 75, hire: 100, road: 100 },
 }
+
+const payPerHour = {
+  fields: { money: 0, food: 3, power: 0, material: 3 },
+  river: { money: 0, food: 0, power: 3, material: 3 },
+  hills: { money: 0, food: 3, power: 0, material: 3 },
+}
+
+const job = { secondsPerArea: 600, secondsPerSite: 60, maxHours: 8, payPerHour }
 
 const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   startingStocks: { money: 400, food: 300, power: 200, material: 500 },
@@ -26,6 +34,7 @@ const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   sitesPerArea: 15,
   terrainBonusPerHour: 5,
   waitingListCap: 4,
+  job,
   seasons: {
     epoch: '2026-10-05T00:00:00Z',
     daysPerSeason: 7,
@@ -57,7 +66,10 @@ describe('TownContentSchema', () => {
       epoch: '2026-10-05T00:00:00Z',
       daysPerSeason: 7,
       productionPercent,
-      durationPercent: { ...durationPercent, winter: { build: 0, study: 75, hire: 100 } },
+      durationPercent: {
+        ...durationPercent,
+        winter: { build: 0, study: 75, hire: 100, road: 100 },
+      },
     }
 
     expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)
@@ -68,6 +80,7 @@ describe('TownContentSchema', () => {
       build: 100,
       study: 75,
       hire: 100,
+      road: 100,
     })
   })
 
@@ -76,7 +89,7 @@ describe('TownContentSchema', () => {
       epoch: '2026-10-05T00:00:00Z',
       daysPerSeason: 7,
       productionPercent,
-      durationPercent: { ...durationPercent, winter: { build: 100, study: 75 } },
+      durationPercent: { ...durationPercent, winter: { build: 100, study: 75, road: 100 } },
     }
 
     expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)
@@ -87,10 +100,40 @@ describe('TownContentSchema', () => {
       epoch: '2026-10-05T00:00:00Z',
       daysPerSeason: 7,
       productionPercent,
-      durationPercent: { ...durationPercent, winter: { build: 100, hire: 100 } },
+      durationPercent: { ...durationPercent, winter: { build: 100, hire: 100, road: 100 } },
     }
 
     expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)
+  })
+
+  it('refuses a season without a road percent', () => {
+    const seasons = {
+      epoch: '2026-10-05T00:00:00Z',
+      daysPerSeason: 7,
+      productionPercent,
+      durationPercent: { ...durationPercent, fall: { build: 100, study: 100, hire: 100 } },
+    }
+
+    expect(TownContentSchema.safeParse(townContent({ seasons })).success).toBe(false)
+  })
+
+  it('parses the job terms with the pay per hour of each terrain', () => {
+    expect(TownContentSchema.parse(townContent()).job).toEqual(job)
+  })
+
+  it('refuses content that pays money from a job', () => {
+    const paidInMoney = {
+      ...job,
+      payPerHour: { ...payPerHour, river: { money: 2, food: 0, power: 3, material: 3 } },
+    }
+
+    expect(TownContentSchema.safeParse(townContent({ job: paidInMoney })).success).toBe(false)
+  })
+
+  it('refuses a job of no hours at most', () => {
+    expect(TownContentSchema.safeParse(townContent({ job: { ...job, maxHours: 0 } })).success).toBe(
+      false,
+    )
   })
 
   it('refuses an area without sites', () => {

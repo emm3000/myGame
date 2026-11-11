@@ -249,7 +249,7 @@ describe('stopBuildingWork', () => {
 
   it('keeps the stored duration of waiting work it starts in a season that scales builds', async () => {
     const now = minutesAfterEpoch(90)
-    const halfBuilds = { build: 50, study: 100, hire: 100 }
+    const halfBuilds = { build: 50, study: 100, hire: 100, road: 100 }
     const fastBuilds = townCatalogOf({
       ...plainTownSettings,
       seasons: {

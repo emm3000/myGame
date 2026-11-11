@@ -51,6 +51,7 @@ export class MemoryTownRepository implements TownRepository {
       waitingList: town.waitingList,
       hires: town.hires,
       hiringSlot: town.hiringSlot,
+      jobSlot: town.jobSlot,
       skills: skills.value,
     })
   }

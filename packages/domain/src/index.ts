@@ -67,6 +67,11 @@ export {
 } from './town/BuildingWork'
 export { buildingKinds } from './town/buildingKinds'
 export { buildPercentAt } from './town/buildPercentAt'
+export {
+  type CallJobBackCommand,
+  type CallJobBackDependencies,
+  callJobBack,
+} from './town/callJobBack'
 export { deliveredHiresOf } from './town/deliveredHiresOf'
 export { deriveHireDurationSeconds } from './town/deriveHireDurationSeconds'
 export { deriveLessonDurationSeconds } from './town/deriveLessonDurationSeconds'
@@ -89,6 +94,12 @@ export {
 export { hireKinds } from './town/hireKinds'
 export { hirePercentAt } from './town/hirePercentAt'
 export { hiringEndsAt } from './town/hiringEndsAt'
+export { idleJobSlot, type Job, type JobSlot } from './town/Job'
+export { type JobInstants, jobInstantsOf } from './town/jobInstantsOf'
+export { jobOneWaySeconds } from './town/jobOneWaySeconds'
+export { jobPayOf } from './town/jobPayOf'
+export { type JobPhase, jobPhaseAt } from './town/jobPhaseAt'
+export { type JobSeason, jobSeasonAt } from './town/jobSeasonAt'
 export { type BusyLessonSlot, idleLessonSlot, type LessonSlot } from './town/LessonSlot'
 export type { LessonSlotRepository } from './town/LessonSlotRepository'
 export { lowestFreePeopleOf } from './town/lowestFreePeopleOf'
@@ -104,7 +115,14 @@ export {
   type PlaceHiringOrderDependencies,
   placeHiringOrder,
 } from './town/placeHiringOrder'
+export type { RegionMap, RegionSite } from './town/RegionMap'
+export type { RegionMapReader, SiteHolder } from './town/RegionMapReader'
 export type { ResourceKind } from './town/ResourceKind'
+export {
+  type ReadRegionMapCommand,
+  type ReadRegionMapDependencies,
+  readRegionMap,
+} from './town/readRegionMap'
 export { rebaseFullSince } from './town/rebaseFullSince'
 export { requiredOfficeLevelOf } from './town/requiredOfficeLevelOf'
 export { type ResolveTownDependencies, resolveTown } from './town/resolveTown'
@@ -112,6 +130,12 @@ export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
 export { schoolLevelOf } from './town/schoolLevelOf'
+export {
+  type JobTarget,
+  type SendJobCommand,
+  type SendJobDependencies,
+  sendJob,
+} from './town/sendJob'
 export {
   type SettleSchoolLessonDependencies,
   settleSchoolLesson,
@@ -153,6 +177,8 @@ export { TownName } from './town/TownName'
 export type { TownNews } from './town/TownNews'
 export type { TownRepository } from './town/TownRepository'
 export type {
+  JobPayPerHour,
+  JobTerms,
   ProductionPercent,
   TownDurationPercent,
   TownSeasons,

@@ -21,6 +21,7 @@ import { Instant } from '../time/Instant'
 import { accrueTown } from '../town/accrueTown'
 import type { WorkSlot } from '../town/BuildingWork'
 import type { EarnedSkillRepository } from '../town/EarnedSkillRepository'
+import type { Job } from '../town/Job'
 import { Town } from '../town/Town'
 import type { TownRepository } from '../town/TownRepository'
 import type { TownSkill } from '../town/TownSkill'
@@ -169,6 +170,7 @@ const townsLoadingSkillsFrom = (
       skills: earned.value,
       hires: stored.hires,
       hiringSlot: stored.hiringSlot,
+      jobSlot: stored.jobSlot,
     })
   },
 })
@@ -465,6 +467,32 @@ describe('answerReview', () => {
       'buildingWorkFinished',
       'skillEarned',
     ])
+  })
+
+  it('returns the team due home before the earn and records its news first', async () => {
+    const sentAt = hoursAfter(lastRecallAt, -3)
+    const job: Job = {
+      kind: 'out',
+      site: { region: 1, area: 1, site: 5 },
+      team: { worker: 1, truck: 0 },
+      hours: 1,
+      sentAt,
+      oneWaySeconds: 1_800,
+      pay: { money: 0, food: 6, power: 0, material: 6 },
+      payPercent: { money: 100, food: 100, power: 100, material: 100 },
+    }
+    const { towns, news, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+      [farmingTownStoredAt(sentAt, { hires: { worker: 1, truck: 0 }, jobSlot: job })],
+    )
+
+    await answerReview({ playerId: learner, wordId: 'school', answer: 'school' }, dependencies)
+
+    expect([
+      towns.storedTownOf(learner)?.jobSlot,
+      news.recordedEventsOf('town-1').map(({ kind }) => kind),
+    ]).toEqual([{ kind: 'idle' }, ['jobBack', 'skillEarned']])
   })
 
   it('saves only the skill for a player who holds no town', async () => {
