@@ -109,17 +109,17 @@ const sentJobOf = (sent: Awaited<ReturnType<typeof sendCleanUp>>): Job => {
   return sent.value.jobSlot
 }
 
-const stocksAtReturnOf = (town: Town): Stocks => {
-  const accrual = accrueTown(town, catalog, returnsAt)
+const stocksAt = (town: Town, at: Instant): Stocks => {
+  const accrual = accrueTown(town, catalog, at)
   assert(accrual.ok)
   return accrual.value.stocks
 }
 
-const stocksGainedBy = async (team: Hires): Promise<Stocks> => {
+const stocksGainedBy = async (team: Hires, at: Instant = returnsAt): Promise<Stocks> => {
   const world = worldOf()
   await sendIn(world, { team })
-  const returned = stocksAtReturnOf(await resolveIn(world, returnsAt))
-  const idle = stocksAtReturnOf(homeTown())
+  const returned = stocksAt(await resolveIn(world, at), at)
+  const idle = stocksAt(homeTown(), at)
   return {
     money: returned.money - idle.money,
     food: returned.food - idle.food,
@@ -152,7 +152,12 @@ describe('sendCleanUp', () => {
   })
 
   it('pays money and material per point of waste at the return', async () => {
-    expect(await stocksGainedBy(sixWorkers)).toEqual({ money: 12, food: 0, power: 0, material: 18 })
+    expect([await stocksGainedBy(sixWorkers, arrivesAt), await stocksGainedBy(sixWorkers)]).toEqual(
+      [
+        { money: 0, food: 0, power: 0, material: 0 },
+        { money: 12, food: 0, power: 0, material: 18 },
+      ],
+    )
   })
 
   it('caps the pay at the share of the summed carry', async () => {
@@ -276,7 +281,17 @@ describe('sendCleanUp', () => {
   it('refuses a site that holds no waste', async () => {
     const sent = await sendIn(worldOf(), { site: siteWithoutWaste })
 
-    expect(sent).toEqual({ ok: false, error: { kind: 'SiteHasNoWaste', area: 2, site: 3 } })
+    expect(sent).toEqual({ ok: false, error: { kind: 'NotAWasteSite', area: 2, site: 3 } })
+  })
+
+  it('refuses a waste site whose waste has not regrown since its clean-up', async () => {
+    const world = worldOf()
+    await sendIn(world)
+    await resolveIn(world, returnsAt)
+
+    const again = await sendIn(world, {}, minutesAfterStored(90))
+
+    expect(again).toEqual({ ok: false, error: { kind: 'NoWasteYet', area: 2, site: 1 } })
   })
 
   it('refuses a site a town holds', async () => {

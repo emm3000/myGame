@@ -52,10 +52,13 @@ const admittedCleanUpOf = async (
   const { waste: terms } = catalog.townSettings()
   const size = wasteSizeOf(target.value, terms)
   if (size === undefined) {
-    return err({ kind: 'SiteHasNoWaste', area: site.area, site: site.site })
+    return err({ kind: 'NotAWasteSite', area: site.area, site: site.site })
   }
   const lastCleanedAt = await cleanUps.lastCleanedAt(target.value, now)
   const waste = wasteAt(terms.sizes[size], lastCleanedAt, now)
+  if (waste === 0) {
+    return err({ kind: 'NoWasteYet', area: site.area, site: site.site })
+  }
   return ok(cleanUpJobOf(town, target.value, team, { size, waste }, catalog, now))
 }
 
