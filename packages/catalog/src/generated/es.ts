@@ -96,6 +96,8 @@ export const refusalLessonStudyNotFound = (): string => `La escuela ya no estudi
 export const refusalLessonUnderStudy = (): string => `La escuela ya está estudiando esa lección. Espera a que termine.`
 export const refusalMailNotSent = (): string => `No hemos podido enviarlo.`
 export const refusalMalformedEmail = (): string => `Escribe un correo válido, como nombre@ejemplo.com.`
+export const refusalNoWasteYet = (): string => `Ese sitio está limpio por ahora. Vuelve más tarde.`
+export const refusalNotAWasteSite = (): string => `Ese sitio no tiene residuos. Elige un sitio con residuos.`
 export const refusalNotEnoughHiresAtHome = ({ atHome, count, hire }: { readonly atHome: string | number; readonly count: number; readonly hire: 'worker' | 'truck' }): string => `${hire === 'worker' ? `${count === 1 ? `El equipo necesita 1 trabajador` : `El equipo necesita ${String(count)} trabajadores`} y tienes ${String(atHome)} en casa.` : hire === 'truck' ? `${count === 1 ? `El equipo necesita 1 camión` : `El equipo necesita ${String(count)} camiones`} y tienes ${String(atHome)} en casa.` : `${count === 1 ? `El equipo necesita 1 camión` : `El equipo necesita ${String(count)} camiones`} y tienes ${String(atHome)} en casa.`}`
 export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
 export const refusalNotEnoughResources = (): string => `No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.`

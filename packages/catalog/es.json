@@ -487,6 +487,8 @@
   "refusal.LessonUnderStudy": "La escuela ya está estudiando esa lección. Espera a que termine.",
   "refusal.MailNotSent": "No hemos podido enviarlo.",
   "refusal.MalformedEmail": "Escribe un correo válido, como nombre@ejemplo.com.",
+  "refusal.NoWasteYet": "Ese sitio está limpio por ahora. Vuelve más tarde.",
+  "refusal.NotAWasteSite": "Ese sitio no tiene residuos. Elige un sitio con residuos.",
   "refusal.NotEnoughHiresAtHome": "{hire, select, worker {{count, plural, =1 {El equipo necesita 1 trabajador} other {El equipo necesita # trabajadores}} y tienes {atHome} en casa.} truck {{count, plural, =1 {El equipo necesita 1 camión} other {El equipo necesita # camiones}} y tienes {atHome} en casa.} other {{count, plural, =1 {El equipo necesita 1 camión} other {El equipo necesita # camiones}} y tienes {atHome} en casa.}}",
   "refusal.NotEnoughPeople": "Esta obra necesita {requiredPeople, plural, =1 {1 persona libre} other {# personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.",
   "refusal.NotEnoughResources": "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.",
