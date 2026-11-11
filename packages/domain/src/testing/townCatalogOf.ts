@@ -29,6 +29,16 @@ export const plainTownSettings: TownSettings = {
       hills: { money: 0, food: 3, power: 0, material: 3 },
     },
   },
+  waste: {
+    siteFraction: 0.2,
+    moneyPerPoint: 2,
+    materialPerPoint: 3,
+    sizes: {
+      1: { maxWaste: 6, regrowHours: 6 },
+      2: { maxWaste: 15, regrowHours: 12 },
+      3: { maxWaste: 40, regrowHours: 24 },
+    },
+  },
   seasons: {
     epoch: Instant.fromEpochMilliseconds(1_791_158_400_000),
     daysPerSeason: 7,

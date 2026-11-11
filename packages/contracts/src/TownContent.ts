@@ -38,6 +38,22 @@ const JobContentSchema = z.strictObject({
   ),
 })
 
+const WasteSizeContentSchema = z.strictObject({
+  maxWaste: WholeCountSchema.positive(),
+  regrowHours: WholeCountSchema.positive(),
+})
+
+const WasteContentSchema = z.strictObject({
+  siteFraction: QuantitySchema.max(1),
+  moneyPerPoint: WholeCountSchema,
+  materialPerPoint: WholeCountSchema,
+  sizes: z.strictObject({
+    1: WasteSizeContentSchema,
+    2: WasteSizeContentSchema,
+    3: WasteSizeContentSchema,
+  }),
+})
+
 export const TownContentSchema = z.strictObject({
   startingStocks: ResourceAmountsSchema,
   taxRatePerHour: QuantitySchema,
@@ -48,6 +64,7 @@ export const TownContentSchema = z.strictObject({
   terrainBonusPerHour: QuantitySchema,
   waitingListCap: WholeCountSchema,
   job: JobContentSchema,
+  waste: WasteContentSchema,
   seasons: TownSeasonsSchema,
 })
 

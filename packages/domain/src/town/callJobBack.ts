@@ -3,6 +3,7 @@ import type { PlayerId } from '../player/PlayerId'
 import type { Clock } from '../ports/Clock'
 import { ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
+import type { CleanUpRepository } from './CleanUpRepository'
 import { resolvedTownOf } from './resolvedTownOf'
 import { saveChangedTown } from './saveChangedTown'
 import type { Town } from './Town'
@@ -17,6 +18,7 @@ export type CallJobBackCommand = {
 
 export type CallJobBackDependencies = {
   readonly towns: TownRepository
+  readonly cleanUps: CleanUpRepository
   readonly news: TownNews
   readonly catalog: TownCatalog
   readonly clock: Clock
@@ -24,7 +26,7 @@ export type CallJobBackDependencies = {
 
 export const callJobBack = async (
   { playerId, sentAt }: CallJobBackCommand,
-  { towns, news, catalog, clock }: CallJobBackDependencies,
+  { towns, cleanUps, news, catalog, clock }: CallJobBackDependencies,
 ): Promise<Result<Town, DomainError>> => {
   const now = clock.now()
   const resolved = await resolvedTownOf(playerId, towns, catalog, now)
@@ -43,5 +45,6 @@ export const callJobBack = async (
   if (!saved.ok) {
     return saved
   }
-  return ok(called.value)
+  const cancelled = await cleanUps.cancel(called.value.id, sentAt)
+  return cancelled.ok ? ok(called.value) : cancelled
 }

@@ -117,6 +117,18 @@ const calledBackTeam: Job = {
   calledBackAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-04T11:00:00Z')),
 }
 
+const teamCleaningWaste: Job = {
+  ...teamOnAJob,
+  hours: 0,
+  pay: { money: 30, food: 0, power: 0, material: 45 },
+  cleanUp: { size: 2, waste: 15, strength: 5, hasArrived: false },
+}
+
+const teamArrivedAtWaste: Job = {
+  ...teamCleaningWaste,
+  cleanUp: { size: 2, waste: 15, strength: 5, hasArrived: true },
+}
+
 type GrownTerms = {
   readonly workSlot?: WorkSlot
   readonly waitingList?: WaitingList
@@ -251,6 +263,19 @@ export const townRepositoryContract = (
       expect(await towns.townOf(ana)).toEqual({
         ok: true,
         value: grownTown({ hires: hiredStaff, jobSlot: calledBackTeam }),
+      })
+    })
+
+    it("reads back a clean-up with the site's size, its waste and the team's strength", async () => {
+      const { towns, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await towns.save(grownTown({ hires: hiredStaff, jobSlot: teamCleaningWaste }))
+
+      await towns.save(grownTown({ hires: hiredStaff, jobSlot: teamArrivedAtWaste }))
+
+      expect(await towns.townOf(ana)).toEqual({
+        ok: true,
+        value: grownTown({ hires: hiredStaff, jobSlot: teamArrivedAtWaste }),
       })
     })
 

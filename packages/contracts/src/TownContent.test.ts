@@ -25,6 +25,17 @@ const payPerHour = {
 
 const job = { secondsPerArea: 600, secondsPerSite: 60, maxHours: 8, payPerHour }
 
+const waste = {
+  siteFraction: 0.2,
+  moneyPerPoint: 2,
+  materialPerPoint: 3,
+  sizes: {
+    1: { maxWaste: 6, regrowHours: 6 },
+    2: { maxWaste: 15, regrowHours: 12 },
+    3: { maxWaste: 40, regrowHours: 24 },
+  },
+}
+
 const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   startingStocks: { money: 400, food: 300, power: 200, material: 500 },
   taxRatePerHour: 12,
@@ -35,6 +46,7 @@ const townContent = (overrides: Record<string, unknown> = {}): unknown => ({
   terrainBonusPerHour: 5,
   waitingListCap: 4,
   job,
+  waste,
   seasons: {
     epoch: '2026-10-05T00:00:00Z',
     daysPerSeason: 7,
@@ -132,6 +144,39 @@ describe('TownContentSchema', () => {
 
   it('refuses a job of no hours at most', () => {
     expect(TownContentSchema.safeParse(townContent({ job: { ...job, maxHours: 0 } })).success).toBe(
+      false,
+    )
+  })
+
+  it('parses the waste terms with three sizes', () => {
+    expect(TownContentSchema.parse(townContent()).waste).toEqual({
+      ...waste,
+      sizes: {
+        '1': { maxWaste: 6, regrowHours: 6 },
+        '2': { maxWaste: 15, regrowHours: 12 },
+        '3': { maxWaste: 40, regrowHours: 24 },
+      },
+    })
+  })
+
+  it('refuses a waste fraction above 1', () => {
+    expect(
+      TownContentSchema.safeParse(townContent({ waste: { ...waste, siteFraction: 1.2 } })).success,
+    ).toBe(false)
+  })
+
+  it('refuses a waste size that never regrows', () => {
+    const sizes = { ...waste.sizes, 2: { maxWaste: 15, regrowHours: 0 } }
+
+    expect(TownContentSchema.safeParse(townContent({ waste: { ...waste, sizes } })).success).toBe(
+      false,
+    )
+  })
+
+  it('refuses a fourth waste size', () => {
+    const sizes = { ...waste.sizes, 4: { maxWaste: 80, regrowHours: 48 } }
+
+    expect(TownContentSchema.safeParse(townContent({ waste: { ...waste, sizes } })).success).toBe(
       false,
     )
   })

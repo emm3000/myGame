@@ -12,6 +12,8 @@ import {
   idleHiringSlot,
   idleJobSlot,
   idleWorkSlot,
+  type Job,
+  type JobCleanUp,
   type JobSlot,
   ok,
   type PlayerId,
@@ -158,6 +160,10 @@ const AggregatedJobsSchema = z
       payPercentPower: z.number().int(),
       payPercentMaterial: z.number().int(),
       calledBackAt: z.string().nullable(),
+      wasteSize: z.union([z.literal(1), z.literal(2), z.literal(3)]).nullable(),
+      waste: z.number().int().nullable(),
+      strength: z.number().int().nullable(),
+      hasArrived: z.boolean(),
     }),
   )
   .max(1)
@@ -182,6 +188,10 @@ const aggregatedJob = jsonAggregateOf(
     payPercentPower: townJobs.payPercentPower,
     payPercentMaterial: townJobs.payPercentMaterial,
     calledBackAt: townJobs.calledBackAt,
+    wasteSize: townJobs.wasteSize,
+    waste: townJobs.waste,
+    strength: townJobs.strength,
+    hasArrived: townJobs.hasArrived,
   },
   eq(townJobs.townId, towns.id),
   sql`${townJobs.townId}`,
@@ -387,12 +397,29 @@ const hiringSlotOf = (aggregate: unknown): HiringSlot => {
 
 const instantFromIso = (iso: string): Instant => Instant.fromEpochMilliseconds(Date.parse(iso))
 
+type AggregatedJob = z.infer<typeof AggregatedJobsSchema>[number]
+
+const cleanUpOf = ({
+  wasteSize,
+  waste,
+  strength,
+  hasArrived,
+}: AggregatedJob): { readonly cleanUp?: JobCleanUp } => {
+  if (wasteSize === null && waste === null && strength === null) {
+    return {}
+  }
+  if (wasteSize === null || waste === null || strength === null) {
+    throw new Error('A stored job holds a half-written clean-up')
+  }
+  return { cleanUp: { size: wasteSize, waste, strength, hasArrived } }
+}
+
 const jobSlotOf = (aggregate: unknown): JobSlot => {
   const [job] = AggregatedJobsSchema.parse(aggregate)
   if (job === undefined) {
     return idleJobSlot
   }
-  const sent: JobSlot = {
+  const sent: Job = {
     kind: 'out',
     site: { region: job.region, area: job.area, site: job.site },
     team: { worker: job.workerCount, truck: job.truckCount },
@@ -407,9 +434,9 @@ const jobSlotOf = (aggregate: unknown): JobSlot => {
       material: job.payPercentMaterial,
     },
   }
-  return job.calledBackAt === null
-    ? sent
-    : { ...sent, calledBackAt: instantFromIso(job.calledBackAt) }
+  const calledBack =
+    job.calledBackAt === null ? sent : { ...sent, calledBackAt: instantFromIso(job.calledBackAt) }
+  return { ...calledBack, ...cleanUpOf(job) }
 }
 
 const fullSinceOf = (row: TownRow): FullSince => ({
@@ -539,6 +566,10 @@ const jobColumnsOf = (slot: JobSlot): JobColumns | undefined =>
         payPercentMaterial: slot.payPercent.material,
         calledBackAt:
           slot.calledBackAt === undefined ? null : new Date(slot.calledBackAt.epochMilliseconds),
+        wasteSize: slot.cleanUp?.size ?? null,
+        waste: slot.cleanUp?.waste ?? null,
+        strength: slot.cleanUp?.strength ?? null,
+        hasArrived: slot.cleanUp?.hasArrived ?? false,
       }
 
 const saveJobSlot = async (

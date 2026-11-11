@@ -302,7 +302,13 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         async (stores, clock) => {
           const town = await callJobBack(
             { playerId, sentAt },
-            { towns: stores.towns, news: stores.townNews, catalog, clock },
+            {
+              towns: stores.towns,
+              cleanUps: stores.cleanUps,
+              news: stores.townNews,
+              catalog,
+              clock,
+            },
           )
           return town.ok ? townReadingOf(town.value, clock.now(), stores) : town
         },
