@@ -295,6 +295,57 @@ it('drops the pay of a team the player has since changed', async () => {
   expect(within(form).getByText('Este trabajo paga 3 de comida')).toBeDefined()
 })
 
+it('keeps the pay of the last team when an earlier quote answers after it', async () => {
+  const answers: Array<() => void> = []
+  await showMap('/map', teamAtHome, {
+    quoteJob: (job) =>
+      new Promise((resolve) => {
+        answers.push(() =>
+          resolve({
+            ok: true,
+            value: { pay: { money: 0, food: job.team.worker, power: 0, material: 0 } },
+          }),
+        )
+      }),
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+  enterTeam(form, { 'Trabajadores a enviar': '3' })
+  await passSeconds(0)
+  answers[1]?.()
+  await passSeconds(0)
+  answers[0]?.()
+  await passSeconds(0)
+
+  expect(within(form).getByText('Este trabajo paga 3 de comida')).toBeDefined()
+})
+
+it('asks the pay again when the season turns', async () => {
+  const inSeason = (kind: 'spring' | 'summer', endsInSeconds: number): TownOverview => ({
+    ...teamAtHome,
+    season: { kind, year: 1, endsAt: instantAfter(endsInSeconds) },
+  })
+  const reads = [inSeason('spring', 30), inSeason('summer', 3600)]
+  const quotedSeasons: Array<number> = []
+  await showMap('/map', reads[0] ?? teamAtHome, {
+    town: async () => ({ ok: true, value: reads.shift() ?? inSeason('summer', 3600) }),
+    quoteJob: async () => {
+      quotedSeasons.push(reads.length)
+      return { ok: true, value: { pay: { money: 0, food: 1, power: 0, material: 0 } } }
+    },
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+  const askedBeforeTurn = quotedSeasons.length
+  await passSeconds(31)
+
+  expect(quotedSeasons.length).toBeGreaterThan(askedBeforeTurn)
+})
+
 it('blocks a team with nobody in it', async () => {
   await showMap('/map', teamAtHome)
 

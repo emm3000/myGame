@@ -1,34 +1,37 @@
-import type { JobQuote, SendJob } from '@mygame/contracts'
-import { useEffect, useRef, useState } from 'react'
+import { type JobQuote, type SendJob, SendJobSchema, type TownOverview } from '@mygame/contracts'
+import { useEffect, useState } from 'react'
 import type { TownJob } from './useJob'
 
 interface AnsweredQuote {
   readonly asked: string
+  readonly seasonEndsAt: string | undefined
   readonly quote: JobQuote
 }
 
 export function useJobQuote(
   quote: TownJob['quote'],
   job: SendJob | undefined,
+  season: TownOverview['season'],
 ): JobQuote | undefined {
   const asked = job === undefined ? undefined : JSON.stringify(job)
+  const seasonEndsAt = season?.endsAt
   const [answered, setAnswered] = useState<AnsweredQuote>()
-  const shownJob = useRef(job)
-  const lastAsked = useRef(asked)
-  shownJob.current = job
 
   useEffect(() => {
-    lastAsked.current = asked
-    const toQuote = shownJob.current
-    if (asked === undefined || toQuote === undefined) {
+    if (asked === undefined) {
       return
     }
-    void quote(toQuote).then((outcome) => {
-      if (outcome.ok && lastAsked.current === asked) {
-        setAnswered({ asked, quote: outcome.value })
+    let isAskedStill = true
+    void quote(SendJobSchema.parse(JSON.parse(asked))).then((outcome) => {
+      if (outcome.ok && isAskedStill) {
+        setAnswered({ asked, seasonEndsAt, quote: outcome.value })
       }
     })
-  }, [asked, quote])
+    return () => {
+      isAskedStill = false
+    }
+  }, [asked, seasonEndsAt, quote])
 
-  return answered !== undefined && answered.asked === asked ? answered.quote : undefined
+  const isCurrent = answered?.asked === asked && answered?.seasonEndsAt === seasonEndsAt
+  return isCurrent ? answered?.quote : undefined
 }
