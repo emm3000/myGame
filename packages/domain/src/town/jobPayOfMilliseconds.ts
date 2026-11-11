@@ -1,6 +1,6 @@
+import { carryOf } from './carryOf'
 import type { Hires } from './Hires'
 import { headsOf } from './headsOf'
-import { hireKinds } from './hireKinds'
 import type { ResourceKind } from './ResourceKind'
 import { resourceKinds } from './resourceKinds'
 import type { Stocks } from './Stocks'
@@ -20,11 +20,7 @@ export const jobPayOfMilliseconds = (
   const payPerHour = { ...catalog.townSettings().job.payPerHour[terrain], money: 0 }
   const paidCount = resourceKinds.filter((resource) => payPerHour[resource] > 0).length
   const heads = headsOf(team)
-  const carry = hireKinds.reduce(
-    (total, hire) => total + team[hire] * catalog.hireTermsOf(hire).carry,
-    0,
-  )
-  const carryShare = Math.floor(carry / paidCount)
+  const carryShare = Math.floor(carryOf(team, catalog) / paidCount)
   const payOf = (resource: ResourceKind): number =>
     payPerHour[resource] > 0
       ? Math.min(

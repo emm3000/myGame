@@ -48,7 +48,7 @@ describe('the region map route', () => {
 
   beforeEach(async () => {
     await runSql(
-      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
+      'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, site_clean_ups, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
     )
     app = createApp({ ...server, clock: fixedClock })
   })

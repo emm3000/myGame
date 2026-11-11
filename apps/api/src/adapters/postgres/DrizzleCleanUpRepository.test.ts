@@ -1,0 +1,48 @@
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
+import { afterAll, assert, beforeAll } from 'vitest'
+import { cleanUpRepositoryContract } from '../cleanUpRepositoryContract'
+import { DrizzleCleanUpRepository } from './DrizzleCleanUpRepository'
+import { DrizzleTownRepository } from './DrizzleTownRepository'
+import { players } from './schema'
+
+function databaseUrl(): string {
+  const url = process.env.DATABASE_URL
+  if (!url) {
+    throw new Error('DATABASE_URL is not set')
+  }
+  return url
+}
+
+let pool: Pool
+
+beforeAll(() => {
+  pool = new Pool({ connectionString: databaseUrl() })
+})
+
+afterAll(async () => {
+  await pool.end()
+})
+
+const emptyDatabase = async (): Promise<void> => {
+  await pool.query(
+    'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, site_clean_ups, earned_skills, band_starts, held_out_words, cards, pending_reviews, review_log, sessions, account_tokens',
+  )
+}
+
+cleanUpRepositoryContract('DrizzleCleanUpRepository', async (heldTowns) => {
+  await emptyDatabase()
+  const database = drizzle(pool)
+  const townRepository = new DrizzleTownRepository(database, 'lockFree')
+  for (const town of heldTowns) {
+    await database.insert(players).values({
+      id: town.playerId,
+      email: `${town.playerId}@example.com`,
+      passwordHash: 'argon2id-hash',
+      createdAt: new Date('2026-11-10T08:00:00Z'),
+      reportReadAt: new Date('2026-11-10T08:00:00Z'),
+    })
+    assert((await townRepository.save(town)).ok)
+  }
+  return new DrizzleCleanUpRepository(database)
+})

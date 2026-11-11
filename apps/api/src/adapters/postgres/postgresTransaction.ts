@@ -1,6 +1,7 @@
 import type {
   BandStartRepository,
   CardRepository,
+  CleanUpRepository,
   EarnedSkillRepository,
   LessonSlotRepository,
   PendingReviewRepository,
@@ -19,6 +20,7 @@ import { DrizzleAccounts } from './DrizzleAccounts'
 import { DrizzleAccountTokens } from './DrizzleAccountTokens'
 import { DrizzleBandStarts } from './DrizzleBandStarts'
 import { DrizzleCardRepository } from './DrizzleCardRepository'
+import { DrizzleCleanUpRepository } from './DrizzleCleanUpRepository'
 import { DrizzleEarnedSkills } from './DrizzleEarnedSkills'
 import { DrizzleLessonSlots } from './DrizzleLessonSlots'
 import { DrizzlePendingReviewRepository } from './DrizzlePendingReviewRepository'
@@ -39,6 +41,7 @@ export type TransactionStores = {
   readonly earnedSkills: EarnedSkillRepository
   readonly bandStarts: BandStartRepository
   readonly regionMap: RegionMapReader
+  readonly cleanUps: CleanUpRepository
 }
 
 export type Transaction = <T, E>(
@@ -65,6 +68,7 @@ export const postgresTransaction =
           earnedSkills: new DrizzleEarnedSkills(transaction),
           bandStarts: new DrizzleBandStarts(transaction),
           regionMap: new DrizzleRegionMap(transaction),
+          cleanUps: new DrizzleCleanUpRepository(transaction),
         })
         if (!outcome.ok) {
           refused = outcome

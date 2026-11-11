@@ -278,6 +278,43 @@ describe('Town', () => {
       ])
     })
 
+    it('restores a stored clean-up, which stays no hour at the site', () => {
+      const cleanUp = { size: 2, waste: 9, strength: 9, hasArrived: true } as const
+      const restored = restoredWith({ ...twoHourJob, hours: 0, cleanUp })
+
+      assert(restored.ok)
+      expect(restored.value.jobSlot).toEqual({ ...twoHourJob, hours: 0, cleanUp })
+    })
+
+    it('refuses a stored clean-up with hours at the site', () => {
+      const cleanUp = { size: 1, waste: 3, strength: 4, hasArrived: false } as const
+
+      expect(restoredWith({ ...twoHourJob, hours: 1, cleanUp })).toEqual({
+        ok: false,
+        error: { kind: 'InvalidJobHours', hours: 1 },
+      })
+    })
+
+    it('refuses a stored clean-up of an unknown size, a fractional waste or no strength', () => {
+      const cleanUp = { size: 1, waste: 3, strength: 4, hasArrived: false } as const
+      const restoredWithCleanUp = (change: Record<string, number>): unknown =>
+        restoredWith({ ...twoHourJob, hours: 0, cleanUp: { ...cleanUp, ...change } as never })
+
+      expect([{ size: 4 }, { waste: 1.5 }, { strength: 0 }].map(restoredWithCleanUp)).toEqual([
+        { ok: false, error: { kind: 'InvalidCleanUp', size: 4, waste: 3, strength: 4 } },
+        { ok: false, error: { kind: 'InvalidCleanUp', size: 1, waste: 1.5, strength: 4 } },
+        { ok: false, error: { kind: 'InvalidCleanUp', size: 1, waste: 3, strength: 0 } },
+      ])
+    })
+
+    it('refuses a stored clean-up that arrived after its call back', () => {
+      const cleanUp = { size: 1, waste: 3, strength: 4, hasArrived: true } as const
+
+      expect(
+        restoredWith({ ...twoHourJob, hours: 0, cleanUp, calledBackAt: secondsAfterStored(1) }),
+      ).toEqual({ ok: false, error: { kind: 'InvalidCleanUp', size: 1, waste: 3, strength: 4 } })
+    })
+
     it('refuses a stored road that is negative or fractional', () => {
       expect(
         [-1, 0.5].map((oneWaySeconds) => restoredWith({ ...twoHourJob, oneWaySeconds })),

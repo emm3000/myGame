@@ -14,6 +14,7 @@ import {
   type WorkTarget,
 } from './BuildingWork'
 import { buildingKinds } from './buildingKinds'
+import { coversWaste } from './coversWaste'
 import { deliveredHiresOf } from './deliveredHiresOf'
 import { type FullSince, noStoreFull } from './FullSince'
 import type { HireKind } from './HireKind'
@@ -21,7 +22,7 @@ import { type Hires, noHires } from './Hires'
 import { type HiringOrder, type HiringSlot, type HiringTarget, idleHiringSlot } from './HiringOrder'
 import { hireKinds } from './hireKinds'
 import { hiringEndsAt } from './hiringEndsAt'
-import { idleJobSlot, type Job, type JobSlot } from './Job'
+import { idleJobSlot, type Job, type JobCleanUp, type JobSlot } from './Job'
 import { jobInstantsOf, uncalledJobInstantsOf } from './jobInstantsOf'
 import { jobPayOfMilliseconds } from './jobPayOfMilliseconds'
 import { jobPhaseAt } from './jobPhaseAt'
@@ -210,9 +211,28 @@ const refuseCallBackOutsideWork = (job: Job): DomainError | undefined => {
     : { kind: 'SlotStartsAfterFinish', startedAt: calledBackAt, finishesAt: leavesAt }
 }
 
+const wasteSizes: ReadonlyArray<number> = [1, 2, 3]
+
+const refuseInvalidCleanUp = (job: Job): DomainError | undefined => {
+  const { cleanUp } = job
+  if (cleanUp === undefined) {
+    return isWholeFromOne(job.hours) ? undefined : { kind: 'InvalidJobHours', hours: job.hours }
+  }
+  if (job.hours !== 0) {
+    return { kind: 'InvalidJobHours', hours: job.hours }
+  }
+  const { size, waste, strength, hasArrived } = cleanUp
+  const isValid =
+    wasteSizes.includes(size) &&
+    isWholeFromZero(waste) &&
+    isWholeFromOne(strength) &&
+    !(hasArrived && job.calledBackAt !== undefined)
+  return isValid ? undefined : { kind: 'InvalidCleanUp', size, waste, strength }
+}
+
 const refuseInvalidJobTerms = (job: Job): DomainError | undefined =>
   refuseInvalidTeam(job.team) ??
-  (isWholeFromOne(job.hours) ? undefined : { kind: 'InvalidJobHours', hours: job.hours }) ??
+  refuseInvalidCleanUp(job) ??
   refuseInvalidDuration(job.oneWaySeconds) ??
   refuseInvalidCost(job.pay) ??
   refuseInvalidPayPercent(job.payPercent) ??
@@ -260,6 +280,11 @@ const jobReturnOf = (job: Job, occurredAt: Instant): TownEvent => ({
   pay: job.pay,
   occurredAt,
 })
+
+const arrivalOf = ({ site, pay }: Job, cleanUp: JobCleanUp, occurredAt: Instant): TownEvent =>
+  coversWaste(cleanUp)
+    ? { kind: 'cleanUpDone', site, reward: pay, occurredAt }
+    : { kind: 'cleanUpFailed', site, occurredAt }
 
 const isHiringOf = (target: HiringTarget, order: HiringOrder): boolean =>
   order.hire === target.hire &&
@@ -429,6 +454,17 @@ export class Town {
       slot.payPercent,
     )
     return ok(this.changed({ jobSlot: { ...slot, calledBackAt: now, pay } }))
+  }
+
+  arriveAtWaste(): ChangedTown {
+    const slot = this.jobSlot
+    if (slot.kind === 'idle' || slot.cleanUp === undefined || slot.cleanUp.hasArrived) {
+      return { town: this, events: [] }
+    }
+    return {
+      town: this.changed({ jobSlot: { ...slot, cleanUp: { ...slot.cleanUp, hasArrived: true } } }),
+      events: [arrivalOf(slot, slot.cleanUp, jobInstantsOf(slot).arrivesAt)],
+    }
   }
 
   returnJob(stocksAtReturn: Stocks): ChangedTown {

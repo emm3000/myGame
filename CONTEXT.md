@@ -43,6 +43,8 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 
 - **Hire** — a worker or a truck, hired at the office in one hiring order at a time, occupying people and eating nothing. A **team** is the hires sent out together (ADR 018, ADR 021, ADR 040).
 - **Job** — a team's trip to a free site for whole hours, coming back with **pay** fixed at dispatch from the site's terrain, never money; **called back** before it ends, it returns with the partial pay. One team out at a time; its hires stay counted and occupied while away. Its screen is not shipped yet (ADR 019, ADR 040, ADR 041).
+- **Waste site** — a free site holding waste of one of three **sizes**, placed by a hash of its address on the content's fraction of the free sites; its **waste** regrows from 0 at its last clean-up up to the size's most, and a site never cleaned holds the most (ADR 020, ADR 040).
+- **Clean-up** — a team's trip to a waste site with no hours there; the waste and the team's **strength** (the sum of each hire's strength) are fixed at dispatch. A team whose strength covers the waste cleans it at the arrival, the site's waste starting again from 0, and comes back with money and material per point of waste, capped by the carry; a smaller team comes back with nothing. Nobody is lost. Called back on the way out, it cleans nothing. Its screen is not shipped yet (ADR 020, ADR 040, ADR 041).
 
 ## Lessons and skills
 
@@ -91,12 +93,6 @@ The game is Townword, a present-day town the player grows into a city (ADR 035).
 - **The Report** — the screen of the reviews due, then the Town News since the player last closed it (ADR 027, ADR 040).
 - **Town News** — the town's events, each with its instant, written in the transaction that applies them (ADR 013, ADR 040).
 - **Tip** — one dismissible line shown the first time a concept matters, seen tips stored per player. Not shipped yet (ADR 027, ADR 040).
-
-## After the cutover
-
-Terms of ADR 040's slices that ADR 041 orders after the cutover; each enters the code with its slice.
-
-- **Waste site** — a site holding waste of one of three sizes, placed by a hash of its address and regrowing from its last clean-up. A **clean-up** is a team's trip to it: a team whose strength covers the waste cleans it and is paid money and material; a smaller team comes back with nothing; nobody is lost (ADR 020, ADR 040).
 
 ## Society
 

@@ -124,6 +124,7 @@ export type DomainError =
   | { readonly kind: 'JobSiteOutOfBounds'; readonly area: number; readonly site: number }
   | { readonly kind: 'JobToOwnSite' }
   | { readonly kind: 'SiteHeld'; readonly area: number; readonly site: number }
+  | { readonly kind: 'SiteHasNoWaste'; readonly area: number; readonly site: number }
   | {
       readonly kind: 'NotEnoughHiresAtHome'
       readonly hire: HireKind
@@ -133,6 +134,12 @@ export type DomainError =
   | { readonly kind: 'JobNotFound'; readonly sentAt: Instant }
   | { readonly kind: 'JobAlreadyReturning' }
   | { readonly kind: 'InvalidJobHours'; readonly hours: number }
+  | {
+      readonly kind: 'InvalidCleanUp'
+      readonly size: number
+      readonly waste: number
+      readonly strength: number
+    }
   | {
       readonly kind: 'InvalidPayPercent'
       readonly resource: ResourceKind

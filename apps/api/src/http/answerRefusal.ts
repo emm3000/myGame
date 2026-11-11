@@ -75,10 +75,12 @@ const answers: Readonly<Record<SlotlessRefusalKind, RefusalAnswer>> = {
   JobSiteOutOfBounds: { status: 400, kind: 'JobSiteOutOfBounds' },
   JobToOwnSite: { status: 409, kind: 'JobToOwnSite' },
   SiteHeld: { status: 409, kind: 'SiteHeld' },
+  SiteHasNoWaste: { status: 409 },
   JobNotFound: { status: 409, kind: 'JobNotFound' },
   JobAlreadyReturning: { status: 409, kind: 'JobAlreadyReturning' },
   InvalidJobHours: internalFailure,
   InvalidPayPercent: internalFailure,
+  InvalidCleanUp: internalFailure,
 }
 
 const slotlessBodyOf = (kind: SlotlessRefusalKind): RefusalBody => {

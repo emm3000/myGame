@@ -155,6 +155,7 @@ describe('the migrations', () => {
       'players',
       'review_log',
       'sessions',
+      'site_clean_ups',
       'town_buildings',
       'town_events',
       'town_hires',
@@ -1205,6 +1206,118 @@ describe('the town jobs migration', () => {
     await expect(insertJobOf(client, [0, 0])).rejects.toMatchObject({
       code: checkViolation,
       constraint: 'town_jobs_team_not_empty',
+    })
+  })
+})
+
+const cleanUpsOwnerId = '00000000-0000-4000-8000-0000000000a4'
+
+const cleanUpsTownId = '00000000-0000-4000-8000-0000000000b4'
+
+const migrationsBeforeTheCleanUps = 38
+
+const insertCleanUpOf = (
+  client: Client,
+  [hours, wasteSize]: readonly [number, number | null],
+): Promise<unknown> =>
+  client.query(
+    `INSERT INTO town_jobs (town_id, region, area, site, worker_count, truck_count, hours, sent_at, one_way_seconds, pay_money, pay_food, pay_power, pay_material, pay_percent_money, pay_percent_food, pay_percent_power, pay_percent_material, waste_size, waste, strength)
+     VALUES ($1, 1, 2, 4, 6, 0, $2, '2026-11-11T08:00:00Z', 600, 12, 0, 0, 18, 100, 100, 100, 100, $3, 6, 6)`,
+    [cleanUpsTownId, hours, wasteSize],
+  )
+
+describe('the site clean-ups migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedThroughNext(client, migrationsBeforeTheCleanUps, async () => {
+      await client.query(
+        `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
+         VALUES ($1, 'owner@example.com', 'argon2id-hash', '2026-09-22T08:00:00Z', '2026-11-09T08:00:00Z')`,
+        [cleanUpsOwnerId],
+      )
+      await client.query(
+        `INSERT INTO towns (id, player_id, region, area, site, name, money, food, power, material, stored_at)
+         VALUES ($2, $1, 1, 1, 1, 'Maple Falls', 100, 50, 20, 10, '2026-11-09T08:00:00Z')`,
+        [cleanUpsOwnerId, cleanUpsTownId],
+      )
+      await client.query(
+        `INSERT INTO town_jobs (town_id, region, area, site, worker_count, truck_count, hours, sent_at, one_way_seconds, pay_money, pay_food, pay_power, pay_material, pay_percent_money, pay_percent_food, pay_percent_power, pay_percent_material)
+         VALUES ($1, 1, 2, 4, 2, 1, 2, '2026-11-10T08:00:00Z', 660, 0, 300, 0, 300, 100, 100, 100, 100)`,
+        [cleanUpsTownId],
+      )
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps a job stored before the migration as a job, with no clean-up', async () => {
+    const stored = await client.query(
+      'SELECT hours, waste_size, waste, strength, has_arrived FROM town_jobs WHERE town_id = $1',
+      [cleanUpsTownId],
+    )
+
+    expect(stored.rows).toEqual([
+      { hours: 2, waste_size: null, waste: null, strength: null, has_arrived: false },
+    ])
+  })
+
+  it('stores a clean-up that stays no hour at the site', async () => {
+    await client.query('DELETE FROM town_jobs')
+    await insertCleanUpOf(client, [0, 1])
+
+    const stored = await client.query('SELECT hours, waste_size FROM town_jobs')
+
+    expect(stored.rows).toEqual([{ hours: 0, waste_size: 1 }])
+  })
+
+  it('refuses a job of no hours that cleans no waste', async () => {
+    await client.query('DELETE FROM town_jobs')
+
+    await expect(insertCleanUpOf(client, [0, null])).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'town_jobs_clean_up_terms',
+    })
+  })
+
+  it('refuses a clean-up of an unknown size', async () => {
+    await client.query('DELETE FROM town_jobs')
+
+    await expect(insertCleanUpOf(client, [0, 4])).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'town_jobs_clean_up_terms',
+    })
+  })
+
+  it("stores a site's clean-up by the team that cleaned it", async () => {
+    await client.query(
+      `INSERT INTO site_clean_ups (town_id, sent_at, region, area, site, cleaned_at)
+       VALUES ($1, '2026-11-11T08:00:00Z', 1, 2, 4, '2026-11-11T08:10:00Z')`,
+      [cleanUpsTownId],
+    )
+
+    const stored = await client.query<{ cleaned_at: Date }>(
+      'SELECT cleaned_at FROM site_clean_ups WHERE region = 1 AND area = 2 AND site = 4',
+    )
+
+    expect(stored.rows.map((row) => row.cleaned_at.toISOString())).toEqual([
+      '2026-11-11T08:10:00.000Z',
+    ])
+  })
+
+  it('refuses a clean-up before its team was sent', async () => {
+    await expect(
+      client.query(
+        `INSERT INTO site_clean_ups (town_id, sent_at, region, area, site, cleaned_at)
+         VALUES ($1, '2026-11-11T08:00:00Z', 1, 2, 4, '2026-11-11T07:59:00Z')`,
+        [cleanUpsTownId],
+      ),
+    ).rejects.toMatchObject({
+      code: checkViolation,
+      constraint: 'site_clean_ups_cleaned_after_sent',
     })
   })
 })

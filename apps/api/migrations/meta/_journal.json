@@ -267,6 +267,13 @@
       "when": 1794366745345,
       "tag": "0037_town_jobs",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794413177502,
+      "tag": "0038_site_clean_ups",
+      "breakpoints": true
     }
   ]
 }

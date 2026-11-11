@@ -37,6 +37,25 @@
       }
     }
   },
+  "waste": {
+    "siteFraction": 0.2,
+    "moneyPerPoint": 2,
+    "materialPerPoint": 3,
+    "sizes": {
+      "1": {
+        "maxWaste": 6,
+        "regrowHours": 6
+      },
+      "2": {
+        "maxWaste": 15,
+        "regrowHours": 12
+      },
+      "3": {
+        "maxWaste": 40,
+        "regrowHours": 24
+      }
+    }
+  },
   "seasons": {
     "epoch": "2026-10-05T00:00:00Z",
     "daysPerSeason": 7,

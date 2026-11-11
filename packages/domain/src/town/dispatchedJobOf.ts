@@ -1,13 +1,13 @@
 import type { DomainError } from '../DomainError'
 import { err, ok, type Result } from '../Result'
 import type { Instant } from '../time/Instant'
+import { admitJobSite } from './admitJobSite'
 import { isWholeFromOneTo } from './isWholeFromOneTo'
 import type { Job } from './Job'
-import type { JobOrder, JobTarget } from './JobOrder'
+import type { JobOrder } from './JobOrder'
 import { jobOneWaySeconds } from './jobOneWaySeconds'
 import { jobPayOf } from './jobPayOf'
 import { jobSeasonAt } from './jobSeasonAt'
-import { lastAreaOf } from './lastAreaOf'
 import type { RegionMapReader } from './RegionMapReader'
 import { refuseInvalidTeam } from './refuseInvalidTeam'
 import { resolvedTownOf } from './resolvedTownOf'
@@ -41,27 +41,6 @@ const admitJobTerms = (
     return err({ kind: 'JobHoursOutOfRange', hours, maxHours })
   }
   return town.roomForJob()
-}
-
-const admitSite = async (
-  town: Town,
-  { area, site }: JobTarget,
-  map: RegionMapReader,
-  catalog: TownCatalog,
-): Promise<Result<SiteAddress, DomainError>> => {
-  const { region } = town.address
-  const lastArea = await lastAreaOf(region, map)
-  const { sitesPerArea } = catalog.townSettings()
-  if (!isWholeFromOneTo(area, lastArea) || !isWholeFromOneTo(site, sitesPerArea)) {
-    return err({ kind: 'JobSiteOutOfBounds', area, site })
-  }
-  const holder = (await map.townsIn(region, area)).find((held) => held.site === site)
-  if (holder === undefined) {
-    return ok({ region, area, site })
-  }
-  return err(
-    holder.playerId === town.playerId ? { kind: 'JobToOwnSite' } : { kind: 'SiteHeld', area, site },
-  )
 }
 
 const jobTo = (
@@ -98,7 +77,7 @@ export const dispatchedJobOf = async (
   if (!admitted.ok) {
     return admitted
   }
-  const site = await admitSite(town, order.site, map, catalog)
+  const site = await admitJobSite(town, order.site, map, catalog)
   if (!site.ok) {
     return site
   }

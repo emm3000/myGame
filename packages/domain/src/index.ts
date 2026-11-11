@@ -67,6 +67,9 @@ export {
 } from './town/BuildingWork'
 export { buildingKinds } from './town/buildingKinds'
 export { buildPercentAt } from './town/buildPercentAt'
+export type { CleanUp } from './town/CleanUp'
+export type { CleanUpOrder } from './town/CleanUpOrder'
+export type { CleanUpRepository } from './town/CleanUpRepository'
 export {
   type CallJobBackCommand,
   type CallJobBackDependencies,
@@ -94,7 +97,13 @@ export {
 export { hireKinds } from './town/hireKinds'
 export { hirePercentAt } from './town/hirePercentAt'
 export { hiringEndsAt } from './town/hiringEndsAt'
-export { idleJobSlot, type Job, type JobSlot } from './town/Job'
+export {
+  type CleanUpJob,
+  idleJobSlot,
+  type Job,
+  type JobCleanUp,
+  type JobSlot,
+} from './town/Job'
 export type { JobOrder, JobTarget } from './town/JobOrder'
 export { type JobInstants, jobInstantsOf } from './town/jobInstantsOf'
 export { jobOneWaySeconds } from './town/jobOneWaySeconds'
@@ -132,6 +141,7 @@ export { resourceKinds } from './town/resourceKinds'
 export type { SiteAddress } from './town/SiteAddress'
 export type { Stocks } from './town/Stocks'
 export { schoolLevelOf } from './town/schoolLevelOf'
+export { type SendCleanUpDependencies, sendCleanUp } from './town/sendCleanUp'
 export { type SendJobDependencies, sendJob } from './town/sendJob'
 export {
   type SettleSchoolLessonDependencies,
@@ -184,6 +194,7 @@ export type {
 export type { TownSkill } from './town/TownSkill'
 export { terrainOf } from './town/terrainOf'
 export { townLabelOf } from './town/townLabelOf'
+export type { WasteSize } from './town/WasteSize'
 export {
   type AnsweredReview,
   type AnswerReviewCommand,
