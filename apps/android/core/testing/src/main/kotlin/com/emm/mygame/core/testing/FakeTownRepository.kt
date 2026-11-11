@@ -2,13 +2,13 @@ package com.emm.mygame.core.testing
 
 import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.RegionRepository
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownHiringResult
 import com.emm.mygame.core.network.TownJobResult
 import com.emm.mygame.core.network.TownLessonResult
-import com.emm.mygame.core.network.RegionRepository
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownSnapshot

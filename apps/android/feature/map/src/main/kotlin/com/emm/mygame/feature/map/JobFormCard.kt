@@ -32,6 +32,7 @@ internal fun JobFormCard(
     modifier: Modifier = Modifier,
 ) {
     val reason: String? = form.block?.let { block: MapUiState.JobBlock -> jobBlockLineOf(block) }
+    val isApiAnswered: Boolean = send.isAnsweredFor(form.site) || form.quote is MapUiState.PayQuote.Refused
     MyGameCard(modifier = modifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
@@ -71,7 +72,7 @@ internal fun JobFormCard(
                 onClick = { onIntent(MapIntent.SendTapped) },
                 blockedReason = reason,
             )
-            reason?.takeUnless { send.isAnsweredFor(form.site) }?.let { line: String ->
+            reason?.takeUnless { isApiAnswered }?.let { line: String ->
                 MyGameText(
                     text = line,
                     style = MyGameTypography.caption,

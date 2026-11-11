@@ -214,4 +214,13 @@ class MapScreenTest {
 
         assertEquals(listOf<MapIntent>(MapIntent.SendTapped), intents)
     }
+
+    @Test
+    fun `draws the quote's refusal in place of the block line`() {
+        show(contentOf(form = nobodyForm.copy(quote = MapUiState.PayQuote.Refused(TownJobRefusal.InvalidTeam))))
+
+        composeRule
+            .onAllNodesWithText("Elige al menos un trabajador o un camión para el equipo.", useUnmergedTree = true)
+            .assertCountEquals(1)
+    }
 }
