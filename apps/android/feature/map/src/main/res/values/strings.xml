@@ -23,6 +23,7 @@
     <string name="map_job_out_team">Tu equipo: {workers, plural, =1 {1 trabajador} other {{workers, number,0} trabajadores}}, {trucks, plural, =1 {1 camión} other {{trucks, number,0} camiones}}</string>
     <string name="map_job_out_title">Trabajo</string>
     <string name="map_job_out_working">Trabajando</string>
+    <string name="map_job_pay">Este trabajo paga {amounts}</string>
     <string name="map_job_send">Enviar el equipo</string>
     <string name="map_job_title">Trabajo en el sitio {site}</string>
     <string name="map_job_trucks">Camiones a enviar</string>

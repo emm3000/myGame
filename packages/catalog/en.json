@@ -25,6 +25,7 @@
   "android.map.map_job_out_team": "Your team: {workers, plural, =1 {1 worker} other {{workers, number,0} workers}}, {trucks, plural, =1 {1 truck} other {{trucks, number,0} trucks}}",
   "android.map.map_job_out_title": "Job",
   "android.map.map_job_out_working": "Working",
+  "android.map.map_job_pay": "This job pays {amounts}",
   "android.map.map_job_send": "Send the team",
   "android.map.map_job_title": "Job at site {site}",
   "android.map.map_job_trucks": "Trucks to send",
