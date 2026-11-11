@@ -8,7 +8,8 @@ import { type TownShape, townOf } from '../testing/townFixtures'
 import { Instant } from '../time/Instant'
 import type { Hires } from './Hires'
 import type { Job } from './Job'
-import { type SendJobCommand, sendJob } from './sendJob'
+import type { JobOrder } from './JobOrder'
+import { sendJob } from './sendJob'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
 import type { JobTerms, TownSettings } from './TownSettings'
@@ -47,7 +48,7 @@ const plainCatalog = townCatalogOf()
 const catalogWithJob = (job: Partial<JobTerms>): TownCatalog =>
   townCatalogOf({ ...plainTownSettings, job: { ...plainTownSettings.job, ...job } })
 
-const command = (change: Partial<SendJobCommand> = {}): SendJobCommand => ({
+const command = (change: Partial<JobOrder> = {}): JobOrder => ({
   playerId: 'player-1',
   site: { area: 2, site: 4 },
   team: crew,
@@ -57,7 +58,7 @@ const command = (change: Partial<SendJobCommand> = {}): SendJobCommand => ({
 
 const sendFrom = async (
   town: Town,
-  change: Partial<SendJobCommand> = {},
+  change: Partial<JobOrder> = {},
   catalog: TownCatalog = plainCatalog,
   at: Instant = sentAt,
 ): Promise<{

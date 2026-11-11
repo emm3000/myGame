@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   CallJobBackSchema,
   FoundTownSchema,
+  type JobQuote,
   PlaceHiringOrderSchema,
   SendJobSchema,
   StartBuildingWorkSchema,
@@ -23,6 +24,7 @@ import {
   type PlayerId,
   placeHiringOrder,
   type RandomSource,
+  type RegionMapReader,
   type Result,
   sendJob,
   startBuildingWork,
@@ -41,6 +43,7 @@ import type { LessonLibrary } from '../learning/LessonLibrary'
 import { type CurrentTownDependencies, currentTownOf } from '../town/currentTownOf'
 import { foundTownOnFreeSite } from '../town/foundTownOnFreeSite'
 import { mutateTown, type TownStores } from '../town/mutateTown'
+import { quotedJobOf } from '../town/quotedJobOf'
 import type { TownReading } from '../town/TownReading'
 import { type TownNewsDependencies, townNewsOf } from '../town/townNewsOf'
 import { townOverviewOf } from '../town/townOverviewOf'
@@ -57,6 +60,7 @@ export type TownDependencies = CurrentTownDependencies &
     readonly memoryTerms: MemoryTerms
     readonly random: RandomSource
     readonly placedOutBands: PlacedOutBands
+    readonly regionMap: RegionMapReader
   }
 
 const storedTownReadingOf = async (
@@ -263,6 +267,23 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
         dependencies,
       )
       return answerReading(c, sent)
+    },
+  )
+  routes.on(
+    townDeclarations.quoteJob.method,
+    honoPathOf(townDeclarations.quoteJob),
+    signedInPlayer,
+    async (c) => {
+      const request = SendJobSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const pay = await quotedJobOf({ playerId: c.var.playerId, ...request.data }, dependencies)
+      if (!pay.ok) {
+        return answerRefusal(c, pay.error)
+      }
+      const body: JobQuote = { pay: pay.value }
+      return c.json(body)
     },
   )
   routes.on(

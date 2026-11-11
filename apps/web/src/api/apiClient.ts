@@ -5,6 +5,8 @@ import {
   type CallJobBack,
   type ForgotPasswordRequest,
   type FoundTown,
+  type JobQuote,
+  JobQuoteSchema,
   type PlaceHiringOrder,
   type BuildingKind as PlaceKind,
   type Player,
@@ -52,6 +54,7 @@ export interface ApiClient {
   placeHiringOrder(order: PlaceHiringOrder): Promise<ApiOutcome<TownOverview>>
   stopHiringOrder(target: StopHiringOrder): Promise<ApiOutcome<TownOverview>>
   regionMap(area?: number): Promise<ApiOutcome<RegionMap>>
+  quoteJob(job: SendJob): Promise<ApiOutcome<JobQuote>>
   sendJob(job: SendJob): Promise<ApiOutcome<TownOverview>>
   callJobBack(target: CallJobBack): Promise<ApiOutcome<TownOverview>>
   startLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
@@ -170,6 +173,10 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const path = area === undefined ? '/town/map' : `/town/map/${area}`
       const response = await send(path, { method: 'GET' })
       return response === undefined ? unexpected : bodyOf(response, RegionMapSchema)
+    },
+    quoteJob: async (job) => {
+      const response = await postJson('/town/jobs/quote', job)
+      return response === undefined ? unexpected : bodyOf(response, JobQuoteSchema)
     },
     sendJob: async (job) => {
       const response = await postJson('/town/jobs', job)

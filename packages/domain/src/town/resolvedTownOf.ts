@@ -9,7 +9,7 @@ import type { TownRepository } from './TownRepository'
 
 export const resolvedTownOf = async (
   playerId: PlayerId,
-  towns: TownRepository,
+  towns: Pick<TownRepository, 'townOf'>,
   catalog: TownCatalog,
   now: Instant,
 ): Promise<Result<ChangedTown, DomainError>> => {

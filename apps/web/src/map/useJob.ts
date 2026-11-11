@@ -1,8 +1,9 @@
-import type { CallJobBack, SendJob, TownOverview } from '@mygame/contracts'
-import type { ApiClient } from '../api/apiClient'
+import type { CallJobBack, JobQuote, SendJob, TownOverview } from '@mygame/contracts'
+import type { ApiClient, ApiOutcome } from '../api/apiClient'
 import { type RefusedTownAction, useTownAction } from '../town/useTownAction'
 
 export interface TownJob {
+  readonly quote: (job: SendJob) => Promise<ApiOutcome<JobQuote>>
   readonly isSending: boolean
   readonly sendRefused: RefusedTownAction<number> | undefined
   readonly send: (job: SendJob, onSent: () => void) => void
@@ -19,6 +20,7 @@ export function useJob(
   const sending = useTownAction<number>(adopt, readAt)
   const callingBack = useTownAction<CallJobBack>(adopt, readAt)
   return {
+    quote: apiClient.quoteJob,
     isSending: sending.isWaiting,
     sendRefused: sending.refused,
     send: (job, onSent) => sending.run(job.site.site, () => apiClient.sendJob(job), onSent),

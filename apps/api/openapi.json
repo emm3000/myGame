@@ -2791,6 +2791,36 @@
         "required": ["site", "team", "hours"],
         "additionalProperties": false
       },
+      "JobQuote": {
+        "type": "object",
+        "properties": {
+          "pay": {
+            "type": "object",
+            "properties": {
+              "money": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "power": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "material": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["money", "food", "power", "material"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["pay"],
+        "additionalProperties": false
+      },
       "StartLessonRequest": {
         "type": "object",
         "properties": {
@@ -3779,6 +3809,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "InvalidTeam, JobHoursOutOfRange or JobSiteOutOfBounds; any other malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TeamAlreadyOut, JobToOwnSite, SiteHeld or NotEnoughHiresAtHome.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/jobs/quote": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendJob"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The pay the job would fix if it were sent at this instant; nothing is sent or stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobQuote"
                 }
               }
             }

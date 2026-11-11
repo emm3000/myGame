@@ -19,14 +19,16 @@ export const mapArea = ({ area }: { readonly area: string | number }): string =>
 export const mapBackToOwnArea = (): string => `Volver a tu zona`
 export const mapFree = (): string => `Libre`
 export const mapJobAtHome = ({ count }: { readonly count: string | number }): string => `${String(count)} en casa`
-export const mapJobCountNeeded = (): string => `Envía 0 o más.`
+export const mapJobCountNeeded = (): string => `Envía un número entero: 0, 1, 2 o más.`
 export const mapJobHours = (): string => `Horas de trabajo`
 export const mapJobHoursNeeded = (): string => `Trabaja 1 hora o más.`
+export const mapJobPay = ({ amounts }: { readonly amounts: string | number }): string => `Este trabajo paga ${String(amounts)}`
 export const mapJobSend = (): string => `Enviar el equipo`
 export const mapJobTitle = ({ site }: { readonly site: string | number }): string => `Trabajo en el sitio ${String(site)}`
 export const mapJobTrucks = (): string => `Camiones a enviar`
 export const mapJobWorkers = (): string => `Trabajadores a enviar`
 export const mapJobOutCallBack = (): string => `Llamar de vuelta al equipo`
+export const mapJobOutCalledBack = (): string => `Llamado de vuelta, volviendo`
 export const mapJobOutOutbound = (): string => `En camino`
 export const mapJobOutPay = ({ amounts }: { readonly amounts: string | number }): string => `Pago: ${String(amounts)}`
 export const mapJobOutReturning = (): string => `Volviendo`
