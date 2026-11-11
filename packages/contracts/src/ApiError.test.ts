@@ -155,4 +155,39 @@ describe('ApiErrorSchema', () => {
 
     expect(bare.map((error) => ApiErrorSchema.parse(error))).toEqual(bare)
   })
+
+  it('parses the map and job refusals without fields as the kind alone', () => {
+    const bare = [
+      'AreaNotFound',
+      'InvalidTeam',
+      'JobSiteOutOfBounds',
+      'TeamAlreadyOut',
+      'JobToOwnSite',
+      'SiteHeld',
+      'JobNotFound',
+      'JobAlreadyReturning',
+    ].map((kind) => ({ kind }))
+
+    expect(bare.map((error) => ApiErrorSchema.parse(error))).toEqual(bare)
+  })
+
+  it('parses job hours out of range with the hours asked and the most allowed', () => {
+    const outOfRange = { kind: 'JobHoursOutOfRange', params: { hours: 13, maxHours: 12 } }
+
+    expect(ApiErrorSchema.parse(outOfRange)).toEqual(outOfRange)
+  })
+
+  it('parses too few hires at home with the hire, the count asked and the count at home', () => {
+    const short = { kind: 'NotEnoughHiresAtHome', params: { hire: 'truck', count: 2, atHome: 1 } }
+
+    expect(ApiErrorSchema.parse(short)).toEqual(short)
+  })
+
+  it('rejects too few hires at home without its params', () => {
+    expect(ApiErrorSchema.safeParse({ kind: 'NotEnoughHiresAtHome' }).success).toBe(false)
+  })
+
+  it('rejects a march refusal', () => {
+    expect(ApiErrorSchema.safeParse({ kind: 'MarchNotFound' }).success).toBe(false)
+  })
 })

@@ -17,6 +17,8 @@ const BareApiErrorSchema = z
       'OfficeTooLow',
       'HiringSlotBusy',
       'HiringOrderNotFound',
+      'JobHoursOutOfRange',
+      'NotEnoughHiresAtHome',
     ]),
   })
   .meta({ id: 'BareApiError' })
@@ -97,6 +99,27 @@ const HiringOrderNotFoundErrorSchema = z
   })
   .meta({ id: 'HiringOrderNotFoundError' })
 
+const JobHoursOutOfRangeErrorSchema = z
+  .strictObject({
+    kind: z.literal('JobHoursOutOfRange'),
+    params: z.strictObject({
+      hours: WholeCountSchema.positive(),
+      maxHours: WholeCountSchema.positive(),
+    }),
+  })
+  .meta({ id: 'JobHoursOutOfRangeError' })
+
+const NotEnoughHiresAtHomeErrorSchema = z
+  .strictObject({
+    kind: z.literal('NotEnoughHiresAtHome'),
+    params: z.strictObject({
+      hire: HireKindSchema,
+      count: WholeCountSchema,
+      atHome: WholeCountSchema,
+    }),
+  })
+  .meta({ id: 'NotEnoughHiresAtHomeError' })
+
 export const ApiErrorSchema = z
   .discriminatedUnion('kind', [
     BareApiErrorSchema,
@@ -109,6 +132,8 @@ export const ApiErrorSchema = z
     OfficeTooLowErrorSchema,
     HiringSlotBusyErrorSchema,
     HiringOrderNotFoundErrorSchema,
+    JobHoursOutOfRangeErrorSchema,
+    NotEnoughHiresAtHomeErrorSchema,
   ])
   .meta({ id: 'ApiError' })
 

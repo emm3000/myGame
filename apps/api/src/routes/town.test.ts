@@ -794,6 +794,252 @@ describe('the town route', () => {
     })
   })
 
+  describe('the jobs', () => {
+    const keepWorkers = (count: number): Promise<void> =>
+      runSql(`UPDATE town_hires SET count = ${count} WHERE hire = 'worker'`)
+
+    const sendJob = (cookie: string, body: unknown): Promise<Response> =>
+      Promise.resolve(app.request('/town/jobs', jsonRequest('POST', cookie, body)))
+
+    const callJobBack = (cookie: string, sentAt: string): Promise<Response> =>
+      Promise.resolve(
+        app.request(`/town/jobs/${encodeURIComponent(sentAt)}/call-back`, {
+          method: 'POST',
+          headers: { cookie },
+        }),
+      )
+
+    const twoWorkersForTwoHours = (area: number, site: number): unknown => ({
+      site: { area, site },
+      team: { worker: 2, truck: 0 },
+      hours: 2,
+    })
+
+    it('sends a job to a free site', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(1, 3))
+
+      expect(response.status).toBe(200)
+      expect((await overviewOf(response)).job).toEqual({
+        site: { region: 1, area: 1, site: 3 },
+        team: { worker: 2, truck: 0 },
+        hours: 2,
+        pay: { money: 0, food: 12, power: 0, material: 12 },
+        phase: 'outbound',
+        sentAt: '2026-11-05T08:00:00.000Z',
+        arrivesAt: '2026-11-05T08:02:00.000Z',
+        leavesAt: '2026-11-05T10:02:00.000Z',
+        returnsAt: '2026-11-05T10:04:00.000Z',
+        calledBackAt: null,
+      })
+    })
+
+    it('keeps the job out for the next read', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+      await sendJob(ana, twoWorkersForTwoHours(1, 3))
+      clock.advanceMinutes(5)
+
+      const job = (await overviewOf(await readTown(ana))).job
+
+      expect([job?.site, job?.phase]).toEqual([{ region: 1, area: 1, site: 3 }, 'working'])
+    })
+
+    it('credits the pay on the read after the return', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+      await sendJob(ana, twoWorkersForTwoHours(1, 3))
+      const materialBefore = (await overviewOf(await readTown(ana))).stocks.material.amount
+      clock.advanceMinutes(124)
+
+      const overview = await overviewOf(await readTown(ana))
+
+      expect([overview.job, overview.stocks.material.amount - materialBefore]).toEqual([null, 12])
+    })
+
+    it('refuses a job to a held site', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await signUpWithTown('bea@example.com')
+      await keepWorkers(2)
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(1, 2))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'SiteHeld' })
+    })
+
+    it('refuses a job to the town’s own site', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(1, 1))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'JobToOwnSite' })
+    })
+
+    it('refuses a job past the last browsable area', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(3, 1))
+
+      expect(response.status).toBe(400)
+      expect(await refusalOf(response)).toEqual({ kind: 'JobSiteOutOfBounds' })
+    })
+
+    it('refuses a team larger than the hires at home with the count at home', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(1)
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(1, 3))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'NotEnoughHiresAtHome',
+        params: { hire: 'worker', count: 2, atHome: 1 },
+      })
+    })
+
+    it('refuses a team of no hires', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const response = await sendJob(ana, {
+        site: { area: 1, site: 3 },
+        team: { worker: 0, truck: 0 },
+        hours: 2,
+      })
+
+      expect(response.status).toBe(400)
+      expect(await refusalOf(response)).toEqual({ kind: 'InvalidTeam' })
+    })
+
+    it('refuses more hours than the content allows with the most allowed', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+
+      const response = await sendJob(ana, { ...(twoWorkersForTwoHours(1, 3) as object), hours: 9 })
+
+      expect(response.status).toBe(400)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'JobHoursOutOfRange',
+        params: { hours: 9, maxHours: 8 },
+      })
+    })
+
+    it('refuses a second team while one is out', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(4)
+      await sendJob(ana, twoWorkersForTwoHours(1, 3))
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(1, 4))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'TeamAlreadyOut' })
+    })
+
+    it('answers a body of no hours with an empty 400', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const response = await sendJob(ana, { ...(twoWorkersForTwoHours(1, 3) as object), hours: 0 })
+
+      expect([response.status, await response.text()]).toEqual([400, ''])
+    })
+
+    it('refuses a job for a player with no town as TownNotFound', async () => {
+      const ana = await signUp('ana@example.com')
+
+      const response = await sendJob(ana, twoWorkersForTwoHours(1, 3))
+
+      expect(response.status).toBe(404)
+      expect(await refusalOf(response)).toEqual({ kind: 'TownNotFound' })
+    })
+
+    it('calls a job back', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+      await sendJob(ana, twoWorkersForTwoHours(1, 3))
+      clock.advanceMinutes(62)
+
+      const response = await callJobBack(ana, '2026-11-05T08:00:00.000Z')
+
+      expect(response.status).toBe(200)
+      const job = (await overviewOf(response)).job
+      expect([job?.pay, job?.phase, job?.calledBackAt, job?.leavesAt, job?.returnsAt]).toEqual([
+        { money: 0, food: 6, power: 0, material: 6 },
+        'returning',
+        '2026-11-05T09:02:00.000Z',
+        '2026-11-05T09:02:00.000Z',
+        '2026-11-05T09:04:00.000Z',
+      ])
+    })
+
+    it('refuses a call back naming another job', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+      await sendJob(ana, twoWorkersForTwoHours(1, 3))
+
+      const response = await callJobBack(ana, '2026-11-05T07:00:00.000Z')
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'JobNotFound' })
+    })
+
+    it('refuses a second call back of a returning job', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(2)
+      await sendJob(ana, twoWorkersForTwoHours(1, 3))
+      clock.advanceMinutes(30)
+      await callJobBack(ana, '2026-11-05T08:00:00.000Z')
+
+      const response = await callJobBack(ana, '2026-11-05T08:00:00.000Z')
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'JobAlreadyReturning' })
+    })
+
+    it('answers a send that is not an instant with an empty 400', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const response = await callJobBack(ana, 'yesterday')
+
+      expect([response.status, await response.text()]).toEqual([400, ''])
+    })
+
+    it('serializes two concurrent sends', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(4)
+      const firstHasRead = signal()
+      const secondHasRead = signal()
+      const secondIsBlockedOrHasRead = untilPlayerBlockedOrRead(secondHasRead.promise)
+      const racingApp = createApp({
+        ...server,
+        clock,
+        inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+          firstHasRead.resolve()
+          await secondIsBlockedOrHasRead
+        }),
+      })
+      const send = (site: number): Promise<Response> =>
+        Promise.resolve(
+          racingApp.request('/town/jobs', jsonRequest('POST', ana, twoWorkersForTwoHours(1, site))),
+        )
+
+      const first = send(3)
+      await firstHasRead.promise
+      const second = send(4).then((response) => {
+        secondHasRead.resolve()
+        return response
+      })
+      const statuses = (await Promise.all([first, second])).map(({ status }) => status)
+
+      const overview = await overviewOf(await readTown(ana))
+      expect([statuses, overview.job?.site.site]).toEqual([[200, 409], 3])
+    })
+  })
+
   describe('the food of the homes', () => {
     const setMoneyAndMaterialAside = (): Promise<void> =>
       runSql('UPDATE towns SET money = 100000, material = 100000')

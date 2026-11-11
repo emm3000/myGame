@@ -58,6 +58,19 @@ const lessonUnderStudy = {
   finishesAt: '2026-11-10T09:00:00.000Z',
 }
 
+const jobOut = {
+  site: { region: 1, area: 2, site: 5 },
+  team: { worker: 2, truck: 1 },
+  hours: 2,
+  pay: { money: 0, food: 120, power: 0, material: 40 },
+  phase: 'working',
+  sentAt: '2026-11-10T08:00:00.000Z',
+  arrivesAt: '2026-11-10T08:10:00.000Z',
+  leavesAt: '2026-11-10T10:10:00.000Z',
+  returnsAt: '2026-11-10T10:20:00.000Z',
+  calledBackAt: null,
+}
+
 const overview = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
   name: 'Maple Falls',
   label: 'town',
@@ -81,6 +94,7 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
     hires: { worker: 2, truck: 0 },
     terms: { worker: workerTerms, truck: truckTerms },
   },
+  job: null,
   lessons: [lessonOne],
   skills: [earnedFood],
   lessonSlot: lessonUnderStudy,
@@ -92,6 +106,28 @@ const overview = (overrides: Record<string, unknown> = {}): Record<string, unkno
 })
 
 describe('TownOverviewSchema', () => {
+  it('parses a job out with its pay and its instants', () => {
+    expect(TownOverviewSchema.parse(overview({ job: jobOut })).job).toEqual(jobOut)
+  })
+
+  it('parses a job called back with the instant of the call', () => {
+    const calledBack = { ...jobOut, phase: 'returning', calledBackAt: '2026-11-10T09:00:00.000Z' }
+
+    expect(TownOverviewSchema.parse(overview({ job: calledBack })).job).toEqual(calledBack)
+  })
+
+  it('rejects a job of no hours', () => {
+    expect(TownOverviewSchema.safeParse(overview({ job: { ...jobOut, hours: 0 } })).success).toBe(
+      false,
+    )
+  })
+
+  it('rejects a job phase the town does not know', () => {
+    expect(
+      TownOverviewSchema.safeParse(overview({ job: { ...jobOut, phase: 'lost' } })).success,
+    ).toBe(false)
+  })
+
   it('parses an open hiring order with its delivered count', () => {
     const hiring = {
       order: openOrder,

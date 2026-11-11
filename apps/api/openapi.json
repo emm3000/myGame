@@ -72,6 +72,12 @@
           },
           {
             "$ref": "#/components/schemas/HiringOrderNotFoundError"
+          },
+          {
+            "$ref": "#/components/schemas/JobHoursOutOfRangeError"
+          },
+          {
+            "$ref": "#/components/schemas/NotEnoughHiresAtHomeError"
           }
         ],
         "discriminator": {
@@ -96,6 +102,14 @@
             "TownNotFound": "#/components/schemas/BareApiError",
             "PlayerAlreadyHoldsTown": "#/components/schemas/BareApiError",
             "BlankTownName": "#/components/schemas/BareApiError",
+            "AreaNotFound": "#/components/schemas/BareApiError",
+            "InvalidTeam": "#/components/schemas/BareApiError",
+            "JobSiteOutOfBounds": "#/components/schemas/BareApiError",
+            "TeamAlreadyOut": "#/components/schemas/BareApiError",
+            "JobToOwnSite": "#/components/schemas/BareApiError",
+            "SiteHeld": "#/components/schemas/BareApiError",
+            "JobNotFound": "#/components/schemas/BareApiError",
+            "JobAlreadyReturning": "#/components/schemas/BareApiError",
             "WaitingListFull": "#/components/schemas/WaitingListFullError",
             "NotEnoughPeople": "#/components/schemas/NotEnoughPeopleError",
             "NotEnoughResources": "#/components/schemas/NotEnoughResourcesError",
@@ -104,7 +118,9 @@
             "LearningCapReached": "#/components/schemas/LearningCapReachedError",
             "OfficeTooLow": "#/components/schemas/OfficeTooLowError",
             "HiringSlotBusy": "#/components/schemas/HiringSlotBusyError",
-            "HiringOrderNotFound": "#/components/schemas/HiringOrderNotFoundError"
+            "HiringOrderNotFound": "#/components/schemas/HiringOrderNotFoundError",
+            "JobHoursOutOfRange": "#/components/schemas/JobHoursOutOfRangeError",
+            "NotEnoughHiresAtHome": "#/components/schemas/NotEnoughHiresAtHomeError"
           }
         }
       },
@@ -132,7 +148,15 @@
               "UnknownWord",
               "TownNotFound",
               "PlayerAlreadyHoldsTown",
-              "BlankTownName"
+              "BlankTownName",
+              "AreaNotFound",
+              "InvalidTeam",
+              "JobSiteOutOfBounds",
+              "TeamAlreadyOut",
+              "JobToOwnSite",
+              "SiteHeld",
+              "JobNotFound",
+              "JobAlreadyReturning"
             ]
           }
         },
@@ -381,6 +405,64 @@
               }
             },
             "required": ["hire", "startedAt"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "JobHoursOutOfRangeError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["JobHoursOutOfRange"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hours": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "maxHours": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["hours", "maxHours"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "NotEnoughHiresAtHomeError": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["NotEnoughHiresAtHome"]
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "hire": {
+                "type": "string",
+                "enum": ["worker", "truck"]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "atHome": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["hire", "count", "atHome"],
             "additionalProperties": false
           }
         },
@@ -1377,6 +1459,62 @@
         "required": ["kind", "occurredAt"],
         "additionalProperties": false
       },
+      "RegionMap": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "area": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "lastArea": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "terrain": {
+            "type": "string",
+            "enum": ["fields", "river", "hills"]
+          },
+          "sites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "site": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "town": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "isOwn": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["name", "isOwn"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["site", "town"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["region", "area", "lastArea", "terrain", "sites"],
+        "additionalProperties": false
+      },
       "TownOverview": {
         "type": "object",
         "properties": {
@@ -2103,6 +2241,115 @@
             "required": ["order", "hires", "terms"],
             "additionalProperties": false
           },
+          "job": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "site": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "area": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "site": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  }
+                },
+                "required": ["region", "area", "site"],
+                "additionalProperties": false
+              },
+              "team": {
+                "type": "object",
+                "properties": {
+                  "worker": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "truck": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["worker", "truck"],
+                "additionalProperties": false
+              },
+              "hours": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "pay": {
+                "type": "object",
+                "properties": {
+                  "money": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "food": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "power": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "material": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["money", "food", "power", "material"],
+                "additionalProperties": false
+              },
+              "phase": {
+                "type": "string",
+                "enum": ["outbound", "working", "returning"]
+              },
+              "sentAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "arrivesAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "leavesAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "returnsAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "calledBackAt": {
+                "type": "string",
+                "nullable": true,
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "site",
+              "team",
+              "hours",
+              "pay",
+              "phase",
+              "sentAt",
+              "arrivesAt",
+              "leavesAt",
+              "returnsAt",
+              "calledBackAt"
+            ],
+            "additionalProperties": false
+          },
           "lessons": {
             "type": "array",
             "items": {
@@ -2300,6 +2547,7 @@
           "buildings",
           "work",
           "hiring",
+          "job",
           "lessons",
           "skills",
           "lessonSlot",
@@ -2497,6 +2745,50 @@
           }
         },
         "required": ["hire", "count"],
+        "additionalProperties": false
+      },
+      "SendJob": {
+        "type": "object",
+        "properties": {
+          "site": {
+            "type": "object",
+            "properties": {
+              "area": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "site": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["area", "site"],
+            "additionalProperties": false
+          },
+          "team": {
+            "type": "object",
+            "properties": {
+              "worker": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "truck": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["worker", "truck"],
+            "additionalProperties": false
+          },
+          "hours": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": ["site", "team", "hours"],
         "additionalProperties": false
       },
       "StartLessonRequest": {
@@ -3013,6 +3305,88 @@
         }
       }
     },
+    "/town/map": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The area of the player’s town: each site free or holding a town, the own one marked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionMap"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/map/{area}": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9]\\d*$"
+            },
+            "required": true,
+            "name": "area",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The area the path names in the town’s region, from 1 to one past the last area holding a town.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionMap"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An area that is not a whole count from 1. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound, or AreaNotFound for an area past the last browsable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/town": {
       "get": {
         "security": [
@@ -3370,6 +3744,128 @@
           },
           "409": {
             "description": "HiringOrderNotFound.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/jobs": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendJob"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The town with the team out on the job, its pay fixed at dispatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "InvalidTeam, JobHoursOutOfRange or JobSiteOutOfBounds; any other malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TeamAlreadyOut, JobToOwnSite, SiteHeld or NotEnoughHiresAtHome.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/jobs/{sentAt}/call-back": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "sentAt",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The town with the team on its way back, its pay cut to the work done before the call.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed path. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "JobNotFound or JobAlreadyReturning.",
             "content": {
               "application/json": {
                 "schema": {

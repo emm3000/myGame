@@ -7,6 +7,7 @@ import {
   type MemoryTerms,
   type PlacedOutBands,
   type RandomSource,
+  type RegionMapReader,
   type TownCatalog,
 } from '@mygame/domain'
 import { JsonLessonCatalog } from './adapters/json/JsonLessonCatalog'
@@ -14,6 +15,7 @@ import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
+import { DrizzleRegionMap } from './adapters/postgres/DrizzleRegionMap'
 import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings'
 import { DrizzleTownNews } from './adapters/postgres/DrizzleTownNews'
 import { DrizzleTownRepository } from './adapters/postgres/DrizzleTownRepository'
@@ -93,6 +95,7 @@ export type ComposedServer = MailSettings & {
   readonly placedOutBands: PlacedOutBands
   readonly towns: TownReader
   readonly townNews: TownNewsReader
+  readonly regionMap: RegionMapReader
   readonly cards: CardReader
   readonly accounts: Accounts
   readonly reportClosings: ReportClosings
@@ -131,6 +134,7 @@ export function composeServer(
     inTransaction: postgresTransaction(database),
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townNews: new DrizzleTownNews(database),
+    regionMap: new DrizzleRegionMap(database),
     cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,
     failureSink: standardErrorSink,

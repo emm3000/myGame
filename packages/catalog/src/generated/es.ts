@@ -41,6 +41,7 @@ export const passwordResetNewPasswordTitle = (): string => `Elige una contraseñ
 export const passwordResetRequestConfirmation = (): string => `Si ese correo tiene una cuenta y está confirmado, te llegará un enlace que vale una hora.`
 export const passwordResetRequestSubmit = (): string => `Enviar enlace`
 export const passwordResetRequestTitle = (): string => `Recupera tu contraseña`
+export const refusalAreaNotFound = (): string => `Esa zona está más allá del final del mapa.`
 export const refusalBlankTownName = (): string => `Escribe un nombre para tu pueblo.`
 export const refusalBuildingWorkNotFound = ({ level }: { readonly level: string | number }): string => `La obra del nivel ${String(level)} ya no está en la lista. Quizá ya terminó.`
 export const refusalEmailTaken = (): string => `Ya hay una cuenta con ese correo. Entra con ella o usa otro correo.`
@@ -48,6 +49,12 @@ export const refusalHintOnRecognition = (): string => `Esta palabra se elige ent
 export const refusalHiringOrderNotFound = (): string => `Esta contratación ya terminó.`
 export const refusalHiringSlotBusy = (): string => `Ya tienes una contratación en curso. Espera a que termine.`
 export const refusalInvalidCredentials = (): string => `El correo o la contraseña no son correctos.`
+export const refusalInvalidTeam = (): string => `Elige al menos un trabajador o un camión para el equipo.`
+export const refusalJobAlreadyReturning = (): string => `Tu equipo ya está volviendo.`
+export const refusalJobHoursOutOfRange = ({ maxHours }: { readonly maxHours: string | number }): string => `Un trabajo dura de 1 a ${String(maxHours)} horas.`
+export const refusalJobNotFound = (): string => `Este trabajo ya terminó.`
+export const refusalJobSiteOutOfBounds = (): string => `Ese lugar no está en el mapa.`
+export const refusalJobToOwnSite = (): string => `Ese lugar es tu pueblo. Elige otro lugar.`
 export const refusalLearningCapReached = ({ cardsInLearning, learningCap }: { readonly cardsInLearning: string | number; readonly learningCap: string | number }): string => `Palabras en aprendizaje: ${String(cardsInLearning)} de ${String(learningCap)}. Repásalas antes de empezar otra lección.`
 export const refusalLessonAlreadyStudied = (): string => `Ya estudiaste esa lección: sus palabras están en tu repaso.`
 export const refusalLessonSchoolTooLow = (): string => `Esa lección necesita una escuela de más nivel. Súbela primero.`
@@ -55,12 +62,15 @@ export const refusalLessonStudyNotFound = (): string => `La escuela ya no estudi
 export const refusalLessonUnderStudy = (): string => `La escuela ya está estudiando esa lección. Espera a que termine.`
 export const refusalMailNotSent = (): string => `No hemos podido enviarlo.`
 export const refusalMalformedEmail = (): string => `Escribe un correo válido, como nombre@ejemplo.com.`
+export const refusalNotEnoughHiresAtHome = ({ atHome, count, hire }: { readonly atHome: string | number; readonly count: number; readonly hire: 'worker' | 'truck' }): string => `${hire === 'worker' ? `${count === 1 ? `El equipo necesita 1 trabajador` : `El equipo necesita ${String(count)} trabajadores`} y tienes ${String(atHome)} en casa.` : hire === 'truck' ? `${count === 1 ? `El equipo necesita 1 camión` : `El equipo necesita ${String(count)} camiones`} y tienes ${String(atHome)} en casa.` : `${count === 1 ? `El equipo necesita 1 camión` : `El equipo necesita ${String(count)} camiones`} y tienes ${String(atHome)} en casa.`}`
 export const refusalNotEnoughPeople = ({ freePeople, requiredPeople }: { readonly freePeople: string | number; readonly requiredPeople: number }): string => `Esta obra necesita ${requiredPeople === 1 ? `1 persona libre` : `${String(requiredPeople)} personas libres`} y tienes ${String(freePeople)}. Sube el nivel de tus hogares.`
 export const refusalNotEnoughResources = (): string => `No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas.`
 export const refusalOfficeTooLow = ({ officeLevel, requiredOfficeLevel }: { readonly officeLevel: string | number; readonly requiredOfficeLevel: string | number }): string => `Tu oficina está en nivel ${String(officeLevel)} y esta contratación necesita el nivel ${String(requiredOfficeLevel)}.`
 export const refusalPlayerAlreadyHoldsTown = (): string => `Ya tienes un pueblo. Solo puedes tener uno.`
 export const refusalReviewNotDue = (): string => `Esa palabra aún no toca repasarla. Vuelve al repaso para ver las que sí.`
+export const refusalSiteHeld = (): string => `En ese lugar hay otro pueblo. Elige un lugar libre.`
 export const refusalStudySlotBusy = (): string => `La biblioteca ya tiene un estudio en marcha. Espera a que termine.`
+export const refusalTeamAlreadyOut = (): string => `Tu equipo ya está fuera. Espera a que vuelva.`
 export const refusalTokenInvalid = (): string => `Ese enlace no vale: ha caducado, ya se ha usado o nunca se envió. Pide otro.`
 export const refusalTopLevelReached = ({ level }: { readonly level: string | number }): string => `Este edificio ya está en su nivel más alto, el ${String(level)}.`
 export const refusalTownNotFound = (): string => `Aún no tienes pueblo. Ponle nombre para fundarlo.`

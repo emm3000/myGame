@@ -13,6 +13,7 @@ import { healthDeclarations } from './routes/healthDeclarations'
 import { learningDeclarations } from './routes/learningDeclarations'
 import { reportDeclarations } from './routes/reportDeclarations'
 import { townDeclarations } from './routes/townDeclarations'
+import { townMapDeclarations } from './routes/townMapDeclarations'
 
 const contentDirectory = fileURLToPath(new URL('../content/', import.meta.url))
 
@@ -49,6 +50,7 @@ const mounted: ReadonlyArray<readonly [string, Readonly<Record<string, RouteConf
   ['/reviews', learningDeclarations],
   ['/report', reportDeclarations],
   ['/town', townDeclarations],
+  ['/town/map', townMapDeclarations],
 ]
 
 const declarationsByOperation = new Map<string, RouteConfig>(
@@ -233,6 +235,34 @@ const exchanges: ReadonlyArray<Exchange> = [
     params: { lessonId: 'lesson-1' },
     status: 404,
   },
+  { operation: 'GET /town/map', caller: 'signedOut', status: 401 },
+  { operation: 'GET /town/map', caller: 'ana', status: 404 },
+  { operation: 'GET /town/map/{area}', caller: 'signedOut', params: { area: '1' }, status: 401 },
+  { operation: 'GET /town/map/{area}', caller: 'ana', params: { area: '1' }, status: 404 },
+  {
+    operation: 'POST /town/jobs',
+    caller: 'signedOut',
+    body: { site: { area: 1, site: 3 }, team: { worker: 1, truck: 0 }, hours: 1 },
+    status: 401,
+  },
+  {
+    operation: 'POST /town/jobs',
+    caller: 'ana',
+    body: { site: { area: 1, site: 3 }, team: { worker: 1, truck: 0 }, hours: 1 },
+    status: 404,
+  },
+  {
+    operation: 'POST /town/jobs/{sentAt}/call-back',
+    caller: 'signedOut',
+    params: { sentAt: '2026-09-22T08:00:00.000Z' },
+    status: 401,
+  },
+  {
+    operation: 'POST /town/jobs/{sentAt}/call-back',
+    caller: 'ana',
+    params: { sentAt: '2026-09-22T08:00:00.000Z' },
+    status: 404,
+  },
   { operation: 'POST /town', caller: 'signedOut', body: { name: 'Maple Falls' }, status: 401 },
   { operation: 'POST /town', caller: 'ana', body: { name: '   ' }, status: 400 },
   { operation: 'POST /town', caller: 'ana', body: { name: 'Maple Falls' }, status: 200 },
@@ -309,6 +339,47 @@ const exchanges: ReadonlyArray<Exchange> = [
     operation: 'DELETE /town/hiring/{hire}/{startedAt}',
     caller: 'ana',
     params: { hire: 'worker', startedAt: '2026-09-22T08:00:00.000Z' },
+    status: 200,
+  },
+  { operation: 'GET /town/map', caller: 'ana', status: 200 },
+  { operation: 'GET /town/map/{area}', caller: 'ana', params: { area: '0' }, status: 400 },
+  { operation: 'GET /town/map/{area}', caller: 'ana', params: { area: '3' }, status: 404 },
+  { operation: 'GET /town/map/{area}', caller: 'ana', params: { area: '2' }, status: 200 },
+  {
+    operation: 'POST /town/jobs',
+    caller: 'ana',
+    body: { site: { area: 1, site: 3 }, team: { worker: 0, truck: 0 }, hours: 1 },
+    status: 400,
+  },
+  {
+    operation: 'POST /town/jobs',
+    caller: 'ana',
+    body: { site: { area: 1, site: 3 }, team: { worker: 1, truck: 0 }, hours: 1 },
+    status: 409,
+  },
+  {
+    operation: 'POST /town/jobs',
+    caller: 'ana',
+    seed: "UPDATE town_hires SET count = 1 WHERE hire = 'worker'",
+    body: { site: { area: 1, site: 3 }, team: { worker: 1, truck: 0 }, hours: 1 },
+    status: 200,
+  },
+  {
+    operation: 'POST /town/jobs/{sentAt}/call-back',
+    caller: 'ana',
+    params: { sentAt: 'yesterday' },
+    status: 400,
+  },
+  {
+    operation: 'POST /town/jobs/{sentAt}/call-back',
+    caller: 'ana',
+    params: { sentAt: '2026-09-22T07:59:00.000Z' },
+    status: 409,
+  },
+  {
+    operation: 'POST /town/jobs/{sentAt}/call-back',
+    caller: 'ana',
+    params: { sentAt: '2026-09-22T08:00:00.000Z' },
     status: 200,
   },
   {
