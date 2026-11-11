@@ -2,6 +2,7 @@ import { createRoute } from '@hono/zod-openapi'
 import { RegionMapRequestSchema, RegionMapSchema } from '@mygame/contracts'
 import { refusalResponse } from '../http/refusalResponse'
 import { jsonResponse, signedInRoute } from '../http/responseDeclarations'
+import { malformedResponse } from './townDeclarations'
 
 export const townMapDeclarations = {
   ownArea: createRoute(
@@ -27,7 +28,7 @@ export const townMapDeclarations = {
           'The area the path names in the town’s region, from 1 to one past the last area holding a town.',
           RegionMapSchema,
         ),
-        400: { description: 'An area that is not a whole count from 1. Empty body.' },
+        400: malformedResponse('path'),
         404: refusalResponse('TownNotFound, or AreaNotFound for an area past the last browsable.'),
       },
     }),

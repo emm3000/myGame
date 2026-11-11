@@ -78,7 +78,7 @@ it('renders a hiring order that is not there as its line', () => {
 
 it('renders a held site as its line', () => {
   expect(refusalLineOf('SiteHeld', { kind: 'SiteHeld' })).toBe(
-    'En ese lugar hay otro pueblo. Elige un lugar libre.',
+    'En ese sitio hay otro pueblo. Elige un sitio libre.',
   )
 })
 
