@@ -61,7 +61,7 @@ class FakeRegionRepository(private val onAnswered: (TownJobResult.Answered) -> U
     }
 
     override suspend fun quoteJob(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): JobQuoteResult {
-        val request = JobRequest(target, team, hours)
+        val request: JobRequest = JobRequest(target, team, hours)
         _quotes += request
         val answer: CompletableDeferred<JobQuoteResult> = quoteAnswerFor(request)
         return answer.await().also { quoteAnswers.remove(request, answer) }

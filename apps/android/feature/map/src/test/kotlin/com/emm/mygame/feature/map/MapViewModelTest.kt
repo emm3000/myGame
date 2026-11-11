@@ -186,7 +186,7 @@ class MapViewModelTest {
                 workersAtHome = 3,
                 trucksAtHome = 1,
                 block = MapUiState.JobBlock.InvalidTeam,
-                quote = null,
+                quote = MapUiState.PayQuote.Asking,
             ),
             contentOf(viewModel).form,
         )
@@ -400,11 +400,35 @@ class MapViewModelTest {
     }
 
     @Test
-    fun `asks no quote for a blocked form`() = runTest {
-        val viewModel: MapViewModel = formFilled(workers = "0", trucks = "0")
+    fun `asks no quote while an entry is not a whole count`() = runTest {
+        val viewModel: MapViewModel = mapReading(towns)
+        viewModel.onIntent(MapIntent.SendTeamTapped(site = 1))
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Workers, "1.5"))
 
-        assertEquals(emptyList<FakeRegionRepository.JobRequest>(), towns.regions.quotes)
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Hours, "x"))
+
         assertNull(quoteOf(viewModel))
+    }
+
+    @Test
+    fun `asks the quote of a team larger than the one at home`() = runTest {
+        formFilled(town = townOf(workers = 3, trucks = 1), workers = "5", trucks = "1", hours = "3")
+
+        assertEquals(
+            FakeRegionRepository.JobRequest(
+                target = JobTarget(area = 1, site = 1),
+                team = mapOf(TownHireKind.Worker to 5, TownHireKind.Truck to 1),
+                hours = 3,
+            ),
+            towns.regions.quotes.last(),
+        )
+    }
+
+    @Test
+    fun `asks the quote while a team is out`() = runTest {
+        formFilled(town = townOf(job = jobOf()), hours = "3")
+
+        assertEquals(jobFor(hours = 3), towns.regions.quotes.last())
     }
 
     @Test
