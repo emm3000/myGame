@@ -28,15 +28,17 @@ Totals of rows already folded out of Recent.
 
 | Row | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|---|
-| 1 | sonnet:low | 15 | 12 | 0 | 0 | 3 |
+| 1 | sonnet:low | 19 | 15 | 0 | 0 | 4 |
 | 2 | sonnet:medium | 2 | 0 | 0 | 2 | 0 |
 | 2 | opus:medium | 77 | 61 | 7 | 7 | 2 |
 | 2 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
-| 2 | opus:high | 65 | 48 | 10 | 5 | 2 |
+| 2 | opus:high | 69 | 52 | 10 | 5 | 2 |
 | 3 | opus:medium | 25 | 16 | 4 | 4 | 1 |
-| 4 | opus:high | 68 | 58 | 2 | 3 | 5 |
-| 3 | opus:high | 106 | 75 | 10 | 15 | 5 |
-| 1 | opus:high | 11 | 2 | 1 | 7 | 1 |
+| 4 | opus:high | 69 | 58 | 2 | 3 | 6 |
+| 3 | opus:high | 109 | 76 | 11 | 15 | 6 |
+| 3 | fable:high | 2 | 2 | 0 | 0 | 0 |
+| 4 | fable:high | 1 | 1 | 0 | 0 | 0 |
+| 1 | opus:high | 14 | 5 | 1 | 7 | 1 |
 | 1 | fable:high | 43 | 31 | 1 | 8 | 3 |
 | 5 | fable:high | 18 | 18 | 0 | 0 | 0 |
 | 5 | opus:high | 3 | 3 | 0 | 0 | 0 |
@@ -47,23 +49,23 @@ Last 20 PRs, oldest first. Model:effort is what actually ran, which may differ f
 
 | PR | Issue | Row | Model:effort | First review | Cause | Peer in k | Peer out k | Review k | Peer USD | Rounds | Model min | Lines +/- | Later bug |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| #968 | #774 | 2 | opus:high | MERGE | | 17452 | 46 | 75 | | 1 | | +424/-42 | |
-| #970 | #963 | 2 | opus:high | FIX FIRST | judgment | 29983 | 95 | 110 | | 3 | | +635/-99 | |
-| #969 | #786 | 3 | opus:high | FIX FIRST | judgment | 35883 | 93 | 95 | | 2 | | +1058/-221 | |
-| #972 | #965 | 3 | opus:high | MERGE | | 11893 | 42 | 75 | | 1 | | +759/-491 | |
-| #973 | #971 | 2 | opus:high | FIX FIRST | judgment | 33322 | 78 | 85 | | 2 | | +314/-75 | |
-| #977 | #787 | 2 | opus:high | MERGE | | 33641 | 92 | 75 | | 1 | | +764/-114 | |
-| #978 | #788 | 2 | opus:high | MERGE | | 47099 | 137 | 160 | | 3 | | +1472/-172 | |
-| #980 | #979 | 3 | opus:high | MERGE | | 6696 | 21 | 45 | | 1 | | +140/-41 | |
-| #982 | #954 | 2 | opus:high | MERGE | | 25175 | 54 | 75 | | 1 | | +227/-66 | |
-| #983 | #981 | 3 | opus:high | MERGE | | 32719 | 91 | 150 | | 3 | | +573/-89 | |
-| #974 | #742 | 1 | sonnet:low | FIX FIRST | spec | 5994 | 42 | 95 | | 2 | | +680/-16 | |
-| #984 | #789 | 4 | opus:high | FIX FIRST | spec | 20470 | 79 | 140 | | 2 | | +3357/-26 | |
-| #988 | #790 | 3 | opus:high | MERGE | | 14318 | 39 | 95 | | 1 | | +619/-115 | |
-| #989 | #776 | 2 | opus:high | MERGE | | 23513 | 65 | 75 | | 1 | | +760/-63 | |
-| #992 | #986 | 3 | opus:high | MERGE | | 12773 | 54 | 75 | | 1 | | +497/-26 | |
-| #994 | #987 | 2 | opus:high | MERGE | | 10858 | 44 | 45 | | 1 | | +499/-0 | |
-| #996 | #995 | 3 | opus:high | MERGE | | 7986 | 33 | 65 | | 1 | | +182/-4 | |
-| #993 | #792 | 2 | opus:high | MERGE | | 39318 | 116 | 95 | | 2 | | +1308/-28 | |
-| #999 | #791 | 2 | opus:high | MERGE | | 21339 | 64 | 90 | | 1 | | +694/-29 | |
 | #1000 | #990 | 2 | opus:high | MERGE | | 15676 | 45 | 45 | | 1 | | +103/-36 | |
+| #1015 | #743 | 4 | opus:high | FIX FIRST | spec | 33824 | 154 | 185 | | 3 | | +5491/-100 | |
+| #1012 | #1001 | lore | opus:high | FIX FIRST | judgment | 29520 | 122 | 260 | | 4 | round 3 caused by an orchestrator fix instruction that contradicted trunk | +691/-17 | |
+| #1016 | #1013 | 1 | opus:high | MERGE | | | | | | 1 | catalog for #1017, same peer; tokens counted on #1017 | +115/-3 | |
+| #1017 | #1013 | 2 | opus:high | MERGE | | 31420 | 114 | 115 | | 2 | stacked on #1016, retargeted after its merge | +2119/-78 | |
+| #1018 | #1004 | 3 | opus:high | FIX FIRST | spec | 5629 | 42 | 100 | | 2 | unit split by punctuation passed check 3 ungapped | +556/-65 | |
+| #1019 | #1005 | 3 | opus:high | MERGE | | 25178 | 57 | 86 | | 1 | two minor test gaps folded before merge | +293/-58 | |
+| #1029 | #1006 | 3 | fable:high | MERGE | | 17766 | 96 | 102 | | 1 | Fable 5.2 trial, owner approved; three deviations all accepted | +1406/-431 | |
+| #1028 | #1020 | 1 | sonnet:low | MERGE | | 1314 | 5 | 29 | | 1 | | +9/-0 | |
+| #1030 | #1022 | 1 | sonnet:low | MERGE | | 918 | 3 | 25 | | 1 | | +15/-0 | |
+| #1031 | #1023 | 2 | opus:high | MERGE | | 28931 | 90 | 87 | | 1 | two minors folded (search bound, no seconds) | +518/-26 | |
+| #1032 | #1025 | 3 | fable:high | MERGE | | 22925 | 118 | 114 | | 1 | Fable trial 2; two minors folded; own /agents-review ran two opus reviewers | +1007/-19 | |
+| #1034 | #1008 | 1 | opus:high | MERGE | | 8486 | 37 | 67 | | 1 | content raised from sonnet:low; reviewer approved content for the owner; four content minors folded | +102/-2 | |
+| #1036 | #1007 | 4 | fable:high | MERGE | | 23106 | 121 | 103 | | 1 | Fable trial 3; GET-side frame store upheld; three minors folded | +3397/-115 | |
+| #1037 | #1021 | 3 | opus:high | FIX FIRST | checklist | 15288 | 57 | 188 | | 2 | deriveFullAt stop rule every/some untested | +571/-98 | |
+| #1039 | #1033 | 1 | sonnet:low | MERGE | | 1216 | 3 | 21 | | 1 | stale CLAUDE.md line left: peer declined a CLAUDE.md edit on peer request | +4/-1 | |
+| #1040 | #1038 | 1 | sonnet:low | FIX FIRST | spec | 1681 | 9 | 34 | | 2 | left S22 unmarked while its halves were open | +18/-7 | |
+| #1041 | #1024 | 2 | opus:high | MERGE | | 14489 | 51 | 63 | | 1 | one minor folded (window measured from the read) | +285/-13 | |
+| #1044 | #1009 | 2 | opus:high | MERGE | | 13712 | 39 | 37 | | 1 | emulator run found nothing to fix; tests and screenshots only | +91/-0 | |
+| #1043 | #1011 | 1 | opus:high | MERGE | | 5540 | 49 | 67 | | 1 | content raised from sonnet:low; reviewer read all 160 frames; 9 wording fixes folded | +940/-64 | |
