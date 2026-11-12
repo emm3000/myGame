@@ -4,7 +4,8 @@ import type { Instant } from '../time/Instant'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
 import type { FullSince } from './FullSince'
 import type { Stocks } from './Stocks'
-import { type Stores, storedStoresOf } from './storedStoresOf'
+import { fullSinceOf, type Stores } from './Stores'
+import { storedStoresOf } from './storedStoresOf'
 import { storesAfterSeasonSegment } from './storesAfterSeasonSegment'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
@@ -21,12 +22,7 @@ const accrualOf = (stores: Stores): Accrual => ({
     power: stores.power.amount,
     material: stores.material.amount,
   },
-  fullSince: {
-    money: stores.money.fullSince,
-    food: stores.food.fullSince,
-    power: stores.power.fullSince,
-    material: stores.material.fullSince,
-  },
+  fullSince: fullSinceOf(stores),
 })
 
 export const accrueTown = (
