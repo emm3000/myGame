@@ -53,6 +53,14 @@ internal class ApiSessionRepository(
         }
     }
 
+    override suspend fun resendVerification(): VerificationResendResult = withContext(ioDispatcher) {
+        try {
+            sentOrNotSent(api.authVerifyEmailResendPost())
+        } catch (expectedOutage: IOException) {
+            VerificationResendResult.Unreachable
+        }
+    }
+
     override suspend fun signOut(): Unit = withContext(ioDispatcher) {
         try {
             closeSession()
@@ -108,6 +116,12 @@ internal class ApiSessionRepository(
         else -> PasswordResetRequestResult.Unreachable
     }
 
+    private fun sentOrNotSent(response: Response<Unit>): VerificationResendResult = when (response.code()) {
+        HttpURLConnection.HTTP_NO_CONTENT -> VerificationResendResult.Sent
+        HttpURLConnection.HTTP_UNAVAILABLE -> VerificationResendResult.MailNotSent
+        else -> VerificationResendResult.Unreachable
+    }
+
     private fun restoredOrSignedOut(response: Response<Player>): RestoreResult {
         val player: Player? = response.body()
         return when {
@@ -130,4 +144,4 @@ private fun BareApiError.Kind?.toSignUpRefusal(): SignUpRefusal = when (this) {
     else -> SignUpRefusal.Unrecognized
 }
 
-private fun Player.toSignedInPlayer(): SignedInPlayer = SignedInPlayer(email = email)
+private fun Player.toSignedInPlayer(): SignedInPlayer = SignedInPlayer(email = email, isEmailVerified = emailVerified)

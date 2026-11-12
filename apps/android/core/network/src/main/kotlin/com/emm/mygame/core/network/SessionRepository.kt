@@ -14,6 +14,8 @@ interface SessionRepository {
 
     suspend fun restore(): RestoreResult
 
+    suspend fun resendVerification(): VerificationResendResult
+
     suspend fun signOut()
 }
 

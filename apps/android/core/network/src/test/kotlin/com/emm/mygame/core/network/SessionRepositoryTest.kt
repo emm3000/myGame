@@ -49,7 +49,7 @@ class SessionRepositoryTest {
 
         val result: SignInResult = repository(tokenStore()).signIn("ines@sotoverde.es", "contrasena")
 
-        assertEquals(SignInResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es")), result)
+        assertEquals(SignInResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true)), result)
     }
 
     @Test
@@ -166,7 +166,10 @@ class SessionRepositoryTest {
 
         val result: RestoreResult = repository(store).restore()
 
-        assertEquals(RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es")), result)
+        assertEquals(
+            RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true)),
+            result,
+        )
     }
 
     @Test
@@ -363,7 +366,7 @@ class SessionRepositoryTest {
         val result: SignUpResult = sessions.signUp("elena@encinar.es", "hierro-y-lana")
         sessions.restore()
 
-        assertEquals(SignUpResult.SignedIn(SignedInPlayer(email = "elena@encinar.es")), result)
+        assertEquals(SignUpResult.SignedIn(SignedInPlayer(email = "elena@encinar.es", isEmailVerified = true)), result)
         val signUpRequest: RecordedRequest = api.takeRequestWithin()
         assertEquals("/api/auth/sign-up/native", signUpRequest.url.encodedPath)
         assertEquals(
@@ -525,6 +528,85 @@ class SessionRepositoryTest {
         }
     }
 
+    @Test
+    fun `restores a player whose email the api has not verified`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(json(200, playerJson(email = "ines@sotoverde.es", isEmailVerified = false)))
+
+        val result: RestoreResult = repository(store).restore()
+
+        assertEquals(
+            RestoreResult.SignedIn(SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = false)),
+            result,
+        )
+    }
+
+    @Test
+    fun `posts the stored token as a bearer to the verification resend`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(MockResponse.Builder().code(204).build())
+
+        repository(store).resendVerification()
+
+        val resendRequest: RecordedRequest = api.takeRequestWithin()
+        assertEquals("POST", resendRequest.method)
+        assertEquals("/api/auth/verify-email/resend", resendRequest.url.encodedPath)
+        assertEquals("Bearer opaque-session", resendRequest.headers["Authorization"])
+    }
+
+    @Test
+    fun `answers sent when the api takes the verification resend`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(MockResponse.Builder().code(204).build())
+
+        val result: VerificationResendResult = repository(store).resendVerification()
+
+        assertEquals(VerificationResendResult.Sent, result)
+    }
+
+    @Test
+    fun `answers mail not sent when the api answers the verification resend with 503`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(json(503, refusalJson("MailNotSent")))
+
+        val result: VerificationResendResult = repository(store).resendVerification()
+
+        assertEquals(VerificationResendResult.MailNotSent, result)
+    }
+
+    @Test
+    fun `answers unreachable when the api fails the verification resend`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(MockResponse.Builder().code(500).build())
+
+        val result: VerificationResendResult = repository(store).resendVerification()
+
+        assertEquals(VerificationResendResult.Unreachable, result)
+    }
+
+    @Test
+    fun `answers unreachable when the verification resend cannot reach the api`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore().apply { write("opaque-session") })
+        api.close()
+
+        val result: VerificationResendResult = sessions.resendVerification()
+
+        assertEquals(VerificationResendResult.Unreachable, result)
+    }
+
+    @Test
+    fun `ends the session when the verification resend answers 401`() = runTest {
+        val sessions: SessionRepository = repository(tokenStore().apply { write("expired-session") })
+        api.enqueue(MockResponse.Builder().code(401).build())
+
+        sessionEnds.ended.test {
+            val result: VerificationResendResult = sessions.resendVerification()
+
+            awaitItem()
+            assertEquals(VerificationResendResult.Unreachable, result)
+        }
+    }
+
     private fun TestScope.repository(store: TokenStore): SessionRepository =
         SessionRepository(
             baseUrl = api.url("/api/").toString(),
@@ -549,19 +631,19 @@ class SessionRepositoryTest {
     private fun sessionFile(): File = File(folder.root, "session")
 
     private fun nativeSession(token: String, email: String): MockResponse =
-        json(200, """{"token":"$token","player":${playerJson(email)}}""")
+        json(200, """{"token":"$token","player":${playerJson(email, isEmailVerified = true)}}""")
 
     private fun createdSession(token: String, email: String): MockResponse =
-        json(201, """{"token":"$token","player":${playerJson(email)}}""")
+        json(201, """{"token":"$token","player":${playerJson(email, isEmailVerified = true)}}""")
 
-    private fun player(email: String): MockResponse = json(200, playerJson(email))
+    private fun player(email: String): MockResponse = json(200, playerJson(email, isEmailVerified = true))
 
     private fun refusal(kind: String): MockResponse = json(401, refusalJson(kind))
 
     private fun refusalJson(kind: String): String = """{"kind":"$kind"}"""
 
-    private fun playerJson(email: String): String =
-        """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":true}"""
+    private fun playerJson(email: String, isEmailVerified: Boolean): String =
+        """{"id":"0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69","email":"$email","emailVerified":$isEmailVerified}"""
 
     private fun json(code: Int, body: String): MockResponse =
         MockResponse.Builder().code(code).addHeader("Content-Type", "application/json").body(body).build()
