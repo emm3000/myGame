@@ -198,7 +198,7 @@ private val previewHome: TownUiState.Content = TownUiState.Content(
     name = "Riverton",
     label = TownLabel.Town,
     stocks = TownResourceKind.entries.map { kind: TownResourceKind ->
-        TownUiState.StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0)
+        TownUiState.StockLine(kind = kind, amount = 350, capacity = 1000, ratePerHour = 20, skillLevel = 0, fill = null)
     },
     people = TownUiState.PeopleLine(free = 19, atWork = 1),
     season = TownUiState.SeasonLine(kind = SeasonKind.Summer, year = 2, remaining = 3.days),

@@ -15,7 +15,10 @@ import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.projection.readyMinuteOf
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+
+private val fillHourWindow: Duration = 8.hours
 
 internal fun TownSnapshot.contentAt(
     now: Instant,
@@ -27,7 +30,7 @@ internal fun TownSnapshot.contentAt(
 ): TownUiState.Content {
     val lines: List<TownUiState.StockLine> = stocks
         .sortedBy { stock: TownSnapshot.Stock -> stock.kind.ordinal }
-        .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, skillLevelOf(stock.kind)) }
+        .map { stock: TownSnapshot.Stock -> stock.lineAt(readAt, now, gap, skillLevelOf(stock.kind)) }
     val drawn: Map<TownResourceKind, Long> = lines.associate { line: TownUiState.StockLine -> line.kind to line.amount }
     val card: NextStepCard = nextStepCard()
     return TownUiState.Content(
@@ -93,14 +96,28 @@ internal fun TownSnapshot.readyTimeOf(
 
 private fun TownSnapshot.Stock.projected(): ResourceStock = ResourceStock(amount, ratePerHour, capacity)
 
-private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant, skillLevel: Int): TownUiState.StockLine =
-    TownUiState.StockLine(
+private fun TownSnapshot.Stock.lineAt(
+    readAt: Instant,
+    now: Instant,
+    gap: Duration,
+    skillLevel: Int,
+): TownUiState.StockLine {
+    val amount: Long = projected().amountAt(readAt = readAt, now = now)
+    return TownUiState.StockLine(
         kind = kind,
-        amount = projected().amountAt(readAt = readAt, now = now),
+        amount = amount,
         capacity = capacity,
         ratePerHour = ratePerHour.toLong(),
         skillLevel = skillLevel,
+        fill = if (amount < capacity) fillTimeAt(readAt, now, gap) else null,
     )
+}
+
+private fun TownSnapshot.Stock.fillTimeAt(readAt: Instant, now: Instant, gap: Duration): TownUiState.FillTime? {
+    val fillsAt: Instant = fullAt ?: return null
+    if (fillsAt - readAt > fillHourWindow) return null
+    return TownUiState.FillTime(remaining = countdownTo(finishesAt = fillsAt, now = now), fullAt = fillsAt - gap)
+}
 
 private fun TownSnapshot.skillLevelOf(kind: TownResourceKind): Int =
     skills.count { skill: TownSnapshot.EarnedSkill -> skill.resource == kind }

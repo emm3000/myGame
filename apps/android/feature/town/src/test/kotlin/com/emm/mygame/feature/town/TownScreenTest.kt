@@ -82,7 +82,14 @@ class TownScreenTest {
         name = "Riverton",
         label = TownLabel.Town,
         stocks = listOf(
-            TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30, skillLevel = 0),
+            TownUiState.StockLine(
+                TownResourceKind.Money,
+                120,
+                capacity = 900,
+                ratePerHour = 30,
+                skillLevel = 0,
+                fill = null,
+            ),
         ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
@@ -240,7 +247,14 @@ class TownScreenTest {
     @Test
     fun `shows the earned skill beside its resource`() {
         val skilledMoney: TownUiState.StockLine =
-            TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30, skillLevel = 2)
+            TownUiState.StockLine(
+                TownResourceKind.Money,
+                120,
+                capacity = 900,
+                ratePerHour = 30,
+                skillLevel = 2,
+                fill = null,
+            )
         show(riverton.copy(stocks = listOf(skilledMoney)))
 
         composeRule.onNodeWithText("Habilidad de dinero, nivel 2").performScrollTo().assertIsDisplayed()
@@ -255,7 +269,8 @@ class TownScreenTest {
 
     @Test
     fun `tells a full store in words`() {
-        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30, skillLevel = 0)
+        val full: TownUiState.StockLine =
+            TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30, skillLevel = 0, fill = null)
 
         show(riverton.copy(stocks = listOf(full)))
 
@@ -278,7 +293,8 @@ class TownScreenTest {
 
     @Test
     fun `keeps a full store's capacity in tabular figures`() {
-        val full: TownUiState.StockLine = TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30, skillLevel = 0)
+        val full: TownUiState.StockLine =
+            TownUiState.StockLine(TownResourceKind.Money, 900, 900, 30, skillLevel = 0, fill = null)
 
         show(riverton.copy(stocks = listOf(full)))
 

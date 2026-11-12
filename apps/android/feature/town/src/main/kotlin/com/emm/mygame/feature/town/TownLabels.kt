@@ -161,6 +161,12 @@ internal fun readyLabelOf(ready: TownUiState.ReadyTime): String {
 }
 
 @Composable
+internal fun fillLabelOf(fill: TownUiState.FillTime): String {
+    val finish: FinishClock = finishClockOf(fill.fullAt, fill.remaining, ZoneId.systemDefault())
+    return icuStringResource(R.string.town_full_at, "clock" to clockLabelOf(finish))
+}
+
+@Composable
 private fun clockLabelOf(finish: FinishClock): String {
     val time: String = finish.at.format(clockFormat)
     return when (finish.day) {
