@@ -3,6 +3,7 @@ package com.emm.mygame
 import android.app.Application
 import com.emm.mygame.core.network.KeystoreTokenCipher
 import com.emm.mygame.core.network.LearningRepository
+import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.SessionEnds
 import com.emm.mygame.core.network.SessionRepository
@@ -55,6 +56,15 @@ class MyGameApplication : Application(), AppDependencies {
 
     override val reports: ReportRepository by lazy {
         ReportRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenStore = tokenStore,
+            sessionEnds = sessionEnds,
+            ioDispatcher = Dispatchers.IO,
+        )
+    }
+
+    override val placements: PlacementRepository by lazy {
+        PlacementRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenStore = tokenStore,
             sessionEnds = sessionEnds,

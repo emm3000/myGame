@@ -53,6 +53,7 @@ fun TownScreen(
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
+    placement: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -86,6 +87,7 @@ fun TownScreen(
                             TownTitle(name = content.name, label = content.label)
                         }
                         status()
+                        placement()
                     },
                 )
                 MapRow(onMapOpen = onMapOpen)

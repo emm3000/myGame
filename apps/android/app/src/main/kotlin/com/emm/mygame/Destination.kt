@@ -35,5 +35,8 @@ sealed interface Destination : NavKey {
     data object Review : Destination
 
     @Serializable
+    data object Placement : Destination
+
+    @Serializable
     data class LessonWords(val lesson: LessonId, val walked: List<LessonId>) : Destination
 }
