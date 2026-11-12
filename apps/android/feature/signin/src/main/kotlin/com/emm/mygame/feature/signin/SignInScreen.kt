@@ -15,15 +15,19 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.RefusalKind
 
 @Composable
@@ -144,4 +148,32 @@ private fun FormStatusMessage(
 private fun refusalMessageOf(kind: RefusalKind): Int = when (kind) {
     RefusalKind.InvalidCredentials -> R.string.sign_in_refused_invalid_credentials
     RefusalKind.Unrecognized -> R.string.sign_in_refused_unrecognized
+}
+
+private val previewSignInForm: SignInUiState.Form = SignInUiState.Form(
+    email = "ana@example.com",
+    password = "maple-hollow",
+    status = SignInUiState.FormStatus.Idle,
+    isSessionEnded = false,
+)
+
+private class SignInUiStates : PreviewParameterProvider<SignInUiState> {
+
+    override val values: Sequence<SignInUiState> = sequenceOf(
+        previewSignInForm.copy(email = "", password = ""),
+        previewSignInForm,
+        previewSignInForm.copy(status = SignInUiState.FormStatus.Submitting),
+        previewSignInForm.copy(status = SignInUiState.FormStatus.Refused(RefusalKind.InvalidCredentials)),
+        previewSignInForm.copy(status = SignInUiState.FormStatus.Unreachable(SignInUiState.Attempt.SignIn)),
+        previewSignInForm.copy(email = "", password = "", isSessionEnded = true),
+        SignInUiState.CheckingSession,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun SignInScreenPreview(@PreviewParameter(SignInUiStates::class) state: SignInUiState) {
+    MyGamePreviewSurface {
+        SignInScreen(state = state, onIntent = {}, onSignUpOpen = {}, onForgotPasswordOpen = {})
+    }
 }

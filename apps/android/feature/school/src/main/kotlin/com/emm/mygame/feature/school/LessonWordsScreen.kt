@@ -22,12 +22,15 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameArt
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -38,6 +41,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.MyGameWordArt
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.withTabularFigures
@@ -45,6 +49,7 @@ import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.ui.icuStringResource
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 internal const val WORD_SILHOUETTE: String = "word_silhouette"
 
@@ -264,5 +269,36 @@ private fun ReviewsFollow(onSchoolOpen: () -> Unit, modifier: Modifier = Modifie
             color = MyGameTheme.colors.ink,
         )
         MyGameTextLink(label = stringResource(R.string.school_go_to_school), onClick = onSchoolOpen)
+    }
+}
+
+private val previewReading: LessonWordsUiState.Reading = LessonWordsUiState.Reading(
+    number = 1,
+    theme = "A day in town",
+    words = listOf(
+        TownSnapshot.WordReading(word = "home", gloss = "hogar", frame = "This is my home."),
+        TownSnapshot.WordReading(word = "water", gloss = "agua", frame = "I drink water."),
+    ),
+    index = 0,
+    remaining = 3.minutes,
+    wayOn = null,
+)
+
+private class LessonWordsUiStates : PreviewParameterProvider<LessonWordsUiState> {
+
+    override val values: Sequence<LessonWordsUiState> = sequenceOf(
+        previewReading,
+        previewReading.copy(index = 1, remaining = null, wayOn = LessonWordsUiState.WayOn.Reviews),
+        LessonWordsUiState.NothingToRead,
+        LessonWordsUiState.Loading,
+        LessonWordsUiState.Failed,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun LessonWordsScreenPreview(@PreviewParameter(LessonWordsUiStates::class) state: LessonWordsUiState) {
+    MyGamePreviewSurface {
+        LessonWordsScreen(state = state, onIntent = {}, onWayOn = {}, onSchoolOpen = {})
     }
 }

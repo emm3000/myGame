@@ -14,9 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -25,7 +28,16 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.network.Terrain
+import com.emm.mygame.core.network.TownJobRefusal
+import com.emm.mygame.core.network.TownResourceKind
+import com.emm.mygame.core.network.TownSite
+import com.emm.mygame.core.network.TownSnapshot
+import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.ui.icuStringResource
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @Composable
 fun MapScreen(state: MapUiState, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
@@ -139,5 +151,88 @@ private fun AreaLinks(content: MapUiState.Content, onIntent: (MapIntent) -> Unit
                 onClick = { onIntent(MapIntent.AreaTapped(area)) },
             )
         }
+    }
+}
+
+private val previewPay: List<MapUiState.PayLine> = listOf(
+    MapUiState.PayLine(TownResourceKind.Money, 120L),
+    MapUiState.PayLine(TownResourceKind.Material, 40L),
+)
+
+private val previewContent: MapUiState.Content = MapUiState.Content(
+    areaLine = MapUiState.AreaLine(area = 2, terrain = Terrain.River),
+    previousArea = 1,
+    nextArea = 3,
+    sites = listOf(
+        MapUiState.SiteRow.Free(site = 1),
+        MapUiState.SiteRow.Town(site = 2, name = "Hillcrest"),
+        MapUiState.SiteRow.Own(site = 3, name = "Riverton"),
+        MapUiState.SiteRow.Waste(site = 4, size = WasteSize.Medium, waste = 12),
+    ),
+    form = null,
+    send = MapUiState.SendRequest.Idle,
+    jobOut = null,
+    callBack = MapUiState.CallBackRequest.Idle,
+)
+
+private val previewJobForm: MapUiState.JobForm = MapUiState.JobForm(
+    site = 1,
+    workers = "2",
+    trucks = "1",
+    hours = "2",
+    workersAtHome = 3,
+    trucksAtHome = 1,
+    block = null,
+    quote = MapUiState.PayQuote.Quoted(previewPay),
+)
+
+private val previewCleanUpForm: MapUiState.CleanUpForm = MapUiState.CleanUpForm(
+    site = 4,
+    workers = "3",
+    trucks = "1",
+    workersAtHome = 3,
+    trucksAtHome = 1,
+    block = null,
+    quote = MapUiState.CleanUpQuote.Quoted(strength = 12, waste = 12, pay = previewPay, isShort = false),
+)
+
+private val previewJobOut: MapUiState.JobOut = MapUiState.JobOut(
+    kind = MapUiState.JobKind.Job,
+    site = TownSite(region = 1, area = 2, site = 1),
+    workers = 2,
+    trucks = 1,
+    phase = TownSnapshot.JobPhase.Working,
+    remaining = 48.minutes,
+    finishesAt = Instant.parse("2026-11-05T12:20:00Z"),
+    pay = previewPay,
+    canCallBack = true,
+)
+
+private class MapUiStates : PreviewParameterProvider<MapUiState> {
+
+    override val values: Sequence<MapUiState> = sequenceOf(
+        previewContent,
+        previewContent.copy(form = previewJobForm),
+        previewContent.copy(form = previewCleanUpForm),
+        previewContent.copy(jobOut = previewJobOut),
+        previewContent.copy(
+            form = previewJobForm.copy(
+                hours = "12",
+                quote = MapUiState.PayQuote.Refused(TownJobRefusal.JobHoursOutOfRange(hours = 12, maxHours = 8)),
+            ),
+        ),
+        previewContent.copy(form = previewJobForm, send = MapUiState.SendRequest.Unreachable(site = 1)),
+        previewContent.copy(jobOut = previewJobOut, callBack = MapUiState.CallBackRequest.Unreachable),
+        MapUiState.Loading,
+        MapUiState.Failed,
+        MapUiState.AreaNotFound,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun MapScreenPreview(@PreviewParameter(MapUiStates::class) state: MapUiState) {
+    MyGamePreviewSurface {
+        MapScreen(state = state, onIntent = {})
     }
 }

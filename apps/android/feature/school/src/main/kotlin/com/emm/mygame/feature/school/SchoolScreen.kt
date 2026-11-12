@@ -16,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -27,9 +30,16 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.network.LessonId
+import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.SchoolPathCounts
+import com.emm.mygame.core.network.TownLessonRefusal
+import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.icuStringResource
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun SchoolScreen(
@@ -248,5 +258,92 @@ private fun SkillItem(skill: SchoolUiState.SkillLine, modifier: Modifier = Modif
             style = MyGameTypography.caption.withTabularFigures(),
             color = MyGameTheme.colors.inkMuted,
         )
+    }
+}
+
+private val previewFirstLesson: LessonId = LessonId("lesson-1")
+
+private val previewSecondLesson: LessonId = LessonId("lesson-2")
+
+private val previewOpenLesson: SchoolUiState.LessonCard = SchoolUiState.LessonCard(
+    lesson = previewFirstLesson,
+    number = 1,
+    theme = "A day in town",
+    wordCount = 5,
+    resource = TownResourceKind.Food,
+    ratePercent = 5,
+    duration = 150.seconds,
+    path = SchoolPathCounts(held = 0, read = 0, reviewed = 0, learned = 0),
+    state = SchoolUiState.LessonState.Open(block = null),
+)
+
+private val previewBlockedLesson: SchoolUiState.LessonCard = previewOpenLesson.copy(
+    lesson = previewSecondLesson,
+    number = 2,
+    theme = "Work and money",
+    resource = TownResourceKind.Money,
+    state = SchoolUiState.LessonState.Open(block = SchoolUiState.LessonBlock.SchoolTooLow(requiredLevel = 2)),
+)
+
+private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
+    schoolLevel = 1,
+    learning = SchoolUiState.LearningLine(inLearning = 3, cap = 10, wordsPastCap = null),
+    slot = SchoolUiState.SlotLine.Idle,
+    skills = listOf(
+        SchoolUiState.SkillLine(
+            lesson = previewFirstLesson,
+            resource = TownResourceKind.Food,
+            level = 1,
+            ratePercent = 5,
+        ),
+    ),
+    lessons = listOf(previewOpenLesson, previewBlockedLesson),
+    nextStep = NextStepCard(
+        line = NextStepCard.Line.Lesson(number = 1),
+        detail = NextStepCard.Detail.Words(count = 5),
+        countdown = null,
+        action = NextStepCard.Action.Study(number = 1),
+    ),
+    nextStepTime = null,
+    start = SchoolUiState.LessonRequest.Idle,
+    stop = SchoolUiState.LessonRequest.Idle,
+)
+
+private val previewStudying: SchoolUiState.Content = previewContent.copy(
+    slot = SchoolUiState.SlotLine.Busy(
+        lesson = previewFirstLesson,
+        number = 1,
+        remaining = 2.minutes,
+        total = 150.seconds,
+    ),
+    lessons = listOf(previewOpenLesson.copy(state = SchoolUiState.LessonState.Studying), previewBlockedLesson),
+    nextStep = NextStepCard(
+        line = NextStepCard.Line.Studying,
+        detail = null,
+        countdown = null,
+        action = NextStepCard.Action.ReadWords(lesson = previewFirstLesson),
+    ),
+)
+
+private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
+
+    override val values: Sequence<SchoolUiState> = sequenceOf(
+        previewContent,
+        previewStudying,
+        previewContent.copy(lessons = emptyList(), skills = emptyList()),
+        previewContent.copy(
+            start = SchoolUiState.LessonRequest.Refused(previewFirstLesson, TownLessonRefusal.StudySlotBusy),
+        ),
+        previewContent.copy(start = SchoolUiState.LessonRequest.Unreachable(previewFirstLesson)),
+        SchoolUiState.Loading,
+        SchoolUiState.Failed,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: SchoolUiState) {
+    MyGamePreviewSurface {
+        SchoolScreen(state = state, onIntent = {}, onReviewsOpen = {}, onLessonOpen = {}, onReportOpen = {})
     }
 }

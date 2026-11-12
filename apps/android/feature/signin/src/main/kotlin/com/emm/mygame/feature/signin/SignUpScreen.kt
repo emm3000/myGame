@@ -15,12 +15,16 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.SignUpRefusal
 
 @Composable
@@ -117,4 +121,29 @@ private fun refusalMessageOf(refusal: SignUpRefusal): Int = when (refusal) {
     SignUpRefusal.EmailTaken -> R.string.sign_up_refused_email_taken
     SignUpRefusal.MalformedEmail -> R.string.sign_up_refused_malformed_email
     SignUpRefusal.Unrecognized -> R.string.sign_up_refused_unrecognized
+}
+
+private val previewSignUpForm: SignUpUiState.Form = SignUpUiState.Form(
+    email = "ana@example.com",
+    password = "maple-hollow",
+    status = SignUpUiState.FormStatus.Idle,
+)
+
+private class SignUpUiStates : PreviewParameterProvider<SignUpUiState> {
+
+    override val values: Sequence<SignUpUiState> = sequenceOf(
+        previewSignUpForm.copy(email = "", password = ""),
+        previewSignUpForm,
+        previewSignUpForm.copy(status = SignUpUiState.FormStatus.Submitting),
+        previewSignUpForm.copy(status = SignUpUiState.FormStatus.Refused(SignUpRefusal.EmailTaken)),
+        previewSignUpForm.copy(status = SignUpUiState.FormStatus.Unreachable),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun SignUpScreenPreview(@PreviewParameter(SignUpUiStates::class) state: SignUpUiState) {
+    MyGamePreviewSurface {
+        SignUpScreen(state = state, onIntent = {}, onSignInOpen = {})
+    }
 }

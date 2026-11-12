@@ -13,7 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -21,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.network.TownNews
 
 @Composable
@@ -75,3 +79,21 @@ private fun NewsState(state: NewsUiState, onIntent: (NewsIntent) -> Unit) {
 
 private val newsBlocks: MyGameSkeletonBlocks =
     MyGameSkeletonBlocks(listOf(MyGameSizes.control, MyGameSizes.control, MyGameSizes.control))
+
+private class NewsUiStates : PreviewParameterProvider<NewsUiState> {
+
+    override val values: Sequence<NewsUiState> = sequenceOf(
+        NewsUiState.Content(news = previewTownNews, receivedAt = previewReceivedAt),
+        NewsUiState.Content(news = emptyList(), receivedAt = previewReceivedAt),
+        NewsUiState.Loading,
+        NewsUiState.Failed,
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun NewsScreenPreview(@PreviewParameter(NewsUiStates::class) state: NewsUiState) {
+    MyGamePreviewSurface {
+        NewsScreen(state = state, onIntent = {})
+    }
+}
