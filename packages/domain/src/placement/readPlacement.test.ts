@@ -3,8 +3,8 @@ import type { BandStart } from '../learning/BandStart'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
-  inMemoryPlacementWords,
   type PlacementShelf,
+  placementContentOf,
   placementWordsOfBand,
 } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
@@ -46,7 +46,7 @@ const read = ({ stored = [], starts = [], shelves = draftedBands }: ReadShape) =
     {
       placements: inMemoryPlacements(stored),
       bandStarts: inMemoryBandStarts(starts),
-      words: inMemoryPlacementWords(shelves),
+      ...placementContentOf(shelves),
     },
   )
 
@@ -61,6 +61,30 @@ describe('readPlacement', () => {
 
   it('offers no placement to a player who started band 1', async () => {
     expect(await read({ starts: [{ playerId: ana, start: bandOneStart }] })).toEqual({
+      ok: true,
+      value: { kind: 'closed', scores: [] },
+    })
+  })
+
+  it('offers no placement while band 1 is partly drafted', async () => {
+    const partlyDrafted: ReadonlyArray<PlacementShelf> = [
+      { band: 1, words: placementWordsOfBand(1, 50), undraftedHeadwords: ['undrafted-1'] },
+      { band: 2, words: placementWordsOfBand(2, 30) },
+    ]
+
+    expect(await read({ shelves: partlyDrafted })).toEqual({
+      ok: true,
+      value: { kind: 'closed', scores: [] },
+    })
+  })
+
+  it('offers no placement while band 2 has no lessons', async () => {
+    const untaughtBandTwo: ReadonlyArray<PlacementShelf> = [
+      { band: 1, words: bandOneWords },
+      { band: 2, words: placementWordsOfBand(2, 30), isTaught: false },
+    ]
+
+    expect(await read({ shelves: untaughtBandTwo })).toEqual({
       ok: true,
       value: { kind: 'closed', scores: [] },
     })
@@ -104,6 +128,23 @@ describe('readPlacement', () => {
       expect.arrayContaining(['same gloss', 'gloss-card-1-30']),
     )
     expect(view.value.items[0]?.choices.length).toBe(2)
+  })
+
+  it('never offers two choices with the same gloss', async () => {
+    const [asked, unique, ...shared] = bandOneWords
+    assert(asked !== undefined && unique !== undefined)
+    const sharing = shared.map((word) => ({ ...word, gloss: 'shared gloss' }))
+    const view = await read({
+      stored: begun(),
+      shelves: [{ band: 1, words: [asked, unique, ...sharing] }],
+    })
+
+    assert(view.ok && view.value.kind === 'asking')
+    expect(view.value.items[0]?.choices.map(({ gloss }) => gloss).sort()).toEqual([
+      asked.gloss,
+      unique.gloss,
+      'shared gloss',
+    ])
   })
 
   it('answers the same choice ids on every read', async () => {

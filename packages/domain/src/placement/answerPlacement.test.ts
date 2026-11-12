@@ -3,7 +3,7 @@ import type { BandStart } from '../learning/BandStart'
 import type { Clock } from '../ports/Clock'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
 import { inMemoryPlacements } from '../testing/inMemoryPlacements'
-import { inMemoryPlacementWords, placementWordsOfBand } from '../testing/placementWords'
+import { placementContentOf, placementWordsOfBand } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
 import { answerPlacement, type PlacementAnswer } from './answerPlacement'
 import type { Placement, TakenPlacement } from './Placement'
@@ -18,7 +18,7 @@ const answeredAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:12:00
 
 const frozenClock: Clock = { now: () => answeredAt }
 
-const words = inMemoryPlacementWords([
+const content = placementContentOf([
   { band: 1, words: placementWordsOfBand(1, 30) },
   { band: 2, words: placementWordsOfBand(2, 30) },
 ])
@@ -45,7 +45,7 @@ const placementOf = ({ placement = begunPlacement, starts = [] }: AnswerShape) =
   const dependencies = {
     placements,
     bandStarts: inMemoryBandStarts(starts),
-    words,
+    ...content,
     clock: frozenClock,
   }
   return { placements, dependencies }

@@ -105,6 +105,19 @@ export const placementRepositoryContract = (
       expect(await placements.placementOf(ana)).toEqual({ ok: true, value: skipped })
     })
 
+    it('keeps a taken placement over a skip saved after it', async () => {
+      const { placements, registerPlayers } = await arrange()
+      await registerPlayers([ana])
+      await placements.save(ana, { ...begun, scores: [bandOneScore] })
+
+      await placements.save(ana, skipped)
+
+      expect(await placements.placementOf(ana)).toEqual({
+        ok: true,
+        value: { ...begun, scores: [bandOneScore] },
+      })
+    })
+
     it('keeps the first sample over a placement begun again', async () => {
       const { placements, registerPlayers } = await arrange()
       await registerPlayers([ana])

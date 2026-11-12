@@ -24,6 +24,6 @@ export const readPlacement = async (
   if (stored.value !== undefined) {
     return ok(placementViewOf(stored.value, starts.value, dependencies.words))
   }
-  const isOffered = isPlacementOffered(starts.value, dependencies.words)
+  const isOffered = isPlacementOffered(starts.value, dependencies)
   return ok(isOffered ? { kind: 'offered' } : { kind: 'closed', scores: [] })
 }

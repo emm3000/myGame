@@ -3,37 +3,35 @@ import type { BandStart } from '../learning/BandStart'
 import type { PlayerId } from '../player/PlayerId'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { PlacementRepository } from '../ports/PlacementRepository'
-import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import { err, ok, type Result } from '../Result'
-import { isPlacementDrawable } from './placementSamplesDrawn'
+import { isPlacementDrawable, type PlacementContent } from './placementSamplesDrawn'
 
-export type PlacementOfferDependencies = {
+export type PlacementOfferDependencies = PlacementContent & {
   readonly placements: Pick<PlacementRepository, 'placementOf'>
   readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
-  readonly words: PlacementWordCatalog
 }
 
 export const isPlacementOffered = (
   starts: ReadonlyArray<BandStart>,
-  words: PlacementWordCatalog,
-): boolean => starts.length === 0 && isPlacementDrawable(words)
+  content: PlacementContent,
+): boolean => starts.length === 0 && isPlacementDrawable(content)
 
 export const admitPlacementOffer = async (
   playerId: PlayerId,
-  { placements, bandStarts, words }: PlacementOfferDependencies,
+  dependencies: PlacementOfferDependencies,
 ): Promise<Result<void, DomainError>> => {
-  const stored = await placements.placementOf(playerId)
+  const stored = await dependencies.placements.placementOf(playerId)
   if (!stored.ok) {
     return stored
   }
   if (stored.value !== undefined) {
     return err({ kind: 'PlacementAlreadyTaken' })
   }
-  const starts = await bandStarts.bandStartsOf(playerId)
+  const starts = await dependencies.bandStarts.bandStartsOf(playerId)
   if (!starts.ok) {
     return starts
   }
-  if (!isPlacementOffered(starts.value, words)) {
+  if (!isPlacementOffered(starts.value, dependencies)) {
     return err({ kind: 'PlacementNotOffered' })
   }
   return ok(undefined)

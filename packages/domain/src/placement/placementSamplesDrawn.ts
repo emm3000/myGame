@@ -1,4 +1,5 @@
 import type { Band } from '../learning/BandStart'
+import type { BandCatalog } from '../ports/BandCatalog'
 import type { PlacementWordCatalog } from '../ports/PlacementWordCatalog'
 import type { RandomSource } from '../ports/RandomSource'
 import type { PlacementSample } from './Placement'
@@ -7,26 +8,44 @@ export const PLACEMENT_SAMPLE_SIZE = 30
 
 const FIRST_BAND: Band = 1
 
-export const drawableWordIdsOf = (band: Band, words: PlacementWordCatalog): ReadonlyArray<string> =>
+export type PlacementContent = {
+  readonly words: PlacementWordCatalog
+  readonly bands: Pick<BandCatalog, 'wordsOfBand' | 'hasLessons'>
+}
+
+const drawableWordIdsOf = (band: Band, words: PlacementWordCatalog): ReadonlyArray<string> =>
   words
     .placementWordsOf(band)
     .filter(({ isChrome }) => !isChrome)
     .map(({ id }) => id)
 
-export const isPlacementDrawable = (words: PlacementWordCatalog): boolean =>
-  drawableWordIdsOf(FIRST_BAND, words).length >= PLACEMENT_SAMPLE_SIZE
+const isBandDrafted = (band: Band, { words, bands }: PlacementContent): boolean => {
+  const entered = new Set(words.placementWordsOf(band).map(({ headword }) => headword))
+  const bandWords = bands.wordsOfBand(band)
+  return bandWords.length > 0 && bandWords.every(({ headword }) => entered.has(headword))
+}
+
+const isBandPlaceable = (band: Band, content: PlacementContent): boolean =>
+  isBandDrafted(band, content) &&
+  content.bands.hasLessons(band + 1) &&
+  drawableWordIdsOf(band, content.words).length >= PLACEMENT_SAMPLE_SIZE
+
+const placeableBandsOf = (content: PlacementContent): ReadonlyArray<Band> => {
+  const placeable: Array<Band> = []
+  for (let band = FIRST_BAND; isBandPlaceable(band, content); band += 1) {
+    placeable.push(band)
+  }
+  return placeable
+}
+
+export const isPlacementDrawable = (content: PlacementContent): boolean =>
+  isBandPlaceable(FIRST_BAND, content)
 
 export const placementSamplesDrawn = (
-  words: PlacementWordCatalog,
+  content: PlacementContent,
   random: RandomSource,
-): ReadonlyArray<PlacementSample> => {
-  const samples: Array<PlacementSample> = []
-  let band = FIRST_BAND
-  let drawable = drawableWordIdsOf(band, words)
-  while (drawable.length >= PLACEMENT_SAMPLE_SIZE) {
-    samples.push({ band, wordIds: random.sampleOf(drawable, PLACEMENT_SAMPLE_SIZE) })
-    band += 1
-    drawable = drawableWordIdsOf(band, words)
-  }
-  return samples
-}
+): ReadonlyArray<PlacementSample> =>
+  placeableBandsOf(content).map((band) => ({
+    band,
+    wordIds: random.sampleOf(drawableWordIdsOf(band, content.words), PLACEMENT_SAMPLE_SIZE),
+  }))

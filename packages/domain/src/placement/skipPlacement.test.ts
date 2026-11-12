@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Clock } from '../ports/Clock'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
-import { inMemoryPlacementWords, placementWordsOfBand } from '../testing/placementWords'
+import { placementContentOf, placementWordsOfBand } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
 import { skipPlacement } from './skipPlacement'
 
@@ -22,7 +22,10 @@ const skipOf = ({ stored = [], starts = [] }: SkipShape) => {
   const dependencies = {
     placements,
     bandStarts: inMemoryBandStarts(starts),
-    words: inMemoryPlacementWords([{ band: 1, words: placementWordsOfBand(1, 30) }]),
+    ...placementContentOf([
+      { band: 1, words: placementWordsOfBand(1, 30) },
+      { band: 2, words: placementWordsOfBand(2, 30) },
+    ]),
     clock: frozenClock,
   }
   return { placements, dependencies }
