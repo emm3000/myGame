@@ -14,6 +14,7 @@ import {
   type TownEvent,
 } from '@mygame/domain'
 import type { Refusal } from '../http/Refusal'
+import { learnerOf } from '../learning/learnerOf'
 import { type ReviewTerms, reviewsOf } from '../learning/reviewsOf'
 import { type MutateTownDependencies, mutateTown, type TownStores } from './mutateTown'
 import type { ReportClosings } from './ReportClosings'
@@ -55,16 +56,16 @@ export const reportOf = async (
   return mutateTown(
     playerId,
     async (stores, clock) => {
-      const cards = await stores.cards.cardsOf(playerId)
-      if (!cards.ok) {
-        return cards
+      const learner = await learnerOf(playerId, stores)
+      if (!learner.ok) {
+        return learner
       }
       const readAt = clock.now()
-      const reviews = reviewsOf(cards.value, readAt, dependencies)
+      const reviews = reviewsOf(learner.value, readAt, dependencies)
       if (!reviews.ok) {
         return reviews
       }
-      const dueCards = dueCardsAt(cards.value, readAt, dependencies.memoryTerms)
+      const dueCards = dueCardsAt(learner.value.cards, readAt, dependencies.memoryTerms)
       if (!dueCards.ok) {
         return dueCards
       }

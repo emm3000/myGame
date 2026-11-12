@@ -3,6 +3,7 @@ import type { BandStart } from '../learning/BandStart'
 import { bandStartDrawn } from '../learning/bandStartDrawn'
 import { heldOutWordsOf } from '../learning/heldOutWordsOf'
 import type { Lesson, LessonId } from '../learning/Lesson'
+import { practisedWordsOf } from '../learning/practisedWordsOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import { placedOutBandsOf } from '../placement/placedOutBandsOf'
 import { placementScoresOf } from '../placement/placementScoresOf'
@@ -45,7 +46,7 @@ export type StartSchoolLessonDependencies = {
   readonly bands: BandCatalog
   readonly placements: Pick<PlacementRepository, 'placementOf'>
   readonly random: RandomSource
-  readonly lessons: Pick<LessonCatalog, 'lessonOf'>
+  readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'>
   readonly news: TownNews
   readonly catalog: TownCatalog
   readonly clock: Clock
@@ -85,8 +86,8 @@ type AdmittedLesson = {
 const bandStartDrawnFor = async (
   playerId: PlayerId,
   lesson: Lesson,
-  started: ReadonlyArray<BandStart>,
-  { bands, placements, random }: StartSchoolLessonDependencies,
+  { bandStarts: started, held }: SettledSchool,
+  { bands, placements, random, lessons }: StartSchoolLessonDependencies,
   now: Instant,
 ): Promise<Result<BandStart | undefined, DomainError>> => {
   const band = bands.bandOfLesson(lesson.id)
@@ -100,7 +101,9 @@ const bandStartDrawnFor = async (
   if (placedOutBandsOf(placementScoresOf(placement.value)).includes(band)) {
     return ok(undefined)
   }
-  return ok(bandStartDrawn(band, bands.wordsOfBand(band), now, random))
+  return ok(
+    bandStartDrawn(band, bands.wordsOfBand(band), practisedWordsOf(held, lessons), now, random),
+  )
 }
 
 const admittedLessonOf = async (
@@ -119,7 +122,7 @@ const admittedLessonOf = async (
     return settled
   }
   const { bandStarts } = settled.value
-  const drawn = await bandStartDrawnFor(playerId, lesson, bandStarts, dependencies, now)
+  const drawn = await bandStartDrawnFor(playerId, lesson, settled.value, dependencies, now)
   if (!drawn.ok) {
     return drawn
   }

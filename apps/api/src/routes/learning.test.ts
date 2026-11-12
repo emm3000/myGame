@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
   type DueReview,
+  ReportSchema,
   type ReviewAnswer,
   ReviewAnswerSchema,
   ReviewHintSchema,
@@ -1000,8 +1001,7 @@ describe('the learning routes', () => {
           id: `word-${headword}`,
           acceptedForms: [headword] as const,
           gloss: `gloss of ${headword}`,
-          frame: `They ${headword} it.`,
-          gappedFrame: 'They ____ it.',
+          frames: [{ frame: `They ${headword} it.`, gappedFrame: 'They ____ it.' }],
         })),
       }
     }
@@ -1226,6 +1226,120 @@ describe('the learning routes', () => {
       const { due } = await readReviews(player)
 
       expect(stringsIn(due)).not.toContain('gloss of say')
+    })
+  })
+  describe('the later frames', () => {
+    const laterFrameOfSchool = {
+      frame: 'My school is new.',
+      gappedFrame: 'My ____ is new.',
+      fromLessonId: 'lesson-fixture-later',
+    }
+
+    const libraryWithALaterFrame = (): LessonLibrary => {
+      const { lessons } = server
+      const lessonOne = lessons.lessons().find(({ id }) => id === 'lesson-1')
+      assert(lessonOne !== undefined)
+      const variedLessonOne: ShelvedLesson = {
+        ...lessonOne,
+        words: lessonOne.words.map((word) =>
+          word.id === 'lesson-1-2'
+            ? { ...word, frames: [word.frames[0], laterFrameOfSchool] }
+            : word,
+        ),
+      }
+      const bandLesson: ShelvedLesson = {
+        ...lessonOne,
+        id: 'lesson-fixture-later',
+        theme: 'Saying and thinking',
+        words: [
+          {
+            id: 'word-say',
+            acceptedForms: ['say'],
+            gloss: 'decir',
+            frames: [{ frame: 'They say it.', gappedFrame: 'They ____ it.' }],
+          },
+        ],
+      }
+      const shelved = [variedLessonOne, bandLesson]
+      return {
+        lessonOf: (lessonId) => shelved.find(({ id }) => id === lessonId),
+        lessonOfWord: (wordId) =>
+          shelved.find(({ words }) => words.some(({ id }) => id === wordId)),
+        isHeadword: (word) => lessons.isHeadword(word),
+        bandOfLesson: (lessonId) => (lessonId === bandLesson.id ? 1 : undefined),
+        wordsOfBand: (band) => lessons.wordsOfBand(band),
+        hasLessons: (band) => lessons.hasLessons(band),
+        placementWordsOf: (band) => lessons.placementWordsOf(band),
+        lessons: () => shelved,
+      }
+    }
+
+    const placeOutOfBandOne = async (): Promise<void> => {
+      await runSql(
+        `INSERT INTO placements (player_id, kind, decided_at) SELECT id, 'taken', '${lessonStartsAt}' FROM players`,
+      )
+      await runSql(
+        `INSERT INTO placement_scores (player_id, band, score, taken_at) SELECT id, 1, 29, '${lessonStartsAt}' FROM players`,
+      )
+    }
+
+    const recallOfSchool = async (player: Player): Promise<DueReview> => {
+      const recall = await dueReviewOf(player, 'lesson-1-2')
+      assert(recall.mode === 'recall')
+      return recall
+    }
+
+    beforeEach(() => {
+      app = createApp({ ...server, clock, lessons: libraryWithALaterFrame() })
+    })
+
+    it('shows the anchor in recall while the stage reaches no later frame', async () => {
+      const player = await studyToTheFirstRecall()
+
+      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'We are at ____.' })
+    })
+
+    it('shows a later frame in recall once the stage reaches its lesson', async () => {
+      const player = await studyToTheFirstRecall()
+      await placeOutOfBandOne()
+
+      expect(await recallOfSchool(player)).toMatchObject({ gappedFrame: 'My ____ is new.' })
+    })
+
+    it('shows the Report the recall frame the reviews route shows', async () => {
+      const player = await studyToTheFirstRecall()
+      await placeOutOfBandOne()
+
+      const report = ReportSchema.parse(await (await send(player, 'GET', '/report')).json())
+
+      expect(report.due.find(({ wordId }) => wordId === 'lesson-1-2')).toEqual(
+        await recallOfSchool(player),
+      )
+    })
+
+    it('shows the anchor in recognition though the stage reaches a later frame', async () => {
+      const player = await studyLessonOne()
+      await placeOutOfBandOne()
+      clock.setTo(lessonFinishesAt)
+
+      expect(await dueReviewOf(player, 'lesson-1-2')).toMatchObject({
+        mode: 'recognition',
+        frame: 'We are at school.',
+      })
+    })
+
+    it('reads a word with its anchor though the stage reaches a later frame', async () => {
+      const player = await studyLessonOne()
+      await placeOutOfBandOne()
+      clock.setTo(lessonFinishesAt)
+
+      const { lessons } = await readTown(player)
+
+      expect(lessons[0]?.words[1]?.reading).toEqual({
+        word: 'school',
+        gloss: 'escuela',
+        frame: 'We are at school.',
+      })
     })
   })
 })

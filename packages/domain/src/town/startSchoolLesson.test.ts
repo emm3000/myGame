@@ -62,12 +62,23 @@ const bandLesson: Lesson = {
     id: `word-${id}`,
     acceptedForms: [id],
     gloss: id,
-    frame: id,
-    gappedFrame: id,
+    frames: [{ frame: id, gappedFrame: id }],
   })),
 }
 
 const bandLessonTwo: Lesson = { ...bandLesson, id: 'lesson-18' }
+
+const unitLessonOnBandOne: Lesson = {
+  ...lessonOne,
+  id: 'unit-lesson-1',
+  words: ['make up', 'know of'].map((unit) => ({
+    ...lessonOne.words[0],
+    id: `unit-${unit.replace(' ', '-')}`,
+    acceptedForms: [unit],
+    gloss: unit,
+    frames: [{ frame: unit, gappedFrame: unit }],
+  })),
+}
 
 const cardWordsOfBandOne = [
   'say',
@@ -137,7 +148,10 @@ const schoolOf = ({
     towns,
     lessonSlots: inMemoryLessonSlots(slot === undefined ? [] : [{ townId: 'town-1', slot }]),
     cards: inMemoryCards(cards),
-    lessons: inMemoryLessons([lessonOne, lessonTwo, bandLesson, bandLessonTwo], []),
+    lessons: inMemoryLessons(
+      [lessonOne, lessonTwo, bandLesson, bandLessonTwo, unitLessonOnBandOne],
+      [],
+    ),
     bandStarts: inMemoryBandStarts(bandStarts),
     bands: bandsOf,
     placements: inMemoryPlacements(
@@ -163,6 +177,12 @@ const cardsEnteredFor = (count: number): ReadonlyArray<OwnedCard> =>
     wordId: `held-${position}`,
     card: MemoryCard.entered(hoursAfterEpoch(1)),
   }))
+
+const unitCardEntered = (wordId: string): OwnedCard => ({
+  playerId: 'player-1',
+  wordId,
+  card: MemoryCard.entered(hoursAfterEpoch(1)),
+})
 
 const farmFinishedAt = (finishesAt: Instant): WorkSlot => ({
   kind: 'busy',
@@ -206,6 +226,30 @@ describe('startSchoolLesson', () => {
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
       value: [{ band: 1, startedAt: springNow, heldOutWords: [] }],
+    })
+  })
+
+  it('never holds out a word an entered unit card holds', async () => {
+    const school = schoolOf({ cards: [unitCardEntered('unit-make-up')] })
+
+    await school.start('lesson-17')
+
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
+      ok: true,
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'know'] }],
+    })
+  })
+
+  it("still holds out a tenth of the band's card words when unit cards hold some", async () => {
+    const school = schoolOf({
+      cards: [unitCardEntered('unit-make-up'), unitCardEntered('unit-know-of')],
+    })
+
+    await school.start('lesson-17')
+
+    expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
+      ok: true,
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'time'] }],
     })
   })
 

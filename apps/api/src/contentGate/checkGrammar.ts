@@ -1,17 +1,12 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { cardWordEndingOf } from './cardWordEndingOf'
+import { framePlacementsOf, type LessonFrame } from './framePlacementsOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
 import { inventoryFailuresOf } from './inventoryFailuresOf'
 import { readingOf } from './readingOf'
 import { type ReadingTerms, readingTermsOf } from './readingTermsOf'
 import { tokensOf } from './tokensOf'
-
-type LessonFrame = {
-  readonly entry: LexiconEntry
-  readonly lessonId: string
-  readonly position: number
-}
 
 type GrammarTerms = {
   readonly reading: ReadingTerms
@@ -49,7 +44,7 @@ const inflectionFailures = (
     return []
   }
   const label = inflection === token ? 'an inflection' : `an ${inflection} inflection`
-  const holding = `${frame.entry.id}: frame holds ${token}, ${label}`
+  const holding = `${frame.label}: frame holds ${token}, ${label}`
   return admittedAt === undefined
     ? [`${holding} no structure admits`]
     : [`${holding} admitted after ${frame.lessonId}`]
@@ -66,7 +61,7 @@ const frameWordFormFailures = (
   }
   return isAdmittedBy(terms.frameWordsAdmittedAt.get(word), frame)
     ? []
-    : [`${frame.entry.id}: frame holds ${token}, a frame word admitted after ${frame.lessonId}`]
+    : [`${frame.label}: frame holds ${token}, a frame word admitted after ${frame.lessonId}`]
 }
 
 const cardWordFailures = (
@@ -97,15 +92,8 @@ const tokenFailures = (
 
 const frameFailures = (content: GateContent): ReadonlyArray<string> => {
   const terms = termsOf(content)
-  return content.lessons.flatMap(({ content: lesson, words }) =>
-    words.flatMap((entry) => {
-      const frame = {
-        entry,
-        lessonId: lesson.id,
-        position: content.curriculum.lessonIds.indexOf(lesson.id) + 1,
-      }
-      return tokensOf(entry.frame).flatMap((token) => tokenFailures(token, frame, terms))
-    }),
+  return framePlacementsOf(content).frames.flatMap((frame) =>
+    tokensOf(frame.frame).flatMap((token) => tokenFailures(token, frame, terms)),
   )
 }
 

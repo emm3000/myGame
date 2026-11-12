@@ -1,18 +1,12 @@
-import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
+import { lemmaWordsOf } from '@mygame/domain'
+import { framePlacementsOf, type LessonFrame } from './framePlacementsOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
-import { lemmaWordsOf } from './lemmaWordsOf'
 import { type Reading, readingOf } from './readingOf'
 import { type ReadingTerms, readingTermsOf } from './readingTermsOf'
 import { tokensOf } from './tokensOf'
 
 const gap = '____'
-
-type LessonFrame = {
-  readonly entry: LexiconEntry
-  readonly lessonId: string
-  readonly position: number
-}
 
 type FrameTerms = {
   readonly reading: ReadingTerms
@@ -37,17 +31,17 @@ const termsOf = (content: GateContent): FrameTerms => {
 const readingFailures = (
   token: string,
   reading: Reading,
-  { id }: LexiconEntry,
+  { label }: LessonFrame,
 ): ReadonlyArray<string> => {
   switch (reading.kind) {
     case 'word':
       return []
     case 'unknownForm':
-      return [`${id}: frame holds ${token}, which no NGSL form or off-list word spells`]
+      return [`${label}: frame holds ${token}, which no NGSL form or off-list word spells`]
     case 'unnamedHomograph':
-      return [`${id}: frame holds the homograph ${token} and names no word for it`]
+      return [`${label}: frame holds the homograph ${token} and names no word for it`]
     case 'impossibleHomograph':
-      return [`${id}: names ${reading.named} for ${token}, which ${token} cannot mean`]
+      return [`${label}: names ${reading.named} for ${token}, which ${token} cannot mean`]
     default: {
       const unreachable: never = reading
       return unreachable
@@ -65,40 +59,39 @@ const otherWordFailures = (
   if (admittedAt !== undefined) {
     return admittedAt > 0 && admittedAt <= frame.position
       ? []
-      : [`${frame.entry.id}: frame holds ${token}, a frame word admitted after ${frame.lessonId}`]
+      : [`${frame.label}: frame holds ${token}, a frame word admitted after ${frame.lessonId}`]
   }
   const taughtAt = terms.taughtAt.get(word)
   return taughtAt !== undefined && taughtAt < frame.position
     ? []
-    : [`${frame.entry.id}: frame holds ${token}, a word no earlier lesson teaches`]
+    : [`${frame.label}: frame holds ${token}, a word no earlier lesson teaches`]
 }
 
 const lemmaFailures = (
   occurrences: ReadonlyArray<string>,
-  { entry }: LessonFrame,
+  { entry, frame, gappedFrame, label }: LessonFrame,
 ): ReadonlyArray<string> => {
   const words = lemmaWordsOf(entry.lemma)
   const [held, ...others] = occurrences
   if (held === undefined || others.length > 0) {
-    return [`${entry.id}: frame holds ${entry.lemma} ${occurrences.length} times, not once`]
+    return [`${label}: frame holds ${entry.lemma} ${occurrences.length} times, not once`]
   }
   if (held !== words.join(' ')) {
-    return [`${entry.id}: frame holds ${entry.lemma} as ${held}, not in its own form`]
+    return [`${label}: frame holds ${entry.lemma} as ${held}, not in its own form`]
   }
   const together = new RegExp(`\\b${words.join('\\s+')}\\b`, 'i')
-  if (!together.test(entry.frame)) {
-    return [`${entry.id}: frame holds ${entry.lemma} with its words apart, not together`]
+  if (!together.test(frame)) {
+    return [`${label}: frame holds ${entry.lemma} with its words apart, not together`]
   }
   const gaps = words.map(() => gap).join(' ')
-  const gapped = entry.frame.replace(together, gaps)
-  return gapped === entry.gappedFrame
+  return frame.replace(together, gaps) === gappedFrame
     ? []
-    : [`${entry.id}: gapped frame is not its frame with ${entry.lemma} replaced by ${gaps}`]
+    : [`${label}: gapped frame is not its frame with ${entry.lemma} replaced by ${gaps}`]
 }
 
 const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<string> => {
   const words = lemmaWordsOf(frame.entry.lemma)
-  const readings = tokensOf(frame.entry.frame).map((token) => ({
+  const readings = tokensOf(frame.frame).map((token) => ({
     token,
     reading: readingOf(token, frame.entry, terms.reading),
   }))
@@ -113,7 +106,7 @@ const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<str
   const held = new Set(starts.flatMap((start) => words.map((_, offset) => start + offset)))
   const failures = readings.flatMap(({ token, reading }, index) => {
     if (reading.kind !== 'word') {
-      return readingFailures(token, reading, frame.entry)
+      return readingFailures(token, reading, frame)
     }
     return held.has(index) ? [] : otherWordFailures(token, reading.word, frame, terms)
   })
@@ -128,16 +121,6 @@ const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<str
 
 export const checkFrames = (content: GateContent): ReadonlyArray<string> => {
   const terms = termsOf(content)
-  return content.lessons.flatMap(({ content: lesson, words }) =>
-    words.flatMap((entry) =>
-      frameFailures(
-        {
-          entry,
-          lessonId: lesson.id,
-          position: content.curriculum.lessonIds.indexOf(lesson.id) + 1,
-        },
-        terms,
-      ),
-    ),
-  )
+  const { frames, failures } = framePlacementsOf(content)
+  return [...failures, ...frames.flatMap((frame) => frameFailures(frame, terms))]
 }

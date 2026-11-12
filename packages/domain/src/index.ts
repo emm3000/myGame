@@ -1,4 +1,5 @@
 export type { DomainError } from './DomainError'
+export { anchorFrameOf } from './learning/anchorFrameOf'
 export type { Band, BandStart, BandWord, Headword } from './learning/BandStart'
 export { cardsInLearningOf } from './learning/cardsInLearningOf'
 export { type DueCard, dueCardsAt } from './learning/dueCardsAt'
@@ -6,16 +7,28 @@ export { gradeTypedAnswer, type TypedAnswerGrade } from './learning/gradeTypedAn
 export type { HeldCard } from './learning/HeldCard'
 export { headwordOf } from './learning/headwordOf'
 export { heldOutWordsOf } from './learning/heldOutWordsOf'
+export { isUnitLemma } from './learning/isUnitLemma'
 export { isWordRetained } from './learning/isWordRetained'
-export type { Lesson, LessonId, LessonSkill, LessonWord, WordId } from './learning/Lesson'
+export type {
+  LaterFrame,
+  Lesson,
+  LessonId,
+  LessonSkill,
+  LessonWord,
+  WordFrame,
+  WordId,
+} from './learning/Lesson'
+export { lemmaWordsOf } from './learning/lemmaWordsOf'
 export type { PendingReview } from './learning/PendingReview'
 export { type ReviewFormat, reviewFormatOf } from './learning/ReviewFormat'
 export type { ReviewLogEntry } from './learning/ReviewLogEntry'
 export { readableWordsOf } from './learning/readableWordsOf'
 export { readFirstOf } from './learning/readFirstOf'
+export { recallFrameOf } from './learning/recallFrameOf'
 export { type RecognitionChoice, recognitionChoicesOf } from './learning/recognitionChoicesOf'
 export { type RetainedWords, retainedWordsOf } from './learning/retainedWordsOf'
 export { skillLevelOf } from './learning/skillLevelOf'
+export { type Stage, stageOf } from './learning/stageOf'
 export { type WordStanding, wordStandingOf } from './learning/wordStandingOf'
 export { dueInstantOf } from './memory/dueInstantOf'
 export {

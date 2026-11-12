@@ -1,5 +1,6 @@
 import type { DueReview, Reviews } from '@mygame/contracts'
 import {
+  anchorFrameOf,
   type DomainError,
   type DueCard,
   dueCardsAt,
@@ -11,11 +12,15 @@ import {
   ok,
   type Result,
   readFirstOf,
+  recallFrameOf,
   recognitionChoicesOf,
   reviewFormatOf,
+  type Stage,
+  stageOf,
 } from '@mygame/domain'
 import { isoOf } from '../http/isoOf'
 import type { LessonLibrary } from './LessonLibrary'
+import type { Learner } from './learnerOf'
 
 export type ReviewTerms = {
   readonly lessons: LessonLibrary
@@ -25,6 +30,7 @@ export type ReviewTerms = {
 const dueReviewOf = (
   due: DueCard,
   cards: ReadonlyArray<HeldCard>,
+  stage: Stage,
   lessons: LessonLibrary,
 ): Result<DueReview, DomainError> => {
   const lesson = lessons.lessonOfWord(due.wordId)
@@ -34,13 +40,14 @@ const dueReviewOf = (
   }
   const asked = { wordId: word.id, lessonId: lesson.id, dueAt: isoOf(due.dueAt) }
   if (reviewFormatOf(due.card) === 'recall') {
-    return ok({ ...asked, mode: 'recall', gloss: word.gloss, gappedFrame: word.gappedFrame })
+    const { gappedFrame } = recallFrameOf(word, due.card, stage)
+    return ok({ ...asked, mode: 'recall', gloss: word.gloss, gappedFrame })
   }
   return ok({
     ...asked,
     mode: 'recognition',
     word: word.acceptedForms[0],
-    frame: word.frame,
+    frame: anchorFrameOf(word).frame,
     choices: recognitionChoicesOf(word.id, lesson, due.card, cards).flatMap(
       ({ choiceId, wordId }) =>
         lesson.words.filter(({ id }) => id === wordId).map(({ gloss }) => ({ choiceId, gloss })),
@@ -68,7 +75,7 @@ export const nextDueAtOf = (
 }
 
 export const reviewsOf = (
-  cards: ReadonlyArray<HeldCard>,
+  { cards, placedOutBands }: Learner,
   readAt: Instant,
   { lessons, memoryTerms }: ReviewTerms,
 ): Result<Reviews, DomainError> => {
@@ -76,9 +83,10 @@ export const reviewsOf = (
   if (!dueCards.ok) {
     return dueCards
   }
+  const stage = stageOf(lessons.lessons(), cards, placedOutBands, lessons)
   const due: Array<DueReview> = []
   for (const dueCard of dueCards.value) {
-    const review = dueReviewOf(dueCard, cards, lessons)
+    const review = dueReviewOf(dueCard, cards, stage, lessons)
     if (!review.ok) {
       return review
     }

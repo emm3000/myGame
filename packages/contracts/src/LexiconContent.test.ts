@@ -1,18 +1,25 @@
 import { describe, expect, it } from 'vitest'
 import { LexiconContentSchema } from './index'
 
+const anchor = { frame: 'We are at school.', gappedFrame: 'We are at ____.' }
+
+const laterFrameFor = (fromLessonId: string) => ({
+  frame: 'My school is new.',
+  gappedFrame: 'My ____ is new.',
+  fromLessonId,
+})
+
 const school = {
   id: 'lesson-1-2',
   lemma: 'school',
   partOfSpeech: 'noun',
-  frame: 'We are at school.',
-  gappedFrame: 'We are at ____.',
+  frames: [anchor],
   gloss: { es: 'escuela' },
   definition: 'a place where children go to learn',
 }
 
 describe('LexiconContentSchema', () => {
-  it('parses a card word with its frame, gloss and definition', () => {
+  it('parses a card word with its anchor frame, gloss and definition', () => {
     expect(LexiconContentSchema.parse([school])).toEqual([school])
   })
 
@@ -45,10 +52,50 @@ describe('LexiconContentSchema', () => {
     expect(LexiconContentSchema.safeParse([unglossed]).success).toBe(true)
   })
 
-  it('rejects a word without its gapped frame', () => {
-    const { gappedFrame: _, ...ungapped } = school
+  it('parses a card word with its anchor frame and two later frames', () => {
+    const varied = {
+      ...school,
+      frames: [anchor, laterFrameFor('lesson-2'), laterFrameFor('lesson-3')],
+    }
 
-    expect(LexiconContentSchema.safeParse([ungapped]).success).toBe(false)
+    expect(LexiconContentSchema.parse([varied])).toEqual([varied])
+  })
+
+  it('rejects a word with no frame', () => {
+    expect(LexiconContentSchema.safeParse([{ ...school, frames: [] }]).success).toBe(false)
+  })
+
+  it('rejects a word with a fourth frame', () => {
+    const frames = [
+      anchor,
+      laterFrameFor('lesson-2'),
+      laterFrameFor('lesson-3'),
+      laterFrameFor('lesson-4'),
+    ]
+
+    expect(LexiconContentSchema.safeParse([{ ...school, frames }]).success).toBe(false)
+  })
+
+  it('rejects an anchor frame written for a later lesson', () => {
+    const frames = [laterFrameFor('lesson-2')]
+
+    expect(LexiconContentSchema.safeParse([{ ...school, frames }]).success).toBe(false)
+  })
+
+  it('rejects a later frame that names no lesson', () => {
+    expect(LexiconContentSchema.safeParse([{ ...school, frames: [anchor, anchor] }]).success).toBe(
+      false,
+    )
+  })
+
+  it('rejects a frame without its gapped frame', () => {
+    const frames = [{ frame: anchor.frame }]
+
+    expect(LexiconContentSchema.safeParse([{ ...school, frames }]).success).toBe(false)
+  })
+
+  it('rejects a frame left at the top of an entry', () => {
+    expect(LexiconContentSchema.safeParse([{ ...school, ...anchor }]).success).toBe(false)
   })
 
   it('rejects a part of speech the lexicon does not know', () => {

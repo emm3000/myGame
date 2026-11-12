@@ -2,6 +2,7 @@ import type { DomainError } from '../DomainError'
 import type { Band, Headword } from '../learning/BandStart'
 import { dueCardsAt } from '../learning/dueCardsAt'
 import type { HeldCard } from '../learning/HeldCard'
+import { isLessonPlacedOut } from '../learning/isLessonPlacedOut'
 import type { Lesson, LessonId } from '../learning/Lesson'
 import { readFirstOf } from '../learning/readFirstOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
@@ -55,20 +56,13 @@ const lessonRunningStep = (
   return { kind: 'lessonRunning', producer: isStanding ? null : producer }
 }
 
-const isPlacedOut = (
-  { id }: Lesson,
-  placedOutBands: ReadonlyArray<Band>,
-  bands: Pick<BandCatalog, 'bandOfLesson'>,
-): boolean => {
-  const band = bands.bandOfLesson(id)
-  return band !== undefined && placedOutBands.includes(band)
-}
-
 const lessonStep = (
   { town, lessonSlot, cards, heldOutWords, placedOutBands }: NextStepReading,
   { lessons, bands, catalog }: NextStepTerms,
 ): Result<NextStep, DomainError> => {
-  for (const lesson of lessons.filter((shelved) => !isPlacedOut(shelved, placedOutBands, bands))) {
+  for (const lesson of lessons.filter(
+    (shelved) => !isLessonPlacedOut(shelved, placedOutBands, bands),
+  )) {
     const admitted = admitSchoolLesson(
       lesson,
       wordsEnteringOf(lesson, heldOutWords).length,

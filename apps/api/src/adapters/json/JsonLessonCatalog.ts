@@ -36,8 +36,7 @@ const lessonWordOf = (lessonId: LessonId, entry: LexiconEntry): LessonWord => {
     id: entry.id,
     acceptedForms: [entry.lemma, ...(entry.acceptedForms ?? [])],
     gloss: entry.gloss.es,
-    frame: entry.frame,
-    gappedFrame: entry.gappedFrame,
+    frames: entry.frames,
   }
 }
 

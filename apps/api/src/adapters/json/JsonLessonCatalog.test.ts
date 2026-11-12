@@ -97,8 +97,7 @@ const contentWithBandLessonOf = (lemma: string): string =>
     id: 'band-lesson-word',
     lemma,
     partOfSpeech: 'verb',
-    frame: `I ${lemma} it.`,
-    gappedFrame: 'I ____ it.',
+    frames: [{ frame: `I ${lemma} it.`, gappedFrame: 'I ____ it.' }],
     gloss: { es: 'decir' },
     definition: 'to speak words',
   })
@@ -108,8 +107,7 @@ const contentWithUnitLesson = (): string =>
     id: 'unit-lesson-word',
     lemma: 'give up',
     partOfSpeech: 'verb',
-    frame: 'She will not give up.',
-    gappedFrame: 'She will not ____ ____.',
+    frames: [{ frame: 'She will not give up.', gappedFrame: 'She will not ____ ____.' }],
     gloss: { es: 'rendirse' },
     definition: 'to stop trying',
     source: 'phave',
@@ -232,8 +230,7 @@ describe('JsonLessonCatalog', () => {
       id: 'off-list-word',
       lemma: 'upgrade',
       partOfSpeech: 'noun',
-      frame: 'The upgrade is done.',
-      gappedFrame: 'The ____ is done.',
+      frames: [{ frame: 'The upgrade is done.', gappedFrame: 'The ____ is done.' }],
       gloss: { es: 'mejora' },
       isOffList: true,
     }
@@ -251,8 +248,7 @@ describe('JsonLessonCatalog', () => {
       id: 'frame-word',
       lemma: 'the',
       partOfSpeech: 'adjective',
-      frame: 'I see the town.',
-      gappedFrame: 'I see ____ town.',
+      frames: [{ frame: 'I see the town.', gappedFrame: 'I see ____ town.' }],
       gloss: { es: 'el' },
     }
     writeJson(directory, 'words.json', [...lexicon, frameWord])
@@ -268,8 +264,7 @@ describe('JsonLessonCatalog', () => {
       id: 'untaught-word',
       lemma: 'say',
       partOfSpeech: 'verb',
-      frame: 'I say it.',
-      gappedFrame: 'I ____ it.',
+      frames: [{ frame: 'I say it.', gappedFrame: 'I ____ it.' }],
       gloss: {},
     }
     writeJson(directory, 'words.json', [...lexicon, untaught])
@@ -282,10 +277,9 @@ describe('JsonLessonCatalog', () => {
     const lesson = JsonLessonCatalog.fromDirectory(shippedContent).lessonOf('lesson-1')
 
     expect(
-      lesson?.words.map(({ acceptedForms, frame, gappedFrame, gloss }) => ({
+      lesson?.words.map(({ acceptedForms, frames: [anchor], gloss }) => ({
         lemma: acceptedForms[0],
-        frame,
-        gappedFrame,
+        ...anchor,
         gloss,
       })),
     ).toEqual(lessonOneTable())
@@ -389,6 +383,21 @@ describe('JsonLessonCatalog', () => {
       JsonLessonCatalog.fromDirectory(directory).lessonOfWord('lesson-1-1')?.words[0]
         ?.acceptedForms,
     ).toEqual(['home', 'homes'])
+  })
+
+  it("carries a word's frames in the lexicon's order, each later one with its lesson", () => {
+    const directory = contentCopy()
+    const [home, ...others] = readJson(directory, 'words.json') as unknown as Array<object>
+    const frames = [
+      { frame: 'This is my home.', gappedFrame: 'This is my ____.' },
+      { frame: 'We are at home.', gappedFrame: 'We are at ____.', fromLessonId: 'lesson-3' },
+      { frame: 'My home is new.', gappedFrame: 'My ____ is new.', fromLessonId: 'lesson-2' },
+    ]
+    writeJson(directory, 'words.json', [{ ...home, frames }, ...others])
+
+    expect(
+      JsonLessonCatalog.fromDirectory(directory).lessonOfWord('lesson-1-1')?.words[0]?.frames,
+    ).toEqual(frames)
   })
 
   it('reads a headword of the NGSL 1.2 list whatever its case', () => {
