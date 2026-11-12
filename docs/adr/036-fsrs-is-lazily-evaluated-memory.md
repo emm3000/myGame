@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040
+status: proposed, rule 7 amended by ADR 037 and ADR 039, rules 1, 6 and 7 read the town and the school from ADR 040, rules 4 and 8 amended for units and frames by ADR 044
 date: 2026-11-04
 ---
 # FSRS is lazily evaluated memory
@@ -179,7 +179,10 @@ metric needs (§8.2), not for a claim of more learning.
    CC BY-SA 4.0, 2 809 words with their ranks) is api content beside the
    lessons, read through the lesson port; the S39 tickets are amended
    to add it with lesson 1's file (#713), and ADR 037's curriculum reads
-   the same file.
+   the same file. (Amended by ADR 044: for a multi-word unit a near-miss
+   is a slip inside one of its words, or the unit with one space
+   dropped, and the hint answers each word's first letter and letter
+   count.)
 5. **The rating: a wrong answer is Again; a correct answer after a hint
    or after a near-miss is Hard; a correct answer otherwise is Good;
    Easy is never inferred.** A recognition is Good when the right
@@ -235,7 +238,9 @@ metric needs (§8.2), not for a claim of more learning.
    the elapsed whole days (null on a first review), and the card before
    and after.** It is written in the review's transaction (rule 1,
    ADR 013), never updated and never pruned. The domain writes it
-   through a port and never reads it, as with the chronicle.
+   through a port and never reads it, as with the chronicle. (Amended
+   by ADR 044: from that change on, each row also holds the frame shown,
+   as the player saw it.)
 9. **The first slice ships on Android as well as on the web, the
    Android screen after the web one, on the same api and contract.**
    The slice is done when both draw lesson 1 and its reviews; this ADR
