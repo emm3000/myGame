@@ -75,6 +75,7 @@ internal fun cleanUpOf(
         TownResourceKind.Material to 36L,
     ),
     sentAt: Instant = readInstant,
+    calledBackAt: Instant? = null,
 ): TownSnapshot.Job = TownSnapshot.Job(
     site = TownSite(region = 1, area = 1, site = 4),
     team = mapOf(TownHireKind.Worker to 3, TownHireKind.Truck to 1),
@@ -85,7 +86,7 @@ internal fun cleanUpOf(
     arrivesAt = sentAt + 10.minutes,
     leavesAt = sentAt + 10.minutes,
     returnsAt = sentAt + 20.minutes,
-    calledBackAt = null,
+    calledBackAt = calledBackAt,
 )
 
 internal fun townOf(

@@ -176,6 +176,7 @@ private fun TownSnapshot.Job.kindOf(): MapUiState.JobKind = when (val held: Town
 }
 
 private fun TownSnapshot.Job.cleanUpOutcome(): MapUiState.CleanUpOutcome? {
+    if (calledBackAt != null) return null
     val isPaid: Boolean = pay.values.any { amount: Long -> amount > 0 }
     if (phase == TownSnapshot.JobPhase.Returning) {
         return if (isPaid) MapUiState.CleanUpOutcome.Cleaned else MapUiState.CleanUpOutcome.NotCleaned
