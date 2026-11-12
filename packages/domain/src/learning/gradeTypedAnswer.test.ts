@@ -48,3 +48,37 @@ describe('gradeTypedAnswer', () => {
     expect(gradeTypedAnswer('scol', ['school'], isHeadword)).toBe('wrong')
   })
 })
+
+const unitHeadwords = new Set(['give', 'up', 'go', 'on', 'in', 'pick', 'pack'])
+
+const isUnitHeadword = (word: string): boolean => unitHeadwords.has(word)
+
+describe('gradeTypedAnswer on a multi-word unit', () => {
+  it('rates go in for go on as wrong', () => {
+    expect(gradeTypedAnswer('go in', ['go on'], isUnitHeadword)).toBe('wrong')
+  })
+
+  it('rates pack up for pick up as wrong', () => {
+    expect(gradeTypedAnswer('pack up', ['pick up'], isUnitHeadword)).toBe('wrong')
+  })
+
+  it('rates give in for give up as wrong', () => {
+    expect(gradeTypedAnswer('give in', ['give up'], isUnitHeadword)).toBe('wrong')
+  })
+
+  it('takes gve up for give up as a near-miss', () => {
+    expect(gradeTypedAnswer('gve up', ['give up'], isUnitHeadword)).toBe('nearMiss')
+  })
+
+  it('rates gve upp for give up as wrong', () => {
+    expect(gradeTypedAnswer('gve upp', ['give up'], isUnitHeadword)).toBe('wrong')
+  })
+
+  it('takes go bakc for go back as a near-miss', () => {
+    expect(gradeTypedAnswer('go bakc', ['go back'], isUnitHeadword)).toBe('nearMiss')
+  })
+
+  it('takes giveup for give up as a near-miss', () => {
+    expect(gradeTypedAnswer('giveup', ['give up'], isUnitHeadword)).toBe('nearMiss')
+  })
+})

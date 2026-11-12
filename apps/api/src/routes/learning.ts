@@ -60,7 +60,7 @@ export const learningRoutes = (dependencies: LearningRouteDependencies): OpenAPI
       if (!hint.ok) {
         return answerRefusal(c, hint.error)
       }
-      const body: ReviewHint = hint.value
+      const body: ReviewHint = { words: [...hint.value.words] }
       return c.json(body)
     },
   )

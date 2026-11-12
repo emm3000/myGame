@@ -271,10 +271,15 @@ it('keeps the typed field after a near-miss', async () => {
   expect(screen.getByRole('button', { name: reviewCheck() })).toBeTruthy()
 })
 
-it('shows the hint the api answers', async () => {
+it('shows one hint line per word the api answers', async () => {
   const hintRequest = vi.fn(async () => ({
     ok: true as const,
-    value: { firstLetter: 's', letterCount: 6 },
+    value: {
+      words: [
+        { firstLetter: 'g', letterCount: 4 },
+        { firstLetter: 'u', letterCount: 2 },
+      ],
+    },
   }))
   await showReview(recallDue, { reviewHint: hintRequest })
 
@@ -282,7 +287,8 @@ it('shows the hint the api answers', async () => {
   await passSeconds(0)
 
   expect(hintRequest).toHaveBeenCalledWith('lesson-1-2')
-  expect(screen.getByText(reviewHint({ firstLetter: 's', letterCount: 6 }))).toBeTruthy()
+  expect(screen.getByText(reviewHint({ firstLetter: 'g', letterCount: 4 }))).toBeTruthy()
+  expect(screen.getByText(reviewHint({ firstLetter: 'u', letterCount: 2 }))).toBeTruthy()
 })
 
 it('shows the correct form beside the answer after a wrong answer', async () => {

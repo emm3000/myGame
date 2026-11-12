@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
 import com.emm.mygame.core.network.generated.models.ReviewHint as WireReviewHint
+import com.emm.mygame.core.network.generated.models.ReviewHintWord as WireReviewHintWord
 
 internal class ApiLearningRepository(
     private val api: DefaultApi,
@@ -77,7 +78,11 @@ internal class ApiLearningRepository(
 private fun ReviewAnswer.toAnswered(): ReviewAnswerResult.Answered =
     ReviewAnswerResult.Answered(verdict = verdict.toReviewVerdict())
 
-private fun WireReviewHint.toReviewHint(): ReviewHint = ReviewHint(firstLetter = firstLetter, letterCount = letterCount)
+private fun WireReviewHint.toReviewHint(): ReviewHint =
+    ReviewHint(words = words.map(WireReviewHintWord::toReviewHintWord))
+
+private fun WireReviewHintWord.toReviewHintWord(): ReviewHintWord =
+    ReviewHintWord(firstLetter = firstLetter, letterCount = letterCount)
 
 private val reviewRefusals: Map<BareApiError.Kind, ReviewRefusal> = mapOf(
     BareApiError.Kind.ReviewNotDue to ReviewRefusal.ReviewNotDue,

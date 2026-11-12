@@ -24,15 +24,23 @@ export type RequestHintDependencies = {
   readonly terms: MemoryTerms
 }
 
-export type Hint = {
+export type WordHint = {
   readonly firstLetter: string
   readonly letterCount: number
 }
 
-const hintOf = (form: string): Hint => {
-  const letters = [...normalizedAnswerOf(form)]
+export type Hint = {
+  readonly words: ReadonlyArray<WordHint>
+}
+
+const wordHintOf = (word: string): WordHint => {
+  const letters = [...word]
   return { firstLetter: letters.slice(0, 1).join(''), letterCount: letters.length }
 }
+
+const hintOf = (form: string): Hint => ({
+  words: normalizedAnswerOf(form).split(' ').map(wordHintOf),
+})
 
 export const requestHint = async (
   { playerId, wordId }: RequestHintCommand,

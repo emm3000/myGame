@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { Lesson } from '../learning/Lesson'
 import { dueInstantOf } from '../memory/dueInstantOf'
 import { MemoryCard } from '../memory/MemoryCard'
 import type { MemoryRating } from '../memory/MemoryRating'
@@ -35,13 +36,30 @@ const dueAtOf = (card: MemoryCard): Instant => {
 
 const recallCard = reviewedAtEachDue(['good', 'good'])
 
+const unitLesson: Lesson = {
+  ...lessonOne,
+  id: 'lesson-units',
+  words: [
+    {
+      id: 'give-up',
+      acceptedForms: ['give up'],
+      gloss: 'rendirse',
+      frame: 'She will not give up.',
+      gappedFrame: 'She will not ____ ____.',
+    },
+  ],
+}
+
 const arrange = (card: MemoryCard, now: Instant) => {
-  const owned: OwnedCard = { playerId: learner, wordId: 'school', card }
+  const owned: ReadonlyArray<OwnedCard> = [
+    { playerId: learner, wordId: 'school', card },
+    { playerId: learner, wordId: 'give-up', card },
+  ]
   const pendingReviews = inMemoryPendingReviews()
   const dependencies = {
-    cards: inMemoryCards([owned]),
+    cards: inMemoryCards(owned),
     pendingReviews,
-    lessons: inMemoryLessons([lessonOne], []),
+    lessons: inMemoryLessons([lessonOne, unitLesson], []),
     clock: frozenClock(now),
     terms: defaultMemoryTerms,
   }
@@ -49,12 +67,28 @@ const arrange = (card: MemoryCard, now: Instant) => {
 }
 
 describe('requestHint', () => {
-  it('answers the first letter and the letter count of a due recall', async () => {
+  it('hints a single word with one element', async () => {
     const { dependencies } = arrange(recallCard, dueAtOf(recallCard))
 
     const hint = await requestHint({ playerId: learner, wordId: 'school' }, dependencies)
 
-    expect(hint).toEqual({ ok: true, value: { firstLetter: 's', letterCount: 6 } })
+    expect(hint).toEqual({ ok: true, value: { words: [{ firstLetter: 's', letterCount: 6 }] } })
+  })
+
+  it('hints give up as g of 4 then u of 2', async () => {
+    const { dependencies } = arrange(recallCard, dueAtOf(recallCard))
+
+    const hint = await requestHint({ playerId: learner, wordId: 'give-up' }, dependencies)
+
+    expect(hint).toEqual({
+      ok: true,
+      value: {
+        words: [
+          { firstLetter: 'g', letterCount: 4 },
+          { firstLetter: 'u', letterCount: 2 },
+        ],
+      },
+    })
   })
 
   it('marks the pending review as hinted', async () => {

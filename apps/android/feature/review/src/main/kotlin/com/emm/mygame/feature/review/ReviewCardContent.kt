@@ -29,6 +29,7 @@ import com.emm.mygame.core.designsystem.wordStyle
 import com.emm.mygame.core.network.REVIEW_ANSWER_MAX_LENGTH
 import com.emm.mygame.core.network.ReviewChoice
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
@@ -96,16 +97,19 @@ internal fun HintLine(
         )
         return
     }
-    MyGameText(
-        text = icuStringResource(
-            R.string.review_hint_line,
-            "letters" to hint.letterCount,
-            "first" to hint.firstLetter,
-        ),
-        style = MyGameTypography.body,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier,
-    )
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
+        hint.words.forEach { word: ReviewHintWord ->
+            MyGameText(
+                text = icuStringResource(
+                    R.string.review_hint_line,
+                    "letters" to word.letterCount,
+                    "first" to word.firstLetter,
+                ),
+                style = MyGameTypography.body,
+                color = MyGameTheme.colors.ink,
+            )
+        }
+    }
 }
 
 @Composable

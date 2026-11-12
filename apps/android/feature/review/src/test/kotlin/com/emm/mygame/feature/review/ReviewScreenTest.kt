@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performTextInput
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.ChoiceId
 import com.emm.mygame.core.network.ReviewHint
+import com.emm.mygame.core.network.ReviewHintWord
 import com.emm.mygame.core.network.TownResourceKind
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -65,10 +66,24 @@ class ReviewScreenTest {
 
     @Test
     fun `reads a hint of one letter in the singular`() {
-        val oneLetter: ReviewHint = ReviewHint(firstLetter = "a", letterCount = 1)
+        val oneLetter: ReviewHint = ReviewHint(words = listOf(ReviewHintWord(firstLetter = "a", letterCount = 1)))
         draw(recalling(step = ReviewUiState.ReviewStep.Answering, hint = oneLetter))
 
         composeRule.onNodeWithText("Empieza por «a» y tiene 1 letra.").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws one hint line per word`() {
+        val giveUp: ReviewHint = ReviewHint(
+            words = listOf(
+                ReviewHintWord(firstLetter = "g", letterCount = 4),
+                ReviewHintWord(firstLetter = "u", letterCount = 2),
+            ),
+        )
+        draw(recalling(step = ReviewUiState.ReviewStep.Answering, hint = giveUp))
+
+        composeRule.onNodeWithText("Empieza por «g» y tiene 4 letras.").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Empieza por «u» y tiene 2 letras.").performScrollTo().assertIsDisplayed()
     }
 
     @Test
