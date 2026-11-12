@@ -72,7 +72,7 @@ private fun Banner(
             MyGameTextButton(
                 label = stringResource(R.string.verification_banner_resend),
                 isBusy = resend == VerificationBannerUiState.Resend.Sending,
-                busyDescription = stringResource(R.string.forgot_password_sending),
+                busyDescription = stringResource(R.string.verification_banner_sending),
                 onClick = { onIntent(VerificationBannerIntent.ResendTapped) },
             )
         }

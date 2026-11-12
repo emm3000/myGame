@@ -55,6 +55,7 @@ export const fixedCopyKeys: ReadonlySet<string> = new Set([
   'android.signin.sign_up_title',
   'android.signin.verification_banner_line',
   'android.signin.verification_banner_resend',
+  'android.signin.verification_banner_sending',
   'android.signin.verification_banner_sent',
   'android.signin.verification_banner_unreachable',
   'android.signin.verification_refusal_mail_not_sent',
