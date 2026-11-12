@@ -34,7 +34,7 @@ Two colors come from the client, never from the file: level 0 takes `surface-sun
 - Every window sits wholly on the silhouette, since `on-block` off it is lost on a dark surface, and clear of every other window, since a window under another changes nothing at its level.
 - No people.
 - A word's silhouette is its place's, with no windows.
-- A waste site is one single-fill silhouette tinted `ink-muted` by the client, so it never reads as a place or a resource. #787 and #788 draw the files.
+- A waste site is one single-fill silhouette tinted `ink-muted` by the client, so it never reads as a place or a resource: a heap on the base line at y 140, with no windows, each size wider and taller than the one before.
 
 ## Consistency rules
 

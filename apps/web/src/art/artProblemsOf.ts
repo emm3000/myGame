@@ -1,3 +1,4 @@
+import type { ArtFamily } from './ArtFamily'
 import type { ArtTag } from './ArtTag'
 import { artPalette, blockFills, windowFill } from './artPalette'
 import { artTagsOf } from './artTagsOf'
@@ -63,14 +64,28 @@ function placeProblemsOf(svg: string): ReadonlyArray<string> {
   ]
 }
 
-export function artProblemsOf(svg: string): ReadonlyArray<string> {
+function wasteProblemsOf(svg: string): ReadonlyArray<string> {
+  const [, ...shapes] = artTagsOf(svg)
+  if (shapes.length === 0) {
+    return ['the file holds no silhouette']
+  }
+  const fills = paletteFillsOf(shapes)
+  return fills.length > 1 ? [`the silhouette takes ${fills.length} fills, not one`] : []
+}
+
+const familyProblemsOf: Readonly<Record<ArtFamily, (svg: string) => ReadonlyArray<string>>> = {
+  places: placeProblemsOf,
+  waste: wasteProblemsOf,
+}
+
+export function artProblemsOf(svg: string, family: ArtFamily): ReadonlyArray<string> {
   const tags = artTagsOf(svg)
   const bytes = new TextEncoder().encode(svg).length
   const sizeProblems = bytes > maxArtBytes ? [`${bytes} bytes is above ${maxArtBytes}`] : []
   return [
     ...viewBoxProblemsOf(tags[0]),
     ...tags.flatMap((tag, index) => tagProblemsOf(tag, index)),
-    ...placeProblemsOf(svg),
+    ...familyProblemsOf[family](svg),
     ...sizeProblems,
   ]
 }

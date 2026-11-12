@@ -1,7 +1,8 @@
+import type { ArtFamily } from './ArtFamily'
 import type { ArtShape } from './ArtShape'
 import { artShapeOf } from './artShapeOf'
 import { artTagsOf } from './artTagsOf'
-import { placeShapesOf } from './placeShapesOf'
+import { type PlaceShapes, placeShapesOf } from './placeShapesOf'
 
 const sampleStep = 2
 
@@ -107,10 +108,20 @@ function overlaps(first: Bounds, second: Bounds): boolean {
   )
 }
 
-export function artFramingOf(svg: string): ArtFraming {
+const wasteShapesOf = (svg: string): PlaceShapes => {
+  const [, ...shapes] = artTagsOf(svg)
+  return { silhouette: shapes, windows: [] }
+}
+
+const familyShapesOf: Readonly<Record<ArtFamily, (svg: string) => PlaceShapes>> = {
+  places: placeShapesOf,
+  waste: wasteShapesOf,
+}
+
+export function artFramingOf(svg: string, family: ArtFamily): ArtFraming {
   const [root] = artTagsOf(svg)
   const [, , width = 0, height = 0] = (root?.attributes.viewBox ?? '').split(/\s+/).map(Number)
-  const { silhouette: silhouetteTags, windows } = placeShapesOf(svg)
+  const { silhouette: silhouetteTags, windows } = familyShapesOf[family](svg)
   const silhouette = silhouetteTags.map(artShapeOf)
   const bounds = silhouette.map(boundsOf)
   const windowBounds = windows.map(artShapeOf).map(boundsOf)
