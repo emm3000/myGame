@@ -11,6 +11,7 @@ const LexiconEntrySchema = z.strictObject({
   acceptedForms: z.array(z.string().min(1)).optional(),
   homographs: z.record(z.string().min(1), z.string().min(1)).optional(),
   isOffList: z.literal(true).optional(),
+  source: z.enum(['phave', 'phrase']).optional(),
 })
 
 export const LexiconContentSchema = z.array(LexiconEntrySchema).min(1)
