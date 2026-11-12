@@ -1,6 +1,7 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { lemmaWordsOf } from './lemmaWordsOf'
 import { type Reading, readingOf } from './readingOf'
 import { type ReadingTerms, readingTermsOf } from './readingTermsOf'
 import { tokensOf } from './tokensOf'
@@ -75,38 +76,52 @@ const otherWordFailures = (
 }
 
 const lemmaFailures = (
-  lemmaTokens: ReadonlyArray<string>,
+  occurrences: ReadonlyArray<string>,
   { entry }: LessonFrame,
 ): ReadonlyArray<string> => {
-  const lemma = entry.lemma.toLowerCase()
-  const [token, ...others] = lemmaTokens
-  if (token === undefined || others.length > 0) {
-    return [`${entry.id}: frame holds ${entry.lemma} ${lemmaTokens.length} times, not once`]
+  const words = lemmaWordsOf(entry.lemma)
+  const [held, ...others] = occurrences
+  if (held === undefined || others.length > 0) {
+    return [`${entry.id}: frame holds ${entry.lemma} ${occurrences.length} times, not once`]
   }
-  if (token !== lemma) {
-    return [`${entry.id}: frame holds ${entry.lemma} as ${token}, not in its own form`]
+  if (held !== words.join(' ')) {
+    return [`${entry.id}: frame holds ${entry.lemma} as ${held}, not in its own form`]
   }
-  const gapped = entry.frame.replace(new RegExp(`\\b${entry.lemma}\\b`, 'i'), gap)
+  const gaps = words.map(() => gap).join(' ')
+  const gapped = entry.frame.replace(new RegExp(`\\b${words.join('\\s+')}\\b`, 'i'), gaps)
   return gapped === entry.gappedFrame
     ? []
-    : [`${entry.id}: gapped frame is not its frame with ${entry.lemma} replaced by ${gap}`]
+    : [`${entry.id}: gapped frame is not its frame with ${entry.lemma} replaced by ${gaps}`]
 }
 
 const frameFailures = (frame: LessonFrame, terms: FrameTerms): ReadonlyArray<string> => {
-  const lemma = frame.entry.lemma.toLowerCase()
-  const lemmaTokens: Array<string> = []
-  const failures = tokensOf(frame.entry.frame).flatMap((token) => {
-    const reading = readingOf(token, frame.entry, terms.reading)
+  const words = lemmaWordsOf(frame.entry.lemma)
+  const readings = tokensOf(frame.entry.frame).map((token) => ({
+    token,
+    reading: readingOf(token, frame.entry, terms.reading),
+  }))
+  const starts = readings.flatMap((_, start) =>
+    words.every((word, offset) => {
+      const reading = readings[start + offset]?.reading
+      return reading?.kind === 'word' && reading.word === word
+    })
+      ? [start]
+      : [],
+  )
+  const held = new Set(starts.flatMap((start) => words.map((_, offset) => start + offset)))
+  const failures = readings.flatMap(({ token, reading }, index) => {
     if (reading.kind !== 'word') {
       return readingFailures(token, reading, frame.entry)
     }
-    if (reading.word === lemma) {
-      lemmaTokens.push(token)
-      return []
-    }
-    return otherWordFailures(token, reading.word, frame, terms)
+    return held.has(index) ? [] : otherWordFailures(token, reading.word, frame, terms)
   })
-  return [...failures, ...lemmaFailures(lemmaTokens, frame)]
+  const occurrences = starts.map((start) =>
+    readings
+      .slice(start, start + words.length)
+      .map(({ token }) => token)
+      .join(' '),
+  )
+  return [...failures, ...lemmaFailures(occurrences, frame)]
 }
 
 export const checkFrames = (content: GateContent): ReadonlyArray<string> => {

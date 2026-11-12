@@ -10,6 +10,7 @@ import {
   type WordId,
 } from '@mygame/domain'
 import { frameWordsOf } from '../../contentGate/frameWordsOf'
+import { isUnitLesson } from '../../contentGate/isUnitLesson'
 import type { LessonLibrary, ShelvedLesson } from '../../learning/LessonLibrary'
 import { bandOfRank } from './bandOfRank'
 import {
@@ -72,6 +73,7 @@ const lessonBandsOf = ({
   new Map(
     lessons
       .slice(curriculum.chromeLessonCount)
+      .filter((lesson) => !isUnitLesson(lesson))
       .map((lesson) => [lesson.content.id, bandOfTaughtLesson(lesson, ranks)]),
   )
 

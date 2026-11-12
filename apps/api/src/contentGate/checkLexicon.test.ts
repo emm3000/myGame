@@ -51,6 +51,47 @@ describe('content gate check 1, the lexicon holds', () => {
     ])
   })
 
+  it('passes a multi-word unit of NGSL and frame words that names its list', () => {
+    const workOn = entryOf('unit-1', 'work on', 'We work on it.', { source: 'phave' })
+
+    expect(checkLexicon(contentOf({ lexicon: [...lessonOneLexicon, workOn] }))).toEqual([])
+  })
+
+  it('fails a multi-word unit that names no list', () => {
+    const workOn = entryOf('unit-1', 'work on', 'We work on it.')
+
+    expect(checkLexicon(contentOf({ lexicon: [...lessonOneLexicon, workOn] }))).toEqual([
+      'unit-1: work on is a multi-word unit that names no list',
+    ])
+  })
+
+  it('fails a single word that names a unit list', () => {
+    const listedNew = entryOf('word-1', 'new', 'This is new.', { source: 'phrase' })
+
+    expect(checkLexicon(contentOf({ lexicon: [...lessonOneLexicon, listedNew] }))).toEqual([
+      'word-1: new is a single word that names a unit list',
+    ])
+  })
+
+  it('fails a multi-word unit holding a word that is neither an NGSL headword nor a frame word', () => {
+    const workOut = entryOf('unit-1', 'work out', 'We work out.', { source: 'phave' })
+
+    expect(checkLexicon(contentOf({ lexicon: [...lessonOneLexicon, workOut] }))).toEqual([
+      'unit-1: work out holds out, which is neither an NGSL headword nor a frame word',
+    ])
+  })
+
+  it('fails a multi-word unit marked off-list', () => {
+    const workOn = entryOf('unit-1', 'work on', 'We work on it.', {
+      source: 'phave',
+      isOffList: true,
+    })
+
+    expect(checkLexicon(contentOf({ lexicon: [...lessonOneLexicon, workOn] }))).toEqual([
+      'unit-1: work on is a multi-word unit marked off-list',
+    ])
+  })
+
   it('fails a card word taught by two lessons', () => {
     const lessons = [
       ['lesson-1', lessonOneIds],

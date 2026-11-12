@@ -1,25 +1,53 @@
+import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { isUnit } from './isUnit'
+import { lemmaWordsOf } from './lemmaWordsOf'
 import { repeated } from './repeated'
 
 const frameWordRankLimit = 100
 
-const lemmaFailures = ({ lexicon, ranks, grammar }: GateContent): ReadonlyArray<string> => {
+const unitFailures = (
+  { id, lemma, isOffList, source }: LexiconEntry,
+  { ranks, grammar }: GateContent,
+): ReadonlyArray<string> => {
   const frameWords = frameWordsOf(grammar)
-  return lexicon.flatMap(({ id, lemma, isOffList }) => {
-    const word = lemma.toLowerCase()
-    if (frameWords.has(word)) {
-      return [`${id}: ${lemma} is a frame word, which never has a lexicon entry`]
-    }
-    if (ranks.has(word) && isOffList === true) {
-      return [`${id}: ${lemma} is an NGSL headword marked off-list`]
-    }
-    if (!ranks.has(word) && isOffList !== true) {
-      return [`${id}: ${lemma} is neither an NGSL headword nor marked off-list`]
-    }
-    return []
-  })
+  return [
+    ...(source === undefined ? [`${id}: ${lemma} is a multi-word unit that names no list`] : []),
+    ...(isOffList === true ? [`${id}: ${lemma} is a multi-word unit marked off-list`] : []),
+    ...lemmaWordsOf(lemma)
+      .filter((word) => !ranks.has(word) && !frameWords.has(word))
+      .map(
+        (word) =>
+          `${id}: ${lemma} holds ${word}, which is neither an NGSL headword nor a frame word`,
+      ),
+  ]
 }
+
+const singleWordFailures = (
+  { id, lemma, isOffList, source }: LexiconEntry,
+  { ranks, grammar }: GateContent,
+): ReadonlyArray<string> => {
+  const word = lemma.toLowerCase()
+  if (frameWordsOf(grammar).has(word)) {
+    return [`${id}: ${lemma} is a frame word, which never has a lexicon entry`]
+  }
+  if (source !== undefined) {
+    return [`${id}: ${lemma} is a single word that names a unit list`]
+  }
+  if (ranks.has(word) && isOffList === true) {
+    return [`${id}: ${lemma} is an NGSL headword marked off-list`]
+  }
+  if (!ranks.has(word) && isOffList !== true) {
+    return [`${id}: ${lemma} is neither an NGSL headword nor marked off-list`]
+  }
+  return []
+}
+
+const lemmaFailures = (content: GateContent): ReadonlyArray<string> =>
+  content.lexicon.flatMap((entry) =>
+    isUnit(entry) ? unitFailures(entry, content) : singleWordFailures(entry, content),
+  )
 
 const teachingFailures = ({ lessons }: GateContent): ReadonlyArray<string> => {
   const teachers = new Map<string, { lemma: string; lessonIds: Array<string> }>()
