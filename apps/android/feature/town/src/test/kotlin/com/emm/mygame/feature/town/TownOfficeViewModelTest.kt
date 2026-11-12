@@ -174,7 +174,7 @@ class TownOfficeViewModelTest {
         viewModel.onIntent(TownIntent.HireEntryChanged(TownHireKind.Worker, "3"))
 
         assertEquals(
-            TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20))),
+            TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)), ready = null),
             formOf(viewModel, TownHireKind.Worker).block,
         )
     }

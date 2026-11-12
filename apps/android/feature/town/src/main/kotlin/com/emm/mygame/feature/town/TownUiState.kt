@@ -110,13 +110,15 @@ sealed interface TownUiState {
 
     data class Shortfall(val kind: TownResourceKind, val amount: Long)
 
+    data class ReadyTime(val remaining: Duration, val readyAt: Instant)
+
     sealed interface BlockReason {
 
         data class WaitingListFull(val cap: Int) : BlockReason
 
         data class PeopleShort(val needed: Int, val free: Int) : BlockReason
 
-        data class Resources(val shortfalls: List<Shortfall>) : BlockReason
+        data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyTime?) : BlockReason
     }
 
     sealed interface StartStatus {
@@ -186,7 +188,7 @@ sealed interface TownUiState {
 
         data class PeopleShort(val needed: Long, val free: Int) : HireBlock
 
-        data class Resources(val shortfalls: List<Shortfall>) : HireBlock
+        data class Resources(val shortfalls: List<Shortfall>, val ready: ReadyTime?) : HireBlock
     }
 
     sealed interface HireStatus {

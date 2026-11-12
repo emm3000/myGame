@@ -10,8 +10,10 @@ import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.network.nextStepCard
+import com.emm.mygame.core.projection.ResourceNeed
 import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
+import com.emm.mygame.core.projection.readyMinuteOf
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -38,7 +40,7 @@ internal fun TownSnapshot.contentAt(
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
         places = buildings
             .sortedBy { place: TownSnapshot.Building -> place.kind != TownBuildingKind.School }
-            .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered) },
+            .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered, now, gap) },
         nextStep = card,
         nextStepTime = card.countdown?.timeAt(now, gap),
         goal = (nextStep as? NextStep.CaughtUp)?.goal?.takeUnless { closed.isGoalClosed },
@@ -70,10 +72,31 @@ private fun TownSnapshot.seasonLineAt(now: Instant): TownUiState.SeasonLine? {
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, hiring.order?.endsAt, seasonEndsAt, nextDueAt)
 
+internal fun List<TownUiState.CostLine>.shortfallsAgainst(
+    drawn: Map<TownResourceKind, Long>,
+): List<TownUiState.Shortfall> =
+    map { cost: TownUiState.CostLine -> TownUiState.Shortfall(cost.kind, cost.amount - drawn.getValue(cost.kind)) }
+        .filter { shortfall: TownUiState.Shortfall -> shortfall.amount > 0 }
+
+internal fun TownSnapshot.readyTimeOf(
+    costs: List<TownUiState.CostLine>,
+    now: Instant,
+    gap: Duration,
+): TownUiState.ReadyTime? {
+    val needs: List<ResourceNeed> = costs.map { cost: TownUiState.CostLine ->
+        val stock: TownSnapshot.Stock = stocks.first { held: TownSnapshot.Stock -> held.kind == cost.kind }
+        ResourceNeed(stock = stock.projected(), cost = cost.amount)
+    }
+    val ready: Instant = readyMinuteOf(needs, readAt) ?: return null
+    return TownUiState.ReadyTime(remaining = countdownTo(finishesAt = ready, now = now), readyAt = ready - gap)
+}
+
+private fun TownSnapshot.Stock.projected(): ResourceStock = ResourceStock(amount, ratePerHour, capacity)
+
 private fun TownSnapshot.Stock.lineAt(readAt: Instant, now: Instant, skillLevel: Int): TownUiState.StockLine =
     TownUiState.StockLine(
         kind = kind,
-        amount = ResourceStock(amount, ratePerHour, capacity).amountAt(readAt = readAt, now = now),
+        amount = projected().amountAt(readAt = readAt, now = now),
         capacity = capacity,
         ratePerHour = ratePerHour.toLong(),
         skillLevel = skillLevel,
@@ -106,6 +129,8 @@ private fun TownSnapshot.Building.cardWith(
     drawn: Map<TownResourceKind, Long>,
     town: TownSnapshot,
     registered: TownRegistered,
+    now: Instant,
+    gap: Duration,
 ): TownUiState.PlaceCard {
     val line: TownUiState.NextLevelLine? = next?.lineWith(drawn)
     return TownUiState.PlaceCard(
@@ -116,7 +141,7 @@ private fun TownSnapshot.Building.cardWith(
             ?.levelBefore,
         isInWork = town.isWorkingOn(kind),
         next = line,
-        block = next?.blockIn(town, drawn),
+        block = line?.blockIn(town, drawn, now, gap),
     )
 }
 
@@ -133,17 +158,21 @@ private fun TownSnapshot.NextLevel.lineWith(drawn: Map<TownResourceKind, Long>):
         people = people,
     )
 
-private fun TownSnapshot.NextLevel.blockIn(
+private fun TownUiState.NextLevelLine.blockIn(
     town: TownSnapshot,
     drawn: Map<TownResourceKind, Long>,
+    now: Instant,
+    gap: Duration,
 ): TownUiState.BlockReason? {
     val work: TownSnapshot.Work = town.work
     if (work.slot != null && work.waitingList.size >= work.cap) return TownUiState.BlockReason.WaitingListFull(work.cap)
     if (work.slot == null && work.waitingList.isEmpty() && people > town.people.free) {
         return TownUiState.BlockReason.PeopleShort(needed = people, free = town.people.free)
     }
-    val shortfalls: List<TownUiState.Shortfall> = costs
-        .map { cost: TownSnapshot.Cost -> TownUiState.Shortfall(cost.kind, cost.amount - drawn.getValue(cost.kind)) }
-        .filter { shortfall: TownUiState.Shortfall -> shortfall.amount > 0 }
-    return if (shortfalls.isEmpty()) null else TownUiState.BlockReason.Resources(shortfalls)
+    val shortfalls: List<TownUiState.Shortfall> = costs.shortfallsAgainst(drawn)
+    return if (shortfalls.isEmpty()) {
+        null
+    } else {
+        TownUiState.BlockReason.Resources(shortfalls, ready = town.readyTimeOf(costs, now, gap))
+    }
 }

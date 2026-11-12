@@ -26,6 +26,8 @@ private const val SECONDS_PER_MINUTE: Long = 60
 
 private const val SECONDS_PER_HOUR: Long = 3600
 
+private const val MINUTES_PER_HOUR: Long = 60
+
 private val spanish: Locale = Locale.forLanguageTag("es")
 
 private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -145,6 +147,17 @@ internal fun finishLabelOf(remaining: Duration, finishesAt: Instant): String {
     if (wholeSecondsOf(remaining).seconds <= 1.hours) return timeLeft
     val finish: FinishClock = finishClockOf(finishesAt, remaining, ZoneId.systemDefault())
     return icuStringResource(R.string.town_finish_with_clock, "timeLeft" to timeLeft, "clock" to clockLabelOf(finish))
+}
+
+@Composable
+internal fun readyLabelOf(ready: TownUiState.ReadyTime): String {
+    val minutesLeft: Long = ceil(wholeSecondsOf(ready.remaining).toDouble() / SECONDS_PER_MINUTE).toLong()
+    if (minutesLeft < MINUTES_PER_HOUR) {
+        val timeLeft: String = icuStringResource(R.string.town_duration_minutes, "minutes" to minutesLeft.toString())
+        return icuStringResource(R.string.town_ready_in, "timeLeft" to timeLeft)
+    }
+    val finish: FinishClock = finishClockOf(ready.readyAt, ready.remaining, ZoneId.systemDefault())
+    return icuStringResource(R.string.town_ready_at, "clock" to clockLabelOf(finish))
 }
 
 @Composable

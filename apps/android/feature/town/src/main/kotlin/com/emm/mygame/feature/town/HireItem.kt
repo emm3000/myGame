@@ -113,6 +113,8 @@ private fun HireForm(
                 modifier = Modifier.semantics { hideFromAccessibility() },
             )
         }
+        val ready: TownUiState.ReadyTime? = (form.block as? TownUiState.HireBlock.Resources)?.ready
+        if (ready != null && !isAnswered) ReadyLine(ready = ready)
     }
 }
 
@@ -180,7 +182,8 @@ private fun hireBlockLineOf(block: TownUiState.HireBlock): String = when (block)
     TownUiState.HireBlock.Busy -> stringResource(R.string.town_office_busy)
     is TownUiState.HireBlock.PeopleShort ->
         icuStringResource(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
-    is TownUiState.HireBlock.Resources -> shortfallLineOf(TownUiState.BlockReason.Resources(block.shortfalls))
+    is TownUiState.HireBlock.Resources ->
+        shortfallLineOf(TownUiState.BlockReason.Resources(block.shortfalls, ready = null))
 }
 
 internal fun hireNameOf(kind: TownHireKind): Int = when (kind) {
