@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { BandStart } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
 import type { Lesson } from '../learning/Lesson'
 import type { PendingReview } from '../learning/PendingReview'
@@ -9,6 +10,8 @@ import type { MemoryRating } from '../memory/MemoryRating'
 import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
 import type { Clock } from '../ports/Clock'
+import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
+import { inMemoryBands } from '../testing/inMemoryBands'
 import { inMemoryCards, type OwnedCard } from '../testing/inMemoryCards'
 import { inMemoryEarnedSkills } from '../testing/inMemoryEarnedSkills'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -114,6 +117,7 @@ const arrange = (
   owned: ReadonlyArray<OwnedCard>,
   now: Instant,
   heldTowns: ReadonlyArray<Town> = [farmingTownStoredAt(now)],
+  starts: ReadonlyArray<BandStart> = [],
 ) => {
   const towns = inMemoryTowns(heldTowns)
   const skills = inMemoryEarnedSkills([])
@@ -126,6 +130,8 @@ const arrange = (
     pendingReviews,
     reviewLog,
     lessons: inMemoryLessons([lessonOne], headwords),
+    bandStarts: inMemoryBandStarts(starts.map((start) => ({ playerId: learner, start }))),
+    bands: inMemoryBands([{ band: 1, lessonIds: [lessonOne.id], words: bandWordsOfLessonOne }]),
     clock: frozenClock(now),
     terms: defaultMemoryTerms,
     skills,
@@ -135,6 +141,18 @@ const arrange = (
   }
   return { towns, skills, news, cards, pendingReviews, reviewLog, dependencies }
 }
+
+const bandWordsOfLessonOne = lessonOne.words.map(({ acceptedForms }) => ({
+  headword: acceptedForms[0],
+  isChrome: false,
+}))
+
+const schoolReleasedAt = (releasedAt: Instant): BandStart => ({
+  band: 1,
+  startedAt: lessonFinish,
+  heldOutWords: ['school'],
+  checks: [{ kind: 'skipped', week: 24, skippedAt: releasedAt }],
+})
 
 const lessonWithALaterFrame: Lesson = {
   ...lessonOne,
@@ -506,6 +524,45 @@ describe('answerReview', () => {
 
     expect(answered).toMatchObject({ ok: true, value: { earnedSkill: earnedFoodSkill } })
     expect(await skillsOf(skills)).toEqual([earnedFoodSkill])
+  })
+
+  it('earns no skill for a released lesson', async () => {
+    const { skills, dependencies } = arrange(
+      retainedExceptSchool(firstRecallDoneCard),
+      lastRecallAt,
+      [farmingTownStoredAt(lastRecallAt)],
+      [schoolReleasedAt(minutesAfterFinish(1))],
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'school', answer: 'school' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({ ok: true, value: { earnedSkill: undefined } })
+    expect(await skillsOf(skills)).toEqual([])
+  })
+
+  it('never holds back a lesson’s skill on its released word', async () => {
+    const { dependencies } = arrange(
+      [
+        ownedBy('home', retainedCard),
+        ownedBy('work', retainedCard),
+        ownedBy('money', retainedCard),
+        ownedBy('food', firstRecallDoneCard),
+        ownedBy('school', MemoryCard.entered(lastRecallAt)),
+      ],
+      lastRecallAt,
+      [farmingTownStoredAt(lastRecallAt)],
+      [schoolReleasedAt(minutesAfterFinish(1))],
+    )
+
+    const answered = await answerReview(
+      { playerId: learner, wordId: 'food', answer: 'food' },
+      dependencies,
+    )
+
+    expect(answered).toMatchObject({ ok: true, value: { earnedSkill: earnedFoodSkill } })
   })
 
   it("re-bases the player's town at the earn", async () => {

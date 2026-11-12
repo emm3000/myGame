@@ -1,3 +1,4 @@
+import type { HoldoutCheckWeek } from './holdout/HoldoutCheck'
 import type { LessonId, WordId } from './learning/Lesson'
 import type { PlayerId } from './player/PlayerId'
 import type { Instant } from './time/Instant'
@@ -37,6 +38,17 @@ export type DomainError =
   | { readonly kind: 'PlacementAlreadyTaken' }
   | { readonly kind: 'PlacementBandNotAsked'; readonly band: number }
   | { readonly kind: 'InvalidPlacementAnswers'; readonly band: number }
+  | { readonly kind: 'HoldoutCheckNotDue'; readonly band: number; readonly week: HoldoutCheckWeek }
+  | {
+      readonly kind: 'HoldoutCheckNotBegun'
+      readonly band: number
+      readonly week: HoldoutCheckWeek
+    }
+  | {
+      readonly kind: 'InvalidHoldoutCheckAnswers'
+      readonly band: number
+      readonly week: HoldoutCheckWeek
+    }
   | { readonly kind: 'LessonAlreadyStudied'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonUnderStudy'; readonly lessonId: LessonId }
   | { readonly kind: 'LessonStudyNotFound'; readonly lessonId: LessonId }

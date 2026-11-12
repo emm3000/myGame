@@ -15,7 +15,7 @@ const PlacementScoreSchema = z
   })
   .meta({ id: 'PlacementScore' })
 
-const PlacementItemSchema = z
+export const PlacementItemSchema = z
   .strictObject({
     wordId: z.string().min(1),
     word: z.string().min(1),

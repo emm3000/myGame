@@ -63,6 +63,8 @@ export const answerReviewOf = (
           pendingReviews: stores.pendingReviews,
           reviewLog: stores.reviewLog,
           lessons,
+          bands: lessons,
+          bandStarts: stores.bandStarts,
           clock,
           terms: memoryTerms,
           skills: stores.earnedSkills,

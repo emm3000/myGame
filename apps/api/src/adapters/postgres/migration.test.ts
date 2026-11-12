@@ -153,6 +153,8 @@ describe('the migrations', () => {
       'cards',
       'earned_skills',
       'held_out_words',
+      'holdout_check_words',
+      'holdout_checks',
       'pending_reviews',
       'placement_scores',
       'placement_words',
@@ -1608,5 +1610,90 @@ describe('the shown frame migration', () => {
     const pending = await client.query('SELECT word_id, shown_frame FROM pending_reviews')
 
     expect(pending.rows).toEqual([{ word_id: 'lesson-1-1', shown_frame: null }])
+  })
+})
+
+const holdoutOwnerId = '00000000-0000-4000-8000-0000000000a8'
+
+const migrationsBeforeTheHoldoutChecks = 42
+
+describe('the holdout checks migration', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await openEmptyDatabase()
+    await migratedThroughNext(client, migrationsBeforeTheHoldoutChecks, async () => {
+      await client.query(
+        `INSERT INTO players (id, email, password_hash, created_at, report_read_at)
+         VALUES ($1, 'learner@example.com', 'argon2id-hash', '2026-11-12T08:00:00Z', '2026-11-12T08:00:00Z')`,
+        [holdoutOwnerId],
+      )
+      await client.query(
+        `INSERT INTO band_starts (player_id, band, started_at) VALUES ($1, 1, '2026-11-12T09:00:00Z')`,
+        [holdoutOwnerId],
+      )
+      await client.query(
+        `INSERT INTO held_out_words (player_id, band, headword) VALUES ($1, 1, 'river')`,
+        [holdoutOwnerId],
+      )
+    })
+  })
+
+  afterEach(async () => {
+    await closeWithoutChanges(client)
+  })
+
+  it('keeps a band started before the migration with its held-out words and no check', async () => {
+    const words = await client.query('SELECT band, headword FROM held_out_words')
+    const checks = await client.query('SELECT 1 FROM holdout_checks')
+
+    expect({ words: words.rows, checks: checks.rowCount }).toEqual({
+      words: [{ band: 1, headword: 'river' }],
+      checks: 0,
+    })
+  })
+
+  it('stores a taken check of a started band', async () => {
+    await client.query(
+      `INSERT INTO holdout_checks (player_id, band, week, kind, begun_at, closed_at, held_out_score, practised_score)
+       VALUES ($1, 1, 8, 'taken', '2027-01-07T09:00:00Z', '2027-01-07T09:10:00Z', 3, 5)`,
+      [holdoutOwnerId],
+    )
+
+    const stored = await client.query(
+      'SELECT week, held_out_score, practised_score FROM holdout_checks',
+    )
+
+    expect(stored.rows).toEqual([{ week: 8, held_out_score: 3, practised_score: 5 }])
+  })
+
+  it('refuses a taken check without its scores', async () => {
+    await expect(
+      client.query(
+        `INSERT INTO holdout_checks (player_id, band, week, kind, begun_at, closed_at)
+         VALUES ($1, 1, 8, 'taken', '2027-01-07T09:00:00Z', '2027-01-07T09:10:00Z')`,
+        [holdoutOwnerId],
+      ),
+    ).rejects.toThrow('holdout_checks_kind_terms')
+  })
+
+  it('refuses a check of a week ADR 037 does not hold', async () => {
+    await expect(
+      client.query(
+        `INSERT INTO holdout_checks (player_id, band, week, kind, closed_at)
+         VALUES ($1, 1, 12, 'skipped', '2027-02-04T09:00:00Z')`,
+        [holdoutOwnerId],
+      ),
+    ).rejects.toThrow('holdout_checks_week_known')
+  })
+
+  it('refuses a check of a band the player has not started', async () => {
+    await expect(
+      client.query(
+        `INSERT INTO holdout_checks (player_id, band, week, kind, closed_at)
+         VALUES ($1, 2, 8, 'skipped', '2027-02-04T09:00:00Z')`,
+        [holdoutOwnerId],
+      ),
+    ).rejects.toThrow('holdout_checks_band_start_fk')
   })
 })

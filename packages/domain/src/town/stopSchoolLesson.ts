@@ -1,6 +1,7 @@
 import type { DomainError } from '../DomainError'
 import type { LessonId } from '../learning/Lesson'
 import type { PlayerId } from '../player/PlayerId'
+import type { BandCatalog } from '../ports/BandCatalog'
 import type { BandStartRepository } from '../ports/BandStartRepository'
 import type { CardRepository } from '../ports/CardRepository'
 import type { Clock } from '../ports/Clock'
@@ -26,7 +27,8 @@ export type StopSchoolLessonDependencies = {
   readonly lessonSlots: LessonSlotRepository
   readonly cards: CardRepository
   readonly bandStarts: Pick<BandStartRepository, 'bandStartsOf'>
-  readonly lessons: Pick<LessonCatalog, 'lessonOf'>
+  readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'>
+  readonly bands: Pick<BandCatalog, 'wordsOfBand'>
   readonly news: TownNews
   readonly catalog: TownCatalog
   readonly clock: Clock

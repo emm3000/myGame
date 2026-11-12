@@ -2,7 +2,7 @@ import type { DomainError } from '../DomainError'
 import { cardsInLearningOf } from '../learning/cardsInLearningOf'
 import type { HeldCard } from '../learning/HeldCard'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
-import type { Lesson } from '../learning/Lesson'
+import type { SchoolLesson } from '../learning/Lesson'
 import { err, ok, type Result } from '../Result'
 import type { SchoolLevel } from './BuildingLevel'
 import type { LessonSlot } from './LessonSlot'
@@ -32,7 +32,7 @@ const admitToLearningCap = (
 }
 
 export const admitSchoolLesson = (
-  lesson: Lesson,
+  lesson: SchoolLesson,
   enteringWordCount: number,
   { held: cards, slot }: SchoolState,
   schoolLevel: number,

@@ -201,7 +201,7 @@ describe('startSchoolLesson', () => {
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
-      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'make'] }],
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'make'], checks: [] }],
     })
   })
 
@@ -225,7 +225,7 @@ describe('startSchoolLesson', () => {
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
-      value: [{ band: 1, startedAt: springNow, heldOutWords: [] }],
+      value: [{ band: 1, startedAt: springNow, heldOutWords: [], checks: [] }],
     })
   })
 
@@ -236,7 +236,7 @@ describe('startSchoolLesson', () => {
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
-      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'know'] }],
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'know'], checks: [] }],
     })
   })
 
@@ -249,7 +249,7 @@ describe('startSchoolLesson', () => {
 
     expect(await school.bandStarts.bandStartsOf('player-1')).toEqual({
       ok: true,
-      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'time'] }],
+      value: [{ band: 1, startedAt: springNow, heldOutWords: ['say', 'time'], checks: [] }],
     })
   })
 
@@ -271,7 +271,12 @@ describe('startSchoolLesson', () => {
   })
 
   it("keeps the draw and the instant of the band's start when a later lesson starts", async () => {
-    const stored = { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['think', 'see'] }
+    const stored = {
+      band: 1,
+      startedAt: hoursAfterEpoch(1),
+      heldOutWords: ['think', 'see'],
+      checks: [],
+    }
     const school = schoolOf({ bandStarts: [{ playerId: 'player-1', start: stored }] })
 
     await school.start('lesson-18')
@@ -287,7 +292,12 @@ describe('startSchoolLesson', () => {
         return items.slice(0, count)
       },
     }
-    const stored = { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['think', 'see'] }
+    const stored = {
+      band: 1,
+      startedAt: hoursAfterEpoch(1),
+      heldOutWords: ['think', 'see'],
+      checks: [],
+    }
     const school = schoolOf({
       bandStarts: [{ playerId: 'player-1', start: stored }],
       random: recordingRandom,
@@ -316,7 +326,12 @@ describe('startSchoolLesson', () => {
   })
 
   it('counts only the words the player will hold against the learning cap', async () => {
-    const withoutMake = { band: 1, startedAt: hoursAfterEpoch(1), heldOutWords: ['make'] }
+    const withoutMake = {
+      band: 1,
+      startedAt: hoursAfterEpoch(1),
+      heldOutWords: ['make'],
+      checks: [],
+    }
     const school = schoolOf({
       cards: cardsEnteredFor(11),
       bandStarts: [{ playerId: 'player-1', start: withoutMake }],

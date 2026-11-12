@@ -32,3 +32,5 @@ export type Lesson = {
   readonly words: ReadonlyArray<LessonWord>
   readonly skill: LessonSkill
 }
+
+export type SchoolLesson = Omit<Lesson, 'skill'>

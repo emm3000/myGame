@@ -295,6 +295,13 @@
       "when": 1794515642671,
       "tag": "0041_shown_frame",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794525307547,
+      "tag": "0042_holdout_checks",
+      "breakpoints": true
     }
   ]
 }

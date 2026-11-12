@@ -1034,6 +1034,105 @@
         "required": ["band", "answers"],
         "additionalProperties": false
       },
+      "HoldoutChecks": {
+        "type": "object",
+        "properties": {
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HoldoutCheckState"
+            }
+          }
+        },
+        "required": ["checks"],
+        "additionalProperties": false
+      },
+      "HoldoutCheckState": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/DueHoldoutCheck"
+          },
+          {
+            "$ref": "#/components/schemas/AskingHoldoutCheck"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "due": "#/components/schemas/DueHoldoutCheck",
+            "asking": "#/components/schemas/AskingHoldoutCheck"
+          }
+        }
+      },
+      "DueHoldoutCheck": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["due"]
+          },
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "week": {
+            "$ref": "#/components/schemas/HoldoutCheckWeek"
+          }
+        },
+        "required": ["kind", "band", "week"],
+        "additionalProperties": false
+      },
+      "HoldoutCheckWeek": {
+        "type": "integer",
+        "enum": [8, 24]
+      },
+      "AskingHoldoutCheck": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["asking"]
+          },
+          "band": {
+            "$ref": "#/components/schemas/PlacementBand"
+          },
+          "week": {
+            "$ref": "#/components/schemas/HoldoutCheckWeek"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlacementItem"
+            }
+          }
+        },
+        "required": ["kind", "band", "week", "items"],
+        "additionalProperties": false
+      },
+      "HoldoutCheckAnswers": {
+        "type": "object",
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "wordId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "choiceId": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": ["wordId", "choiceId"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["answers"],
+        "additionalProperties": false
+      },
       "Report": {
         "type": "object",
         "properties": {
@@ -3559,6 +3658,190 @@
           },
           "409": {
             "description": "PlacementBandNotAsked: the check does not ask that band. Empty body."
+          }
+        }
+      }
+    },
+    "/holdout-checks": {
+      "get": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every check due at the read, derived from each band’s start: due, or asking its words once begun.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldoutChecks"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          }
+        }
+      }
+    },
+    "/holdout-checks/{band}/{week}": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": true,
+            "name": "band",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": true,
+            "name": "week",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The check begun: the api drew its practised words and asks them beside the held-out ones; a check begun before keeps its words.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldoutChecks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A band or a week the path cannot name. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "HoldoutCheckNotDue: the band has not started, the week is not reached, the check is closed, or an 8-week check lapsed at 24 weeks. Empty body."
+          }
+        }
+      }
+    },
+    "/holdout-checks/{band}/{week}/answers": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": true,
+            "name": "band",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": true,
+            "name": "week",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HoldoutCheckAnswers"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The check taken: its held-out and practised scores stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldoutChecks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed path or body, or InvalidHoldoutCheckAnswers: not one offered choice for each asked word. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "HoldoutCheckNotDue: the band has not started, the week is not reached, the check is closed, or an 8-week check lapsed at 24 weeks. Empty body. Or HoldoutCheckNotBegun: the check is due but not begun."
+          }
+        }
+      }
+    },
+    "/holdout-checks/{band}/{week}/skip": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": true,
+            "name": "band",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            },
+            "required": true,
+            "name": "week",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The check skipped for good; a skipped 24-week check releases the band’s held-out words.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldoutChecks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A band or a week the path cannot name. Empty body."
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "409": {
+            "description": "HoldoutCheckNotDue: the band has not started, the week is not reached, the check is closed, or an 8-week check lapsed at 24 weeks. Empty body."
           }
         }
       }

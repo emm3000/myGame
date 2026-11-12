@@ -1,10 +1,11 @@
-import type { Headword } from '../learning/BandStart'
+import type { BandStart } from '../learning/BandStart'
 import type { HeldCard } from '../learning/HeldCard'
+import { heldOutWordsAt } from '../learning/heldOutWordsAt'
 import { holdsLessonCards } from '../learning/holdsLessonCards'
 import { lessonCardsEnteredAt } from '../learning/lessonCardsEnteredAt'
-import type { LessonCatalog } from '../ports/LessonCatalog'
 import type { Instant } from '../time/Instant'
 import { idleLessonSlot, type LessonSlot } from './LessonSlot'
+import type { SchoolLessons } from './schoolLessonsOf'
 import type { TownEvent } from './TownEvent'
 
 export type SettledLessonSlot = {
@@ -16,8 +17,8 @@ export type SettledLessonSlot = {
 export const settledLessonSlot = (
   slot: LessonSlot,
   held: ReadonlyArray<HeldCard>,
-  heldOut: ReadonlyArray<Headword>,
-  lessons: Pick<LessonCatalog, 'lessonOf'>,
+  starts: ReadonlyArray<BandStart>,
+  lessons: SchoolLessons,
   now: Instant,
 ): SettledLessonSlot => {
   if (slot.kind === 'idle' || slot.finishesAt.epochMilliseconds > now.epochMilliseconds) {
@@ -32,7 +33,7 @@ export const settledLessonSlot = (
     slot: idleLessonSlot,
     entered: holdsLessonCards(lesson, held)
       ? []
-      : lessonCardsEnteredAt(lesson, heldOut, finishesAt),
+      : lessonCardsEnteredAt(lesson, heldOutWordsAt(starts, finishesAt), finishesAt),
     events: [{ kind: 'lessonStudied', lessonId: lesson.id, occurredAt: finishesAt }],
   }
 }

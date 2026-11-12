@@ -177,7 +177,12 @@ describe('beginPlacement', () => {
 
   it('offers no placement to a player who started band 1', async () => {
     const { placements, dependencies } = placementOf({
-      starts: [{ playerId: ana, start: { band: 1, startedAt: firstSignInAt, heldOutWords: [] } }],
+      starts: [
+        {
+          playerId: ana,
+          start: { band: 1, startedAt: firstSignInAt, heldOutWords: [], checks: [] },
+        },
+      ],
     })
 
     expect(await beginPlacement({ playerId: ana }, dependencies)).toEqual({

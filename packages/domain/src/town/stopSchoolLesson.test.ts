@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Clock } from '../ports/Clock'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
+import { inMemoryBands } from '../testing/inMemoryBands'
 import { inMemoryCards } from '../testing/inMemoryCards'
 import { inMemoryLessonSlots } from '../testing/inMemoryLessonSlots'
 import { inMemoryLessons } from '../testing/inMemoryLessons'
@@ -59,6 +60,7 @@ const schoolOf = ({ town = {}, slot }: Setup) => {
     bandStarts: inMemoryBandStarts([]),
     cards: inMemoryCards([]),
     lessons: inMemoryLessons([lessonOne], []),
+    bands: inMemoryBands([]),
     news: inMemoryTownNews(),
     catalog: townCatalogOf(),
     clock: frozenClock,

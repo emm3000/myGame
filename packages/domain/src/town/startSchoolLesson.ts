@@ -1,8 +1,8 @@
 import type { DomainError } from '../DomainError'
 import type { BandStart } from '../learning/BandStart'
 import { bandStartDrawn } from '../learning/bandStartDrawn'
-import { heldOutWordsOf } from '../learning/heldOutWordsOf'
-import type { Lesson, LessonId } from '../learning/Lesson'
+import { heldOutWordsAt } from '../learning/heldOutWordsAt'
+import type { LessonId, SchoolLesson } from '../learning/Lesson'
 import { practisedWordsOf } from '../learning/practisedWordsOf'
 import { wordsEnteringOf } from '../learning/wordsEnteringOf'
 import { placedOutBandsOf } from '../placement/placedOutBandsOf'
@@ -26,6 +26,7 @@ import type { LessonSlotRepository } from './LessonSlotRepository'
 import { resolvedTownOf } from './resolvedTownOf'
 import { saveLessonSlot } from './saveLessonSlot'
 import { saveResolvedTown } from './saveResolvedTown'
+import { schoolLessonsOf } from './schoolLessonsOf'
 import { type SettledSchool, settledSchoolOf } from './settledSchoolOf'
 import { studyPercentAt } from './studyPercentAt'
 import type { ChangedTown } from './Town'
@@ -43,7 +44,7 @@ export type StartSchoolLessonDependencies = {
   readonly lessonSlots: LessonSlotRepository
   readonly cards: CardRepository
   readonly bandStarts: BandStartRepository
-  readonly bands: BandCatalog
+  readonly bands: Pick<BandCatalog, 'bandOfLesson' | 'wordsOfBand'>
   readonly placements: Pick<PlacementRepository, 'placementOf'>
   readonly random: RandomSource
   readonly lessons: Pick<LessonCatalog, 'lessonOf' | 'lessonOfWord'>
@@ -53,7 +54,7 @@ export type StartSchoolLessonDependencies = {
 }
 
 const lessonStartedAt = (
-  lesson: Lesson,
+  lesson: SchoolLesson,
   school: SchoolLevel,
   now: Instant,
   catalog: TownCatalog,
@@ -77,7 +78,7 @@ const lessonStartedAt = (
 }
 
 type AdmittedLesson = {
-  readonly lesson: Lesson
+  readonly lesson: SchoolLesson
   readonly school: SchoolLevel
   readonly settled: SettledSchool
   readonly drawn: BandStart | undefined
@@ -85,7 +86,7 @@ type AdmittedLesson = {
 
 const bandStartDrawnFor = async (
   playerId: PlayerId,
-  lesson: Lesson,
+  lesson: SchoolLesson,
   { bandStarts: started, held }: SettledSchool,
   { bands, placements, random, lessons }: StartSchoolLessonDependencies,
   now: Instant,
@@ -113,21 +114,22 @@ const admittedLessonOf = async (
   dependencies: StartSchoolLessonDependencies,
   now: Instant,
 ): Promise<Result<AdmittedLesson, DomainError>> => {
-  const lesson = dependencies.lessons.lessonOf(lessonId)
-  if (lesson === undefined) {
-    return err({ kind: 'LessonNotFound', lessonId })
-  }
   const settled = await settledSchoolOf(playerId, resolved.town.id, dependencies, now)
   if (!settled.ok) {
     return settled
   }
-  const { bandStarts } = settled.value
+  const { bandStarts, released } = settled.value
+  const lesson = schoolLessonsOf(dependencies.lessons, released).lessonOf(lessonId)
+  if (lesson === undefined) {
+    return err({ kind: 'LessonNotFound', lessonId })
+  }
   const drawn = await bandStartDrawnFor(playerId, lesson, settled.value, dependencies, now)
   if (!drawn.ok) {
     return drawn
   }
-  const heldOut = heldOutWordsOf(
+  const heldOut = heldOutWordsAt(
     drawn.value === undefined ? bandStarts : [...bandStarts, drawn.value],
+    now,
   )
   const school = admitSchoolLesson(
     lesson,

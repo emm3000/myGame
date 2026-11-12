@@ -6,6 +6,7 @@ import { reportServerFailures } from './http/reportServerFailures'
 import { sessionBearerScheme, sessionBearerSecurityScheme } from './http/responseDeclarations'
 import { type AuthDependencies, authRoutes } from './routes/auth'
 import { healthDeclarations } from './routes/healthDeclarations'
+import { holdoutCheckRoutes } from './routes/holdoutChecks'
 import { type LearningRouteDependencies, learningRoutes } from './routes/learning'
 import { type PlacementRouteDependencies, placementRoutes } from './routes/placement'
 import { type ReportRouteDependencies, reportRoutes } from './routes/report'
@@ -39,6 +40,7 @@ export const createApp = (dependencies: AppDependencies): OpenAPIHono => {
     .route('/auth', authRoutes(dependencies))
     .route('/reviews', learningRoutes(dependencies))
     .route('/placement', placementRoutes(dependencies))
+    .route('/holdout-checks', holdoutCheckRoutes(dependencies))
     .route('/report', reportRoutes(dependencies))
     .route('/town/map', townMapRoutes(dependencies))
     .route('/town', townRoutes(dependencies))

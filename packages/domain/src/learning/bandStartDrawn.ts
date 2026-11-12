@@ -14,5 +14,5 @@ export const bandStartDrawn = (
   const drawable = words.filter(({ isChrome }) => !isChrome).map(({ headword }) => headword)
   const heldOutCount = Math.floor(drawable.length / HELD_OUT_DIVISOR)
   const unpractised = drawable.filter((headword) => !practisedWords.includes(headword))
-  return { band, startedAt, heldOutWords: random.sampleOf(unpractised, heldOutCount) }
+  return { band, startedAt, heldOutWords: random.sampleOf(unpractised, heldOutCount), checks: [] }
 }

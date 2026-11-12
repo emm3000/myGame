@@ -6,7 +6,7 @@ import type { Lesson } from './Lesson'
 import { wordsEnteringOf } from './wordsEnteringOf'
 
 export const lessonCardsEnteredAt = (
-  lesson: Lesson,
+  lesson: Pick<Lesson, 'words'>,
   heldOut: ReadonlyArray<Headword>,
   enteredAt: Instant,
 ): ReadonlyArray<HeldCard> =>
