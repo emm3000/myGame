@@ -2,9 +2,12 @@ import { mapArea, mapNext, mapPrevious } from '@mygame/catalog'
 import type { RegionMap } from '@mygame/contracts'
 import { type ReactElement, type RefObject, useEffect, useId, useRef, useState } from 'react'
 import { Button } from '../design-system/Button'
+import { PlaceArt } from '../design-system/PlaceArt'
 import { TextLink } from '../design-system/TextLink'
+import { wasteArtOf } from '../design-system/wasteArtOf'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import type { LiveTown } from '../town/liveTown'
+import { CleanUpForm } from './CleanUpForm'
 import { JobForm } from './JobForm'
 import { JobOut } from './JobOut'
 import { jobOutOf } from './jobOutOf'
@@ -39,6 +42,13 @@ function SiteHolder({ row }: { readonly row: MapSiteRow }): ReactElement {
   switch (row.kind) {
     case 'free':
       return <p className="m-0 font-sans text-caption text-ink-muted">{row.line}</p>
+    case 'waste':
+      return (
+        <>
+          <p className="m-0 font-sans text-caption text-ink-muted">{row.sizeLine}</p>
+          <p className="m-0 font-sans text-body text-ink">{row.wasteLine}</p>
+        </>
+      )
     case 'town':
       return <p className="m-0 font-sans text-body text-ink">{row.name}</p>
     case 'own':
@@ -65,6 +75,43 @@ interface SiteItemProps {
   readonly onSent: () => void
 }
 
+function SiteHeading({ row }: { readonly row: MapSiteRow }): ReactElement {
+  const heading = (
+    <div className="flex flex-col gap-1">
+      <h3 className="m-0 font-sans text-title text-ink">{row.label}</h3>
+      <SiteHolder row={row} />
+    </div>
+  )
+  if (row.kind !== 'waste') {
+    return heading
+  }
+  return (
+    <div className="flex items-center gap-4">
+      <PlaceArt shapes={wasteArtOf(row.size)} sizeClass="size-thumbnail" />
+      {heading}
+    </div>
+  )
+}
+
+function SiteForm({
+  row,
+  id,
+  area,
+  town,
+  job,
+  onSent,
+}: Omit<SiteItemProps, 'isChosen' | 'onChoose'> & { readonly id: string }): ReactElement | null {
+  const target = { area, site: row.site }
+  switch (row.kind) {
+    case 'free':
+      return <JobForm id={id} target={target} town={town} job={job} onSent={onSent} />
+    case 'waste':
+      return <CleanUpForm id={id} target={target} town={town} job={job} onSent={onSent} />
+    default:
+      return null
+  }
+}
+
 function SiteItem({
   row,
   area,
@@ -75,14 +122,14 @@ function SiteItem({
   onSent,
 }: SiteItemProps): ReactElement {
   const formId = useId()
+  const isSendable = row.kind === 'free' || row.kind === 'waste'
   return (
     <li
       aria-label={row.label}
       className="flex flex-col gap-2 border-line border-t py-4 first:border-t-0"
     >
-      <h3 className="m-0 font-sans text-title text-ink">{row.label}</h3>
-      <SiteHolder row={row} />
-      {row.kind === 'free' && (
+      <SiteHeading row={row} />
+      {isSendable && (
         <Button
           type="button"
           tone="quiet"
@@ -94,14 +141,8 @@ function SiteItem({
           {row.actionLabel}
         </Button>
       )}
-      {row.kind === 'free' && isChosen && (
-        <JobForm
-          id={formId}
-          target={{ area, site: row.site }}
-          town={town}
-          job={job}
-          onSent={onSent}
-        />
+      {isChosen && (
+        <SiteForm row={row} id={formId} area={area} town={town} job={job} onSent={onSent} />
       )}
     </li>
   )

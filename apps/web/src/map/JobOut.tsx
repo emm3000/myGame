@@ -31,6 +31,9 @@ export function JobOut({ content, job, titleRef }: JobOutProps): ReactElement {
         </h2>
         <p className="m-0 font-sans text-caption text-ink-muted">{content.siteLine}</p>
         <p className="m-0 font-sans text-caption text-ink-muted">{content.teamLine}</p>
+        {content.wasteLine !== undefined && (
+          <p className="m-0 font-sans text-caption text-ink-muted">{content.wasteLine}</p>
+        )}
       </div>
       <CountdownLine words={content.countdown.words} time={content.countdown.time} />
       {content.pay !== undefined && (

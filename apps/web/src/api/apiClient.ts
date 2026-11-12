@@ -3,6 +3,8 @@ import {
   type ApiErrorKind,
   ApiErrorSchema,
   type CallJobBack,
+  type CleanUpQuote,
+  CleanUpQuoteSchema,
   type ForgotPasswordRequest,
   type FoundTown,
   type JobQuote,
@@ -23,6 +25,7 @@ import {
   ReviewHintSchema,
   type Reviews,
   ReviewsSchema,
+  type SendCleanUp,
   type SendJob,
   type SignInRequest,
   type SignUpRequest,
@@ -60,6 +63,8 @@ export interface ApiClient {
   quoteJob(job: SendJob): Promise<ApiOutcome<JobQuote>>
   sendJob(job: SendJob): Promise<ApiOutcome<TownOverview>>
   callJobBack(target: CallJobBack): Promise<ApiOutcome<TownOverview>>
+  quoteCleanUp(cleanUp: SendCleanUp): Promise<ApiOutcome<CleanUpQuote>>
+  sendCleanUp(cleanUp: SendCleanUp): Promise<ApiOutcome<TownOverview>>
   startLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   stopLesson(lessonId: string): Promise<ApiOutcome<TownOverview>>
   reviews(): Promise<ApiOutcome<Reviews>>
@@ -193,6 +198,14 @@ export const createApiClient = (baseUrl: string): ApiClient => {
       const response = await send(`/town/jobs/${encodeURIComponent(sentAt)}/call-back`, {
         method: 'POST',
       })
+      return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
+    },
+    quoteCleanUp: async (cleanUp) => {
+      const response = await postJson('/town/clean-ups/quote', cleanUp)
+      return response === undefined ? unexpected : bodyOf(response, CleanUpQuoteSchema)
+    },
+    sendCleanUp: async (cleanUp) => {
+      const response = await postJson('/town/clean-ups', cleanUp)
       return response === undefined ? unexpected : bodyOf(response, TownOverviewSchema)
     },
     startLesson: async (lessonId) => {

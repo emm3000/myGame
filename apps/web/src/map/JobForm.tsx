@@ -1,4 +1,4 @@
-import type { SendJob } from '@mygame/contracts'
+import { type SendJob, SendJobSchema } from '@mygame/contracts'
 import { type ReactElement, useState } from 'react'
 import { CardAction } from '../design-system/CardAction'
 import { FormAlert } from '../design-system/FormAlert'
@@ -7,8 +7,8 @@ import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import { firstJobEntries, type JobEntries, jobFormOf } from './jobFormOf'
 import { jobPayLineOf } from './jobPayLineOf'
-import { sentJobKeyOf, type TownJob } from './useJob'
-import { useJobQuote } from './useJobQuote'
+import { sentKeyOf, type TownJob } from './useJob'
+import { useQuote } from './useQuote'
 
 export interface JobFormProps {
   readonly id: string
@@ -21,8 +21,8 @@ export interface JobFormProps {
 export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactElement {
   const [entries, setEntries] = useState<JobEntries>(firstJobEntries)
   const form = jobFormOf(target, entries, town)
-  const sentKey = form.job === undefined ? undefined : sentJobKeyOf(form.job)
-  const quoted = useJobQuote(job.quote, form.job, town.overview.season)
+  const sentKey = form.job === undefined ? undefined : sentKeyOf(form.job)
+  const quoted = useQuote(job.quote, SendJobSchema, form.job, town.overview.season)
   const payLine = jobPayLineOf(quoted?.ok === true ? quoted.value : undefined)
   const refused = job.sendRefused?.subject === sentKey ? job.sendRefused : undefined
   const enter = (field: keyof JobEntries, entry: string): void =>

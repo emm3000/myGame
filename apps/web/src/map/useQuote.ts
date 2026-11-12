@@ -1,27 +1,28 @@
-import { type JobQuote, type SendJob, SendJobSchema, type TownOverview } from '@mygame/contracts'
+import type { TownOverview } from '@mygame/contracts'
 import { useEffect, useState } from 'react'
+import type { ZodType } from 'zod'
 import type { ApiOutcome } from '../api/apiClient'
-import type { TownJob } from './useJob'
 
 const unreachableRetryMs = 5000
 
-interface AnsweredQuote {
+interface AnsweredQuote<Answer> {
   readonly asked: string
   readonly seasonEndsAt: string | undefined
-  readonly outcome: ApiOutcome<JobQuote>
+  readonly outcome: ApiOutcome<Answer>
 }
 
-const isUnreachable = (outcome: ApiOutcome<JobQuote>): boolean =>
+const isUnreachable = <Answer>(outcome: ApiOutcome<Answer>): boolean =>
   !outcome.ok && outcome.refusal === 'Unexpected'
 
-export function useJobQuote(
-  quote: TownJob['quote'],
-  job: SendJob | undefined,
+export function useQuote<Asked, Answer>(
+  quote: (asked: Asked) => Promise<ApiOutcome<Answer>>,
+  schema: ZodType<Asked>,
+  request: Asked | undefined,
   season: TownOverview['season'],
-): ApiOutcome<JobQuote> | undefined {
-  const asked = job === undefined ? undefined : JSON.stringify(job)
+): ApiOutcome<Answer> | undefined {
+  const asked = request === undefined ? undefined : JSON.stringify(request)
   const seasonEndsAt = season?.endsAt
-  const [answered, setAnswered] = useState<AnsweredQuote>()
+  const [answered, setAnswered] = useState<AnsweredQuote<Answer>>()
 
   useEffect(() => {
     if (asked === undefined) {
@@ -30,7 +31,7 @@ export function useJobQuote(
     let isAskedStill = true
     let retry: ReturnType<typeof setTimeout> | undefined
     const ask = (): void => {
-      void quote(SendJobSchema.parse(JSON.parse(asked))).then((outcome) => {
+      void quote(schema.parse(JSON.parse(asked))).then((outcome) => {
         if (!isAskedStill) {
           return
         }
@@ -45,7 +46,7 @@ export function useJobQuote(
       isAskedStill = false
       clearTimeout(retry)
     }
-  }, [asked, seasonEndsAt, quote])
+  }, [asked, seasonEndsAt, quote, schema])
 
   const isCurrent = answered?.asked === asked && answered?.seasonEndsAt === seasonEndsAt
   return isCurrent ? answered?.outcome : undefined
