@@ -1,3 +1,4 @@
+import { lemmaWordsOf } from '@mygame/domain'
 import { bandOfRank } from '../adapters/json/bandOfRank'
 import type { LessonOfFiles, LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
@@ -5,7 +6,6 @@ import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { isUnit } from './isUnit'
 import { isUnitLesson } from './isUnitLesson'
-import { lemmaWordsOf } from './lemmaWordsOf'
 
 const windowSize = 30
 

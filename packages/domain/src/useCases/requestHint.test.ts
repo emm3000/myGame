@@ -44,8 +44,7 @@ const unitLesson: Lesson = {
       id: 'give-up',
       acceptedForms: ['give up'],
       gloss: 'rendirse',
-      frame: 'She will not give up.',
-      gappedFrame: 'She will not ____ ____.',
+      frames: [{ frame: 'She will not give up.', gappedFrame: 'She will not ____ ____.' }],
     },
   ],
 }

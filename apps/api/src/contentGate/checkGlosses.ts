@@ -1,8 +1,8 @@
+import { lemmaWordsOf } from '@mygame/domain'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { isUnit } from './isUnit'
-import { lemmaWordsOf } from './lemmaWordsOf'
 import { tokensOf } from './tokensOf'
 
 const glossFailures = ({ lessons }: GateContent): ReadonlyArray<string> =>

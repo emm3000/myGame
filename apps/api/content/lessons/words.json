@@ -3,8 +3,7 @@
     "id": "lesson-1-1",
     "lemma": "home",
     "partOfSpeech": "noun",
-    "frame": "This is my home.",
-    "gappedFrame": "This is my ____.",
+    "frames": [{ "frame": "This is my home.", "gappedFrame": "This is my ____." }],
     "gloss": { "es": "hogar" },
     "definition": "the place where you live"
   },
@@ -12,8 +11,7 @@
     "id": "lesson-1-2",
     "lemma": "school",
     "partOfSpeech": "noun",
-    "frame": "We are at school.",
-    "gappedFrame": "We are at ____.",
+    "frames": [{ "frame": "We are at school.", "gappedFrame": "We are at ____." }],
     "gloss": { "es": "escuela" },
     "definition": "a place where children go to learn"
   },
@@ -21,8 +19,7 @@
     "id": "lesson-1-3",
     "lemma": "work",
     "partOfSpeech": "verb",
-    "frame": "They work for us.",
-    "gappedFrame": "They ____ for us.",
+    "frames": [{ "frame": "They work for us.", "gappedFrame": "They ____ for us." }],
     "gloss": { "es": "trabajar" },
     "definition": "to do a job for money"
   },
@@ -30,8 +27,7 @@
     "id": "lesson-1-4",
     "lemma": "money",
     "partOfSpeech": "noun",
-    "frame": "I do not have much money.",
-    "gappedFrame": "I do not have much ____.",
+    "frames": [{ "frame": "I do not have much money.", "gappedFrame": "I do not have much ____." }],
     "gloss": { "es": "dinero" },
     "definition": "what you pay with when you buy things"
   },
@@ -39,8 +35,7 @@
     "id": "lesson-1-5",
     "lemma": "food",
     "partOfSpeech": "noun",
-    "frame": "We have food for you.",
-    "gappedFrame": "We have ____ for you.",
+    "frames": [{ "frame": "We have food for you.", "gappedFrame": "We have ____ for you." }],
     "gloss": { "es": "comida" },
     "definition": "what people and animals eat"
   },
@@ -48,8 +43,9 @@
     "id": "word-1",
     "lemma": "town",
     "partOfSpeech": "noun",
-    "frame": "We have a school in our town.",
-    "gappedFrame": "We have a school in our ____.",
+    "frames": [
+      { "frame": "We have a school in our town.", "gappedFrame": "We have a school in our ____." }
+    ],
     "gloss": { "es": "pueblo" },
     "definition": "a place where people live that is smaller than a city"
   },
@@ -57,8 +53,9 @@
     "id": "word-2",
     "lemma": "people",
     "partOfSpeech": "noun",
-    "frame": "Many people work at the school.",
-    "gappedFrame": "Many ____ work at the school.",
+    "frames": [
+      { "frame": "Many people work at the school.", "gappedFrame": "Many ____ work at the school." }
+    ],
     "gloss": { "es": "gente" },
     "definition": "men, women and children"
   },
@@ -66,8 +63,7 @@
     "id": "word-3",
     "lemma": "need",
     "partOfSpeech": "verb",
-    "frame": "We need more food.",
-    "gappedFrame": "We ____ more food.",
+    "frames": [{ "frame": "We need more food.", "gappedFrame": "We ____ more food." }],
     "gloss": { "es": "necesitar" },
     "definition": "to want something that you must have"
   },
@@ -75,8 +71,7 @@
     "id": "word-4",
     "lemma": "go",
     "partOfSpeech": "verb",
-    "frame": "Do you go to school?",
-    "gappedFrame": "Do you ____ to school?",
+    "frames": [{ "frame": "Do you go to school?", "gappedFrame": "Do you ____ to school?" }],
     "gloss": { "es": "ir" },
     "definition": "to move from one place to another"
   },
@@ -84,8 +79,7 @@
     "id": "word-5",
     "lemma": "name",
     "partOfSpeech": "noun",
-    "frame": "What is your name?",
-    "gappedFrame": "What is your ____?",
+    "frames": [{ "frame": "What is your name?", "gappedFrame": "What is your ____?" }],
     "gloss": { "es": "nombre" },
     "definition": "the word that you call a person or thing"
   },
@@ -93,8 +87,9 @@
     "id": "word-6",
     "lemma": "job",
     "partOfSpeech": "noun",
-    "frame": "I have a job at the school.",
-    "gappedFrame": "I have a ____ at the school.",
+    "frames": [
+      { "frame": "I have a job at the school.", "gappedFrame": "I have a ____ at the school." }
+    ],
     "gloss": { "es": "trabajo" },
     "definition": "the work that you do to get money"
   },
@@ -102,8 +97,12 @@
     "id": "word-7",
     "lemma": "pay",
     "partOfSpeech": "noun",
-    "frame": "The pay for this work is food.",
-    "gappedFrame": "The ____ for this work is food.",
+    "frames": [
+      {
+        "frame": "The pay for this work is food.",
+        "gappedFrame": "The ____ for this work is food."
+      }
+    ],
     "gloss": { "es": "pago" },
     "definition": "what you get for your work"
   },
@@ -111,8 +110,7 @@
     "id": "word-8",
     "lemma": "day",
     "partOfSpeech": "noun",
-    "frame": "We work all day.",
-    "gappedFrame": "We work all ____.",
+    "frames": [{ "frame": "We work all day.", "gappedFrame": "We work all ____." }],
     "gloss": { "es": "día" },
     "definition": "the time from one morning to the next"
   },
@@ -120,8 +118,9 @@
     "id": "word-9",
     "lemma": "spring",
     "partOfSpeech": "noun",
-    "frame": "People need work in the spring.",
-    "gappedFrame": "People need work in the ____.",
+    "frames": [
+      { "frame": "People need work in the spring.", "gappedFrame": "People need work in the ____." }
+    ],
     "gloss": { "es": "primavera" },
     "definition": "the time of year when plants start to grow again"
   },
@@ -129,8 +128,7 @@
     "id": "word-10",
     "lemma": "full",
     "partOfSpeech": "adjective",
-    "frame": "The school is full.",
-    "gappedFrame": "The school is ____.",
+    "frames": [{ "frame": "The school is full.", "gappedFrame": "The school is ____." }],
     "gloss": { "es": "lleno" },
     "definition": "with no more room for anything"
   },
@@ -138,8 +136,9 @@
     "id": "word-11",
     "lemma": "farm",
     "partOfSpeech": "noun",
-    "frame": "We have food from the farm.",
-    "gappedFrame": "We have food from the ____.",
+    "frames": [
+      { "frame": "We have food from the farm.", "gappedFrame": "We have food from the ____." }
+    ],
     "gloss": { "es": "granja" },
     "definition": "land where people grow food or keep animals"
   },
@@ -147,8 +146,12 @@
     "id": "word-12",
     "lemma": "summer",
     "partOfSpeech": "noun",
-    "frame": "We have no school in the summer.",
-    "gappedFrame": "We have no school in the ____.",
+    "frames": [
+      {
+        "frame": "We have no school in the summer.",
+        "gappedFrame": "We have no school in the ____."
+      }
+    ],
     "gloss": { "es": "verano" },
     "definition": "the hottest time of the year"
   },
@@ -156,8 +159,7 @@
     "id": "word-13",
     "lemma": "come",
     "partOfSpeech": "verb",
-    "frame": "Come to my home.",
-    "gappedFrame": "____ to my home.",
+    "frames": [{ "frame": "Come to my home.", "gappedFrame": "____ to my home." }],
     "gloss": { "es": "venir" },
     "definition": "to move toward the person who is speaking"
   },
@@ -165,8 +167,9 @@
     "id": "word-14",
     "lemma": "worker",
     "partOfSpeech": "noun",
-    "frame": "She is a worker at the school.",
-    "gappedFrame": "She is a ____ at the school.",
+    "frames": [
+      { "frame": "She is a worker at the school.", "gappedFrame": "She is a ____ at the school." }
+    ],
     "gloss": { "es": "trabajador" },
     "definition": "a person who works for someone else"
   },
@@ -174,8 +177,7 @@
     "id": "word-15",
     "lemma": "now",
     "partOfSpeech": "adverb",
-    "frame": "I need food now.",
-    "gappedFrame": "I need food ____.",
+    "frames": [{ "frame": "I need food now.", "gappedFrame": "I need food ____." }],
     "gloss": { "es": "ahora" },
     "definition": "at this time"
   },
@@ -183,8 +185,12 @@
     "id": "word-16",
     "lemma": "build",
     "partOfSpeech": "verb",
-    "frame": "They will build homes for the people.",
-    "gappedFrame": "They will ____ homes for the people.",
+    "frames": [
+      {
+        "frame": "They will build homes for the people.",
+        "gappedFrame": "They will ____ homes for the people."
+      }
+    ],
     "gloss": { "es": "construir" },
     "definition": "to make a house or other place by putting parts together"
   },
@@ -192,8 +198,9 @@
     "id": "word-17",
     "lemma": "material",
     "partOfSpeech": "noun",
-    "frame": "We need material for our homes.",
-    "gappedFrame": "We need ____ for our homes.",
+    "frames": [
+      { "frame": "We need material for our homes.", "gappedFrame": "We need ____ for our homes." }
+    ],
     "gloss": { "es": "material" },
     "definition": "what you use to make or build something"
   },
@@ -201,8 +208,9 @@
     "id": "word-18",
     "lemma": "cost",
     "partOfSpeech": "noun",
-    "frame": "What is the cost of a home?",
-    "gappedFrame": "What is the ____ of a home?",
+    "frames": [
+      { "frame": "What is the cost of a home?", "gappedFrame": "What is the ____ of a home?" }
+    ],
     "gloss": { "es": "costo" },
     "definition": "the money you must pay for something"
   },
@@ -210,8 +218,7 @@
     "id": "word-19",
     "lemma": "wait",
     "partOfSpeech": "verb",
-    "frame": "Wait for me at the farm.",
-    "gappedFrame": "____ for me at the farm.",
+    "frames": [{ "frame": "Wait for me at the farm.", "gappedFrame": "____ for me at the farm." }],
     "gloss": { "es": "esperar" },
     "definition": "to stay in one place until something happens"
   },
@@ -219,8 +226,7 @@
     "id": "word-20",
     "lemma": "year",
     "partOfSpeech": "noun",
-    "frame": "I go to school all year.",
-    "gappedFrame": "I go to school all ____.",
+    "frames": [{ "frame": "I go to school all year.", "gappedFrame": "I go to school all ____." }],
     "gloss": { "es": "año" },
     "definition": "the time it takes for summer to come again"
   },
@@ -228,8 +234,12 @@
     "id": "word-21",
     "lemma": "city",
     "partOfSpeech": "noun",
-    "frame": "Many people go to the city for work.",
-    "gappedFrame": "Many people go to the ____ for work.",
+    "frames": [
+      {
+        "frame": "Many people go to the city for work.",
+        "gappedFrame": "Many people go to the ____ for work."
+      }
+    ],
     "gloss": { "es": "ciudad" },
     "definition": "a large and important town"
   },
@@ -237,8 +247,12 @@
     "id": "word-22",
     "lemma": "news",
     "partOfSpeech": "noun",
-    "frame": "Do you have any news from town?",
-    "gappedFrame": "Do you have any ____ from town?",
+    "frames": [
+      {
+        "frame": "Do you have any news from town?",
+        "gappedFrame": "Do you have any ____ from town?"
+      }
+    ],
     "gloss": { "es": "noticias" },
     "definition": "new information about something that has just happened"
   },
@@ -246,8 +260,7 @@
     "id": "word-23",
     "lemma": "read",
     "partOfSpeech": "verb",
-    "frame": "Do you read at home?",
-    "gappedFrame": "Do you ____ at home?",
+    "frames": [{ "frame": "Do you read at home?", "gappedFrame": "Do you ____ at home?" }],
     "gloss": { "es": "leer" },
     "definition": "to look at words and understand them"
   },
@@ -255,8 +268,9 @@
     "id": "word-24",
     "lemma": "fall",
     "partOfSpeech": "noun",
-    "frame": "We have more food in the fall.",
-    "gappedFrame": "We have more food in the ____.",
+    "frames": [
+      { "frame": "We have more food in the fall.", "gappedFrame": "We have more food in the ____." }
+    ],
     "gloss": { "es": "otoño" },
     "definition": "the time of year after summer"
   },
@@ -264,8 +278,9 @@
     "id": "word-25",
     "lemma": "hour",
     "partOfSpeech": "noun",
-    "frame": "I work for an hour a day.",
-    "gappedFrame": "I work for an ____ a day.",
+    "frames": [
+      { "frame": "I work for an hour a day.", "gappedFrame": "I work for an ____ a day." }
+    ],
     "gloss": { "es": "hora" },
     "definition": "a period of time that is longer than a minute and shorter than a day"
   },
@@ -273,8 +288,7 @@
     "id": "word-26",
     "lemma": "power",
     "partOfSpeech": "noun",
-    "frame": "We have no power at home.",
-    "gappedFrame": "We have no ____ at home.",
+    "frames": [{ "frame": "We have no power at home.", "gappedFrame": "We have no ____ at home." }],
     "gloss": { "es": "energía" },
     "definition": "energy that is used to make machines work"
   },
@@ -282,8 +296,7 @@
     "id": "word-27",
     "lemma": "start",
     "partOfSpeech": "verb",
-    "frame": "When do you start work?",
-    "gappedFrame": "When do you ____ work?",
+    "frames": [{ "frame": "When do you start work?", "gappedFrame": "When do you ____ work?" }],
     "gloss": { "es": "empezar" },
     "definition": "to begin to do something"
   },
@@ -291,8 +304,7 @@
     "id": "word-28",
     "lemma": "team",
     "partOfSpeech": "noun",
-    "frame": "We are a team.",
-    "gappedFrame": "We are a ____.",
+    "frames": [{ "frame": "We are a team.", "gappedFrame": "We are a ____." }],
     "gloss": { "es": "equipo" },
     "definition": "a group of people who work together"
   },
@@ -300,8 +312,12 @@
     "id": "word-29",
     "lemma": "map",
     "partOfSpeech": "noun",
-    "frame": "Do you have a map of the city?",
-    "gappedFrame": "Do you have a ____ of the city?",
+    "frames": [
+      {
+        "frame": "Do you have a map of the city?",
+        "gappedFrame": "Do you have a ____ of the city?"
+      }
+    ],
     "gloss": { "es": "mapa" },
     "definition": "a drawing of a place that shows where things are"
   },
@@ -309,8 +325,7 @@
     "id": "word-30",
     "lemma": "today",
     "partOfSpeech": "adverb",
-    "frame": "We have no school today.",
-    "gappedFrame": "We have no school ____.",
+    "frames": [{ "frame": "We have no school today.", "gappedFrame": "We have no school ____." }],
     "gloss": { "es": "hoy" },
     "definition": "on this day"
   },
@@ -318,8 +333,12 @@
     "id": "word-31",
     "lemma": "office",
     "partOfSpeech": "noun",
-    "frame": "She works at an office in the city.",
-    "gappedFrame": "She works at an ____ in the city.",
+    "frames": [
+      {
+        "frame": "She works at an office in the city.",
+        "gappedFrame": "She works at an ____ in the city."
+      }
+    ],
     "gloss": { "es": "oficina" },
     "definition": "a room or building where people do their work"
   },
@@ -327,8 +346,12 @@
     "id": "word-32",
     "lemma": "hire",
     "partOfSpeech": "verb",
-    "frame": "The farm will hire more people.",
-    "gappedFrame": "The farm will ____ more people.",
+    "frames": [
+      {
+        "frame": "The farm will hire more people.",
+        "gappedFrame": "The farm will ____ more people."
+      }
+    ],
     "gloss": { "es": "contratar" },
     "definition": "to pay someone to work for you"
   },
@@ -336,8 +359,7 @@
     "id": "word-33",
     "lemma": "list",
     "partOfSpeech": "noun",
-    "frame": "Is my name on the list?",
-    "gappedFrame": "Is my name on the ____?",
+    "frames": [{ "frame": "Is my name on the list?", "gappedFrame": "Is my name on the ____?" }],
     "gloss": { "es": "lista" },
     "definition": "a number of names or things written one after another"
   },
@@ -345,8 +367,9 @@
     "id": "word-34",
     "lemma": "mayor",
     "partOfSpeech": "noun",
-    "frame": "She is the mayor of our city.",
-    "gappedFrame": "She is the ____ of our city.",
+    "frames": [
+      { "frame": "She is the mayor of our city.", "gappedFrame": "She is the ____ of our city." }
+    ],
     "gloss": { "es": "alcalde o alcaldesa" },
     "definition": "the person who leads a town or city"
   },
@@ -354,8 +377,9 @@
     "id": "word-35",
     "lemma": "winter",
     "partOfSpeech": "noun",
-    "frame": "The farm has no work in winter.",
-    "gappedFrame": "The farm has no work in ____.",
+    "frames": [
+      { "frame": "The farm has no work in winter.", "gappedFrame": "The farm has no work in ____." }
+    ],
     "gloss": { "es": "invierno" },
     "definition": "the coldest time of the year"
   },
@@ -363,8 +387,9 @@
     "id": "word-36",
     "lemma": "lesson",
     "partOfSpeech": "noun",
-    "frame": "This lesson is about money.",
-    "gappedFrame": "This ____ is about money.",
+    "frames": [
+      { "frame": "This lesson is about money.", "gappedFrame": "This ____ is about money." }
+    ],
     "gloss": { "es": "lección" },
     "definition": "a time when someone teaches you something"
   },
@@ -372,8 +397,9 @@
     "id": "word-37",
     "lemma": "earn",
     "partOfSpeech": "verb",
-    "frame": "I earn money at the farm.",
-    "gappedFrame": "I ____ money at the farm.",
+    "frames": [
+      { "frame": "I earn money at the farm.", "gappedFrame": "I ____ money at the farm." }
+    ],
     "gloss": { "es": "ganar" },
     "definition": "to get money for the work you do"
   },
@@ -381,8 +407,7 @@
     "id": "word-38",
     "lemma": "river",
     "partOfSpeech": "noun",
-    "frame": "Our town is on a river.",
-    "gappedFrame": "Our town is on a ____.",
+    "frames": [{ "frame": "Our town is on a river.", "gappedFrame": "Our town is on a ____." }],
     "gloss": { "es": "río" },
     "definition": "water that moves across the land to the sea"
   },
@@ -390,8 +415,7 @@
     "id": "word-39",
     "lemma": "ready",
     "partOfSpeech": "adjective",
-    "frame": "Is the food ready?",
-    "gappedFrame": "Is the food ____?",
+    "frames": [{ "frame": "Is the food ready?", "gappedFrame": "Is the food ____?" }],
     "gloss": { "es": "listo" },
     "definition": "done and able to be used now"
   },
@@ -399,8 +423,9 @@
     "id": "word-40",
     "lemma": "station",
     "partOfSpeech": "noun",
-    "frame": "She works at the power station.",
-    "gappedFrame": "She works at the power ____.",
+    "frames": [
+      { "frame": "She works at the power station.", "gappedFrame": "She works at the power ____." }
+    ],
     "gloss": { "es": "estación" },
     "definition": "a building with machines that make power"
   },
@@ -408,8 +433,12 @@
     "id": "word-41",
     "lemma": "clean",
     "partOfSpeech": "verb",
-    "frame": "We clean the school after work.",
-    "gappedFrame": "We ____ the school after work.",
+    "frames": [
+      {
+        "frame": "We clean the school after work.",
+        "gappedFrame": "We ____ the school after work."
+      }
+    ],
     "gloss": { "es": "limpiar" },
     "definition": "to make something look nice again, often with water"
   },
@@ -417,8 +446,12 @@
     "id": "word-42",
     "lemma": "waste",
     "partOfSpeech": "noun",
-    "frame": "What do you do with your food waste?",
-    "gappedFrame": "What do you do with your food ____?",
+    "frames": [
+      {
+        "frame": "What do you do with your food waste?",
+        "gappedFrame": "What do you do with your food ____?"
+      }
+    ],
     "gloss": { "es": "residuos" },
     "definition": "things that people throw away because they no longer want them"
   },
@@ -426,8 +459,7 @@
     "id": "word-43",
     "lemma": "truck",
     "partOfSpeech": "noun",
-    "frame": "We go to work in a truck.",
-    "gappedFrame": "We go to work in a ____.",
+    "frames": [{ "frame": "We go to work in a truck.", "gappedFrame": "We go to work in a ____." }],
     "gloss": { "es": "camión" },
     "definition": "a large car that carries things on roads"
   },
@@ -435,8 +467,7 @@
     "id": "word-44",
     "lemma": "level",
     "partOfSpeech": "noun",
-    "frame": "What level is your team?",
-    "gappedFrame": "What ____ is your team?",
+    "frames": [{ "frame": "What level is your team?", "gappedFrame": "What ____ is your team?" }],
     "gloss": { "es": "nivel" },
     "definition": "a step that shows how big or how good something is"
   },
@@ -444,8 +475,9 @@
     "id": "word-45",
     "lemma": "tomorrow",
     "partOfSpeech": "adverb",
-    "frame": "The mayor will come tomorrow.",
-    "gappedFrame": "The mayor will come ____.",
+    "frames": [
+      { "frame": "The mayor will come tomorrow.", "gappedFrame": "The mayor will come ____." }
+    ],
     "gloss": { "es": "mañana" },
     "definition": "the day after today"
   },
@@ -453,8 +485,9 @@
     "id": "word-46",
     "lemma": "region",
     "partOfSpeech": "noun",
-    "frame": "This region has many farms.",
-    "gappedFrame": "This ____ has many farms.",
+    "frames": [
+      { "frame": "This region has many farms.", "gappedFrame": "This ____ has many farms." }
+    ],
     "gloss": { "es": "región" },
     "definition": "a large area of a country"
   },
@@ -462,8 +495,12 @@
     "id": "word-47",
     "lemma": "field",
     "partOfSpeech": "noun",
-    "frame": "People work in the field all day.",
-    "gappedFrame": "People work in the ____ all day.",
+    "frames": [
+      {
+        "frame": "People work in the field all day.",
+        "gappedFrame": "People work in the ____ all day."
+      }
+    ],
     "gloss": { "es": "campo" },
     "definition": "an open area of land, often used to grow food"
   },
@@ -471,8 +508,9 @@
     "id": "word-48",
     "lemma": "way",
     "partOfSpeech": "noun",
-    "frame": "Is this the way to the river?",
-    "gappedFrame": "Is this the ____ to the river?",
+    "frames": [
+      { "frame": "Is this the way to the river?", "gappedFrame": "Is this the ____ to the river?" }
+    ],
     "gloss": { "es": "camino" },
     "definition": "the road you take to get to a place"
   },
@@ -480,8 +518,9 @@
     "id": "word-49",
     "lemma": "back",
     "partOfSpeech": "adverb",
-    "frame": "She is back from the city.",
-    "gappedFrame": "She is ____ from the city.",
+    "frames": [
+      { "frame": "She is back from the city.", "gappedFrame": "She is ____ from the city." }
+    ],
     "gloss": { "es": "de vuelta" },
     "definition": "to the place where you were before"
   },
@@ -489,8 +528,7 @@
     "id": "word-50",
     "lemma": "stop",
     "partOfSpeech": "verb",
-    "frame": "When do you stop work?",
-    "gappedFrame": "When do you ____ work?",
+    "frames": [{ "frame": "When do you stop work?", "gappedFrame": "When do you ____ work?" }],
     "gloss": { "es": "parar" },
     "definition": "to not do something any more"
   },
@@ -498,8 +536,9 @@
     "id": "word-51",
     "lemma": "study",
     "partOfSpeech": "verb",
-    "frame": "I study at home after school.",
-    "gappedFrame": "I ____ at home after school.",
+    "frames": [
+      { "frame": "I study at home after school.", "gappedFrame": "I ____ at home after school." }
+    ],
     "gloss": { "es": "estudiar" },
     "definition": "to spend time learning about something"
   },
@@ -507,8 +546,7 @@
     "id": "word-52",
     "lemma": "word",
     "partOfSpeech": "noun",
-    "frame": "What is this word?",
-    "gappedFrame": "What is this ____?",
+    "frames": [{ "frame": "What is this word?", "gappedFrame": "What is this ____?" }],
     "gloss": { "es": "palabra" },
     "definition": "a group of letters that has a meaning"
   },
@@ -516,8 +554,7 @@
     "id": "word-53",
     "lemma": "top",
     "partOfSpeech": "adjective",
-    "frame": "This is the top level.",
-    "gappedFrame": "This is the ____ level.",
+    "frames": [{ "frame": "This is the top level.", "gappedFrame": "This is the ____ level." }],
     "gloss": { "es": "máximo" },
     "definition": "highest; above all the others"
   },
@@ -525,8 +562,9 @@
     "id": "word-54",
     "lemma": "send",
     "partOfSpeech": "verb",
-    "frame": "Send the truck to the farm.",
-    "gappedFrame": "____ the truck to the farm.",
+    "frames": [
+      { "frame": "Send the truck to the farm.", "gappedFrame": "____ the truck to the farm." }
+    ],
     "gloss": { "es": "enviar" },
     "definition": "to make something go to another place"
   },
@@ -534,8 +572,7 @@
     "id": "word-55",
     "lemma": "size",
     "partOfSpeech": "noun",
-    "frame": "What size is your home?",
-    "gappedFrame": "What ____ is your home?",
+    "frames": [{ "frame": "What size is your home?", "gappedFrame": "What ____ is your home?" }],
     "gloss": { "es": "tamaño" },
     "definition": "how big or small something is"
   },
@@ -543,8 +580,12 @@
     "id": "word-56",
     "lemma": "goal",
     "partOfSpeech": "noun",
-    "frame": "My goal is to work at the office.",
-    "gappedFrame": "My ____ is to work at the office.",
+    "frames": [
+      {
+        "frame": "My goal is to work at the office.",
+        "gappedFrame": "My ____ is to work at the office."
+      }
+    ],
     "gloss": { "es": "meta" },
     "definition": "something that you want to do in the future"
   },
@@ -552,8 +593,12 @@
     "id": "word-57",
     "lemma": "factory",
     "partOfSpeech": "noun",
-    "frame": "Many people work at the factory.",
-    "gappedFrame": "Many people work at the ____.",
+    "frames": [
+      {
+        "frame": "Many people work at the factory.",
+        "gappedFrame": "Many people work at the ____."
+      }
+    ],
     "gloss": { "es": "fábrica" },
     "definition": "a building where people use machines to make things"
   },
@@ -561,8 +606,9 @@
     "id": "word-58",
     "lemma": "learn",
     "partOfSpeech": "verb",
-    "frame": "We learn many words at school.",
-    "gappedFrame": "We ____ many words at school.",
+    "frames": [
+      { "frame": "We learn many words at school.", "gappedFrame": "We ____ many words at school." }
+    ],
     "gloss": { "es": "aprender" },
     "definition": "to come to know something new"
   },
@@ -570,8 +616,9 @@
     "id": "word-59",
     "lemma": "call",
     "partOfSpeech": "verb",
-    "frame": "Call your team to the farm.",
-    "gappedFrame": "____ your team to the farm.",
+    "frames": [
+      { "frame": "Call your team to the farm.", "gappedFrame": "____ your team to the farm." }
+    ],
     "gloss": { "es": "llamar" },
     "definition": "to ask someone to come to you"
   },
@@ -579,8 +626,9 @@
     "id": "word-60",
     "lemma": "end",
     "partOfSpeech": "verb",
-    "frame": "When does the lesson end?",
-    "gappedFrame": "When does the lesson ____?",
+    "frames": [
+      { "frame": "When does the lesson end?", "gappedFrame": "When does the lesson ____?" }
+    ],
     "gloss": { "es": "terminar" },
     "definition": "to stop; to finish"
   },
@@ -588,8 +636,12 @@
     "id": "word-61",
     "lemma": "skill",
     "partOfSpeech": "noun",
-    "frame": "She has the skill for this job.",
-    "gappedFrame": "She has the ____ for this job.",
+    "frames": [
+      {
+        "frame": "She has the skill for this job.",
+        "gappedFrame": "She has the ____ for this job."
+      }
+    ],
     "gloss": { "es": "habilidad" },
     "definition": "the ability to do something well"
   },
@@ -597,8 +649,7 @@
     "id": "word-62",
     "lemma": "hill",
     "partOfSpeech": "noun",
-    "frame": "Our home is on a hill.",
-    "gappedFrame": "Our home is on a ____.",
+    "frames": [{ "frame": "Our home is on a hill.", "gappedFrame": "Our home is on a ____." }],
     "gloss": { "es": "colina" },
     "definition": "an area of land that is higher than the land around it"
   },
@@ -606,8 +657,9 @@
     "id": "word-63",
     "lemma": "storage",
     "partOfSpeech": "noun",
-    "frame": "Our storage is full of food.",
-    "gappedFrame": "Our ____ is full of food.",
+    "frames": [
+      { "frame": "Our storage is full of food.", "gappedFrame": "Our ____ is full of food." }
+    ],
     "gloss": { "es": "almacén" },
     "definition": "a place where you keep things until you need them"
   },
@@ -615,8 +667,7 @@
     "id": "word-64",
     "lemma": "due",
     "partOfSpeech": "adjective",
-    "frame": "The pay is due today.",
-    "gappedFrame": "The pay is ____ today.",
+    "frames": [{ "frame": "The pay is due today.", "gappedFrame": "The pay is ____ today." }],
     "gloss": { "es": "pendiente" },
     "definition": "expected to be paid or done now"
   },
@@ -624,8 +675,9 @@
     "id": "word-65",
     "lemma": "try",
     "partOfSpeech": "verb",
-    "frame": "I will try to read the map.",
-    "gappedFrame": "I will ____ to read the map.",
+    "frames": [
+      { "frame": "I will try to read the map.", "gappedFrame": "I will ____ to read the map." }
+    ],
     "gloss": { "es": "intentar" },
     "definition": "to work at doing something that may be hard"
   },
@@ -633,8 +685,9 @@
     "id": "word-66",
     "lemma": "area",
     "partOfSpeech": "noun",
-    "frame": "We have no farms in this area.",
-    "gappedFrame": "We have no farms in this ____.",
+    "frames": [
+      { "frame": "We have no farms in this area.", "gappedFrame": "We have no farms in this ____." }
+    ],
     "gloss": { "es": "zona" },
     "definition": "a part of a place, town or country"
   },
@@ -642,8 +695,12 @@
     "id": "word-67",
     "lemma": "review",
     "partOfSpeech": "noun",
-    "frame": "We do a review of the lesson after school.",
-    "gappedFrame": "We do a ____ of the lesson after school.",
+    "frames": [
+      {
+        "frame": "We do a review of the lesson after school.",
+        "gappedFrame": "We do a ____ of the lesson after school."
+      }
+    ],
     "gloss": { "es": "repaso" },
     "definition": "a time when you look again at what you have learned"
   },
@@ -651,8 +708,7 @@
     "id": "word-68",
     "lemma": "next",
     "partOfSpeech": "adjective",
-    "frame": "What is the next lesson?",
-    "gappedFrame": "What is the ____ lesson?",
+    "frames": [{ "frame": "What is the next lesson?", "gappedFrame": "What is the ____ lesson?" }],
     "gloss": { "es": "siguiente" },
     "definition": "coming right after this one"
   },
@@ -660,8 +716,9 @@
     "id": "word-69",
     "lemma": "tip",
     "partOfSpeech": "noun",
-    "frame": "Do you have a tip for me?",
-    "gappedFrame": "Do you have a ____ for me?",
+    "frames": [
+      { "frame": "Do you have a tip for me?", "gappedFrame": "Do you have a ____ for me?" }
+    ],
     "gloss": { "es": "consejo" },
     "definition": "a useful idea that helps you do something"
   },
@@ -669,8 +726,7 @@
     "id": "word-70",
     "lemma": "free",
     "partOfSpeech": "adjective",
-    "frame": "Are you free today?",
-    "gappedFrame": "Are you ____ today?",
+    "frames": [{ "frame": "Are you free today?", "gappedFrame": "Are you ____ today?" }],
     "gloss": { "es": "libre" },
     "definition": "not being used; with nothing to do"
   },
@@ -678,8 +734,9 @@
     "id": "word-71",
     "lemma": "report",
     "partOfSpeech": "noun",
-    "frame": "I will read the report at home.",
-    "gappedFrame": "I will read the ____ at home.",
+    "frames": [
+      { "frame": "I will read the report at home.", "gappedFrame": "I will read the ____ at home." }
+    ],
     "gloss": { "es": "informe" },
     "definition": "a piece of writing that tells people what has happened"
   },
@@ -687,8 +744,12 @@
     "id": "word-72",
     "lemma": "site",
     "partOfSpeech": "noun",
-    "frame": "We will build a factory on this site.",
-    "gappedFrame": "We will build a factory on this ____.",
+    "frames": [
+      {
+        "frame": "We will build a factory on this site.",
+        "gappedFrame": "We will build a factory on this ____."
+      }
+    ],
     "gloss": { "es": "sitio" },
     "definition": "a place where something is, was or will be built"
   },
@@ -696,8 +757,9 @@
     "id": "word-73",
     "lemma": "previous",
     "partOfSpeech": "adjective",
-    "frame": "My previous home was on a hill.",
-    "gappedFrame": "My ____ home was on a hill.",
+    "frames": [
+      { "frame": "My previous home was on a hill.", "gappedFrame": "My ____ home was on a hill." }
+    ],
     "gloss": { "es": "anterior" },
     "definition": "coming before this one"
   },
@@ -705,8 +767,12 @@
     "id": "word-74",
     "lemma": "close",
     "partOfSpeech": "verb",
-    "frame": "We close the office at the end of the day.",
-    "gappedFrame": "We ____ the office at the end of the day.",
+    "frames": [
+      {
+        "frame": "We close the office at the end of the day.",
+        "gappedFrame": "We ____ the office at the end of the day."
+      }
+    ],
     "gloss": { "es": "cerrar" },
     "definition": "to make something stop being open"
   },
@@ -714,8 +780,7 @@
     "id": "word-75",
     "lemma": "again",
     "partOfSpeech": "adverb",
-    "frame": "Try it again.",
-    "gappedFrame": "Try it ____.",
+    "frames": [{ "frame": "Try it again.", "gappedFrame": "Try it ____." }],
     "gloss": { "es": "otra vez" },
     "definition": "one more time"
   },
@@ -723,8 +788,7 @@
     "id": "word-76",
     "lemma": "say",
     "partOfSpeech": "verb",
-    "frame": "What does the mayor say?",
-    "gappedFrame": "What does the mayor ____?",
+    "frames": [{ "frame": "What does the mayor say?", "gappedFrame": "What does the mayor ____?" }],
     "gloss": { "es": "decir" },
     "definition": "to speak words that other people can hear"
   },
@@ -732,8 +796,7 @@
     "id": "word-77",
     "lemma": "know",
     "partOfSpeech": "verb",
-    "frame": "Do you know this word?",
-    "gappedFrame": "Do you ____ this word?",
+    "frames": [{ "frame": "Do you know this word?", "gappedFrame": "Do you ____ this word?" }],
     "gloss": { "es": "saber" },
     "definition": "to have the answer in your mind"
   },
@@ -741,8 +804,7 @@
     "id": "word-78",
     "lemma": "good",
     "partOfSpeech": "adjective",
-    "frame": "The pay is good.",
-    "gappedFrame": "The pay is ____.",
+    "frames": [{ "frame": "The pay is good.", "gappedFrame": "The pay is ____." }],
     "gloss": { "es": "bueno" },
     "definition": "not bad; what you want it to be"
   },
@@ -750,8 +812,7 @@
     "id": "word-79",
     "lemma": "time",
     "partOfSpeech": "noun",
-    "frame": "I have no time today.",
-    "gappedFrame": "I have no ____ today.",
+    "frames": [{ "frame": "I have no time today.", "gappedFrame": "I have no ____ today." }],
     "gloss": { "es": "tiempo" },
     "definition": "what we measure in hours and days"
   },
@@ -759,8 +820,7 @@
     "id": "word-80",
     "lemma": "new",
     "partOfSpeech": "adjective",
-    "frame": "We have a new mayor.",
-    "gappedFrame": "We have a ____ mayor.",
+    "frames": [{ "frame": "We have a new mayor.", "gappedFrame": "We have a ____ mayor." }],
     "gloss": { "es": "nuevo" },
     "definition": "not old; here for the first time"
   },
@@ -768,8 +828,7 @@
     "id": "word-81",
     "lemma": "one",
     "partOfSpeech": "adjective",
-    "frame": "I have one job.",
-    "gappedFrame": "I have ____ job.",
+    "frames": [{ "frame": "I have one job.", "gappedFrame": "I have ____ job." }],
     "gloss": { "es": "uno" },
     "definition": "the first number"
   },
@@ -777,8 +836,9 @@
     "id": "word-82",
     "lemma": "get",
     "partOfSpeech": "verb",
-    "frame": "You get food at the school.",
-    "gappedFrame": "You ____ food at the school.",
+    "frames": [
+      { "frame": "You get food at the school.", "gappedFrame": "You ____ food at the school." }
+    ],
     "gloss": { "es": "recibir" },
     "definition": "to have something come to you"
   },
@@ -786,8 +846,9 @@
     "id": "word-83",
     "lemma": "take",
     "partOfSpeech": "verb",
-    "frame": "Take the truck to the farm.",
-    "gappedFrame": "____ the truck to the farm.",
+    "frames": [
+      { "frame": "Take the truck to the farm.", "gappedFrame": "____ the truck to the farm." }
+    ],
     "gloss": { "es": "llevar" },
     "definition": "to bring something with you to another place"
   },
@@ -795,8 +856,7 @@
     "id": "word-84",
     "lemma": "first",
     "partOfSpeech": "adjective",
-    "frame": "This is my first job.",
-    "gappedFrame": "This is my ____ job.",
+    "frames": [{ "frame": "This is my first job.", "gappedFrame": "This is my ____ job." }],
     "gloss": { "es": "primero" },
     "definition": "before all the others"
   },
@@ -804,8 +864,7 @@
     "id": "word-85",
     "lemma": "thing",
     "partOfSpeech": "noun",
-    "frame": "What is this thing?",
-    "gappedFrame": "What is this ____?",
+    "frames": [{ "frame": "What is this thing?", "gappedFrame": "What is this ____?" }],
     "gloss": { "es": "cosa" },
     "definition": "what you call something when you do not say its name"
   },
@@ -813,8 +872,7 @@
     "id": "word-86",
     "lemma": "there",
     "partOfSpeech": "adverb",
-    "frame": "The farm is over there.",
-    "gappedFrame": "The farm is over ____.",
+    "frames": [{ "frame": "The farm is over there.", "gappedFrame": "The farm is over ____." }],
     "gloss": { "es": "allí" },
     "definition": "in that place"
   },
@@ -822,8 +880,7 @@
     "id": "word-87",
     "lemma": "child",
     "partOfSpeech": "noun",
-    "frame": "Is your child at school?",
-    "gappedFrame": "Is your ____ at school?",
+    "frames": [{ "frame": "Is your child at school?", "gappedFrame": "Is your ____ at school?" }],
     "gloss": { "es": "niño o niña" },
     "definition": "a young person who is not yet a man or a woman"
   },
@@ -831,8 +888,7 @@
     "id": "word-88",
     "lemma": "look",
     "partOfSpeech": "verb",
-    "frame": "Look at the map.",
-    "gappedFrame": "____ at the map.",
+    "frames": [{ "frame": "Look at the map.", "gappedFrame": "____ at the map." }],
     "gloss": { "es": "mirar" },
     "definition": "to use your eyes to see"
   },
@@ -840,8 +896,9 @@
     "id": "word-89",
     "lemma": "use",
     "partOfSpeech": "verb",
-    "frame": "We use power at the factory.",
-    "gappedFrame": "We ____ power at the factory.",
+    "frames": [
+      { "frame": "We use power at the factory.", "gappedFrame": "We ____ power at the factory." }
+    ],
     "gloss": { "es": "usar" },
     "definition": "to have something do a job for you"
   },
@@ -849,8 +906,7 @@
     "id": "word-90",
     "lemma": "last",
     "partOfSpeech": "adjective",
-    "frame": "This is the last lesson.",
-    "gappedFrame": "This is the ____ lesson.",
+    "frames": [{ "frame": "This is the last lesson.", "gappedFrame": "This is the ____ lesson." }],
     "gloss": { "es": "último" },
     "definition": "after all the others"
   },
@@ -858,8 +914,7 @@
     "id": "word-91",
     "lemma": "like",
     "partOfSpeech": "verb",
-    "frame": "Do you like your job?",
-    "gappedFrame": "Do you ____ your job?",
+    "frames": [{ "frame": "Do you like your job?", "gappedFrame": "Do you ____ your job?" }],
     "gloss": { "es": "gustar" },
     "definition": "to think that someone or something is good"
   },
@@ -867,8 +922,7 @@
     "id": "word-92",
     "lemma": "very",
     "partOfSpeech": "adverb",
-    "frame": "The school is very full.",
-    "gappedFrame": "The school is ____ full.",
+    "frames": [{ "frame": "The school is very full.", "gappedFrame": "The school is ____ full." }],
     "gloss": { "es": "muy" },
     "definition": "more than a little"
   },
@@ -876,8 +930,12 @@
     "id": "word-93",
     "lemma": "make",
     "partOfSpeech": "verb",
-    "frame": "We make material at the factory.",
-    "gappedFrame": "We ____ material at the factory.",
+    "frames": [
+      {
+        "frame": "We make material at the factory.",
+        "gappedFrame": "We ____ material at the factory."
+      }
+    ],
     "gloss": { "es": "hacer" },
     "definition": "to build something or to get it ready"
   },
@@ -885,8 +943,7 @@
     "id": "word-94",
     "lemma": "man",
     "partOfSpeech": "noun",
-    "frame": "That man is the mayor.",
-    "gappedFrame": "That ____ is the mayor.",
+    "frames": [{ "frame": "That man is the mayor.", "gappedFrame": "That ____ is the mayor." }],
     "gloss": { "es": "hombre" },
     "definition": "a person who is not a woman or a child"
   },
@@ -894,8 +951,7 @@
     "id": "word-95",
     "lemma": "show",
     "partOfSpeech": "verb",
-    "frame": "Show me the way.",
-    "gappedFrame": "____ me the way.",
+    "frames": [{ "frame": "Show me the way.", "gappedFrame": "____ me the way." }],
     "gloss": { "es": "mostrar" },
     "definition": "to let someone see something"
   },
@@ -903,8 +959,7 @@
     "id": "word-96",
     "lemma": "think",
     "partOfSpeech": "verb",
-    "frame": "I think this is the way.",
-    "gappedFrame": "I ____ this is the way.",
+    "frames": [{ "frame": "I think this is the way.", "gappedFrame": "I ____ this is the way." }],
     "gloss": { "es": "pensar" },
     "definition": "to use your mind to have an idea"
   },
@@ -912,8 +967,9 @@
     "id": "word-97",
     "lemma": "want",
     "partOfSpeech": "verb",
-    "frame": "I want to work at the office.",
-    "gappedFrame": "I ____ to work at the office.",
+    "frames": [
+      { "frame": "I want to work at the office.", "gappedFrame": "I ____ to work at the office." }
+    ],
     "gloss": { "es": "querer" },
     "definition": "to feel that you would like to have something"
   },
@@ -921,8 +977,9 @@
     "id": "word-98",
     "lemma": "life",
     "partOfSpeech": "noun",
-    "frame": "Life in the city is good.",
-    "gappedFrame": "____ in the city is good.",
+    "frames": [
+      { "frame": "Life in the city is good.", "gappedFrame": "____ in the city is good." }
+    ],
     "gloss": { "es": "vida" },
     "definition": "all that a person does from the first day to the last"
   },
@@ -930,8 +987,12 @@
     "id": "word-99",
     "lemma": "place",
     "partOfSpeech": "noun",
-    "frame": "This is a good place for a farm.",
-    "gappedFrame": "This is a good ____ for a farm.",
+    "frames": [
+      {
+        "frame": "This is a good place for a farm.",
+        "gappedFrame": "This is a good ____ for a farm."
+      }
+    ],
     "gloss": { "es": "lugar" },
     "definition": "a part of the world where something is"
   },
@@ -939,8 +1000,7 @@
     "id": "word-100",
     "lemma": "only",
     "partOfSpeech": "adverb",
-    "frame": "We have only one job.",
-    "gappedFrame": "We have ____ one job.",
+    "frames": [{ "frame": "We have only one job.", "gappedFrame": "We have ____ one job." }],
     "gloss": { "es": "solo" },
     "definition": "not more than that"
   },
@@ -948,8 +1008,7 @@
     "id": "word-101",
     "lemma": "see",
     "partOfSpeech": "verb",
-    "frame": "Can you see the river?",
-    "gappedFrame": "Can you ____ the river?",
+    "frames": [{ "frame": "Can you see the river?", "gappedFrame": "Can you ____ the river?" }],
     "gloss": { "es": "ver" },
     "definition": "to know something with your eyes"
   },
@@ -957,8 +1016,7 @@
     "id": "word-102",
     "lemma": "find",
     "partOfSpeech": "verb",
-    "frame": "Can you find the office?",
-    "gappedFrame": "Can you ____ the office?",
+    "frames": [{ "frame": "Can you find the office?", "gappedFrame": "Can you ____ the office?" }],
     "gloss": { "es": "encontrar" },
     "definition": "to look for something and get it"
   },
@@ -966,8 +1024,7 @@
     "id": "word-103",
     "lemma": "change",
     "partOfSpeech": "verb",
-    "frame": "Can you change this word?",
-    "gappedFrame": "Can you ____ this word?",
+    "frames": [{ "frame": "Can you change this word?", "gappedFrame": "Can you ____ this word?" }],
     "gloss": { "es": "cambiar" },
     "definition": "to make something new or not the same"
   },
@@ -975,8 +1032,12 @@
     "id": "word-104",
     "lemma": "problem",
     "partOfSpeech": "noun",
-    "frame": "We have a problem at the factory.",
-    "gappedFrame": "We have a ____ at the factory.",
+    "frames": [
+      {
+        "frame": "We have a problem at the factory.",
+        "gappedFrame": "We have a ____ at the factory."
+      }
+    ],
     "gloss": { "es": "problema" },
     "definition": "something that is not right and needs work"
   },
@@ -984,8 +1045,7 @@
     "id": "word-105",
     "lemma": "right",
     "partOfSpeech": "adjective",
-    "frame": "Is this the right way?",
-    "gappedFrame": "Is this the ____ way?",
+    "frames": [{ "frame": "Is this the right way?", "gappedFrame": "Is this the ____ way?" }],
     "gloss": { "es": "correcto" },
     "definition": "good for the work; true"
   },
@@ -993,8 +1053,7 @@
     "id": "word-106",
     "lemma": "well",
     "partOfSpeech": "adverb",
-    "frame": "She works well.",
-    "gappedFrame": "She works ____.",
+    "frames": [{ "frame": "She works well.", "gappedFrame": "She works ____." }],
     "gloss": { "es": "bien" },
     "definition": "in a good way"
   },
@@ -1002,8 +1061,7 @@
     "id": "word-107",
     "lemma": "tell",
     "partOfSpeech": "verb",
-    "frame": "Tell me about your job.",
-    "gappedFrame": "____ me about your job.",
+    "frames": [{ "frame": "Tell me about your job.", "gappedFrame": "____ me about your job." }],
     "gloss": { "es": "contar" },
     "definition": "to give news or words to someone"
   },
@@ -1011,8 +1069,9 @@
     "id": "word-108",
     "lemma": "mean",
     "partOfSpeech": "verb",
-    "frame": "What does this word mean?",
-    "gappedFrame": "What does this word ____?",
+    "frames": [
+      { "frame": "What does this word mean?", "gappedFrame": "What does this word ____?" }
+    ],
     "gloss": { "es": "significar" },
     "definition": "to give the idea of a word"
   },
@@ -1020,8 +1079,9 @@
     "id": "word-109",
     "lemma": "write",
     "partOfSpeech": "verb",
-    "frame": "Write your name on the list.",
-    "gappedFrame": "____ your name on the list.",
+    "frames": [
+      { "frame": "Write your name on the list.", "gappedFrame": "____ your name on the list." }
+    ],
     "gloss": { "es": "escribir" },
     "definition": "to put words on paper"
   },
@@ -1029,8 +1089,7 @@
     "id": "word-110",
     "lemma": "same",
     "partOfSpeech": "adjective",
-    "frame": "We have the same job.",
-    "gappedFrame": "We have the ____ job.",
+    "frames": [{ "frame": "We have the same job.", "gappedFrame": "We have the ____ job." }],
     "gloss": { "es": "mismo" },
     "definition": "not different"
   },
@@ -1038,8 +1097,9 @@
     "id": "word-111",
     "lemma": "just",
     "partOfSpeech": "adverb",
-    "frame": "I just got home from work.",
-    "gappedFrame": "I ____ got home from work.",
+    "frames": [
+      { "frame": "I just got home from work.", "gappedFrame": "I ____ got home from work." }
+    ],
     "gloss": { "es": "acabar de" },
     "definition": "a short time ago"
   },
@@ -1047,8 +1107,9 @@
     "id": "word-112",
     "lemma": "how",
     "partOfSpeech": "adverb",
-    "frame": "How do you get to the farm?",
-    "gappedFrame": "____ do you get to the farm?",
+    "frames": [
+      { "frame": "How do you get to the farm?", "gappedFrame": "____ do you get to the farm?" }
+    ],
     "gloss": { "es": "cómo" },
     "definition": "in what way"
   },
@@ -1056,8 +1117,7 @@
     "id": "word-113",
     "lemma": "here",
     "partOfSpeech": "adverb",
-    "frame": "Is the mayor here today?",
-    "gappedFrame": "Is the mayor ____ today?",
+    "frames": [{ "frame": "Is the mayor here today?", "gappedFrame": "Is the mayor ____ today?" }],
     "gloss": { "es": "aquí" },
     "definition": "in this place"
   },
@@ -1065,8 +1125,7 @@
     "id": "word-114",
     "lemma": "long",
     "partOfSpeech": "adjective",
-    "frame": "The day is long.",
-    "gappedFrame": "The day is ____.",
+    "frames": [{ "frame": "The day is long.", "gappedFrame": "The day is ____." }],
     "gloss": { "es": "largo" },
     "definition": "with much time from the start to the end"
   },
@@ -1074,8 +1133,7 @@
     "id": "word-115",
     "lemma": "lot",
     "partOfSpeech": "noun",
-    "frame": "We have a lot of food.",
-    "gappedFrame": "We have a ____ of food.",
+    "frames": [{ "frame": "We have a lot of food.", "gappedFrame": "We have a ____ of food." }],
     "gloss": { "es": "montón" },
     "definition": "a large number or amount"
   },
@@ -1083,8 +1141,12 @@
     "id": "word-116",
     "lemma": "then",
     "partOfSpeech": "adverb",
-    "frame": "Come to the office, then go home.",
-    "gappedFrame": "Come to the office, ____ go home.",
+    "frames": [
+      {
+        "frame": "Come to the office, then go home.",
+        "gappedFrame": "Come to the office, ____ go home."
+      }
+    ],
     "gloss": { "es": "luego" },
     "definition": "after that"
   },
@@ -1092,8 +1154,12 @@
     "id": "word-117",
     "lemma": "company",
     "partOfSpeech": "noun",
-    "frame": "I work for a company in the city.",
-    "gappedFrame": "I work for a ____ in the city.",
+    "frames": [
+      {
+        "frame": "I work for a company in the city.",
+        "gappedFrame": "I work for a ____ in the city."
+      }
+    ],
     "gloss": { "es": "empresa" },
     "definition": "a group of people who work to make and sell things"
   },
@@ -1101,8 +1167,9 @@
     "id": "word-118",
     "lemma": "give",
     "partOfSpeech": "verb",
-    "frame": "We give food to the people.",
-    "gappedFrame": "We ____ food to the people.",
+    "frames": [
+      { "frame": "We give food to the people.", "gappedFrame": "We ____ food to the people." }
+    ],
     "gloss": { "es": "dar" },
     "definition": "to let someone have something"
   },
@@ -1110,8 +1177,9 @@
     "id": "word-119",
     "lemma": "really",
     "partOfSpeech": "adverb",
-    "frame": "Do you really need more food?",
-    "gappedFrame": "Do you ____ need more food?",
+    "frames": [
+      { "frame": "Do you really need more food?", "gappedFrame": "Do you ____ need more food?" }
+    ],
     "gloss": { "es": "de verdad" },
     "definition": "in a true way"
   },
@@ -1119,8 +1187,7 @@
     "id": "word-120",
     "lemma": "feel",
     "partOfSpeech": "verb",
-    "frame": "I feel good today.",
-    "gappedFrame": "I ____ good today.",
+    "frames": [{ "frame": "I feel good today.", "gappedFrame": "I ____ good today." }],
     "gloss": { "es": "sentir" },
     "definition": "to know in your body or mind how you are"
   },
@@ -1128,8 +1195,7 @@
     "id": "word-121",
     "lemma": "also",
     "partOfSpeech": "adverb",
-    "frame": "I also work at the farm.",
-    "gappedFrame": "I ____ work at the farm.",
+    "frames": [{ "frame": "I also work at the farm.", "gappedFrame": "I ____ work at the farm." }],
     "gloss": { "es": "también" },
     "definition": "and more; as well"
   },
@@ -1137,8 +1203,9 @@
     "id": "word-122",
     "lemma": "even",
     "partOfSpeech": "adverb",
-    "frame": "Even the mayor works here.",
-    "gappedFrame": "____ the mayor works here.",
+    "frames": [
+      { "frame": "Even the mayor works here.", "gappedFrame": "____ the mayor works here." }
+    ],
     "gloss": { "es": "incluso" },
     "definition": "a word that adds more than you expect"
   },
@@ -1146,8 +1213,9 @@
     "id": "word-123",
     "lemma": "before",
     "partOfSpeech": "adverb",
-    "frame": "Have you been here before?",
-    "gappedFrame": "Have you been here ____?",
+    "frames": [
+      { "frame": "Have you been here before?", "gappedFrame": "Have you been here ____?" }
+    ],
     "gloss": { "es": "antes" },
     "definition": "some time ago"
   },
@@ -1155,8 +1223,7 @@
     "id": "word-124",
     "lemma": "too",
     "partOfSpeech": "adverb",
-    "frame": "The school is too full.",
-    "gappedFrame": "The school is ____ full.",
+    "frames": [{ "frame": "The school is too full.", "gappedFrame": "The school is ____ full." }],
     "gloss": { "es": "demasiado" },
     "definition": "more than you need or want"
   },
@@ -1164,8 +1231,7 @@
     "id": "word-125",
     "lemma": "still",
     "partOfSpeech": "adverb",
-    "frame": "Is the school still full?",
-    "gappedFrame": "Is the school ____ full?",
+    "frames": [{ "frame": "Is the school still full?", "gappedFrame": "Is the school ____ full?" }],
     "gloss": { "es": "todavía" },
     "definition": "up to now and not changed"
   }

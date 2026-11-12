@@ -1,8 +1,8 @@
+import { lemmaWordsOf } from '@mygame/domain'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
 import { isUnit } from './isUnit'
-import { lemmaWordsOf } from './lemmaWordsOf'
 import { repeated } from './repeated'
 
 const frameWordRankLimit = 100

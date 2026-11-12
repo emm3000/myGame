@@ -12,6 +12,7 @@ import { honoPathOf } from '../http/honoPath'
 import { type RequirePlayerDependencies, requirePlayer } from '../http/requirePlayer'
 import { answerReviewOf } from '../learning/answerReviewOf'
 import type { LearningDependencies } from '../learning/LearningDependencies'
+import { learnerOf } from '../learning/learnerOf'
 import { requestHintOf } from '../learning/requestHintOf'
 import { reviewsOf } from '../learning/reviewsOf'
 import { reviewVerdictOf } from '../learning/reviewVerdictOf'
@@ -34,9 +35,9 @@ export const learningRoutes = (dependencies: LearningRouteDependencies): OpenAPI
       const playerId = c.var.playerId
       const reviews = await mutateTown(
         playerId,
-        async ({ cards }, clock) => {
-          const held = await cards.cardsOf(playerId)
-          return held.ok ? reviewsOf(held.value, clock.now(), dependencies) : held
+        async (stores, clock) => {
+          const learner = await learnerOf(playerId, stores)
+          return learner.ok ? reviewsOf(learner.value, clock.now(), dependencies) : learner
         },
         dependencies,
       )

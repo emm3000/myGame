@@ -3,9 +3,11 @@ import { MemoryCard } from '../memory/MemoryCard'
 import { defaultMemoryTerms } from '../memory/MemoryTerms'
 import { reviewMemoryCard } from '../memory/reviewMemoryCard'
 import { lessonOne } from '../testing/lessonOne'
+import { unitLessonOne } from '../testing/unitLessonOne'
 import { Instant } from '../time/Instant'
 import type { HeldCard } from './HeldCard'
 import type { Lesson } from './Lesson'
+import { lessonCardsEnteredAt } from './lessonCardsEnteredAt'
 import { recognitionChoicesOf } from './recognitionChoicesOf'
 
 const lessonFinish = Instant.fromEpochMilliseconds(1_794_301_200_000)
@@ -18,8 +20,7 @@ const lessonOfEightWords: Lesson = {
     id,
     acceptedForms: [id],
     gloss: id,
-    frame: id,
-    gappedFrame: id,
+    frames: [{ frame: id, gappedFrame: id }],
   })),
 }
 
@@ -37,6 +38,24 @@ describe('recognitionChoicesOf', () => {
     const choices = recognitionChoicesOf('school', lessonOne, enteredCard, withoutHeldOutMoney)
 
     expect(choices.map(({ wordId }) => wordId).sort()).toEqual(['food', 'home', 'school', 'work'])
+  })
+
+  it('never offers a held-back unit as a recognition choice', () => {
+    const heldWithGiveHeldOut = lessonCardsEnteredAt(unitLessonOne, ['give'], lessonFinish)
+
+    const choices = recognitionChoicesOf(
+      'find-out',
+      unitLessonOne,
+      enteredCard,
+      heldWithGiveHeldOut,
+    )
+
+    expect(choices.map(({ wordId }) => wordId).sort()).toEqual([
+      'come-back',
+      'find-out',
+      'go-on',
+      'of-course',
+    ])
   })
 
   it('offers every word of a lesson of five, the asked word among them', () => {

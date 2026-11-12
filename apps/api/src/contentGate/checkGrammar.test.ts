@@ -5,6 +5,7 @@ import { checkGrammar } from './checkGrammar'
 import {
   contentOf,
   entryOf,
+  laterFrameOf,
   lessonOneFrameWords,
   lessonOneInflections,
   lessonOneLexicon,
@@ -32,6 +33,36 @@ const afterLessonOne = (
 const lessonOneStructures = [structureOf('lesson-1', lessonOneFrameWords, lessonOneInflections)]
 
 const newHome = entryOf('word-1', 'new', 'This is my new home.', { partOfSpeech: 'adjective' })
+
+const ourAdmittedAtLessonThree = [
+  structureOf(
+    'lesson-1',
+    lessonOneFrameWords,
+    lessonOneInflections.filter((inflection) => inflection !== 'our'),
+  ),
+  structureOf('lesson-3', [], ['our']),
+]
+
+const ourHomeFrom = (fromLessonId: string) => {
+  const leave = entryOf('word-1', 'leave', 'We leave home.', { partOfSpeech: 'verb' })
+  const newAtHome = entryOf('word-2', 'new', 'My home is new.', { partOfSpeech: 'adjective' })
+  return contentOf({
+    structures: ourAdmittedAtLessonThree,
+    lexicon: [
+      entryOf('lesson-1-1', 'home', 'This is my home.', {
+        laterFrames: [laterFrameOf('home', 'This is our home.', fromLessonId)],
+      }),
+      ...lessonOneLexicon.slice(1),
+      leave,
+      newAtHome,
+    ],
+    lessons: [
+      ['lesson-1', lessonOneIds],
+      ['lesson-2', [leave.id]],
+      ['lesson-3', [newAtHome.id]],
+    ],
+  })
+}
 
 describe('content gate check 6, grammar', () => {
   it('passes the shipped content, lesson 1 included', () => {
@@ -194,6 +225,16 @@ describe('content gate check 6, grammar', () => {
       'structure "Grammar of lesson-1" lists -ly, which is neither a form of a frame word nor -s, -ed, -ing, -er or -est',
       'structure "Grammar of lesson-1" lists homes, which is neither a form of a frame word nor -s, -ed, -ing, -er or -est',
       'structure "Grammar of lesson-1" lists be, which is neither a form of a frame word nor -s, -ed, -ing, -er or -est',
+    ])
+  })
+
+  it('passes a later frame using an inflection the lesson it is written for admits', () => {
+    expect(checkGrammar(ourHomeFrom('lesson-3'))).toEqual([])
+  })
+
+  it('fails a later frame using an inflection admitted after the lesson it is written for', () => {
+    expect(checkGrammar(ourHomeFrom('lesson-2'))).toEqual([
+      'lesson-1-1, later frame for lesson-2: frame holds our, an inflection admitted after lesson-2',
     ])
   })
 })

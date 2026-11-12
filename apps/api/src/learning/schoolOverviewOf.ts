@@ -1,5 +1,6 @@
 import type { TownOverview } from '@mygame/contracts'
 import {
+  anchorFrameOf,
   cardsInLearningOf,
   type DomainError,
   deriveLessonDurationSeconds,
@@ -51,7 +52,7 @@ const lessonStateOf = (
       wordId: word.id,
       standing: wordStandingOf(held),
       reading: readable.includes(word)
-        ? { word: word.acceptedForms[0], gloss: word.gloss, frame: word.frame }
+        ? { word: word.acceptedForms[0], gloss: word.gloss, frame: anchorFrameOf(word).frame }
         : null,
     })),
   }

@@ -10,6 +10,7 @@ import { inMemoryBands } from '../testing/inMemoryBands'
 import { lessonOne } from '../testing/lessonOne'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { type TownShape, townOf } from '../testing/townFixtures'
+import { unitLessonOne } from '../testing/unitLessonOne'
 import { Instant } from '../time/Instant'
 import type { WorkSlot } from './BuildingWork'
 import type { LessonSlot } from './LessonSlot'
@@ -246,7 +247,26 @@ describe('nextStepOf', () => {
     expect(answered(reading)).toEqual({ kind: 'lessonToStudy', lessonId: 'lesson-4' })
   })
 
-  it('keeps an unstudied chrome lesson first for a placed-out player', () => {
+  it('offers a placed player a unit lesson before the first band failed', () => {
+    const lessons = [
+      lessonNumbered(1),
+      lessonNumbered(2),
+      lessonNumbered(3),
+      unitLessonOne,
+      lessonNumbered(4),
+    ]
+    const reading = readingOf({
+      cards: waitingCardsOf(lessonNumbered(1)),
+      placedOutBands: [1],
+    })
+
+    expect(answered(reading, lessons)).toEqual({
+      kind: 'lessonToStudy',
+      lessonId: 'unit-lesson-1',
+    })
+  })
+
+  it('keeps an unstudied chrome lesson first for a placed player', () => {
     expect(answered(readingOf({ placedOutBands: [1, 2] }))).toEqual({
       kind: 'lessonToStudy',
       lessonId: 'lesson-1',

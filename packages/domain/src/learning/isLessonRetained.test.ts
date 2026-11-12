@@ -1,6 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
 import { MemoryCard } from '../memory/MemoryCard'
 import { lessonOne } from '../testing/lessonOne'
+import { unitLessonOne } from '../testing/unitLessonOne'
 import { Instant } from '../time/Instant'
 import type { HeldCard } from './HeldCard'
 import { isLessonRetained } from './isLessonRetained'
@@ -34,6 +35,12 @@ describe('isLessonRetained', () => {
     const allButHeldOutMoney = ['home', 'school', 'work', 'food'].map(retainedCardOf)
 
     expect(isLessonRetained(lessonOne, allButHeldOutMoney)).toBe(true)
+  })
+
+  it("earns a unit lesson's skill on the units the player holds, and at least one", () => {
+    const allButHeldBackGiveUp = ['find-out', 'go-on', 'come-back', 'of-course'].map(retainedCardOf)
+
+    expect(isLessonRetained(unitLessonOne, allButHeldBackGiveUp)).toBe(true)
   })
 
   it('waits on every word the player holds', () => {

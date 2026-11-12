@@ -1,23 +1,16 @@
 import { choiceIdsOf } from '../hash/choiceIdsOf'
-import { mixed32 } from '../hash/mixed32'
-import { textHashOf } from '../hash/textHashOf'
+import { keyedTextHashOf } from '../hash/keyedTextHashOf'
 import type { MemoryCard } from '../memory/MemoryCard'
 import { compareWordIds } from './compareWordIds'
 import type { HeldCard } from './HeldCard'
+import { keyInstantOf } from './keyInstantOf'
 import type { Lesson, WordId } from './Lesson'
 
 const MAXIMUM_CHOICES = 5
 
-const HIGH_WORD = 2 ** 32
-
 type HashedWord = {
   readonly wordId: WordId
   readonly hash: number
-}
-
-const hashOf = (wordId: WordId, keyMilliseconds: number): number => {
-  const seeded = mixed32(mixed32(keyMilliseconds >>> 0) ^ Math.floor(keyMilliseconds / HIGH_WORD))
-  return textHashOf(wordId, seeded)
 }
 
 const byHashThenWord = (left: HashedWord, right: HashedWord): number =>
@@ -38,8 +31,11 @@ export const recognitionChoicesOf = (
   card: MemoryCard,
   held: ReadonlyArray<HeldCard>,
 ): ReadonlyArray<RecognitionChoice> => {
-  const keyMilliseconds = (card.stored.lastReviewAt ?? card.stored.enteredAt).epochMilliseconds
-  const hashed = (id: WordId): HashedWord => ({ wordId: id, hash: hashOf(id, keyMilliseconds) })
+  const keyMilliseconds = keyInstantOf(card).epochMilliseconds
+  const hashed = (id: WordId): HashedWord => ({
+    wordId: id,
+    hash: keyedTextHashOf(id, keyMilliseconds),
+  })
   const others = lesson.words
     .filter(({ id }) => id !== wordId && held.some((card) => card.wordId === id))
     .map(({ id }) => hashed(id))

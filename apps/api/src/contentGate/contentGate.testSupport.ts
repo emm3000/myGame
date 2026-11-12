@@ -1,4 +1,5 @@
 import type { CurriculumContent, GrammarContent } from '@mygame/contracts'
+import type { LaterFrame } from '@mygame/domain'
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import type { GateContent } from './GateContent'
 
@@ -13,17 +14,27 @@ type ContentParts = {
   readonly englishMessages: Readonly<Record<string, string>>
 }
 
+type EntryExtra = Partial<Omit<LexiconEntry, 'frames'>> & {
+  readonly gappedFrame?: string
+  readonly laterFrames?: ReadonlyArray<LaterFrame>
+}
+
+export const laterFrameOf = (lemma: string, frame: string, fromLessonId: string): LaterFrame => ({
+  frame,
+  gappedFrame: frame.replace(lemma, '____'),
+  fromLessonId,
+})
+
 export const entryOf = (
   id: string,
   lemma: string,
   frame: string,
-  extra: Partial<LexiconEntry> = {},
+  { gappedFrame = frame.replace(lemma, '____'), laterFrames = [], ...extra }: EntryExtra = {},
 ): LexiconEntry => ({
   id,
   lemma,
   partOfSpeech: 'noun',
-  frame,
-  gappedFrame: frame.replace(lemma, '____'),
+  frames: [{ frame, gappedFrame }, ...laterFrames],
   gloss: { es: `es-${lemma}` },
   ...extra,
 })
