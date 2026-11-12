@@ -102,11 +102,11 @@ internal fun hiringRefusalLineOf(refusal: TownHiringRefusal): String = when (ref
     )
     TownHiringRefusal.HiringSlotBusy -> stringResource(R.string.town_refusal_hiring_slot_busy)
     is TownHiringRefusal.NotEnoughPeople -> icuStringResource(
-        R.string.town_refusal_not_enough_people,
+        R.string.town_refusal_hiring_not_enough_people,
         "requiredPeople" to refusal.required,
         "freePeople" to refusal.free.toString(),
     )
-    TownHiringRefusal.NotEnoughResources -> stringResource(R.string.town_refusal_not_enough_resources)
+    TownHiringRefusal.NotEnoughResources -> stringResource(R.string.town_refusal_hiring_not_enough_resources)
     TownHiringRefusal.HiringOrderNotFound -> stringResource(R.string.town_refusal_hiring_order_not_found)
     TownHiringRefusal.TownNotFound -> stringResource(R.string.town_refusal_town_not_found)
     TownHiringRefusal.Unrecognized -> stringResource(R.string.town_refusal_unexpected)

@@ -164,7 +164,7 @@ sealed interface TownUiState {
 
     data class HireCard(val kind: TownHireKind, val team: Int, val requiredOfficeLevel: Int, val form: HireForm?)
 
-    data class HireForm(val entry: String, val isEntryReadOnly: Boolean, val offer: HireOffer?, val block: HireBlock?)
+    data class HireForm(val entry: String, val isEntryDisabled: Boolean, val offer: HireOffer?, val block: HireBlock?)
 
     data class HireOffer(
         val count: Int,

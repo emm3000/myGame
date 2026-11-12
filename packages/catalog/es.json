@@ -357,6 +357,8 @@
   "android.town.town_rate": "+{rate} / h",
   "android.town.town_refusal_blank_town_name": "Escribe un nombre para tu pueblo.",
   "android.town.town_refusal_building_work_not_found": "La obra del nivel {level} ya no está en la lista. Quizá ya terminó.",
+  "android.town.town_refusal_hiring_not_enough_people": "Esta contratación necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.",
+  "android.town.town_refusal_hiring_not_enough_resources": "No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.",
   "android.town.town_refusal_hiring_order_not_found": "Esta contratación ya terminó.",
   "android.town.town_refusal_hiring_slot_busy": "Ya tienes una contratación en curso. Espera a que termine.",
   "android.town.town_refusal_not_enough_people": "Esta obra necesita {requiredPeople, plural, =1 {1 persona libre} other {{requiredPeople, number,0} personas libres}} y tienes {freePeople}. Sube el nivel de tus hogares.",

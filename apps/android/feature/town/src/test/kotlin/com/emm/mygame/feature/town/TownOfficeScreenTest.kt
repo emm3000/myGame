@@ -3,6 +3,7 @@ package com.emm.mygame.feature.town
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -38,7 +39,7 @@ class TownOfficeScreenTest {
     )
 
     private val workerForm: TownUiState.HireForm =
-        TownUiState.HireForm(entry = "3", isEntryReadOnly = false, offer = threeWorkers, block = null)
+        TownUiState.HireForm(entry = "3", isEntryDisabled = false, offer = threeWorkers, block = null)
 
     private val workers: TownUiState.HireCard =
         TownUiState.HireCard(TownHireKind.Worker, team = 4, requiredOfficeLevel = 1, form = workerForm)
@@ -63,6 +64,11 @@ class TownOfficeScreenTest {
         place = TownUiState.HireStatus.Idle,
         stop = TownUiState.HireStopStatus.Idle,
     )
+
+    private val shortOfMoney: TownUiState.HireBlock =
+        TownUiState.HireBlock.Resources(listOf(TownUiState.Shortfall(TownResourceKind.Money, 20)))
+
+    private val shortOfMoneyLine: String = "Necesitas 20 de dinero más."
 
     @Test
     fun `offers hires with their count and duration on the button`() {
@@ -179,6 +185,63 @@ class TownOfficeScreenTest {
             .onNodeWithText("Tu oficina está en nivel 1 y esta contratación necesita el nivel 3.")
             .performScrollTo()
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun `disables the count field while an order is open`() {
+        show(office.copy(hires = listOf(workers.copy(form = workerForm.copy(isEntryDisabled = true)), lockedTrucks)))
+
+        composeRule.onNodeWithContentDescription("Trabajadores a contratar").performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `names the hire in a refusal for too few free people`() {
+        val tooFew: TownHiringRefusal = TownHiringRefusal.NotEnoughPeople(required = 3, free = 2)
+        val refused: TownUiState.HireStatus = TownUiState.HireStatus.Refused(TownHireKind.Worker, tooFew)
+
+        show(office.copy(place = refused))
+
+        composeRule
+            .onNodeWithText("Esta contratación necesita 3 personas libres y tienes 2. Sube el nivel de tus hogares.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `names the hire in a refusal for resources the town lacks`() {
+        val refused: TownUiState.HireStatus =
+            TownUiState.HireStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
+
+        show(office.copy(place = refused))
+
+        composeRule
+            .onNodeWithText("No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas.")
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `writes the block reason under the hire button`() {
+        show(blocked(shortOfMoney))
+
+        composeRule.onNodeWithText(shortOfMoneyLine, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun `drops the block reason once the api refused the hire`() {
+        val refused: TownUiState.HireStatus =
+            TownUiState.HireStatus.Refused(TownHireKind.Worker, TownHiringRefusal.NotEnoughResources)
+
+        show(blocked(shortOfMoney).copy(place = refused))
+
+        composeRule.onNodeWithText(shortOfMoneyLine, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `drops the block reason once the server could not be reached`() {
+        show(blocked(shortOfMoney).copy(place = TownUiState.HireStatus.Unreachable(TownHireKind.Worker)))
+
+        composeRule.onNodeWithText(shortOfMoneyLine, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

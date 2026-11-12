@@ -255,6 +255,10 @@ it('waits only on the kind being placed', async () => {
   fireEvent.click(within(hireCard(namesHiresWorker())).getByRole('button', { name: /^Contratar/ }))
   await passSeconds(0)
 
+  const workerHire = within(hireCard(namesHiresWorker())).getByRole('button', {
+    name: /^Contratar/,
+  })
   const truckHire = within(hireCard(namesHiresTruck())).getByRole('button', { name: /^Contratar/ })
+  expect(workerHire.getAttribute('aria-busy')).toBe('true')
   expect(truckHire.getAttribute('aria-busy')).not.toBe('true')
 })

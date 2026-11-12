@@ -6,8 +6,6 @@ import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
-import com.emm.mygame.core.network.TownHireKind
-import com.emm.mygame.core.network.TownHiringResult
 import com.emm.mygame.core.network.TownReadResult
 import com.emm.mygame.core.network.TownRegistered
 import com.emm.mygame.core.network.TownRepository
@@ -56,7 +54,13 @@ class TownViewModel(
 
     private var isShown: Boolean = true
 
-    private var hireEntries: Map<TownHireKind, String> = emptyMap()
+    private val hiring: TownHiring = TownHiring(
+        towns = towns,
+        scope = viewModelScope,
+        mutations = { mutations },
+        onDrawn = ::drawMutations,
+        onAnswered = ::restartFrom,
+    )
 
     init {
         open()
@@ -76,12 +80,9 @@ class TownViewModel(
             TownIntent.NameSubmitted -> found()
             is TownIntent.BuildTapped -> start(intent.building)
             is TownIntent.StopTapped -> stop(TownUiState.WorkTarget(intent.building, intent.level))
-            is TownIntent.HireEntryChanged -> {
-                hireEntries = hireEntries + (intent.hire to intent.entry)
-                drawMutations(mutations)
-            }
-            is TownIntent.HireTapped -> hire(intent.hire)
-            is TownIntent.StopHiringTapped -> stopHiring(intent.target)
+            is TownIntent.HireEntryChanged -> hiring.enter(intent.hire, intent.entry)
+            is TownIntent.HireTapped -> if (shown != null) hiring.place(intent.hire)
+            is TownIntent.StopHiringTapped -> if (shown != null) hiring.stop(intent.target)
             TownIntent.SignOutTapped -> signOut()
         }
     }
@@ -100,11 +101,7 @@ class TownViewModel(
         projection?.cancel()
         shown = null
         val held: HeldTown? = towns.town.value
-        if (held != null) {
-            gap = held.gap
-            draw(held.town)
-            return reread()
-        }
+        if (held != null) return openHeld(held)
         _state.value = TownUiState.Loading
         projection = viewModelScope.launch {
             when (val answer: TownReadResult = towns.read()) {
@@ -113,6 +110,12 @@ class TownViewModel(
                 TownReadResult.Unreachable -> _state.value = TownUiState.Failed
             }
         }
+    }
+
+    private fun openHeld(held: HeldTown) {
+        gap = held.gap
+        draw(held.town)
+        reread()
     }
 
     private fun reread() {
@@ -187,35 +190,6 @@ class TownViewModel(
         }
     }
 
-    private fun hire(hire: TownHireKind) {
-        if (shown == null || mutations.hire is TownUiState.HireStatus.Waiting) return
-        val count: Int = hireCountOf(hireEntries[hire] ?: FIRST_HIRE_ENTRY) ?: return
-        drawMutations(mutations.copy(hire = TownUiState.HireStatus.Waiting(hire)))
-        viewModelScope.launch {
-            when (val answer: TownHiringResult = towns.placeHiring(hire, count)) {
-                is TownHiringResult.Answered -> restartFrom(answer.town, mutations.hireAnswered())
-                is TownHiringResult.Refused ->
-                    drawMutations(mutations.copy(hire = TownUiState.HireStatus.Refused(hire, answer.refusal)))
-                TownHiringResult.Unreachable ->
-                    drawMutations(mutations.copy(hire = TownUiState.HireStatus.Unreachable(hire)))
-            }
-        }
-    }
-
-    private fun stopHiring(target: TownUiState.HiringTarget) {
-        if (shown == null || mutations.hireStop == TownUiState.HireStopStatus.Waiting) return
-        drawMutations(mutations.copy(hireStop = TownUiState.HireStopStatus.Waiting))
-        viewModelScope.launch {
-            when (val answer: TownHiringResult = towns.stopHiring(target.hire, target.startedAt)) {
-                is TownHiringResult.Answered -> restartFrom(answer.town, mutations.hireStopAnswered())
-                is TownHiringResult.Refused ->
-                    drawMutations(mutations.copy(hireStop = TownUiState.HireStopStatus.Refused(answer.refusal)))
-                TownHiringResult.Unreachable ->
-                    drawMutations(mutations.copy(hireStop = TownUiState.HireStopStatus.Unreachable))
-            }
-        }
-    }
-
     private fun signOut() {
         viewModelScope.coroutineContext.cancelChildren()
         _state.value = TownUiState.SigningOut
@@ -239,19 +213,19 @@ class TownViewModel(
     }
 
     private fun draw(snapshot: TownSnapshot) {
-        if (snapshot !== shown) {
-            registered = shown
-                ?.let { held: TownSnapshot -> registeredBetween(held, snapshot) }
-                ?: TownRegistered.nothing
-            shown = snapshot
-        }
+        if (snapshot !== shown) registerRead(snapshot)
         _state.value = snapshot.contentAt(
             now = serverNow(),
             gap = gap,
             mutations = mutations,
             registered = registered,
-            hireEntries = hireEntries,
+            hireEntries = hiring.entries,
         )
+    }
+
+    private fun registerRead(read: TownSnapshot) {
+        registered = shown?.let { held: TownSnapshot -> registeredBetween(held, read) } ?: TownRegistered.nothing
+        shown = read
     }
 
     private suspend fun project(first: TownSnapshot) {

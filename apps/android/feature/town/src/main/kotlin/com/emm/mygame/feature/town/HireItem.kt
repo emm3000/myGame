@@ -68,6 +68,7 @@ internal fun HireItem(
                 kind = card.kind,
                 form = form,
                 isWaiting = place == TownUiState.HireStatus.Waiting(card.kind),
+                isAnswered = place.isAnsweredFor(card.kind),
                 onIntent = onIntent,
             )
         }
@@ -80,6 +81,7 @@ private fun HireForm(
     kind: TownHireKind,
     form: TownUiState.HireForm,
     isWaiting: Boolean,
+    isAnswered: Boolean,
     onIntent: (TownIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -90,9 +92,10 @@ private fun HireForm(
             value = form.entry,
             label = stringResource(countLabelOf(kind)),
             isSecret = false,
-            isReadOnly = form.isEntryReadOnly,
+            isReadOnly = false,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
             onValueChange = { entry: String -> onIntent(TownIntent.HireEntryChanged(kind, entry)) },
+            isEnabled = !form.isEntryDisabled,
         )
         if (offer != null) HireCosts(offer = offer)
         MyGameOutlinedButton(
@@ -102,7 +105,7 @@ private fun HireForm(
             onClick = { onIntent(TownIntent.HireTapped(kind)) },
             blockedReason = reason,
         )
-        reason?.let { line: String ->
+        reason?.takeUnless { isAnswered }?.let { line: String ->
             MyGameText(
                 text = line,
                 style = MyGameTypography.caption,
@@ -156,6 +159,12 @@ private fun HireAnswer(kind: TownHireKind, place: TownUiState.HireStatus, modifi
         TownUiState.HireStatus.Idle, is TownUiState.HireStatus.Waiting -> null
     }
     if (message != null) MyGameInlineAlert(message = message, modifier = modifier)
+}
+
+private fun TownUiState.HireStatus.isAnsweredFor(kind: TownHireKind): Boolean = when (this) {
+    is TownUiState.HireStatus.Refused -> hire == kind
+    is TownUiState.HireStatus.Unreachable -> hire == kind
+    TownUiState.HireStatus.Idle, is TownUiState.HireStatus.Waiting -> false
 }
 
 @Composable
