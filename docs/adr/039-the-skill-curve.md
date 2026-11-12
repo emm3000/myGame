@@ -1,5 +1,5 @@
 ---
-status: proposed, rule 6 and the chrome count amended by ADR 040
+status: proposed, rule 6 and the chrome count amended by ADR 040, the lesson counts widened by ADR 044's unit lessons
 date: 2026-11-04
 ---
 # The skill curve
@@ -143,7 +143,9 @@ the food level is ⌈*n* / 4⌉.
 **The lesson counts.** A lesson holds 5 card words, a band's last 5 to 9
 (ADR 037), so a band of *W* card words left after the chrome is
 ⌊*W* / 5⌋ lessons; a frame word is never a card, and only band 1 holds
-frame words, all within ranks 1 to 100.
+frame words, all within ranks 1 to 100. (Amended by ADR 044: the unit
+lessons, at most about 115, come on top of these counts, each earning a
+level like any lesson.)
 
 - **Frame words, an estimate until `grammar.json` ships: 57, between 52
   and 62.** Ranks 1 to 29 are all frame words (ADR 037), and 23 more

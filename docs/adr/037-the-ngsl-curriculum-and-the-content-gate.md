@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
@@ -113,7 +113,10 @@ the same licence (§3(b)).
   each lesson widens what the next lesson's frames may say.
 - **The stage of a player is the prefix of lessons the player has
   studied or placed out of.** A text written for lesson *n* is shown
-  only to a player whose stage reaches *n*.
+  only to a player whose stage reaches *n*. (Amended by ADR 044: the
+  stage skips unit lessons, which add no token a frame or a text may
+  hold, and a later frame is shown, as a text is, once the stage
+  reaches its lesson.)
 
 ### The item data
 
@@ -297,7 +300,10 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   stage, so texts and frames written for them are shown, and they stay
   open to study at any time, earning their skills as any lesson does.
   The next lesson is the first after the chrome lessons in the first
-  band failed; the chrome lessons are never placed out. Since a placed
+  band failed; the chrome lessons are never placed out. (Clarified by
+  ADR 044: the unit lessons belong to no band and are never placed out,
+  so a placed player meets them before the first lesson of the first
+  band failed.) Since a placed
   learner loses no skill and a beginner gains none, failing on purpose
   buys nothing.
 - **A placed-out word with no card is supported on tap only**, as a
@@ -315,7 +321,10 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   band placed out: ⌊10 %⌋ of the band's card words that no chrome lesson
   teaches, drawn by the api's random source, never the domain's, and
   stored per player and word. It never changes after the draw; were
-  950 of band 1's words eligible, 95 would be held out.
+  950 of band 1's words eligible, 95 would be held out. (Amended by
+  ADR 044: the draw never takes a unit, and skips every word an entered
+  unit card of the player holds; a unit with a held-out word enters no
+  card until that word is released.)
 - **A held-out word never enters as a card.** Its lesson enters only its
   non-held-out words as that player's cards, since a 10 % draw can put
   two or more held-out words in one lesson; its gloss is not among that
