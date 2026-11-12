@@ -31,6 +31,24 @@ export class MemoryCleanUpRepository implements CleanUpRepository {
       )
   }
 
+  async lastCleanedAtIn(
+    region: number,
+    area: number,
+    at: Instant,
+  ): Promise<ReadonlyMap<number, Instant>> {
+    return new Map(
+      this.cleanUps
+        .filter(
+          ({ site, cleanedAt }) =>
+            site.region === region &&
+            site.area === area &&
+            cleanedAt.epochMilliseconds <= at.epochMilliseconds,
+        )
+        .sort((left, right) => left.cleanedAt.epochMilliseconds - right.cleanedAt.epochMilliseconds)
+        .map(({ site, cleanedAt }) => [site.site, cleanedAt]),
+    )
+  }
+
   async record(cleanUp: CleanUp): Promise<Result<void, DomainError>> {
     this.cleanUps = [...this.cleanUps, cleanUp]
     return ok(undefined)

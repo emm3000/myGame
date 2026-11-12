@@ -24,6 +24,20 @@ export const inMemoryCleanUps = (seed: ReadonlyArray<CleanUp> = []): CleanUpRepo
               : latest,
           undefined,
         ),
+    lastCleanedAtIn: async (region, area, at) =>
+      new Map(
+        cleanUps
+          .filter(
+            ({ site, cleanedAt }) =>
+              site.region === region &&
+              site.area === area &&
+              cleanedAt.epochMilliseconds <= at.epochMilliseconds,
+          )
+          .sort(
+            (left, right) => left.cleanedAt.epochMilliseconds - right.cleanedAt.epochMilliseconds,
+          )
+          .map(({ site, cleanedAt }) => [site.site, cleanedAt]),
+      ),
     record: async (cleanUp) => {
       cleanUps = [...cleanUps, cleanUp]
       return ok(undefined)

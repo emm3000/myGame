@@ -138,8 +138,8 @@ const areaThree = {
   lastArea: 4,
   terrain: 'hills',
   sites: [
-    { site: 1, town: null },
-    { site: 2, town: { name: 'Cedar Creek', isOwn: false } },
+    { site: 1, town: null, waste: null },
+    { site: 2, town: { name: 'Cedar Creek', isOwn: false }, waste: null },
   ],
 }
 

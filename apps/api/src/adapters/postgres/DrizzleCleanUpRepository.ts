@@ -36,6 +36,29 @@ export class DrizzleCleanUpRepository implements CleanUpRepository {
       : Instant.fromEpochMilliseconds(cleanedAt.getTime())
   }
 
+  async lastCleanedAtIn(
+    region: number,
+    area: number,
+    at: Instant,
+  ): Promise<ReadonlyMap<number, Instant>> {
+    const latest = await this.database
+      .select({ site: siteCleanUps.site, cleanedAt: max(siteCleanUps.cleanedAt) })
+      .from(siteCleanUps)
+      .where(
+        and(
+          eq(siteCleanUps.region, region),
+          eq(siteCleanUps.area, area),
+          lte(siteCleanUps.cleanedAt, new Date(at.epochMilliseconds)),
+        ),
+      )
+      .groupBy(siteCleanUps.site)
+    return new Map(
+      latest.flatMap(({ site, cleanedAt }) =>
+        cleanedAt === null ? [] : [[site, Instant.fromEpochMilliseconds(cleanedAt.getTime())]],
+      ),
+    )
+  }
+
   async record({ townId, sentAt, site, cleanedAt }: CleanUp): Promise<Result<void, DomainError>> {
     await this.database.insert(siteCleanUps).values({
       townId,

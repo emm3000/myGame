@@ -4,13 +4,13 @@ import com.emm.mygame.core.network.generated.models.BuildingWork
 import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
 import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
+import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomes
 import com.emm.mygame.core.network.generated.models.TownOverviewBuildingsHomesNextLevel
 import com.emm.mygame.core.network.generated.models.TownOverviewHiring
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringOrder
 import com.emm.mygame.core.network.generated.models.TownOverviewHiringTermsWorker
-import com.emm.mygame.core.network.generated.models.TownOverviewJob
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
 import com.emm.mygame.core.network.generated.models.TownOverviewSeason
 import com.emm.mygame.core.network.generated.models.TownOverviewSkillsInner
@@ -29,7 +29,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
     }
     val step: NextStep = nextStep.toNextStep() ?: return null
     val townHiring: TownSnapshot.Hiring = hiring.toHiring() ?: return null
-    val townJob: TownSnapshot.Job? = job?.let { out: TownOverviewJob -> out.toJob() ?: return null }
+    val townJob: TownSnapshot.Job? = job?.let { out: TownJob -> out.toJob() ?: return null }
     return TownSnapshot(
         name = name,
         label = townLabel,

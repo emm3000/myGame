@@ -161,9 +161,9 @@ class RegionMapRepositoryTest {
     private companion object {
         const val MAP: String =
             """{"region":1,"area":2,"lastArea":40,"terrain":"river","sites":[""" +
-                """{"site":1,"town":null},""" +
-                """{"site":2,"town":{"name":"Riverton","isOwn":true}},""" +
-                """{"site":3,"town":{"name":"Oakdale","isOwn":false}}]}"""
+                """{"site":1,"town":null,"waste":null},""" +
+                """{"site":2,"town":{"name":"Riverton","isOwn":true},"waste":null},""" +
+                """{"site":3,"town":{"name":"Oakdale","isOwn":false},"waste":null}]}"""
         const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val TERMS: String =

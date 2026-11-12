@@ -95,6 +95,23 @@ export const cleanUpRepositoryContract = (
       expect(await cleanUps.lastCleanedAt(wasteSite, at('12:00:00'))).toEqual(at('08:10:00'))
     })
 
+    it('answers the latest clean-up of each site of an area at or before the instant', async () => {
+      const cleanUps = await arrange([mapleFalls, cedarBend])
+      await recordAll(cleanUps, [
+        firstCleanUp,
+        laterCleanUp,
+        cleanUpOf(cedarBend, '08:30:00', '08:40:00', otherWasteSite),
+        cleanUpOf(mapleFalls, '08:30:00', '08:45:00', { region: 1, area: 3, site: 4 }),
+      ])
+
+      expect(await cleanUps.lastCleanedAtIn(1, 2, at('09:00:00'))).toEqual(
+        new Map([
+          [4, at('08:10:00')],
+          [5, at('08:40:00')],
+        ]),
+      )
+    })
+
     it("cancels one team's clean-up and keeps the others", async () => {
       const cleanUps = await arrange([mapleFalls, cedarBend])
       await recordAll(cleanUps, [firstCleanUp, laterCleanUp])

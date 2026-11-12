@@ -1,11 +1,33 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { Clock } from '../ports/Clock'
+import { inMemoryCleanUps } from '../testing/inMemoryCleanUps'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
 import { plainTownSettings, townCatalogOf } from '../testing/townCatalogOf'
 import { townOf } from '../testing/townFixtures'
+import { Instant } from '../time/Instant'
+import type { CleanUp } from './CleanUp'
 import { readRegionMap } from './readRegionMap'
 import type { Town } from './Town'
 
+const MILLISECONDS_PER_HOUR = 3_600_000
+
 const storedAt = plainTownSettings.seasons.epoch
+
+const readAt = Instant.fromEpochMilliseconds(
+  storedAt.epochMilliseconds + 24 * MILLISECONDS_PER_HOUR,
+)
+
+const hoursBeforeRead = (hours: number): Instant =>
+  Instant.fromEpochMilliseconds(readAt.epochMilliseconds - hours * MILLISECONDS_PER_HOUR)
+
+const frozenClock: Clock = { now: () => readAt }
+
+const mediumSiteCleanedSixHoursAgo: CleanUp = {
+  townId: 'town-2',
+  sentAt: hoursBeforeRead(7),
+  site: { region: 1, area: 2, site: 2 },
+  cleanedAt: hoursBeforeRead(6),
+}
 
 const ownTown = townOf({ area: 2, site: 4, storedAt })
 
@@ -21,10 +43,13 @@ const neighborTown = townOf({
 const mapOf = (
   area: number | undefined,
   towns: ReadonlyArray<Town> = [ownTown, neighborTown],
+  cleanUps: ReadonlyArray<CleanUp> = [],
 ): ReturnType<typeof readRegionMap> =>
   readRegionMap(area === undefined ? { playerId: 'player-1' } : { playerId: 'player-1', area }, {
     map: inMemoryRegionMap(towns),
+    cleanUps: inMemoryCleanUps(cleanUps),
     catalog: townCatalogOf(),
+    clock: frozenClock,
   })
 
 describe('readRegionMap', () => {
@@ -67,6 +92,33 @@ describe('readRegionMap', () => {
       'hills',
       'fields',
     ])
+  })
+
+  it('shows each free waste site with its size and its waste at the read', async () => {
+    const map = await mapOf(2, [ownTown, neighborTown], [mediumSiteCleanedSixHoursAgo])
+
+    assert(map.ok)
+    expect(
+      map.value.sites.flatMap(({ site, waste }) =>
+        waste === undefined ? [] : [{ site, ...waste }],
+      ),
+    ).toEqual([
+      { site: 1, size: 1, waste: 6 },
+      { site: 2, size: 2, waste: 7 },
+      { site: 10, size: 3, waste: 40 },
+      { site: 15, size: 2, waste: 15 },
+    ])
+  })
+
+  it('shows no waste on a site a town holds', async () => {
+    const map = await mapOf(2)
+
+    assert(map.ok)
+    expect(map.value.sites.find((site) => site.site === 4)).toEqual({
+      site: 4,
+      town: { name: 'Maple Hill', isOwn: true },
+      waste: undefined,
+    })
   })
 
   it('refuses a player who holds no town', async () => {

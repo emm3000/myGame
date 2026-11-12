@@ -74,9 +74,9 @@ export const knownAreaMap: RegionMap = {
   lastArea: 2,
   terrain: 'fields',
   sites: [
-    { site: 1, town: { name: 'Maple Falls', isOwn: true } },
-    { site: 2, town: null },
-    { site: 3, town: { name: 'Cedar Creek', isOwn: false } },
+    { site: 1, town: { name: 'Maple Falls', isOwn: true }, waste: null },
+    { site: 2, town: null, waste: null },
+    { site: 3, town: { name: 'Cedar Creek', isOwn: false }, waste: null },
   ],
 }
 
