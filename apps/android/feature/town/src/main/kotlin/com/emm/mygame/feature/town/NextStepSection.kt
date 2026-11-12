@@ -12,15 +12,18 @@ import com.emm.mygame.core.designsystem.MyGameCountdownGround
 import com.emm.mygame.core.designsystem.MyGameCountdownLine
 import com.emm.mygame.core.designsystem.MyGameNextStepBlock
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameTextButton
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.NextStepCard
+import com.emm.mygame.core.network.TownGoal
 import com.emm.mygame.core.ui.icuStringResource
 
 @Composable
 internal fun NextStepSection(
     content: TownUiState.Content,
+    onIntent: (TownIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     onReportOpen: () -> Unit,
     onReviewsOpen: () -> Unit,
@@ -33,8 +36,10 @@ internal fun NextStepSection(
             MyGameNextStepBlock(
                 title = stringResource(R.string.town_next_title),
                 line = lineOf(card.line),
-                detail = card.detail?.let { detail: NextStepCard.Detail -> detailOf(detail) },
+                detail = card.detail?.let { detail: NextStepCard.Detail -> detailOf(detail) }
+                    ?: content.goal?.let { goal: TownGoal -> goalLineOf(goal) },
             ) {
+                content.goal?.let { goal: TownGoal -> GoalState(goal = goal) }
                 NextStepCountdown(countdown = card.countdown, time = content.nextStepTime)
             }
         }
@@ -51,6 +56,14 @@ internal fun NextStepSection(
                 }
             },
         )
+        if (content.goal != null) {
+            MyGameTextButton(
+                label = stringResource(R.string.town_goal_close),
+                isBusy = false,
+                busyDescription = stringResource(R.string.town_waiting),
+                onClick = { onIntent(TownIntent.GoalClosed) },
+            )
+        }
     }
 }
 

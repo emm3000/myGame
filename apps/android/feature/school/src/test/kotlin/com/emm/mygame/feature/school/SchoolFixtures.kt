@@ -72,7 +72,7 @@ internal fun townOf(
     schoolLevel: Int = 1,
     seasonInForce: SeasonInForce? = null,
     seasonEndsAt: Instant? = null,
-    nextStep: NextStep = NextStep.CaughtUp,
+    nextStep: NextStep = NextStep.CaughtUp(goal = null),
     nextDueAt: Instant? = null,
     readAt: Instant = readInstant,
 ): TownSnapshot = TownSnapshot(
@@ -94,6 +94,7 @@ internal fun townOf(
     hiring = hiringOf(),
     job = null,
     nextStep = nextStep,
+    tip = null,
     nextDueAt = nextDueAt,
     readAt = readAt,
 )

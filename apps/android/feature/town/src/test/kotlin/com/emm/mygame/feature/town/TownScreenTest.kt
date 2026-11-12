@@ -91,6 +91,8 @@ class TownScreenTest {
         places = listOf(farmOffer),
         nextStep = caughtUpCard,
         nextStepTime = null,
+        goal = null,
+        tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
         office = idleOffice,

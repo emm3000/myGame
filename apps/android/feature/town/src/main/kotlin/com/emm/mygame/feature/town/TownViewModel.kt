@@ -62,6 +62,12 @@ class TownViewModel(
         onAnswered = ::restartFrom,
     )
 
+    private val guidance: TownGuidance = TownGuidance(
+        towns = towns,
+        scope = viewModelScope,
+        onClosed = { drawMutations(mutations) },
+    )
+
     init {
         open()
     }
@@ -83,6 +89,8 @@ class TownViewModel(
             is TownIntent.HireEntryChanged -> hiring.enter(intent.hire, intent.entry)
             is TownIntent.HireTapped -> if (shown != null) hiring.place(intent.hire)
             is TownIntent.StopHiringTapped -> if (shown != null) hiring.stop(intent.target)
+            is TownIntent.TipClosed -> if (shown != null) guidance.closeTip(intent.tip)
+            TownIntent.GoalClosed -> if (shown != null) guidance.closeGoal()
             TownIntent.SignOutTapped -> signOut()
         }
     }
@@ -220,12 +228,14 @@ class TownViewModel(
             mutations = mutations,
             registered = registered,
             hireEntries = hiring.entries,
+            closed = guidance.closed,
         )
     }
 
     private fun registerRead(read: TownSnapshot) {
         registered = shown?.let { held: TownSnapshot -> registeredBetween(held, read) } ?: TownRegistered.nothing
         shown = read
+        guidance.resendUnsent()
     }
 
     private suspend fun project(first: TownSnapshot) {

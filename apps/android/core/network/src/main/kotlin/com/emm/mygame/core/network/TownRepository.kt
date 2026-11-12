@@ -6,7 +6,9 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.StateFlow
 
-interface TownRepository : RegionRepository {
+interface TownRepository :
+    RegionRepository,
+    TownGuidanceRepository {
 
     val town: StateFlow<HeldTown?>
 
@@ -41,5 +43,6 @@ fun TownRepository(
         clock = clock,
         tokenStore = tokenStore,
         regionReader = ApiRegionReader(api = api, ioDispatcher = ioDispatcher),
+        guidance = ApiTownGuidance(api = api, ioDispatcher = ioDispatcher),
     )
 }

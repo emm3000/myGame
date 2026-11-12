@@ -75,6 +75,8 @@ class TownLookTest {
         places = listOf(farmOffer),
         nextStep = caughtUpCard,
         nextStepTime = null,
+        goal = null,
+        tip = null,
         start = TownUiState.StartStatus.Idle,
         stop = TownUiState.StopStatus.Idle,
         office = idleOffice,
@@ -181,7 +183,7 @@ class TownLookTest {
     fun `orders the stocks money, food, power, material`() {
         val town: TownSnapshot = townOf(stocks = stocksOf().reversed())
 
-        show(town.contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing, emptyMap()))
+        show(town.readContent())
 
         val tops: List<Dp> = listOf("Dinero", "Comida", "Energía", "Material").map { name: String -> topOf(name) }
         val lefts: List<Dp> = listOf("Dinero", "Comida", "Energía", "Material").map { name: String ->
@@ -202,7 +204,7 @@ class TownLookTest {
         )
 
         val inWork: List<TownBuildingKind> = town
-            .contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing, emptyMap())
+            .readContent()
             .places.filter { place: TownUiState.PlaceCard -> place.isInWork }
             .map { place: TownUiState.PlaceCard -> place.kind }
 
@@ -310,7 +312,7 @@ class TownLookTest {
 
         assertEquals(
             null,
-            town.contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing, emptyMap()).season,
+            town.readContent().season,
         )
     }
 
@@ -323,7 +325,7 @@ class TownLookTest {
 
         assertEquals(
             TownUiState.SeasonLine(SeasonKind.Winter, year = 3, remaining = 1.hours),
-            town.contentAt(readInstant, Duration.ZERO, idleMutations, TownRegistered.nothing, emptyMap()).season,
+            town.readContent().season,
         )
     }
 
@@ -356,4 +358,13 @@ class TownLookTest {
         const val MONEY_SHORT: String = "Necesitas 30 de dinero más."
         const val PEOPLE: String = "Gente: 24 libres, 96 trabajando"
     }
+
+    private fun TownSnapshot.readContent(): TownUiState.Content = contentAt(
+        now = readInstant,
+        gap = Duration.ZERO,
+        mutations = idleMutations,
+        registered = TownRegistered.nothing,
+        hireEntries = emptyMap(),
+        closed = ClosedGuidance.none,
+    )
 }

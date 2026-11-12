@@ -3,8 +3,10 @@ package com.emm.mygame.core.testing
 import com.emm.mygame.core.network.HeldTown
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.RegionRepository
+import com.emm.mygame.core.network.TipKind
 import com.emm.mygame.core.network.TownBuildingKind
 import com.emm.mygame.core.network.TownFoundResult
+import com.emm.mygame.core.network.TownGuidanceResult
 import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownHiringResult
 import com.emm.mygame.core.network.TownJobResult
@@ -44,6 +46,8 @@ class FakeTownRepository private constructor(
 
     private val hiringAnswers: Channel<TownHiringResult> = Channel(Channel.UNLIMITED)
 
+    private val guidanceAnswers: Channel<TownGuidanceResult> = Channel(Channel.UNLIMITED)
+
     private val _foundings: MutableList<String> = mutableListOf()
 
     private val _starts: MutableList<TownBuildingKind> = mutableListOf()
@@ -58,8 +62,16 @@ class FakeTownRepository private constructor(
 
     private val _hiringStops: MutableList<HiringStopRequest> = mutableListOf()
 
+    private val _seenTips: MutableList<TipKind> = mutableListOf()
+
     var readCount: Int = 0
         private set
+
+    var dismissalCount: Int = 0
+        private set
+
+    val seenTips: List<TipKind>
+        get() = _seenTips.toList()
 
     val foundings: List<String>
         get() = _foundings.toList()
@@ -106,6 +118,10 @@ class FakeTownRepository private constructor(
         hiringAnswers.trySend(result)
     }
 
+    fun answerGuidance(result: TownGuidanceResult) {
+        guidanceAnswers.trySend(result)
+    }
+
     override suspend fun read(): TownReadResult {
         readCount += 1
         val answer: TownReadResult = readAnswers.receive()
@@ -150,6 +166,16 @@ class FakeTownRepository private constructor(
     override suspend fun stopHiring(hire: TownHireKind, startedAt: Instant): TownHiringResult {
         _hiringStops += HiringStopRequest(hire, startedAt)
         return hiringAnswers.answered(heldTown, TownHiringResult::answeredTown)
+    }
+
+    override suspend fun markTipSeen(tip: TipKind): TownGuidanceResult {
+        _seenTips += tip
+        return guidanceAnswers.receive()
+    }
+
+    override suspend fun dismissGuidance(): TownGuidanceResult {
+        dismissalCount += 1
+        return guidanceAnswers.receive()
     }
 
     data class StopRequest(val building: TownBuildingKind, val level: Int)

@@ -25,8 +25,10 @@ internal class ApiTownRepository(
     private val clock: Clock,
     private val tokenStore: TokenStore,
     regionReader: RegionReader,
+    guidance: TownGuidanceRepository,
 ) : TownRepository,
-    RegionReader by regionReader {
+    RegionReader by regionReader,
+    TownGuidanceRepository by guidance {
 
     private val _town: MutableStateFlow<HeldTown?> = MutableStateFlow(null)
 

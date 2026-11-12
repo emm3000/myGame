@@ -15,7 +15,14 @@ internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnap
     composeRule.setContent {
         MyGameTheme {
             TownScreen(
-                state = next.contentAt(readInstant, Duration.ZERO, TownMutations.none, registered, emptyMap()),
+                state = next.contentAt(
+                    now = readInstant,
+                    gap = Duration.ZERO,
+                    mutations = TownMutations.none,
+                    registered = registered,
+                    hireEntries = emptyMap(),
+                    closed = ClosedGuidance.none,
+                ),
                 onIntent = { },
                 onSchoolOpen = { },
                 onReportOpen = { },
