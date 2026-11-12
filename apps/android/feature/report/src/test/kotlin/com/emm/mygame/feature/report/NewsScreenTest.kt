@@ -42,6 +42,8 @@ class NewsScreenTest {
 
     private val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
 
+    private val refund: List<TownAmount> = listOf(TownAmount(TownResourceKind.Money, 60))
+
     private val receivedAt: Instant = localToday(10, 0)
 
     private val everyKind: List<Pair<TownNews, String>> = listOf(
@@ -53,14 +55,14 @@ class NewsScreenTest {
         TownNews.JobCalledBack(localToday(9, 56), site, pay) to
             "Llamaste de vuelta a tu equipo de la región 1, zona 3, sitio 12.",
         TownNews.JobBack(localToday(9, 55), site, pay) to "Tu equipo volvió de la región 1, zona 3, sitio 12.",
-        TownNews.HiringStopped(localToday(9, 54), TownHireKind.Worker, delivered = 2, stopped = 3) to
+        TownNews.HiringStopped(localToday(9, 54), TownHireKind.Worker, delivered = 2, stopped = 3, refund) to
             "Paraste la contratación de trabajadores: llegaron 2 de 5.",
         TownNews.HiringDelivered(localToday(9, 53), TownHireKind.Truck, count = 3) to "Contrataste 3 camiones.",
         TownNews.SkillEarned(localToday(9, 52), TownResourceKind.Food, ratePercent = 5) to
             "Ganaste una habilidad de comida: +5 % de comida.",
         TownNews.LessonStopped(localToday(9, 51)) to "Paraste el estudio de una lección.",
         TownNews.LessonStudied(localToday(9, 50)) to "Estudiaste una lección.",
-        TownNews.BuildingWorkStopped(localToday(9, 49), TownBuildingKind.Homes, level = 3) to
+        TownNews.BuildingWorkStopped(localToday(9, 49), TownBuildingKind.Homes, level = 3, refund) to
             "Paraste la obra: Hogares, nivel 3.",
         TownNews.BuildingWorkFinished(localToday(9, 48), TownBuildingKind.Farm, level = 2) to
             "Granja: ahora en nivel 2.",
@@ -112,6 +114,23 @@ class NewsScreenTest {
         show(NewsUiState.Content(listOf(job), receivedAt))
 
         assertEquals(true, topOf("Tu equipo volvió de la región 1, zona 3, sitio 12.") < topOf("Pago: 40 de comida"))
+    }
+
+    @Test
+    fun `draws the refund under a stopped work`() {
+        val stop: TownNews = TownNews.BuildingWorkStopped(localToday(9, 49), TownBuildingKind.Homes, level = 3, refund)
+        show(NewsUiState.Content(listOf(stop), receivedAt))
+
+        assertEquals(true, topOf("Paraste la obra: Hogares, nivel 3.") < topOf("Recuperaste: 60 de dinero"))
+    }
+
+    @Test
+    fun `draws no refund line for a stop that cost nothing`() {
+        val stop: TownNews =
+            TownNews.BuildingWorkStopped(localToday(9, 49), TownBuildingKind.Homes, level = 3, refund = emptyList())
+        show(NewsUiState.Content(listOf(stop), receivedAt))
+
+        composeRule.onAllNodesWithText("Recuperaste", substring = true).assertCountEquals(0)
     }
 
     @Test

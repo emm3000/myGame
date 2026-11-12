@@ -60,7 +60,12 @@ private fun BuildingWorkFinishedNews.toFinishedWork(): TownNews? {
 
 private fun BuildingWorkStoppedNews.toStoppedWork(): TownNews? {
     val building: TownBuildingKind = params.building.toTownBuildingKind() ?: return null
-    return TownNews.BuildingWorkStopped(occurredAt.toKotlinInstant(), building, params.level)
+    return TownNews.BuildingWorkStopped(
+        occurredAt = occurredAt.toKotlinInstant(),
+        building = building,
+        level = params.level,
+        refund = params.refund.toTownAmounts(),
+    )
 }
 
 private fun SkillEarnedNews.toSkillEarned(): TownNews? {
@@ -75,7 +80,13 @@ private fun HiringDeliveredNews.toHiringDelivered(): TownNews? {
 
 private fun HiringStoppedNews.toHiringStopped(): TownNews? {
     val hire: TownHireKind = params.hire.toTownHireKind() ?: return null
-    return TownNews.HiringStopped(occurredAt.toKotlinInstant(), hire, params.delivered, params.stopped)
+    return TownNews.HiringStopped(
+        occurredAt = occurredAt.toKotlinInstant(),
+        hire = hire,
+        delivered = params.delivered,
+        stopped = params.stopped,
+        refund = params.refund.toTownAmounts(),
+    )
 }
 
 internal fun JobBackNewsParamsSite.toTownSite(): TownSite = TownSite(region = region, area = area, site = site)

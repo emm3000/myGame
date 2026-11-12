@@ -27,6 +27,11 @@ class ReportCopyTest {
 
     private val lima: ZoneId = ZoneId.of("America/Lima")
 
+    private val noRefund: List<TownAmount> = emptyList()
+
+    private val refund: List<TownAmount> =
+        listOf(TownAmount(TownResourceKind.Money, 120), TownAmount(TownResourceKind.Material, 40))
+
     @Test
     fun `tells a building work finished`() {
         val news: TownNews = TownNews.BuildingWorkFinished(at, TownBuildingKind.PowerStation, level = 3)
@@ -36,7 +41,7 @@ class ReportCopyTest {
 
     @Test
     fun `tells a building work stopped`() {
-        val news: TownNews = TownNews.BuildingWorkStopped(at, TownBuildingKind.Storage, level = 2)
+        val news: TownNews = TownNews.BuildingWorkStopped(at, TownBuildingKind.Storage, level = 2, noRefund)
 
         assertEquals("Paraste la obra: Almacén, nivel 2.", resources.newsLineOf(news))
     }
@@ -73,7 +78,7 @@ class ReportCopyTest {
     @Test
     fun `names every resource of the town`() {
         val names: List<String> = TownResourceKind.entries.map { resource: TownResourceKind ->
-            resources.payLineOf(TownNews.CleanUpDone(at, site, listOf(TownAmount(resource, 2)))).orEmpty()
+            resources.amountsLineOf(TownNews.CleanUpDone(at, site, listOf(TownAmount(resource, 2)))).orEmpty()
         }
 
         assertEquals(
@@ -112,28 +117,28 @@ class ReportCopyTest {
 
     @Test
     fun `tells a stopped hiring of workers with one come`() {
-        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 1, stopped = 4)
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 1, stopped = 4, noRefund)
 
         assertEquals("Paraste la contratación de trabajadores: llegó 1 de 5.", resources.newsLineOf(news))
     }
 
     @Test
     fun `tells a stopped hiring of workers with many come`() {
-        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 3, stopped = 2)
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 3, stopped = 2, noRefund)
 
         assertEquals("Paraste la contratación de trabajadores: llegaron 3 de 5.", resources.newsLineOf(news))
     }
 
     @Test
     fun `tells a stopped hiring of trucks with one come`() {
-        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Truck, delivered = 1, stopped = 1)
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Truck, delivered = 1, stopped = 1, noRefund)
 
         assertEquals("Paraste la contratación de camiones: llegó 1 de 2.", resources.newsLineOf(news))
     }
 
     @Test
     fun `tells a stopped hiring of trucks with none come`() {
-        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Truck, delivered = 0, stopped = 2)
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Truck, delivered = 0, stopped = 2, noRefund)
 
         assertEquals("Paraste la contratación de camiones: llegaron 0 de 2.", resources.newsLineOf(news))
     }
@@ -178,28 +183,28 @@ class ReportCopyTest {
     fun `reads the pay of a job back`() {
         val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
 
-        assertEquals("Pago: 40 de comida", resources.payLineOf(TownNews.JobBack(at, site, pay)))
+        assertEquals("Pago: 40 de comida", resources.amountsLineOf(TownNews.JobBack(at, site, pay)))
     }
 
     @Test
     fun `reads the pay of a job called back`() {
         val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
 
-        assertEquals("Pago: 40 de comida", resources.payLineOf(TownNews.JobCalledBack(at, site, pay)))
+        assertEquals("Pago: 40 de comida", resources.amountsLineOf(TownNews.JobCalledBack(at, site, pay)))
     }
 
     @Test
     fun `reads the reward of a clean-up as its pay`() {
         val reward: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
 
-        assertEquals("Pago: 40 de comida", resources.payLineOf(TownNews.CleanUpDone(at, site, reward)))
+        assertEquals("Pago: 40 de comida", resources.amountsLineOf(TownNews.CleanUpDone(at, site, reward)))
     }
 
     @Test
     fun `joins two amounts with a conjunction`() {
         val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Money, 1), TownAmount(TownResourceKind.Food, 2))
 
-        assertEquals("Pago: 1 de dinero y 2 de comida", resources.payLineOf(TownNews.JobBack(at, site, pay)))
+        assertEquals("Pago: 1 de dinero y 2 de comida", resources.amountsLineOf(TownNews.JobBack(at, site, pay)))
     }
 
     @Test
@@ -212,7 +217,7 @@ class ReportCopyTest {
 
         assertEquals(
             "Pago: 1 de dinero, 2 de energía y 3 de material",
-            resources.payLineOf(TownNews.JobBack(at, site, pay)),
+            resources.amountsLineOf(TownNews.JobBack(at, site, pay)),
         )
     }
 
@@ -220,17 +225,31 @@ class ReportCopyTest {
     fun `groups a large amount with a thin space`() {
         val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Money, 12500))
 
-        assertEquals("Pago: 12 500 de dinero", resources.payLineOf(TownNews.JobBack(at, site, pay)))
+        assertEquals("Pago: 12 500 de dinero", resources.amountsLineOf(TownNews.JobBack(at, site, pay)))
     }
 
     @Test
     fun `reads no pay for a job that brought nothing`() {
-        assertNull(resources.payLineOf(TownNews.JobBack(at, site, pay = emptyList())))
+        assertNull(resources.amountsLineOf(TownNews.JobBack(at, site, pay = emptyList())))
+    }
+
+    @Test
+    fun `names the refund of a stopped work`() {
+        val news: TownNews = TownNews.BuildingWorkStopped(at, TownBuildingKind.Farm, level = 3, refund)
+
+        assertEquals("Recuperaste: 120 de dinero y 40 de material", resources.amountsLineOf(news))
+    }
+
+    @Test
+    fun `names the refund of a stopped hiring`() {
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 1, stopped = 2, refund)
+
+        assertEquals("Recuperaste: 120 de dinero y 40 de material", resources.amountsLineOf(news))
     }
 
     @Test
     fun `reads no pay for news that carry none`() {
-        assertNull(resources.payLineOf(TownNews.BecameCity(at)))
+        assertNull(resources.amountsLineOf(TownNews.BecameCity(at)))
     }
 
     @Test

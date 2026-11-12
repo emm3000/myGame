@@ -57,8 +57,8 @@ private fun NewsLines(news: TownNews, receivedAt: Instant, modifier: Modifier = 
             color = MyGameTheme.colors.inkMuted,
         )
         MyGameText(text = resources.newsLineOf(news), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-        resources.payLineOf(news)?.let { pay: String ->
-            MyGameText(text = pay, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
+        resources.amountsLineOf(news)?.let { amounts: String ->
+            MyGameText(text = amounts, style = MyGameTypography.caption, color = MyGameTheme.colors.inkMuted)
         }
     }
 }
@@ -70,6 +70,12 @@ internal val previewTownNews: List<TownNews> = listOf(
         occurredAt = Instant.parse("2026-11-05T09:40:00Z"),
         building = TownBuildingKind.Farm,
         level = 2,
+    ),
+    TownNews.BuildingWorkStopped(
+        occurredAt = Instant.parse("2026-11-05T09:20:00Z"),
+        building = TownBuildingKind.Storage,
+        level = 3,
+        refund = listOf(TownAmount(TownResourceKind.Money, 300L), TownAmount(TownResourceKind.Material, 150L)),
     ),
     TownNews.JobBack(
         occurredAt = Instant.parse("2026-11-05T08:15:00Z"),
@@ -85,5 +91,12 @@ internal val previewTownNews: List<TownNews> = listOf(
         occurredAt = Instant.parse("2026-11-04T17:00:00Z"),
         hire = TownHireKind.Worker,
         count = 2,
+    ),
+    TownNews.HiringStopped(
+        occurredAt = Instant.parse("2026-11-04T16:10:00Z"),
+        hire = TownHireKind.Truck,
+        delivered = 1,
+        stopped = 2,
+        refund = listOf(TownAmount(TownResourceKind.Money, 400L), TownAmount(TownResourceKind.Power, 60L)),
     ),
 )
