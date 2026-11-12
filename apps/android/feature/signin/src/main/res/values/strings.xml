@@ -33,4 +33,9 @@
     <string name="sign_up_switch_link">Entra</string>
     <string name="sign_up_switch_prompt">¿Ya tienes cuenta?</string>
     <string name="sign_up_title">Crea tu cuenta</string>
+    <string name="verification_banner_line">Confirma tu correo</string>
+    <string name="verification_banner_resend">Reenviar</string>
+    <string name="verification_banner_sent">Enviado. Revisa tu correo.</string>
+    <string name="verification_banner_unreachable">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
+    <string name="verification_refusal_mail_not_sent">No hemos podido enviarlo.</string>
 </resources>
