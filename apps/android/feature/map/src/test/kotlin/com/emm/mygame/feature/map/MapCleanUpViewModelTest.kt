@@ -12,7 +12,10 @@ import com.emm.mygame.core.network.WasteSize
 import com.emm.mygame.core.testing.FakeRegionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -146,6 +149,24 @@ class MapCleanUpViewModelTest {
     }
 
     @Test
+    fun `asks the clean-up quote again after the server could not be reached`() = runTest {
+        val viewModel: MapViewModel = cleanUpFilled()
+        towns.regions.answerCleanUpQuote(cleanUpFor, CleanUpQuoteResult.Unreachable)
+        runCurrent()
+
+        advanceTimeBy(5.seconds)
+        runCurrent()
+        towns.regions.answerCleanUpQuote(cleanUpFor, CleanUpQuoteResult.Quoted(strength = 12, waste = 12, pay = pay))
+        runCurrent()
+
+        val asked: Int = towns.regions.cleanUpQuotes.count { request: FakeRegionRepository.CleanUpRequest ->
+            request == cleanUpFor
+        }
+        assertEquals(2, asked)
+        assertEquals(12, (cleanUpFormOf(viewModel)?.quote as? MapUiState.CleanUpQuote.Quoted)?.strength)
+    }
+
+    @Test
     fun `draws the api's refusal of a clean-up quote`() = runTest {
         val viewModel: MapViewModel = cleanUpFilled()
         towns.regions.answerCleanUpQuote(cleanUpFor, CleanUpQuoteResult.Refused(TownJobRefusal.NoWasteYet))
@@ -256,6 +277,18 @@ class MapCleanUpViewModelTest {
             MapUiState.JobKind.CleanUp(waste = 12, outcome = MapUiState.CleanUpOutcome.NotCleaned),
             contentOf(viewModel).jobOut?.kind,
         )
+    }
+
+    @Test
+    fun `draws no outcome for a clean-up called back`() = runTest {
+        val calledBack: TownSnapshot.Job = cleanUpOf(
+            phase = TownSnapshot.JobPhase.Returning,
+            pay = noPay,
+            calledBackAt = readInstant + 5.minutes,
+        )
+        val viewModel: MapViewModel = mapReading(towns, town = townOf(job = calledBack), map = wasteMap)
+
+        assertEquals(MapUiState.JobKind.CleanUp(waste = 12, outcome = null), contentOf(viewModel).jobOut?.kind)
     }
 
     @Test
