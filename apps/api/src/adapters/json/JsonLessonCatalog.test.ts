@@ -177,10 +177,17 @@ describe('JsonLessonCatalog', () => {
 
     expect(catalog.placementWordsOf(1)).toContainEqual({
       id: 'lesson-1-1',
+      headword: 'home',
       word: 'home',
       gloss: 'hogar',
       isChrome: true,
     })
+  })
+
+  it('answers that only band 1 has lessons in the shipped curriculum', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
+
+    expect([1, 2, 3].map((band) => catalog.hasLessons(band))).toEqual([true, false, false])
   })
 
   it('marks every word of a band lesson as a placement word outside the chrome', () => {

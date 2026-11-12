@@ -111,11 +111,13 @@ const placementWordsOf = ({
   )
   const bands = new Map<Band, ReadonlyArray<PlacementWord>>()
   for (const entry of lexicon) {
-    const rank = ranks.get(headwordOf(entry.lemma))
+    const headword = headwordOf(entry.lemma)
+    const rank = ranks.get(headword)
     if (rank !== undefined && entry.gloss.es !== undefined) {
       const band = bandOfRank(rank)
       const word = {
         id: entry.id,
+        headword,
         word: entry.lemma,
         gloss: entry.gloss.es,
         isChrome: chromeWordIds.has(entry.id),
@@ -164,6 +166,10 @@ export class JsonLessonCatalog implements LessonLibrary {
 
   wordsOfBand(band: Band): ReadonlyArray<BandWord> {
     return this.bandWords.get(band) ?? []
+  }
+
+  hasLessons(band: Band): boolean {
+    return [...this.lessonBands.values()].includes(band)
   }
 
   placementWordsOf(band: Band): ReadonlyArray<PlacementWord> {

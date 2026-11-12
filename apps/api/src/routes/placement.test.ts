@@ -6,6 +6,7 @@ import { afterAll, assert, beforeAll, beforeEach, describe, expect, it } from 'v
 import { createApp } from '../app'
 import { type ComposedServer, composeServer } from '../composeServer'
 import { mailEnvironment } from '../composeServer.testSupport'
+import type { LessonLibrary } from '../learning/LessonLibrary'
 
 const contentDirectory = fileURLToPath(new URL('../../content/', import.meta.url))
 
@@ -35,6 +36,20 @@ const storedRows = async <Row extends QueryResultRow>(
 
 type Player = { readonly cookie: string }
 
+const draftedBandOneOf = (lessons: LessonLibrary): LessonLibrary => ({
+  lessonOf: (lessonId) => lessons.lessonOf(lessonId),
+  lessonOfWord: (wordId) => lessons.lessonOfWord(wordId),
+  isHeadword: (word) => lessons.isHeadword(word),
+  bandOfLesson: (lessonId) => lessons.bandOfLesson(lessonId),
+  wordsOfBand: (band) => {
+    const entered = new Set(lessons.placementWordsOf(band).map(({ headword }) => headword))
+    return lessons.wordsOfBand(band).filter(({ headword }) => entered.has(headword))
+  },
+  hasLessons: (band) => band === 2 || lessons.hasLessons(band),
+  placementWordsOf: (band) => lessons.placementWordsOf(band),
+  lessons: () => lessons.lessons(),
+})
+
 type AskingPlacement = Extract<Placement, { readonly kind: 'asking' }>
 
 describe('the placement routes', () => {
@@ -53,7 +68,7 @@ describe('the placement routes', () => {
     await storedRows(
       'TRUNCATE players, towns, town_buildings, town_waiting_work, town_events, town_lesson_slots, town_hires, town_hiring_orders, town_jobs, site_clean_ups, player_seen_tips, earned_skills, band_starts, held_out_words, placements, placement_words, placement_scores, cards, pending_reviews, review_log, sessions, account_tokens',
     )
-    app = createApp({ ...server, clock: frozenClock })
+    app = createApp({ ...server, clock: frozenClock, lessons: draftedBandOneOf(server.lessons) })
   })
 
   const send = async (
@@ -119,6 +134,17 @@ describe('the placement routes', () => {
     const player = await signUp()
 
     expect(await placementOf(await send(player, 'GET', '/placement'))).toEqual({ kind: 'offered' })
+  })
+
+  it('offers no placement while the shipped band 1 is partly drafted', async () => {
+    app = createApp({ ...server, clock: frozenClock })
+    const player = await signUp()
+
+    expect(await placementOf(await send(player, 'GET', '/placement'))).toEqual({
+      kind: 'closed',
+      scores: [],
+    })
+    expect((await send(player, 'POST', '/placement')).status).toBe(409)
   })
 
   it("asks band 1's 30 sampled words, each with at most 4 choices", async () => {

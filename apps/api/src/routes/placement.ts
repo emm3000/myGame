@@ -35,7 +35,8 @@ const answerPlacementView = (c: Context, view: Result<PlacementView, DomainError
 
 export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenAPIHono => {
   const signedInPlayer = requirePlayer(dependencies)
-  const { lessons: words, random } = dependencies
+  const { lessons, random } = dependencies
+  const content = { words: lessons, bands: lessons }
   const routes = new OpenAPIHono()
   for (const declaration of Object.values(placementDeclarations)) {
     routes.openAPIRegistry.registerPath(declaration)
@@ -48,7 +49,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
       const playerId = c.var.playerId
       const view = await mutateTown(
         playerId,
-        (stores) => readPlacement({ playerId }, { ...stores, words }),
+        (stores) => readPlacement({ playerId }, { ...stores, ...content }),
         dependencies,
       )
       return answerPlacementView(c, view)
@@ -63,8 +64,8 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
       const view = await mutateTown(
         playerId,
         async (stores, clock) => {
-          const begun = await beginPlacement({ playerId }, { ...stores, words, random, clock })
-          return begun.ok ? readPlacement({ playerId }, { ...stores, words }) : begun
+          const begun = await beginPlacement({ playerId }, { ...stores, ...content, random, clock })
+          return begun.ok ? readPlacement({ playerId }, { ...stores, ...content }) : begun
         },
         dependencies,
       )
@@ -80,8 +81,8 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
       const view = await mutateTown(
         playerId,
         async (stores, clock) => {
-          const skipped = await skipPlacement({ playerId }, { ...stores, words, clock })
-          return skipped.ok ? readPlacement({ playerId }, { ...stores, words }) : skipped
+          const skipped = await skipPlacement({ playerId }, { ...stores, ...content, clock })
+          return skipped.ok ? readPlacement({ playerId }, { ...stores, ...content }) : skipped
         },
         dependencies,
       )
@@ -103,7 +104,7 @@ export const placementRoutes = (dependencies: PlacementRouteDependencies): OpenA
         (stores, clock) =>
           answerPlacement(
             { playerId, band: request.data.band, answers: request.data.answers },
-            { ...stores, words, clock },
+            { ...stores, ...content, clock },
           ),
         dependencies,
       )

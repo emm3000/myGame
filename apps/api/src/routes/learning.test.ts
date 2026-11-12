@@ -1017,6 +1017,7 @@ describe('the learning routes', () => {
         isHeadword: (word) => lessons.isHeadword(word),
         bandOfLesson: (lessonId) => (lessonId === lesson.id ? 1 : lessons.bandOfLesson(lessonId)),
         wordsOfBand: (band) => lessons.wordsOfBand(band),
+        hasLessons: (band) => lessons.hasLessons(band),
         placementWordsOf: (band) => lessons.placementWordsOf(band),
         lessons: () => [...lessons.lessons(), lesson],
       }

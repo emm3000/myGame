@@ -27,6 +27,12 @@ type HashedWord = {
 const byHashThenWord = (left: HashedWord, right: HashedWord): number =>
   left.hash - right.hash || compareWordIds(left.word.id, right.word.id)
 
+const isFirstOfItsGloss = (
+  candidate: HashedWord,
+  index: number,
+  ordered: ReadonlyArray<HashedWord>,
+): boolean => ordered.findIndex(({ word }) => word.gloss === candidate.word.gloss) === index
+
 const questionOf = (
   asked: PlacementWord,
   sampled: ReadonlyArray<PlacementWord>,
@@ -37,6 +43,7 @@ const questionOf = (
     .filter(({ gloss }) => gloss !== asked.gloss)
     .map(hashed)
     .sort(byHashThenWord)
+    .filter(isFirstOfItsGloss)
     .slice(0, CHOICE_COUNT - 1)
   const offered = choiceIdsOf([hashed(asked), ...others].sort(byHashThenWord))
   return { word: asked, choices: offered.map(({ choiceId, word }) => ({ choiceId, word })) }

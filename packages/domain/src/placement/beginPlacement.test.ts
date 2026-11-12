@@ -4,8 +4,8 @@ import { firstItemsRandom } from '../testing/firstItemsRandom'
 import { inMemoryBandStarts, type OwnedBandStart } from '../testing/inMemoryBandStarts'
 import { inMemoryPlacements, type OwnedPlacement } from '../testing/inMemoryPlacements'
 import {
-  inMemoryPlacementWords,
   type PlacementShelf,
+  placementContentOf,
   placementWordsOfBand,
 } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
@@ -36,7 +36,7 @@ const placementOf = ({ stored = [], starts = [], shelves = draftedBands }: Place
   const dependencies = {
     placements,
     bandStarts: inMemoryBandStarts(starts),
-    words: inMemoryPlacementWords(shelves),
+    ...placementContentOf(shelves),
     random: firstItemsRandom,
     clock: frozenClock,
   }
@@ -85,6 +85,49 @@ describe('beginPlacement', () => {
     expect((await sampledWordIdsOf(placements)).length).toBe(1)
   })
 
+  it('samples no band whose words the lexicon holds only in part', async () => {
+    const { placements, dependencies } = placementOf({
+      shelves: [
+        { band: 1, words: placementWordsOfBand(1, 30) },
+        { band: 2, words: placementWordsOfBand(2, 30), undraftedHeadwords: ['undrafted-2'] },
+        { band: 3, words: placementWordsOfBand(3, 30) },
+      ],
+    })
+
+    await beginPlacement({ playerId: ana }, dependencies)
+
+    expect((await sampledWordIdsOf(placements)).length).toBe(1)
+  })
+
+  it('samples no band whose next band has no lessons', async () => {
+    const { placements, dependencies } = placementOf({
+      shelves: [
+        { band: 1, words: placementWordsOfBand(1, 30) },
+        { band: 2, words: placementWordsOfBand(2, 30) },
+        { band: 3, words: placementWordsOfBand(3, 30), isTaught: false },
+      ],
+    })
+
+    await beginPlacement({ playerId: ana }, dependencies)
+
+    expect((await sampledWordIdsOf(placements)).length).toBe(1)
+  })
+
+  it('refuses a placement while band 1 is partly drafted', async () => {
+    const { placements, dependencies } = placementOf({
+      shelves: [
+        { band: 1, words: placementWordsOfBand(1, 50), undraftedHeadwords: ['undrafted-1'] },
+        { band: 2, words: placementWordsOfBand(2, 30) },
+      ],
+    })
+
+    expect(await beginPlacement({ playerId: ana }, dependencies)).toEqual({
+      ok: false,
+      error: { kind: 'PlacementNotOffered' },
+    })
+    expect(await placements.placementOf(ana)).toEqual({ ok: true, value: undefined })
+  })
+
   it('stores the instant the placement begins', async () => {
     const { placements, dependencies } = placementOf({})
 
@@ -130,7 +173,10 @@ describe('beginPlacement', () => {
 
   it('offers no placement while band 1 has fewer than 30 words to draw', async () => {
     const { dependencies } = placementOf({
-      shelves: [{ band: 1, words: placementWordsOfBand(1, 29) }],
+      shelves: [
+        { band: 1, words: placementWordsOfBand(1, 29) },
+        { band: 2, words: placementWordsOfBand(2, 30) },
+      ],
     })
 
     expect(await beginPlacement({ playerId: ana }, dependencies)).toEqual({

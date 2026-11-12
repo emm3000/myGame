@@ -29,7 +29,7 @@ export const beginPlacement = async (
   const placement: TakenPlacement = {
     kind: 'taken',
     begunAt: dependencies.clock.now(),
-    samples: placementSamplesDrawn(dependencies.words, dependencies.random),
+    samples: placementSamplesDrawn(dependencies, dependencies.random),
     scores: [],
   }
   const saved = await dependencies.placements.save(playerId, placement)
