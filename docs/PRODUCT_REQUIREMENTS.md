@@ -6,7 +6,7 @@ Townword, a persistent browser game for learning American English on OGame's loo
 
 | Id | Requirement |
 |---|---|
-| M1 | A player creates an account, signs in and signs out; from ADR 038's step 4, sign-up also picks a scaffold language, `es` or `none`. |
+| M1 | A player creates an account, signs in and signs out; from ADR 038's step 4, sign-up also picks a scaffold language, `es` or `none`. At the first sign-in an account that has started no band is offered placement once, and may skip it to start at lesson 1: per band, 30 card words outside the chrome lessons, each recognized among 4 meanings; a band passed at 29 of 30 is placed out, its lessons still open, the check stops at the first band failed, and the score and its instant are stored per band (ADR 037, ADR 041). *not yet shipped (ADR 041)* |
 | M2 | A signed-in player who holds no town names one on the first visit; it is founded at the lowest free site of region 1 with starting stocks, and a second town is refused (ADR 040). |
 | M3 | The town shows money, food, power and material with current amount, rate per hour and capacity, correct on any read whatever the time elapsed. |
 | M4 | Seven buildings with levels: homes, farm, factory, power station, storage, school and office. Each level has a cost, a duration, people and an effect read from content, not code (ADR 040). |
