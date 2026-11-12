@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from 'vitest'
+import type { DomainError } from '../DomainError'
 import type { Clock } from '../ports/Clock'
 import { inMemoryCleanUps } from '../testing/inMemoryCleanUps'
 import { inMemoryRegionMap } from '../testing/inMemoryRegionMap'
@@ -37,6 +38,15 @@ const homeTown = townOf({
   hires: { worker: 8, truck: 2 },
 })
 
+const neighborTown = townOf({
+  id: 'town-2',
+  playerId: 'player-2',
+  name: 'Cedar Creek',
+  area: 1,
+  site: 9,
+  storedAt,
+})
+
 const order = (change: Partial<CleanUpOrder> = {}): CleanUpOrder => ({
   playerId: 'player-1',
   site: smallWasteSite,
@@ -51,7 +61,7 @@ const quoteFrom = (
 ): ReturnType<typeof quoteCleanUp> =>
   quoteCleanUp(order(change), {
     towns,
-    map: inMemoryRegionMap([homeTown]),
+    map: inMemoryRegionMap([homeTown, neighborTown]),
     cleanUps: inMemoryCleanUps(cleanUps),
     catalog,
     clock: frozenClock,
@@ -104,6 +114,66 @@ describe('quoteCleanUp', () => {
 
     expect(quoted).toEqual(sent.map((value) => ({ ok: true, value })))
   })
+
+  const townWithTeamOut = async (): Promise<ReturnType<typeof inMemoryTowns>> => {
+    const towns = inMemoryTowns([homeTown])
+    await sendCleanUp(order({ team: { worker: 1, truck: 0 } }), {
+      towns,
+      map: inMemoryRegionMap([homeTown]),
+      cleanUps: inMemoryCleanUps(),
+      news: inMemoryTownNews(),
+      catalog,
+      clock: frozenClock,
+    })
+    return towns
+  }
+
+  const sharedRefusals: ReadonlyArray<{
+    readonly refusal: DomainError['kind']
+    readonly change: Partial<CleanUpOrder>
+    readonly townsOf: () => Promise<ReturnType<typeof inMemoryTowns>>
+    readonly error: DomainError
+  }> = [
+    {
+      refusal: 'InvalidTeam',
+      change: { team: { worker: 0, truck: 0 } },
+      townsOf: async () => inMemoryTowns([homeTown]),
+      error: { kind: 'InvalidTeam', team: { worker: 0, truck: 0 } },
+    },
+    {
+      refusal: 'TeamAlreadyOut',
+      change: {},
+      townsOf: townWithTeamOut,
+      error: { kind: 'TeamAlreadyOut' },
+    },
+    {
+      refusal: 'JobSiteOutOfBounds',
+      change: { site: { area: 3, site: 1 } },
+      townsOf: async () => inMemoryTowns([homeTown]),
+      error: { kind: 'JobSiteOutOfBounds', area: 3, site: 1 },
+    },
+    {
+      refusal: 'JobToOwnSite',
+      change: { site: { area: 1, site: 1 } },
+      townsOf: async () => inMemoryTowns([homeTown]),
+      error: { kind: 'JobToOwnSite' },
+    },
+    {
+      refusal: 'SiteHeld',
+      change: { site: { area: 1, site: 9 } },
+      townsOf: async () => inMemoryTowns([homeTown]),
+      error: { kind: 'SiteHeld', area: 1, site: 9 },
+    },
+  ]
+
+  it.each(sharedRefusals)(
+    'refuses as the send does with $refusal',
+    async ({ change, townsOf, error }) => {
+      const quoted = await quoteFrom(await townsOf(), change)
+
+      expect(quoted).toEqual({ ok: false, error })
+    },
+  )
 
   it('refuses a site that holds no waste', async () => {
     const quoted = await quoteFrom(inMemoryTowns([homeTown]), { site: { area: 2, site: 3 } })

@@ -1204,6 +1204,19 @@ describe('the town route', () => {
       expect([overview.job, overview.hiring.hires.worker]).toEqual([null, 6])
     })
 
+    it('leaves the site’s waste as it was when it quotes a clean-up', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+      await quoteCleanUp(ana, sixWorkersTo(1, 12))
+      clock.advanceMinutes(11)
+
+      const map = RegionMapSchema.parse(
+        await (await app.request('/town/map', { headers: { cookie: ana } })).json(),
+      )
+
+      expect(map.sites.find(({ site }) => site === 12)?.waste).toEqual({ size: 1, waste: 6 })
+    })
+
     it('refuses a quote to a site with no waste', async () => {
       const ana = await signUpWithTown('ana@example.com')
       await keepWorkers(6)
