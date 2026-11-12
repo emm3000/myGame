@@ -20,7 +20,7 @@ class SignInViewModelTest {
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
 
-    private val ines: SignedInPlayer = SignedInPlayer(email = "ines@sotoverde.es")
+    private val ines: SignedInPlayer = SignedInPlayer(email = "ines@sotoverde.es", isEmailVerified = true)
 
     @Test
     fun `checks the stored session at launch`() = runTest {

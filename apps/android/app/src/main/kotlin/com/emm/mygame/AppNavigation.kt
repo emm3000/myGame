@@ -4,14 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +53,7 @@ import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.signin.ForgotPasswordRoute
 import com.emm.mygame.feature.signin.SignInRoute
 import com.emm.mygame.feature.signin.SignUpRoute
+import com.emm.mygame.feature.signin.VerificationBannerRoute
 import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute
 import com.emm.mygame.feature.town.TownStatus
@@ -82,6 +87,34 @@ internal fun AppNavigation(
             onReviewsOpen = navigator::openReviews,
         )
     }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MyGameTheme.colors.surface)
+            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)),
+    ) {
+        AppScreens(
+            dependencies = dependencies,
+            navigator = navigator,
+            backStack = backStack,
+            townStatus = townStatus,
+            modifier = Modifier.weight(1f),
+        )
+        VerificationBannerRoute(
+            sessions = dependencies.sessions,
+            isSessionOpen = shown.statusScreen() != TownStatusScreen.Outside,
+        )
+    }
+}
+
+@Composable
+private fun AppScreens(
+    dependencies: AppDependencies,
+    navigator: Navigator,
+    backStack: NavBackStack<NavKey>,
+    townStatus: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     NavDisplay(
         backStack = backStack,
         onBack = navigator::back,

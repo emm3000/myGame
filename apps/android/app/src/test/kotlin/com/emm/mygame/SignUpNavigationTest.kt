@@ -58,7 +58,7 @@ class SignUpNavigationTest {
     @Test
     fun `opens Name your town after sign-up`() {
         sessionsFake.answerRestore(RestoreResult.SignedOut)
-        sessionsFake.answerSignUp(SignUpResult.SignedIn(SignedInPlayer("elena@example.com")))
+        sessionsFake.answerSignUp(SignUpResult.SignedIn(SignedInPlayer("elena@example.com", isEmailVerified = true)))
         repeat(READS_AVAILABLE) { townsFake.answerRead(TownReadResult.NoTown) }
         composeRule.setContent {
             MyGameTheme {

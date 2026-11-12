@@ -5,6 +5,7 @@ import com.emm.mygame.core.network.RestoreResult
 import com.emm.mygame.core.network.SessionRepository
 import com.emm.mygame.core.network.SignInResult
 import com.emm.mygame.core.network.SignUpResult
+import com.emm.mygame.core.network.VerificationResendResult
 import kotlinx.coroutines.channels.Channel
 
 class FakeSessionRepository : SessionRepository {
@@ -17,6 +18,8 @@ class FakeSessionRepository : SessionRepository {
 
     private val passwordResetAnswers: Channel<PasswordResetRequestResult> = Channel(Channel.UNLIMITED)
 
+    private val resendAnswers: Channel<VerificationResendResult> = Channel(Channel.UNLIMITED)
+
     private val signOutAnswers: Channel<Unit> = Channel(Channel.UNLIMITED)
 
     private val attempts: MutableList<SignInAttempt> = mutableListOf()
@@ -24,6 +27,9 @@ class FakeSessionRepository : SessionRepository {
     private val signUps: MutableList<SignUpAttempt> = mutableListOf()
 
     private val resetEmails: MutableList<String> = mutableListOf()
+
+    var resendCount: Int = 0
+        private set
 
     var signOutCount: Int = 0
         private set
@@ -53,6 +59,10 @@ class FakeSessionRepository : SessionRepository {
         passwordResetAnswers.trySend(result)
     }
 
+    fun answerResend(result: VerificationResendResult) {
+        resendAnswers.trySend(result)
+    }
+
     fun answerSignOut() {
         signOutAnswers.trySend(Unit)
     }
@@ -72,6 +82,11 @@ class FakeSessionRepository : SessionRepository {
     override suspend fun requestPasswordReset(email: String): PasswordResetRequestResult {
         resetEmails += email
         return passwordResetAnswers.receive()
+    }
+
+    override suspend fun resendVerification(): VerificationResendResult {
+        resendCount += 1
+        return resendAnswers.receive()
     }
 
     override suspend fun signOut() {

@@ -105,6 +105,9 @@ class AppNavigationTest {
 
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
+    private val verifiedSession: RestoreResult =
+        RestoreResult.SignedIn(SignedInPlayer("player@example.com", isEmailVerified = true))
+
     private val noReviews: ReviewsReadResult.Read = ReviewsReadResult.Read(
         DueReviews(due = emptyList(), readFirst = emptyList(), nextDueAt = null, readAt = readAt),
     )
@@ -173,7 +176,7 @@ class AppNavigationTest {
     }
 
     private fun signedInReading(answer: TownReadResult) {
-        sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("player@example.com")))
+        repeat(SESSION_READS) { sessionsFake.answerRestore(verifiedSession) }
         repeat(READS_AVAILABLE) { townsFake.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
@@ -362,7 +365,7 @@ class AppNavigationTest {
 
     @Test
     fun `draws a count fallen back on the way home from the Report`() {
-        sessionsFake.answerRestore(RestoreResult.SignedIn(SignedInPlayer("player@example.com")))
+        repeat(SESSION_READS) { sessionsFake.answerRestore(verifiedSession) }
         townsFake.answerRead(TownReadResult.Read(townOf(retainedWords = threeOfFive)))
         composeRule.setContent {
             MyGameTheme {
@@ -816,6 +819,7 @@ class AppNavigationTest {
         const val LESSON_ONE_DONE: String = "La lección 1 terminó."
         const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
         const val READS_AVAILABLE: Int = 5
+        const val SESSION_READS: Int = 2
         val NEAR_FINISH: Duration = 30.seconds
         const val WAIT_MILLIS: Long = 5_000
     }
