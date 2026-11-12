@@ -9,9 +9,10 @@ import {
   townWorkReady,
 } from '@mygame/catalog'
 import { type HireKind, HireKindSchema } from '@mygame/contracts'
-import { type ReactElement, useId, useState } from 'react'
+import { type ReactElement, type Ref, useId, useState } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import { FormAlert } from '../design-system/FormAlert'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { useFocusTarget } from '../focus/useFocusTarget'
 import { hiringRefusalLineOf } from '../refusals/hiringRefusalLineOf'
 import { refusalLineOf } from '../refusals/refusalLineOf'
@@ -96,16 +97,23 @@ function HireItem({
 export function OfficeSection({
   town,
   hiring,
+  titleRef,
 }: {
   readonly town: LiveTown
   readonly hiring: TownHiring
+  readonly titleRef: Ref<HTMLHeadingElement>
 }): ReactElement {
   const titleId = useId()
   const slotTitle = useFocusTarget<HTMLSpanElement>()
   const stopRefused = hiring.stopRefused
   return (
     <section aria-labelledby={titleId} className="flex min-w-0 flex-col gap-4">
-      <h3 id={titleId} className="m-0 font-sans text-heading text-ink">
+      <h3
+        id={titleId}
+        ref={titleRef}
+        tabIndex={-1}
+        className={`m-0 font-sans text-heading text-ink ${focusTargetClass}`}
+      >
         {namesPlacesOffice()}
       </h3>
       <BuildSlot state={slotStateOf(town, hiring, slotTitle.focus)} titleRef={slotTitle.ref} />

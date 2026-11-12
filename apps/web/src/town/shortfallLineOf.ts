@@ -10,16 +10,12 @@ interface Shortfall {
   readonly amount: number
 }
 
-const shortfallsOf = (cost: ResourceAmounts, stocks: LiveStocks): ReadonlyArray<Shortfall> =>
+const shortfallsOf = (amountOf: (resource: ResourceKind) => number): ReadonlyArray<Shortfall> =>
   ResourceKindSchema.options
-    .map((resource) => ({
-      resource,
-      amount: Math.max(0, cost[resource] - Math.floor(stocks[resource])),
-    }))
+    .map((resource) => ({ resource, amount: amountOf(resource) }))
     .filter(({ amount }) => amount > 0)
 
-export function shortfallLineOf(cost: ResourceAmounts, stocks: LiveStocks): string | undefined {
-  const shortfalls = shortfallsOf(cost, stocks)
+function lineOf(shortfalls: ReadonlyArray<Shortfall>): string | undefined {
   if (shortfalls.length === 0) {
     return undefined
   }
@@ -31,3 +27,9 @@ export function shortfallLineOf(cost: ResourceAmounts, stocks: LiveStocks): stri
     ),
   })
 }
+
+export const shortfallLineOf = (cost: ResourceAmounts, stocks: LiveStocks): string | undefined =>
+  lineOf(shortfallsOf((resource) => Math.max(0, cost[resource] - Math.floor(stocks[resource]))))
+
+export const missingLineOf = (missing: ResourceAmounts): string | undefined =>
+  lineOf(shortfallsOf((resource) => missing[resource]))

@@ -329,3 +329,38 @@ it('posts the close of the Report', async () => {
   expect(url).toBe('/api/report/close')
   expect(init?.method).toBe('POST')
 })
+
+it('posts a tip seen under its kind', async () => {
+  const fetch = vi.fn(
+    async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+
+  expect(await createApiClient('/api').markTipSeen('waitingList')).toBeUndefined()
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/tips/waitingList')
+  expect(init?.method).toBe('POST')
+})
+
+it('posts the dismissal of the guidance', async () => {
+  const fetch = vi.fn(
+    async (_url: string, _init: RequestInit) => new Response(null, { status: 204 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+
+  expect(await createApiClient('/api').dismissGuidance()).toBeUndefined()
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/guidance/dismissal')
+  expect(init?.method).toBe('POST')
+})
+
+it('answers a dismissal the api cannot be reached for as unexpected', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => {
+      throw new TypeError('Failed to fetch')
+    }),
+  )
+
+  expect(await createApiClient('/api').dismissGuidance()).toBe('Unexpected')
+})

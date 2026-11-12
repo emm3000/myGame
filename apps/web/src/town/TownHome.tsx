@@ -12,14 +12,20 @@ import {
   townWorkTitle,
   townWorkWaitingList,
 } from '@mygame/catalog'
-import { type BuildingKind, BuildingKindSchema, type StopBuildingWork } from '@mygame/contracts'
+import {
+  type BuildingKind,
+  BuildingKindSchema,
+  type StopBuildingWork,
+  type TipKind,
+} from '@mygame/contracts'
 import { type ReactElement, useId } from 'react'
 import { BuildSlot, type BuildSlotState } from '../design-system/BuildSlot'
 import type { CancelAction } from '../design-system/CancelAction'
 import { FormAlert } from '../design-system/FormAlert'
+import { focusTargetClass } from '../design-system/focusTargetClass'
 import { TextLink } from '../design-system/TextLink'
 import { WaitingUpgrades } from '../design-system/WaitingUpgrades'
-import { useFocusTarget } from '../focus/useFocusTarget'
+import { type FocusTarget, useFocusTarget } from '../focus/useFocusTarget'
 import { MapRow } from '../map/MapRow'
 import { refusalLineOf } from '../refusals/refusalLineOf'
 import { formatFinish } from '../time/formatFinish'
@@ -30,9 +36,11 @@ import { OfficeSection } from './OfficeSection'
 import { PlaceRow } from './PlaceRow'
 import { placeNameOf } from './placeNameOf'
 import { levelBeforeOf, type Registered } from './registeredBetween'
+import { TipNote, type TipPlace } from './TipNote'
 import { TownDoors } from './TownDoors'
 import { TownSkyline } from './TownSkyline'
 import { TownStocks } from './TownStocks'
+import type { TownGuidance } from './useTownGuidance'
 import type { TownHiring } from './useTownHiring'
 import type { TownWork } from './useTownWork'
 
@@ -41,6 +49,7 @@ export interface TownHomeProps {
   readonly registered: Registered
   readonly work: TownWork
   readonly hiring: TownHiring
+  readonly guidance: TownGuidance
 }
 
 const placesInOrder: ReadonlyArray<BuildingKind> = [
@@ -149,20 +158,56 @@ function PlaceItem({
   )
 }
 
-export function TownHome({ town, registered, work, hiring }: TownHomeProps): ReactElement {
+function useTipTargets(): {
+  readonly refs: {
+    readonly stocks: FocusTarget<HTMLHeadingElement>
+    readonly work: FocusTarget<HTMLSpanElement>
+    readonly places: FocusTarget<HTMLHeadingElement>
+    readonly office: FocusTarget<HTMLHeadingElement>
+  }
+  readonly focus: (place: TipPlace) => void
+} {
+  const refs = {
+    stocks: useFocusTarget<HTMLHeadingElement>(),
+    work: useFocusTarget<HTMLSpanElement>(),
+    places: useFocusTarget<HTMLHeadingElement>(),
+    office: useFocusTarget<HTMLHeadingElement>(),
+  }
+  return { refs, focus: (place) => refs[place].focus() }
+}
+
+export function TownHome({
+  town,
+  registered,
+  work,
+  hiring,
+  guidance,
+}: TownHomeProps): ReactElement {
   const { overview } = town
   const placesTitleId = useId()
-  const slotTitle = useFocusTarget<HTMLSpanElement>()
+  const targets = useTipTargets()
+  const slotTitle = targets.refs.work
   const stopRefused = work.stopRefused
+  const tipAt = (place: TipPlace): ReactElement => (
+    <TipNote
+      tip={guidance.tip}
+      place={place}
+      onClose={(tip: TipKind) => {
+        guidance.closeTip(tip)
+        targets.focus(place)
+      }}
+    />
+  )
   return (
     <div className="grid items-start gap-6 lg:grid-cols-2">
       <div className="flex min-w-0 flex-col gap-6">
-        <NextStepCard town={town} />
+        <NextStepCard town={town} goal={guidance.goal} onGoalClose={guidance.closeGoal} />
         <TownDoors dueCount={dueCountOf(town)} />
       </div>
       <div className="flex min-w-0 flex-col gap-6 lg:row-span-2">
         <TownSkyline buildings={overview.buildings} raised={registered.places} />
-        <TownStocks town={town} />
+        <TownStocks town={town} titleRef={targets.refs.stocks.ref} />
+        {tipAt('stocks')}
       </div>
       <div className="flex min-w-0 flex-col gap-4 lg:row-span-2">
         <BuildSlot state={slotStateOf(town, work, slotTitle.focus)} titleRef={slotTitle.ref} />
@@ -170,9 +215,16 @@ export function TownHome({ town, registered, work, hiring }: TownHomeProps): Rea
           <FormAlert message={refusalLineOf(stopRefused.refusal, stopRefused.error)} />
         )}
         <WaitingList town={town} work={work} onStopped={slotTitle.focus} />
+        {tipAt('work')}
       </div>
       <section aria-labelledby={placesTitleId} className="flex min-w-0 flex-col gap-1">
-        <h3 id={placesTitleId} className="m-0 font-sans text-heading text-ink">
+        {tipAt('places')}
+        <h3
+          id={placesTitleId}
+          ref={targets.refs.places.ref}
+          tabIndex={-1}
+          className={`m-0 font-sans text-heading text-ink ${focusTargetClass}`}
+        >
           {overview.label === 'city' ? townPlacesTitleCity() : townPlacesTitleTown()}
         </h3>
         <ul className="m-0 flex list-none flex-col p-0">
@@ -188,7 +240,8 @@ export function TownHome({ town, registered, work, hiring }: TownHomeProps): Rea
         </ul>
       </section>
       <div className="flex min-w-0 flex-col gap-6">
-        <OfficeSection town={town} hiring={hiring} />
+        {tipAt('office')}
+        <OfficeSection town={town} hiring={hiring} titleRef={targets.refs.office.ref} />
         <MapRow />
       </div>
     </div>
