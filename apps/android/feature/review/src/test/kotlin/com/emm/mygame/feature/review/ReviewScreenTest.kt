@@ -49,6 +49,19 @@ class ReviewScreenTest {
     }
 
     @Test
+    fun `keeps the space typed between the words of a unit`() {
+        val intents: MutableList<ReviewIntent> = mutableListOf()
+        draw(
+            recalling(step = ReviewUiState.ReviewStep.Answering),
+            onIntent = { intent: ReviewIntent -> intents += intent },
+        )
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("come back")
+
+        assertEquals(listOf<ReviewIntent>(ReviewIntent.AnswerChanged("come back")), intents)
+    }
+
+    @Test
     fun `blocks comprobar while the recall field is empty`() {
         draw(recalling(step = ReviewUiState.ReviewStep.Answering))
 
