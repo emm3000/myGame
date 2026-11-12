@@ -44,7 +44,13 @@ internal fun terrainNameOf(terrain: Terrain): Int = when (terrain) {
     Terrain.Hills -> R.string.map_terrain_hills
 }
 
-internal fun sizeNumberOf(size: WasteSize): Int = size.ordinal + 1
+private const val LARGE_SIZE_NUMBER: Int = 3
+
+internal fun sizeNumberOf(size: WasteSize): Int = when (size) {
+    WasteSize.Small -> 1
+    WasteSize.Medium -> 2
+    WasteSize.Large -> LARGE_SIZE_NUMBER
+}
 
 internal fun phaseWordsOf(phase: TownSnapshot.JobPhase): Int = when (phase) {
     TownSnapshot.JobPhase.Outbound -> R.string.map_job_out_outbound
