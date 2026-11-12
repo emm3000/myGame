@@ -374,3 +374,23 @@ The first band 1 batch (ADR 037, #742), drafted by Claude Sonnet 5.5. Each lesso
 | before | adverb | 106 | Have you been here before? | Have you been here ____? | antes |
 | too | adverb | 118 | The school is too full. | The school is ____ full. | demasiado |
 | still | adverb | 119 | Is the school still full? | Is the school ____ full? | todavía |
+
+## Unit lessons
+
+A **unit lesson** teaches 5 multi-word units under one theme, never a semantic set, and no single word (ADR 044). A unit is a phrasal verb of the PHaVE List (Garnier and Schmitt 2015, source `phave`) taught in that list's most frequent sense, or a phrase of the PHRASE List (Martinez and Schmitt 2012, source `phrase`) that is not a PHaVE phrasal verb. The lists are cited as the evidence that each unit is frequent; the lexicon copies no list text, rank, definition or example, and Townword writes every frame, gloss and definition. Every word of a unit is a frame word or a card word an earlier lesson teaches, no two phrasal verbs of a lesson share their verb, and a unit's definition holds none of its card words. A unit lesson belongs to no band and earns its skill by its position (ADR 039). The content gate checks readiness, size, the shared verb, the spacing of at least 4 band lessons between unit lessons, the frames and the definitions; the owner reviews the order against the lists.
+
+### Lesson 27
+
+**Theme:** *What is new in town*, es *Qué hay de nuevo en el pueblo*. **Skill:** power, 5 %. The first unit lesson, drafted by Claude Opus 5.5 and appended after lesson 26 (#1008). Its units are the most frequent ready ones of each list: the three most frequent ready PHaVE phrasal verbs that share no verb, and the two most frequent ready PHRASE phrases that are not structures of the grammar inventory.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| go on | phave | verb | Things like this go on in many towns. | Things like this ____ ____ in many towns. | pasar | to happen |
+| come back | phave | verb | When will the mayor come back from the city? | When will the mayor ____ ____ from the city? | volver | to return to a place |
+| find out | phave | verb | Can you find out what time the office closes? | Can you ____ ____ what time the office closes? | averiguar | to learn something that you did not know |
+| such as | phrase | adverb | The town needs workers for places such as the farm and the factory. | The town needs workers for places ____ ____ the farm and the factory. | como por ejemplo | for example |
+| I mean | phrase | adverb | She is at the school, I mean, at the office. | She is at the school, ____ ____, at the office. | quiero decir | said when you change what you just said, or say it in a clearer way |
+
+- **Readiness.** *go* is taught by lesson 2, *come* by lesson 4, *back* by lesson 11, *find* by lesson 22 and *mean* by lesson 23; *on*, *out* and *I* are frame words admitted at lesson 1, *such* and *as* at lesson 16.
+- **Senses.** *go on* is taught as 'happen', *come back* as 'return to a place' and *find out* as 'learn a fact', each its list's most frequent sense. *I mean* is taught as the marker that corrects or restates what was just said, glossed *quiero decir*, which covers both.
+- **Part of speech.** The lexicon's part of speech is one of noun, verb, adjective or adverb; *such as* and *I mean* are filed as adverbs, the nearest of the four, since neither is a noun, a verb or an adjective.
