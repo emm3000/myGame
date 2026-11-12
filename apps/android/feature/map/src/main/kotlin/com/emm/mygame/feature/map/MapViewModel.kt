@@ -3,6 +3,7 @@ package com.emm.mygame.feature.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.network.HeldTown
+import com.emm.mygame.core.network.JobQuoteResult
 import com.emm.mygame.core.network.JobTarget
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
@@ -16,6 +17,7 @@ import com.emm.mygame.core.projection.repaintDelay
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +30,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 private val failedReadRetry: Duration = 1.minutes
+
+private val unreachableQuoteRetry: Duration = 5.seconds
 
 class MapViewModel(private val towns: TownRepository, private val clock: Clock) : ViewModel() {
 
@@ -200,8 +204,13 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
         quoteRead?.cancel()
         if (ask == null) return
         quoteRead = viewModelScope.launch {
-            quoted = payQuoteOf(towns.quoteJob(ask.target, ask.team, ask.hours))
-            draw()
+            do {
+                val answer: JobQuoteResult = towns.quoteJob(ask.target, ask.team, ask.hours)
+                quoted = payQuoteOf(answer)
+                draw()
+                val isUnreachable: Boolean = answer == JobQuoteResult.Unreachable
+                if (isUnreachable) delay(unreachableQuoteRetry)
+            } while (isUnreachable)
         }
     }
 
