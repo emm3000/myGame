@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import {
   ApiErrorSchema,
+  CleanUpQuoteSchema,
   JobQuoteSchema,
   PlayerSchema,
   RegionMapSchema,
@@ -1103,6 +1104,9 @@ describe('the town route', () => {
       team: { worker: 6, truck: 0 },
     })
 
+    const quoteCleanUp = (cookie: string, body: unknown): Promise<Response> =>
+      Promise.resolve(app.request('/town/clean-ups/quote', jsonRequest('POST', cookie, body)))
+
     it('sends a clean-up to a waste site', async () => {
       const ana = await signUpWithTown('ana@example.com')
       await keepWorkers(6)
@@ -1159,6 +1163,88 @@ describe('the town route', () => {
 
       expect(response.status).toBe(409)
       expect(await refusalOf(response)).toEqual({ kind: 'NoWasteYet' })
+    })
+
+    it('answers the strength, the waste and the pay a clean-up would bring before it is sent', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+
+      const quoted = await quoteCleanUp(ana, sixWorkersTo(1, 12))
+
+      expect(quoted.status).toBe(200)
+      expect(CleanUpQuoteSchema.parse(await quoted.json())).toEqual({
+        strength: 6,
+        waste: 6,
+        pay: { money: 12, food: 0, power: 0, material: 18 },
+      })
+    })
+
+    it('quotes the waste and the pay the send then fixes', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+
+      const quote = CleanUpQuoteSchema.parse(
+        await (await quoteCleanUp(ana, sixWorkersTo(1, 12))).json(),
+      )
+      const job = (await overviewOf(await sendCleanUp(ana, sixWorkersTo(1, 12)))).job
+
+      expect([quote.waste, quote.pay]).toEqual([
+        job?.kind === 'cleanUp' ? job.waste : undefined,
+        job?.pay,
+      ])
+    })
+
+    it('sends no team when it quotes a clean-up', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+      await quoteCleanUp(ana, sixWorkersTo(1, 12))
+
+      const overview = await overviewOf(await readTown(ana))
+
+      expect([overview.job, overview.hiring.hires.worker]).toEqual([null, 6])
+    })
+
+    it('refuses a quote to a site with no waste', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+
+      const response = await quoteCleanUp(ana, sixWorkersTo(1, 3))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'NotAWasteSite' })
+    })
+
+    it('refuses a quote to a site whose waste has not grown back yet', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(12)
+      await sendCleanUp(ana, sixWorkersTo(1, 12))
+      clock.advanceMinutes(30)
+
+      const response = await quoteCleanUp(ana, sixWorkersTo(1, 12))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'NoWasteYet' })
+    })
+
+    it('refuses a quote for a team larger than the hires at home', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(5)
+
+      const response = await quoteCleanUp(ana, sixWorkersTo(1, 12))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({
+        kind: 'NotEnoughHiresAtHome',
+        params: { hire: 'worker', count: 6, atHome: 5 },
+      })
+    })
+
+    it('answers a quote given hours with an empty 400', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+
+      const response = await quoteCleanUp(ana, { ...sixWorkersTo(1, 12), hours: 2 })
+
+      expect([response.status, await response.text()]).toEqual([400, ''])
     })
 
     it('answers a clean-up given hours with an empty 400', async () => {

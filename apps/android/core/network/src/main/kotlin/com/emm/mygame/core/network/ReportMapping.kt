@@ -9,8 +9,8 @@ import com.emm.mygame.core.network.generated.models.HiringDeliveredNewsParams
 import com.emm.mygame.core.network.generated.models.HiringStoppedNews
 import com.emm.mygame.core.network.generated.models.HiringStoppedNewsParams
 import com.emm.mygame.core.network.generated.models.JobBackNewsParamsSite
-import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
 import com.emm.mygame.core.network.generated.models.Report
+import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.SkillEarnedNews
 import com.emm.mygame.core.network.generated.models.SkillEarnedNewsParams
 import com.emm.mygame.core.network.generated.models.TownNewsItem
@@ -77,7 +77,7 @@ private fun HiringStoppedNews.toHiringStopped(): TownNews? {
 
 internal fun JobBackNewsParamsSite.toTownSite(): TownSite = TownSite(region = region, area = area, site = site)
 
-private fun NotEnoughResourcesErrorParamsMissing.toTownAmounts(): List<TownAmount> = listOf(
+private fun ResourceAmounts.toTownAmounts(): List<TownAmount> = listOf(
     TownAmount(TownResourceKind.Money, money.toLong()),
     TownAmount(TownResourceKind.Food, food.toLong()),
     TownAmount(TownResourceKind.Power, power.toLong()),

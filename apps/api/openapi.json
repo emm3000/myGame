@@ -226,27 +226,7 @@
             "type": "object",
             "properties": {
               "missing": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/ResourceAmounts"
               }
             },
             "required": ["missing"],
@@ -254,6 +234,29 @@
           }
         },
         "required": ["kind", "params"],
+        "additionalProperties": false
+      },
+      "ResourceAmounts": {
+        "type": "object",
+        "properties": {
+          "money": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "food": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "power": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "material": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": ["money", "food", "power", "material"],
         "additionalProperties": false
       },
       "TopLevelReachedError": {
@@ -993,27 +996,7 @@
                 "exclusiveMinimum": true
               },
               "refund": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/ResourceAmounts"
               }
             },
             "required": ["building", "level", "refund"],
@@ -1169,27 +1152,7 @@
                 "exclusiveMinimum": true
               },
               "refund": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/ResourceAmounts"
               }
             },
             "required": ["hire", "delivered", "stopped", "refund"],
@@ -1236,27 +1199,7 @@
                 "additionalProperties": false
               },
               "pay": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/ResourceAmounts"
               }
             },
             "required": ["site", "pay"],
@@ -1303,27 +1246,7 @@
                 "additionalProperties": false
               },
               "pay": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/ResourceAmounts"
               }
             },
             "required": ["site", "pay"],
@@ -1370,27 +1293,7 @@
                 "additionalProperties": false
               },
               "reward": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
+                "$ref": "#/components/schemas/ResourceAmounts"
               }
             },
             "required": ["site", "reward"],
@@ -1515,8 +1418,7 @@
                   "nullable": true,
                   "properties": {
                     "size": {
-                      "type": "integer",
-                      "enum": [1, 2, 3]
+                      "$ref": "#/components/schemas/WasteSize"
                     },
                     "waste": {
                       "type": "integer",
@@ -1534,6 +1436,10 @@
         },
         "required": ["region", "area", "lastArea", "terrain", "sites"],
         "additionalProperties": false
+      },
+      "WasteSize": {
+        "type": "integer",
+        "enum": [1, 2, 3]
       },
       "TownOverview": {
         "type": "object",
@@ -1714,27 +1620,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -1769,27 +1655,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -1824,27 +1690,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -1879,27 +1725,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -1934,27 +1760,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -1989,27 +1795,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -2044,27 +1830,7 @@
                         "exclusiveMinimum": true
                       },
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "durationSeconds": {
                         "type": "integer",
@@ -2170,27 +1936,7 @@
                     "type": "object",
                     "properties": {
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "secondsPerHire": {
                         "type": "integer",
@@ -2214,27 +1960,7 @@
                     "type": "object",
                     "properties": {
                       "cost": {
-                        "type": "object",
-                        "properties": {
-                          "money": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "food": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "power": {
-                            "type": "integer",
-                            "minimum": 0
-                          },
-                          "material": {
-                            "type": "integer",
-                            "minimum": 0
-                          }
-                        },
-                        "required": ["money", "food", "power", "material"],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/ResourceAmounts"
                       },
                       "secondsPerHire": {
                         "type": "integer",
@@ -2492,27 +2218,7 @@
             "exclusiveMinimum": true
           },
           "cost": {
-            "type": "object",
-            "properties": {
-              "money": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "food": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "power": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "material": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": ["money", "food", "power", "material"],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/ResourceAmounts"
           },
           "startsAt": {
             "type": "string",
@@ -2576,27 +2282,7 @@
             "$ref": "#/components/schemas/Team"
           },
           "pay": {
-            "type": "object",
-            "properties": {
-              "money": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "food": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "power": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "material": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": ["money", "food", "power", "material"],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/ResourceAmounts"
           },
           "phase": {
             "$ref": "#/components/schemas/JobPhase"
@@ -2695,27 +2381,7 @@
             "$ref": "#/components/schemas/Team"
           },
           "pay": {
-            "type": "object",
-            "properties": {
-              "money": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "food": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "power": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "material": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": ["money", "food", "power", "material"],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/ResourceAmounts"
           },
           "phase": {
             "$ref": "#/components/schemas/JobPhase"
@@ -2742,8 +2408,7 @@
             "format": "date-time"
           },
           "size": {
-            "type": "integer",
-            "enum": [1, 2, 3]
+            "$ref": "#/components/schemas/WasteSize"
           },
           "waste": {
             "type": "integer",
@@ -2944,27 +2609,7 @@
         "type": "object",
         "properties": {
           "pay": {
-            "type": "object",
-            "properties": {
-              "money": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "food": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "power": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "material": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": ["money", "food", "power", "material"],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/ResourceAmounts"
           }
         },
         "required": ["pay"],
@@ -2995,6 +2640,26 @@
           }
         },
         "required": ["site", "team"],
+        "additionalProperties": false
+      },
+      "CleanUpQuote": {
+        "type": "object",
+        "properties": {
+          "strength": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "waste": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "pay": {
+            "$ref": "#/components/schemas/ResourceAmounts"
+          }
+        },
+        "required": ["strength", "waste", "pay"],
         "additionalProperties": false
       },
       "StartLessonRequest": {
@@ -4113,6 +3778,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "InvalidTeam or JobSiteOutOfBounds; any other malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TeamAlreadyOut, JobToOwnSite, SiteHeld, NotAWasteSite, NoWasteYet or NotEnoughHiresAtHome.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/clean-ups/quote": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCleanUp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The team's strength, the site's waste and the pay the clean-up would fix if it were sent at this instant; nothing is sent or stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CleanUpQuote"
                 }
               }
             }

@@ -1,8 +1,8 @@
 package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.models.BuildingWork
-import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
 import com.emm.mygame.core.network.generated.models.PlaceHiringOrder
+import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.StartBuildingWork
 import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
@@ -162,7 +162,7 @@ private fun TownOverviewBuildingsHomesNextLevel.toNextLevel(): TownSnapshot.Next
     people = people,
 )
 
-private fun NotEnoughResourcesErrorParamsMissing.toCosts(): List<TownSnapshot.Cost> = listOf(
+private fun ResourceAmounts.toCosts(): List<TownSnapshot.Cost> = listOf(
     TownSnapshot.Cost(TownResourceKind.Money, money.toLong()),
     TownSnapshot.Cost(TownResourceKind.Food, food.toLong()),
     TownSnapshot.Cost(TownResourceKind.Power, power.toLong()),
