@@ -230,7 +230,7 @@ class TownLessonsRepositoryTest {
     private companion object {
         const val UNKNOWN_SKILL: String = """"resource":"oil","ratePercent":5,"earnedAt""""
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
-        const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000}"""
+        const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000,"fullAt":null}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val LESSON: String =
             """{"id":"lesson-1","theme":"A day in town","durationSeconds":150,"requiredSchoolLevel":2,""" +

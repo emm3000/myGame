@@ -198,7 +198,7 @@ class RegionMapRepositoryTest {
                 "$WASTE_FREE_SITE," +
                 """{"site":2,"town":{"name":"Riverton","isOwn":true},"waste":null},""" +
                 """{"site":3,"town":{"name":"Oakdale","isOwn":false},"waste":null}]}"""
-        const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000}"""
+        const val STOCK: String = """{"amount":120,"ratePerHour":30.5,"capacity":1000,"fullAt":null}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
         const val TERMS: String =
             """{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +

@@ -58,12 +58,48 @@ class TownRepositoryTest {
         val read: TownSnapshot = (answer as TownReadResult.Read).town
         assertEquals(
             listOf(
-                TownSnapshot.Stock(TownResourceKind.Money, amount = 120, ratePerHour = 30.5, capacity = 1000),
-                TownSnapshot.Stock(TownResourceKind.Food, amount = 80, ratePerHour = 12.0, capacity = 1000),
-                TownSnapshot.Stock(TownResourceKind.Power, amount = 60, ratePerHour = 0.0, capacity = 1000),
-                TownSnapshot.Stock(TownResourceKind.Material, amount = 40, ratePerHour = 7.0, capacity = 1000),
+                TownSnapshot.Stock(
+                    TownResourceKind.Money,
+                    amount = 120,
+                    ratePerHour = 30.5,
+                    capacity = 1000,
+                    fullAt = moneyFullAt,
+                ),
+                TownSnapshot.Stock(
+                    TownResourceKind.Food,
+                    amount = 80,
+                    ratePerHour = 12.0,
+                    capacity = 1000,
+                    fullAt = null,
+                ),
+                TownSnapshot.Stock(
+                    TownResourceKind.Power,
+                    amount = 60,
+                    ratePerHour = 0.0,
+                    capacity = 1000,
+                    fullAt = null,
+                ),
+                TownSnapshot.Stock(
+                    TownResourceKind.Material,
+                    amount = 40,
+                    ratePerHour = 7.0,
+                    capacity = 1000,
+                    fullAt = null,
+                ),
             ),
             read.stocks,
+        )
+    }
+
+    @Test
+    fun `maps a store's fill instant`() = runTest {
+        api.enqueue(json(200, TOWN))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            listOf(moneyFullAt, null, null, null),
+            read.stocks.map { stock: TownSnapshot.Stock -> stock.fullAt },
         )
     }
 
@@ -690,6 +726,7 @@ class TownRepositoryTest {
 
     private companion object {
         val aMinuteBeforeTheRead: Instant = Instant.parse("2026-11-05T10:04:00Z")
+        val moneyFullAt: Instant = Instant.parse("2026-11-06T14:51:09Z")
         const val NOTHING: String = """{"money":0,"food":0,"power":0,"material":0}"""
         const val HOMES_COST: String = """{"money":60,"food":0,"power":0,"material":30}"""
         const val FLAT: String = """{"level":1,"nextLevel":null}"""
@@ -706,10 +743,11 @@ class TownRepositoryTest {
         const val TOWN: String =
             """{"name":"Riverton","label":"town","site":{"region":1,"area":1,"site":1},"terrain":"fields",""" +
                 """"season":{"kind":"fall","year":1,"endsAt":"2026-11-08T00:00:00.000Z"},""" +
-                """"stocks":{"money":{"amount":120,"ratePerHour":30.5,"capacity":1000},""" +
-                """"food":{"amount":80,"ratePerHour":12,"capacity":1000},""" +
-                """"power":{"amount":60,"ratePerHour":0,"capacity":1000},""" +
-                """"material":{"amount":40,"ratePerHour":7,"capacity":1000}},""" +
+                """"stocks":{"money":{"amount":120,"ratePerHour":30.5,"capacity":1000,""" +
+                """"fullAt":"2026-11-06T14:51:09.000Z"},""" +
+                """"food":{"amount":80,"ratePerHour":12,"capacity":1000,"fullAt":null},""" +
+                """"power":{"amount":60,"ratePerHour":0,"capacity":1000,"fullAt":null},""" +
+                """"material":{"amount":40,"ratePerHour":7,"capacity":1000,"fullAt":null}},""" +
                 """"people":{"supplied":10,"free":4,"atWork":6},""" +
                 """"buildings":{"homes":{"level":1,"nextLevel":{"level":2,"cost":$HOMES_COST,""" +
                 """"durationSeconds":90,"people":3}},"farm":$FLAT,"factory":$FLAT,"powerStation":$FLAT,""" +
