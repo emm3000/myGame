@@ -100,6 +100,7 @@ const bandWordsOf = ({
 
 const placementWordsOf = ({
   curriculum,
+  grammar,
   lessons,
   lexicon,
   ranks,
@@ -109,11 +110,12 @@ const placementWordsOf = ({
       .slice(0, curriculum.chromeLessonCount)
       .flatMap(({ words }) => words.map(({ id }) => id)),
   )
+  const frameWords = frameWordsOf(grammar)
   const bands = new Map<Band, ReadonlyArray<PlacementWord>>()
   for (const entry of lexicon) {
     const headword = headwordOf(entry.lemma)
     const rank = ranks.get(headword)
-    if (rank !== undefined && entry.gloss.es !== undefined) {
+    if (rank !== undefined && entry.gloss.es !== undefined && !frameWords.has(headword)) {
       const band = bandOfRank(rank)
       const word = {
         id: entry.id,

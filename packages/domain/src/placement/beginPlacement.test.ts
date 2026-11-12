@@ -99,6 +99,22 @@ describe('beginPlacement', () => {
     expect((await sampledWordIdsOf(placements)).length).toBe(1)
   })
 
+  it('places out the last band without a band after it', async () => {
+    const { placements, dependencies } = placementOf({
+      shelves: [
+        { band: 1, words: placementWordsOfBand(1, 30) },
+        { band: 2, words: placementWordsOfBand(2, 30) },
+        { band: 3, words: placementWordsOfBand(3, 30) },
+      ],
+    })
+
+    await beginPlacement({ playerId: ana }, dependencies)
+
+    expect((await sampledWordIdsOf(placements)).map((wordIds) => wordIds.length)).toEqual([
+      30, 30, 30,
+    ])
+  })
+
   it('samples no band whose next band has no lessons', async () => {
     const { placements, dependencies } = placementOf({
       shelves: [
