@@ -75,23 +75,14 @@ const contentOfLessons = (
   return directory
 }
 
-const contentWithBandLessonOf = (lemma: string): string => {
+const contentWithLessonOf = (entry: Readonly<Record<string, unknown>>): string => {
   const directory = contentCopy()
   const lexicon: unknown = JSON.parse(readFileSync(lessonsFile(directory, 'words.json'), 'utf8'))
-  const entry = {
-    id: 'band-lesson-word',
-    lemma,
-    partOfSpeech: 'verb',
-    frame: `I ${lemma} it.`,
-    gappedFrame: 'I ____ it.',
-    gloss: { es: 'decir' },
-    definition: 'to speak words',
-  }
   writeJson(directory, 'words.json', [...(lexicon as ReadonlyArray<unknown>), entry])
   writeJson(directory, 'lesson-17.json', {
     id: 'lesson-17',
     ...lessonOneTerms,
-    wordIds: ['band-lesson-word'],
+    wordIds: [entry.id],
   })
   const curriculum = readJson(directory, 'curriculum.json')
   writeJson(directory, 'curriculum.json', {
@@ -100,6 +91,29 @@ const contentWithBandLessonOf = (lemma: string): string => {
   })
   return directory
 }
+
+const contentWithBandLessonOf = (lemma: string): string =>
+  contentWithLessonOf({
+    id: 'band-lesson-word',
+    lemma,
+    partOfSpeech: 'verb',
+    frame: `I ${lemma} it.`,
+    gappedFrame: 'I ____ it.',
+    gloss: { es: 'decir' },
+    definition: 'to speak words',
+  })
+
+const contentWithUnitLesson = (): string =>
+  contentWithLessonOf({
+    id: 'unit-lesson-word',
+    lemma: 'give up',
+    partOfSpeech: 'verb',
+    frame: 'She will not give up.',
+    gappedFrame: 'She will not ____ ____.',
+    gloss: { es: 'rendirse' },
+    definition: 'to stop trying',
+    source: 'phave',
+  })
 
 afterEach(() => {
   for (const directory of copies.splice(0)) {
@@ -136,6 +150,12 @@ describe('JsonLessonCatalog', () => {
     const catalog = JsonLessonCatalog.fromDirectory(shippedContent)
 
     expect(catalog.wordsOfBand(3)).toContainEqual({ headword: 'false', isChrome: false })
+  })
+
+  it('answers no band for a unit lesson', () => {
+    const catalog = JsonLessonCatalog.fromDirectory(contentWithUnitLesson())
+
+    expect(catalog.bandOfLesson('lesson-17')).toBeUndefined()
   })
 
   it('refuses a band lesson that teaches no word of the list', () => {

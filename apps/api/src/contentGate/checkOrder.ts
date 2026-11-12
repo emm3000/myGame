@@ -2,12 +2,21 @@ import { bandOfRank } from '../adapters/json/bandOfRank'
 import type { LessonOfFiles, LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { frameWordsOf } from './frameWordsOf'
 import type { GateContent } from './GateContent'
+import { isUnit } from './isUnit'
+import { isUnitLesson } from './isUnitLesson'
+import { lemmaWordsOf } from './lemmaWordsOf'
 
 const windowSize = 30
 
 const lessonSize = 5
 
 const lastLessonLimit = 10
+
+const fewestUnits = 5
+
+const mostUnits = 9
+
+const unitLessonSpacing = 4
 
 type Band = { readonly band: number; readonly untaught: ReadonlyArray<string> }
 
@@ -78,20 +87,131 @@ const chromeCountFailures = ({ curriculum }: GateContent): ReadonlyArray<string>
     : [`curriculum counts ${chromeLessonCount} chrome lessons but lists ${lessonCount}`]
 }
 
+type UnitTerms = {
+  readonly taught: ReadonlySet<string>
+  readonly admittedAt: ReadonlyMap<string, number>
+}
+
+const admissionsOf = ({ grammar, curriculum }: GateContent): ReadonlyMap<string, number> =>
+  new Map(
+    [...frameWordsOf(grammar)].map(([word, lessonId]) => [
+      word,
+      curriculum.lessonIds.indexOf(lessonId) + 1,
+    ]),
+  )
+
+const readinessFailures = (
+  lessonId: string,
+  position: number,
+  { lemma }: LexiconEntry,
+  { taught, admittedAt }: UnitTerms,
+): ReadonlyArray<string> =>
+  lemmaWordsOf(lemma).flatMap((word) => {
+    const admission = admittedAt.get(word)
+    if (admission !== undefined) {
+      return admission > 0 && admission <= position
+        ? []
+        : [`${lessonId}: ${lemma} holds ${word}, a frame word admitted after ${lessonId}`]
+    }
+    return taught.has(word)
+      ? []
+      : [`${lessonId}: ${lemma} holds ${word}, a word no earlier lesson teaches`]
+  })
+
+const sharedVerbFailures = (
+  lessonId: string,
+  words: ReadonlyArray<LexiconEntry>,
+): ReadonlyArray<string> => {
+  const phrasalVerbs = new Map<string, ReadonlyArray<string>>()
+  for (const { lemma } of words.filter(({ source }) => source === 'phave')) {
+    const [verb = lemma] = lemmaWordsOf(lemma)
+    phrasalVerbs.set(verb, [...(phrasalVerbs.get(verb) ?? []), lemma])
+  }
+  return [...phrasalVerbs]
+    .filter(([, lemmas]) => lemmas.length > 1)
+    .map(
+      ([verb, lemmas]) =>
+        `${lessonId}: the phrasal verbs ${lemmas.join(' and ')} share their verb ${verb}`,
+    )
+}
+
+const unitLessonFailures = (
+  { content, words }: LessonOfFiles,
+  position: number,
+  terms: UnitTerms,
+): ReadonlyArray<string> => [
+  ...(words.length >= fewestUnits && words.length <= mostUnits
+    ? []
+    : [`${content.id}: teaches ${words.length} units, not ${fewestUnits} to ${mostUnits}`]),
+  ...words.flatMap((entry) => readinessFailures(content.id, position, entry, terms)),
+  ...sharedVerbFailures(content.id, words),
+]
+
+const chromeLessonFailures = ({ content, words }: LessonOfFiles): ReadonlyArray<string> =>
+  words
+    .filter(isUnit)
+    .map(
+      ({ lemma }) =>
+        `${content.id}: teaches the multi-word unit ${lemma}, which no chrome lesson teaches`,
+    )
+
+const spacingFailures = ({ lessons, curriculum }: GateContent): ReadonlyArray<string> => {
+  const unitLessons = lessons.flatMap((lesson, index) =>
+    index >= curriculum.chromeLessonCount && isUnitLesson(lesson)
+      ? [{ id: lesson.content.id, index }]
+      : [],
+  )
+  return unitLessons.slice(1).flatMap((later, previous) => {
+    const earlier = unitLessons[previous]
+    if (earlier === undefined) {
+      return []
+    }
+    const between = later.index - earlier.index - 1
+    return between >= unitLessonSpacing
+      ? []
+      : [
+          `${later.id}: comes ${between} band lessons after the unit lesson ${earlier.id}, not at least ${unitLessonSpacing}`,
+        ]
+  })
+}
+
+const lessonFailures = (
+  lesson: LessonOfFiles,
+  index: number,
+  current: Band | undefined,
+  terms: UnitTerms,
+  { curriculum }: GateContent,
+): ReadonlyArray<string> => {
+  if (index < curriculum.chromeLessonCount) {
+    return chromeLessonFailures(lesson)
+  }
+  if (isUnitLesson(lesson)) {
+    return unitLessonFailures(lesson, index + 1, terms)
+  }
+  if (lesson.words.some(isUnit)) {
+    return [`${lesson.content.id}: mixes multi-word units with single words`]
+  }
+  return current === undefined
+    ? [`${lesson.content.id}: comes after every band is taught`]
+    : bandLessonFailures(lesson, current)
+}
+
 export const checkOrder = (content: GateContent): ReadonlyArray<string> => {
   const bands = bandsOf(content)
+  const admittedAt = admissionsOf(content)
   const taught = new Set<string>()
   const failures = content.lessons.flatMap((lesson, index) => {
-    const current = currentBand(bands, taught)
+    const found = lessonFailures(
+      lesson,
+      index,
+      currentBand(bands, taught),
+      { taught, admittedAt },
+      content,
+    )
     for (const { lemma } of lesson.words) {
       taught.add(lemma.toLowerCase())
     }
-    if (index < content.curriculum.chromeLessonCount) {
-      return []
-    }
-    return current === undefined
-      ? [`${lesson.content.id}: comes after every band is taught`]
-      : bandLessonFailures(lesson, current)
+    return found
   })
-  return [...chromeCountFailures(content), ...failures]
+  return [...chromeCountFailures(content), ...failures, ...spacingFailures(content)]
 }

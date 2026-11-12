@@ -38,6 +38,13 @@ const newAfterLeaving = (homographs?: Record<string, string>): LexiconEntry =>
     ...(homographs === undefined ? {} : { homographs }),
   })
 
+const workOn = (frame: string, gappedFrame?: string): LexiconEntry =>
+  entryOf('unit-1', 'work on', frame, {
+    partOfSpeech: 'verb',
+    source: 'phave',
+    ...(gappedFrame === undefined ? {} : { gappedFrame }),
+  })
+
 describe('content gate check 3, the frame rule', () => {
   it('passes the shipped frames', () => {
     expect(checkFrames(gateContentOf(shippedContent))).toEqual([])
@@ -121,6 +128,41 @@ describe('content gate check 3, the frame rule', () => {
   it('fails a homograph form that names a word it cannot mean', () => {
     expect(checkFrames(afterLessonOne(leave, newAfterLeaving({ left: 'right' })))).toEqual([
       'word-2: names right for left, which left cannot mean',
+    ])
+  })
+  it('passes a frame holding its unit once, together and in its own form, a gap for each word', () => {
+    expect(
+      checkFrames(afterLessonOne(workOn('We work on the food.', 'We ____ ____ the food.'))),
+    ).toEqual([])
+  })
+
+  it('fails a gapped frame with one gap for a two-word unit', () => {
+    expect(
+      checkFrames(afterLessonOne(workOn('We work on the food.', 'We ____ the food.'))),
+    ).toEqual(['unit-1: gapped frame is not its frame with work on replaced by ____ ____'])
+  })
+
+  it('fails a frame that holds its unit twice', () => {
+    const twice = workOn('We work on, work on the food.', 'We ____ ____, work on the food.')
+
+    expect(checkFrames(afterLessonOne(twice))).toEqual([
+      'unit-1: frame holds work on 2 times, not once',
+    ])
+  })
+
+  it('fails a frame that splits its unit around its object', () => {
+    const split = workOn('They work for us on the food.', 'They ____ for us ____ the food.')
+
+    expect(checkFrames(afterLessonOne(split))).toEqual([
+      'unit-1: frame holds work on 0 times, not once',
+    ])
+  })
+
+  it('fails a frame holding its unit in another form', () => {
+    const inflected = workOn('We worked on the food.', 'We ____ ____ the food.')
+
+    expect(checkFrames(afterLessonOne(inflected))).toEqual([
+      'unit-1: frame holds work on as worked on, not in its own form',
     ])
   })
 })
