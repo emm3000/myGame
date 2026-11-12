@@ -7,6 +7,7 @@ import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import { cleanUpFormOf, firstCleanUpEntries } from './cleanUpFormOf'
 import { type CleanUpQuoteLines, cleanUpQuoteLinesOf } from './cleanUpQuoteLinesOf'
+import { sendStateOf } from './sendStateOf'
 import type { TeamEntries } from './teamFormOf'
 import { sentKeyOf, type TownJob } from './useJob'
 import { useQuote } from './useQuote'
@@ -73,14 +74,15 @@ export function CleanUpForm({ id, target, town, job, onSent }: CleanUpFormProps)
         />
       ))}
       <QuoteLines lines={lines} />
-      {quoted?.ok === false && refused === undefined && (
+      {quoted?.ok === false && quoted.refusal === 'Unexpected' && refused === undefined && (
         <FormAlert message={refusalLineOf(quoted.refusal, quoted.error)} />
       )}
       <CardAction
         type="button"
         label={form.actionLabel}
-        state={form.state}
+        state={sendStateOf(form.state, quoted, refused !== undefined)}
         isWaiting={job.isSending}
+        announcesReason
         onAction={onSend}
       />
       {refused !== undefined && (

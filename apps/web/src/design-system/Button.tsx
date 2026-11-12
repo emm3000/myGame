@@ -2,7 +2,7 @@ import type { MouseEvent, ReactElement, ReactNode } from 'react'
 
 export type ButtonTone = 'primary' | 'quiet' | 'text'
 
-export type ButtonAvailability = 'available' | 'blocked' | 'waiting' | 'waitingInPlace'
+export type ButtonAvailability = 'available' | 'blocked' | 'marked' | 'waiting' | 'waitingInPlace'
 
 export interface ButtonProps {
   readonly children: ReactNode
@@ -38,8 +38,11 @@ const paddingClass: Readonly<Record<ButtonTone, string>> = {
 const waitingClass =
   'inline-flex cursor-progress items-center justify-center border-line-strong bg-surface-sunken text-ink-muted'
 
+const blockedClass = 'border-dashed border-line-strong bg-surface-sunken text-ink-muted'
+
 const unavailableClass: Readonly<Record<Exclude<ButtonAvailability, 'available'>, string>> = {
-  blocked: 'cursor-not-allowed border-dashed border-line-strong bg-surface-sunken text-ink-muted',
+  blocked: `cursor-not-allowed ${blockedClass}`,
+  marked: `cursor-pointer ${blockedClass}`,
   waiting: `${waitingClass} gap-2`,
   waitingInPlace: `${waitingClass} gap-1`,
 }
@@ -62,8 +65,9 @@ export function Button(props: ButtonProps): ReactElement {
   const availability = props.availability ?? 'available'
   const isUnavailable = availability !== 'available'
   const isWaiting = availability === 'waiting' || availability === 'waitingInPlace'
+  const isWithheld = isUnavailable && availability !== 'marked'
   const press = (event: MouseEvent<HTMLButtonElement>): void => {
-    if (isUnavailable) {
+    if (isWithheld) {
       event.preventDefault()
       return
     }
@@ -73,7 +77,7 @@ export function Button(props: ButtonProps): ReactElement {
     <button
       type={props.type}
       disabled={props.disabled}
-      aria-disabled={isUnavailable ? true : undefined}
+      aria-disabled={isWithheld ? true : undefined}
       aria-busy={isWaiting ? true : undefined}
       aria-label={props.accessibleName}
       aria-describedby={props.describedBy}

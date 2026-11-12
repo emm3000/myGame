@@ -591,3 +591,7 @@ slice (Decision 1), recorded by ADR 029.
 ## Amendment (2026-11-04)
 
 ADR 035 replaces the digest with **the Report**: the reviews due first, then the news since the last visit. The fief switcher goes with the second fief (ADR 023, superseded), and the strip's march cell becomes the job cell. The bar, the strip, the repaint rule, the goals and the hints stay; a hint is a *tip* on screen. Until the town rebuild's tickets ship, the code keeps the terms this ADR names. Nothing else here changes.
+
+## Amendment (2026-11-12)
+
+A blocked card action still sends (#981, `.claude/rules/android-architecture.md`, The client never decides). `CardAction`'s `blocked` keeps the dashed look, the tab order and its reason as the description, but its `Button` is `marked`: it carries no `aria-disabled`, since it still acts, and the api's answer is drawn inline. Only an entry that builds no request (`invalidEntry`) and a max-level button keep `blocked`, with `aria-disabled` and the press swallowed. S22 reads "announced with its reason".

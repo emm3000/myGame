@@ -27,7 +27,7 @@ export function cleanUpFormOf(
     state:
       admitted.kind === 'ready'
         ? { kind: 'affordable' }
-        : { kind: 'blocked', reason: admitted.reason },
+        : { kind: 'invalidEntry', reason: admitted.reason },
     cleanUp: admitted.kind === 'ready' ? { site, team: admitted.team } : undefined,
   }
 }

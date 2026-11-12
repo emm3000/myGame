@@ -26,7 +26,7 @@ internal fun CleanUpFormCard(
         form = form,
         title = icuStringResource(R.string.map_clean_up_title, "site" to form.site.toString()),
         send = send,
-        isQuoteRefused = form.quote is MapUiState.CleanUpQuote.Refused,
+        quoteRefusal = (form.quote as? MapUiState.CleanUpQuote.Refused)?.refusal,
         onIntent = onIntent,
         modifier = modifier,
     ) { isSendAnswered: Boolean ->

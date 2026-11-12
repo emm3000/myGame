@@ -237,4 +237,36 @@ class MapScreenTest {
             .onAllNodesWithText("Elige al menos un trabajador o un camión para el equipo.", useUnmergedTree = true)
             .assertCountEquals(1)
     }
+
+    @Test
+    fun `marks the send with the reason of a refused quote`() {
+        show(contentOf(form = readyForm.copy(quote = MapUiState.PayQuote.Refused(TownJobRefusal.TeamAlreadyOut))))
+
+        composeRule
+            .onNode(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.StateDescription,
+                    "Tu equipo ya está fuera. Espera a que vuelva.",
+                ),
+            )
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `sends a team its refused quote marks, since the api decides`() {
+        show(contentOf(form = readyForm.copy(quote = MapUiState.PayQuote.Refused(TownJobRefusal.TeamAlreadyOut))))
+
+        composeRule
+            .onNode(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.StateDescription,
+                    "Tu equipo ya está fuera. Espera a que vuelva.",
+                ),
+            )
+            .performScrollTo()
+            .performClick()
+
+        assertEquals(listOf<MapIntent>(MapIntent.SendTapped), intents)
+    }
 }
