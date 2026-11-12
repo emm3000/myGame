@@ -158,6 +158,14 @@ describe('content gate check 3, the frame rule', () => {
     ])
   })
 
+  it('fails a frame that splits its unit with punctuation', () => {
+    const punctuated = workOn('We work, on the food.', 'We work, on the food.')
+
+    expect(checkFrames(afterLessonOne(punctuated))).toEqual([
+      'unit-1: frame holds work on with its words apart, not together',
+    ])
+  })
+
   it('fails a frame holding its unit in another form', () => {
     const inflected = workOn('We worked on the food.', 'We ____ ____ the food.')
 

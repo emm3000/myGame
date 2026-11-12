@@ -1,6 +1,6 @@
 import type { LexiconEntry } from '../adapters/json/lessonContentFilesOf'
 import { cardWordEndingOf } from './cardWordEndingOf'
-import { frameWordsOf } from './frameWordsOf'
+import { frameWordAdmissionsOf } from './frameWordAdmissionsOf'
 import type { GateContent } from './GateContent'
 import { inventoryFailuresOf } from './inventoryFailuresOf'
 import { readingOf } from './readingOf'
@@ -25,9 +25,7 @@ const termsOf = (content: GateContent): GrammarTerms => {
     content.curriculum.lessonIds.indexOf(lessonId) + 1
   return {
     reading: readingTermsOf(content),
-    frameWordsAdmittedAt: new Map(
-      [...frameWordsOf(content.grammar)].map(([word, lessonId]) => [word, positionOf(lessonId)]),
-    ),
+    frameWordsAdmittedAt: frameWordAdmissionsOf(content),
     inflectionsAdmittedAt: new Map(
       content.grammar.structures.flatMap(({ inflections, admittingLessonId }) =>
         inflections.map((inflection) => [inflection, positionOf(admittingLessonId)] as const),
