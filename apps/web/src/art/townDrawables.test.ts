@@ -12,9 +12,9 @@ const contentsOf = (name: string): string =>
 const pathCountOf = (name: string): number => [...contentsOf(name).matchAll(/<path/g)].length
 
 describe('the town art', () => {
-  for (const { sourcePath, svg } of townArtOf()) {
+  for (const { sourcePath, svg, family } of townArtOf()) {
     it(`keeps ${basename(sourcePath)} to the art bible's rules`, () => {
-      expect(artProblemsOf(svg)).toEqual([])
+      expect(artProblemsOf(svg, family)).toEqual([])
     })
   }
 
@@ -26,8 +26,12 @@ describe('the town art', () => {
     })
   }
 
-  it('writes one drawable per place and level, and one word silhouette per place', () => {
-    expect(drawables.length).toBe(84)
+  it('writes one drawable per place and level, one word silhouette per place and one per waste size', () => {
+    expect(drawables.length).toBe(87)
+  })
+
+  it('names a waste drawable by its size', () => {
+    expect(pathCountOf('designsystem_waste_2.xml')).toBe(5)
   })
 
   it('trims a word silhouette to its shapes', () => {

@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import type { ArtFamily } from './ArtFamily'
 import { placeAtLevelOf } from './placeAtLevelOf'
 import { windowCount } from './placeShapesOf'
 import type { TownArt, TownDrawable } from './TownDrawable'
@@ -15,7 +16,7 @@ const drawableDirectory = join(
 type DrawableCut = { readonly prefix: string; readonly suffix: string; readonly contents: string }
 
 type Family = {
-  readonly directory: string
+  readonly directory: ArtFamily
   readonly cutsOf: (svg: string) => ReadonlyArray<DrawableCut>
 }
 
@@ -51,7 +52,7 @@ function resourceNameOf(prefix: string, fileName: string): string {
   return `${prefix}${snake}`
 }
 
-function fileNamesOf(directory: string): ReadonlyArray<string> {
+function fileNamesOf(directory: ArtFamily): ReadonlyArray<string> {
   const path = join(publicArtDirectory, directory)
   return existsSync(path)
     ? readdirSync(path)
@@ -60,9 +61,9 @@ function fileNamesOf(directory: string): ReadonlyArray<string> {
     : []
 }
 
-function artOf(directory: string, fileName: string): TownArt {
+function artOf(directory: ArtFamily, fileName: string): TownArt {
   const sourcePath = join(publicArtDirectory, directory, fileName)
-  return { sourcePath, svg: readFileSync(sourcePath, 'utf8') }
+  return { sourcePath, svg: readFileSync(sourcePath, 'utf8'), family: directory }
 }
 
 export function townArtOf(): ReadonlyArray<TownArt> {
