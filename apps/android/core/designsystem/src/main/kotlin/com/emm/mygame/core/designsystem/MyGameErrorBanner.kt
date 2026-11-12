@@ -37,3 +37,11 @@ fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit
         }
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameErrorBannerPreview() {
+    MyGamePreviewSurface {
+        MyGameErrorBanner(message = "We could not read your town.", actionLabel = "Try again", onAction = {})
+    }
+}

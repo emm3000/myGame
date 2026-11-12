@@ -17,3 +17,13 @@ fun MyGameWordArt(art: MyGameArt, modifier: Modifier = Modifier) {
         modifier = modifier,
     )
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameWordArtPreview() {
+    MyGamePreviewSurface {
+        MyGameBlock(hue = MyGameBlockHue.Mint) {
+            MyGameWordArt(art = MyGameArt(drawable = R.drawable.designsystem_word_farm, tint = MyGameArtTint.OnBlock))
+        }
+    }
+}

@@ -26,3 +26,13 @@ fun MyGameHeader(
         end()
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameHeaderPreview() {
+    MyGamePreviewSurface {
+        MyGameHeader(end = { MyGameMetaText(text = "Day 4", color = MyGameTheme.colors.inkMuted) }) {
+            MyGameBackLink(label = "Town", isEnabled = true, onClick = {})
+        }
+    }
+}

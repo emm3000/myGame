@@ -23,6 +23,8 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
 fun MyGameTextField(
@@ -77,6 +79,48 @@ fun MyGameTextField(
                     }
                 }
             },
+        )
+    }
+}
+
+private data class TextFieldState(
+    val value: String,
+    val isSecret: Boolean,
+    val isReadOnly: Boolean,
+    val supportingText: String?,
+    val isEnabled: Boolean,
+)
+
+private class TextFieldStates : PreviewParameterProvider<TextFieldState> {
+
+    override val values: Sequence<TextFieldState> = sequenceOf(
+        TextFieldState(value = "", isSecret = false, isReadOnly = false, supportingText = null, isEnabled = true),
+        TextFieldState(value = "maple", isSecret = false, isReadOnly = false, supportingText = null, isEnabled = true),
+        TextFieldState(
+            value = "secret words",
+            isSecret = true,
+            isReadOnly = false,
+            supportingText = "At least 8 characters.",
+            isEnabled = true,
+        ),
+        TextFieldState(value = "maple", isSecret = false, isReadOnly = true, supportingText = null, isEnabled = true),
+        TextFieldState(value = "12", isSecret = false, isReadOnly = false, supportingText = null, isEnabled = false),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameTextFieldPreview(@PreviewParameter(TextFieldStates::class) state: TextFieldState) {
+    MyGamePreviewSurface {
+        MyGameTextField(
+            value = state.value,
+            label = "Your answer",
+            isSecret = state.isSecret,
+            isReadOnly = state.isReadOnly,
+            keyboardOptions = KeyboardOptions.Default,
+            onValueChange = {},
+            supportingText = state.supportingText,
+            isEnabled = state.isEnabled,
         )
     }
 }

@@ -121,3 +121,17 @@ private fun rememberPulse(): Float {
     )
     return pulse
 }
+
+private val previewBlocks: MyGameSkeletonBlocks =
+    MyGameSkeletonBlocks(heights = listOf(MyGameSizes.thumbnail, MyGameSizes.control))
+
+@PreviewMyGame
+@Composable
+private fun MyGameSkeletonPreview() {
+    MyGamePreviewSurface {
+        SkeletonBlocks(loadingLabel = "Loading your town", blocks = previewBlocks)
+        MyGameSkeleton(isLoading = false, loadingLabel = "Loading your town", blocks = previewBlocks) {
+            MyGameText(text = "Maple Hollow", style = MyGameTypography.title, color = MyGameTheme.colors.ink)
+        }
+    }
+}

@@ -23,3 +23,15 @@ fun MyGameCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
         content()
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameCardPreview() {
+    MyGamePreviewSurface {
+        MyGameCard {
+            MyGameText(text = "No news yet.", style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+            MyGameHairline()
+            MyGameText(text = "Your town is quiet.", style = MyGameTypography.body, color = MyGameTheme.colors.inkMuted)
+        }
+    }
+}

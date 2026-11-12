@@ -19,3 +19,12 @@ fun MyGameBackLink(label: String, isEnabled: Boolean, onClick: () -> Unit, modif
         }
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameBackLinkPreview() {
+    MyGamePreviewSurface {
+        MyGameBackLink(label = "Town", isEnabled = true, onClick = {})
+        MyGameBackLink(label = "Town", isEnabled = false, onClick = {})
+    }
+}

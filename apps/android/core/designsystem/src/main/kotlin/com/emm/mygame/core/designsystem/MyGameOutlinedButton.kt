@@ -3,6 +3,7 @@ package com.emm.mygame.core.designsystem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.PreviewParameter
 
 const val OUTLINED_PILL: String = "outlined_pill"
 
@@ -37,4 +38,32 @@ fun MyGameOutlinedButton(
         accessibleName = accessibleName,
         badge = badge,
     )
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameOutlinedButtonPreview(@PreviewParameter(MyGamePillStates::class) state: MyGamePillState) {
+    MyGamePreviewSurface {
+        MyGameOutlinedButton(
+            label = state.label,
+            isBusy = state.isBusy,
+            busyDescription = state.busyDescription,
+            onClick = {},
+            blockedReason = state.blockedReason,
+        )
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameOutlinedButtonBadgePreview() {
+    MyGamePreviewSurface {
+        MyGameOutlinedButton(
+            label = "Review your words",
+            isBusy = false,
+            busyDescription = "Opening",
+            onClick = {},
+            badge = "3",
+        )
+    }
 }

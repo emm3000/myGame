@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
 
@@ -105,4 +106,25 @@ private fun Modifier.edge(
     isBlocked -> dashedFrame(colors.lineStrong)
     isBusy -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
     else -> border(MyGameStrokeWidths.hairline, look.edge, shape)
+}
+
+internal data class MyGamePillState(
+    val label: String,
+    val isBusy: Boolean,
+    val busyDescription: String,
+    val blockedReason: String?,
+)
+
+internal class MyGamePillStates : PreviewParameterProvider<MyGamePillState> {
+
+    override val values: Sequence<MyGamePillState> = sequenceOf(
+        MyGamePillState(label = "Build the farm", isBusy = false, busyDescription = "Building", blockedReason = null),
+        MyGamePillState(
+            label = "Build the farm",
+            isBusy = false,
+            busyDescription = "Building",
+            blockedReason = "Not enough material",
+        ),
+        MyGamePillState(label = "Build the farm", isBusy = true, busyDescription = "Building", blockedReason = null),
+    )
 }

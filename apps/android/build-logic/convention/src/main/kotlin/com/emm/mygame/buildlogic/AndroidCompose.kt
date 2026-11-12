@@ -11,5 +11,7 @@ internal fun Project.configureAndroidCompose(commonExtension: CommonExtension) {
         add("implementation", platform(libs.library("androidx-compose-bom")))
         add("implementation", libs.library("androidx-compose-ui"))
         add("implementation", libs.library("androidx-compose-foundation"))
+        add("implementation", libs.library("androidx-compose-ui-tooling-preview"))
+        add("debugImplementation", libs.library("androidx-compose-ui-tooling"))
     }
 }

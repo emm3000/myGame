@@ -21,3 +21,11 @@ fun MyGameInlineAlert(message: String, modifier: Modifier = Modifier) {
         MyGameText(text = message, style = MyGameTypography.body, color = colors.destructiveInk)
     }
 }
+
+@PreviewMyGame
+@Composable
+private fun MyGameInlineAlertPreview() {
+    MyGamePreviewSurface {
+        MyGameInlineAlert(message = "We could not reach your town. Try again.")
+    }
+}

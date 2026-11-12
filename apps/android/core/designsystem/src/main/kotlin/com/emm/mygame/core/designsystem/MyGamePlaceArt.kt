@@ -15,6 +15,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 val PLACE_ART: SemanticsPropertyKey<MyGameArt> = SemanticsPropertyKey("PLACE_ART")
 
@@ -58,4 +60,36 @@ private fun ArtImage(painter: Painter, tint: MyGameArtTint, modifier: Modifier =
         colorFilter = color?.let { shade: Color -> ColorFilter.tint(shade) },
         modifier = modifier,
     )
+}
+
+private data class PlaceArtState(val art: MyGameArt, val risenFrom: MyGameArt?)
+
+private class PlaceArtStates : PreviewParameterProvider<PlaceArtState> {
+
+    override val values: Sequence<PlaceArtState> = sequenceOf(
+        PlaceArtState(
+            art = MyGameArt(drawable = R.drawable.designsystem_place_farm_0, tint = MyGameArtTint.SurfaceSunken),
+            risenFrom = null,
+        ),
+        PlaceArtState(
+            art = MyGameArt(drawable = R.drawable.designsystem_place_farm_3, tint = MyGameArtTint.None),
+            risenFrom = null,
+        ),
+        PlaceArtState(
+            art = MyGameArt(drawable = R.drawable.designsystem_place_farm_3, tint = MyGameArtTint.None),
+            risenFrom = MyGameArt(drawable = R.drawable.designsystem_place_farm_2, tint = MyGameArtTint.None),
+        ),
+        PlaceArtState(
+            art = MyGameArt(drawable = R.drawable.designsystem_waste_2, tint = MyGameArtTint.InkMuted),
+            risenFrom = null,
+        ),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGamePlaceArtPreview(@PreviewParameter(PlaceArtStates::class) state: PlaceArtState) {
+    MyGamePreviewSurface {
+        MyGamePlaceArt(art = state.art, risenFrom = state.risenFrom)
+    }
 }

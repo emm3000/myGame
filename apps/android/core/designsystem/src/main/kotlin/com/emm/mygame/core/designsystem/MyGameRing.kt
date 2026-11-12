@@ -15,6 +15,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 private const val FULL_TURN_DEGREES: Float = 360f
 
@@ -74,5 +76,30 @@ fun MyGameRing(count: Int, total: Int, countBefore: Int, accessibleName: String,
                 style = Stroke(width = strokeWidth),
             )
         }
+    }
+}
+
+private data class RingState(val count: Int, val total: Int, val countBefore: Int)
+
+private class RingStates : PreviewParameterProvider<RingState> {
+
+    override val values: Sequence<RingState> = sequenceOf(
+        RingState(count = 0, total = 5, countBefore = 0),
+        RingState(count = 3, total = 5, countBefore = 3),
+        RingState(count = 3, total = 5, countBefore = 2),
+        RingState(count = 5, total = 5, countBefore = 5),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameRingPreview(@PreviewParameter(RingStates::class) state: RingState) {
+    MyGamePreviewSurface {
+        MyGameRing(
+            count = state.count,
+            total = state.total,
+            countBefore = state.countBefore,
+            accessibleName = "${state.count} of ${state.total} words kept",
+        )
     }
 }
