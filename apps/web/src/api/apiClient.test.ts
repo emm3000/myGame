@@ -203,6 +203,33 @@ it('posts the job to the town jobs quote and answers its pay', async () => {
   expect(JSON.parse(String(init?.body))).toEqual(job)
 })
 
+it('posts the clean-up to the town clean-ups', async () => {
+  const fetch = answeringFetch(200, knownTown)
+  const cleanUp = { site: { area: 3, site: 4 }, team: { worker: 6, truck: 0 } }
+
+  const outcome = await createApiClient('/api').sendCleanUp(cleanUp)
+
+  expect(outcome).toEqual({ ok: true, value: knownTown })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/clean-ups')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual(cleanUp)
+})
+
+it('posts the clean-up to the clean-ups quote and answers its strength, waste and pay', async () => {
+  const quote = { strength: 6, waste: 9, pay: { money: 0, food: 0, power: 0, material: 0 } }
+  const fetch = answeringFetch(200, quote)
+  const cleanUp = { site: { area: 3, site: 4 }, team: { worker: 6, truck: 0 } }
+
+  const outcome = await createApiClient('/api').quoteCleanUp(cleanUp)
+
+  expect(outcome).toEqual({ ok: true, value: quote })
+  const [url, init] = fetch.mock.calls[0] ?? []
+  expect(url).toBe('/api/town/clean-ups/quote')
+  expect(init?.method).toBe('POST')
+  expect(JSON.parse(String(init?.body))).toEqual(cleanUp)
+})
+
 it('calls the job back by the instant it was sent', async () => {
   const fetch = answeringFetch(200, knownTown)
 

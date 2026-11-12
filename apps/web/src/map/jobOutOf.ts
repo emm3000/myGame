@@ -1,4 +1,5 @@
 import {
+  mapCleanUpOutTitle,
   mapJobOutCallBack,
   mapJobOutCalledBack,
   mapJobOutOutbound,
@@ -8,6 +9,7 @@ import {
   mapJobOutTeam,
   mapJobOutTitle,
   mapJobOutWorking,
+  mapWasteAmount,
 } from '@mygame/catalog'
 import type { CallJobBack } from '@mygame/contracts'
 import type { SlotCountdown } from '../design-system/CountdownLine'
@@ -19,6 +21,7 @@ export interface JobOutContent {
   readonly title: string
   readonly siteLine: string
   readonly teamLine: string
+  readonly wasteLine: string | undefined
   readonly countdown: SlotCountdown
   readonly pay: string | undefined
   readonly callBack: { readonly label: string; readonly target: CallJobBack } | undefined
@@ -38,9 +41,10 @@ export function jobOutOf(town: LiveTown): JobOutContent | undefined {
   }
   const pay = amountsLineOf(answered.pay)
   return {
-    title: mapJobOutTitle(),
+    title: answered.kind === 'cleanUp' ? mapCleanUpOutTitle() : mapJobOutTitle(),
     siteLine: mapJobOutSite(answered.site),
     teamLine: mapJobOutTeam({ workers: answered.team.worker, trucks: answered.team.truck }),
+    wasteLine: answered.kind === 'cleanUp' ? mapWasteAmount({ waste: answered.waste }) : undefined,
     countdown: {
       words: answered.calledBackAt === null ? phaseWords[live.phase]() : mapJobOutCalledBack(),
       time: formatFinish(live.remainingSeconds, town.at),
