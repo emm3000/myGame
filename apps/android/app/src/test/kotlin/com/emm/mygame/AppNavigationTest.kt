@@ -32,6 +32,9 @@ import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.core.network.RegionMap
 import com.emm.mygame.core.network.RegionMapResult
 import com.emm.mygame.core.network.ReportReadResult
+import com.emm.mygame.core.network.Placement
+import com.emm.mygame.core.network.PlacementReadResult
+import com.emm.mygame.core.network.PlacementRepository
 import com.emm.mygame.core.network.ReportRepository
 import com.emm.mygame.core.network.NextStep
 import com.emm.mygame.core.network.RestoreResult
@@ -51,6 +54,7 @@ import com.emm.mygame.core.network.TownRepository
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSnapshot
 import com.emm.mygame.core.testing.FakeLearningRepository
+import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
@@ -85,6 +89,8 @@ class AppNavigationTest {
 
     private val reportsFake: FakeReportRepository = FakeReportRepository()
 
+    private val placementsFake: FakePlacementRepository = FakePlacementRepository()
+
     private val movableClock: MovableClock = MovableClock()
 
     private val dependencies: AppDependencies = object : AppDependencies {
@@ -94,6 +100,7 @@ class AppNavigationTest {
         override val towns: TownRepository = townsFake
         override val learning: LearningRepository = learningFake
         override val reports: ReportRepository = reportsFake
+        override val placements: PlacementRepository = placementsFake
     }
 
     private val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
@@ -402,6 +409,17 @@ class AppNavigationTest {
         composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()
 
         waitForLine("Zona 1")
+    }
+
+    @Test
+    fun `opens the placement from its row on the town home`() {
+        repeat(2) { placementsFake.answerRead(PlacementReadResult.Read(Placement.Offered)) }
+        signedInAtTown()
+        waitForLine("Hacer la prueba de nivel")
+
+        composeRule.onNodeWithText("Hacer la prueba de nivel").performScrollTo().performClick()
+
+        waitForLine("Empezar la prueba")
     }
 
     @Test

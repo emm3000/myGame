@@ -36,6 +36,8 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.network.LessonId
 import com.emm.mygame.feature.map.MapRoute
+import com.emm.mygame.feature.placement.PlacementOfferRoute
+import com.emm.mygame.feature.placement.PlacementRoute
 import com.emm.mygame.feature.report.NewsRoute
 import com.emm.mygame.feature.report.ReportNavigation
 import com.emm.mygame.feature.report.ReportRoute
@@ -121,6 +123,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     reportEntry(chrome)
     newsEntry(chrome)
     mapEntry(chrome)
+    placementEntry(chrome)
     lessonWordsEntry(chrome)
     entry<Destination.Review> {
         SignedInFrame(
@@ -163,6 +166,12 @@ private fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
                 status = chrome.status,
+                placement = {
+                    PlacementOfferRoute(
+                        placements = dependencies.placements,
+                        onPlacementOpen = navigator::openPlacement,
+                    )
+                },
             )
         }
     }
@@ -237,6 +246,20 @@ private fun EntryProviderScope<NavKey>.mapEntry(chrome: SignedInChrome) {
             chrome = chrome,
         ) {
             MapRoute(towns = dependencies.towns, clock = dependencies.clock, onNoTown = navigator::openTown)
+        }
+    }
+}
+
+private fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
+    val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
+    entry<Destination.Placement> {
+        SignedInFrame(
+            isTownHome = false,
+            doesScreenReadTown = false,
+            chrome = chrome,
+        ) {
+            PlacementRoute(placements = dependencies.placements, onTownOpen = navigator::openTown)
         }
     }
 }
@@ -316,4 +339,5 @@ private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: De
     Destination.Review -> TownStatusScreen.Reviews
     Destination.Report -> TownStatusScreen.ReadsNoTown
     Destination.News -> TownStatusScreen.ReadsNoTown
+    Destination.Placement -> TownStatusScreen.ReadsNoTown
 }

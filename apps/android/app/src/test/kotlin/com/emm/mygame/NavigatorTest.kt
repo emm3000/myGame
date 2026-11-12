@@ -367,6 +367,44 @@ class NavigatorTest {
     }
 
     @Test
+    fun `opens the placement above the town`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+
+        Navigator(backStack).openPlacement()
+
+        assertEquals(listOf(Destination.Town, Destination.Placement), backStack)
+    }
+
+    @Test
+    fun `returns to the town from the placement`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town, Destination.Placement)
+
+        Navigator(backStack).openTown()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
+    fun `opens no placement from sign-in`() {
+        val backStack: MutableList<NavKey> = mutableListOf(signIn)
+
+        Navigator(backStack).openPlacement()
+
+        assertEquals(listOf<NavKey>(signIn), backStack)
+    }
+
+    @Test
+    fun `opens no placement while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Town)
+        val navigator: Navigator = Navigator(backStack)
+        navigator.signingOut()
+
+        navigator.openPlacement()
+
+        assertEquals(listOf<NavKey>(Destination.Town), backStack)
+    }
+
+    @Test
     fun `opens no Report from sign-in`() {
         val backStack: MutableList<NavKey> = mutableListOf(signIn)
 

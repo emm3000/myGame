@@ -24,6 +24,7 @@ fun TownRoute(
     viewModel: TownViewModel = viewModel { TownViewModel(towns, sessions, clock) },
     ring: @Composable () -> Unit = {},
     status: @Composable () -> Unit = {},
+    placement: @Composable () -> Unit = {},
 ) {
     val state: TownUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: TownNavigation by rememberUpdatedState(navigation)
@@ -55,5 +56,6 @@ fun TownRoute(
         modifier = modifier,
         ring = ring,
         status = status,
+        placement = placement,
     )
 }

@@ -89,6 +89,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
     implementation(project(":feature:map"))
+    implementation(project(":feature:placement"))
     implementation(project(":feature:report"))
     implementation(project(":feature:review"))
     implementation(project(":feature:school"))
