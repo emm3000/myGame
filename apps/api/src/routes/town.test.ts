@@ -1176,7 +1176,21 @@ describe('the town route', () => {
         strength: 6,
         waste: 6,
         pay: { money: 12, food: 0, power: 0, material: 18 },
+        covers: true,
       })
+    })
+
+    it('answers that a team whose strength falls short of the waste does not cover it', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(5)
+
+      const quoted = await quoteCleanUp(ana, {
+        site: { area: 1, site: 12 },
+        team: { worker: 5, truck: 0 },
+      })
+
+      const quote = CleanUpQuoteSchema.parse(await quoted.json())
+      expect([quote.strength, quote.waste, quote.covers]).toEqual([5, 6, false])
     })
 
     it('quotes the waste and the pay the send then fixes', async () => {

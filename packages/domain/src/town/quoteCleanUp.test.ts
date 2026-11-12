@@ -28,6 +28,9 @@ const quotedAt = Instant.fromEpochMilliseconds(
 
 const frozenClock: Clock = { now: () => quotedAt }
 
+const dayAfter = (instant: Instant): Instant =>
+  Instant.fromEpochMilliseconds(instant.epochMilliseconds + MILLISECONDS_PER_DAY)
+
 const catalog = townCatalogOf()
 
 const smallWasteSite = { area: 2, site: 1 }
@@ -68,17 +71,19 @@ const quoteFrom = (
   })
 
 const sentCleanUpOf = async (town: Town, change: Partial<CleanUpOrder>): Promise<unknown> => {
+  const cleanUps = inMemoryCleanUps()
   const sent = await sendCleanUp(order(change), {
     towns: inMemoryTowns([town]),
     map: inMemoryRegionMap([town]),
-    cleanUps: inMemoryCleanUps(),
+    cleanUps,
     news: inMemoryTownNews(),
     catalog,
     clock: frozenClock,
   })
   assert(sent.ok && sent.value.jobSlot.kind === 'out' && sent.value.jobSlot.cleanUp !== undefined)
-  const { pay, cleanUp } = sent.value.jobSlot
-  return { strength: cleanUp.strength, waste: cleanUp.waste, pay }
+  const { pay, cleanUp, site } = sent.value.jobSlot
+  const recordedAt = await cleanUps.lastCleanedAt(site, dayAfter(quotedAt))
+  return { strength: cleanUp.strength, waste: cleanUp.waste, pay, covers: recordedAt !== undefined }
 }
 
 describe('quoteCleanUp', () => {
@@ -87,17 +92,27 @@ describe('quoteCleanUp', () => {
 
     expect(quoted).toEqual({
       ok: true,
-      value: { strength: 6, waste: 6, pay: { money: 12, food: 0, power: 0, material: 18 } },
+      value: {
+        strength: 6,
+        waste: 6,
+        pay: { money: 12, food: 0, power: 0, material: 18 },
+        covers: true,
+      },
     })
   })
 
   it('answers no pay for a team whose strength falls short of the waste', async () => {
     const quoted = await quoteFrom(inMemoryTowns([homeTown]), { team: { worker: 5, truck: 0 } })
 
-    expect(quoted).toEqual({
-      ok: true,
-      value: { strength: 5, waste: 6, pay: { money: 0, food: 0, power: 0, material: 0 } },
-    })
+    assert(quoted.ok)
+    expect(quoted.value.pay).toEqual({ money: 0, food: 0, power: 0, material: 0 })
+  })
+
+  it('answers that a team whose strength falls short of the waste does not cover it', async () => {
+    const quoted = await quoteFrom(inMemoryTowns([homeTown]), { team: { worker: 5, truck: 0 } })
+
+    assert(quoted.ok)
+    expect([quoted.value.strength, quoted.value.waste, quoted.value.covers]).toEqual([5, 6, false])
   })
 
   it('agrees with the send for the same team, site and instant', async () => {

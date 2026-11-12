@@ -14,6 +14,6 @@ export function cleanUpQuoteLinesOf(quote: CleanUpQuote): CleanUpQuoteLines {
     waste: mapWasteAmount({ waste: quote.waste }),
     team: mapCleanUpTeam({ strength: quote.strength }),
     pay: jobPayLineOf(quote),
-    short: quote.strength < quote.waste ? mapCleanUpShort() : undefined,
+    short: quote.covers ? undefined : mapCleanUpShort(),
   }
 }

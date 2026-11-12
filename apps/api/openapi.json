@@ -2657,9 +2657,12 @@
           },
           "pay": {
             "$ref": "#/components/schemas/ResourceAmounts"
+          },
+          "covers": {
+            "type": "boolean"
           }
         },
-        "required": ["strength", "waste", "pay"],
+        "required": ["strength", "waste", "pay", "covers"],
         "additionalProperties": false
       },
       "StartLessonRequest": {
