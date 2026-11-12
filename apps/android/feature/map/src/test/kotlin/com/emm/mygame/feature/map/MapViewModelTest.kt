@@ -265,24 +265,21 @@ class MapViewModelTest {
     }
 
     @Test
-    fun `blocks a second job while a team is out`() = runTest {
+    fun `leaves the send to the api while a team is out`() = runTest {
         val viewModel: MapViewModel = formFilled(town = townOf(job = jobOf()), workers = "1", trucks = "0")
 
-        assertEquals(MapUiState.JobBlock.TeamAlreadyOut, blockOf(viewModel))
+        assertNull(blockOf(viewModel))
     }
 
     @Test
-    fun `blocks a team larger than the one at home`() = runTest {
+    fun `leaves the send to the api for a team larger than the one at home`() = runTest {
         val viewModel: MapViewModel = formFilled(town = townOf(workers = 3, trucks = 1), workers = "5", trucks = "2")
 
-        assertEquals(
-            MapUiState.JobBlock.NotEnoughHiresAtHome(TownHireKind.Worker, count = 5, atHome = 3),
-            blockOf(viewModel),
-        )
+        assertNull(blockOf(viewModel))
     }
 
     @Test
-    fun `asks the api for a blocked team and draws its refusal under the form`() = runTest {
+    fun `sends a team larger than the one at home and draws the api's refusal under the form`() = runTest {
         val refusal: TownJobRefusal = TownJobRefusal.NotEnoughHiresAtHome(TownHireKind.Worker, count = 5, atHome = 3)
         val viewModel: MapViewModel = formFilled(town = townOf(workers = 3), workers = "5")
         towns.regions.answerJob(TownJobResult.Refused(refusal))
@@ -458,6 +455,22 @@ class MapViewModelTest {
         runCurrent()
 
         assertEquals(MapUiState.PayQuote.Unreachable, quoteOf(viewModel))
+    }
+
+    @Test
+    fun `asks the quote again a moment after the server could not be reached`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+
+        advanceTimeBy(5.seconds)
+        runCurrent()
+        towns.regions.answerQuote(jobFor(hours = 3), quotedPay(money = 90L))
+        runCurrent()
+
+        val asked: FakeRegionRepository.JobRequest = jobFor(hours = 3)
+        assertEquals(2, towns.regions.quotes.count { request: FakeRegionRepository.JobRequest -> request == asked })
+        assertEquals(drawnPay(money = 90L), quoteOf(viewModel))
     }
 
     @Test

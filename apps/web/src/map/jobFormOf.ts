@@ -8,8 +8,6 @@ import {
   mapJobTrucks,
   mapJobWorkers,
   refusalInvalidTeam,
-  refusalNotEnoughHiresAtHome,
-  refusalTeamAlreadyOut,
 } from '@mygame/catalog'
 import { type HireKind, HireKindSchema, type SendJob } from '@mygame/contracts'
 import type { OrderActionState } from '../design-system/CardAction'
@@ -57,16 +55,13 @@ const teamFieldLabels: Readonly<Record<HireKind, () => string>> = {
   truck: mapJobTrucks,
 }
 
-const shortHireOf = (team: Team, town: LiveTown): HireKind | undefined =>
-  HireKindSchema.options.find((hire) => team[hire] > town.overview.hiring.hires[hire])
-
 type AdmittedJob =
   | { readonly kind: 'blocked'; readonly reason: string }
   | { readonly kind: 'ready'; readonly job: SendJob }
 
 const blocked = (reason: string): AdmittedJob => ({ kind: 'blocked', reason })
 
-function admittedJobOf(site: SendJob['site'], entries: JobEntries, town: LiveTown): AdmittedJob {
+function admittedJobOf(site: SendJob['site'], entries: JobEntries): AdmittedJob {
   const team = teamOf(entries)
   if (team === undefined) {
     return blocked(mapJobCountNeeded())
@@ -78,19 +73,6 @@ function admittedJobOf(site: SendJob['site'], entries: JobEntries, town: LiveTow
   if (hours === undefined) {
     return blocked(mapJobHoursNeeded())
   }
-  if (town.overview.job !== null) {
-    return blocked(refusalTeamAlreadyOut())
-  }
-  const shortHire = shortHireOf(team, town)
-  if (shortHire !== undefined) {
-    return blocked(
-      refusalNotEnoughHiresAtHome({
-        hire: shortHire,
-        count: team[shortHire],
-        atHome: town.overview.hiring.hires[shortHire],
-      }),
-    )
-  }
   return { kind: 'ready', job: { site, team, hours } }
 }
 
@@ -99,7 +81,7 @@ export function jobFormOf(
   entries: JobEntries,
   town: LiveTown,
 ): JobFormContent {
-  const admitted = admittedJobOf(site, entries, town)
+  const admitted = admittedJobOf(site, entries)
   return {
     title: mapJobTitle({ site: site.site }),
     teamFields: HireKindSchema.options.map((hire) => ({

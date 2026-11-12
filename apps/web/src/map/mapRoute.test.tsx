@@ -262,7 +262,7 @@ it('shows the pay before sending a job', async () => {
   expect(within(form).getByText('Este trabajo paga 12 de comida y 12 de material')).toBeDefined()
 })
 
-it('asks no pay while the form blocks the job', async () => {
+it('asks no pay for a team with nobody in it', async () => {
   const quoted: Array<SendJob> = []
   await showMap('/map', teamAtHome, {
     quoteJob: async (job) => {
@@ -356,13 +356,26 @@ it('blocks a team with nobody in it', async () => {
   expect(accessibleDescriptionOf(send)).toBe(refusalInvalidTeam())
 })
 
-it('blocks a team larger than the one at home', async () => {
-  await showMap('/map', teamAtHome)
+it('sends a team larger than the one at home and reads the refusal under the form', async () => {
+  const sent: Array<SendJob> = []
+  await showMap('/map', teamAtHome, {
+    sendJob: async (job) => {
+      sent.push(job)
+      return {
+        ok: false,
+        refusal: 'NotEnoughHiresAtHome',
+        error: { kind: 'NotEnoughHiresAtHome', params: { hire: 'truck', count: 2, atHome: 1 } },
+      }
+    },
+  })
 
   const form = openJobForm(2)
   enterTeam(form, { 'Camiones a enviar': '2' })
+  fireEvent.click(sendButton(form))
+  await passSeconds(0)
 
-  expect(accessibleDescriptionOf(sendButton(form))).toBe(
+  expect(sent).toEqual([{ site: { area: 1, site: 2 }, team: { worker: 0, truck: 2 }, hours: 1 }])
+  expect(within(form).getByRole('alert').textContent).toBe(
     refusalNotEnoughHiresAtHome({ hire: 'truck', count: 2, atHome: 1 }),
   )
 })
@@ -385,13 +398,41 @@ it('blocks a team count that is not a whole count', async () => {
   expect(accessibleDescriptionOf(sendButton(form))).toBe('Envía un número entero: 0, 1, 2 o más.')
 })
 
-it('blocks a second job while a team is out', async () => {
-  await showMap('/map', jobIn('working', teamAtHome))
+it('asks the pay of a second job while a team is out and reads the refusal', async () => {
+  const quoted: Array<SendJob> = []
+  await showMap('/map', jobIn('working', teamAtHome), {
+    quoteJob: async (job) => {
+      quoted.push(job)
+      return { ok: false, refusal: 'TeamAlreadyOut', error: { kind: 'TeamAlreadyOut' } }
+    },
+  })
 
   const form = openJobForm(2)
   enterTeam(form, { 'Trabajadores a enviar': '1' })
+  await passSeconds(0)
 
-  expect(accessibleDescriptionOf(sendButton(form))).toBe(refusalTeamAlreadyOut())
+  expect(quoted).toEqual([{ site: { area: 1, site: 2 }, team: { worker: 1, truck: 0 }, hours: 1 }])
+  expect(within(form).getByRole('alert').textContent).toBe(refusalTeamAlreadyOut())
+  expect(sendButton(form).getAttribute('aria-disabled')).not.toBe('true')
+})
+
+it('asks the pay again a moment after the server could not be reached', async () => {
+  const answers: Array<Awaited<ReturnType<ApiClient['quoteJob']>>> = [
+    { ok: false, refusal: 'Unexpected' },
+    { ok: true, value: { pay: { money: 0, food: 12, power: 0, material: 0 } } },
+  ]
+  await showMap('/map', teamAtHome, {
+    quoteJob: async () => answers.shift() ?? { ok: false, refusal: 'Unexpected' },
+  })
+
+  const form = openJobForm(2)
+  enterTeam(form, { 'Trabajadores a enviar': '2' })
+  await passSeconds(0)
+
+  expect(within(form).getByRole('alert').textContent).toBe(refusalUnexpected())
+  await passSeconds(5)
+  expect(within(form).getByText('Este trabajo paga 12 de comida')).toBeDefined()
+  expect(within(form).queryByRole('alert')).toBeNull()
 })
 
 it('counts the team at home under each field', async () => {

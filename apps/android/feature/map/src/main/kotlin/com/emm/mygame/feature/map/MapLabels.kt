@@ -89,8 +89,6 @@ internal fun jobBlockLineOf(block: MapUiState.JobBlock): String = when (block) {
     MapUiState.JobBlock.CountNeeded -> stringResource(R.string.map_job_count_needed)
     MapUiState.JobBlock.InvalidTeam -> stringResource(R.string.map_refusal_invalid_team)
     MapUiState.JobBlock.HoursNeeded -> stringResource(R.string.map_job_hours_needed)
-    MapUiState.JobBlock.TeamAlreadyOut -> stringResource(R.string.map_refusal_team_already_out)
-    is MapUiState.JobBlock.NotEnoughHiresAtHome -> notEnoughHiresLineOf(block.hire, block.count, block.atHome)
 }
 
 @Composable

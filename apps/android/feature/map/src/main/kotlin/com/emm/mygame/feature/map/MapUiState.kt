@@ -1,7 +1,6 @@
 package com.emm.mygame.feature.map
 
 import com.emm.mygame.core.network.Terrain
-import com.emm.mygame.core.network.TownHireKind
 import com.emm.mygame.core.network.TownJobRefusal
 import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.network.TownSite
@@ -70,10 +69,6 @@ sealed interface MapUiState {
         data object InvalidTeam : JobBlock
 
         data object HoursNeeded : JobBlock
-
-        data object TeamAlreadyOut : JobBlock
-
-        data class NotEnoughHiresAtHome(val hire: TownHireKind, val count: Int, val atHome: Int) : JobBlock
     }
 
     sealed interface SendRequest {

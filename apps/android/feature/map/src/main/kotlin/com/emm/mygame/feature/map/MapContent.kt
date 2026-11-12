@@ -135,19 +135,15 @@ private fun TownSnapshot.jobFormOf(
     hours = entries.hours,
     workersAtHome = hiring.hires.getValue(TownHireKind.Worker),
     trucksAtHome = hiring.hires.getValue(TownHireKind.Truck),
-    block = jobBlockOf(entries),
+    block = entries.jobBlock(),
     quote = quote,
 )
 
-private fun TownSnapshot.jobBlockOf(entries: JobEntries): MapUiState.JobBlock? {
-    val team: Map<TownHireKind, Int> = entries.team() ?: return MapUiState.JobBlock.CountNeeded
+private fun JobEntries.jobBlock(): MapUiState.JobBlock? {
+    val team: Map<TownHireKind, Int> = team() ?: return MapUiState.JobBlock.CountNeeded
     if (team.values.sum() == 0) return MapUiState.JobBlock.InvalidTeam
-    if (entries.hoursCount() == null) return MapUiState.JobBlock.HoursNeeded
-    if (job != null) return MapUiState.JobBlock.TeamAlreadyOut
-    val short: TownHireKind = TownHireKind.entries.firstOrNull { hire: TownHireKind ->
-        team.getValue(hire) > hiring.hires.getValue(hire)
-    } ?: return null
-    return MapUiState.JobBlock.NotEnoughHiresAtHome(short, team.getValue(short), hiring.hires.getValue(short))
+    if (hoursCount() == null) return MapUiState.JobBlock.HoursNeeded
+    return null
 }
 
 private fun TownSnapshot.Job.jobOutAt(now: Instant, gap: Duration): MapUiState.JobOut {

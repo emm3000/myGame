@@ -21,7 +21,8 @@ export interface JobFormProps {
 export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactElement {
   const [entries, setEntries] = useState<JobEntries>(firstJobEntries)
   const form = jobFormOf(target, entries, town)
-  const payLine = jobPayLineOf(useJobQuote(job.quote, form.job, town.overview.season))
+  const quoted = useJobQuote(job.quote, form.job, town.overview.season)
+  const payLine = jobPayLineOf(quoted?.ok === true ? quoted.value : undefined)
   const refused = job.sendRefused?.subject === target.site ? job.sendRefused : undefined
   const enter = (field: keyof JobEntries, entry: string): void =>
     setEntries((held) => ({ ...held, [field]: entry }))
@@ -62,6 +63,7 @@ export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactE
       <p aria-live="polite" className="m-0 font-sans text-body text-ink empty:absolute">
         {payLine}
       </p>
+      {quoted?.ok === false && <FormAlert message={refusalLineOf(quoted.refusal, quoted.error)} />}
       <CardAction
         type="button"
         label={form.actionLabel}
