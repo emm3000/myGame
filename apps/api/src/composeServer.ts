@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import type { OpenAPIHono } from '@hono/zod-openapi'
 import {
+  type CleanUpReader,
   type Clock,
   defaultMemoryTerms,
   type IdGenerator,
@@ -15,6 +16,7 @@ import { JsonTownCatalog } from './adapters/json/JsonTownCatalog'
 import { connectPostgres } from './adapters/postgres/connectPostgres'
 import { DrizzleAccounts } from './adapters/postgres/DrizzleAccounts'
 import { DrizzleCardRepository } from './adapters/postgres/DrizzleCardRepository'
+import { DrizzleCleanUpRepository } from './adapters/postgres/DrizzleCleanUpRepository'
 import { DrizzleRegionMap } from './adapters/postgres/DrizzleRegionMap'
 import { DrizzleReportClosings } from './adapters/postgres/DrizzleReportClosings'
 import { DrizzleTownNews } from './adapters/postgres/DrizzleTownNews'
@@ -96,6 +98,7 @@ export type ComposedServer = MailSettings & {
   readonly towns: TownReader
   readonly townNews: TownNewsReader
   readonly regionMap: RegionMapReader
+  readonly cleanUps: CleanUpReader
   readonly cards: CardReader
   readonly accounts: Accounts
   readonly reportClosings: ReportClosings
@@ -135,6 +138,7 @@ export function composeServer(
     towns: new DrizzleTownRepository(database, 'lockFree'),
     townNews: new DrizzleTownNews(database),
     regionMap: new DrizzleRegionMap(database),
+    cleanUps: new DrizzleCleanUpRepository(database),
     cards: new DrizzleCardRepository(database),
     isSessionCookieSecure,
     failureSink: standardErrorSink,

@@ -68,6 +68,34 @@ class TownJobsRepositoryTest {
     }
 
     @Test
+    fun `reads a clean-up out as a job of no hours`() = runTest {
+        api.enqueue(json(200, TOWN_WITH_CLEAN_UP))
+
+        val read: TownSnapshot = (town().read() as TownReadResult.Read).town
+
+        assertEquals(
+            TownSnapshot.Job(
+                site = TownSite(region = 1, area = 1, site = 12),
+                team = mapOf(TownHireKind.Worker to 6, TownHireKind.Truck to 0),
+                hours = 0,
+                pay = mapOf(
+                    TownResourceKind.Money to 12L,
+                    TownResourceKind.Food to 0L,
+                    TownResourceKind.Power to 0L,
+                    TownResourceKind.Material to 18L,
+                ),
+                phase = TownSnapshot.JobPhase.Outbound,
+                sentAt = Instant.parse(SENT_AT),
+                arrivesAt = Instant.parse("2026-11-05T10:11:00Z"),
+                leavesAt = Instant.parse("2026-11-05T10:11:00Z"),
+                returnsAt = Instant.parse("2026-11-05T10:22:00Z"),
+                calledBackAt = null,
+            ),
+            read.job,
+        )
+    }
+
+    @Test
     fun `reads no job while the team is home`() = runTest {
         api.enqueue(json(200, TOWN))
 
@@ -252,7 +280,7 @@ class TownJobsRepositoryTest {
             """{"cost":{"money":40,"food":0,"power":0,"material":0},"secondsPerHire":60,""" +
                 """"people":1,"requiredOfficeLevel":1}"""
         const val JOB: String =
-            """{"site":{"region":1,"area":3,"site":5},"team":{"worker":2,"truck":1},"hours":2,""" +
+            """{"kind":"job","site":{"region":1,"area":3,"site":5},"team":{"worker":2,"truck":1},"hours":2,""" +
                 """"pay":{"money":120,"food":0,"power":0,"material":40},"phase":"working",""" +
                 """"sentAt":"$SENT_AT","arrivesAt":"2026-11-05T10:10:00.000Z",""" +
                 """"leavesAt":"2026-11-05T12:10:00.000Z","returnsAt":"2026-11-05T12:20:00.000Z",""" +
@@ -271,5 +299,12 @@ class TownJobsRepositoryTest {
                 """"nextStep":{"kind":"caughtUp"},"nextDueAt":null,""" +
                 """"readAt":"2026-11-05T10:05:00.000Z"}"""
         val TOWN_WITH_JOB: String = TOWN.replace(""""job":null""", """"job":$JOB""")
+        const val CLEAN_UP: String =
+            """{"kind":"cleanUp","site":{"region":1,"area":1,"site":12},"team":{"worker":6,"truck":0},""" +
+                """"size":1,"waste":6,"pay":{"money":12,"food":0,"power":0,"material":18},"phase":"outbound",""" +
+                """"sentAt":"$SENT_AT","arrivesAt":"2026-11-05T10:11:00.000Z",""" +
+                """"leavesAt":"2026-11-05T10:11:00.000Z","returnsAt":"2026-11-05T10:22:00.000Z",""" +
+                """"calledBackAt":null}"""
+        val TOWN_WITH_CLEAN_UP: String = TOWN.replace(""""job":null""", """"job":$CLEAN_UP""")
     }
 }

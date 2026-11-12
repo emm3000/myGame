@@ -4,6 +4,7 @@ import {
   FoundTownSchema,
   JobQuoteSchema,
   PlaceHiringOrderSchema,
+  SendCleanUpSchema,
   SendJobSchema,
   StartBuildingWorkSchema,
   StartLessonRequestSchema,
@@ -153,6 +154,25 @@ export const townDeclarations = {
         ),
         404: townNotFoundResponse,
         409: refusalResponse('TeamAlreadyOut, JobToOwnSite, SiteHeld or NotEnoughHiresAtHome.'),
+      },
+    }),
+  ),
+  sendCleanUp: createRoute(
+    signedInRoute({
+      method: 'post',
+      path: '/clean-ups',
+      request: { body: jsonBody(SendCleanUpSchema) },
+      responses: {
+        200: overviewResponse(
+          'The town with the team out on the clean-up, its pay fixed at dispatch: none when its strength falls short of the waste.',
+        ),
+        400: refusalResponse(
+          'InvalidTeam or JobSiteOutOfBounds; any other malformed body answers an empty body.',
+        ),
+        404: townNotFoundResponse,
+        409: refusalResponse(
+          'TeamAlreadyOut, JobToOwnSite, SiteHeld, NotAWasteSite, NoWasteYet or NotEnoughHiresAtHome.',
+        ),
       },
     }),
   ),

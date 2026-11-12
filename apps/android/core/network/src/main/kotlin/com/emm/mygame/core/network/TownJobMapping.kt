@@ -2,27 +2,31 @@ package com.emm.mygame.core.network
 
 import com.emm.mygame.core.network.generated.models.ApiError
 import com.emm.mygame.core.network.generated.models.BareApiError
+import com.emm.mygame.core.network.generated.models.CleanUpJob
+import com.emm.mygame.core.network.generated.models.Job
+import com.emm.mygame.core.network.generated.models.JobPhase
 import com.emm.mygame.core.network.generated.models.JobQuote
 import com.emm.mygame.core.network.generated.models.NotEnoughHiresAtHomeErrorParams
+import com.emm.mygame.core.network.generated.models.NotEnoughResourcesErrorParamsMissing
 import com.emm.mygame.core.network.generated.models.SendJob
 import com.emm.mygame.core.network.generated.models.SendJobSite
+import com.emm.mygame.core.network.generated.models.Team
+import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
-import com.emm.mygame.core.network.generated.models.TownOverviewJob
-import com.emm.mygame.core.network.generated.models.TownOverviewJobTeam
 import retrofit2.Response
 
-internal fun TownOverviewJob.toJob(): TownSnapshot.Job? {
+internal fun TownJob.toJob(): TownSnapshot.Job? = when (this) {
+    is TownJob.JobWrapper -> value.toJob()
+    is TownJob.CleanupWrapper -> value.toJob()
+}
+
+private fun Job.toJob(): TownSnapshot.Job? {
     val jobPhase: TownSnapshot.JobPhase = phase.toJobPhase() ?: return null
     return TownSnapshot.Job(
         site = site.toTownSite(),
-        team = mapOf(TownHireKind.Worker to team.worker, TownHireKind.Truck to team.truck),
+        team = team.toHires(),
         hours = hours,
-        pay = mapOf(
-            TownResourceKind.Money to pay.money.toLong(),
-            TownResourceKind.Food to pay.food.toLong(),
-            TownResourceKind.Power to pay.power.toLong(),
-            TownResourceKind.Material to pay.material.toLong(),
-        ),
+        pay = pay.toPay(),
         phase = jobPhase,
         sentAt = sentAt.toKotlinInstant(),
         arrivesAt = arrivesAt.toKotlinInstant(),
@@ -32,9 +36,34 @@ internal fun TownOverviewJob.toJob(): TownSnapshot.Job? {
     )
 }
 
+private fun CleanUpJob.toJob(): TownSnapshot.Job? {
+    val jobPhase: TownSnapshot.JobPhase = phase.toJobPhase() ?: return null
+    return TownSnapshot.Job(
+        site = site.toTownSite(),
+        team = team.toHires(),
+        hours = 0,
+        pay = pay.toPay(),
+        phase = jobPhase,
+        sentAt = sentAt.toKotlinInstant(),
+        arrivesAt = arrivesAt.toKotlinInstant(),
+        leavesAt = leavesAt.toKotlinInstant(),
+        returnsAt = returnsAt.toKotlinInstant(),
+        calledBackAt = calledBackAt?.toKotlinInstant(),
+    )
+}
+
+private fun Team.toHires(): Map<TownHireKind, Int> = mapOf(TownHireKind.Worker to worker, TownHireKind.Truck to truck)
+
+private fun NotEnoughResourcesErrorParamsMissing.toPay(): Map<TownResourceKind, Long> = mapOf(
+    TownResourceKind.Money to money.toLong(),
+    TownResourceKind.Food to food.toLong(),
+    TownResourceKind.Power to power.toLong(),
+    TownResourceKind.Material to material.toLong(),
+)
+
 internal fun sendJobOf(target: JobTarget, team: Map<TownHireKind, Int>, hours: Int): SendJob = SendJob(
     site = SendJobSite(area = target.area, site = target.site),
-    team = TownOverviewJobTeam(
+    team = Team(
         worker = team.getOrDefault(TownHireKind.Worker, 0),
         truck = team.getOrDefault(TownHireKind.Truck, 0),
     ),
@@ -65,11 +94,11 @@ private fun JobQuote.payByResource(): Map<TownResourceKind, Long> = mapOf(
     TownResourceKind.Material to pay.material.toLong(),
 )
 
-private fun TownOverviewJob.Phase.toJobPhase(): TownSnapshot.JobPhase? = when (this) {
-    TownOverviewJob.Phase.outbound -> TownSnapshot.JobPhase.Outbound
-    TownOverviewJob.Phase.working -> TownSnapshot.JobPhase.Working
-    TownOverviewJob.Phase.returning -> TownSnapshot.JobPhase.Returning
-    TownOverviewJob.Phase.unknown_default_open_api -> null
+private fun JobPhase.toJobPhase(): TownSnapshot.JobPhase? = when (this) {
+    JobPhase.outbound -> TownSnapshot.JobPhase.Outbound
+    JobPhase.working -> TownSnapshot.JobPhase.Working
+    JobPhase.returning -> TownSnapshot.JobPhase.Returning
+    JobPhase.unknown_default_open_api -> null
 }
 
 private val jobRefusals: Map<BareApiError.Kind, TownJobRefusal> = mapOf(

@@ -192,6 +192,7 @@ const jobIn = (
 ): TownOverview => ({
   ...town,
   job: {
+    kind: 'job',
     site: { region: 1, area: 1, site: 2 },
     team: { worker: 2, truck: 0 },
     hours: 1,

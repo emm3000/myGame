@@ -264,6 +264,18 @@ const exchanges: ReadonlyArray<Exchange> = [
     status: 404,
   },
   {
+    operation: 'POST /town/clean-ups',
+    caller: 'signedOut',
+    body: { site: { area: 1, site: 12 }, team: { worker: 1, truck: 0 } },
+    status: 401,
+  },
+  {
+    operation: 'POST /town/clean-ups',
+    caller: 'ana',
+    body: { site: { area: 1, site: 12 }, team: { worker: 1, truck: 0 } },
+    status: 404,
+  },
+  {
     operation: 'POST /town/jobs/{sentAt}/call-back',
     caller: 'signedOut',
     params: { sentAt: '2026-09-22T08:00:00.000Z' },
@@ -411,6 +423,25 @@ const exchanges: ReadonlyArray<Exchange> = [
     operation: 'POST /town/jobs/{sentAt}/call-back',
     caller: 'ana',
     params: { sentAt: '2026-09-22T08:00:00.000Z' },
+    status: 200,
+  },
+  {
+    operation: 'POST /town/clean-ups',
+    caller: 'ana',
+    body: { site: { area: 1, site: 12 }, team: { worker: 0, truck: 0 } },
+    status: 400,
+  },
+  {
+    operation: 'POST /town/clean-ups',
+    caller: 'ana',
+    body: { site: { area: 1, site: 3 }, team: { worker: 1, truck: 0 } },
+    status: 409,
+  },
+  {
+    operation: 'POST /town/clean-ups',
+    caller: 'ana',
+    seed: 'DELETE FROM town_jobs',
+    body: { site: { area: 1, site: 12 }, team: { worker: 1, truck: 0 } },
     status: 200,
   },
   {

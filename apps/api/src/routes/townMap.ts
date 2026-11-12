@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { type RegionMap, RegionMapRequestSchema } from '@mygame/contracts'
 import {
+  type CleanUpReader,
   type ReadRegionMapCommand,
   type RegionMapReader,
   readRegionMap,
@@ -15,6 +16,7 @@ import { townMapDeclarations } from './townMapDeclarations'
 
 export type TownMapDependencies = RequirePlayerDependencies & {
   readonly regionMap: RegionMapReader
+  readonly cleanUps: CleanUpReader
   readonly townCatalog: TownCatalog
 }
 
@@ -22,7 +24,9 @@ export const townMapRoutes = (dependencies: TownMapDependencies): OpenAPIHono =>
   const answerArea = async (c: Context, command: ReadRegionMapCommand): Promise<Response> => {
     const map = await readRegionMap(command, {
       map: dependencies.regionMap,
+      cleanUps: dependencies.cleanUps,
       catalog: dependencies.townCatalog,
+      clock: dependencies.clock,
     })
     if (!map.ok) {
       return answerRefusal(c, map.error)

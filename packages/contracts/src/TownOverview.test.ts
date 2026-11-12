@@ -59,6 +59,7 @@ const lessonUnderStudy = {
 }
 
 const jobOut = {
+  kind: 'job',
   site: { region: 1, area: 2, site: 5 },
   team: { worker: 2, truck: 1 },
   hours: 2,
@@ -68,6 +69,21 @@ const jobOut = {
   arrivesAt: '2026-11-10T08:10:00.000Z',
   leavesAt: '2026-11-10T10:10:00.000Z',
   returnsAt: '2026-11-10T10:20:00.000Z',
+  calledBackAt: null,
+}
+
+const cleanUpOut = {
+  kind: 'cleanUp',
+  site: { region: 1, area: 2, site: 4 },
+  team: { worker: 6, truck: 0 },
+  size: 1,
+  waste: 6,
+  pay: { money: 12, food: 0, power: 0, material: 18 },
+  phase: 'outbound',
+  sentAt: '2026-11-10T08:00:00.000Z',
+  arrivesAt: '2026-11-10T08:10:00.000Z',
+  leavesAt: '2026-11-10T08:10:00.000Z',
+  returnsAt: '2026-11-10T08:20:00.000Z',
   calledBackAt: null,
 }
 
@@ -120,6 +136,22 @@ describe('TownOverviewSchema', () => {
     expect(TownOverviewSchema.safeParse(overview({ job: { ...jobOut, hours: 0 } })).success).toBe(
       false,
     )
+  })
+
+  it('parses a clean-up out with the size and the waste of its site', () => {
+    expect(TownOverviewSchema.parse(overview({ job: cleanUpOut })).job).toEqual(cleanUpOut)
+  })
+
+  it('rejects a clean-up given hours', () => {
+    expect(
+      TownOverviewSchema.safeParse(overview({ job: { ...cleanUpOut, hours: 2 } })).success,
+    ).toBe(false)
+  })
+
+  it('rejects a clean-up of a waste size the town does not know', () => {
+    expect(
+      TownOverviewSchema.safeParse(overview({ job: { ...cleanUpOut, size: 4 } })).success,
+    ).toBe(false)
   })
 
   it('rejects a job phase the town does not know', () => {

@@ -3,7 +3,9 @@ import {
   ApiErrorSchema,
   JobQuoteSchema,
   PlayerSchema,
+  RegionMapSchema,
   ReviewsSchema,
+  type SendCleanUp,
   type TownNewsFeed,
   TownNewsFeedSchema,
   type TownOverview,
@@ -827,6 +829,7 @@ describe('the town route', () => {
 
       expect(response.status).toBe(200)
       expect((await overviewOf(response)).job).toEqual({
+        kind: 'job',
         site: { region: 1, area: 1, site: 3 },
         team: { worker: 2, truck: 0 },
         hours: 2,
@@ -1085,6 +1088,117 @@ describe('the town route', () => {
 
       const overview = await overviewOf(await readTown(ana))
       expect([statuses, overview.job?.site.site]).toEqual([[200, 409], 3])
+    })
+  })
+
+  describe('the clean-ups', () => {
+    const keepWorkers = (count: number): Promise<void> =>
+      runSql(`UPDATE town_hires SET count = ${count} WHERE hire = 'worker'`)
+
+    const sendCleanUp = (cookie: string, body: unknown): Promise<Response> =>
+      Promise.resolve(app.request('/town/clean-ups', jsonRequest('POST', cookie, body)))
+
+    const sixWorkersTo = (area: number, site: number): SendCleanUp => ({
+      site: { area, site },
+      team: { worker: 6, truck: 0 },
+    })
+
+    it('sends a clean-up to a waste site', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+
+      const response = await sendCleanUp(ana, sixWorkersTo(1, 12))
+
+      expect(response.status).toBe(200)
+      expect((await overviewOf(response)).job).toEqual({
+        kind: 'cleanUp',
+        site: { region: 1, area: 1, site: 12 },
+        team: { worker: 6, truck: 0 },
+        size: 1,
+        waste: 6,
+        pay: { money: 12, food: 0, power: 0, material: 18 },
+        phase: 'outbound',
+        sentAt: '2026-11-05T08:00:00.000Z',
+        arrivesAt: '2026-11-05T08:11:00.000Z',
+        leavesAt: '2026-11-05T08:11:00.000Z',
+        returnsAt: '2026-11-05T08:22:00.000Z',
+        calledBackAt: null,
+      })
+    })
+
+    it('reads the site’s waste as 0 on the map once the team arrives', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+      await sendCleanUp(ana, sixWorkersTo(1, 12))
+      clock.advanceMinutes(11)
+
+      const map = RegionMapSchema.parse(
+        await (await app.request('/town/map', { headers: { cookie: ana } })).json(),
+      )
+
+      expect(map.sites.find(({ site }) => site === 12)?.waste).toEqual({ size: 1, waste: 0 })
+    })
+
+    it('refuses a clean-up to a site with no waste', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+
+      const response = await sendCleanUp(ana, sixWorkersTo(1, 3))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'NotAWasteSite' })
+    })
+
+    it('refuses a clean-up to a site whose waste has not grown back yet', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+      await sendCleanUp(ana, sixWorkersTo(1, 12))
+      clock.advanceMinutes(30)
+
+      const response = await sendCleanUp(ana, sixWorkersTo(1, 12))
+
+      expect(response.status).toBe(409)
+      expect(await refusalOf(response)).toEqual({ kind: 'NoWasteYet' })
+    })
+
+    it('answers a clean-up given hours with an empty 400', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(6)
+
+      const response = await sendCleanUp(ana, { ...sixWorkersTo(1, 12), hours: 2 })
+
+      expect([response.status, await response.text()]).toEqual([400, ''])
+    })
+
+    it('serializes two concurrent sends', async () => {
+      const ana = await signUpWithTown('ana@example.com')
+      await keepWorkers(12)
+      const firstHasRead = signal()
+      const secondHasRead = signal()
+      const secondIsBlockedOrHasRead = untilPlayerBlockedOrRead(secondHasRead.promise)
+      const racingApp = createApp({
+        ...server,
+        clock,
+        inTransaction: pausingFirstTransaction(server.inTransaction, async () => {
+          firstHasRead.resolve()
+          await secondIsBlockedOrHasRead
+        }),
+      })
+      const send = (site: number): Promise<Response> =>
+        Promise.resolve(
+          racingApp.request('/town/clean-ups', jsonRequest('POST', ana, sixWorkersTo(1, site))),
+        )
+
+      const first = send(12)
+      await firstHasRead.promise
+      const second = send(9).then((response) => {
+        secondHasRead.resolve()
+        return response
+      })
+      const statuses = (await Promise.all([first, second])).map(({ status }) => status)
+
+      const overview = await overviewOf(await readTown(ana))
+      expect([statuses, overview.job?.site.site]).toEqual([[200, 409], 12])
     })
   })
 

@@ -1,9 +1,10 @@
 import type { RegionMap } from '@mygame/contracts'
 import type { RegionMap as DomainRegionMap, RegionSite } from '@mygame/domain'
 
-const regionSiteOf = ({ site, town }: RegionSite): RegionMap['sites'][number] => ({
+const regionSiteOf = ({ site, town, waste }: RegionSite): RegionMap['sites'][number] => ({
   site,
   town: town === undefined ? null : { name: town.name, isOwn: town.isOwn },
+  waste: waste === undefined ? null : { size: waste.size, waste: waste.waste },
 })
 
 export const regionMapOf = (map: DomainRegionMap): RegionMap => ({

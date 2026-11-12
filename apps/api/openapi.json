@@ -110,6 +110,8 @@
             "SiteHeld": "#/components/schemas/BareApiError",
             "JobNotFound": "#/components/schemas/BareApiError",
             "JobAlreadyReturning": "#/components/schemas/BareApiError",
+            "NotAWasteSite": "#/components/schemas/BareApiError",
+            "NoWasteYet": "#/components/schemas/BareApiError",
             "WaitingListFull": "#/components/schemas/WaitingListFullError",
             "NotEnoughPeople": "#/components/schemas/NotEnoughPeopleError",
             "NotEnoughResources": "#/components/schemas/NotEnoughResourcesError",
@@ -156,7 +158,9 @@
               "JobToOwnSite",
               "SiteHeld",
               "JobNotFound",
-              "JobAlreadyReturning"
+              "JobAlreadyReturning",
+              "NotAWasteSite",
+              "NoWasteYet"
             ]
           }
         },
@@ -1505,9 +1509,25 @@
                   },
                   "required": ["name", "isOwn"],
                   "additionalProperties": false
+                },
+                "waste": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "size": {
+                      "type": "integer",
+                      "enum": [1, 2, 3]
+                    },
+                    "waste": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["size", "waste"],
+                  "additionalProperties": false
                 }
               },
-              "required": ["site", "town"],
+              "required": ["site", "town", "waste"],
               "additionalProperties": false
             }
           }
@@ -2242,113 +2262,14 @@
             "additionalProperties": false
           },
           "job": {
-            "type": "object",
-            "nullable": true,
-            "properties": {
-              "site": {
-                "type": "object",
-                "properties": {
-                  "region": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "area": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  },
-                  "site": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "exclusiveMinimum": true
-                  }
-                },
-                "required": ["region", "area", "site"],
-                "additionalProperties": false
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TownJob"
               },
-              "team": {
-                "type": "object",
-                "properties": {
-                  "worker": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "truck": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["worker", "truck"],
-                "additionalProperties": false
-              },
-              "hours": {
-                "type": "integer",
-                "minimum": 0,
-                "exclusiveMinimum": true
-              },
-              "pay": {
-                "type": "object",
-                "properties": {
-                  "money": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "food": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "power": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "material": {
-                    "type": "integer",
-                    "minimum": 0
-                  }
-                },
-                "required": ["money", "food", "power", "material"],
-                "additionalProperties": false
-              },
-              "phase": {
-                "type": "string",
-                "enum": ["outbound", "working", "returning"]
-              },
-              "sentAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "arrivesAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "leavesAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "returnsAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "calledBackAt": {
-                "type": "string",
-                "nullable": true,
-                "format": "date-time"
+              {
+                "nullable": true
               }
-            },
-            "required": [
-              "site",
-              "team",
-              "hours",
-              "pay",
-              "phase",
-              "sentAt",
-              "arrivesAt",
-              "leavesAt",
-              "returnsAt",
-              "calledBackAt"
-            ],
-            "additionalProperties": false
+            ]
           },
           "lessons": {
             "type": "array",
@@ -2605,6 +2526,246 @@
         "required": ["building", "level", "cost", "startsAt", "finishesAt"],
         "additionalProperties": false
       },
+      "TownJob": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Job"
+          },
+          {
+            "$ref": "#/components/schemas/CleanUpJob"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "job": "#/components/schemas/Job",
+            "cleanUp": "#/components/schemas/CleanUpJob"
+          }
+        }
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["job"]
+          },
+          "site": {
+            "type": "object",
+            "properties": {
+              "region": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "area": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "site": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["region", "area", "site"],
+            "additionalProperties": false
+          },
+          "team": {
+            "$ref": "#/components/schemas/Team"
+          },
+          "pay": {
+            "type": "object",
+            "properties": {
+              "money": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "power": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "material": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["money", "food", "power", "material"],
+            "additionalProperties": false
+          },
+          "phase": {
+            "$ref": "#/components/schemas/JobPhase"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "arrivesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leavesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "calledBackAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "hours": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": [
+          "kind",
+          "site",
+          "team",
+          "pay",
+          "phase",
+          "sentAt",
+          "arrivesAt",
+          "leavesAt",
+          "returnsAt",
+          "calledBackAt",
+          "hours"
+        ],
+        "additionalProperties": false
+      },
+      "Team": {
+        "type": "object",
+        "properties": {
+          "worker": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "truck": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": ["worker", "truck"],
+        "additionalProperties": false
+      },
+      "JobPhase": {
+        "type": "string",
+        "enum": ["outbound", "working", "returning"]
+      },
+      "CleanUpJob": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["cleanUp"]
+          },
+          "site": {
+            "type": "object",
+            "properties": {
+              "region": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "area": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "site": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["region", "area", "site"],
+            "additionalProperties": false
+          },
+          "team": {
+            "$ref": "#/components/schemas/Team"
+          },
+          "pay": {
+            "type": "object",
+            "properties": {
+              "money": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "food": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "power": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "material": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["money", "food", "power", "material"],
+            "additionalProperties": false
+          },
+          "phase": {
+            "$ref": "#/components/schemas/JobPhase"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "arrivesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leavesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returnsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "calledBackAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "size": {
+            "type": "integer",
+            "enum": [1, 2, 3]
+          },
+          "waste": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "kind",
+          "site",
+          "team",
+          "pay",
+          "phase",
+          "sentAt",
+          "arrivesAt",
+          "leavesAt",
+          "returnsAt",
+          "calledBackAt",
+          "size",
+          "waste"
+        ],
+        "additionalProperties": false
+      },
       "NextStep": {
         "oneOf": [
           {
@@ -2768,19 +2929,7 @@
             "additionalProperties": false
           },
           "team": {
-            "type": "object",
-            "properties": {
-              "worker": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "truck": {
-                "type": "integer",
-                "minimum": 0
-              }
-            },
-            "required": ["worker", "truck"],
-            "additionalProperties": false
+            "$ref": "#/components/schemas/Team"
           },
           "hours": {
             "type": "integer",
@@ -2819,6 +2968,33 @@
           }
         },
         "required": ["pay"],
+        "additionalProperties": false
+      },
+      "SendCleanUp": {
+        "type": "object",
+        "properties": {
+          "site": {
+            "type": "object",
+            "properties": {
+              "area": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              },
+              "site": {
+                "type": "integer",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            },
+            "required": ["area", "site"],
+            "additionalProperties": false
+          },
+          "team": {
+            "$ref": "#/components/schemas/Team"
+          }
+        },
+        "required": ["site", "team"],
         "additionalProperties": false
       },
       "StartLessonRequest": {
@@ -3902,6 +4078,70 @@
           },
           "409": {
             "description": "TeamAlreadyOut, JobToOwnSite, SiteHeld or NotEnoughHiresAtHome.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/town/clean-ups": {
+      "post": {
+        "security": [
+          {
+            "sessionBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCleanUp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The town with the team out on the clean-up, its pay fixed at dispatch: none when its strength falls short of the waste.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TownOverview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "InvalidTeam or JobSiteOutOfBounds; any other malformed body answers an empty body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No live session: neither a session cookie nor, without one, an Authorization bearer token names one. Empty body."
+          },
+          "404": {
+            "description": "TownNotFound: the player holds no town yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TeamAlreadyOut, JobToOwnSite, SiteHeld, NotAWasteSite, NoWasteYet or NotEnoughHiresAtHome.",
             "content": {
               "application/json": {
                 "schema": {

@@ -156,7 +156,7 @@ describe('ApiErrorSchema', () => {
     expect(bare.map((error) => ApiErrorSchema.parse(error))).toEqual(bare)
   })
 
-  it('parses the map and job refusals without fields as the kind alone', () => {
+  it('parses the map, job and clean-up refusals without fields as the kind alone', () => {
     const bare = [
       'AreaNotFound',
       'InvalidTeam',
@@ -166,6 +166,8 @@ describe('ApiErrorSchema', () => {
       'SiteHeld',
       'JobNotFound',
       'JobAlreadyReturning',
+      'NotAWasteSite',
+      'NoWasteYet',
     ].map((kind) => ({ kind }))
 
     expect(bare.map((error) => ApiErrorSchema.parse(error))).toEqual(bare)

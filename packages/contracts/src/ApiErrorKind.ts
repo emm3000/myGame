@@ -39,6 +39,8 @@ export const ApiErrorKindSchema = z.enum([
   'NotEnoughHiresAtHome',
   'JobNotFound',
   'JobAlreadyReturning',
+  'NotAWasteSite',
+  'NoWasteYet',
 ])
 
 export type ApiErrorKind = z.infer<typeof ApiErrorKindSchema>

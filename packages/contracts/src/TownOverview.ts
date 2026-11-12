@@ -9,8 +9,8 @@ import { ResourceAmountsSchema } from './ResourceAmounts'
 import { ResourceKindSchema } from './ResourceKind'
 import { SeasonKindSchema } from './SeasonKind'
 import { SiteAddressSchema } from './SiteAddress'
-import { TeamSchema } from './Team'
 import { TerrainSchema } from './Terrain'
+import { TownJobSchema } from './TownJob'
 import {
   BuildingLevelSchema,
   DurationSecondsSchema,
@@ -76,19 +76,6 @@ const HireTermsStateSchema = z.strictObject({
   requiredOfficeLevel: WholeCountSchema.positive(),
 })
 
-const JobStateSchema = z.strictObject({
-  site: SiteAddressSchema,
-  team: TeamSchema,
-  hours: WholeCountSchema.positive(),
-  pay: ResourceAmountsSchema,
-  phase: z.enum(['outbound', 'working', 'returning']),
-  sentAt: InstantSchema,
-  arrivesAt: InstantSchema,
-  leavesAt: InstantSchema,
-  returnsAt: InstantSchema,
-  calledBackAt: InstantSchema.nullable(),
-})
-
 export const TownOverviewSchema = z
   .strictObject({
     name: z.string().min(1),
@@ -119,7 +106,7 @@ export const TownOverviewSchema = z
         .record(HireKindSchema, HireTermsStateSchema)
         .meta({ required: HireKindSchema.options }),
     }),
-    job: JobStateSchema.nullable(),
+    job: z.lazy(() => TownJobSchema).nullable(),
     lessons: z.array(LessonStateSchema),
     skills: z.array(EarnedSkillSchema),
     lessonSlot: LessonUnderStudySchema.nullable(),

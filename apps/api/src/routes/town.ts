@@ -4,6 +4,7 @@ import {
   FoundTownSchema,
   type JobQuote,
   PlaceHiringOrderSchema,
+  SendCleanUpSchema,
   SendJobSchema,
   StartBuildingWorkSchema,
   StartLessonRequestSchema,
@@ -26,6 +27,7 @@ import {
   type RandomSource,
   type RegionMapReader,
   type Result,
+  sendCleanUp,
   sendJob,
   startBuildingWork,
   startSchoolLesson,
@@ -284,6 +286,37 @@ export const townRoutes = (dependencies: TownDependencies): OpenAPIHono => {
       }
       const body: JobQuote = { pay: pay.value }
       return c.json(body)
+    },
+  )
+  routes.on(
+    townDeclarations.sendCleanUp.method,
+    honoPathOf(townDeclarations.sendCleanUp),
+    signedInPlayer,
+    async (c) => {
+      const request = SendCleanUpSchema.safeParse(await bodyOf(c))
+      if (!request.success) {
+        return answerRefusal(c, { kind: 'MalformedRequest' })
+      }
+      const playerId = c.var.playerId
+      const sent = await mutateTown(
+        playerId,
+        async (stores, clock) => {
+          const town = await sendCleanUp(
+            { playerId, ...request.data },
+            {
+              towns: stores.towns,
+              map: stores.regionMap,
+              cleanUps: stores.cleanUps,
+              news: stores.townNews,
+              catalog,
+              clock,
+            },
+          )
+          return town.ok ? townReadingOf(town.value, clock.now(), stores) : town
+        },
+        dependencies,
+      )
+      return answerReading(c, sent)
     },
   )
   routes.on(

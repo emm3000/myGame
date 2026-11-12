@@ -43,6 +43,7 @@ const townWithJob = (phase: keyof typeof jobInstantOfPhase, nextSeconds: number)
     {
       ...knownTown,
       job: {
+        kind: 'job',
         site: { region: 1, area: 1, site: 2 },
         team: { worker: 2, truck: 0 },
         hours: 1,

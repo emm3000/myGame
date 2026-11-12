@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import { TerrainSchema } from './Terrain'
+import { WasteSizeSchema } from './WasteSize'
 import { WholeCountSchema } from './Wire'
 
 const RegionSiteSchema = z.strictObject({
   site: WholeCountSchema.positive(),
   town: z.strictObject({ name: z.string().min(1), isOwn: z.boolean() }).nullable(),
+  waste: z.strictObject({ size: WasteSizeSchema, waste: WholeCountSchema }).nullable(),
 })
 
 export const RegionMapSchema = z

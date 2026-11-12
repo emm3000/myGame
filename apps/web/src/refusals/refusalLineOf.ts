@@ -20,9 +20,11 @@ import {
   refusalLessonUnderStudy,
   refusalMailNotSent,
   refusalMalformedEmail,
+  refusalNotAWasteSite,
   refusalNotEnoughHiresAtHome,
   refusalNotEnoughPeople,
   refusalNotEnoughResources,
+  refusalNoWasteYet,
   refusalOfficeTooLow,
   refusalPlayerAlreadyHoldsTown,
   refusalReviewNotDue,
@@ -74,6 +76,8 @@ const slotFreeLines: Readonly<Record<SlotFreeRefusal, () => string>> = {
   SiteHeld: refusalSiteHeld,
   JobNotFound: refusalJobNotFound,
   JobAlreadyReturning: refusalJobAlreadyReturning,
+  NotAWasteSite: refusalNotAWasteSite,
+  NoWasteYet: refusalNoWasteYet,
   Unexpected: refusalUnexpected,
 }
 

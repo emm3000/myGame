@@ -94,9 +94,9 @@ describe('the region map route', () => {
       2,
       'fields',
       [
-        { site: 1, town: { name: 'Maple Falls', isOwn: true } },
-        { site: 2, town: { name: 'Cedar Point', isOwn: false } },
-        { site: 3, town: null },
+        { site: 1, town: { name: 'Maple Falls', isOwn: true }, waste: null },
+        { site: 2, town: { name: 'Cedar Point', isOwn: false }, waste: null },
+        { site: 3, town: null, waste: null },
       ],
     ])
   })
@@ -120,6 +120,20 @@ describe('the region map route', () => {
       2,
       'river',
       true,
+    ])
+  })
+
+  it('shows a waste site’s waste at the read', async () => {
+    const ana = await signUpWithTown('ana@example.com', 'Maple Falls')
+    await runSql(
+      "INSERT INTO site_clean_ups (town_id, sent_at, region, area, site, cleaned_at) SELECT id, '2026-11-05T04:00:00Z', 1, 1, 12, '2026-11-05T05:00:00Z' FROM towns",
+    )
+
+    const map = await mapOf(await readMap(ana))
+
+    expect(map.sites.filter(({ waste }) => waste !== null)).toEqual([
+      { site: 9, town: null, waste: { size: 3, waste: 40 } },
+      { site: 12, town: null, waste: { size: 1, waste: 3 } },
     ])
   })
 
