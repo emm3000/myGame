@@ -7,7 +7,7 @@ import { refusalLineOf } from '../refusals/refusalLineOf'
 import type { LiveTown } from '../town/liveTown'
 import { firstJobEntries, type JobEntries, jobFormOf } from './jobFormOf'
 import { jobPayLineOf } from './jobPayLineOf'
-import type { TownJob } from './useJob'
+import { sentJobKeyOf, type TownJob } from './useJob'
 import { useJobQuote } from './useJobQuote'
 
 export interface JobFormProps {
@@ -21,9 +21,10 @@ export interface JobFormProps {
 export function JobForm({ id, target, town, job, onSent }: JobFormProps): ReactElement {
   const [entries, setEntries] = useState<JobEntries>(firstJobEntries)
   const form = jobFormOf(target, entries, town)
+  const sentKey = form.job === undefined ? undefined : sentJobKeyOf(form.job)
   const quoted = useJobQuote(job.quote, form.job, town.overview.season)
   const payLine = jobPayLineOf(quoted?.ok === true ? quoted.value : undefined)
-  const refused = job.sendRefused?.subject === target.site ? job.sendRefused : undefined
+  const refused = job.sendRefused?.subject === sentKey ? job.sendRefused : undefined
   const enter = (field: keyof JobEntries, entry: string): void =>
     setEntries((held) => ({ ...held, [field]: entry }))
   const onSend = (): void => {

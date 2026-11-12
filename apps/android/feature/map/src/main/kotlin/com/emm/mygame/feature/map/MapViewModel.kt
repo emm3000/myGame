@@ -80,8 +80,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
             is MapIntent.AreaTapped -> readArea(intent.area)
             MapIntent.OwnAreaTapped -> readArea(null)
             is MapIntent.SendTeamTapped -> drawChoices(choices.choosing(intent.site))
-            is MapIntent.JobEntryChanged ->
-                drawChoices(choices.copy(entries = choices.entries.with(intent.field, intent.entry)))
+            is MapIntent.JobEntryChanged -> drawChoices(choices.entering(intent.field, intent.entry))
             MapIntent.SendTapped -> send()
             MapIntent.CallBackTapped -> callBack()
         }
@@ -90,6 +89,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     private fun show() {
         if (isShown) return
         isShown = true
+        quoteAsked = null
         val last: TownSnapshot = shown ?: return
         projection = viewModelScope.launch { project(last, firstReadAt = serverNow()) }
     }
@@ -97,6 +97,7 @@ class MapViewModel(private val towns: TownRepository, private val clock: Clock) 
     private fun hide() {
         isShown = false
         projection?.cancel()
+        quoteRead?.cancel()
     }
 
     private fun retry() {

@@ -53,6 +53,9 @@ class MapViewModelTest {
 
     private fun quoteOf(viewModel: MapViewModel): MapUiState.PayQuote? = contentOf(viewModel).form?.quote
 
+    private fun askedCountOf(request: FakeRegionRepository.JobRequest): Int =
+        towns.regions.quotes.count { asked: FakeRegionRepository.JobRequest -> asked == request }
+
     private fun jobFor(hours: Int): FakeRegionRepository.JobRequest = FakeRegionRepository.JobRequest(
         target = JobTarget(area = 1, site = 1),
         team = mapOf(TownHireKind.Worker to 2, TownHireKind.Truck to 1),
@@ -468,9 +471,73 @@ class MapViewModelTest {
         towns.regions.answerQuote(jobFor(hours = 3), quotedPay(money = 90L))
         runCurrent()
 
-        val asked: FakeRegionRepository.JobRequest = jobFor(hours = 3)
-        assertEquals(2, towns.regions.quotes.count { request: FakeRegionRepository.JobRequest -> request == asked })
+        assertEquals(2, askedCountOf(jobFor(hours = 3)))
         assertEquals(drawnPay(money = 90L), quoteOf(viewModel))
+    }
+
+    @Test
+    fun `drops the refusal of a send once the player changes an entry`() = runTest {
+        val refusal: TownJobRefusal = TownJobRefusal.NotEnoughHiresAtHome(TownHireKind.Worker, count = 5, atHome = 3)
+        val viewModel: MapViewModel = formFilled(town = townOf(workers = 3), workers = "5")
+        towns.regions.answerJob(TownJobResult.Refused(refusal))
+        viewModel.onIntent(MapIntent.SendTapped)
+        runCurrent()
+
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Workers, "4"))
+
+        assertEquals(MapUiState.SendRequest.Idle, contentOf(viewModel).send)
+    }
+
+    @Test
+    fun `stops asking the quote again once the player changes an entry`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+
+        viewModel.onIntent(MapIntent.JobEntryChanged(MapIntent.JobField.Hours, "4"))
+        advanceTimeBy(10.seconds)
+        runCurrent()
+
+        assertEquals(1, askedCountOf(jobFor(hours = 3)))
+    }
+
+    @Test
+    fun `stops asking the quote again once the form closes`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+
+        viewModel.onIntent(MapIntent.SendTeamTapped(site = 1))
+        advanceTimeBy(10.seconds)
+        runCurrent()
+
+        assertEquals(1, askedCountOf(jobFor(hours = 3)))
+    }
+
+    @Test
+    fun `stops asking the quote again while the screen is hidden`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+
+        viewModel.onIntent(MapIntent.ScreenHidden)
+        advanceTimeBy(10.seconds)
+        runCurrent()
+
+        assertEquals(1, askedCountOf(jobFor(hours = 3)))
+    }
+
+    @Test
+    fun `asks the quote again when the screen shows`() = runTest {
+        val viewModel: MapViewModel = formFilled(hours = "3")
+        towns.regions.answerQuote(jobFor(hours = 3), JobQuoteResult.Unreachable)
+        runCurrent()
+        viewModel.onIntent(MapIntent.ScreenHidden)
+
+        viewModel.onIntent(MapIntent.ScreenShown)
+        runCurrent()
+
+        assertEquals(2, askedCountOf(jobFor(hours = 3)))
     }
 
     @Test
