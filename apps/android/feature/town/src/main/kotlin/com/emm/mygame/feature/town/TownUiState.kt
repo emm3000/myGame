@@ -59,11 +59,14 @@ sealed interface TownUiState {
         val capacity: Long,
         val ratePerHour: Long,
         val skillLevel: Int,
+        val fill: FillTime?,
     ) {
 
         val isFull: Boolean
             get() = amount >= capacity
     }
+
+    data class FillTime(val remaining: Duration, val fullAt: Instant)
 
     data class NextStepTime(val remaining: Duration, val finishesAt: Instant)
 

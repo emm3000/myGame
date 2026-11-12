@@ -13,18 +13,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameCard
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.network.TownResourceKind
 import com.emm.mygame.core.ui.icuStringResource
+import java.time.LocalDateTime
+import java.time.ZoneId
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 
 private const val STOCKS_PER_ROW: Int = 2
 
@@ -92,7 +101,8 @@ private fun StockItem(stock: TownUiState.StockLine, modifier: Modifier = Modifie
                 color = MyGameTheme.colors.inkMuted,
             )
             MyGameText(
-                text = icuStringResource(R.string.town_rate, "rate" to formatQuantity(stock.ratePerHour)),
+                text = stock.fill?.let { fill: TownUiState.FillTime -> fillLabelOf(fill) }
+                    ?: icuStringResource(R.string.town_rate, "rate" to formatQuantity(stock.ratePerHour)),
                 style = MyGameTypography.caption.withTabularFigures(),
                 color = MyGameTheme.colors.inkMuted,
             )
@@ -178,4 +188,36 @@ private fun seasonTimeLeftOf(season: TownUiState.SeasonLine): String {
     val days: Long = season.remaining.inWholeDays
     if (days < 1) return timeLeftLabelOf(season.remaining)
     return icuStringResource(R.string.town_season_days, "days" to days.toInt())
+}
+
+private fun previewLocalInstantOf(local: LocalDateTime): Instant =
+    Instant.fromEpochMilliseconds(local.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+
+private fun previewStockOf(kind: TownResourceKind, amount: Long, fill: TownUiState.FillTime?): TownUiState.StockLine =
+    TownUiState.StockLine(kind, amount, capacity = 900, ratePerHour = 30, skillLevel = 0, fill = fill)
+
+private class StockItemStates : PreviewParameterProvider<TownUiState.StockLine> {
+
+    override val values: Sequence<TownUiState.StockLine> = sequenceOf(
+        previewStockOf(
+            TownResourceKind.Money,
+            amount = 810,
+            fill = TownUiState.FillTime(3.hours, previewLocalInstantOf(LocalDateTime.of(2026, 11, 12, 19, 0))),
+        ),
+        previewStockOf(
+            TownResourceKind.Food,
+            amount = 750,
+            fill = TownUiState.FillTime(5.hours, previewLocalInstantOf(LocalDateTime.of(2026, 11, 13, 3, 0))),
+        ),
+        previewStockOf(TownResourceKind.Power, amount = 120, fill = null),
+        previewStockOf(TownResourceKind.Material, amount = 900, fill = null),
+    )
+}
+
+@PreviewMyGame
+@Composable
+private fun StockItemPreview(@PreviewParameter(StockItemStates::class) stock: TownUiState.StockLine) {
+    MyGamePreviewSurface {
+        StockItem(stock = stock)
+    }
 }

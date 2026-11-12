@@ -66,7 +66,14 @@ class TownLookTest {
         name = "Riverton",
         label = TownLabel.Town,
         stocks = listOf(
-            TownUiState.StockLine(TownResourceKind.Money, 120, capacity = 900, ratePerHour = 30, skillLevel = 0),
+            TownUiState.StockLine(
+                TownResourceKind.Money,
+                120,
+                capacity = 900,
+                ratePerHour = 30,
+                skillLevel = 0,
+                fill = null,
+            ),
         ),
         people = TownUiState.PeopleLine(free = 24, atWork = 96),
         season = null,
