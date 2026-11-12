@@ -14,6 +14,12 @@ describe('CryptoRandomSource', () => {
     expect([...sample].sort()).toEqual([...headwords].sort())
   })
 
+  it('refuses to sample more items than the list holds', () => {
+    expect(() => new CryptoRandomSource().sampleOf(headwords.slice(0, 2), 3)).toThrow(
+      new RangeError('Cannot sample 3 of 2 items'),
+    )
+  })
+
   it('samples nothing for a count of 0', () => {
     expect(new CryptoRandomSource().sampleOf(headwords, 0)).toEqual([])
   })

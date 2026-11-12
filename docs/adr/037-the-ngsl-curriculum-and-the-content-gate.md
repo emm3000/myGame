@@ -349,6 +349,10 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   taken or skipped: they enter as released lessons of 5, in rank order,
   through the lesson slot, earning no skill. The school tells the player
   that 1 word in 10 is kept for a later check and comes back after it.
+- **A lesson whose every word is held out is left out** (#804): it enters
+  no card, so it counts as unstudied, and its words are in neither check
+  nor the release; studied after the release, it enters them and earns
+  its skill once they are retained.
 - **This narrows ADR 035's holdout**, "a random 10 % of each band's
   words": the draw takes card words outside the chrome lessons only, at
   the band's start, and ends with the release.

@@ -1,11 +1,11 @@
+import type { HoldoutCheck } from '../holdout/HoldoutCheck'
 import type { BandStart } from '../learning/BandStart'
 import type { Lesson } from '../learning/Lesson'
 import { MemoryCard } from '../memory/MemoryCard'
-import type { OwnedCard } from '../testing/inMemoryCards'
-import { lessonOne } from '../testing/lessonOne'
-import { placementWordsOfBand } from '../testing/placementWords'
 import { Instant } from '../time/Instant'
-import type { HoldoutCheck } from './HoldoutCheck'
+import type { OwnedCard } from './inMemoryCards'
+import { lessonOne } from './lessonOne'
+import { placementWordsOfBand } from './placementWords'
 
 const MILLISECONDS_PER_WEEK = 7 * 24 * 3_600_000
 

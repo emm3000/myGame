@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from 'vitest'
+import { ana, bandOneStart, weeksAfterStart } from '../testing/holdoutFixtures'
 import { inMemoryBandStarts } from '../testing/inMemoryBandStarts'
 import type { Instant } from '../time/Instant'
-import { ana, bandOneStart, weeksAfterStart } from './holdoutFixtures'
 import { skipHoldoutCheck } from './skipHoldoutCheck'
 
 const skipAt = async (now: Instant) => {
