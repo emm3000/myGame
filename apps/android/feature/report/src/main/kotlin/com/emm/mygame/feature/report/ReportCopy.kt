@@ -52,17 +52,17 @@ internal fun Resources.newsLineOf(news: TownNews): String = when (news) {
     is TownNews.BecameCity -> getString(R.string.report_news_became_city)
 }
 
-internal fun Resources.payLineOf(news: TownNews): String? = when (news) {
-    is TownNews.JobBack -> payPhraseOf(news.pay)
-    is TownNews.JobCalledBack -> payPhraseOf(news.pay)
-    is TownNews.CleanUpDone -> payPhraseOf(news.reward)
+internal fun Resources.amountsLineOf(news: TownNews): String? = when (news) {
+    is TownNews.JobBack -> amountsPhraseOf(R.string.report_news_pay, news.pay)
+    is TownNews.JobCalledBack -> amountsPhraseOf(R.string.report_news_pay, news.pay)
+    is TownNews.CleanUpDone -> amountsPhraseOf(R.string.report_news_pay, news.reward)
+    is TownNews.BuildingWorkStopped -> amountsPhraseOf(R.string.report_news_refund, news.refund)
+    is TownNews.HiringStopped -> amountsPhraseOf(R.string.report_news_refund, news.refund)
     is TownNews.BuildingWorkFinished,
-    is TownNews.BuildingWorkStopped,
     is TownNews.LessonStudied,
     is TownNews.LessonStopped,
     is TownNews.SkillEarned,
     is TownNews.HiringDelivered,
-    is TownNews.HiringStopped,
     is TownNews.CleanUpFailed,
     is TownNews.BecameCity,
     -> null
@@ -109,7 +109,7 @@ private fun Resources.siteLineOf(@StringRes line: Int, site: TownSite): String =
     "site" to site.site.toString(),
 )
 
-private fun Resources.payPhraseOf(amounts: List<TownAmount>): String? {
+private fun Resources.amountsPhraseOf(@StringRes line: Int, amounts: List<TownAmount>): String? {
     if (amounts.isEmpty()) return null
     val quantities: List<String> = amounts.map { held: TownAmount ->
         getIcuString(
@@ -118,7 +118,7 @@ private fun Resources.payPhraseOf(amounts: List<TownAmount>): String? {
             "resource" to getString(resourceNameOf(held.resource)),
         )
     }
-    return getIcuString(R.string.report_news_pay, "amounts" to spanishListFormat.format(quantities))
+    return getIcuString(line, "amounts" to spanishListFormat.format(quantities))
 }
 
 @StringRes

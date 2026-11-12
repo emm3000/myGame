@@ -16,6 +16,7 @@ sealed interface TownNews {
         override val occurredAt: Instant,
         val building: TownBuildingKind,
         val level: Int,
+        val refund: List<TownAmount>,
     ) : TownNews
 
     data class LessonStudied(override val occurredAt: Instant) : TownNews
@@ -39,6 +40,7 @@ sealed interface TownNews {
         val hire: TownHireKind,
         val delivered: Int,
         val stopped: Int,
+        val refund: List<TownAmount>,
     ) : TownNews
 
     data class JobBack(

@@ -27,6 +27,9 @@ class ReportRepositoryTest {
 
     private val firstSite: TownSite = TownSite(region = 1, area = 2, site = 3)
 
+    private val refund: List<TownAmount> =
+        listOf(TownAmount(TownResourceKind.Money, 120), TownAmount(TownResourceKind.Material, 40))
+
     @Before
     fun startApi() {
         api.start()
@@ -88,11 +91,11 @@ class ReportRepositoryTest {
     }
 
     @Test
-    fun `reads a building work stopped`() = runTest {
+    fun `reads a building work stopped with its refund`() = runTest {
         api.enqueue(json(200, reportOf(news = stoppedWork())))
 
         assertEquals(
-            listOf(TownNews.BuildingWorkStopped(occurredAt, TownBuildingKind.Farm, level = 2)),
+            listOf(TownNews.BuildingWorkStopped(occurredAt, TownBuildingKind.Farm, level = 2, refund)),
             read().news,
         )
     }
@@ -129,11 +132,11 @@ class ReportRepositoryTest {
     }
 
     @Test
-    fun `reads a hiring stopped`() = runTest {
+    fun `reads a hiring stopped with its refund`() = runTest {
         api.enqueue(json(200, reportOf(news = hiringStopped("truck"))))
 
         assertEquals(
-            listOf(TownNews.HiringStopped(occurredAt, TownHireKind.Truck, delivered = 1, stopped = 4)),
+            listOf(TownNews.HiringStopped(occurredAt, TownHireKind.Truck, delivered = 1, stopped = 4, refund)),
             read().news,
         )
     }
@@ -397,7 +400,7 @@ class ReportRepositoryTest {
         """{"kind":"$kind","params":{"building":"$building","level":2},"occurredAt":"$OCCURRED_AT"}"""
 
     private fun stoppedWork(building: String = "farm"): String =
-        """{"kind":"buildingWorkStopped","params":{"building":"$building","level":2,"refund":$NO_AMOUNTS},""" +
+        """{"kind":"buildingWorkStopped","params":{"building":"$building","level":2,"refund":$REFUND},""" +
             """"occurredAt":"$OCCURRED_AT"}"""
 
     private fun lesson(kind: String): String =
@@ -411,7 +414,7 @@ class ReportRepositoryTest {
         """{"kind":"hiringDelivered","params":{"hire":"$hire","count":4},"occurredAt":"$OCCURRED_AT"}"""
 
     private fun hiringStopped(hire: String): String =
-        """{"kind":"hiringStopped","params":{"hire":"$hire","delivered":1,"stopped":4,"refund":$NO_AMOUNTS},""" +
+        """{"kind":"hiringStopped","params":{"hire":"$hire","delivered":1,"stopped":4,"refund":$REFUND},""" +
             """"occurredAt":"$OCCURRED_AT"}"""
 
     private fun job(kind: String): String =
@@ -431,6 +434,6 @@ class ReportRepositoryTest {
     private companion object {
         const val OCCURRED_AT: String = "2026-11-05T09:10:00.000Z"
         const val SITE: String = """{"region":1,"area":2,"site":3}"""
-        const val NO_AMOUNTS: String = """{"money":0,"food":0,"power":0,"material":0}"""
+        const val REFUND: String = """{"money":120,"food":0,"power":0,"material":40}"""
     }
 }
