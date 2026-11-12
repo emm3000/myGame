@@ -20,7 +20,7 @@ const hoursAfterEpoch = (hours: number): Instant =>
 
 const unscaled = { money: 100, food: 100, power: 100, material: 100 }
 
-const foodOnlyInSpring = { ...unscaled, food: 0 }
+const noFood = { ...unscaled, food: 0 }
 
 const springFoodSettings: TownSettings = {
   ...plainTownSettings,
@@ -28,9 +28,22 @@ const springFoodSettings: TownSettings = {
     ...plainTownSettings.seasons,
     productionPercent: {
       spring: unscaled,
-      summer: foodOnlyInSpring,
-      fall: foodOnlyInSpring,
-      winter: foodOnlyInSpring,
+      summer: noFood,
+      fall: noFood,
+      winter: noFood,
+    },
+  },
+}
+
+const noFoodSettings: TownSettings = {
+  ...plainTownSettings,
+  seasons: {
+    ...plainTownSettings.seasons,
+    productionPercent: {
+      spring: noFood,
+      summer: noFood,
+      fall: noFood,
+      winter: noFood,
     },
   },
 }
@@ -40,9 +53,9 @@ const winterFoodSettings: TownSettings = {
   seasons: {
     ...plainTownSettings.seasons,
     productionPercent: {
-      spring: foodOnlyInSpring,
-      summer: foodOnlyInSpring,
-      fall: foodOnlyInSpring,
+      spring: noFood,
+      summer: noFood,
+      fall: noFood,
       winter: unscaled,
     },
   },
@@ -78,9 +91,10 @@ describe('deriveFullAt', () => {
       area: 2,
       stocks: { money: 0, food: 700, power: 0, material: 0 },
       storedAt: hoursAfterEpoch(1),
+      buildingLevels: { farm: 1 },
     })
 
-    const fullAt = deriveFullAt(idleFarmTown, townCatalogOf(springFoodSettings))
+    const fullAt = deriveFullAt(idleFarmTown, townCatalogOf(noFoodSettings))
 
     assert(fullAt.ok)
     expect(fullAt.value.food).toBeNull()

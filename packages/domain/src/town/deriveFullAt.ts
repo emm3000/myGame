@@ -1,23 +1,24 @@
 import type { DomainError } from '../DomainError'
 import { ok, type Result } from '../Result'
 import { SEASONS_PER_YEAR } from '../season/seasonAt'
-import type { Instant } from '../time/Instant'
 import { deriveStorageCapacity } from './deriveStorageCapacity'
+import type { FullSince } from './FullSince'
 import type { ResourceKind } from './ResourceKind'
 import { resourceKinds } from './resourceKinds'
-import { type Stores, storedStoresOf } from './storedStoresOf'
+import { fullSinceOf, type Stores } from './Stores'
+import { storedStoresOf } from './storedStoresOf'
 import { storesAfterSeasonSegment } from './storesAfterSeasonSegment'
 import type { Town } from './Town'
 import type { TownCatalog } from './TownCatalog'
 
-export type FullAt = Readonly<Record<ResourceKind, Instant | null>>
+export type FullAt = FullSince
 
 type UnchangedSegments = Readonly<Record<ResourceKind, number>>
 
 const SEGMENTS_PROVING_NO_FILL = SEASONS_PER_YEAR + 1
 
-const isFilling = (stores: Stores, unchanged: UnchangedSegments, resource: ResourceKind): boolean =>
-  stores[resource].fullSince === null && unchanged[resource] < SEGMENTS_PROVING_NO_FILL
+const isSettled = (unchanged: UnchangedSegments, resource: ResourceKind): boolean =>
+  unchanged[resource] >= SEGMENTS_PROVING_NO_FILL
 
 const unchangedAfter = (
   unchanged: UnchangedSegments,
@@ -34,13 +35,6 @@ const unchangedAfter = (
   }
 }
 
-const fullAtOf = (stores: Stores): FullAt => ({
-  money: stores.money.fullSince,
-  food: stores.food.fullSince,
-  power: stores.power.fullSince,
-  material: stores.material.fullSince,
-})
-
 export const deriveFullAt = (town: Town, catalog: TownCatalog): Result<FullAt, DomainError> => {
   const capacity = deriveStorageCapacity(town.buildingLevels.storage, catalog)
   if (!capacity.ok) {
@@ -49,7 +43,7 @@ export const deriveFullAt = (town: Town, catalog: TownCatalog): Result<FullAt, D
   let segmentStart = town.storedAt
   let stores = storedStoresOf(town, capacity.value)
   let unchanged: UnchangedSegments = { money: 0, food: 0, power: 0, material: 0 }
-  while (resourceKinds.some((resource) => isFilling(stores, unchanged, resource))) {
+  while (!resourceKinds.every((resource) => isSettled(unchanged, resource))) {
     const segment = storesAfterSeasonSegment(
       town,
       catalog,
@@ -65,5 +59,5 @@ export const deriveFullAt = (town: Town, catalog: TownCatalog): Result<FullAt, D
     stores = segment.value.stores
     segmentStart = segment.value.segmentEnd
   }
-  return ok(fullAtOf(stores))
+  return ok(fullSinceOf(stores))
 }

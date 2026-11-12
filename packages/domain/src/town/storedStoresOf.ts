@@ -1,8 +1,7 @@
 import type { ResourceKind } from './ResourceKind'
+import type { Stores } from './Stores'
 import type { Store } from './storeAfterSegment'
 import type { Town } from './Town'
-
-export type Stores = Readonly<Record<ResourceKind, Store>>
 
 export const storedStoresOf = (town: Town, capacity: number): Stores => {
   const storeOf = (resource: ResourceKind): Store => ({
