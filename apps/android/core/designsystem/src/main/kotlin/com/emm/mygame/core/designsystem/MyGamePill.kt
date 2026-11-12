@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
@@ -61,12 +62,12 @@ internal fun MyGamePill(
                 state = if (isBusy) busyDescription else blockedReason,
             )
             .clickable(enabled = !isBusy, role = Role.Button, onClick = onClick)
-            .padding(horizontal = look.sidePadding),
+            .padding(horizontal = look.sidePadding, vertical = MyGameSpacing.step2),
     ) {
         if (isBusy) MyGameIcon(icon = MyGameIcons.hourglass, tint = ink)
         MyGameText(
             text = label,
-            style = look.style,
+            style = look.style.copy(textAlign = TextAlign.Center),
             color = ink,
             modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
         )
@@ -126,5 +127,11 @@ internal class MyGamePillStates : PreviewParameterProvider<MyGamePillState> {
             blockedReason = "Not enough material",
         ),
         MyGamePillState(label = "Build the farm", isBusy = true, busyDescription = "Building", blockedReason = null),
+        MyGamePillState(
+            label = "Study lesson 1 of the school · 2:30",
+            isBusy = false,
+            busyDescription = "Studying",
+            blockedReason = null,
+        ),
     )
 }
