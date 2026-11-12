@@ -250,3 +250,127 @@ Each frame follows the frame rule as lesson 1's does: its lemma once, in its own
 - *field* and *hill* are glossed in the singular, *campo* and *colina*, as their frames use them; the terrain labels stay *Campos* and *Colinas*.
 - *mayor* is glossed *alcalde o alcaldesa*: the gloss is content, never the chrome, which never names the player with a gendered noun (ADR 040).
 - *job* is glossed *trabajo*, which is also the first gloss of the noun *work*; lesson 1 glosses *work* as the verb, *trabajar*, so no card asks for both. The owner decides it on the pull request.
+
+## Lessons 17 to 26
+
+The first band 1 batch (ADR 037, #742), drafted by Claude Sonnet 5.5. Each lesson holds the lowest-ranked untaught card word of band 1 and four more from the 30 lowest-ranked untaught ones, under one theme, never a semantic set. The skill of each follows from its position (ADR 039). Each frame follows the frame rule; the content gate checks order, frames and glosses. The owner reviews the table of each lesson.
+
+### Lesson 17
+
+**Theme:** *A talk with the mayor*, es *Una charla con el alcalde o la alcaldesa*. **Skill:** food, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| say | verb | 30 | What does the mayor say? | What does the mayor ____? | decir |
+| know | verb | 41 | Do you know this word? | Do you ____ this word? | saber |
+| good | adjective | 56 | The pay is good. | The pay is ____. | bueno |
+| time | noun | 49 | I have no time today. | I have no ____ today. | tiempo |
+| new | adjective | 79 | We have a new mayor. | We have a ____ mayor. | nuevo |
+
+### Lesson 18
+
+**Theme:** *My first day*, es *Mi primer día*. **Skill:** material, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| one | adjective | 35 | I have one job. | I have ____ job. | uno |
+| get | verb | 43 | You get food at the school. | You ____ food at the school. | recibir |
+| take | verb | 59 | Take the truck to the farm. | ____ the truck to the farm. | llevar |
+| first | adjective | 78 | This is my first job. | This is my ____ job. | primero |
+| thing | noun | 87 | What is this thing? | What is this ____? | cosa |
+
+### Lesson 19
+
+**Theme:** *A day with children*, es *Un día con niños*. **Skill:** power, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| there | adverb | 40 | The farm is over there. | The farm is over ____. | allí |
+| child | noun | 102 | Is your child at school? | Is your ____ at school? | niño o niña |
+| look | verb | 75 | Look at the map. | ____ at the map. | mirar |
+| use | verb | 68 | We use power at the factory. | We ____ power at the factory. | usar |
+| last | adjective | 101 | This is the last lesson. | This is the ____ lesson. | último |
+
+### Lesson 20
+
+**Theme:** *The town show*, es *La feria del pueblo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| like | verb | 45 | Do you like your job? | Do you ____ your job? | gustar |
+| very | adverb | 63 | The school is very full. | The school is ____ full. | muy |
+| make | verb | 48 | We make material at the factory. | We ____ material at the factory. | hacer |
+| man | noun | 112 | That man is the mayor. | That ____ is the mayor. | hombre |
+| show | verb | 110 | Show me the way. | ____ me the way. | mostrar |
+
+### Lesson 21
+
+**Theme:** *Life in a new place*, es *La vida en un lugar nuevo*. **Skill:** food, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| think | verb | 47 | I think this is the way. | I ____ this is the way. | pensar |
+| want | verb | 76 | I want to work at the office. | I ____ to work at the office. | querer |
+| life | noun | 111 | Life in the city is good. | ____ in the city is good. | vida |
+| place | noun | 114 | This is a good place for a farm. | This is a good ____ for a farm. | lugar |
+| only | adverb | 74 | We have only one job. | We have ____ one job. | solo |
+
+### Lesson 22
+
+**Theme:** *Fixing a problem*, es *Resolver un problema*. **Skill:** material, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| see | verb | 50 | Can you see the river? | Can you ____ the river? | ver |
+| find | verb | 81 | Can you find the office? | Can you ____ the office? | encontrar |
+| change | verb | 113 | Can you change this word? | Can you ____ this word? | cambiar |
+| problem | noun | 120 | We have a problem at the factory. | We have a ____ at the factory. | problema |
+| right | adjective | 92 | Is this the right way? | Is this the ____ way? | correcto |
+
+### Lesson 23
+
+**Theme:** *Write it well*, es *Escríbelo bien*. **Skill:** power, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| well | adverb | 61 | She works well. | She works ____. | bien |
+| tell | verb | 103 | Tell me about your job. | ____ me about your job. | contar |
+| mean | verb | 95 | What does this word mean? | What does this word ____? | significar |
+| write | verb | 121 | Write your name on the list. | ____ your name on the list. | escribir |
+| same | adjective | 122 | We have the same job. | We have the ____ job. | mismo |
+
+### Lesson 24
+
+**Theme:** *A lot of time*, es *Mucho tiempo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| just | adverb | 64 | I just got home from work. | I ____ got home from work. | acabar de |
+| how | adverb | 93 | How do you get to the farm? | ____ do you get to the farm? | cómo |
+| here | adverb | 98 | Is the mayor here today? | Is the mayor ____ today? | aquí |
+| long | adjective | 115 | The day is long. | The day is ____. | largo |
+| lot | noun | 123 | We have a lot of food. | We have a ____ of food. | montón |
+
+### Lesson 25
+
+**Theme:** *A company in town*, es *Una empresa en el pueblo*. **Skill:** food, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| then | adverb | 71 | Come to the office, then go home. | Come to the office, ____ go home. | luego |
+| company | noun | 107 | I work for a company in the city. | I work for a ____ in the city. | empresa |
+| give | verb | 77 | We give food to the people. | We ____ food to the people. | dar |
+| really | adverb | 104 | Do you really need more food? | Do you ____ need more food? | de verdad |
+| feel | verb | 117 | I feel good today. | I ____ good today. | sentir |
+
+### Lesson 26
+
+**Theme:** *Even more work*, es *Aún más trabajo*. **Skill:** material, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | Frame | Gapped form | es gloss |
+|---|---|---|---|---|---|
+| also | adverb | 72 | I also work at the farm. | I ____ work at the farm. | también |
+| even | adverb | 96 | Even the mayor works here. | ____ the mayor works here. | incluso |
+| before | adverb | 106 | Have you been here before? | Have you been here ____? | antes |
+| too | adverb | 118 | The school is too full. | The school is ____ full. | demasiado |
+| still | adverb | 119 | Is the school still full? | Is the school ____ full? | todavía |
